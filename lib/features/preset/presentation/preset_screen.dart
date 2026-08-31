@@ -190,7 +190,9 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
                                 ),
                               ),
                               PSwipeAction(
-                                label: AppLocalizations.of(context).actionDelete,
+                                label: AppLocalizations.of(
+                                  context,
+                                ).actionDelete,
                                 icon: LucideIcons.trash2,
                                 kind: PSwipeKind.destructive,
                                 // _confirmDelete 가 자체 확인을 띄운다 — 여기서
@@ -322,7 +324,10 @@ class _StatsRow extends StatelessWidget {
         ),
         const SizedBox(width: PSpace.x8),
         Expanded(
-          child: _StatCard(label: l.presetStatUses, value: l.presetUsesCount(totalUses)),
+          child: _StatCard(
+            label: l.presetStatUses,
+            value: l.presetUsesCount(totalUses),
+          ),
         ),
         const SizedBox(width: PSpace.x8),
         Expanded(

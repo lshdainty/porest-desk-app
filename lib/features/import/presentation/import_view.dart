@@ -16,17 +16,28 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/import/data/import_repository.dart';
 
-typedef _FieldMeta = ({String key, String Function(AppLocalizations) label, bool required});
+typedef _FieldMeta = ({
+  String key,
+  String Function(AppLocalizations) label,
+  bool required,
+});
 
-const List<String> _sources = ['POREST', 'EASYBUDGET', 'BANKSALAD', 'TOSS', 'CUSTOM'];
+const List<String> _sources = [
+  'POREST',
+  'EASYBUDGET',
+  'BANKSALAD',
+  'TOSS',
+  'CUSTOM',
+];
 
 String _sourceLabel(AppLocalizations l, String v) => switch (v) {
-      'POREST' => '${l.importSourcePorest} · ${l.importSourcePorestDesc}',
-      'EASYBUDGET' => '${l.importSourceEasybudget} · ${l.importSourceEasybudgetDesc}',
-      'BANKSALAD' => '${l.importSourceBanksalad} · ${l.importSourceBanksaladDesc}',
-      'TOSS' => '${l.importSourceToss} · ${l.importSourceTossDesc}',
-      _ => '${l.importSourceCustom} · ${l.importSourceCustomDesc}',
-    };
+  'POREST' => '${l.importSourcePorest} · ${l.importSourcePorestDesc}',
+  'EASYBUDGET' =>
+    '${l.importSourceEasybudget} · ${l.importSourceEasybudgetDesc}',
+  'BANKSALAD' => '${l.importSourceBanksalad} · ${l.importSourceBanksaladDesc}',
+  'TOSS' => '${l.importSourceToss} · ${l.importSourceTossDesc}',
+  _ => '${l.importSourceCustom} · ${l.importSourceCustomDesc}',
+};
 
 const List<_FieldMeta> _fields = [
   (key: 'DATE', label: _fDate, required: true),
@@ -78,7 +89,9 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   bool get _canExecute =>
       _mapping.containsKey('DATE') &&
-      (_mapping.containsKey('AMOUNT') || _mapping.containsKey('AMOUNT_OUT') || _mapping.containsKey('AMOUNT_IN'));
+      (_mapping.containsKey('AMOUNT') ||
+          _mapping.containsKey('AMOUNT_OUT') ||
+          _mapping.containsKey('AMOUNT_IN'));
 
   Future<void> _pickAndAnalyze() async {
     final picked = await FilePicker.platform.pickFiles(
@@ -101,8 +114,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
         _step = _Step.mapping;
       });
     } on ApiException {
-      if (mounted) {
-      }
+      if (mounted) {}
     } finally {
       if (mounted) setState(() => _analyzing = false);
     }
@@ -147,12 +159,18 @@ class _ImportViewState extends ConsumerState<ImportView> {
     final t = context.tokens;
     return ListView(
       // 세그↔스텝바 32(web gap-2xl 정합, 사용자 결정) — 하단은 24 유지.
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x32, PSpace.x24, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.x32,
+        PSpace.x24,
+        PSpace.x24,
+      ),
       children: [
         _stepper(t),
         const SizedBox(height: PSpace.x32),
         if (_step == _Step.upload) ..._uploadStep(t),
-        if (_step == _Step.mapping && _analysis != null) ..._mappingStep(t, _analysis!),
+        if (_step == _Step.mapping && _analysis != null)
+          ..._mappingStep(t, _analysis!),
         if (_step == _Step.done && _result != null) _doneStep(t, _result!),
         const SizedBox(height: PSpace.x32),
       ],
@@ -222,7 +240,9 @@ class _ImportViewState extends ConsumerState<ImportView> {
         child: PSelect<String>(
           value: _source,
           onChanged: (v) => setState(() => _source = v ?? 'POREST'),
-          items: _sources.map((s) => PSelectItem(value: s, label: _sourceLabel(l, s))).toList(),
+          items: _sources
+              .map((s) => PSelectItem(value: s, label: _sourceLabel(l, s)))
+              .toList(),
         ),
       ),
       const SizedBox(height: PSpace.x32),
@@ -235,34 +255,52 @@ class _ImportViewState extends ConsumerState<ImportView> {
           borderRadius: PRadius.brLg,
           child: Container(
             width: double.infinity, // 풀폭 드롭존(web 정합, 사용자 결정)
-            padding: const EdgeInsets.symmetric(vertical: PSpace.x24, horizontal: PSpace.x16),
+            padding: const EdgeInsets.symmetric(
+              vertical: PSpace.x24,
+              horizontal: PSpace.x16,
+            ),
             decoration: BoxDecoration(
               color: t.bgMuted,
               borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderDefault, style: BorderStyle.solid),
+              border: Border.all(
+                color: t.borderDefault,
+                style: BorderStyle.solid,
+              ),
             ),
             child: Column(
               children: [
                 Container(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(color: t.bgBrandSubtle, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: t.bgBrandSubtle,
+                    shape: BoxShape.circle,
+                  ),
                   alignment: Alignment.center,
                   child: _analyzing
                       ? SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2.4, color: t.fgBrand),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: t.fgBrand,
+                          ),
                         )
                       : Icon(LucideIcons.upload, size: 22, color: t.fgBrand),
                 ),
                 const SizedBox(height: PSpace.x8),
                 Text(
                   _analyzing ? l.importAnalyzing : l.importDropTitle,
-                  style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 3),
-                Text(l.importDropHint, style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                Text(
+                  l.importDropHint,
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
               ],
             ),
           ),
@@ -270,7 +308,10 @@ class _ImportViewState extends ConsumerState<ImportView> {
       ),
       const SizedBox(height: PSpace.x32),
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x16,
+          vertical: PSpace.x12,
+        ),
         decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +319,13 @@ class _ImportViewState extends ConsumerState<ImportView> {
             Icon(LucideIcons.info, size: 15, color: t.fgTertiary),
             const SizedBox(width: PSpace.x8),
             Expanded(
-              child: Text(l.importNotice, style: PTypo.caption.copyWith(color: t.fgSecondary, height: 1.5)),
+              child: Text(
+                l.importNotice,
+                style: PTypo.caption.copyWith(
+                  color: t.fgSecondary,
+                  height: 1.5,
+                ),
+              ),
             ),
           ],
         ),
@@ -309,12 +356,18 @@ class _ImportViewState extends ConsumerState<ImportView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.importBlockedTitle(a.blockedParents.join(', ')),
-                        style: PTypo.bodySm
-                            .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                    Text(
+                      l.importBlockedTitle(a.blockedParents.join(', ')),
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
                     const SizedBox(height: 3),
-                    Text(l.importBlockedDesc,
-                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    Text(
+                      l.importBlockedDesc,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
                   ],
                 ),
               ),
@@ -331,21 +384,35 @@ class _ImportViewState extends ConsumerState<ImportView> {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brMd,
+              ),
               alignment: Alignment.center,
-              child: Icon(LucideIcons.fileSpreadsheet, size: 17, color: t.fgSecondary),
+              child: Icon(
+                LucideIcons.fileSpreadsheet,
+                size: 17,
+                color: t.fgSecondary,
+              ),
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(a.fileName,
-                      style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi),
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    a.fileName,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 1),
-                  Text(l.importRowsDetected(a.totalRows, a.validRows),
-                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  Text(
+                    l.importRowsDetected(a.totalRows, a.validRows),
+                    style: PTypo.micro.copyWith(color: t.fgTertiary),
+                  ),
                 ],
               ),
             ),
@@ -371,13 +438,26 @@ class _ImportViewState extends ConsumerState<ImportView> {
                 children: [
                   SizedBox(
                     width: 96,
-                    child: Text.rich(TextSpan(children: [
+                    child: Text.rich(
                       TextSpan(
-                          text: f.label(l),
-                          style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
-                      if (f.required)
-                        TextSpan(text: ' *', style: PTypo.bodySm.copyWith(color: t.statusDanger)),
-                    ])),
+                        children: [
+                          TextSpan(
+                            text: f.label(l),
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.semi,
+                            ),
+                          ),
+                          if (f.required)
+                            TextSpan(
+                              text: ' *',
+                              style: PTypo.bodySm.copyWith(
+                                color: t.statusDanger,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                   Expanded(
                     child: PSelect<int?>(
@@ -391,9 +471,16 @@ class _ImportViewState extends ConsumerState<ImportView> {
                         }
                       }),
                       items: [
-                        PSelectItem<int?>(value: null, label: l.importNotMapped),
-                        ...a.columns.map((c) => PSelectItem<int?>(
-                            value: c.index, label: c.name.isEmpty ? '#${c.index + 1}' : c.name)),
+                        PSelectItem<int?>(
+                          value: null,
+                          label: l.importNotMapped,
+                        ),
+                        ...a.columns.map(
+                          (c) => PSelectItem<int?>(
+                            value: c.index,
+                            label: c.name.isEmpty ? '#${c.index + 1}' : c.name,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -416,43 +503,102 @@ class _ImportViewState extends ConsumerState<ImportView> {
             dataRowMinHeight: 32,
             dataRowMaxHeight: 44,
             columnSpacing: 18,
-            columns: [
-              l.importFieldDate,
-              l.importFieldType,
-              l.importFieldCategory,
-              l.importFieldAsset,
-              l.importFieldAmount,
-              l.importFieldMemo,
-            ]
-                .map((h) => DataColumn(
-                    label: Text(h, style: PTypo.caption.copyWith(color: t.fgSecondary, fontWeight: PFontWeight.bold))))
-                .toList(),
+            columns:
+                [
+                      l.importFieldDate,
+                      l.importFieldType,
+                      l.importFieldCategory,
+                      l.importFieldAsset,
+                      l.importFieldAmount,
+                      l.importFieldMemo,
+                    ]
+                    .map(
+                      (h) => DataColumn(
+                        label: Text(
+                          h,
+                          style: PTypo.caption.copyWith(
+                            color: t.fgSecondary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
             rows: a.preview.map((r) {
               final dim = r.error != null || (r.duplicate && _dupSkip);
               final color = dim ? t.fgTertiary : t.fgPrimary;
-              return DataRow(cells: [
-                DataCell(Text(r.date != null && r.date!.length >= 10 ? r.date!.substring(0, 10) : '—',
-                    style: PTypo.caption.copyWith(color: color))),
-                DataCell(r.type == null
-                    ? Text('—', style: PTypo.caption.copyWith(color: color))
-                    : Text(r.type == 'INCOME' ? l.importIncome : l.importExpense,
-                        style: PTypo.caption.copyWith(
-                            color: r.type == 'INCOME' ? t.fgBrand : t.fgSecondary,
-                            fontWeight: PFontWeight.bold))),
-                DataCell(Text(r.category ?? '—', style: PTypo.caption.copyWith(color: color))),
-                DataCell(Text(r.asset ?? '—', style: PTypo.caption.copyWith(color: color))),
-                DataCell(Text(r.amount != null ? _fmt(r.amount!) : '—',
-                    style: PTypo.caption.copyWith(color: color, fontWeight: PFontWeight.bold))),
-                DataCell(Row(children: [
-                  if (r.duplicate)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Text(l.importDupBadge,
-                          style: PTypo.micro.copyWith(color: t.statusWarning, fontWeight: PFontWeight.bold)),
+              return DataRow(
+                cells: [
+                  DataCell(
+                    Text(
+                      r.date != null && r.date!.length >= 10
+                          ? r.date!.substring(0, 10)
+                          : '—',
+                      style: PTypo.caption.copyWith(color: color),
                     ),
-                  Flexible(child: Text(r.memo ?? '', style: PTypo.caption.copyWith(color: color), overflow: TextOverflow.ellipsis)),
-                ])),
-              ]);
+                  ),
+                  DataCell(
+                    r.type == null
+                        ? Text('—', style: PTypo.caption.copyWith(color: color))
+                        : Text(
+                            r.type == 'INCOME'
+                                ? l.importIncome
+                                : l.importExpense,
+                            style: PTypo.caption.copyWith(
+                              color: r.type == 'INCOME'
+                                  ? t.fgBrand
+                                  : t.fgSecondary,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
+                  ),
+                  DataCell(
+                    Text(
+                      r.category ?? '—',
+                      style: PTypo.caption.copyWith(color: color),
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      r.asset ?? '—',
+                      style: PTypo.caption.copyWith(color: color),
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      r.amount != null ? _fmt(r.amount!) : '—',
+                      style: PTypo.caption.copyWith(
+                        color: color,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    Row(
+                      children: [
+                        if (r.duplicate)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              l.importDupBadge,
+                              style: PTypo.micro.copyWith(
+                                color: t.statusWarning,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        Flexible(
+                          child: Text(
+                            r.memo ?? '',
+                            style: PTypo.caption.copyWith(color: color),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
             }).toList(),
           ),
         ),
@@ -463,11 +609,21 @@ class _ImportViewState extends ConsumerState<ImportView> {
         title: l.importOptionsTitle,
         child: Column(
           children: [
-            _optionRow(t, l.importOptDupSkip, l.importOptDupSkipDesc(a.duplicateCount), _dupSkip,
-                (v) => setState(() => _dupSkip = v)),
+            _optionRow(
+              t,
+              l.importOptDupSkip,
+              l.importOptDupSkipDesc(a.duplicateCount),
+              _dupSkip,
+              (v) => setState(() => _dupSkip = v),
+            ),
             const SizedBox(height: PSpace.x8),
-            _optionRow(t, l.importOptAutoCat, l.importOptAutoCatDesc, _autoCat,
-                (v) => setState(() => _autoCat = v)),
+            _optionRow(
+              t,
+              l.importOptAutoCat,
+              l.importOptAutoCatDesc,
+              _autoCat,
+              (v) => setState(() => _autoCat = v),
+            ),
           ],
         ),
       ),
@@ -485,7 +641,9 @@ class _ImportViewState extends ConsumerState<ImportView> {
           const SizedBox(width: PSpace.x8),
           Expanded(
             child: PButton(
-              label: l.importDoImport(_dupSkip ? a.validRows - a.duplicateCount : a.validRows),
+              label: l.importDoImport(
+                _dupSkip ? a.validRows - a.duplicateCount : a.validRows,
+              ),
               icon: LucideIcons.download,
               loading: _executing,
               onPressed: _canExecute ? _runImport : null,
@@ -496,14 +654,26 @@ class _ImportViewState extends ConsumerState<ImportView> {
     ];
   }
 
-  Widget _optionRow(PorestTokens t, String title, String desc, bool value, ValueChanged<bool> onChanged) {
+  Widget _optionRow(
+    PorestTokens t,
+    String title,
+    String desc,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
     return Row(
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+              Text(
+                title,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
               const SizedBox(height: 1),
               Text(desc, style: PTypo.micro.copyWith(color: t.fgTertiary)),
             ],
@@ -528,16 +698,28 @@ class _ImportViewState extends ConsumerState<ImportView> {
           Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(color: t.bgBrandSubtle, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: t.bgBrandSubtle,
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
             child: Icon(LucideIcons.check, size: 30, color: t.fgBrand),
           ),
           const SizedBox(height: PSpace.x12),
-          Text(l.importDoneCount(r.imported),
-              style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold, fontSize: 18)),
+          Text(
+            l.importDoneCount(r.imported),
+            style: PTypo.body.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(l.importDoneDetail(r.skipped, r.failed),
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary), textAlign: TextAlign.center),
+          Text(
+            l.importDoneDetail(r.skipped, r.failed),
+            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: PSpace.x16),
           PButton(
             label: l.importAnother,
@@ -554,11 +736,22 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   // ── 공통 ─────────────────────────────────────────────────
 
-  Widget _cardShell(PorestTokens t, {required String title, String? desc, required Widget child}) {
+  Widget _cardShell(
+    PorestTokens t, {
+    required String title,
+    String? desc,
+    required Widget child,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+        Text(
+          title,
+          style: PTypo.body.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
+          ),
+        ),
         if (desc != null) ...[
           const SizedBox(height: 2),
           Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),

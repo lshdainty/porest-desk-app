@@ -18,11 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 /// 웹과 달리 매칭 limit·점진 로드가 없는 이유: 아이콘은 내장 폰트 글리프라 로딩이
 /// 없고, GridView.builder 가 보이는 셀만 빌드한다(웹 STEP 증분은 DOM 성능 사유).
 class PIconPicker extends StatelessWidget {
-  const PIconPicker({
-    super.key,
-    required this.value,
-    required this.onChanged,
-  });
+  const PIconPicker({super.key, required this.value, required this.onChanged});
 
   /// 현재 선택된 lucide kebab 이름. 빈 값이면 미선택(placeholder).
   final String value;
@@ -50,8 +46,7 @@ class PIconPicker extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: value.isEmpty
-              ? Text('—',
-                  style: PTypo.bodySm.copyWith(color: t.fgSecondary))
+              ? Text('—', style: PTypo.bodySm.copyWith(color: t.fgSecondary))
               : Icon(lucideByName(value), size: 18, color: t.fgPrimary),
         ),
       ),
@@ -133,13 +128,17 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x8, vertical: PSpace.x4),
+                  horizontal: PSpace.x8,
+                  vertical: PSpace.x4,
+                ),
                 decoration: BoxDecoration(
                   color: widget.value.isEmpty ? t.bgMuted : Colors.transparent,
                   borderRadius: PRadius.brSm,
                 ),
-                child: Text(l.iconPickerNone,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                child: Text(
+                  l.iconPickerNone,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
               ),
             ),
           ),
@@ -148,18 +147,21 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
           Expanded(
             child: matched.isEmpty
                 ? Center(
-                    child: Text(l.iconPickerNoResults,
-                        style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                    child: Text(
+                      l.iconPickerNoResults,
+                      style: PTypo.caption.copyWith(color: t.fgSecondary),
+                    ),
                   )
                 : GridView.builder(
                     controller: widget.scrollController,
                     padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
                     // 8-col grid — icon-picker.md 정합. 셀은 폭 나눔 정사각.
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 8,
-                      mainAxisSpacing: PSpace.x4,
-                      crossAxisSpacing: PSpace.x4,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 8,
+                          mainAxisSpacing: PSpace.x4,
+                          crossAxisSpacing: PSpace.x4,
+                        ),
                     itemCount: matched.length,
                     itemBuilder: (_, i) {
                       final name = matched[i];
@@ -176,9 +178,11 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
                                 : null,
                           ),
                           alignment: Alignment.center,
-                          child: Icon(lucideByName(name),
-                              size: 16,
-                              color: active ? t.fgBrand : t.fgSecondary),
+                          child: Icon(
+                            lucideByName(name),
+                            size: 16,
+                            color: active ? t.fgBrand : t.fgSecondary,
+                          ),
                         ),
                       );
                     },

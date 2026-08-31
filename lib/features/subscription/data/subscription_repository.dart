@@ -29,13 +29,19 @@ class MyFeatures {
   bool isConnected(String broker) => connectedBrokers.contains(broker);
 
   factory MyFeatures.fromJson(Map<String, dynamic> j) {
-    final brokers = ((j['connectedBrokers'] as List?) ?? []).map((e) => e.toString()).toList();
+    final brokers = ((j['connectedBrokers'] as List?) ?? [])
+        .map((e) => e.toString())
+        .toList();
     return MyFeatures(
-      features: ((j['features'] as List?) ?? []).map((e) => e.toString()).toList(),
+      features: ((j['features'] as List?) ?? [])
+          .map((e) => e.toString())
+          .toList(),
       // 구버전 서버는 connectedBrokers 를 안 준다 — tossConnected 로 되살린다.
       connectedBrokers: brokers.isNotEmpty
           ? brokers
-          : ((j['tossConnected'] as bool?) ?? false ? const ['TOSS'] : const []),
+          : ((j['tossConnected'] as bool?) ?? false
+                ? const ['TOSS']
+                : const []),
       primaryBroker: j['primaryBroker'] as String?,
     );
   }
@@ -60,21 +66,26 @@ class SubscriptionInfo {
   bool get isActive => status == 'ACTIVE';
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> j) => SubscriptionInfo(
-        planCode: j['planCode'] as String,
-        planName: j['planName'] as String,
-        status: j['status'] as String,
-        currentPeriodEnd: j['currentPeriodEnd'] as String?,
-        autoRenew: (j['autoRenew'] as bool?) ?? false,
-      );
+    planCode: j['planCode'] as String,
+    planName: j['planName'] as String,
+    status: j['status'] as String,
+    currentPeriodEnd: j['currentPeriodEnd'] as String?,
+    autoRenew: (j['autoRenew'] as bool?) ?? false,
+  );
 }
 
 class SubscriptionPlanInfo {
-  const SubscriptionPlanInfo({required this.planCode, required this.planName, this.durationMonths});
+  const SubscriptionPlanInfo({
+    required this.planCode,
+    required this.planName,
+    this.durationMonths,
+  });
   final String planCode;
   final String planName;
   final int? durationMonths;
 
-  factory SubscriptionPlanInfo.fromJson(Map<String, dynamic> j) => SubscriptionPlanInfo(
+  factory SubscriptionPlanInfo.fromJson(Map<String, dynamic> j) =>
+      SubscriptionPlanInfo(
         planCode: j['planCode'] as String,
         planName: j['planName'] as String,
         durationMonths: j['durationMonths'] as int?,
@@ -109,16 +120,16 @@ class BrokerConnection {
   final String? verifiedAt;
 
   factory BrokerConnection.fromJson(Map<String, dynamic> j) => BrokerConnection(
-        broker: (j['broker'] as String?) ?? '',
-        displayName: (j['displayName'] as String?) ?? '',
-        issueUrl: (j['issueUrl'] as String?) ?? '',
-        keyLabel: (j['keyLabel'] as String?) ?? 'API Key',
-        secretLabel: (j['secretLabel'] as String?) ?? 'API Secret',
-        connected: (j['connected'] as bool?) ?? false,
-        verified: (j['verified'] as bool?) ?? false,
-        primary: (j['primary'] as bool?) ?? false,
-        verifiedAt: j['verifiedAt'] as String?,
-      );
+    broker: (j['broker'] as String?) ?? '',
+    displayName: (j['displayName'] as String?) ?? '',
+    issueUrl: (j['issueUrl'] as String?) ?? '',
+    keyLabel: (j['keyLabel'] as String?) ?? 'API Key',
+    secretLabel: (j['secretLabel'] as String?) ?? 'API Secret',
+    connected: (j['connected'] as bool?) ?? false,
+    verified: (j['verified'] as bool?) ?? false,
+    primary: (j['primary'] as bool?) ?? false,
+    verifiedAt: j['verifiedAt'] as String?,
+  );
 }
 
 class SubscriptionRepository {
@@ -135,7 +146,9 @@ class SubscriptionRepository {
     try {
       final res = await _dio.get<dynamic>('/users/me/features');
       final p = _payload(res);
-      return p is Map<String, dynamic> ? MyFeatures.fromJson(p) : MyFeatures.empty;
+      return p is Map<String, dynamic>
+          ? MyFeatures.fromJson(p)
+          : MyFeatures.empty;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -194,10 +207,16 @@ class SubscriptionRepository {
     }
   }
 
-  Future<void> registerBrokerCredential(String broker, String apiKey, String apiSecret) async {
+  Future<void> registerBrokerCredential(
+    String broker,
+    String apiKey,
+    String apiSecret,
+  ) async {
     try {
-      await _dio.post<dynamic>('/users/me/securities-credentials/$broker',
-          data: {'apiKey': apiKey, 'apiSecret': apiSecret});
+      await _dio.post<dynamic>(
+        '/users/me/securities-credentials/$broker',
+        data: {'apiKey': apiKey, 'apiSecret': apiSecret},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -214,7 +233,9 @@ class SubscriptionRepository {
   /// 가계부 자산 평가에 쓸 증권사를 지정한다.
   Future<void> setPrimaryBroker(String broker) async {
     try {
-      await _dio.put<dynamic>('/users/me/securities-credentials/$broker/primary');
+      await _dio.put<dynamic>(
+        '/users/me/securities-credentials/$broker/primary',
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

@@ -100,10 +100,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       // 새 버전 안내 — 리다이렉트로만 들어온다(강제/일반은 화면이 스스로 가른다).
-      GoRoute(path: '/update-gate', builder: (_, _) => const UpdateGateScreen()),
+      GoRoute(
+        path: '/update-gate',
+        builder: (_, _) => const UpdateGateScreen(),
+      ),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
-      GoRoute(path: '/account-card-manage', builder: (_, _) => const AccountCardManageScreen()),
+      GoRoute(
+        path: '/account-card-manage',
+        builder: (_, _) => const AccountCardManageScreen(),
+      ),
       // /assets, /budget, /stats 는 shell branch 1 (가계부) 안 sub-routes 로
       // 이동 — 하단바 (MoneyTabBar) 가 shell scaffold 가 한 번 build 되어
       // sub-tab 전환 시 사라지지 않게 (사용자 의도: 안정적 고정 bottom bar).
@@ -112,74 +118,98 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/presets', builder: (_, _) => const PresetScreen()),
       // 결제 문자로 기록 — 배너·알림에서 들어올 땐 문자를 extra 로 실어 바로 해석한다.
       GoRoute(
-          path: '/sms-paste',
-          builder: (_, state) {
-            final args = SmsPasteArgs.from(state.extra);
-            return SmsPasteScreen(
-                initialText: args?.text, inboxId: args?.inboxId);
-          }),
+        path: '/sms-paste',
+        builder: (_, state) {
+          final args = SmsPasteArgs.from(state.extra);
+          return SmsPasteScreen(
+            initialText: args?.text,
+            inboxId: args?.inboxId,
+          );
+        },
+      ),
       // 아직 기록하지 않은 수신 문자 목록(안드로이드).
       GoRoute(path: '/sms-inbox', builder: (_, _) => const SmsInboxScreen()),
       // 예산 설정(웹 BudgetManager 정합) — 예산 개요 설정 버튼·설정 메뉴에서 push.
       GoRoute(
-          path: '/budget/settings',
-          builder: (_, _) => const BudgetSettingsScreen()),
+        path: '/budget/settings',
+        builder: (_, _) => const BudgetSettingsScreen(),
+      ),
       GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
       // 밤하늘(성장·수집)·관측 리포트 — 할일 화면 [밤하늘] 패널에서 push 진입.
       GoRoute(path: '/night-sky', builder: (_, _) => const NightSkyScreen()),
       GoRoute(
-          path: '/forest-report',
-          builder: (_, _) => const ForestReportScreen()),
+        path: '/forest-report',
+        builder: (_, _) => const ForestReportScreen(),
+      ),
       GoRoute(
-          path: '/settings/calendar-share',
-          builder: (_, _) => const CalendarShareScreen()),
+        path: '/settings/calendar-share',
+        builder: (_, _) => const CalendarShareScreen(),
+      ),
       GoRoute(
-          path: '/settings/calendar-labels',
-          builder: (_, _) => const CalendarLabelsScreen()),
+        path: '/settings/calendar-labels',
+        builder: (_, _) => const CalendarLabelsScreen(),
+      ),
       GoRoute(
-          path: '/settings/todo-tags',
-          builder: (_, _) => const TodoTagManagementScreen()),
+        path: '/settings/todo-tags',
+        builder: (_, _) => const TodoTagManagementScreen(),
+      ),
       GoRoute(
-          path: '/settings/securities',
-          builder: (_, _) => const SecuritiesLinkScreen()),
+        path: '/settings/securities',
+        builder: (_, _) => const SecuritiesLinkScreen(),
+      ),
       GoRoute(
-          path: '/settings/appearance',
-          builder: (_, _) => const AppearanceScreen()),
+        path: '/settings/appearance',
+        builder: (_, _) => const AppearanceScreen(),
+      ),
       // 금액 가리기 — 계정 > 보안에서, 그리고 화면의 눈 버튼에서 바로 들어온다.
       GoRoute(
-          path: '/settings/hide-amounts',
-          builder: (_, _) => const HideAmountsScreen()),
+        path: '/settings/hide-amounts',
+        builder: (_, _) => const HideAmountsScreen(),
+      ),
       // 로그인된 기기 — 계정 > 보안에서 push 진입.
       GoRoute(
-          path: '/settings/devices',
-          builder: (_, _) => const DevicesScreen()),
+        path: '/settings/devices',
+        builder: (_, _) => const DevicesScreen(),
+      ),
       GoRoute(
-          path: '/settings/export-data',
-          builder: (_, _) => const ExportScreen()),
+        path: '/settings/export-data',
+        builder: (_, _) => const ExportScreen(),
+      ),
       // 업데이트 — 평소엔 설정에서 들어와 확인하고, 강제일 때는 redirect 가 여기로
       // 몰아넣는다(그때는 뒤로 갈 수 없다).
       GoRoute(
-          path: '/settings/update',
-          builder: (_, _) => const UpdateScreen()),
+        path: '/settings/update',
+        builder: (_, _) => const UpdateScreen(),
+      ),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
-      GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
       GoRoute(
-          path: '/settings/notifications',
-          builder: (_, _) => const NotificationSettingsScreen()),
-      GoRoute(path: '/saving-goals', builder: (_, _) => const SavingGoalScreen()),
+        path: '/notifications',
+        builder: (_, _) => const NotificationScreen(),
+      ),
+      GoRoute(
+        path: '/settings/notifications',
+        builder: (_, _) => const NotificationSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/saving-goals',
+        builder: (_, _) => const SavingGoalScreen(),
+      ),
       GoRoute(path: '/cards', builder: (_, _) => const CardScreen()),
       GoRoute(
-          path: '/card-benefits',
-          builder: (_, _) => const CardBenefitsScreen()),
+        path: '/card-benefits',
+        builder: (_, _) => const CardBenefitsScreen(),
+      ),
       // 증권 — 카드 혜택과 동일하게 전체(more)에서 push 진입, 뒤로가기로 복귀. 구독 게이트.
-      GoRoute(path: '/stocks', builder: (_, _) => const SecuritiesGate(child: StocksScreen())),
+      GoRoute(
+        path: '/stocks',
+        builder: (_, _) => const SecuritiesGate(child: StocksScreen()),
+      ),
       GoRoute(
         path: '/cards/:id',
-        builder: (_, state) => CardDetailScreen(
-          catalogId: int.parse(state.pathParameters['id']!),
-        ),
+        builder: (_, state) =>
+            CardDetailScreen(catalogId: int.parse(state.pathParameters['id']!)),
       ),
 
       // 모바일 셸 (홈/가계부/캘린더/전체 4개 분기)
@@ -187,59 +217,76 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) =>
             MobileScaffold(navigationShell: navigationShell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/home',
-              pageBuilder: (_, _) => const NoTransitionPage(child: DashboardScreen()),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                pageBuilder: (_, _) =>
+                    const NoTransitionPage(child: DashboardScreen()),
+              ),
+            ],
+          ),
           // 가계부 branch — 4 페이지 (money group) 모두 같은 branch:
           //   /expense, /assets, /stats, /budget — MoneyTabBar 로 전환.
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/expense',
-              pageBuilder: (_, state) {
-                final month = state.uri.queryParameters['month'];
-                final txId =
-                    int.tryParse(state.uri.queryParameters['txId'] ?? '');
-                final assetId = int.tryParse(
-                    state.uri.queryParameters['assetId'] ?? '');
-                return NoTransitionPage(
-                  child: ExpenseScreen(
-                    key: ValueKey(
-                        'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}'),
-                    initialMonth: month,
-                    focusTxId: txId,
-                    initialAssetId: assetId,
-                  ),
-                );
-              },
-            ),
-            GoRoute(
-              path: '/assets',
-              pageBuilder: (_, _) => const NoTransitionPage(child: AssetScreen()),
-            ),
-            GoRoute(
-              path: '/stats',
-              pageBuilder: (_, _) => const NoTransitionPage(child: StatsScreen()),
-            ),
-            GoRoute(
-              path: '/budget',
-              pageBuilder: (_, _) => const NoTransitionPage(child: BudgetScreen()),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/calendar',
-              pageBuilder: (_, _) => const NoTransitionPage(child: CalendarScreen()),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/more',
-              pageBuilder: (_, _) => const NoTransitionPage(child: MoreScreen()),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/expense',
+                pageBuilder: (_, state) {
+                  final month = state.uri.queryParameters['month'];
+                  final txId = int.tryParse(
+                    state.uri.queryParameters['txId'] ?? '',
+                  );
+                  final assetId = int.tryParse(
+                    state.uri.queryParameters['assetId'] ?? '',
+                  );
+                  return NoTransitionPage(
+                    child: ExpenseScreen(
+                      key: ValueKey(
+                        'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}',
+                      ),
+                      initialMonth: month,
+                      focusTxId: txId,
+                      initialAssetId: assetId,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                path: '/assets',
+                pageBuilder: (_, _) =>
+                    const NoTransitionPage(child: AssetScreen()),
+              ),
+              GoRoute(
+                path: '/stats',
+                pageBuilder: (_, _) =>
+                    const NoTransitionPage(child: StatsScreen()),
+              ),
+              GoRoute(
+                path: '/budget',
+                pageBuilder: (_, _) =>
+                    const NoTransitionPage(child: BudgetScreen()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/calendar',
+                pageBuilder: (_, _) =>
+                    const NoTransitionPage(child: CalendarScreen()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/more',
+                pageBuilder: (_, _) =>
+                    const NoTransitionPage(child: MoreScreen()),
+              ),
+            ],
+          ),
         ],
       ),
     ],

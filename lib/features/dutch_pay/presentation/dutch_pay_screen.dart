@@ -77,11 +77,18 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
-              Text('${l.dutchLoadFailed}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+              Text(
+                '${l.dutchLoadFailed}\n$e',
+                style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              ),
             ],
           ),
-          data: (items) => _buildBody(context, t, items, ref.watch(hideCardProvider('dutchpay.sessions'))),
+          data: (items) => _buildBody(
+            context,
+            t,
+            items,
+            ref.watch(hideCardProvider('dutchpay.sessions')),
+          ),
         ),
       ),
     );
@@ -95,11 +102,9 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
   ) {
     final l = AppLocalizations.of(context);
     final active = items.where((d) => !d.isSettled).toList()
-      ..sort((a, b) =>
-          (b.dutchPayDate ?? '').compareTo(a.dutchPayDate ?? ''));
+      ..sort((a, b) => (b.dutchPayDate ?? '').compareTo(a.dutchPayDate ?? ''));
     final past = items.where((d) => d.isSettled).toList()
-      ..sort((a, b) =>
-          (b.dutchPayDate ?? '').compareTo(a.dutchPayDate ?? ''));
+      ..sort((a, b) => (b.dutchPayDate ?? '').compareTo(a.dutchPayDate ?? ''));
 
     // ── 받을 돈: 미정산 세션의 미지불 참여자 amount 합 + 인원수 ──
     var owedToMe = 0;
@@ -121,7 +126,11 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x24, PSpace.x16, PSpace.x24, 96),
+        PSpace.x24,
+        PSpace.x16,
+        PSpace.x24,
+        96,
+      ),
       children: [
         // ── 요약 2카드 ──
         Row(
@@ -160,8 +169,14 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             size: PTabsSize.sm,
             expand: false,
             items: [
-              PTabItem(value: _DutchTab.active, label: '${l.dutchTabActive} · ${active.length}'),
-              PTabItem(value: _DutchTab.past, label: '${l.dutchTabPast} · ${past.length}'),
+              PTabItem(
+                value: _DutchTab.active,
+                label: '${l.dutchTabActive} · ${active.length}',
+              ),
+              PTabItem(
+                value: _DutchTab.past,
+                label: '${l.dutchTabPast} · ${past.length}',
+              ),
               PTabItem(value: _DutchTab.friends, label: l.dutchTabFriends),
             ],
           ),
@@ -418,9 +433,12 @@ class _SummaryCard extends StatelessWidget {
     final chipTint = isReceive ? t.statusSuccessSubtle : t.statusWarningSubtle;
     final l = AppLocalizations.of(context);
     final label = isReceive ? l.dutchToReceive : l.dutchToSend;
-    final icon =
-        isReceive ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight;
-    final footer = isReceive ? l.dutchFromPeople(count) : l.dutchToPeople(count);
+    final icon = isReceive
+        ? LucideIcons.arrowDownLeft
+        : LucideIcons.arrowUpRight;
+    final footer = isReceive
+        ? l.dutchFromPeople(count)
+        : l.dutchToPeople(count);
 
     // 요약 — design DutchScreen Hero keep(raised) 정합 (카드 다이어트 제외 대상).
     return PCard(
@@ -482,10 +500,7 @@ class _SummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            footer,
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
-          ),
+          Text(footer, style: PTypo.micro.copyWith(color: t.fgTertiary)),
         ],
       ),
     );
@@ -526,108 +541,110 @@ class _SessionCard extends StatelessWidget {
         // 좌우 여백 없음 — 행이 더 얹으면 그만큼 섹션 라벨과 어긋난다.
         // 상하만 준다(행 리듬).
         padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dp.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: PTypo.bodyLg.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                          letterSpacing: -0.24,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        sub,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      dp.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.bodyLg.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                        letterSpacing: -0.24,
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: krwMasked(dp.totalAmount, masked),
+                            style: PTypo.bodyLg.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          if (!masked)
+                            TextSpan(
+                              text: wonUnit(),
+                              style: PTypo.bodySm.copyWith(
+                                color: t.fgPrimary,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      sub,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      '${l.dutchPerPersonLabel} ${krwSigned(perPerson, masked, unit: true, mask: '••••')}',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  RichText(
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: krwMasked(dp.totalAmount, masked),
-                        style: PTypo.bodyLg.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.bold,
-                          letterSpacing: -0.2,
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _AvatarStack(participants: dp.participants),
+                const SizedBox(width: 12),
+                Expanded(
+                  // track + fill 양끝 round (웹 정합). 고정폭 _AvatarStack 덕에 바 길이 일정.
+                  child: Container(
+                    height: 6,
+                    clipBehavior: Clip.antiAlias,
+                    alignment: Alignment.centerLeft,
+                    decoration: BoxDecoration(
+                      color: t.bgSunken,
+                      borderRadius: PRadius.brFull,
+                    ),
+                    child: FractionallySizedBox(
+                      widthFactor: progress.clamp(0.0, 1.0),
+                      heightFactor: 1, // 없으면 fill 높이 0으로 collapse → 안 칠해짐
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: t.fgBrand,
+                          borderRadius: PRadius.brFull,
                         ),
-                      ),
-                      if (!masked)
-                        TextSpan(
-                          text: wonUnit(),
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                    ]),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${l.dutchPerPersonLabel} ${krwSigned(perPerson, masked, unit: true, mask: '••••')}',
-                    style: PTypo.micro.copyWith(color: t.fgTertiary),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _AvatarStack(participants: dp.participants),
-              const SizedBox(width: 12),
-              Expanded(
-                // track + fill 양끝 round (웹 정합). 고정폭 _AvatarStack 덕에 바 길이 일정.
-                child: Container(
-                  height: 6,
-                  clipBehavior: Clip.antiAlias,
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    color: t.bgSunken,
-                    borderRadius: PRadius.brFull,
-                  ),
-                  child: FractionallySizedBox(
-                    widthFactor: progress.clamp(0.0, 1.0),
-                    heightFactor: 1, // 없으면 fill 높이 0으로 collapse → 안 칠해짐
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: t.fgBrand,
-                        borderRadius: PRadius.brFull,
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                '$paid/$total',
-                style: PTypo.caption.copyWith(
-                  color: t.fgSecondary,
-                  fontWeight: PFontWeight.bold,
+                const SizedBox(width: 10),
+                Text(
+                  '$paid/$total',
+                  style: PTypo.caption.copyWith(
+                    color: t.fgSecondary,
+                    fontWeight: PFontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -648,7 +665,8 @@ class _AvatarStack extends StatelessWidget {
     const fixedWidth = size + step * (max - 1); // 88 — 고정폭(바 길이 일정)
     final overflow = participants.length > max;
     final shown =
-        (overflow ? participants.take(max - 1) : participants.take(max)).toList();
+        (overflow ? participants.take(max - 1) : participants.take(max))
+            .toList();
     final extra = participants.length - shown.length;
     return SizedBox(
       width: fixedWidth,
@@ -736,8 +754,11 @@ class _PastRow extends StatelessWidget {
                 borderRadius: PRadius.brMd,
               ),
               alignment: Alignment.center,
-              child: Icon(LucideIcons.check,
-                  size: 16, color: t.statusSuccessFg),
+              child: Icon(
+                LucideIcons.check,
+                size: 16,
+                color: t.statusSuccessFg,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -920,7 +941,11 @@ class _DutchPaySkeleton extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x24, PSpace.x16, PSpace.x24, 96),
+        PSpace.x24,
+        PSpace.x16,
+        PSpace.x24,
+        96,
+      ),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         // ── 요약 2카드 (데이터) — _SummaryCard 구조/shadow 정합 ──
@@ -1039,10 +1064,7 @@ class _SessionCardSkeleton extends StatelessWidget {
               PSkeleton.circle(size: 28),
               const SizedBox(width: 12),
               const Expanded(
-                child: PSkeleton(
-                  height: 6,
-                  borderRadius: PRadius.brFull,
-                ),
+                child: PSkeleton(height: 6, borderRadius: PRadius.brFull),
               ),
               const SizedBox(width: 10),
               PSkeleton.line(width: 28, height: 13),

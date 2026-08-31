@@ -10,7 +10,9 @@ import 'package:porest_desk_app/core/auth/oauth_callback_handler.dart';
 import 'package:porest_desk_app/core/auth/oauth_flow_store.dart';
 
 /// PKCE 흐름 보관소 — 로그인 화면(저장)과 콜백 리스너(복원)가 같은 인스턴스를 본다.
-final oauthFlowStoreProvider = Provider<OAuthFlowStore>((ref) => OAuthFlowStore());
+final oauthFlowStoreProvider = Provider<OAuthFlowStore>(
+  (ref) => OAuthFlowStore(),
+);
 
 /// OAuth 콜백 딥링크 리스너.
 ///
@@ -24,12 +26,13 @@ final oauthFlowStoreProvider = Provider<OAuthFlowStore>((ref) => OAuthFlowStore(
 final oauthLinkListenerProvider = Provider<void>((ref) {
   final handler = OAuthCallbackHandler(
     store: ref.watch(oauthFlowStoreProvider),
-    exchange: ({required String code, required String codeVerifier}) =>
-        ref.read(authProvider.notifier).exchangeAndLoginWithCode(
-              code: code,
-              codeVerifier: codeVerifier,
-              redirectUri: Env.oauthRedirectUri,
-            ),
+    exchange: ({required String code, required String codeVerifier}) => ref
+        .read(authProvider.notifier)
+        .exchangeAndLoginWithCode(
+          code: code,
+          codeVerifier: codeVerifier,
+          redirectUri: Env.oauthRedirectUri,
+        ),
   );
 
   Future<void> onLink(Uri uri) async {
@@ -48,9 +51,11 @@ final oauthLinkListenerProvider = Provider<void>((ref) {
 
   final appLinks = AppLinks();
   // 콜드 스타트 분 — 놓친 initial link 를 먼저 소화하고 스트림을 켠다.
-  unawaited(appLinks.getInitialLink().then((uri) {
-    if (uri != null) onLink(uri);
-  }));
+  unawaited(
+    appLinks.getInitialLink().then((uri) {
+      if (uri != null) onLink(uri);
+    }),
+  );
   final sub = appLinks.uriLinkStream.listen(onLink);
   ref.onDispose(sub.cancel);
 });

@@ -60,12 +60,14 @@ const List<_CardBrandEntry> _cardBrands = <_CardBrandEntry>[
   _CardBrandEntry(match: '삼성카드', bg: Color(0xFF1428A0)),
   _CardBrandEntry(match: '현대카드', bg: Color(0xFF1C2951)),
   _CardBrandEntry(
-      match: 'KB국민카드', bg: Color(0xFFFFBC00), fg: Color(0xFF1A1F2E)),
+    match: 'KB국민카드',
+    bg: Color(0xFFFFBC00),
+    fg: Color(0xFF1A1F2E),
+  ),
   _CardBrandEntry(match: '롯데카드', bg: Color(0xFFED1C24)),
   _CardBrandEntry(match: '하나카드', bg: Color(0xFF008C74)),
   _CardBrandEntry(match: 'NH농협카드', bg: Color(0xFF00A149)),
-  _CardBrandEntry(
-      match: '카카오뱅크', bg: Color(0xFFFEE500), fg: Color(0xFF1A1F2E)),
+  _CardBrandEntry(match: '카카오뱅크', bg: Color(0xFFFEE500), fg: Color(0xFF1A1F2E)),
   _CardBrandEntry(match: '토스뱅크', bg: Color(0xFF0064FF)),
 ];
 

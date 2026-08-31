@@ -25,14 +25,14 @@ class CardPerformance {
   final int? remainingAmount;
 
   factory CardPerformance.fromJson(Map<String, dynamic> j) => CardPerformance(
-        assetRowId: (j['assetRowId'] as num).toInt(),
-        yearMonth: (j['yearMonth'] as String?) ?? '',
-        requiredAmount: (j['requiredAmount'] as num?)?.toInt(),
-        requiredText: j['requiredText'] as String?,
-        isRequired: (j['isRequired'] as bool?) ?? false,
-        currentAmount: (j['currentAmount'] as num?)?.toInt() ?? 0,
-        achievementRate: (j['achievementRate'] as num?)?.toDouble() ?? 0.0,
-        isAchieved: (j['isAchieved'] as bool?) ?? false,
-        remainingAmount: (j['remainingAmount'] as num?)?.toInt(),
-      );
+    assetRowId: (j['assetRowId'] as num).toInt(),
+    yearMonth: (j['yearMonth'] as String?) ?? '',
+    requiredAmount: (j['requiredAmount'] as num?)?.toInt(),
+    requiredText: j['requiredText'] as String?,
+    isRequired: (j['isRequired'] as bool?) ?? false,
+    currentAmount: (j['currentAmount'] as num?)?.toInt() ?? 0,
+    achievementRate: (j['achievementRate'] as num?)?.toDouble() ?? 0.0,
+    isAchieved: (j['isAchieved'] as bool?) ?? false,
+    remainingAmount: (j['remainingAmount'] as num?)?.toInt(),
+  );
 }

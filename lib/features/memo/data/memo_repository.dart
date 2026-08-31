@@ -12,10 +12,7 @@ class MemoRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/memos',
-        queryParameters: {
-          'folderId': ?folderId,
-          'search': ?search,
-        },
+        queryParameters: {'folderId': ?folderId, 'search': ?search},
       );
       return _unwrapList(res, 'memos', Memo.fromJson);
     } on DioException catch (e) {

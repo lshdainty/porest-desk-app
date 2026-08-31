@@ -86,96 +86,106 @@ class _BodyState extends ConsumerState<_Body> {
     final categoriesAsync = ref.watch(categoriesProvider);
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
-          Text(l.cardMappingNew,
-              style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(l.cardMappingNewDesc,
-              style: PTypo.caption.copyWith(color: t.fgTertiary)),
-          const SizedBox(height: PSpace.x12),
-          Row(
-            children: [
-              Expanded(
-                flex: 4,
-                child: PTextInput(
-                  controller: _benefitCtrl,
-                  enabled: !_adding,
-                  placeholder: l.cardMappingBenefitPlaceholder,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 5,
-                child: categoriesAsync.when(
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, _) => const SizedBox.shrink(),
-                  data: (cats) {
-                    final exp = cats
-                        .where((c) =>
-                            (c.expenseType ?? 'EXPENSE') == 'EXPENSE')
-                        .toList();
-                    return PSelect<int?>(
-                      value: _selectedCategoryId,
-                      placeholder: l.cardMappingCategoryPlaceholder,
-                      enabled: !_adding,
-                      onChanged: (v) =>
-                          setState(() => _selectedCategoryId = v),
-                      items: [
-                        for (final c in exp)
-                          PSelectItem<int?>(
-                              value: c.rowId, label: c.categoryName),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
+        Text(
+          l.cardMappingNew,
+          style: PTypo.bodySm.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
           ),
-          const SizedBox(height: 8),
-          PButton(
-            label: l.cardMappingAdd,
-            loading: _adding,
-            fullWidth: true,
-            onPressed:
-                (_benefitCtrl.text.trim().isEmpty ||
-                        _selectedCategoryId == null ||
-                        _adding)
-                    ? null
-                    : _add,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l.cardMappingNewDesc,
+          style: PTypo.caption.copyWith(color: t.fgTertiary),
+        ),
+        const SizedBox(height: PSpace.x12),
+        Row(
+          children: [
+            Expanded(
+              flex: 4,
+              child: PTextInput(
+                controller: _benefitCtrl,
+                enabled: !_adding,
+                placeholder: l.cardMappingBenefitPlaceholder,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 5,
+              child: categoriesAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+                data: (cats) {
+                  final exp = cats
+                      .where((c) => (c.expenseType ?? 'EXPENSE') == 'EXPENSE')
+                      .toList();
+                  return PSelect<int?>(
+                    value: _selectedCategoryId,
+                    placeholder: l.cardMappingCategoryPlaceholder,
+                    enabled: !_adding,
+                    onChanged: (v) => setState(() => _selectedCategoryId = v),
+                    items: [
+                      for (final c in exp)
+                        PSelectItem<int?>(
+                          value: c.rowId,
+                          label: c.categoryName,
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        PButton(
+          label: l.cardMappingAdd,
+          loading: _adding,
+          fullWidth: true,
+          onPressed:
+              (_benefitCtrl.text.trim().isEmpty ||
+                  _selectedCategoryId == null ||
+                  _adding)
+              ? null
+              : _add,
+        ),
+        const SizedBox(height: PSpace.x16),
+        PDivider(),
+        const SizedBox(height: PSpace.x16),
+        Text(
+          l.cardMappingRegistered,
+          style: PTypo.bodySm.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
           ),
-          const SizedBox(height: PSpace.x16),
-          PDivider(),
-          const SizedBox(height: PSpace.x16),
-          Text(l.cardMappingRegistered,
-              style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-          const SizedBox(height: PSpace.x8),
-          mappingsAsync.when(
-            loading: () => const Center(child: PCircularProgressIndicator()),
-            error: (e, _) => Text('${l.cardMappingLoadError}: $e',
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (mappings) {
-              if (mappings.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                  child: Center(
-                    child: Text(l.cardMappingEmpty,
-                        style:
-                            PTypo.caption.copyWith(color: t.fgTertiary)),
+        ),
+        const SizedBox(height: PSpace.x8),
+        mappingsAsync.when(
+          loading: () => const Center(child: PCircularProgressIndicator()),
+          error: (e, _) => Text(
+            '${l.cardMappingLoadError}: $e',
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
+          data: (mappings) {
+            if (mappings.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                child: Center(
+                  child: Text(
+                    l.cardMappingEmpty,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
-                );
-              }
-              return Column(
-                children: [
-                  for (final m in mappings) _Row(mapping: m, tokens: t),
-                ],
+                ),
               );
-            },
-          ),
+            }
+            return Column(
+              children: [for (final m in mappings) _Row(mapping: m, tokens: t)],
+            );
+          },
+        ),
       ],
     );
   }
@@ -196,8 +206,7 @@ class _RowState extends ConsumerState<_Row> {
     if (!widget.mapping.isCustom) return; // 시스템 매핑은 삭제 불가
     setState(() => _busy = true);
     try {
-      final repo =
-          await ref.read(cardBenefitMappingRepositoryProvider.future);
+      final repo = await ref.read(cardBenefitMappingRepositoryProvider.future);
       await repo.delete(widget.mapping.rowId);
       ref.invalidate(cardBenefitMappingsProvider);
     } on ApiException {
@@ -226,29 +235,38 @@ class _RowState extends ConsumerState<_Row> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: t.bgMuted,
                     borderRadius: PRadius.brSm,
                   ),
-                  child: Text(m.benefitCategory,
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                  child: Text(
+                    m.benefitCategory,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Icon(LucideIcons.arrowRight,
-                    size: 12, color: t.fgTertiary),
+                Icon(LucideIcons.arrowRight, size: 12, color: t.fgTertiary),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(m.expenseCategoryName ?? '-',
-                      style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+                  child: Text(
+                    m.expenseCategoryName ?? '-',
+                    style: PTypo.bodySm.copyWith(color: t.fgPrimary),
+                  ),
                 ),
               ],
             ),
           ),
           if (!m.isCustom)
             PBadge(
-                label: l.cardMappingDefault, variant: PBadgeVariant.softBrand)
+              label: l.cardMappingDefault,
+              variant: PBadgeVariant.softBrand,
+            )
           else
             PButton.icon(
               icon: LucideIcons.trash2,

@@ -5,26 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _wrap(HitTestBehavior? behavior, VoidCallback onTap) => MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: GestureDetector(
-            behavior: behavior,
-            onTap: onTap,
-            child: const IgnorePointer(
-              child: SizedBox(
-                width: 200,
-                height: 48,
-                child: TextField(),
-              ),
-            ),
-          ),
+  home: Scaffold(
+    body: Center(
+      child: GestureDetector(
+        behavior: behavior,
+        onTap: onTap,
+        child: const IgnorePointer(
+          child: SizedBox(width: 200, height: 48, child: TextField()),
         ),
       ),
-    );
+    ),
+  ),
+);
 
 void main() {
-  testWidgets('deferToChild + IgnorePointer 면 탭이 죽는다(버그 재현)',
-      (tester) async {
+  testWidgets('deferToChild + IgnorePointer 면 탭이 죽는다(버그 재현)', (tester) async {
     var taps = 0;
     await tester.pumpWidget(_wrap(null, () => taps++));
     await tester.tap(find.byType(TextField), warnIfMissed: false);

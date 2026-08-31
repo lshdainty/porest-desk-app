@@ -16,7 +16,8 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart' show DutchAvatar, dutchKDate;
+import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart'
+    show DutchAvatar, dutchKDate;
 
 /// 더치페이 세션 상세 시트 (web `DutchDetailDialog` 미러).
 ///
@@ -64,8 +65,7 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final masked =
-        ref.watch(hideCardProvider('dutchpay.sessions'));
+    final masked = ref.watch(hideCardProvider('dutchpay.sessions'));
     final listAsync = ref.watch(dutchPayListProvider);
     final dp = listAsync.value
         ?.where((d) => d.rowId == dpId)
@@ -89,8 +89,7 @@ class _Body extends ConsumerWidget {
 
     return ListView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // ── Hero ──
         Container(
@@ -111,25 +110,27 @@ class _Body extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               RichText(
-                text: TextSpan(children: [
-                  TextSpan(
-                    text: krwMasked(dp.totalAmount, masked),
-                    style: PTypo.h2.copyWith(
-                      fontSize: 28,
-                      color: t.fgBrand,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.84,
-                    ),
-                  ),
-                  if (!masked)
+                text: TextSpan(
+                  children: [
                     TextSpan(
-                      text: wonUnit(),
-                      style: PTypo.body.copyWith(
+                      text: krwMasked(dp.totalAmount, masked),
+                      style: PTypo.h2.copyWith(
+                        fontSize: 28,
                         color: t.fgBrand,
                         fontWeight: PFontWeight.bold,
+                        letterSpacing: -0.84,
                       ),
                     ),
-                ]),
+                    if (!masked)
+                      TextSpan(
+                        text: wonUnit(),
+                        style: PTypo.body.copyWith(
+                          color: t.fgBrand,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -244,9 +245,7 @@ class _Body extends ConsumerWidget {
     final pending = dp.participants.where((p) => !p.isPaid).length;
     showPSnackBar(
       context,
-      pending > 0
-          ? l.dutchRequestSentBulk(pending)
-          : l.dutchAllSettled,
+      pending > 0 ? l.dutchRequestSentBulk(pending) : l.dutchAllSettled,
       severity: PSnackSeverity.success,
     );
   }
@@ -306,7 +305,9 @@ class _ParticipantRow extends StatelessWidget {
                     if (isPayer) ...[
                       const SizedBox(width: 6),
                       PBadge(
-                          label: l.dutchPayer, variant: PBadgeVariant.softBrand),
+                        label: l.dutchPayer,
+                        variant: PBadgeVariant.softBrand,
+                      ),
                     ],
                   ],
                 ),

@@ -41,7 +41,9 @@ Future<bool> confirmHideAmountsUnlock(
 ) async {
   if (ref.read(appLockEnabledProvider)) {
     final l = AppLocalizations.of(context);
-    final result = await ref.read(appLockAuthProvider).authenticate(
+    final result = await ref
+        .read(appLockAuthProvider)
+        .authenticate(
           reason: l.unlockBiometricReason,
           signInTitle: l.unlockTitle,
           cancelLabel: l.actionCancel,
@@ -116,7 +118,9 @@ class _HideAmountsUnlockDialogState
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.message.isEmpty ? AppLocalizations.of(context).unlockMismatch : e.message;
+        _error = e.message.isEmpty
+            ? AppLocalizations.of(context).unlockMismatch
+            : e.message;
         _submitting = false;
         _ctrl.clear();
       });
@@ -130,17 +134,20 @@ class _HideAmountsUnlockDialogState
     final l = AppLocalizations.of(context);
     return PFormAlertDialog(
       title: l.unlockTitle,
-      titleLeading:
-          Icon(LucideIcons.shieldCheck, size: 18, color: t.fgBrand),
+      titleLeading: Icon(LucideIcons.shieldCheck, size: 18, color: t.fgBrand),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.unlockBody,
-              style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+          Text(
+            l.unlockBody,
+            style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x16),
-          Text(l.unlockPasswordLabel,
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(
+            l.unlockPasswordLabel,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x4),
           TextField(
             controller: _ctrl,
@@ -177,7 +184,9 @@ class _HideAmountsUnlockDialogState
           size: PButtonSize.lg,
           fullWidth: true,
           loading: _submitting,
-          onPressed: (_ctrl.text.trim().isEmpty || _submitting) ? null : _submit,
+          onPressed: (_ctrl.text.trim().isEmpty || _submitting)
+              ? null
+              : _submit,
         ),
       ],
     );

@@ -125,7 +125,9 @@ class _PSelectState<T> extends State<PSelect<T>> {
           key: _triggerKey,
           height: _triggerH,
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.md, vertical: PSpace.sm),
+            horizontal: PSpace.md,
+            vertical: PSpace.sm,
+          ),
           decoration: BoxDecoration(
             border: Border.all(
               color: hasError ? t.statusDanger : t.borderDefault,
@@ -148,8 +150,7 @@ class _PSelectState<T> extends State<PSelect<T>> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(LucideIcons.chevronDown,
-                  size: 16, color: t.fgSecondary),
+              Icon(LucideIcons.chevronDown, size: 16, color: t.fgSecondary),
             ],
           ),
         ),
@@ -176,10 +177,12 @@ class _PSelectState<T> extends State<PSelect<T>> {
                 showWhenUnlinked: false,
                 // 아래로 펼침(default): trigger 하단에 메뉴 상단 정렬 +gap.
                 // 위로 flip(_openUp): trigger 상단에 메뉴 하단 정렬 -gap.
-                targetAnchor:
-                    _openUp ? Alignment.topLeft : Alignment.bottomLeft,
-                followerAnchor:
-                    _openUp ? Alignment.bottomLeft : Alignment.topLeft,
+                targetAnchor: _openUp
+                    ? Alignment.topLeft
+                    : Alignment.bottomLeft,
+                followerAnchor: _openUp
+                    ? Alignment.bottomLeft
+                    : Alignment.topLeft,
                 offset: Offset(0, _openUp ? -_gap : _gap),
                 child: SizedBox(
                   width: _triggerW,
@@ -271,8 +274,10 @@ class _SelectMenuState<T> extends State<_SelectMenu<T>> {
 
   void _scrollBy(double delta) {
     if (!_ctrl.hasClients) return;
-    final target =
-        (_ctrl.offset + delta).clamp(0.0, _ctrl.position.maxScrollExtent);
+    final target = (_ctrl.offset + delta).clamp(
+      0.0,
+      _ctrl.position.maxScrollExtent,
+    );
     _ctrl.animateTo(target, duration: PMotion.fast, curve: PMotion.standard);
   }
 
@@ -372,7 +377,9 @@ class _MenuItem<T> extends StatelessWidget {
         borderRadius: PRadius.brXs,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x8, vertical: PSpace.x8),
+            horizontal: PSpace.x8,
+            vertical: PSpace.x8,
+          ),
           child: Row(
             children: [
               // 체크 영역(16) + gap(8) — 웹 indicator(left-8)~label(pl-8) 간격 정합.
@@ -393,8 +400,9 @@ class _MenuItem<T> extends StatelessWidget {
                   item.label,
                   style: PTypo.body.copyWith(
                     color: t.fgPrimary,
-                    fontWeight:
-                        selected ? PFontWeight.semi : PFontWeight.regular,
+                    fontWeight: selected
+                        ? PFontWeight.semi
+                        : PFontWeight.regular,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

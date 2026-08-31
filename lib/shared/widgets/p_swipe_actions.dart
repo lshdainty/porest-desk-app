@@ -111,8 +111,10 @@ class PSwipeActions extends StatelessWidget {
         // slidable 은 비율로 받는데 스펙은 액션당 72px 고정이다. 행 폭을 알아야
         // 비율로 바꿀 수 있어 LayoutBuilder 로 감싼다.
         final width = constraints.maxWidth;
-        final trayWidth = List.generate(actions.length, slotWidth)
-            .fold<double>(0, (a, b) => a + b);
+        final trayWidth = List.generate(
+          actions.length,
+          slotWidth,
+        ).fold<double>(0, (a, b) => a + b);
         final ratio = width > 0 ? (trayWidth / width).clamp(0.1, 0.9) : 0.5;
 
         return Slidable(
@@ -143,10 +145,12 @@ class PSwipeActions extends StatelessWidget {
                   // 간격을 왼쪽 padding 으로 만든다 — 배지가 슬롯 오른쪽에 붙어
                   // 마지막 액션이 화면 끝과 딱 맞는다. 상하 여백은 없다(행 높이 그대로).
                   padding: EdgeInsets.only(
-                      left: i == 0 ? _gapLead : _gapBetween),
+                    left: i == 0 ? _gapLead : _gapBetween,
+                  ),
                   child: ConstrainedBox(
-                    constraints:
-                        const BoxConstraints(minHeight: actionMinHeight),
+                    constraints: const BoxConstraints(
+                      minHeight: actionMinHeight,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
@@ -161,8 +165,11 @@ class PSwipeActions extends StatelessWidget {
                               color: _bg(context, a.kind),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(a.icon,
-                                size: 18, color: _fg(context, a.kind)),
+                            child: Icon(
+                              a.icon,
+                              size: 18,
+                              color: _fg(context, a.kind),
+                            ),
                           ),
                           const SizedBox(height: 2),
                         ],

@@ -24,14 +24,16 @@ void main() {
     key = GlobalKey<ScaffoldMessengerState>();
     registerErrorToastMessenger(key);
     resetGlobalErrorToastState();
-    await tester.pumpWidget(MaterialApp(
-      scaffoldMessengerKey: key,
-      theme: PorestTheme.dark(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      home: const Scaffold(body: SizedBox.expand()),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        scaffoldMessengerKey: key,
+        theme: PorestTheme.dark(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: const Scaffold(body: SizedBox.expand()),
+      ),
+    );
   }
 
   // onError 는 handler.next 로 dio 체인을 잇는데, 체인 밖에서 부르면
@@ -79,7 +81,10 @@ void main() {
   testWidgets('silent 를 준 요청은 건너뛴다', (tester) async {
     await pumpHost(tester);
     final e = DioException(
-      requestOptions: RequestOptions(path: '/x', extra: {kSilentErrorToast: true}),
+      requestOptions: RequestOptions(
+        path: '/x',
+        extra: {kSilentErrorToast: true},
+      ),
       response: Response(
         requestOptions: RequestOptions(path: '/x'),
         statusCode: 500,
@@ -99,6 +104,10 @@ void main() {
 
     fire(_err(500, '중복 메시지'));
     await settle(tester);
-    expect(find.text('중복 메시지'), findsOneWidget, reason: 'throttle 안에선 추가로 안 뜬다');
+    expect(
+      find.text('중복 메시지'),
+      findsOneWidget,
+      reason: 'throttle 안에선 추가로 안 뜬다',
+    );
   });
 }

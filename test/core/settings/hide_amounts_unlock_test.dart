@@ -86,11 +86,9 @@ void main() {
   }
 
   group('금액 가리기 해제', () {
-    testWidgets('앱 잠금이 켜져 있으면 생체인증으로 풀린다 — 비밀번호를 묻지 않는다',
-        (tester) async {
+    testWidgets('앱 잠금이 켜져 있으면 생체인증으로 풀린다 — 비밀번호를 묻지 않는다', (tester) async {
       final auth = _FakeAuth(AppLockAuthResult.success);
-      final container =
-          await pumpUnlocker(tester, auth: auth, appLock: true);
+      final container = await pumpUnlocker(tester, auth: auth, appLock: true);
 
       await tester.tap(find.text('풀기'));
       await tester.pumpAndSettle();
@@ -107,8 +105,7 @@ void main() {
 
     testWidgets('생체인증을 취소하면 비밀번호 다이얼로그로 물러선다', (tester) async {
       final auth = _FakeAuth(AppLockAuthResult.failure);
-      final container =
-          await pumpUnlocker(tester, auth: auth, appLock: true);
+      final container = await pumpUnlocker(tester, auth: auth, appLock: true);
 
       await tester.tap(find.text('풀기'));
       await tester.pumpAndSettle();
@@ -135,8 +132,7 @@ void main() {
       expect(find.text('금액 보기 인증'), findsOneWidget);
     });
 
-    testWidgets('앱 잠금이 꺼져 있으면 프롬프트 없이 바로 비밀번호를 묻는다',
-        (tester) async {
+    testWidgets('앱 잠금이 꺼져 있으면 프롬프트 없이 바로 비밀번호를 묻는다', (tester) async {
       final auth = _FakeAuth(AppLockAuthResult.success);
       await pumpUnlocker(tester, auth: auth, appLock: false);
 

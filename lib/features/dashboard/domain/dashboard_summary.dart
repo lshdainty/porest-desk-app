@@ -41,8 +41,7 @@ class CalendarCountSummary {
   factory CalendarCountSummary.fromJson(Map<String, dynamic> j) =>
       CalendarCountSummary(
         todayEventCount: (j['todayEventCount'] as num?)?.toInt() ?? 0,
-        upcomingEventCount:
-            (j['upcomingEventCount'] as num?)?.toInt() ?? 0,
+        upcomingEventCount: (j['upcomingEventCount'] as num?)?.toInt() ?? 0,
         nextEventDate: j['nextEventDate'] as String?,
       );
 }
@@ -77,10 +76,10 @@ class MemoCountSummary {
   final int pinnedCount;
   final String? recentMemoTitle;
   factory MemoCountSummary.fromJson(Map<String, dynamic> j) => MemoCountSummary(
-        totalCount: (j['totalCount'] as num?)?.toInt() ?? 0,
-        pinnedCount: (j['pinnedCount'] as num?)?.toInt() ?? 0,
-        recentMemoTitle: j['recentMemoTitle'] as String?,
-      );
+    totalCount: (j['totalCount'] as num?)?.toInt() ?? 0,
+    pinnedCount: (j['pinnedCount'] as num?)?.toInt() ?? 0,
+    recentMemoTitle: j['recentMemoTitle'] as String?,
+  );
 }
 
 class UpcomingEvent {
@@ -99,13 +98,13 @@ class UpcomingEvent {
   final String? startDate; // ISO datetime
   final int daysUntil;
   factory UpcomingEvent.fromJson(Map<String, dynamic> j) => UpcomingEvent(
-        rowId: (j['rowId'] as num).toInt(),
-        title: (j['title'] as String?) ?? '',
-        eventType: j['eventType'] as String?,
-        color: j['color'] as String?,
-        startDate: j['startDate'] as String?,
-        daysUntil: (j['daysUntil'] as num?)?.toInt() ?? 0,
-      );
+    rowId: (j['rowId'] as num).toInt(),
+    title: (j['title'] as String?) ?? '',
+    eventType: j['eventType'] as String?,
+    color: j['color'] as String?,
+    startDate: j['startDate'] as String?,
+    daysUntil: (j['daysUntil'] as num?)?.toInt() ?? 0,
+  );
 }
 
 class RecentTodo {
@@ -122,12 +121,12 @@ class RecentTodo {
   final String? status;
   final String? dueDate; // YYYY-MM-DD
   factory RecentTodo.fromJson(Map<String, dynamic> j) => RecentTodo(
-        rowId: (j['rowId'] as num).toInt(),
-        title: (j['title'] as String?) ?? '',
-        priority: j['priority'] as String?,
-        status: j['status'] as String?,
-        dueDate: j['dueDate'] as String?,
-      );
+    rowId: (j['rowId'] as num).toInt(),
+    title: (j['title'] as String?) ?? '',
+    priority: j['priority'] as String?,
+    status: j['status'] as String?,
+    dueDate: j['dueDate'] as String?,
+  );
 }
 
 class DailyExpenseTrendPoint {
@@ -173,14 +172,18 @@ class DashboardSummary {
     }
 
     return DashboardSummary(
-      todoSummary:
-          TodoCountSummary.fromJson(j['todoSummary'] as Map<String, dynamic>? ?? const {}),
+      todoSummary: TodoCountSummary.fromJson(
+        j['todoSummary'] as Map<String, dynamic>? ?? const {},
+      ),
       calendarSummary: CalendarCountSummary.fromJson(
-          j['calendarSummary'] as Map<String, dynamic>? ?? const {}),
+        j['calendarSummary'] as Map<String, dynamic>? ?? const {},
+      ),
       expenseSummary: ExpenseCountSummary.fromJson(
-          j['expenseSummary'] as Map<String, dynamic>? ?? const {}),
-      memoSummary:
-          MemoCountSummary.fromJson(j['memoSummary'] as Map<String, dynamic>? ?? const {}),
+        j['expenseSummary'] as Map<String, dynamic>? ?? const {},
+      ),
+      memoSummary: MemoCountSummary.fromJson(
+        j['memoSummary'] as Map<String, dynamic>? ?? const {},
+      ),
       upcomingEvents: mapList('upcomingEvents', UpcomingEvent.fromJson),
       recentTodos: mapList('recentTodos', RecentTodo.fromJson),
       expenseTrend: mapList('expenseTrend', DailyExpenseTrendPoint.fromJson),

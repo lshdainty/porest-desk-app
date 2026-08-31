@@ -28,8 +28,10 @@ class StocksRepository {
 
   /// 한글명·영문명·심볼 부분일치 검색 상위 [size]개.
   /// 정확 일치 > prefix > 부분 일치 정렬은 서버(stock_master)가 보장한다.
-  Future<List<StockMasterItem>> searchStocks(String keyword,
-      {int size = 8}) async {
+  Future<List<StockMasterItem>> searchStocks(
+    String keyword, {
+    int size = 8,
+  }) async {
     try {
       final res = await _dio.get<dynamic>(
         '/stocks',
@@ -129,7 +131,9 @@ class StocksRepository {
         '/toss/holdings',
         queryParameters: {'accountSeq': accountSeq, 'symbol': ?symbol},
       );
-      return TossHoldings.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
+      return TossHoldings.fromJson(
+        _payload(res) as Map<String, dynamic>? ?? {},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -156,10 +160,15 @@ class StocksRepository {
       String? nextBefore;
       var remaining = count;
       while (remaining > 0) {
-        final pageSize =
-            remaining < _tossCandleMax ? remaining : _tossCandleMax;
-        final page = await _getCandlePage(symbol, interval,
-            size: pageSize, cursor: cursor);
+        final pageSize = remaining < _tossCandleMax
+            ? remaining
+            : _tossCandleMax;
+        final page = await _getCandlePage(
+          symbol,
+          interval,
+          size: pageSize,
+          cursor: cursor,
+        );
         if (page.candles.isEmpty) break;
         for (final c in page.candles) {
           if (seen.add(c.timestamp)) merged.add(c);
@@ -190,7 +199,9 @@ class StocksRepository {
         'cursor': ?cursor,
       },
     );
-    return TossCandlePage.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
+    return TossCandlePage.fromJson(
+      _payload(res) as Map<String, dynamic>? ?? {},
+    );
   }
 
   Future<List<TossStockInfo>> getStocks(List<String> symbols) async {
@@ -228,7 +239,9 @@ class StocksRepository {
         '/toss/price-limits',
         queryParameters: {'symbol': symbol},
       );
-      return TossPriceLimit.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
+      return TossPriceLimit.fromJson(
+        _payload(res) as Map<String, dynamic>? ?? {},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -241,7 +254,8 @@ class StocksRepository {
         queryParameters: {'date': ?date},
       );
       return TossKrMarketCalendar.fromJson(
-          _payload(res) as Map<String, dynamic>? ?? {});
+        _payload(res) as Map<String, dynamic>? ?? {},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -254,7 +268,8 @@ class StocksRepository {
         queryParameters: {'date': ?date},
       );
       return TossUsMarketCalendar.fromJson(
-          _payload(res) as Map<String, dynamic>? ?? {});
+        _payload(res) as Map<String, dynamic>? ?? {},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -280,14 +295,17 @@ class StocksRepository {
         },
       );
       return TossRankingResponse.fromJson(
-          _payload(res) as Map<String, dynamic>? ?? {});
+        _payload(res) as Map<String, dynamic>? ?? {},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
   }
 
   /// 시장 지표 현재가 (KOSPI·KOSDAQ 지수 등 토스 카탈로그 8종).
-  Future<List<TossIndicatorPrice>> getIndicatorPrices(List<String> symbols) async {
+  Future<List<TossIndicatorPrice>> getIndicatorPrices(
+    List<String> symbols,
+  ) async {
     try {
       final res = await _dio.get<dynamic>(
         '/toss/market-indicators/prices',
@@ -328,7 +346,10 @@ class StocksRepository {
     }
   }
 
-  Future<StockWatchGroup> renameWatchGroup(int groupId, String groupName) async {
+  Future<StockWatchGroup> renameWatchGroup(
+    int groupId,
+    String groupName,
+  ) async {
     try {
       final res = await _dio.put<dynamic>(
         '/stock-watch/groups/$groupId',
@@ -349,8 +370,11 @@ class StocksRepository {
   }
 
   /// marketCode 미지정 시 서버가 심볼 정확 일치 중 KR/US 시장을 우선 해석한다.
-  Future<WatchItem> addWatchItem(int groupId, String symbol,
-      {String? marketCode}) async {
+  Future<WatchItem> addWatchItem(
+    int groupId,
+    String symbol, {
+    String? marketCode,
+  }) async {
     try {
       final res = await _dio.post<dynamic>(
         '/stock-watch/groups/$groupId/items',

@@ -138,7 +138,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     final start = e.start;
     final end = e.end;
-    final sameDay = start.year == end.year &&
+    final sameDay =
+        start.year == end.year &&
         start.month == end.month &&
         start.day == end.day;
     String shortDate(DateTime d) {
@@ -151,9 +152,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     // D-day — 오늘 기준 시작일. 임박(D-0~3)은 danger 강조 (design).
     final now = DateTime.now();
-    final dd = DateTime(start.year, start.month, start.day)
-        .difference(DateTime(now.year, now.month, now.day))
-        .inDays;
+    final dd = DateTime(
+      start.year,
+      start.month,
+      start.day,
+    ).difference(DateTime(now.year, now.month, now.day)).inDays;
     final ddLabel = dd == 0
         ? l.calDetailDday
         : (dd > 0 ? l.calDetailDdayLeft(dd) : l.calDetailDdayPast(-dd));
@@ -165,8 +168,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       if (durMin > 0) {
         durLabel = durMin >= 60
             ? (durMin % 60 != 0
-                ? l.calDetailDurationHM(durMin ~/ 60, durMin % 60)
-                : l.calDetailDurationH(durMin ~/ 60))
+                  ? l.calDetailDurationHM(durMin ~/ 60, durMin % 60)
+                  : l.calDetailDurationH(durMin ~/ 60))
             : l.calDetailDurationM(durMin);
       }
     }
@@ -177,10 +180,14 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final calName = e.calendarRowId == null
         ? null
         : calendars
-            .where((c) => c.rowId == e.calendarRowId)
-            .firstOrNull
-            ?.calendarName;
-    final calColor = solidSwatchColor(context, e.calendarColor, fallback: color);
+              .where((c) => c.rowId == e.calendarRowId)
+              .firstOrNull
+              ?.calendarName;
+    final calColor = solidSwatchColor(
+      context,
+      e.calendarColor,
+      fallback: color,
+    );
 
     return ListView(
       controller: widget.scrollController,

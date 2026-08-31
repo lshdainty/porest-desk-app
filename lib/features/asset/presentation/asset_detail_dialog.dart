@@ -185,7 +185,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     }
     final masked = ref.watch(hideCardProvider('asset.detail'));
     final meta = AssetTypeMeta.of(asset.assetType);
-    final brandFg = resolveChartColor(context, asset.color, fallback: t.fgBrand);
+    final brandFg = resolveChartColor(
+      context,
+      asset.color,
+      fallback: t.fgBrand,
+    );
 
     final isCard =
         asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
@@ -212,8 +216,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       isCard
           ? l.assetTrendKindUsage
           : isInv
-              ? l.assetTrendKindValuation
-              : l.assetTrendKindBalance,
+          ? l.assetTrendKindValuation
+          : l.assetTrendKindBalance,
     );
 
     final trendAsync = ref.watch(
@@ -226,34 +230,41 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
     final recentAsync = isCheckLinked
         ? ref
-            .watch(assetPeriodExpensesProvider((
-              assetId: asset.rowId,
-              startDate: ymd(DateTime(now.year, now.month, 1)),
-              endDate: ymd(DateTime(now.year, now.month + 1, 0)),
-            )))
-            // 기간 provider 는 예정분을 안 거른다 — "이번 달 내역" 규칙(지나간 것만)을 여기서 맞춘다.
-            .whenData((list) =>
-                list.where((e) => !isScheduledTx(e.expenseDate)).toList())
-        : ref.watch(
-            expensesByAssetProvider((assetId: asset.rowId, limit: 12)),
-          );
+              .watch(
+                assetPeriodExpensesProvider((
+                  assetId: asset.rowId,
+                  startDate: ymd(DateTime(now.year, now.month, 1)),
+                  endDate: ymd(DateTime(now.year, now.month + 1, 0)),
+                )),
+              )
+              // 기간 provider 는 예정분을 안 거른다 — "이번 달 내역" 규칙(지나간 것만)을 여기서 맞춘다.
+              .whenData(
+                (list) =>
+                    list.where((e) => !isScheduledTx(e.expenseDate)).toList(),
+              )
+        : ref.watch(expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
     // 이체는 expense 가 아니라 asset_transfer — 따로 받아 이 자산에 걸린 것만 추린다.
     // 한 건이 자산 두 개에 걸치므로 보내는 쪽·받는 쪽 둘 다 확인한다(서버 필터는 기간만 지원).
     final monthPrefix =
         '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
-    final assetTransfers = (ref
-                .watch(assetTransfersProvider((startDate: null, endDate: null)))
-                .value ??
-            const <AssetTransfer>[])
-        .where((tr) =>
-            (tr.fromAssetRowId == asset.rowId ||
-                tr.toAssetRowId == asset.rowId) &&
-            // 지출과 같은 규칙 — "최근 거래" 에는 지나간 것만 올린다.
-            !isScheduledTx(tr.transferDate) &&
-            // 체크카드 "이번 달 내역" 은 이체도 당월만 — 지출과 기간을 맞춘다.
-            (!isCheckLinked ||
-                (tr.transferDate ?? '').startsWith(monthPrefix)))
-        .toList();
+    final assetTransfers =
+        (ref
+                    .watch(
+                      assetTransfersProvider((startDate: null, endDate: null)),
+                    )
+                    .value ??
+                const <AssetTransfer>[])
+            .where(
+              (tr) =>
+                  (tr.fromAssetRowId == asset.rowId ||
+                      tr.toAssetRowId == asset.rowId) &&
+                  // 지출과 같은 규칙 — "최근 거래" 에는 지나간 것만 올린다.
+                  !isScheduledTx(tr.transferDate) &&
+                  // 체크카드 "이번 달 내역" 은 이체도 당월만 — 지출과 기간을 맞춘다.
+                  (!isCheckLinked ||
+                      (tr.transferDate ?? '').startsWith(monthPrefix)),
+            )
+            .toList();
     // CREDIT_CARD 는 신판 카드 상세 본문(_CardDetailBody) — 회차 히어로가 금액 담당.
     final isCredit = asset.assetType == 'CREDIT_CARD';
 
@@ -270,118 +281,118 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           nameRowOnly: isCredit,
         ),
         if (isCredit) ...[
-          _CardDetailBody(
-            asset: asset,
-            masked: masked,
-            onEdit: widget.onEdit,
-          ),
+          _CardDetailBody(asset: asset, masked: masked, onEdit: widget.onEdit),
         ] else ...[
-        const SizedBox(height: PSpace.x16),
-        // 체크카드 — 실적 배지만(청구 회차 없음, design 신판)
-        if (isCard) ...[
-          _CardPerfBadge(assetRowId: asset.rowId, masked: masked),
           const SizedBox(height: PSpace.x16),
-        ],
-        if (isInv) ...[
-          _InvChangeLine(assetRowId: asset.rowId, masked: masked),
-          _HoldingsSection(asset: asset, onEdit: widget.onEdit),
-          const SizedBox(height: PSpace.x16),
-        ],
-
-        // Trend header — 연결계좌형 체크카드는 잔액이 늘 0 이라 평평한 0 선뿐이다.
-        // 차트만 빼고 내역은 그대로 둔다. (web 정합)
-        if (!isCheckLinked) ...[
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                trendTitle,
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            PTabs<_Period>(
-              value: _period,
-              size: PTabsSize.sm,
-              items: [
-                for (final p in _Period.values)
-                  PTabItem(value: p, label: p.label(l)),
-              ],
-              onChanged: (p) => setState(() => _period = p),
-            ),
+          // 체크카드 — 실적 배지만(청구 회차 없음, design 신판)
+          if (isCard) ...[
+            _CardPerfBadge(assetRowId: asset.rowId, masked: masked),
+            const SizedBox(height: PSpace.x16),
           ],
-        ),
-        const SizedBox(height: PSpace.x12),
-        SizedBox(
-          height: 160,
-          child: _BalanceTrendChart(
-            async: trendAsync,
-            tokens: t,
-            brandFg: brandFg,
-            seriesLabel: seriesLabel,
-            masked: masked,
-          ),
-        ),
-        const SizedBox(height: PSpace.x20),
-        ],
+          if (isInv) ...[
+            _InvChangeLine(assetRowId: asset.rowId, masked: masked),
+            _HoldingsSection(asset: asset, onEdit: widget.onEdit),
+            const SizedBox(height: PSpace.x16),
+          ],
 
-        // Recent tx
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                (recentAsync.value?.isNotEmpty ?? false)
-                    ? (isCheckLinked
-                        ? l.assetMonthTxCount(recentAsync.value!.length)
-                        : l.assetRecentTxCount(recentAsync.value!.length))
-                    : l.dashRecent,
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
+          // Trend header — 연결계좌형 체크카드는 잔액이 늘 0 이라 평평한 0 선뿐이다.
+          // 차트만 빼고 내역은 그대로 둔다. (web 정합)
+          if (!isCheckLinked) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    trendTitle,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ),
-            InkWell(
-              borderRadius: PRadius.brSm,
-              onTap: () {
-                Navigator.of(context).pop();
-                context.go('/expense?assetId=${asset.rowId}');
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l.assetViewAll,
-                      style: PTypo.bodySm.copyWith(
-                        color: t.fgSecondary,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    Icon(
-                      LucideIcons.chevronRight,
-                      size: 12,
-                      color: t.fgSecondary,
-                    ),
+                PTabs<_Period>(
+                  value: _period,
+                  size: PTabsSize.sm,
+                  items: [
+                    for (final p in _Period.values)
+                      PTabItem(value: p, label: p.label(l)),
                   ],
+                  onChanged: (p) => setState(() => _period = p),
                 ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x12),
+            SizedBox(
+              height: 160,
+              child: _BalanceTrendChart(
+                async: trendAsync,
+                tokens: t,
+                brandFg: brandFg,
+                seriesLabel: seriesLabel,
+                masked: masked,
               ),
             ),
+            const SizedBox(height: PSpace.x20),
           ],
-        ),
-        const SizedBox(height: PSpace.x8),
-        _RecentExpenses(
+
+          // Recent tx
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  (recentAsync.value?.isNotEmpty ?? false)
+                      ? (isCheckLinked
+                            ? l.assetMonthTxCount(recentAsync.value!.length)
+                            : l.assetRecentTxCount(recentAsync.value!.length))
+                      : l.dashRecent,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+              ),
+              InkWell(
+                borderRadius: PRadius.brSm,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.go('/expense?assetId=${asset.rowId}');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l.assetViewAll,
+                        style: PTypo.bodySm.copyWith(
+                          color: t.fgSecondary,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(
+                        LucideIcons.chevronRight,
+                        size: 12,
+                        color: t.fgSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x8),
+          _RecentExpenses(
             async: recentAsync,
             transfers: assetTransfers,
             perspectiveAssetRowId: asset.rowId,
             flags: ref.watch(maskFlagsProvider('asset.detail')),
-            tokens: t),
+            tokens: t,
+          ),
         ],
       ],
     );
@@ -469,7 +480,8 @@ class _HoldingsSection extends ConsumerWidget {
     // 연동 심볼 시세 — 게이트(프로+토스연결) ON 일 때만 조회.
     final features = ref.watch(myFeaturesProvider).asData?.value;
     final gate =
-        (features?.hasSecurities ?? false) && (features?.hasBrokerConnection ?? false);
+        (features?.hasSecurities ?? false) &&
+        (features?.hasBrokerConnection ?? false);
     final symbols = [
       for (final h in holdings)
         if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,
@@ -521,18 +533,25 @@ class _HoldingsSection extends ConsumerWidget {
               holding: holdings[i],
               // 매수·매도는 종목마다 연다 — 어떤 종목인지 정해진 채로 들어가야
               // 다시 고를 일이 없다(종목 추가는 편집에서 토스 검색으로).
-              onTrade: (type) => showAssetTradeSheet(context,
-                  asset: asset, holding: holdings[i], defaultType: type),
+              onTrade: (type) => showAssetTradeSheet(
+                context,
+                asset: asset,
+                holding: holdings[i],
+                defaultType: type,
+              ),
               first: i == 0,
-              unitKrw: holdings[i].linked &&
+              unitKrw:
+                  holdings[i].linked &&
                       (holdings[i].tossSymbol?.isNotEmpty ?? false)
                   ? unitKrw(holdings[i].tossSymbol!)
                   : null,
-              rawPrice: holdings[i].linked &&
+              rawPrice:
+                  holdings[i].linked &&
                       (holdings[i].tossSymbol?.isNotEmpty ?? false)
                   ? live?.quoteOf(holdings[i].tossSymbol!)
                   : null,
-              prevUnitKrw: holdings[i].linked &&
+              prevUnitKrw:
+                  holdings[i].linked &&
                       (holdings[i].tossSymbol?.isNotEmpty ?? false)
                   ? live?.prevUnitKrw(holdings[i].tossSymbol!)
                   : null,
@@ -562,9 +581,13 @@ class _TradeHistory extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: PSpace.x16),
-        Text(l.tradeHistory,
-            style: PTypo.bodySm
-                .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+        Text(
+          l.tradeHistory,
+          style: PTypo.bodySm.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
+          ),
+        ),
         for (final tr in trades)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
@@ -579,24 +602,33 @@ class _TradeHistory extends ConsumerWidget {
                 ),
                 const SizedBox(width: PSpace.x8),
                 Expanded(
-                  child: Text(tr.holdingKey,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+                  child: Text(
+                    tr.holdingKey,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.bodySm.copyWith(color: t.fgPrimary),
+                  ),
                 ),
                 Text(
                   '${tr.quantity ?? ''} · ${(tr.tradeDate ?? '').split('T').first}',
                   style: PTypo.micro.copyWith(color: t.fgTertiary),
                 ),
                 const SizedBox(width: PSpace.x8),
-                Text(krwSigned(tr.amount ?? 0, false, unit: true),
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  krwSigned(tr.amount ?? 0, false, unit: true),
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 if (tr.realizedPl != null && tr.realizedPl != 0) ...[
                   const SizedBox(width: PSpace.x8),
                   Text(
-                    krwSigned(tr.realizedPl!.abs(), false,
-                        sign: tr.realizedPl! > 0 ? '+' : '-'),
+                    krwSigned(
+                      tr.realizedPl!.abs(),
+                      false,
+                      sign: tr.realizedPl! > 0 ? '+' : '-',
+                    ),
                     style: PTypo.micro.copyWith(
                       color: tr.realizedPl! > 0 ? t.fgIncome : t.fgExpense,
                       fontWeight: PFontWeight.bold,
@@ -616,7 +648,11 @@ class _TradeHistory extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, int rowId) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    int rowId,
+  ) async {
     final l = AppLocalizations.of(context);
     // "삭제" 라벨은 자산 삭제와 헷갈린다 — 웹과 같은 "거래 취소" 로 통일한다.
     final ok = await showPConfirmDialog(
@@ -658,6 +694,7 @@ class _HoldingRow extends ConsumerWidget {
   /// 행에서 직접 캔들을 부르면 나무 사용자에게 종목 수만큼 403 이 나간다.
   final double? prevUnitKrw;
   final VoidCallback? onTap;
+
   /// 이 종목에 대한 매수·매도. 종목이 정해진 자리라 시트에서 다시 고를 필요가 없다.
   final ValueChanged<String>? onTrade;
 
@@ -695,13 +732,16 @@ class _HoldingRow extends ConsumerWidget {
     // 평가액 — linked: 라이브(가격×수량), 폴백 서버 스냅샷(holdingValue) / manual: holdingValue.
     final int? value = h.linked
         ? (unitKrw != null
-            ? (unitKrw! * h.quantityValue).round()
-            : h.holdingValue)
+              ? (unitKrw! * h.quantityValue).round()
+              : h.holdingValue)
         : (h.holdingValue ?? 0);
 
     // 등락% — 연동 + 전일종가 확보 시. 원화 환산가끼리 비교해도 비율은 같다.
     double? pct;
-    if (h.linked && unitKrw != null && prevUnitKrw != null && prevUnitKrw! > 0) {
+    if (h.linked &&
+        unitKrw != null &&
+        prevUnitKrw != null &&
+        prevUnitKrw! > 0) {
       pct = (unitKrw! - prevUnitKrw!) / prevUnitKrw! * 100;
     }
 
@@ -710,9 +750,7 @@ class _HoldingRow extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
         decoration: BoxDecoration(
-          border: first
-              ? null
-              : Border(top: BorderSide(color: t.borderSubtle)),
+          border: first ? null : Border(top: BorderSide(color: t.borderSubtle)),
         ),
         child: Row(
           children: [
@@ -834,8 +872,8 @@ class _HeroCard extends StatelessWidget {
     final heroBalance = checkLinked
         ? (asset.monthlyUsedAmount ?? 0)
         : heroIsCard
-            ? rawBalance.abs()
-            : rawBalance;
+        ? rawBalance.abs()
+        : rawBalance;
     // 플랫 히어로(design 신판) — 그라데이션 카드 제거, 이름 행 아래 구분선만.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -883,51 +921,54 @@ class _HeroCard extends StatelessWidget {
           ),
         ),
         if (!nameRowOnly) ...[
-        Text(
-          valueLabel,
-          style: PTypo.micro.copyWith(
-            color: t.fgTertiary,
-            fontWeight: PFontWeight.semi,
-            letterSpacing: 0.4,
+          Text(
+            valueLabel,
+            style: PTypo.micro.copyWith(
+              color: t.fgTertiary,
+              fontWeight: PFontWeight.semi,
+              letterSpacing: 0.4,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        // 큰 금액 — 숫자/원 분리해서 원 폰트만 작게.
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                // 카드는 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정).
-                // 그 밖은 마이너스면 그대로 보여 준다.
-                text: masked
-                    ? '••••••'
-                    : (heroBalance < 0 ? '−${krw(heroBalance.abs())}' : krw(heroBalance)),
-                style: PTypo.h1.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.6,
-                ),
-              ),
-              if (!masked)
+          const SizedBox(height: 4),
+          // 큰 금액 — 숫자/원 분리해서 원 폰트만 작게.
+          RichText(
+            text: TextSpan(
+              children: [
                 TextSpan(
-                  text: wonUnit(),
-                  style: PTypo.body.copyWith(
+                  // 카드는 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정).
+                  // 그 밖은 마이너스면 그대로 보여 준다.
+                  text: masked
+                      ? '••••••'
+                      : (heroBalance < 0
+                            ? '−${krw(heroBalance.abs())}'
+                            : krw(heroBalance)),
+                  style: PTypo.h1.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
+                    letterSpacing: -0.6,
                   ),
                 ),
-            ],
+                if (!masked)
+                  TextSpan(
+                    text: wonUnit(),
+                    style: PTypo.body.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-        // 예수금·평가금액 — 실제 증권 계좌처럼 나눠 보여 준다(예수금이 있을 때만).
-        if (asset.assetType == 'INVESTMENT' && (asset.cashBalance ?? 0) != 0) ...[
-          const SizedBox(height: PSpace.x8),
-          Text(
-            '${l.assetCashBalance} ${masked ? '••••••' : krw(asset.cashBalance!)}'
-            ' · ${l.assetHoldingBalance} ${masked ? '••••••' : krw(asset.holdingBalance ?? 0)}',
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-          ),
-        ],
+          // 예수금·평가금액 — 실제 증권 계좌처럼 나눠 보여 준다(예수금이 있을 때만).
+          if (asset.assetType == 'INVESTMENT' &&
+              (asset.cashBalance ?? 0) != 0) ...[
+            const SizedBox(height: PSpace.x8),
+            Text(
+              '${l.assetCashBalance} ${masked ? '••••••' : krw(asset.cashBalance!)}'
+              ' · ${l.assetHoldingBalance} ${masked ? '••••••' : krw(asset.holdingBalance ?? 0)}',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+          ],
         ],
       ],
     );
@@ -970,7 +1011,9 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     }
     if (list.isEmpty) {
       return _ChartPlaceholder(
-          text: AppLocalizations.of(context).assetChartNoData, tokens: tokens);
+        text: AppLocalizations.of(context).assetChartNoData,
+        tokens: tokens,
+      );
     }
     final n = list.length;
     final spots = [
@@ -979,7 +1022,9 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     ];
     // Y축: 웹 Recharts auto-nice 와 동일한 0기준 nice 눈금 (공유 niceAxis).
     // 대출 등 음수 잔액이면 0 아래로도 nice 확장 → 눈금이 딱 떨어지고 겹치지 않음.
-    final values = list.map((p) => p.balance.toDouble()).toList(growable: false);
+    final values = list
+        .map((p) => p.balance.toDouble())
+        .toList(growable: false);
     final maxRaw = values.reduce((a, b) => a > b ? a : b);
     final minRaw = values.reduce((a, b) => a < b ? a : b);
     final yAxis = niceAxis(minRaw, maxRaw);
@@ -1082,7 +1127,9 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
             }
             final i = touched.first.x.toInt();
             final pos = event.localPosition;
-            if (i >= 0 && i < list.length && (i != _touchedIdx || pos != _touchPos)) {
+            if (i >= 0 &&
+                i < list.length &&
+                (i != _touchedIdx || pos != _touchPos)) {
               setState(() {
                 _touchedIdx = i;
                 if (pos != null) _touchPos = pos;
@@ -1154,7 +1201,9 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     return Stack(
       children: [
         chart,
-        if (_touchedIdx != null && _touchedIdx! < list.length && _touchPos != null)
+        if (_touchedIdx != null &&
+            _touchedIdx! < list.length &&
+            _touchPos != null)
           PChartTooltipLayer(
             anchor: _touchPos!,
             child: PChartTooltipBox(
@@ -1168,7 +1217,11 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
                   label: seriesLabel,
                   amount: masked
                       ? '••••••'
-                      : krwSigned(list[_touchedIdx!].balance, false, unit: true),
+                      : krwSigned(
+                          list[_touchedIdx!].balance,
+                          false,
+                          unit: true,
+                        ),
                 ),
               ],
             ),
@@ -1208,11 +1261,14 @@ class _RecentExpenses extends StatelessWidget {
     this.perspectiveAssetRowId,
   });
   final AsyncValue<List<Expense>> async;
+
   /// 화면 카드 + 종류 카드 — 행·일합계마다 자기 종류로 판정한다.
   final MaskFlags flags;
   final PorestTokens tokens;
+
   /// 이 자산에 걸린 이체. 지출/수입 일 합계에는 넣지 않고 그날 행 뒤에만 붙인다.
   final List<AssetTransfer> transfers;
+
   /// 부호 기준 자산 — 출금이면 -(금액+수수료), 입금이면 +금액.
   final int? perspectiveAssetRowId;
   @override
@@ -1243,7 +1299,10 @@ class _RecentExpenses extends StatelessWidget {
                 child: Row(
                   children: [
                     PSkeleton(
-                        width: 36, height: 36, borderRadius: PRadius.tile(36)),
+                      width: 36,
+                      height: 36,
+                      borderRadius: PRadius.tile(36),
+                    ),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
@@ -1300,13 +1359,16 @@ class _RecentExpenses extends StatelessWidget {
           ),
           for (final e in entries[gi].value)
             _ExpenseRow(
-                expense: e,
-                masked: flags.ofType(e.expenseType),
-                tokens: tokens),
+              expense: e,
+              masked: flags.ofType(e.expenseType),
+              tokens: tokens,
+            ),
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬과 같은 자리.
-          for (final tr in transfers.where((x) =>
-              (x.transferDate ?? '').length >= 10 &&
-              x.transferDate!.substring(0, 10) == entries[gi].key))
+          for (final tr in transfers.where(
+            (x) =>
+                (x.transferDate ?? '').length >= 10 &&
+                x.transferDate!.substring(0, 10) == entries[gi].key,
+          ))
             TransferRow(
               key: ValueKey('t${tr.rowId}'),
               transfer: tr,
@@ -1330,6 +1392,7 @@ class _DayGroupHeader extends StatelessWidget {
   });
   final String dayKey;
   final List<Expense> items;
+
   /// 지출합·수입합이 각자 종류를 갖는다.
   final MaskFlags flags;
   final PorestTokens tokens;
@@ -1360,7 +1423,12 @@ class _DayGroupHeader extends StatelessWidget {
         const Spacer(),
         if (dayExpense > 0)
           Text(
-            krwSigned(dayExpense, flags.of(MaskKind.expense), sign: '−', unit: true),
+            krwSigned(
+              dayExpense,
+              flags.of(MaskKind.expense),
+              sign: '−',
+              unit: true,
+            ),
             style: PTypo.caption.copyWith(
               color: tokens.fgExpense,
               fontWeight: PFontWeight.semi,
@@ -1369,7 +1437,12 @@ class _DayGroupHeader extends StatelessWidget {
         if (dayIncome > 0) ...[
           if (dayExpense > 0) const SizedBox(width: PSpace.x8),
           Text(
-            krwSigned(dayIncome, flags.of(MaskKind.income), sign: '+', unit: true),
+            krwSigned(
+              dayIncome,
+              flags.of(MaskKind.income),
+              sign: '+',
+              unit: true,
+            ),
             style: PTypo.caption.copyWith(
               color: tokens.fgIncome,
               fontWeight: PFontWeight.semi,
@@ -1393,7 +1466,11 @@ class _ExpenseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final color = resolveChartColor(context, expense.categoryColor, fallback: tokens.fgBrand);
+    final color = resolveChartColor(
+      context,
+      expense.categoryColor,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(context, color);
     final title =
         expense.merchant ??
@@ -1415,7 +1492,10 @@ class _ExpenseRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.tile(36),
+              ),
               alignment: Alignment.center,
               child: Icon(
                 lucideByName(expense.categoryIcon),
@@ -1452,8 +1532,12 @@ class _ExpenseRow extends StatelessWidget {
             Text(
               masked
                   ? '••••••'
-                  : krwSigned(expense.signedAmount, false,
-                      sign: expense.signedAmount > 0 ? '+' : '', unit: true),
+                  : krwSigned(
+                      expense.signedAmount,
+                      false,
+                      sign: expense.signedAmount > 0 ? '+' : '',
+                      unit: true,
+                    ),
               style: PTypo.bodySm.copyWith(
                 color: tokens.fgPrimary,
                 fontWeight: PFontWeight.bold,
@@ -1471,8 +1555,8 @@ class _ExpenseRow extends StatelessWidget {
 /// chart green 시멘틱(실적 달성) — 다크 light variant 스왑(웹 --color-cat-green 미러).
 Color _chartGreenOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xFF6BCB86) // chart-green-light
-        : const Color(0xFF2D8060); // chart-green
+    ? const Color(0xFF6BCB86) // chart-green-light
+    : const Color(0xFF2D8060); // chart-green
 
 /// 결제 회차(청구월) 항목 — 예정 1건 + 과거 결제 완료(COMPLETED) 이력.
 class _CardStatement {
@@ -1503,8 +1587,12 @@ class _CardPerfBadge extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final async = ref.watch(cardPerformanceProvider(
-        (assetRowId: assetRowId, yearMonth: _currentYearMonth())));
+    final async = ref.watch(
+      cardPerformanceProvider((
+        assetRowId: assetRowId,
+        yearMonth: _currentYearMonth(),
+      )),
+    );
     final p = async.value;
     if (async.isLoading && p == null) {
       return Container(
@@ -1545,8 +1633,8 @@ class _CardPerfBadge extends ConsumerWidget {
         // (sRGB alphaBlend 10% 는 녹색기가 죽어 웹과 어긋남 — oklab 혼합 미러)
         color: done
             ? (Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF2B3840)
-                : const Color(0xFFEAF2EE))
+                  ? const Color(0xFF2B3840)
+                  : const Color(0xFFEAF2EE))
             : t.bgSunken,
         borderRadius: PRadius.brLg,
       ),
@@ -1555,7 +1643,10 @@ class _CardPerfBadge extends ConsumerWidget {
           Container(
             width: 30,
             height: 30,
-            decoration: BoxDecoration(color: t.bgSurface, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: t.bgSurface,
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
             child: Icon(
               done ? LucideIcons.check : LucideIcons.target,
@@ -1573,7 +1664,8 @@ class _CardPerfBadge extends ConsumerWidget {
                   done
                       ? l.assetPerfDone
                       : l.assetPerfRemain(
-                          krwSigned(p.remainingAmount ?? 0, masked, unit: true)),
+                          krwSigned(p.remainingAmount ?? 0, masked, unit: true),
+                        ),
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
@@ -1623,14 +1715,16 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     final out = <_CardStatement>[];
     if (b?.nextPaymentDate != null) {
       final d = DateTime.tryParse(b!.nextPaymentDate!);
-      out.add(_CardStatement(
-        label: d != null ? formatDay(d).md : b.nextPaymentDate!,
-        scheduled: true,
-        amount: b.upcomingAmount,
-        paymentDate: b.nextPaymentDate!,
-        periodStart: b.upcomingPeriodStart,
-        periodEnd: b.upcomingPeriodEnd,
-      ));
+      out.add(
+        _CardStatement(
+          label: d != null ? formatDay(d).md : b.nextPaymentDate!,
+          scheduled: true,
+          amount: b.upcomingAmount,
+          paymentDate: b.nextPaymentDate!,
+          periodStart: b.upcomingPeriodStart,
+          periodEnd: b.upcomingPeriodEnd,
+        ),
+      );
     }
     // 과거 회차 — 결제월별 합산: 같은 달에 여러 번(선결제 등) 결제해도 월 1행(사용자 결정).
     // 라벨은 정규 결제일(paymentDay, 말일 보정), 기간은 결제월의 전월 1일~말일(백엔드 회차 규칙 미러).
@@ -1656,20 +1750,24 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
       if (y == null || m == null) continue;
       final lastDay = DateTime(y, m + 1, 0).day;
       final rawDay =
-          b?.paymentDay ?? int.tryParse(entry.value.latest.substring(8, 10)) ?? 1;
+          b?.paymentDay ??
+          int.tryParse(entry.value.latest.substring(8, 10)) ??
+          1;
       final day = rawDay > lastDay ? lastDay : rawDay;
       final paymentDate = '${entry.key}-${pad2(day)}';
       final py = m == 1 ? y - 1 : y;
       final pm = m == 1 ? 12 : m - 1;
       final pLast = DateTime(py, pm + 1, 0).day;
-      out.add(_CardStatement(
-        label: formatDay(DateTime(y, m, day)).md,
-        scheduled: false,
-        amount: entry.value.amount,
-        paymentDate: paymentDate,
-        periodStart: '$py-${pad2(pm)}-01',
-        periodEnd: '$py-${pad2(pm)}-${pad2(pLast)}',
-      ));
+      out.add(
+        _CardStatement(
+          label: formatDay(DateTime(y, m, day)).md,
+          scheduled: false,
+          amount: entry.value.amount,
+          paymentDate: paymentDate,
+          periodStart: '$py-${pad2(pm)}-01',
+          periodEnd: '$py-${pad2(pm)}-${pad2(pLast)}',
+        ),
+      );
     }
     return out;
   }
@@ -1717,19 +1815,30 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             // 시트 본문 좌우는 호출처가 쥔다 — showPSheet 는 헤더·푸터만 24 를 준다.
             return Padding(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.xl, 0, PSpace.xl, PSpace.x16),
+                PSpace.xl,
+                0,
+                PSpace.xl,
+                PSpace.x16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     '${l.assetPayConfirmMessage(krw(upcoming))}$dateSuffix',
-                    style: PTypo.body.copyWith(color: t.fgSecondary, height: 1.7),
+                    style: PTypo.body.copyWith(
+                      color: t.fgSecondary,
+                      height: 1.7,
+                    ),
                   ),
                   const SizedBox(height: PSpace.x20),
-                  Text(l.assetPayAmount,
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  Text(
+                    l.assetPayAmount,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: ctrl,
@@ -1738,19 +1847,19 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   ),
                   if (v > 0 && v < upcoming) ...[
                     const SizedBox(height: PSpace.x8),
-                    Text(l.assetPayRemainder(krw(upcoming - v)),
-                        style: PTypo.micro.copyWith(color: t.fgTertiary)),
-                ],
+                    Text(
+                      l.assetPayRemainder(krw(upcoming - v)),
+                      style: PTypo.micro.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
                 ],
               ),
             );
           },
         );
       },
-      footerBuilder: (ctx) => PSheetFooter(
-        controller: sheet,
-        submitLabel: l.assetPayAction,
-      ),
+      footerBuilder: (ctx) =>
+          PSheetFooter(controller: sheet, submitLabel: l.assetPayAction),
     );
 
     ctrl.dispose();
@@ -1786,7 +1895,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         .where((h) => h.status == 'COMPLETED')
         .toList();
     if (done.isEmpty) return null;
-    return done.reduce((a, x) => x.paymentDate.compareTo(a.paymentDate) > 0 ? x : a);
+    return done.reduce(
+      (a, x) => x.paymentDate.compareTo(a.paymentDate) > 0 ? x : a,
+    );
   }
 
   Future<void> _confirmAndCancelPayment(BillingItem billing) async {
@@ -1833,7 +1944,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
   void _openPeriodPicker(List<_CardStatement> stmts) {
     final byYear = <String, List<(int, _CardStatement)>>{};
     for (var i = 0; i < stmts.length; i++) {
-      byYear.putIfAbsent(stmts[i].paymentDate.substring(0, 4), () => []).add((i, stmts[i]));
+      byYear.putIfAbsent(stmts[i].paymentDate.substring(0, 4), () => []).add((
+        i,
+        stmts[i],
+      ));
     }
     showPSheet<void>(
       context,
@@ -1844,7 +1958,11 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         // 시트 본문 좌우는 호출처가 쥔다 — 안 주면 연도 라벨이 화면 끝에 붙어 잘린다.
         return Padding(
           padding: const EdgeInsets.fromLTRB(
-              PSpace.xl, 0, PSpace.xl, PSpace.x16),
+            PSpace.xl,
+            0,
+            PSpace.xl,
+            PSpace.x16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1866,7 +1984,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                               fontWeight: PFontWeight.bold,
                               color: t.fgPrimary,
                               fontFeatures: const [
-                                FontFeature.tabularFigures()
+                                FontFeature.tabularFigures(),
                               ],
                             ),
                           ),
@@ -1880,18 +1998,25 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                               InkWell(
                                 onTap: () {
                                   // showPSheet 는 root navigator — rootNavigator pop 필수.
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(
+                                    context,
+                                    rootNavigator: true,
+                                  ).pop();
                                   setState(() => _stIdx = entry.value[ri].$1);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 2, vertical: 15),
+                                    horizontal: 2,
+                                    vertical: 15,
+                                  ),
                                   decoration: ri == 0
                                       ? null
                                       : BoxDecoration(
                                           border: Border(
-                                              top: BorderSide(
-                                                  color: t.borderSubtle)),
+                                            top: BorderSide(
+                                              color: t.borderSubtle,
+                                            ),
+                                          ),
                                         ),
                                   child: Row(
                                     children: [
@@ -1902,7 +2027,8 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                         style: TextStyle(
                                           fontFamily: PTypo.sans,
                                           fontSize: PFontSize.bodyMd,
-                                          fontWeight: entry.value[ri].$1 == _stIdx
+                                          fontWeight:
+                                              entry.value[ri].$1 == _stIdx
                                               ? PFontWeight.bold
                                               : PFontWeight.medium,
                                           color: t.fgPrimary,
@@ -1912,15 +2038,22 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                       Text(
                                         widget.masked
                                             ? '••••••'
-                                            : krwSigned(entry.value[ri].$2.amount,
-                                                false, unit: true),
-                                        style: PTypo.bodySm
-                                            .copyWith(color: t.fgTertiary),
+                                            : krwSigned(
+                                                entry.value[ri].$2.amount,
+                                                false,
+                                                unit: true,
+                                              ),
+                                        style: PTypo.bodySm.copyWith(
+                                          color: t.fgTertiary,
+                                        ),
                                       ),
                                       if (entry.value[ri].$1 == _stIdx) ...[
                                         const SizedBox(width: 8),
-                                        Icon(LucideIcons.check,
-                                            size: 16, color: t.fgBrand),
+                                        Icon(
+                                          LucideIcons.check,
+                                          size: 16,
+                                          color: t.fgBrand,
+                                        ),
                                       ],
                                     ],
                                   ),
@@ -1952,8 +2085,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
 
     final limit = asset.creditLimit ?? 0;
     final used = (asset.balance ?? 0).abs();
-    final limitPct =
-        limit > 0 ? ((used / limit) * 100).round().clamp(0, 100) : 0;
+    final limitPct = limit > 0
+        ? ((used / limit) * 100).round().clamp(0, 100)
+        : 0;
     final limitWarn = limitPct >= 80;
     final paymentDay = b?.paymentDay ?? asset.paymentDay;
     final canPay = (b?.upcomingAmount ?? 0) > 0 && !_paying;
@@ -1963,13 +2097,14 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     // 이용 내역 — 선택 회차의 청구 기간(전월 1일~말일)만 조회(사용자 결정).
     // 기간 미확정(폴백 회차)이면 카드 전체 최근 12건.
     final usageAsync = st?.periodStart != null && st?.periodEnd != null
-        ? ref.watch(assetPeriodExpensesProvider((
-            assetId: asset.rowId,
-            startDate: st!.periodStart!,
-            endDate: st.periodEnd!,
-          )))
-        : ref.watch(
-            expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
+        ? ref.watch(
+            assetPeriodExpensesProvider((
+              assetId: asset.rowId,
+              startDate: st!.periodStart!,
+              endDate: st.periodEnd!,
+            )),
+          )
+        : ref.watch(expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
 
     if (billingAsync.isLoading && b == null) {
       // 실렌더(아래 히어로) 미러 — 회차 라벨+chevron / 금액 / 결제일 행 / 액션 타일.
@@ -1988,7 +2123,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                     PSkeleton.line(width: 130, height: 20),
                     SizedBox(width: 7),
                     PSkeleton(
-                        width: 24, height: 24, borderRadius: PRadius.brFull),
+                      width: 24,
+                      height: 24,
+                      borderRadius: PRadius.brFull,
+                    ),
                   ],
                 ),
                 SizedBox(height: 10),
@@ -2003,7 +2141,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 14),
             child: const Row(
               children: [
-                SizedBox(width: 68, child: PSkeleton.line(width: 56, height: 14)),
+                SizedBox(
+                  width: 68,
+                  child: PSkeleton.line(width: 56, height: 14),
+                ),
                 PSkeleton.line(width: 110, height: 14),
                 Spacer(),
                 PSkeleton.line(width: 90, height: 11),
@@ -2019,7 +2160,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 14),
+                        horizontal: 4,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: t.bgSunken,
                         borderRadius: PRadius.brLg,
@@ -2027,9 +2170,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       child: const Column(
                         children: [
                           PSkeleton(
-                              width: 30,
-                              height: 30,
-                              borderRadius: PRadius.brMd),
+                            width: 30,
+                            height: 30,
+                            borderRadius: PRadius.brMd,
+                          ),
                           SizedBox(height: 8),
                           PSkeleton.line(width: 48, height: 11),
                         ],
@@ -2075,7 +2219,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       const SizedBox(width: 7),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 9, vertical: 2),
+                          horizontal: 9,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           border: Border.all(color: t.borderDefault),
                           borderRadius: PRadius.brFull,
@@ -2098,8 +2244,11 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
-                      child: Icon(LucideIcons.chevronDown,
-                          size: 14, color: t.fgSecondary),
+                      child: Icon(
+                        LucideIcons.chevronDown,
+                        size: 14,
+                        color: t.fgSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -2282,16 +2431,23 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                     Text(
                       masked
                           ? '••••••'
-                          : l.assetLimitOf(krw(used), '${krw(limit)}${wonUnit()}'),
+                          : l.assetLimitOf(
+                              krw(used),
+                              '${krw(limit)}${wonUnit()}',
+                            ),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     ),
                     const Spacer(),
                     Text(
                       masked
                           ? '••••••'
-                          : l.assetLimitRemain(krwSigned(
-                              (limit - used).clamp(0, limit), false,
-                              unit: true)),
+                          : l.assetLimitRemain(
+                              krwSigned(
+                                (limit - used).clamp(0, limit),
+                                false,
+                                unit: true,
+                              ),
+                            ),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     ),
                   ],
@@ -2304,7 +2460,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                     onTap: _goEdit,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 13, vertical: 8),
+                        horizontal: 13,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: t.borderDefault),
                         borderRadius: PRadius.brFull,
@@ -2312,8 +2470,11 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(LucideIcons.pencil,
-                              size: 12, color: t.fgPrimary),
+                          Icon(
+                            LucideIcons.pencil,
+                            size: 12,
+                            color: t.fgPrimary,
+                          ),
                           const SizedBox(width: 5),
                           Text(
                             l.assetLimitEdit,
@@ -2377,7 +2538,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 4),
+                        horizontal: 6,
+                        vertical: 4,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -2389,8 +2552,11 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                             ),
                           ),
                           const SizedBox(width: 2),
-                          Icon(LucideIcons.chevronRight,
-                              size: 12, color: t.fgSecondary),
+                          Icon(
+                            LucideIcons.chevronRight,
+                            size: 12,
+                            color: t.fgSecondary,
+                          ),
                         ],
                       ),
                     ),
@@ -2408,12 +2574,17 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                     size: PTabsSize.sm,
                     items: [
                       PTabItem(
-                          value: _UsageSort.recent, label: l.assetSortRecent),
+                        value: _UsageSort.recent,
+                        label: l.assetSortRecent,
+                      ),
                       PTabItem(
-                          value: _UsageSort.amount, label: l.assetSortAmount),
+                        value: _UsageSort.amount,
+                        label: l.assetSortAmount,
+                      ),
                       PTabItem(
-                          value: _UsageSort.category,
-                          label: l.assetSortCategory),
+                        value: _UsageSort.category,
+                        label: l.assetSortCategory,
+                      ),
                     ],
                     onChanged: (v) => setState(() => _sort = v),
                   ),
@@ -2424,43 +2595,48 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                 Padding(
                   padding: const EdgeInsets.only(top: PSpace.x16),
                   child: _RecentExpenses(
-                      async: usageAsync,
-                      flags: ref.watch(maskFlagsProvider('asset.detail')),
-                      tokens: t),
+                    async: usageAsync,
+                    flags: ref.watch(maskFlagsProvider('asset.detail')),
+                    tokens: t,
+                  ),
                 )
               else
-                Builder(builder: (context) {
-                  final list = [...(usageAsync.value ?? const <Expense>[])];
-                  if (list.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 28),
-                      child: Center(
-                        child: Text(
-                          l.assetNoUsage,
-                          style:
-                              PTypo.bodySm.copyWith(color: t.fgTertiary),
+                Builder(
+                  builder: (context) {
+                    final list = [...(usageAsync.value ?? const <Expense>[])];
+                    if (list.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 28),
+                        child: Center(
+                          child: Text(
+                            l.assetNoUsage,
+                            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                          ),
                         ),
+                      );
+                    }
+                    if (_sort == _UsageSort.amount) {
+                      list.sort(
+                        (a, b) => b.amount.abs().compareTo(a.amount.abs()),
+                      );
+                    } else {
+                      list.sort(
+                        (a, b) => (a.categoryName ?? '').compareTo(
+                          b.categoryName ?? '',
+                        ),
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Column(
+                        children: [
+                          for (final e in list)
+                            _ExpenseRow(expense: e, masked: masked, tokens: t),
+                        ],
                       ),
                     );
-                  }
-                  if (_sort == _UsageSort.amount) {
-                    list.sort(
-                        (a, b) => b.amount.abs().compareTo(a.amount.abs()));
-                  } else {
-                    list.sort((a, b) => (a.categoryName ?? '')
-                        .compareTo(b.categoryName ?? ''));
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Column(
-                      children: [
-                        for (final e in list)
-                          _ExpenseRow(
-                              expense: e, masked: masked, tokens: t),
-                      ],
-                    ),
-                  );
-                }),
+                  },
+                ),
             ],
           ),
         ),

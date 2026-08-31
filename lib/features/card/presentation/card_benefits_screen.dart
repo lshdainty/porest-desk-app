@@ -33,27 +33,26 @@ const _benefitValues = <String?>[null, 'DISCOUNT', 'POINT', 'POINT', 'MILEAGE'];
 
 /// 종류 필터 라벨 — index → 로케일 문자열.
 String _typeLabel(AppLocalizations l, int i) => switch (i) {
-      0 => l.expFilterAll,
-      1 => l.assetCardShortCredit,
-      _ => l.assetCardShortCheck,
-    };
+  0 => l.expFilterAll,
+  1 => l.assetCardShortCredit,
+  _ => l.assetCardShortCheck,
+};
 
 /// 혜택 필터 라벨 — index → 로케일 문자열.
 String _benefitLabel(AppLocalizations l, int i) => switch (i) {
-      0 => l.cardBenefitTypeAll,
-      1 => l.cardBenefitTypeDiscount,
-      2 => l.cardBenefitTypePoint,
-      3 => l.cardBenefitTypeCashback,
-      _ => l.cardBenefitTypeMileage,
-    };
+  0 => l.cardBenefitTypeAll,
+  1 => l.cardBenefitTypeDiscount,
+  2 => l.cardBenefitTypePoint,
+  3 => l.cardBenefitTypeCashback,
+  _ => l.cardBenefitTypeMileage,
+};
 
 /// 카드 혜택 라이브러리 — front `CardBenefitsScreen` 미러 (모바일 list 레이아웃).
 class CardBenefitsScreen extends ConsumerStatefulWidget {
   const CardBenefitsScreen({super.key});
 
   @override
-  ConsumerState<CardBenefitsScreen> createState() =>
-      _CardBenefitsScreenState();
+  ConsumerState<CardBenefitsScreen> createState() => _CardBenefitsScreenState();
 }
 
 class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
@@ -99,13 +98,13 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
 
   /// 특정 page 의 검색 키 파생 (record typedef 라 copyWith 대체).
   CardSearchKey _keyForPage(int page) => (
-        keyword: _searchKey.keyword,
-        cardType: _searchKey.cardType,
-        benefitType: _searchKey.benefitType,
-        includeDiscontinued: _searchKey.includeDiscontinued,
-        page: page,
-        size: _searchKey.size,
-      );
+    keyword: _searchKey.keyword,
+    cardType: _searchKey.cardType,
+    benefitType: _searchKey.benefitType,
+    includeDiscontinued: _searchKey.includeDiscontinued,
+    page: page,
+    size: _searchKey.size,
+  );
 
   /// 필터/검색 변경 → 누적 리셋 후 첫 페이지부터 다시 로드.
   void _reset() {
@@ -147,8 +146,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   }
 
   void _onScroll() {
-    if (_scroll.position.pixels >=
-            _scroll.position.maxScrollExtent - 300 &&
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 300 &&
         _hasMore &&
         !_loadingMore) {
       _loadMore();
@@ -212,7 +210,11 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         child: ListView(
           controller: _scroll,
           padding: const EdgeInsets.fromLTRB(
-              PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x40),
+            PSpace.x24,
+            PSpace.x16,
+            PSpace.x24,
+            PSpace.x40,
+          ),
           children: [
             // 검색
             PSearchField(
@@ -261,9 +263,11 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                   child: _initialLoading
                       ? const PSkeleton.line(width: 56, height: 12)
                       : _cards.isNotEmpty
-                          ? Text(l.cardTotalCount(_totalElements),
-                              style: PTypo.caption.copyWith(color: t.fgTertiary))
-                          : const SizedBox.shrink(),
+                      ? Text(
+                          l.cardTotalCount(_totalElements),
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        )
+                      : const SizedBox.shrink(),
                 ),
                 PCheckbox(
                   value: _includeDiscontinued,
@@ -288,9 +292,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     // 초기 로딩 (첫 페이지 fetch 중, 누적 없음) — _CardTile 카드 스켈레톤만.
     if (_initialLoading) {
       return [
-        for (int i = 0; i < 6; i++) ...[
-          const _CardTileSkeleton(),
-        ],
+        for (int i = 0; i < 6; i++) ...[const _CardTileSkeleton()],
       ];
     }
 
@@ -299,8 +301,10 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       return [
         Padding(
           padding: const EdgeInsets.only(top: PSpace.x16),
-          child: Text('${l.cardLoadError}\n$_error',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+          child: Text(
+            '${l.cardLoadError}\n$_error',
+            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+          ),
         ),
       ];
     }
@@ -323,8 +327,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       for (int i = 0; i < _cards.length; i++) ...[
         _CardTile(
           card: _cards[i],
-          onTap: () =>
-              showCardBenefitDetailSheet(context, _cards[i].rowId),
+          onTap: () => showCardBenefitDetailSheet(context, _cards[i].rowId),
           tokens: t,
         ),
       ],
@@ -333,7 +336,10 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         const SizedBox(height: PSpace.x16),
         Center(
           child: PCircularProgressIndicator(
-              size: 24, strokeWidth: 2.5, color: t.bgBrand),
+            size: 24,
+            strokeWidth: 2.5,
+            color: t.bgBrand,
+          ),
         ),
       ],
     ];
@@ -360,19 +366,22 @@ class _CardTileSkeleton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 0.55,
-                    child: PSkeleton.line(height: 14)),
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.55,
+                  child: PSkeleton.line(height: 14),
+                ),
                 SizedBox(height: 6),
                 FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 0.85,
-                    child: PSkeleton.line(height: 12)),
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.85,
+                  child: PSkeleton.line(height: 12),
+                ),
                 SizedBox(height: 5),
                 FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 0.4,
-                    child: PSkeleton.line(height: 12)),
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.4,
+                  child: PSkeleton.line(height: 12),
+                ),
               ],
             ),
           ),
@@ -409,72 +418,84 @@ class _CardTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Padding(
-        // 좌우는 페이지가 쥔다(24). 행은 상하만 갖는다.
-        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-        child: Row(
-          children: [
-            _CardVisual(
-                imgUrl: card.imgUrl, company: card.company?.name, tokens: t),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(card.cardName,
-                            style: PTypo.bodySm.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis),
-                      ),
-                      if (discontinued) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: t.bgSunken,
-                            borderRadius: PRadius.brXs,
-                          ),
-                          child: Text(l.assetDiscontinued,
-                              style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary,
-                                  fontWeight: PFontWeight.bold,
-                                  letterSpacing: 0)),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      card.company?.name,
-                      card.cardType == 'CHECK' ? l.assetCardShortCheck : l.assetCardShortCredit,
-                      l.cardAnnualFeeValue(_feeLabel(l, card.annualFee)),
-                    ].whereType<String>().join(' · '),
-                    style:
-                        PTypo.caption.copyWith(color: t.fgTertiary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    _performanceLabel(l, card.performance),
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+          // 좌우는 페이지가 쥔다(24). 행은 상하만 갖는다.
+          padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+          child: Row(
+            children: [
+              _CardVisual(
+                imgUrl: card.imgUrl,
+                company: card.company?.name,
+                tokens: t,
               ),
-            ),
-            const SizedBox(width: PSpace.x8),
-            Icon(LucideIcons.chevronRight, size: 14, color: t.fgTertiary),
-          ],
-        ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            card.cardName,
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (discontinued) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.bgSunken,
+                              borderRadius: PRadius.brXs,
+                            ),
+                            child: Text(
+                              l.assetDiscontinued,
+                              style: PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.bold,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      [
+                        card.company?.name,
+                        card.cardType == 'CHECK'
+                            ? l.assetCardShortCheck
+                            : l.assetCardShortCredit,
+                        l.cardAnnualFeeValue(_feeLabel(l, card.annualFee)),
+                      ].whereType<String>().join(' · '),
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      _performanceLabel(l, card.performance),
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x8),
+              Icon(LucideIcons.chevronRight, size: 14, color: t.fgTertiary),
+            ],
+          ),
         ),
       ),
     );
@@ -501,54 +522,53 @@ class _CardVisual extends StatelessWidget {
     final brand = getCardBrand(company);
 
     Widget neutralFallback() => DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [t.bgMuted, t.bgSunken],
-            ),
-          ),
-          child: Center(
-            child:
-                Icon(LucideIcons.creditCard, size: 16, color: t.fgTertiary),
-          ),
-        );
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [t.bgMuted, t.bgSunken],
+        ),
+      ),
+      child: Center(
+        child: Icon(LucideIcons.creditCard, size: 16, color: t.fgTertiary),
+      ),
+    );
 
     // 브랜드명 약자 — company.name 첫 글자.
     Widget brandFallback() => DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [brand.bg1, brand.bg2],
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [brand.bg1, brand.bg2],
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 135deg 광택 — 기존 그라데이션 위 부드러운 하이라이트.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
+              ),
             ),
           ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // 135deg 광택 — 기존 그라데이션 위 부드러운 하이라이트.
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
-                  ),
-                ),
+          Center(
+            child: Text(
+              _brandInitial(company),
+              style: PTypo.caption.copyWith(
+                color: brand.fg,
+                fontWeight: PFontWeight.bold,
+                letterSpacing: 0,
               ),
-              Center(
-                child: Text(
-                  _brandInitial(company),
-                  style: PTypo.caption.copyWith(
-                    color: brand.fg,
-                    fontWeight: PFontWeight.bold,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        );
+        ],
+      ),
+    );
 
     Widget fallback() => brand.known ? brandFallback() : neutralFallback();
 
@@ -558,9 +578,11 @@ class _CardVisual extends StatelessWidget {
         width: 56,
         height: 36,
         child: (imgUrl != null && imgUrl!.isNotEmpty)
-            ? Image.network(imgUrl!,
+            ? Image.network(
+                imgUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => fallback())
+                errorBuilder: (_, _, _) => fallback(),
+              )
             : fallback(),
       ),
     );

@@ -68,7 +68,11 @@ class ErrorToastInterceptor extends Interceptor {
     if (ctx == null || state == null || !ctx.mounted) return;
     _recent[message] = DateTime.now();
     // ctx 는 테마·로케일 조회용(둘 다 messenger 위에 있다), state 는 표시용.
-    showPSnackBar(ctx, message,
-        severity: PSnackSeverity.error, messenger: state);
+    showPSnackBar(
+      ctx,
+      message,
+      severity: PSnackSeverity.error,
+      messenger: state,
+    );
   }
 }

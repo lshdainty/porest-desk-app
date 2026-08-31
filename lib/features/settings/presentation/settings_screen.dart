@@ -183,8 +183,7 @@ class SettingsScreen extends ConsumerWidget {
             InkWell(
               onTap: () => context.push('/account'),
               child: Padding(
-                padding:
-                    const EdgeInsets.only(top: 14, bottom: 18),
+                padding: const EdgeInsets.only(top: 14, bottom: 18),
                 child: Row(
                   children: [
                     PAvatar(
@@ -223,8 +222,11 @@ class SettingsScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    Icon(LucideIcons.chevronRight,
-                        size: 18, color: t.fgTertiary),
+                    Icon(
+                      LucideIcons.chevronRight,
+                      size: 18,
+                      color: t.fgTertiary,
+                    ),
                   ],
                 ),
               ),
@@ -241,8 +243,7 @@ class SettingsScreen extends ConsumerWidget {
             if (gi > 0)
               Container(
                 height: 1,
-                margin: const EdgeInsets.symmetric(
-                    vertical: PSpace.x12),
+                margin: const EdgeInsets.symmetric(vertical: PSpace.x12),
                 color: t.borderSubtle,
               ),
             Padding(

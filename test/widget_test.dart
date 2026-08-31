@@ -28,13 +28,16 @@ void main() {
         overrides: [
           authProvider.overrideWith(_FakeAuth.new),
           // 테스트는 백엔드를 띄우지 않으므로 데이터 provider 를 빈 값으로 직접 채움
-          categoriesProvider
-              .overrideWith((_) => Future.value(<ExpenseCategory>[])),
+          categoriesProvider.overrideWith(
+            (_) => Future.value(<ExpenseCategory>[]),
+          ),
           assetsProvider.overrideWith((_) => Future.value(<Asset>[])),
-          assetSummaryProvider
-              .overrideWith((_, _) => Future.value(const AssetSummary())),
-          monthExpensesProvider
-              .overrideWith((_, _) => Future.value(<Expense>[])),
+          assetSummaryProvider.overrideWith(
+            (_, _) => Future.value(const AssetSummary()),
+          ),
+          monthExpensesProvider.overrideWith(
+            (_, _) => Future.value(<Expense>[]),
+          ),
         ],
         child: const PorestDeskApp(),
       ),
@@ -59,9 +62,9 @@ void main() {
 class _FakeAuth extends AuthNotifier {
   @override
   Future<User?> build() async => const User(
-        rowId: 1,
-        userId: 'tester',
-        userName: 'Tester',
-        userEmail: 'tester@example.com',
-      );
+    rowId: 1,
+    userId: 'tester',
+    userName: 'Tester',
+    userEmail: 'tester@example.com',
+  );
 }

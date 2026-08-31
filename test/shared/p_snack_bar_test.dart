@@ -43,8 +43,7 @@ void main() {
 
   testWidgets('severity 색이 배경이 아니라 아이콘에만 쓰인다', (tester) async {
     await tester.pumpWidget(
-      _host((c) =>
-          showPSnackBar(c, '저장했어요', severity: PSnackSeverity.success)),
+      _host((c) => showPSnackBar(c, '저장했어요', severity: PSnackSeverity.success)),
     );
     await tester.tap(find.text('show'));
     await tester.pump();

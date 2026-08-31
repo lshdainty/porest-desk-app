@@ -66,10 +66,7 @@ class PDetailHero extends StatelessWidget {
           amount,
           if (meta != null) ...[
             const SizedBox(height: PSpace.x4),
-            Text(
-              meta!,
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            ),
+            Text(meta!, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
           ],
         ],
       ),
@@ -175,10 +172,7 @@ class PDetailField extends StatelessWidget {
         children: [
           SizedBox(
             width: 76,
-            child: Text(
-              label,
-              style: PTypo.body.copyWith(color: t.fgTertiary),
-            ),
+            child: Text(label, style: PTypo.body.copyWith(color: t.fgTertiary)),
           ),
           const SizedBox(width: PSpace.x12),
           Expanded(
@@ -265,13 +259,16 @@ class PDetailQuickAction extends StatelessWidget {
     final iconColor = disabled
         ? t.fgTertiary
         : active
-            ? t.fgBrand
-            : t.fgSecondary;
+        ? t.fgBrand
+        : t.fgSecondary;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(PSpace.x12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x4, vertical: PSpace.x8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x4,
+          vertical: PSpace.x8,
+        ),
         child: Column(
           children: [
             Stack(
@@ -306,8 +303,8 @@ class PDetailQuickAction extends StatelessWidget {
                 color: disabled
                     ? t.fgTertiary
                     : active
-                        ? t.fgBrandStrong
-                        : t.fgSecondary,
+                    ? t.fgBrandStrong
+                    : t.fgSecondary,
                 fontWeight: active ? PFontWeight.bold : PFontWeight.semi,
               ),
             ),
@@ -319,7 +316,11 @@ class PDetailQuickAction extends StatelessWidget {
 }
 
 class PDetailStat {
-  const PDetailStat({required this.label, required this.value, this.valueColor});
+  const PDetailStat({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
   final String label;
   final String value;
   final Color? valueColor;

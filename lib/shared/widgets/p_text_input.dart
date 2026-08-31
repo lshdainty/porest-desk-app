@@ -90,12 +90,15 @@ class PTextInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final radius = search ? PRadius.brMd : PRadius.brSm;
-    final restSide = search ? BorderSide.none : BorderSide(color: t.borderDefault);
+    final restSide = search
+        ? BorderSide.none
+        : BorderSide(color: t.borderDefault);
     final baseFont = search ? PTypo.bodySm : PTypo.bodyLg;
     final isMultiLine = (maxLines ?? 1) > 1;
     // 토글로 잠깐 벗겨 봐도 자격증명인 사실은 변하지 않는다.
     final isSecret = secret || obscureText;
-    final formatters = inputFormatters ??
+    final formatters =
+        inputFormatters ??
         (numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null);
     final field = TextField(
       controller: controller,
@@ -104,8 +107,7 @@ class PTextInput extends StatelessWidget {
       onSubmitted: onSubmitted,
       autofocus: autofocus,
       enabled: enabled,
-      keyboardType:
-          keyboardType ?? (numbersOnly ? TextInputType.number : null),
+      keyboardType: keyboardType ?? (numbersOnly ? TextInputType.number : null),
       inputFormatters: formatters,
       obscureText: obscureText,
       // 자격증명일 때만 끈다. 아닐 때 null 로 두는 건 기존 동작 보존 —
@@ -128,17 +130,16 @@ class PTextInput extends StatelessWidget {
         fillColor: t.bgMuted, // surface-input
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: PSpace.md, vertical: PSpace.sm),
+          horizontal: PSpace.md,
+          vertical: PSpace.sm,
+        ),
         prefixIcon: prefix,
         suffixIcon: suffix,
         prefixText: prefixText,
         suffixText: suffixText,
         suffixStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
         errorText: errorText,
-        border: OutlineInputBorder(
-          borderRadius: radius,
-          borderSide: restSide,
-        ),
+        border: OutlineInputBorder(borderRadius: radius, borderSide: restSide),
         enabledBorder: OutlineInputBorder(
           borderRadius: radius,
           borderSide: restSide,

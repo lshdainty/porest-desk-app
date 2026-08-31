@@ -5,13 +5,13 @@ import 'package:porest_desk_app/core/update/app_update.dart';
 /// 없는 사람에게는 매번 걷어내야 하는 벽" 이라 걷어냈다. 다시 붙이는 조건이 이 규칙이라
 /// 여기가 흔들리면 같은 이유로 또 걷어내게 된다.
 AppRelease _release({required int build, int minBuild = 0}) => AppRelease(
-      version: '1.12.0',
-      buildNumber: build,
-      androidFile: 'app.apk',
-      iosFile: 'app.ipa',
-      notes: '- feat: something',
-      minBuildNumber: minBuild,
-    );
+  version: '1.12.0',
+  buildNumber: build,
+  androidFile: 'app.apk',
+  iosFile: 'app.ipa',
+  notes: '- feat: something',
+  minBuildNumber: minBuild,
+);
 
 void main() {
   group('shouldGate', () {
@@ -32,7 +32,9 @@ void main() {
 
     test('강제는 건너뛰기를 무시한다', () {
       final s = UpdateStatus(
-          currentBuild: 100, latest: _release(build: 101, minBuild: 101));
+        currentBuild: 100,
+        latest: _release(build: 101, minBuild: 101),
+      );
       expect(s.shouldGate(101), isTrue);
       expect(s.mustUpdate, isTrue);
     });
@@ -66,13 +68,17 @@ void main() {
   group('mustUpdate', () {
     test('하한보다 낮으면 막는다', () {
       final s = UpdateStatus(
-          currentBuild: 100, latest: _release(build: 105, minBuild: 103));
+        currentBuild: 100,
+        latest: _release(build: 105, minBuild: 103),
+      );
       expect(s.mustUpdate, isTrue);
     });
 
     test('하한과 같으면 막지 않는다 — 하한은 "이 번호부터 쓸 수 있다"', () {
       final s = UpdateStatus(
-          currentBuild: 103, latest: _release(build: 105, minBuild: 103));
+        currentBuild: 103,
+        latest: _release(build: 105, minBuild: 103),
+      );
       expect(s.mustUpdate, isFalse);
     });
 

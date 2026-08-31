@@ -153,157 +153,183 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                 const SizedBox(height: PSpace.x24),
                 // 카드 다이어트 — 리스트 셸 카드 제거, 플랫.
                 Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
-                      Padding(
-                        // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
-                        padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 1행: 라벨만
-                            Text(
-                              l.recurringAllList,
-                              // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
-                              style: PTypo.body.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold,
-                              ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
+                    Padding(
+                      // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
+                      padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 1행: 라벨만
+                          Text(
+                            l.recurringAllList,
+                            // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
+                            style: PTypo.body.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
                             ),
-                            const SizedBox(height: PSpace.x4), // 라벨↔toggle 4(사용자 결정)
-                            // 2행: 필터 토글(좌, 넘치면 가로 스크롤·스크롤바 없음) + 추가 버튼(우)
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    // Flutter SingleChildScrollView 는 기본적으로 스크롤바를 그리지 않음
-                                    // (Scrollbar 위젯 미적용) — 웹 scrollbar-hide 와 동일 효과.
-                                    child: PTabs<_Filter>(
-                                      value: _filter,
-                                      onChanged: (v) => setState(() => _filter = v),
-                                      variant: PTabsVariant.pills,
-                                      size: PTabsSize.sm,
-                                      items: [
-                                        PTabItem(
-                                            value: _Filter.all,
-                                            label: l.recurringFilterAll(items.length)),
-                                        PTabItem(
-                                            value: _Filter.expense,
-                                            label: l.recurringFilterExpense(items
-                                                .where((i) => i.expenseType == 'EXPENSE' && i.isActive == 'Y')
-                                                .length)),
-                                        PTabItem(
-                                            value: _Filter.income,
-                                            label: l.recurringFilterIncome(items
-                                                .where((i) => i.expenseType == 'INCOME' && i.isActive == 'Y')
-                                                .length)),
-                                        PTabItem(
-                                            value: _Filter.paused,
-                                            label: l.recurringFilterPaused(
-                                                items.where((i) => i.isActive != 'Y').length)),
-                                      ],
-                                    ),
+                          ),
+                          const SizedBox(
+                            height: PSpace.x4,
+                          ), // 라벨↔toggle 4(사용자 결정)
+                          // 2행: 필터 토글(좌, 넘치면 가로 스크롤·스크롤바 없음) + 추가 버튼(우)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  // Flutter SingleChildScrollView 는 기본적으로 스크롤바를 그리지 않음
+                                  // (Scrollbar 위젯 미적용) — 웹 scrollbar-hide 와 동일 효과.
+                                  child: PTabs<_Filter>(
+                                    value: _filter,
+                                    onChanged: (v) =>
+                                        setState(() => _filter = v),
+                                    variant: PTabsVariant.pills,
+                                    size: PTabsSize.sm,
+                                    items: [
+                                      PTabItem(
+                                        value: _Filter.all,
+                                        label: l.recurringFilterAll(
+                                          items.length,
+                                        ),
+                                      ),
+                                      PTabItem(
+                                        value: _Filter.expense,
+                                        label: l.recurringFilterExpense(
+                                          items
+                                              .where(
+                                                (i) =>
+                                                    i.expenseType ==
+                                                        'EXPENSE' &&
+                                                    i.isActive == 'Y',
+                                              )
+                                              .length,
+                                        ),
+                                      ),
+                                      PTabItem(
+                                        value: _Filter.income,
+                                        label: l.recurringFilterIncome(
+                                          items
+                                              .where(
+                                                (i) =>
+                                                    i.expenseType == 'INCOME' &&
+                                                    i.isActive == 'Y',
+                                              )
+                                              .length,
+                                        ),
+                                      ),
+                                      PTabItem(
+                                        value: _Filter.paused,
+                                        label: l.recurringFilterPaused(
+                                          items
+                                              .where((i) => i.isActive != 'Y')
+                                              .length,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: PSpace.x8),
-                                PButton(
-                                  label: l.recurringAdd,
-                                  icon: LucideIcons.plus,
-                                  variant: PButtonVariant.accent,
-                                  size: PButtonSize.sm,
-                                  onPressed: () =>
-                                      showRecurringSettingsDialog(context),
+                              ),
+                              const SizedBox(width: PSpace.x8),
+                              PButton(
+                                label: l.recurringAdd,
+                                icon: LucideIcons.plus,
+                                variant: PButtonVariant.accent,
+                                size: PButtonSize.sm,
+                                onPressed: () =>
+                                    showRecurringSettingsDialog(context),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (filtered.isEmpty)
+                      _EmptyState(tokens: t)
+                    else
+                      Column(
+                        children: [
+                          for (int i = 0; i < filtered.length; i++) ...[
+                            // 밀면 정지·수정·삭제가 바로 나온다. 행 탭은 상세
+                            // 시트로 — 스와이프는 지름길이지 유일한 경로가
+                            // 아니다(spec swipe-actions.md · WCAG 2.1.1).
+                            PSwipeActions(
+                              key: ValueKey('recurring-${filtered[i].rowId}'),
+                              groupTag: 'recurring-list',
+                              enabled:
+                                  _busyToggleId == null &&
+                                  _busyDeleteId == null,
+                              actions: [
+                                PSwipeAction(
+                                  // 라벨은 두 글자여야 한다 — '일시정지' 는 슬롯
+                                  // 안에서 줄바꿈돼 트레이가 세로로 넘쳤다
+                                  // (BOTTOM OVERFLOWED, 실측). 상세 시트 footer
+                                  // 는 폭이 넉넉해 거기선 '일시정지' 그대로 쓴다.
+                                  label: filtered[i].isActive == 'Y'
+                                      ? l.recurringPauseAction
+                                      : l.recurringStart,
+                                  icon: filtered[i].isActive == 'Y'
+                                      ? LucideIcons.pause
+                                      : LucideIcons.play,
+                                  kind: PSwipeKind.neutral,
+                                  onSelect: () => _toggle(filtered[i]),
+                                ),
+                                PSwipeAction(
+                                  label: l.actionEdit,
+                                  icon: LucideIcons.pencil,
+                                  kind: PSwipeKind.primary,
+                                  onSelect: () => showRecurringSettingsDialog(
+                                    context,
+                                    recurring: filtered[i],
+                                  ),
+                                ),
+                                PSwipeAction(
+                                  label: l.actionDelete,
+                                  icon: LucideIcons.trash2,
+                                  kind: PSwipeKind.destructive,
+                                  // _delete 가 자체 확인 다이얼로그를 띄우므로
+                                  // 여기서 confirmMessage 를 또 주지 않는다 —
+                                  // 같은 삭제에 확인이 두 번 뜨면 안 된다.
+                                  onSelect: () => _delete(filtered[i]),
                                 ),
                               ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (filtered.isEmpty)
-                        _EmptyState(tokens: t)
-                      else
-                        Column(
-                          children: [
-                            for (int i = 0; i < filtered.length; i++) ...[
-                              // 밀면 정지·수정·삭제가 바로 나온다. 행 탭은 상세
-                              // 시트로 — 스와이프는 지름길이지 유일한 경로가
-                              // 아니다(spec swipe-actions.md · WCAG 2.1.1).
-                              PSwipeActions(
-                                key: ValueKey('recurring-${filtered[i].rowId}'),
-                                groupTag: 'recurring-list',
-                                enabled: _busyToggleId == null &&
-                                    _busyDeleteId == null,
-                                actions: [
-                                  PSwipeAction(
-                                    // 라벨은 두 글자여야 한다 — '일시정지' 는 슬롯
-                                    // 안에서 줄바꿈돼 트레이가 세로로 넘쳤다
-                                    // (BOTTOM OVERFLOWED, 실측). 상세 시트 footer
-                                    // 는 폭이 넉넉해 거기선 '일시정지' 그대로 쓴다.
-                                    label: filtered[i].isActive == 'Y'
-                                        ? l.recurringPauseAction
-                                        : l.recurringStart,
-                                    icon: filtered[i].isActive == 'Y'
-                                        ? LucideIcons.pause
-                                        : LucideIcons.play,
-                                    kind: PSwipeKind.neutral,
-                                    onSelect: () => _toggle(filtered[i]),
-                                  ),
-                                  PSwipeAction(
-                                    label: l.actionEdit,
-                                    icon: LucideIcons.pencil,
-                                    kind: PSwipeKind.primary,
-                                    onSelect: () =>
-                                        showRecurringSettingsDialog(
-                                      context,
-                                      recurring: filtered[i],
-                                    ),
-                                  ),
-                                  PSwipeAction(
-                                    label: l.actionDelete,
-                                    icon: LucideIcons.trash2,
-                                    kind: PSwipeKind.destructive,
-                                    // _delete 가 자체 확인 다이얼로그를 띄우므로
-                                    // 여기서 confirmMessage 를 또 주지 않는다 —
-                                    // 같은 삭제에 확인이 두 번 뜨면 안 된다.
-                                    onSelect: () => _delete(filtered[i]),
-                                  ),
-                                ],
-                                child: _RecurringRow(
+                              child: _RecurringRow(
+                                item: filtered[i],
+                                category: categories.byRowId(
+                                  filtered[i].categoryRowId,
+                                ),
+                                masked: ref.watch(
+                                  hideCardProvider('etc.recurring'),
+                                ),
+                                tokens: t,
+                                anyBusy:
+                                    _busyToggleId != null ||
+                                    _busyDeleteId != null,
+                                onToggle: () => _toggle(filtered[i]),
+                                onEdit: () => showRecurringSettingsDialog(
+                                  context,
+                                  recurring: filtered[i],
+                                ),
+                                onDelete: () => _delete(filtered[i]),
+                                onOpenDetail: () => showRecurringDetailSheet(
+                                  context,
                                   item: filtered[i],
-                                  category: categories.byRowId(
-                                    filtered[i].categoryRowId,
-                                  ),
-                                  masked: ref
-                                      .watch(hideCardProvider('etc.recurring')),
-                                  tokens: t,
-                                  anyBusy: _busyToggleId != null ||
-                                      _busyDeleteId != null,
-                                  onToggle: () => _toggle(filtered[i]),
                                   onEdit: () => showRecurringSettingsDialog(
                                     context,
                                     recurring: filtered[i],
                                   ),
                                   onDelete: () => _delete(filtered[i]),
-                                  onOpenDetail: () =>
-                                      showRecurringDetailSheet(
-                                    context,
-                                    item: filtered[i],
-                                    onEdit: () => showRecurringSettingsDialog(
-                                      context,
-                                      recurring: filtered[i],
-                                    ),
-                                    onDelete: () => _delete(filtered[i]),
-                                  ),
                                 ),
                               ),
-                              if (i < filtered.length - 1) const PDivider(),
-                            ],
+                            ),
+                            if (i < filtered.length - 1) const PDivider(),
                           ],
-                        ),
-                    ],
-                  ),
+                        ],
+                      ),
+                  ],
+                ),
               ],
             );
           },
@@ -623,7 +649,10 @@ class _UpcomingRow extends StatelessWidget {
           Container(
             width: 28,
             height: 28,
-            decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(28)),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: PRadius.tile(28),
+            ),
             alignment: Alignment.center,
             child: Icon(lucideByName(category?.icon), size: 14, color: fg),
           ),
@@ -650,8 +679,12 @@ class _UpcomingRow extends StatelessWidget {
           ),
           const SizedBox(width: PSpace.x8),
           Text(
-            krwSigned(item.amount.abs(), masked,
-                sign: isExpense ? '-' : '+', mask: '••••'),
+            krwSigned(
+              item.amount.abs(),
+              masked,
+              sign: isExpense ? '-' : '+',
+              mask: '••••',
+            ),
             style: PTypo.bodySm.copyWith(
               color: isExpense ? tokens.fgExpense : tokens.fgIncome,
               fontWeight: PFontWeight.bold,
@@ -707,94 +740,101 @@ class _RecurringRow extends StatelessWidget {
         // `⋮` 메뉴를 대신한다(사용자 결정).
         onTap: anyBusy ? null : onOpenDetail,
         child: Padding(
-        // 좌우 0 — 라벨·토글과 같은 지점에서 시작한다(설정 리스트 공통 규칙).
-        padding: const EdgeInsets.symmetric(
-          horizontal: 0,
-          vertical: PSpace.x12,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
-              alignment: Alignment.center,
-              child: Icon(lucideByName(category?.icon), size: 18, color: fg),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          recurringDisplayTitle(l, item),
-                          style: PTypo.body.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: PFontWeight.semi,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (!isActive) ...[
-                        const SizedBox(width: 6),
-                        PBadge(
-                          label: l.recurringPaused,
-                          variant: PBadgeVariant.secondary,
-                        ),
-                      ],
-                      if (item.maxOccurrences != null) ...[
-                        const SizedBox(width: 6),
-                        PBadge(
-                          label: l.recurringOccurrences(
-                            item.executedCount,
-                            item.maxOccurrences!,
-                          ),
-                          variant: PBadgeVariant.softWarning,
-                        ),
-                      ],
-                      if (item.autoLog) ...[
-                        const SizedBox(width: 6),
-                        Icon(
-                          LucideIcons.zap,
-                          size: 12,
-                          color: tokens.fgBrandStrong,
-                        ),
-                      ],
-                      if (item.notifyDayBefore) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          LucideIcons.bell,
-                          size: 12,
-                          color: tokens.fgTertiary,
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${recurringSummaryText(l, item)} · ${item.assetName ?? l.recurringNoAccount}'
-                    '${item.nextExecutionDate != null ? ' · ${l.recurringNext} ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                  ),
-                ],
+          // 좌우 0 — 라벨·토글과 같은 지점에서 시작한다(설정 리스트 공통 규칙).
+          padding: const EdgeInsets.symmetric(
+            horizontal: 0,
+            vertical: PSpace.x12,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: PRadius.tile(36),
+                ),
+                alignment: Alignment.center,
+                child: Icon(lucideByName(category?.icon), size: 18, color: fg),
               ),
-            ),
-            const SizedBox(width: PSpace.x8),
-            Text(
-              krwSigned(item.amount.abs(), masked,
-                  sign: isExpense ? '-' : '+', mask: '••••'),
-              style: PTypo.bodySm.copyWith(
-                color: isExpense ? tokens.fgExpense : tokens.fgIncome,
-                fontWeight: PFontWeight.bold,
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            recurringDisplayTitle(l, item),
+                            style: PTypo.body.copyWith(
+                              color: tokens.fgPrimary,
+                              fontWeight: PFontWeight.semi,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (!isActive) ...[
+                          const SizedBox(width: 6),
+                          PBadge(
+                            label: l.recurringPaused,
+                            variant: PBadgeVariant.secondary,
+                          ),
+                        ],
+                        if (item.maxOccurrences != null) ...[
+                          const SizedBox(width: 6),
+                          PBadge(
+                            label: l.recurringOccurrences(
+                              item.executedCount,
+                              item.maxOccurrences!,
+                            ),
+                            variant: PBadgeVariant.softWarning,
+                          ),
+                        ],
+                        if (item.autoLog) ...[
+                          const SizedBox(width: 6),
+                          Icon(
+                            LucideIcons.zap,
+                            size: 12,
+                            color: tokens.fgBrandStrong,
+                          ),
+                        ],
+                        if (item.notifyDayBefore) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            LucideIcons.bell,
+                            size: 12,
+                            color: tokens.fgTertiary,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${recurringSummaryText(l, item)} · ${item.assetName ?? l.recurringNoAccount}'
+                      '${item.nextExecutionDate != null ? ' · ${l.recurringNext} ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
+                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: PSpace.x8),
+              Text(
+                krwSigned(
+                  item.amount.abs(),
+                  masked,
+                  sign: isExpense ? '-' : '+',
+                  mask: '••••',
+                ),
+                style: PTypo.bodySm.copyWith(
+                  color: isExpense ? tokens.fgExpense : tokens.fgIncome,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -847,93 +887,108 @@ class _RecurringSkeleton extends StatelessWidget {
         const SizedBox(height: PSpace.x12),
         // 반복 거래 리스트 — 플랫 스켈레톤.
         Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 헤더: "전체 목록"(정적) + "추가"(정적) — 실제 렌더.
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 헤더: "전체 목록"(정적) + "추가"(정적) — 실제 렌더.
+            Padding(
+              // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
+              padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        l.recurringAllList,
+                        // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용(스켈레톤 정합).
+                        style: PTypo.body.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: PSpace.x4),
+                  // 필터 칩(카운트=데이터) placeholder + 추가 버튼 — 실제 렌더 정합(같은 줄).
+                  Row(
+                    children: [
+                      const PSkeleton(
+                        width: 56,
+                        height: 32,
+                        borderRadius: PRadius.brSm,
+                      ),
+                      const SizedBox(width: PSpace.x4),
+                      const PSkeleton(
+                        width: 56,
+                        height: 32,
+                        borderRadius: PRadius.brSm,
+                      ),
+                      const SizedBox(width: PSpace.x4),
+                      const PSkeleton(
+                        width: 56,
+                        height: 32,
+                        borderRadius: PRadius.brSm,
+                      ),
+                      const Spacer(),
+                      PButton(
+                        label: l.recurringAdd,
+                        icon: LucideIcons.plus,
+                        variant: PButtonVariant.accent,
+                        size: PButtonSize.sm,
+                        onPressed: null,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // 행 4개 — 실제 _RecurringRow 와 동일 구조/치수, PDivider 구분.
+            for (int i = 0; i < 4; i++) ...[
               Padding(
-                // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
-                padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 0, // 실제 행과 같은 값
+                  vertical: PSpace.x12,
+                ),
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          l.recurringAllList,
-                          // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용(스켈레톤 정합).
-                          style: PTypo.body.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    // 아이콘 36×36, PRadius.tile(36)=11.
+                    PSkeleton(
+                      width: 36,
+                      height: 36,
+                      borderRadius: PRadius.tile(36),
                     ),
-                    const SizedBox(height: PSpace.x4),
-                    // 필터 칩(카운트=데이터) placeholder + 추가 버튼 — 실제 렌더 정합(같은 줄).
-                    Row(
-                      children: [
-                        const PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
-                        const SizedBox(width: PSpace.x4),
-                        const PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
-                        const SizedBox(width: PSpace.x4),
-                        const PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
-                        const Spacer(),
-                        PButton(
-                          label: l.recurringAdd,
-                          icon: LucideIcons.plus,
-                          variant: PButtonVariant.accent,
-                          size: PButtonSize.sm,
-                          onPressed: null,
-                        ),
-                      ],
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 제목(body 14) → 2px → 메타(caption 12).
+                          PSkeleton.line(
+                            width: i.isEven ? 120 : 100,
+                            height: 14,
+                          ),
+                          const SizedBox(height: 2),
+                          PSkeleton.line(width: 140, height: 12),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    // 금액(bodySm 13 bold).
+                    const PSkeleton.line(width: 64, height: 13),
+                    const SizedBox(width: PSpace.x8),
+                    // 더보기 메뉴 아이콘 버튼(32×32 brMd).
+                    const PSkeleton(
+                      width: 32,
+                      height: 32,
+                      borderRadius: PRadius.brMd,
                     ),
                   ],
                 ),
               ),
-              // 행 4개 — 실제 _RecurringRow 와 동일 구조/치수, PDivider 구분.
-              for (int i = 0; i < 4; i++) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 0, // 실제 행과 같은 값
-                    vertical: PSpace.x12,
-                  ),
-                  child: Row(
-                    children: [
-                      // 아이콘 36×36, PRadius.tile(36)=11.
-                      PSkeleton(
-                        width: 36,
-                        height: 36,
-                        borderRadius: PRadius.tile(36),
-                      ),
-                      const SizedBox(width: PSpace.x12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 제목(body 14) → 2px → 메타(caption 12).
-                            PSkeleton.line(width: i.isEven ? 120 : 100, height: 14),
-                            const SizedBox(height: 2),
-                            PSkeleton.line(width: 140, height: 12),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: PSpace.x8),
-                      // 금액(bodySm 13 bold).
-                      const PSkeleton.line(width: 64, height: 13),
-                      const SizedBox(width: PSpace.x8),
-                      // 더보기 메뉴 아이콘 버튼(32×32 brMd).
-                      const PSkeleton(
-                        width: 32,
-                        height: 32,
-                        borderRadius: PRadius.brMd,
-                      ),
-                    ],
-                  ),
-                ),
-                if (i < 3) const PDivider(),
-              ],
+              if (i < 3) const PDivider(),
             ],
-          ),
+          ],
+        ),
       ],
     );
   }
@@ -1025,7 +1080,8 @@ String recurringSummaryText(AppLocalizations l, RecurringTransaction it) {
   if (it.frequency == 'WEEKLY' && it.dayOfWeek != null) {
     final idx = it.dayOfWeek!;
     if (idx >= 1 && idx <= 7) {
-      core = '${l.calRepeatWeekly} ${weekdayLabels(mondayFirst: true)[idx - 1]}';
+      core =
+          '${l.calRepeatWeekly} ${weekdayLabels(mondayFirst: true)[idx - 1]}';
     }
   } else if (it.frequency == 'MONTHLY' && it.dayOfMonth != null) {
     core = '${l.calRepeatMonthly} ${l.dayN(it.dayOfMonth!)}';

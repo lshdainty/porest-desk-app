@@ -71,8 +71,10 @@ class AppearanceSection extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PSectionLabel(l.appearanceTheme,
-                variant: PSectionLabelVariant.section),
+            PSectionLabel(
+              l.appearanceTheme,
+              variant: PSectionLabelVariant.section,
+            ),
             const SizedBox(height: PSpace.x8),
             Row(
               children: [
@@ -122,8 +124,10 @@ class AppearanceSection extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PSectionLabel(l.settingsLanguage,
-                variant: PSectionLabelVariant.section),
+            PSectionLabel(
+              l.settingsLanguage,
+              variant: PSectionLabelVariant.section,
+            ),
             const SizedBox(height: PSpace.x8),
             PTabs<String>(
               value: settings.locale?.languageCode ?? 'system',
@@ -157,8 +161,10 @@ class AppearanceSection extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PSectionLabel(l.appearanceRegion,
-                variant: PSectionLabelVariant.section),
+            PSectionLabel(
+              l.appearanceRegion,
+              variant: PSectionLabelVariant.section,
+            ),
             const SizedBox(height: PSpace.x8),
             PSelect<String>(
               value: prefs?.timezone,
@@ -171,10 +177,9 @@ class AppearanceSection extends ConsumerWidget {
               ],
               onChanged: (tz) {
                 if (tz == null || tz == prefs?.timezone) return;
-                ref.read(userPreferencesProvider.notifier).patch(
-                      {'timezone': tz},
-                      optimistic: (prev) => prev.copyWith(timezone: tz),
-                    );
+                ref.read(userPreferencesProvider.notifier).patch({
+                  'timezone': tz,
+                }, optimistic: (prev) => prev.copyWith(timezone: tz));
               },
             ),
           ],
@@ -184,18 +189,40 @@ class AppearanceSection extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PSectionLabel(l.appearanceCurrency,
-                variant: PSectionLabelVariant.section),
+            PSectionLabel(
+              l.appearanceCurrency,
+              variant: PSectionLabelVariant.section,
+            ),
             // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
             PRadioList<String>(
               value: settings.currency,
               onChanged: (code) =>
                   ref.read(settingsProvider.notifier).setCurrency(code),
               items: [
-                PRadioListItem(value: 'KRW', label: l.appearanceCurrencyKrw, subLabel: 'KRW', pillText: '₩'),
-                PRadioListItem(value: 'USD', label: l.appearanceCurrencyUsd, subLabel: 'USD', pillText: r'$'),
-                PRadioListItem(value: 'EUR', label: l.appearanceCurrencyEur, subLabel: 'EUR', pillText: '€'),
-                PRadioListItem(value: 'JPY', label: l.appearanceCurrencyJpy, subLabel: 'JPY', pillText: '¥'),
+                PRadioListItem(
+                  value: 'KRW',
+                  label: l.appearanceCurrencyKrw,
+                  subLabel: 'KRW',
+                  pillText: '₩',
+                ),
+                PRadioListItem(
+                  value: 'USD',
+                  label: l.appearanceCurrencyUsd,
+                  subLabel: 'USD',
+                  pillText: r'$',
+                ),
+                PRadioListItem(
+                  value: 'EUR',
+                  label: l.appearanceCurrencyEur,
+                  subLabel: 'EUR',
+                  pillText: '€',
+                ),
+                PRadioListItem(
+                  value: 'JPY',
+                  label: l.appearanceCurrencyJpy,
+                  subLabel: 'JPY',
+                  pillText: '¥',
+                ),
               ],
             ),
           ],

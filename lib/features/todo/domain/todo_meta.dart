@@ -53,28 +53,31 @@ const kTodoPrios = <TodoPrioMeta>[
 ];
 
 TodoPrioMeta todoPrioOf(String? code) => kTodoPrios.firstWhere(
-      (p) => p.code == (code ?? 'MEDIUM'),
-      orElse: () => kTodoPrios[1],
-    );
+  (p) => p.code == (code ?? 'MEDIUM'),
+  orElse: () => kTodoPrios[1],
+);
 
 /// 우선순위 표시 라벨 로컬라이즈 (meta.label 은 내부 fallback). HIGH 중요 / MEDIUM 보통 / LOW 여유.
 String todoPrioLabel(AppLocalizations l, String? code) => switch (code) {
-      'HIGH' => l.todoPriorityImportant,
-      'LOW' => l.todoPriorityRelaxed,
-      _ => l.todoPriorityMedium,
-    };
+  'HIGH' => l.todoPriorityImportant,
+  'LOW' => l.todoPriorityRelaxed,
+  _ => l.todoPriorityMedium,
+};
 
 /// 우선순위 정렬 가중치 (high → med → low desc).
 int todoPrioRank(String? code) => switch (code) {
-      'HIGH' => 3,
-      'MEDIUM' => 2,
-      'LOW' => 1,
-      _ => 0,
-    };
+  'HIGH' => 3,
+  'MEDIUM' => 2,
+  'LOW' => 1,
+  _ => 0,
+};
 
 /// overdue 강조용 chart-red (테마 적응) — 체크 테두리·상대시간 색.
-Color todoOverdueColor(BuildContext context) =>
-    resolveChartColor(context, '#c73838', fallback: context.tokens.statusDanger);
+Color todoOverdueColor(BuildContext context) => resolveChartColor(
+  context,
+  '#c73838',
+  fallback: context.tokens.statusDanger,
+);
 
 /// 자정 기준 날짜(시·분 절단).
 DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);

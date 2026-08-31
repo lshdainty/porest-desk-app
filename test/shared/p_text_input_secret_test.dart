@@ -11,9 +11,9 @@ import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 
 Widget _app(Widget child) => MaterialApp(
-      theme: PorestTheme.dark(),
-      home: Scaffold(body: Center(child: child)),
-    );
+  theme: PorestTheme.dark(),
+  home: Scaffold(body: Center(child: child)),
+);
 
 EditableText _editable(WidgetTester tester) =>
     tester.widget<EditableText>(find.byType(EditableText));
@@ -27,10 +27,16 @@ void main() {
     final e = _editable(tester);
     expect(e.obscureText, isTrue);
     expect(e.autocorrect, isTrue, reason: 'obscureText 가 autocorrect 를 안 끈다');
-    expect(e.enableSuggestions, isTrue,
-        reason: 'obscureText 가 enableSuggestions 를 안 끈다');
-    expect(e.enableIMEPersonalizedLearning, isTrue,
-        reason: 'obscureText 가 IME 개인화 학습을 안 끈다 — 가려도 사전에 남는다');
+    expect(
+      e.enableSuggestions,
+      isTrue,
+      reason: 'obscureText 가 enableSuggestions 를 안 끈다',
+    );
+    expect(
+      e.enableIMEPersonalizedLearning,
+      isTrue,
+      reason: 'obscureText 가 IME 개인화 학습을 안 끈다 — 가려도 사전에 남는다',
+    );
   });
 
   testWidgets('평범한 입력칸은 예측·학습을 그대로 둔다 (대조군)', (tester) async {
@@ -40,13 +46,17 @@ void main() {
     expect(e.obscureText, isFalse);
     expect(e.autocorrect, isTrue);
     expect(e.enableSuggestions, isTrue);
-    expect(e.enableIMEPersonalizedLearning, isTrue,
-        reason: 'Flutter 기본값 — 이게 true 라서 자격증명 칸을 따로 꺼야 한다');
+    expect(
+      e.enableIMEPersonalizedLearning,
+      isTrue,
+      reason: 'Flutter 기본값 — 이게 true 라서 자격증명 칸을 따로 꺼야 한다',
+    );
   });
 
   testWidgets('obscureText 만 켜도 자격증명으로 취급한다', (tester) async {
     await tester.pumpWidget(
-        _app(const PTextInput(placeholder: '비밀번호', obscureText: true)));
+      _app(const PTextInput(placeholder: '비밀번호', obscureText: true)),
+    );
 
     final e = _editable(tester);
     expect(e.obscureText, isTrue);
@@ -57,11 +67,15 @@ void main() {
 
   testWidgets('secret 은 벗겨 보는 동안에도 학습을 막는다', (tester) async {
     // 보기 토글로 obscureText 가 false 가 된 순간이 바로 구멍이다.
-    await tester.pumpWidget(_app(const PTextInput(
-      placeholder: 'App Key',
-      obscureText: false,
-      secret: true,
-    )));
+    await tester.pumpWidget(
+      _app(
+        const PTextInput(
+          placeholder: 'App Key',
+          obscureText: false,
+          secret: true,
+        ),
+      ),
+    );
 
     final e = _editable(tester);
     expect(e.obscureText, isFalse, reason: '벗겨 본 상태');
@@ -73,12 +87,16 @@ void main() {
   testWidgets('가려도 붙여넣기는 된다', (tester) async {
     final ctrl = TextEditingController();
     addTearDown(ctrl.dispose);
-    await tester.pumpWidget(_app(PTextInput(
-      controller: ctrl,
-      placeholder: 'App Key',
-      obscureText: true,
-      secret: true,
-    )));
+    await tester.pumpWidget(
+      _app(
+        PTextInput(
+          controller: ctrl,
+          placeholder: 'App Key',
+          obscureText: true,
+          secret: true,
+        ),
+      ),
+    );
 
     // 클립보드 붙여넣기와 같은 경로 — 컨트롤러/입력 커넥션으로 값이 통째로 들어온다.
     const pasted = 'PSb2xkZW4tc2VjcmV0LWtleS0xMjM0NTY3ODkw';

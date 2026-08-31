@@ -70,7 +70,8 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
       assetSummaryProvider((year: null, month: null)),
     );
     // 투자 자산 라이브 평가(평가액·등락) 맵 — holdings/레거시 연동 공용. 게이트 OFF·미평가 시 빈 맵.
-    final invMap = ref.watch(investmentValuationMapProvider).asData?.value ??
+    final invMap =
+        ref.watch(investmentValuationMapProvider).asData?.value ??
         const <int, InvestmentValuation>{};
     final valMap = {for (final e in invMap.entries) e.key: e.value.value};
 
@@ -106,19 +107,21 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
             final liveAssets = valMap.isEmpty
                 ? assets
                 : assets
-                    .map(
-                      (a) => valMap.containsKey(a.rowId)
-                          ? a.copyWith(
-                              balance: liveTotal(a),
-                              holdingBalance: valMap[a.rowId])
-                          : a,
-                    )
-                    .toList();
+                      .map(
+                        (a) => valMap.containsKey(a.rowId)
+                            ? a.copyWith(
+                                balance: liveTotal(a),
+                                holdingBalance: valMap[a.rowId],
+                              )
+                            : a,
+                      )
+                      .toList();
             final summaryDelta = valMap.isEmpty
                 ? 0
                 : assets.fold<int>(
                     0,
-                    (s, a) => (a.isIncludedInTotal == 'Y' &&
+                    (s, a) =>
+                        (a.isIncludedInTotal == 'Y' &&
                             valMap.containsKey(a.rowId))
                         ? s + (liveTotal(a) - (a.balance ?? 0))
                         : s,
@@ -169,7 +172,10 @@ class _AssetBody extends StatelessWidget {
     final l = AppLocalizations.of(context);
     if (assets.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x24, vertical: PSpace.x20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x24,
+          vertical: PSpace.x20,
+        ),
         children: [
           const SizedBox(height: PSpace.x32),
           // 카드 다이어트 — 빈 상태도 카드 없이 플랫.
@@ -217,9 +223,10 @@ class _AssetBody extends StatelessWidget {
     int sumIncluded(List<Asset> arr) => arr
         .where((a) => a.isIncludedInTotal == 'Y')
         .fold<int>(
-            0,
-            (s, a) => s +
-                balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate));
+          0,
+          (s, a) =>
+              s + balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate),
+        );
 
     final accountsTotal = sumIncluded(accounts);
     final cardsTotal = sumIncluded(cards).abs();
@@ -350,7 +357,10 @@ class _SavingGoalsSection extends StatelessWidget {
                   Row(
                     children: [
                       PSkeleton(
-                          width: 32, height: 32, borderRadius: PRadius.tile(32)),
+                        width: 32,
+                        height: 32,
+                        borderRadius: PRadius.tile(32),
+                      ),
                       const SizedBox(width: PSpace.x8),
                       const Expanded(child: PSkeleton.line(width: 120)),
                       const PSkeleton.line(width: 48, height: 12),
@@ -360,28 +370,28 @@ class _SavingGoalsSection extends StatelessWidget {
               ],
             )
           : items.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
-                  child: Center(
-                    child: Text(
-                      l.savingGoalManagePrompt,
-                      style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                    ),
-                  ),
-                )
-              : Column(
-                  children: [
-                    for (int i = 0; i < items.length; i++) ...[
-                      if (i > 0) const SizedBox(height: PSpace.x16),
-                      _SavingGoalRow(
-                        goal: items[i],
-                        masked: masked,
-                        tokens: tokens,
-                        deadlineLabel: _deadlineLabel(items[i]),
-                      ),
-                    ],
-                  ],
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
+              child: Center(
+                child: Text(
+                  l.savingGoalManagePrompt,
+                  style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
                 ),
+              ),
+            )
+          : Column(
+              children: [
+                for (int i = 0; i < items.length; i++) ...[
+                  if (i > 0) const SizedBox(height: PSpace.x16),
+                  _SavingGoalRow(
+                    goal: items[i],
+                    masked: masked,
+                    tokens: tokens,
+                    deadlineLabel: _deadlineLabel(items[i]),
+                  ),
+                ],
+              ],
+            ),
     );
   }
 }
@@ -403,8 +413,11 @@ class _SavingGoalRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final color =
-        resolveChartColor(context, goal.color, fallback: tokens.fgBrand);
+    final color = resolveChartColor(
+      context,
+      goal.color,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(context, color);
     final pct = (goal.progress * 100).round();
     return Column(
@@ -415,13 +428,16 @@ class _SavingGoalRow extends StatelessWidget {
             Container(
               width: 32,
               height: 32,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.tile(32)),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.tile(32),
+              ),
               alignment: Alignment.center,
               child: Icon(
-                  lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
-                  size: 15,
-                  color: color),
+                lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
+                size: 15,
+                color: color,
+              ),
             ),
             const SizedBox(width: PSpace.x8),
             Expanded(
@@ -431,36 +447,45 @@ class _SavingGoalRow extends StatelessWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(goal.title,
-                            overflow: TextOverflow.ellipsis,
-                            style: PTypo.body.copyWith(
-                                color: tokens.fgPrimary,
-                                fontWeight: PFontWeight.semi)),
+                        child: Text(
+                          goal.title,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.body.copyWith(
+                            color: tokens.fgPrimary,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                        ),
                       ),
                       if (goal.achieved) ...[
                         const SizedBox(width: 6),
                         PBadge(
-                            label: l.savingGoalAchieved,
-                            variant: PBadgeVariant.softSuccess),
+                          label: l.savingGoalAchieved,
+                          variant: PBadgeVariant.softSuccess,
+                        ),
                       ],
                     ],
                   ),
-                  Text(deadlineLabel ?? l.savingGoalNoDeadline,
-                      style:
-                          PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                  Text(
+                    deadlineLabel ?? l.savingGoalNoDeadline,
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                  ),
                 ],
               ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('$pct%',
-                    style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: PFontWeight.bold)),
                 Text(
-                    '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwMasked(goal.targetAmount, masked, mask: '••••')}',
-                    style: PTypo.micro.copyWith(color: tokens.fgTertiary)),
+                  '$pct%',
+                  style: PTypo.bodySm.copyWith(
+                    color: tokens.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwMasked(goal.targetAmount, masked, mask: '••••')}',
+                  style: PTypo.micro.copyWith(color: tokens.fgTertiary),
+                ),
               ],
             ),
           ],
@@ -692,7 +717,9 @@ class _SummaryCol extends StatelessWidget {
               : krw(amount),
           style: TextStyle(
             // 0원이면 음수 색(빨강) 대신 중립색
-            color: amount == 0 ? tokens.fgPrimary : (valueColor ?? tokens.fgPrimary),
+            color: amount == 0
+                ? tokens.fgPrimary
+                : (valueColor ?? tokens.fgPrimary),
             fontSize: PFontSize.body,
             fontWeight: PFontWeight.bold,
             fontFeatures: const [FontFeature.tabularFigures()],
@@ -738,7 +765,9 @@ class _TypeGroup extends StatelessWidget {
         : (negativeTotal && !isZeroTotal)
         ? krwSigned(total.abs(), false, sign: '−', unit: true)
         : krwSigned(total, false, unit: true);
-    final effectiveTotalColor = isZeroTotal ? tokens.fgPrimary : (totalColor ?? tokens.fgPrimary);
+    final effectiveTotalColor = isZeroTotal
+        ? tokens.fgPrimary
+        : (totalColor ?? tokens.fgPrimary);
     // 카드 다이어트 — design flat-group: 라벨(15/bold)+총액(13/bold 우측), 카드 없음.
     return PFlatSection(
       title: title,
@@ -802,8 +831,11 @@ class _AssetCard extends StatelessWidget {
     final t = tokens;
     final l = AppLocalizations.of(context);
     // 외화는 환산액이 주 표기 — 원 통화 잔고는 밑에 함께 보여 준다.
-    final balance =
-        balanceInKrw(asset.balance ?? 0, asset.currency, asset.exchangeRate);
+    final balance = balanceInKrw(
+      asset.balance ?? 0,
+      asset.currency,
+      asset.exchangeRate,
+    );
     // 음수(빚)만 fg-expense 빨강 + 부호(−), 0 은 부호·강조 없이 '0원' (−0원 방지)
     // — 관리 화면(account_card_manage_screen) 과 동일 로직.
     // 저장된 부호를 그대로 믿는다 — 예전엔 카드 그룹에서 부호를 강제로 뒤집었는데,
@@ -816,8 +848,8 @@ class _AssetCard extends StatelessWidget {
     // 미연결 체크카드는 잔액이 실제로 쌓이므로 지금대로 잔액을 보여준다. (web 정합)
     final checkCardMonthly =
         asset.assetType == 'CHECK_CARD' && asset.paymentAssetRowId != null
-            ? (asset.monthlyUsedAmount ?? 0)
-            : null;
+        ? (asset.monthlyUsedAmount ?? 0)
+        : null;
 
     // 신용카드 사용률 — 한도가 있어야 뜻이 있다.
     final showGauge =
@@ -826,8 +858,8 @@ class _AssetCard extends StatelessWidget {
     final gaugeColor = gaugeRatio >= 0.9
         ? t.statusDanger
         : gaugeRatio >= 0.7
-            ? t.statusWarning
-            : t.fgBrand;
+        ? t.statusWarning
+        : t.fgBrand;
 
     // design acc-card 플랫 행 — 구분선 없이 padding(12/10)+radius 10, 탭 hover 톤.
     return Material(
@@ -842,233 +874,252 @@ class _AssetCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-          // 발급사는 행 맨 위, 아이콘과 같은 왼쪽 끝에서 시작한다.
-          //
-          // 이름 옆에 붙여 두면 이름 길이만큼 자리가 밀려 행마다 다른 곳에 서고,
-          // 이름이 쓸 가로도 그만큼 줄었다. 위로 빼면 자리가 늘 같고 이름은 한 줄을
-          // 통째로 쓴다.
-          if (asset.institution != null && asset.institution!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: PSpace.x4),
-              child: Text(
-                asset.institution!,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: t.fgTertiary,
-                  fontSize: PFontSize.caption,
-                  fontWeight: PFontWeight.medium,
-                ),
-              ),
-            ),
-          Row(
-            children: [
-              AssetLogo(asset: asset),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      asset.assetName,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: t.fgPrimary,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                    if (asset.assetType == 'INVESTMENT' &&
-                        asset.holdings.isNotEmpty)
-                      // design 투자 행 서브 — 대표 종목 "외 N종목" (memo 는 상세에서).
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Text(
-                          _holdingsRep(l, asset.holdings),
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.caption,
-                          ),
-                        ),
-                      )
-                    // 카드는 메모를 행에 안 띄운다. 아래로 결제일·게이지가 이어지는데
-                    // 메모가 한 줄 끼면 그만큼 밀려, 카드마다 게이지 높이가 달라진다.
-                    // 투자 행이 이미 쓰는 원칙과 같다 — 메모는 상세에서 본다.
-                    else if (!_cardTypes.contains(asset.assetType) &&
-                        asset.memo != null &&
-                        asset.memo!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Text(
-                          asset.memo!,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.caption,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ),
-                    // 신용카드는 이 줄을 늘 차지한다. 결제일이 없다고 줄을 빼면
-                    // 그 카드만 게이지가 위로 붙어 목록이 어긋난다.
-                    if (asset.assetType == 'CREDIT_CARD')
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Text(
-                          asset.paymentDay != null
-                              ? l.assetPaymentDayInfo(asset.paymentDay!)
-                              : '',
-                          style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.caption,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ),
-                    // 체크카드(연결계좌형) — 금액이 잔액이 아니라 당월 사용액임을 캡션으로
-                    // 밝힌다. 신용카드의 결제일 줄과 같은 자리·타이포라 행 리듬이 맞는다.
-                    if (checkCardMonthly != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Text(
-                          l.assetCheckCardMonthLabel,
-                          style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.caption,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    masked
-                        ? '••••••'
-                        : checkCardMonthly != null
-                        ? krwSigned(checkCardMonthly, false, unit: true)
-                        : isNeg
-                        ? krwSigned(balance.abs(), false, sign: '−', unit: true)
-                        : krwSigned(balance.abs(), false, unit: true),
-                    // 행 금액 중립색 — 부호(−)만 유지(사용자 결정)
+              // 발급사는 행 맨 위, 아이콘과 같은 왼쪽 끝에서 시작한다.
+              //
+              // 이름 옆에 붙여 두면 이름 길이만큼 자리가 밀려 행마다 다른 곳에 서고,
+              // 이름이 쓸 가로도 그만큼 줄었다. 위로 빼면 자리가 늘 같고 이름은 한 줄을
+              // 통째로 쓴다.
+              if (asset.institution != null && asset.institution!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: PSpace.x4),
+                  child: Text(
+                    asset.institution!,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: t.fgPrimary,
-                      fontSize: PFontSize.bodyLg,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.32,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                      color: t.fgTertiary,
+                      fontSize: PFontSize.caption,
+                      fontWeight: PFontWeight.medium,
                     ),
                   ),
-                  // 외화 행 — 환산액 밑에 원 통화 잔고를 함께.
-                  if (!masked && isForeignCurrency(asset.currency)) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      formatOriginalAmount(
-                        (asset.balance ?? 0).toDouble(),
-                        asset.currency!,
-                        Localizations.localeOf(context).toString(),
-                      ),
-                      style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.micro,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
+                ),
+              Row(
+                children: [
+                  AssetLogo(asset: asset),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          asset.assetName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: t.fgPrimary,
+                            fontSize: PFontSize.body,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                        ),
+                        if (asset.assetType == 'INVESTMENT' &&
+                            asset.holdings.isNotEmpty)
+                          // design 투자 행 서브 — 대표 종목 "외 N종목" (memo 는 상세에서).
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Text(
+                              _holdingsRep(l, asset.holdings),
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: t.fgTertiary,
+                                fontSize: PFontSize.caption,
+                              ),
+                            ),
+                          )
+                        // 카드는 메모를 행에 안 띄운다. 아래로 결제일·게이지가 이어지는데
+                        // 메모가 한 줄 끼면 그만큼 밀려, 카드마다 게이지 높이가 달라진다.
+                        // 투자 행이 이미 쓰는 원칙과 같다 — 메모는 상세에서 본다.
+                        else if (!_cardTypes.contains(asset.assetType) &&
+                            asset.memo != null &&
+                            asset.memo!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Text(
+                              asset.memo!,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: t.fgTertiary,
+                                fontSize: PFontSize.caption,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        // 신용카드는 이 줄을 늘 차지한다. 결제일이 없다고 줄을 빼면
+                        // 그 카드만 게이지가 위로 붙어 목록이 어긋난다.
+                        if (asset.assetType == 'CREDIT_CARD')
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Text(
+                              asset.paymentDay != null
+                                  ? l.assetPaymentDayInfo(asset.paymentDay!)
+                                  : '',
+                              style: TextStyle(
+                                color: t.fgTertiary,
+                                fontSize: PFontSize.caption,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        // 체크카드(연결계좌형) — 금액이 잔액이 아니라 당월 사용액임을 캡션으로
+                        // 밝힌다. 신용카드의 결제일 줄과 같은 자리·타이포라 행 리듬이 맞는다.
+                        if (checkCardMonthly != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Text(
+                              l.assetCheckCardMonthLabel,
+                              style: TextStyle(
+                                color: t.fgTertiary,
+                                fontSize: PFontSize.caption,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                  ],
-                  // 투자 행 등락 — design: +N% (+M원), 상승=빨강/하락=파랑(국내 통념).
-                  if (!masked &&
-                      valuation != null &&
-                      valuation!.changeAmt != null) ...[
-                    const SizedBox(height: 2),
-                    Builder(builder: (context) {
-                      final chg = valuation!.changeAmt!;
-                      final base = valuation!.value - chg;
-                      final pct = base == 0 ? 0.0 : chg / base * 100;
-                      final up = chg >= 0;
-                      final color = up ? t.statusDangerFg : t.fgBrand;
-                      final pctText =
-                          '${up ? '+' : ''}${pct.toStringAsFixed(1)}%';
-                      final amtText = krwSigned(chg.abs(), false,
-                          sign: up ? '+' : '−', unit: true);
-                      return Text(
-                        '$pctText ($amtText)',
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        masked
+                            ? '••••••'
+                            : checkCardMonthly != null
+                            ? krwSigned(checkCardMonthly, false, unit: true)
+                            : isNeg
+                            ? krwSigned(
+                                balance.abs(),
+                                false,
+                                sign: '−',
+                                unit: true,
+                              )
+                            : krwSigned(balance.abs(), false, unit: true),
+                        // 행 금액 중립색 — 부호(−)만 유지(사용자 결정)
                         style: TextStyle(
-                          color: color,
-                          fontSize: PFontSize.micro,
-                          fontWeight: PFontWeight.semi,
+                          color: t.fgPrimary,
+                          fontSize: PFontSize.bodyLg,
+                          fontWeight: PFontWeight.bold,
+                          letterSpacing: -0.32,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
-                      );
-                    }),
-                  ],
-                  // 총액에서 제외된 자산이면 금액 아래 '총액 제외' 표기 (관리 화면 정합)
-                  if (asset.isIncludedInTotal == 'N') ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      l.assetExcludedFromTotal,
-                      style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.micro,
+                      ),
+                      // 외화 행 — 환산액 밑에 원 통화 잔고를 함께.
+                      if (!masked && isForeignCurrency(asset.currency)) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          formatOriginalAmount(
+                            (asset.balance ?? 0).toDouble(),
+                            asset.currency!,
+                            Localizations.localeOf(context).toString(),
+                          ),
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.micro,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                      // 투자 행 등락 — design: +N% (+M원), 상승=빨강/하락=파랑(국내 통념).
+                      if (!masked &&
+                          valuation != null &&
+                          valuation!.changeAmt != null) ...[
+                        const SizedBox(height: 2),
+                        Builder(
+                          builder: (context) {
+                            final chg = valuation!.changeAmt!;
+                            final base = valuation!.value - chg;
+                            final pct = base == 0 ? 0.0 : chg / base * 100;
+                            final up = chg >= 0;
+                            final color = up ? t.statusDangerFg : t.fgBrand;
+                            final pctText =
+                                '${up ? '+' : ''}${pct.toStringAsFixed(1)}%';
+                            final amtText = krwSigned(
+                              chg.abs(),
+                              false,
+                              sign: up ? '+' : '−',
+                              unit: true,
+                            );
+                            return Text(
+                              '$pctText ($amtText)',
+                              style: TextStyle(
+                                color: color,
+                                fontSize: PFontSize.micro,
+                                fontWeight: PFontWeight.semi,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      // 총액에서 제외된 자산이면 금액 아래 '총액 제외' 표기 (관리 화면 정합)
+                      if (asset.isIncludedInTotal == 'N') ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          l.assetExcludedFromTotal,
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.micro,
+                          ),
+                        ),
+                      ],
+                      // 카드 사용액·사용률 — 게이지 바는 아래 행 전체 폭으로 따로 그린다.
+                      // 왼쪽 텍스트 열에 두면 카드 이름 길이에 밀려 폭이 모자라 넘친다.
+                      if (showGauge) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          masked
+                              ? '••• / •••'
+                              : '${krw(balance.abs())} / ${krwSigned(asset.creditLimit!, false, unit: true)}',
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.micro,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+              // 게이지는 행 맨 아래, 아이콘부터 오른쪽 끝까지 한 줄로. 예산 카테고리 행과
+              // 같은 배치라 카드 이름이나 금액 길이와 무관하게 시작·끝이 늘 같다.
+              if (showGauge) ...[
+                const SizedBox(height: PSpace.x8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: PRadius.brFull,
+                        child: LinearProgressIndicator(
+                          // 바 두께는 간격이 아니라 컴포넌트 치수라 spacing 토큰을 안 쓴다.
+                          // 예산·저축목표 진행률 바와 같은 6px.
+                          minHeight: 6,
+                          value: gaugeRatio.clamp(0.0, 1.0),
+                          backgroundColor: t.bgTrack,
+                          color: gaugeColor,
+                        ),
                       ),
                     ),
-                  ],
-                  // 카드 사용액·사용률 — 게이지 바는 아래 행 전체 폭으로 따로 그린다.
-                  // 왼쪽 텍스트 열에 두면 카드 이름 길이에 밀려 폭이 모자라 넘친다.
-                  if (showGauge) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(width: PSpace.x8),
                     Text(
-                      masked
-                          ? '••• / •••'
-                          : '${krw(balance.abs())} / ${krwSigned(asset.creditLimit!, false, unit: true)}',
+                      '${(gaugeRatio * 100).round()}%',
                       style: TextStyle(
-                        color: t.fgTertiary,
+                        color: gaugeColor,
                         fontSize: PFontSize.micro,
+                        fontWeight: PFontWeight.bold,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                   ],
-                ],
-              ),
-            ],
-          ),
-          // 게이지는 행 맨 아래, 아이콘부터 오른쪽 끝까지 한 줄로. 예산 카테고리 행과
-          // 같은 배치라 카드 이름이나 금액 길이와 무관하게 시작·끝이 늘 같다.
-          if (showGauge) ...[
-            const SizedBox(height: PSpace.x8),
-            Row(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: PRadius.brFull,
-                    child: LinearProgressIndicator(
-                      // 바 두께는 간격이 아니라 컴포넌트 치수라 spacing 토큰을 안 쓴다.
-                      // 예산·저축목표 진행률 바와 같은 6px.
-                      minHeight: 6,
-                      value: gaugeRatio.clamp(0.0, 1.0),
-                      backgroundColor: t.bgTrack,
-                      color: gaugeColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-                Text(
-                  '${(gaugeRatio * 100).round()}%',
-                  style: TextStyle(
-                    color: gaugeColor,
-                    fontSize: PFontSize.micro,
-                    fontWeight: PFontWeight.bold,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
                 ),
               ],
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
         ),
       ),
     );
@@ -1078,8 +1129,9 @@ class _AssetCard extends StatelessWidget {
 /// 투자 보유 요약 서브라인 — "대표종목 외 N종목" / 단일 이름 / 빈 목록 문구.
 String _holdingsRep(AppLocalizations l, List<AssetHolding> holdings) {
   if (holdings.isEmpty) return l.assetNoHoldings;
-  String nameOf(AssetHolding h) =>
-      (h.holdingName?.isNotEmpty ?? false) ? h.holdingName! : (h.tossSymbol ?? '');
+  String nameOf(AssetHolding h) => (h.holdingName?.isNotEmpty ?? false)
+      ? h.holdingName!
+      : (h.tossSymbol ?? '');
   final first = nameOf(holdings.first);
   if (holdings.length == 1) return first;
   return l.assetHoldingRep(first, holdings.length - 1);
@@ -1275,7 +1327,11 @@ class _AssetSavingGoalsSkeleton extends StatelessWidget {
             if (i > 0) const SizedBox(height: PSpace.x16),
             Row(
               children: [
-                PSkeleton(width: 32, height: 32, borderRadius: PRadius.tile(32)),
+                PSkeleton(
+                  width: 32,
+                  height: 32,
+                  borderRadius: PRadius.tile(32),
+                ),
                 const SizedBox(width: PSpace.x8),
                 const Expanded(child: PSkeleton.line(width: 120)),
                 const PSkeleton.line(width: 48, height: 12),

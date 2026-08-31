@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart' hide CardPerformance;
+import 'package:porest_desk_app/features/card/domain/card_catalog.dart'
+    hide CardPerformance;
 import 'package:porest_desk_app/features/card/domain/card_catalog_page.dart';
 import 'package:porest_desk_app/features/card/domain/card_performance.dart';
 
@@ -73,9 +74,7 @@ class CardRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/card-catalogs/$cardRowId/available-benefits',
-        queryParameters: {
-          'expenseCategoryRowId': ?expenseCategoryRowId,
-        },
+        queryParameters: {'expenseCategoryRowId': ?expenseCategoryRowId},
       );
       final body = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data ?? const {},
@@ -115,10 +114,7 @@ class CardRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/card-performance',
-        queryParameters: {
-          'assetRowId': assetRowId,
-          'yearMonth': yearMonth,
-        },
+        queryParameters: {'assetRowId': assetRowId, 'yearMonth': yearMonth},
       );
       final body = ApiResponse<CardPerformance>.fromJson(
         res.data ?? const {},

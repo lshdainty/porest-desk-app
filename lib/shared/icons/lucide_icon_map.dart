@@ -44,7 +44,8 @@ final Map<String, IconData> _byName = {
   'aligncentervertical': LucideIcons.alignCenterVertical,
   'alignendhorizontal': LucideIcons.alignEndHorizontal,
   'alignendvertical': LucideIcons.alignEndVertical,
-  'alignhorizontaldistributecenter': LucideIcons.alignHorizontalDistributeCenter,
+  'alignhorizontaldistributecenter':
+      LucideIcons.alignHorizontalDistributeCenter,
   'alignhorizontaldistributeend': LucideIcons.alignHorizontalDistributeEnd,
   'alignhorizontaldistributestart': LucideIcons.alignHorizontalDistributeStart,
   'alignhorizontaljustifycenter': LucideIcons.alignHorizontalJustifyCenter,
@@ -1638,7 +1639,8 @@ final Map<String, IconData> _byName = {
   'squarearrowupright': LucideIcons.squareArrowUpRight,
   'squareasterisk': LucideIcons.squareAsterisk,
   'squarebottomdashedscissors': LucideIcons.squareBottomDashedScissors,
-  'squarecenterlinedashedhorizontal': LucideIcons.squareCenterlineDashedHorizontal,
+  'squarecenterlinedashedhorizontal':
+      LucideIcons.squareCenterlineDashedHorizontal,
   'squarecenterlinedashedvertical': LucideIcons.squareCenterlineDashedVertical,
   'squarechartgantt': LucideIcons.squareChartGantt,
   'squarecheck': LucideIcons.squareCheck,

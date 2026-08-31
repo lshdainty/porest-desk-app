@@ -40,7 +40,8 @@ class AssetLogo extends StatelessWidget {
 
   Widget _monogram(BuildContext context) {
     final brand = getBrandColor([asset.institution, asset.assetName]);
-    final bg = _parseHex(asset.color) ?? brand?.bg ?? hashColor(asset.assetName);
+    final bg =
+        _parseHex(asset.color) ?? brand?.bg ?? hashColor(asset.assetName);
     final fg = brand?.fg ?? Colors.white;
     final char = (asset.institution ?? asset.assetName).trim().isEmpty
         ? '?'
@@ -49,16 +50,13 @@ class AssetLogo extends StatelessWidget {
     final fontSize = size <= 32
         ? PFontSize.caption
         : size >= 48
-            ? PFontSize.bodyLg
-            : PFontSize.bodySm;
+        ? PFontSize.bodyLg
+        : PFontSize.bodySm;
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: PRadius.brLg,
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brLg),
       child: Text(
         char,
         style: TextStyle(

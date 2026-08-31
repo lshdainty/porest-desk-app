@@ -174,7 +174,9 @@ class _ForestWeekEntry extends StatelessWidget {
                       // rep 뱃지 — 오늘의 목표 별자리명 (design .fcol-badge--rep).
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 2),
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: t.bgBrandSolid,
                           borderRadius: BorderRadius.circular(999),
@@ -182,8 +184,7 @@ class _ForestWeekEntry extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(LucideIcons.star,
-                                size: 9, color: t.fgOnBrand),
+                            Icon(LucideIcons.star, size: 9, color: t.fgOnBrand),
                             const SizedBox(width: 3),
                             Text(
                               name,
@@ -266,18 +267,18 @@ class _WeekDot extends StatelessWidget {
       child: isToday
           ? Icon(stageIcon, size: 11, color: fg)
           : grown
-              ? Icon(LucideIcons.star, size: 10, color: fg)
-              : day.isWithered
-                  ? Icon(LucideIcons.cloudy, size: 11, color: fg)
-                  : Text(
-                      dowIdx == null ? '' : dows[dowIdx - 1],
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: 10,
-                        fontWeight: PFontWeight.semi,
-                        color: fg,
-                      ),
-                    ),
+          ? Icon(LucideIcons.star, size: 10, color: fg)
+          : day.isWithered
+          ? Icon(LucideIcons.cloudy, size: 11, color: fg)
+          : Text(
+              dowIdx == null ? '' : dows[dowIdx - 1],
+              style: TextStyle(
+                fontFamily: PTypo.sans,
+                fontSize: 10,
+                fontWeight: PFontWeight.semi,
+                color: fg,
+              ),
+            ),
     );
   }
 }
@@ -291,13 +292,29 @@ class _NightSkySkeleton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        PSkeleton(width: double.infinity, height: 168, borderRadius: PRadius.brLg),
+        PSkeleton(
+          width: double.infinity,
+          height: 168,
+          borderRadius: PRadius.brLg,
+        ),
         SizedBox(height: 14),
-        PSkeleton(width: double.infinity, height: 74, borderRadius: PRadius.brLg),
+        PSkeleton(
+          width: double.infinity,
+          height: 74,
+          borderRadius: PRadius.brLg,
+        ),
         SizedBox(height: 14),
-        PSkeleton(width: double.infinity, height: 180, borderRadius: PRadius.brLg),
+        PSkeleton(
+          width: double.infinity,
+          height: 180,
+          borderRadius: PRadius.brLg,
+        ),
         SizedBox(height: 14),
-        PSkeleton(width: double.infinity, height: 320, borderRadius: PRadius.brLg),
+        PSkeleton(
+          width: double.infinity,
+          height: 320,
+          borderRadius: PRadius.brLg,
+        ),
       ],
     );
   }

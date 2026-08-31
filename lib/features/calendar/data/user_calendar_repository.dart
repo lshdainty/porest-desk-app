@@ -11,8 +11,7 @@ class UserCalendarRepository {
 
   Future<List<UserCalendar>> list() async {
     try {
-      final res =
-          await _dio.get<Map<String, dynamic>>('/calendar/calendars');
+      final res = await _dio.get<Map<String, dynamic>>('/calendar/calendars');
       return _unwrapList(res, 'calendars', UserCalendar.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
@@ -26,10 +25,7 @@ class UserCalendarRepository {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/calendar/calendars',
-        data: {
-          'calendarName': calendarName,
-          'color': ?color,
-        },
+        data: {'calendarName': calendarName, 'color': ?color},
       );
       return _unwrap(res, UserCalendar.fromJson);
     } on DioException catch (e) {
@@ -45,10 +41,7 @@ class UserCalendarRepository {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
         '/calendar/calendars/$id',
-        data: {
-          'calendarName': calendarName,
-          'color': ?color,
-        },
+        data: {'calendarName': calendarName, 'color': ?color},
       );
       return _unwrap(res, UserCalendar.fromJson);
     } on DioException catch (e) {
@@ -79,7 +72,9 @@ class UserCalendarRepository {
 
   Future<List<CalendarMember>> members(int id) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>('/calendar/calendars/$id/members');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/calendar/calendars/$id/members',
+      );
       return _unwrapList(res, 'members', CalendarMember.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
@@ -88,7 +83,9 @@ class UserCalendarRepository {
 
   Future<void> regenerateInviteCode(int id) async {
     try {
-      await _dio.patch<dynamic>('/calendar/calendars/$id/regenerate-invite-code');
+      await _dio.patch<dynamic>(
+        '/calendar/calendars/$id/regenerate-invite-code',
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

@@ -71,17 +71,21 @@ class _CardBenefitDetailContentState
     final detailAsync = ref.watch(cardCatalogDetailProvider(widget.rowId));
 
     return detailAsync.when(
-      loading: () => _DetailSkeleton(
-        tokens: t,
-        scrollController: widget.scrollController,
-      ),
+      loading: () =>
+          _DetailSkeleton(tokens: t, scrollController: widget.scrollController),
       error: (e, _) => ListView(
         controller: widget.scrollController,
         padding: const EdgeInsets.fromLTRB(
-            PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
+          PSpace.xl,
+          PSpace.x4,
+          PSpace.xl,
+          PSpace.x24,
+        ),
         children: [
-          Text('${l.cardDetailLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+          Text(
+            '${l.cardDetailLoadError}\n$e',
+            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+          ),
         ],
       ),
       data: (d) {
@@ -104,7 +108,11 @@ class _CardBenefitDetailContentState
         return ListView(
           controller: widget.scrollController,
           padding: const EdgeInsets.fromLTRB(
-              PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
+            PSpace.xl,
+            PSpace.x4,
+            PSpace.xl,
+            PSpace.x24,
+          ),
           children: [
             // 카드 hero
             _CardHero(summary: s, tokens: t),
@@ -134,9 +142,13 @@ class _CardBenefitDetailContentState
 
             // 주요 혜택 태그 (중복 제거)
             if (topTags.isNotEmpty) ...[
-              Text(l.cardKeyBenefitTags,
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                l.cardKeyBenefitTags,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(height: PSpace.x8),
               Wrap(
                 spacing: 6,
@@ -154,10 +166,13 @@ class _CardBenefitDetailContentState
               Row(
                 children: [
                   Expanded(
-                    child: Text(l.cardBenefitDetailCount(benefits.length),
-                        style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold)),
+                    child: Text(
+                      l.cardBenefitDetailCount(benefits.length),
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
                   ),
                   PButton(
                     label: allOpen ? l.cardCollapseAll : l.cardExpandAll,
@@ -199,9 +214,13 @@ class _CardBenefitDetailContentState
             // 유의사항
             if (d.cautions.isNotEmpty) ...[
               const SizedBox(height: PSpace.x20),
-              Text(l.cardCautions,
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                l.cardCautions,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(height: PSpace.x8),
               PCard(
                 variant: PCardVariant.muted,
@@ -216,13 +235,19 @@ class _CardBenefitDetailContentState
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(LucideIcons.alertTriangle,
-                                size: 12, color: t.statusWarningFg),
+                            Icon(
+                              LucideIcons.alertTriangle,
+                              size: 12,
+                              color: t.statusWarningFg,
+                            ),
                             const SizedBox(width: 6),
                             Expanded(
-                              child: Text(c.summary ?? c.title ?? '',
-                                  style: PTypo.caption.copyWith(
-                                      color: t.statusWarningFg)),
+                              child: Text(
+                                c.summary ?? c.title ?? '',
+                                style: PTypo.caption.copyWith(
+                                  color: t.statusWarningFg,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -306,7 +331,9 @@ class _CardHero extends StatelessWidget {
                   top: PSpace.x12,
                   right: PSpace.x12,
                   child: PBadge(
-                      label: l.assetDiscontinued, variant: PBadgeVariant.secondary),
+                    label: l.assetDiscontinued,
+                    variant: PBadgeVariant.secondary,
+                  ),
                 ),
             ],
           ),
@@ -377,20 +404,26 @@ class _HeroFallback extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if ((company ?? '').trim().isNotEmpty)
-                  Text(company!.trim(),
-                      style: PTypo.bodySm.copyWith(
-                          color: brand.fg,
-                          fontWeight: PFontWeight.semi),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    company!.trim(),
+                    style: PTypo.bodySm.copyWith(
+                      color: brand.fg,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 if ((cardName ?? '').trim().isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(cardName!.trim(),
-                      style: PTypo.body.copyWith(
-                          color: brand.fg,
-                          fontWeight: PFontWeight.bold),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    cardName!.trim(),
+                    style: PTypo.body.copyWith(
+                      color: brand.fg,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ],
             ),
@@ -402,8 +435,11 @@ class _HeroFallback extends StatelessWidget {
 }
 
 class _InfoCell extends StatelessWidget {
-  const _InfoCell(
-      {required this.label, required this.value, required this.tokens});
+  const _InfoCell({
+    required this.label,
+    required this.value,
+    required this.tokens,
+  });
   final String label;
   final String value;
   final PorestTokens tokens;
@@ -413,19 +449,27 @@ class _InfoCell extends StatelessWidget {
     return PCard(
       variant: PCardVariant.muted,
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x12, vertical: PSpace.x12),
+        horizontal: PSpace.x12,
+        vertical: PSpace.x12,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: PTypo.caption.copyWith(
-                  color: tokens.fgTertiary,
-                  fontWeight: PFontWeight.semi)),
+          Text(
+            label,
+            style: PTypo.caption.copyWith(
+              color: tokens.fgTertiary,
+              fontWeight: PFontWeight.semi,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(value,
-              style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold)),
+          Text(
+            value,
+            style: PTypo.body.copyWith(
+              color: tokens.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -465,7 +509,9 @@ class _BenefitAccordion extends StatelessWidget {
             borderRadius: PRadius.brLg,
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x16, vertical: 14),
+                horizontal: PSpace.x16,
+                vertical: 14,
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -474,17 +520,23 @@ class _BenefitAccordion extends StatelessWidget {
                       children: [
                         // front: 제목 = 혜택 카테고리(예: "온라인쇼핑")
                         if ((benefit.category ?? '').isNotEmpty)
-                          Text(benefit.category!,
-                              style: PTypo.body.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.bold)),
+                          Text(
+                            benefit.category!,
+                            style: PTypo.body.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
                         if ((benefit.summary ?? benefit.title ?? '')
                             .isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Text(benefit.summary ?? benefit.title ?? '',
-                              style: PTypo.bodySm.copyWith(
-                                  color: t.fgBrand,
-                                  fontWeight: PFontWeight.bold)),
+                          Text(
+                            benefit.summary ?? benefit.title ?? '',
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgBrand,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
                         ],
                         // front: badge = 카드 전월 실적 조건 — 요약 아래 별도 줄(좌측 정렬)
                         if (condition != null && condition!.isNotEmpty) ...[
@@ -493,16 +545,21 @@ class _BenefitAccordion extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 2),
+                                horizontal: 7,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: t.bgSunken,
                                 borderRadius: PRadius.brFull,
                               ),
-                              child: Text(condition!,
-                                  style: PTypo.micro.copyWith(
-                                      color: t.fgTertiary,
-                                      fontWeight: PFontWeight.semi,
-                                      letterSpacing: 0)),
+                              child: Text(
+                                condition!,
+                                style: PTypo.micro.copyWith(
+                                  color: t.fgTertiary,
+                                  fontWeight: PFontWeight.semi,
+                                  letterSpacing: 0,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -513,8 +570,11 @@ class _BenefitAccordion extends StatelessWidget {
                   AnimatedRotation(
                     duration: const Duration(milliseconds: 150),
                     turns: isOpen ? 0.5 : 0,
-                    child: Icon(LucideIcons.chevronDown,
-                        size: 16, color: t.fgTertiary),
+                    child: Icon(
+                      LucideIcons.chevronDown,
+                      size: 16,
+                      color: t.fgTertiary,
+                    ),
                   ),
                 ],
               ),
@@ -525,15 +585,21 @@ class _BenefitAccordion extends StatelessWidget {
             ? const SizedBox.shrink()
             : Container(
                 decoration: BoxDecoration(
-                  border: Border(
-                      top: BorderSide(color: t.borderSubtle)),
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
                 ),
                 padding: const EdgeInsets.fromLTRB(
-                    PSpace.xl, 14, PSpace.xl, PSpace.x16),
-                child: Text(benefit.detail!,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgSecondary,
-                        height: PLineHeight.loose)),
+                  PSpace.xl,
+                  14,
+                  PSpace.xl,
+                  PSpace.x16,
+                ),
+                child: Text(
+                  benefit.detail!,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgSecondary,
+                    height: PLineHeight.loose,
+                  ),
+                ),
               ),
       ),
     );
@@ -541,8 +607,7 @@ class _BenefitAccordion extends StatelessWidget {
 }
 
 class _DetailSkeleton extends StatelessWidget {
-  const _DetailSkeleton(
-      {required this.tokens, required this.scrollController});
+  const _DetailSkeleton({required this.tokens, required this.scrollController});
   final PorestTokens tokens;
   final ScrollController scrollController;
 
@@ -551,12 +616,15 @@ class _DetailSkeleton extends StatelessWidget {
     return ListView(
       controller: scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
+        PSpace.xl,
+        PSpace.x4,
+        PSpace.xl,
+        PSpace.x24,
+      ),
       children: [
         AspectRatio(
           aspectRatio: 1.586,
-          child:
-              PSkeleton(width: double.infinity, borderRadius: PRadius.brLg),
+          child: PSkeleton(width: double.infinity, borderRadius: PRadius.brLg),
         ),
         const SizedBox(height: PSpace.x16),
         Row(
@@ -600,7 +668,9 @@ class _DetailSkeleton extends StatelessWidget {
           PCard(
             variant: PCardVariant.bordered,
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x16, vertical: 14),
+              horizontal: PSpace.x16,
+              vertical: 14,
+            ),
             child: Row(
               children: [
                 Expanded(

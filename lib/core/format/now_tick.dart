@@ -35,10 +35,7 @@ DateTime alignedNow() {
 class NowTick extends Notifier<DateTime> {
   @override
   DateTime build() {
-    final timer = Timer.periodic(
-      nowTickInterval,
-      (_) => state = alignedNow(),
-    );
+    final timer = Timer.periodic(nowTickInterval, (_) => state = alignedNow());
     // 앱이 백그라운드로 가면 엔진이 이벤트 루프를 세워 타이머가 안 돈다 —
     // 돌아온 직후 최대 1분 동안 나갈 때의 시각이 그대로 보이므로 한 번 더 맞춘다.
     // 웹 `useNow` 의 `visibilitychange` 재동기화와 같은 자리다.

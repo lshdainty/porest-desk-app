@@ -26,14 +26,15 @@ Future<void> _pumpStats(WidgetTester tester) async {
         categoriesProvider.overrideWith((ref) async => const []),
         rangeExpensesProvider.overrideWith((ref, key) async => const []),
         rangeSummaryProvider.overrideWith(
-          (ref, range) async => RangeSummary(
-            startDate: range.startDate,
-            endDate: range.endDate,
-          ),
+          (ref, range) async =>
+              RangeSummary(startDate: range.startDate, endDate: range.endDate),
         ),
-        heatmapProvider.overrideWith((ref, range) async => const <HeatmapCell>[]),
-        merchantSummaryProvider
-            .overrideWith((ref, range) async => const <MerchantSummary>[]),
+        heatmapProvider.overrideWith(
+          (ref, range) async => const <HeatmapCell>[],
+        ),
+        merchantSummaryProvider.overrideWith(
+          (ref, range) async => const <MerchantSummary>[],
+        ),
       ],
       child: MaterialApp(
         theme: PorestTheme.light(),
@@ -93,9 +94,16 @@ void main() {
 
     // 칩은 선택되면 글자가 semi 굵기로 바뀐다(_StatsChipTab). 본문만 넘어가고
     // 칩이 그대로면 사용자는 지금 어느 탭인지 알 수 없다.
-    expect(_chipSelected(tester, l.statsTabTrend), isTrue, reason: '추이 칩이 선택돼야');
-    expect(_chipSelected(tester, l.expCategory), isFalse,
-        reason: '카테고리 칩은 풀려야');
+    expect(
+      _chipSelected(tester, l.statsTabTrend),
+      isTrue,
+      reason: '추이 칩이 선택돼야',
+    );
+    expect(
+      _chipSelected(tester, l.expCategory),
+      isFalse,
+      reason: '카테고리 칩은 풀려야',
+    );
   });
 
   testWidgets('칩을 누르면 본문도 같이 넘어간다', (tester) async {

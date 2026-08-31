@@ -38,22 +38,24 @@ class PSectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final style = switch (variant) {
-      PSectionLabelVariant.label =>
-        PTypo.caption.copyWith(color: t.fgSecondary),
+      PSectionLabelVariant.label => PTypo.caption.copyWith(
+        color: t.fgSecondary,
+      ),
       PSectionLabelVariant.eyebrow => PTypo.caption.copyWith(
-          color: t.fgTertiary,
-          fontWeight: PFontWeight.semi,
-          letterSpacing: 0.6,
-        ),
+        color: t.fgTertiary,
+        fontWeight: PFontWeight.semi,
+        letterSpacing: 0.6,
+      ),
       PSectionLabelVariant.header => PTypo.labelMd.copyWith(
-          color: t.fgPrimary,
-          height: 1.0, // label.md leading-none — control 위 폼 라벨 vertical rhythm
-        ),
+        color: t.fgPrimary,
+        height: 1.0, // label.md leading-none — control 위 폼 라벨 vertical rhythm
+      ),
       PSectionLabelVariant.section => PTypo.bodySm.copyWith(
-          color: t.fgTertiary,
-          fontWeight: PFontWeight.semi,
-          letterSpacing: 0.5, // web SectionLabel letterSpacing 0.04em(≈0.5px@13) 미러
-        ),
+        color: t.fgTertiary,
+        fontWeight: PFontWeight.semi,
+        letterSpacing:
+            0.5, // web SectionLabel letterSpacing 0.04em(≈0.5px@13) 미러
+      ),
     };
     if (variant == PSectionLabelVariant.header && icon != null) {
       return Row(

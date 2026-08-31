@@ -59,8 +59,8 @@ void _open(BuildContext context, {required Asset? edit}) {
 
 /// 투자에 노출되는 브랜드만 평탄화 (증권사 + 가상자산거래소).
 List<BankEntry> get _investBrands => [
-      for (final cat in investCategories) ...?bankEntriesByCategory[cat],
-    ];
+  for (final cat in investCategories) ...?bankEntriesByCategory[cat],
+];
 
 /// 편집 중 보유 1행 — 도메인 값 + 리스트가 바뀌어도 유지되는 위젯 key.
 /// 이름 인라인 수정·행 삭제에도 입력 State 가 엉키지 않게 한다 (front `EditHolding.key` 미러).
@@ -108,15 +108,18 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final result = <MapEntry<BankCategory, List<BankEntry>>>[];
     for (final cat in investCategories) {
       final all = bankEntriesByCategory[cat] ?? const <BankEntry>[];
-      final list =
-          all.where((e) => _matchesQuery(e, q)).toList(growable: false);
+      final list = all
+          .where((e) => _matchesQuery(e, q))
+          .toList(growable: false);
       if (list.isEmpty) continue;
       result.add(MapEntry(cat, list));
     }
     // bankCategoryOrder 순서 보장.
-    result.sort((a, b) => bankCategoryOrder
-        .indexOf(a.key)
-        .compareTo(bankCategoryOrder.indexOf(b.key)));
+    result.sort(
+      (a, b) => bankCategoryOrder
+          .indexOf(a.key)
+          .compareTo(bankCategoryOrder.indexOf(b.key)),
+    );
     return result;
   }
 
@@ -131,8 +134,10 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   int get _investEntriesCount => _investBrands.length;
 
-  BankEntry get _selectedEntry => _investBrands
-      .firstWhere((e) => e.name == _brand, orElse: () => _investBrands.first);
+  BankEntry get _selectedEntry => _investBrands.firstWhere(
+    (e) => e.name == _brand,
+    orElse: () => _investBrands.first,
+  );
 
   @override
   void initState() {
@@ -140,44 +145,48 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final e = widget.edit;
     _brand = e?.institution != null && e!.institution!.isNotEmpty
         ? _investBrands
-            .firstWhere(
-              (b) =>
-                  b.name == e.institution || b.aliases.contains(e.institution),
-              orElse: () => _investBrands.first,
-            )
-            .name
+              .firstWhere(
+                (b) =>
+                    b.name == e.institution ||
+                    b.aliases.contains(e.institution),
+                orElse: () => _investBrands.first,
+              )
+              .name
         : _investBrands.first.name;
     _queryCtrl = TextEditingController()..addListener(_onChanged);
-    _stockQueryCtrl = TextEditingController()..addListener(_onStockQueryChanged);
+    _stockQueryCtrl = TextEditingController()
+      ..addListener(_onStockQueryChanged);
     // 별칭 — 사용자가 지은 이름을 보존한다. 저장 때 기관명으로 덮으면
     // "금 현물" 같은 이름이 "NH투자" 로 사라진다(웹 AssetEditDialog 미러).
     _nameCtrl = TextEditingController(text: e?.assetName ?? '');
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
     // 예수금 — 보유가 없을 때만 쓰인다(전량 매도 대금 등).
     _cashCtrl = TextEditingController(
-        text: (e?.cashBalance ?? e?.balance ?? 0).toString());
+      text: (e?.cashBalance ?? e?.balance ?? 0).toString(),
+    );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     // 기존 보유 복사. 레거시 단일 연동(tossSymbol/tossQuantity)은 보유 1건으로 이관.
     _rows = e == null
         ? []
         : e.holdings.isNotEmpty
-            ? [for (final h in e.holdings) (key: _nextRowKey(), holding: h)]
-            : (e.tossSymbol?.isNotEmpty ?? false) && e.tossQuantity != null
-                ? [
-                    (
-                      key: _nextRowKey(),
-                      holding: AssetHolding(
-                        linked: true,
-                        marketCode: e.marketCode,
-                        tossSymbol: e.tossSymbol,
-                        quantity: e.tossQuantity?.toString(),
-                      ),
-                    ),
-                  ]
-                : [];
+        ? [for (final h in e.holdings) (key: _nextRowKey(), holding: h)]
+        : (e.tossSymbol?.isNotEmpty ?? false) && e.tossQuantity != null
+        ? [
+            (
+              key: _nextRowKey(),
+              holding: AssetHolding(
+                linked: true,
+                marketCode: e.marketCode,
+                tossSymbol: e.tossSymbol,
+                quantity: e.tossQuantity?.toString(),
+              ),
+            ),
+          ]
+        : [];
     widget.controller.onSubmit = _submit;
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => widget.controller.setCanSubmit(true));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.controller.setCanSubmit(true),
+    );
   }
 
   void _setSubmitting(bool v) {
@@ -341,7 +350,8 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   /// 시세 연동 가능 여부 — 증권 구독 + 토스 연결 둘 다여야 실시간 평가가 가능하다.
   bool get _liveEnabled {
     final features = ref.read(myFeaturesProvider).asData?.value;
-    return (features?.hasSecurities ?? false) && (features?.hasBrokerConnection ?? false);
+    return (features?.hasSecurities ?? false) &&
+        (features?.hasBrokerConnection ?? false);
   }
 
   /// 연동 심볼 1주 KRW 환산가 맵 — 게이트 OFF·시세 미확보 심볼은 null.
@@ -350,15 +360,18 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   /// 한 화면에서 총액과 종목별 금액이 어긋나지 않는다(실제로 어긋난 적이 있다).
   Map<String, double?> _unitKrwMap() {
     final features = ref.watch(myFeaturesProvider).asData?.value;
-    final gate = (features?.hasSecurities ?? false) &&
+    final gate =
+        (features?.hasSecurities ?? false) &&
         (features?.hasBrokerConnection ?? false);
     final symbols = {
       for (final h in _holdings)
         if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
     if (!gate || symbols.isEmpty) return const {};
-    final live = ref.watch(livePricesProvider(livePricesKey(symbols))).asData?.value;
+    final live = ref
+        .watch(livePricesProvider(livePricesKey(symbols)))
+        .asData
+        ?.value;
     if (live == null) return const {};
     return {for (final s in symbols) s: live.unitKrw(s)};
   }
@@ -382,8 +395,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     if (_submitting) return;
     final brand = _brand;
     // 별칭이 있으면 그것이 자산명이다 — 비웠을 때만 웹과 같은 fallback 을 쓴다.
-    final resolvedName =
-        _nameCtrl.text.trim().isNotEmpty ? _nameCtrl.text.trim() : '$brand 투자';
+    final resolvedName = _nameCtrl.text.trim().isNotEmpty
+        ? _nameCtrl.text.trim()
+        : '$brand 투자';
     final memo = _memoCtrl.text.trim();
     // 추가만 하고 이름을 안 채운 미연동 행은 버린다 — 이름 빈 미연동은 서버가 400 으로 막는다.
     final filled = [
@@ -456,19 +470,22 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         // 증권사·거래소 ──────────────────────
         Row(
           children: [
-            Text(l.assetBrokerExchange,
-                style: PTypo.caption.copyWith(
-                    color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+            Text(
+              l.assetBrokerExchange,
+              style: PTypo.caption.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.medium,
+              ),
+            ),
             const Spacer(),
-            Text(l.assetTotalEntries(_investEntriesCount),
-                style: PTypo.micro.copyWith(color: t.fgTertiary)),
+            Text(
+              l.assetTotalEntries(_investEntriesCount),
+              style: PTypo.micro.copyWith(color: t.fgTertiary),
+            ),
           ],
         ),
         const SizedBox(height: PSpace.x8),
-        PSearchField(
-          controller: _queryCtrl,
-          hint: l.assetInvestSearchHint,
-        ),
+        PSearchField(controller: _queryCtrl, hint: l.assetInvestSearchHint),
         const SizedBox(height: PSpace.x8),
         _BrandPicker(
           categories: _filteredByCategory,
@@ -478,9 +495,13 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         const SizedBox(height: PSpace.x20),
 
         // 별칭 ────────────────────────────────
-        Text(l.assetProductName,
-            style: PTypo.caption.copyWith(
-                color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+        Text(
+          l.assetProductName,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
         const SizedBox(height: PSpace.x8),
         PTextInput(
           controller: _nameCtrl,
@@ -491,9 +512,13 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         // 보유 종목 ────────────────────────
         Row(
           children: [
-            Text(l.assetHoldings,
-                style: PTypo.caption.copyWith(
-                    color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+            Text(
+              l.assetHoldings,
+              style: PTypo.caption.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.medium,
+              ),
+            ),
             const Spacer(),
             Text(
               l.assetHoldingsSummary(_holdings.length, krw(total)),
@@ -548,7 +573,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         if (_rows.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(
-                vertical: PSpace.x12, horizontal: 2),
+              vertical: PSpace.x12,
+              horizontal: 2,
+            ),
             child: Text(
               _allowStock
                   ? l.assetHoldingsEmptyEdit
@@ -578,9 +605,13 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         // 예수금은 입금·매도로만 움직여야 해서, 여기서 총액을 적으면 이중 계상된다.
         if (_rows.isEmpty) ...[
           const SizedBox(height: PSpace.x20),
-          Text(l.assetCashBalance,
-              style: PTypo.caption.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+          Text(
+            l.assetCashBalance,
+            style: PTypo.caption.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _cashCtrl,
@@ -588,20 +619,23 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
             placeholder: '0',
           ),
           const SizedBox(height: 6),
-          Text(l.assetCashBalanceHint,
-              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          Text(
+            l.assetCashBalanceHint,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
         ],
 
         // 메모 (선택) ────────────────────────
         const SizedBox(height: PSpace.x20),
-        Text(l.assetMemoOptional,
-            style: PTypo.caption.copyWith(
-                color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-        const SizedBox(height: PSpace.x8),
-        PTextInput(
-          controller: _memoCtrl,
-          placeholder: l.assetMemoPlaceholder,
+        Text(
+          l.assetMemoOptional,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
         ),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(controller: _memoCtrl, placeholder: l.assetMemoPlaceholder),
 
         // 전체 자산 합계 포함 토글 ──────────────
         const SizedBox(height: PSpace.x20),
@@ -655,7 +689,9 @@ class _StockSearchResults extends ConsumerWidget {
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: t.fgTertiary),
+                    strokeWidth: 2,
+                    color: t.fgTertiary,
+                  ),
                 ),
               ),
             )
@@ -665,7 +701,9 @@ class _StockSearchResults extends ConsumerWidget {
                 onTap: () => onPickLinked(s),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x12, vertical: 10),
+                    horizontal: PSpace.x12,
+                    vertical: 10,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -687,7 +725,7 @@ class _StockSearchResults extends ConsumerWidget {
                               style: PTypo.micro.copyWith(
                                 color: t.fgTertiary,
                                 fontFeatures: const [
-                                  FontFeature.tabularFigures()
+                                  FontFeature.tabularFigures(),
                                 ],
                               ),
                             ),
@@ -709,7 +747,9 @@ class _StockSearchResults extends ConsumerWidget {
                     : null,
               ),
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x12, vertical: 10),
+                horizontal: PSpace.x12,
+                vertical: 10,
+              ),
               child: Row(
                 children: [
                   Icon(LucideIcons.plus, size: 14, color: t.fgBrand),
@@ -824,7 +864,8 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
     _valueCtrl = TextEditingController(text: '${h.holdingValue ?? 0}');
     // 매수원가 — 비어 있으면 안 보내고 서버가 기존 값을 잇는다.
     _costCtrl = TextEditingController(
-        text: h.totalCost != null && h.totalCost! > 0 ? '${h.totalCost}' : '');
+      text: h.totalCost != null && h.totalCost! > 0 ? '${h.totalCost}' : '',
+    );
   }
 
   @override
@@ -867,8 +908,9 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        border:
-            widget.first ? null : Border(top: BorderSide(color: t.borderSubtle)),
+        border: widget.first
+            ? null
+            : Border(top: BorderSide(color: t.borderSubtle)),
       ),
       child: Row(
         children: [
@@ -893,7 +935,9 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 1),
+                          horizontal: 6,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: t.bgBrandSubtle,
                           borderRadius: BorderRadius.circular(999),
@@ -912,7 +956,8 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
                   Text(
                     widget.unitKrw != null
                         ? l.assetHoldingLinkedSub(
-                            '${krw(widget.unitKrw!.round())}원')
+                            '${krw(widget.unitKrw!.round())}원',
+                          )
                         : l.assetHoldingLinkedBadge,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -944,15 +989,19 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
             width: 64,
             child: PTextInput(
               controller: _qtyCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: const [HoldingQtyInputFormatter()],
               textAlign: TextAlign.right,
               onChanged: _onQtyChanged,
             ),
           ),
           const SizedBox(width: 4),
-          Text(holdingUnitLabel(l, h.holdingType),
-              style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          Text(
+            holdingUnitLabel(l, h.holdingType),
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          ),
           const SizedBox(width: PSpace.x8),
           // 평가액 — 연동은 시세로 계산(읽기 전용), 미연동은 직접 입력.
           if (h.linked)
@@ -1010,15 +1059,18 @@ class _CostField extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final cost = int.tryParse(controller.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    final cost =
+        int.tryParse(controller.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
     final avg = (cost > 0 && quantity > 0) ? (cost / quantity).round() : null;
 
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Row(
         children: [
-          Text(l.holdingTotalCost,
-              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          Text(
+            l.holdingTotalCost,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
           const SizedBox(width: 6),
           SizedBox(
             width: 104,
@@ -1127,17 +1179,17 @@ class _BrandPicker extends StatelessWidget {
   /// 카테고리 라벨 — enum 의 한글 label 은 데이터 원문이고, 화면은 로케일을 따른다
   /// (영어 사용자에게 '시중은행' 이 그대로 나오면 안 된다). web 동일.
   static String _label(AppLocalizations l, BankCategory c) => switch (c) {
-        BankCategory.retailBank => l.assetCategoryCommercialBank,
-        BankCategory.internetBank => l.assetCategoryInternetBank,
-        BankCategory.regionalBank => l.assetCategoryLocalBank,
-        BankCategory.specialBank => l.assetCategorySpecialBank,
-        BankCategory.savingsInstitution => l.assetCategorySavingsInstitution,
-        BankCategory.foreignBank => l.assetCategoryForeignBank,
-        BankCategory.other => l.assetCategoryOther,
-        BankCategory.brokerage => l.assetCategoryBrokerage,
-        BankCategory.commodityExchange => l.assetCategoryCommodityExchange,
-        BankCategory.cryptoExchange => l.assetCategoryCryptoExchange,
-      };
+    BankCategory.retailBank => l.assetCategoryCommercialBank,
+    BankCategory.internetBank => l.assetCategoryInternetBank,
+    BankCategory.regionalBank => l.assetCategoryLocalBank,
+    BankCategory.specialBank => l.assetCategorySpecialBank,
+    BankCategory.savingsInstitution => l.assetCategorySavingsInstitution,
+    BankCategory.foreignBank => l.assetCategoryForeignBank,
+    BankCategory.other => l.assetCategoryOther,
+    BankCategory.brokerage => l.assetCategoryBrokerage,
+    BankCategory.commodityExchange => l.assetCategoryCommodityExchange,
+    BankCategory.cryptoExchange => l.assetCategoryCryptoExchange,
+  };
 
   @override
   Widget build(BuildContext context) {

@@ -10,7 +10,17 @@ library;
 /// `kind` 는 화면이 아니라 **거래 종류** 축이다. 나머지가 "어느 화면의 금액인가" 를
 /// 가른다면 이쪽은 "어떤 종류의 거래인가" 를 가른다 — 화면을 가로지른다.
 /// 설정 화면에서도 화면 탭 줄에 끼우지 않고 맨 위 별도 영역으로 뺀다.
-enum HidePage { kind, home, asset, ledger, stats, budget, stocks, dutchpay, etc }
+enum HidePage {
+  kind,
+  home,
+  asset,
+  ledger,
+  stats,
+  budget,
+  stocks,
+  dutchpay,
+  etc,
+}
 
 /// 카드 키 → 속한 화면. 선언 순서가 곧 설정 화면의 나열 순서다.
 const Map<String, HidePage> kHideCards = {
@@ -71,8 +81,10 @@ List<String> cardsOfPage(HidePage page) =>
     kHideCards.entries.where((e) => e.value == page).map((e) => e.key).toList();
 
 /// 화면 카드만 — 종류 축을 뺀 나머지. 설정 화면의 탭·'모두 선택'·개수가 이걸 센다.
-List<String> get kScreenHideCards =>
-    kHideCards.entries.where((e) => e.value != HidePage.kind).map((e) => e.key).toList();
+List<String> get kScreenHideCards => kHideCards.entries
+    .where((e) => e.value != HidePage.kind)
+    .map((e) => e.key)
+    .toList();
 
 /// 이 금액이 어떤 거래의 것인가.
 ///
@@ -87,11 +99,11 @@ enum MaskKind { expense, income, transfer, net }
 
 /// 그 종류를 가리는 카드들. 하나라도 켜져 있으면 가린다.
 List<String> cardsOfKind(MaskKind kind) => switch (kind) {
-      MaskKind.expense => const ['kind.expense'],
-      MaskKind.income => const ['kind.income'],
-      MaskKind.transfer => const ['kind.transfer'],
-      MaskKind.net => const ['kind.expense', 'kind.income'],
-    };
+  MaskKind.expense => const ['kind.expense'],
+  MaskKind.income => const ['kind.income'],
+  MaskKind.transfer => const ['kind.transfer'],
+  MaskKind.net => const ['kind.expense', 'kind.income'],
+};
 
 /// 거래 한 건의 종류 — 부호가 아니라 타입으로 가른다.
 /// 환불은 음수 지출이라 부호로 가르면 수입으로 샌다.

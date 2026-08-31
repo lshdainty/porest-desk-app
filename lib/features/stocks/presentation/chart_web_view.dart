@@ -60,7 +60,9 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
   static const Duration _tokenRefreshInterval = Duration(seconds: 45);
 
   /// 토큰·기간·테마를 JS 로 밀어넣는 큐. ready 전 push 는 보관했다가 ready 에 replay.
-  late final ChartBridge _bridge = ChartBridge((js) => _controller?.runJavaScript(js));
+  late final ChartBridge _bridge = ChartBridge(
+    (js) => _controller?.runJavaScript(js),
+  );
 
   @override
   void initState() {
@@ -83,7 +85,10 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       final token = await _fetchEmbedToken();
       if (token == null || token.isEmpty) {
         if (mounted) {
-          setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartTokenFailed; });
+          setState(() {
+            _loading = false;
+            _error = AppLocalizations.of(context).stocksChartTokenFailed;
+          });
         }
         return;
       }
@@ -92,7 +97,10 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       final webOrigin = Uri.tryParse(Env.webBaseUrl);
       if (Env.appEnv != 'local' && webOrigin?.scheme != 'https') {
         if (mounted) {
-          setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartHttpsError; });
+          setState(() {
+            _loading = false;
+            _error = AppLocalizations.of(context).stocksChartHttpsError;
+          });
         }
         return;
       }
@@ -109,53 +117,66 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
           'PorestChart',
           onMessageReceived: _onChannelMessage,
         )
-        ..setNavigationDelegate(NavigationDelegate(
-          onPageStarted: (_) => mounted ? setState(() => _loading = true) : null,
-          onPageFinished: (_) => mounted ? setState(() => _loading = false) : null,
-          onWebResourceError: (e) {
-            if (!mounted) return;
-            // 메인 프레임 에러만 사용자에게 노출(서브 리소스 누락은 잡소리 방지)
-            if (e.isForMainFrame ?? true) {
-              setState(() { _error = '${e.errorCode}: ${e.description}'; });
-            }
-          },
-          onNavigationRequest: (req) {
-            final target = Uri.tryParse(req.url);
-            if (target == null) return NavigationDecision.prevent;
-            // 외부 origin 차단(attributionLogo 외부 이동 등) — about:blank / data: 제외하고 webOrigin 만 허용
-            if (target.scheme == 'about' || target.scheme == 'data') {
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageStarted: (_) =>
+                mounted ? setState(() => _loading = true) : null,
+            onPageFinished: (_) =>
+                mounted ? setState(() => _loading = false) : null,
+            onWebResourceError: (e) {
+              if (!mounted) return;
+              // 메인 프레임 에러만 사용자에게 노출(서브 리소스 누락은 잡소리 방지)
+              if (e.isForMainFrame ?? true) {
+                setState(() {
+                  _error = '${e.errorCode}: ${e.description}';
+                });
+              }
+            },
+            onNavigationRequest: (req) {
+              final target = Uri.tryParse(req.url);
+              if (target == null) return NavigationDecision.prevent;
+              // 외부 origin 차단(attributionLogo 외부 이동 등) — about:blank / data: 제외하고 webOrigin 만 허용
+              if (target.scheme == 'about' || target.scheme == 'data') {
+                return NavigationDecision.navigate;
+              }
+              if (target.host != allowedHost) {
+                return NavigationDecision.prevent;
+              }
               return NavigationDecision.navigate;
-            }
-            if (target.host != allowedHost) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ))
+            },
+          ),
+        )
         ..loadRequest(Uri.parse(_buildEmbedUrl()));
 
       if (!mounted) return;
-      setState(() { _controller = controller; _error = null; });
+      setState(() {
+        _controller = controller;
+        _error = null;
+      });
       _startTokenRefresh(); // reload 없는 토큰 회전 시작
     } on DioException catch (e) {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = '${AppLocalizations.of(context).stocksChartTokenFailed}: ${e.response?.statusCode ?? e.message ?? "error"}';
+        _error =
+            '${AppLocalizations.of(context).stocksChartTokenFailed}: ${e.response?.statusCode ?? e.message ?? "error"}';
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartInitFailed; });
+      setState(() {
+        _loading = false;
+        _error = AppLocalizations.of(context).stocksChartInitFailed;
+      });
     }
   }
 
   String _buildEmbedUrl() => buildEmbedUrl(
-        webBaseUrl: Env.webBaseUrl,
-        symbol: widget.symbol,
-        range: widget.range,
-        theme: Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light',
-        isUs: widget.isUs,
-      );
+    webBaseUrl: Env.webBaseUrl,
+    symbol: widget.symbol,
+    range: widget.range,
+    theme: Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light',
+    isUs: widget.isUs,
+  );
 
   void _onChannelMessage(JavaScriptMessage msg) {
     try {
@@ -175,7 +196,9 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
           if (kDebugMode) debugPrint('[ChartWebView] embed error: $payload');
         }
       }
-    } catch (_) {/* 무시 */}
+    } catch (_) {
+      /* 무시 */
+    }
   }
 
   /// embed_token 을 만료 전 주기적으로 재발급해 __tokenBridge 로 push → WebView reload 없이
@@ -190,7 +213,9 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
         // ready 전(로드 중·재초기화 중)이면 브릿지가 보관했다가 ready 에 내보낸다.
         // 예전엔 여기서 바로 쐈고, 페이지가 아직 없으면 그 토큰은 그냥 사라졌다.
         _bridge.pushToken(token);
-      } catch (_) {/* 다음 주기 재시도; 만료 시 embed 페이지 401 → fallback reload */}
+      } catch (_) {
+        /* 다음 주기 재시도; 만료 시 embed 페이지 401 → fallback reload */
+      }
     });
   }
 
@@ -198,7 +223,10 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
     if (!mounted) return;
     _tokenTimer?.cancel();
     _bridge.reset(); // 새 페이지가 ready 를 알릴 때까지 다시 보관 모드
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     // 기존 컨트롤러는 _controller 교체로 dispose 처리 — _initialize 가 새 컨트롤러 세팅
     await _initialize();
   }
@@ -239,7 +267,12 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       );
     } else if (_controller == null || _loading) {
       // 스켈레톤 — feedback_skeleton_server_data_only.md 준수(shadow 만, border X)
-      body = Container(decoration: BoxDecoration(color: t.bgSunken, borderRadius: PRadius.brMd));
+      body = Container(
+        decoration: BoxDecoration(
+          color: t.bgSunken,
+          borderRadius: PRadius.brMd,
+        ),
+      );
     } else {
       body = WebViewWidget(
         controller: _controller!,
@@ -269,6 +302,8 @@ String _resolveThemeMode(BuildContext context, ThemeMode mode) {
     case ThemeMode.dark:
       return 'dark';
     case ThemeMode.system:
-      return MediaQuery.platformBrightnessOf(context) == Brightness.dark ? 'dark' : 'light';
+      return MediaQuery.platformBrightnessOf(context) == Brightness.dark
+          ? 'dark'
+          : 'light';
   }
 }

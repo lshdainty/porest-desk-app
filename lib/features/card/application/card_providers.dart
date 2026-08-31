@@ -4,7 +4,8 @@ import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/card/data/card_benefit_mapping_repository.dart';
 import 'package:porest_desk_app/features/card/data/card_repository.dart';
 import 'package:porest_desk_app/features/card/domain/card_benefit_mapping.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart' hide CardPerformance;
+import 'package:porest_desk_app/features/card/domain/card_catalog.dart'
+    hide CardPerformance;
 import 'package:porest_desk_app/features/card/domain/card_catalog_page.dart';
 import 'package:porest_desk_app/features/card/domain/card_performance.dart';
 
@@ -30,63 +31,72 @@ CardSearchKey defaultCardSearchKey({
   bool? includeDiscontinued,
   int page = 0,
   int size = 30,
-}) =>
-    (
-      keyword: keyword,
-      cardType: cardType,
-      benefitType: benefitType,
-      includeDiscontinued: includeDiscontinued,
-      page: page,
-      size: size,
-    );
+}) => (
+  keyword: keyword,
+  cardType: cardType,
+  benefitType: benefitType,
+  includeDiscontinued: includeDiscontinued,
+  page: page,
+  size: size,
+);
 
 /// 한 페이지 검색 결과 (메타 포함).
 final cardCatalogPageProvider =
     FutureProvider.family<CardCatalogPage, CardSearchKey>((ref, key) async {
-  final repo = await ref.watch(cardRepositoryProvider.future);
-  return repo.searchPage(
-    keyword: key.keyword,
-    cardType: key.cardType,
-    benefitType: key.benefitType,
-    includeDiscontinued: key.includeDiscontinued,
-    page: key.page,
-    size: key.size,
-  );
-});
+      final repo = await ref.watch(cardRepositoryProvider.future);
+      return repo.searchPage(
+        keyword: key.keyword,
+        cardType: key.cardType,
+        benefitType: key.benefitType,
+        includeDiscontinued: key.includeDiscontinued,
+        page: key.page,
+        size: key.size,
+      );
+    });
 
 /// 호환용 — content 만 반환.
-final cardCatalogSearchProvider = FutureProvider.family<
-    List<CardCatalogSummary>, CardSearchKey>((ref, key) async {
-  final p = await ref.watch(cardCatalogPageProvider(key).future);
-  return p.content;
-});
+final cardCatalogSearchProvider =
+    FutureProvider.family<List<CardCatalogSummary>, CardSearchKey>((
+      ref,
+      key,
+    ) async {
+      final p = await ref.watch(cardCatalogPageProvider(key).future);
+      return p.content;
+    });
 
-final cardCatalogDetailProvider =
-    FutureProvider.family<CardCatalogDetail, int>((ref, id) async {
-  final repo = await ref.watch(cardRepositoryProvider.future);
-  return repo.detail(id);
-});
+final cardCatalogDetailProvider = FutureProvider.family<CardCatalogDetail, int>(
+  (ref, id) async {
+    final repo = await ref.watch(cardRepositoryProvider.future);
+    return repo.detail(id);
+  },
+);
 
 /// 카드 월 실적 조회 (#371).
 typedef CardPerformanceKey = ({int assetRowId, String yearMonth});
 
 final cardPerformanceProvider =
-    FutureProvider.family<CardPerformance, CardPerformanceKey>((ref, key) async {
-  final repo = await ref.watch(cardRepositoryProvider.future);
-  return repo.performance(
-      assetRowId: key.assetRowId, yearMonth: key.yearMonth);
-});
+    FutureProvider.family<CardPerformance, CardPerformanceKey>((
+      ref,
+      key,
+    ) async {
+      final repo = await ref.watch(cardRepositoryProvider.future);
+      return repo.performance(
+        assetRowId: key.assetRowId,
+        yearMonth: key.yearMonth,
+      );
+    });
 
 // ─── CardBenefitMapping (#372) ──────────────────────────────
 
 final cardBenefitMappingRepositoryProvider =
     FutureProvider<CardBenefitMappingRepository>((ref) async {
-  final dio = await ref.watch(dioProvider.future);
-  return CardBenefitMappingRepository(dio);
-});
+      final dio = await ref.watch(dioProvider.future);
+      return CardBenefitMappingRepository(dio);
+    });
 
-final cardBenefitMappingsProvider =
-    FutureProvider<List<CardBenefitMapping>>((ref) async {
+final cardBenefitMappingsProvider = FutureProvider<List<CardBenefitMapping>>((
+  ref,
+) async {
   ref.keepAlive();
   final repo = await ref.watch(cardBenefitMappingRepositoryProvider.future);
   return repo.list();

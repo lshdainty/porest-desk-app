@@ -17,7 +17,11 @@ import 'package:porest_desk_app/core/update/app_update.dart';
 enum ApkStage { idle, downloading, opening, failed }
 
 class ApkProgress {
-  const ApkProgress({this.stage = ApkStage.idle, this.received = 0, this.total = 0});
+  const ApkProgress({
+    this.stage = ApkStage.idle,
+    this.received = 0,
+    this.total = 0,
+  });
 
   final ApkStage stage;
   final int received;
@@ -90,8 +94,9 @@ class ApkInstaller extends Notifier<ApkProgress> {
   }
 }
 
-final apkInstallerProvider =
-    NotifierProvider<ApkInstaller, ApkProgress>(ApkInstaller.new);
+final apkInstallerProvider = NotifierProvider<ApkInstaller, ApkProgress>(
+  ApkInstaller.new,
+);
 
 /// "나중에" 를 누른 빌드번호. 그 버전은 전체 화면으로 다시 묻지 않는다.
 ///

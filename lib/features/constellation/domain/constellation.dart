@@ -12,14 +12,18 @@ class StarMapData {
     try {
       final j = jsonDecode(raw) as Map<String, dynamic>;
       final pts = (j['pts'] as List<dynamic>? ?? const [])
-          .map((p) => (p as List<dynamic>)
-              .map((v) => (v as num).toDouble())
-              .toList(growable: false))
+          .map(
+            (p) => (p as List<dynamic>)
+                .map((v) => (v as num).toDouble())
+                .toList(growable: false),
+          )
           .toList(growable: false);
       final edges = (j['edges'] as List<dynamic>? ?? const [])
-          .map((e) => (e as List<dynamic>)
-              .map((v) => (v as num).toInt())
-              .toList(growable: false))
+          .map(
+            (e) => (e as List<dynamic>)
+                .map((v) => (v as num).toInt())
+                .toList(growable: false),
+          )
           .toList(growable: false);
       return StarMapData(pts: pts, edges: edges);
     } catch (_) {
@@ -35,7 +39,10 @@ String constellationName(ConstellationInfo info) =>
 /// 로케일별 별자리 설명 — en 로케일은 descriptionEn(빈값이면 ko 마스터 fallback).
 String constellationDesc(ConstellationInfo info) {
   final en = info.descriptionEn;
-  return (localeIsEn() && en != null && en.isNotEmpty ? en : info.description) ?? '';
+  return (localeIsEn() && en != null && en.isNotEmpty
+          ? en
+          : info.description) ??
+      '';
 }
 
 class ConstellationInfo {
@@ -105,8 +112,9 @@ class ConstellationToday {
   factory ConstellationToday.fromJson(Map<String, dynamic> j) {
     int p(String k) => (j[k] as num?)?.toInt() ?? 0;
     return ConstellationToday(
-      constellation:
-          ConstellationInfo.fromJson(j['constellation'] as Map<String, dynamic>? ?? const {}),
+      constellation: ConstellationInfo.fromJson(
+        j['constellation'] as Map<String, dynamic>? ?? const {},
+      ),
       points: p('points'),
       goal: p('goal'),
       collected: j['collected'] as bool? ?? false,
@@ -165,8 +173,9 @@ class CollectionEntry {
 
   factory CollectionEntry.fromJson(Map<String, dynamic> j) {
     return CollectionEntry(
-      constellation:
-          ConstellationInfo.fromJson(j['constellation'] as Map<String, dynamic>? ?? const {}),
+      constellation: ConstellationInfo.fromJson(
+        j['constellation'] as Map<String, dynamic>? ?? const {},
+      ),
       collectCount: (j['collectCount'] as num?)?.toInt() ?? 0,
       lastCollectedDate: j['lastCollectedDate'] as String?,
     );

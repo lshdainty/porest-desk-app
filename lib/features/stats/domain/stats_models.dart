@@ -54,10 +54,8 @@ abstract class RangeSummary with _$RangeSummary {
 /// 카테고리 단위 금액 — 월별 지출 분해(카테고리 추이 차트)용.
 @freezed
 abstract class CategoryAmount with _$CategoryAmount {
-  const factory CategoryAmount({
-    int? categoryRowId,
-    @Default(0) int amount,
-  }) = _CategoryAmount;
+  const factory CategoryAmount({int? categoryRowId, @Default(0) int amount}) =
+      _CategoryAmount;
 
   factory CategoryAmount.fromJson(Map<String, dynamic> json) =>
       _$CategoryAmountFromJson(json);

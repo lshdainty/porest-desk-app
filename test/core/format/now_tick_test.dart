@@ -15,7 +15,10 @@ void main() {
     test('초·밀리초가 눈금으로 내림된다', () {
       // 해상도만 맞추고 위상을 안 맞추면, 앱은 화면을 연 순간부터 웹은 페이지를 연
       // 순간부터 1분을 세어 같은 알림이 앱 "2분 전" · 웹 "3분 전" 이 된다.
-      expect(alignedNow().millisecondsSinceEpoch % nowTickInterval.inMilliseconds, 0);
+      expect(
+        alignedNow().millisecondsSinceEpoch % nowTickInterval.inMilliseconds,
+        0,
+      );
     });
 
     test('같은 눈금 안에서는 몇 번을 불러도 같은 값이다 — 화면마다 위상이 갈리지 않는다', () {

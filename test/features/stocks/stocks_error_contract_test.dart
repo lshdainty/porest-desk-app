@@ -43,8 +43,7 @@ void main() {
 
   setUp(() => repo = StocksRepository(_failingDio()));
 
-  test('getCandles — 단일 요청 경로(count ≤ 200)도 ApiException 으로 정규화한다',
-      () async {
+  test('getCandles — 단일 요청 경로(count ≤ 200)도 ApiException 으로 정규화한다', () async {
     final e = await _thrownBy(() => repo.getCandles('005930', '1d', count: 3));
 
     expect(
@@ -60,9 +59,10 @@ void main() {
     expect(e, isA<ApiException>());
   });
 
-  test('getCandles — 커서 누적 경로(count > 200)도 ApiException 으로 정규화한다',
-      () async {
-    final e = await _thrownBy(() => repo.getCandles('005930', '1d', count: 500));
+  test('getCandles — 커서 누적 경로(count > 200)도 ApiException 으로 정규화한다', () async {
+    final e = await _thrownBy(
+      () => repo.getCandles('005930', '1d', count: 500),
+    );
 
     expect(e, isA<ApiException>());
   });

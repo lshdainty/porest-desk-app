@@ -117,10 +117,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         // Hero — 메모 카드와 동일 톤
         Container(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: PRadius.brXl,
-          ),
+          decoration: BoxDecoration(color: bg, borderRadius: PRadius.brXl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

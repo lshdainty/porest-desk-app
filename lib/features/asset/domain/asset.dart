@@ -12,13 +12,17 @@ abstract class Asset with _$Asset {
     required int rowId,
     int? userRowId,
     required String assetName,
-    required String assetType, // 'CASH' | 'BANK_ACCOUNT' | 'CARD' | 'INVESTMENT' | ...
+    required String
+    assetType, // 'CASH' | 'BANK_ACCOUNT' | 'CARD' | 'INVESTMENT' | ...
     int? balance,
+
     /// 예수금·현금 잔액 (투자 계좌의 매수 대기 자금). balance = cashBalance + holdingBalance.
     int? cashBalance,
+
     /// 보유 종목 평가금액. 보유가 없으면 0.
     int? holdingBalance,
     String? currency,
+
     /// 원화 환산율 (통화 1단위당 원화). KRW 는 1 — 순자산은 balance × 이 값으로 환산된다.
     double? exchangeRate,
     String? color,
@@ -76,10 +80,10 @@ enum AssetHoldingType {
 
   /// 서버 계약 값 — 요청 바디 직렬화용.
   String get wire => switch (this) {
-        AssetHoldingType.stock => 'STOCK',
-        AssetHoldingType.gold => 'GOLD',
-        AssetHoldingType.crypto => 'CRYPTO',
-      };
+    AssetHoldingType.stock => 'STOCK',
+    AssetHoldingType.gold => 'GOLD',
+    AssetHoldingType.crypto => 'CRYPTO',
+  };
 }
 
 /// 투자 보유 종목 1건 — 백엔드 `holdings[]` 계약 미러.
@@ -93,6 +97,7 @@ abstract class AssetHolding with _$AssetHolding {
     @Default(AssetHoldingType.stock)
     AssetHoldingType holdingType,
     @Default(false) bool linked,
+
     /// 종목 마스터 기준 시장코드(NAS·KOSPI …) — 선택.
     ///
     /// 같은 티커가 여러 시장에 걸린다(SPY·IVV·JEPI·SOXL). 종목 검색 응답이 이미 들고
@@ -106,8 +111,10 @@ abstract class AssetHolding with _$AssetHolding {
     @JsonKey(fromJson: decimalStringFromJson) String? quantity,
     String? holdingName,
     int? holdingValue,
+
     /// 총 매수원가 (원화, 수수료 포함). 평가액과의 차이가 평가손익이다.
     int? totalCost,
+
     /// 평단가 — 총원가 / 수량. 서버 파생값이라 읽기 전용, 정밀도 때문에 문자열.
     /// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
     @JsonKey(fromJson: decimalStringFromJson) String? avgPrice,

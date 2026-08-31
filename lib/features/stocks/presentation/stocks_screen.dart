@@ -50,8 +50,8 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
     final active = connected.contains(_broker)
         ? _broker!
         : (connected.contains(features?.primaryBroker)
-            ? features!.primaryBroker!
-            : (connected.isEmpty ? '' : connected.first));
+              ? features!.primaryBroker!
+              : (connected.isEmpty ? '' : connected.first));
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -69,7 +69,12 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
           // 연결이 하나뿐이면 고를 게 없다 — 탭을 감춘다.
           if (connected.length > 1)
             Padding(
-              padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x12, PSpace.x24, 0),
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x12,
+                PSpace.x24,
+                0,
+              ),
               child: PTabs<String>(
                 value: active,
                 onChanged: (v) => setState(() => _broker = v),
@@ -100,10 +105,10 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   /// 탭 라벨. 앱이 아는 증권사는 자기 번역을, 모르면 코드를 그대로 쓴다 —
   /// 서버가 증권사를 먼저 늘려도 탭이 비지 않는다.
   String _brokerLabel(AppLocalizations l, String broker) => switch (broker) {
-        'TOSS' => l.brokerToss,
-        'NAMU' => l.brokerNamu,
-        _ => broker,
-      };
+    'TOSS' => l.brokerToss,
+    'NAMU' => l.brokerNamu,
+    _ => broker,
+  };
 }
 
 /// 앱이 모르는 증권사 — 서버가 앞서 나간 구간.

@@ -59,8 +59,7 @@ class FileRepository {
   }
 
   /// 다운로드 URL 생성 — 토큰 쿠키가 있어야 GET 가능.
-  String downloadUrl(int id) =>
-      '${_dio.options.baseUrl}/files/$id';
+  String downloadUrl(int id) => '${_dio.options.baseUrl}/files/$id';
 
   Future<void> delete(int id) async {
     try {

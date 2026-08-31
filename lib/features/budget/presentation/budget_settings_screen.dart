@@ -158,8 +158,10 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       context,
       year: _key.year,
       month: _key.month,
-      usedCategoryIds:
-          budgets.map((b) => b.categoryRowId).whereType<int>().toSet(),
+      usedCategoryIds: budgets
+          .map((b) => b.categoryRowId)
+          .whereType<int>()
+          .toSet(),
     );
   }
 
@@ -181,8 +183,10 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       year: _key.year,
       month: _key.month,
       edit: budget,
-      usedCategoryIds:
-          budgets.map((b) => b.categoryRowId).whereType<int>().toSet(),
+      usedCategoryIds: budgets
+          .map((b) => b.categoryRowId)
+          .whereType<int>()
+          .toSet(),
     );
   }
 
@@ -197,8 +201,9 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     final categoriesAsync = ref.watch(categoriesProvider);
     // 지난달 복사 버튼 사전 비활성 — 전월 예산이 없거나 로딩 중이면 끈다 (웹 정합).
     final prevMonth = DateTime(_month.year, _month.month - 1, 1);
-    final prevBudgetsAsync =
-        ref.watch(monthBudgetsProvider((year: prevMonth.year, month: prevMonth.month)));
+    final prevBudgetsAsync = ref.watch(
+      monthBudgetsProvider((year: prevMonth.year, month: prevMonth.month)),
+    );
     final prevBudgets = prevBudgetsAsync.value ?? const <Budget>[];
     final curBudgets = budgetsAsync.value ?? const <Budget>[];
     final copyEnabled = prevBudgets.isNotEmpty;
@@ -270,18 +275,26 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                 }
 
                 final monthlyLimit = overallBudget?.budgetAmount ?? 0;
-                final categoryLimitSum =
-                    categoryBudgets.fold<int>(0, (s, b) => s + b.budgetAmount);
+                final categoryLimitSum = categoryBudgets.fold<int>(
+                  0,
+                  (s, b) => s + b.budgetAmount,
+                );
                 // 할당 가능 = 월 전체 상한 − 카테고리 한도 합 (음수면 초과 할당).
                 final remaining = monthlyLimit - categoryLimitSum;
 
                 // 예산 추가 가능 카테고리 = EXPENSE 최상위(부모)만 — 전부 보유 시 비활성화.
-                final usedIds =
-                    categoryBudgets.map((b) => b.categoryRowId).whereType<int>().toSet();
+                final usedIds = categoryBudgets
+                    .map((b) => b.categoryRowId)
+                    .whereType<int>()
+                    .toSet();
                 final selectable = categories
-                    .where((c) => c.expenseType == 'EXPENSE' && c.parentRowId == null)
+                    .where(
+                      (c) =>
+                          c.expenseType == 'EXPENSE' && c.parentRowId == null,
+                    )
                     .toList();
-                final allBudgeted = selectable.isNotEmpty &&
+                final allBudgeted =
+                    selectable.isNotEmpty &&
                     selectable.every((c) => usedIds.contains(c.rowId));
 
                 return Column(
@@ -476,8 +489,8 @@ class _TotalBudgetCard extends StatelessWidget {
                               text: masked
                                   ? '••••'
                                   : (localeIsEn()
-                                      ? '₩${krw(monthlyLimit)}'
-                                      : krw(monthlyLimit)),
+                                        ? '₩${krw(monthlyLimit)}'
+                                        : krw(monthlyLimit)),
                             ),
                             if (!masked && !localeIsEn())
                               TextSpan(
@@ -592,10 +605,15 @@ class _TotalBudgetCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       masked
-                          ? l.budgetOverAllocatedWarning(krwMasked(-remaining, masked, mask: '••••'))
+                          ? l.budgetOverAllocatedWarning(
+                              krwMasked(-remaining, masked, mask: '••••'),
+                            )
                           : l.budgetOverAllocatedWarning(
-                              krwSigned(-remaining, false, unit: true)),
-                      style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
+                              krwSigned(-remaining, false, unit: true),
+                            ),
+                      style: PTypo.caption.copyWith(
+                        color: tokens.statusDangerFg,
+                      ),
                     ),
                   ),
                 ],
@@ -818,9 +836,14 @@ class _CategoryRow extends StatelessWidget {
         : warn
         ? tokens.statusWarningFg
         : tokens.statusInfoFg;
-    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(
+      context,
+      category?.color,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(context, fg);
-    final name = category?.categoryName ??
+    final name =
+        category?.categoryName ??
         budget.categoryName ??
         l.budgetCategoryFallback(budget.categoryRowId!);
 
@@ -858,12 +881,28 @@ class _CategoryRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       over
-                          ? l.budgetOverBy(masked
-                                ? krwMasked(spent - limit, masked, mask: '••••')
-                                : krwSigned(spent - limit, false, unit: true))
-                          : l.budgetRemaining(masked
-                                ? krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')
-                                : krwSigned((limit - spent).clamp(0, limit), false, unit: true)),
+                          ? l.budgetOverBy(
+                              masked
+                                  ? krwMasked(
+                                      spent - limit,
+                                      masked,
+                                      mask: '••••',
+                                    )
+                                  : krwSigned(spent - limit, false, unit: true),
+                            )
+                          : l.budgetRemaining(
+                              masked
+                                  ? krwMasked(
+                                      (limit - spent).clamp(0, limit),
+                                      masked,
+                                      mask: '••••',
+                                    )
+                                  : krwSigned(
+                                      (limit - spent).clamp(0, limit),
+                                      false,
+                                      unit: true,
+                                    ),
+                            ),
                       style: PTypo.caption.copyWith(
                         color: over ? tokens.fgExpense : tokens.fgTertiary,
                       ),

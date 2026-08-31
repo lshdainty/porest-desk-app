@@ -64,7 +64,6 @@ class _TodoTagManagementScreenState extends State<TodoTagManagementScreen> {
   }
 }
 
-
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});
   final ScrollController scrollController;
@@ -191,7 +190,10 @@ class _BodyState extends ConsumerState<_Body> {
                         ),
                       ),
                       PSkeleton(
-                          width: 32, height: 32, borderRadius: PRadius.brMd),
+                        width: 32,
+                        height: 32,
+                        borderRadius: PRadius.brMd,
+                      ),
                       SizedBox(width: PSpace.x4),
                       PSkeleton(width: 15, height: 15),
                     ],
@@ -211,11 +213,13 @@ class _BodyState extends ConsumerState<_Body> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${l.ttagTitle} · ${tags.length}',
-                      style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                      )),
+                  Text(
+                    '${l.ttagTitle} · ${tags.length}',
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                   PButton(
                     label: l.todoNewTag,
                     icon: LucideIcons.plus,
@@ -301,14 +305,18 @@ class _TagIntroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.ttagTitle,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    )),
+                Text(
+                  l.ttagTitle,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(l.ttagDesc,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                Text(
+                  l.ttagDesc,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
               ],
             ),
           ),
@@ -343,8 +351,7 @@ class _TagRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 13),
         decoration: BoxDecoration(
-          border:
-              first ? null : Border(top: BorderSide(color: t.borderSubtle)),
+          border: first ? null : Border(top: BorderSide(color: t.borderSubtle)),
         ),
         child: Row(
           children: [
@@ -353,7 +360,9 @@ class _TagRow extends StatelessWidget {
               height: 34,
               decoration: BoxDecoration(
                 color: Color.alphaBlend(
-                    color.withValues(alpha: 0.14), t.bgSurface),
+                  color.withValues(alpha: 0.14),
+                  t.bgSurface,
+                ),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
               alignment: Alignment.center,
@@ -379,7 +388,9 @@ class _TagRow extends StatelessWidget {
                   Text(
                     l.ttagUsage(usage),
                     style: PTypo.caption.copyWith(
-                        color: t.fgTertiary, fontSize: 12.5),
+                      color: t.fgTertiary,
+                      fontSize: 12.5,
+                    ),
                   ),
                 ],
               ),
@@ -416,8 +427,10 @@ Future<TodoTagDraft?> showTodoTagEditSheet(
     if (!context.mounted) return;
     // 시트는 root navigator 에 떠 있음(p_modal useRootNavigator) — 외부
     // context 로 branch nav 를 pop 하면 화면이 닫히므로 root 명시.
-    Navigator.of(context, rootNavigator: true)
-        .pop((name: name, color: selectedColor));
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pop((name: name, color: selectedColor));
   };
 
   return showPSheet<TodoTagDraft>(
@@ -464,8 +477,7 @@ class _TagEditBodyState extends State<_TagEditBody> {
     final swatch = solidSwatchColor(context, _color, fallback: t.fgBrand);
     final preview = widget.nameController.text.trim();
     return Padding(
-      padding:
-          const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -482,7 +494,9 @@ class _TagEditBodyState extends State<_TagEditBody> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                      color: swatch, borderRadius: PRadius.brMd),
+                    color: swatch,
+                    borderRadius: PRadius.brMd,
+                  ),
                   alignment: Alignment.center,
                   child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
                 ),
@@ -491,19 +505,24 @@ class _TagEditBodyState extends State<_TagEditBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l.calPreview,
-                          style: PTypo.micro.copyWith(
-                              color: t.fgTertiary,
-                              fontWeight: PFontWeight.semi,
-                              letterSpacing: 0.22)),
+                      Text(
+                        l.calPreview,
+                        style: PTypo.micro.copyWith(
+                          color: t.fgTertiary,
+                          fontWeight: PFontWeight.semi,
+                          letterSpacing: 0.22,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(preview.isEmpty ? widget.fallbackName : preview,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: PTypo.bodyLg.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          )),
+                      Text(
+                        preview.isEmpty ? widget.fallbackName : preview,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: PTypo.bodyLg.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -513,8 +532,10 @@ class _TagEditBodyState extends State<_TagEditBody> {
           const SizedBox(height: PSpace.x16),
 
           // 이름
-          Text(l.ttagNameLabel,
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(
+            l.ttagNameLabel,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: widget.nameController,
@@ -527,8 +548,10 @@ class _TagEditBodyState extends State<_TagEditBody> {
           const SizedBox(height: PSpace.x16),
 
           // 색상
-          Text(l.ttagColorLabel,
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(
+            l.ttagColorLabel,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x8),
           // 공통 색상 선택기 — 캘린더 라벨과 동일(기본 팔레트).
           PColorPicker(

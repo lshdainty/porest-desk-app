@@ -68,7 +68,7 @@ List<String> weekdayLabels({bool mondayFirst = false}) {
     final base = mondayFirst ? DateTime(2024, 1, 1) : DateTime(2023, 12, 31);
     return [
       for (var i = 0; i < 7; i++)
-        DateFormat.E('en').format(base.add(Duration(days: i)))
+        DateFormat.E('en').format(base.add(Duration(days: i))),
     ];
   }
   return mondayFirst
@@ -108,8 +108,8 @@ DateTime? parseServerUtc(String? iso) {
   // 파서의 우연이다(V8 은 받아들여 웹이 자정 UTC 로 읽었다). 계약을 그 우연에
   // 맡겨 두면 이 함수를 "웹과 맞춘다" 며 관대하게 고치는 순간 조용히 열린다.
   if (_dateOnly.hasMatch(iso)) return null;
-  final hasZone = iso.endsWith('Z') ||
-      RegExp(r'[+-]\d{2}:?\d{2}$').hasMatch(iso);
+  final hasZone =
+      iso.endsWith('Z') || RegExp(r'[+-]\d{2}:?\d{2}$').hasMatch(iso);
   final dt = DateTime.tryParse(hasZone ? iso : '${iso}Z');
   return dt?.toLocal();
 }

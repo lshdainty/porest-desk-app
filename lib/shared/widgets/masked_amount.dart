@@ -34,8 +34,7 @@ class MaskedAmount extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(hideCardProvider(card));
-    final body =
-        hidden ? maskedText : krw(amount, sign: sign, abs: abs);
+    final body = hidden ? maskedText : krw(amount, sign: sign, abs: abs);
     final resolvedSuffix = suffix ?? wonUnit();
     final text = resolvedSuffix.isEmpty ? body : '$body$resolvedSuffix';
     return Text(text, style: style);

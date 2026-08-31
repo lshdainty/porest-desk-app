@@ -21,16 +21,20 @@ abstract class AssetTrade with _$AssetTrade {
     /// 종목 식별자 — 연동은 토스 종목코드, 미연동은 항목명.
     required String holdingKey,
     @Default(false) bool linked,
+
     /// 소수 허용이라 문자열로 주고받는다(AssetHolding.quantity 와 같은 이유).
     /// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
     @JsonKey(fromJson: decimalStringFromJson) String? quantity,
+
     /// 거래대금 — 수수료 제외.
     int? amount,
     int? fee,
+
     /// 실현손익 (매도 전용). 이익 양수 / 손실 음수.
     int? realizedPl,
     String? tradeDate,
     String? description,
+
     /// 결제 계좌 — 지정하면 증권계좌 예수금 대신 이 계좌에서 오간다.
     int? settlementAssetRowId,
   }) = _AssetTrade;

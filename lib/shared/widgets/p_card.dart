@@ -61,14 +61,21 @@ class PCard extends StatelessWidget {
     final t = context.tokens;
     final (defaultBg, defaultBorder, shadow) = switch (variant) {
       PCardVariant.shadow => (t.bgSurface, null, t.shadowSm),
-      PCardVariant.bordered =>
-        (t.bgSurface, Border.all(color: t.borderSubtle), null),
+      PCardVariant.bordered => (
+        t.bgSurface,
+        Border.all(color: t.borderSubtle),
+        null,
+      ),
       PCardVariant.muted => (t.bgMuted, null, null),
-      PCardVariant.brand =>
-        (t.bgBrandSubtle, Border.all(color: t.borderBrand), null),
+      PCardVariant.brand => (
+        t.bgBrandSubtle,
+        Border.all(color: t.borderBrand),
+        null,
+      ),
       PCardVariant.raised => (t.bgSurfaceRaised, null, t.shadowLg),
     };
-    final effectivePadding = padding ??
+    final effectivePadding =
+        padding ??
         (variant == PCardVariant.shadow || variant == PCardVariant.raised
             ? const EdgeInsets.all(PSpace.lg)
             : EdgeInsets.zero);
@@ -85,11 +92,7 @@ class PCard extends StatelessWidget {
     if (onTap == null) return wrap;
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: borderRadius,
-        child: wrap,
-      ),
+      child: InkWell(onTap: onTap, borderRadius: borderRadius, child: wrap),
     );
   }
 }
@@ -132,10 +135,10 @@ class PCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = padding ??
+    final p =
+        padding ??
         (afterHeader
-            ? const EdgeInsets.fromLTRB(
-                PSpace.lg, 0, PSpace.lg, PSpace.lg)
+            ? const EdgeInsets.fromLTRB(PSpace.lg, 0, PSpace.lg, PSpace.lg)
             : const EdgeInsets.all(PSpace.lg));
     return Padding(padding: p, child: child);
   }
@@ -154,10 +157,10 @@ class PCardFooter extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   @override
   Widget build(BuildContext context) {
-    final p = padding ??
+    final p =
+        padding ??
         (afterHeader
-            ? const EdgeInsets.fromLTRB(
-                PSpace.lg, 0, PSpace.lg, PSpace.lg)
+            ? const EdgeInsets.fromLTRB(PSpace.lg, 0, PSpace.lg, PSpace.lg)
             : const EdgeInsets.all(PSpace.lg));
     return Padding(padding: p, child: child);
   }
@@ -190,9 +193,6 @@ class PCardDescription extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Text(
-      text,
-      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-    );
+    return Text(text, style: PTypo.bodySm.copyWith(color: t.fgSecondary));
   }
 }

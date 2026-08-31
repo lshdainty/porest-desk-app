@@ -31,8 +31,9 @@ class CardPerformanceBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final async = ref.watch(cardPerformanceProvider(
-        (assetRowId: assetRowId, yearMonth: yearMonth)));
+    final async = ref.watch(
+      cardPerformanceProvider((assetRowId: assetRowId, yearMonth: yearMonth)),
+    );
     return async.when(
       // 서버 실적 로딩 중 — 실제 바 레이아웃(헤더/진행바/금액 행) 그대로 스켈레톤.
       loading: () => Container(
@@ -45,19 +46,27 @@ class CardPerformanceBar extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Row(children: [
-              PSkeleton.line(width: 90, height: 12),
-              Spacer(),
-              PSkeleton.line(width: 28, height: 12),
-            ]),
+            Row(
+              children: [
+                PSkeleton.line(width: 90, height: 12),
+                Spacer(),
+                PSkeleton.line(width: 28, height: 12),
+              ],
+            ),
             SizedBox(height: 6),
-            PSkeleton(width: double.infinity, height: 8, borderRadius: PRadius.brXs),
+            PSkeleton(
+              width: double.infinity,
+              height: 8,
+              borderRadius: PRadius.brXs,
+            ),
             SizedBox(height: 6),
-            Row(children: [
-              PSkeleton.line(width: 120, height: 12),
-              Spacer(),
-              PSkeleton.line(width: 64, height: 12),
-            ]),
+            Row(
+              children: [
+                PSkeleton.line(width: 120, height: 12),
+                Spacer(),
+                PSkeleton.line(width: 64, height: 12),
+              ],
+            ),
           ],
         ),
       ),
@@ -68,8 +77,7 @@ class CardPerformanceBar extends ConsumerWidget {
         }
         final pct = (p.achievementRate.clamp(0.0, 1.5) * 100).toInt();
         final overrun = p.achievementRate >= 1.0;
-        final barColor =
-            overrun ? t.statusSuccess : t.fgBrand;
+        final barColor = overrun ? t.statusSuccess : t.fgBrand;
         return Container(
           padding: const EdgeInsets.all(PSpace.x12),
           decoration: BoxDecoration(
@@ -82,16 +90,23 @@ class CardPerformanceBar extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Icon(LucideIcons.trendingUp,
-                      size: 14, color: t.fgSecondary),
+                  Icon(LucideIcons.trendingUp, size: 14, color: t.fgSecondary),
                   const SizedBox(width: 6),
-                  Text(l.cardPerfMonthTitle(yearMonth),
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                  Text(
+                    l.cardPerfMonthTitle(yearMonth),
+                    style: PTypo.caption.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                   const Spacer(),
-                  Text('$pct%',
-                      style: PTypo.caption.copyWith(
-                          color: barColor, fontWeight: PFontWeight.bold)),
+                  Text(
+                    '$pct%',
+                    style: PTypo.caption.copyWith(
+                      color: barColor,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -118,20 +133,28 @@ class CardPerformanceBar extends ConsumerWidget {
                   if (!p.isAchieved && p.remainingAmount != null)
                     Text(
                       l.cardPerfRemaining(
-                          masked ? '•••' : krwSigned(p.remainingAmount!, false, unit: true)),
+                        masked
+                            ? '•••'
+                            : krwSigned(p.remainingAmount!, false, unit: true),
+                      ),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     )
                   else
-                    Text(l.cardPerfAchieved,
-                        style: PTypo.caption.copyWith(
-                            color: t.statusSuccess,
-                            fontWeight: PFontWeight.bold)),
+                    Text(
+                      l.cardPerfAchieved,
+                      style: PTypo.caption.copyWith(
+                        color: t.statusSuccess,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
                 ],
               ),
               if ((p.requiredText ?? '').isNotEmpty) ...[
                 const SizedBox(height: 4),
-                Text(p.requiredText!,
-                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                Text(
+                  p.requiredText!,
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
               ],
             ],
           ),

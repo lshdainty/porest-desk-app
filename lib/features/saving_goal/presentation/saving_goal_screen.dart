@@ -33,7 +33,10 @@ class SavingGoalScreen extends ConsumerWidget {
   /// 스와이프 삭제 — 확인은 PSwipeActions 가 이미 받았으므로 여기서 다시 묻지 않는다.
   /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다(문구도 같은 키).
   Future<void> _deleteGoal(
-      BuildContext context, WidgetRef ref, SavingGoal goal) async {
+    BuildContext context,
+    WidgetRef ref,
+    SavingGoal goal,
+  ) async {
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
       await repo.delete(goal.rowId);
@@ -70,19 +73,28 @@ class SavingGoalScreen extends ConsumerWidget {
           loading: () => const _SavingGoalSkeleton(),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
-            child: Text('${l.savingGoalLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+            child: Text(
+              '${l.savingGoalLoadError}\n$e',
+              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            ),
           ),
           data: (items) {
-            final totalTarget =
-                items.fold<int>(0, (s, g) => s + g.targetAmount);
-            final totalCurrent =
-                items.fold<int>(0, (s, g) => s + g.currentAmount);
-            final totalPct =
-                totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0.0;
+            final totalTarget = items.fold<int>(
+              0,
+              (s, g) => s + g.targetAmount,
+            );
+            final totalCurrent = items.fold<int>(
+              0,
+              (s, g) => s + g.currentAmount,
+            );
+            final totalPct = totalTarget > 0
+                ? (totalCurrent / totalTarget * 100)
+                : 0.0;
             return ListView(
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x24, vertical: PSpace.x24),
+                horizontal: PSpace.x24,
+                vertical: PSpace.x24,
+              ),
               children: [
                 // 전체 진행률 — design GoalManager p-card--keep.
                 if (items.isNotEmpty) ...[
@@ -95,25 +107,34 @@ class SavingGoalScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l.savingGoalOverallProgress,
-                                  style: PTypo.caption
-                                      .copyWith(color: t.fgTertiary)),
+                              Text(
+                                l.savingGoalOverallProgress,
+                                style: PTypo.caption.copyWith(
+                                  color: t.fgTertiary,
+                                ),
+                              ),
                               const SizedBox(height: 3),
                               Text.rich(
                                 TextSpan(
                                   text: krwMasked(
-                                      totalCurrent, ref.watch(hideCardProvider('asset.savingGoals')),
-                                      mask: '••••'),
+                                    totalCurrent,
+                                    ref.watch(
+                                      hideCardProvider('asset.savingGoals'),
+                                    ),
+                                    mask: '••••',
+                                  ),
                                   style: PTypo.h4.copyWith(
-                                      color: t.fgPrimary,
-                                      fontWeight: PFontWeight.bold),
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.bold,
+                                  ),
                                   children: [
                                     TextSpan(
                                       text:
                                           ' / ${krwSigned(totalTarget, ref.watch(hideCardProvider('asset.savingGoals')), unit: true, mask: '••••')}',
                                       style: PTypo.bodySm.copyWith(
-                                          color: t.fgTertiary,
-                                          fontWeight: PFontWeight.semi),
+                                        color: t.fgTertiary,
+                                        fontWeight: PFontWeight.semi,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -121,10 +142,13 @@ class SavingGoalScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        Text('${totalPct.toStringAsFixed(0)}%',
-                            style: PTypo.h3.copyWith(
-                                color: t.fgBrand,
-                                fontWeight: PFontWeight.bold)),
+                        Text(
+                          '${totalPct.toStringAsFixed(0)}%',
+                          style: PTypo.h3.copyWith(
+                            color: t.fgBrand,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -134,10 +158,13 @@ class SavingGoalScreen extends ConsumerWidget {
                 // 목록 라벨 + 추가 — design '목표 목록 · N개' + ghost 목표 추가.
                 Row(
                   children: [
-                    Text(l.savingGoalListCount(items.length),
-                        style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold)),
+                    Text(
+                      l.savingGoalListCount(items.length),
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
                     const Spacer(),
                     // accent = 라벨·아이콘 모두 fgBrand (recurring_screen 추가 버튼 정합).
                     // ghost + iconColor 조합은 아이콘만 브랜드색이라 웹과 어긋났다.
@@ -178,8 +205,8 @@ class SavingGoalScreen extends ConsumerWidget {
                           label: l.actionEdit,
                           icon: LucideIcons.pencil,
                           kind: PSwipeKind.primary,
-                          onSelect: () => showSavingGoalEditDialog(context,
-                              edit: items[i]),
+                          onSelect: () =>
+                              showSavingGoalEditDialog(context, edit: items[i]),
                         ),
                         PSwipeAction(
                           label: l.actionDelete,
@@ -188,14 +215,17 @@ class SavingGoalScreen extends ConsumerWidget {
                           // 수정 시트의 삭제와 같은 문구 — 같은 삭제인데 경로에
                           // 따라 다른 말이 나오면 안 된다.
                           confirmTitle: l.savingGoalDeleteTitle,
-                          confirmMessage:
-                              l.savingGoalDeleteConfirm(items[i].title),
+                          confirmMessage: l.savingGoalDeleteConfirm(
+                            items[i].title,
+                          ),
                           onSelect: () => _deleteGoal(context, ref, items[i]),
                         ),
                       ],
                       child: _GoalCard(
                         goal: items[i],
-                        masked: ref.watch(hideCardProvider('asset.savingGoals')),
+                        masked: ref.watch(
+                          hideCardProvider('asset.savingGoals'),
+                        ),
                         tokens: t,
                         onEdit: () =>
                             showSavingGoalEditDialog(context, edit: items[i]),
@@ -230,7 +260,10 @@ class _SavingGoalSkeleton extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       children: [
         PSkeleton(
-            width: double.infinity, height: 74, borderRadius: PRadius.brLg),
+          width: double.infinity,
+          height: 74,
+          borderRadius: PRadius.brLg,
+        ),
         const SizedBox(height: PSpace.x16),
         // 라벨행 — '추가' 버튼은 정적 UI라 로딩에도 진짜를 쓴다.
         Row(
@@ -252,14 +285,19 @@ class _SavingGoalSkeleton extends StatelessWidget {
           const Padding(
             // 실제 _GoalCard 와 같은 여백 — 좌우 4 / 상하 12.
             padding: EdgeInsets.symmetric(
-                horizontal: PSpace.x4, vertical: PSpace.x12),
+              horizontal: PSpace.x4,
+              vertical: PSpace.x12,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     PSkeleton(
-                        width: 40, height: 40, borderRadius: PRadius.brLg),
+                      width: 40,
+                      height: 40,
+                      borderRadius: PRadius.brLg,
+                    ),
                     SizedBox(width: PSpace.x12),
                     Expanded(
                       child: Column(
@@ -317,7 +355,11 @@ class _GoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final color = resolveChartColor(context, goal.color, fallback: tokens.fgBrand);
+    final color = resolveChartColor(
+      context,
+      goal.color,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(context, color);
     final pct = (goal.progress * 100).round();
     // 카드 다이어트(recurring_screen 정합) — 항목마다 카드를 두지 않고 행 사이 PDivider 로만
@@ -341,10 +383,15 @@ class _GoalCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                        color: bg, borderRadius: PRadius.tile(40)),
+                      color: bg,
+                      borderRadius: PRadius.tile(40),
+                    ),
                     alignment: Alignment.center,
-                    child: Icon(lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
-                        size: 19, color: color),
+                    child: Icon(
+                      lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
+                      size: 19,
+                      color: color,
+                    ),
                   ),
                   const SizedBox(width: PSpace.x12),
                   Expanded(
@@ -354,24 +401,31 @@ class _GoalCard extends StatelessWidget {
                         Row(
                           children: [
                             Flexible(
-                              child: Text(goal.title,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: PTypo.body.copyWith(
-                                      color: tokens.fgPrimary,
-                                      fontWeight: PFontWeight.bold)),
+                              child: Text(
+                                goal.title,
+                                overflow: TextOverflow.ellipsis,
+                                style: PTypo.body.copyWith(
+                                  color: tokens.fgPrimary,
+                                  fontWeight: PFontWeight.bold,
+                                ),
+                              ),
                             ),
                             if (goal.achieved) ...[
                               const SizedBox(width: 6),
                               PBadge(
-                                  label: l.savingGoalAchieved,
-                                  variant: PBadgeVariant.softSuccess),
+                                label: l.savingGoalAchieved,
+                                variant: PBadgeVariant.softSuccess,
+                              ),
                             ],
                           ],
                         ),
                         const SizedBox(height: 1),
-                        Text(_deadlineLabel() ?? l.savingGoalNoDeadline,
-                            style: PTypo.caption
-                                .copyWith(color: tokens.fgTertiary)),
+                        Text(
+                          _deadlineLabel() ?? l.savingGoalNoDeadline,
+                          style: PTypo.caption.copyWith(
+                            color: tokens.fgTertiary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -384,14 +438,20 @@ class _GoalCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                      '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwSigned(goal.targetAmount, masked, unit: true, mask: '••••')}',
-                      style: PTypo.caption.copyWith(
-                          color: tokens.fgSecondary,
-                          fontWeight: PFontWeight.semi)),
+                    '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwSigned(goal.targetAmount, masked, unit: true, mask: '••••')}',
+                    style: PTypo.caption.copyWith(
+                      color: tokens.fgSecondary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
                   const Spacer(),
-                  Text('$pct%',
-                      style: PTypo.bodySm.copyWith(
-                          color: color, fontWeight: PFontWeight.bold)),
+                  Text(
+                    '$pct%',
+                    style: PTypo.bodySm.copyWith(
+                      color: color,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),

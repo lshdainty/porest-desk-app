@@ -25,7 +25,9 @@ Future<void> setAppLockWithAuth(
     return;
   }
   final l = AppLocalizations.of(context);
-  final result = await ref.read(appLockAuthProvider).authenticate(
+  final result = await ref
+      .read(appLockAuthProvider)
+      .authenticate(
         reason: l.appLockPromptReason,
         signInTitle: l.appLockTitle,
         cancelLabel: l.actionCancel,
@@ -35,8 +37,11 @@ Future<void> setAppLockWithAuth(
       await notifier.setAppLock(true);
     case AppLockAuthResult.unavailable:
       if (context.mounted) {
-        showPSnackBar(context, l.appLockUnavailable,
-            severity: PSnackSeverity.warning);
+        showPSnackBar(
+          context,
+          l.appLockUnavailable,
+          severity: PSnackSeverity.warning,
+        );
       }
     case AppLockAuthResult.failure:
       // 취소·불일치 — 켜지 않고 그대로 둔다.

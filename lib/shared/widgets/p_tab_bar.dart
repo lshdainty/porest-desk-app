@@ -61,9 +61,7 @@ class _PTabBarScope extends InheritedWidget {
   final bool compact;
 
   static bool compactOf(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<_PTabBarScope>()
-          ?.compact ??
+      context.dependOnInheritedWidgetOfExactType<_PTabBarScope>()?.compact ??
       false;
 
   @override
@@ -184,9 +182,7 @@ class _PTabBarState extends State<PTabBar> {
             decoration: BoxDecoration(
               color: t.bgSurface.withValues(alpha: compact ? 0.68 : 0.82),
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: t.borderSubtle.withValues(alpha: 0.7),
-              ),
+              border: Border.all(color: t.borderSubtle.withValues(alpha: 0.7)),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x2E0A1024),
@@ -323,8 +319,9 @@ class PTabBarItem extends StatelessWidget {
                     style: PTypo.micro.copyWith(
                       fontSize: 10.5,
                       color: color,
-                      fontWeight:
-                          selected ? PFontWeight.semi : PFontWeight.medium,
+                      fontWeight: selected
+                          ? PFontWeight.semi
+                          : PFontWeight.medium,
                     ),
                   ),
                 ),

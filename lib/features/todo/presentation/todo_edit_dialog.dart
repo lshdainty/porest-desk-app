@@ -27,10 +27,7 @@ void showTodoEditDialog(BuildContext context, {Todo? edit}) {
     title: edit == null ? l.todoAdd : l.todoEditTitle,
     // 컨텐츠 높이에 맞춰 wrap (web 다이얼로그처럼) — 기본 0.85 강제 높이 사용 X.
     shrinkWrap: true,
-    contentBuilder: (ctx, _) => _Body(
-      edit: edit,
-      controller: controller,
-    ),
+    contentBuilder: (ctx, _) => _Body(edit: edit, controller: controller),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
       submitLabel: edit == null ? l.calAdd : l.actionEdit,
@@ -39,10 +36,7 @@ void showTodoEditDialog(BuildContext context, {Todo? edit}) {
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body({
-    this.edit,
-    required this.controller,
-  });
+  const _Body({this.edit, required this.controller});
   final Todo? edit;
   final PSheetController controller;
   @override
@@ -78,8 +72,7 @@ class _BodyState extends ConsumerState<_Body> {
     widget.controller.setSubmitting(v);
   }
 
-  bool get _canSubmit =>
-      !_submitting && _titleCtrl.text.trim().isNotEmpty;
+  bool get _canSubmit => !_submitting && _titleCtrl.text.trim().isNotEmpty;
 
   /// 태그 선택지 — 서버 태그명 + 현재 값(미포함 시) + 기본 태그 보장.
   List<String> _tagChoices() {
@@ -113,8 +106,9 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.update(
           id: widget.edit!.rowId,
           title: title,
-          content:
-              _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
+          content: _contentCtrl.text.trim().isEmpty
+              ? null
+              : _contentCtrl.text.trim(),
           priority: _priority,
           category: _tag, // 태그 7종을 기존 category 필드에 저장
           dueDate: _due == null ? null : _fmtDate(_due!),
@@ -122,8 +116,9 @@ class _BodyState extends ConsumerState<_Body> {
       } else {
         await repo.create(
           title: title,
-          content:
-              _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
+          content: _contentCtrl.text.trim().isEmpty
+              ? null
+              : _contentCtrl.text.trim(),
           priority: _priority,
           category: _tag,
           dueDate: _due == null ? null : _fmtDate(_due!),
@@ -149,12 +144,14 @@ class _BodyState extends ConsumerState<_Body> {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.calFieldTitle, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(
+            l.calFieldTitle,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _titleCtrl,
@@ -174,9 +171,10 @@ class _BodyState extends ConsumerState<_Body> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.todoDueDate,
-                        style:
-                            PTypo.caption.copyWith(color: t.fgSecondary)),
+                    Text(
+                      l.todoDueDate,
+                      style: PTypo.caption.copyWith(color: t.fgSecondary),
+                    ),
                     const SizedBox(height: PSpace.x4),
                     PDateInput(
                       value: _due,
@@ -194,9 +192,10 @@ class _BodyState extends ConsumerState<_Body> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.todoTag,
-                        style:
-                            PTypo.caption.copyWith(color: t.fgSecondary)),
+                    Text(
+                      l.todoTag,
+                      style: PTypo.caption.copyWith(color: t.fgSecondary),
+                    ),
                     const SizedBox(height: PSpace.x4),
                     PSelect<String>(
                       value: _tag,
@@ -217,40 +216,48 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          Text(l.todoPriorityLabel,
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(
+            l.todoPriorityLabel,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x8),
           _PriSeg(
-              value: _priority,
-              onChanged: (v) => setState(() => _priority = v),
-              tokens: t),
+            value: _priority,
+            onChanged: (v) => setState(() => _priority = v),
+            tokens: t,
+          ),
           const SizedBox(height: PSpace.x12),
 
           Row(
             children: [
-              Text(l.todoContentLabel,
-                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              Text(
+                l.todoContentLabel,
+                style: PTypo.caption.copyWith(color: t.fgSecondary),
+              ),
               const Spacer(),
               GestureDetector(
-                onTap: () =>
-                    setState(() => _previewContent = !_previewContent),
+                onTap: () => setState(() => _previewContent = !_previewContent),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 4),
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                          _previewContent
-                              ? LucideIcons.pencil
-                              : LucideIcons.eye,
-                          size: 12,
-                          color: t.fgSecondary),
+                        _previewContent ? LucideIcons.pencil : LucideIcons.eye,
+                        size: 12,
+                        color: t.fgSecondary,
+                      ),
                       const SizedBox(width: 4),
-                      Text(_previewContent ? l.todoEditMode : l.todoPreview,
-                          style: PTypo.caption.copyWith(
-                              color: t.fgSecondary,
-                              fontWeight: PFontWeight.semi)),
+                      Text(
+                        _previewContent ? l.todoEditMode : l.todoPreview,
+                        style: PTypo.caption.copyWith(
+                          color: t.fgSecondary,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -269,8 +276,10 @@ class _BodyState extends ConsumerState<_Body> {
                 border: Border.all(color: t.borderSubtle),
               ),
               child: _contentCtrl.text.trim().isEmpty
-                  ? Text(l.todoNoContent,
-                      style: PTypo.caption.copyWith(color: t.fgTertiary))
+                  ? Text(
+                      l.todoNoContent,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    )
                   : MarkdownPreview(_contentCtrl.text),
             )
           else
@@ -291,19 +300,28 @@ class _BodyState extends ConsumerState<_Body> {
 }
 
 class _PriSeg extends StatelessWidget {
-  const _PriSeg(
-      {required this.value, required this.onChanged, required this.tokens});
+  const _PriSeg({
+    required this.value,
+    required this.onChanged,
+    required this.tokens,
+  });
   final String value;
   final ValueChanged<String> onChanged;
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final opts = [('HIGH', l.todoPriorityImportant), ('MEDIUM', l.todoPriorityMedium), ('LOW', l.todoPriorityRelaxed)];
+    final opts = [
+      ('HIGH', l.todoPriorityImportant),
+      ('MEDIUM', l.todoPriorityMedium),
+      ('LOW', l.todoPriorityRelaxed),
+    ];
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration:
-          BoxDecoration(color: tokens.bgMuted, borderRadius: PRadius.brMd),
+      decoration: BoxDecoration(
+        color: tokens.bgMuted,
+        borderRadius: PRadius.brMd,
+      ),
       child: Row(
         children: [
           for (final o in opts)
@@ -318,15 +336,18 @@ class _PriSeg extends StatelessWidget {
                         : Colors.transparent,
                     borderRadius: PRadius.brSm,
                   ),
-                  child: Text(o.$2,
-                      textAlign: TextAlign.center,
-                      style: PTypo.bodySm.copyWith(
-                          color: o.$1 == value
-                              ? tokens.fgPrimary
-                              : tokens.fgTertiary,
-                          fontWeight: o.$1 == value
-                              ? PFontWeight.bold
-                              : PFontWeight.medium)),
+                  child: Text(
+                    o.$2,
+                    textAlign: TextAlign.center,
+                    style: PTypo.bodySm.copyWith(
+                      color: o.$1 == value
+                          ? tokens.fgPrimary
+                          : tokens.fgTertiary,
+                      fontWeight: o.$1 == value
+                          ? PFontWeight.bold
+                          : PFontWeight.medium,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -372,8 +393,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
   }
 
   Future<void> _toggleStatus(Todo sub) async {
-    final next =
-        sub.status == 'COMPLETED' ? 'PENDING' : 'COMPLETED';
+    final next = sub.status == 'COMPLETED' ? 'PENDING' : 'COMPLETED';
     try {
       final repo = await ref.read(todoRepositoryProvider.future);
       await repo.setStatus(sub.rowId, next);
@@ -401,16 +421,20 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.todoSubtask,
-            style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(
+          l.todoSubtask,
+          style: PTypo.caption.copyWith(color: t.fgSecondary),
+        ),
         const SizedBox(height: PSpace.x4),
         async.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Center(child: PCircularProgressIndicator()),
           ),
-          error: (e, _) => Text(l.todoSubtaskLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger)),
+          error: (e, _) => Text(
+            l.todoSubtaskLoadError,
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
           data: (subs) {
             if (subs.isEmpty) return const SizedBox.shrink();
             return Column(
@@ -470,8 +494,9 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
             PButton(
               label: l.calAdd,
               loading: _adding,
-              onPressed:
-                  (_ctrl.text.trim().isEmpty || _adding) ? null : _addSubtask,
+              onPressed: (_ctrl.text.trim().isEmpty || _adding)
+                  ? null
+                  : _addSubtask,
             ),
           ],
         ),

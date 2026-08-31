@@ -27,15 +27,10 @@ void showMemoEditDialog(BuildContext context, {Memo? edit}) {
   showPSheet<void>(
     context,
     title: edit == null ? l.memoNew : l.memoEditTitle,
-    contentBuilder: (ctx, scrollCtrl) => _Body(
-      edit: edit,
-      scrollController: scrollCtrl,
-      controller: controller,
-    ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: l.actionSave,
-    ),
+    contentBuilder: (ctx, scrollCtrl) =>
+        _Body(edit: edit, scrollController: scrollCtrl, controller: controller),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: l.actionSave),
   );
 }
 
@@ -142,8 +137,7 @@ class _BodyState extends ConsumerState<_Body> {
     });
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // 제목 (필수).
         PSectionLabel(l.memoFieldTitle),
@@ -153,10 +147,9 @@ class _BodyState extends ConsumerState<_Body> {
           placeholder: l.memoFieldTitle,
           autofocus: !_isEdit,
           errorText: _titleError ? l.memoTitleRequired : null,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: PFontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: PFontWeight.bold),
           onChanged: (_) {
             if (_titleError) setState(() => _titleError = false);
           },
@@ -217,8 +210,7 @@ class _BodyState extends ConsumerState<_Body> {
                         Expanded(
                           child: Text(
                             l.memoPinToTop,
-                            style:
-                                PTypo.body.copyWith(color: t.fgPrimary),
+                            style: PTypo.body.copyWith(color: t.fgPrimary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

@@ -71,20 +71,23 @@ class PSegmented<T> extends StatelessWidget {
                     // primary-light 로 밝아짐. 웹 ToggleGroup segmented(active=primary) 정합.
                     color: o.value == value
                         ? (variant == PSegmentedVariant.subtle
-                            ? t.bgMuted
-                            : t.bgBrandSolid)
+                              ? t.bgMuted
+                              : t.bgBrandSolid)
                         : Colors.transparent,
                     borderRadius: PRadius.brSm,
                   ),
                   alignment: Alignment.center,
-                  child: Text(o.label,
-                      style: PTypo.caption.copyWith(
-                          color: o.value == value
-                              ? (variant == PSegmentedVariant.subtle
-                                  ? t.fgPrimary
-                                  : t.fgOnBrand)
-                              : t.fgSecondary,
-                          fontWeight: PFontWeight.semi)),
+                  child: Text(
+                    o.label,
+                    style: PTypo.caption.copyWith(
+                      color: o.value == value
+                          ? (variant == PSegmentedVariant.subtle
+                                ? t.fgPrimary
+                                : t.fgOnBrand)
+                          : t.fgSecondary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
                 ),
               ),
             ),

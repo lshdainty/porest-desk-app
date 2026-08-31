@@ -128,8 +128,9 @@ class _RecurringSettingsBodyState
       _txInput = _TxInputController(date: DateTime.now());
     } else {
       if (_isEdit) {
-        _editAmountCtrl =
-            TextEditingController(text: r!.amount.abs().toString());
+        _editAmountCtrl = TextEditingController(
+          text: r!.amount.abs().toString(),
+        );
         // 서버는 'HH:mm:ss' 로 준다. 앞 5글자만 쓴다.
         final et = (r.executionTime ?? '').trim();
         if (et.length >= 5) _executionTime = et.substring(0, 5);
@@ -342,7 +343,9 @@ class _RecurringSettingsBodyState
       } else {
         summaryTitle = (e!.merchant ?? '').isNotEmpty
             ? e.merchant!
-            : ((e.description ?? '').isNotEmpty ? e.description! : l.expTxFallback);
+            : ((e.description ?? '').isNotEmpty
+                  ? e.description!
+                  : l.expTxFallback);
         summaryAmount = e.amount;
         summaryType = e.expenseType;
       }
@@ -468,7 +471,10 @@ class _RecurringSettingsBodyState
             title: l.recurringDayOfMonthLabel,
             child: Row(
               children: [
-                Text(l.calRepeatMonthly, style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                Text(
+                  l.calRepeatMonthly,
+                  style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                ),
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 64,
@@ -492,7 +498,10 @@ class _RecurringSettingsBodyState
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(l.dayUnit, style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                Text(
+                  l.dayUnit,
+                  style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -939,11 +948,11 @@ List<DateTime> previewNextDates(
 const _txPaymentMethodValues = ['CASH', 'CARD', 'TRANSFER', 'OTHER'];
 
 String _txPayLabel(AppLocalizations l, String v) => switch (v) {
-      'CASH' => l.expPayCash,
-      'CARD' => l.expPayCard,
-      'TRANSFER' => l.expPayTransfer,
-      _ => l.expPayOther,
-    };
+  'CASH' => l.expPayCash,
+  'CARD' => l.expPayCard,
+  'TRANSFER' => l.expPayTransfer,
+  _ => l.expPayOther,
+};
 
 const Map<String, List<String>?> _txPaymentAssetTypes = {
   'CASH': ['CASH'],
@@ -966,14 +975,13 @@ bool _allowTxAsset(Asset a, String paymentMethod, String type) {
   return true;
 }
 
-
 /// 반복 추가 전용 거래 입력 상태 (지출/수입). 시간/이체 없음.
 class _TxInputController {
   _TxInputController({DateTime? date})
-      : date = date ?? DateTime.now(),
-        amountCtrl = TextEditingController(),
-        merchantCtrl = TextEditingController(),
-        memoCtrl = TextEditingController();
+    : date = date ?? DateTime.now(),
+      amountCtrl = TextEditingController(),
+      merchantCtrl = TextEditingController(),
+      memoCtrl = TextEditingController();
 
   final TextEditingController amountCtrl;
   final TextEditingController merchantCtrl;
@@ -1100,9 +1108,7 @@ class _TxFields extends ConsumerWidget {
                   cat.expenseType != c.type) {
                 continue;
               }
-              childrenByParent
-                  .putIfAbsent(cat.parentRowId!, () => [])
-                  .add(cat);
+              childrenByParent.putIfAbsent(cat.parentRowId!, () => []).add(cat);
             }
             for (final list in childrenByParent.values) {
               list.sort(
@@ -1172,7 +1178,13 @@ class _TxFields extends ConsumerWidget {
                     items: [
                       _SelectOption<int>(
                         selectedParentId,
-                        l.recurringParentCategory(topCategories.firstWhere((cat) => cat.rowId == selectedParentId).categoryName),
+                        l.recurringParentCategory(
+                          topCategories
+                              .firstWhere(
+                                (cat) => cat.rowId == selectedParentId,
+                              )
+                              .categoryName,
+                        ),
                       ),
                       for (final child in childrenByParent[selectedParentId]!)
                         _SelectOption<int>(
@@ -1190,16 +1202,22 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x12),
 
         // 거래처
-        PSectionLabel(c.type == 'INCOME' ? l.expIncomeSource : l.recurringMerchant),
+        PSectionLabel(
+          c.type == 'INCOME' ? l.expIncomeSource : l.recurringMerchant,
+        ),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: c.merchantCtrl,
-          placeholder: c.type == 'INCOME' ? l.expIncomeSourcePlaceholder : l.recurringMerchantPlaceholder,
+          placeholder: c.type == 'INCOME'
+              ? l.expIncomeSourcePlaceholder
+              : l.recurringMerchantPlaceholder,
         ),
         const SizedBox(height: PSpace.x12),
 
         // 결제 수단
-        PSectionLabel(c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod),
+        PSectionLabel(
+          c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod,
+        ),
         const SizedBox(height: PSpace.x4),
         _SelectField<String>(
           value: c.paymentMethod.isEmpty ? null : c.paymentMethod,
@@ -1213,8 +1231,9 @@ class _TxFields extends ConsumerWidget {
             c.paymentMethod = v ?? '';
             if (c.assetRowId != null) {
               final assets = assetsAsync.value ?? const [];
-              final cur =
-                  assets.where((a) => a.rowId == c.assetRowId).firstOrNull;
+              final cur = assets
+                  .where((a) => a.rowId == c.assetRowId)
+                  .firstOrNull;
               if (cur != null && !_allowTxAsset(cur, c.paymentMethod, c.type)) {
                 c.assetRowId = null;
               }
@@ -1224,7 +1243,9 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x12),
 
         // 계좌·카드
-        PSectionLabel(c.type == 'INCOME' ? l.expDepositAccount : l.recurringAssetCard),
+        PSectionLabel(
+          c.type == 'INCOME' ? l.expDepositAccount : l.recurringAssetCard,
+        ),
         const SizedBox(height: PSpace.x4),
         assetsAsync.when(
           loading: () => const Padding(
@@ -1316,7 +1337,6 @@ class _SelectField<T> extends StatelessWidget {
   }
 }
 
-
 /// 'HH:mm' 시간 필드 — 타이핑으로도, 시계 아이콘으로도 고친다.
 class _TimeField extends StatelessWidget {
   const _TimeField({required this.value, required this.onChanged});
@@ -1335,9 +1355,9 @@ class _TimeField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => PTimeInput(
-        value: _parse(value),
-        onChanged: (t) {
-          if (t != null) onChanged(_fmt(t));
-        },
-      );
+    value: _parse(value),
+    onChanged: (t) {
+      if (t != null) onChanged(_fmt(t));
+    },
+  );
 }

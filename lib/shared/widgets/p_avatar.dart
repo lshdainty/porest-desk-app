@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 /// (또는 영문 2글자) fallback. sm(32)/md(40)/lg(48)/xl(64) × 2 fills
 /// (neutral/primary). 클릭 가능해야 하면 외부에서 `<button>` wrap.
 enum PAvatarSize { sm, md, lg, xl }
+
 enum PAvatarFill { neutral, primary }
 
 class PAvatar extends StatelessWidget {
@@ -32,18 +33,18 @@ class PAvatar extends StatelessWidget {
   final String? semanticLabel;
 
   double get _size => switch (size) {
-        PAvatarSize.sm => 32,
-        PAvatarSize.md => 40,
-        PAvatarSize.lg => 48,
-        PAvatarSize.xl => 64,
-      };
+    PAvatarSize.sm => 32,
+    PAvatarSize.md => 40,
+    PAvatarSize.lg => 48,
+    PAvatarSize.xl => 64,
+  };
 
   double get _fontSize => switch (size) {
-        PAvatarSize.sm => PFontSize.bodySm, // 13
-        PAvatarSize.md => PFontSize.titleSm, // 16
-        PAvatarSize.lg => PFontSize.titleMd, // 18
-        PAvatarSize.xl => PFontSize.h2, // 24 (display-sm)
-      };
+    PAvatarSize.sm => PFontSize.bodySm, // 13
+    PAvatarSize.md => PFontSize.titleSm, // 16
+    PAvatarSize.lg => PFontSize.titleMd, // 18
+    PAvatarSize.xl => PFontSize.h2, // 24 (display-sm)
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +82,9 @@ class PAvatar extends StatelessWidget {
     final letters = (fallbackText ?? '?').trim();
     final display = letters.isEmpty
         ? '?'
-        : (letters.runes.length > 2 ? letters.characters.take(2).toString() : letters);
+        : (letters.runes.length > 2
+              ? letters.characters.take(2).toString()
+              : letters);
     return Text(
       display,
       style: TextStyle(
@@ -111,11 +114,11 @@ class PAvatarGroup extends StatelessWidget {
   final PAvatarSize size;
 
   double get _avatarSize => switch (size) {
-        PAvatarSize.sm => 32,
-        PAvatarSize.md => 40,
-        PAvatarSize.lg => 48,
-        PAvatarSize.xl => 64,
-      };
+    PAvatarSize.sm => 32,
+    PAvatarSize.md => 40,
+    PAvatarSize.lg => 48,
+    PAvatarSize.xl => 64,
+  };
 
   @override
   Widget build(BuildContext context) {

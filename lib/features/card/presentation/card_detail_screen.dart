@@ -44,14 +44,18 @@ class CardDetailScreen extends ConsumerWidget {
         loading: () => _CardDetailSkeleton(tokens: t),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
-          child: Text('${l.cardDetailLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+          child: Text(
+            '${l.cardDetailLoadError}\n$e',
+            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+          ),
         ),
         data: (d) {
           final s = d.summary;
           return ListView(
             padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24, vertical: PSpace.x24),
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
+            ),
             children: [
               // 카드 이미지
               if (s.imgUrl != null)
@@ -59,25 +63,37 @@ class CardDetailScreen extends ConsumerWidget {
                   borderRadius: PRadius.brLg,
                   child: AspectRatio(
                     aspectRatio: 1.6,
-                    child: Image.network(s.imgUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                            color: t.bgMuted,
-                            alignment: Alignment.center,
-                            child: Icon(LucideIcons.creditCard,
-                                size: 48, color: t.fgTertiary))),
+                    child: Image.network(
+                      s.imgUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(
+                        color: t.bgMuted,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          LucideIcons.creditCard,
+                          size: 48,
+                          color: t.fgTertiary,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               const SizedBox(height: PSpace.x16),
 
-              Text(s.cardName,
-                  style: PTypo.h3.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                s.cardName,
+                style: PTypo.h3.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
               Text(
                 [
                   s.company?.name,
-                  s.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck,
+                  s.cardType == 'CREDIT'
+                      ? l.assetCardShortCredit
+                      : l.assetCardShortCheck,
                 ].whereType<String>().join(' · '),
                 style: PTypo.bodySm.copyWith(color: t.fgSecondary),
               ),
@@ -97,9 +113,14 @@ class CardDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: _InfoCard(
                       label: l.cardLastMonthPerf,
-                      value: s.performance?.requiredText ??
+                      value:
+                          s.performance?.requiredText ??
                           (s.performance?.requiredAmount != null
-                              ? krwSigned(s.performance!.requiredAmount!, false, unit: true)
+                              ? krwSigned(
+                                  s.performance!.requiredAmount!,
+                                  false,
+                                  unit: true,
+                                )
                               : l.cardNone),
                       tokens: t,
                     ),
@@ -109,9 +130,13 @@ class CardDetailScreen extends ConsumerWidget {
               const SizedBox(height: PSpace.x20),
 
               if (d.topBenefits.isNotEmpty) ...[
-                Text(l.cardKeyBenefitTags,
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  l.cardKeyBenefitTags,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: PSpace.x8),
                 Wrap(
                   spacing: 6,
@@ -126,9 +151,13 @@ class CardDetailScreen extends ConsumerWidget {
               ],
 
               if (d.benefits.isNotEmpty) ...[
-                Text(l.cardBenefits,
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  l.cardBenefits,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: PSpace.x8),
                 PCard(
                   variant: PCardVariant.bordered,
@@ -141,27 +170,35 @@ class CardDetailScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if ((d.benefits[i].title ?? '').isNotEmpty)
-                                Text(d.benefits[i].title!,
-                                    style: PTypo.bodySm.copyWith(
-                                        color: t.fgPrimary,
-                                        fontWeight: PFontWeight.bold)),
+                                Text(
+                                  d.benefits[i].title!,
+                                  style: PTypo.bodySm.copyWith(
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.bold,
+                                  ),
+                                ),
                               if ((d.benefits[i].summary ?? '').isNotEmpty) ...[
                                 const SizedBox(height: 2),
-                                Text(d.benefits[i].summary!,
-                                    style: PTypo.caption
-                                        .copyWith(color: t.fgSecondary)),
+                                Text(
+                                  d.benefits[i].summary!,
+                                  style: PTypo.caption.copyWith(
+                                    color: t.fgSecondary,
+                                  ),
+                                ),
                               ],
                               if ((d.benefits[i].detail ?? '').isNotEmpty) ...[
                                 const SizedBox(height: 4),
-                                Text(d.benefits[i].detail!,
-                                    style: PTypo.caption
-                                        .copyWith(color: t.fgTertiary)),
+                                Text(
+                                  d.benefits[i].detail!,
+                                  style: PTypo.caption.copyWith(
+                                    color: t.fgTertiary,
+                                  ),
+                                ),
                               ],
                             ],
                           ),
                         ),
-                        if (i < d.benefits.length - 1)
-                          PDivider(),
+                        if (i < d.benefits.length - 1) PDivider(),
                       ],
                     ],
                   ),
@@ -170,9 +207,13 @@ class CardDetailScreen extends ConsumerWidget {
               ],
 
               if (d.cautions.isNotEmpty) ...[
-                Text(l.cardCautions,
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  l.cardCautions,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: PSpace.x8),
                 Container(
                   padding: const EdgeInsets.all(PSpace.x12),
@@ -180,7 +221,8 @@ class CardDetailScreen extends ConsumerWidget {
                     color: t.statusWarningSubtle,
                     borderRadius: PRadius.brLg,
                     border: Border.all(
-                        color: t.statusWarning.withValues(alpha: 0.3)),
+                      color: t.statusWarning.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,8 +336,11 @@ class _CardDetailSkeleton extends StatelessWidget {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard(
-      {required this.label, required this.value, required this.tokens});
+  const _InfoCard({
+    required this.label,
+    required this.value,
+    required this.tokens,
+  });
   final String label;
   final String value;
   final PorestTokens tokens;
@@ -307,12 +352,15 @@ class _InfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+          Text(label, style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
           const SizedBox(height: 2),
-          Text(value,
-              style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
+          Text(
+            value,
+            style: PTypo.body.copyWith(
+              color: tokens.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -359,30 +407,37 @@ class _CautionItem extends StatelessWidget {
       content: Padding(
         // 아이콘(12) + 간격(6) 만큼 들여써 제목과 본문의 좌측을 맞춘다.
         padding: const EdgeInsets.only(left: 18, bottom: 6),
-        child:
-            Text(body, style: PTypo.caption.copyWith(color: t.statusWarningFg)),
+        child: Text(
+          body,
+          style: PTypo.caption.copyWith(color: t.statusWarningFg),
+        ),
       ),
     );
   }
 
   Widget _row(PorestTokens t, String label, bool? isOpen) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(LucideIcons.alertTriangle, size: 12, color: t.statusWarningFg),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(label,
-                style: PTypo.caption.copyWith(color: t.statusWarningFg)),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(LucideIcons.alertTriangle, size: 12, color: t.statusWarningFg),
+      const SizedBox(width: 6),
+      Expanded(
+        child: Text(
+          label,
+          style: PTypo.caption.copyWith(color: t.statusWarningFg),
+        ),
+      ),
+      if (isOpen != null) ...[
+        const SizedBox(width: 6),
+        AnimatedRotation(
+          turns: isOpen ? 0.5 : 0,
+          duration: PMotion.fast,
+          child: Icon(
+            LucideIcons.chevronDown,
+            size: 12,
+            color: t.statusWarningFg,
           ),
-          if (isOpen != null) ...[
-            const SizedBox(width: 6),
-            AnimatedRotation(
-              turns: isOpen ? 0.5 : 0,
-              duration: PMotion.fast,
-              child: Icon(LucideIcons.chevronDown,
-                  size: 12, color: t.statusWarningFg),
-            ),
-          ],
-        ],
-      );
+        ),
+      ],
+    ],
+  );
 }

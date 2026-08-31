@@ -86,14 +86,22 @@ class _SmsClipboardBannerState extends ConsumerState<SmsClipboardBanner>
     final text = data?.text;
 
     if (text == null || text.trim().isEmpty) {
-      showPSnackBar(context, l.smsClipboardEmpty, severity: PSnackSeverity.warning);
+      showPSnackBar(
+        context,
+        l.smsClipboardEmpty,
+        severity: PSnackSeverity.warning,
+      );
       await _dismiss();
       return;
     }
     // 결제 문자가 아니면 서버로 보내지 않는다 — 붙여넣기 화면에서 사용자가
     // 직접 고칠 수 있도록 원문은 들고 간다.
     if (!looksLikePaymentSms(text)) {
-      showPSnackBar(context, l.smsNotRecognized, severity: PSnackSeverity.warning);
+      showPSnackBar(
+        context,
+        l.smsNotRecognized,
+        severity: PSnackSeverity.warning,
+      );
       await _dismiss();
       return;
     }

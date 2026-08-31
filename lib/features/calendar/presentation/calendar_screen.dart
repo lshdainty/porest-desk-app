@@ -56,9 +56,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         .toList();
 
     final lastDay = DateTime(_key.year, _key.month + 1, 0).day;
-    final hStart = '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-01';
-    final hEnd = '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}';
-    final holidaysAsync = ref.watch(holidayListProvider((startDate: hStart, endDate: hEnd)));
+    final hStart =
+        '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-01';
+    final hEnd =
+        '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}';
+    final holidaysAsync = ref.watch(
+      holidayListProvider((startDate: hStart, endDate: hEnd)),
+    );
     // 기타 소스 > 공휴일 토글 off 면 빈 맵 → 달력에 공휴일 라벨/색 미표시.
     final holidayMap = holidayVisible
         ? <String, String>{
@@ -68,7 +72,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         : const <String, String>{};
 
     // 첫 로딩(이벤트/캘린더 아직 없음) — 웹 CalendarMonthViewSkeleton 정합.
-    final firstLoading = (eventsAsync.isLoading && !eventsAsync.hasValue) ||
+    final firstLoading =
+        (eventsAsync.isLoading && !eventsAsync.hasValue) ||
         (calendarsAsync.isLoading && !calendarsAsync.hasValue);
 
     return Column(
@@ -76,9 +81,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         _MonthHeader(
           focused: _focused,
           onPrev: () => setState(
-              () => _focused = DateTime(_focused.year, _focused.month - 1)),
+            () => _focused = DateTime(_focused.year, _focused.month - 1),
+          ),
           onNext: () => setState(
-              () => _focused = DateTime(_focused.year, _focused.month + 1)),
+            () => _focused = DateTime(_focused.year, _focused.month + 1),
+          ),
           onDateTap: _showMonthYearPicker,
           calendarCount: visibleCount,
           dotColors: dotColors,
@@ -89,90 +96,93 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Expanded(
             child: Padding(
               // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding:
-                  EdgeInsets.only(bottom: pTabBarBottomInset(context)),
+              padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
               child: _CalendarGridSkeleton(tokens: t),
             ),
           )
         else
-        Expanded(
-          child: Padding(
-          // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-          padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
-          child: TableCalendar<CalendarEvent>(
-            firstDay: DateTime(2020),
-            lastDay: DateTime(2030),
-            focusedDay: _focused,
-            selectedDayPredicate: (d) => isSameDay(_selected, d),
-            onDaySelected: (sel, foc) {
-              setState(() {
-                _selected = sel;
-                _focused = foc;
-              });
-              _openDayEventsSheet(sel);
-            },
-            onPageChanged: (foc) => setState(() => _focused = foc),
-            calendarFormat: CalendarFormat.month,
-            eventLoader: (d) => _eventsOnDay(events, d),
-            locale: 'ko_KR',
-            shouldFillViewport: true,
-            headerVisible: false,
-            daysOfWeekStyle: DaysOfWeekStyle(
-              weekendStyle: PTypo.caption.copyWith(color: t.fgSecondary),
-              weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
-            ),
-            calendarStyle: const CalendarStyle(
-              outsideDaysVisible: true,
-              cellMargin: EdgeInsets.zero,
-              cellPadding: EdgeInsets.zero,
-            ),
-            calendarBuilders: CalendarBuilders<CalendarEvent>(
-              dowBuilder: (ctx, day) {
-                final Color color;
-                if (day.weekday == DateTime.sunday) {
-                  color = t.fgExpense;
-                } else if (day.weekday == DateTime.saturday) {
-                  color = t.fgBrand;
-                } else {
-                  // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
-                  color = t.fgPrimary;
-                }
-                return Center(
-                  child: Text(
-                    formatDay(day).dow,
-                    style: PTypo.caption.copyWith(color: color),
+          Expanded(
+            child: Padding(
+              // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+              padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
+              child: TableCalendar<CalendarEvent>(
+                firstDay: DateTime(2020),
+                lastDay: DateTime(2030),
+                focusedDay: _focused,
+                selectedDayPredicate: (d) => isSameDay(_selected, d),
+                onDaySelected: (sel, foc) {
+                  setState(() {
+                    _selected = sel;
+                    _focused = foc;
+                  });
+                  _openDayEventsSheet(sel);
+                },
+                onPageChanged: (foc) => setState(() => _focused = foc),
+                calendarFormat: CalendarFormat.month,
+                eventLoader: (d) => _eventsOnDay(events, d),
+                locale: 'ko_KR',
+                shouldFillViewport: true,
+                headerVisible: false,
+                daysOfWeekStyle: DaysOfWeekStyle(
+                  weekendStyle: PTypo.caption.copyWith(color: t.fgSecondary),
+                  weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
+                calendarStyle: const CalendarStyle(
+                  outsideDaysVisible: true,
+                  cellMargin: EdgeInsets.zero,
+                  cellPadding: EdgeInsets.zero,
+                ),
+                calendarBuilders: CalendarBuilders<CalendarEvent>(
+                  dowBuilder: (ctx, day) {
+                    final Color color;
+                    if (day.weekday == DateTime.sunday) {
+                      color = t.fgExpense;
+                    } else if (day.weekday == DateTime.saturday) {
+                      color = t.fgBrand;
+                    } else {
+                      // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
+                      color = t.fgPrimary;
+                    }
+                    return Center(
+                      child: Text(
+                        formatDay(day).dow,
+                        style: PTypo.caption.copyWith(color: color),
+                      ),
+                    );
+                  },
+                  defaultBuilder: (ctx, day, _) => _DayCell(
+                    day: day,
+                    events: _eventsOnDay(events, day),
+                    isOutside: false,
+                    holidayName: holidayMap[_dateKey(day)],
+                    tokens: t,
                   ),
-                );
-              },
-              defaultBuilder: (ctx, day, _) => _DayCell(
-                  day: day,
-                  events: _eventsOnDay(events, day),
-                  isOutside: false,
-                  holidayName: holidayMap[_dateKey(day)],
-                  tokens: t),
-              todayBuilder: (ctx, day, _) => _DayCell(
-                  day: day,
-                  events: _eventsOnDay(events, day),
-                  isOutside: false,
-                  holidayName: holidayMap[_dateKey(day)],
-                  tokens: t),
-              selectedBuilder: (ctx, day, _) => _DayCell(
-                  day: day,
-                  events: _eventsOnDay(events, day),
-                  isOutside: false,
-                  holidayName: holidayMap[_dateKey(day)],
-                  tokens: t),
-              outsideBuilder: (ctx, day, _) => _DayCell(
-                  day: day,
-                  events: _eventsOnDay(events, day),
-                  isOutside: true,
-                  holidayName: holidayMap[_dateKey(day)],
-                  tokens: t),
-              markerBuilder: (_, _, _) => const SizedBox.shrink(),
+                  todayBuilder: (ctx, day, _) => _DayCell(
+                    day: day,
+                    events: _eventsOnDay(events, day),
+                    isOutside: false,
+                    holidayName: holidayMap[_dateKey(day)],
+                    tokens: t,
+                  ),
+                  selectedBuilder: (ctx, day, _) => _DayCell(
+                    day: day,
+                    events: _eventsOnDay(events, day),
+                    isOutside: false,
+                    holidayName: holidayMap[_dateKey(day)],
+                    tokens: t,
+                  ),
+                  outsideBuilder: (ctx, day, _) => _DayCell(
+                    day: day,
+                    events: _eventsOnDay(events, day),
+                    isOutside: true,
+                    holidayName: holidayMap[_dateKey(day)],
+                    tokens: t,
+                  ),
+                  markerBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              ),
             ),
           ),
-          ),
-        ),
       ],
     );
   }
@@ -236,12 +246,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final dayKey = _dateKey(day);
     final dayHolidays = holidayVisible
         ? (ref
-                    .read(holidayListProvider(
-                        (startDate: hStart, endDate: hEnd)))
-                    .value ??
-                const <Holiday>[])
-            .where((h) => h.holidayDate == dayKey)
-            .toList()
+                      .read(
+                        holidayListProvider((startDate: hStart, endDate: hEnd)),
+                      )
+                      .value ??
+                  const <Holiday>[])
+              .where((h) => h.holidayDate == dayKey)
+              .toList()
         : const <Holiday>[];
     final title = localeIsEn()
         ? '${formatDay(day).md}, ${formatDay(day).dow}'
@@ -276,8 +287,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       final s = e.start;
       final ee = e.end;
       return !(ee.isBefore(dayStart) || s.isAfter(dayEnd));
-    }).toList()
-      ..sort((a, b) => a.start.compareTo(b.start));
+    }).toList()..sort((a, b) => a.start.compareTo(b.start));
   }
 }
 
@@ -309,7 +319,12 @@ class _MonthHeader extends StatelessWidget {
     final t = tokens;
     final l = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x4, PSpace.x8, PSpace.x16, PSpace.x4),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x4,
+        PSpace.x8,
+        PSpace.x16,
+        PSpace.x4,
+      ),
       child: Row(
         children: [
           // 이전 달 버튼
@@ -340,7 +355,9 @@ class _MonthHeader extends StatelessWidget {
             onTap: onFilterTap,
             child: Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x8, vertical: PSpace.x4),
+                horizontal: PSpace.x8,
+                vertical: PSpace.x4,
+              ),
               decoration: BoxDecoration(
                 border: Border.all(color: t.borderSubtle),
                 borderRadius: PRadius.brFull,
@@ -358,8 +375,7 @@ class _MonthHeader extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    if (i < dotColors.length - 1)
-                      const SizedBox(width: 2),
+                    if (i < dotColors.length - 1) const SizedBox(width: 2),
                   ],
                   if (dotColors.isNotEmpty) const SizedBox(width: PSpace.x4),
                   Text(
@@ -384,9 +400,7 @@ class _MonthHeader extends StatelessWidget {
 // ─── 캘린더 필터 sheet ────────────────────────────────────────────────────────
 
 class _CalendarFilterSheetBody extends ConsumerWidget {
-  const _CalendarFilterSheetBody({
-    required this.onManage,
-  });
+  const _CalendarFilterSheetBody({required this.onManage});
   final VoidCallback onManage;
 
   @override
@@ -398,21 +412,25 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
     final holidayVisible = ref.watch(holidayVisibleProvider);
 
     Widget sectionLabel(String text) => Padding(
-          padding: const EdgeInsets.only(top: PSpace.x8, bottom: PSpace.x8),
-          child: Text(
-            text,
-            style: PTypo.caption.copyWith(
-              color: t.fgTertiary,
-              fontWeight: PFontWeight.semi,
-              letterSpacing: 0.3,
-            ),
-          ),
-        );
+      padding: const EdgeInsets.only(top: PSpace.x8, bottom: PSpace.x8),
+      child: Text(
+        text,
+        style: PTypo.caption.copyWith(
+          color: t.fgTertiary,
+          fontWeight: PFontWeight.semi,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
 
     // 컨텐츠 높이에 맞춰 wrap (showPSheet shrinkWrap 모드) → Column 사용.
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
+        PSpace.xl,
+        PSpace.x4,
+        PSpace.xl,
+        PSpace.x24,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -435,8 +453,9 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                 checked: cal.isVisible,
                 onToggle: () async {
                   try {
-                    final repo =
-                        await ref.read(userCalendarRepositoryProvider.future);
+                    final repo = await ref.read(
+                      userCalendarRepositoryProvider.future,
+                    );
                     await repo.toggleVisibility(cal.rowId);
                     ref.invalidate(userCalendarListProvider);
                   } on ApiException {
@@ -444,8 +463,11 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                   } catch (_) {
                     // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
                     if (context.mounted) {
-                      showPSnackBar(context, l.calUpdateFailed,
-                          severity: PSnackSeverity.error);
+                      showPSnackBar(
+                        context,
+                        l.calUpdateFailed,
+                        severity: PSnackSeverity.error,
+                      );
                     }
                   }
                 },
@@ -459,8 +481,7 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
             colorHex: '#c73838',
             name: l.calHolidays,
             checked: holidayVisible,
-            onToggle: () =>
-                ref.read(holidayVisibleProvider.notifier).toggle(),
+            onToggle: () => ref.read(holidayVisibleProvider.notifier).toggle(),
             tokens: t,
           ),
           const SizedBox(height: PSpace.x8),
@@ -514,8 +535,8 @@ class _FilterRow extends StatelessWidget {
     // light fill(다크모드 light variant) 위에서도 체크가 보이도록 fill 명도 기준 대비 색.
     final checkColor =
         ThemeData.estimateBrightnessForColor(color) == Brightness.dark
-            ? Colors.white
-            : const Color(0xFF1A1F2E);
+        ? Colors.white
+        : const Color(0xFF1A1F2E);
     return InkWell(
       onTap: onToggle,
       borderRadius: PRadius.brMd,
@@ -618,7 +639,8 @@ class _CalendarGridSkeleton extends StatelessWidget {
                           child: Padding(
                             // _DayCell 바깥 vertical: x4 정합.
                             padding: const EdgeInsets.symmetric(
-                                vertical: PSpace.x4),
+                              vertical: PSpace.x4,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -636,9 +658,10 @@ class _CalendarGridSkeleton extends StatelessWidget {
                                 if ((w + d) % 3 == 0)
                                   const Padding(
                                     padding: EdgeInsets.only(
-                                        left: PSpace.x4,
-                                        right: PSpace.x4,
-                                        bottom: PSpace.x4),
+                                      left: PSpace.x4,
+                                      right: PSpace.x4,
+                                      bottom: PSpace.x4,
+                                    ),
                                     child: PSkeleton(
                                       height: 16,
                                       borderRadius: PRadius.brSm,
@@ -677,7 +700,8 @@ class _DayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final today = DateTime.now();
-    final isToday = today.year == day.year &&
+    final isToday =
+        today.year == day.year &&
         today.month == day.month &&
         today.day == day.day;
     final isHoliday = holidayName != null && !isOutside;
@@ -729,12 +753,15 @@ class _DayCell extends StatelessWidget {
         const dayNumberArea = PSpace.x24 + PSpace.x4 + PSpace.x4 + PSpace.x4;
         const labelRowHeight = 18.0;
         final available = constraints.maxHeight - dayNumberArea;
-        final totalSlots = available > 0 ? (available / labelRowHeight).floor() : 0;
+        final totalSlots = available > 0
+            ? (available / labelRowHeight).floor()
+            : 0;
         final holidaySlot = isHoliday ? 1 : 0;
         final eventSlots = (totalSlots - holidaySlot).clamp(0, ordered.length);
         final reserveOverflow = ordered.length > eventSlots;
-        final visibleCount =
-            reserveOverflow && eventSlots > 0 ? eventSlots - 1 : eventSlots;
+        final visibleCount = reserveOverflow && eventSlots > 0
+            ? eventSlots - 1
+            : eventSlots;
         final visible = ordered.take(visibleCount).toList();
         final overflow = ordered.length - visible.length;
 
@@ -753,9 +780,15 @@ class _DayCell extends StatelessWidget {
               if (isHoliday)
                 Padding(
                   padding: const EdgeInsets.only(
-                      left: PSpace.x4, right: PSpace.x4, bottom: PSpace.x4),
+                    left: PSpace.x4,
+                    right: PSpace.x4,
+                    bottom: PSpace.x4,
+                  ),
                   child: _CellHolidayLabel(
-                      name: holidayName!, dimmed: isOutside, tokens: t),
+                    name: holidayName!,
+                    dimmed: isOutside,
+                    tokens: t,
+                  ),
                 ),
               for (final ev in visible)
                 _CellEventLabel(
@@ -767,8 +800,10 @@ class _DayCell extends StatelessWidget {
               if (overflow > 0)
                 Padding(
                   padding: const EdgeInsets.only(left: PSpace.x4),
-                  child: Text('+$overflow',
-                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  child: Text(
+                    '+$overflow',
+                    style: PTypo.micro.copyWith(color: t.fgTertiary),
+                  ),
                 ),
             ],
           ),
@@ -814,8 +849,10 @@ class _CellEventLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = solidSwatchColor(
-        context, event.labelColor ?? event.calendarColor ?? event.color,
-        fallback: tokens.fgBrand);
+      context,
+      event.labelColor ?? event.calendarColor ?? event.color,
+      fallback: tokens.fgBrand,
+    );
     // 멀티데이 연속 바: 시작=좌측만 round, 종료=우측만 round, 중간=square + full-bleed
     // (인접 셀과 이어지도록 연결 변은 가로 inset 0). 제목은 시작(first)/단일(none) 만(웹 정합).
     // 색은 dark-aware(solidSwatchColor: 체크박스와 동일 base) + 불투명(chipFill/chipText).
@@ -840,7 +877,9 @@ class _CellEventLabel extends StatelessWidget {
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x4, vertical: PSpace.x0),
+            horizontal: PSpace.x4,
+            vertical: PSpace.x0,
+          ),
           decoration: BoxDecoration(
             color: chipFill(context, base),
             borderRadius: radius,
@@ -879,7 +918,9 @@ class _CellHolidayLabel extends StatelessWidget {
       opacity: dimmed ? 0.5 : 1.0,
       child: Container(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4, vertical: PSpace.x0),
+          horizontal: PSpace.x4,
+          vertical: PSpace.x0,
+        ),
         decoration: BoxDecoration(
           color: chipFill(context, base),
           borderRadius: PRadius.brSm,
@@ -926,7 +967,11 @@ class _DayEventsSheetBody extends StatelessWidget {
       controller: scrollController,
       // 하단 — 플로팅 탭바 보상.
       padding: EdgeInsets.fromLTRB(
-          PSpace.xl, PSpace.x24, PSpace.xl, pTabBarBottomInset(context)),
+        PSpace.xl,
+        PSpace.x24,
+        PSpace.xl,
+        pTabBarBottomInset(context),
+      ),
       children: [
         Row(
           children: [
@@ -1010,8 +1055,10 @@ class _DaySheetHolidayRow extends StatelessWidget {
           Expanded(
             child: Text(
               holiday.holidayName,
-              style: PTypo.body
-                  .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi),
+              style: PTypo.body.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.semi,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1041,8 +1088,11 @@ class _DaySheetEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    final color =
-        solidSwatchColor(context, event.labelColor ?? event.calendarColor ?? event.color, fallback: t.fgBrand);
+    final color = solidSwatchColor(
+      context,
+      event.labelColor ?? event.calendarColor ?? event.color,
+      fallback: t.fgBrand,
+    );
     final timeLabel = event.isAllDayBool ? l.calAllDay : _hhmm(event.start);
     return InkWell(
       onTap: onTap,
@@ -1076,7 +1126,9 @@ class _DaySheetEventRow extends StatelessWidget {
                   Text(
                     event.title,
                     style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1098,8 +1150,11 @@ class _DaySheetEventRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(LucideIcons.chevronRight,
-                size: PSpace.x16, color: t.fgTertiary),
+            Icon(
+              LucideIcons.chevronRight,
+              size: PSpace.x16,
+              color: t.fgTertiary,
+            ),
           ],
         ),
       ),
@@ -1142,8 +1197,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
     final selMonth = widget.initial.month;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

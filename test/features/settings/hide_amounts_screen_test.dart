@@ -66,8 +66,9 @@ void main() {
       initialLocation: '/',
       routes: [
         GoRoute(
-            path: '/',
-            builder: (_, _) => const Scaffold(body: Text('보안'))),
+          path: '/',
+          builder: (_, _) => const Scaffold(body: Text('보안')),
+        ),
         GoRoute(path: '/hide', builder: (_, _) => const HideAmountsScreen()),
       ],
     );
@@ -114,10 +115,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(auth.calls, 0);
-      expect(
-        container.read(settingsProvider).value?.hideCards,
-        {'home.netWorth'},
-      );
+      expect(container.read(settingsProvider).value?.hideCards, {
+        'home.netWorth',
+      });
     });
 
     testWidgets('푸는 게 섞이면 저장할 때 인증을 한 번만 받는다', (tester) async {
@@ -163,10 +163,9 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(
-        container.read(settingsProvider).value?.hideCards,
-        {'home.netWorth'},
-      );
+      expect(container.read(settingsProvider).value?.hideCards, {
+        'home.netWorth',
+      });
     });
 
     testWidgets('저장 버튼은 바꾼 게 있어야 눌린다', (tester) async {
@@ -174,10 +173,9 @@ void main() {
       await pumpScreen(tester, auth: auth);
 
       final button = tester.widget<InkWell>(
-        find.ancestor(
-          of: find.text('저장'),
-          matching: find.byType(InkWell),
-        ).first,
+        find
+            .ancestor(of: find.text('저장'), matching: find.byType(InkWell))
+            .first,
       );
       expect(button.onTap, isNull);
 
@@ -185,10 +183,9 @@ void main() {
       await tester.pumpAndSettle();
 
       final enabled = tester.widget<InkWell>(
-        find.ancestor(
-          of: find.text('저장'),
-          matching: find.byType(InkWell),
-        ).first,
+        find
+            .ancestor(of: find.text('저장'), matching: find.byType(InkWell))
+            .first,
       );
       expect(enabled.onTap, isNotNull);
     });

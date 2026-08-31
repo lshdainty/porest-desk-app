@@ -120,17 +120,23 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x24, vertical: PSpace.x24),
+            horizontal: PSpace.x24,
+            vertical: PSpace.x24,
+          ),
           children: [
-            Text(l.devicesIntro,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5)),
+            Text(
+              l.devicesIntro,
+              style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5),
+            ),
             const SizedBox(height: PSpace.x24),
             listAsync.when(
               loading: () => const PListSkeleton(rows: 3, showAvatar: true),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text('${l.devicesLoadError}\n$e',
-                    style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+                child: Text(
+                  '${l.devicesLoadError}\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                ),
               ),
               data: (devices) => devices.isEmpty
                   ? PEmptyState(
@@ -191,11 +197,11 @@ class _DeviceRow extends StatelessWidget {
 
   /// 아이콘은 서버가 준 형태로 고른다 — 기기 이름 문자열을 여기서 다시 뜯지 않는다.
   IconData get _icon => switch (device.deviceKind) {
-        DeviceKind.mobile => LucideIcons.smartphone,
-        DeviceKind.tablet => LucideIcons.tablet,
-        DeviceKind.desktop => LucideIcons.monitor,
-        DeviceKind.unknown => LucideIcons.circleHelp,
-      };
+    DeviceKind.mobile => LucideIcons.smartphone,
+    DeviceKind.tablet => LucideIcons.tablet,
+    DeviceKind.desktop => LucideIcons.monitor,
+    DeviceKind.unknown => LucideIcons.circleHelp,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +217,9 @@ class _DeviceRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-                color: t.bgMuted, borderRadius: PRadius.brMd),
+              color: t.bgMuted,
+              borderRadius: PRadius.brMd,
+            ),
             alignment: Alignment.center,
             child: Icon(_icon, size: 18, color: t.fgSecondary),
           ),
@@ -228,23 +236,29 @@ class _DeviceRow extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: PTypo.body.copyWith(
-                            color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.semi,
+                        ),
                       ),
                     ),
                     if (device.current) ...[
                       const SizedBox(width: 6),
                       PBadge(
-                          label: l.devicesCurrent,
-                          variant: PBadgeVariant.outlineSuccess),
+                        label: l.devicesCurrent,
+                        variant: PBadgeVariant.outlineSuccess,
+                      ),
                     ],
                   ],
                 ),
                 if (when != null) ...[
                   const SizedBox(height: 2),
-                  Text(l.devicesLastUsed(when),
-                      style: PTypo.caption.copyWith(
-                          color: t.fgTertiary,
-                          fontWeight: PFontWeight.regular)),
+                  Text(
+                    l.devicesLastUsed(when),
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      fontWeight: PFontWeight.regular,
+                    ),
+                  ),
                 ],
               ],
             ),

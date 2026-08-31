@@ -70,11 +70,7 @@ class PRadio<T> extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: disabled || selected ? null : () => onChanged!(value),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: Center(child: item),
-        ),
+        child: SizedBox(width: 44, height: 44, child: Center(child: item)),
       ),
     );
   }

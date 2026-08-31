@@ -37,9 +37,7 @@ class _FakeAuth extends AppLockAuth {
 
 ProviderContainer _container({AppLockAuth? auth}) {
   final container = ProviderContainer(
-    overrides: [
-      if (auth != null) appLockAuthProvider.overrideWithValue(auth),
-    ],
+    overrides: [if (auth != null) appLockAuthProvider.overrideWithValue(auth)],
   );
   addTearDown(container.dispose);
   return container;
@@ -102,8 +100,7 @@ void main() {
       expect(container.read(appLockedProvider), false);
     });
 
-    test('사용 중 설정을 켜는 순간에는 잠기지 않는다 — 방금 인증한 사람을 또 세우지 않는다',
-        () async {
+    test('사용 중 설정을 켜는 순간에는 잠기지 않는다 — 방금 인증한 사람을 또 세우지 않는다', () async {
       SharedPreferences.setMockInitialValues({});
       final container = _container();
       container.listen(appLockedProvider, (_, _) {});
@@ -153,8 +150,7 @@ void main() {
       return container;
     }
 
-    testWidgets('잠긴 채 시작 — 자동 프롬프트가 실패하면 잠금 화면을 유지한다',
-        (tester) async {
+    testWidgets('잠긴 채 시작 — 자동 프롬프트가 실패하면 잠금 화면을 유지한다', (tester) async {
       SharedPreferences.setMockInitialValues({PrefsKeys.appLock: true});
       final auth = _FakeAuth(AppLockAuthResult.failure);
       final container = await pumpGate(tester, auth);
@@ -188,8 +184,9 @@ void main() {
       expect(find.text('콘텐츠'), findsOneWidget);
     });
 
-    testWidgets('인증 수단이 사라진 기기는 가두지 않는다 — unavailable 이면 열어 준다',
-        (tester) async {
+    testWidgets('인증 수단이 사라진 기기는 가두지 않는다 — unavailable 이면 열어 준다', (
+      tester,
+    ) async {
       SharedPreferences.setMockInitialValues({PrefsKeys.appLock: true});
       final auth = _FakeAuth(AppLockAuthResult.unavailable);
       final container = await pumpGate(tester, auth);

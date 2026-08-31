@@ -6,10 +6,9 @@ import 'package:flutter/painting.dart';
 /// 의미론적 사용은 [`PorestTokens`](tokens.dart) 를 통해서만 — 컴포넌트는 이 raw 토큰을
 /// 직접 참조하지 말 것 (다크 모드 분기가 깨짐).
 abstract final class PorestPalette {
-
   // Cobalt — primary brand (porest-desk-front `--color-primary: #0147ad` 미러)
   // primary-light: #5fa0e5 — 다크 모드 brand 표현용.
-  static const Color cobalt50  = Color(0xFFF0F6FC);
+  static const Color cobalt50 = Color(0xFFF0F6FC);
   static const Color cobalt100 = Color(0xFFE0EDF8);
   static const Color cobalt200 = Color(0xFFC7DFF6);
   static const Color cobalt300 = Color(0xFF97C2EE);
@@ -34,7 +33,9 @@ abstract final class PorestPalette {
   static const Color slate800 = Color(0xFF353B4D); // border-default-dark
   static const Color slate850 = Color(0xFF2D3346); // surface-input-dark
   static const Color slate900 = Color(0xFF242938); // surface-default-dark
-  static const Color slate950 = Color(0xFF1A1F2E); // bg-page-dark / text-primary (light)
+  static const Color slate950 = Color(
+    0xFF1A1F2E,
+  ); // bg-page-dark / text-primary (light)
 
   // dark 모드 text/border 보조 톤
   static const Color slateDarkText2 = Color(0xFFB0B8C4); // text-secondary-dark

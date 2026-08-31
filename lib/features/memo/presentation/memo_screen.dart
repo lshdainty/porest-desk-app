@@ -350,10 +350,11 @@ class _MemoList extends ConsumerWidget {
                 label: l.actionDelete,
                 icon: LucideIcons.trash2,
                 kind: PSwipeKind.destructive,
-                confirmTitle:
-                    memoActions.deleteConfirmTitle(context, memos[i]),
-                confirmMessage:
-                    memoActions.deleteConfirmMessage(context, memos[i]),
+                confirmTitle: memoActions.deleteConfirmTitle(context, memos[i]),
+                confirmMessage: memoActions.deleteConfirmMessage(
+                  context,
+                  memos[i],
+                ),
                 onSelect: () => memoActions.delete(context, ref, memos[i]),
               ),
             ],
@@ -409,8 +410,10 @@ class _MemoRow extends StatelessWidget {
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration:
-                      BoxDecoration(color: swatch, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: swatch,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
               const SizedBox(width: PSpace.x12),

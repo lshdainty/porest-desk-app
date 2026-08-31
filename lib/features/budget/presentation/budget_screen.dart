@@ -230,7 +230,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         categories: categories,
                         spentByCategory: spentByCategory,
                         warnThreshold: warnThreshold,
-                        masked: ref.watch(hideCardProvider('budget.categories')),
+                        masked: ref.watch(
+                          hideCardProvider('budget.categories'),
+                        ),
                         loading: summaryAsync.isLoading,
                         tokens: t,
                         onGoSettings: () => context.push('/budget/settings'),
@@ -241,7 +243,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         currentYear: _month.year,
                         currentMonth: _month.month,
                         tokens: t,
-                        masked: ref.watch(hideCardProvider('budget.compliance')),
+                        masked: ref.watch(
+                          hideCardProvider('budget.compliance'),
+                        ),
                       ),
                     ],
                   ],
@@ -650,12 +654,16 @@ class _HeaderCard extends StatelessWidget {
             const Spacer(),
             Text(
               remaining >= 0
-                  ? l.budgetRemaining(masked
-                        ? krwMasked(remaining, masked, mask: '••••')
-                        : krwSigned(remaining, false, unit: true))
-                  : l.budgetOverBy(masked
-                        ? krwMasked(-remaining, masked, mask: '••••')
-                        : krwSigned(-remaining, false, unit: true)),
+                  ? l.budgetRemaining(
+                      masked
+                          ? krwMasked(remaining, masked, mask: '••••')
+                          : krwSigned(remaining, false, unit: true),
+                    )
+                  : l.budgetOverBy(
+                      masked
+                          ? krwMasked(-remaining, masked, mask: '••••')
+                          : krwSigned(-remaining, false, unit: true),
+                    ),
               style: PTypo.caption.copyWith(
                 color: remaining >= 0 ? tokens.fgSecondary : tokens.fgExpense,
               ),
@@ -739,9 +747,20 @@ class _HeaderCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     masked
-                        ? l.budgetOverAllocatedWarning(krwMasked(categoryLimitSum - overallLimit, masked, mask: '••••'))
+                        ? l.budgetOverAllocatedWarning(
+                            krwMasked(
+                              categoryLimitSum - overallLimit,
+                              masked,
+                              mask: '••••',
+                            ),
+                          )
                         : l.budgetOverAllocatedWarning(
-                            krwSigned(categoryLimitSum - overallLimit, false, unit: true)),
+                            krwSigned(
+                              categoryLimitSum - overallLimit,
+                              false,
+                              unit: true,
+                            ),
+                          ),
                     style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
                   ),
                 ),
@@ -1276,12 +1295,24 @@ class _CategoryRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     over
-                        ? l.budgetOverBy(masked
-                              ? krwMasked(spent - limit, masked, mask: '••••')
-                              : krwSigned(spent - limit, false, unit: true))
-                        : l.budgetRemaining(masked
-                              ? krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')
-                              : krwSigned((limit - spent).clamp(0, limit), false, unit: true)),
+                        ? l.budgetOverBy(
+                            masked
+                                ? krwMasked(spent - limit, masked, mask: '••••')
+                                : krwSigned(spent - limit, false, unit: true),
+                          )
+                        : l.budgetRemaining(
+                            masked
+                                ? krwMasked(
+                                    (limit - spent).clamp(0, limit),
+                                    masked,
+                                    mask: '••••',
+                                  )
+                                : krwSigned(
+                                    (limit - spent).clamp(0, limit),
+                                    false,
+                                    unit: true,
+                                  ),
+                          ),
                     style: PTypo.caption.copyWith(
                       color: over ? tokens.fgExpense : tokens.fgTertiary,
                     ),
@@ -1577,13 +1608,15 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                   footer: [
                     PChartTooltipFooterRowData(
                       label: l.expSummaryExpense,
-                      value:
-                          masked ? '••••' : krwSigned(r.totalSpent, false, unit: true),
+                      value: masked
+                          ? '••••'
+                          : krwSigned(r.totalSpent, false, unit: true),
                     ),
                     PChartTooltipFooterRowData(
                       label: l.budgetLimit,
-                      value:
-                          masked ? '••••' : krwSigned(r.totalLimit, false, unit: true),
+                      value: masked
+                          ? '••••'
+                          : krwSigned(r.totalLimit, false, unit: true),
                     ),
                   ],
                 );
@@ -1604,22 +1637,22 @@ class _EmptyState extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // 카드 다이어트 — 빈 상태 플랫 (카드 셸 제거).
     return PEmptyState(
-        icon: LucideIcons.target,
-        message: l.budgetEmptyMonth,
-        subMessage: l.budgetEmptyHint,
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
-          vertical: PSpace.x32,
+      icon: LucideIcons.target,
+      message: l.budgetEmptyMonth,
+      subMessage: l.budgetEmptyHint,
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x16,
+        vertical: PSpace.x32,
+      ),
+      action: FilledButton.tonalIcon(
+        onPressed: onAdd,
+        icon: const Icon(LucideIcons.settings, size: 16),
+        label: Text(l.budgetSetup),
+        style: FilledButton.styleFrom(
+          backgroundColor: tokens.bgBrandSubtle,
+          foregroundColor: tokens.fgBrandStrong,
         ),
-        action: FilledButton.tonalIcon(
-          onPressed: onAdd,
-          icon: const Icon(LucideIcons.settings, size: 16),
-          label: Text(l.budgetSetup),
-          style: FilledButton.styleFrom(
-            backgroundColor: tokens.bgBrandSubtle,
-            foregroundColor: tokens.fgBrandStrong,
-          ),
-        ),
+      ),
     );
   }
 }
@@ -1709,72 +1742,72 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            // 페이스 게이지 (minHeight 12)
-            PSkeleton(height: 12, borderRadius: PRadius.brFull),
-            const SizedBox(height: PSpace.x8),
-            Row(
-              children: const [
-                PSkeleton.line(width: 56, height: 12),
-                Spacer(),
-                PSkeleton.line(width: 112, height: 12),
-              ],
-            ),
-            const SizedBox(height: PSpace.x12),
-            Container(
-              padding: const EdgeInsets.only(top: PSpace.x12),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: t.borderSubtle)),
-              ),
-              child: Row(
-                children: [
-                  for (int i = 0; i < 2; i++) ...[
-                    if (i > 0) const SizedBox(width: PSpace.x8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          PSkeleton.line(width: 72, height: 10),
-                          SizedBox(height: 4),
-                          PSkeleton.line(width: 88, height: 20),
-                        ],
-                      ),
-                    ),
-                  ],
+              // 페이스 게이지 (minHeight 12)
+              PSkeleton(height: 12, borderRadius: PRadius.brFull),
+              const SizedBox(height: PSpace.x8),
+              Row(
+                children: const [
+                  PSkeleton.line(width: 56, height: 12),
+                  Spacer(),
+                  PSkeleton.line(width: 112, height: 12),
                 ],
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: PSpace.x12),
+              Container(
+                padding: const EdgeInsets.only(top: PSpace.x12),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
+                ),
+                child: Row(
+                  children: [
+                    for (int i = 0; i < 2; i++) ...[
+                      if (i > 0) const SizedBox(width: PSpace.x8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 72, height: 10),
+                            SizedBox(height: 4),
+                            PSkeleton.line(width: 88, height: 20),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: PSpace.x32),
         // _StatusTiles — 실렌더와 같은 PFlatSection SoT.
         PFlatSection(
           title: l.budgetStatusTitle,
           child: Row(
-              children: [
-                for (int i = 0; i < 2; i++) ...[
-                  if (i > 0) const SizedBox(width: PSpace.x8),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(PSpace.x12),
-                      decoration: BoxDecoration(
-                        color: t.bgSurface,
-                        borderRadius: PRadius.brLg,
-                        border: Border.all(color: t.borderSubtle),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          PSkeleton.line(width: 48, height: 12),
-                          SizedBox(height: PSpace.x4),
-                          PSkeleton.line(width: 64, height: 24),
-                        ],
-                      ),
+            children: [
+              for (int i = 0; i < 2; i++) ...[
+                if (i > 0) const SizedBox(width: PSpace.x8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(PSpace.x12),
+                    decoration: BoxDecoration(
+                      color: t.bgSurface,
+                      borderRadius: PRadius.brLg,
+                      border: Border.all(color: t.borderSubtle),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        PSkeleton.line(width: 48, height: 12),
+                        SizedBox(height: PSpace.x4),
+                        PSkeleton.line(width: 64, height: 24),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ],
-            ),
+            ],
+          ),
         ),
         const SizedBox(height: PSpace.x32),
         // _CategoryListCard — 실렌더와 같은 PFlatSection SoT.
@@ -1786,39 +1819,39 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            for (int i = 0; i < 4; i++) ...[
-              if (i > 0) const SizedBox(height: PSpace.x16),
-              // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
-              Row(
-                children: [
-                  const PSkeleton(width: 36, height: 36),
-                  const SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              for (int i = 0; i < 4; i++) ...[
+                if (i > 0) const SizedBox(height: PSpace.x16),
+                // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
+                Row(
+                  children: [
+                    const PSkeleton(width: 36, height: 36),
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          PSkeleton.line(width: 96, height: 14),
+                          SizedBox(height: 2),
+                          PSkeleton.line(width: 72, height: 12),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: const [
-                        PSkeleton.line(width: 96, height: 14),
+                        PSkeleton.line(width: 56, height: 14),
                         SizedBox(height: 2),
-                        PSkeleton.line(width: 72, height: 12),
+                        PSkeleton.line(width: 40, height: 10),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: const [
-                      PSkeleton.line(width: 56, height: 14),
-                      SizedBox(height: 2),
-                      PSkeleton.line(width: 40, height: 10),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: PSpace.x8),
-              PSkeleton(height: 7, borderRadius: PRadius.brFull),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x8),
+                PSkeleton(height: 7, borderRadius: PRadius.brFull),
+              ],
             ],
-          ],
-        ),
+          ),
         ),
         const SizedBox(height: PSpace.x32),
         // _ComplianceCard — 실렌더와 같은 PFlatSection SoT(headGap 16).

@@ -19,14 +19,18 @@ class _JsRecorder {
 
 void main() {
   group('buildEmbedUrl — 시크릿이 쿼리로 나가지 않는다', () {
-    String url({String symbol = 'AAPL', String range = '1D', String theme = 'light', bool isUs = true}) =>
-        buildEmbedUrl(
-          webBaseUrl: 'https://desk.example.com',
-          symbol: symbol,
-          range: range,
-          theme: theme,
-          isUs: isUs,
-        );
+    String url({
+      String symbol = 'AAPL',
+      String range = '1D',
+      String theme = 'light',
+      bool isUs = true,
+    }) => buildEmbedUrl(
+      webBaseUrl: 'https://desk.example.com',
+      symbol: symbol,
+      range: range,
+      theme: theme,
+      isUs: isUs,
+    );
 
     test('token 파라미터가 아예 없다', () {
       final u = url();
@@ -36,14 +40,21 @@ void main() {
     });
 
     test('range·theme·isUs 는 그대로 실린다 — 첫 페인트 전에 필요한 값들', () {
-      final qp = Uri.parse(url(range: '3개월', theme: 'dark', isUs: false)).queryParameters;
+      final qp = Uri.parse(
+        url(range: '3개월', theme: 'dark', isUs: false),
+      ).queryParameters;
       expect(qp['range'], '3개월');
       expect(qp['theme'], 'dark');
       expect(qp['isUs'], '0');
     });
 
     test('심볼은 경로에 인코딩돼 들어간다', () {
-      expect(url(symbol: '005930').startsWith('https://desk.example.com/embed/stocks/005930'), isTrue);
+      expect(
+        url(
+          symbol: '005930',
+        ).startsWith('https://desk.example.com/embed/stocks/005930'),
+        isTrue,
+      );
       expect(url(symbol: 'BRK/B'), contains('/embed/stocks/BRK%2FB'));
     });
   });
@@ -82,7 +93,9 @@ void main() {
     test('첫 토큰만 있어도 ready 에 나간다 — URL 이 안 싣는 그 토큰', () {
       bridge.pushToken('tok-1');
       bridge.onReady();
-      expect(js.calls, ['window.__tokenBridge && window.__tokenBridge("tok-1")']);
+      expect(js.calls, [
+        'window.__tokenBridge && window.__tokenBridge("tok-1")',
+      ]);
     });
 
     test('ready 후 push 는 즉시 나간다', () {
@@ -107,14 +120,18 @@ void main() {
 
       bridge.onReady();
 
-      expect(js.calls, ['window.__tokenBridge && window.__tokenBridge("tok-3")']);
+      expect(js.calls, [
+        'window.__tokenBridge && window.__tokenBridge("tok-3")',
+      ]);
     });
 
     test('빈 토큰은 무시한다 — 유효한 토큰을 덮지 않는다', () {
       bridge.pushToken('tok-1');
       bridge.pushToken('');
       bridge.onReady();
-      expect(js.calls, ['window.__tokenBridge && window.__tokenBridge("tok-1")']);
+      expect(js.calls, [
+        'window.__tokenBridge && window.__tokenBridge("tok-1")',
+      ]);
     });
 
     test('페이지가 스스로 리로드해 ready 를 다시 보내면 최신값을 다시 밀어넣는다', () {
@@ -125,7 +142,9 @@ void main() {
 
       bridge.onReady(); // 리로드 후 두 번째 ready
 
-      expect(js.calls, ['window.__tokenBridge && window.__tokenBridge("tok-2")']);
+      expect(js.calls, [
+        'window.__tokenBridge && window.__tokenBridge("tok-2")',
+      ]);
     });
 
     test('reset 은 다시 보관 모드로 돌린다 — 새 페이지가 ready 를 알리기 전엔 안 나간다', () {
@@ -140,7 +159,9 @@ void main() {
       expect(js.calls, isEmpty);
 
       bridge.onReady();
-      expect(js.calls, ['window.__tokenBridge && window.__tokenBridge("tok-new")']);
+      expect(js.calls, [
+        'window.__tokenBridge && window.__tokenBridge("tok-new")',
+      ]);
     });
 
     test('reset 은 옛 페이지 앞으로 쌓인 값을 버린다 — 새 URL 이 다시 싣고 간다', () {
@@ -156,7 +177,10 @@ void main() {
     test('인자는 JSON 으로 감싼다 — 따옴표가 든 토큰이 JS 문맥을 깨지 않는다', () {
       bridge.onReady();
       bridge.pushToken('a"b\\c\nd');
-      expect(js.calls.single, r'window.__tokenBridge && window.__tokenBridge("a\"b\\c\nd")');
+      expect(
+        js.calls.single,
+        r'window.__tokenBridge && window.__tokenBridge("a\"b\\c\nd")',
+      );
     });
   });
 }

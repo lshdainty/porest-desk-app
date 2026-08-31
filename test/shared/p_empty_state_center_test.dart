@@ -13,22 +13,28 @@ import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 const _boxWidth = 390.0;
 
 Future<double> _iconCenterX(WidgetTester tester, {String? sub}) async {
-  await tester.pumpWidget(MaterialApp(
-    theme: PorestTheme.light(),
-    home: Scaffold(
-      body: SizedBox(
-        width: _boxWidth,
-        // 실제 관리 화면과 같은 배치 — 헤더 행 + 빈 상태를 start 로 쌓는다.
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20, width: _boxWidth),
-            PEmptyState(icon: LucideIcons.tag, message: '태그가 없어요', subMessage: sub),
-          ],
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: PorestTheme.light(),
+      home: Scaffold(
+        body: SizedBox(
+          width: _boxWidth,
+          // 실제 관리 화면과 같은 배치 — 헤더 행 + 빈 상태를 start 로 쌓는다.
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20, width: _boxWidth),
+              PEmptyState(
+                icon: LucideIcons.tag,
+                message: '태그가 없어요',
+                subMessage: sub,
+              ),
+            ],
+          ),
         ),
       ),
     ),
-  ));
+  );
   await tester.pumpAndSettle();
   return tester.getCenter(find.byIcon(LucideIcons.tag)).dx;
 }

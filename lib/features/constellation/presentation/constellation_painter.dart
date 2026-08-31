@@ -9,14 +9,20 @@ Color constellationColor(BuildContext context, String colorKey) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   return switch (colorKey) {
     'red' => isDark ? PorestPalette.chartRedLight : PorestPalette.chartRed,
-    'orange' => isDark ? PorestPalette.chartOrangeLight : PorestPalette.chartOrange,
-    'yellow' => isDark ? PorestPalette.chartYellowLight : PorestPalette.chartYellow,
-    'green' => isDark ? PorestPalette.chartGreenLight : PorestPalette.chartGreen,
+    'orange' =>
+      isDark ? PorestPalette.chartOrangeLight : PorestPalette.chartOrange,
+    'yellow' =>
+      isDark ? PorestPalette.chartYellowLight : PorestPalette.chartYellow,
+    'green' =>
+      isDark ? PorestPalette.chartGreenLight : PorestPalette.chartGreen,
     'blue' => isDark ? PorestPalette.chartBlueLight : PorestPalette.chartBlue,
-    'indigo' => isDark ? PorestPalette.chartIndigoLight : PorestPalette.chartIndigo,
-    'violet' => isDark ? PorestPalette.chartVioletLight : PorestPalette.chartViolet,
+    'indigo' =>
+      isDark ? PorestPalette.chartIndigoLight : PorestPalette.chartIndigo,
+    'violet' =>
+      isDark ? PorestPalette.chartVioletLight : PorestPalette.chartViolet,
     'pink' => isDark ? PorestPalette.chartPinkLight : PorestPalette.chartPink,
-    'brown' => isDark ? PorestPalette.chartBrownLight : PorestPalette.chartBrown,
+    'brown' =>
+      isDark ? PorestPalette.chartBrownLight : PorestPalette.chartBrown,
     _ => isDark ? PorestPalette.chartGrayLight : PorestPalette.chartGray,
   };
 }
@@ -62,7 +68,11 @@ class ConstellationPainter extends CustomPainter {
 
     // 별 수 적응형 크기 — 실좌표 별자리(2~27별)의 밀집 구간 겹침 방지
     final count = map.pts.length;
-    final strokeScale = count <= 8 ? 0.022 : count <= 15 ? 0.016 : 0.012;
+    final strokeScale = count <= 8
+        ? 0.022
+        : count <= 15
+        ? 0.016
+        : 0.012;
     final linePaint = Paint()
       ..color = color.withValues(alpha: dim ? 0.35 : 0.55)
       ..strokeWidth = size.shortestSide * strokeScale
@@ -88,8 +98,20 @@ class ConstellationPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.shortestSide * 0.014;
 
-    final rLit = size.shortestSide * (count <= 8 ? 0.034 : count <= 15 ? 0.024 : 0.018);
-    final rUnlit = size.shortestSide * (count <= 8 ? 0.026 : count <= 15 ? 0.019 : 0.015);
+    final rLit =
+        size.shortestSide *
+        (count <= 8
+            ? 0.034
+            : count <= 15
+            ? 0.024
+            : 0.018);
+    final rUnlit =
+        size.shortestSide *
+        (count <= 8
+            ? 0.026
+            : count <= 15
+            ? 0.019
+            : 0.015);
     for (var i = 0; i < map.pts.length; i++) {
       final c = at(map.pts[i]);
       if (i < n) {
@@ -103,8 +125,12 @@ class ConstellationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(ConstellationPainter old) =>
-      old.map != map || old.color != color || old.lit != lit || old.dim != dim ||
-      old.glow != glow || old.linesOnly != linesOnly;
+      old.map != map ||
+      old.color != color ||
+      old.lit != lit ||
+      old.dim != dim ||
+      old.glow != glow ||
+      old.linesOnly != linesOnly;
 }
 
 /// 별자리 썸네일 아이콘 — 도감/밤하늘 그리드용.

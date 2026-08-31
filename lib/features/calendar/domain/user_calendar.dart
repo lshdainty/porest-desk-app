@@ -36,20 +36,20 @@ class UserCalendar {
   final int memberCount;
 
   factory UserCalendar.fromJson(Map<String, dynamic> json) => UserCalendar(
-        rowId: (json['rowId'] as num).toInt(),
-        ownerRowId: (json['ownerRowId'] as num?)?.toInt(),
-        ownerName: json['ownerName'] as String?,
-        calendarName: (json['calendarName'] as String?) ?? '',
-        color: json['color'] as String?,
-        sortOrder: (json['sortOrder'] as num?)?.toInt(),
-        isDefault: (json['isDefault'] as bool?) ?? false,
-        isVisible: (json['isVisible'] as bool?) ?? true,
-        inviteCode: json['inviteCode'] as String?,
-        isShared: (json['isShared'] as bool?) ?? false,
-        isOwner: (json['isOwner'] as bool?) ?? true,
-        myRole: (json['myRole'] as String?) ?? 'OWNER',
-        memberCount: (json['memberCount'] as num?)?.toInt() ?? 1,
-      );
+    rowId: (json['rowId'] as num).toInt(),
+    ownerRowId: (json['ownerRowId'] as num?)?.toInt(),
+    ownerName: json['ownerName'] as String?,
+    calendarName: (json['calendarName'] as String?) ?? '',
+    color: json['color'] as String?,
+    sortOrder: (json['sortOrder'] as num?)?.toInt(),
+    isDefault: (json['isDefault'] as bool?) ?? false,
+    isVisible: (json['isVisible'] as bool?) ?? true,
+    inviteCode: json['inviteCode'] as String?,
+    isShared: (json['isShared'] as bool?) ?? false,
+    isOwner: (json['isOwner'] as bool?) ?? true,
+    myRole: (json['myRole'] as String?) ?? 'OWNER',
+    memberCount: (json['memberCount'] as num?)?.toInt() ?? 1,
+  );
 }
 
 /// 캘린더 공유 멤버 — 백엔드 `UserCalendarApiDto.MemberResponse` 매핑.
@@ -71,11 +71,11 @@ class CalendarMember {
   final String? joinedAt;
 
   factory CalendarMember.fromJson(Map<String, dynamic> json) => CalendarMember(
-        rowId: (json['rowId'] as num).toInt(),
-        userRowId: (json['userRowId'] as num?)?.toInt(),
-        userName: (json['userName'] as String?) ?? '',
-        userEmail: json['userEmail'] as String?,
-        permission: (json['permission'] as String?) ?? 'READ',
-        joinedAt: json['joinedAt'] as String?,
-      );
+    rowId: (json['rowId'] as num).toInt(),
+    userRowId: (json['userRowId'] as num?)?.toInt(),
+    userName: (json['userName'] as String?) ?? '',
+    userEmail: json['userEmail'] as String?,
+    permission: (json['permission'] as String?) ?? 'READ',
+    joinedAt: json['joinedAt'] as String?,
+  );
 }

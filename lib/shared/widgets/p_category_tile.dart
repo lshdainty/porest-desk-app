@@ -37,7 +37,8 @@ class PCategoryTile extends StatelessWidget {
           // 비활성 보더 제거(design 신판, 웹 CategoryTile 정합) —
           // transparent 로 두어 active 전환 시 1px 시프트 방지.
           border: Border.all(
-              color: active ? t.borderBrand : Colors.transparent),
+            color: active ? t.borderBrand : Colors.transparent,
+          ),
           borderRadius: PRadius.brLg,
         ),
         child: Column(
@@ -54,13 +55,15 @@ class PCategoryTile extends StatelessWidget {
               child: Icon(icon, size: 18, color: color),
             ),
             const SizedBox(height: 4),
-            Text(name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: PTypo.micro.copyWith(
-                  color: active ? t.fgBrandStrong : t.fgSecondary,
-                  fontWeight: active ? PFontWeight.bold : PFontWeight.medium,
-                )),
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PTypo.micro.copyWith(
+                color: active ? t.fgBrandStrong : t.fgSecondary,
+                fontWeight: active ? PFontWeight.bold : PFontWeight.medium,
+              ),
+            ),
           ],
         ),
       ),

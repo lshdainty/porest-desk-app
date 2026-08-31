@@ -11,18 +11,16 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
 Widget _host(Widget child) => MaterialApp(
-      theme: PorestTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      home: Scaffold(body: child),
-    );
+  theme: PorestTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: const Locale('ko'),
+  home: Scaffold(body: child),
+);
 
 void main() {
   testWidgets('PViewFooter 는 삭제·수정에 아이콘을 두지 않는다', (tester) async {
-    await tester.pumpWidget(_host(
-      PViewFooter(onDelete: () {}, onEdit: () {}),
-    ));
+    await tester.pumpWidget(_host(PViewFooter(onDelete: () {}, onEdit: () {})));
 
     // 라벨은 그대로 있다.
     expect(find.text('삭제'), findsOneWidget);
@@ -37,9 +35,9 @@ void main() {
     final controller = PSheetController()..onDelete = () async {};
     addTearDown(controller.dispose);
 
-    await tester.pumpWidget(_host(
-      PSheetFooter(controller: controller, submitLabel: '저장'),
-    ));
+    await tester.pumpWidget(
+      _host(PSheetFooter(controller: controller, submitLabel: '저장')),
+    );
 
     expect(find.text('삭제'), findsOneWidget);
     expect(find.text('저장'), findsOneWidget);

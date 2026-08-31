@@ -15,9 +15,11 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart' show Expense;
+import 'package:porest_desk_app/features/expense/domain/expense.dart'
+    show Expense;
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart' show DutchAvatar;
+import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart'
+    show DutchAvatar;
 
 /// 더치페이 만들기 — 2단계 마법사 (web `DutchCreateDialog` 미러).
 ///
@@ -34,9 +36,7 @@ void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
   final l = AppLocalizations.of(context);
   // 2단계 마법사인데 제목이 고정이라 참여자 선택 화면에서 어디에 있는지 알 수 없었다.
   // 단계 표기는 로케일이 어순을 바꿀 수 있게 문자열 안에 둔다(웹 dutchPay.stepTitle 정합).
-  final title = ValueNotifier<String>(
-    l.dutchStepTitle(l.dutchCreate, 1, 2),
-  );
+  final title = ValueNotifier<String>(l.dutchStepTitle(l.dutchCreate, 1, 2));
   showPSheet<void>(
     context,
     title: title.value,
@@ -52,7 +52,8 @@ void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
         2,
       ),
     ),
-    footerBuilder: (ctx) => _WizardFooter(controller: controller, bodyKey: bodyKey),
+    footerBuilder: (ctx) =>
+        _WizardFooter(controller: controller, bodyKey: bodyKey),
   ).whenComplete(title.dispose);
 }
 
@@ -97,6 +98,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   /// 참여자 후보 — '나' 고정(0번) + 추천(기존 정산 이름 빈도) + 수동 추가.
   final List<_Pick> _picks = [];
+
   /// 결제한 사람. 기본은 나.
   _Pick? _payer;
 
@@ -264,8 +266,7 @@ class _BodyState extends ConsumerState<_Body> {
     final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         _StepHeader(label: l.dutchCreate, step: 1, t: t),
         const SizedBox(height: PSpace.md),
@@ -343,8 +344,7 @@ class _BodyState extends ConsumerState<_Body> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         _StepHeader(label: l.dutchSelectParticipants, step: 2, t: t),
         const SizedBox(height: PSpace.md),
@@ -357,22 +357,30 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           child: Row(
             children: [
-              Text(l.dutchNSelected(n),
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                l.dutchNSelected(n),
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const Spacer(),
               RichText(
-                text: TextSpan(children: [
-                  TextSpan(
-                    text: '${l.dutchPerPersonLabel} ',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-                  ),
-                  TextSpan(
-                    text: krwSigned(perPerson, false, unit: true),
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgBrand, fontWeight: PFontWeight.bold),
-                  ),
-                ]),
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${l.dutchPerPersonLabel} ',
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                    ),
+                    TextSpan(
+                      text: krwSigned(perPerson, false, unit: true),
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgBrand,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -447,8 +455,8 @@ class _PickRow extends StatelessWidget {
     final noteText = isPayer
         ? l.dutchPayer
         : (pick.recommendCount != null
-            ? l.dutchSettledTogetherCount(pick.recommendCount!)
-            : null);
+              ? l.dutchSettledTogetherCount(pick.recommendCount!)
+              : null);
     return InkWell(
       onTap: onToggle,
       borderRadius: PRadius.brMd,
@@ -520,8 +528,7 @@ class _PickRow extends StatelessWidget {
 
 /// 마법사 단계 표시 — '제목' + 'N/2' 칩.
 class _StepHeader extends StatelessWidget {
-  const _StepHeader(
-      {required this.label, required this.step, required this.t});
+  const _StepHeader({required this.label, required this.step, required this.t});
   final String label;
   final int step;
   final PorestTokens t;
@@ -530,9 +537,13 @@ class _StepHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(label,
-              style: PTypo.body.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+          child: Text(
+            label,
+            style: PTypo.body.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -540,9 +551,13 @@ class _StepHeader extends StatelessWidget {
             color: t.bgSunken,
             borderRadius: PRadius.brFull,
           ),
-          child: Text('$step / 2',
-              style: PTypo.micro.copyWith(
-                  color: t.fgSecondary, fontWeight: PFontWeight.bold)),
+          child: Text(
+            '$step / 2',
+            style: PTypo.micro.copyWith(
+              color: t.fgSecondary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ),
       ],
     );
@@ -555,8 +570,7 @@ class _Label extends StatelessWidget {
   final PorestTokens t;
   @override
   Widget build(BuildContext context) {
-    return Text(text,
-        style: PTypo.caption.copyWith(color: t.fgSecondary));
+    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 
@@ -564,7 +578,9 @@ class _Label extends StatelessWidget {
 class _ThousandsFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (digits.isEmpty) {
       return const TextEditingValue(text: '');

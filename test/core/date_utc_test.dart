@@ -13,18 +13,24 @@ void main() {
   });
 
   test('Z 가 붙어 오면 그대로 존중한다 — 두 번 보정하지 않는다', () {
-    expect(parseServerUtc('2026-08-24T10:30:00Z')!.toUtc(),
-        DateTime.utc(2026, 8, 24, 10, 30));
+    expect(
+      parseServerUtc('2026-08-24T10:30:00Z')!.toUtc(),
+      DateTime.utc(2026, 8, 24, 10, 30),
+    );
   });
 
   test('오프셋이 붙어 오면 그대로 존중한다', () {
-    expect(parseServerUtc('2026-08-24T19:30:00+09:00')!.toUtc(),
-        DateTime.utc(2026, 8, 24, 10, 30));
+    expect(
+      parseServerUtc('2026-08-24T19:30:00+09:00')!.toUtc(),
+      DateTime.utc(2026, 8, 24, 10, 30),
+    );
   });
 
   test('밀리초가 붙어도 읽는다', () {
-    expect(parseServerUtc('2026-08-24T10:30:00.123')!.toUtc(),
-        DateTime.utc(2026, 8, 24, 10, 30, 0, 123));
+    expect(
+      parseServerUtc('2026-08-24T10:30:00.123')!.toUtc(),
+      DateTime.utc(2026, 8, 24, 10, 30, 0, 123),
+    );
   });
 
   test('없거나 못 읽는 값은 null — 화면이 시각을 빼고 그린다', () {
@@ -58,11 +64,15 @@ void main() {
     });
 
     test('시각이 붙으면 그대로 받는다 — 자정도 날짜만 있는 값이 아니다', () {
-      expect(parseServerUtc('2026-08-24T00:00:00')!.toUtc(),
-          DateTime.utc(2026, 8, 24));
+      expect(
+        parseServerUtc('2026-08-24T00:00:00')!.toUtc(),
+        DateTime.utc(2026, 8, 24),
+      );
       // 공백 구분자(Dart `DateTime.parse` 허용 형태)도 시각이 있으면 통과한다.
-      expect(parseServerUtc('2026-08-24 10:30:00')!.toUtc(),
-          DateTime.utc(2026, 8, 24, 10, 30));
+      expect(
+        parseServerUtc('2026-08-24 10:30:00')!.toUtc(),
+        DateTime.utc(2026, 8, 24, 10, 30),
+      );
     });
   });
 
@@ -76,14 +86,18 @@ void main() {
     }
 
     test('시간대 표시가 없는 값은 UTC 로 읽어 로컬 날짜로 조립한다', () {
-      expect(localDateKey('2026-08-24T10:30:00'),
-          expected(DateTime.utc(2026, 8, 24, 10, 30)));
+      expect(
+        localDateKey('2026-08-24T10:30:00'),
+        expected(DateTime.utc(2026, 8, 24, 10, 30)),
+      );
     });
 
     test('UTC 오후 늦은 시각은 로컬에서 다음 날 — 잘라 쓰면 하루 앞이 나온다', () {
       // KST(+9) 기준 2026-08-25 00:30. substring(0, 10) 은 '2026-08-24' 를 준다.
-      expect(localDateKey('2026-08-24T15:30:00'),
-          expected(DateTime.utc(2026, 8, 24, 15, 30)));
+      expect(
+        localDateKey('2026-08-24T15:30:00'),
+        expected(DateTime.utc(2026, 8, 24, 15, 30)),
+      );
       // 기기가 KST 면 실제로 하루 넘어간 값이어야 한다.
       if (DateTime.utc(2026, 8, 24, 15, 30).toLocal().day == 25) {
         expect(localDateKey('2026-08-24T15:30:00'), '2026-08-25');
@@ -91,23 +105,31 @@ void main() {
     });
 
     test('UTC 새벽은 로컬에서 같은 날 — 두 값이 갈리지 않는다', () {
-      expect(localDateKey('2026-08-24T00:30:00'),
-          expected(DateTime.utc(2026, 8, 24, 0, 30)));
+      expect(
+        localDateKey('2026-08-24T00:30:00'),
+        expected(DateTime.utc(2026, 8, 24, 0, 30)),
+      );
     });
 
     test('연말 자정 근처는 해까지 넘어간다', () {
-      expect(localDateKey('2026-12-31T15:30:00'),
-          expected(DateTime.utc(2026, 12, 31, 15, 30)));
+      expect(
+        localDateKey('2026-12-31T15:30:00'),
+        expected(DateTime.utc(2026, 12, 31, 15, 30)),
+      );
     });
 
     test('Z 가 붙은 값과 안 붙은 값이 같은 키로 나온다 — 낙관적 갱신과 재조회가 안 갈린다', () {
-      expect(localDateKey('2026-08-24T15:30:00'),
-          localDateKey('2026-08-24T15:30:00Z'));
+      expect(
+        localDateKey('2026-08-24T15:30:00'),
+        localDateKey('2026-08-24T15:30:00Z'),
+      );
     });
 
     test('오프셋이 붙어 오면 그대로 존중한다', () {
-      expect(localDateKey('2026-08-25T00:30:00+09:00'),
-          expected(DateTime.utc(2026, 8, 24, 15, 30)));
+      expect(
+        localDateKey('2026-08-25T00:30:00+09:00'),
+        expected(DateTime.utc(2026, 8, 24, 15, 30)),
+      );
     });
 
     test('없거나 못 읽는 값은 null — 호출부가 폴백을 고른다', () {
@@ -126,13 +148,17 @@ void main() {
     }
 
     test('UTC 를 로컬 날짜·시각으로 찍는다', () {
-      expect(localDateTime('2026-08-24T15:30:00'),
-          expected(DateTime.utc(2026, 8, 24, 15, 30)));
+      expect(
+        localDateTime('2026-08-24T15:30:00'),
+        expected(DateTime.utc(2026, 8, 24, 15, 30)),
+      );
     });
 
     test('날짜 부분은 localDateKey 와 같다', () {
-      expect(localDateTime('2026-08-24T15:30:00')!.substring(0, 10),
-          localDateKey('2026-08-24T15:30:00'));
+      expect(
+        localDateTime('2026-08-24T15:30:00')!.substring(0, 10),
+        localDateKey('2026-08-24T15:30:00'),
+      );
     });
 
     test('없거나 못 읽는 값은 null', () {
@@ -169,24 +195,32 @@ void main() {
     }
 
     test('시간대 표시가 없는 값은 UTC 로 읽어 로컬로 찍는다', () {
-      expect(monthDayTime('2026-08-24T10:30:00'),
-          expected(DateTime.utc(2026, 8, 24, 10, 30)));
+      expect(
+        monthDayTime('2026-08-24T10:30:00'),
+        expected(DateTime.utc(2026, 8, 24, 10, 30)),
+      );
     });
 
     test('자정 근처는 날짜까지 넘어간다 — 잘라 쓰던 시절의 하루 오차', () {
       // KST 라면 09-01 06:00 — 잘라 쓰던 시절엔 08/31 21:00 으로 하루 앞이 찍혔다.
-      expect(monthDayTime('2026-08-31T21:00:00'),
-          expected(DateTime.utc(2026, 8, 31, 21, 0)));
+      expect(
+        monthDayTime('2026-08-31T21:00:00'),
+        expected(DateTime.utc(2026, 8, 31, 21, 0)),
+      );
     });
 
     test('Z 가 붙은 값과 안 붙은 값이 같은 시각으로 나온다', () {
-      expect(monthDayTime('2026-08-24T10:30:00'),
-          monthDayTime('2026-08-24T10:30:00Z'));
+      expect(
+        monthDayTime('2026-08-24T10:30:00'),
+        monthDayTime('2026-08-24T10:30:00Z'),
+      );
     });
 
     test('초·밀리초가 붙어도 분까지만 찍는다', () {
-      expect(monthDayTime('2026-08-24T10:30:45.123'),
-          expected(DateTime.utc(2026, 8, 24, 10, 30)));
+      expect(
+        monthDayTime('2026-08-24T10:30:45.123'),
+        expected(DateTime.utc(2026, 8, 24, 10, 30)),
+      );
     });
 
     test('없거나 못 읽는 값은 빈 문자열 — 라벨이 다른 문자열에 이어 붙는다', () {

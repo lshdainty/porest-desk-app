@@ -8,8 +8,9 @@ import 'package:porest_desk_app/core/format/format_locale.dart';
 String krw(int n, {bool sign = false, bool abs = false}) {
   final v = abs ? n.abs() : n;
   // 천단위 콤마 그룹핑은 ko/en 동일('10,000') → ko 출력 회귀 0. locale 만 현재값으로.
-  final formatted =
-      NumberFormat.decimalPattern(localeIsEn() ? 'en' : 'ko_KR').format(v);
+  final formatted = NumberFormat.decimalPattern(
+    localeIsEn() ? 'en' : 'ko_KR',
+  ).format(v);
   if (sign && n > 0) return '+$formatted';
   return formatted;
 }
@@ -18,8 +19,13 @@ String krw(int n, {bool sign = false, bool abs = false}) {
 const String kHideMask = '••••••';
 
 /// 금액 숨김(마스킹) 토글이 켜진 경우 [mask] 점으로 대체.
-String krwMasked(int n, bool masked,
-    {bool sign = false, bool abs = false, String mask = kHideMask}) {
+String krwMasked(
+  int n,
+  bool masked, {
+  bool sign = false,
+  bool abs = false,
+  String mask = kHideMask,
+}) {
   if (masked) return mask;
   return krw(n, sign: sign, abs: abs);
 }
@@ -28,8 +34,13 @@ String krwMasked(int n, bool masked,
 ///
 /// web `MaskAmount`(부호를 마스크 안에 포함) + `HideUnit`(원) 정합 —
 /// 금액을 숨겼을 때 `+`/`-`·`원` 이 같이 사라지고 점만 남도록.
-String krwSigned(int n, bool masked,
-    {String sign = '', bool unit = false, String mask = kHideMask}) {
+String krwSigned(
+  int n,
+  bool masked, {
+  String sign = '',
+  bool unit = false,
+  String mask = kHideMask,
+}) {
   if (masked) return mask;
   // 통화 단위: ko '원' 접미 / en '₩' 접두 (부호는 항상 최선두). unit=false 면 숫자만.
   if (unit && localeIsEn()) return '$sign₩${krw(n)}';

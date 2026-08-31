@@ -79,7 +79,9 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x24, vertical: PSpace.x24),
+            horizontal: PSpace.x24,
+            vertical: PSpace.x24,
+          ),
           children: [
             _IntroCard(tokens: t),
             const SizedBox(height: PSpace.x32),
@@ -87,8 +89,10 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
               loading: () => const PListSkeleton(rows: 4, showAvatar: true),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text('${l.calCalendarLoadError}\n$e',
-                    style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+                child: Text(
+                  '${l.calCalendarLoadError}\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                ),
               ),
               data: (calendars) => _CalendarSections(
                 calendars: calendars,
@@ -109,8 +113,11 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
 (String, PBadgeVariant, IconData) _roleStyle(AppLocalizations l, String role) =>
     switch (role) {
       'OWNER' => (l.calRoleOwner, PBadgeVariant.outlineInfo, LucideIcons.crown),
-      'EDIT' =>
-        (l.calRoleEditor, PBadgeVariant.outlineSuccess, LucideIcons.pencil),
+      'EDIT' => (
+        l.calRoleEditor,
+        PBadgeVariant.outlineSuccess,
+        LucideIcons.pencil,
+      ),
       _ => (l.calRoleViewer, PBadgeVariant.outline, LucideIcons.eye),
     };
 
@@ -131,7 +138,10 @@ class _IntroCard extends StatelessWidget {
             width: 36,
             height: 36,
             // fill 은 다크에서도 primary 고정(bgBrandSolid) — bgBrand 는 다크 cobalt400 으로 밝아짐(web 정합).
-            decoration: BoxDecoration(color: t.bgBrandSolid, borderRadius: PRadius.brMd),
+            decoration: BoxDecoration(
+              color: t.bgBrandSolid,
+              borderRadius: PRadius.brMd,
+            ),
             alignment: Alignment.center,
             child: Icon(LucideIcons.users, size: 18, color: t.fgOnBrand),
           ),
@@ -140,12 +150,18 @@ class _IntroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.calShareIntroTitle,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  l.calShareIntroTitle,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(l.calShareIntroBody,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                Text(
+                  l.calShareIntroBody,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
               ],
             ),
           ),
@@ -156,7 +172,11 @@ class _IntroCard extends StatelessWidget {
 }
 
 class _CalendarSections extends StatelessWidget {
-  const _CalendarSections({required this.calendars, required this.tokens, required this.onCreate});
+  const _CalendarSections({
+    required this.calendars,
+    required this.tokens,
+    required this.onCreate,
+  });
   final List<UserCalendar> calendars;
   final PorestTokens tokens;
   final VoidCallback onCreate;
@@ -185,14 +205,25 @@ class _CalendarSections extends StatelessWidget {
           ),
         ),
         const SizedBox(height: PSpace.x32),
-        _Section(title: l.calSharedCalendarsCount(shared.length), tokens: t, calendars: shared, emptyText: l.calNoSharedCalendars),
+        _Section(
+          title: l.calSharedCalendarsCount(shared.length),
+          tokens: t,
+          calendars: shared,
+          emptyText: l.calNoSharedCalendars,
+        ),
       ],
     );
   }
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.tokens, required this.calendars, required this.emptyText, this.action});
+  const _Section({
+    required this.title,
+    required this.tokens,
+    required this.calendars,
+    required this.emptyText,
+    this.action,
+  });
   final String title;
   final PorestTokens tokens;
   final List<UserCalendar> calendars;
@@ -211,7 +242,13 @@ class _Section extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+            Text(
+              title,
+              style: PTypo.bodySm.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
             ?action,
           ],
         ),
@@ -220,8 +257,16 @@ class _Section extends StatelessWidget {
           Padding(
             padding: EdgeInsets.zero,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: PSpace.x16),
-              child: Center(child: Text(emptyText, style: PTypo.bodySm.copyWith(color: t.fgTertiary))),
+              padding: const EdgeInsets.symmetric(
+                vertical: 28,
+                horizontal: PSpace.x16,
+              ),
+              child: Center(
+                child: Text(
+                  emptyText,
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                ),
+              ),
             ),
           )
         else
@@ -252,7 +297,11 @@ class _CalendarRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    final color = resolveChartColor(context, calendar.color, fallback: t.fgBrand);
+    final color = resolveChartColor(
+      context,
+      calendar.color,
+      fallback: t.fgBrand,
+    );
     final (roleLabel, roleVariant, _) = _roleStyle(l, calendar.myRole);
     return InkWell(
       onTap: () => _showManageSheet(context, ref, calendar),
@@ -263,7 +312,10 @@ class _CalendarRow extends ConsumerWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: softBg(context, color), borderRadius: PRadius.brMd),
+              decoration: BoxDecoration(
+                color: softBg(context, color),
+                borderRadius: PRadius.brMd,
+              ),
               alignment: Alignment.center,
               child: Icon(LucideIcons.calendar, size: 18, color: color),
             ),
@@ -275,21 +327,35 @@ class _CalendarRow extends ConsumerWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(calendar.calendarName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                        child: Text(
+                          calendar.calendarName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.body.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                        ),
                       ),
                       if (calendar.isDefault) ...[
                         const SizedBox(width: 6),
-                        PBadge(label: l.calDefault, variant: PBadgeVariant.secondary),
+                        PBadge(
+                          label: l.calDefault,
+                          variant: PBadgeVariant.secondary,
+                        ),
                       ],
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(calendar.memberCount <= 1 ? l.calOnlyMe : l.calMemberCount(calendar.memberCount),
-                      style: PTypo.caption
-                          .copyWith(color: t.fgTertiary, fontWeight: PFontWeight.regular)),
+                  Text(
+                    calendar.memberCount <= 1
+                        ? l.calOnlyMe
+                        : l.calMemberCount(calendar.memberCount),
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      fontWeight: PFontWeight.regular,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -329,7 +395,10 @@ class _JoinCard extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
+            decoration: BoxDecoration(
+              color: t.bgMuted,
+              borderRadius: PRadius.brMd,
+            ),
             alignment: Alignment.center,
             child: Icon(LucideIcons.link, size: 18, color: t.fgSecondary),
           ),
@@ -338,16 +407,28 @@ class _JoinCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.calJoinByCode,
-                    style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  l.calJoinByCode,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(l.calJoinCardBody,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                Text(
+                  l.calJoinCardBody,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
               ],
             ),
           ),
           const SizedBox(width: PSpace.x8),
-          PButton(label: l.calJoin, variant: PButtonVariant.secondary, size: PButtonSize.sm, onPressed: onJoin),
+          PButton(
+            label: l.calJoin,
+            variant: PButtonVariant.secondary,
+            size: PButtonSize.sm,
+            onPressed: onJoin,
+          ),
         ],
       ),
     );
@@ -367,7 +448,10 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
     controller.setSubmitting(true);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
-      await repo.create(calendarName: nameCtrl.text.trim(), color: selectedColor);
+      await repo.create(
+        calendarName: nameCtrl.text.trim(),
+        color: selectedColor,
+      );
       ref.invalidate(userCalendarListProvider);
       if (!context.mounted) return;
       // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
@@ -389,9 +473,17 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
       return StatefulBuilder(
         builder: (ctx, setSheet) => ListView(
           controller: scrollCtrl,
-          padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
+          padding: const EdgeInsets.fromLTRB(
+            PSpace.xl,
+            0,
+            PSpace.xl,
+            PSpace.x16,
+          ),
           children: [
-            Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            Text(
+              l.calFieldName,
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+            ),
             const SizedBox(height: PSpace.x4),
             PTextInput(
               controller: nameCtrl,
@@ -399,14 +491,21 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
               onChanged: (v) => controller.setCanSubmit(v.trim().isNotEmpty),
             ),
             const SizedBox(height: PSpace.x12),
-            Text(l.calFieldColor, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            Text(
+              l.calFieldColor,
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+            ),
             const SizedBox(height: PSpace.x8),
-            PColorPicker(selected: selectedColor, onChanged: (hex) => setSheet(() => selectedColor = hex)),
+            PColorPicker(
+              selected: selectedColor,
+              onChanged: (hex) => setSheet(() => selectedColor = hex),
+            ),
           ],
         ),
       );
     },
-    footerBuilder: (ctx) => PSheetFooter(controller: controller, submitLabel: l.calCreate),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: l.calCreate),
   );
 }
 
@@ -427,7 +526,11 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
       if (!context.mounted) return;
       // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
       Navigator.of(context, rootNavigator: true).pop();
-      showPSnackBar(context, l.calJoinedCalendar(joined.calendarName), severity: PSnackSeverity.success);
+      showPSnackBar(
+        context,
+        l.calJoinedCalendar(joined.calendarName),
+        severity: PSnackSeverity.success,
+      );
     } on ApiException {
       if (!context.mounted) return;
     } finally {
@@ -446,24 +549,34 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
         controller: scrollCtrl,
         padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
         children: [
-          Text(l.calInviteCode, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(
+            l.calInviteCode,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: codeCtrl,
             placeholder: l.calInviteCodePlaceholder,
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+            ],
             onChanged: (v) => controller.setCanSubmit(v.trim().isNotEmpty),
           ),
         ],
       );
     },
-    footerBuilder: (ctx) => PSheetFooter(controller: controller, submitLabel: l.calJoin),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: l.calJoin),
   );
 }
 
 // ─── 관리 (편집/공유/멤버/삭제) ──────────────────────────────
 
-void _showManageSheet(BuildContext context, WidgetRef ref, UserCalendar calendar) {
+void _showManageSheet(
+  BuildContext context,
+  WidgetRef ref,
+  UserCalendar calendar,
+) {
   final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
@@ -471,7 +584,8 @@ void _showManageSheet(BuildContext context, WidgetRef ref, UserCalendar calendar
     title: l.calManageTitle(calendar.calendarName),
     // 컨텐츠 높이만큼 wrap (아래 빈 공간 제거).
     shrinkWrap: true,
-    contentBuilder: (ctx, _) => _ManageBody(calendar: calendar, controller: controller),
+    contentBuilder: (ctx, _) =>
+        _ManageBody(calendar: calendar, controller: controller),
     footerBuilder: (ctx) => calendar.isOwner
         // 관리 시트는 상세 화면이 따로 없어 폼이 곧 상세다 — 삭제를 남기고 닫기는
         // 우상단 X 에 맡긴다(spec drawer.md 액션 구성 · 상세 화면이 없는 흐름).
@@ -479,7 +593,7 @@ void _showManageSheet(BuildContext context, WidgetRef ref, UserCalendar calendar
             controller: controller,
             submitLabel: l.actionSave,
             deleteLabel: l.calDeleteCalendar,
-                )
+          )
         : Row(
             children: [
               const Spacer(),
@@ -511,8 +625,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
   UserCalendar get cal => widget.calendar;
   bool get isOwner => cal.isOwner;
   // 이름/색상이 저장된 값과 달라졌는지 — footer 저장 버튼 활성 기준.
-  bool get _dirty =>
-      _nameCtrl.text.trim() != _baseName || _color != _baseColor;
+  bool get _dirty => _nameCtrl.text.trim() != _baseName || _color != _baseColor;
 
   @override
   void initState() {
@@ -539,7 +652,11 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
     widget.controller.setSubmitting(true);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
-      await repo.update(id: cal.rowId, calendarName: _nameCtrl.text.trim(), color: _color);
+      await repo.update(
+        id: cal.rowId,
+        calendarName: _nameCtrl.text.trim(),
+        color: _color,
+      );
       ref.invalidate(userCalendarListProvider);
       _baseName = _nameCtrl.text.trim();
       _baseColor = _color;
@@ -558,7 +675,11 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       await repo.regenerateInviteCode(cal.rowId);
       ref.invalidate(userCalendarListProvider);
       if (mounted) {
-        showPSnackBar(context, l.calInviteCodeRegenerated, severity: PSnackSeverity.success);
+        showPSnackBar(
+          context,
+          l.calInviteCodeRegenerated,
+          severity: PSnackSeverity.success,
+        );
       }
     } on ApiException {
       // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
@@ -569,7 +690,11 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
     final l = AppLocalizations.of(context);
     await Clipboard.setData(ClipboardData(text: cal.inviteCode ?? ''));
     if (mounted) {
-      showPSnackBar(context, l.calInviteCodeCopied, severity: PSnackSeverity.success);
+      showPSnackBar(
+        context,
+        l.calInviteCodeCopied,
+        severity: PSnackSeverity.success,
+      );
     }
   }
 
@@ -637,61 +762,89 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-        if (isOwner) ...[
-          Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: _nameCtrl,
-            placeholder: l.calCalendarNameFieldPlaceholder,
-            onChanged: (_) => widget.controller.setCanSubmit(_dirty),
+          if (isOwner) ...[
+            Text(
+              l.calFieldName,
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+            ),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: _nameCtrl,
+              placeholder: l.calCalendarNameFieldPlaceholder,
+              onChanged: (_) => widget.controller.setCanSubmit(_dirty),
+            ),
+            const SizedBox(height: PSpace.x12),
+            Text(
+              l.calFieldColor,
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+            ),
+            const SizedBox(height: PSpace.x8),
+            PColorPicker(
+              selected: _color,
+              onChanged: (hex) {
+                setState(() => _color = hex);
+                widget.controller.setCanSubmit(_dirty);
+              },
+            ),
+            const SizedBox(height: PSpace.x16),
+            Text(
+              l.calInviteCode,
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+            ),
+            const SizedBox(height: PSpace.x4),
+            Row(
+              children: [
+                Expanded(
+                  child: PTextInput(
+                    controller: TextEditingController(
+                      text: cal.inviteCode ?? '',
+                    ),
+                    enabled: false,
+                  ),
+                ),
+                const SizedBox(width: PSpace.x8),
+                PButton.icon(
+                  icon: LucideIcons.copy,
+                  tooltip: l.calCopy,
+                  onPressed: _copyCode,
+                ),
+                PButton.icon(
+                  icon: LucideIcons.refreshCw,
+                  tooltip: l.calRegenerate,
+                  onPressed: _regenerate,
+                ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x16),
+          ],
+          Text(
+            l.calMembers,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
           ),
-          const SizedBox(height: PSpace.x12),
-          Text(l.calFieldColor, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          PColorPicker(
-            selected: _color,
-            onChanged: (hex) {
-              setState(() => _color = hex);
-              widget.controller.setCanSubmit(_dirty);
-            },
+          membersAsync.when(
+            loading: () => const PListSkeleton(rows: 2, showAvatar: true),
+            error: (e, _) => Text(
+              l.calMemberLoadError,
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (members) => Column(
+              children: [
+                for (final m in members)
+                  _MemberRow(
+                    member: m,
+                    tokens: t,
+                    isMe: m.userRowId == myId,
+                    canManage:
+                        isOwner &&
+                        m.permission != 'OWNER' &&
+                        m.userRowId != myId,
+                    onChangeRole: (perm) => _changeRole(m, perm),
+                    onRemove: () => _removeMember(m),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(height: PSpace.x16),
-          Text(l.calInviteCode, style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          Row(
-            children: [
-              Expanded(
-                child: PTextInput(
-                  controller: TextEditingController(text: cal.inviteCode ?? ''),
-                  enabled: false,
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              PButton.icon(icon: LucideIcons.copy, tooltip: l.calCopy, onPressed: _copyCode),
-              PButton.icon(icon: LucideIcons.refreshCw, tooltip: l.calRegenerate, onPressed: _regenerate),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
-        ],
-        Text(l.calMembers, style: PTypo.caption.copyWith(color: t.fgSecondary)),
-        const SizedBox(height: PSpace.x8),
-        membersAsync.when(
-          loading: () => const PListSkeleton(rows: 2, showAvatar: true),
-          error: (e, _) => Text(l.calMemberLoadError, style: PTypo.caption.copyWith(color: t.statusDanger)),
-          data: (members) => Column(
-            children: [
-              for (final m in members)
-                _MemberRow(
-                  member: m,
-                  tokens: t,
-                  isMe: m.userRowId == myId,
-                  canManage: isOwner && m.permission != 'OWNER' && m.userRowId != myId,
-                  onChangeRole: (perm) => _changeRole(m, perm),
-                  onRemove: () => _removeMember(m),
-                ),
-            ],
-          ),
-        ),
         ],
       ),
     );
@@ -727,11 +880,17 @@ class _MemberRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: roleVariant == PBadgeVariant.outline ? t.bgSunken : softBg(context, _roleColor(context, member.permission)),
+              color: roleVariant == PBadgeVariant.outline
+                  ? t.bgSunken
+                  : softBg(context, _roleColor(context, member.permission)),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(roleIcon, size: 16, color: _roleColor(context, member.permission)),
+            child: Icon(
+              roleIcon,
+              size: 16,
+              color: _roleColor(context, member.permission),
+            ),
           ),
           const SizedBox(width: PSpace.x12),
           Expanded(
@@ -740,12 +899,33 @@ class _MemberRow extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(child: Text(member.userName, maxLines: 1, overflow: TextOverflow.ellipsis, style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi))),
-                    if (isMe) ...[const SizedBox(width: 6), Text(l.calMeSuffix, style: PTypo.caption.copyWith(color: t.fgTertiary))],
+                    Flexible(
+                      child: Text(
+                        member.userName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: PTypo.body.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
+                    ),
+                    if (isMe) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        l.calMeSuffix,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
+                    ],
                   ],
                 ),
                 if ((member.userEmail ?? '').isNotEmpty)
-                  Text(member.userEmail!, maxLines: 1, overflow: TextOverflow.ellipsis, style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  Text(
+                    member.userEmail!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
               ],
             ),
           ),
@@ -754,16 +934,30 @@ class _MemberRow extends StatelessWidget {
               iconColor: t.fgTertiary,
               entries: [
                 if (member.permission != 'EDIT')
-                  PDropdownItem(label: l.calChangeToEditor, onTap: () => onChangeRole('EDIT')),
+                  PDropdownItem(
+                    label: l.calChangeToEditor,
+                    onTap: () => onChangeRole('EDIT'),
+                  ),
                 if (member.permission != 'READ')
-                  PDropdownItem(label: l.calChangeToViewer, onTap: () => onChangeRole('READ')),
-                PDropdownItem(label: l.calRemove, onTap: onRemove, destructive: true),
+                  PDropdownItem(
+                    label: l.calChangeToViewer,
+                    onTap: () => onChangeRole('READ'),
+                  ),
+                PDropdownItem(
+                  label: l.calRemove,
+                  onTap: onRemove,
+                  destructive: true,
+                ),
               ],
             )
           else
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: PBadge(label: roleLabel, variant: roleVariant, icon: roleIcon),
+              child: PBadge(
+                label: roleLabel,
+                variant: roleVariant,
+                icon: roleIcon,
+              ),
             ),
         ],
       ),

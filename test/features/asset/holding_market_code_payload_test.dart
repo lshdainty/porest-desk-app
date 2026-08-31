@@ -86,11 +86,7 @@ void main() {
       assetName: '증권계좌',
       assetType: 'INVESTMENT',
       holdings: const [
-        AssetHolding(
-          marketCode: 'NAS',
-          holdingName: '금괴',
-          holdingValue: 1000,
-        ),
+        AssetHolding(marketCode: 'NAS', holdingName: '금괴', holdingValue: 1000),
       ],
     );
 

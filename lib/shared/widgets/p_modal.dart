@@ -261,6 +261,7 @@ Future<T?> showPSheet<T>(
   double minChildSize = 0.5,
   double maxChildSize = 0.95,
   bool shrinkWrap = false,
+
   /// 제목이 시트 안 상태에 따라 바뀌는 경우(단계형 시트). 주면 [title] 대신 이걸 그린다.
   ValueListenable<String>? titleListenable,
 }) {
@@ -273,8 +274,7 @@ Future<T?> showPSheet<T>(
     isScrollControlled: true,
     backgroundColor: context.tokens.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius:
-          BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (sheetCtx) {
       if (shrinkWrap) {
@@ -368,7 +368,11 @@ Widget _buildSheetColumn(
       // 우측은 sm(8) — 닫기 아이콘 버튼이 자체 padding 을 가져 광학적으로 24 에 선다.
       Padding(
         padding: const EdgeInsets.fromLTRB(
-            PSpace.xl, PSpace.md, PSpace.sm, PSpace.xs),
+          PSpace.xl,
+          PSpace.md,
+          PSpace.sm,
+          PSpace.xs,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -377,16 +381,13 @@ Widget _buildSheetColumn(
                   ? Text(title, style: PTypo.h4.copyWith(color: t.fgPrimary))
                   : ValueListenableBuilder<String>(
                       valueListenable: titleListenable,
-                      builder: (_, v, _) => Text(
-                        v,
-                        style: PTypo.h4.copyWith(color: t.fgPrimary),
-                      ),
+                      builder: (_, v, _) =>
+                          Text(v, style: PTypo.h4.copyWith(color: t.fgPrimary)),
                     ),
             ),
             ...headerActions,
             IconButton(
-              icon: Icon(LucideIcons.x,
-                  color: t.fgTertiary, size: PSpace.x20),
+              icon: Icon(LucideIcons.x, color: t.fgTertiary, size: PSpace.x20),
               onPressed: () => Navigator.of(ctx).pop(),
             ),
           ],
@@ -407,7 +408,11 @@ Widget _buildSheetColumn(
       if (footerBuilder != null)
         Container(
           padding: const EdgeInsets.fromLTRB(
-              PSpace.xl, PSpace.md, PSpace.xl, PSpace.lg),
+            PSpace.xl,
+            PSpace.md,
+            PSpace.xl,
+            PSpace.lg,
+          ),
           color: t.bgSurface,
           child: footerBuilder(ctx),
         ),

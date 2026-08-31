@@ -17,7 +17,9 @@ final authRepositoryProvider = FutureProvider<AuthRepository>((ref) async {
 /// - data(user): 로그인됨
 /// - data(null): 로그아웃 / 미인증
 /// - error: 검증 자체가 네트워크 등으로 실패
-final authProvider = AsyncNotifierProvider<AuthNotifier, User?>(AuthNotifier.new);
+final authProvider = AsyncNotifierProvider<AuthNotifier, User?>(
+  AuthNotifier.new,
+);
 
 class AuthNotifier extends AsyncNotifier<User?> {
   @override

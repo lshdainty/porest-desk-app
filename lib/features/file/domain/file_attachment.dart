@@ -21,8 +21,7 @@ class FileAttachment {
   final int? referenceRowId;
   final String? createAt;
 
-  bool get isImage =>
-      (contentType ?? '').startsWith('image/');
+  bool get isImage => (contentType ?? '').startsWith('image/');
 
   factory FileAttachment.fromJson(Map<String, dynamic> json) {
     return FileAttachment(

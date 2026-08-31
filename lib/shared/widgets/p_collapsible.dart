@@ -27,7 +27,8 @@ class PCollapsible extends StatefulWidget {
   final bool? open;
 
   /// trigger builder — `isOpen`을 받아 chevron 회전 등 처리.
-  final Widget Function(BuildContext context, bool isOpen, VoidCallback toggle) trigger;
+  final Widget Function(BuildContext context, bool isOpen, VoidCallback toggle)
+  trigger;
 
   final Widget content;
 
@@ -54,7 +55,10 @@ class _PCollapsibleState extends State<PCollapsible>
       duration: PMotion.base,
       value: _isOpen ? 1 : 0,
     );
-    _heightFactor = CurvedAnimation(parent: _controller, curve: PMotion.standard);
+    _heightFactor = CurvedAnimation(
+      parent: _controller,
+      curve: PMotion.standard,
+    );
   }
 
   @override

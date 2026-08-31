@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
 
-final subscriptionRepositoryProvider = FutureProvider<SubscriptionRepository>((ref) async {
+final subscriptionRepositoryProvider = FutureProvider<SubscriptionRepository>((
+  ref,
+) async {
   final dio = await ref.watch(dioProvider.future);
   return SubscriptionRepository(dio);
 });
@@ -26,7 +28,9 @@ final hasSecuritiesProvider = Provider<bool>((ref) {
   return ref.watch(myFeaturesProvider).asData?.value.hasSecurities ?? false;
 });
 
-final subscriptionPlansProvider = FutureProvider<List<SubscriptionPlanInfo>>((ref) async {
+final subscriptionPlansProvider = FutureProvider<List<SubscriptionPlanInfo>>((
+  ref,
+) async {
   final repo = await ref.watch(subscriptionRepositoryProvider.future);
   return repo.getPlans();
 });
@@ -37,12 +41,15 @@ final mySubscriptionProvider = FutureProvider<SubscriptionInfo?>((ref) async {
 });
 
 /// 전 증권사 연결 상태(미연결 포함). 설정 화면이 목록을 그리는 소스.
-final brokerConnectionsProvider = FutureProvider<List<BrokerConnection>>((ref) async {
+final brokerConnectionsProvider = FutureProvider<List<BrokerConnection>>((
+  ref,
+) async {
   final repo = await ref.watch(subscriptionRepositoryProvider.future);
   return repo.getBrokerConnections();
 });
 
 /// 증권사를 하나라도 연결했는지(동기 — 로딩/에러 시 false).
 final hasBrokerConnectionProvider = Provider<bool>((ref) {
-  return ref.watch(myFeaturesProvider).asData?.value.hasBrokerConnection ?? false;
+  return ref.watch(myFeaturesProvider).asData?.value.hasBrokerConnection ??
+      false;
 });

@@ -154,9 +154,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
     // 분할 내역 — 퀵액션 배지 개수 + 요약 카드(내역·비율) 표시용.
-    final splits = ref.watch(expenseSplitsProvider(e.rowId)).value ?? const <ExpenseSplit>[];
+    final splits =
+        ref.watch(expenseSplitsProvider(e.rowId)).value ??
+        const <ExpenseSplit>[];
     final splitCount = splits.length;
-    final categories = ref.watch(categoriesProvider).value ?? const <ExpenseCategory>[];
+    final categories =
+        ref.watch(categoriesProvider).value ?? const <ExpenseCategory>[];
 
     // 카테고리 색은 다크에서 light variant 로 swap(웹 getPaletteByColor 정합) — parseColor(raw) 금지.
     final fg = resolveChartColor(context, e.categoryColor, fallback: t.fgBrand);
@@ -278,8 +281,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 child: Text(
                   e.exchangeRate != null
                       ? '${formatOriginalAmount(e.originalAmount!, e.originalCurrency!, Localizations.localeOf(context).toString())} × ${_trimRate(e.exchangeRate!)}'
-                      : formatOriginalAmount(e.originalAmount!, e.originalCurrency!,
-                          Localizations.localeOf(context).toString()),
+                      : formatOriginalAmount(
+                          e.originalAmount!,
+                          e.originalCurrency!,
+                          Localizations.localeOf(context).toString(),
+                        ),
                   style: PTypo.body.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.medium,
@@ -338,7 +344,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           PDetailSection(
             child: Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x12, vertical: PSpace.x8),
+                horizontal: PSpace.x12,
+                vertical: PSpace.x8,
+              ),
               decoration: BoxDecoration(
                 color: t.bgMuted,
                 borderRadius: PRadius.brMd,
@@ -348,14 +356,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   Icon(LucideIcons.lock, size: 14, color: t.fgTertiary),
                   const SizedBox(width: PSpace.x8),
                   Expanded(
-                    child: Text(
-                      switch (e.autoSource) {
-                        'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
-                        'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
-                        _ => l.expAutoSourceDefault,
-                      },
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    ),
+                    child: Text(switch (e.autoSource) {
+                      'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
+                      'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
+                      _ => l.expAutoSourceDefault,
+                    }, style: PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
                 ],
               ),
@@ -368,7 +373,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           PDetailSection(
             child: Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x12, vertical: PSpace.x8),
+                horizontal: PSpace.x12,
+                vertical: PSpace.x8,
+              ),
               decoration: BoxDecoration(
                 color: t.bgMuted,
                 borderRadius: PRadius.brMd,
@@ -546,34 +553,34 @@ class _MerchantHistorySection extends ConsumerWidget {
             // 이번 달 내역이므로 연도 없이 날짜만(사용자 결정).
             Padding(
               padding: const EdgeInsets.only(top: PSpace.x12, bottom: 6),
-              child: Builder(builder: (context) {
-                final d = DateTime.tryParse(entry.key);
-                if (d == null) {
-                  return Text(
-                    entry.key,
-                    style:
-                        PTypo.bodySm.copyWith(color: tokens.fgSecondary),
-                  );
-                }
-                final label = formatDay(d);
-                return Row(
-                  children: [
-                    Text(
-                      label.md,
-                      style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: PFontWeight.bold,
+              child: Builder(
+                builder: (context) {
+                  final d = DateTime.tryParse(entry.key);
+                  if (d == null) {
+                    return Text(
+                      entry.key,
+                      style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
+                    );
+                  }
+                  final label = formatDay(d);
+                  return Row(
+                    children: [
+                      Text(
+                        label.md,
+                        style: PTypo.bodySm.copyWith(
+                          color: tokens.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: PSpace.x8),
-                    Text(
-                      label.dow,
-                      style:
-                          PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                    ),
-                  ],
-                );
-              }),
+                      const SizedBox(width: PSpace.x8),
+                      Text(
+                        label.dow,
+                        style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
             for (final h in entry.value)
               ExpenseRow(
@@ -616,8 +623,10 @@ class _SplitSummaryCard extends StatelessWidget {
   final PorestTokens tokens;
 
   Color _colorFor(BuildContext context, int categoryRowId) => resolveChartColor(
-      context, categories.byRowId(categoryRowId)?.color,
-      fallback: tokens.fgBrand);
+    context,
+    categories.byRowId(categoryRowId)?.color,
+    fallback: tokens.fgBrand,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -631,13 +640,16 @@ class _SplitSummaryCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${l.expTotal} ${krwSigned(total, masked, unit: true)}',
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            Text(
+              '${l.expTotal} ${krwSigned(total, masked, unit: true)}',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
             const SizedBox(width: 6),
             Icon(
-                expanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
-                size: 16,
-                color: t.fgTertiary),
+              expanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+              size: 16,
+              color: t.fgTertiary,
+            ),
           ],
         ),
       ),
@@ -655,7 +667,8 @@ class _SplitSummaryCard extends StatelessWidget {
                       Flexible(
                         flex: s.amount,
                         child: Container(
-                            color: _colorFor(context, s.categoryRowId)),
+                          color: _colorFor(context, s.categoryRowId),
+                        ),
                       ),
                 ],
               ),
@@ -665,7 +678,9 @@ class _SplitSummaryCard extends StatelessWidget {
             for (int i = 0; i < splits.length; i++)
               Padding(
                 padding: EdgeInsets.only(
-                    top: 10, bottom: i == splits.length - 1 ? 0 : 0),
+                  top: 10,
+                  bottom: i == splits.length - 1 ? 0 : 0,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -686,8 +701,9 @@ class _SplitSummaryCard extends StatelessWidget {
                                 ? splits[i].label!
                                 : (splits[i].categoryName ?? l.expItem),
                             style: PTypo.bodySm.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.semi),
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.semi,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -703,12 +719,17 @@ class _SplitSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      krwSigned(splits[i].amount, masked,
-                          sign: isIncome ? '+' : '−', unit: true),
+                      krwSigned(
+                        splits[i].amount,
+                        masked,
+                        sign: isIncome ? '+' : '−',
+                        unit: true,
+                      ),
                       // 행 금액 중립색 — 가계부 리스트 정합(사용자 결정)
                       style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.bold),
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

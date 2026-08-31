@@ -89,114 +89,124 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       context,
       title: l.searchAdvancedFilter,
       contentBuilder: (sheetCtx, scrollCtrl) {
-        return StatefulBuilder(builder: (ctx, setSheet) {
-          final t = ctx.tokens;
-          return ListView(
-            controller: scrollCtrl,
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.xl, 0, PSpace.xl, PSpace.x16),
-            children: [
-              Text(l.expAmountRange,
-                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Expanded(
-                    child: PTextInput(
-                      controller: minCtrl,
-                      numbersOnly: true,
-                      placeholder: l.expFilterMin,
-                      suffixText: wonUnit(),
-                      onChanged: (v) => min = int.tryParse(v),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('~'),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: PTextInput(
-                      controller: maxCtrl,
-                      numbersOnly: true,
-                      placeholder: l.expFilterMax,
-                      suffixText: wonUnit(),
-                      onChanged: (v) => max = int.tryParse(v),
-                    ),
-                  ),
-                ],
+        return StatefulBuilder(
+          builder: (ctx, setSheet) {
+            final t = ctx.tokens;
+            return ListView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.xl,
+                0,
+                PSpace.xl,
+                PSpace.x16,
               ),
-              const SizedBox(height: 12),
-              Text(l.expFilterPeriod,
-                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Expanded(
-                    child: PDateInput(
-                      value: start,
-                      onChanged: (d) {
-                        if (d != null) setSheet(() => start = d);
-                      },
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030, 12, 31),
-                      placeholder: l.searchStartHint,
+              children: [
+                Text(
+                  l.expAmountRange,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PTextInput(
+                        controller: minCtrl,
+                        numbersOnly: true,
+                        placeholder: l.expFilterMin,
+                        suffixText: wonUnit(),
+                        onChanged: (v) => min = int.tryParse(v),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: PDateInput(
-                      value: end,
-                      onChanged: (d) {
-                        if (d != null) setSheet(() => end = d);
-                      },
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030, 12, 31),
-                      placeholder: l.searchEndHint,
+                    const SizedBox(width: 8),
+                    const Text('~'),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: PTextInput(
+                        controller: maxCtrl,
+                        numbersOnly: true,
+                        placeholder: l.expFilterMax,
+                        suffixText: wonUnit(),
+                        onChanged: (v) => max = int.tryParse(v),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: PButton(
-                      label: l.actionReset,
-                      variant: PButtonVariant.outline,
-                      fullWidth: true,
-                      onPressed: () {
-                        setSheet(() {
-                          min = null;
-                          max = null;
-                          start = null;
-                          end = null;
-                          minCtrl.clear();
-                          maxCtrl.clear();
-                        });
-                      },
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l.expFilterPeriod,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PDateInput(
+                        value: start,
+                        onChanged: (d) {
+                          if (d != null) setSheet(() => start = d);
+                        },
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030, 12, 31),
+                        placeholder: l.searchStartHint,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: PButton(
-                      label: l.actionApply,
-                      fullWidth: true,
-                      onPressed: () {
-                        Navigator.pop(sheetCtx);
-                        setState(() {
-                          _minAmount = min;
-                          _maxAmount = max;
-                          _startDate = start;
-                          _endDate = end;
-                        });
-                        _runSearch();
-                      },
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: PDateInput(
+                        value: end,
+                        onChanged: (d) {
+                          if (d != null) setSheet(() => end = d);
+                        },
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030, 12, 31),
+                        placeholder: l.searchEndHint,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        });
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PButton(
+                        label: l.actionReset,
+                        variant: PButtonVariant.outline,
+                        fullWidth: true,
+                        onPressed: () {
+                          setSheet(() {
+                            min = null;
+                            max = null;
+                            start = null;
+                            end = null;
+                            minCtrl.clear();
+                            maxCtrl.clear();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: PButton(
+                        label: l.actionApply,
+                        fullWidth: true,
+                        onPressed: () {
+                          Navigator.pop(sheetCtx);
+                          setState(() {
+                            _minAmount = min;
+                            _maxAmount = max;
+                            _startDate = start;
+                            _endDate = end;
+                          });
+                          _runSearch();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
       },
     );
   }
@@ -283,8 +293,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(LucideIcons.slidersHorizontal,
-                    size: 20, color: t.fgSecondary),
+                Icon(
+                  LucideIcons.slidersHorizontal,
+                  size: 20,
+                  color: t.fgSecondary,
+                ),
                 if (_hasAdvanced)
                   Positioned(
                     top: -2,
@@ -309,7 +322,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           preferredSize: const Size.fromHeight(40),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, 0, PSpace.x16, PSpace.x8),
+              PSpace.x16,
+              0,
+              PSpace.x16,
+              PSpace.x8,
+            ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: PTabs<String?>(
@@ -343,8 +360,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       return Padding(
         padding: const EdgeInsets.all(PSpace.x24),
         child: Center(
-          child: Text('${l.searchFailed}: $_error',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+          child: Text(
+            '${l.searchFailed}: $_error',
+            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+          ),
         ),
       );
     }
@@ -364,10 +383,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x24, vertical: PSpace.x24),
+        horizontal: PSpace.x24,
+        vertical: PSpace.x24,
+      ),
       itemCount: _results.length,
-      separatorBuilder: (_, _) =>
-          PDivider(indent: 60),
+      separatorBuilder: (_, _) => PDivider(indent: 60),
       itemBuilder: (_, i) => _ResultRow(
         expense: _results[i],
         category: _findCategory(categories, _results[i].categoryRowId),
@@ -441,8 +461,10 @@ class _ResultRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final color = resolveChartColor(
-        context, category?.color as String? ?? expense.categoryColor,
-        fallback: tokens.fgBrand);
+      context,
+      category?.color as String? ?? expense.categoryColor,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(context, color);
     final isExpense = expense.expenseType == 'EXPENSE';
     final dayLabel = expense.expenseDate != null
@@ -458,14 +480,19 @@ class _ResultRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.tile(36),
+              ),
               alignment: Alignment.center,
               child: Icon(
-                  lucideByName(
-                      (category?.icon as String?) ?? expense.categoryIcon,
-                      fallback: LucideIcons.tag),
-                  size: 18,
-                  color: color),
+                lucideByName(
+                  (category?.icon as String?) ?? expense.categoryIcon,
+                  fallback: LucideIcons.tag,
+                ),
+                size: 18,
+                color: color,
+              ),
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
@@ -478,8 +505,9 @@ class _ResultRow extends StatelessWidget {
                         expense.categoryName ??
                         l.expTxFallback,
                     style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: PFontWeight.semi),
+                      color: tokens.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -487,11 +515,9 @@ class _ResultRow extends StatelessWidget {
                   Text(
                     [
                       expense.categoryName,
-                      if (dayLabel != null)
-                        '${dayLabel.md} (${dayLabel.dow})',
+                      if (dayLabel != null) '${dayLabel.md} (${dayLabel.dow})',
                     ].whereType<String>().join(' · '),
-                    style: PTypo.caption
-                        .copyWith(color: tokens.fgTertiary),
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                   ),
                 ],
               ),
@@ -500,10 +526,9 @@ class _ResultRow extends StatelessWidget {
             Text(
               krwSigned(expense.amount, masked, sign: isExpense ? '-' : '+'),
               style: PTypo.bodySm.copyWith(
-                  color: isExpense
-                      ? tokens.fgPrimary
-                      : tokens.statusSuccess,
-                  fontWeight: PFontWeight.bold),
+                color: isExpense ? tokens.fgPrimary : tokens.statusSuccess,
+                fontWeight: PFontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -529,8 +554,7 @@ class _EmptyHint extends StatelessWidget {
         children: [
           Icon(icon, size: 48, color: tokens.fgDisabled),
           const SizedBox(height: PSpace.x12),
-          Text(text,
-              style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
+          Text(text, style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
         ],
       ),
     );

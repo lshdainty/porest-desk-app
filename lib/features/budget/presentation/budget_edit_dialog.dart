@@ -141,8 +141,9 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           budgetMonth: widget.month,
         );
       }
-      ref.invalidate(monthBudgetsProvider(
-          (year: widget.year, month: widget.month)));
+      ref.invalidate(
+        monthBudgetsProvider((year: widget.year, month: widget.month)),
+      );
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException {
@@ -151,7 +152,6 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
       if (mounted) _setSubmitting(false);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -166,20 +166,21 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
     final selectedCat = _isOverall
         ? ExpenseCategory(rowId: 0, categoryName: l.budgetOverallCap)
         : (_isEdit
-            ? categoriesAsync.value?.firstWhere(
-                (c) => c.rowId == widget.edit!.categoryRowId,
-                orElse: () => ExpenseCategory(
+              ? categoriesAsync.value?.firstWhere(
+                  (c) => c.rowId == widget.edit!.categoryRowId,
+                  orElse: () => ExpenseCategory(
                     rowId: widget.edit!.categoryRowId!,
-                    categoryName: widget.edit!.categoryName ?? '-'))
-            : categoriesAsync.value
-                ?.where((c) => c.rowId == _categoryRowId)
-                .firstOrNull);
+                    categoryName: widget.edit!.categoryName ?? '-',
+                  ),
+                )
+              : categoriesAsync.value
+                    ?.where((c) => c.rowId == _categoryRowId)
+                    .firstOrNull);
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
 
     // shrinkWrap sheet 라 바깥이 이미 스크롤 — 여기선 Column 을 쓴다(중첩 스크롤 금지).
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -198,16 +199,23 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
                   height: 44,
                   decoration: BoxDecoration(
                     color: softBg(
+                      context,
+                      resolveChartColor(
                         context,
-                        resolveChartColor(context, selectedCat?.color,
-                            fallback: t.fgBrand)),
+                        selectedCat?.color,
+                        fallback: t.fgBrand,
+                      ),
+                    ),
                     borderRadius: PRadius.tile(44),
                   ),
                   child: Icon(
                     lucideByName(selectedCat?.icon),
                     size: 18,
-                    color: resolveChartColor(context, selectedCat?.color,
-                        fallback: t.fgBrand),
+                    color: resolveChartColor(
+                      context,
+                      selectedCat?.color,
+                      fallback: t.fgBrand,
+                    ),
                   ),
                 ),
                 const SizedBox(width: PSpace.x12),
@@ -219,7 +227,9 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
                       Text(
                         selectedCat?.categoryName ?? l.expCategory,
                         style: PTypo.bodyLg.copyWith(
-                            fontWeight: FontWeight.w700, color: t.fgPrimary),
+                          fontWeight: FontWeight.w700,
+                          color: t.fgPrimary,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -242,24 +252,31 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
             const SizedBox(height: PSpace.x8),
             categoriesAsync.when(
               loading: () => const Center(child: PCircularProgressIndicator()),
-              error: (e, _) => Text(l.budgetCategoryLoadError,
-                  style: PTypo.caption.copyWith(color: t.statusDanger)),
+              error: (e, _) => Text(
+                l.budgetCategoryLoadError,
+                style: PTypo.caption.copyWith(color: t.statusDanger),
+              ),
               data: (categories) => Wrap(
                 spacing: PSpace.x8,
                 runSpacing: PSpace.x8,
                 children: [
                   // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만.
                   // 자식 지출은 부모로 roll-up 집계되므로 leaf 는 제외.
-                  for (final c in categories.where((c) =>
-                      c.expenseType == 'EXPENSE' && c.parentRowId == null))
+                  for (final c in categories.where(
+                    (c) => c.expenseType == 'EXPENSE' && c.parentRowId == null,
+                  ))
                     Opacity(
-                      opacity:
-                          widget.usedCategoryIds.contains(c.rowId) ? 0.4 : 1.0,
+                      opacity: widget.usedCategoryIds.contains(c.rowId)
+                          ? 0.4
+                          : 1.0,
                       child: PChip(
                         label: c.categoryName,
                         icon: lucideByName(c.icon),
-                        iconColor: resolveChartColor(context, c.color,
-                            fallback: t.fgBrand),
+                        iconColor: resolveChartColor(
+                          context,
+                          c.color,
+                          fallback: t.fgBrand,
+                        ),
                         variant: PChipVariant.subtle,
                         selected: _categoryRowId == c.rowId,
                         onTap: widget.usedCategoryIds.contains(c.rowId)
@@ -304,6 +321,4 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
       ),
     );
   }
-
 }
-

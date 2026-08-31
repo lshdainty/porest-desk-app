@@ -123,8 +123,9 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       if (!mounted) return;
       widget.controller.setCanSubmit(_matched);
       // 일치화 모드에선 '분할 해제' 숨김(편집 흐름에서 분할 제거는 별도 동작).
-      widget.controller.onDelete =
-          (_hasExisting && !_reconcileMode) ? _deleteAll : null;
+      widget.controller.onDelete = (_hasExisting && !_reconcileMode)
+          ? _deleteAll
+          : null;
     });
   }
 
@@ -132,8 +133,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final splitsAsync =
-        ref.watch(expenseSplitsProvider(widget.expense.rowId));
+    final splitsAsync = ref.watch(expenseSplitsProvider(widget.expense.rowId));
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return splitsAsync.when(
@@ -143,16 +143,20 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       ),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
-        child: Text('${l.expSplitLoadError}\n$e',
-            style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+        child: Text(
+          '${l.expSplitLoadError}\n$e',
+          style: PTypo.bodySm.copyWith(color: t.statusDanger),
+        ),
       ),
       data: (splits) {
         if (_rows == null) _initRows(splits);
         final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
         final sameTypeCategories = categories
-            .where((c) =>
-                c.expenseType == null ||
-                c.expenseType == widget.expense.expenseType)
+            .where(
+              (c) =>
+                  c.expenseType == null ||
+                  c.expenseType == widget.expense.expenseType,
+            )
             .toList();
         _syncFooter();
         return _build(t, sameTypeCategories);
@@ -165,31 +169,39 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     // 편집 일치화: 진행 중 분할(initialSplits)로 시드
     if (widget.initialSplits != null && widget.initialSplits!.isNotEmpty) {
       _rows = widget.initialSplits!
-          .map((s) => _Row(
-              categoryRowId: s.categoryRowId, amount: s.amount, label: s.label ?? ''))
+          .map(
+            (s) => _Row(
+              categoryRowId: s.categoryRowId,
+              amount: s.amount,
+              label: s.label ?? '',
+            ),
+          )
           .toList();
       return;
     }
     if (splits.isNotEmpty) {
       _rows = splits
-          .map((s) => _Row(
+          .map(
+            (s) => _Row(
               categoryRowId: s.categoryRowId,
               amount: s.amount,
-              label: s.label ?? ''))
+              label: s.label ?? '',
+            ),
+          )
           .toList();
     } else {
       final half = _totalAbs ~/ 2;
       _rows = [
         _Row(
-            categoryRowId: widget.expense.categoryRowId,
-            amount: _totalAbs - half,
-            label: widget.expense.merchant ??
-                widget.expense.description ??
-                ''),
+          categoryRowId: widget.expense.categoryRowId,
+          amount: _totalAbs - half,
+          label: widget.expense.merchant ?? widget.expense.description ?? '',
+        ),
         _Row(
-            categoryRowId: widget.expense.categoryRowId,
-            amount: half,
-            label: ''),
+          categoryRowId: widget.expense.categoryRowId,
+          amount: half,
+          label: '',
+        ),
       ];
     }
   }
@@ -205,10 +217,12 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
 
   void _addRow() {
     setState(() {
-      _rows!.add(_Row(
-        categoryRowId: widget.expense.categoryRowId,
-        amount: _remainder > 0 ? _remainder : 0,
-      ));
+      _rows!.add(
+        _Row(
+          categoryRowId: widget.expense.categoryRowId,
+          amount: _remainder > 0 ? _remainder : 0,
+        ),
+      );
     });
   }
 
@@ -236,7 +250,8 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     final floor = target >= n ? 1 : 0;
     final out = [for (final v in amts) v < floor ? floor : v];
     final diff = target - out.fold<int>(0, (s, v) => s + v);
-    final order = [for (int i = 0; i < n; i++) i]..sort((a, b) => out[b] - out[a]);
+    final order = [for (int i = 0; i < n; i++) i]
+      ..sort((a, b) => out[b] - out[a]);
     if (diff > 0) {
       out[order[0]] += diff;
     } else if (diff < 0) {
@@ -256,7 +271,9 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   void _reconcileProportional() {
     final base = _rows!.fold<int>(0, (s, r) => s + r.amount);
     final b = base == 0 ? 1 : base;
-    final scaled = [for (final r in _rows!) ((r.amount * _totalAbs) / b).round()];
+    final scaled = [
+      for (final r in _rows!) ((r.amount * _totalAbs) / b).round(),
+    ];
     final settled = _settleRemainder(scaled, _totalAbs);
     setState(() {
       for (int i = 0; i < _rows!.length; i++) {
@@ -283,10 +300,13 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     if (_remainder <= 0) return;
     final l = AppLocalizations.of(context);
     setState(() {
-      _rows!.add(_Row(
+      _rows!.add(
+        _Row(
           categoryRowId: widget.expense.categoryRowId,
           amount: _remainder,
-          label: l.expAddAmount));
+          label: l.expAddAmount,
+        ),
+      );
       _lastApplied = 'add';
     });
   }
@@ -385,26 +405,34 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               Icon(LucideIcons.check, size: 15, color: t.statusSuccessFg),
               const SizedBox(width: PSpace.x8),
               Expanded(
-                child: Text(l.expSplitMatches,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                child: Text(
+                  l.expSplitMatches,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: PSpace.x4),
           Text.rich(
             TextSpan(
-              style: PTypo.caption
-                  .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
+              style: PTypo.caption.copyWith(
+                color: t.fgSecondary,
+                height: PLineHeight.normal,
+              ),
               children: [
                 TextSpan(text: '${l.expSplitSum} '),
                 TextSpan(
-                    text: krwSigned(_sum, false, unit: true),
-                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                  text: krwSigned(_sum, false, unit: true),
+                  style: const TextStyle(fontWeight: PFontWeight.bold),
+                ),
                 TextSpan(text: ' · ${l.expTotalAmount} '),
                 TextSpan(
-                    text: krwSigned(_totalAbs, false, unit: true),
-                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                  text: krwSigned(_totalAbs, false, unit: true),
+                  style: const TextStyle(fontWeight: PFontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -428,15 +456,23 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
         children: [
           Row(
             children: [
-              Icon(LucideIcons.alertTriangle, size: 15, color: t.statusWarningFg),
+              Icon(
+                LucideIcons.alertTriangle,
+                size: 15,
+                color: t.statusWarningFg,
+              ),
               const SizedBox(width: PSpace.x8),
               Expanded(
                 child: Text(
                   !_balanced
-                      ? (_totalChanged ? l.expSplitTotalChanged : l.expSplitMismatchTotal)
+                      ? (_totalChanged
+                            ? l.expSplitTotalChanged
+                            : l.expSplitMismatchTotal)
                       : l.expSplitCheckItems,
-                  style: PTypo.bodySm
-                      .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -445,24 +481,30 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           // 숫자 강조(웹 정합): 분할 합계·총액 bold, 초과/부족은 bold + warning 색.
           Text.rich(
             TextSpan(
-              style: PTypo.caption
-                  .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
+              style: PTypo.caption.copyWith(
+                color: t.fgSecondary,
+                height: PLineHeight.normal,
+              ),
               children: [
                 TextSpan(text: '${l.expSplitSum} '),
                 TextSpan(
-                    text: krwSigned(_sum, false, unit: true),
-                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                  text: krwSigned(_sum, false, unit: true),
+                  style: const TextStyle(fontWeight: PFontWeight.bold),
+                ),
                 TextSpan(text: ' · ${l.expTotalAmount} '),
                 TextSpan(
-                    text: krwSigned(_totalAbs, false, unit: true),
-                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                  text: krwSigned(_totalAbs, false, unit: true),
+                  style: const TextStyle(fontWeight: PFontWeight.bold),
+                ),
                 if (!_balanced) ...[
                   const TextSpan(text: ' · '),
                   TextSpan(
                     text:
                         '${shortage ? l.expShort : l.expOver} ${krwSigned(_remainder.abs(), false, unit: true)}',
                     style: TextStyle(
-                        fontWeight: PFontWeight.bold, color: t.statusWarningFg),
+                      fontWeight: PFontWeight.bold,
+                      color: t.statusWarningFg,
+                    ),
                   ),
                 ],
               ],
@@ -483,44 +525,55 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                   children: [
                     Icon(LucideIcons.sparkles, size: 14, color: t.fgBrand),
                     const SizedBox(width: 6),
-                    Text(l.expQuickAdjust,
-                        style: PTypo.caption.copyWith(
-                            color: t.fgBrand, fontWeight: PFontWeight.bold)),
+                    Text(
+                      l.expQuickAdjust,
+                      style: PTypo.caption.copyWith(
+                        color: t.fgBrand,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Icon(
-                        _quickOpen
-                            ? LucideIcons.chevronUp
-                            : LucideIcons.chevronDown,
-                        size: 14,
-                        color: t.fgBrand),
+                      _quickOpen
+                          ? LucideIcons.chevronUp
+                          : LucideIcons.chevronDown,
+                      size: 14,
+                      color: t.fgBrand,
+                    ),
                   ],
                 ),
               ),
             ),
             if (_quickOpen) ...[
               const SizedBox(height: 6),
-              _reconcileBtn(t,
-                  icon: LucideIcons.scale,
-                  title: l.expProrate,
-                  desc: l.expProrateDesc,
-                  active: _lastApplied == 'prop',
-                  recommended: _totalChanged,
-                  onTap: _reconcileProportional),
+              _reconcileBtn(
+                t,
+                icon: LucideIcons.scale,
+                title: l.expProrate,
+                desc: l.expProrateDesc,
+                active: _lastApplied == 'prop',
+                recommended: _totalChanged,
+                onTap: _reconcileProportional,
+              ),
               const SizedBox(height: 6),
-              _reconcileBtn(t,
-                  icon: LucideIcons.moveUp,
-                  title: l.expApplyToLargest,
-                  desc: l.expApplyToLargestDesc,
-                  active: _lastApplied == 'largest',
-                  onTap: _reconcileToLargest),
+              _reconcileBtn(
+                t,
+                icon: LucideIcons.moveUp,
+                title: l.expApplyToLargest,
+                desc: l.expApplyToLargestDesc,
+                active: _lastApplied == 'largest',
+                onTap: _reconcileToLargest,
+              ),
               if (_remainder > 0) ...[
                 const SizedBox(height: 6),
-                _reconcileBtn(t,
-                    icon: LucideIcons.plusCircle,
-                    title: l.expAdjustItem,
-                    desc: l.expAdjustItemDesc,
-                    active: _lastApplied == 'add',
-                    onTap: _reconcileAddRow),
+                _reconcileBtn(
+                  t,
+                  icon: LucideIcons.plusCircle,
+                  title: l.expAdjustItem,
+                  desc: l.expAdjustItemDesc,
+                  active: _lastApplied == 'add',
+                  onTap: _reconcileAddRow,
+                ),
               ],
             ],
           ],
@@ -549,7 +602,8 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           color: active ? t.statusWarningSubtle : t.bgSurface,
           borderRadius: PRadius.brMd,
           border: Border.all(
-              color: active ? t.statusWarningFg : t.statusWarningBorder),
+            color: active ? t.statusWarningFg : t.statusWarningBorder,
+          ),
         ),
         child: Row(
           children: [
@@ -562,29 +616,40 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(title,
-                            style: PTypo.caption.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold)),
+                        child: Text(
+                          title,
+                          style: PTypo.caption.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
                       ),
                       if (recommended) ...[
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
-                              color: t.statusWarningSubtle,
-                              borderRadius: PRadius.brFull),
-                          child: Text(l.expRecommended,
-                              style: PTypo.caption.copyWith(
-                                  color: t.statusWarningFg,
-                                  fontWeight: PFontWeight.bold)),
+                            color: t.statusWarningSubtle,
+                            borderRadius: PRadius.brFull,
+                          ),
+                          child: Text(
+                            l.expRecommended,
+                            style: PTypo.caption.copyWith(
+                              color: t.statusWarningFg,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ],
                   ),
-                  Text(desc,
-                      style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                  Text(
+                    desc,
+                    style: PTypo.caption.copyWith(color: t.fgSecondary),
+                  ),
                 ],
               ),
             ),
@@ -600,139 +665,183 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         Text(
-            l.expSplitDesc,
-            style: PTypo.caption
-                .copyWith(color: t.fgSecondary, height: PLineHeight.normal)),
+          l.expSplitDesc,
+          style: PTypo.caption.copyWith(
+            color: t.fgSecondary,
+            height: PLineHeight.normal,
+          ),
+        ),
         const SizedBox(height: PSpace.x12),
 
         // 원 거래 요약
         Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x12, vertical: PSpace.x12),
-            decoration: BoxDecoration(
-              borderRadius: PRadius.brMd,
-              border: Border.all(color: t.borderSubtle),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l.expOriginalTx,
-                          style:
-                              PTypo.caption.copyWith(color: t.fgTertiary)),
-                      const SizedBox(height: 2),
-                      Text(
-                        widget.expense.merchant ??
-                            widget.expense.description ??
-                            l.expTxFallback,
-                        style: PTypo.body.copyWith(
-                            color: t.fgPrimary, fontWeight: PFontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+          padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x12,
+            vertical: PSpace.x12,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: PRadius.brMd,
+            border: Border.all(color: t.borderSubtle),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.expTotalAmount,
-                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    Text(
+                      l.expOriginalTx,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
                     const SizedBox(height: 2),
-                    if (_totalChanged)
-                      // 총액 변경: 기존(취소선) → 새 총액(warning)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(krw(_recordedTotal),
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgTertiary,
-                                  decoration: TextDecoration.lineThrough)),
-                          const SizedBox(width: 4),
-                          Icon(LucideIcons.arrowRight, size: 12, color: t.fgTertiary),
-                          const SizedBox(width: 4),
-                          Text(krwSigned(_totalAbs, false, sign: _isIncome ? '+' : '−', unit: true),
-                              style: PTypo.h3.copyWith(
-                                  color: t.statusWarningFg,
-                                  fontWeight: PFontWeight.bold)),
-                        ],
-                      )
-                    else
-                      Text(
-                        krwSigned(_totalAbs, false, sign: _isIncome ? '+' : '−', unit: true),
-                        style: PTypo.h3.copyWith(
-                            // 수입 금액 = primary(다크 primary-light). success(초록) 아님 — web 정합
-                            color: _isIncome ? t.fgBrandStrong : t.fgPrimary,
-                            fontWeight: PFontWeight.bold),
+                    Text(
+                      widget.expense.merchant ??
+                          widget.expense.description ??
+                          l.expTxFallback,
+                      style: PTypo.body.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
                       ),
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    l.expTotalAmount,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
+                  const SizedBox(height: 2),
+                  if (_totalChanged)
+                    // 총액 변경: 기존(취소선) → 새 총액(warning)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          krw(_recordedTotal),
+                          style: PTypo.caption.copyWith(
+                            color: t.fgTertiary,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          LucideIcons.arrowRight,
+                          size: 12,
+                          color: t.fgTertiary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          krwSigned(
+                            _totalAbs,
+                            false,
+                            sign: _isIncome ? '+' : '−',
+                            unit: true,
+                          ),
+                          style: PTypo.h3.copyWith(
+                            color: t.statusWarningFg,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Text(
+                      krwSigned(
+                        _totalAbs,
+                        false,
+                        sign: _isIncome ? '+' : '−',
+                        unit: true,
+                      ),
+                      style: PTypo.h3.copyWith(
+                        // 수입 금액 = primary(다크 primary-light). success(초록) 아님 — web 정합
+                        color: _isIncome ? t.fgBrandStrong : t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: PSpace.x16),
+        ),
+        const SizedBox(height: PSpace.x16),
 
-          // 상태 패널 — 일치(success)/불일치(warning). footer 검증 pill 대체.
-          if (_rows!.isNotEmpty) ...[
-            _statusPanel(t),
-            const SizedBox(height: PSpace.x16),
+        // 상태 패널 — 일치(success)/불일치(warning). footer 검증 pill 대체.
+        if (_rows!.isNotEmpty) ...[
+          _statusPanel(t),
+          const SizedBox(height: PSpace.x16),
+        ],
+
+        // Rows
+        Column(
+          children: [
+            for (int i = 0; i < _rows!.length; i++) ...[
+              _SplitRowCard(
+                index: i,
+                row: _rows![i],
+                total: _totalAbs,
+                categories: categories,
+                canRemove: _rows!.length > 1,
+                disabled: _submitting,
+                tokens: t,
+                onChange: _onRowEdited,
+                onRemove: () => _removeRow(i),
+              ),
+              if (i < _rows!.length - 1) const SizedBox(height: 8),
+            ],
           ],
+        ),
+        const SizedBox(height: PSpace.x12),
 
-          // Rows
-          Column(
-            children: [
-              for (int i = 0; i < _rows!.length; i++) ...[
-                _SplitRowCard(
-                  index: i,
-                  row: _rows![i],
-                  total: _totalAbs,
-                  categories: categories,
-                  canRemove: _rows!.length > 1,
-                  disabled: _submitting,
-                  tokens: t,
-                  onChange: _onRowEdited,
-                  onRemove: () => _removeRow(i),
-                ),
-                if (i < _rows!.length - 1) const SizedBox(height: 8),
-              ],
-            ],
+        Row(
+          children: [
+            PButton(
+              label: l.expAddItem,
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.sm,
+              onPressed: _submitting ? null : _addRow,
+            ),
+            const Spacer(),
+            PButton(
+              label: l.expSplitEven,
+              icon: LucideIcons.scissors,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.sm,
+              onPressed: _submitting ? null : _splitEvenly,
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 분할 비율
+        Text(
+          l.expSplitRatio,
+          style: PTypo.caption.copyWith(
+            color: t.fgSecondary,
+            fontWeight: PFontWeight.bold,
           ),
-          const SizedBox(height: PSpace.x12),
-
-          Row(
-            children: [
-              PButton(
-                label: l.expAddItem,
-                icon: LucideIcons.plus,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.sm,
-                onPressed: _submitting ? null : _addRow,
-              ),
-              const Spacer(),
-              PButton(
-                label: l.expSplitEven,
-                icon: LucideIcons.scissors,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.sm,
-                onPressed: _submitting ? null : _splitEvenly,
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 분할 비율
-          Text(l.expSplitRatio,
-              style: PTypo.caption
-                  .copyWith(color: t.fgSecondary, fontWeight: PFontWeight.bold)),
-          const SizedBox(height: PSpace.x8),
-          _RatioBar(rows: _rows!, total: _totalAbs, categories: categories, tokens: t),
-          const SizedBox(height: PSpace.x8),
-          _RatioLegend(rows: _rows!, total: _totalAbs, categories: categories, tokens: t),
-          const SizedBox(height: PSpace.x16),
+        ),
+        const SizedBox(height: PSpace.x8),
+        _RatioBar(
+          rows: _rows!,
+          total: _totalAbs,
+          categories: categories,
+          tokens: t,
+        ),
+        const SizedBox(height: PSpace.x8),
+        _RatioLegend(
+          rows: _rows!,
+          total: _totalAbs,
+          categories: categories,
+          tokens: t,
+        ),
+        const SizedBox(height: PSpace.x16),
       ],
     );
   }
@@ -772,8 +881,9 @@ class _SplitRowCardState extends State<_SplitRowCard> {
   void initState() {
     super.initState();
     _labelCtrl = TextEditingController(text: widget.row.label);
-    _amountCtrl =
-        TextEditingController(text: widget.row.amount > 0 ? widget.row.amount.toString() : '');
+    _amountCtrl = TextEditingController(
+      text: widget.row.amount > 0 ? widget.row.amount.toString() : '',
+    );
   }
 
   @override
@@ -786,7 +896,8 @@ class _SplitRowCardState extends State<_SplitRowCard> {
       _amountCtrl.value = TextEditingValue(
         text: widget.row.amount > 0 ? newAmt : '',
         selection: TextSelection.collapsed(
-            offset: widget.row.amount > 0 ? newAmt.length : 0),
+          offset: widget.row.amount > 0 ? newAmt.length : 0,
+        ),
       );
     }
   }
@@ -812,10 +923,14 @@ class _SplitRowCardState extends State<_SplitRowCard> {
     final t = widget.tokens;
     final l = AppLocalizations.of(context);
     // 스택형 카드 layout(front 미러): 헤더(색 점·항목N·비율%·삭제) / 라벨 / 카테고리+금액
-    final pct =
-        widget.total > 0 ? ((widget.row.amount / widget.total) * 100).round() : 0;
-    final dotColor =
-        resolveChartColor(context, _catColor(), fallback: t.fgBrand);
+    final pct = widget.total > 0
+        ? ((widget.row.amount / widget.total) * 100).round()
+        : 0;
+    final dotColor = resolveChartColor(
+      context,
+      _catColor(),
+      fallback: t.fgBrand,
+    );
     return Container(
       padding: const EdgeInsets.all(PSpace.x12),
       decoration: BoxDecoration(
@@ -832,17 +947,27 @@ class _SplitRowCardState extends State<_SplitRowCard> {
               Container(
                 width: 8,
                 height: 8,
-                decoration:
-                    BoxDecoration(color: dotColor, borderRadius: PRadius.brXs),
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  borderRadius: PRadius.brXs,
+                ),
               ),
               const SizedBox(width: 6),
-              Text('${l.expItem} ${widget.index + 1}',
-                  style: PTypo.caption.copyWith(
-                      color: t.fgSecondary, fontWeight: PFontWeight.semi)),
+              Text(
+                '${l.expItem} ${widget.index + 1}',
+                style: PTypo.caption.copyWith(
+                  color: t.fgSecondary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
               const Spacer(),
-              Text('$pct%',
-                  style: PTypo.caption.copyWith(
-                      color: t.fgTertiary, fontWeight: PFontWeight.bold)),
+              Text(
+                '$pct%',
+                style: PTypo.caption.copyWith(
+                  color: t.fgTertiary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(width: 4),
               PButton.icon(
                 icon: LucideIcons.x,
@@ -964,9 +1089,11 @@ class _RatioBar extends StatelessWidget {
                   flex: r.amount,
                   child: Container(
                     // 카테고리 색도 light/dark 테마 적응(base↔light) — legend dot 과 동일.
-                    color: resolveChartColor(context,
-                        _catColor(r.categoryRowId),
-                        fallback: tokens.fgBrand),
+                    color: resolveChartColor(
+                      context,
+                      _catColor(r.categoryRowId),
+                      fallback: tokens.fgBrand,
+                    ),
                   ),
                 ),
           ],
@@ -1001,17 +1128,18 @@ class _RatioLegend extends StatelessWidget {
     return Wrap(
       spacing: 12,
       runSpacing: 6,
-      children: [
-        for (final r in rows)
-          _legendChip(context, r),
-      ],
+      children: [for (final r in rows) _legendChip(context, r)],
     );
   }
 
   Widget _legendChip(BuildContext context, _Row r) {
     final l = AppLocalizations.of(context);
     final cat = _cat(r.categoryRowId);
-    final color = resolveChartColor(context, cat?.color, fallback: tokens.fgBrand);
+    final color = resolveChartColor(
+      context,
+      cat?.color,
+      fallback: tokens.fgBrand,
+    );
     final pct = total > 0 ? ((r.amount / total) * 100).round() : 0;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -1022,12 +1150,18 @@ class _RatioLegend extends StatelessWidget {
           decoration: BoxDecoration(color: color, borderRadius: PRadius.brFull),
         ),
         const SizedBox(width: 5),
-        Text(cat?.categoryName ?? l.expNotSelected,
-            style: PTypo.caption.copyWith(color: tokens.fgSecondary)),
+        Text(
+          cat?.categoryName ?? l.expNotSelected,
+          style: PTypo.caption.copyWith(color: tokens.fgSecondary),
+        ),
         const SizedBox(width: 4),
-        Text('$pct%',
-            style: PTypo.caption.copyWith(
-                color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
+        Text(
+          '$pct%',
+          style: PTypo.caption.copyWith(
+            color: tokens.fgPrimary,
+            fontWeight: PFontWeight.bold,
+          ),
+        ),
       ],
     );
   }

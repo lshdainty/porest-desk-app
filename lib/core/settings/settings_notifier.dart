@@ -94,8 +94,9 @@ final anyHiddenProvider = Provider<bool>((ref) {
 });
 
 /// SharedPreferences 와 양방향 sync 되는 표시 설정 Notifier.
-final settingsProvider =
-    AsyncNotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new);
+final settingsProvider = AsyncNotifierProvider<SettingsNotifier, AppSettings>(
+  SettingsNotifier.new,
+);
 
 class SettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
@@ -108,7 +109,8 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     Intl.defaultLocale = loc?.languageCode ?? 'ko';
     return AppSettings(
       themeMode: _parseTheme(prefs.getString(PrefsKeys.themeMode)),
-      currency: prefs.getString(PrefsKeys.currency) ?? AppSettings.defaults.currency,
+      currency:
+          prefs.getString(PrefsKeys.currency) ?? AppSettings.defaults.currency,
       hideCards: _loadHideCards(prefs),
       locale: loc,
       appLock: prefs.getBool(PrefsKeys.appLock) ?? AppSettings.defaults.appLock,
@@ -235,18 +237,18 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   AppSettings get _current => state.value ?? AppSettings.defaults;
 
   static ThemeMode _parseTheme(String? raw) => switch (raw) {
-        'light' => ThemeMode.light,
-        'dark' => ThemeMode.dark,
-        _ => ThemeMode.system,
-      };
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    _ => ThemeMode.system,
+  };
   static String _serializeTheme(ThemeMode m) => switch (m) {
-        ThemeMode.light => 'light',
-        ThemeMode.dark => 'dark',
-        ThemeMode.system => 'system',
-      };
+    ThemeMode.light => 'light',
+    ThemeMode.dark => 'dark',
+    ThemeMode.system => 'system',
+  };
   static Locale? _parseLocale(String? raw) => switch (raw) {
-        'ko' => const Locale('ko'),
-        'en' => const Locale('en'),
-        _ => null,
-      };
+    'ko' => const Locale('ko'),
+    'en' => const Locale('en'),
+    _ => null,
+  };
 }

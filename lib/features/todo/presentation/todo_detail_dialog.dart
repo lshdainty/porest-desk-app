@@ -209,8 +209,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 label: l.todoPriorityLabel,
                 tokens: t,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: prioBg,
                     borderRadius: PRadius.brSm,

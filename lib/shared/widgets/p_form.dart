@@ -63,11 +63,7 @@ class PForm extends StatelessWidget {
             child: column,
           )
         : column;
-    return Form(
-      key: formKey,
-      autovalidateMode: autovalidateMode,
-      child: body,
-    );
+    return Form(key: formKey, autovalidateMode: autovalidateMode, child: body);
   }
 }
 
@@ -188,33 +184,27 @@ class PValidators {
   static FormFieldValidator<String> required([String message = '필수 입력입니다']) =>
       (v) => (v == null || v.trim().isEmpty) ? message : null;
 
-  static FormFieldValidator<String> minLength(int len,
-          [String? message]) =>
-      (v) => (v != null && v.length < len)
-          ? (message ?? '$len자 이상 입력하세요')
-          : null;
+  static FormFieldValidator<String> minLength(int len, [String? message]) =>
+      (v) =>
+          (v != null && v.length < len) ? (message ?? '$len자 이상 입력하세요') : null;
 
-  static FormFieldValidator<String> maxLength(int len,
-          [String? message]) =>
-      (v) => (v != null && v.length > len)
-          ? (message ?? '$len자 이하로 입력하세요')
-          : null;
+  static FormFieldValidator<String> maxLength(int len, [String? message]) =>
+      (v) =>
+          (v != null && v.length > len) ? (message ?? '$len자 이하로 입력하세요') : null;
 
-  static final _emailRe =
-      RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$');
+  static final _emailRe = RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$');
 
-  static FormFieldValidator<String> email(
-          [String message = '이메일 형식이 아닙니다']) =>
+  static FormFieldValidator<String> email([String message = '이메일 형식이 아닙니다']) =>
       (v) => (v == null || v.isEmpty || _emailRe.hasMatch(v)) ? null : message;
 
   /// 여러 validator chain — 첫 실패 message 반환.
   static FormFieldValidator<T> compose<T>(
-          List<FormFieldValidator<T>> validators) =>
-      (value) {
-        for (final v in validators) {
-          final r = v(value);
-          if (r != null) return r;
-        }
-        return null;
-      };
+    List<FormFieldValidator<T>> validators,
+  ) => (value) {
+    for (final v in validators) {
+      final r = v(value);
+      if (r != null) return r;
+    }
+    return null;
+  };
 }

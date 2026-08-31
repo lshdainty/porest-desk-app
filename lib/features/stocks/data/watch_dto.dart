@@ -25,16 +25,16 @@ class WatchItem {
   final String? nameEn;
 
   factory WatchItem.fromJson(Map<String, dynamic> j) => WatchItem(
-        rowId: (j['rowId'] as num).toInt(),
-        stockMasterRowId: (j['stockMasterRowId'] as num).toInt(),
-        countryCode: (j['countryCode'] as String?) ?? '',
-        marketCode: (j['marketCode'] as String?) ?? '',
-        symbol: (j['symbol'] as String?) ?? '',
-        nameKr: (j['nameKr'] as String?) ?? '',
-        securityType: (j['securityType'] as String?) ?? '',
-        currency: (j['currency'] as String?) ?? '',
-        nameEn: j['nameEn'] as String?,
-      );
+    rowId: (j['rowId'] as num).toInt(),
+    stockMasterRowId: (j['stockMasterRowId'] as num).toInt(),
+    countryCode: (j['countryCode'] as String?) ?? '',
+    marketCode: (j['marketCode'] as String?) ?? '',
+    symbol: (j['symbol'] as String?) ?? '',
+    nameKr: (j['nameKr'] as String?) ?? '',
+    securityType: (j['securityType'] as String?) ?? '',
+    currency: (j['currency'] as String?) ?? '',
+    nameEn: j['nameEn'] as String?,
+  );
 }
 
 class StockWatchGroup {
@@ -51,11 +51,11 @@ class StockWatchGroup {
   final List<WatchItem> items;
 
   factory StockWatchGroup.fromJson(Map<String, dynamic> j) => StockWatchGroup(
-        rowId: (j['rowId'] as num).toInt(),
-        groupName: (j['groupName'] as String?) ?? '',
-        sortOrder: (j['sortOrder'] as num?)?.toInt() ?? 0,
-        items: ((j['items'] as List?) ?? [])
-            .map((e) => WatchItem.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    rowId: (j['rowId'] as num).toInt(),
+    groupName: (j['groupName'] as String?) ?? '',
+    sortOrder: (j['sortOrder'] as num?)?.toInt() ?? 0,
+    items: ((j['items'] as List?) ?? [])
+        .map((e) => WatchItem.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }

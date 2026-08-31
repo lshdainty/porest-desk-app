@@ -90,83 +90,98 @@ class _Body extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-        PDetailHero(
-          icon: Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration:
-                BoxDecoration(color: bg, borderRadius: PRadius.tile(32)),
-            child: Icon(lucideByName(cat?.icon), size: 16, color: fg),
-          ),
-          title: recurringDisplayTitle(l, item),
-          amount: Text(
-            krwSigned(item.amount.abs(), false,
-                sign: isExpense ? '-' : '+', unit: true),
-            style: PTypo.displayMd.copyWith(
-              color: isExpense ? t.fgExpense : t.fgIncome,
-              fontWeight: PFontWeight.bold,
-            ),
-          ),
-          meta: recurringSummaryText(l, item),
-        ),
-        PDetailFieldGroup(
-          children: [
-            PDetailField(
-              label: l.expCategory,
-              child: Text(item.categoryName ?? '-', style: PTypo.bodySm),
-            ),
-            PDetailField(
-              label: l.recurringAssetCard,
-              child: Text(item.assetName ?? l.recurringNoAccount,
-                  style: PTypo.bodySm),
-            ),
-            if (item.maxOccurrences != null)
-              PDetailField(
-                label: l.recurringByCount,
-                child: Text(
-                    l.recurringOccurrences(
-                        item.executedCount, item.maxOccurrences!),
-                    style: PTypo.bodySm),
+          PDetailHero(
+            icon: Container(
+              width: 32,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.tile(32),
               ),
-          ],
-        ),
-        // 다음 예정일 — 추가 시트와 같은 표현(필 칩). 무엇이 언제 잡혀 있는지
-        // 여기서 바로 보이지 않으면 목록으로 나가 다음 실행일만 보고 짐작해야 한다.
-        if (nextDates.isNotEmpty)
-          PDetailSection(
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(LucideIcons.calendar, size: 13, color: t.fgPrimary),
-                const SizedBox(width: 5),
-                Text(l.recurringNextDates),
-              ],
+              child: Icon(lucideByName(cat?.icon), size: 16, color: fg),
             ),
-            child: Wrap(
-              spacing: PSpace.x8,
-              runSpacing: PSpace.x8,
-              children: [
-                for (final d in nextDates)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: t.bgSunken,
-                      borderRadius: PRadius.brFull,
-                    ),
-                    child: Text(
-                      // 추가 시트 칩과 같은 표기.
-                      localeIsEn()
-                          ? formatDay(d).md
-                          : '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.semi),
-                    ),
-                  ),
-              ],
+            title: recurringDisplayTitle(l, item),
+            amount: Text(
+              krwSigned(
+                item.amount.abs(),
+                false,
+                sign: isExpense ? '-' : '+',
+                unit: true,
+              ),
+              style: PTypo.displayMd.copyWith(
+                color: isExpense ? t.fgExpense : t.fgIncome,
+                fontWeight: PFontWeight.bold,
+              ),
             ),
+            meta: recurringSummaryText(l, item),
           ),
+          PDetailFieldGroup(
+            children: [
+              PDetailField(
+                label: l.expCategory,
+                child: Text(item.categoryName ?? '-', style: PTypo.bodySm),
+              ),
+              PDetailField(
+                label: l.recurringAssetCard,
+                child: Text(
+                  item.assetName ?? l.recurringNoAccount,
+                  style: PTypo.bodySm,
+                ),
+              ),
+              if (item.maxOccurrences != null)
+                PDetailField(
+                  label: l.recurringByCount,
+                  child: Text(
+                    l.recurringOccurrences(
+                      item.executedCount,
+                      item.maxOccurrences!,
+                    ),
+                    style: PTypo.bodySm,
+                  ),
+                ),
+            ],
+          ),
+          // 다음 예정일 — 추가 시트와 같은 표현(필 칩). 무엇이 언제 잡혀 있는지
+          // 여기서 바로 보이지 않으면 목록으로 나가 다음 실행일만 보고 짐작해야 한다.
+          if (nextDates.isNotEmpty)
+            PDetailSection(
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.calendar, size: 13, color: t.fgPrimary),
+                  const SizedBox(width: 5),
+                  Text(l.recurringNextDates),
+                ],
+              ),
+              child: Wrap(
+                spacing: PSpace.x8,
+                runSpacing: PSpace.x8,
+                children: [
+                  for (final d in nextDates)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: t.bgSunken,
+                        borderRadius: PRadius.brFull,
+                      ),
+                      child: Text(
+                        // 추가 시트 칩과 같은 표기.
+                        localeIsEn()
+                            ? formatDay(d).md
+                            : '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
+                        style: PTypo.caption.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -174,10 +189,7 @@ class _Body extends ConsumerWidget {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({
-    required this.onEdit,
-    required this.onDelete,
-  });
+  const _Footer({required this.onEdit, required this.onDelete});
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 

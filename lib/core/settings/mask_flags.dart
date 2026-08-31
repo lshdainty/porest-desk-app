@@ -23,9 +23,9 @@ class MaskFlags {
 
   /// 종류를 안 쓰는 자리용 — 화면 카드만 본다.
   const MaskFlags.cardOnly(this.card)
-      : expense = false,
-        income = false,
-        transfer = false;
+    : expense = false,
+      income = false,
+      transfer = false;
 
   /// 이 화면의 카드가 켜졌는가.
   final bool card;

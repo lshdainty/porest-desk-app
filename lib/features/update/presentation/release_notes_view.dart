@@ -28,8 +28,10 @@ class PReleaseNotes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final lines =
-        notes.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty);
+    final lines = notes
+        .split('\n')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty);
 
     final children = <Widget>[];
     for (final line in lines) {
@@ -43,14 +45,20 @@ class PReleaseNotes extends StatelessWidget {
               children: [
                 // 글머리를 따로 둔다 — 두 줄로 넘어가는 항목에서 둘째 줄이 글머리
                 // 아래로 파고들지 않게.
-                Text('· ',
-                    style: PTypo.bodySm
-                        .copyWith(color: t.fgTertiary, height: 1.6)),
+                Text(
+                  '· ',
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgTertiary,
+                    height: 1.6,
+                  ),
+                ),
                 Expanded(
                   child: Text(
                     line.substring(2),
-                    style: PTypo.bodySm
-                        .copyWith(color: t.fgSecondary, height: 1.6),
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgSecondary,
+                      height: 1.6,
+                    ),
                   ),
                 ),
               ],

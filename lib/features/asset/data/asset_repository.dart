@@ -86,10 +86,7 @@ class AssetRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/assets/summary',
-        queryParameters: {
-          'year': ?year,
-          'month': ?month,
-        },
+        queryParameters: {'year': ?year, 'month': ?month},
       );
       return _unwrap(res, AssetSummary.fromJson);
     } on DioException catch (e) {
@@ -193,32 +190,31 @@ class AssetRepository {
     String assetType,
     int? balance,
     List<AssetHolding>? holdings,
-  ) =>
-      assetType == 'INVESTMENT' && (holdings?.isNotEmpty ?? false)
-          ? null
-          : balance;
+  ) => assetType == 'INVESTMENT' && (holdings?.isNotEmpty ?? false)
+      ? null
+      : balance;
 
   /// holdings 요청 바디 — linked ↔ manual 별 필요한 필드만 직렬화.
   /// 수량은 소수 허용(코인 0.05·금 3.75g)이라 **문자열 그대로** 보낸다 — 서버가 BigDecimal 로 받아
   /// 정밀도가 깎이지 않는다. 미연동도 수량을 남긴다 — 선택이라 없으면 미전송.
   static Map<String, dynamic> _holdingBody(AssetHolding h) => {
-        'rowId': ?h.rowId,
-        'holdingType': h.holdingType.wire,
-        'linked': h.linked,
-        if (h.linked) ...{
-          // 시장코드는 선택이다 — 확정 못 했으면 아예 안 보내고 서버가 심볼로 해석한다.
-          'marketCode': ?h.marketCode,
-          'tossSymbol': h.tossSymbol,
-          'quantity': h.quantity ?? '0',
-        } else ...{
-          'holdingName': h.holdingName,
-          'holdingValue': h.holdingValue ?? 0,
-          'quantity': ?h.quantity,
-        },
-        // 안 적었으면 안 보낸다 — 서버가 같은 종목의 기존 원가를 잇는다.
-        'totalCost': ?h.totalCost,
-        'sortOrder': ?h.sortOrder,
-      };
+    'rowId': ?h.rowId,
+    'holdingType': h.holdingType.wire,
+    'linked': h.linked,
+    if (h.linked) ...{
+      // 시장코드는 선택이다 — 확정 못 했으면 아예 안 보내고 서버가 심볼로 해석한다.
+      'marketCode': ?h.marketCode,
+      'tossSymbol': h.tossSymbol,
+      'quantity': h.quantity ?? '0',
+    } else ...{
+      'holdingName': h.holdingName,
+      'holdingValue': h.holdingValue ?? 0,
+      'quantity': ?h.quantity,
+    },
+    // 안 적었으면 안 보낸다 — 서버가 같은 종목의 기존 원가를 잇는다.
+    'totalCost': ?h.totalCost,
+    'sortOrder': ?h.sortOrder,
+  };
 
   Future<void> delete(int id) async {
     try {
@@ -345,6 +341,7 @@ class AssetRepository {
     int? fee,
     required String tradeDate, // ISO-LOCAL-DATETIME
     String? description,
+
     /// 결제 계좌 — null 이면 증권계좌 예수금에서.
     int? settlementAssetRowId,
   }) async {
@@ -459,10 +456,7 @@ class AssetRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/asset-transfers',
-        queryParameters: {
-          'startDate': ?startDate,
-          'endDate': ?endDate,
-        },
+        queryParameters: {'startDate': ?startDate, 'endDate': ?endDate},
       );
       return _unwrapList(res, 'transfers', AssetTransfer.fromJson);
     } on DioException catch (e) {

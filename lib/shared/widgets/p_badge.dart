@@ -37,8 +37,8 @@ class PBadge extends StatelessWidget {
     this.variant = PBadgeVariant.secondary,
     this.dotColor,
     this.icon,
-  })  : _customFg = null,
-        _customBorder = null;
+  }) : _customFg = null,
+       _customBorder = null;
 
   /// 동적 색(카테고리 등)을 soft 톤(16% alpha bg + fg)으로 표시.
   const PBadge.softColor({
@@ -47,9 +47,9 @@ class PBadge extends StatelessWidget {
     required Color color,
     this.dotColor,
     this.icon,
-  })  : variant = PBadgeVariant.softBrand,
-        _customFg = color,
-        _customBorder = null;
+  }) : variant = PBadgeVariant.softBrand,
+       _customFg = color,
+       _customBorder = null;
 
   /// 동적 색을 outline 톤(border + fg)으로 표시.
   const PBadge.outlineColor({
@@ -58,9 +58,9 @@ class PBadge extends StatelessWidget {
     required Color color,
     this.dotColor,
     this.icon,
-  })  : variant = PBadgeVariant.outline,
-        _customFg = color,
-        _customBorder = color;
+  }) : variant = PBadgeVariant.outline,
+       _customFg = color,
+       _customBorder = color;
 
   final String label;
   final PBadgeVariant variant;
@@ -83,9 +83,11 @@ class PBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: bg,
-        border:
-            borderColor != null ? Border.all(color: borderColor, width: 1) : null,
-        borderRadius: PRadius.brFull, // pill — badge.md SoT(모든 badge pill, square 는 spec 외)
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1)
+            : null,
+        borderRadius: PRadius
+            .brFull, // pill — badge.md SoT(모든 badge pill, square 는 spec 외)
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -94,7 +96,10 @@ class PBadge extends StatelessWidget {
             Container(
               width: 6,
               height: 6,
-              decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: 4),
           ] else if (icon != null) ...[

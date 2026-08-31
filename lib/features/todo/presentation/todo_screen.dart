@@ -108,8 +108,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final collapseH = _compact
         ? 0.0
         : (_collapseKey.currentContext?.size?.height ?? 0.0);
-    final canStay =
-        _scrollCtrl.position.maxScrollExtent - collapseH > 72;
+    final canStay = _scrollCtrl.position.maxScrollExtent - collapseH > 72;
     final next = _compact ? st > 24 : st > 72 && canStay;
     if (next != _compact) {
       setState(() {
@@ -149,8 +148,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     });
     _lockFor(800);
     if (_scrollCtrl.hasClients) {
-      _scrollCtrl.animateTo(0,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _scrollCtrl.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -163,8 +165,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _dayKeys[ds]?.currentContext;
       if (ctx == null) return;
-      Scrollable.ensureVisible(ctx,
-          duration: const Duration(milliseconds: 300), alignment: 0.02);
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 300),
+        alignment: 0.02,
+      );
     });
   }
 
@@ -175,8 +180,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       final repo = await ref.read(todoRepositoryProvider.future);
       // 서버가 이번 토글의 실제 적립량을 돌려준다 — 낙관 예측으로 띄우면 평생 1회
       // 정책에 걸려 적립이 0 이어도 "+N" 이 떠서 거짓말이 된다(웹 TodoPage 정합).
-      final gain =
-          await repo.setStatus(x.rowId, wasDone ? 'PENDING' : 'COMPLETED');
+      final gain = await repo.setStatus(
+        x.rowId,
+        wasDone ? 'PENDING' : 'COMPLETED',
+      );
       ref.invalidate(todoListProvider);
       // 별빛 적립/회수 부수효과 — 별자리 상태 일괄 갱신.
       final constToday = ref.read(constellationTodayProvider).value;
@@ -204,8 +211,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final tags = <String>{
       for (final t in server) t.tagName,
       for (final x in all) _tagOf(x),
-    }.toList()
-      ..sort();
+    }.toList()..sort();
     await showPSheet<void>(
       context,
       title: AppLocalizations.of(context).expFilter,
@@ -265,7 +271,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   }
 
   Widget _buildBody(
-      BuildContext context, PorestTokens t, AppLocalizations l, List<Todo> all) {
+    BuildContext context,
+    PorestTokens t,
+    AppLocalizations l,
+    List<Todo> all,
+  ) {
     final constToday = ref.watch(constellationTodayProvider).value;
     final sky = ref.watch(constellationSkyProvider).value ?? const <SkyDay>[];
     final skyByDate = {for (final d in sky) d.date: d};
@@ -295,14 +305,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final dayKeysSorted = byDay.keys.toList()..sort();
     for (final g in byDay.values) {
       g.sort((a, b) {
-        final pr =
-            todoPrioRank(b.priority).compareTo(todoPrioRank(a.priority));
+        final pr = todoPrioRank(b.priority).compareTo(todoPrioRank(a.priority));
         if (pr != 0) return pr;
         return (a.due ?? today).compareTo(b.due ?? today);
       });
     }
-    _dayKeys.removeWhere(
-        (k, _) => !byDay.containsKey(k) && k != _kNoDueGroup);
+    _dayKeys.removeWhere((k, _) => !byDay.containsKey(k) && k != _kNoDueGroup);
     for (final k in dayKeysSorted) {
       _dayKeys.putIfAbsent(k, () => GlobalKey());
     }
@@ -310,8 +318,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       _dayKeys.putIfAbsent(_kNoDueGroup, () => GlobalKey());
     }
 
-    final todayLeft =
-        all.where((x) => !x.done && x.due != null && _ymd(x.due!) == todayYmd).length;
+    final todayLeft = all
+        .where((x) => !x.done && x.due != null && _ymd(x.due!) == todayYmd)
+        .length;
 
     // ── 상단 고정(pin) ──
     final pin = Column(
@@ -340,8 +349,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
+                        padding: const EdgeInsets.fromLTRB(
+                          PSpace.x24,
+                          8,
+                          PSpace.x24,
+                          0,
+                        ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -361,7 +374,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                                       height: 1.15,
                                       color: t.fgPrimary,
                                       fontFeatures: const [
-                                        FontFeature.tabularFigures()
+                                        FontFeature.tabularFigures(),
                                       ],
                                     ),
                                   ),
@@ -369,7 +382,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 7),
                                       child: _StarlightHint(
-                                          today: constToday, t: t),
+                                        today: constToday,
+                                        t: t,
+                                      ),
                                     ),
                                 ],
                               ),
@@ -382,9 +397,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                                   // 월 전체 캘린더와 동시 열면 고정 pin이
                                   // 화면 초과 — 상호 배타(가계부 정합).
                                   setState(() {
-                                _skyOpen = !_skyOpen;
-                                if (_skyOpen) _expanded = false;
-                              }),
+                                    _skyOpen = !_skyOpen;
+                                    if (_skyOpen) _expanded = false;
+                                  }),
                               tokens: t,
                             ),
                           ],
@@ -394,7 +409,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                       if (_skyOpen && constToday != null)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(
-                              PSpace.x24, 14, PSpace.x24, 0),
+                            PSpace.x24,
+                            14,
+                            PSpace.x24,
+                            0,
+                          ),
                           child: Column(
                             children: [
                               NightSkyHero(
@@ -403,9 +422,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                                 // 나와 로컬 '오늘'(todayYmd)과 어긋난다. KST 새벽
                                 // 0~9시 완료가 전날로 밀려 히어로가 0건을 띄웠다.
                                 doneToday: all
-                                    .where((x) =>
-                                        x.done &&
-                                        localDateKey(x.completedAt) == todayYmd)
+                                    .where(
+                                      (x) =>
+                                          x.done &&
+                                          localDateKey(x.completedAt) ==
+                                              todayYmd,
+                                    )
                                     .length,
                               ),
                               const SizedBox(height: 8),
@@ -565,10 +587,7 @@ class _StarlightHint extends StatelessWidget {
         ? l.tdmCollectedHint(name, today.streak)
         : l.tdmStarlightHint(lit, today.goal, today.goal - lit, name);
     // 하이라이트(별빛 n/g · 별자리명)는 문장 통짜 색 대신 브랜드 굵게 — l10n 어순 안전.
-    return Text(
-      text,
-      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-    );
+    return Text(text, style: PTypo.bodySm.copyWith(color: t.fgSecondary));
   }
 }
 
@@ -591,8 +610,13 @@ class _MonthNav extends StatelessWidget {
   final VoidCallback onOpenFilter;
   final PorestTokens tokens;
 
-  Widget _btn(IconData icon, VoidCallback onTap,
-      {Color? bg, Color? fg, Widget? badge}) {
+  Widget _btn(
+    IconData icon,
+    VoidCallback onTap, {
+    Color? bg,
+    Color? fg,
+    Widget? badge,
+  }) {
     return Material(
       color: bg ?? Colors.transparent,
       borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -754,11 +778,13 @@ class _LedgerCalendar extends StatelessWidget {
     for (var i = 0; i < cells.length; i += 7) {
       weeks.add(cells.sublist(i, i + 7));
     }
-    var selWeek =
-        weeks.indexWhere((w) => w.any((c) => c != null && c.ds == selected));
+    var selWeek = weeks.indexWhere(
+      (w) => w.any((c) => c != null && c.ds == selected),
+    );
     if (selWeek < 0) {
-      selWeek =
-          weeks.indexWhere((w) => w.any((c) => c != null && c.ds == todayStr));
+      selWeek = weeks.indexWhere(
+        (w) => w.any((c) => c != null && c.ds == todayStr),
+      );
     }
     if (selWeek < 0) selWeek = 0;
 
@@ -783,7 +809,9 @@ class _LedgerCalendar extends StatelessWidget {
             LucideIcons.star,
             size: 10,
             color: constellationColor(
-                context, constToday!.constellation.colorKey),
+              context,
+              constToday!.constellation.colorKey,
+            ),
           );
         }
         if (left > 0) {
@@ -849,7 +877,9 @@ class _LedgerCalendar extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: isSel
                       ? BoxDecoration(
-                          color: t.bgBrandSolid, shape: BoxShape.circle)
+                          color: t.bgBrandSolid,
+                          shape: BoxShape.circle,
+                        )
                       : null,
                   child: Opacity(
                     opacity: !isSel && future ? 0.55 : 1,
@@ -896,8 +926,8 @@ class _LedgerCalendar extends StatelessWidget {
                         color: i == 0
                             ? t.fgExpense
                             : i == 6
-                                ? t.fgBrand
-                                : t.fgPrimary,
+                            ? t.fgBrand
+                            : t.fgPrimary,
                       ),
                     ),
                   ),
@@ -906,10 +936,11 @@ class _LedgerCalendar extends StatelessWidget {
           ),
           for (final w in expanded ? weeks : [weeks[selWeek]])
             Row(
-                // 금액 줄 수가 달라도 날짜 숫자 y 고정 — Row 기본 center 가
-                // 낮은 셀을 세로 중앙으로 밀던 문제(토스 정렬 정합).
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [for (var i = 0; i < 7; i++) cell(w[i], i)]),
+              // 금액 줄 수가 달라도 날짜 숫자 y 고정 — Row 기본 center 가
+              // 낮은 셀을 세로 중앙으로 밀던 문제(토스 정렬 정합).
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [for (var i = 0; i < 7; i++) cell(w[i], i)],
+            ),
           InkWell(
             onTap: onToggleExpand,
             child: Padding(
@@ -963,10 +994,10 @@ class _DayGroup extends ConsumerWidget {
       rel = diff == 0
           ? l.dateToday
           : diff == 1
-              ? l.dateTomorrow
-              : diff == -1
-                  ? l.dateYesterday
-                  : null;
+          ? l.dateTomorrow
+          : diff == -1
+          ? l.dateYesterday
+          : null;
     }
 
     return Padding(
@@ -1022,10 +1053,14 @@ class _DayGroup extends ConsumerWidget {
                   label: l.actionDelete,
                   icon: LucideIcons.trash2,
                   kind: PSwipeKind.destructive,
-                  confirmTitle:
-                      todoActions.deleteConfirmTitle(context, items[i]),
-                  confirmMessage:
-                      todoActions.deleteConfirmMessage(context, items[i]),
+                  confirmTitle: todoActions.deleteConfirmTitle(
+                    context,
+                    items[i],
+                  ),
+                  confirmMessage: todoActions.deleteConfirmMessage(
+                    context,
+                    items[i],
+                  ),
                   onSelect: () => todoActions.delete(context, ref, items[i]),
                 ),
               ],
@@ -1120,8 +1155,9 @@ class _TodoRow extends StatelessWidget {
                           fontWeight: PFontWeight.semi,
                           letterSpacing: -0.15,
                           color: t.fgPrimary,
-                          decoration:
-                              todo.done ? TextDecoration.lineThrough : null,
+                          decoration: todo.done
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1132,7 +1168,9 @@ class _TodoRow extends StatelessWidget {
                           Text(
                             tag,
                             style: PTypo.caption.copyWith(
-                                color: t.fgTertiary, fontSize: 12.5),
+                              color: t.fgTertiary,
+                              fontSize: 12.5,
+                            ),
                           ),
                           if (hasNote) ...[
                             _MetaDot(t: t),
@@ -1149,8 +1187,10 @@ class _TodoRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: prio.bg(context),
                     borderRadius: PRadius.brSm,
@@ -1220,8 +1260,7 @@ class _FilterSheetBodyState extends State<_FilterSheetBody> {
   bool get _active => _tags.isNotEmpty || _prios.isNotEmpty || _hideDone;
 
   /// 변경 즉시 반영(시트 밖 리스트도 갱신) — 완료 버튼은 닫기만.
-  void _sync() =>
-      widget.onApply({..._tags}, {..._prios}, _hideDone);
+  void _sync() => widget.onApply({..._tags}, {..._prios}, _hideDone);
 
   @override
   Widget build(BuildContext context) {
@@ -1312,11 +1351,11 @@ class _FilterSheetBodyState extends State<_FilterSheetBody> {
                   onPressed: !_active
                       ? null
                       : () => setState(() {
-                            _tags = {};
-                            _prios = {};
-                            _hideDone = false;
-                            _sync();
-                          }),
+                          _tags = {};
+                          _prios = {};
+                          _hideDone = false;
+                          _sync();
+                        }),
                 ),
               ),
               const SizedBox(width: 8),
@@ -1373,8 +1412,10 @@ class _FilterChip extends StatelessWidget {
                 Container(
                   width: 7,
                   height: 7,
-                  decoration:
-                      BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 const SizedBox(width: 6),
               ],
@@ -1448,8 +1489,8 @@ class _LedgerSkeleton extends StatelessWidget {
                         color: i == 0
                             ? t.fgExpense
                             : i == 6
-                                ? t.fgBrand
-                                : t.fgPrimary,
+                            ? t.fgBrand
+                            : t.fgPrimary,
                       ),
                     ),
                   ),

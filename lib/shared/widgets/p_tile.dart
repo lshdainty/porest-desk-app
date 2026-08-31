@@ -36,11 +36,11 @@ class PTile extends StatelessWidget {
   final PTileSize size;
 
   (double padX, double padY, double swatchSize, double gap, double check)
-      get _metrics => switch (size) {
-            PTileSize.sm => (10, 12, 32, 10, 14),
-            PTileSize.md => (14, 16, 40, 12, 16),
-            PTileSize.lg => (18, 20, 48, 14, 18),
-          };
+  get _metrics => switch (size) {
+    PTileSize.sm => (10, 12, 32, 10, 14),
+    PTileSize.md => (14, 16, 40, 12, 16),
+    PTileSize.lg => (18, 20, 48, 14, 18),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +129,11 @@ class PTile extends StatelessWidget {
                     // padding 안이라 패딩만큼 당겨 모서리 기준으로 배치.
                     top: 8 - padY,
                     right: 8 - padX,
-                    child:
-                        Icon(LucideIcons.check, size: checkSize, color: t.fgBrand),
+                    child: Icon(
+                      LucideIcons.check,
+                      size: checkSize,
+                      color: t.fgBrand,
+                    ),
                   ),
               ],
             ),

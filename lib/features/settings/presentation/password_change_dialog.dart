@@ -106,8 +106,11 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
       );
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, l.passwordChanged,
-          severity: PSnackSeverity.success);
+      showPSnackBar(
+        context,
+        l.passwordChanged,
+        severity: PSnackSeverity.success,
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -127,67 +130,70 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
       padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.lg),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PSectionLabel(l.passwordCurrent),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: _currentCtrl,
-              obscureText: true,
-              enabled: !_submitting,
-              placeholder: l.passwordCurrent,
-              onChanged: (_) => setState(_syncFooter),
-            ),
-            const SizedBox(height: PSpace.x12),
-            PSectionLabel(l.passwordNew),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: _newCtrl,
-              obscureText: true,
-              enabled: !_submitting,
-              placeholder: l.passwordNewPlaceholder,
-              onChanged: (_) => setState(_syncFooter),
-            ),
-            // 입력 중 실시간 규칙 표시 — 변경 버튼을 누르기 전에 미달 조건을 알 수 있게
-            if (_newCtrl.text.isNotEmpty) ...[
-              const SizedBox(height: PSpace.xs),
-              for (final rule in kPasswordRules)
-                _RuleRow(ok: rule.test(_newCtrl.text), label: rule.label(l)),
-            ],
-            if (_sameAsCurrent)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(l.passwordSameAsCurrent,
-                    style: PTypo.caption.copyWith(color: t.statusDanger)),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PSectionLabel(l.passwordCurrent),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: _currentCtrl,
+            obscureText: true,
+            enabled: !_submitting,
+            placeholder: l.passwordCurrent,
+            onChanged: (_) => setState(_syncFooter),
+          ),
+          const SizedBox(height: PSpace.x12),
+          PSectionLabel(l.passwordNew),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: _newCtrl,
+            obscureText: true,
+            enabled: !_submitting,
+            placeholder: l.passwordNewPlaceholder,
+            onChanged: (_) => setState(_syncFooter),
+          ),
+          // 입력 중 실시간 규칙 표시 — 변경 버튼을 누르기 전에 미달 조건을 알 수 있게
+          if (_newCtrl.text.isNotEmpty) ...[
+            const SizedBox(height: PSpace.xs),
+            for (final rule in kPasswordRules)
+              _RuleRow(ok: rule.test(_newCtrl.text), label: rule.label(l)),
+          ],
+          if (_sameAsCurrent)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                l.passwordSameAsCurrent,
+                style: PTypo.caption.copyWith(color: t.statusDanger),
               ),
-            const SizedBox(height: PSpace.x12),
-            PSectionLabel(l.passwordNewConfirm),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: _confirmCtrl,
-              obscureText: true,
-              enabled: !_submitting,
-              placeholder: l.passwordConfirmPlaceholder,
-              onChanged: (_) => setState(_syncFooter),
             ),
-            // 입력 중 실시간 일치 표시 — 위 규칙 체크리스트와 같은 문법(체크/X).
-            // 확인 입력이 비면 표시하지 않는다(입력 시작 전부터 불일치로 겁주지 않게).
-            if (_confirmCtrl.text.isNotEmpty)
-              _RuleRow(
-                ok: _newCtrl.text == _confirmCtrl.text,
-                label: _newCtrl.text == _confirmCtrl.text
-                    ? l.passwordMatched
-                    : l.passwordMismatch,
-                // 불일치는 규칙 미달(아직 채우는 중)과 달리 두 값이 어긋난 '충돌'
-                failColor: t.statusDanger,
+          const SizedBox(height: PSpace.x12),
+          PSectionLabel(l.passwordNewConfirm),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: _confirmCtrl,
+            obscureText: true,
+            enabled: !_submitting,
+            placeholder: l.passwordConfirmPlaceholder,
+            onChanged: (_) => setState(_syncFooter),
+          ),
+          // 입력 중 실시간 일치 표시 — 위 규칙 체크리스트와 같은 문법(체크/X).
+          // 확인 입력이 비면 표시하지 않는다(입력 시작 전부터 불일치로 겁주지 않게).
+          if (_confirmCtrl.text.isNotEmpty)
+            _RuleRow(
+              ok: _newCtrl.text == _confirmCtrl.text,
+              label: _newCtrl.text == _confirmCtrl.text
+                  ? l.passwordMatched
+                  : l.passwordMismatch,
+              // 불일치는 규칙 미달(아직 채우는 중)과 달리 두 값이 어긋난 '충돌'
+              failColor: t.statusDanger,
+            ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _error!,
+                style: PTypo.caption.copyWith(color: t.statusDanger),
               ),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(_error!,
-                    style:
-                        PTypo.caption.copyWith(color: t.statusDanger)),
-              ),
+            ),
         ],
       ),
     );
@@ -221,4 +227,3 @@ class _RuleRow extends StatelessWidget {
     );
   }
 }
-

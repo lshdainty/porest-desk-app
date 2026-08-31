@@ -31,10 +31,12 @@ class CardCatalogPage {
       final v = meta[k] ?? json[k];
       return (v as num?)?.toInt();
     }
+
     bool? metaBool(String k) {
       final v = meta[k] ?? json[k];
       return v as bool?;
     }
+
     return CardCatalogPage(
       content: content
           .map((e) => CardCatalogSummary.fromJson(e as Map<String, dynamic>))

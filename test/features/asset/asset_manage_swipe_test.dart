@@ -36,9 +36,7 @@ Future<void> _pump(WidgetTester tester) async {
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),
         // 트레이 자동 닫힘은 앱 루트(app.dart)가 쥔다 — 테스트도 같은 조상을 준다.
-        home: const SlidableAutoCloseBehavior(
-          child: AccountCardManageScreen(),
-        ),
+        home: const SlidableAutoCloseBehavior(child: AccountCardManageScreen()),
       ),
     ),
   );

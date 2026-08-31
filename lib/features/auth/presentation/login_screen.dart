@@ -161,14 +161,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: PSpace.x16),
                       Material(
                         color: t.statusDangerSubtle,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(PRadius.md)),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(PRadius.md),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(PSpace.x12),
                           child: Text(
                             _error!,
-                            style: PTypo.bodySm
-                                .copyWith(color: t.statusDangerFg),
+                            style: PTypo.bodySm.copyWith(
+                              color: t.statusDangerFg,
+                            ),
                           ),
                         ),
                       ),
@@ -202,13 +204,13 @@ class _BrandMark extends StatelessWidget {
     final c = context.tokens.fgBrand;
     // svg viewBox 100 기준 좌표를 size 비율로 환산 (행높이 12, 간격 6, 꼬리 11×10).
     Widget bar(double w, double h) => Container(
-          width: size * w / 100,
-          height: size * h / 100,
-          decoration: BoxDecoration(
-            color: c,
-            borderRadius: BorderRadius.circular(size * 6 / 100),
-          ),
-        );
+      width: size * w / 100,
+      height: size * h / 100,
+      decoration: BoxDecoration(
+        color: c,
+        borderRadius: BorderRadius.circular(size * 6 / 100),
+      ),
+    );
     return SizedBox(
       width: size,
       height: size,

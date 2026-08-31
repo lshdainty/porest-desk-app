@@ -11,8 +11,9 @@ class CardBenefitMappingRepository {
 
   Future<List<CardBenefitMapping>> list() async {
     try {
-      final res =
-          await _dio.get<Map<String, dynamic>>('/card-benefit-mappings');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/card-benefit-mappings',
+      );
       return _unwrapList(res, 'mappings', CardBenefitMapping.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
@@ -35,8 +36,7 @@ class CardBenefitMappingRepository {
       );
       final body = ApiResponse<CardBenefitMapping>.fromJson(
         res.data ?? const {},
-        (raw) =>
-            CardBenefitMapping.fromJson(raw! as Map<String, dynamic>),
+        (raw) => CardBenefitMapping.fromJson(raw! as Map<String, dynamic>),
       );
       if (!body.success || body.data == null) {
         throw ApiException(code: body.code, message: body.message);

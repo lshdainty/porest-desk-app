@@ -24,15 +24,15 @@ class PSkeleton extends StatefulWidget {
 
   /// 라인 placeholder: `PSkeleton.line(width: 120)` — height 16 (text-body line).
   const PSkeleton.line({super.key, this.width, double this.height = 16})
-      : borderRadius = PRadius.brSm,
-        animation = PSkeletonAnimation.pulse;
+    : borderRadius = PRadius.brSm,
+      animation = PSkeletonAnimation.pulse;
 
   /// avatar placeholder: `PSkeleton.circle(size: 40)`.
   PSkeleton.circle({super.key, required double size})
-      : width = size,
-        height = size,
-        borderRadius = BorderRadius.circular(size),
-        animation = PSkeletonAnimation.pulse;
+    : width = size,
+      height = size,
+      borderRadius = BorderRadius.circular(size),
+      animation = PSkeletonAnimation.pulse;
 
   final double? width;
   final double? height;
@@ -66,7 +66,8 @@ class _PSkeletonState extends State<PSkeleton>
 
   @override
   Widget build(BuildContext context) {
-    final reducedMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final reducedMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     final t = context.tokens;
     if (reducedMotion) {
       return _box(t);
@@ -108,13 +109,13 @@ class _PSkeletonState extends State<PSkeleton>
   }
 
   Widget _box(PorestTokens t) => Container(
-        width: widget.width,
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: t.bgMuted,
-          borderRadius: widget.borderRadius,
-        ),
-      );
+    width: widget.width,
+    height: widget.height,
+    decoration: BoxDecoration(
+      color: t.bgMuted,
+      borderRadius: widget.borderRadius,
+    ),
+  );
 }
 
 /// 텍스트 line 여러 줄 placeholder — gap 사이 4px (line-height 친화).
@@ -185,14 +186,16 @@ class PListSkeleton extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: 0.75,
-                        child: PSkeleton.line(height: 14)),
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 0.75,
+                      child: PSkeleton.line(height: 14),
+                    ),
                     const SizedBox(height: 6),
                     FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: 0.5,
-                        child: PSkeleton.line(height: 12)),
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 0.5,
+                      child: PSkeleton.line(height: 12),
+                    ),
                   ],
                 ),
               ),
@@ -231,15 +234,17 @@ class PCardSkeleton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: 0.66,
-              child: PSkeleton.line(height: 18)),
+            alignment: Alignment.centerLeft,
+            widthFactor: 0.66,
+            child: PSkeleton.line(height: 18),
+          ),
           for (int i = 0; i < lines; i++) ...[
             const SizedBox(height: 12),
             FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: i == lines - 1 ? 0.5 : 1.0,
-                child: PSkeleton.line(height: 14)),
+              alignment: Alignment.centerLeft,
+              widthFactor: i == lines - 1 ? 0.5 : 1.0,
+              child: PSkeleton.line(height: 14),
+            ),
           ],
         ],
       ),
@@ -292,11 +297,12 @@ class PChartSkeleton extends StatelessWidget {
                   if (i > 0) const SizedBox(width: 8),
                   Expanded(
                     child: FractionallySizedBox(
-                      heightFactor:
-                          (barHeights[i % barHeights.length] / 100).clamp(0.1, 1.0),
+                      heightFactor: (barHeights[i % barHeights.length] / 100)
+                          .clamp(0.1, 1.0),
                       child: PSkeleton(
                         borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4)),
+                          top: Radius.circular(4),
+                        ),
                       ),
                     ),
                   ),

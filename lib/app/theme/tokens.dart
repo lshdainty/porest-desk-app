@@ -102,6 +102,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgBrandPress;
   final Color bgBrandSubtle;
   final Color bgBrandMuted;
+
   /// 채운 브랜드 버튼용 solid fill — 웹 `--bg-brand` 정합으로 light/dark 모두 primary 고정.
   /// (bgBrand 는 다크에서 primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 버튼은 이 토큰 사용.)
   final Color bgBrandSolid;
@@ -156,13 +157,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgTransferSubtle;
 
   // Interaction tints — brand/warm 변형
-  final Color bgBrandTint;        // brand 약한 톤
-  final Color bgBrandTintStrong;  // brand 진한 톤
-  final Color bgTableHead;        // 테이블 헤더 행 배경
+  final Color bgBrandTint; // brand 약한 톤
+  final Color bgBrandTintStrong; // brand 진한 톤
+  final Color bgTableHead; // 테이블 헤더 행 배경
 
   // Border 변형
-  final Color borderBrandSoft;    // brand 보더 약한 톤
-  final Color borderBrandMid;     // brand 보더 중간 톤
+  final Color borderBrandSoft; // brand 보더 약한 톤
+  final Color borderBrandMid; // brand 보더 중간 톤
 
   // Status 변형
   final Color statusSuccessBorder;
@@ -204,7 +205,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     // desk-front `--bg-brand-subtle: color-mix(srgb, --color-primary 8%, transparent)`
     // = cobalt500(#0147AD) @ 8% alpha. solid cobalt50 사용 시 톤이 짙어 web 정합 X.
     bgBrandSubtle: Color(0x140147AD), // cobalt500 @ 8% alpha (0x14 ≈ 0.078)
-    bgBrandMuted: Color(0x240147AD),  // cobalt500 @ 14% alpha (0x24 ≈ 0.141)
+    bgBrandMuted: Color(0x240147AD), // cobalt500 @ 14% alpha (0x24 ≈ 0.141)
     bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — primary 고정
     bgHoverSubtle: PorestPalette.slate50,
     bgHoverStrong: PorestPalette.slate100,
@@ -251,7 +252,9 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgIncomeSubtle: PorestPalette.cobalt50,
     bgTransferSubtle: Color(0x1F1D6FCB),
     // Interaction tints
-    bgBrandTint: Color(0xFFEAF2FB),       // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
+    bgBrandTint: Color(
+      0xFFEAF2FB,
+    ), // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
     bgBrandTintStrong: PorestPalette.cobalt100,
     bgTableHead: PorestPalette.slate100,
     // Border 변형
@@ -296,7 +299,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     // desk-front dark: `--bg-brand-subtle: color-mix(srgb, --color-primary 12%, transparent)`
     // = cobalt500(#0147AD) @ 12% alpha. solid cobalt900 사용 시 거의 검정이라 web 정합 X.
     bgBrandSubtle: Color(0x1F0147AD), // cobalt500 @ 12% alpha (0x1F ≈ 0.122)
-    bgBrandMuted: Color(0x380147AD),  // cobalt500 @ 22% alpha (0x38 ≈ 0.220)
+    bgBrandMuted: Color(0x380147AD), // cobalt500 @ 22% alpha (0x38 ≈ 0.220)
     bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — 다크에서도 primary 고정(light 아님)
     bgHoverSubtle: Color(0x0AFFFFFF),
     bgHoverStrong: Color(0x14FFFFFF),
@@ -342,28 +345,30 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgIncome: PorestPalette.cobalt400,
     fgTransfer: PorestPalette.statusInfoLight,
     bgExpenseSubtle: Color(0x2EDC2626),
-    bgIncomeSubtle: Color(0x80001A42),    // cobalt900 @ 50%
+    bgIncomeSubtle: Color(0x80001A42), // cobalt900 @ 50%
     bgTransferSubtle: Color(0x2E1D6FCB),
     // Interaction tints — cobalt 근사 hex+alpha
-    bgBrandTint: Color(0x1F5FA0E5),       // cobalt400 @12% — canvas(#1A1F2E) 위 합성 시 #222E44 (디자인 정합)
+    bgBrandTint: Color(
+      0x1F5FA0E5,
+    ), // cobalt400 @12% — canvas(#1A1F2E) 위 합성 시 #222E44 (디자인 정합)
     bgBrandTintStrong: Color(0x385FA0E5), // cobalt400 @22%
-    bgTableHead: Color(0x0AFFFFFF),       // oklch(1 0 0 / 0.04)
+    bgTableHead: Color(0x0AFFFFFF), // oklch(1 0 0 / 0.04)
     // Border 변형 — cobalt brand
-    borderBrandSoft: Color(0x665FA0E5),   // cobalt400 @ 40%
-    borderBrandMid: Color(0x8097C2EE),    // cobalt300 @ 50%
+    borderBrandSoft: Color(0x665FA0E5), // cobalt400 @ 40%
+    borderBrandMid: Color(0x8097C2EE), // cobalt300 @ 50%
     // Status 변형 (dark mode = base color border)
     statusSuccessBorder: PorestPalette.statusSuccessBase,
     statusWarningBorder: PorestPalette.statusWarningBase,
     statusDangerBorder: PorestPalette.statusErrorBase,
     statusDangerPress: PorestPalette.statusErrorLight,
     statusInfoBorder: PorestPalette.statusInfoBase,
-    surfaceHero: Color(0x80001A42),       // cobalt900 @ 50%
+    surfaceHero: Color(0x80001A42), // cobalt900 @ 50%
     // Hero gradient (dark) — primary-light(cobalt400 #5FA0E5) 기반.
     // 어두운 페이지 배경에서 카드를 밝게 도드라지게 + 디자인 시스템 dark brand 원칙
     // (fgBrand/border 등 전부 cobalt400=primary-light) 정합. start는 primary-light,
     // end는 primary(cobalt500)로 흘려 하단 split 영역 대비 확보.
     bgHeroGradientStart: PorestPalette.cobalt400, // primary-light #5FA0E5
-    bgHeroGradientEnd: PorestPalette.cobalt500,    // primary #0147AD
+    bgHeroGradientEnd: PorestPalette.cobalt500, // primary #0147AD
     // 다크 = 더 밝은 코발트 그라데이션 → 50% 혼합으로 더 옅게(웹 .dark .chg 정합)
     fgOnHeroChgUp: PorestPalette.heroChgUpDark,
     fgOnHeroChgDown: PorestPalette.heroChgDownDark,

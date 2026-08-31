@@ -246,8 +246,11 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                         label: l.assetNetWorth,
                         amount: masked
                             ? '••••••'
-                            : krwSigned(points[_touchedIdx!].netWorth, false,
-                                unit: true),
+                            : krwSigned(
+                                points[_touchedIdx!].netWorth,
+                                false,
+                                unit: true,
+                              ),
                         amountColor: points[_touchedIdx!].netWorth < 0
                             ? t.statusDangerFg
                             : t.fgPrimary,
