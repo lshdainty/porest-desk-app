@@ -238,6 +238,11 @@ class PSheetController extends ChangeNotifier {
 ///   - content: 스크롤 영역. `contentBuilder(ctx, scrollController)` 가 ListView/CustomScrollView 직접 구성
 ///   - footer: optional, 고정 높이. `footerBuilder(ctx)` 로 Row 등 액션 위젯 전달
 ///
+/// **본문 좌우 여백은 `contentBuilder` 가 준다.** 헤더·푸터는 24 를 갖지만 content 는
+/// 안 감싼다 — 리스트형 본문이 구분선·스크롤바를 시트 끝까지 뻗어야 하기 때문이다.
+/// 그래서 호출처가 헤더와 같은 24 를 직접 물린다:
+/// `padding: EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16)`
+///
 /// 두 sizing 모드:
 ///   - [shrinkWrap]=false (default): `DraggableScrollableSheet` 로 sheet 가
 ///     화면 [initialChildSize] 비율 만큼 강제 점유. content 짧아도 sheet
@@ -344,6 +349,10 @@ Widget _buildSheetColumn(
   final t = ctx.tokens;
   return Column(
     mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
+    // 가로를 채운다. 기본값(center)이면 폭을 스스로 안 채우는 본문(Column mainAxisSize.min
+    // 등)이 시트 가운데로 쪼그라들어, 호출처가 좌우 24 를 줘도 그 여백이 화면 기준으로
+    // 서지 않는다. 시트 본문은 시트 폭을 쓰는 게 맞다.
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       // Drag handle — spec: 40×4 / surface-input / radius-full
       Container(
@@ -355,7 +364,7 @@ Widget _buildSheetColumn(
           borderRadius: PRadius.brFull,
         ),
       ),
-      // Header (제목 + 액션 + close) — 좌우 xl(24) 로 content·footer 와 맞춘다.
+      // Header (제목 + 액션 + close) — 좌우 xl(24).
       // 우측은 sm(8) — 닫기 아이콘 버튼이 자체 padding 을 가져 광학적으로 24 에 선다.
       Padding(
         padding: const EdgeInsets.fromLTRB(
@@ -384,6 +393,15 @@ Widget _buildSheetColumn(
         ),
       ),
       // Content — Draggable 모드면 Expanded 로 영역 강제, shrinkWrap 모드면 자연 wrap.
+      //
+      // **좌우 여백은 여기서 주지 않는다. 호출처(contentBuilder) 책임이다.**
+      // 리스트형 본문이 스크롤바·구분선·hover 를 시트 끝까지 뻗어야 해서 바깥에서
+      // 일괄로 물릴 수 없다. 대신 호출처가 헤더·푸터와 같은 24 를 직접 준다:
+      //
+      //   ListView(padding: EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16))
+      //
+      // 이걸 빠뜨리면 본문만 화면 끝에 붙는다 — 실제로 카드 상세의 '지금 결제'·
+      // '기간 선택' 시트가 그렇게 나갔다.
       if (expanded) Expanded(child: content) else content,
       // Footer (옵션, 고정)
       if (footerBuilder != null)

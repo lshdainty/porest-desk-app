@@ -1714,30 +1714,35 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             final dateSuffix = b.nextPaymentDate != null
                 ? l.assetPayConfirmDateSuffix(b.nextPaymentDate!)
                 : '';
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${l.assetPayConfirmMessage(krw(upcoming))}$dateSuffix',
-                  style: PTypo.body.copyWith(color: t.fgSecondary, height: 1.7),
-                ),
-                const SizedBox(height: PSpace.x20),
-                Text(l.assetPayAmount,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTextInput(
-                  controller: ctrl,
-                  keyboardType: const TextInputType.numberWithOptions(),
-                  placeholder: '0',
-                ),
-                if (v > 0 && v < upcoming) ...[
+            // 시트 본문 좌우는 호출처가 쥔다 — showPSheet 는 헤더·푸터만 24 를 준다.
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.xl, 0, PSpace.xl, PSpace.x16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${l.assetPayConfirmMessage(krw(upcoming))}$dateSuffix',
+                    style: PTypo.body.copyWith(color: t.fgSecondary, height: 1.7),
+                  ),
+                  const SizedBox(height: PSpace.x20),
+                  Text(l.assetPayAmount,
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
-                  Text(l.assetPayRemainder(krw(upcoming - v)),
-                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  PTextInput(
+                    controller: ctrl,
+                    keyboardType: const TextInputType.numberWithOptions(),
+                    placeholder: '0',
+                  ),
+                  if (v > 0 && v < upcoming) ...[
+                    const SizedBox(height: PSpace.x8),
+                    Text(l.assetPayRemainder(krw(upcoming - v)),
+                        style: PTypo.micro.copyWith(color: t.fgTertiary)),
                 ],
-              ],
+                ],
+              ),
             );
           },
         );
@@ -1836,94 +1841,99 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
       shrinkWrap: true,
       contentBuilder: (ctx, _) {
         final t = ctx.tokens;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final entry in byYear.entries)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 52,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: Text(
-                          entry.key,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.bodyMd,
-                            fontWeight: PFontWeight.bold,
-                            color: t.fgPrimary,
-                            fontFeatures: const [
-                              FontFeature.tabularFigures()
-                            ],
+        // 시트 본문 좌우는 호출처가 쥔다 — 안 주면 연도 라벨이 화면 끝에 붙어 잘린다.
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.xl, 0, PSpace.xl, PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final entry in byYear.entries)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 52,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: Text(
+                            entry.key,
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: PFontSize.bodyMd,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures()
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (var ri = 0; ri < entry.value.length; ri++)
-                            InkWell(
-                              onTap: () {
-                                // showPSheet 는 root navigator — rootNavigator pop 필수.
-                                Navigator.of(context, rootNavigator: true).pop();
-                                setState(() => _stIdx = entry.value[ri].$1);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 15),
-                                decoration: ri == 0
-                                    ? null
-                                    : BoxDecoration(
-                                        border: Border(
-                                            top: BorderSide(
-                                                color: t.borderSubtle)),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var ri = 0; ri < entry.value.length; ri++)
+                              InkWell(
+                                onTap: () {
+                                  // showPSheet 는 root navigator — rootNavigator pop 필수.
+                                  Navigator.of(context, rootNavigator: true).pop();
+                                  setState(() => _stIdx = entry.value[ri].$1);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 2, vertical: 15),
+                                  decoration: ri == 0
+                                      ? null
+                                      : BoxDecoration(
+                                          border: Border(
+                                              top: BorderSide(
+                                                  color: t.borderSubtle)),
+                                        ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        entry.value[ri].$2.scheduled
+                                            ? '${entry.value[ri].$2.label} (${AppLocalizations.of(ctx).assetScheduledTag})'
+                                            : entry.value[ri].$2.label,
+                                        style: TextStyle(
+                                          fontFamily: PTypo.sans,
+                                          fontSize: PFontSize.bodyMd,
+                                          fontWeight: entry.value[ri].$1 == _stIdx
+                                              ? PFontWeight.bold
+                                              : PFontWeight.medium,
+                                          color: t.fgPrimary,
+                                        ),
                                       ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      entry.value[ri].$2.scheduled
-                                          ? '${entry.value[ri].$2.label} (${AppLocalizations.of(ctx).assetScheduledTag})'
-                                          : entry.value[ri].$2.label,
-                                      style: TextStyle(
-                                        fontFamily: PTypo.sans,
-                                        fontSize: PFontSize.bodyMd,
-                                        fontWeight: entry.value[ri].$1 == _stIdx
-                                            ? PFontWeight.bold
-                                            : PFontWeight.medium,
-                                        color: t.fgPrimary,
+                                      const Spacer(),
+                                      Text(
+                                        widget.masked
+                                            ? '••••••'
+                                            : krwSigned(entry.value[ri].$2.amount,
+                                                false, unit: true),
+                                        style: PTypo.bodySm
+                                            .copyWith(color: t.fgTertiary),
                                       ),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      widget.masked
-                                          ? '••••••'
-                                          : krwSigned(entry.value[ri].$2.amount,
-                                              false, unit: true),
-                                      style: PTypo.bodySm
-                                          .copyWith(color: t.fgTertiary),
-                                    ),
-                                    if (entry.value[ri].$1 == _stIdx) ...[
-                                      const SizedBox(width: 8),
-                                      Icon(LucideIcons.check,
-                                          size: 16, color: t.fgBrand),
+                                      if (entry.value[ri].$1 == _stIdx) ...[
+                                        const SizedBox(width: 8),
+                                        Icon(LucideIcons.check,
+                                            size: 16, color: t.fgBrand),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         );
       },
     );
