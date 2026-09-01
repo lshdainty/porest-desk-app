@@ -592,6 +592,14 @@
     }
   },
   "assetPaymentCancelled": "결제를 취소했어요",
+  "assetInstallmentPayoff": "남은 할부 한 번에 정리",
+  "assetInstallmentPayoffConfirm": "남은 할부 {amount}원을 이번 결제 예정액에 한 번에 넣을까요? 다음 회차부터는 청구되지 않아요.",
+  "@assetInstallmentPayoffConfirm": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "assetInstallmentPayoffUndo": "되돌리기",
+  "assetInstallmentPayoffUndoConfirm": "남은 원금 정리를 취소하고 원래 회차대로 나눠 낼까요?",
+  "assetInstallmentPaidOffBadge": "남은 원금 정리됨",
   "assetInstallmentBadge": "할부 {months}개월",
   "@assetInstallmentBadge": {
     "placeholders": { "months": { "type": "int" } }
