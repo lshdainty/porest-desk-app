@@ -793,6 +793,7 @@ class _DayCell extends StatelessWidget {
               for (final ev in visible)
                 _CellEventLabel(
                   event: ev,
+                  day: day,
                   position: _segPos(ev, day),
                   dimmed: isOutside,
                   tokens: t,
@@ -837,11 +838,13 @@ _SegPos _segPos(CalendarEvent e, DateTime day) {
 class _CellEventLabel extends StatelessWidget {
   const _CellEventLabel({
     required this.event,
+    required this.day,
     required this.position,
     required this.dimmed,
     required this.tokens,
   });
   final CalendarEvent event;
+  final DateTime day;
   final _SegPos position;
   final bool dimmed;
   final PorestTokens tokens;
@@ -864,9 +867,31 @@ class _CellEventLabel extends StatelessWidget {
       _SegPos.last => const BorderRadius.horizontal(right: r),
       _SegPos.middle => BorderRadius.zero,
     };
-    final showText = position == _SegPos.none || position == _SegPos.first;
+    // 단일 이벤트만 좌측 제목. 멀티데이는 아래 가운데 라벨이 맡는다 — 시작 조각에만
+    // 두면 바의 나머지가 빈 띠로 남고, 주가 넘어가면 다음 주 바에는 제목이 아예
+    // 없었다(사용자 결정: 연속 바는 제목을 가운데에, 웹 정합).
+    final showText = position == _SegPos.none;
     final leftInset = position == _SegPos.none || position == _SegPos.first;
     final rightInset = position == _SegPos.none || position == _SegPos.last;
+
+    // 이 셀이 "이 주(행)에서 바가 끝나는 칸" 인가 — 이벤트 마지막 날이거나 주의 끝(토).
+    // 라벨은 행마다 한 번, 이 칸에서 왼쪽으로 넘치게 그린다. Flutter 는 z-index 가
+    // 없어 나중에 그려지는(오른쪽) 칸이 위에 오므로, 시작 칸에서 오른쪽으로 뻗으면
+    // 이웃 조각의 배경에 글자가 가려진다 — 끝 칸에서 왼쪽으로 뻗으면 안 가려진다.
+    final d = DateTime(day.year, day.month, day.day);
+    final isRowSegEnd =
+        position != _SegPos.none &&
+        (position == _SegPos.last || d.weekday == DateTime.saturday);
+    // 이 행에서 바가 차지하는 칸 수 — 행 시작(일요일)과 이벤트 첫날 중 늦은 쪽부터.
+    final int rowSegDays;
+    if (isRowSegEnd) {
+      final weekStart = d.subtract(Duration(days: d.weekday % 7));
+      final sd = DateTime(event.start.year, event.start.month, event.start.day);
+      final segStart = sd.isAfter(weekStart) ? sd : weekStart;
+      rowSegDays = d.difference(segStart).inDays + 1;
+    } else {
+      rowSegDays = 0;
+    }
     return Opacity(
       opacity: dimmed ? 0.5 : 1.0,
       child: Padding(
@@ -884,16 +909,58 @@ class _CellEventLabel extends StatelessWidget {
             color: chipFill(context, base),
             borderRadius: radius,
           ),
-          child: Text(
-            showText ? event.title : '',
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            softWrap: false,
-            style: PTypo.micro.copyWith(
-              color: chipText(context, base),
-              fontWeight: PFontWeight.semi,
-            ),
-          ),
+          child: isRowSegEnd
+              ? Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // 빈 텍스트가 바 높이를 잡는다 — 라벨은 그 위에 겹쳐 스팬으로 뻗는다.
+                    Text(
+                      '',
+                      maxLines: 1,
+                      style: PTypo.micro.copyWith(fontWeight: PFontWeight.semi),
+                    ),
+                    Positioned.fill(
+                      child: LayoutBuilder(
+                        builder: (context, c) {
+                          // 칸 폭 균등 + 조각 사이 여백 0 — 칸 수 × 현재 폭으로 스팬을
+                          // 근사한다(첫·끝 조각의 바깥 4px 만 오차, 가운데 정렬이라 안 보인다).
+                          final spanW = c.maxWidth * rowSegDays;
+                          return Align(
+                            alignment: Alignment.centerRight,
+                            child: OverflowBox(
+                              alignment: Alignment.centerRight,
+                              maxWidth: spanW,
+                              child: SizedBox(
+                                width: spanW,
+                                child: Text(
+                                  event.title,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: false,
+                                  style: PTypo.micro.copyWith(
+                                    color: chipText(context, base),
+                                    fontWeight: PFontWeight.semi,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : Text(
+                  showText ? event.title : '',
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                  style: PTypo.micro.copyWith(
+                    color: chipText(context, base),
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
         ),
       ),
     );
