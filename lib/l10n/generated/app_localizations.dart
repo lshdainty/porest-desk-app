@@ -965,7 +965,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetPaymentDayLabel.
   ///
   /// In ko, this message translates to:
-  /// **'결제일 (선택)'**
+  /// **'결제일'**
   String get assetPaymentDayLabel;
 
   /// No description provided for @assetPaymentDaySelect.

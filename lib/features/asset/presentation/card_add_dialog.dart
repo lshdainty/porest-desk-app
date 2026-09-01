@@ -107,7 +107,14 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   bool get _isEdit => widget.edit != null;
 
   /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다.
-  bool get _canSubmit => !_submitting && (_isEdit || _selected != null);
+  ///
+  /// 신용카드는 결제일이 필수다 — 없으면 명세서(예정 회차·할부 구성)가 성립하지 않는다.
+  /// 결제일 없는 카드는 체크카드뿐이고 체크카드는 할부를 안 받는다(사용자 결정).
+  /// 기존에 결제일 없이 등록된 신용카드도 여기서 걸린다 — 수정하며 채우게 된다.
+  bool get _canSubmit =>
+      !_submitting &&
+      (_isEdit || _selected != null) &&
+      (_cardType != _CardType.credit || _paymentDay != null);
 
   @override
   void initState() {
@@ -280,12 +287,16 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
               PTabItem(value: c, label: c.label(l)),
           ],
           value: _cardType,
-          onChanged: (v) => setState(() {
-            _cardType = v;
-            // 신규만 선택 초기화. 편집은 종류를 잘못 눌렀다고 해서
-            // 연결된 상품까지 잃으면 곤란하다(web 동일).
-            if (!_isEdit) _selected = null;
-          }),
+          onChanged: (v) {
+            setState(() {
+              _cardType = v;
+              // 신규만 선택 초기화. 편집은 종류를 잘못 눌렀다고 해서
+              // 연결된 상품까지 잃으면 곤란하다(web 동일).
+              if (!_isEdit) _selected = null;
+            });
+            // 신용↔체크 전환은 결제일 필수 여부를 바꾼다 — 저장 버튼을 다시 판정한다.
+            _onChanged();
+          },
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
@@ -407,7 +418,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
               for (var d = 1; d <= 31; d++)
                 PSelectItem(value: d, label: l.dayN(d)),
             ],
-            onChanged: (v) => setState(() => _paymentDay = v),
+            onChanged: (v) {
+              setState(() => _paymentDay = v);
+              _onChanged();
+            },
           ),
         ],
         // 현재 사용액 (원) ───────────────────
