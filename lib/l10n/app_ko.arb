@@ -592,6 +592,21 @@
     }
   },
   "assetPaymentCancelled": "결제를 취소했어요",
+  "assetInstallmentBadge": "할부 {months}개월",
+  "@assetInstallmentBadge": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "assetInstallmentSeq": "{seq}/{total}회차",
+  "@assetInstallmentSeq": {
+    "placeholders": { "seq": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "assetInstallmentPrincipal": "원금 {amount}",
+  "@assetInstallmentPrincipal": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "assetInstallmentFallback": "할부",
+  "assetLumpSumLabel": "일시불",
+  "assetAlreadyPaidLabel": "선결제 차감",
   "assetPayNow": "지금 결제",
   "assetPayAction": "결제하기",
   "assetPayAmount": "결제 금액",

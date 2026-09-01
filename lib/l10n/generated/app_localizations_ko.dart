@@ -1090,6 +1090,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetPaymentCancelled => '결제를 취소했어요';
 
   @override
+  String assetInstallmentBadge(int months) {
+    return '할부 $months개월';
+  }
+
+  @override
+  String assetInstallmentSeq(int seq, int total) {
+    return '$seq/$total회차';
+  }
+
+  @override
+  String assetInstallmentPrincipal(String amount) {
+    return '원금 $amount';
+  }
+
+  @override
+  String get assetInstallmentFallback => '할부';
+
+  @override
+  String get assetLumpSumLabel => '일시불';
+
+  @override
+  String get assetAlreadyPaidLabel => '선결제 차감';
+
+  @override
   String get assetPayNow => '지금 결제';
 
   @override

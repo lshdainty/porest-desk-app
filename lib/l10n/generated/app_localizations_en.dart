@@ -1106,6 +1106,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetPaymentCancelled => 'Payment cancelled';
 
   @override
+  String assetInstallmentBadge(int months) {
+    return '$months-mo installment';
+  }
+
+  @override
+  String assetInstallmentSeq(int seq, int total) {
+    return 'Payment $seq of $total';
+  }
+
+  @override
+  String assetInstallmentPrincipal(String amount) {
+    return 'Principal $amount';
+  }
+
+  @override
+  String get assetInstallmentFallback => 'Installment';
+
+  @override
+  String get assetLumpSumLabel => 'One-time';
+
+  @override
+  String get assetAlreadyPaidLabel => 'Prepaid';
+
+  @override
   String get assetPayNow => 'Pay now';
 
   @override
