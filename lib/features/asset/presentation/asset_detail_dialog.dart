@@ -2128,9 +2128,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
 
     final limit = asset.creditLimit ?? 0;
     final used = (asset.balance ?? 0).abs();
-    final limitPct = limit > 0
-        ? ((used / limit) * 100).round().clamp(0, 100)
-        : 0;
+    // 실사용률 그대로 — 한도의 20배를 썼으면 2000% 로 보인다(사용자 결정).
+    // 100 으로 눌러 두면 목록(실퍼센트)과 다른 숫자가 나오고, 얼마나 넘겼는지도
+    // 안 보인다. 바 채움만 아래에서 100% 로 캡한다(넘치면 그릴 수 없다).
+    final limitPct = limit > 0 ? ((used / limit) * 100).round() : 0;
     final limitWarn = limitPct >= 80;
     final paymentDay = b?.paymentDay ?? asset.paymentDay;
     final canPay = (b?.upcomingAmount ?? 0) > 0 && !_paying;
@@ -2608,7 +2609,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                         children: [
                           Container(color: t.bgSunken),
                           FractionallySizedBox(
-                            widthFactor: limitPct / 100,
+                            widthFactor: (limitPct / 100).clamp(0.0, 1.0),
                             child: Container(
                               color: limitWarn
                                   ? chartRedOf(context)
