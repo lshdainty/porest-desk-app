@@ -2120,6 +2120,42 @@ abstract class AppLocalizations {
   /// **'결제를 취소했어요'**
   String get assetPaymentCancelled;
 
+  /// No description provided for @assetInstallmentBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'할부 {months}개월'**
+  String assetInstallmentBadge(int months);
+
+  /// No description provided for @assetInstallmentSeq.
+  ///
+  /// In ko, this message translates to:
+  /// **'{seq}/{total}회차'**
+  String assetInstallmentSeq(int seq, int total);
+
+  /// No description provided for @assetInstallmentPrincipal.
+  ///
+  /// In ko, this message translates to:
+  /// **'원금 {amount}'**
+  String assetInstallmentPrincipal(String amount);
+
+  /// No description provided for @assetInstallmentFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'할부'**
+  String get assetInstallmentFallback;
+
+  /// No description provided for @assetLumpSumLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'일시불'**
+  String get assetLumpSumLabel;
+
+  /// No description provided for @assetAlreadyPaidLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'선결제 차감'**
+  String get assetAlreadyPaidLabel;
+
   /// No description provided for @assetPayNow.
   ///
   /// In ko, this message translates to:

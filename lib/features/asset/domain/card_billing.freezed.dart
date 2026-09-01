@@ -311,11 +311,303 @@ as String?,
 
 
 /// @nodoc
+mixin _$InstallmentDue {
+
+ int get expenseRowId; String? get merchant; String? get description;/// 할부 원금(거래 전액).
+ int get principalAmount;/// 총 회차 수(N).
+ int get installmentMonths;/// 이번이 몇 회차인지(1-base).
+ int get sequence;/// 이번 회차에 빠지는 금액. 나머지는 1회차에 몰린다(카드사 관행).
+ int get amount;
+/// Create a copy of InstallmentDue
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InstallmentDueCopyWith<InstallmentDue> get copyWith => _$InstallmentDueCopyWithImpl<InstallmentDue>(this as InstallmentDue, _$identity);
+
+  /// Serializes this InstallmentDue to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InstallmentDue&&(identical(other.expenseRowId, expenseRowId) || other.expenseRowId == expenseRowId)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.description, description) || other.description == description)&&(identical(other.principalAmount, principalAmount) || other.principalAmount == principalAmount)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.sequence, sequence) || other.sequence == sequence)&&(identical(other.amount, amount) || other.amount == amount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,expenseRowId,merchant,description,principalAmount,installmentMonths,sequence,amount);
+
+@override
+String toString() {
+  return 'InstallmentDue(expenseRowId: $expenseRowId, merchant: $merchant, description: $description, principalAmount: $principalAmount, installmentMonths: $installmentMonths, sequence: $sequence, amount: $amount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $InstallmentDueCopyWith<$Res>  {
+  factory $InstallmentDueCopyWith(InstallmentDue value, $Res Function(InstallmentDue) _then) = _$InstallmentDueCopyWithImpl;
+@useResult
+$Res call({
+ int expenseRowId, String? merchant, String? description, int principalAmount, int installmentMonths, int sequence, int amount
+});
+
+
+
+
+}
+/// @nodoc
+class _$InstallmentDueCopyWithImpl<$Res>
+    implements $InstallmentDueCopyWith<$Res> {
+  _$InstallmentDueCopyWithImpl(this._self, this._then);
+
+  final InstallmentDue _self;
+  final $Res Function(InstallmentDue) _then;
+
+/// Create a copy of InstallmentDue
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? expenseRowId = null,Object? merchant = freezed,Object? description = freezed,Object? principalAmount = null,Object? installmentMonths = null,Object? sequence = null,Object? amount = null,}) {
+  return _then(_self.copyWith(
+expenseRowId: null == expenseRowId ? _self.expenseRowId : expenseRowId // ignore: cast_nullable_to_non_nullable
+as int,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
+as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,principalAmount: null == principalAmount ? _self.principalAmount : principalAmount // ignore: cast_nullable_to_non_nullable
+as int,installmentMonths: null == installmentMonths ? _self.installmentMonths : installmentMonths // ignore: cast_nullable_to_non_nullable
+as int,sequence: null == sequence ? _self.sequence : sequence // ignore: cast_nullable_to_non_nullable
+as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [InstallmentDue].
+extension InstallmentDuePatterns on InstallmentDue {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InstallmentDue value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InstallmentDue() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InstallmentDue value)  $default,){
+final _that = this;
+switch (_that) {
+case _InstallmentDue():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InstallmentDue value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InstallmentDue() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InstallmentDue() when $default != null:
+return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount)  $default,) {final _that = this;
+switch (_that) {
+case _InstallmentDue():
+return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount)?  $default,) {final _that = this;
+switch (_that) {
+case _InstallmentDue() when $default != null:
+return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _InstallmentDue implements InstallmentDue {
+  const _InstallmentDue({required this.expenseRowId, this.merchant, this.description, required this.principalAmount, required this.installmentMonths, required this.sequence, required this.amount});
+  factory _InstallmentDue.fromJson(Map<String, dynamic> json) => _$InstallmentDueFromJson(json);
+
+@override final  int expenseRowId;
+@override final  String? merchant;
+@override final  String? description;
+/// 할부 원금(거래 전액).
+@override final  int principalAmount;
+/// 총 회차 수(N).
+@override final  int installmentMonths;
+/// 이번이 몇 회차인지(1-base).
+@override final  int sequence;
+/// 이번 회차에 빠지는 금액. 나머지는 1회차에 몰린다(카드사 관행).
+@override final  int amount;
+
+/// Create a copy of InstallmentDue
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InstallmentDueCopyWith<_InstallmentDue> get copyWith => __$InstallmentDueCopyWithImpl<_InstallmentDue>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$InstallmentDueToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InstallmentDue&&(identical(other.expenseRowId, expenseRowId) || other.expenseRowId == expenseRowId)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.description, description) || other.description == description)&&(identical(other.principalAmount, principalAmount) || other.principalAmount == principalAmount)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.sequence, sequence) || other.sequence == sequence)&&(identical(other.amount, amount) || other.amount == amount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,expenseRowId,merchant,description,principalAmount,installmentMonths,sequence,amount);
+
+@override
+String toString() {
+  return 'InstallmentDue(expenseRowId: $expenseRowId, merchant: $merchant, description: $description, principalAmount: $principalAmount, installmentMonths: $installmentMonths, sequence: $sequence, amount: $amount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InstallmentDueCopyWith<$Res> implements $InstallmentDueCopyWith<$Res> {
+  factory _$InstallmentDueCopyWith(_InstallmentDue value, $Res Function(_InstallmentDue) _then) = __$InstallmentDueCopyWithImpl;
+@override @useResult
+$Res call({
+ int expenseRowId, String? merchant, String? description, int principalAmount, int installmentMonths, int sequence, int amount
+});
+
+
+
+
+}
+/// @nodoc
+class __$InstallmentDueCopyWithImpl<$Res>
+    implements _$InstallmentDueCopyWith<$Res> {
+  __$InstallmentDueCopyWithImpl(this._self, this._then);
+
+  final _InstallmentDue _self;
+  final $Res Function(_InstallmentDue) _then;
+
+/// Create a copy of InstallmentDue
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? expenseRowId = null,Object? merchant = freezed,Object? description = freezed,Object? principalAmount = null,Object? installmentMonths = null,Object? sequence = null,Object? amount = null,}) {
+  return _then(_InstallmentDue(
+expenseRowId: null == expenseRowId ? _self.expenseRowId : expenseRowId // ignore: cast_nullable_to_non_nullable
+as int,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
+as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,principalAmount: null == principalAmount ? _self.principalAmount : principalAmount // ignore: cast_nullable_to_non_nullable
+as int,installmentMonths: null == installmentMonths ? _self.installmentMonths : installmentMonths // ignore: cast_nullable_to_non_nullable
+as int,sequence: null == sequence ? _self.sequence : sequence // ignore: cast_nullable_to_non_nullable
+as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$CardBilling {
 
  int get cardAssetRowId;// 다가오는 결제 회차의 결제예정액 = 청구 기간(결제일의 전월 1일~말일)
 // 순사용액 − 같은 회차 기결제액(선결제 차감). 결제일 미설정 시 잔액 전액.
- int get upcomingAmount; String? get upcomingPeriodStart;// 회차 청구 기간 'yyyy-MM-dd' | null
+ int get upcomingAmount;/// 회차 내 일시불 순사용액(환불 상계, 음수 가능). 옛 서버 호환으로 옵셔널.
+ int? get upcomingLumpSumAmount;/// 같은 회차에 이미 낸 금액(선결제 차감분).
+ int? get upcomingAlreadyPaidAmount;/// 이 회차에 빠지는 할부 구성. 예정액이 이용 내역 합과 다를 때 그 차이를 설명한다.
+ List<InstallmentDue> get upcomingInstallments; String? get upcomingPeriodStart;// 회차 청구 기간 'yyyy-MM-dd' | null
  String? get upcomingPeriodEnd; String? get nextPaymentDate;// 'yyyy-MM-dd' | null
  int? get paymentDay;// 1~31 | null
  int? get paymentAssetRowId; List<BillingItem> get history;
@@ -331,16 +623,16 @@ $CardBillingCopyWith<CardBilling> get copyWith => _$CardBillingCopyWithImpl<Card
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CardBilling&&(identical(other.cardAssetRowId, cardAssetRowId) || other.cardAssetRowId == cardAssetRowId)&&(identical(other.upcomingAmount, upcomingAmount) || other.upcomingAmount == upcomingAmount)&&(identical(other.upcomingPeriodStart, upcomingPeriodStart) || other.upcomingPeriodStart == upcomingPeriodStart)&&(identical(other.upcomingPeriodEnd, upcomingPeriodEnd) || other.upcomingPeriodEnd == upcomingPeriodEnd)&&(identical(other.nextPaymentDate, nextPaymentDate) || other.nextPaymentDate == nextPaymentDate)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&const DeepCollectionEquality().equals(other.history, history));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CardBilling&&(identical(other.cardAssetRowId, cardAssetRowId) || other.cardAssetRowId == cardAssetRowId)&&(identical(other.upcomingAmount, upcomingAmount) || other.upcomingAmount == upcomingAmount)&&(identical(other.upcomingLumpSumAmount, upcomingLumpSumAmount) || other.upcomingLumpSumAmount == upcomingLumpSumAmount)&&(identical(other.upcomingAlreadyPaidAmount, upcomingAlreadyPaidAmount) || other.upcomingAlreadyPaidAmount == upcomingAlreadyPaidAmount)&&const DeepCollectionEquality().equals(other.upcomingInstallments, upcomingInstallments)&&(identical(other.upcomingPeriodStart, upcomingPeriodStart) || other.upcomingPeriodStart == upcomingPeriodStart)&&(identical(other.upcomingPeriodEnd, upcomingPeriodEnd) || other.upcomingPeriodEnd == upcomingPeriodEnd)&&(identical(other.nextPaymentDate, nextPaymentDate) || other.nextPaymentDate == nextPaymentDate)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&const DeepCollectionEquality().equals(other.history, history));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cardAssetRowId,upcomingAmount,upcomingPeriodStart,upcomingPeriodEnd,nextPaymentDate,paymentDay,paymentAssetRowId,const DeepCollectionEquality().hash(history));
+int get hashCode => Object.hash(runtimeType,cardAssetRowId,upcomingAmount,upcomingLumpSumAmount,upcomingAlreadyPaidAmount,const DeepCollectionEquality().hash(upcomingInstallments),upcomingPeriodStart,upcomingPeriodEnd,nextPaymentDate,paymentDay,paymentAssetRowId,const DeepCollectionEquality().hash(history));
 
 @override
 String toString() {
-  return 'CardBilling(cardAssetRowId: $cardAssetRowId, upcomingAmount: $upcomingAmount, upcomingPeriodStart: $upcomingPeriodStart, upcomingPeriodEnd: $upcomingPeriodEnd, nextPaymentDate: $nextPaymentDate, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, history: $history)';
+  return 'CardBilling(cardAssetRowId: $cardAssetRowId, upcomingAmount: $upcomingAmount, upcomingLumpSumAmount: $upcomingLumpSumAmount, upcomingAlreadyPaidAmount: $upcomingAlreadyPaidAmount, upcomingInstallments: $upcomingInstallments, upcomingPeriodStart: $upcomingPeriodStart, upcomingPeriodEnd: $upcomingPeriodEnd, nextPaymentDate: $nextPaymentDate, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, history: $history)';
 }
 
 
@@ -351,7 +643,7 @@ abstract mixin class $CardBillingCopyWith<$Res>  {
   factory $CardBillingCopyWith(CardBilling value, $Res Function(CardBilling) _then) = _$CardBillingCopyWithImpl;
 @useResult
 $Res call({
- int cardAssetRowId, int upcomingAmount, String? upcomingPeriodStart, String? upcomingPeriodEnd, String? nextPaymentDate, int? paymentDay, int? paymentAssetRowId, List<BillingItem> history
+ int cardAssetRowId, int upcomingAmount, int? upcomingLumpSumAmount, int? upcomingAlreadyPaidAmount, List<InstallmentDue> upcomingInstallments, String? upcomingPeriodStart, String? upcomingPeriodEnd, String? nextPaymentDate, int? paymentDay, int? paymentAssetRowId, List<BillingItem> history
 });
 
 
@@ -368,11 +660,14 @@ class _$CardBillingCopyWithImpl<$Res>
 
 /// Create a copy of CardBilling
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? cardAssetRowId = null,Object? upcomingAmount = null,Object? upcomingPeriodStart = freezed,Object? upcomingPeriodEnd = freezed,Object? nextPaymentDate = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? history = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? cardAssetRowId = null,Object? upcomingAmount = null,Object? upcomingLumpSumAmount = freezed,Object? upcomingAlreadyPaidAmount = freezed,Object? upcomingInstallments = null,Object? upcomingPeriodStart = freezed,Object? upcomingPeriodEnd = freezed,Object? nextPaymentDate = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? history = null,}) {
   return _then(_self.copyWith(
 cardAssetRowId: null == cardAssetRowId ? _self.cardAssetRowId : cardAssetRowId // ignore: cast_nullable_to_non_nullable
 as int,upcomingAmount: null == upcomingAmount ? _self.upcomingAmount : upcomingAmount // ignore: cast_nullable_to_non_nullable
-as int,upcomingPeriodStart: freezed == upcomingPeriodStart ? _self.upcomingPeriodStart : upcomingPeriodStart // ignore: cast_nullable_to_non_nullable
+as int,upcomingLumpSumAmount: freezed == upcomingLumpSumAmount ? _self.upcomingLumpSumAmount : upcomingLumpSumAmount // ignore: cast_nullable_to_non_nullable
+as int?,upcomingAlreadyPaidAmount: freezed == upcomingAlreadyPaidAmount ? _self.upcomingAlreadyPaidAmount : upcomingAlreadyPaidAmount // ignore: cast_nullable_to_non_nullable
+as int?,upcomingInstallments: null == upcomingInstallments ? _self.upcomingInstallments : upcomingInstallments // ignore: cast_nullable_to_non_nullable
+as List<InstallmentDue>,upcomingPeriodStart: freezed == upcomingPeriodStart ? _self.upcomingPeriodStart : upcomingPeriodStart // ignore: cast_nullable_to_non_nullable
 as String?,upcomingPeriodEnd: freezed == upcomingPeriodEnd ? _self.upcomingPeriodEnd : upcomingPeriodEnd // ignore: cast_nullable_to_non_nullable
 as String?,nextPaymentDate: freezed == nextPaymentDate ? _self.nextPaymentDate : nextPaymentDate // ignore: cast_nullable_to_non_nullable
 as String?,paymentDay: freezed == paymentDay ? _self.paymentDay : paymentDay // ignore: cast_nullable_to_non_nullable
@@ -463,10 +758,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int cardAssetRowId,  int upcomingAmount,  String? upcomingPeriodStart,  String? upcomingPeriodEnd,  String? nextPaymentDate,  int? paymentDay,  int? paymentAssetRowId,  List<BillingItem> history)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int cardAssetRowId,  int upcomingAmount,  int? upcomingLumpSumAmount,  int? upcomingAlreadyPaidAmount,  List<InstallmentDue> upcomingInstallments,  String? upcomingPeriodStart,  String? upcomingPeriodEnd,  String? nextPaymentDate,  int? paymentDay,  int? paymentAssetRowId,  List<BillingItem> history)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CardBilling() when $default != null:
-return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingPeriodStart,_that.upcomingPeriodEnd,_that.nextPaymentDate,_that.paymentDay,_that.paymentAssetRowId,_that.history);case _:
+return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingLumpSumAmount,_that.upcomingAlreadyPaidAmount,_that.upcomingInstallments,_that.upcomingPeriodStart,_that.upcomingPeriodEnd,_that.nextPaymentDate,_that.paymentDay,_that.paymentAssetRowId,_that.history);case _:
   return orElse();
 
 }
@@ -484,10 +779,10 @@ return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingPeriodSt
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int cardAssetRowId,  int upcomingAmount,  String? upcomingPeriodStart,  String? upcomingPeriodEnd,  String? nextPaymentDate,  int? paymentDay,  int? paymentAssetRowId,  List<BillingItem> history)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int cardAssetRowId,  int upcomingAmount,  int? upcomingLumpSumAmount,  int? upcomingAlreadyPaidAmount,  List<InstallmentDue> upcomingInstallments,  String? upcomingPeriodStart,  String? upcomingPeriodEnd,  String? nextPaymentDate,  int? paymentDay,  int? paymentAssetRowId,  List<BillingItem> history)  $default,) {final _that = this;
 switch (_that) {
 case _CardBilling():
-return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingPeriodStart,_that.upcomingPeriodEnd,_that.nextPaymentDate,_that.paymentDay,_that.paymentAssetRowId,_that.history);case _:
+return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingLumpSumAmount,_that.upcomingAlreadyPaidAmount,_that.upcomingInstallments,_that.upcomingPeriodStart,_that.upcomingPeriodEnd,_that.nextPaymentDate,_that.paymentDay,_that.paymentAssetRowId,_that.history);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -504,10 +799,10 @@ return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingPeriodSt
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int cardAssetRowId,  int upcomingAmount,  String? upcomingPeriodStart,  String? upcomingPeriodEnd,  String? nextPaymentDate,  int? paymentDay,  int? paymentAssetRowId,  List<BillingItem> history)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int cardAssetRowId,  int upcomingAmount,  int? upcomingLumpSumAmount,  int? upcomingAlreadyPaidAmount,  List<InstallmentDue> upcomingInstallments,  String? upcomingPeriodStart,  String? upcomingPeriodEnd,  String? nextPaymentDate,  int? paymentDay,  int? paymentAssetRowId,  List<BillingItem> history)?  $default,) {final _that = this;
 switch (_that) {
 case _CardBilling() when $default != null:
-return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingPeriodStart,_that.upcomingPeriodEnd,_that.nextPaymentDate,_that.paymentDay,_that.paymentAssetRowId,_that.history);case _:
+return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingLumpSumAmount,_that.upcomingAlreadyPaidAmount,_that.upcomingInstallments,_that.upcomingPeriodStart,_that.upcomingPeriodEnd,_that.nextPaymentDate,_that.paymentDay,_that.paymentAssetRowId,_that.history);case _:
   return null;
 
 }
@@ -519,13 +814,26 @@ return $default(_that.cardAssetRowId,_that.upcomingAmount,_that.upcomingPeriodSt
 @JsonSerializable()
 
 class _CardBilling implements CardBilling {
-  const _CardBilling({required this.cardAssetRowId, required this.upcomingAmount, this.upcomingPeriodStart, this.upcomingPeriodEnd, this.nextPaymentDate, this.paymentDay, this.paymentAssetRowId, final  List<BillingItem> history = const <BillingItem>[]}): _history = history;
+  const _CardBilling({required this.cardAssetRowId, required this.upcomingAmount, this.upcomingLumpSumAmount, this.upcomingAlreadyPaidAmount, final  List<InstallmentDue> upcomingInstallments = const <InstallmentDue>[], this.upcomingPeriodStart, this.upcomingPeriodEnd, this.nextPaymentDate, this.paymentDay, this.paymentAssetRowId, final  List<BillingItem> history = const <BillingItem>[]}): _upcomingInstallments = upcomingInstallments,_history = history;
   factory _CardBilling.fromJson(Map<String, dynamic> json) => _$CardBillingFromJson(json);
 
 @override final  int cardAssetRowId;
 // 다가오는 결제 회차의 결제예정액 = 청구 기간(결제일의 전월 1일~말일)
 // 순사용액 − 같은 회차 기결제액(선결제 차감). 결제일 미설정 시 잔액 전액.
 @override final  int upcomingAmount;
+/// 회차 내 일시불 순사용액(환불 상계, 음수 가능). 옛 서버 호환으로 옵셔널.
+@override final  int? upcomingLumpSumAmount;
+/// 같은 회차에 이미 낸 금액(선결제 차감분).
+@override final  int? upcomingAlreadyPaidAmount;
+/// 이 회차에 빠지는 할부 구성. 예정액이 이용 내역 합과 다를 때 그 차이를 설명한다.
+ final  List<InstallmentDue> _upcomingInstallments;
+/// 이 회차에 빠지는 할부 구성. 예정액이 이용 내역 합과 다를 때 그 차이를 설명한다.
+@override@JsonKey() List<InstallmentDue> get upcomingInstallments {
+  if (_upcomingInstallments is EqualUnmodifiableListView) return _upcomingInstallments;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_upcomingInstallments);
+}
+
 @override final  String? upcomingPeriodStart;
 // 회차 청구 기간 'yyyy-MM-dd' | null
 @override final  String? upcomingPeriodEnd;
@@ -555,16 +863,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CardBilling&&(identical(other.cardAssetRowId, cardAssetRowId) || other.cardAssetRowId == cardAssetRowId)&&(identical(other.upcomingAmount, upcomingAmount) || other.upcomingAmount == upcomingAmount)&&(identical(other.upcomingPeriodStart, upcomingPeriodStart) || other.upcomingPeriodStart == upcomingPeriodStart)&&(identical(other.upcomingPeriodEnd, upcomingPeriodEnd) || other.upcomingPeriodEnd == upcomingPeriodEnd)&&(identical(other.nextPaymentDate, nextPaymentDate) || other.nextPaymentDate == nextPaymentDate)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&const DeepCollectionEquality().equals(other._history, _history));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CardBilling&&(identical(other.cardAssetRowId, cardAssetRowId) || other.cardAssetRowId == cardAssetRowId)&&(identical(other.upcomingAmount, upcomingAmount) || other.upcomingAmount == upcomingAmount)&&(identical(other.upcomingLumpSumAmount, upcomingLumpSumAmount) || other.upcomingLumpSumAmount == upcomingLumpSumAmount)&&(identical(other.upcomingAlreadyPaidAmount, upcomingAlreadyPaidAmount) || other.upcomingAlreadyPaidAmount == upcomingAlreadyPaidAmount)&&const DeepCollectionEquality().equals(other._upcomingInstallments, _upcomingInstallments)&&(identical(other.upcomingPeriodStart, upcomingPeriodStart) || other.upcomingPeriodStart == upcomingPeriodStart)&&(identical(other.upcomingPeriodEnd, upcomingPeriodEnd) || other.upcomingPeriodEnd == upcomingPeriodEnd)&&(identical(other.nextPaymentDate, nextPaymentDate) || other.nextPaymentDate == nextPaymentDate)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&const DeepCollectionEquality().equals(other._history, _history));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,cardAssetRowId,upcomingAmount,upcomingPeriodStart,upcomingPeriodEnd,nextPaymentDate,paymentDay,paymentAssetRowId,const DeepCollectionEquality().hash(_history));
+int get hashCode => Object.hash(runtimeType,cardAssetRowId,upcomingAmount,upcomingLumpSumAmount,upcomingAlreadyPaidAmount,const DeepCollectionEquality().hash(_upcomingInstallments),upcomingPeriodStart,upcomingPeriodEnd,nextPaymentDate,paymentDay,paymentAssetRowId,const DeepCollectionEquality().hash(_history));
 
 @override
 String toString() {
-  return 'CardBilling(cardAssetRowId: $cardAssetRowId, upcomingAmount: $upcomingAmount, upcomingPeriodStart: $upcomingPeriodStart, upcomingPeriodEnd: $upcomingPeriodEnd, nextPaymentDate: $nextPaymentDate, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, history: $history)';
+  return 'CardBilling(cardAssetRowId: $cardAssetRowId, upcomingAmount: $upcomingAmount, upcomingLumpSumAmount: $upcomingLumpSumAmount, upcomingAlreadyPaidAmount: $upcomingAlreadyPaidAmount, upcomingInstallments: $upcomingInstallments, upcomingPeriodStart: $upcomingPeriodStart, upcomingPeriodEnd: $upcomingPeriodEnd, nextPaymentDate: $nextPaymentDate, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, history: $history)';
 }
 
 
@@ -575,7 +883,7 @@ abstract mixin class _$CardBillingCopyWith<$Res> implements $CardBillingCopyWith
   factory _$CardBillingCopyWith(_CardBilling value, $Res Function(_CardBilling) _then) = __$CardBillingCopyWithImpl;
 @override @useResult
 $Res call({
- int cardAssetRowId, int upcomingAmount, String? upcomingPeriodStart, String? upcomingPeriodEnd, String? nextPaymentDate, int? paymentDay, int? paymentAssetRowId, List<BillingItem> history
+ int cardAssetRowId, int upcomingAmount, int? upcomingLumpSumAmount, int? upcomingAlreadyPaidAmount, List<InstallmentDue> upcomingInstallments, String? upcomingPeriodStart, String? upcomingPeriodEnd, String? nextPaymentDate, int? paymentDay, int? paymentAssetRowId, List<BillingItem> history
 });
 
 
@@ -592,11 +900,14 @@ class __$CardBillingCopyWithImpl<$Res>
 
 /// Create a copy of CardBilling
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? cardAssetRowId = null,Object? upcomingAmount = null,Object? upcomingPeriodStart = freezed,Object? upcomingPeriodEnd = freezed,Object? nextPaymentDate = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? history = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? cardAssetRowId = null,Object? upcomingAmount = null,Object? upcomingLumpSumAmount = freezed,Object? upcomingAlreadyPaidAmount = freezed,Object? upcomingInstallments = null,Object? upcomingPeriodStart = freezed,Object? upcomingPeriodEnd = freezed,Object? nextPaymentDate = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? history = null,}) {
   return _then(_CardBilling(
 cardAssetRowId: null == cardAssetRowId ? _self.cardAssetRowId : cardAssetRowId // ignore: cast_nullable_to_non_nullable
 as int,upcomingAmount: null == upcomingAmount ? _self.upcomingAmount : upcomingAmount // ignore: cast_nullable_to_non_nullable
-as int,upcomingPeriodStart: freezed == upcomingPeriodStart ? _self.upcomingPeriodStart : upcomingPeriodStart // ignore: cast_nullable_to_non_nullable
+as int,upcomingLumpSumAmount: freezed == upcomingLumpSumAmount ? _self.upcomingLumpSumAmount : upcomingLumpSumAmount // ignore: cast_nullable_to_non_nullable
+as int?,upcomingAlreadyPaidAmount: freezed == upcomingAlreadyPaidAmount ? _self.upcomingAlreadyPaidAmount : upcomingAlreadyPaidAmount // ignore: cast_nullable_to_non_nullable
+as int?,upcomingInstallments: null == upcomingInstallments ? _self._upcomingInstallments : upcomingInstallments // ignore: cast_nullable_to_non_nullable
+as List<InstallmentDue>,upcomingPeriodStart: freezed == upcomingPeriodStart ? _self.upcomingPeriodStart : upcomingPeriodStart // ignore: cast_nullable_to_non_nullable
 as String?,upcomingPeriodEnd: freezed == upcomingPeriodEnd ? _self.upcomingPeriodEnd : upcomingPeriodEnd // ignore: cast_nullable_to_non_nullable
 as String?,nextPaymentDate: freezed == nextPaymentDate ? _self.nextPaymentDate : nextPaymentDate // ignore: cast_nullable_to_non_nullable
 as String?,paymentDay: freezed == paymentDay ? _self.paymentDay : paymentDay // ignore: cast_nullable_to_non_nullable

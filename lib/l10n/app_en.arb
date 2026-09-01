@@ -589,6 +589,21 @@
     }
   },
   "assetPaymentCancelled": "Payment cancelled",
+  "assetInstallmentBadge": "{months}-mo installment",
+  "@assetInstallmentBadge": {
+    "placeholders": { "months": { "type": "int" } }
+  },
+  "assetInstallmentSeq": "Payment {seq} of {total}",
+  "@assetInstallmentSeq": {
+    "placeholders": { "seq": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "assetInstallmentPrincipal": "Principal {amount}",
+  "@assetInstallmentPrincipal": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "assetInstallmentFallback": "Installment",
+  "assetLumpSumLabel": "One-time",
+  "assetAlreadyPaidLabel": "Prepaid",
   "assetPayNow": "Pay now",
   "assetPayAction": "Pay",
   "assetPayAmount": "Payment amount",
