@@ -465,7 +465,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCreditLimitHint => 'Enter a limit to show the usage gauge.';
 
   @override
-  String get assetPaymentDayLabel => 'Payment day (optional)';
+  String get assetPaymentDayLabel => 'Payment day';
 
   @override
   String get assetPaymentDaySelect => 'Select payment day';

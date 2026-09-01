@@ -210,7 +210,7 @@
   "assetCreditLimitLabel": "신용한도 (원, 선택)",
   "assetCreditLimitPlaceholder": "예: 5,000,000",
   "assetCreditLimitHint": "한도를 입력하면 사용률 게이지가 표시됩니다.",
-  "assetPaymentDayLabel": "결제일 (선택)",
+  "assetPaymentDayLabel": "결제일",
   "assetPaymentDaySelect": "결제일 선택",
   "assetPaymentDay": "결제일",
   "assetLinkedAccount": "연결 계좌",

@@ -207,7 +207,7 @@
   "assetCreditLimitLabel": "Credit limit (KRW, optional)",
   "assetCreditLimitPlaceholder": "e.g. 5,000,000",
   "assetCreditLimitHint": "Enter a limit to show the usage gauge.",
-  "assetPaymentDayLabel": "Payment day (optional)",
+  "assetPaymentDayLabel": "Payment day",
   "assetPaymentDaySelect": "Select payment day",
   "assetPaymentDay": "Payment day",
   "assetLinkedAccount": "Linked account",

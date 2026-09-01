@@ -460,7 +460,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCreditLimitHint => '한도를 입력하면 사용률 게이지가 표시됩니다.';
 
   @override
-  String get assetPaymentDayLabel => '결제일 (선택)';
+  String get assetPaymentDayLabel => '결제일';
 
   @override
   String get assetPaymentDaySelect => '결제일 선택';
