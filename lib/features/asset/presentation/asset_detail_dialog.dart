@@ -2342,7 +2342,8 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         // 이번 회차 구성 — 할부가 있을 때만. 예정액이 이용 내역 합과 다른 이유
         // (과거 할부의 이번 회차분)를 이 자리에서 설명한다. 다가오는 회차에서만
         // 그린다 — 과거 회차의 구성은 서버가 내려주지 않는다(청구 이력엔 합계만 남는다).
-        if (st?.scheduled == true && (b?.upcomingInstallments.isNotEmpty ?? false))
+        if (st?.scheduled == true &&
+            (b?.upcomingInstallments.isNotEmpty ?? false))
           Container(
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: t.borderSubtle)),
@@ -2353,52 +2354,56 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
               children: [
                 for (var i = 0; i < b!.upcomingInstallments.length; i++) ...[
                   if (i > 0) const SizedBox(height: 12),
-                  Builder(builder: (context) {
-                    final due = b.upcomingInstallments[i];
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                due.merchant ??
-                                    due.description ??
-                                    l.assetInstallmentFallback,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: PTypo.bodySm.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.semi,
+                  Builder(
+                    builder: (context) {
+                      final due = b.upcomingInstallments[i];
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  due.merchant ??
+                                      due.description ??
+                                      l.assetInstallmentFallback,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: PTypo.bodySm.copyWith(
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.semi,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                widget.masked
-                                    ? '${l.assetInstallmentSeq(due.sequence, due.installmentMonths)} · ••••••'
-                                    : '${l.assetInstallmentSeq(due.sequence, due.installmentMonths)} · ${l.assetInstallmentPrincipal(krwSigned(due.principalAmount, false, unit: true))}',
-                                style: PTypo.caption.copyWith(
-                                  color: t.fgTertiary,
+                                const SizedBox(height: 2),
+                                Text(
+                                  widget.masked
+                                      ? '${l.assetInstallmentSeq(due.sequence, due.installmentMonths)} · ••••••'
+                                      : '${l.assetInstallmentSeq(due.sequence, due.installmentMonths)} · ${l.assetInstallmentPrincipal(krwSigned(due.principalAmount, false, unit: true))}',
+                                  style: PTypo.caption.copyWith(
+                                    color: t.fgTertiary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          widget.masked
-                              ? '••••••'
-                              : krwSigned(due.amount, false, unit: true),
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                            fontFeatures: const [FontFeature.tabularFigures()],
+                          const SizedBox(width: 12),
+                          Text(
+                            widget.masked
+                                ? '••••••'
+                                : krwSigned(due.amount, false, unit: true),
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-                  }),
+                        ],
+                      );
+                    },
+                  ),
                 ],
                 // 일시불·선결제 요약 — 할부와 함께 있어야 예정액 합이 설명된다.
                 if ((b.upcomingLumpSumAmount ?? 0) != 0) ...[
