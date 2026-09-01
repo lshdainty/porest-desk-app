@@ -589,6 +589,14 @@
     }
   },
   "assetPaymentCancelled": "Payment cancelled",
+  "assetInstallmentPayoff": "Pay off remaining",
+  "assetInstallmentPayoffConfirm": "Add the remaining \u20a9{amount} to this billing cycle? No further installments will be charged.",
+  "@assetInstallmentPayoffConfirm": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "assetInstallmentPayoffUndo": "Undo",
+  "assetInstallmentPayoffUndoConfirm": "Cancel the payoff and return to the original installment schedule?",
+  "assetInstallmentPaidOffBadge": "Paid off",
   "assetInstallmentBadge": "{months}-mo installment",
   "@assetInstallmentBadge": {
     "placeholders": { "months": { "type": "int" } }

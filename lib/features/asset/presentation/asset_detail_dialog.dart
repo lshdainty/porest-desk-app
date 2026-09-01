@@ -1904,6 +1904,45 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     );
   }
 
+  /// 할부 중도 전액 상환 — 남은 원금이 다가오는 결제 예정액에 한 번에 잡힌다.
+  Future<void> _confirmPayoff(InstallmentDue due) async {
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.assetInstallmentPayoff,
+      message: l.assetInstallmentPayoffConfirm(krw(due.amount)),
+      confirmLabel: l.assetInstallmentPayoff,
+    );
+    if (!ok || !mounted) return;
+
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.payoffInstallment(widget.asset.rowId, due.expenseRowId);
+      ref.invalidate(cardBillingProvider(widget.asset.rowId));
+    } on ApiException {
+      // 서버 메시지는 전역 인터셉터가 띄운다.
+    }
+  }
+
+  /// 상환 취소 — 정상 분할로 되돌린다. 잘못 누른 상환을 무르는 경로.
+  Future<void> _undoPayoff(InstallmentDue due) async {
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.assetInstallmentPayoffUndo,
+      message: l.assetInstallmentPayoffUndoConfirm,
+    );
+    if (!ok || !mounted) return;
+
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.cancelInstallmentPayoff(widget.asset.rowId, due.expenseRowId);
+      ref.invalidate(cardBillingProvider(widget.asset.rowId));
+    } on ApiException {
+      // 서버 메시지는 전역 인터셉터가 띄운다.
+    }
+  }
+
   Future<void> _confirmAndCancelPayment(BillingItem billing) async {
     final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
@@ -2384,6 +2423,44 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                     color: t.fgTertiary,
                                   ),
                                 ),
+                                const SizedBox(height: 4),
+                                // 정리/되돌리기 — 상환하면 남은 원금이 이 회차에
+                                // 몰리므로 두 상태가 같은 자리를 쓴다.
+                                due.paidOff
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            l.assetInstallmentPaidOffBadge,
+                                            style: PTypo.caption.copyWith(
+                                              color: t.statusSuccess,
+                                              fontWeight: PFontWeight.semi,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          InkWell(
+                                            onTap: () => _undoPayoff(due),
+                                            child: Text(
+                                              l.assetInstallmentPayoffUndo,
+                                              style: PTypo.caption.copyWith(
+                                                color: t.fgTertiary,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : InkWell(
+                                        onTap: () => _confirmPayoff(due),
+                                        child: Text(
+                                          l.assetInstallmentPayoff,
+                                          style: PTypo.caption.copyWith(
+                                            color: t.fgBrand,
+                                            fontWeight: PFontWeight.semi,
+                                          ),
+                                        ),
+                                      ),
                               ],
                             ),
                           ),

@@ -1090,6 +1090,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetPaymentCancelled => '결제를 취소했어요';
 
   @override
+  String get assetInstallmentPayoff => '남은 할부 한 번에 정리';
+
+  @override
+  String assetInstallmentPayoffConfirm(String amount) {
+    return '남은 할부 $amount원을 이번 결제 예정액에 한 번에 넣을까요? 다음 회차부터는 청구되지 않아요.';
+  }
+
+  @override
+  String get assetInstallmentPayoffUndo => '되돌리기';
+
+  @override
+  String get assetInstallmentPayoffUndoConfirm =>
+      '남은 원금 정리를 취소하고 원래 회차대로 나눠 낼까요?';
+
+  @override
+  String get assetInstallmentPaidOffBadge => '남은 원금 정리됨';
+
+  @override
   String assetInstallmentBadge(int months) {
     return '할부 $months개월';
   }

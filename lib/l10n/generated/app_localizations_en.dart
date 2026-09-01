@@ -1106,6 +1106,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetPaymentCancelled => 'Payment cancelled';
 
   @override
+  String get assetInstallmentPayoff => 'Pay off remaining';
+
+  @override
+  String assetInstallmentPayoffConfirm(String amount) {
+    return 'Add the remaining ₩$amount to this billing cycle? No further installments will be charged.';
+  }
+
+  @override
+  String get assetInstallmentPayoffUndo => 'Undo';
+
+  @override
+  String get assetInstallmentPayoffUndoConfirm =>
+      'Cancel the payoff and return to the original installment schedule?';
+
+  @override
+  String get assetInstallmentPaidOffBadge => 'Paid off';
+
+  @override
   String assetInstallmentBadge(int months) {
     return '$months-mo installment';
   }

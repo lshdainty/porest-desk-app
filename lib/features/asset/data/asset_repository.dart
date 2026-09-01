@@ -264,6 +264,27 @@ class AssetRepository {
     }
   }
 
+  /// 할부 중도 전액 상환 — 남은 원금을 다가오는 청구 회차에 몰아 청구한다.
+  /// POST /asset/{cardId}/installments/{expenseId}/payoff.
+  Future<void> payoffInstallment(int cardId, int expenseId) async {
+    try {
+      await _dio.post<dynamic>('/asset/$cardId/installments/$expenseId/payoff');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 할부 상환 취소 — 정상 분할로 되돌린다.
+  Future<void> cancelInstallmentPayoff(int cardId, int expenseId) async {
+    try {
+      await _dio.delete<dynamic>(
+        '/asset/$cardId/installments/$expenseId/payoff',
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // Asset Transfer
   // ─────────────────────────────────────────────

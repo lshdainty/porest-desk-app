@@ -42,6 +42,7 @@ _InstallmentDue _$InstallmentDueFromJson(Map<String, dynamic> json) =>
       installmentMonths: (json['installmentMonths'] as num).toInt(),
       sequence: (json['sequence'] as num).toInt(),
       amount: (json['amount'] as num).toInt(),
+      paidOff: json['paidOff'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$InstallmentDueToJson(_InstallmentDue instance) =>
@@ -53,6 +54,7 @@ Map<String, dynamic> _$InstallmentDueToJson(_InstallmentDue instance) =>
       'installmentMonths': instance.installmentMonths,
       'sequence': instance.sequence,
       'amount': instance.amount,
+      'paidOff': instance.paidOff,
     };
 
 _CardBilling _$CardBillingFromJson(Map<String, dynamic> json) => _CardBilling(

@@ -45,6 +45,10 @@ abstract class InstallmentDue with _$InstallmentDue {
 
     /// 이번 회차에 빠지는 금액. 나머지는 1회차에 몰린다(카드사 관행).
     required int amount,
+
+    /// 중도 전액 상환으로 남은 원금을 몰아 받은 회차인지 —
+    /// "남은 원금 정리" 배지를 달고 정리 버튼 대신 되돌리기를 보여준다.
+    @Default(false) bool paidOff,
   }) = _InstallmentDue;
 
   factory InstallmentDue.fromJson(Map<String, dynamic> json) =>

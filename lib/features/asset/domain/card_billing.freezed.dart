@@ -317,7 +317,9 @@ mixin _$InstallmentDue {
  int get principalAmount;/// 총 회차 수(N).
  int get installmentMonths;/// 이번이 몇 회차인지(1-base).
  int get sequence;/// 이번 회차에 빠지는 금액. 나머지는 1회차에 몰린다(카드사 관행).
- int get amount;
+ int get amount;/// 중도 전액 상환으로 남은 원금을 몰아 받은 회차인지 —
+/// "남은 원금 정리" 배지를 달고 정리 버튼 대신 되돌리기를 보여준다.
+ bool get paidOff;
 /// Create a copy of InstallmentDue
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -330,16 +332,16 @@ $InstallmentDueCopyWith<InstallmentDue> get copyWith => _$InstallmentDueCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InstallmentDue&&(identical(other.expenseRowId, expenseRowId) || other.expenseRowId == expenseRowId)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.description, description) || other.description == description)&&(identical(other.principalAmount, principalAmount) || other.principalAmount == principalAmount)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.sequence, sequence) || other.sequence == sequence)&&(identical(other.amount, amount) || other.amount == amount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InstallmentDue&&(identical(other.expenseRowId, expenseRowId) || other.expenseRowId == expenseRowId)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.description, description) || other.description == description)&&(identical(other.principalAmount, principalAmount) || other.principalAmount == principalAmount)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.sequence, sequence) || other.sequence == sequence)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paidOff, paidOff) || other.paidOff == paidOff));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,expenseRowId,merchant,description,principalAmount,installmentMonths,sequence,amount);
+int get hashCode => Object.hash(runtimeType,expenseRowId,merchant,description,principalAmount,installmentMonths,sequence,amount,paidOff);
 
 @override
 String toString() {
-  return 'InstallmentDue(expenseRowId: $expenseRowId, merchant: $merchant, description: $description, principalAmount: $principalAmount, installmentMonths: $installmentMonths, sequence: $sequence, amount: $amount)';
+  return 'InstallmentDue(expenseRowId: $expenseRowId, merchant: $merchant, description: $description, principalAmount: $principalAmount, installmentMonths: $installmentMonths, sequence: $sequence, amount: $amount, paidOff: $paidOff)';
 }
 
 
@@ -350,7 +352,7 @@ abstract mixin class $InstallmentDueCopyWith<$Res>  {
   factory $InstallmentDueCopyWith(InstallmentDue value, $Res Function(InstallmentDue) _then) = _$InstallmentDueCopyWithImpl;
 @useResult
 $Res call({
- int expenseRowId, String? merchant, String? description, int principalAmount, int installmentMonths, int sequence, int amount
+ int expenseRowId, String? merchant, String? description, int principalAmount, int installmentMonths, int sequence, int amount, bool paidOff
 });
 
 
@@ -367,7 +369,7 @@ class _$InstallmentDueCopyWithImpl<$Res>
 
 /// Create a copy of InstallmentDue
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? expenseRowId = null,Object? merchant = freezed,Object? description = freezed,Object? principalAmount = null,Object? installmentMonths = null,Object? sequence = null,Object? amount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? expenseRowId = null,Object? merchant = freezed,Object? description = freezed,Object? principalAmount = null,Object? installmentMonths = null,Object? sequence = null,Object? amount = null,Object? paidOff = null,}) {
   return _then(_self.copyWith(
 expenseRowId: null == expenseRowId ? _self.expenseRowId : expenseRowId // ignore: cast_nullable_to_non_nullable
 as int,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
@@ -376,7 +378,8 @@ as String?,principalAmount: null == principalAmount ? _self.principalAmount : pr
 as int,installmentMonths: null == installmentMonths ? _self.installmentMonths : installmentMonths // ignore: cast_nullable_to_non_nullable
 as int,sequence: null == sequence ? _self.sequence : sequence // ignore: cast_nullable_to_non_nullable
 as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paidOff: null == paidOff ? _self.paidOff : paidOff // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -461,10 +464,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount,  bool paidOff)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InstallmentDue() when $default != null:
-return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount);case _:
+return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount,_that.paidOff);case _:
   return orElse();
 
 }
@@ -482,10 +485,10 @@ return $default(_that.expenseRowId,_that.merchant,_that.description,_that.princi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount,  bool paidOff)  $default,) {final _that = this;
 switch (_that) {
 case _InstallmentDue():
-return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount);case _:
+return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount,_that.paidOff);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -502,10 +505,10 @@ return $default(_that.expenseRowId,_that.merchant,_that.description,_that.princi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int expenseRowId,  String? merchant,  String? description,  int principalAmount,  int installmentMonths,  int sequence,  int amount,  bool paidOff)?  $default,) {final _that = this;
 switch (_that) {
 case _InstallmentDue() when $default != null:
-return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount);case _:
+return $default(_that.expenseRowId,_that.merchant,_that.description,_that.principalAmount,_that.installmentMonths,_that.sequence,_that.amount,_that.paidOff);case _:
   return null;
 
 }
@@ -517,7 +520,7 @@ return $default(_that.expenseRowId,_that.merchant,_that.description,_that.princi
 @JsonSerializable()
 
 class _InstallmentDue implements InstallmentDue {
-  const _InstallmentDue({required this.expenseRowId, this.merchant, this.description, required this.principalAmount, required this.installmentMonths, required this.sequence, required this.amount});
+  const _InstallmentDue({required this.expenseRowId, this.merchant, this.description, required this.principalAmount, required this.installmentMonths, required this.sequence, required this.amount, this.paidOff = false});
   factory _InstallmentDue.fromJson(Map<String, dynamic> json) => _$InstallmentDueFromJson(json);
 
 @override final  int expenseRowId;
@@ -531,6 +534,9 @@ class _InstallmentDue implements InstallmentDue {
 @override final  int sequence;
 /// 이번 회차에 빠지는 금액. 나머지는 1회차에 몰린다(카드사 관행).
 @override final  int amount;
+/// 중도 전액 상환으로 남은 원금을 몰아 받은 회차인지 —
+/// "남은 원금 정리" 배지를 달고 정리 버튼 대신 되돌리기를 보여준다.
+@override@JsonKey() final  bool paidOff;
 
 /// Create a copy of InstallmentDue
 /// with the given fields replaced by the non-null parameter values.
@@ -545,16 +551,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InstallmentDue&&(identical(other.expenseRowId, expenseRowId) || other.expenseRowId == expenseRowId)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.description, description) || other.description == description)&&(identical(other.principalAmount, principalAmount) || other.principalAmount == principalAmount)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.sequence, sequence) || other.sequence == sequence)&&(identical(other.amount, amount) || other.amount == amount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InstallmentDue&&(identical(other.expenseRowId, expenseRowId) || other.expenseRowId == expenseRowId)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.description, description) || other.description == description)&&(identical(other.principalAmount, principalAmount) || other.principalAmount == principalAmount)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.sequence, sequence) || other.sequence == sequence)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.paidOff, paidOff) || other.paidOff == paidOff));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,expenseRowId,merchant,description,principalAmount,installmentMonths,sequence,amount);
+int get hashCode => Object.hash(runtimeType,expenseRowId,merchant,description,principalAmount,installmentMonths,sequence,amount,paidOff);
 
 @override
 String toString() {
-  return 'InstallmentDue(expenseRowId: $expenseRowId, merchant: $merchant, description: $description, principalAmount: $principalAmount, installmentMonths: $installmentMonths, sequence: $sequence, amount: $amount)';
+  return 'InstallmentDue(expenseRowId: $expenseRowId, merchant: $merchant, description: $description, principalAmount: $principalAmount, installmentMonths: $installmentMonths, sequence: $sequence, amount: $amount, paidOff: $paidOff)';
 }
 
 
@@ -565,7 +571,7 @@ abstract mixin class _$InstallmentDueCopyWith<$Res> implements $InstallmentDueCo
   factory _$InstallmentDueCopyWith(_InstallmentDue value, $Res Function(_InstallmentDue) _then) = __$InstallmentDueCopyWithImpl;
 @override @useResult
 $Res call({
- int expenseRowId, String? merchant, String? description, int principalAmount, int installmentMonths, int sequence, int amount
+ int expenseRowId, String? merchant, String? description, int principalAmount, int installmentMonths, int sequence, int amount, bool paidOff
 });
 
 
@@ -582,7 +588,7 @@ class __$InstallmentDueCopyWithImpl<$Res>
 
 /// Create a copy of InstallmentDue
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? expenseRowId = null,Object? merchant = freezed,Object? description = freezed,Object? principalAmount = null,Object? installmentMonths = null,Object? sequence = null,Object? amount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? expenseRowId = null,Object? merchant = freezed,Object? description = freezed,Object? principalAmount = null,Object? installmentMonths = null,Object? sequence = null,Object? amount = null,Object? paidOff = null,}) {
   return _then(_InstallmentDue(
 expenseRowId: null == expenseRowId ? _self.expenseRowId : expenseRowId // ignore: cast_nullable_to_non_nullable
 as int,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
@@ -591,7 +597,8 @@ as String?,principalAmount: null == principalAmount ? _self.principalAmount : pr
 as int,installmentMonths: null == installmentMonths ? _self.installmentMonths : installmentMonths // ignore: cast_nullable_to_non_nullable
 as int,sequence: null == sequence ? _self.sequence : sequence // ignore: cast_nullable_to_non_nullable
 as int,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,paidOff: null == paidOff ? _self.paidOff : paidOff // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

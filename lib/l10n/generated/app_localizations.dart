@@ -2120,6 +2120,36 @@ abstract class AppLocalizations {
   /// **'결제를 취소했어요'**
   String get assetPaymentCancelled;
 
+  /// No description provided for @assetInstallmentPayoff.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 할부 한 번에 정리'**
+  String get assetInstallmentPayoff;
+
+  /// No description provided for @assetInstallmentPayoffConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 할부 {amount}원을 이번 결제 예정액에 한 번에 넣을까요? 다음 회차부터는 청구되지 않아요.'**
+  String assetInstallmentPayoffConfirm(String amount);
+
+  /// No description provided for @assetInstallmentPayoffUndo.
+  ///
+  /// In ko, this message translates to:
+  /// **'되돌리기'**
+  String get assetInstallmentPayoffUndo;
+
+  /// No description provided for @assetInstallmentPayoffUndoConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 원금 정리를 취소하고 원래 회차대로 나눠 낼까요?'**
+  String get assetInstallmentPayoffUndoConfirm;
+
+  /// No description provided for @assetInstallmentPaidOffBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 원금 정리됨'**
+  String get assetInstallmentPaidOffBadge;
+
   /// No description provided for @assetInstallmentBadge.
   ///
   /// In ko, this message translates to:
