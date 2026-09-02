@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
@@ -224,7 +225,11 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                     t: t,
                   ),
                   const SizedBox(height: PSpace.x12),
-                  _MemoList(memos: pinned, onPin: _togglePin),
+                  _MemoList(
+                    memos: pinned,
+                    onPin: _togglePin,
+                    pendingIds: _pendingPin,
+                  ),
                 ],
                 if (others.isNotEmpty) ...[
                   if (pinned.isNotEmpty) ...[
@@ -236,20 +241,31 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                     ),
                     const SizedBox(height: PSpace.x12),
                   ],
-                  _MemoList(memos: others, onPin: _togglePin),
+                  _MemoList(
+                    memos: others,
+                    onPin: _togglePin,
+                    pendingIds: _pendingPin,
+                  ),
                 ],
               ],
             ),
     );
   }
 
+  // 고정 토글 진행 중인 메모 — 행에 스피너, 재요청 잠금.
+  final _pendingPin = <int>{};
+
   Future<void> _togglePin(Memo memo) async {
+    if (_pendingPin.contains(memo.rowId)) return;
+    setState(() => _pendingPin.add(memo.rowId));
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.pin(memo.rowId);
       ref.invalidate(memoListProvider);
     } on ApiException {
       if (!mounted) return;
+    } finally {
+      if (mounted) setState(() => _pendingPin.remove(memo.rowId));
     }
   }
 }
@@ -318,7 +334,14 @@ class _SectionHeader extends StatelessWidget {
 /// 옆에 카드가 또 있다) 편집·삭제에 닿으려면 매번 상세를 열어야 했다. 세로 리스트로
 /// 바꿔 가계부·할일과 같은 리듬을 쓰고, 밀면 액션이 나오게 한다.
 class _MemoList extends ConsumerWidget {
-  const _MemoList({required this.memos, required this.onPin});
+  const _MemoList({
+    required this.memos,
+    required this.onPin,
+    required this.pendingIds,
+  });
+
+  /// 고정 토글 진행 중인 메모 id.
+  final Set<int> pendingIds;
   final List<Memo> memos;
   final Future<void> Function(Memo) onPin;
 
@@ -360,6 +383,7 @@ class _MemoList extends ConsumerWidget {
             ],
             child: _MemoRow(
               memo: memos[i],
+              pending: pendingIds.contains(memos[i].rowId),
               onTap: () => showMemoDetailDialog(context, memos[i]),
             ),
           ),
@@ -378,10 +402,17 @@ class _MemoList extends ConsumerWidget {
 /// 카드가 보여 주던 것(색 점 · 태그 · 제목 · 본문 · 수정시각 · 고정)은 그대로 옮긴다.
 /// 다만 본문은 4줄에서 1줄로 줄인다 — 행 높이가 들쭉날쭉하면 미는 손이 목표를 잃는다.
 class _MemoRow extends StatelessWidget {
-  const _MemoRow({required this.memo, required this.onTap});
+  const _MemoRow({
+    required this.memo,
+    required this.onTap,
+    this.pending = false,
+  });
 
   final Memo memo;
   final VoidCallback onTap;
+
+  /// 고정 토글 요청 진행 중 — 색 점 자리에 스피너.
+  final bool pending;
 
   @override
   Widget build(BuildContext context) {
@@ -407,14 +438,20 @@ class _MemoRow extends StatelessWidget {
               // 배경이 달라져 목록이 산만해진다.
               Padding(
                 padding: const EdgeInsets.only(top: 5),
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: swatch,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                child: pending
+                    ? PCircularProgressIndicator(
+                        size: 10,
+                        strokeWidth: 1.5,
+                        color: swatch,
+                      )
+                    : Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: swatch,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
               ),
               const SizedBox(width: PSpace.x12),
               Expanded(

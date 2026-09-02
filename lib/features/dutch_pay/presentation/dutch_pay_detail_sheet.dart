@@ -29,7 +29,7 @@ import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen
 void showDutchPayDetailSheet(
   BuildContext context, {
   required int dpId,
-  required ValueChanged<int> onMarkPaid,
+  required Future<void> Function(int) onMarkPaid,
   required VoidCallback onSettle,
   required VoidCallback onDelete,
 }) {
@@ -57,7 +57,7 @@ class _Body extends ConsumerWidget {
   });
   final int dpId;
   final ScrollController scrollController;
-  final ValueChanged<int> onMarkPaid;
+  final Future<void> Function(int) onMarkPaid;
   final VoidCallback onSettle;
   final VoidCallback onDelete;
 
@@ -267,7 +267,7 @@ class _ParticipantRow extends StatelessWidget {
   final bool isPayer;
   final bool masked;
   final bool settled;
-  final VoidCallback onMarkPaid;
+  final Future<void> Function() onMarkPaid;
   final VoidCallback onRequest;
 
   @override
@@ -330,14 +330,7 @@ class _ParticipantRow extends StatelessWidget {
               dotColor: t.statusSuccessFg,
             )
           else if (!settled) ...[
-            PButton.icon(
-              icon: LucideIcons.check,
-              size: PButtonSize.sm,
-              variant: PButtonVariant.ghost,
-              iconColor: t.statusSuccessFg,
-              tooltip: l.dutchMarkPaid,
-              onPressed: onMarkPaid,
-            ),
+            _MarkPaidButton(onMarkPaid: onMarkPaid),
             PButton(
               label: l.dutchRequest,
               variant: PButtonVariant.outline,
@@ -351,6 +344,46 @@ class _ParticipantRow extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// 완료 체크 — 누르는 즉시 스피너를 띄우고 요청이 끝날 때까지 잠근다.
+///
+/// 토글류는 눌러도 표시가 없어 통신이 느리면 된 건지 모른 채 다시 누르게 됐다(사용자 신고).
+class _MarkPaidButton extends StatefulWidget {
+  const _MarkPaidButton({required this.onMarkPaid});
+  final Future<void> Function() onMarkPaid;
+
+  @override
+  State<_MarkPaidButton> createState() => _MarkPaidButtonState();
+}
+
+class _MarkPaidButtonState extends State<_MarkPaidButton> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.onMarkPaid();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    return PButton.icon(
+      icon: LucideIcons.check,
+      size: PButtonSize.sm,
+      variant: PButtonVariant.ghost,
+      iconColor: t.statusSuccessFg,
+      tooltip: l.dutchMarkPaid,
+      loading: _busy,
+      onPressed: _busy ? null : _run,
     );
   }
 }
