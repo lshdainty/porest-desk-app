@@ -114,6 +114,10 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
       ],
     ),
     _SettingsGroup(
+      label: l.settingsGroupHelp,
+      items: [_SettingsItem(label: l.settingsMenuGuide, onTap: _openGuide)],
+    ),
+    _SettingsGroup(
       label: l.settingsGroupAccount,
       items: [
         _SettingsItem(
@@ -147,6 +151,23 @@ Future<void> _openPrivacyPolicy(BuildContext ctx) async {
 
   // 눌렀는데 아무 일도 안 일어나는 게 제일 나쁘다
   messenger.showSnackBar(SnackBar(content: Text(l.settingsPrivacyOpenFailed)));
+}
+
+/// 설명서(porest-desk-guide)를 브라우저로 연다.
+///
+/// 설명서는 desk 웹과 같은 호스트의 /guide/ 에 한 벌만 떠 있다 — 앱에 문서를 복사하지 않는다.
+Future<void> _openGuide(BuildContext ctx) async {
+  final l = AppLocalizations.of(ctx);
+  final messenger = ScaffoldMessenger.of(ctx);
+  final uri = Uri.parse('${Env.webBaseUrl}/guide/');
+
+  try {
+    if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+  } catch (_) {
+    // 처리 가능한 앱이 없으면 예외로 떨어진다 — 아래에서 함께 알린다
+  }
+
+  messenger.showSnackBar(SnackBar(content: Text(l.settingsGuideOpenFailed)));
 }
 
 /// 설정 메뉴 — design MobileSettingsList (K뱅크 톤) 미러.

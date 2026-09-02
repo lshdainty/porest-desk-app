@@ -3512,6 +3512,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacyOpenFailed => 'Could not open the privacy policy';
 
   @override
+  String get settingsGroupHelp => 'Help';
+
+  @override
+  String get settingsMenuGuide => 'User guide';
+
+  @override
+  String get settingsGuideOpenFailed => 'Could not open the user guide';
+
+  @override
   String get appearanceTitle => 'Display settings';
 
   @override
