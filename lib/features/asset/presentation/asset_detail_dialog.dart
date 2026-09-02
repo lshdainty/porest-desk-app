@@ -2199,7 +2199,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     final limitPct = limit > 0 ? ((used / limit) * 100).round() : 0;
     final limitWarn = limitPct >= 80;
     final paymentDay = b?.paymentDay ?? asset.paymentDay;
-    final canPay = (b?.upcomingAmount ?? 0) > 0 && !_paying;
+    // 고른 회차 기준 — 다가오는 회차를 다 낸 뒤 다음 회차를 골라도 낼 수 있어야 한다.
+    final canPay =
+        (st?.scheduled == true ? st!.amount : (b?.upcomingAmount ?? 0)) > 0 &&
+        !_paying;
     final periodText = st?.periodStart != null && st?.periodEnd != null
         ? '${_fmtDate(st!.periodStart!)} ~ ${_fmtDate(st.periodEnd!)}'
         : null;
