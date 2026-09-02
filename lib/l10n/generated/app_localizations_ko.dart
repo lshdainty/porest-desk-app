@@ -3471,6 +3471,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsPrivacyOpenFailed => '처리방침을 열 수 없습니다';
 
   @override
+  String get settingsGroupHelp => '도움말';
+
+  @override
+  String get settingsMenuGuide => '설명서';
+
+  @override
+  String get settingsGuideOpenFailed => '설명서를 열 수 없습니다';
+
+  @override
   String get appearanceTitle => '표시 설정';
 
   @override

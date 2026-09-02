@@ -6476,6 +6476,24 @@ abstract class AppLocalizations {
   /// **'처리방침을 열 수 없습니다'**
   String get settingsPrivacyOpenFailed;
 
+  /// No description provided for @settingsGroupHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'도움말'**
+  String get settingsGroupHelp;
+
+  /// No description provided for @settingsMenuGuide.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명서'**
+  String get settingsMenuGuide;
+
+  /// No description provided for @settingsGuideOpenFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명서를 열 수 없습니다'**
+  String get settingsGuideOpenFailed;
+
   /// No description provided for @appearanceTitle.
   ///
   /// In ko, this message translates to:
