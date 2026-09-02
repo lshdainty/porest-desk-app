@@ -71,7 +71,10 @@ class PSheetFooter extends StatelessWidget {
                   variant: PButtonVariant.danger,
                   size: PButtonSize.lg,
                   fullWidth: true,
-                  onPressed: controller.submitting ? null : controller.onDelete,
+                  onPressed:
+                      controller.submitting || controller.onDelete == null
+                      ? null
+                      : controller.deleteGuarded,
                 ),
               ),
               const SizedBox(width: PSpace.x8),
@@ -98,8 +101,11 @@ class PSheetFooter extends StatelessWidget {
                 size: PButtonSize.lg,
                 fullWidth: true,
                 loading: controller.submitting,
-                onPressed: controller.canSubmit && !controller.submitting
-                    ? controller.onSubmit
+                onPressed:
+                    controller.canSubmit &&
+                        !controller.submitting &&
+                        controller.onSubmit != null
+                    ? controller.submitGuarded
                     : null,
               ),
             ),
@@ -212,6 +218,27 @@ class PSheetController extends ChangeNotifier {
   bool canSubmit = false;
   Future<void> Function()? onSubmit;
   Future<void> Function()? onDelete;
+
+  // 따닥 탭 방어 — submitting 으로 버튼이 죽는 건 다음 프레임 뒤라, 같은 프레임 안에
+  // 들어온 두 번째 탭이 onSubmit 을 한 번 더 불렀다(위젯 테스트로 확인, 2026-09-03).
+  // 탭 즉시 동기적으로 잠그고 핸들러가 끝나면 푼다. 핸들러가 setSubmitting 을 안 써도 막힌다.
+  bool _inFlight = false;
+
+  /// footer 의 제출 버튼이 부른다 — 진행 중이면 무시.
+  Future<void> submitGuarded() => _guard(onSubmit);
+
+  /// footer 의 삭제 버튼이 부른다 — 진행 중이면 무시.
+  Future<void> deleteGuarded() => _guard(onDelete);
+
+  Future<void> _guard(Future<void> Function()? action) async {
+    if (action == null || _inFlight || submitting) return;
+    _inFlight = true;
+    try {
+      await action();
+    } finally {
+      _inFlight = false;
+    }
+  }
 
   void setSubmitting(bool v) {
     if (submitting == v) return;
@@ -565,6 +592,8 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
   bool _busy = false;
 
   Future<void> _confirm() async {
+    // 같은 프레임 안의 두 번째 탭 — 버튼이 loading 으로 죽기 전에 들어온다.
+    if (_busy) return;
     final action = widget.onConfirm;
     if (action == null) {
       Navigator.pop(context, true);
