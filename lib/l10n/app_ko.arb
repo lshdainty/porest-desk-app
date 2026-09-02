@@ -194,6 +194,7 @@
   "assetAccountType": "계좌 종류",
   "assetAccountNumber": "계좌번호",
   "assetBalanceLabel": "잔액 (원)",
+  "assetBalanceEditHint": "잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.",
   "assetCurrency": "통화",
   "assetExchangeRate": "환율",
   "assetExchangeRateHint": "{code} 1당 원화",
@@ -255,7 +256,7 @@
   "assetNicknameOptional": "별칭 (선택)",
   "assetCardNicknamePlaceholder": "예: 신한 Deep Dream",
   "assetCurrentUsage": "현재 사용액 (원)",
-  "assetCurrentUsageHint": "청구될 금액을 입력하세요. 총 부채에 반영됩니다.",
+  "assetCurrentUsageHint": "아직 결제되지 않은 사용액을 적어 주세요. 0으로 두면 이 카드에 입력하는 모든 내역(지난 날짜 포함)이 미결제 사용액으로 잡혀요.",
   "assetNewCard": "새 카드",
   "assetCatalogLoadError": "카탈로그 로드 실패",
   "assetAnnualFee": "연회비",
@@ -595,22 +596,41 @@
   "assetInstallmentPayoff": "남은 할부 한 번에 정리",
   "assetInstallmentPayoffConfirm": "남은 할부 {amount}원을 이번 결제 예정액에 한 번에 넣을까요? 다음 회차부터는 청구되지 않아요.",
   "@assetInstallmentPayoffConfirm": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "assetInstallmentPayoffUndo": "되돌리기",
   "assetInstallmentPayoffUndoConfirm": "남은 원금 정리를 취소하고 원래 회차대로 나눠 낼까요?",
   "assetInstallmentPaidOffBadge": "남은 원금 정리됨",
   "assetInstallmentBadge": "할부 {months}개월",
   "@assetInstallmentBadge": {
-    "placeholders": { "months": { "type": "int" } }
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
   },
   "assetInstallmentSeq": "{seq}/{total}회차",
   "@assetInstallmentSeq": {
-    "placeholders": { "seq": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "seq": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "assetInstallmentPrincipal": "원금 {amount}",
   "@assetInstallmentPrincipal": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "assetInstallmentFallback": "할부",
   "assetLumpSumLabel": "일시불",
@@ -626,6 +646,15 @@
       }
     }
   },
+  "assetPayMoveNote": "계좌에서는 사용액으로 잡힌 {amount}만 빠져요. 나머지는 청구 기록으로만 남아요.",
+  "@assetPayMoveNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetPayNoAccountNote": "연결된 결제 계좌가 없어 이체 없이 사용액만 정리돼요.",
   "assetPaymentRecorded": "결제가 기록되었습니다",
   "assetPayFailed": "결제 실패",
   "assetBillingLoadError": "청구 정보를 불러오지 못했어요",

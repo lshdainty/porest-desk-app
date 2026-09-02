@@ -434,6 +434,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetBalanceLabel => 'Balance (KRW)';
 
   @override
+  String get assetBalanceEditHint =>
+      'Changing the balance treats everything before now as already included. Only later transactions are added.';
+
+  @override
   String get assetCurrency => 'Currency';
 
   @override
@@ -565,7 +569,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetCurrentUsageHint =>
-      'Enter the amount to be billed. It counts toward total debt.';
+      'Enter the amount not yet paid. If left at 0, every expense entered on this card (including past dates) counts as unpaid usage.';
 
   @override
   String get assetNewCard => 'New card';
@@ -1160,6 +1164,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String assetPayRemainder(String amount) {
     return '$amount remaining will be paid on the payment date';
   }
+
+  @override
+  String assetPayMoveNote(String amount) {
+    return 'Only $amount counted as card usage will leave the account. The rest is recorded as billed only.';
+  }
+
+  @override
+  String get assetPayNoAccountNote =>
+      'No payment account is linked, so the usage is settled without a transfer.';
 
   @override
   String get assetPaymentRecorded => 'Payment recorded';

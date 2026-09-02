@@ -1571,6 +1571,10 @@ class _CardStatement {
     required this.paymentDate,
     this.periodStart,
     this.periodEnd,
+    this.upcoming = false,
+    this.installments = const [],
+    this.lumpSumAmount,
+    this.alreadyPaidAmount,
   });
   final String label;
   final bool scheduled;
@@ -1578,6 +1582,16 @@ class _CardStatement {
   final String paymentDate;
   final String? periodStart;
   final String? periodEnd;
+
+  /// 다가오는 회차(결제가 임박한 쪽) — 회차를 고르기 전 기본으로 열리는 행.
+  final bool upcoming;
+
+  /// 예정 회차에 빠지는 할부 구성 — 과거 회차는 서버가 내려주지 않는다.
+  final List<InstallmentDue> installments;
+
+  /// 예정 회차의 일시불 순사용액·기결제액 — 예정액 합을 설명하는 요약 행.
+  final int? lumpSumAmount;
+  final int? alreadyPaidAmount;
 }
 
 /// 카드 월 실적 배지 — design 신판(달성/잔여 요약, 웹 CardPerfBadge 미러).
@@ -1711,12 +1725,38 @@ class _CardDetailBody extends ConsumerStatefulWidget {
 enum _UsageSort { recent, amount, category }
 
 class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
-  int _stIdx = 0;
+  // null = 아직 고르지 않음 → 다가오는 회차를 기본으로 잡는다. 다음 회차가 맨 위에
+  // 오므로 0 을 기본으로 두면 아직 쌓이는 중인 회차가 먼저 열린다.
+  int? _stIdx;
+
+  int _activeIdx(List<_CardStatement> stmts) {
+    final i = _stIdx ?? stmts.indexWhere((s) => s.upcoming);
+    return i.clamp(0, stmts.length - 1);
+  }
+
   _UsageSort _sort = _UsageSort.recent;
   bool _paying = false;
 
   List<_CardStatement> _statements(CardBilling? b) {
     final out = <_CardStatement>[];
+    // 다음 회차(지금 쌓이는 이용분)가 맨 위 — 최신순. 결제일이 지나기 전에도 이번 달 내역이 보인다.
+    final n = b?.nextCycle;
+    if (n != null) {
+      final d = DateTime.tryParse(n.paymentDate);
+      out.add(
+        _CardStatement(
+          label: d != null ? formatDay(d).md : n.paymentDate,
+          scheduled: true,
+          amount: n.amount,
+          paymentDate: n.paymentDate,
+          periodStart: n.periodStart,
+          periodEnd: n.periodEnd,
+          installments: n.installments,
+          lumpSumAmount: n.lumpSumAmount,
+          alreadyPaidAmount: n.alreadyPaidAmount,
+        ),
+      );
+    }
     if (b?.nextPaymentDate != null) {
       final d = DateTime.tryParse(b!.nextPaymentDate!);
       out.add(
@@ -1727,6 +1767,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           paymentDate: b.nextPaymentDate!,
           periodStart: b.upcomingPeriodStart,
           periodEnd: b.upcomingPeriodEnd,
+          upcoming: true,
+          installments: b.upcomingInstallments,
+          lumpSumAmount: b.upcomingLumpSumAmount,
+          alreadyPaidAmount: b.upcomingAlreadyPaidAmount,
         ),
       );
     }
@@ -1778,9 +1822,14 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
 
   /// 결제 시트 — 금액을 고칠 수 있다(부분 선결제). 기본값은 남은 청구액.
   /// 일부만 내면 나머지는 결제일에 정상적으로 빠진다(서버가 '사용액 − 이미 결제액'으로 잡는다).
-  Future<void> _confirmAndPay(CardBilling b) async {
+  Future<void> _confirmAndPay(CardBilling b, _CardStatement st) async {
     final l = AppLocalizations.of(context);
-    final upcoming = b.upcomingAmount;
+    // 고른 회차의 예정액이 상한 — 다음 회차를 미리 낼 수도 있다.
+    final upcoming = st.amount;
+    // 돈은 잔액에 잡힌 빚까지만 움직인다(서버 payoff 캡). 청구액이 그보다 크면 차액은
+    // 청구 기록만 남고 계좌에서 안 빠진다 — 완료만 보고 빠진 줄 아는 일이 없게 미리 알린다.
+    final balance = widget.asset.balance ?? 0;
+    final debt = balance < 0 ? -balance : 0;
     final ctrl = TextEditingController(text: upcoming.toString());
     final sheet = PSheetController();
 
@@ -1813,9 +1862,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
 
             ctrl.addListener(onChanged);
             final v = parsed();
-            final dateSuffix = b.nextPaymentDate != null
-                ? l.assetPayConfirmDateSuffix(b.nextPaymentDate!)
-                : '';
+            final dateSuffix = l.assetPayConfirmDateSuffix(st.paymentDate);
+            final moveNote = b.paymentAssetRowId == null
+                ? l.assetPayNoAccountNote
+                : (debt < v ? l.assetPayMoveNote(krw(debt)) : null);
             // 시트 본문 좌우는 호출처가 쥔다 — showPSheet 는 헤더·푸터만 24 를 준다.
             return Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -1835,6 +1885,16 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       height: 1.7,
                     ),
                   ),
+                  if (moveNote != null) ...[
+                    const SizedBox(height: PSpace.x8),
+                    Text(
+                      moveNote,
+                      style: PTypo.body.copyWith(
+                        color: t.fgSecondary,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: PSpace.x20),
                   Text(
                     l.assetPayAmount,
@@ -1869,15 +1929,19 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     ctrl.dispose();
     sheet.dispose();
     if (picked == null || !mounted) return;
-    await _pay(picked!);
+    await _pay(picked!, st.paymentDate);
   }
 
-  Future<void> _pay(int amount) async {
+  Future<void> _pay(int amount, String paymentDate) async {
     if (_paying) return;
     setState(() => _paying = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.payCard(widget.asset.rowId, amount: amount);
+      await repo.payCard(
+        widget.asset.rowId,
+        amount: amount,
+        paymentDate: paymentDate,
+      );
       ref
         ..invalidate(cardBillingProvider(widget.asset.rowId))
         ..invalidate(assetsProvider)
@@ -1985,6 +2049,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
   }
 
   void _openPeriodPicker(List<_CardStatement> stmts) {
+    final activeIdx = _activeIdx(stmts);
     final byYear = <String, List<(int, _CardStatement)>>{};
     for (var i = 0; i < stmts.length; i++) {
       byYear.putIfAbsent(stmts[i].paymentDate.substring(0, 4), () => []).add((
@@ -2071,7 +2136,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                           fontFamily: PTypo.sans,
                                           fontSize: PFontSize.bodyMd,
                                           fontWeight:
-                                              entry.value[ri].$1 == _stIdx
+                                              entry.value[ri].$1 == activeIdx
                                               ? PFontWeight.bold
                                               : PFontWeight.medium,
                                           color: t.fgPrimary,
@@ -2090,7 +2155,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                           color: t.fgTertiary,
                                         ),
                                       ),
-                                      if (entry.value[ri].$1 == _stIdx) ...[
+                                      if (entry.value[ri].$1 == activeIdx) ...[
                                         const SizedBox(width: 8),
                                         Icon(
                                           LucideIcons.check,
@@ -2124,7 +2189,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     final billingAsync = ref.watch(cardBillingProvider(asset.rowId));
     final b = billingAsync.value;
     final stmts = _statements(b);
-    final st = stmts.isEmpty ? null : stmts[_stIdx.clamp(0, stmts.length - 1)];
+    final st = stmts.isEmpty ? null : stmts[_activeIdx(stmts)];
 
     final limit = asset.creditLimit ?? 0;
     final used = (asset.balance ?? 0).abs();
@@ -2382,8 +2447,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         // 이번 회차 구성 — 할부가 있을 때만. 예정액이 이용 내역 합과 다른 이유
         // (과거 할부의 이번 회차분)를 이 자리에서 설명한다. 다가오는 회차에서만
         // 그린다 — 과거 회차의 구성은 서버가 내려주지 않는다(청구 이력엔 합계만 남는다).
-        if (st?.scheduled == true &&
-            (b?.upcomingInstallments.isNotEmpty ?? false))
+        if (st?.scheduled == true && (st?.installments.isNotEmpty ?? false))
           Container(
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: t.borderSubtle)),
@@ -2392,11 +2456,11 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (var i = 0; i < b!.upcomingInstallments.length; i++) ...[
+                for (var i = 0; i < st!.installments.length; i++) ...[
                   if (i > 0) const SizedBox(height: 12),
                   Builder(
                     builder: (context) {
-                      final due = b.upcomingInstallments[i];
+                      final due = st.installments[i];
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -2484,7 +2548,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   ),
                 ],
                 // 일시불·선결제 요약 — 할부와 함께 있어야 예정액 합이 설명된다.
-                if ((b.upcomingLumpSumAmount ?? 0) != 0) ...[
+                if ((st.lumpSumAmount ?? 0) != 0) ...[
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -2497,17 +2561,13 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       Text(
                         widget.masked
                             ? '••••••'
-                            : krwSigned(
-                                b.upcomingLumpSumAmount!,
-                                false,
-                                unit: true,
-                              ),
+                            : krwSigned(st.lumpSumAmount!, false, unit: true),
                         style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                       ),
                     ],
                   ),
                 ],
-                if ((b.upcomingAlreadyPaidAmount ?? 0) > 0) ...[
+                if ((st.alreadyPaidAmount ?? 0) > 0) ...[
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -2520,7 +2580,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       Text(
                         widget.masked
                             ? '••••••'
-                            : '-${krwSigned(b.upcomingAlreadyPaidAmount!, false, unit: true)}',
+                            : '-${krwSigned(st.alreadyPaidAmount!, false, unit: true)}',
                         style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                       ),
                     ],
@@ -2540,7 +2600,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   icon: LucideIcons.zap,
                   label: l.assetPayNow,
                   enabled: canPay,
-                  onTap: b == null ? null : () => _confirmAndPay(b),
+                  onTap: b == null || st == null
+                      ? null
+                      : () => _confirmAndPay(b, st),
                 ),
               ),
               const SizedBox(width: 8),

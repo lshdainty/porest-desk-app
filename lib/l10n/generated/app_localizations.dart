@@ -908,6 +908,12 @@ abstract class AppLocalizations {
   /// **'잔액 (원)'**
   String get assetBalanceLabel;
 
+  /// No description provided for @assetBalanceEditHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.'**
+  String get assetBalanceEditHint;
+
   /// No description provided for @assetCurrency.
   ///
   /// In ko, this message translates to:
@@ -1151,7 +1157,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCurrentUsageHint.
   ///
   /// In ko, this message translates to:
-  /// **'청구될 금액을 입력하세요. 총 부채에 반영됩니다.'**
+  /// **'아직 결제되지 않은 사용액을 적어 주세요. 0으로 두면 이 카드에 입력하는 모든 내역(지난 날짜 포함)이 미결제 사용액으로 잡혀요.'**
   String get assetCurrentUsageHint;
 
   /// No description provided for @assetNewCard.
@@ -2209,6 +2215,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'남은 {amount}은 결제일에 빠져요'**
   String assetPayRemainder(String amount);
+
+  /// No description provided for @assetPayMoveNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌에서는 사용액으로 잡힌 {amount}만 빠져요. 나머지는 청구 기록으로만 남아요.'**
+  String assetPayMoveNote(String amount);
+
+  /// No description provided for @assetPayNoAccountNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결된 결제 계좌가 없어 이체 없이 사용액만 정리돼요.'**
+  String get assetPayNoAccountNote;
 
   /// No description provided for @assetPaymentRecorded.
   ///

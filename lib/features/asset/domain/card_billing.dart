@@ -78,8 +78,29 @@ abstract class CardBilling with _$CardBilling {
     int? paymentDay, // 1~31 | null
     int? paymentAssetRowId,
     @Default(<BillingItem>[]) List<BillingItem> history,
+
+    /// 다가오는 회차의 다음 회차 — 지금 쌓이고 있는 이용분(당월 1일~말일, 다음 달 결제일).
+    /// 결제일 미설정이거나 옛 서버면 null.
+    UpcomingCycle? nextCycle,
   }) = _CardBilling;
 
   factory CardBilling.fromJson(Map<String, dynamic> json) =>
       _$CardBillingFromJson(json);
+}
+
+/// 회차 하나 — 청구 응답의 nextCycle. 결제일·청구 기간·예정액(선결제 차감 후)·할부 구성.
+@freezed
+abstract class UpcomingCycle with _$UpcomingCycle {
+  const factory UpcomingCycle({
+    required String paymentDate, // 'yyyy-MM-dd'
+    required String periodStart,
+    required String periodEnd,
+    required int amount,
+    int? lumpSumAmount,
+    int? alreadyPaidAmount,
+    @Default(<InstallmentDue>[]) List<InstallmentDue> installments,
+  }) = _UpcomingCycle;
+
+  factory UpcomingCycle.fromJson(Map<String, dynamic> json) =>
+      _$UpcomingCycleFromJson(json);
 }
