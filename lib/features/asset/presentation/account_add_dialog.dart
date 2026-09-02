@@ -407,6 +407,16 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     ),
                     placeholder: '0',
                   ),
+                  // 잔액 수동 수정 = 새 앵커. 그 시각 이전 내역은 이 잔액에 이미 들어 있는
+                  // 것으로 보고 이후 내역만 더해진다 — 모르고 고치면 방금 한 이체가
+                  // 잔액에서 사라진 것처럼 보인다.
+                  if (_isEdit) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      l.assetBalanceEditHint,
+                      style: PTypo.micro.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
                 ],
               ),
             ),

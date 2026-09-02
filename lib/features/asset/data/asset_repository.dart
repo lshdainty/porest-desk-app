@@ -242,11 +242,20 @@ class AssetRepository {
   /// 지금 결제 — 청구액을 결제 출금계좌에서 이체. POST /asset/{id}/pay.
   /// [amount] 미전달이면 남은 청구액 전액, 전달하면 그만큼만(부분 선결제).
   /// 방금 기록된 청구 1건을 반환.
-  Future<BillingItem> payCard(int id, {int? amount}) async {
+  /// [paymentDate] 는 결제할 회차의 결제일 — 다음 회차를 미리 낼 때 넘긴다. 미전달 = 다가오는 회차.
+  Future<BillingItem> payCard(
+    int id, {
+    int? amount,
+    String? paymentDate,
+  }) async {
     try {
+      final query = <String, dynamic>{
+        'amount': ?amount,
+        'paymentDate': ?paymentDate,
+      };
       final res = await _dio.post<Map<String, dynamic>>(
         '/asset/$id/pay',
-        queryParameters: amount != null ? {'amount': amount} : null,
+        queryParameters: query.isEmpty ? null : query,
       );
       return _unwrap(res, BillingItem.fromJson);
     } on DioException catch (e) {
