@@ -23,6 +23,7 @@ import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_detail_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -173,7 +174,21 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     });
   }
 
+  // 완료 토글 진행 중인 항목 — 체크 자리에 스피너, 탭 잠금. 통신이 느리면 눌렀는지
+  // 알 수 없어 다시 누르게 됐다(사용자 신고).
+  final _pendingToggle = <int>{};
+
   Future<void> _toggleDone(Todo x) async {
+    if (_pendingToggle.contains(x.rowId)) return;
+    setState(() => _pendingToggle.add(x.rowId));
+    try {
+      await _toggleDoneInner(x);
+    } finally {
+      if (mounted) setState(() => _pendingToggle.remove(x.rowId));
+    }
+  }
+
+  Future<void> _toggleDoneInner(Todo x) async {
     final l = AppLocalizations.of(context);
     final wasDone = x.done;
     try {
@@ -528,6 +543,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
               items: byDay[key]!,
               today: today,
               onToggle: _toggleDone,
+              pendingIds: _pendingToggle,
               onTap: (x) => showTodoDetailDialog(context, x),
             ),
           ),
@@ -539,6 +555,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
               items: noDue,
               today: today,
               onToggle: _toggleDone,
+              pendingIds: _pendingToggle,
               onTap: (x) => showTodoDetailDialog(context, x),
             ),
           ),
@@ -968,11 +985,15 @@ class _DayGroup extends ConsumerWidget {
     required this.today,
     required this.onToggle,
     required this.onTap,
+    required this.pendingIds,
   });
 
   /// null = 마감일 없음 그룹.
   final String? ymd;
   final List<Todo> items;
+
+  /// 완료 토글 진행 중인 항목 id.
+  final Set<int> pendingIds;
   final DateTime today;
   final ValueChanged<Todo> onToggle;
   final ValueChanged<Todo> onTap;
@@ -1070,6 +1091,7 @@ class _DayGroup extends ConsumerWidget {
                 last: i == items.length - 1,
                 onToggle: () => onToggle(items[i]),
                 onTap: () => onTap(items[i]),
+                pending: pendingIds.contains(items[i].rowId),
               ),
             ),
         ],
@@ -1086,12 +1108,16 @@ class _TodoRow extends StatelessWidget {
     required this.last,
     required this.onToggle,
     required this.onTap,
+    this.pending = false,
   });
   final Todo todo;
   final DateTime today;
   final bool last;
   final VoidCallback onToggle;
   final VoidCallback onTap;
+
+  /// 완료 토글 요청 진행 중 — 체크 자리에 스피너, 탭 잠금.
+  final bool pending;
 
   @override
   Widget build(BuildContext context) {
@@ -1119,7 +1145,7 @@ class _TodoRow extends StatelessWidget {
               children: [
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: onToggle,
+                  onTap: pending ? null : onToggle,
                   child: Container(
                     width: 24,
                     height: 24,
@@ -1133,7 +1159,15 @@ class _TodoRow extends StatelessWidget {
                               width: 2,
                             ),
                     ),
-                    child: todo.done
+                    child: pending
+                        ? Center(
+                            child: PCircularProgressIndicator(
+                              size: 14,
+                              strokeWidth: 2,
+                              color: todo.done ? Colors.white : t.fgTertiary,
+                            ),
+                          )
+                        : todo.done
                         ? const Icon(
                             LucideIcons.check,
                             size: 13,

@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/now_tick.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
@@ -252,7 +253,7 @@ class _NotiSkeleton extends StatelessWidget {
   }
 }
 
-class _NotiRow extends StatelessWidget {
+class _NotiRow extends StatefulWidget {
   const _NotiRow({
     required this.noti,
     required this.tokens,
@@ -269,9 +270,16 @@ class _NotiRow extends StatelessWidget {
   /// 돌아가 그 자리만 다시 얼어붙는데, 화면은 멀쩡해 보여 눈으로는 못 잡는다.
   /// 필수로 두면 새 호출부가 생겨도 컴파일이 먼저 붙잡는다.
   final DateTime now;
-  final VoidCallback onTap;
+
+  /// 읽음 처리 — 비동기. 끝날 때까지 행이 스피너를 띄우고 잠긴다.
+  final Future<void> Function() onTap;
   final VoidCallback onDelete;
 
+  @override
+  State<_NotiRow> createState() => _NotiRowState();
+}
+
+class _NotiRowState extends State<_NotiRow> {
   /// notificationType → lucide 아이콘. SoT(notificationVisual) 매핑 정합:
   /// BUDGET_ALERT→AlertTriangle / TODO_REMINDER→ListChecks /
   /// EVENT_REMINDER→CalendarClock / SYSTEM·default→Bell.
@@ -294,13 +302,32 @@ class _NotiRow extends StatelessWidget {
     _ => (t.bgMuted, t.fgSecondary),
   };
 
+  AppNotification get noti => widget.noti;
+  PorestTokens get tokens => widget.tokens;
+  DateTime get now => widget.now;
+  VoidCallback get onDelete => widget.onDelete;
+
+  // 읽음 처리 진행 중 — 안 읽음 점 자리에 스피너, 탭 잠금. 통신이 느리면 눌렀는지
+  // 알 수 없어 다시 누르게 됐다(사용자 신고).
+  bool _busy = false;
+
+  Future<void> _tap() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.onTap();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final unread = !noti.isRead;
     final (toneBg, toneFg) = _typeTone(tokens);
     return InkWell(
-      onTap: onTap,
+      onTap: _busy ? null : _tap,
       child: Container(
         // 클로드 디자인 원본 정합 — 플랫 틴트(그라데이션 아님):
         // 라이트 = bgBrandSubtle, 다크 = primary-light 15%(rgba(95,160,229,.15)).
@@ -357,7 +384,17 @@ class _NotiRow extends StatelessWidget {
                         ),
                       ),
                       // SoT: unread dot 은 제목 '뒤'(우측), bg-brand 색, 6px.
-                      if (unread) ...[
+                      if (_busy) ...[
+                        const SizedBox(width: 6),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: PCircularProgressIndicator(
+                            size: 8,
+                            strokeWidth: 1.5,
+                            color: tokens.bgBrand,
+                          ),
+                        ),
+                      ] else if (unread) ...[
                         const SizedBox(width: 6),
                         Container(
                           margin: const EdgeInsets.only(top: 6),
