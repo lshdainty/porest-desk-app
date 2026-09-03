@@ -2139,17 +2139,33 @@ List<_TrendPoint> _computeTrendData(
   ];
 }
 
+/// 추이 차트 Y축 눈금 — web `shared/lib/porest/format.ts` 의 `formatChartAmount` 미러.
+///
+/// 공용 [formatChartAxis] 와 **일부러** 다르다. 축약 함수가 둘인 건 자리마다 눈금이
+/// 붙는 정도가 달라서다.
+///
+/// - [formatChartAxis] 는 1만~10만을 소수 한 자리로 낸다(`1.2만`). 도넛 중앙 합계처럼
+///   **숫자 하나만 보는 자리**에서 `11,881 → '1만'` 은 16% 를 날린다(QA #38).
+/// - 여기(추이 차트 좌·우·순저축 축)는 0 기준 5눈금이 촘촘히 붙어 소수 한 자리가 축
+///   폭만 먹고 읽는 데 보태는 게 없다. 그대로 정수 만이다.
+///
+/// 웹도 같은 이유로 `formatChartAxis` / `formatChartAmount` 를 나눠 두고 축에는 뒤엣것을
+/// 쓴다. 그래서 여기서 [formatChartAxis] 로 갈아타면 정합이 잡히는 게 아니라 **같은
+/// 축을 두 플랫폼이 다르게 그리게** 된다 — 웹 `1만` / 앱 `1.2만`.
+///
+/// 천단위 콤마는 웹처럼 붙인다(`1,234만` · `8,000`). 예전엔 `toStringAsFixed(0)` 이라
+/// 앱만 `1234만` · `8000` 으로 찍혀, 같은 축인데 웹과 글자가 달랐다.
 String _fmtTick(double v) {
-  // en: 로케일 compact 축약(중앙 formatChartAxis en 경로와 동일). ko: 억/만(기존 유지).
+  // en: 로케일 compact 축약(중앙 formatChartAxis en 경로와 동일). ko: 억/만.
   if (localeIsEn()) return formatChartAxis(v);
   final abs = v.abs();
   String body;
   if (abs >= 100000000) {
     body = '${(abs / 100000000).toStringAsFixed(1)}억';
   } else if (abs >= 10000) {
-    body = '${(abs / 10000).round()}만';
+    body = '${krw((abs / 10000).round())}만';
   } else {
-    body = abs.toStringAsFixed(0);
+    body = krw(abs.round());
   }
   return v < 0 ? '−$body' : body;
 }

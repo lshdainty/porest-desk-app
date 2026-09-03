@@ -314,7 +314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetEmptyHint =>
-      'You can add one from Settings → Manage cards & accounts';
+      'You can add one from Settings → Account & Card Management';
 
   @override
   String get assetSummaryColAccounts => 'Accounts';
@@ -3415,7 +3415,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreItemStats => 'Stats & Analysis';
 
   @override
-  String get moreItemAccountCard => 'Account & Card';
+  String get moreItemAccountCard => 'Account & Card Management';
 
   @override
   String get moreItemCardBenefits => 'Card Benefits';

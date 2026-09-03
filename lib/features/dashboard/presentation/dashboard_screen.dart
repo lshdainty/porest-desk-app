@@ -481,6 +481,20 @@ class _HomeTodosWidget extends StatelessWidget {
 
 // ─── BalanceHero (gradient olive card) ─────────────────────
 
+/// **크기만** 들고 있는 값(총 부채·지출처럼 절대값으로 오는 값) 앞에 붙일 부호.
+/// web `shared/lib/porest/format.ts` 의 `minusOf` 미러 — 같은 화면을 두 플랫폼이 그린다.
+///
+/// - `0` → 부호 없음. 빈 계정에서 `−0원` 으로 보이던 걸 `0원` 으로 (QA #1).
+/// - 음수 → `+`. 총 부채는 선결제한 카드 때문에 음수가 될 수 있다(서버가 유형 기준으로
+///   세면서 `totalDebt = −Σ부채군` 이 되어 선결제 양수가 부채를 깎는다). 그때 `−` 를
+///   그대로 박으면 `−-356,800` 처럼 부호가 겹쳐 찍힌다.
+///
+/// 값은 반드시 `krwSigned(v.abs(), ...)` 처럼 **절대값**으로 넘겨라.
+///
+/// 부호 글자는 U+2212(−) 다 — ASCII 하이픈과 폭이 달라 한 카드 안에서 섞이면
+/// tabular figures 정렬이 어긋난다 (QA #22).
+String _minusOf(int n) => n > 0 ? '−' : (n < 0 ? '+' : '');
+
 class _BalanceHero extends StatelessWidget {
   const _BalanceHero({
     required this.summaryAsync,
@@ -662,9 +676,9 @@ class _BalanceHero extends StatelessWidget {
                           child: _HeroSplitCol(
                             label: l.dashLiabilities,
                             value: krwSigned(
-                              totalDebt,
+                              totalDebt.abs(),
                               masked,
-                              sign: '-',
+                              sign: _minusOf(totalDebt),
                               mask: '••••',
                             ),
                             loading: loading,
@@ -842,9 +856,9 @@ class _MonthExpenseCard extends StatelessWidget {
                   child: _IncomeExpenseCol(
                     label: l.expTypeExpense,
                     value: krwSigned(
-                      expense,
+                      expense.abs(),
                       flags.of(MaskKind.expense),
-                      sign: '-',
+                      sign: _minusOf(expense),
                     ),
                     color: t.fgExpense,
                   ),
@@ -1472,7 +1486,7 @@ class _TodaySpendCard extends StatelessWidget {
               krwSigned(
                 todayTotal,
                 masked,
-                sign: '-',
+                sign: '−',
                 unit: true,
                 mask: '••••',
               ),
