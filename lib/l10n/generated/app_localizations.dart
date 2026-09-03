@@ -701,7 +701,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'설정 → 카드·계좌 관리에서 추가할 수 있어요'**
+  /// **'설정 → 계좌·카드 관리에서 추가할 수 있어요'**
   String get assetEmptyHint;
 
   /// No description provided for @assetSummaryColAccounts.
@@ -6275,7 +6275,7 @@ abstract class AppLocalizations {
   /// No description provided for @moreItemAccountCard.
   ///
   /// In ko, this message translates to:
-  /// **'카드·계좌 관리'**
+  /// **'계좌·카드 관리'**
   String get moreItemAccountCard;
 
   /// No description provided for @moreItemCardBenefits.

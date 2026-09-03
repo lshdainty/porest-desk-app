@@ -311,7 +311,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetEmptyState => '아직 등록된 자산이 없어요';
 
   @override
-  String get assetEmptyHint => '설정 → 카드·계좌 관리에서 추가할 수 있어요';
+  String get assetEmptyHint => '설정 → 계좌·카드 관리에서 추가할 수 있어요';
 
   @override
   String get assetSummaryColAccounts => '계좌·예금';
@@ -3372,7 +3372,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moreItemStats => '통계·분석';
 
   @override
-  String get moreItemAccountCard => '카드·계좌 관리';
+  String get moreItemAccountCard => '계좌·카드 관리';
 
   @override
   String get moreItemCardBenefits => '카드 혜택';
