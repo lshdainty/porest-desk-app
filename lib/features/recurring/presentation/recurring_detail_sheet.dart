@@ -106,7 +106,7 @@ class _Body extends ConsumerWidget {
               krwSigned(
                 item.amount.abs(),
                 false,
-                sign: isExpense ? '-' : '+',
+                sign: isExpense ? kMinus : '+',
                 unit: true,
               ),
               style: PTypo.displayMd.copyWith(

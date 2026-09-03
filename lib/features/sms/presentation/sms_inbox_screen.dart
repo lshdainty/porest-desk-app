@@ -328,7 +328,12 @@ class _InboxRow extends StatelessWidget {
             const SizedBox(width: PSpace.x8),
             if (preview.amount != null)
               Text(
-                krwSigned(preview.amount!, false, sign: '-', unit: true),
+                krwSigned(
+                  preview.amount!.abs(),
+                  false,
+                  sign: minusOf(preview.amount!),
+                  unit: true,
+                ),
                 style: PTypo.body.copyWith(
                   color: t.fgExpense,
                   fontWeight: PFontWeight.bold,
