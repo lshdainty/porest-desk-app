@@ -110,6 +110,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stateEmpty => 'Nothing to show';
 
   @override
+  String nameTooLong(int max) {
+    return 'Keep the name to $max characters or fewer.';
+  }
+
+  @override
   String get languageKorean => '한국어';
 
   @override
@@ -299,6 +304,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetSubtypeDeposit => 'Deposit';
 
   @override
+  String get assetSubtypeOverdraft => 'Overdraft';
+
+  @override
   String get assetLoadError => 'Couldn\'t load assets';
 
   @override
@@ -425,6 +433,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetNicknamePlaceholder => 'e.g. Shinhan main';
 
   @override
+  String get assetNicknameDuplicate =>
+      'An asset with this alias already exists.';
+
+  @override
   String get assetAccountType => 'Account type';
 
   @override
@@ -436,6 +448,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get assetBalanceEditHint =>
       'Changing the balance treats everything before now as already included. Only later transactions are added.';
+
+  @override
+  String get assetOverdraftUsedLabel => 'Amount in use (KRW)';
+
+  @override
+  String get assetLoanRemainingLabel => 'Remaining loan (KRW)';
+
+  @override
+  String get assetOverdraftLimitLabel => 'Overdraft limit (KRW, optional)';
+
+  @override
+  String get assetOverdraftHint =>
+      'Enter how much you are currently overdrawn. If money is left in the account, pick Checking instead.';
+
+  @override
+  String get assetLoanHint =>
+      'Enter the amount still owed. The app takes care of the sign.';
 
   @override
   String get assetCurrency => 'Currency';
@@ -2736,6 +2765,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutchAddNamePlaceholder => 'Enter a name to add';
 
   @override
+  String get dutchNameAlreadyAdded => 'That name is already added.';
+
+  @override
   String get dutchAdd => 'Add';
 
   @override
@@ -2953,6 +2985,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expPresetNamePlaceholder => 'e.g. Lunch box';
+
+  @override
+  String get presetNameDuplicate => 'A preset with this name already exists.';
 
   @override
   String expPresetLockAmount(String amount) {
@@ -4502,6 +4537,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingGoalNameHint => 'e.g. Emergency fund';
+
+  @override
+  String get savingGoalNameDuplicate => 'A goal with this name already exists.';
 
   @override
   String get savingGoalAmountLabel => 'Target amount';
