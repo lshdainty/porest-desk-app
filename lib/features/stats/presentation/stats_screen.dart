@@ -2139,37 +2139,6 @@ List<_TrendPoint> _computeTrendData(
   ];
 }
 
-/// 추이 차트 Y축 눈금 — web `shared/lib/porest/format.ts` 의 `formatChartAmount` 미러.
-///
-/// 공용 [formatChartAxis] 와 **일부러** 다르다. 축약 함수가 둘인 건 자리마다 눈금이
-/// 붙는 정도가 달라서다.
-///
-/// - [formatChartAxis] 는 1만~10만을 소수 한 자리로 낸다(`1.2만`). 도넛 중앙 합계처럼
-///   **숫자 하나만 보는 자리**에서 `11,881 → '1만'` 은 16% 를 날린다(QA #38).
-/// - 여기(추이 차트 좌·우·순저축 축)는 0 기준 5눈금이 촘촘히 붙어 소수 한 자리가 축
-///   폭만 먹고 읽는 데 보태는 게 없다. 그대로 정수 만이다.
-///
-/// 웹도 같은 이유로 `formatChartAxis` / `formatChartAmount` 를 나눠 두고 축에는 뒤엣것을
-/// 쓴다. 그래서 여기서 [formatChartAxis] 로 갈아타면 정합이 잡히는 게 아니라 **같은
-/// 축을 두 플랫폼이 다르게 그리게** 된다 — 웹 `1만` / 앱 `1.2만`.
-///
-/// 천단위 콤마는 웹처럼 붙인다(`1,234만` · `8,000`). 예전엔 `toStringAsFixed(0)` 이라
-/// 앱만 `1234만` · `8000` 으로 찍혀, 같은 축인데 웹과 글자가 달랐다.
-String _fmtTick(double v) {
-  // en: 로케일 compact 축약(중앙 formatChartAxis en 경로와 동일). ko: 억/만.
-  if (localeIsEn()) return formatChartAxis(v);
-  final abs = v.abs();
-  String body;
-  if (abs >= 100000000) {
-    body = '${(abs / 100000000).toStringAsFixed(1)}억';
-  } else if (abs >= 10000) {
-    body = '${krw((abs / 10000).round())}만';
-  } else {
-    body = krw(abs.round());
-  }
-  return v < 0 ? '−$body' : body;
-}
-
 /// recharts 의 "nice number" 알고리즘 — [rawMax] 를 [ticks] 단계 깔끔한
 /// step 으로 ceil. (max=step*(ticks-1)). Web (recharts YAxis) 자동 tick 과
 /// 시각적으로 동일한 결과 (0/200/400/600/800 같은 균등 단계).
@@ -2344,6 +2313,12 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                       borderData: FlBorderData(show: false),
                       titlesData: FlTitlesData(
                         // 좌축: 수입 (raw) — interval=axisStep 로 0/step/2step/3step/4step=max 5 ticks 균등.
+                        //
+                        // 눈금 글자는 도넛 중앙·히트맵과 같은 [formatChartAxis] 다.
+                        // 예전엔 추이 축만 쓰는 축약 함수가 따로 있었는데, 그게 만을
+                        // 정수로 깎고(2.5만 → `3만`) 억에 `.0` 을 남기고(`5.0억`) 조를
+                        // 아예 몰라(1.2조 → `12000.0억`) 같은 화면 안에서 글자가 갈렸다.
+                        // 금액 축약은 어디서든 한 규칙이다 (QA #73).
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
@@ -2352,7 +2327,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                             getTitlesWidget: (v, _) => Padding(
                               padding: const EdgeInsets.only(right: 6),
                               child: Text(
-                                _fmtTick(v),
+                                formatChartAxis(v),
                                 style: PTypo.micro.copyWith(
                                   color: useDualAxis
                                       ? t.statusInfoFg
@@ -2374,7 +2349,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                                   getTitlesWidget: (v, _) => Padding(
                                     padding: const EdgeInsets.only(left: 6),
                                     child: Text(
-                                      _fmtTick(v / scale),
+                                      formatChartAxis(v / scale),
                                       style: PTypo.micro.copyWith(
                                         color: t.fgExpense,
                                         fontSize: PFontSize.micro,
@@ -3163,7 +3138,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                             getTitlesWidget: (v, _) => Padding(
                               padding: const EdgeInsets.only(right: 6),
                               child: Text(
-                                _fmtTick(v),
+                                formatChartAxis(v),
                                 style: PTypo.micro.copyWith(
                                   color: t.fgTertiary,
                                   fontSize: PFontSize.micro,
