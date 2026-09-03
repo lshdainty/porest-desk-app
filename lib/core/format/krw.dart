@@ -53,44 +53,70 @@ String krwSigned(
 /// (금액+단위 동시 포맷은 [krwSigned]`(unit:true)` 사용 — en 은 접두 ₩.)
 String wonUnit() => localeIsEn() ? '₩' : '원';
 
-/// 차트 Y축 라벨 — 한국어 단위 축약(조/억/만). 구간마다 정밀도가 다르다.
-/// 음수도 부호 prepend (`−` 가운데 dash, U+2212). Web `formatChartAxis` 와 정합.
-/// 예: -51,750,000 → '−5,175만', 11,881 → '1.2만', 1,200,000,000 → '12억'.
+/// 손으로 붙이는 금액 부호는 U+2212(−) 하나로 통일한다.
+///
+/// ASCII 하이픈과 폭이 달라 한 카드 안에서 섞이면 tabular figures 정렬이 어긋난다
+/// (QA #22 — 홈 9월 카드에서 지출은 `−7,560`, 잔액은 `-7,560` 이었다).
+/// web `shared/lib/porest/format.ts` 의 `MINUS` 미러.
+const String kMinus = '−';
+
+/// **크기만** 들고 있는 값(총 부채·지출처럼 절댓값으로 오는 값) 앞에 붙일 부호.
+/// web `shared/lib/porest/format.ts` 의 `minusOf` 미러 — 같은 화면을 두 플랫폼이 그린다.
+///
+/// - `0` → 부호 없음. 빈 계정에서 `−0원` 으로 보이던 걸 `0원` 으로 (QA #1 · #69).
+/// - 음수 → `+`. 크기값이 음수로 오는 자리가 있다 — 총 부채는 선결제한 카드 때문에
+///   음수가 될 수 있다(서버가 유형 기준으로 세면서 `totalDebt = −Σ부채군` 이 되어
+///   선결제 양수가 부채를 깎는다). 그때 `−` 를 그대로 박으면 `−-356,800` 처럼
+///   부호가 겹쳐 찍힌다.
+///
+/// 값은 반드시 `krwSigned(v.abs(), ...)` 처럼 **절댓값**으로 넘겨라.
+String minusOf(int n) => n > 0 ? kMinus : (n < 0 ? '+' : '');
+
+/// 차트 Y축·도넛 중앙 라벨 — 한국어 단위 축약(조/억/만).
+/// Web `shared/lib/porest/format.ts` 의 `formatChartAxis` 와 **한 글자도 갈리면
+/// 안 된다** — 같은 화면을 두 플랫폼이 그린다.
+///
+/// 규칙은 구간과 상관없이 하나다(QA #73).
+///
+///   n < 1만   정수 + 천단위 콤마   `5,000` · `9,999`
+///   1만 ~     만                 `1만` · `1.2만` · `1,230.5만`
+///   1억 ~     억                 `1.2억` · `5억` · `9,999억`
+///   1조 ~     조                 `1조` · `1.2조`
+///
+/// 값은 늘 소수 첫째 자리까지 쓰고 `.0` 은 뗀다 — `5.0만` 이 아니라 `5만`(QA #73).
+/// 예전엔 구간마다 정밀도가 달라(10억 위는 정수 억, 10만 위는 정수 만) 같은 축
+/// 안에서 규칙이 바뀌었다. 1만 미만에 천단위 콤마가 없던 것도 여기서 같이 잡힌다
+/// (QA #70 — 웹은 `5,000`, 앱만 `5000` 이었다).
+///
+/// 반올림한 값이 다음 단위에 닿으면 그 단위로 올린다 — 99,999,999 는 `10,000만`
+/// 이 아니라 `1억`, 999,999,999,999 는 `10,000억` 이 아니라 `1조` 다.
+///
+/// 음수 부호는 [kMinus](U+2212). en 로케일은 Intl compact 그대로 둔다.
 String formatChartAxis(double v) {
   // en: 로케일 compact 축약 (120M · 52K · -5.2M). intl 내장 en 데이터.
   if (localeIsEn()) return NumberFormat.compact(locale: 'en').format(v);
-  // ko: 조/억/만 축약.
-  //
-  // 구간마다 정밀도를 달리한다. 한 자리로 뭉개면 축 눈금이 겹치고(84만짜리 차트에서
-  // 25·50·75·100만이 "0만, 0만, 100만, 100만" 으로 나왔다), 반대로 늘 만 단위로 쓰면
-  // 조 단위에서 "10000.0억" 같은 라벨이 나와 축 폭(reservedSize 52)을 넘는다.
-  //
-  //   1조~     1.2조        10억~    12억, 9,999억
-  //   1억~     5.2억        10만~    25만, 9,999만
-  //   1만~     1.2만, 9.9만  ~1만     5000
-  final n = v.abs();
-  final ko = NumberFormat.decimalPattern('ko_KR');
-  String body;
-  if (n >= 1000000000000) {
-    body = '${(n / 1000000000000).toStringAsFixed(1)}조';
-  } else if (n >= 1000000000) {
-    // 10억이 넘으면 소수 한 자리가 읽는 데 보태는 게 없다.
-    body = '${ko.format((n / 100000000).round())}억';
-  } else if (n >= 100000000) {
-    body = '${(n / 100000000).toStringAsFixed(1)}억';
-  } else if (n >= 10000) {
-    // 1만~10만을 만 단위로 뭉개면 정보가 너무 많이 날아간다 — 11,881 이 '1만'(−16%)
-    // 이 됐다. 도넛 중앙 합계처럼 그 숫자 하나만 보는 자리에서 특히 틀려 보인다.
-    // 10만 위로는 소수가 축 폭만 먹고 읽는 데 보태는 게 없어 그대로 정수 만이다.
-    final man = n / 10000;
-    // 반올림 결과로 경계를 판정한다 — 99,999 가 '10.0만' 이 되어 바로 옆 눈금인
-    // 100,000 의 '10만' 과 모양이 갈리는 걸 막는다.
-    final rounded = (man * 10).round() / 10;
-    body = rounded < 10
-        ? '${rounded.toStringAsFixed(1)}만'
-        : '${ko.format(man.round())}만';
-  } else {
-    body = n.toStringAsFixed(0);
+
+  const units = ['', '만', '억', '조'];
+  var scaled = v.abs();
+  var unit = 0;
+  while (unit < units.length - 1) {
+    // 판정은 **찍을 값**으로 한다 — 9,999.9999만 은 소수 한 자리로 반올림하면
+    // 10,000.0만 이고, 그건 곧 1억이다. 원값으로 재면 `10,000.0만` 이 나온다.
+    final shown = unit == 0
+        ? scaled.roundToDouble()
+        : (scaled * 10).roundToDouble() / 10;
+    if (shown < 10000) {
+      scaled = shown;
+      break;
+    }
+    scaled /= 10000;
+    unit++;
   }
-  return v < 0 ? '−$body' : body;
+
+  // 정수부는 천단위 콤마, 소수부는 한 자리(0 이면 뗀다).
+  final tenths = (scaled * 10).round();
+  final head = NumberFormat.decimalPattern('ko_KR').format(tenths ~/ 10);
+  final frac = tenths % 10;
+  final body = '$head${frac == 0 ? '' : '.$frac'}${units[unit]}';
+  return v < 0 ? '$kMinus$body' : body;
 }

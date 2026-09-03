@@ -38,33 +38,74 @@ void main() {
       expect(krwSigned(10000, true, unit: true), kHideMask);
     });
 
-    test('formatChartAxis: 조/억/만 축약', () {
-      // 만 — 만 단위로 정확히. 예전엔 100만 단위로 뭉개 5,200만이 나왔는데,
-      // 그러면 소액 축에서 눈금이 서로 겹친다.
-      expect(formatChartAxis(250000), '25만');
-      expect(formatChartAxis(-51750000), '−5,175만');
-      // 1만~10만 — 만 단위로 뭉개면 11,881(도넛 중앙 합계)이 '1만' 이 되어 16% 가
-      // 사라졌다. 이 구간만 소수 한 자리. 웹 `formatChartAxis` 와 **같은 문자열**이어야
-      // 한다 — 같은 화면을 두 플랫폼이 그린다.
-      expect(formatChartAxis(11881), '1.2만');
-      expect(formatChartAxis(10000), '1.0만');
-      expect(formatChartAxis(12500), '1.3만');
-      expect(formatChartAxis(50000), '5.0만');
-      expect(formatChartAxis(-11881), '−1.2만');
-      // 10만 경계 — 99,999 를 '10.0만' 으로 내면 바로 옆 눈금 100,000('10만')과
-      // 모양이 갈린다. 반올림 결과로 판정해 둘 다 '10만' 으로 넘긴다.
-      expect(formatChartAxis(99999), '10만');
-      expect(formatChartAxis(100000), '10만');
-      // 1억~10억 — 소수 한 자리가 정보를 준다.
-      expect(formatChartAxis(517500000), '5.2억');
-      // 10억~ — 소수는 읽는 데 보태는 게 없다.
-      expect(formatChartAxis(1200000000), '12억');
-      expect(formatChartAxis(-1200000000), '−12억');
-      // 조 — 억으로 두면 "10000.0억" 이 되어 축 폭을 넘는다.
-      expect(formatChartAxis(1200000000000), '1.2조');
-      // 만 미만은 그대로.
-      expect(formatChartAxis(5000), '5000');
-      expect(formatChartAxis(0), '0');
+    // QA #73·#70 확정 표 — 웹 `shared/lib/porest/format.ts` 의 `formatChartAxis`
+    // 테스트에 **글자 그대로 같은 표**가 들어 있다. 같은 화면을 두 플랫폼이 그리므로
+    // 여기서 한 줄이라도 갈리면 사용자 눈에 바로 보인다.
+    //
+    // 규칙은 구간과 상관없이 하나다.
+    //   · 값은 소수 첫째 자리까지, `.0` 은 뗀다 (`5.0만` ✗ → `5만` ✓)
+    //   · 정수부는 늘 천단위 콤마 (1만 미만도 — 앱만 `5000` 이었다, QA #70)
+    //   · 반올림이 다음 단위에 닿으면 올린다 (99,999,999 → `1억`)
+    //   · 음수 부호는 U+2212(−), ASCII 하이픈이 아니다
+    const chartAxis = <int, String>{
+      0: '0',
+      5000: '5,000',
+      9999: '9,999',
+      10000: '1만',
+      11881: '1.2만',
+      13879: '1.4만',
+      50000: '5만',
+      99999: '10만',
+      100000: '10만',
+      250000: '25만',
+      999999: '100만',
+      1000000: '100만',
+      1500000: '150만',
+      5040000: '504만',
+      12300000: '1,230만',
+      12305000: '1,230.5만',
+      51750000: '5,175만',
+      99999999: '1억',
+      100000000: '1억',
+      120000000: '1.2억',
+      500000000: '5억',
+      1200000000: '12억',
+      1250000000: '12.5억',
+      999900000000: '9,999억',
+      999999999999: '1조',
+      1000000000000: '1조',
+      1200000000000: '1.2조',
+      -51750000: '−5,175만',
+      -11881: '−1.2만',
+    };
+
+    test('formatChartAxis: 조/억/만 축약 — 웹과 같은 문자열', () {
+      for (final e in chartAxis.entries) {
+        expect(
+          formatChartAxis(e.key.toDouble()),
+          e.value,
+          reason: '${e.key} 의 축약',
+        );
+      }
+    });
+
+    test('formatChartAxis: `.0` 을 남기지 않는다', () {
+      // QA #73 이 잡은 자리 — 합계 50,000 인 달의 도넛 중앙이 `5.0만` 이었다.
+      // 어느 구간에서도 소수부가 0 이면 뗀다.
+      for (final n in [10000, 50000, 100000, 1000000, 100000000, 500000000]) {
+        expect(formatChartAxis(n.toDouble()), isNot(contains('.0')));
+      }
+    });
+
+    test('minusOf: 0 은 부호를 붙이지 않는다 (QA #1 · #69)', () {
+      expect(minusOf(1), kMinus); // U+2212
+      expect(minusOf(1), isNot('-')); // ASCII 하이픈이 아니다
+      expect(minusOf(0), '');
+      // 총 부채는 선결제 카드 때문에 음수가 될 수 있다 — 부호를 겹치지 않고 뒤집는다.
+      expect(minusOf(-1), '+');
+      // 화면이 실제로 조립하는 모양. 값이 0 이면 `-0원` 이 아니라 `0원`.
+      expect(krwSigned(0, false, sign: minusOf(0), unit: true), '0원');
+      expect(krwSigned(51750, false, sign: minusOf(51750)), '−51,750');
     });
 
     test('formatChartAxis: 축 눈금이 서로 겹치지 않는다', () {

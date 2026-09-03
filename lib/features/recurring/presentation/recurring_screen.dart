@@ -463,7 +463,11 @@ class _SummaryCard extends StatelessWidget {
                 child: _Stat(
                   label: l.recurringMonthlyExpense,
                   icon: LucideIcons.trendingDown,
-                  value: krwSigned(monthlyExpense, masked, sign: '-'),
+                  value: krwSigned(
+                    monthlyExpense.abs(),
+                    masked,
+                    sign: minusOf(monthlyExpense),
+                  ),
                   color: tokens.fgExpense,
                   tokens: tokens,
                 ),
@@ -682,7 +686,7 @@ class _UpcomingRow extends StatelessWidget {
             krwSigned(
               item.amount.abs(),
               masked,
-              sign: isExpense ? '-' : '+',
+              sign: isExpense ? kMinus : '+',
               mask: '••••',
             ),
             style: PTypo.bodySm.copyWith(
@@ -824,7 +828,7 @@ class _RecurringRow extends StatelessWidget {
                 krwSigned(
                   item.amount.abs(),
                   masked,
-                  sign: isExpense ? '-' : '+',
+                  sign: isExpense ? kMinus : '+',
                   mask: '••••',
                 ),
                 style: PTypo.bodySm.copyWith(
