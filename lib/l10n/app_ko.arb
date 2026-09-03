@@ -2433,6 +2433,7 @@
   "recurringIndefinite": "무기한",
   "recurringNotifyShort": "알림",
   "recurringAddTitle": "반복 거래 추가",
+  "recurringEditTitle": "반복 거래 수정",
   "recurringSaveSubmit": "반복 저장",
   "recurringUpdated": "반복 설정이 수정되었습니다",
   "recurringSaved": "반복 설정이 저장되었습니다",

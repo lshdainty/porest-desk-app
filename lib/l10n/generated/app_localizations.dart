@@ -8012,6 +8012,12 @@ abstract class AppLocalizations {
   /// **'반복 거래 추가'**
   String get recurringAddTitle;
 
+  /// No description provided for @recurringEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래 수정'**
+  String get recurringEditTitle;
+
   /// No description provided for @recurringSaveSubmit.
   ///
   /// In ko, this message translates to:

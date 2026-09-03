@@ -2417,6 +2417,7 @@
   "recurringIndefinite": "Indefinite",
   "recurringNotifyShort": "Alert",
   "recurringAddTitle": "Add recurring transaction",
+  "recurringEditTitle": "Edit recurring transaction",
   "recurringSaveSubmit": "Save recurring",
   "recurringUpdated": "Recurring setting updated",
   "recurringSaved": "Recurring setting saved",

@@ -4335,6 +4335,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringAddTitle => 'Add recurring transaction';
 
   @override
+  String get recurringEditTitle => 'Edit recurring transaction';
+
+  @override
   String get recurringSaveSubmit => 'Save recurring';
 
   @override
