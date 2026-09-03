@@ -125,7 +125,10 @@ class PExpenseRow extends StatelessWidget {
                 krwSigned(
                   expense.amount,
                   masked,
-                  sign: isIncome ? '+' : '-',
+                  // U+2212(−) — ASCII 하이픈과 폭이 달라 한 카드 안에서 섞이면
+                  // tabular figures 정렬이 어긋난다(QA #22). web `entities/expense/ui/
+                  // expense-row.tsx` 도 `MINUS` 를 쓴다.
+                  sign: isIncome ? '+' : '−',
                   unit: true,
                 ),
                 style: PTypo.body.copyWith(
