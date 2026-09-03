@@ -108,6 +108,19 @@ void main() {
       expect(krwSigned(51750, false, sign: minusOf(51750)), '−51,750');
     });
 
+    test('plusOf: 0 은 부호를 붙이지 않는다 — 수입 쪽 `+0` (QA #1)', () {
+      // 지출 쪽 `−0` 만 잡혀 있었고 수입 쪽 `+0` 이 그대로 남아 있었다
+      // (반복 거래에 수입이 하나도 없는 계정에서 `+0` 이 떴다).
+      expect(plusOf(1), '+');
+      expect(plusOf(0), '');
+      // 크기값이 음수로 오면 부호를 겹치지 않고 뒤집는다 — minusOf 와 같은 규칙.
+      expect(plusOf(-1), kMinus);
+      expect(plusOf(-1), isNot('-')); // ASCII 하이픈이 아니다
+      // 화면이 실제로 조립하는 모양.
+      expect(krwSigned(0, false, sign: plusOf(0)), '0');
+      expect(krwSigned(990000, false, sign: plusOf(990000)), '+990,000');
+    });
+
     test('formatChartAxis: 축 눈금이 서로 겹치지 않는다', () {
       // 축은 0에서 5등분한다. 어느 스케일에서든 라벨이 중복되면 축을 읽을 수 없다.
       for (final top in [

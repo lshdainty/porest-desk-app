@@ -59,6 +59,8 @@ class _Body extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final isExpense = item.expenseType == 'EXPENSE';
+    // 부호는 크기값에서 뽑는다 — 금액이 0 이면 안 붙는다(`−0원`·`+0원` 방지, QA #1).
+    final amount = item.amount.abs();
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final cat = categories
         .where((c) => c.rowId == item.categoryRowId)
@@ -104,9 +106,9 @@ class _Body extends ConsumerWidget {
             title: recurringDisplayTitle(l, item),
             amount: Text(
               krwSigned(
-                item.amount.abs(),
+                amount,
                 false,
-                sign: isExpense ? kMinus : '+',
+                sign: isExpense ? minusOf(amount) : plusOf(amount),
                 unit: true,
               ),
               style: PTypo.displayMd.copyWith(
