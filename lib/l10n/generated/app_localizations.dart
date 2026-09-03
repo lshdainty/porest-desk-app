@@ -296,6 +296,12 @@ abstract class AppLocalizations {
   /// **'표시할 항목이 없어요'**
   String get stateEmpty;
 
+  /// 이름 길이 상한 안내 — 계좌 별칭·저축목표·프리셋·참여자가 공유한다
+  ///
+  /// In ko, this message translates to:
+  /// **'이름은 {max}자 이내로 입력해 주세요.'**
+  String nameTooLong(int max);
+
   /// No description provided for @languageKorean.
   ///
   /// In ko, this message translates to:
@@ -674,6 +680,12 @@ abstract class AppLocalizations {
   /// **'예금'**
   String get assetSubtypeDeposit;
 
+  /// No description provided for @assetSubtypeOverdraft.
+  ///
+  /// In ko, this message translates to:
+  /// **'마이너스통장'**
+  String get assetSubtypeOverdraft;
+
   /// No description provided for @assetLoadError.
   ///
   /// In ko, this message translates to:
@@ -890,6 +902,12 @@ abstract class AppLocalizations {
   /// **'예: 신한 주거래'**
   String get assetNicknamePlaceholder;
 
+  /// No description provided for @assetNicknameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 별칭의 자산이 이미 있어요.'**
+  String get assetNicknameDuplicate;
+
   /// No description provided for @assetAccountType.
   ///
   /// In ko, this message translates to:
@@ -913,6 +931,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.'**
   String get assetBalanceEditHint;
+
+  /// No description provided for @assetOverdraftUsedLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 중인 금액 (원)'**
+  String get assetOverdraftUsedLabel;
+
+  /// No description provided for @assetLoanRemainingLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 대출 금액 (원)'**
+  String get assetLoanRemainingLabel;
+
+  /// No description provided for @assetOverdraftLimitLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'마이너스 한도 (원, 선택)'**
+  String get assetOverdraftLimitLabel;
+
+  /// No description provided for @assetOverdraftHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.'**
+  String get assetOverdraftHint;
+
+  /// No description provided for @assetLoanHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.'**
+  String get assetLoanHint;
 
   /// No description provided for @assetCurrency.
   ///
@@ -5042,6 +5090,12 @@ abstract class AppLocalizations {
   /// **'이름 입력 후 추가'**
   String get dutchAddNamePlaceholder;
 
+  /// No description provided for @dutchNameAlreadyAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 추가된 이름이에요.'**
+  String get dutchNameAlreadyAdded;
+
   /// No description provided for @dutchAdd.
   ///
   /// In ko, this message translates to:
@@ -5431,6 +5485,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'예: 점심 도시락'**
   String get expPresetNamePlaceholder;
+
+  /// No description provided for @presetNameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 이름의 프리셋이 이미 있어요.'**
+  String get presetNameDuplicate;
 
   /// No description provided for @expPresetLockAmount.
   ///
@@ -8323,6 +8383,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'예: 비상금'**
   String get savingGoalNameHint;
+
+  /// No description provided for @savingGoalNameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 이름의 목표가 이미 있어요.'**
+  String get savingGoalNameDuplicate;
 
   /// No description provided for @savingGoalAmountLabel.
   ///

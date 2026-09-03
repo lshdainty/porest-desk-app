@@ -856,7 +856,8 @@ class _HeroCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final subtitle = [
       asset.institution,
-      assetTypeLabel(l, asset.assetType),
+      // 마이너스통장은 BANK_ACCOUNT 라 코드만 보면 '입출금' 으로 나온다.
+      assetTypeLabelOf(l, asset),
       asset.memo,
     ].where((s) => s != null && s.isNotEmpty).join(' · ');
     // 카드만 절대값이다. 카드 잔액은 "미결제 사용액이 음수" 라는 규약이라 화면에는
@@ -1906,7 +1907,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: ctrl,
-                    keyboardType: const TextInputType.numberWithOptions(),
+                    // 값 범위는 아래 setCanSubmit(0 < v <= upcoming)이 잡는다 —
+                    // 여기서는 `-`·`.` 만 막는다(청구 로직은 건드리지 않는다).
+                    numbersOnly: true,
                     placeholder: '0',
                   ),
                   if (v > 0 && v < upcoming) ...[

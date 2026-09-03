@@ -36,6 +36,15 @@
   "stateNoData": "데이터가 없습니다",
   "stateError": "오류가 발생했습니다",
   "stateEmpty": "표시할 항목이 없어요",
+  "nameTooLong": "이름은 {max}자 이내로 입력해 주세요.",
+  "@nameTooLong": {
+    "description": "이름 길이 상한 안내 — 계좌 별칭·저축목표·프리셋·참여자가 공유한다",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "languageKorean": "한국어",
   "languageEnglish": "English",
   "languageSystem": "시스템",
@@ -99,6 +108,7 @@
   "assetCatAccount": "계좌",
   "assetSubtypeInstallment": "적금",
   "assetSubtypeDeposit": "예금",
+  "assetSubtypeOverdraft": "마이너스통장",
   "assetLoadError": "자산을 불러오지 못했습니다",
   "assetEmptyState": "아직 등록된 자산이 없어요",
   "assetEmptyHint": "설정 → 카드·계좌 관리에서 추가할 수 있어요",
@@ -191,10 +201,16 @@
   "assetBankSearchHint": "은행명 또는 증권사 검색",
   "assetNickname": "별칭",
   "assetNicknamePlaceholder": "예: 신한 주거래",
+  "assetNicknameDuplicate": "같은 별칭의 자산이 이미 있어요.",
   "assetAccountType": "계좌 종류",
   "assetAccountNumber": "계좌번호",
   "assetBalanceLabel": "잔액 (원)",
   "assetBalanceEditHint": "잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.",
+  "assetOverdraftUsedLabel": "사용 중인 금액 (원)",
+  "assetLoanRemainingLabel": "남은 대출 금액 (원)",
+  "assetOverdraftLimitLabel": "마이너스 한도 (원, 선택)",
+  "assetOverdraftHint": "지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.",
+  "assetLoanHint": "아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.",
   "assetCurrency": "통화",
   "assetExchangeRate": "환율",
   "assetExchangeRateHint": "{code} 1당 원화",
@@ -1619,6 +1635,7 @@
     }
   },
   "dutchAddNamePlaceholder": "이름 입력 후 추가",
+  "dutchNameAlreadyAdded": "이미 추가된 이름이에요.",
   "dutchAdd": "추가",
   "dutchNext": "다음",
   "dutchPrev": "이전",
@@ -1760,6 +1777,7 @@
   "expSaveFailed": "저장 실패",
   "expPresetSaveTitle": "프리셋으로 저장",
   "expPresetNamePlaceholder": "예: 점심 도시락",
+  "presetNameDuplicate": "같은 이름의 프리셋이 이미 있어요.",
   "expPresetLockAmount": "금액 잠금 — 적용 시 {amount}원 자동 채움",
   "@expPresetLockAmount": {
     "placeholders": {
@@ -2513,6 +2531,7 @@
   "savingGoalDeleteFailed": "삭제 실패",
   "savingGoalNameLabel": "목표 이름",
   "savingGoalNameHint": "예: 비상금",
+  "savingGoalNameDuplicate": "같은 이름의 목표가 이미 있어요.",
   "savingGoalAmountLabel": "목표 금액",
   "savingGoalDeadlineLabel": "마감일 (선택)",
   "savingGoalDeadlineHint": "미설정",

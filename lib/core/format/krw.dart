@@ -53,9 +53,9 @@ String krwSigned(
 /// (금액+단위 동시 포맷은 [krwSigned]`(unit:true)` 사용 — en 은 접두 ₩.)
 String wonUnit() => localeIsEn() ? '₩' : '원';
 
-/// 차트 Y축 라벨 — 한국어 단위 축약 (억/만) + 100만 단위 round.
-/// 음수도 부호 prepend (`−` 가운데 dash). Web `formatChartAxis` 와 정합.
-/// 예: -51,750,000 → '−5,200만', 1,200,000,000 → '12.0억'.
+/// 차트 Y축 라벨 — 한국어 단위 축약(조/억/만). 구간마다 정밀도가 다르다.
+/// 음수도 부호 prepend (`−` 가운데 dash, U+2212). Web `formatChartAxis` 와 정합.
+/// 예: -51,750,000 → '−5,175만', 11,881 → '1.2만', 1,200,000,000 → '12억'.
 String formatChartAxis(double v) {
   // en: 로케일 compact 축약 (120M · 52K · -5.2M). intl 내장 en 데이터.
   if (localeIsEn()) return NumberFormat.compact(locale: 'en').format(v);
@@ -66,8 +66,8 @@ String formatChartAxis(double v) {
   // 조 단위에서 "10000.0억" 같은 라벨이 나와 축 폭(reservedSize 52)을 넘는다.
   //
   //   1조~     1.2조        10억~    12억, 9,999억
-  //   1억~     5.2억        1만~     25만, 9,999만
-  //   ~1만     5000
+  //   1억~     5.2억        10만~    25만, 9,999만
+  //   1만~     1.2만, 9.9만  ~1만     5000
   final n = v.abs();
   final ko = NumberFormat.decimalPattern('ko_KR');
   String body;
@@ -79,7 +79,16 @@ String formatChartAxis(double v) {
   } else if (n >= 100000000) {
     body = '${(n / 100000000).toStringAsFixed(1)}억';
   } else if (n >= 10000) {
-    body = '${ko.format((n / 10000).round())}만';
+    // 1만~10만을 만 단위로 뭉개면 정보가 너무 많이 날아간다 — 11,881 이 '1만'(−16%)
+    // 이 됐다. 도넛 중앙 합계처럼 그 숫자 하나만 보는 자리에서 특히 틀려 보인다.
+    // 10만 위로는 소수가 축 폭만 먹고 읽는 데 보태는 게 없어 그대로 정수 만이다.
+    final man = n / 10000;
+    // 반올림 결과로 경계를 판정한다 — 99,999 가 '10.0만' 이 되어 바로 옆 눈금인
+    // 100,000 의 '10만' 과 모양이 갈리는 걸 막는다.
+    final rounded = (man * 10).round() / 10;
+    body = rounded < 10
+        ? '${rounded.toStringAsFixed(1)}만'
+        : '${ko.format(man.round())}만';
   } else {
     body = n.toStringAsFixed(0);
   }

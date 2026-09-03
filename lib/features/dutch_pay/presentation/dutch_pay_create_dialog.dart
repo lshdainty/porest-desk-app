@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -102,6 +103,12 @@ class _BodyState extends ConsumerState<_Body> {
   /// 결제한 사람. 기본은 나.
   _Pick? _payer;
 
+  /// 직접 추가 칸의 안내 문구 — 왜 안 들어갔는지 알려 준다.
+  String? _manualError;
+
+  /// 참여자 이름 길이 상한 — 웹 `PARTICIPANT_NAME_MAX` 와 같은 값(QA #40).
+  static const _kParticipantNameMax = 20;
+
   @override
   void initState() {
     super.initState();
@@ -178,14 +185,31 @@ class _BodyState extends ConsumerState<_Body> {
   void _addManual() {
     final name = _manualCtrl.text.trim();
     if (name.isEmpty) return;
-    if (_picks.any((p) => p.name == name)) {
-      _manualCtrl.clear();
+    final l = AppLocalizations.of(context);
+    if (name.length > _kParticipantNameMax) {
+      setState(() => _manualError = l.nameTooLong(_kParticipantNameMax));
+      return;
+    }
+    final i = _picks.indexWhere((p) => p.name == name);
+    if (i >= 0) {
+      // 이미 후보에 있다 — 예전엔 입력칸만 조용히 비워서 "왜 안 들어가지" 가 됐다.
+      // 체크를 켜 주고(추천 목록에 있던 사람이 그대로 참여자가 된다) 사실을 알린다.
+      // 새 _Pick 을 만들지 않는다 — 결제자 판정이 참조 동일성이라 바꿔 끼우면 잃는다.
+      setState(() {
+        final already = _picks[i].selected;
+        _picks[i].selected = true;
+        _manualError = already ? l.dutchNameAlreadyAdded : null;
+        _manualCtrl.clear();
+      });
+      widget.controller.setCanSubmit(_step2Valid);
       return;
     }
     setState(() {
       _picks.add(_Pick(name: name)..selected = true);
+      _manualError = null;
       _manualCtrl.clear();
     });
+    widget.controller.setCanSubmit(_step2Valid);
   }
 
   /// footer 의 primary 버튼 — step1 이면 '다음', step2 이면 '정산 만들기'.
@@ -304,6 +328,8 @@ class _BodyState extends ConsumerState<_Body> {
                     style: PTypo.h3,
                     placeholder: '0',
                     suffixText: wonUnit(),
+                    // 콤마를 다시 넣는 포매터라 상한 판정도 그 안에서 한다 —
+                    // amountMax 는 콤마가 붙은 값을 못 읽는다.
                     inputFormatters: [_ThousandsFormatter()],
                     onChanged: (_) => setState(() {}),
                   ),
@@ -413,8 +439,17 @@ class _BodyState extends ConsumerState<_Body> {
                 controller: _manualCtrl,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _addManual(),
+                onChanged: (_) {
+                  if (_manualError != null) {
+                    setState(() => _manualError = null);
+                  }
+                },
                 placeholder: l.dutchAddNamePlaceholder,
+                errorText: _manualError,
                 enabled: !_submitting,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(_kParticipantNameMax),
+                ],
               ),
             ),
             const SizedBox(width: 8),
@@ -585,7 +620,11 @@ class _ThousandsFormatter extends TextInputFormatter {
     if (digits.isEmpty) {
       return const TextEditingValue(text: '');
     }
-    final formatted = krw(int.parse(digits));
+    final n = int.tryParse(digits);
+    // 상한 초과는 타이핑 자체를 막는다 — 콤마를 넣는 이 포매터가 값을 아는
+    // 유일한 자리라 AmountLimitFormatter 를 못 쓴다(콤마가 붙은 값을 못 읽는다).
+    if (n == null || n > kAmountMax) return oldValue;
+    final formatted = krw(n);
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),

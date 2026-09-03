@@ -109,6 +109,9 @@ class AssetRepository {
     int? creditLimit,
     int? paymentDay,
     int? paymentAssetRowId,
+    // 마이너스통장 여부 — 서버가 부호를 정할 때 쓴다(QA #17/#19).
+    // `BANK_ACCOUNT` 인데 잔액이 빚인 경우라 유형만으로는 서버가 알 수 없다.
+    bool? isOverdraft,
     // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
     List<AssetHolding>? holdings,
   }) async {
@@ -130,6 +133,7 @@ class AssetRepository {
           'creditLimit': ?creditLimit,
           'paymentDay': ?paymentDay,
           'paymentAssetRowId': ?paymentAssetRowId,
+          'isOverdraft': ?isOverdraft,
           'holdings': ?holdings?.map(_holdingBody).toList(),
         },
       );
@@ -154,6 +158,8 @@ class AssetRepository {
     int? creditLimit,
     int? paymentDay,
     int? paymentAssetRowId,
+    // 마이너스통장 여부 — 서버가 부호를 정할 때 쓴다(QA #17/#19).
+    bool? isOverdraft,
     // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
     List<AssetHolding>? holdings,
   }) async {
@@ -174,6 +180,7 @@ class AssetRepository {
           'creditLimit': ?creditLimit,
           'paymentDay': ?paymentDay,
           'paymentAssetRowId': ?paymentAssetRowId,
+          'isOverdraft': ?isOverdraft,
           'holdings': ?holdings?.map(_holdingBody).toList(),
         },
       );

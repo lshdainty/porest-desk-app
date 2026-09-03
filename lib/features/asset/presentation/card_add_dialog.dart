@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -22,6 +23,7 @@ import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 
 /// 카드 추가/편집 다이얼로그 — front `AssetEditDialog`(group='card') 미러.
@@ -103,8 +105,36 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   int? _paymentDay; // 결제일 1~31
   int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
+  bool _touched = false;
 
   bool get _isEdit => widget.edit != null;
+
+  /// 별칭 길이 상한 — 계좌와 같은 값(QA #16).
+  static const _kNicknameMax = 30;
+
+  String get _nicknameTrim => _nicknameCtrl.text.trim();
+
+  /// 별칭은 선택 입력이다 — 비우면 카드 상품명으로 떨어지므로 중복을 안 본다.
+  bool get _nicknameDuplicate =>
+      _nicknameTrim.isNotEmpty &&
+      (ref.read(assetsProvider).value ?? const <Asset>[]).any(
+        (a) =>
+            a.assetName.trim() == _nicknameTrim &&
+            a.rowId != widget.edit?.rowId,
+      );
+
+  String? get _nicknameError {
+    if (!_touched) return null;
+    final l = AppLocalizations.of(context);
+    if (_nicknameTrim.length > _kNicknameMax) {
+      return l.nameTooLong(_kNicknameMax);
+    }
+    if (_nicknameDuplicate) return l.assetNicknameDuplicate;
+    return null;
+  }
+
+  bool get _nicknameValid =>
+      _nicknameTrim.length <= _kNicknameMax && !_nicknameDuplicate;
 
   /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다.
   ///
@@ -114,7 +144,8 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   bool get _canSubmit =>
       !_submitting &&
       (_isEdit || _selected != null) &&
-      (_cardType != _CardType.credit || _paymentDay != null);
+      (_cardType != _CardType.credit || _paymentDay != null) &&
+      (!_touched || _nicknameValid);
 
   @override
   void initState() {
@@ -125,8 +156,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         : _CardType.credit;
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
     _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
-      ..addListener(_onChanged);
-    _balanceCtrl = TextEditingController(text: (e?.balance ?? 0).toString());
+      ..addListener(_onNicknameChanged);
+    // '현재 사용액' 이라는 라벨 아래 −500000 이 보이면 안 된다 — 부호는 저장 규약이다.
+    _balanceCtrl = TextEditingController(
+      text: (e?.balance ?? 0).abs().toString(),
+    );
     _creditLimitCtrl = TextEditingController(
       text: e?.creditLimit?.toString() ?? '',
     );
@@ -160,6 +194,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     widget.controller.setCanSubmit(_canSubmit);
   }
 
+  /// 별칭 리스너 — 카탈로그 검색과 달리 여기서만 touched 를 세운다.
+  /// 검색어를 쳤다고 별칭 에러가 빨개지면 무슨 일이 났는지 알 수 없다.
+  void _onNicknameChanged() {
+    setState(() => _touched = true);
+    widget.controller.setCanSubmit(_canSubmit);
+  }
+
   @override
   void dispose() {
     _keywordCtrl.dispose();
@@ -183,7 +224,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     // 신용카드 잔액은 미결제 사용액이라 음수로 저장한다 — 화면은 "현재 사용액" 을 묻고
     // 사용자는 양수를 치는 게 자연스럽다. 서버도 같은 정규화를 하지만 여기서도 맞춰 보낸다.
     final outstanding = _cardType == _CardType.credit
-        ? -(int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0).abs()
+        ? signedBalance(
+            'CREDIT_CARD',
+            int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0,
+          )
         : 0;
     final company = _selected?.company?.name ?? edit?.institution;
     final catalogRowId = _selected?.rowId ?? edit?.cardCatalog?.rowId;
@@ -242,6 +286,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    // 중복 검사는 `assetsProvider` 캐시를 읽는다 — 리스너가 도는 시점엔 아직
+    // 로딩 중일 수 있어 그때 계산한 값은 믿을 수 없다. 그려질 때 다시 확정한다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
     final searchKey = defaultCardSearchKey(
       keyword: _keywordCtrl.text.trim().isEmpty
           ? null
@@ -378,6 +427,16 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           controller: _nicknameCtrl,
           placeholder: _selected?.cardName ?? l.assetCardNicknamePlaceholder,
         ),
+        const SizedBox(height: PSpace.x4),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            _nicknameError ?? '${_nicknameTrim.length}/$_kNicknameMax',
+            style: PTypo.micro.copyWith(
+              color: _nicknameError != null ? t.fgExpense : t.fgTertiary,
+            ),
+          ),
+        ),
         // 신용카드 — design 신판 순서: 신용한도 → 결제일 → 현재 사용액 → 결제 계좌(연동 유지)
         if (isCredit) ...[
           const SizedBox(height: PSpace.x20),
@@ -392,7 +451,8 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _creditLimitCtrl,
-            keyboardType: TextInputType.number,
+            numbersOnly: true,
+            amountMax: kBalanceMax,
             placeholder: l.assetCreditLimitPlaceholder,
           ),
           const SizedBox(height: 6),
@@ -439,7 +499,9 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _balanceCtrl,
-            keyboardType: const TextInputType.numberWithOptions(signed: true),
+            // 부호는 종류가 정한다 — 화면은 '얼마 썼나' 만 묻는다.
+            numbersOnly: true,
+            amountMax: kBalanceMax,
             placeholder: '0',
           ),
           const SizedBox(height: 6),

@@ -1,4 +1,5 @@
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 
 /// AssetType 코드 → 로컬라이즈된 표시 라벨.
 String assetTypeLabel(AppLocalizations l, String code) => switch (code) {
@@ -11,6 +12,18 @@ String assetTypeLabel(AppLocalizations l, String code) => switch (code) {
   'LOAN' => l.assetTypeLoan,
   _ => l.assetTypeBankAccount,
 };
+
+/// 자산 하나의 표시 라벨.
+///
+/// 마이너스통장은 `BANK_ACCOUNT` + 음수 잔액이다 — 코드만으로는 입출금과 못 가른다.
+/// 그래서 코드만 받는 [assetTypeLabel] 이 아니라 자산을 통째로 받는 이 함수를 쓴다.
+String assetTypeLabelOf(AppLocalizations l, Asset a) => isOverdraftAsset(a)
+    ? l.assetSubtypeOverdraft
+    : assetTypeLabel(l, a.assetType);
+
+/// 마이너스통장인가 — 입출금 계좌인데 잔액이 음수면 그렇다.
+bool isOverdraftAsset(Asset a) =>
+    a.assetType == 'BANK_ACCOUNT' && (a.balance ?? 0) < 0;
 
 /// 백엔드 `AssetType` enum 의 7종 타입 메타데이터.
 /// (icon 글리프는 asset icon 제거 마이그에서 폐기 — 자산 표시는 AssetLogo 모노그램 단일화.)

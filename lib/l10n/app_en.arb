@@ -33,6 +33,15 @@
   "stateNoData": "No data",
   "stateError": "Something went wrong",
   "stateEmpty": "Nothing to show",
+  "nameTooLong": "Keep the name to {max} characters or fewer.",
+  "@nameTooLong": {
+    "description": "Shared name-length hint for account alias, saving goal, preset, participant",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "languageKorean": "한국어",
   "languageEnglish": "English",
   "languageSystem": "System",
@@ -96,6 +105,7 @@
   "assetCatAccount": "Account",
   "assetSubtypeInstallment": "Installment",
   "assetSubtypeDeposit": "Deposit",
+  "assetSubtypeOverdraft": "Overdraft",
   "assetLoadError": "Couldn't load assets",
   "assetEmptyState": "No assets yet",
   "assetEmptyHint": "You can add one from Settings → Manage cards & accounts",
@@ -188,10 +198,16 @@
   "assetBankSearchHint": "Search bank or brokerage",
   "assetNickname": "Nickname",
   "assetNicknamePlaceholder": "e.g. Shinhan main",
+  "assetNicknameDuplicate": "An asset with this alias already exists.",
   "assetAccountType": "Account type",
   "assetAccountNumber": "Account number",
   "assetBalanceLabel": "Balance (KRW)",
   "assetBalanceEditHint": "Changing the balance treats everything before now as already included. Only later transactions are added.",
+  "assetOverdraftUsedLabel": "Amount in use (KRW)",
+  "assetLoanRemainingLabel": "Remaining loan (KRW)",
+  "assetOverdraftLimitLabel": "Overdraft limit (KRW, optional)",
+  "assetOverdraftHint": "Enter how much you are currently overdrawn. If money is left in the account, pick Checking instead.",
+  "assetLoanHint": "Enter the amount still owed. The app takes care of the sign.",
   "assetCurrency": "Currency",
   "assetExchangeRate": "Exchange rate",
   "assetExchangeRateHint": "KRW per 1 {code}",
@@ -1603,6 +1619,7 @@
     }
   },
   "dutchAddNamePlaceholder": "Enter a name to add",
+  "dutchNameAlreadyAdded": "That name is already added.",
   "dutchAdd": "Add",
   "dutchNext": "Next",
   "dutchPrev": "Back",
@@ -1744,6 +1761,7 @@
   "expSaveFailed": "Save failed",
   "expPresetSaveTitle": "Save as preset",
   "expPresetNamePlaceholder": "e.g. Lunch box",
+  "presetNameDuplicate": "A preset with this name already exists.",
   "expPresetLockAmount": "Lock amount — auto-fills {amount}원 when applied",
   "@expPresetLockAmount": {
     "placeholders": {
@@ -2497,6 +2515,7 @@
   "savingGoalDeleteFailed": "Delete failed",
   "savingGoalNameLabel": "Goal name",
   "savingGoalNameHint": "e.g. Emergency fund",
+  "savingGoalNameDuplicate": "A goal with this name already exists.",
   "savingGoalAmountLabel": "Target amount",
   "savingGoalDeadlineLabel": "Deadline (optional)",
   "savingGoalDeadlineHint": "Not set",

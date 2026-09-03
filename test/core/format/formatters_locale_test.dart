@@ -43,6 +43,18 @@ void main() {
       // 그러면 소액 축에서 눈금이 서로 겹친다.
       expect(formatChartAxis(250000), '25만');
       expect(formatChartAxis(-51750000), '−5,175만');
+      // 1만~10만 — 만 단위로 뭉개면 11,881(도넛 중앙 합계)이 '1만' 이 되어 16% 가
+      // 사라졌다. 이 구간만 소수 한 자리. 웹 `formatChartAxis` 와 **같은 문자열**이어야
+      // 한다 — 같은 화면을 두 플랫폼이 그린다.
+      expect(formatChartAxis(11881), '1.2만');
+      expect(formatChartAxis(10000), '1.0만');
+      expect(formatChartAxis(12500), '1.3만');
+      expect(formatChartAxis(50000), '5.0만');
+      expect(formatChartAxis(-11881), '−1.2만');
+      // 10만 경계 — 99,999 를 '10.0만' 으로 내면 바로 옆 눈금 100,000('10만')과
+      // 모양이 갈린다. 반올림 결과로 판정해 둘 다 '10만' 으로 넘긴다.
+      expect(formatChartAxis(99999), '10만');
+      expect(formatChartAxis(100000), '10만');
       // 1억~10억 — 소수 한 자리가 정보를 준다.
       expect(formatChartAxis(517500000), '5.2억');
       // 10억~ — 소수는 읽는 데 보태는 게 없다.

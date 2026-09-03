@@ -108,6 +108,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stateEmpty => '표시할 항목이 없어요';
 
   @override
+  String nameTooLong(int max) {
+    return '이름은 $max자 이내로 입력해 주세요.';
+  }
+
+  @override
   String get languageKorean => '한국어';
 
   @override
@@ -297,6 +302,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetSubtypeDeposit => '예금';
 
   @override
+  String get assetSubtypeOverdraft => '마이너스통장';
+
+  @override
   String get assetLoadError => '자산을 불러오지 못했습니다';
 
   @override
@@ -421,6 +429,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetNicknamePlaceholder => '예: 신한 주거래';
 
   @override
+  String get assetNicknameDuplicate => '같은 별칭의 자산이 이미 있어요.';
+
+  @override
   String get assetAccountType => '계좌 종류';
 
   @override
@@ -432,6 +443,22 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get assetBalanceEditHint =>
       '잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.';
+
+  @override
+  String get assetOverdraftUsedLabel => '사용 중인 금액 (원)';
+
+  @override
+  String get assetLoanRemainingLabel => '남은 대출 금액 (원)';
+
+  @override
+  String get assetOverdraftLimitLabel => '마이너스 한도 (원, 선택)';
+
+  @override
+  String get assetOverdraftHint =>
+      '지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.';
+
+  @override
+  String get assetLoanHint => '아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.';
 
   @override
   String get assetCurrency => '통화';
@@ -2704,6 +2731,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dutchAddNamePlaceholder => '이름 입력 후 추가';
 
   @override
+  String get dutchNameAlreadyAdded => '이미 추가된 이름이에요.';
+
+  @override
   String get dutchAdd => '추가';
 
   @override
@@ -2919,6 +2949,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expPresetNamePlaceholder => '예: 점심 도시락';
+
+  @override
+  String get presetNameDuplicate => '같은 이름의 프리셋이 이미 있어요.';
 
   @override
   String expPresetLockAmount(String amount) {
@@ -4447,6 +4480,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get savingGoalNameHint => '예: 비상금';
+
+  @override
+  String get savingGoalNameDuplicate => '같은 이름의 목표가 이미 있어요.';
 
   @override
   String get savingGoalAmountLabel => '목표 금액';

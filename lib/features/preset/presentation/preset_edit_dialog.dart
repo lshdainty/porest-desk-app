@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
@@ -72,8 +72,32 @@ class _BodyState extends ConsumerState<_Body> {
   late String _paymentMethod;
   late bool _lockAmount;
   bool _submitting = false;
+  bool _touched = false;
 
   bool get _isEdit => widget.edit != null;
+
+  /// 이름 길이 상한 — 웹 `PRESET_NAME_MAX` · 카테고리와 같은 값(QA #54).
+  static const _kNameMax = 12;
+
+  String get _nameTrim => _nameCtrl.text.trim();
+
+  /// 같은 이름 프리셋이 둘이면 불러오기 목록에서 어느 쪽인지 알 수 없다.
+  /// 목록 캐시가 비어 있으면 못 잡는다 — 최종 게이트는 서버다.
+  bool get _duplicate =>
+      _nameTrim.isNotEmpty &&
+      (ref.read(presetListProvider).value ?? const <ExpenseTemplate>[]).any(
+        (p) =>
+            p.templateName.trim() == _nameTrim && p.rowId != widget.edit?.rowId,
+      );
+
+  /// 카테고리 다이얼로그와 같은 규칙 — touched 전에는 에러를 안 보여 준다.
+  String? get _nameError {
+    if (!_touched) return null;
+    final l = AppLocalizations.of(context);
+    if (_nameTrim.length > _kNameMax) return l.nameTooLong(_kNameMax);
+    if (_duplicate) return l.presetNameDuplicate;
+    return null;
+  }
 
   @override
   void initState() {
@@ -110,7 +134,9 @@ class _BodyState extends ConsumerState<_Body> {
   /// 고정 금액을 켰을 때만 값이 있어야 한다(불러오는 거래가 그 값을 그대로 받는다).
   bool get _canSubmit =>
       !_submitting &&
-      _nameCtrl.text.trim().isNotEmpty &&
+      _nameTrim.isNotEmpty &&
+      // touched 전엔 막지 않는다 — 기존 장문 이름 프리셋의 다른 필드는 고칠 수 있어야 한다.
+      (!_touched || (_nameTrim.length <= _kNameMax && !_duplicate)) &&
       _categoryRowId != null &&
       (!_lockAmount || _amountValue > 0);
 
@@ -136,7 +162,7 @@ class _BodyState extends ConsumerState<_Body> {
     _setSubmitting(true);
     try {
       final repo = await ref.read(presetRepositoryProvider.future);
-      final name = _nameCtrl.text.trim();
+      final name = _nameTrim;
       final merchant = _merchantCtrl.text.trim();
       // 웹: amount = lockAmount ? Number(amount||0) : undefined
       final amount = _lockAmount
@@ -214,9 +240,20 @@ class _BodyState extends ConsumerState<_Body> {
           controller: _nameCtrl,
           placeholder: l.expPresetNamePlaceholder,
           autofocus: true,
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) => setState(() => _touched = true),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: PSpace.x4),
+        // 카운터 N/12 또는 에러 — 카테고리 다이얼로그와 같은 모양.
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            _nameError ?? '${_nameTrim.length}/$_kNameMax',
+            style: PTypo.micro.copyWith(
+              color: _nameError != null ? t.fgExpense : t.fgTertiary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
 
         // ③ 카테고리 (5열 그룹 타일 grid)
         _FieldLabel(l.expCategory),
@@ -563,10 +600,10 @@ class _LockAmountCard extends StatelessWidget {
                   PTextInput(
                     controller: amountCtrl,
                     numbersOnly: true,
+                    amountMax: kAmountMax,
                     placeholder: '0',
                     textAlign: TextAlign.right,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     style: TextStyle(
                       fontFamily: PTypo.sans,
                       fontSize: PFontSize.bodyLg, // --text-body-lg

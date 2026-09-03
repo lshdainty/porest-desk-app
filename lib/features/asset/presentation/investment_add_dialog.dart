@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -614,8 +615,10 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           ),
           const SizedBox(height: PSpace.x8),
           PTextInput(
+            // 투자는 자산군이라 부호는 늘 `+` 다 — `-` 를 칠 이유가 없다.
             controller: _cashCtrl,
-            keyboardType: const TextInputType.numberWithOptions(signed: true),
+            numbersOnly: true,
+            amountMax: kBalanceMax,
             placeholder: '0',
           ),
           const SizedBox(height: 6),

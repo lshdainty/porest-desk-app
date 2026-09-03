@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -18,6 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 
 /// 계좌 추가/편집 다이얼로그 — front `AssetAddDialog` / `AssetEditDialog` 미러.
@@ -38,11 +39,7 @@ void showAccountAddDialog(BuildContext context, {String? presetType}) {
 
 /// 계좌 편집 — 기존 자산을 받아서 동일 폼 재사용.
 void showAccountEditDialog(BuildContext context, Asset asset) {
-  _open(
-    context,
-    edit: asset,
-    initialSubType: _subTypeFromAssetType(asset.assetType),
-  );
+  _open(context, edit: asset, initialSubType: _subTypeFromAsset(asset));
 }
 
 void _open(
@@ -68,14 +65,19 @@ void _open(
   ).whenComplete(controller.dispose);
 }
 
-_SubType _subTypeFromAssetType(String t) => switch (t) {
+/// 마이너스통장에는 별도 `AssetType` 이 없다 — `BANK_ACCOUNT` + 음수 잔액이 그 표시다.
+/// 그래서 유형만 보고 탭을 고르면 마이너스통장을 열 때마다 '입출금' 이 선택되고,
+/// 저장하는 순간 사용 중인 금액이 잔액으로 뒤집힌다.
+_SubType _subTypeFromAsset(Asset a) => switch (a.assetType) {
   'SAVINGS' => _SubType.savingsRecurring,
   'CASH' => _SubType.cash,
   'LOAN' => _SubType.loan,
+  'BANK_ACCOUNT' when (a.balance ?? 0) < 0 => _SubType.overdraft,
   _ => _SubType.checking,
 };
 
-enum _SubType { checking, savingsRecurring, savingsTime, cash, loan }
+/// 자산군(입출금·적금·예금·현금) 다음에 부채군(마이너스통장·대출)을 둔다.
+enum _SubType { checking, savingsRecurring, savingsTime, cash, overdraft, loan }
 
 extension _SubTypeX on _SubType {
   String label(AppLocalizations l) => switch (this) {
@@ -83,6 +85,7 @@ extension _SubTypeX on _SubType {
     _SubType.savingsRecurring => l.assetSubtypeInstallment,
     _SubType.savingsTime => l.assetSubtypeDeposit,
     _SubType.cash => l.assetTypeCash,
+    _SubType.overdraft => l.assetSubtypeOverdraft,
     _SubType.loan => l.assetTypeLoan,
   };
 
@@ -92,8 +95,13 @@ extension _SubTypeX on _SubType {
     _SubType.savingsRecurring => 'SAVINGS',
     _SubType.savingsTime => 'SAVINGS',
     _SubType.cash => 'CASH',
+    // 새 AssetType 을 만들지 않는다(QA #17) — 마이너스통장은 음수 잔액으로 구분한다.
+    _SubType.overdraft => 'BANK_ACCOUNT',
     _SubType.loan => 'LOAN',
   };
+
+  /// 잔액이 빚인 종류 — 저장 부호가 `−` 다.
+  bool get isDebt => this == _SubType.overdraft || this == _SubType.loan;
 }
 
 class _AccountAddBody extends ConsumerStatefulWidget {
@@ -117,6 +125,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late final TextEditingController _nicknameCtrl;
   late final TextEditingController _accountNumberCtrl;
   late final TextEditingController _balanceCtrl;
+  late final TextEditingController _limitCtrl;
   late final TextEditingController _memoCtrl;
   late final TextEditingController _fxRateCtrl;
 
@@ -125,11 +134,46 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late _SubType _subType;
   late bool _includeInTotal;
   bool _submitting = false;
+  bool _touched = false;
 
   bool get _isEdit => widget.edit != null;
 
   /// 이 폼이 다루는 자산 유형 — `_SubType` 이 매핑하는 것과 같다.
   static const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH', 'LOAN'};
+
+  /// 별칭 길이 상한 — 웹 `ASSET_NAME_MAX` 와 같은 값(QA #16).
+  /// 100자 별칭은 목록에서 전부 '…' 로 잘려 서로 구분이 안 된다.
+  static const _kNicknameMax = 30;
+
+  String get _nicknameTrim => _nicknameCtrl.text.trim();
+
+  /// 같은 별칭이 둘이면 거래 입력의 계좌 선택에서 어느 쪽인지 알 수 없다.
+  /// 별칭은 선택 입력이라 비어 있으면 중복을 안 본다 — 자동 이름은 서로 같아도 된다.
+  bool get _nicknameDuplicate =>
+      _nicknameTrim.isNotEmpty &&
+      (ref.read(assetsProvider).value ?? const <Asset>[]).any(
+        (a) =>
+            a.assetName.trim() == _nicknameTrim &&
+            a.rowId != widget.edit?.rowId,
+      );
+
+  /// 카테고리 다이얼로그와 같은 규칙 — touched 전에는 빨갛게 만들지 않는다.
+  /// 기존에 100자로 저장된 별칭을 편집하려고 열자마자 에러가 뜨면 안 된다.
+  String? get _nicknameError {
+    if (!_touched) return null;
+    final l = AppLocalizations.of(context);
+    if (_nicknameTrim.length > _kNicknameMax) {
+      return l.nameTooLong(_kNicknameMax);
+    }
+    if (_nicknameDuplicate) return l.assetNicknameDuplicate;
+    return null;
+  }
+
+  bool get _nicknameValid =>
+      _nicknameTrim.length <= _kNicknameMax && !_nicknameDuplicate;
+
+  /// 웹과 같은 흐름 — touched 전엔 눌러서 에러를 노출하고, 그 뒤엔 valid 일 때만 활성.
+  bool get _canSubmit => !_submitting && (!_touched || _nicknameValid);
 
   /// 계좌 추가에 노출할 카테고리 — 증권사·가상자산 제외.
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
@@ -191,7 +235,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
       ..addListener(_onPreviewChanged);
     _accountNumberCtrl = TextEditingController();
-    _balanceCtrl = TextEditingController(text: (e?.balance ?? 0).toString());
+    // 부호는 시스템이 정한다(QA #19). 화면은 늘 '얼마' 만 묻는다 —
+    // 마이너스통장이면 사용 중인 금액, 대출이면 남은 빚.
+    _balanceCtrl = TextEditingController(
+      text: (e?.balance ?? 0).abs().toString(),
+    );
+    _limitCtrl = TextEditingController(text: e?.creditLimit?.toString() ?? '');
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
     _currency = e?.currency ?? kDefaultCurrency;
     _fxRateCtrl = TextEditingController(
@@ -199,9 +248,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => widget.controller.setCanSubmit(true),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
   }
 
   void _setSubmitting(bool v) {
@@ -210,7 +259,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   }
 
   void _onQueryChanged() => setState(() {});
-  void _onPreviewChanged() => setState(() {});
+
+  /// 별칭 리스너 — 미리보기와 저장 가능 여부를 같이 갱신한다.
+  /// 예전엔 `initState` 에서 `setCanSubmit(true)` 를 한 번 켜고 끝이라
+  /// 검증을 붙일 자리가 없었다.
+  void _onPreviewChanged() {
+    setState(() => _touched = true);
+    widget.controller.setCanSubmit(_canSubmit);
+  }
 
   @override
   void dispose() {
@@ -218,6 +274,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _nicknameCtrl.dispose();
     _accountNumberCtrl.dispose();
     _balanceCtrl.dispose();
+    _limitCtrl.dispose();
     _fxRateCtrl.dispose();
     _memoCtrl.dispose();
     super.dispose();
@@ -229,7 +286,6 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? '$brand ${_subType.label(l)}' : nickname;
-    final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     // 환율은 외화일 때만 보낸다. 비우면 서버가 1로 잡아 환산 없이 더해진다.
     final fxRate = isForeignCurrency(_currency)
         ? double.tryParse(_fxRateCtrl.text.replaceAll(',', ''))
@@ -248,6 +304,17 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final assetType = original != null && !_accountTypes.contains(original)
         ? original
         : _subType.assetType;
+    // 부호는 사용자가 아니라 종류가 정한다(QA #19) — 입력칸은 절대값만 받는다.
+    final isOverdraft = _subType == _SubType.overdraft;
+    final balance = signedBalance(
+      assetType,
+      int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0,
+      isOverdraft: isOverdraft,
+    );
+    // 마이너스 한도는 신용카드 한도와 같은 컬럼(`credit_limit`)을 쓴다 — 선택 입력.
+    final limit = isOverdraft
+        ? int.tryParse(_limitCtrl.text.replaceAll(',', ''))
+        : null;
 
     _setSubmitting(true);
     try {
@@ -263,6 +330,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          creditLimit: limit,
+          isOverdraft: isOverdraft,
         );
       } else {
         await repo.create(
@@ -274,6 +343,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          creditLimit: limit,
+          isOverdraft: isOverdraft,
         );
       }
       ref.invalidate(assetsProvider);
@@ -290,6 +361,11 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    // 중복 검사는 `assetsProvider` 캐시를 읽는다 — 리스너가 도는 시점엔 아직
+    // 로딩 중일 수 있어 그때 계산한 값은 믿을 수 없다. 그려질 때 다시 확정한다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
@@ -340,7 +416,18 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           controller: _nicknameCtrl,
           placeholder: l.assetNicknamePlaceholder,
         ),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x4),
+        // 카운터 N/30 또는 에러 — 카테고리 다이얼로그와 같은 모양.
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            _nicknameError ?? '${_nicknameTrim.length}/$_kNicknameMax',
+            style: PTypo.micro.copyWith(
+              color: _nicknameError != null ? t.fgExpense : t.fgTertiary,
+            ),
+          ),
+        ),
+        const SizedBox(height: PSpace.x16),
 
         // 계좌 종류 ──────────────────────────
         Text(
@@ -393,7 +480,13 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l.assetBalanceLabel,
+                    // 무엇을 묻는지가 종류마다 다르다 — 마이너스통장은 '얼마나 썼나',
+                    // 대출은 '얼마나 남았나' 다. 둘 다 양수로 받는다.
+                    switch (_subType) {
+                      _SubType.overdraft => l.assetOverdraftUsedLabel,
+                      _SubType.loan => l.assetLoanRemainingLabel,
+                      _ => l.assetBalanceLabel,
+                    },
                     style: PTypo.caption.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.medium,
@@ -402,11 +495,21 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: _balanceCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      signed: true,
-                    ),
+                    // `-` 도 `.` 도 타이핑 자체가 안 된다 — 부호는 종류가 정하고
+                    // 원화는 정수다. 상한은 거래(100억)와 별개인 1,000억.
+                    numbersOnly: true,
+                    amountMax: kBalanceMax,
                     placeholder: '0',
                   ),
+                  if (_subType.isDebt) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      _subType == _SubType.overdraft
+                          ? l.assetOverdraftHint
+                          : l.assetLoanHint,
+                      style: PTypo.micro.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
                   // 잔액 수동 수정 = 새 앵커. 그 시각 이전 내역은 이 잔액에 이미 들어 있는
                   // 것으로 보고 이후 내역만 더해진다 — 모르고 고치면 방금 한 이체가
                   // 잔액에서 사라진 것처럼 보인다.
@@ -422,6 +525,25 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
             ),
           ],
         ),
+
+        // 마이너스 한도 (선택) — 신용카드 한도와 같은 컬럼을 쓴다.
+        if (_subType == _SubType.overdraft) ...[
+          const SizedBox(height: PSpace.x20),
+          Text(
+            l.assetOverdraftLimitLabel,
+            style: PTypo.caption.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
+          const SizedBox(height: PSpace.x8),
+          PTextInput(
+            controller: _limitCtrl,
+            numbersOnly: true,
+            amountMax: kBalanceMax,
+            placeholder: l.assetCreditLimitPlaceholder,
+          ),
+        ],
 
         // 통화·환율 — 외화통장. 통화는 자산 유형과 무관하게 연다(해외 카드·외화 대출).
         const SizedBox(height: PSpace.x20),
@@ -659,8 +781,3 @@ class _BrandPicker extends StatelessWidget {
     );
   }
 }
-
-// _balanceFormatters: 향후 천단위 콤마 자동 포매팅 시 참조용 placeholder.
-// 현재는 numberWithOptions(signed: true) 로 충분.
-// ignore: unused_element
-const _balanceFormatters = <TextInputFormatter>[];
