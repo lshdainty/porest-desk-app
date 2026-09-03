@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -24,6 +25,7 @@ class PTextInput extends StatelessWidget {
     this.placeholder,
     this.keyboardType,
     this.numbersOnly = false,
+    this.amountMax,
     this.obscureText = false,
     this.secret = false,
     this.maxLines = 1,
@@ -51,6 +53,12 @@ class PTextInput extends StatelessWidget {
   final String? placeholder;
   final TextInputType? keyboardType;
   final bool numbersOnly;
+
+  /// 금액칸의 값 상한 — 넘는 값은 타이핑 자체가 안 먹는다([AmountLimitFormatter]).
+  ///
+  /// [numbersOnly] 와 함께 쓴다. 자릿수 제한이 아니라 **값** 제한이다 —
+  /// 100억(`kAmountMax`)은 11자리라 자릿수만 세면 999억이 통과한다.
+  final int? amountMax;
   final bool obscureText;
 
   /// 값이 자격증명이라 **플랫폼이 기억하면 안 되는** 입력칸.
@@ -97,9 +105,16 @@ class PTextInput extends StatelessWidget {
     final isMultiLine = (maxLines ?? 1) > 1;
     // 토글로 잠깐 벗겨 봐도 자격증명인 사실은 변하지 않는다.
     final isSecret = secret || obscureText;
-    final formatters =
-        inputFormatters ??
-        (numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null);
+    // numbersOnly 는 '숫자만' 이라는 계약이다. 호출부가 다른 포매터를 얹는다고
+    // 그 계약이 깨지면 안 된다 — 예전 `inputFormatters ?? …` 는 inputFormatters 를
+    // 주는 순간 digitsOnly 를 조용히 버렸다(호출부가 매번 직접 다시 넣고 있었다).
+    final formatters = numbersOnly
+        ? <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly,
+            if (amountMax != null) AmountLimitFormatter(amountMax!),
+            ...?inputFormatters,
+          ]
+        : inputFormatters;
     final field = TextField(
       controller: controller,
       focusNode: focusNode,

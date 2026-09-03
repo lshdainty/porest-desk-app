@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/format_locale.dart';
@@ -467,10 +468,7 @@ class _RecurringSettingsBodyState
                   child: PTextInput(
                     numbersOnly: true,
                     textAlign: TextAlign.center,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(2),
-                    ],
+                    inputFormatters: [LengthLimitingTextInputFormatter(2)],
                     controller:
                         TextEditingController(text: _dayOfMonth.toString())
                           ..selection = TextSelection.collapsed(
@@ -541,10 +539,7 @@ class _RecurringSettingsBodyState
                         controller: _endCountCtrl,
                         numbersOnly: true,
                         textAlign: TextAlign.center,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(3),
-                        ],
+                        inputFormatters: [LengthLimitingTextInputFormatter(3)],
                         onChanged: (_) =>
                             setState(() => _endMode = _EndMode.count),
                       ),
@@ -1055,6 +1050,7 @@ class _TxFields extends ConsumerWidget {
         PTextInput(
           controller: c.amountCtrl,
           numbersOnly: true,
+          amountMax: kAmountMax,
           placeholder: '0',
           prefixText: amountInt > 0 ? amountPrefix : null,
           suffixText: wonUnit(),

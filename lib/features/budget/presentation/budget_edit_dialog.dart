@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
@@ -295,6 +296,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           PTextInput(
             controller: _amountCtrl,
             numbersOnly: true,
+            amountMax: kAmountMax,
             style: PTypo.h3,
             placeholder: '0',
             onChanged: (_) => setState(() {}),
