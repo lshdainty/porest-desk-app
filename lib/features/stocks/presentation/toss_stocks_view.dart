@@ -1736,18 +1736,24 @@ class _KvCell extends StatelessWidget {
 
 // ---- 종목 기본정보 (토스 stocks + price-limits) ------------------------------
 
+/// 시가총액 — en 은 ₩ + 로케일 compact(₩1.2T), ko 는 조/억/만 + 원.
+///
+/// 축약은 차트 축과 같은 함수 하나다. 손으로 짠 예전 코드는 구간마다 정밀도가
+/// 달라(조는 `.0` 을 남겨 `5.0조원`, 억은 정수) 같은 규칙이 아니었고, 1억 밑을
+/// 반올림해 5,000만원짜리를 `1억원` 이라고 했다.
 String _fmtCapKrw(double v) {
-  // en: ₩ + 로케일 compact(₩1.2T·₩12B). ko: 조원/억원(기존 유지).
   if (localeIsEn()) return '₩${formatChartAxis(v)}';
-  if (v >= 1e12) return '${(v / 1e12).toStringAsFixed(1)}조원';
-  return '${krw((v / 1e8).round())}억원';
+  return '${formatChartAxis(v)}원';
 }
 
+/// 상장주식수 — 금액은 아니지만 같은 한국어 단위 사다리(만·억)를 쓴다.
+///
+/// 예전엔 10억 주를 넘으면 소수를 떼고(`60억 주`) 그 밑은 한 자리를 남겨
+/// (`5.9억 주`) 같은 칸에서 규칙이 바뀌었다 — 축약 규칙은 하나다(QA #73).
+/// 단위(주)는 ko 만 붙인다. en 은 행 라벨이 이미 들고 있다.
 String _fmtShares(double n) {
-  // en: 로케일 compact(120M). ko: 억 주/만 주(기존 유지). 단위(주)는 라벨이 제공.
   if (localeIsEn()) return formatChartAxis(n);
-  if (n >= 1e8) return '${(n / 1e8).toStringAsFixed(n >= 1e9 ? 0 : 1)}억 주';
-  return '${krw((n / 1e4).round())}만 주';
+  return '${formatChartAxis(n)} 주';
 }
 
 class _StockInfoCard extends ConsumerWidget {

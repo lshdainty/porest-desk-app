@@ -791,10 +791,13 @@ class _PresetChip extends StatelessWidget {
   final VoidCallback onTap;
   final PorestTokens tokens;
 
-  String _shortAmount(int n) {
-    if (n >= 10000) return '${(n / 1000).floor()}k';
-    return krw(n);
-  }
+  /// 칩에 붙는 금액 — 사용자가 프리셋을 만들 때 자유입력한 값이라 임의값이다.
+  /// 그래서 축약도 차트 축·도넛 중앙과 같은 함수 하나([formatChartAxis])를 쓴다.
+  ///
+  /// 예전엔 1만 위를 `${(n / 1000).floor()}k` 로 냈다. `k` 는 한국어 화면에서
+  /// 합의한 단위가 아니고(만·억·조), floor 라 19,900 이 `19k`(=19,000)로 900원을
+  /// 버렸다. 1만 아래(`9,900`)는 예전과 같은 글자다.
+  String _shortAmount(int n) => formatChartAxis(n.toDouble());
 
   @override
   Widget build(BuildContext context) {

@@ -476,7 +476,11 @@ class _SummaryCard extends StatelessWidget {
                 child: _Stat(
                   label: l.recurringMonthlyIncome,
                   icon: LucideIcons.trendingUp,
-                  value: krwSigned(monthlyIncome, masked, sign: '+'),
+                  value: krwSigned(
+                    monthlyIncome.abs(),
+                    masked,
+                    sign: plusOf(monthlyIncome),
+                  ),
                   color: tokens.fgIncome,
                   tokens: tokens,
                 ),
@@ -614,6 +618,9 @@ class _UpcomingRow extends StatelessWidget {
     final days = dueStart.difference(todayStart).inDays;
     final isToday = days == 0;
     final isExpense = item.expenseType == 'EXPENSE';
+    // 부호는 크기값에서 뽑는다 — 금액이 0 이면 안 붙는다(`−0`·`+0` 방지, QA #1).
+    // `amount` 는 모델 기본값이 0 이라 서버가 안 주면 그대로 0 으로 온다.
+    final amount = item.amount.abs();
 
     final fg = resolveChartColor(
       context,
@@ -684,9 +691,9 @@ class _UpcomingRow extends StatelessWidget {
           const SizedBox(width: PSpace.x8),
           Text(
             krwSigned(
-              item.amount.abs(),
+              amount,
               masked,
-              sign: isExpense ? kMinus : '+',
+              sign: isExpense ? minusOf(amount) : plusOf(amount),
               mask: '••••',
             ),
             style: PTypo.bodySm.copyWith(
@@ -730,6 +737,9 @@ class _RecurringRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final isActive = item.isActive == 'Y';
     final isExpense = item.expenseType == 'EXPENSE';
+    // 부호는 크기값에서 뽑는다 — 금액이 0 이면 안 붙는다(`−0`·`+0` 방지, QA #1).
+    // `amount` 는 모델 기본값이 0 이라 서버가 안 주면 그대로 0 으로 온다.
+    final amount = item.amount.abs();
     final fg = resolveChartColor(
       context,
       category?.color,
@@ -826,9 +836,9 @@ class _RecurringRow extends StatelessWidget {
               const SizedBox(width: PSpace.x8),
               Text(
                 krwSigned(
-                  item.amount.abs(),
+                  amount,
                   masked,
-                  sign: isExpense ? kMinus : '+',
+                  sign: isExpense ? minusOf(amount) : plusOf(amount),
                   mask: '••••',
                 ),
                 style: PTypo.bodySm.copyWith(
