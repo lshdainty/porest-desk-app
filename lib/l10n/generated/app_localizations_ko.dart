@@ -4284,6 +4284,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recurringAddTitle => '반복 거래 추가';
 
   @override
+  String get recurringEditTitle => '반복 거래 수정';
+
+  @override
   String get recurringSaveSubmit => '반복 저장';
 
   @override

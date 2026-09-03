@@ -53,7 +53,9 @@ void showRecurringSettingsDialog(
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: isAdd ? l.recurringAddTitle : l.expConvertRecurring,
+    title: isAdd
+        ? l.recurringAddTitle
+        : (recurring != null ? l.recurringEditTitle : l.expConvertRecurring),
     contentBuilder: (ctx, scrollCtrl) => _RecurringSettingsBody(
       expense: expense,
       recurring: recurring,
@@ -91,9 +93,13 @@ class _RecurringSettingsBodyState
   bool get _isEdit => widget.recurring != null;
   bool get _isAdd => widget.recurring == null && widget.expense == null;
 
-  _TxInputController? _txInput; // 신규 추가 모드에서만 (거래 입력)
-  late final DateTime _fixedBaseDate; // edit/from-tx 시작일
-  DateTime get _baseDate => _isAdd ? _txInput!.date : _fixedBaseDate;
+  /// 거래 입력 — 신규 추가와 **기존 반복 수정**이 같은 폼을 쓴다. 수정은 저장된 값으로
+  /// 채워 연다. 종전엔 수정이 금액·일정만 고칠 수 있어 계좌·거래처를 바꿀 길이 없었다
+  /// (사용자 결정 2026-09-03: 생성과 수정은 같은 입력을 받는다. 이미 만들어진 실행분은
+  /// 그대로고 다음 실행분부터 바뀐 값으로 만들어진다).
+  _TxInputController? _txInput;
+  late final DateTime _fixedBaseDate; // from-tx 시작일(기준 거래일)
+  DateTime get _baseDate => _txInput?.date ?? _fixedBaseDate;
   String get _startDay => _fmt(_baseDate);
 
   String _frequency = 'MONTHLY';
@@ -111,13 +117,6 @@ class _RecurringSettingsBodyState
   /// 실행 시각 'HH:mm' — 이 시각으로 실행분이 만들어진다. 서버 기본값은 09:00.
   String _executionTime = '09:00';
 
-  /// 편집 모드 금액 — 여기서 바꾼 값은 **앞으로 생성될 실행분**에 적용된다.
-  /// 이미 만들어진 거래는 별도 레코드라 소급되지 않는다.
-  TextEditingController? _editAmountCtrl;
-
-  int get _editAmountInt =>
-      int.tryParse((_editAmountCtrl?.text ?? '').replaceAll(',', '')) ?? 0;
-
   @override
   void initState() {
     super.initState();
@@ -127,14 +126,6 @@ class _RecurringSettingsBodyState
     if (_isAdd) {
       _txInput = _TxInputController(date: DateTime.now());
     } else {
-      if (_isEdit) {
-        _editAmountCtrl = TextEditingController(
-          text: r!.amount.abs().toString(),
-        );
-        // 서버는 'HH:mm:ss' 로 준다. 앞 5글자만 쓴다.
-        final et = (r.executionTime ?? '').trim();
-        if (et.length >= 5) _executionTime = et.substring(0, 5);
-      }
       // base date: edit → recurring.startDate, from-tx → expense.expenseDate
       final raw = (_isEdit ? (r!.startDate ?? '') : (e!.expenseDate ?? ''))
           .trim();
@@ -142,7 +133,24 @@ class _RecurringSettingsBodyState
           ? DateTime.tryParse(raw.length >= 10 ? raw.substring(0, 10) : raw)
           : null;
       final today = DateTime.now();
-      _fixedBaseDate = parsed ?? DateTime(today.year, today.month, today.day);
+      final base = parsed ?? DateTime(today.year, today.month, today.day);
+      if (_isEdit) {
+        // 서버는 'HH:mm:ss' 로 준다. 앞 5글자만 쓴다.
+        final et = (r!.executionTime ?? '').trim();
+        if (et.length >= 5) _executionTime = et.substring(0, 5);
+        _txInput = _TxInputController(
+          date: base,
+          type: r.expenseType,
+          amount: r.amount.abs(),
+          merchant: r.merchant,
+          memo: r.description,
+          categoryRowId: r.categoryRowId,
+          assetRowId: r.assetRowId,
+          paymentMethod: r.paymentMethod ?? '',
+        );
+      } else {
+        _fixedBaseDate = base;
+      }
     }
 
     _frequency = r?.frequency ?? 'MONTHLY';
@@ -183,7 +191,6 @@ class _RecurringSettingsBodyState
 
   @override
   void dispose() {
-    _editAmountCtrl?.dispose();
     _endCountCtrl.dispose();
     _txInput?.dispose();
     super.dispose();
@@ -197,10 +204,9 @@ class _RecurringSettingsBodyState
       final n = int.tryParse(_endCountCtrl.text.trim());
       if (n == null || n <= 0) return false;
     }
-    if (_isEdit) return _editAmountInt > 0;
-    if (_isAdd) {
-      final i = _txInput!;
-      // 자산은 선택사항 — 거래 폼과 같은 규칙(웹 정합).
+    final i = _txInput;
+    if (i != null) {
+      // add·edit 공통 — 자산은 선택사항, 거래 폼과 같은 규칙(웹 정합).
       return i.amountInt > 0 && i.categoryRowId != null;
     }
     return widget.expense!.categoryRowId != null;
@@ -222,12 +228,14 @@ class _RecurringSettingsBodyState
       final repo = await ref.read(recurringRepositoryProvider.future);
       if (_isEdit) {
         final r = widget.recurring!;
+        final i = _txInput!;
+        // 폼 값 전부를 보낸다 — 다음 실행분부터 이 값으로 만들어진다.
         await repo.update(
           id: r.rowId,
-          categoryRowId: r.categoryRowId,
-          assetRowId: r.assetRowId,
-          expenseType: r.expenseType,
-          amount: _editAmountInt,
+          categoryRowId: i.categoryRowId!,
+          assetRowId: i.assetRowId,
+          expenseType: i.type,
+          amount: i.amountInt,
           frequency: _frequency,
           intervalValue: r.intervalValue ?? 1,
           dayOfWeek: dow,
@@ -236,13 +244,9 @@ class _RecurringSettingsBodyState
           startDate: _startDay,
           endDate: endDateStr,
           maxOccurrences: maxOcc,
-          description: (r.description ?? '').trim().isEmpty
-              ? null
-              : r.description!.trim(),
-          merchant: (r.merchant ?? '').trim().isEmpty
-              ? null
-              : r.merchant!.trim(),
-          paymentMethod: r.paymentMethod,
+          description: i.memoOrNull,
+          merchant: i.merchantOrNull,
+          paymentMethod: i.paymentMethodOrNull,
           autoLog: _autoLog,
           notifyDayBefore: _notifyDayBefore,
         );
@@ -311,7 +315,8 @@ class _RecurringSettingsBodyState
     final l = AppLocalizations.of(context);
 
     final Widget topWidget;
-    if (_isAdd) {
+    if (_txInput != null) {
+      // add·edit — 같은 거래 입력 폼(수정은 저장값으로 채워져 있다)
       topWidget = _TxFields(
         controller: _txInput!,
         onChanged: () => setState(() {}),
@@ -403,40 +408,21 @@ class _RecurringSettingsBodyState
       padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // add: intro ¶ + 입력 필드 / from-tx·edit: 기준 거래 플랫 행(설명은 sub 통합)
-        if (_isAdd) ...[
-          Text(
-            l.recurringIntro,
-            style: PTypo.bodySm.copyWith(
-              color: t.fgSecondary,
-              height: PLineHeight.normal,
+        if (_txInput != null) ...[
+          if (_isAdd) ...[
+            Text(
+              l.recurringIntro,
+              style: PTypo.bodySm.copyWith(
+                color: t.fgSecondary,
+                height: PLineHeight.normal,
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
+          ],
           topWidget,
           const SizedBox(height: 18),
         ] else ...[
           topWidget,
-          // 편집 모드는 금액을 고칠 수 있다. 여기서 바꾼 값은 **앞으로 생성될
-          // 실행분**부터 적용되고 이미 만들어진 거래는 그대로다(사용자 결정).
-          // from-tx 는 기준 거래 금액을 그대로 쓰므로 열지 않는다.
-          if (_isEdit) ...[
-            const SizedBox(height: 18),
-            PSectionLabel(l.expAmount),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: _editAmountCtrl,
-              numbersOnly: true,
-              placeholder: '0',
-              suffixText: wonUnit(),
-              style: PTypo.h4.copyWith(
-                color: widget.recurring!.expenseType == 'INCOME'
-                    ? t.fgIncome
-                    : t.fgExpense,
-                fontWeight: PFontWeight.bold,
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-          ],
         ],
 
         _Section(
@@ -977,20 +963,30 @@ bool _allowTxAsset(Asset a, String paymentMethod, String type) {
 
 /// 반복 추가 전용 거래 입력 상태 (지출/수입). 시간/이체 없음.
 class _TxInputController {
-  _TxInputController({DateTime? date})
-    : date = date ?? DateTime.now(),
-      amountCtrl = TextEditingController(),
-      merchantCtrl = TextEditingController(),
-      memoCtrl = TextEditingController();
+  _TxInputController({
+    DateTime? date,
+    this.type = 'EXPENSE',
+    int? amount,
+    String? merchant,
+    String? memo,
+    this.categoryRowId,
+    this.assetRowId,
+    this.paymentMethod = '',
+  }) : date = date ?? DateTime.now(),
+       amountCtrl = TextEditingController(
+         text: amount == null || amount == 0 ? '' : amount.toString(),
+       ),
+       merchantCtrl = TextEditingController(text: merchant ?? ''),
+       memoCtrl = TextEditingController(text: memo ?? '');
 
   final TextEditingController amountCtrl;
   final TextEditingController merchantCtrl;
   final TextEditingController memoCtrl;
 
-  String type = 'EXPENSE'; // EXPENSE / INCOME
+  String type; // EXPENSE / INCOME
   int? categoryRowId;
   int? assetRowId;
-  String paymentMethod = '';
+  String paymentMethod;
   DateTime date;
 
   int get amountInt => int.tryParse(amountCtrl.text.replaceAll(',', '')) ?? 0;
