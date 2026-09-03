@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
@@ -54,7 +55,31 @@ class _BodyState extends ConsumerState<_Body> {
   late String _icon;
   late String _color;
   bool _submitting = false;
+  bool _touched = false;
   bool get _isEdit => widget.edit != null;
+
+  /// 이름 길이 상한 — 웹 `GOAL_NAME_MAX` · 카테고리와 같은 값(QA #52).
+  static const _kNameMax = 12;
+
+  String get _titleTrim => _titleCtrl.text.trim();
+
+  /// 같은 이름 목표가 둘이면 목록·알림에서 어느 쪽인지 알 수 없다.
+  /// 목록 캐시가 비어 있으면 못 잡는다 — 최종 게이트는 서버다.
+  bool get _duplicate =>
+      _titleTrim.isNotEmpty &&
+      (ref.read(savingGoalListProvider).value ?? const <SavingGoal>[]).any(
+        (g) => g.title.trim() == _titleTrim && g.rowId != widget.edit?.rowId,
+      );
+
+  /// 카테고리 다이얼로그와 같은 규칙 — touched 전에는 에러를 안 보여 준다.
+  /// 100자로 저장된 기존 목표를 열자마자 빨개지면 안 된다.
+  String? get _nameError {
+    if (!_touched) return null;
+    final l = AppLocalizations.of(context);
+    if (_titleTrim.length > _kNameMax) return l.nameTooLong(_kNameMax);
+    if (_duplicate) return l.savingGoalNameDuplicate;
+    return null;
+  }
 
   @override
   void initState() {
@@ -101,7 +126,10 @@ class _BodyState extends ConsumerState<_Body> {
 
   bool get _canSubmit {
     if (_submitting) return false;
-    if (_titleCtrl.text.trim().isEmpty) return false;
+    if (_titleTrim.isEmpty) return false;
+    // 카테고리와 같은 흐름 — touched 전엔 막지 않는다. 100자로 저장된 기존 목표를
+    // 열자마자 저장이 죽으면 왜 안 되는지 알 길이 없다(QA #55 와 같은 실패다).
+    if (_touched && (_titleTrim.length > _kNameMax || _duplicate)) return false;
     final amt = int.tryParse(_amountCtrl.text.replaceAll(',', ''));
     if (amt == null || amt <= 0) return false;
     // 웹 SavingGoalAddDialog 정합 — 현재 모은 금액은 목표 금액을 넘을 수 없다.
@@ -119,7 +147,7 @@ class _BodyState extends ConsumerState<_Body> {
       if (_isEdit) {
         await repo.update(
           id: widget.edit!.rowId,
-          title: _titleCtrl.text.trim(),
+          title: _titleTrim,
           targetAmount: amt,
           deadlineDate: _deadline == null ? null : _fmtDate(_deadline!),
           color: color,
@@ -131,7 +159,7 @@ class _BodyState extends ConsumerState<_Body> {
         }
       } else {
         final created = await repo.create(
-          title: _titleCtrl.text.trim(),
+          title: _titleTrim,
           targetAmount: amt,
           deadlineDate: _deadline == null ? null : _fmtDate(_deadline!),
           color: color,
@@ -181,9 +209,20 @@ class _BodyState extends ConsumerState<_Body> {
         PTextInput(
           controller: _titleCtrl,
           placeholder: l.savingGoalNameHint,
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) => setState(() => _touched = true),
         ),
-        const SizedBox(height: PSpace.x12),
+        const SizedBox(height: PSpace.x4),
+        // 카운터 N/12 또는 에러 — 카테고리 다이얼로그와 같은 모양.
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            _nameError ?? '${_titleTrim.length}/$_kNameMax',
+            style: PTypo.micro.copyWith(
+              color: _nameError != null ? t.fgExpense : t.fgTertiary,
+            ),
+          ),
+        ),
+        const SizedBox(height: PSpace.x8),
         // 목표 금액 / 현재 모은 금액 — design GoalEditDialog 2열 grid 정합.
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,6 +239,7 @@ class _BodyState extends ConsumerState<_Body> {
                   PTextInput(
                     controller: _amountCtrl,
                     numbersOnly: true,
+                    amountMax: kAmountMax,
                     placeholder: '0',
                     onChanged: (_) => setState(() {}),
                   ),
@@ -219,6 +259,7 @@ class _BodyState extends ConsumerState<_Body> {
                   PTextInput(
                     controller: _currentCtrl,
                     numbersOnly: true,
+                    amountMax: kAmountMax,
                     placeholder: '0',
                     onChanged: (_) => setState(() {}),
                   ),
