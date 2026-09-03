@@ -95,14 +95,20 @@ jobs:
   #    iOS 를 건드릴 수 있는 변경일 때만 켠다.
   # ── 사용자용 노트가 커밋에 붙어 있는지만 본다. 경고이고, 게이트가 아니다.
   #
-  #    feat·fix 인데 `Release-Note:` 가 없으면 릴리스에서 제목 폴백이 그대로 사용자
-  #    업데이트 화면에 나간다("조용해야 할 자리를 전역 토스트에서 빼고"). 그걸 태그
-  #    직전에 발견하면 노트를 손으로 쓰는 PR 을 한 번 더 돌아야 한다 — v1.17.0 부터
-  #    네 번 연속 그랬다. 커밋을 만드는 자리에서 알려 주는 게 그 왕복을 없앤다.
+  #    feat·fix 인데 `Release-Note:` 가 없으면 그 변경은 릴리스 노트에서 **통째로
+  #    빠진다.** 2026-09-03 까지는 커밋 제목이 폴백으로 나갔는데, 그러다 개발자 말투
+  #    ("…동기적으로 막는다")가 그대로 앱 업데이트 화면에 떴다(QA #7). 폴백을 없앤
+  #    지금은 빠뜨리면 조용히 사라진다 — 태그 직전에 발견하면 노트를 손으로 쓰는 PR 을
+  #    한 번 더 돌아야 한다(v1.17.0 부터 네 번 연속 그랬다). 커밋을 만드는 자리에서
+  #    알려 주는 게 그 왕복을 없앤다.
   #
-  #    막지는 않는다. 트레일러가 없어도 폴백이 있어 릴리스는 나가고, 여기서 빨간불을
-  #    켜면 노트와 상관없는 PR 이 발이 묶인다. `Release-Note: skip` 은 "사용자 눈에는
-  #    아무 일도 안 일어난다" 는 명시적 결정이라 통과다.
+  #    **판정은 `release_notes.sh` 와 같은 술어를 쓴다** — 본문 어디든 줄머리에
+  #    `^Release-Note:` 가 있으면 있는 것이다. 예전엔 여기만 `%(trailers:key=…)` 를
+  #    봐서, 스크립트는 읽는 커밋을 CI 가 "없다" 고 경고하는 어긋남이 생겼다.
+  #
+  #    막지는 않는다. 여기서 빨간불을 켜면 노트와 상관없는 PR 이 발이 묶인다.
+  #    `Release-Note: skip` 은 "사용자 눈에는 아무 일도 안 일어난다" 는 명시적
+  #    결정이라 통과다.
   release-note:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -117,67 +123,93 @@ jobs:
           git fetch -q origin "${BASE_REF}"
 
           MISS=0
-          BROKEN=0
+          LOOSE=0
           LIST=""
+          LOOSE_LIST=""
           while IFS= read -r sha; do
             [ -n "${sha}" ] || continue
             SUBJ=$(git log -1 --format=%s "${sha}")
             # 타입은 제목에서 읽는다 — release_notes.sh 와 같은 판정이어야 한다.
             printf '%s' "${SUBJ}" | grep -qE '^(feat|fix)(\([^)]*\))?!?:' || continue
-            NOTE=$(git log -1 --format='%(trailers:key=Release-Note,valueonly)' "${sha}")
-            if [ -n "${NOTE//[[:space:]]/}" ]; then continue; fi
 
-            # 안 잡힌 이유가 둘이고 조치가 다르다. 뭉뚱그리면 "없다" 는 경고를 보고
-            # "달았는데?" 하며 넘기게 된다 — 2026-09-02 에 네 커밋이 그렇게 샜다.
-            #   ① 아예 안 달았다            → 문장을 쓴다
-            #   ② 달았는데 블록이 끊겼다     → 빈 줄을 지운다
-            # git 은 메시지의 마지막 문단만 트레일러로 본다. Release-Note 와
-            # Co-Authored-By 사이에 빈 줄이 있으면 앞 문단은 트레일러가 아니게 된다.
-            if git log -1 --format='%B' "${sha}" | grep -qiE '^Release-Note:'; then
-              echo "::warning::Release-Note 를 달았는데 트레일러로 안 잡힌다 — 다른 트레일러와 사이의 빈 줄을 지워라: ${SUBJ}"
-              LIST="${LIST}- \`${sha:0:7}\` ${SUBJ} — **빈 줄로 블록이 끊김**"$'\n'
-              BROKEN=$((BROKEN + 1))
-            else
-              echo "::warning::Release-Note 트레일러가 없다 — ${SUBJ}"
+            # 있는지 없는지도 release_notes.sh 와 같은 판정이다 — 본문 어디든 줄머리.
+            # 값이 빈 `Release-Note:` 는 스크립트도 없는 것으로 치므로 여기서도 뺀다.
+            if ! git log -1 --format='%B' "${sha}" \
+                 | grep -qiE '^Release-Note:[[:space:]]*[^[:space:]]'; then
+              echo "::warning::Release-Note 가 없다 — 이 변경은 릴리스 노트에서 빠진다: ${SUBJ}"
               LIST="${LIST}- \`${sha:0:7}\` ${SUBJ}"$'\n'
+              MISS=$((MISS + 1))
+              continue
             fi
-            MISS=$((MISS + 1))
+
+            # 여기부터는 노트가 릴리스에 나가긴 한다. 다만 git 의 트레일러 블록에서
+            # 끊겼다면(사이에 빈 줄) `git interpret-trailers`·GitHub UI 처럼 git 의
+            # 트레일러 판정을 쓰는 도구는 못 읽는다. 막을 일은 아니고 알려만 준다.
+            NOTE=$(git log -1 --format='%(trailers:key=Release-Note,valueonly)' "${sha}")
+            if [ -z "${NOTE//[[:space:]]/}" ]; then
+              echo "::notice::Release-Note 가 트레일러 블록에서 끊겼다 — 릴리스 노트에는 나가지만 다른 도구는 못 읽는다: ${SUBJ}"
+              LOOSE_LIST="${LOOSE_LIST}- \`${sha:0:7}\` ${SUBJ}"$'\n'
+              LOOSE=$((LOOSE + 1))
+            fi
           done < <(git rev-list --no-merges "origin/${BASE_REF}..HEAD")
 
-          if [ "${MISS}" -eq 0 ]; then
+          if [ "${MISS}" -eq 0 ] && [ "${LOOSE}" -eq 0 ]; then
             echo "Release-Note 확인 — 빠진 커밋 없음"
             exit 0
           fi
 
           {
-            echo "### Release-Note 가 노트에 안 실리는 커밋 ${MISS}건"
-            echo
-            echo "${LIST}"
-            echo "릴리스 노트는 이 트레일러에서 나온다. 없으면 커밋 제목이 그대로 앱"
-            echo "업데이트 화면에 뜨고, 그때 노트를 손으로 쓰는 PR 을 한 번 더 돌아야 한다."
-            echo
-            echo '```'
-            echo 'fix(recurring): 스냅 임계값 단위를 트레이 기준으로 환산한다'
-            echo
-            echo 'Release-Note: 반복 거래 행이 어중간하게 열리던 문제를 고쳤어요'
-            echo '```'
-            echo
-            if [ "${BROKEN}" -gt 0 ]; then
-              echo "위 목록의 **빈 줄로 블록이 끊김** 은 문장을 이미 쓴 커밋이다. 아래처럼 붙여 쓰면 된다."
+            if [ "${MISS}" -gt 0 ]; then
+              echo "### 릴리스 노트에서 빠지는 커밋 ${MISS}건"
+              echo
+              echo "${LIST}"
+              echo "릴리스 노트는 이 줄에서 나온다. 없으면 그 변경은 앱 업데이트 화면과"
+              echo "GitHub 릴리스 본문에서 통째로 빠진다 — 제목 폴백은 없앴다(개발자 말투가"
+              echo "그대로 사용자에게 나가느니 빠지는 게 낫다는 결정, QA #7)."
+              echo
+              echo '```'
+              echo 'fix(recurring): 스냅 임계값 단위를 트레이 기준으로 환산한다'
+              echo
+              echo 'Release-Note: 반복 거래 행이 어중간하게 열리던 문제를 고쳤어요'
+              echo 'Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>'
+              echo '```'
+              echo
+              echo "말투는 제품 문구와 같게(\`~어요\`). 클래스·파일·토큰 이름은 쓰지 않는다."
+              echo "쓰는 사람 눈에 아무 일도 안 일어나는 변경이면 \`Release-Note: skip\`."
+              echo
+            fi
+            if [ "${LOOSE}" -gt 0 ]; then
+              echo "### 트레일러 블록이 끊긴 커밋 ${LOOSE}건"
+              echo
+              echo "${LOOSE_LIST}"
+              echo "릴리스 노트에는 나간다 — \`release_notes.sh\` 는 본문 어디든 읽는다."
+              echo "다만 git 은 메시지의 **마지막 문단**만 트레일러로 보므로,"
+              echo "\`git interpret-trailers\` 나 GitHub UI 에는 이 노트가 안 보인다."
+              echo "사이의 빈 줄을 지워 붙여 쓰면 양쪽 다 읽는다."
               echo
               echo '```'
               echo 'Release-Note: 행을 밀 때 어중간하게 열리던 문제를 고쳤어요'
               echo 'Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>'
               echo '```'
               echo
-              echo "git 은 메시지의 마지막 문단만 트레일러로 본다. 사이에 빈 줄이 있으면 앞 문단은 트레일러가 아니다."
-              echo
             fi
-            echo "말투는 제품 문구와 같게(\`~어요\`). 클래스·파일·토큰 이름은 쓰지 않는다."
-            echo "쓰는 사람 눈에 아무 일도 안 일어나는 변경이면 \`Release-Note: skip\`."
-            echo
             echo "규칙 원문은 워크스페이스 \`CLAUDE.md\` 의 \"커밋에 \`Release-Note:\` 를 단다\"."
           } >> "${GITHUB_STEP_SUMMARY}"
+
+  # ── 릴리스 노트 스크립트 자체를 돌린다.
+  #
+  #    `release_notes.sh` 가 만드는 글은 앱 업데이트 화면과 GitHub 릴리스 본문에
+  #    그대로 나가는데, 2026-09-03 까지 테스트가 하나도 없었다. 그래서 `Release-Note:`
+  #    가 빈 줄 하나에 걸려 통째로 안 읽히는 상태로 네 릴리스가 나갔다(QA #7).
+  #    경고로는 못 막았다는 게 그 교훈이라 여기는 종료 코드로 막는다.
+  #
+  #    Flutter 가 필요 없다 — checkout 하고 bash 로 몇 초면 끝난다.
+  release-notes-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Release notes script tests
+        run: bash scripts/release_notes_test.sh
 
   ios-affected:
     if: github.event_name == 'pull_request'
@@ -439,9 +471,10 @@ jobs:
 
           # 변경 내용 — 앱 업데이트 화면과 GitHub 릴리스 본문이 같은 글을 쓴다.
           #
-          # 정리는 scripts/release_notes.sh 가 한다(타입별 묶기 + `fix(scope):` 접두사
-          # 제거). 예전엔 `git log` 결과를 그대로 넣어 사용자 화면에 커밋 제목이 날것으로
-          # 떴다 — 타입·스코프는 우리끼리 쓰는 표시라 읽을 거리를 가릴 뿐이다.
+          # 글은 scripts/release_notes.sh 가 만든다 — 커밋의 `Release-Note:` 줄만 모아
+          # 타입별로 묶는다. 커밋 제목은 아예 안 나간다. 예전엔 `git log` 결과를 그대로
+          # 넣어 사용자 화면에 커밋 제목이 날것으로 떴고, 그 다음엔 접두사만 떼어 태웠는데
+          # 개발자 말투가 남았다(QA #7) — 타입·스코프도 말투도 우리끼리 쓰는 것이다.
           #
           # 직전 v 태그부터 지금까지. dev 는 TAG 가 옛 커밋을 가리키므로 범위 끝을
           # GITHUB_SHA 로 잡는다 — prod 도 태그 커밋이라 같은 식이 통한다.
