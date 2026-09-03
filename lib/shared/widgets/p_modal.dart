@@ -382,13 +382,17 @@ Widget _buildSheetColumn(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       // Drag handle — spec: 40×4 / surface-input / radius-full
-      Container(
-        margin: const EdgeInsets.only(top: PSpace.x8),
-        width: 40,
-        height: 4,
-        decoration: BoxDecoration(
-          color: t.bgMuted,
-          borderRadius: PRadius.brFull,
+      // Column 이 stretch 라 핸들의 width 가 무시돼 전체 폭 선이 됐다(18510cb 이후) —
+      // Center 로 감싸 40 을 지킨다.
+      Center(
+        child: Container(
+          margin: const EdgeInsets.only(top: PSpace.x8),
+          width: 40,
+          height: 4,
+          decoration: BoxDecoration(
+            color: t.bgMuted,
+            borderRadius: PRadius.brFull,
+          ),
         ),
       ),
       // Header (제목 + 액션 + close) — 좌우 xl(24).
