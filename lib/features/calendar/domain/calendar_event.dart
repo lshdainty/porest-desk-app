@@ -11,7 +11,9 @@ abstract class CalendarEvent with _$CalendarEvent {
     int? userRowId,
     required String title,
     String? description,
-    String? eventType, // 'NORMAL' | 'BIRTHDAY' | 'ANNIVERSARY' ...
+    // 서버 enum `CalendarEventType` — 'PERSONAL' | 'WORK' | 'BIRTHDAY' | 'HOLIDAY'.
+    // 목록 밖의 값을 되보내면 저장이 400 으로 끝난다.
+    String? eventType,
     String? color,
     required String startDate, // ISO LocalDateTime
     required String endDate,
