@@ -95,7 +95,6 @@ class _BodyState extends ConsumerState<_Body> {
     _setSubmitting(true);
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
-      // 새 UI 는 폴더 폐기 — folderId 미전송.
       final pinChanged = (widget.edit?.pinned ?? false) != _pinned;
       if (_isEdit) {
         await repo.update(

@@ -9,7 +9,6 @@ part of 'memo.dart';
 _Memo _$MemoFromJson(Map<String, dynamic> json) => _Memo(
   rowId: (json['rowId'] as num).toInt(),
   userRowId: (json['userRowId'] as num?)?.toInt(),
-  folderId: (json['folderId'] as num?)?.toInt(),
   title: json['title'] as String?,
   content: json['content'] as String?,
   tag: json['tag'] as String?,
@@ -22,7 +21,6 @@ _Memo _$MemoFromJson(Map<String, dynamic> json) => _Memo(
 Map<String, dynamic> _$MemoToJson(_Memo instance) => <String, dynamic>{
   'rowId': instance.rowId,
   'userRowId': instance.userRowId,
-  'folderId': instance.folderId,
   'title': instance.title,
   'content': instance.content,
   'tag': instance.tag,

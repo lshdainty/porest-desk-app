@@ -2534,24 +2534,6 @@ abstract class AppLocalizations {
   /// **'메모 검색'**
   String get memoSearchHint;
 
-  /// No description provided for @memoFolderMgmt.
-  ///
-  /// In ko, this message translates to:
-  /// **'폴더 관리'**
-  String get memoFolderMgmt;
-
-  /// No description provided for @memoFolderRoot.
-  ///
-  /// In ko, this message translates to:
-  /// **'루트'**
-  String get memoFolderRoot;
-
-  /// No description provided for @memoFolderEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 폴더가 없습니다'**
-  String get memoFolderEmpty;
-
   /// No description provided for @memoPin.
   ///
   /// In ko, this message translates to:

@@ -5,7 +5,6 @@ import 'package:porest_desk_app/features/budget/application/budget_providers.dar
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
@@ -62,13 +61,11 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(assetsProvider);
   ref.invalidate(netWorthTrendProvider);
   ref.invalidate(todoTagListProvider);
-  ref.invalidate(memoFolderListProvider);
   ref.invalidate(budgetComplianceProvider);
   // 세션 내내 남는 조회들 — keepAlive 는 아니지만 autoDispose 도 아니라
   // 한 번 읽으면 그대로 굳는다. 다른 기기에서 바뀐 값을 여기서 함께 따라잡는다.
   ref.invalidate(dashboardLayoutProvider);
   ref.invalidate(todoStatsProvider);
-  ref.invalidate(memoFolderTreeProvider);
   ref.invalidate(calendarAggregateProvider);
   ref.invalidate(budgetAlertThresholdProvider);
   // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은
