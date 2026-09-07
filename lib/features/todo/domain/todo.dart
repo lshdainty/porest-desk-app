@@ -14,7 +14,8 @@ abstract class Todo with _$Todo {
     String? content,
     String? priority, // 'HIGH' | 'MEDIUM' | 'LOW'
     String? category,
-    String? status, // 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+    String?
+    status, // 'PENDING' | 'COMPLETED' — 서버는 토글만 하고 IN_PROGRESS 로 바꾸는 API 가 없다
     String? dueDate, // 'YYYY-MM-DD'
     String? completedAt,
     int? sortOrder,

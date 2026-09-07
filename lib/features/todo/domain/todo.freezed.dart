@@ -17,7 +17,7 @@ mixin _$Todo {
 
  int get rowId; int? get userRowId; String? get type;// 'TASK' | 'NOTE'
  String get title; String? get content; String? get priority;// 'HIGH' | 'MEDIUM' | 'LOW'
- String? get category; String? get status;// 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+ String? get category; String? get status;// 'PENDING' | 'COMPLETED' — 서버는 토글만 하고 IN_PROGRESS 로 바꾸는 API 가 없다
  String? get dueDate;// 'YYYY-MM-DD'
  String? get completedAt; int? get sortOrder; String? get isPinned; int? get parentRowId; int get subtaskCount; int get subtaskCompletedCount; String? get createAt; String? get modifyAt;
 /// Create a copy of Todo
@@ -242,7 +242,7 @@ class _Todo implements Todo {
 // 'HIGH' | 'MEDIUM' | 'LOW'
 @override final  String? category;
 @override final  String? status;
-// 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+// 'PENDING' | 'COMPLETED' — 서버는 토글만 하고 IN_PROGRESS 로 바꾸는 API 가 없다
 @override final  String? dueDate;
 // 'YYYY-MM-DD'
 @override final  String? completedAt;

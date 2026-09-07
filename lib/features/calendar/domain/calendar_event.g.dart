@@ -24,8 +24,6 @@ _CalendarEvent _$CalendarEventFromJson(Map<String, dynamic> json) =>
       labelColor: json['labelColor'] as String?,
       location: json['location'] as String?,
       rrule: json['rrule'] as String?,
-      groupRowId: (json['groupRowId'] as num?)?.toInt(),
-      groupName: json['groupName'] as String?,
     );
 
 Map<String, dynamic> _$CalendarEventToJson(_CalendarEvent instance) =>
@@ -46,6 +44,4 @@ Map<String, dynamic> _$CalendarEventToJson(_CalendarEvent instance) =>
       'labelColor': instance.labelColor,
       'location': instance.location,
       'rrule': instance.rrule,
-      'groupRowId': instance.groupRowId,
-      'groupName': instance.groupName,
     };

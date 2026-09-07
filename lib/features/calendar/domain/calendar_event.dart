@@ -25,8 +25,6 @@ abstract class CalendarEvent with _$CalendarEvent {
     String? labelColor,
     String? location,
     String? rrule,
-    int? groupRowId,
-    String? groupName,
   }) = _CalendarEvent;
 
   factory CalendarEvent.fromJson(Map<String, dynamic> json) =>

@@ -255,17 +255,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                               ),
                             ),
                           ),
-                        if ((e.groupName ?? '').isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              e.groupName!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: PTypo.micro.copyWith(color: t.fgTertiary),
-                            ),
-                          ),
-                        ],
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(
