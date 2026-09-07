@@ -170,6 +170,10 @@ class _BodyState extends ConsumerState<_Body> {
           description: _descCtrl.text.trim().isEmpty
               ? null
               : _descCtrl.text.trim(),
+          // 서버는 수정 요청에 실린 종류로 무조건 덮어쓴다. 이 화면에는 종류를 고르는
+          // 자리가 없으므로 원래 값을 그대로 되돌려 준다 — 안 그러면 다른 데서 정한
+          // 종류가 여기서 저장 한 번에 기본값으로 바뀐다.
+          eventType: widget.edit!.eventType,
           color: _color,
           calendarRowId: _userCalendarRowId,
           startDate: _iso(_start),

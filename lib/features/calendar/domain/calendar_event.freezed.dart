@@ -15,8 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CalendarEvent {
 
- int get rowId; int? get userRowId; String get title; String? get description; String? get eventType;// 'NORMAL' | 'BIRTHDAY' | 'ANNIVERSARY' ...
- String? get color; String get startDate;// ISO LocalDateTime
+ int get rowId; int? get userRowId; String get title; String? get description;// 서버 enum `CalendarEventType` — 'PERSONAL' | 'WORK' | 'BIRTHDAY' | 'HOLIDAY'.
+// 목록 밖의 값을 되보내면 저장이 400 으로 끝난다.
+ String? get eventType; String? get color; String get startDate;// ISO LocalDateTime
  String get endDate; String? get isAllDay;// 'Y'|'N'
  int? get calendarRowId; String? get calendarColor; int? get labelRowId; String? get labelName; String? get labelColor; String? get location; String? get rrule; int? get groupRowId; String? get groupName;
 /// Create a copy of CalendarEvent
@@ -236,8 +237,9 @@ class _CalendarEvent implements CalendarEvent {
 @override final  int? userRowId;
 @override final  String title;
 @override final  String? description;
+// 서버 enum `CalendarEventType` — 'PERSONAL' | 'WORK' | 'BIRTHDAY' | 'HOLIDAY'.
+// 목록 밖의 값을 되보내면 저장이 400 으로 끝난다.
 @override final  String? eventType;
-// 'NORMAL' | 'BIRTHDAY' | 'ANNIVERSARY' ...
 @override final  String? color;
 @override final  String startDate;
 // ISO LocalDateTime
