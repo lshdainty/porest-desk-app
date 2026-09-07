@@ -121,19 +121,3 @@ final calendarMembersProvider =
       final repo = await ref.watch(userCalendarRepositoryProvider.future);
       return repo.members(calendarId);
     });
-
-/// 그룹 일정 (#362).
-typedef GroupEventsKey = ({int groupId, String startDate, String endDate});
-
-final groupEventsProvider =
-    FutureProvider.family<List<CalendarEvent>, GroupEventsKey>((
-      ref,
-      key,
-    ) async {
-      final repo = await ref.watch(calendarRepositoryProvider.future);
-      return repo.groupEvents(
-        groupId: key.groupId,
-        startDate: key.startDate,
-        endDate: key.endDate,
-      );
-    });

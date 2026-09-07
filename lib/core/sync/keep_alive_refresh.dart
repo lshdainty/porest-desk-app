@@ -70,7 +70,6 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(todoStatsProvider);
   ref.invalidate(memoFolderTreeProvider);
   ref.invalidate(calendarAggregateProvider);
-  ref.invalidate(groupEventsProvider);
   ref.invalidate(budgetAlertThresholdProvider);
   // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은
   // 새 버전이 나와도 끌 때까지 몰랐다. version.json 은 1KB 정적 파일에 5초 타임아웃이라
