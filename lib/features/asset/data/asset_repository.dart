@@ -204,6 +204,11 @@ class AssetRepository {
   /// holdings 요청 바디 — linked ↔ manual 별 필요한 필드만 직렬화.
   /// 수량은 소수 허용(코인 0.05·금 3.75g)이라 **문자열 그대로** 보낸다 — 서버가 BigDecimal 로 받아
   /// 정밀도가 깎이지 않는다. 미연동도 수량을 남긴다 — 선택이라 없으면 미전송.
+  ///
+  /// **`sortOrder` 는 싣지 않는다** — 서버 `HoldingRequest` 에 그 필드가 없어 Jackson 이 조용히
+  /// 버렸고(QA #91), 실제 순서는 **보낸 배열의 인덱스**로 서버가 정한다. 조회도 그 순서로
+  /// 돌아오므로(`sortOrder asc, rowId asc`) 배열 순서만 지키면 왕복이 맞는다. 값을 다시 실으면
+  /// "보낸 번호대로 저장된다" 는 착각만 되살아난다 — 배열 순서와 어긋나도 아무도 모른다.
   static Map<String, dynamic> _holdingBody(AssetHolding h) => {
     'rowId': ?h.rowId,
     'holdingType': h.holdingType.wire,
@@ -220,7 +225,6 @@ class AssetRepository {
     },
     // 안 적었으면 안 보낸다 — 서버가 같은 종목의 기존 원가를 잇는다.
     'totalCost': ?h.totalCost,
-    'sortOrder': ?h.sortOrder,
   };
 
   Future<void> delete(int id) async {

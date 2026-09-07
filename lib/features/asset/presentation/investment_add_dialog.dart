@@ -401,12 +401,11 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         : '$brand 투자';
     final memo = _memoCtrl.text.trim();
     // 추가만 하고 이름을 안 채운 미연동 행은 버린다 — 이름 빈 미연동은 서버가 400 으로 막는다.
-    final filled = [
+    // 순서는 이 목록의 순서 그대로다 — 서버가 배열 인덱스로 sortOrder 를 매긴다(QA #91).
+    // 예전엔 여기서 번호를 다시 매겨 실어 보냈는데, 서버가 그 필드를 안 받아 버려졌다.
+    final holdings = [
       for (final h in _holdings)
         if (h.linked || (h.holdingName?.trim().isNotEmpty ?? false)) h,
-    ];
-    final holdings = [
-      for (int i = 0; i < filled.length; i++) filled[i].copyWith(sortOrder: i),
     ];
     // 평가액은 **서버가** 시세×수량을 BigDecimal 로 산정한다 — 클라이언트 계산값은 보내지 않는다.
     // 보유가 없으면 남는 건 예수금뿐이라 입력값을 보낸다 — 0 으로 밀면 전량 매도 대금이 사라진다.
