@@ -19,7 +19,7 @@ mixin _$CalendarEvent {
 // 목록 밖의 값을 되보내면 저장이 400 으로 끝난다.
  String? get eventType; String? get color; String get startDate;// ISO LocalDateTime
  String get endDate; String? get isAllDay;// 'Y'|'N'
- int? get calendarRowId; String? get calendarColor; int? get labelRowId; String? get labelName; String? get labelColor; String? get location; String? get rrule; int? get groupRowId; String? get groupName;
+ int? get calendarRowId; String? get calendarColor; int? get labelRowId; String? get labelName; String? get labelColor; String? get location; String? get rrule;
 /// Create a copy of CalendarEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +32,16 @@ $CalendarEventCopyWith<CalendarEvent> get copyWith => _$CalendarEventCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarEvent&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.eventType, eventType) || other.eventType == eventType)&&(identical(other.color, color) || other.color == color)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.isAllDay, isAllDay) || other.isAllDay == isAllDay)&&(identical(other.calendarRowId, calendarRowId) || other.calendarRowId == calendarRowId)&&(identical(other.calendarColor, calendarColor) || other.calendarColor == calendarColor)&&(identical(other.labelRowId, labelRowId) || other.labelRowId == labelRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.labelColor, labelColor) || other.labelColor == labelColor)&&(identical(other.location, location) || other.location == location)&&(identical(other.rrule, rrule) || other.rrule == rrule)&&(identical(other.groupRowId, groupRowId) || other.groupRowId == groupRowId)&&(identical(other.groupName, groupName) || other.groupName == groupName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarEvent&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.eventType, eventType) || other.eventType == eventType)&&(identical(other.color, color) || other.color == color)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.isAllDay, isAllDay) || other.isAllDay == isAllDay)&&(identical(other.calendarRowId, calendarRowId) || other.calendarRowId == calendarRowId)&&(identical(other.calendarColor, calendarColor) || other.calendarColor == calendarColor)&&(identical(other.labelRowId, labelRowId) || other.labelRowId == labelRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.labelColor, labelColor) || other.labelColor == labelColor)&&(identical(other.location, location) || other.location == location)&&(identical(other.rrule, rrule) || other.rrule == rrule));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,title,description,eventType,color,startDate,endDate,isAllDay,calendarRowId,calendarColor,labelRowId,labelName,labelColor,location,rrule,groupRowId,groupName);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,title,description,eventType,color,startDate,endDate,isAllDay,calendarRowId,calendarColor,labelRowId,labelName,labelColor,location,rrule);
 
 @override
 String toString() {
-  return 'CalendarEvent(rowId: $rowId, userRowId: $userRowId, title: $title, description: $description, eventType: $eventType, color: $color, startDate: $startDate, endDate: $endDate, isAllDay: $isAllDay, calendarRowId: $calendarRowId, calendarColor: $calendarColor, labelRowId: $labelRowId, labelName: $labelName, labelColor: $labelColor, location: $location, rrule: $rrule, groupRowId: $groupRowId, groupName: $groupName)';
+  return 'CalendarEvent(rowId: $rowId, userRowId: $userRowId, title: $title, description: $description, eventType: $eventType, color: $color, startDate: $startDate, endDate: $endDate, isAllDay: $isAllDay, calendarRowId: $calendarRowId, calendarColor: $calendarColor, labelRowId: $labelRowId, labelName: $labelName, labelColor: $labelColor, location: $location, rrule: $rrule)';
 }
 
 
@@ -52,7 +52,7 @@ abstract mixin class $CalendarEventCopyWith<$Res>  {
   factory $CalendarEventCopyWith(CalendarEvent value, $Res Function(CalendarEvent) _then) = _$CalendarEventCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String title, String? description, String? eventType, String? color, String startDate, String endDate, String? isAllDay, int? calendarRowId, String? calendarColor, int? labelRowId, String? labelName, String? labelColor, String? location, String? rrule, int? groupRowId, String? groupName
+ int rowId, int? userRowId, String title, String? description, String? eventType, String? color, String startDate, String endDate, String? isAllDay, int? calendarRowId, String? calendarColor, int? labelRowId, String? labelName, String? labelColor, String? location, String? rrule
 });
 
 
@@ -69,7 +69,7 @@ class _$CalendarEventCopyWithImpl<$Res>
 
 /// Create a copy of CalendarEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? title = null,Object? description = freezed,Object? eventType = freezed,Object? color = freezed,Object? startDate = null,Object? endDate = null,Object? isAllDay = freezed,Object? calendarRowId = freezed,Object? calendarColor = freezed,Object? labelRowId = freezed,Object? labelName = freezed,Object? labelColor = freezed,Object? location = freezed,Object? rrule = freezed,Object? groupRowId = freezed,Object? groupName = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? title = null,Object? description = freezed,Object? eventType = freezed,Object? color = freezed,Object? startDate = null,Object? endDate = null,Object? isAllDay = freezed,Object? calendarRowId = freezed,Object? calendarColor = freezed,Object? labelRowId = freezed,Object? labelName = freezed,Object? labelColor = freezed,Object? location = freezed,Object? rrule = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -87,8 +87,6 @@ as int?,labelName: freezed == labelName ? _self.labelName : labelName // ignore:
 as String?,labelColor: freezed == labelColor ? _self.labelColor : labelColor // ignore: cast_nullable_to_non_nullable
 as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,rrule: freezed == rrule ? _self.rrule : rrule // ignore: cast_nullable_to_non_nullable
-as String?,groupRowId: freezed == groupRowId ? _self.groupRowId : groupRowId // ignore: cast_nullable_to_non_nullable
-as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -174,10 +172,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String title,  String? description,  String? eventType,  String? color,  String startDate,  String endDate,  String? isAllDay,  int? calendarRowId,  String? calendarColor,  int? labelRowId,  String? labelName,  String? labelColor,  String? location,  String? rrule,  int? groupRowId,  String? groupName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String title,  String? description,  String? eventType,  String? color,  String startDate,  String endDate,  String? isAllDay,  int? calendarRowId,  String? calendarColor,  int? labelRowId,  String? labelName,  String? labelColor,  String? location,  String? rrule)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CalendarEvent() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.eventType,_that.color,_that.startDate,_that.endDate,_that.isAllDay,_that.calendarRowId,_that.calendarColor,_that.labelRowId,_that.labelName,_that.labelColor,_that.location,_that.rrule,_that.groupRowId,_that.groupName);case _:
+return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.eventType,_that.color,_that.startDate,_that.endDate,_that.isAllDay,_that.calendarRowId,_that.calendarColor,_that.labelRowId,_that.labelName,_that.labelColor,_that.location,_that.rrule);case _:
   return orElse();
 
 }
@@ -195,10 +193,10 @@ return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String title,  String? description,  String? eventType,  String? color,  String startDate,  String endDate,  String? isAllDay,  int? calendarRowId,  String? calendarColor,  int? labelRowId,  String? labelName,  String? labelColor,  String? location,  String? rrule,  int? groupRowId,  String? groupName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String title,  String? description,  String? eventType,  String? color,  String startDate,  String endDate,  String? isAllDay,  int? calendarRowId,  String? calendarColor,  int? labelRowId,  String? labelName,  String? labelColor,  String? location,  String? rrule)  $default,) {final _that = this;
 switch (_that) {
 case _CalendarEvent():
-return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.eventType,_that.color,_that.startDate,_that.endDate,_that.isAllDay,_that.calendarRowId,_that.calendarColor,_that.labelRowId,_that.labelName,_that.labelColor,_that.location,_that.rrule,_that.groupRowId,_that.groupName);case _:
+return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.eventType,_that.color,_that.startDate,_that.endDate,_that.isAllDay,_that.calendarRowId,_that.calendarColor,_that.labelRowId,_that.labelName,_that.labelColor,_that.location,_that.rrule);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -215,10 +213,10 @@ return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String title,  String? description,  String? eventType,  String? color,  String startDate,  String endDate,  String? isAllDay,  int? calendarRowId,  String? calendarColor,  int? labelRowId,  String? labelName,  String? labelColor,  String? location,  String? rrule,  int? groupRowId,  String? groupName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String title,  String? description,  String? eventType,  String? color,  String startDate,  String endDate,  String? isAllDay,  int? calendarRowId,  String? calendarColor,  int? labelRowId,  String? labelName,  String? labelColor,  String? location,  String? rrule)?  $default,) {final _that = this;
 switch (_that) {
 case _CalendarEvent() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.eventType,_that.color,_that.startDate,_that.endDate,_that.isAllDay,_that.calendarRowId,_that.calendarColor,_that.labelRowId,_that.labelName,_that.labelColor,_that.location,_that.rrule,_that.groupRowId,_that.groupName);case _:
+return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.eventType,_that.color,_that.startDate,_that.endDate,_that.isAllDay,_that.calendarRowId,_that.calendarColor,_that.labelRowId,_that.labelName,_that.labelColor,_that.location,_that.rrule);case _:
   return null;
 
 }
@@ -230,7 +228,7 @@ return $default(_that.rowId,_that.userRowId,_that.title,_that.description,_that.
 @JsonSerializable()
 
 class _CalendarEvent implements CalendarEvent {
-  const _CalendarEvent({required this.rowId, this.userRowId, required this.title, this.description, this.eventType, this.color, required this.startDate, required this.endDate, this.isAllDay, this.calendarRowId, this.calendarColor, this.labelRowId, this.labelName, this.labelColor, this.location, this.rrule, this.groupRowId, this.groupName});
+  const _CalendarEvent({required this.rowId, this.userRowId, required this.title, this.description, this.eventType, this.color, required this.startDate, required this.endDate, this.isAllDay, this.calendarRowId, this.calendarColor, this.labelRowId, this.labelName, this.labelColor, this.location, this.rrule});
   factory _CalendarEvent.fromJson(Map<String, dynamic> json) => _$CalendarEventFromJson(json);
 
 @override final  int rowId;
@@ -253,8 +251,6 @@ class _CalendarEvent implements CalendarEvent {
 @override final  String? labelColor;
 @override final  String? location;
 @override final  String? rrule;
-@override final  int? groupRowId;
-@override final  String? groupName;
 
 /// Create a copy of CalendarEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -269,16 +265,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarEvent&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.eventType, eventType) || other.eventType == eventType)&&(identical(other.color, color) || other.color == color)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.isAllDay, isAllDay) || other.isAllDay == isAllDay)&&(identical(other.calendarRowId, calendarRowId) || other.calendarRowId == calendarRowId)&&(identical(other.calendarColor, calendarColor) || other.calendarColor == calendarColor)&&(identical(other.labelRowId, labelRowId) || other.labelRowId == labelRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.labelColor, labelColor) || other.labelColor == labelColor)&&(identical(other.location, location) || other.location == location)&&(identical(other.rrule, rrule) || other.rrule == rrule)&&(identical(other.groupRowId, groupRowId) || other.groupRowId == groupRowId)&&(identical(other.groupName, groupName) || other.groupName == groupName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarEvent&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.eventType, eventType) || other.eventType == eventType)&&(identical(other.color, color) || other.color == color)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.isAllDay, isAllDay) || other.isAllDay == isAllDay)&&(identical(other.calendarRowId, calendarRowId) || other.calendarRowId == calendarRowId)&&(identical(other.calendarColor, calendarColor) || other.calendarColor == calendarColor)&&(identical(other.labelRowId, labelRowId) || other.labelRowId == labelRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.labelColor, labelColor) || other.labelColor == labelColor)&&(identical(other.location, location) || other.location == location)&&(identical(other.rrule, rrule) || other.rrule == rrule));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,title,description,eventType,color,startDate,endDate,isAllDay,calendarRowId,calendarColor,labelRowId,labelName,labelColor,location,rrule,groupRowId,groupName);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,title,description,eventType,color,startDate,endDate,isAllDay,calendarRowId,calendarColor,labelRowId,labelName,labelColor,location,rrule);
 
 @override
 String toString() {
-  return 'CalendarEvent(rowId: $rowId, userRowId: $userRowId, title: $title, description: $description, eventType: $eventType, color: $color, startDate: $startDate, endDate: $endDate, isAllDay: $isAllDay, calendarRowId: $calendarRowId, calendarColor: $calendarColor, labelRowId: $labelRowId, labelName: $labelName, labelColor: $labelColor, location: $location, rrule: $rrule, groupRowId: $groupRowId, groupName: $groupName)';
+  return 'CalendarEvent(rowId: $rowId, userRowId: $userRowId, title: $title, description: $description, eventType: $eventType, color: $color, startDate: $startDate, endDate: $endDate, isAllDay: $isAllDay, calendarRowId: $calendarRowId, calendarColor: $calendarColor, labelRowId: $labelRowId, labelName: $labelName, labelColor: $labelColor, location: $location, rrule: $rrule)';
 }
 
 
@@ -289,7 +285,7 @@ abstract mixin class _$CalendarEventCopyWith<$Res> implements $CalendarEventCopy
   factory _$CalendarEventCopyWith(_CalendarEvent value, $Res Function(_CalendarEvent) _then) = __$CalendarEventCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String title, String? description, String? eventType, String? color, String startDate, String endDate, String? isAllDay, int? calendarRowId, String? calendarColor, int? labelRowId, String? labelName, String? labelColor, String? location, String? rrule, int? groupRowId, String? groupName
+ int rowId, int? userRowId, String title, String? description, String? eventType, String? color, String startDate, String endDate, String? isAllDay, int? calendarRowId, String? calendarColor, int? labelRowId, String? labelName, String? labelColor, String? location, String? rrule
 });
 
 
@@ -306,7 +302,7 @@ class __$CalendarEventCopyWithImpl<$Res>
 
 /// Create a copy of CalendarEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? title = null,Object? description = freezed,Object? eventType = freezed,Object? color = freezed,Object? startDate = null,Object? endDate = null,Object? isAllDay = freezed,Object? calendarRowId = freezed,Object? calendarColor = freezed,Object? labelRowId = freezed,Object? labelName = freezed,Object? labelColor = freezed,Object? location = freezed,Object? rrule = freezed,Object? groupRowId = freezed,Object? groupName = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? title = null,Object? description = freezed,Object? eventType = freezed,Object? color = freezed,Object? startDate = null,Object? endDate = null,Object? isAllDay = freezed,Object? calendarRowId = freezed,Object? calendarColor = freezed,Object? labelRowId = freezed,Object? labelName = freezed,Object? labelColor = freezed,Object? location = freezed,Object? rrule = freezed,}) {
   return _then(_CalendarEvent(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -324,8 +320,6 @@ as int?,labelName: freezed == labelName ? _self.labelName : labelName // ignore:
 as String?,labelColor: freezed == labelColor ? _self.labelColor : labelColor // ignore: cast_nullable_to_non_nullable
 as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as String?,rrule: freezed == rrule ? _self.rrule : rrule // ignore: cast_nullable_to_non_nullable
-as String?,groupRowId: freezed == groupRowId ? _self.groupRowId : groupRowId // ignore: cast_nullable_to_non_nullable
-as int?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
