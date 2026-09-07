@@ -8,11 +8,11 @@ class MemoRepository {
   MemoRepository(this._dio);
   final Dio _dio;
 
-  Future<List<Memo>> list({int? folderId, String? search}) async {
+  Future<List<Memo>> list({String? search}) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/memos',
-        queryParameters: {'folderId': ?folderId, 'search': ?search},
+        queryParameters: {'search': ?search},
       );
       return _unwrapList(res, 'memos', Memo.fromJson);
     } on DioException catch (e) {
@@ -25,13 +25,11 @@ class MemoRepository {
     String? content,
     String? tag,
     String? color,
-    int? folderId,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/memo',
         data: {
-          'folderId': ?folderId,
           'title': ?title,
           'content': ?content,
           'tag': ?tag,
@@ -50,13 +48,11 @@ class MemoRepository {
     String? content,
     String? tag,
     String? color,
-    int? folderId,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
         '/memo/$id',
         data: {
-          'folderId': ?folderId,
           'title': ?title,
           'content': ?content,
           'tag': ?tag,

@@ -8,7 +8,6 @@ abstract class Memo with _$Memo {
   const factory Memo({
     required int rowId,
     int? userRowId,
-    int? folderId,
     String? title,
     String? content,
     String? tag, // 분류 태그 (가계부/자산/업무/개인/건강/결제/고정비 등)

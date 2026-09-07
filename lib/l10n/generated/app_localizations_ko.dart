@@ -1329,15 +1329,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memoSearchHint => '메모 검색';
 
   @override
-  String get memoFolderMgmt => '폴더 관리';
-
-  @override
-  String get memoFolderRoot => '루트';
-
-  @override
-  String get memoFolderEmpty => '등록된 폴더가 없습니다';
-
-  @override
   String get memoPin => '고정';
 
   @override

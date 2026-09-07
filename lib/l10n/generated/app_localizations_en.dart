@@ -1347,15 +1347,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memoSearchHint => 'Search memos';
 
   @override
-  String get memoFolderMgmt => 'Folders';
-
-  @override
-  String get memoFolderRoot => 'Root';
-
-  @override
-  String get memoFolderEmpty => 'No folders';
-
-  @override
   String get memoPin => 'Pin';
 
   @override
