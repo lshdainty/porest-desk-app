@@ -171,10 +171,14 @@ class SmsRepository {
   ///
   /// [text] 원문을 함께 보내는 건 값을 뽑으려는 게 아니라 서버 가드용이다 —
   /// 취소 문자를 막고 카드 매핑 키를 서버가 도출한다.
+  /// [expenseType] 은 `EXPENSE` · `INCOME`. 안 실으면 서버가 지출로 본다 —
+  /// 이 키를 모르는 옛 앱이 계속 돌아야 해서 기본값이 지출이다(desk-back #326).
+  /// 환불·입금 문자를 수입으로 남기려면 반드시 실어야 한다.
   Future<SmsCommitResult> commit({
     required String text,
     required int? assetRowId,
     required int? categoryRowId,
+    required String expenseType,
     required int amount,
     String? merchant,
     String? description,
@@ -193,6 +197,7 @@ class SmsRepository {
           'text': text,
           'assetRowId': assetRowId,
           'categoryRowId': categoryRowId,
+          'expenseType': expenseType,
           'amount': amount,
           'merchant': merchant,
           'description': description,
