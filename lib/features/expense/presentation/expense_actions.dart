@@ -68,6 +68,27 @@ class ExpenseActions implements ItemActions<Expense> {
     showAddTxSheet(context, edit: e);
   }
 
+  /// 환불 연결을 끊는다 — 거래는 남고 일반 수입이 된다.
+  ///
+  /// 편집 저장으로는 못 끊는다(그래야 메모만 고쳐도 연결이 살아 있다). 끊는 자리는
+  /// 상세의 '환불 취소' 버튼 하나뿐이라, 확인창은 부르는 쪽이 띄운다.
+  ///
+  /// 성공하면 서버가 돌려준 거래를 준다 — 상세가 그걸로 다시 그려 배너가 사라진다.
+  /// 실패는 null 이다(토스트는 인터셉터가 이미 띄웠다).
+  Future<Expense?> unlinkRefund(WidgetRef ref, Expense e) async {
+    try {
+      final repo = await ref.read(expenseRepositoryProvider.future);
+      final updated = await repo.unlinkRefund(e.rowId);
+      // 원거래의 환불 수·환불액도 함께 바뀌는데 원거래가 **다른 달**일 수 있다 —
+      // 이 거래의 달만 무효화하면 그 달 목록이 옛 배지를 들고 남는다.
+      ref.invalidate(monthExpensesProvider);
+      invalidateAfterExpenseChange(ref);
+      return updated;
+    } on ApiException {
+      return null;
+    }
+  }
+
   /// 지운 거래가 속한 달의 목록과 자산 잔액을 다시 읽게 한다.
   ///
   /// 날짜가 없으면 어느 달을 무효화할지 알 수 없어 목록은 건너뛴다 — 자산은 날짜와

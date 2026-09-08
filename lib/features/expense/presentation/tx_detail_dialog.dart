@@ -12,6 +12,7 @@ import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -21,6 +22,7 @@ import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dia
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
@@ -96,7 +98,12 @@ class _DetailBody extends ConsumerStatefulWidget {
 
 class _DetailBodyState extends ConsumerState<_DetailBody> {
   bool _deleting = false;
+  bool _unlinking = false;
   bool _splitExpanded = true; // 분할 요약 카드 펼침 상태
+
+  /// 화면이 그리는 거래. 열릴 때는 넘겨받은 것과 같지만, 환불 연결을 끊으면
+  /// 서버가 돌려준 것으로 갈아 끼운다 — 그래야 배너가 그 자리에서 사라진다.
+  late Expense _e = widget.expense;
 
   @override
   void initState() {
@@ -118,8 +125,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: expenseActions.deleteConfirmTitle(context, widget.expense),
-      message: expenseActions.deleteConfirmMessage(context, widget.expense),
+      title: expenseActions.deleteConfirmTitle(context, _e),
+      message: expenseActions.deleteConfirmMessage(context, _e),
       confirmLabel: l.actionDelete,
       destructive: true,
     );
@@ -127,10 +134,34 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     _setDeleting(true);
     try {
-      final deleted = await expenseActions.delete(context, ref, widget.expense);
+      final deleted = await expenseActions.delete(context, ref, _e);
       if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) _setDeleting(false);
+    }
+  }
+
+  /// 환불 취소 — 원거래와의 연결만 끊는다. 거래는 지워지지 않는다.
+  ///
+  /// 되돌리는 칸이 어느 화면에도 없다(편집 시트엔 환불 연결 칸이 없다). 다시 묶으려면
+  /// 이 거래를 지우고 원거래에서 환불을 새로 기록해야 해서, 삭제와 같은 무게로 묻는다.
+  Future<void> _unlinkRefund() async {
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.expRefundUnlink,
+      message: l.expRefundUnlinkConfirm,
+      confirmLabel: l.expRefundUnlink,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+
+    setState(() => _unlinking = true);
+    try {
+      final updated = await expenseActions.unlinkRefund(ref, _e);
+      if (updated != null && mounted) setState(() => _e = updated);
+    } finally {
+      if (mounted) setState(() => _unlinking = false);
     }
   }
 
@@ -150,8 +181,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     // 켜졌으면 가린다. 부호가 아니라 타입으로 가른다(환불이 음수 지출이라 부호로는 샌다).
     final masked = ref
         .watch(maskFlagsProvider('ledger.txDetail'))
-        .ofType(widget.expense.expenseType);
-    final e = widget.expense;
+        .ofType(_e.expenseType);
+    final e = _e;
     final isIncome = e.expenseType == 'INCOME';
     // 분할 내역 — 퀵액션 배지 개수 + 요약 카드(내역·비율) 표시용.
     final splits =
@@ -389,6 +420,41 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                       l.expRefundLinked(e.refundCount, krw(e.refundedAmount)),
                       style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        // 환불 쪽에서 본 같은 연결 — 이 거래가 환불이면 알리고, 끊을 자리를 준다.
+        // 편집 저장으로는 못 끊는다(그 시트엔 칸이 없다). 여기가 유일한 자리다.
+        if (isRefundTx(e))
+          PDetailSection(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x12,
+                vertical: PSpace.x8,
+              ),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brMd,
+              ),
+              child: Row(
+                children: [
+                  Icon(LucideIcons.undo2, size: 15, color: t.fgTertiary),
+                  const SizedBox(width: PSpace.x8),
+                  Expanded(
+                    child: Text(
+                      l.expRefundOfLinked,
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                    ),
+                  ),
+                  const SizedBox(width: PSpace.x8),
+                  PButton(
+                    label: l.expRefundUnlink,
+                    variant: PButtonVariant.outline,
+                    size: PButtonSize.sm,
+                    loading: _unlinking,
+                    onPressed: _deleting || _unlinking ? null : _unlinkRefund,
                   ),
                 ],
               ),

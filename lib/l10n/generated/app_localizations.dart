@@ -3806,6 +3806,24 @@ abstract class AppLocalizations {
   /// **'환불 {count}건 · {amount}원이 이 거래에 묶여 있어요'**
   String expRefundLinked(int count, String amount);
 
+  /// No description provided for @expRefundOfLinked.
+  ///
+  /// In ko, this message translates to:
+  /// **'원거래에 묶인 환불이에요'**
+  String get expRefundOfLinked;
+
+  /// No description provided for @expRefundUnlink.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 취소'**
+  String get expRefundUnlink;
+
+  /// No description provided for @expRefundUnlinkConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.'**
+  String get expRefundUnlinkConfirm;
+
   /// No description provided for @expTypeTransfer.
   ///
   /// In ko, this message translates to:

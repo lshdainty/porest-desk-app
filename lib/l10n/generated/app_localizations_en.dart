@@ -2047,6 +2047,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get expRefundOfLinked =>
+      'This is a refund linked to the original transaction';
+
+  @override
+  String get expRefundUnlink => 'Unlink refund';
+
+  @override
+  String get expRefundUnlinkConfirm =>
+      'Unlink from the original transaction? The transaction stays and becomes ordinary income, and the original expense counts in full again.';
+
+  @override
   String get expTypeTransfer => 'Transfer';
 
   @override

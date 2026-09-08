@@ -1165,6 +1165,9 @@
       }
     }
   },
+  "expRefundOfLinked": "This is a refund linked to the original transaction",
+  "expRefundUnlink": "Unlink refund",
+  "expRefundUnlinkConfirm": "Unlink from the original transaction? The transaction stays and becomes ordinary income, and the original expense counts in full again.",
   "expTypeTransfer": "Transfer",
   "expTransferFrom": "From",
   "expTransferTo": "To",

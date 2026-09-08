@@ -2018,6 +2018,16 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get expRefundOfLinked => '원거래에 묶인 환불이에요';
+
+  @override
+  String get expRefundUnlink => '환불 취소';
+
+  @override
+  String get expRefundUnlinkConfirm =>
+      '원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.';
+
+  @override
   String get expTypeTransfer => '이체';
 
   @override
