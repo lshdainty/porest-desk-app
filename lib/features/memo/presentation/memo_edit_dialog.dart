@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -100,7 +101,8 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.update(
           id: widget.edit!.rowId,
           title: title,
-          content: content.isEmpty ? null : content,
+          // 본문을 지우고 저장하면 지워져야 한다 — 키를 빼면 서버가 옛 본문을 지킨다.
+          content: Patch.set(content.isEmpty ? null : content),
           tag: _tag,
           color: _color,
         );

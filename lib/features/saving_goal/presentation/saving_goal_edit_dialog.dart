@@ -8,6 +8,7 @@ import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
@@ -149,7 +150,10 @@ class _BodyState extends ConsumerState<_Body> {
           id: widget.edit!.rowId,
           title: _titleTrim,
           targetAmount: amt,
-          deadlineDate: _deadline == null ? null : _fmtDate(_deadline!),
+          // 목표일을 지운 채 저장하면 지워져야 한다 — 키를 빼면 옛 날짜가 남는다(QA #99).
+          deadlineDate: Patch.set(
+            _deadline == null ? null : _fmtDate(_deadline!),
+          ),
           color: color,
           icon: _icon,
         );

@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -243,6 +244,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       // brand color hex 는 모바일 측에선 별도 파싱이라 institution 으로 추후 매칭.
       // (web 의 color 필드는 같은 효과를 내는 보조 정보)
       if (edit != null) {
+        // 이 화면이 소유한 칸(한도·결제일·결제 계좌)은 비운 상태 그대로 실어야
+        // 지워진다 — 키를 빼면 서버가 옛 값을 지킨다(QA #99). 신용에서 체크로
+        // 바꾸면 한도·결제일이 실제로 지워져야 청구 사이클이 남지 않는다.
+        // 메모는 이 화면에 없는 칸이라 안 넘긴다 — 계좌 화면에서 적어 둔 값이 산다.
         await repo.update(
           id: edit.rowId,
           assetName: name,
@@ -252,10 +257,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           institution: company,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           cardCatalogRowId: catalogRowId,
-          creditLimit: creditLimit,
-          paymentDay: isCredit ? _paymentDay : null,
+          creditLimit: Patch.set(creditLimit),
+          paymentDay: Patch.set(isCredit ? _paymentDay : null),
           // 계좌 연결은 두 종류 다 쓴다 — 신용은 결제일 자동이체, 체크는 즉시 차감.
-          paymentAssetRowId: _paymentAssetRowId,
+          paymentAssetRowId: Patch.set(_paymentAssetRowId),
         );
       } else {
         await repo.create(
