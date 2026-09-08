@@ -17,10 +17,7 @@ import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
-
-/// 태그 select 옵션 7종 고정 (web `MemoEditDialog` select 미러). 기본값 '개인'.
-const kMemoTags = <String>['가계부', '자산', '업무', '개인', '건강', '결제', '고정비'];
-const kMemoDefaultTag = '개인';
+import 'package:porest_desk_app/features/memo/domain/memo_tag.dart';
 
 void showMemoEditDialog(BuildContext context, {Memo? edit}) {
   final l = AppLocalizations.of(context);
@@ -51,7 +48,10 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _contentCtrl;
-  late String _tag;
+
+  /// 고른 태그 이름 — null 이면 태그 없음. 목록은 서버 마스터가 SoT 라
+  /// 앱이 이름을 지어내지 않는다(옛 하드코딩 7종은 QA #98 에서 걷어 냈다).
+  late String? _tag;
   late String _color;
   late bool _pinned;
   bool _submitting = false;
@@ -64,7 +64,8 @@ class _BodyState extends ConsumerState<_Body> {
     final e = widget.edit;
     _titleCtrl = TextEditingController(text: e?.title ?? '');
     _contentCtrl = TextEditingController(text: e?.content ?? '');
-    _tag = (e?.tag ?? '').isNotEmpty ? e!.tag! : kMemoDefaultTag;
+    final tag = e?.tag?.trim() ?? '';
+    _tag = tag.isEmpty ? null : tag;
     _color = memoColorOrDefault(e?.color);
     _pinned = e?.pinned ?? false;
     widget.controller.onSubmit = _submit;
@@ -85,6 +86,21 @@ class _BodyState extends ConsumerState<_Body> {
   // 저장 버튼은 항상 활성 — 제목 검증은 submit 시 인라인 에러로 처리(web 동작 미러).
   bool get _canSubmit => !_submitting;
 
+  /// 태그 선택지 — 서버 마스터 목록 + 지금 값(목록에 없으면 맨 앞에 보존).
+  ///
+  /// 목록이 비거나(태그를 하나도 안 만든 계정) 조회가 실패해도 select 는 비지
+  /// 않는다: "태그 없음" 항목이 build 에서 늘 앞에 붙고, 편집 중인 메모가 들고
+  /// 있던 태그는 여기서 살아남는다. `AsyncValue.value` 는 로딩·에러에서 null 이라
+  /// `const []` 로 접는데, 그 덕에 조회가 실패해도 **지금 값이 지워지지 않는다** —
+  /// 못 고르게 될 뿐이다. 옛 코드처럼 없는 태그('개인')를 끼워 넣으면 저장할 때
+  /// 서버가 그 이름의 마스터를 새로 만들어, 사용자가 지운 태그가 되살아난다.
+  List<String> _tagChoices() {
+    final server = ref.watch(memoTagListProvider).value ?? const <MemoTag>[];
+    final names = [for (final t in server) t.tagName];
+    final current = _tag;
+    return [if (current != null && !names.contains(current)) current, ...names];
+  }
+
   Future<void> _submit() async {
     if (_submitting) return;
     final title = _titleCtrl.text.trim();
@@ -103,7 +119,9 @@ class _BodyState extends ConsumerState<_Body> {
           title: title,
           // 본문을 지우고 저장하면 지워져야 한다 — 키를 빼면 서버가 옛 본문을 지킨다.
           content: Patch.set(content.isEmpty ? null : content),
-          tag: _tag,
+          // 태그도 이 화면이 비울 수 있는 칸이다 — "태그 없음" 을 고르면 키를
+          // 빼지 말고 명시적 null 로 실어야 서버가 지운다(QA #99 와 같은 이유).
+          tag: Patch.set(_tag),
           color: _color,
         );
         // pin 은 별도 토글 엔드포인트 — 변경 시에만 호출.
@@ -179,15 +197,18 @@ class _BodyState extends ConsumerState<_Body> {
                 children: [
                   PSectionLabel(l.memoFieldTag),
                   const SizedBox(height: PSpace.x4),
-                  PSelect<String>(
+                  PSelect<String?>(
                     value: _tag,
                     title: l.memoFieldTag,
+                    // 값이 null 이면 trigger 가 placeholder 를 띄운다 — 그 자리에
+                    // 항목과 같은 문구를 넣어 "태그 없음" 이 골라진 상태로 읽힌다.
+                    placeholder: l.memoTagNone,
                     items: [
-                      for (final tag in kMemoTags)
-                        PSelectItem<String>(value: tag, label: tag),
+                      PSelectItem<String?>(value: null, label: l.memoTagNone),
+                      for (final tag in _tagChoices())
+                        PSelectItem<String?>(value: tag, label: tag),
                     ],
-                    onChanged: (v) =>
-                        setState(() => _tag = v ?? kMemoDefaultTag),
+                    onChanged: (v) => setState(() => _tag = v),
                   ),
                 ],
               ),

@@ -79,11 +79,37 @@ void main() {
         id: 1,
         title: '제목',
         content: const Patch.set(null),
-        tag: '개인',
+        tag: const Patch.set('개인'),
         color: '#2c70bf',
       );
 
       expectExplicitNull(captured.single, 'content');
+      expect(captured.single['tag'], '개인');
+    });
+
+    // 태그도 화면이 비울 수 있는 칸이 됐다 — 서버 마스터 목록에서 "태그 없음" 을
+    // 고를 수 있기 때문이다(QA #98). 키를 빼면 서버가 지금 이름으로 태그를 다시
+    // 이어 주므로, 비운 것이 다음 저장에서 되살아난다.
+    test('태그를 비우면 tag 가 명시적 null 로 실린다', () async {
+      final (dio, captured) = _capturingDio(memoJson);
+
+      await MemoRepository(
+        dio,
+      ).update(id: 1, title: '제목', tag: const Patch.set(null));
+
+      expectExplicitNull(captured.single, 'tag');
+    });
+
+    // 태그 아이디는 안 싣는다 — 이름으로만 잇는다. 실으면 목록을 받은 뒤 그 태그가
+    // 지워졌을 때 저장 자체가 404 가 된다(desk-back linkByTagId).
+    test('태그 아이디는 본문에 없다', () async {
+      final (dio, captured) = _capturingDio(memoJson);
+
+      await MemoRepository(
+        dio,
+      ).update(id: 1, title: '제목', tag: const Patch.set('업무'));
+
+      expectAbsent(captured.single, 'memoTagRowId');
     });
 
     test('본문에 값이 있으면 그 값이 실린다', () async {

@@ -3122,6 +3122,7 @@
   "memoFieldContent": "내용",
   "memoContentPlaceholder": "여기에 메모를 작성해주세요",
   "memoFieldTag": "태그",
+  "memoTagNone": "태그 없음",
   "memoPinToTop": "상단에 고정",
   "memoFieldColor": "색상",
   "dateToday": "오늘",

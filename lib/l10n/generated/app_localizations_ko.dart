@@ -5530,6 +5530,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memoFieldTag => '태그';
 
   @override
+  String get memoTagNone => '태그 없음';
+
+  @override
   String get memoPinToTop => '상단에 고정';
 
   @override
