@@ -6,6 +6,7 @@
 //    "태그 없음으로 남아요" 라고 약속해 놓고 화면이 그 말을 어긴 상태였다.
 // ② '태그 없음' 선택지가 없어 **한 번 붙은 태그를 앱에서 뗄 수 없었다.** 뗄 수
 //    있으려면 키를 빼지 말고 명시적 null 을 실어야 한다(PUT 은 "키 없음=유지").
+// ③ 하위 빠른 추가가 `parentRowId` 를 안 실어 최상위 할 일로 만들어졌다.
 //
 // 에뮬레이터를 쓸 수 없는 환경이라(QA #23) 저장 페이로드를 위젯 테스트로 고정한다.
 // 리포지토리 단위 검증은 `test/features/put_clear_payload_test.dart` 에 있고,
@@ -41,6 +42,7 @@ class _CapturingRepo extends TodoRepository {
   String? title;
   bool created = false;
   String? createdCategory;
+  int? createdParentRowId;
 
   @override
   Future<Todo> update({
@@ -64,9 +66,11 @@ class _CapturingRepo extends TodoRepository {
     String? category,
     String? dueDate,
     String? type,
+    int? parentRowId,
   }) async {
     created = true;
     createdCategory = category;
+    createdParentRowId = parentRowId;
     return _todo;
   }
 }
@@ -222,6 +226,29 @@ void main() {
 
       expect(repo.created, isTrue);
       expect(repo.createdCategory, isNull);
+    });
+  });
+
+  group('하위 할 일', () {
+    testWidgets('빠른 추가가 부모를 실어 보낸다', (tester) async {
+      final repo = await _openEdit(tester);
+
+      await tester.enterText(_field(l.todoSubtaskAddHint), '하위 항목');
+      await tester.pumpAndSettle();
+      // 시트 푸터의 저장(수정)이 아니라 하위 섹션의 '추가' 버튼이다.
+      await tester.tap(
+        find
+            .ancestor(of: find.text(l.calAdd), matching: find.byType(PButton))
+            .last,
+      );
+      await tester.pumpAndSettle();
+
+      expect(repo.created, isTrue);
+      expect(
+        repo.createdParentRowId,
+        _todo.rowId,
+        reason: '부모를 안 실으면 서버가 최상위 할 일로 만든다 — 이 목록에서 사라진다',
+      );
     });
   });
 }

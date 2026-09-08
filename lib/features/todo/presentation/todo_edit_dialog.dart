@@ -400,7 +400,9 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
     setState(() => _adding = true);
     try {
       final repo = await ref.read(todoRepositoryProvider.future);
-      await repo.create(title: title);
+      // 부모를 실어야 하위 할 일로 만들어진다 — 안 실으면 서버가 최상위로
+      // 만들어(`parent` 가 null) 방금 적은 것이 이 목록에서 사라진다.
+      await repo.create(title: title, parentRowId: widget.parentId);
       ref.invalidate(todoSubtasksProvider(widget.parentId));
       _ctrl.clear();
       setState(() => _adding = false);

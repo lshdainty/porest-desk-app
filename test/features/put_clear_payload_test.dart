@@ -180,6 +180,14 @@ void main() {
       expectAbsent(captured.single, 'category');
     });
 
+    test('하위 할 일 생성은 parentRowId 를 싣는다', () async {
+      final (dio, captured) = _capturingDio(todoJson);
+
+      await TodoRepository(dio).create(title: '하위', parentRowId: 7);
+
+      expect(captured.single['parentRowId'], 7);
+    });
+
     test('태그 칸(tagIds)은 수정 본문에 안 섞인다 — 전용 경로가 따로 있다', () async {
       final (dio, captured) = _capturingDio(todoJson);
 
@@ -195,6 +203,8 @@ void main() {
 
       expectAbsent(captured.single, 'content');
       expectAbsent(captured.single, 'dueDate');
+      // 최상위 할 일 — 부모 키가 실리면 서버가 남의 자식으로 만든다.
+      expectAbsent(captured.single, 'parentRowId');
     });
   });
 

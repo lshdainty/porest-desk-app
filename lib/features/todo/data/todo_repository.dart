@@ -30,6 +30,11 @@ class TodoRepository {
     }
   }
 
+  /// 생성 — [parentRowId] 를 주면 그 할 일의 **하위 할 일**로 만들어진다.
+  ///
+  /// 키를 빼면 서버가 최상위로 만든다(`TodoServiceImpl.createTodo` 의 `parent`
+  /// 는 안 오면 null 이다). 그래서 편집 시트의 하위 빠른 추가는 **반드시** 부모
+  /// 아이디를 실어야 한다 — 안 실으면 목록에는 안 보이고 상위 목록에만 쌓인다.
   Future<Todo> create({
     required String title,
     String? content,
@@ -37,6 +42,7 @@ class TodoRepository {
     String? category,
     String? dueDate,
     String? type,
+    int? parentRowId,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -48,6 +54,7 @@ class TodoRepository {
           'category': ?category,
           'dueDate': ?dueDate,
           'type': type ?? 'TASK',
+          'parentRowId': ?parentRowId,
         },
       );
       return _unwrap(res, Todo.fromJson);
