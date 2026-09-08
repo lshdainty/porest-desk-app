@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 
@@ -52,16 +53,32 @@ class PresetRepository {
     }
   }
 
+  /// 수정 — 편집 시트가 소유한 칸만 키를 싣는다(QA #99 의 계약을 프리셋으로 넓힌다).
+  ///
+  /// 서버는 프리셋 수정 본문도 `Optional` 로 읽는다(desk-back #325) — 키가 없으면 유지,
+  /// 명시적 null 이면 지움. 그래서 시트에서 **비울 수 있는** 칸은 [Patch] 로 받는다:
+  /// [assetRowId]·[paymentMethod] 는 '선택 안 함' 이 있고 [merchant] 는 입력을 지울 수 있다.
+  /// 키를 빼면 셋 다 화면에서 비우고 저장해도 옛 값이 그대로 남는다.
+  ///
+  /// [description] 은 [Patch] 가 **아니다.** 편집 시트에 메모 칸이 아예 없어서, 화면은
+  /// 읽어 온 값을 그대로 되돌려 보내고(#326) 값이 없으면 키를 뺀다. 여기서 null 을 실으면
+  /// 웹에서 적어 둔 메모가 앱으로 프리셋을 고칠 때마다 사라진다 — 되살릴 입력칸이 없다.
+  ///
+  /// [categoryRowId] 는 폼이 필수로 강제한다(비면 저장 버튼이 안 눌린다) — 늘 값이 실린다.
+  ///
+  /// [amount] 는 [lockAmount] 가 정한다. 서버 `resolveAmount` 가 `lockAmount != 'Y'` 면
+  /// 실린 금액과 상관없이 null 로 접으므로, 고정을 끄면 키가 빠져도 금액이 지워진다.
+  /// 고정이 켜져 있으면 폼이 0 보다 큰 값을 강제하므로 키가 빠질 일이 없다.
   Future<ExpenseTemplate> update({
     required int id,
     required String templateName,
     int? categoryRowId,
-    int? assetRowId,
+    Patch<int> assetRowId = const Patch.keep(),
     required String expenseType,
     int? amount,
     String? description,
-    String? merchant,
-    String? paymentMethod,
+    Patch<String> merchant = const Patch.keep(),
+    Patch<String> paymentMethod = const Patch.keep(),
     bool lockAmount = false,
   }) async {
     try {
@@ -70,12 +87,12 @@ class PresetRepository {
         data: {
           'templateName': templateName,
           'categoryRowId': ?categoryRowId,
-          'assetRowId': ?assetRowId,
+          if (assetRowId.present) 'assetRowId': assetRowId.value,
           'expenseType': expenseType,
           'amount': ?amount,
           'description': ?description,
-          'merchant': ?merchant,
-          'paymentMethod': ?paymentMethod,
+          if (merchant.present) 'merchant': merchant.value,
+          if (paymentMethod.present) 'paymentMethod': paymentMethod.value,
           'lockAmount': lockAmount ? 'Y' : 'N',
         },
       );

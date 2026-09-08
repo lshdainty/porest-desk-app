@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -64,12 +65,12 @@ class _CapturingRepo extends PresetRepository {
     required int id,
     required String templateName,
     int? categoryRowId,
-    int? assetRowId,
+    Patch<int> assetRowId = const Patch.keep(),
     required String expenseType,
     int? amount,
     String? description,
-    String? merchant,
-    String? paymentMethod,
+    Patch<String> merchant = const Patch.keep(),
+    Patch<String> paymentMethod = const Patch.keep(),
     bool lockAmount = false,
   }) async {
     called = true;

@@ -12,16 +12,22 @@
 //      값이 이 화면으로 저장할 때마다 조용히 사라진다. 이게 이 수정의 제일 큰 위험이다
 //
 // 생성(POST) 경로는 건드리지 않았다 — "안 보냄 = 유지" 는 수정에만 있는 뜻이다.
-// 목록·순서 칸(splits · holdings · tagIds)도 손대지 않는다. 그 칸들은
+// 목록·순서 칸(splits · holdings · tagIds · reminderMinutes)도 손대지 않는다. 그 칸들은
 // "null=미변경 · 리스트=교체" 라는 뜻이 이미 확정돼 있다(QA #87 · #91).
+//
+// 서버가 같은 계약을 프리셋과 캘린더로 넓히면서(desk-back #325) 두 도메인이 뒤늦게
+// 같은 자리를 밟았다 — 프리셋 거래처·결제 수단·계좌, 일정 설명·장소·라벨이
+// 화면에서 비워도 안 지워졌다. 그래서 두 그룹을 여기에 이어 붙인다.
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
 import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
 import 'package:porest_desk_app/features/memo/data/memo_repository.dart';
+import 'package:porest_desk_app/features/preset/data/preset_repository.dart';
 import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
 import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
 
@@ -392,6 +398,233 @@ void main() {
       expectAbsent(captured.single, 'memo');
       expectAbsent(captured.single, 'creditLimit');
       expectAbsent(captured.single, 'paymentDay');
+    });
+  });
+
+  // ─── 프리셋 ────────────────────────────────────
+  //
+  // 서버가 프리셋 수정 본문도 `Optional` 로 읽기 시작하면서(desk-back #325) 앱이
+  // 키를 빼던 칸이 전부 "안 고침" 이 됐다 — 계좌·결제 수단을 '선택 안 함' 으로
+  // 되돌리거나 거래처를 지우고 저장해도 옛 값이 그대로 남았다.
+  group('프리셋', () {
+    const presetJson = {
+      'rowId': 1,
+      'templateName': '점심',
+      'expenseType': 'EXPENSE',
+    };
+
+    test('시트가 가진 칸을 비우면 전부 명시적 null 로 실린다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(dio).update(
+        id: 1,
+        templateName: '점심',
+        categoryRowId: 3,
+        assetRowId: const Patch.set(null),
+        expenseType: 'EXPENSE',
+        merchant: const Patch.set(null),
+        paymentMethod: const Patch.set(null),
+      );
+
+      for (final key in ['assetRowId', 'merchant', 'paymentMethod']) {
+        expectExplicitNull(captured.single, key);
+      }
+    });
+
+    test('고른 값은 그대로 실린다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(dio).update(
+        id: 1,
+        templateName: '점심',
+        categoryRowId: 3,
+        assetRowId: const Patch.set(7),
+        expenseType: 'EXPENSE',
+        merchant: const Patch.set('김밥천국'),
+        paymentMethod: const Patch.set('CARD'),
+      );
+
+      expect(captured.single['assetRowId'], 7);
+      expect(captured.single['merchant'], '김밥천국');
+      expect(captured.single['paymentMethod'], 'CARD');
+    });
+
+    // 메모 칸은 앱 편집 시트에 아예 없다 — 화면이 읽은 값을 되돌려 보내고(#326),
+    // 값이 없으면 키를 뺀다. null 을 실으면 웹에서 적어 둔 메모가 사라진다.
+    test('앱 화면에 없는 메모는 값이 없으면 키도 없다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(dio).update(
+        id: 1,
+        templateName: '점심',
+        categoryRowId: 3,
+        expenseType: 'EXPENSE',
+        merchant: const Patch.set(null),
+      );
+
+      expectAbsent(captured.single, 'description');
+      // 순서 칸은 전용 경로가 정한다 — 수정 본문에 섞지 않는다.
+      expectAbsent(captured.single, 'sortOrder');
+    });
+
+    test('읽어 온 메모는 그대로 되돌아간다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(dio).update(
+        id: 1,
+        templateName: '점심',
+        categoryRowId: 3,
+        expenseType: 'EXPENSE',
+        description: '회사 근처 김밥천국',
+      );
+
+      expect(captured.single['description'], '회사 근처 김밥천국');
+    });
+
+    // 금액은 `lockAmount` 가 정한다 — 서버 `resolveAmount` 가 고정이 꺼져 있으면
+    // 실린 금액과 상관없이 null 로 접는다. 그래서 키가 빠져도 금액이 지워진다.
+    test('고정 금액을 끄면 lockAmount 가 N 으로 실린다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(dio).update(
+        id: 1,
+        templateName: '점심',
+        categoryRowId: 3,
+        expenseType: 'EXPENSE',
+      );
+
+      expect(captured.single['lockAmount'], 'N');
+      expectAbsent(captured.single, 'amount');
+    });
+
+    test('생성 경로는 그대로다 — null 인 칸은 키째 빠진다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(
+        dio,
+      ).create(templateName: '점심', expenseType: 'EXPENSE', categoryRowId: 3);
+
+      expectAbsent(captured.single, 'assetRowId');
+      expectAbsent(captured.single, 'merchant');
+      expectAbsent(captured.single, 'paymentMethod');
+      expectAbsent(captured.single, 'description');
+    });
+  });
+
+  // ─── 캘린더 ────────────────────────────────────
+  group('일정', () {
+    const eventJson = {
+      'rowId': 1,
+      'title': '회의',
+      'eventType': 'WORK',
+      'startDate': '2026-09-10T09:00:00',
+      'endDate': '2026-09-10T10:00:00',
+      'isAllDay': 'N',
+    };
+
+    test('시트가 가진 칸을 비우면 전부 명시적 null 로 실린다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+
+      await CalendarRepository(dio).updateEvent(
+        id: 1,
+        title: '회의',
+        description: const Patch.set(null),
+        eventType: 'WORK',
+        color: '#2c70bf',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+        labelRowId: const Patch.set(null),
+        location: const Patch.set(null),
+        rrule: const Patch.set(null),
+      );
+
+      for (final key in ['description', 'labelRowId', 'location', 'rrule']) {
+        expectExplicitNull(captured.single, key);
+      }
+    });
+
+    test('고른 값은 그대로 실린다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+
+      await CalendarRepository(dio).updateEvent(
+        id: 1,
+        title: '회의',
+        description: const Patch.set('주간 정례'),
+        eventType: 'WORK',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+        labelRowId: const Patch.set(4),
+        location: const Patch.set('3층 회의실'),
+      );
+
+      expect(captured.single['description'], '주간 정례');
+      expect(captured.single['labelRowId'], 4);
+      expect(captured.single['location'], '3층 회의실');
+    });
+
+    // 소속 캘린더는 "뗀다" 가 없는 칸이다 — 서버 `UpdateRequest.calendarRowId` 는
+    // `Optional` 이 아닌 맨 `Long` 이고 서비스가 `if (calendarRowId != null)` 로만
+    // 읽는다. 시트 선택기에도 '선택 안 함' 이 없다. null 을 실으면 뜻이 없는 키가 된다.
+    test('캘린더를 안 넘기면 키가 아예 없다 — 뗄 수 있는 칸이 아니다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+
+      await CalendarRepository(dio).updateEvent(
+        id: 1,
+        title: '회의',
+        eventType: 'WORK',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+      );
+
+      expectAbsent(captured.single, 'calendarRowId');
+    });
+
+    test('안 넘긴 칸은 키가 없다 — 서버가 지금 값을 지킨다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+
+      await CalendarRepository(dio).updateEvent(
+        id: 1,
+        title: '회의',
+        eventType: 'WORK',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+      );
+
+      expectAbsent(captured.single, 'description');
+      expectAbsent(captured.single, 'labelRowId');
+      expectAbsent(captured.single, 'location');
+      expectAbsent(captured.single, 'rrule');
+      // 알림은 목록 교체 칸이라 [Patch] 로 안 옮겼다 — 안 넘기면 키가 빠진다(무변경).
+      expectAbsent(captured.single, 'reminderMinutes');
+    });
+
+    // 종류·색은 화면이 늘 값을 들고 있다 — 비는 상태가 없어 [Patch] 로 안 옮겼다.
+    test('종류는 늘 실린다 — 키를 빼면 저장이 깨진다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+
+      await CalendarRepository(dio).updateEvent(
+        id: 1,
+        title: '회의',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+      );
+
+      expect(captured.single['eventType'], kDefaultCalendarEventType);
+    });
+
+    test('생성 경로는 그대로다 — null 인 칸은 키째 빠진다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+
+      await CalendarRepository(dio).createEvent(
+        title: '회의',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+      );
+
+      expectAbsent(captured.single, 'description');
+      expectAbsent(captured.single, 'labelRowId');
+      expectAbsent(captured.single, 'location');
+      expectAbsent(captured.single, 'rrule');
     });
   });
 }
