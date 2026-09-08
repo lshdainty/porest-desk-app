@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
@@ -143,21 +144,38 @@ class AssetRepository {
     }
   }
 
+  /// 수정 — **호출한 화면이 소유한 칸만** 키를 싣는다(QA #99).
+  ///
+  /// 이 메서드는 계좌·카드·투자 세 화면이 나눠 쓴다. 셋이 가진 칸이 서로 달라서
+  /// "비었으면 지운다" 를 리포지토리가 일괄로 정할 수 없다 — 카드 화면엔 메모 칸이
+  /// 없는데 메모를 null 로 실으면, 계좌 화면에서 적어 둔 메모가 카드를 고칠 때마다
+  /// 사라진다. 그래서 지울 수 있는 칸을 [Patch] 로 두고 판단을 화면에 맡긴다.
+  /// [Patch.keep] 이 기본값이라 안 넘긴 칸은 키가 빠지고 서버가 지금 값을 지킨다.
+  ///
+  /// 나머지가 [Patch] 가 아닌 이유:
+  /// - `assetName`·`assetType`·`currency`·`isIncludedInTotal`·`isOverdraft` — 세 화면 다
+  ///   늘 값을 들고 있어 비워질 일이 없다
+  /// - `institution`·`cardCatalogRowId` — 고르는 칸이라 **떼는 조작이 없다**.
+  ///   값이 없으면 원래 없던 것이다
+  /// - `color` — 앱 어느 화면에도 없는 칸이다(웹에서만 고른다)
+  /// - `balance` — null 이 "지운다" 가 아니라 "보유로 서버가 산정해 달라" 다.
+  ///   [_balanceBody] 를 보라
+  /// - `holdings` — "null=미변경 · 리스트=교체" 라는 뜻이 이미 확정돼 있다(QA #91)
   Future<Asset> update({
     required int id,
     required String assetName,
     required String assetType,
     int? balance,
     String? currency,
-    double? exchangeRate,
+    Patch<double> exchangeRate = const Patch.keep(),
     String? color,
     String? institution,
-    String? memo,
+    Patch<String> memo = const Patch.keep(),
     String? isIncludedInTotal, // 'Y' | 'N'
     int? cardCatalogRowId,
-    int? creditLimit,
-    int? paymentDay,
-    int? paymentAssetRowId,
+    Patch<int> creditLimit = const Patch.keep(),
+    Patch<int> paymentDay = const Patch.keep(),
+    Patch<int> paymentAssetRowId = const Patch.keep(),
     // 마이너스통장 여부 — 서버가 부호를 정할 때 쓴다(QA #17/#19).
     bool? isOverdraft,
     // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
@@ -171,15 +189,16 @@ class AssetRepository {
           'assetType': assetType,
           'balance': ?_balanceBody(assetType, balance, holdings),
           'currency': ?currency,
-          'exchangeRate': ?exchangeRate,
+          if (exchangeRate.present) 'exchangeRate': exchangeRate.value,
           'color': ?color,
           'institution': ?institution,
-          'memo': ?memo,
+          if (memo.present) 'memo': memo.value,
           'isIncludedInTotal': ?isIncludedInTotal,
           'cardCatalogRowId': ?cardCatalogRowId,
-          'creditLimit': ?creditLimit,
-          'paymentDay': ?paymentDay,
-          'paymentAssetRowId': ?paymentAssetRowId,
+          if (creditLimit.present) 'creditLimit': creditLimit.value,
+          if (paymentDay.present) 'paymentDay': paymentDay.value,
+          if (paymentAssetRowId.present)
+            'paymentAssetRowId': paymentAssetRowId.value,
           'isOverdraft': ?isOverdraft,
           'holdings': ?holdings?.map(_holdingBody).toList(),
         },

@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/markdown_preview.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -106,12 +107,14 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.update(
           id: widget.edit!.rowId,
           title: title,
-          content: _contentCtrl.text.trim().isEmpty
-              ? null
-              : _contentCtrl.text.trim(),
+          // 메모를 지우고, 기한을 없앤 채 저장하면 그대로 지워져야 한다 —
+          // 키를 빼면 서버가 옛 값을 지킨다(QA #99).
+          content: Patch.set(
+            _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
+          ),
           priority: _priority,
           category: _tag, // 태그 7종을 기존 category 필드에 저장
-          dueDate: _due == null ? null : _fmtDate(_due!),
+          dueDate: Patch.set(_due == null ? null : _fmtDate(_due!)),
         );
       } else {
         await repo.create(

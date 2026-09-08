@@ -12,6 +12,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
@@ -371,21 +372,24 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       if (_isEdit) {
+        // 이 시트가 소유한 칸은 비운 상태 그대로 실어야 지워진다 — 키를 빼면
+        // 서버가 옛 값을 지킨다(QA #99). 환불 연결(refundOf)만 예외다:
+        // 편집 시트엔 그 칸이 없어, null 로 실으면 원거래 연결이 끊긴다.
         await repo.update(
           id: widget.edit!.rowId,
           categoryRowId: _input.categoryRowId!,
-          assetRowId: _input.assetRowId,
+          assetRowId: Patch.set(_input.assetRowId),
           expenseType: _input.type,
           amount: amount,
           expenseDate: dateStr,
-          description: desc,
-          merchant: merchant,
-          paymentMethod: payment,
-          installmentMonths: installment,
+          description: Patch.set(desc),
+          merchant: Patch.set(merchant),
+          paymentMethod: Patch.set(payment),
+          installmentMonths: Patch.set(installment),
           refundOfExpenseRowId: refundOf,
-          originalAmount: origAmount,
-          originalCurrency: origCurrency,
-          exchangeRate: fxRate,
+          originalAmount: Patch.set(origAmount),
+          originalCurrency: Patch.set(origCurrency),
+          exchangeRate: Patch.set(fxRate),
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           splits: _reconciledSplits,
         );

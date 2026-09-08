@@ -12,6 +12,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
@@ -417,6 +418,8 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       if (_isEdit) {
+        // 메모는 이 화면이 소유한 칸이라 비운 상태 그대로 실어야 지워진다 —
+        // 키를 빼면 서버가 옛 메모를 지킨다(QA #99).
         await repo.update(
           id: widget.edit!.rowId,
           assetName: resolvedName,
@@ -424,7 +427,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           balance: balance,
           currency: 'KRW',
           institution: brand,
-          memo: memo.isEmpty ? null : memo,
+          memo: Patch.set(memo.isEmpty ? null : memo),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           holdings: holdings,
         );

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
@@ -79,23 +80,34 @@ class ExpenseRepository {
     }
   }
 
+  /// 수정 — 편집 시트가 소유한 칸만 키를 싣는다(QA #99).
+  ///
+  /// 시트에서 지울 수 있는 칸은 전부 [Patch] 다 — 자산 연결을 끊고, 설명·거래처를
+  /// 비우고, 할부를 일시불로 되돌리고, 통화를 원화로 되돌려 외화 3종을 걷는 저장이
+  /// 그대로 반영돼야 한다. 키를 빼면 서버가 옛 값을 지킨다.
+  ///
+  /// [refundOfExpenseRowId] 는 [Patch] 가 아니다. 환불 연결은 **새 환불 거래를 만들 때만**
+  /// 정해지고 편집 시트에는 그 칸이 없다 — null 로 실으면 환불 거래를 한 번 고칠 때마다
+  /// 원거래와의 연결이 끊겨 통계 상계가 사라진다.
+  ///
   /// [splits] 가 non-null 이면 금액과 함께 분할을 원자적으로 교체(PUT body 에 splits 포함).
   /// null 이면 분할 미변경(백엔드가 기존 분할 유지). 금액↔분할 합 일치화(reconcile) 저장에 사용.
   Future<Expense> update({
     required int id,
     required int categoryRowId,
-    int? assetRowId, // 자산 미연결 거래 허용 — 서버도 nullable
+    // 자산 미연결 거래 허용 — 서버도 nullable
+    Patch<int> assetRowId = const Patch.keep(),
     required String expenseType,
     required int amount,
     required String expenseDate,
-    String? description,
-    String? merchant,
-    String? paymentMethod,
-    int? installmentMonths,
+    Patch<String> description = const Patch.keep(),
+    Patch<String> merchant = const Patch.keep(),
+    Patch<String> paymentMethod = const Patch.keep(),
+    Patch<int> installmentMonths = const Patch.keep(),
     int? refundOfExpenseRowId,
-    double? originalAmount,
-    String? originalCurrency,
-    double? exchangeRate,
+    Patch<double> originalAmount = const Patch.keep(),
+    Patch<String> originalCurrency = const Patch.keep(),
+    Patch<double> exchangeRate = const Patch.keep(),
     List<SplitInput>? splits,
   }) async {
     try {
@@ -103,18 +115,20 @@ class ExpenseRepository {
         '/expense/$id',
         data: {
           'categoryRowId': categoryRowId,
-          'assetRowId': assetRowId,
+          if (assetRowId.present) 'assetRowId': assetRowId.value,
           'expenseType': expenseType,
           'amount': amount,
           'expenseDate': expenseDate,
-          'description': ?description,
-          'merchant': ?merchant,
-          'paymentMethod': ?paymentMethod,
-          'installmentMonths': ?installmentMonths,
+          if (description.present) 'description': description.value,
+          if (merchant.present) 'merchant': merchant.value,
+          if (paymentMethod.present) 'paymentMethod': paymentMethod.value,
+          if (installmentMonths.present)
+            'installmentMonths': installmentMonths.value,
           'refundOfExpenseRowId': ?refundOfExpenseRowId,
-          'originalAmount': ?originalAmount,
-          'originalCurrency': ?originalCurrency,
-          'exchangeRate': ?exchangeRate,
+          if (originalAmount.present) 'originalAmount': originalAmount.value,
+          if (originalCurrency.present)
+            'originalCurrency': originalCurrency.value,
+          if (exchangeRate.present) 'exchangeRate': exchangeRate.value,
           if (splits != null)
             'splits': [
               for (final s in splits)

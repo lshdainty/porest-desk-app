@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 
 class SavingGoalRepository {
@@ -45,12 +46,20 @@ class SavingGoalRepository {
     }
   }
 
+  /// 수정 — 편집 화면이 소유한 칸만 키를 싣는다(QA #99).
+  ///
+  /// [deadlineDate] 만 [Patch] 다. 목표일은 화면에서 지울 수 있어 명시적 null 을
+  /// 실어야 서버가 지운다. 아이콘·색은 화면이 늘 값을 들고 있다(둘 다 기본값이 있다).
+  ///
+  /// [description] 과 [linkedAssetRowId] 는 **앱 편집 화면에 아예 없는 칸**이라
+  /// 값이 없으면 키를 뺀다 — null 로 실으면 웹에서 적어 둔 설명과 연결한 자산이
+  /// 앱으로 목표를 고칠 때마다 지워진다.
   Future<SavingGoal> update({
     required int id,
     required String title,
     String? description,
     required int targetAmount,
-    String? deadlineDate,
+    Patch<String> deadlineDate = const Patch.keep(),
     String? icon,
     String? color,
     int? linkedAssetRowId,
@@ -62,7 +71,7 @@ class SavingGoalRepository {
           'title': title,
           'description': ?description,
           'targetAmount': targetAmount,
-          'deadlineDate': ?deadlineDate,
+          if (deadlineDate.present) 'deadlineDate': deadlineDate.value,
           'icon': ?icon,
           'color': ?color,
           'linkedAssetRowId': ?linkedAssetRowId,

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 
 class MemoRepository {
@@ -42,10 +43,15 @@ class MemoRepository {
     }
   }
 
+  /// 수정 — 편집 화면이 소유한 칸만 키를 싣는다(QA #99).
+  ///
+  /// [content] 만 [Patch] 다. 본문은 화면에서 지울 수 있는 유일한 칸이라
+  /// "비웠다" 를 명시적 null 로 실어야 서버가 지운다. 제목·태그·색은 화면이 늘
+  /// 값을 들고 있어(태그·색은 기본값이 있고 제목은 빈 값을 막는다) 비워질 일이 없다.
   Future<Memo> update({
     required int id,
     String? title,
-    String? content,
+    Patch<String> content = const Patch.keep(),
     String? tag,
     String? color,
   }) async {
@@ -54,7 +60,7 @@ class MemoRepository {
         '/memo/$id',
         data: {
           'title': ?title,
-          'content': ?content,
+          if (content.present) 'content': content.value,
           'tag': ?tag,
           'color': ?color,
         },

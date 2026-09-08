@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -30,6 +31,17 @@ const _overdraft = Asset(
   assetType: 'BANK_ACCOUNT',
   balance: -50000,
   institution: '국민은행',
+  isIncludedInTotal: 'Y',
+);
+
+/// 메모가 들어 있는 계좌 — 그 메모를 지우고 저장하는 경로를 본다(QA #99).
+const _withMemo = Asset(
+  rowId: 11,
+  assetName: 'QA 메모계좌',
+  assetType: 'BANK_ACCOUNT',
+  balance: 500000,
+  institution: '국민은행',
+  memo: '110-123-456789',
   isIncludedInTotal: 'Y',
 );
 
@@ -87,15 +99,15 @@ class _CapturingRepo extends AssetRepository {
     required String assetType,
     int? balance,
     String? currency,
-    double? exchangeRate,
+    Patch<double> exchangeRate = const Patch.keep(),
     String? color,
     String? institution,
-    String? memo,
+    Patch<String> memo = const Patch.keep(),
     String? isIncludedInTotal,
     int? cardCatalogRowId,
-    int? creditLimit,
-    int? paymentDay,
-    int? paymentAssetRowId,
+    Patch<int> creditLimit = const Patch.keep(),
+    Patch<int> paymentDay = const Patch.keep(),
+    Patch<int> paymentAssetRowId = const Patch.keep(),
     bool? isOverdraft,
     List<AssetHolding>? holdings,
   }) async {
@@ -105,6 +117,11 @@ class _CapturingRepo extends AssetRepository {
       'balance': balance,
       'creditLimit': creditLimit,
       'isOverdraft': isOverdraft,
+      // 이 화면이 소유한 칸이 "어떤 상태로" 실렸는지까지 본다(QA #99).
+      'memo': memo,
+      'exchangeRate': exchangeRate,
+      'paymentDay': paymentDay,
+      'paymentAssetRowId': paymentAssetRowId,
     };
     return _fake();
   }
@@ -274,6 +291,38 @@ void main() {
     // 비면 '브랜드 종류' 로 자동 생성된다.
     expect(repo.captured?['assetName'], isNot('QA 주거래'));
     expect((repo.captured?['assetName'] as String).isNotEmpty, isTrue);
+  });
+
+  // 메모를 지우고 저장하면 **지워져야** 한다. 종전엔 null 인 칸을 키째 빼서
+  // 서버가 옛 메모를 지켰다(QA #99).
+  testWidgets('편집에서 메모를 지우고 저장하면 명시적 null 로 실린다', (tester) async {
+    final repo = await _open(
+      tester,
+      edit: _withMemo,
+      assets: const [_existing, _withMemo],
+    );
+    // 메모 칸에 기존 값이 실려 있다.
+    expect(find.text('110-123-456789'), findsOneWidget);
+    await tester.enterText(_field(l.assetMemoPlaceholder), '');
+    await tester.pumpAndSettle();
+    await _tapSubmit(tester, l.actionSave);
+
+    final memo = repo.captured?['memo'] as Patch<String>;
+    expect(memo.present, isTrue, reason: '메모 키가 빠지면 옛 메모가 그대로 남는다');
+    expect(memo.value, isNull);
+  });
+
+  // 카드 전용 칸은 이 화면에 없다 — null 로 실으면 카드 화면에서 정해 둔
+  // 결제일·결제 계좌가 계좌를 고칠 때마다 지워진다.
+  testWidgets('이 화면에 없는 결제일·결제 계좌는 아예 안 실린다', (tester) async {
+    final repo = await _open(tester, edit: _existing);
+    await _tapSubmit(tester, l.actionSave);
+
+    expect((repo.captured?['paymentDay'] as Patch<int>).present, isFalse);
+    expect(
+      (repo.captured?['paymentAssetRowId'] as Patch<int>).present,
+      isFalse,
+    );
   });
 
   testWidgets('편집에서 자기 별칭을 그대로 두면 중복이 아니다', (tester) async {

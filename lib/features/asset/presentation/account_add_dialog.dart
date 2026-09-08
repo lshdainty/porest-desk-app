@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -320,17 +321,20 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       if (_isEdit) {
+        // 이 화면이 소유한 칸(환율·메모·마이너스 한도)은 비운 상태 그대로 실어야
+        // 지워진다 — 키를 빼면 서버가 옛 값을 지킨다(QA #99). 카드 전용 칸
+        // (결제일·결제 계좌·카탈로그)은 여기 없으므로 안 넘겨 그대로 둔다.
         await repo.update(
           id: widget.edit!.rowId,
           assetName: name,
           assetType: assetType,
           balance: balance,
           currency: _currency,
-          exchangeRate: fxRate,
+          exchangeRate: Patch.set(fxRate),
           institution: brand,
-          memo: memoForApi,
+          memo: Patch.set(memoForApi),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
-          creditLimit: limit,
+          creditLimit: Patch.set(limit),
           isOverdraft: isOverdraft,
         );
       } else {
