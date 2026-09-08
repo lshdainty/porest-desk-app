@@ -248,12 +248,16 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         // 지워진다 — 키를 빼면 서버가 옛 값을 지킨다(QA #99). 신용에서 체크로
         // 바꾸면 한도·결제일이 실제로 지워져야 청구 사이클이 남지 않는다.
         // 메모는 이 화면에 없는 칸이라 안 넘긴다 — 계좌 화면에서 적어 둔 값이 산다.
+        //
+        // **통화도 이 화면에 없는 칸이다.** 고르는 자리가 없는데 'KRW' 를 실으면
+        // 웹에서 USD 로 만든 해외 카드가 앱 편집 한 번에 원화가 되고, 서버가
+        // 환산율까지 1 로 정규화해(`Asset.normalizeRate`) 총자산이 환산 없이 합쳐진다.
+        // 되돌릴 입력칸이 앱에는 없다. 안 실으면 서버가 지금 통화를 지킨다.
         await repo.update(
           id: edit.rowId,
           assetName: name,
           assetType: _cardType.assetType,
           balance: outstanding,
-          currency: 'KRW',
           institution: company,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           cardCatalogRowId: catalogRowId,
@@ -263,11 +267,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           paymentAssetRowId: Patch.set(_paymentAssetRowId),
         );
       } else {
+        // 통화는 생성에서도 안 싣는다 — 서버가 안 오면 KRW 로 채운다
+        // (`AssetServiceImpl.createAsset`). 기본값을 양쪽이 들고 있으면 한쪽만
+        // 바뀌었을 때 어디가 정한 값인지 알 수 없다.
         await repo.create(
           assetName: name,
           assetType: _cardType.assetType,
           balance: outstanding,
-          currency: 'KRW',
           institution: company,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           cardCatalogRowId: catalogRowId,
