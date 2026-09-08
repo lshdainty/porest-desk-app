@@ -439,11 +439,15 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         // 통화는 생성에서도 안 싣는다 — 서버가 안 오면 KRW 로 채운다
         // (`AssetServiceImpl.createAsset`). 기본값을 양쪽이 들고 있으면 한쪽만
         // 바뀌었을 때 어디가 정한 값인지 알 수 없다.
+        //
+        // 메모는 생성 화면에도 칸이 있다 — 종전엔 안 실어서, 적어 넣고 저장하면
+        // 그대로 사라졌다. 비었으면 키를 빼 서버 기본값(없음)에 맡긴다.
         await repo.create(
           assetName: resolvedName,
           assetType: 'INVESTMENT',
           balance: balance,
           institution: brand,
+          memo: memo.isEmpty ? null : memo,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           holdings: holdings,
         );
