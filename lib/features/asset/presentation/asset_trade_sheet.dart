@@ -147,7 +147,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         quantity: _qtyCtrl.text.trim(),
         amount: _amount,
         fee: _fee,
-        tradeDate: DateTime.now().toIso8601String().substring(0, 19),
+        // 거래일은 안 보낸다 — 저장과 같은 규칙이라야 미리보기가 맞는다(_submit 참조).
         settlementAssetRowId: _settlementAssetRowId,
       );
       // 물어본 사이에 입력이 또 바뀌었으면 낡은 답이다 — 버린다.
@@ -219,7 +219,12 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         quantity: _qtyCtrl.text.trim(),
         amount: _amount,
         fee: _fee,
-        tradeDate: DateTime.now().toIso8601String().substring(0, 19),
+        // 거래일은 **안 보낸다.** 이 시트엔 날짜 칸이 없어 보낼 수 있는 값이
+        // 기기 시계의 지금뿐인데, 그 문자열엔 시간대가 없어 사용자 시계와 갈라진다
+        // (해외에서 켜면 하루 어긋난 날짜로 예수금·실현손익이 계산된다).
+        // 서버는 `tradeDate` 를 필수로 받지 않고, 없으면 사용자 시계의 지금을 쓴다
+        // (`AssetTradeServiceImpl` 의 `userClock.now`) — 그쪽이 정확하다.
+        // 며칠 전 매매를 그날로 적는 건 날짜 칸이 생겨야 되는 별건이다.
         description: _memoCtrl.text.trim().isEmpty
             ? null
             : _memoCtrl.text.trim(),
