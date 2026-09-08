@@ -1,16 +1,20 @@
-// 통화는 **고르는 칸이 있는 화면만** 보낸다 (감사 2026-09-08 A1-①).
+// 통화·환율은 **세 폼 다 고를 수 있고**, 화면이 보여 주는 값이 그대로 실린다 (D1).
 //
-// 카드·투자 다이얼로그엔 통화를 고르는 칸이 없는데 'KRW' 를 실어 보냈다. 웹에서 USD 로
-// 만든 해외 카드·증권계좌를 앱에서 한 번 편집하면 원화가 되고, 서버가 환산율까지 1 로
-// 정규화해(`Asset.normalizeRate`) 총자산이 환산 없이 합쳐진다. 되돌릴 입력칸이 앱에는
-// 없다 — 화면에 고르는 칸이 없으면 보낼 자격도 없다.
+// 종전엔 계좌 폼에만 칸이 있었다. 카드·투자 폼은 고르는 자리가 없는데 'KRW' 를 실어
+// 보내서, 웹에서 USD 로 만든 해외 카드·증권계좌를 앱에서 한 번 편집하면 원화가 되고
+// 서버가 환산율까지 1 로 정규화해(`Asset.normalizeRate`) 총자산이 환산 없이 합쳐졌다.
+// 그래서 한동안 **안 싣는 것**으로 막아 뒀다(감사 2026-09-08 A1-①).
 //
-// 생성도 안 보낸다. 서버가 안 오면 KRW 로 채우므로(`AssetServiceImpl.createAsset`)
-// 결과는 같고, 기본값을 정하는 자리가 하나로 남는다.
+// 이제 칸이 생겼으므로 막을 이유가 없다 — 화면이 지금 통화를 읽어 와 보여 주고,
+// 그 값을 싣는다. 여기서 잠그는 것은 넷이다.
+//   ① 편집 폼이 서버 통화·환율을 **채워서** 연다. 안 채우면 저장 한 번에 KRW 로
+//      되돌아간다 — 칸이 생겨서 오히려 위험해진 자리다
+//   ② 그대로 저장하면 그대로 실린다(USD 는 USD 로 남는다)
+//   ③ 원화로 되돌리면 환율이 **명시적 null** 로 지워진다. 키를 빼면 서버가 옛 환율을
+//      지켜 KRW × 1380 이 된다
+//   ④ 환율 칸은 외화일 때만 보인다 — 원화에 1 을 적게 하는 칸은 뜻이 없다
 //
 // 에뮬레이터를 쓸 수 없는 환경이라(QA #23) "무엇을 보내는가" 를 위젯 테스트로 잠근다.
-// 통화 칸이 **있는** 계좌 화면은 계속 실어야 한다 — 그것도 같이 잠근다. 이게 없으면
-// "통화는 안 보내는 것" 이라는 잘못된 교훈이 옆 화면으로 번진다.
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,8 +35,9 @@ import 'package:porest_desk_app/features/subscription/application/subscription_p
 import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
 
-/// 웹에서 USD 로 만든 해외 카드 — 앱엔 통화 칸이 없다.
+/// 웹에서 USD 로 만든 해외 카드.
 const _usdCard = Asset(
   rowId: 7,
   assetName: 'Chase Sapphire',
@@ -140,6 +145,7 @@ class _CapturingRepo extends AssetRepository {
     updated = {
       'currency': currency,
       'exchangeRatePresent': exchangeRate.present,
+      'exchangeRate': exchangeRate.present ? exchangeRate.value : null,
     };
     return _fake();
   }
@@ -147,6 +153,14 @@ class _CapturingRepo extends AssetRepository {
 
 Finder _submitButton(String label) =>
     find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+
+/// 통화 select 를 펼쳐 코드를 고른다 — 세 폼 다 `PSelect<String>` 은 통화 하나뿐이다.
+Future<void> _pickCurrency(WidgetTester tester, String label) async {
+  await tester.tap(find.byType(PSelect<String>));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(label).last);
+  await tester.pumpAndSettle();
+}
 
 Future<_CapturingRepo> _host(
   WidgetTester tester,
@@ -193,78 +207,170 @@ void main() {
     l = await AppLocalizations.delegate.load(const Locale('ko'));
   });
 
-  testWidgets('카드 편집은 통화를 안 넘긴다', (tester) async {
-    final repo = await _host(
-      tester,
-      (ctx) => showCardEditDialog(ctx, _usdCard),
-      assets: const [_usdCard, _krwAccount],
-    );
-    await tester.tap(_submitButton(l.actionSave));
-    await tester.pumpAndSettle();
+  group('카드', () {
+    testWidgets('편집 폼이 서버 통화·환율을 채워서 연다', (tester) async {
+      await _host(
+        tester,
+        (ctx) => showCardEditDialog(ctx, _usdCard),
+        assets: const [_usdCard, _krwAccount],
+      );
 
-    expect(repo.updated, isNotNull, reason: '저장이 안 불렸다 — 테스트가 아무것도 안 본다');
-    expect(
-      repo.updated!['currency'],
-      isNull,
-      reason: 'KRW 를 실으면 USD 카드가 원화가 되고 환산율이 1 이 된다',
-    );
-    expect(
-      repo.updated!['exchangeRatePresent'],
-      isFalse,
-      reason: '환산율 칸도 이 화면엔 없다 — 키를 실으면 웹에서 넣은 환율이 지워진다',
-    );
+      expect(find.text('\$ USD'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextField, '1380'),
+        findsOneWidget,
+        reason: '환율을 안 채우면 그대로 저장할 때 빈 값이 실려 환산이 사라진다',
+      );
+    });
+
+    testWidgets('그대로 저장하면 USD 가 USD 로 남는다', (tester) async {
+      final repo = await _host(
+        tester,
+        (ctx) => showCardEditDialog(ctx, _usdCard),
+        assets: const [_usdCard, _krwAccount],
+      );
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      expect(repo.updated, isNotNull, reason: '저장이 안 불렸다 — 테스트가 아무것도 안 본다');
+      expect(
+        repo.updated!['currency'],
+        'USD',
+        reason: 'KRW 를 실으면 USD 카드가 원화가 되고 환산율이 1 이 된다',
+      );
+      expect(repo.updated!['exchangeRate'], 1380.0);
+    });
+
+    testWidgets('원화로 되돌리면 환율이 명시적 null 로 지워진다', (tester) async {
+      final repo = await _host(
+        tester,
+        (ctx) => showCardEditDialog(ctx, _usdCard),
+        assets: const [_usdCard, _krwAccount],
+      );
+      await _pickCurrency(tester, '₩ KRW');
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      expect(repo.updated!['currency'], 'KRW');
+      expect(
+        repo.updated!['exchangeRatePresent'],
+        isTrue,
+        reason: '키가 빠지면 서버가 옛 환율을 지켜 원화 잔액이 1380 배가 된다',
+      );
+      expect(repo.updated!['exchangeRate'], isNull);
+    });
+
+    testWidgets('환율 칸은 외화일 때만 보인다', (tester) async {
+      await _host(tester, showCardAddDialog);
+
+      expect(find.text(l.assetExchangeRate), findsNothing);
+      await _pickCurrency(tester, '\$ USD');
+      expect(find.text(l.assetExchangeRate), findsOneWidget);
+    });
+
+    testWidgets('신규는 고른 통화를 싣는다', (tester) async {
+      final repo = await _host(tester, showCardAddDialog);
+      // 체크카드로 바꾸면 결제일 없이도 저장이 열린다(신용은 결제일이 필수).
+      await tester.tap(find.text(l.assetTypeCheckCard));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('QA 체크카드').last);
+      await tester.pumpAndSettle();
+      await _pickCurrency(tester, '\$ USD');
+      await tester.enterText(
+        find.widgetWithText(TextField, l.assetExchangeRateHint('USD')),
+        '1400',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(_submitButton(l.calAdd));
+      await tester.pumpAndSettle();
+
+      expect(repo.created, isNotNull, reason: '생성이 안 불렸다');
+      expect(repo.created!['currency'], 'USD');
+      expect(repo.created!['exchangeRate'], 1400.0);
+    });
+
+    testWidgets('안 건드리면 원화다 — 기본값은 한 군데서만 정한다', (tester) async {
+      final repo = await _host(tester, showCardAddDialog);
+      await tester.tap(find.text(l.assetTypeCheckCard));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('QA 체크카드').last);
+      await tester.pumpAndSettle();
+      await tester.tap(_submitButton(l.calAdd));
+      await tester.pumpAndSettle();
+
+      expect(repo.created!['currency'], 'KRW');
+      expect(repo.created!['exchangeRate'], isNull);
+    });
   });
 
-  testWidgets('카드 신규도 통화를 안 넘긴다 — 서버가 KRW 로 채운다', (tester) async {
-    final repo = await _host(tester, showCardAddDialog);
-    // 체크카드로 바꾸면 결제일 없이도 저장이 열린다(신용은 결제일이 필수).
-    await tester.tap(find.text(l.assetTypeCheckCard));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('QA 체크카드').last);
-    await tester.pumpAndSettle();
-    await tester.tap(_submitButton(l.calAdd));
-    await tester.pumpAndSettle();
+  group('투자', () {
+    testWidgets('편집 폼이 서버 통화·환율을 채워서 연다', (tester) async {
+      await _host(
+        tester,
+        (ctx) => showInvestmentEditDialog(ctx, _usdInvest),
+        assets: const [_usdInvest, _krwAccount],
+      );
 
-    expect(repo.created, isNotNull, reason: '생성이 안 불렸다');
-    expect(repo.created!['currency'], isNull);
+      expect(find.text('\$ USD'), findsOneWidget);
+      expect(find.widgetWithText(TextField, '1380'), findsOneWidget);
+    });
+
+    testWidgets('그대로 저장하면 USD 가 USD 로 남는다', (tester) async {
+      final repo = await _host(
+        tester,
+        (ctx) => showInvestmentEditDialog(ctx, _usdInvest),
+        assets: const [_usdInvest, _krwAccount],
+      );
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      expect(repo.updated, isNotNull, reason: '저장이 안 불렸다');
+      expect(
+        repo.updated!['currency'],
+        'USD',
+        reason: 'KRW 를 실으면 USD 증권계좌가 원화가 되고 환산율이 1 이 된다',
+      );
+      expect(repo.updated!['exchangeRate'], 1380.0);
+    });
+
+    testWidgets('원화로 되돌리면 환율이 명시적 null 로 지워진다', (tester) async {
+      final repo = await _host(
+        tester,
+        (ctx) => showInvestmentEditDialog(ctx, _usdInvest),
+        assets: const [_usdInvest, _krwAccount],
+      );
+      await _pickCurrency(tester, '₩ KRW');
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      expect(repo.updated!['currency'], 'KRW');
+      expect(repo.updated!['exchangeRatePresent'], isTrue);
+      expect(repo.updated!['exchangeRate'], isNull);
+    });
+
+    testWidgets('신규는 고른 통화를 싣는다', (tester) async {
+      final repo = await _host(tester, showInvestmentAddDialog);
+      await _pickCurrency(tester, '\$ USD');
+      await tester.tap(_submitButton(l.calAdd));
+      await tester.pumpAndSettle();
+
+      expect(repo.created, isNotNull, reason: '생성이 안 불렸다');
+      expect(repo.created!['currency'], 'USD');
+    });
   });
 
-  testWidgets('투자 편집은 통화를 안 넘긴다', (tester) async {
-    final repo = await _host(
-      tester,
-      (ctx) => showInvestmentEditDialog(ctx, _usdInvest),
-      assets: const [_usdInvest, _krwAccount],
-    );
-    await tester.tap(_submitButton(l.actionSave));
-    await tester.pumpAndSettle();
+  // 계좌 폼은 종전부터 칸이 있었다 — 셋을 한 위젯으로 합치면서 안 깨졌는지 본다.
+  group('계좌', () {
+    testWidgets('편집은 통화를 그대로 넘긴다', (tester) async {
+      final repo = await _host(
+        tester,
+        (ctx) => showAccountEditDialog(ctx, _krwAccount),
+      );
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
 
-    expect(repo.updated, isNotNull, reason: '저장이 안 불렸다');
-    expect(
-      repo.updated!['currency'],
-      isNull,
-      reason: 'KRW 를 실으면 USD 증권계좌가 원화가 되고 환산율이 1 이 된다',
-    );
-  });
-
-  testWidgets('투자 신규도 통화를 안 넘긴다', (tester) async {
-    final repo = await _host(tester, showInvestmentAddDialog);
-    await tester.tap(_submitButton(l.calAdd));
-    await tester.pumpAndSettle();
-
-    expect(repo.created, isNotNull, reason: '생성이 안 불렸다');
-    expect(repo.created!['currency'], isNull);
-  });
-
-  // 반대편 — 통화 칸이 **있는** 계좌 화면은 계속 실어야 한다.
-  testWidgets('계좌 편집은 통화를 그대로 넘긴다', (tester) async {
-    final repo = await _host(
-      tester,
-      (ctx) => showAccountEditDialog(ctx, _krwAccount),
-    );
-    await tester.tap(_submitButton(l.actionSave));
-    await tester.pumpAndSettle();
-
-    expect(repo.updated, isNotNull, reason: '저장이 안 불렸다');
-    expect(repo.updated!['currency'], 'KRW');
+      expect(repo.updated, isNotNull, reason: '저장이 안 불렸다');
+      expect(repo.updated!['currency'], 'KRW');
+    });
   });
 }

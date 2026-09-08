@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
@@ -21,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_currency_fields.dart';
 import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
@@ -91,7 +93,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _memoCtrl;
   late final TextEditingController _cashCtrl;
+  late final TextEditingController _fxRateCtrl;
 
+  late String _currency;
   late String _brand;
   late bool _includeInTotal;
   late List<_EditRow> _rows;
@@ -166,6 +170,10 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _cashCtrl = TextEditingController(
       text: (e?.cashBalance ?? e?.balance ?? 0).toString(),
     );
+    _currency = e?.currency ?? kDefaultCurrency;
+    _fxRateCtrl = TextEditingController(
+      text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
+    );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     // 기존 보유 복사. 레거시 단일 연동(tossSymbol/tossQuantity)은 보유 1건으로 이관.
     _rows = e == null
@@ -216,6 +224,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _nameCtrl.dispose();
     _memoCtrl.dispose();
     _cashCtrl.dispose();
+    _fxRateCtrl.dispose();
     super.dispose();
   }
 
@@ -413,39 +422,43 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final int? balance = holdings.isEmpty
         ? (int.tryParse(_cashCtrl.text.replaceAll(',', '')) ?? 0)
         : null;
+    // 환율은 외화일 때만 보낸다 — 원화로 되돌리면 명시적 null 로 지운다.
+    final fxRate = isForeignCurrency(_currency)
+        ? double.tryParse(_fxRateCtrl.text.replaceAll(',', ''))
+        : null;
 
     _setSubmitting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       if (_isEdit) {
-        // 메모는 이 화면이 소유한 칸이라 비운 상태 그대로 실어야 지워진다 —
-        // 키를 빼면 서버가 옛 메모를 지킨다(QA #99).
+        // 메모·통화·환율은 이 화면이 소유한 칸이라 비운 상태 그대로 실어야 지워진다 —
+        // 키를 빼면 서버가 옛 값을 지킨다(QA #99).
         //
-        // **통화는 이 화면에 없는 칸이다.** 고르는 자리가 없는데 'KRW' 를 실으면
-        // 웹에서 USD 로 만든 해외 증권계좌가 앱 편집 한 번에 원화가 되고, 서버가
-        // 환산율까지 1 로 정규화해(`Asset.normalizeRate`) 총자산이 환산 없이 합쳐진다.
-        // 되돌릴 입력칸이 앱에는 없다. 안 실으면 서버가 지금 통화를 지킨다.
+        // 통화는 이제 이 화면의 칸이다(D1). 종전엔 고르는 자리가 없어 일부러 안 실었다
+        // — 안 그러면 웹에서 USD 로 만든 해외 증권계좌가 앱 편집 한 번에 원화가 되고
+        // 서버가 환산율까지 1 로 정규화했다(`Asset.normalizeRate`). 이제 화면이
+        // 지금 통화를 읽어 와 보여 주므로 그대로 실어도 값이 바뀌지 않는다.
         await repo.update(
           id: widget.edit!.rowId,
           assetName: resolvedName,
           assetType: 'INVESTMENT',
           balance: balance,
+          currency: _currency,
+          exchangeRate: Patch.set(fxRate),
           institution: brand,
           memo: Patch.set(memo.isEmpty ? null : memo),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           holdings: holdings,
         );
       } else {
-        // 통화는 생성에서도 안 싣는다 — 서버가 안 오면 KRW 로 채운다
-        // (`AssetServiceImpl.createAsset`). 기본값을 양쪽이 들고 있으면 한쪽만
-        // 바뀌었을 때 어디가 정한 값인지 알 수 없다.
-        //
         // 메모는 생성 화면에도 칸이 있다 — 종전엔 안 실어서, 적어 넣고 저장하면
         // 그대로 사라졌다. 비었으면 키를 빼 서버 기본값(없음)에 맡긴다.
         await repo.create(
           assetName: resolvedName,
           assetType: 'INVESTMENT',
           balance: balance,
+          currency: _currency,
+          exchangeRate: fxRate,
           institution: brand,
           memo: memo.isEmpty ? null : memo,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
@@ -639,6 +652,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
             style: PTypo.micro.copyWith(color: t.fgTertiary),
           ),
         ],
+
+        // 통화·환율 — 해외 증권계좌. 계좌 폼과 같은 위젯이다(D1).
+        const SizedBox(height: PSpace.x20),
+        AssetCurrencyFields(
+          currency: _currency,
+          rateController: _fxRateCtrl,
+          onCurrencyChanged: (v) => setState(() => _currency = v),
+        ),
 
         // 메모 (선택) ────────────────────────
         const SizedBox(height: PSpace.x20),
