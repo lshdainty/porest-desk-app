@@ -923,8 +923,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetBalanceLabel.
   ///
   /// In ko, this message translates to:
-  /// **'잔액 (원)'**
-  String get assetBalanceLabel;
+  /// **'잔액 ({unit})'**
+  String assetBalanceLabel(String unit);
 
   /// No description provided for @assetBalanceEditHint.
   ///
@@ -935,20 +935,20 @@ abstract class AppLocalizations {
   /// No description provided for @assetOverdraftUsedLabel.
   ///
   /// In ko, this message translates to:
-  /// **'사용 중인 금액 (원)'**
-  String get assetOverdraftUsedLabel;
+  /// **'사용 중인 금액 ({unit})'**
+  String assetOverdraftUsedLabel(String unit);
 
   /// No description provided for @assetLoanRemainingLabel.
   ///
   /// In ko, this message translates to:
-  /// **'남은 대출 금액 (원)'**
-  String get assetLoanRemainingLabel;
+  /// **'남은 대출 금액 ({unit})'**
+  String assetLoanRemainingLabel(String unit);
 
   /// No description provided for @assetOverdraftLimitLabel.
   ///
   /// In ko, this message translates to:
-  /// **'마이너스 한도 (원, 선택)'**
-  String get assetOverdraftLimitLabel;
+  /// **'마이너스 한도 ({unit}, 선택)'**
+  String assetOverdraftLimitLabel(String unit);
 
   /// No description provided for @assetOverdraftHint.
   ///
@@ -1001,8 +1001,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetCreditLimitLabel.
   ///
   /// In ko, this message translates to:
-  /// **'신용한도 (원, 선택)'**
-  String get assetCreditLimitLabel;
+  /// **'신용한도 ({unit}, 선택)'**
+  String assetCreditLimitLabel(String unit);
 
   /// No description provided for @assetCreditLimitPlaceholder.
   ///
@@ -1199,8 +1199,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetCurrentUsage.
   ///
   /// In ko, this message translates to:
-  /// **'현재 사용액 (원)'**
-  String get assetCurrentUsage;
+  /// **'현재 사용액 ({unit})'**
+  String assetCurrentUsage(String unit);
 
   /// No description provided for @assetCurrentUsageHint.
   ///

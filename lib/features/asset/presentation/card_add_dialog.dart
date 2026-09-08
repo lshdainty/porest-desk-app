@@ -27,6 +27,7 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_currency_fields.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 
 /// 카드 추가/편집 다이얼로그 — front `AssetEditDialog`(group='card') 미러.
@@ -102,7 +103,24 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   late final TextEditingController _creditLimitCtrl;
   late final TextEditingController _fxRateCtrl;
 
-  late String _currency;
+  /// 사용자가 고른 통화. `null` 이면 아직 아무것도 안 골랐다.
+  String? _currencyPick;
+
+  /// 이 폼이 지금 쓰는 통화 — **고른 값 > 이 자산의 값 > 설정의 기본 통화**(D7).
+  ///
+  /// 기본 통화를 `initState` 에서 굳히면 안 된다. `/me/preferences` 는 설정 화면을
+  /// 안 들른 세션에서 이 폼보다 늦게 도착해서, 초기값으로 받으면 첫 렌더의 원화에
+  /// 잠긴 채 열린다. `build` 가 구독해 두고 저장할 때까지 매번 여기서 읽는다.
+  ///
+  /// 기본 통화는 **새 자산에만** 흘린다. 기존 자산에까지 쓰면 기본 통화를 USD 로
+  /// 바꾼 순간 원화 자산이 전부 USD 로 열리고, 그대로 저장만 해도 통화가 바뀐다 —
+  /// 고치라고 만든 칸이 고장을 내는 쪽이다. 통화가 안 적힌 옛 자산도 원화로 연다
+  /// (웹 `Asset.currency` 는 non-null 이라 그쪽엔 없는 갈래다).
+  String get _currency =>
+      _currencyPick ??
+      (widget.edit != null
+          ? (widget.edit!.currency ?? kDefaultCurrency)
+          : ref.read(defaultCurrencyProvider));
   late _CardType _cardType;
   bool _includeDiscontinued = false;
   late bool _includeInTotal;
@@ -169,7 +187,6 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _creditLimitCtrl = TextEditingController(
       text: e?.creditLimit?.toString() ?? '',
     );
-    _currency = e?.currency ?? kDefaultCurrency;
     _fxRateCtrl = TextEditingController(
       text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
     );
@@ -311,6 +328,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    // 설정의 기본 통화가 늦게 도착하면 이 폼을 다시 그린다 — 값은 `_currency` 가
+    // 읽는다(고른 값 > 이 자산의 값 > 기본 통화).
+    ref.watch(defaultCurrencyProvider);
+    // 라벨 괄호 안 단위. 표기 규칙은 `currencyUnit` 한 곳이고 웹도 그걸 쓴다.
+    final unit = currencyUnit(_currency);
     // 중복 검사는 `assetsProvider` 캐시를 읽는다 — 리스너가 도는 시점엔 아직
     // 로딩 중일 수 있어 그때 계산한 값은 믿을 수 없다. 그려질 때 다시 확정한다.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -465,9 +487,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         // 신용카드 — design 신판 순서: 신용한도 → 결제일 → 현재 사용액 → 결제 계좌(연동 유지)
         if (isCredit) ...[
           const SizedBox(height: PSpace.x20),
-          // 신용한도 (원)
+          // 신용한도 — 단위는 고른 통화를 따른다.
+          // 한도는 사용액과 **견주는** 값이라 단위가 갈리면 무엇과 무엇을 견줬는지
+          // 읽을 수 없다(사용액이 `($)` 인데 한도만 `(원)` 이면 그렇다).
           Text(
-            l.assetCreditLimitLabel,
+            l.assetCreditLimitLabel(unit),
             style: PTypo.caption.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.medium,
@@ -509,13 +533,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
             },
           ),
         ],
-        // 현재 사용액 (원) ───────────────────
+        // 현재 사용액 ───────────────────────
         // 체크카드는 잔액 개념이 없다 — 긁는 즉시 연결 계좌에서 빠지므로
         // 카드가 들고 있을 금액이 없다. 신용카드만 결제일까지 사용액을 든다.
         if (isCredit) ...[
           const SizedBox(height: PSpace.x20),
           Text(
-            l.assetCurrentUsage,
+            l.assetCurrentUsage(unit),
             style: PTypo.caption.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.medium,
@@ -541,7 +565,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         AssetCurrencyFields(
           currency: _currency,
           rateController: _fxRateCtrl,
-          onCurrencyChanged: (v) => setState(() => _currency = v),
+          onCurrencyChanged: (v) => setState(() => _currencyPick = v),
         ),
 
         // 계좌 연결 — 신용카드는 결제일에 여기서 한 번에 빠지고,

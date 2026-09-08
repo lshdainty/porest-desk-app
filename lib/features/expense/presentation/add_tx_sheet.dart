@@ -34,6 +34,7 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
@@ -225,19 +226,28 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 편집·환불은 원거래의 통화를 승계한다 — 해외 결제를 고치는데 원화로 되돌아가면
     // 원 통화 기록이 조용히 지워진다.
     final src = e ?? r;
-    if (src?.originalCurrency != null) {
-      _input.currency = src!.originalCurrency!;
-      _input.origAmountCtrl.text = _trimNum(src.originalAmount);
-      _input.fxRateCtrl.text = _trimNum(src.exchangeRate);
+    if (src != null) {
+      // 원화 거래는 `originalCurrency` 가 `null` 로 온다 — 그때도 원화라고 못
+      // 박는다. 안 박으면 설정의 기본 통화가 흘러들어, 원화로 적어 둔 거래를
+      // 열기만 해도 해외 결제 입력이 펼쳐진다(D7).
+      _input.txCurrency = src.originalCurrency ?? kDefaultCurrency;
+      if (src.originalCurrency != null) {
+        _input.origAmountCtrl.text = _trimNum(src.originalAmount);
+        _input.fxRateCtrl.text = _trimNum(src.exchangeRate);
+      }
     }
     if (e?.installmentMonths != null) {
       _input.installmentMonths = e!.installmentMonths!;
     } else if (sms?.installmentMonths != null) {
       _input.installmentMonths = sms!.installmentMonths!;
     }
-    if (sms?.originalCurrency != null) {
-      _input.currency = sms!.originalCurrency!;
-      _input.origAmountCtrl.text = _trimNum(sms.originalAmount?.toDouble());
+    if (sms != null) {
+      // 문자에 외화가 안 실렸으면 원화 결제다 — 설정의 기본 통화가 외화여도
+      // 여기선 문자가 맞다. 안 막으면 원화 결제 문자가 해외 결제 입력으로 열린다.
+      _input.txCurrency = sms.originalCurrency ?? kDefaultCurrency;
+      if (sms.originalCurrency != null) {
+        _input.origAmountCtrl.text = _trimNum(sms.originalAmount?.toDouble());
+      }
     }
     // 카드를 알아봤는데 아직 안 외운 경우에만 "이 카드로 기억" 을 물어본다.
     _input.smsRememberAsk = widget.smsDraft?.canRememberCard ?? false;
@@ -489,6 +499,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 설정의 기본 통화를 매 빌드 흘려 넣는다(D7 · QA #124) — `/me/preferences` 는
+    // 이 시트보다 늦게 도착할 수 있고, 열 때 한 번만 읽으면 첫 렌더의 원화에
+    // 잠긴다. 아직 안 고른 **새 거래**에만 닿는다(`_TxInputController.currency`).
+    _input.defaultCurrency = ref.watch(defaultCurrencyProvider);
     final presetsAsync = _isEdit
         ? const AsyncValue<List<ExpenseTemplate>>.data(<ExpenseTemplate>[])
         : ref.watch(presetListProvider);
@@ -1201,8 +1215,28 @@ class _TxInputController {
   /// 할부 개월 — 신용카드 지출에만 의미. 0 = 일시불.
   int installmentMonths = 0;
 
+  /// 사용자가 고른 결제 통화. `null` 이면 아직 아무것도 안 골랐다.
+  String? currencyPick;
+
+  /// 이 거래에 이미 적혀 있던 통화 — 편집·환불·문자 초안이 채운다.
+  ///
+  /// 원화 거래는 서버에서 `originalCurrency` 가 `null` 로 오지만 여기엔 `KRW` 를
+  /// 넣는다. 비워 두면 아래 [currency] 가 설정의 기본 통화로 떨어져, 원화로 적어
+  /// 둔 거래를 열기만 해도 해외 결제 입력이 펼쳐진다.
+  String? txCurrency;
+
+  /// 설정의 기본 통화 — 폼이 매 빌드 흘려 넣는다(D7 · QA #124).
+  ///
+  /// `/me/preferences` 는 설정 화면을 안 들른 세션에서 이 시트보다 늦게 도착한다.
+  /// 열 때 한 번만 읽어 굳히면 첫 렌더의 원화에 잠기므로, 도착한 값을 매 빌드
+  /// 다시 흘려 넣어 아직 안 고른 새 거래에 반영한다.
+  String defaultCurrency = kDefaultCurrency;
+
   /// 결제 통화 — KRW 면 원화 결제(원 통화 기록 없음).
-  String currency = kDefaultCurrency;
+  ///
+  /// 우선순위는 **고른 값 > 이 거래의 값 > 설정의 기본 통화**다. 기본 통화는
+  /// 새 거래에만 닿는다 — 편집·환불·문자 초안은 [txCurrency] 에서 멈춘다.
+  String get currency => currencyPick ?? txCurrency ?? defaultCurrency;
   DateTime date;
   TimeOfDay time;
   bool amountLocked = false; // 프리셋 금액 잠금 (applyPreset 에서 set)
@@ -1683,7 +1717,7 @@ class _TxInputForm extends ConsumerWidget {
                       ),
                   ],
                   onChanged: (v) => _set(() {
-                    c.currency = v ?? kDefaultCurrency;
+                    c.currencyPick = v ?? kDefaultCurrency;
                     // 원화로 돌아오면 남은 외화 입력을 지운다(저장 시 흘러들지 않도록).
                     if (!isForeignCurrency(c.currency)) {
                       c.origAmountCtrl.clear();

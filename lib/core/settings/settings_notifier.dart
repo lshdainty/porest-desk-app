@@ -14,14 +14,12 @@ import 'package:porest_desk_app/core/settings/user_locale.dart';
 class AppSettings {
   const AppSettings({
     required this.themeMode,
-    required this.currency,
     required this.hideCards,
     required this.locale,
     required this.appLock,
   });
 
   final ThemeMode themeMode;
-  final String currency; // 'KRW' | 'USD' | 'EUR' | 'JPY'
 
   /// 앱을 열 때 생체인증(Face ID·지문)으로 잠글지. 기기 로컬 설정이다 —
   /// 잠금은 이 기기의 생체 등록에 묶이므로 서버·다른 클라이언트와 공유하지 않는다.
@@ -41,7 +39,6 @@ class AppSettings {
 
   static const defaults = AppSettings(
     themeMode: ThemeMode.system,
-    currency: 'KRW',
     hideCards: <String>{},
     locale: null,
     appLock: false,
@@ -49,14 +46,12 @@ class AppSettings {
 
   AppSettings copyWith({
     ThemeMode? themeMode,
-    String? currency,
     Set<String>? hideCards,
     Object? locale = _sentinel,
     bool? appLock,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
-      currency: currency ?? this.currency,
       hideCards: hideCards ?? this.hideCards,
       locale: identical(locale, _sentinel) ? this.locale : locale as Locale?,
       appLock: appLock ?? this.appLock,
@@ -109,8 +104,6 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     Intl.defaultLocale = loc?.languageCode ?? 'ko';
     return AppSettings(
       themeMode: _parseTheme(prefs.getString(PrefsKeys.themeMode)),
-      currency:
-          prefs.getString(PrefsKeys.currency) ?? AppSettings.defaults.currency,
       hideCards: _loadHideCards(prefs),
       locale: loc,
       appLock: prefs.getBool(PrefsKeys.appLock) ?? AppSettings.defaults.appLock,
@@ -129,12 +122,6 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     final prefs = await ref.read(prefsProvider.future);
     await prefs.setString(PrefsKeys.themeMode, _serializeTheme(mode));
     state = AsyncData(_current.copyWith(themeMode: mode));
-  }
-
-  Future<void> setCurrency(String code) async {
-    final prefs = await ref.read(prefsProvider.future);
-    await prefs.setString(PrefsKeys.currency, code);
-    state = AsyncData(_current.copyWith(currency: code));
   }
 
   /// 가리기 — 인증 없이 자유롭게 켠다. 푸는 쪽만 인증을 받는다(화면 책임).

@@ -443,20 +443,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetAccountNumber => 'Account number';
 
   @override
-  String get assetBalanceLabel => 'Balance (KRW)';
+  String assetBalanceLabel(String unit) {
+    return 'Balance ($unit)';
+  }
 
   @override
   String get assetBalanceEditHint =>
       'Changing the balance treats everything before now as already included. Only later transactions are added.';
 
   @override
-  String get assetOverdraftUsedLabel => 'Amount in use (KRW)';
+  String assetOverdraftUsedLabel(String unit) {
+    return 'Amount in use ($unit)';
+  }
 
   @override
-  String get assetLoanRemainingLabel => 'Remaining loan (KRW)';
+  String assetLoanRemainingLabel(String unit) {
+    return 'Remaining loan ($unit)';
+  }
 
   @override
-  String get assetOverdraftLimitLabel => 'Overdraft limit (KRW, optional)';
+  String assetOverdraftLimitLabel(String unit) {
+    return 'Overdraft limit ($unit, optional)';
+  }
 
   @override
   String get assetOverdraftHint =>
@@ -489,7 +497,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Note last digits, payment day, limit, etc.';
 
   @override
-  String get assetCreditLimitLabel => 'Credit limit (KRW, optional)';
+  String assetCreditLimitLabel(String unit) {
+    return 'Credit limit ($unit, optional)';
+  }
 
   @override
   String get assetCreditLimitPlaceholder => 'e.g. 5,000,000';
@@ -594,7 +604,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCardNicknamePlaceholder => 'e.g. Shinhan Deep Dream';
 
   @override
-  String get assetCurrentUsage => 'Current usage (KRW)';
+  String assetCurrentUsage(String unit) {
+    return 'Current usage ($unit)';
+  }
 
   @override
   String get assetCurrentUsageHint =>

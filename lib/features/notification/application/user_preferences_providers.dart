@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
@@ -49,3 +50,22 @@ class UserPreferencesNotifier extends AsyncNotifier<UserPreferences> {
     }
   }
 }
+
+/// 새 자산·거래가 처음 고르는 통화 (D7 · QA #124).
+///
+/// 값의 자리는 계정이다 — `/me/preferences` 의 `defaultCurrency`(desk-back #328).
+/// 종전엔 기기에만 있었고 읽는 곳이 하나도 없어서, 고르면 저장된 것처럼만 보였다.
+/// 웹도 같은 자리를 읽는다(desk-front #368) — 갈리면 폰에서 고른 값이 브라우저에
+/// 안 보인다.
+///
+/// **아직 안 왔거나 못 읽으면 원화다.** 로그인 전·오프라인·서버가 이 칸을 아직
+/// 안 실어 주는 경우 전부 여기로 떨어진다 — 폼이 안 열리는 것보다 낫고, 종전
+/// 동작(늘 원화)과 같다.
+///
+/// `autoDispose` 는 [userPreferencesProvider] 와 같은 수명을 쓰려고 붙였다.
+/// 붙이지 않으면 이 provider 가 살아 있는 동안 저쪽도 못 죽어, "화면을 떠나면
+/// 폐기하고 재진입 때 다시 읽는다" 는 저쪽 규칙이 조용히 깨진다.
+final defaultCurrencyProvider = Provider.autoDispose<String>((ref) {
+  return ref.watch(userPreferencesProvider).value?.defaultCurrency ??
+      kDefaultCurrency;
+});

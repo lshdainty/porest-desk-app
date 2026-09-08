@@ -20,6 +20,7 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_currency_fields.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 
 /// 계좌 추가/편집 다이얼로그 — front `AssetAddDialog` / `AssetEditDialog` 미러.
@@ -130,7 +131,24 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late final TextEditingController _memoCtrl;
   late final TextEditingController _fxRateCtrl;
 
-  late String _currency;
+  /// 사용자가 고른 통화. `null` 이면 아직 아무것도 안 골랐다.
+  String? _currencyPick;
+
+  /// 이 폼이 지금 쓰는 통화 — **고른 값 > 이 자산의 값 > 설정의 기본 통화**(D7).
+  ///
+  /// 기본 통화를 `initState` 에서 굳히면 안 된다. `/me/preferences` 는 설정 화면을
+  /// 안 들른 세션에서 이 폼보다 늦게 도착해서, 초기값으로 받으면 첫 렌더의 원화에
+  /// 잠긴 채 열린다. `build` 가 구독해 두고 저장할 때까지 매번 여기서 읽는다.
+  ///
+  /// 기본 통화는 **새 자산에만** 흘린다. 기존 자산에까지 쓰면 기본 통화를 USD 로
+  /// 바꾼 순간 원화 자산이 전부 USD 로 열리고, 그대로 저장만 해도 통화가 바뀐다 —
+  /// 고치라고 만든 칸이 고장을 내는 쪽이다. 통화가 안 적힌 옛 자산도 원화로 연다
+  /// (웹 `Asset.currency` 는 non-null 이라 그쪽엔 없는 갈래다).
+  String get _currency =>
+      _currencyPick ??
+      (widget.edit != null
+          ? (widget.edit!.currency ?? kDefaultCurrency)
+          : ref.read(defaultCurrencyProvider));
   late String _brand;
   late _SubType _subType;
   late bool _includeInTotal;
@@ -235,7 +253,6 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     );
     _limitCtrl = TextEditingController(text: e?.creditLimit?.toString() ?? '');
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
-    _currency = e?.currency ?? kDefaultCurrency;
     _fxRateCtrl = TextEditingController(
       text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
     );
@@ -357,6 +374,11 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    // 설정의 기본 통화가 늦게 도착하면 이 폼을 다시 그린다 — 값은 `_currency` 가
+    // 읽는다(고른 값 > 이 자산의 값 > 기본 통화).
+    ref.watch(defaultCurrencyProvider);
+    // 라벨 괄호 안 단위. 표기 규칙은 `currencyUnit` 한 곳이고 웹도 그걸 쓴다.
+    final unit = currencyUnit(_currency);
     // 중복 검사는 `assetsProvider` 캐시를 읽는다 — 리스너가 도는 시점엔 아직
     // 로딩 중일 수 있어 그때 계산한 값은 믿을 수 없다. 그려질 때 다시 확정한다.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -478,10 +500,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   Text(
                     // 무엇을 묻는지가 종류마다 다르다 — 마이너스통장은 '얼마나 썼나',
                     // 대출은 '얼마나 남았나' 다. 둘 다 양수로 받는다.
+                    // 단위는 고른 통화를 따른다 — USD 를 골라 놓고 `(원)` 이라고
+                    // 적혀 있으면 라벨이 값을 속인다.
                     switch (_subType) {
-                      _SubType.overdraft => l.assetOverdraftUsedLabel,
-                      _SubType.loan => l.assetLoanRemainingLabel,
-                      _ => l.assetBalanceLabel,
+                      _SubType.overdraft => l.assetOverdraftUsedLabel(unit),
+                      _SubType.loan => l.assetLoanRemainingLabel(unit),
+                      _ => l.assetBalanceLabel(unit),
                     },
                     style: PTypo.caption.copyWith(
                       color: t.fgPrimary,
@@ -526,7 +550,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         if (_subType == _SubType.overdraft) ...[
           const SizedBox(height: PSpace.x20),
           Text(
-            l.assetOverdraftLimitLabel,
+            // 한도는 사용액과 **견주는** 값이다 — 단위가 갈리면 무엇과 무엇을
+            // 견줬는지 읽을 수 없다. 잔액 라벨과 같은 단위를 쓴다.
+            l.assetOverdraftLimitLabel(unit),
             style: PTypo.caption.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.medium,
@@ -547,7 +573,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         AssetCurrencyFields(
           currency: _currency,
           rateController: _fxRateCtrl,
-          onCurrencyChanged: (v) => setState(() => _currency = v),
+          onCurrencyChanged: (v) => setState(() => _currencyPick = v),
         ),
 
         // 메모 — 편집 모드에서만 노출 (web 동일).

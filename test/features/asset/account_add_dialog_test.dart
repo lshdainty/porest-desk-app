@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
@@ -198,8 +199,8 @@ void main() {
     await tester.tap(find.text(l.assetSubtypeOverdraft));
     await tester.pumpAndSettle();
     // 라벨이 '잔액' 이 아니라 '사용 중인 금액' 으로 바뀐다.
-    expect(find.text(l.assetOverdraftUsedLabel), findsOneWidget);
-    expect(find.text(l.assetBalanceLabel), findsNothing);
+    expect(find.text(l.assetOverdraftUsedLabel(wonUnit())), findsOneWidget);
+    expect(find.text(l.assetBalanceLabel(wonUnit())), findsNothing);
 
     await tester.enterText(_field('0'), '50000');
     await tester.pumpAndSettle();
@@ -224,7 +225,7 @@ void main() {
     final repo = await _open(tester);
     await tester.tap(find.text(l.assetTypeLoan));
     await tester.pumpAndSettle();
-    expect(find.text(l.assetLoanRemainingLabel), findsOneWidget);
+    expect(find.text(l.assetLoanRemainingLabel(wonUnit())), findsOneWidget);
     await tester.enterText(_field('0'), '3000000');
     await tester.pumpAndSettle();
     await _tapSubmit(tester, l.calAdd);
@@ -251,14 +252,14 @@ void main() {
 
   testWidgets('음수 잔액 입출금을 열면 마이너스통장 탭이고 금액이 양수로 보인다', (tester) async {
     await _open(tester, edit: _overdraft, assets: const [_overdraft]);
-    expect(find.text(l.assetOverdraftUsedLabel), findsOneWidget);
+    expect(find.text(l.assetOverdraftUsedLabel(wonUnit())), findsOneWidget);
     expect(find.text('50000'), findsOneWidget);
     expect(find.text('-50000'), findsNothing);
   });
 
   testWidgets('대출 편집도 남은 빚을 양수로 보여 준다', (tester) async {
     await _open(tester, edit: _loan, assets: const [_loan]);
-    expect(find.text(l.assetLoanRemainingLabel), findsOneWidget);
+    expect(find.text(l.assetLoanRemainingLabel(wonUnit())), findsOneWidget);
     expect(find.text('3000000'), findsOneWidget);
   });
 
