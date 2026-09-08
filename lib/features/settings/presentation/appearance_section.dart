@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
@@ -186,6 +187,11 @@ class AppearanceSection extends ConsumerWidget {
         ),
         const SizedBox(height: PSpace.x32),
         // 세트 4 — 기본 통화 label + list(한 묶음).
+        //
+        // 지역 설정과 같이 **서버에 보관한다**(D7 · QA #124). 종전엔 기기
+        // `SharedPreferences` 에만 넣었고 읽는 곳이 하나도 없어서, 고르면 저장된
+        // 것처럼 보이는데 다른 기기에서도 새 자산·거래 어디에서도 아무 일이
+        // 없었다. 웹도 같은 자리를 읽는다(desk-front #368).
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -195,9 +201,19 @@ class AppearanceSection extends ConsumerWidget {
             ),
             // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
             PRadioList<String>(
-              value: settings.currency,
-              onChanged: (code) =>
-                  ref.read(settingsProvider.notifier).setCurrency(code),
+              // 아직 못 읽었으면 원화로 그린다 — 넷 다 꺼 두면 고장으로 보인다.
+              // 대신 도착 전에는 못 누르게 막는다(지역 설정과 같은 규칙).
+              value: prefs?.defaultCurrency ?? kDefaultCurrency,
+              onChanged: prefs == null
+                  ? null
+                  : (code) {
+                      if (code == prefs.defaultCurrency) return;
+                      ref.read(userPreferencesProvider.notifier).patch(
+                        {'defaultCurrency': code},
+                        optimistic: (prev) =>
+                            prev.copyWith(defaultCurrency: code),
+                      );
+                    },
               items: [
                 PRadioListItem(
                   value: 'KRW',

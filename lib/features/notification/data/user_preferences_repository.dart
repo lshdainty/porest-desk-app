@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 
@@ -19,7 +20,7 @@ class EmailFrequency {
 
 /// 사용자 알림/환경설정 전체 모델 (GET/PATCH /users/me/preferences).
 ///
-/// 백엔드 계약(camelCase) 16필드를 그대로 담는다. PATCH 는 부분 업데이트라
+/// 백엔드 계약(camelCase) 전 필드를 그대로 담는다. PATCH 는 부분 업데이트라
 /// [toPatch] 가 아닌, 변경 필드만 직접 Map 으로 보낸다([UserPreferencesRepository.update]).
 class UserPreferences {
   const UserPreferences({
@@ -40,6 +41,7 @@ class UserPreferences {
     required this.emailEnabled,
     required this.emailFrequency,
     required this.timezone,
+    required this.defaultCurrency,
   });
 
   /// 마스터 토글.
@@ -74,6 +76,13 @@ class UserPreferences {
   /// 표시 기준 지역(IANA 타임존 ID). 서버가 이 값으로 "오늘"을 판단한다.
   final String timezone;
 
+  /// 새 자산·거래가 처음 고르는 통화(KRW·USD·EUR·JPY) — desk-back #328.
+  ///
+  /// 종전엔 기기 `SharedPreferences` 에만 있었고 **읽는 곳이 하나도 없었다**
+  /// (QA #124). 고르면 저장된 것처럼 보이는데 다른 기기에서도, 새 자산·거래
+  /// 어디에서도 아무 일이 없었다. 지역 설정과 같은 자리로 옮겼다.
+  final String defaultCurrency;
+
   /// 서버 응답 누락 필드는 합리적 기본값으로 보강 (방어적 디코딩).
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
     return UserPreferences(
@@ -98,6 +107,8 @@ class UserPreferences {
       emailFrequency:
           json['emailFrequency'] as String? ?? EmailFrequency.weekly,
       timezone: json['timezone'] as String? ?? 'Asia/Seoul',
+      // 서버가 이 칸을 아직 안 실어 주면 원화로 본다 — 종전 동작과 같다.
+      defaultCurrency: json['defaultCurrency'] as String? ?? kDefaultCurrency,
     );
   }
 
@@ -119,6 +130,7 @@ class UserPreferences {
     bool? emailEnabled,
     String? emailFrequency,
     String? timezone,
+    String? defaultCurrency,
   }) {
     return UserPreferences(
       pushEnabled: pushEnabled ?? this.pushEnabled,
@@ -138,6 +150,7 @@ class UserPreferences {
       emailEnabled: emailEnabled ?? this.emailEnabled,
       emailFrequency: emailFrequency ?? this.emailFrequency,
       timezone: timezone ?? this.timezone,
+      defaultCurrency: defaultCurrency ?? this.defaultCurrency,
     );
   }
 }
@@ -145,7 +158,7 @@ class UserPreferences {
 /// 사용자 환경설정 GET/PATCH 어댑터.
 ///
 /// [AuthRepository.getBudgetAlertThreshold]/[updateBudgetAlertThreshold] 와 동일한
-/// `/users/me/preferences` 엔드포인트를 쓰되, 전체 16필드를 다룬다.
+/// `/users/me/preferences` 엔드포인트를 쓰되, 전 필드를 다룬다.
 /// PATCH 는 부분 업데이트 — 변경 필드만 [update] 의 `fields` 로 전달한다.
 class UserPreferencesRepository {
   UserPreferencesRepository(this._dio);

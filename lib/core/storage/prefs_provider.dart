@@ -11,7 +11,6 @@ final prefsProvider = FutureProvider<SharedPreferences>((ref) {
 /// porest-desk-front 와 동일한 키를 그대로 사용 — 추후 동기화 정책 변경 쉽게.
 abstract final class PrefsKeys {
   static const themeMode = 'vite-ui-theme'; // 'light' | 'dark' | 'system'
-  static const currency = 'pd-currency'; // 'KRW' | 'USD' | 'EUR' | 'JPY'
   /// 예전 단일 스위치(bool). 한 번 읽어 카드 전체로 펼치고 지운다.
   static const hideAmounts = 'pd-hide'; // bool (legacy)
   static const hideCards = 'pd-hide-cards'; // List<String>

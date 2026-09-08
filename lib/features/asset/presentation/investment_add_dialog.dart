@@ -23,6 +23,7 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_currency_fields.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
@@ -95,7 +96,24 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late final TextEditingController _cashCtrl;
   late final TextEditingController _fxRateCtrl;
 
-  late String _currency;
+  /// 사용자가 고른 통화. `null` 이면 아직 아무것도 안 골랐다.
+  String? _currencyPick;
+
+  /// 이 폼이 지금 쓰는 통화 — **고른 값 > 이 자산의 값 > 설정의 기본 통화**(D7).
+  ///
+  /// 기본 통화를 `initState` 에서 굳히면 안 된다. `/me/preferences` 는 설정 화면을
+  /// 안 들른 세션에서 이 폼보다 늦게 도착해서, 초기값으로 받으면 첫 렌더의 원화에
+  /// 잠긴 채 열린다. `build` 가 구독해 두고 저장할 때까지 매번 여기서 읽는다.
+  ///
+  /// 기본 통화는 **새 자산에만** 흘린다. 기존 자산에까지 쓰면 기본 통화를 USD 로
+  /// 바꾼 순간 원화 자산이 전부 USD 로 열리고, 그대로 저장만 해도 통화가 바뀐다 —
+  /// 고치라고 만든 칸이 고장을 내는 쪽이다. 통화가 안 적힌 옛 자산도 원화로 연다
+  /// (웹 `Asset.currency` 는 non-null 이라 그쪽엔 없는 갈래다).
+  String get _currency =>
+      _currencyPick ??
+      (widget.edit != null
+          ? (widget.edit!.currency ?? kDefaultCurrency)
+          : ref.read(defaultCurrencyProvider));
   late String _brand;
   late bool _includeInTotal;
   late List<_EditRow> _rows;
@@ -170,7 +188,6 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _cashCtrl = TextEditingController(
       text: (e?.cashBalance ?? e?.balance ?? 0).toString(),
     );
-    _currency = e?.currency ?? kDefaultCurrency;
     _fxRateCtrl = TextEditingController(
       text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
     );
@@ -480,6 +497,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    // 설정의 기본 통화가 늦게 도착하면 이 폼을 다시 그린다 — 값은 `_currency` 가
+    // 읽는다(고른 값 > 이 자산의 값 > 기본 통화).
+    ref.watch(defaultCurrencyProvider);
     final unitMap = _unitKrwMap();
     final total = _totalOf(unitMap, _holdings);
     return ListView(
@@ -658,7 +678,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         AssetCurrencyFields(
           currency: _currency,
           rateController: _fxRateCtrl,
-          onCurrencyChanged: (v) => setState(() => _currency = v),
+          onCurrencyChanged: (v) => setState(() => _currencyPick = v),
         ),
 
         // 메모 (선택) ────────────────────────
