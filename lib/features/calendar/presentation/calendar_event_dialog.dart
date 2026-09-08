@@ -200,9 +200,12 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.updateEvent(
           id: widget.edit!.rowId,
           title: _titleCtrl.text.trim(),
-          description: _descCtrl.text.trim().isEmpty
-              ? null
-              : _descCtrl.text.trim(),
+          // 설명·장소·라벨은 이 화면이 가진 칸이다 — 비운 상태를 명시적 null 로 실어야
+          // 지워진다. 키를 빼면 서버가 지금 값을 지키므로(desk-back #325), 지우고
+          // 저장해도 다시 열면 옛 값이 그대로 있다.
+          description: Patch.set(
+            _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+          ),
           // 서버는 수정 요청에 실린 종류로 무조건 덮어쓴다. 이 화면에는 종류를 고르는
           // 자리가 없으므로 원래 값을 그대로 되돌려 준다 — 안 그러면 다른 데서 정한
           // 종류가 여기서 저장 한 번에 기본값으로 바뀐다.
@@ -212,10 +215,12 @@ class _BodyState extends ConsumerState<_Body> {
           startDate: _iso(_start),
           endDate: _iso(_end),
           isAllDay: _allDay,
-          labelRowId: _labelRowId,
-          location: _locationCtrl.text.trim().isEmpty
-              ? null
-              : _locationCtrl.text.trim(),
+          labelRowId: Patch.set(_labelRowId),
+          location: Patch.set(
+            _locationCtrl.text.trim().isEmpty
+                ? null
+                : _locationCtrl.text.trim(),
+          ),
           // 반복·알림은 이 화면이 소유한 칸이다 — 늘 실어야 칩이 실제로 동작한다.
           // 반복은 명시적 null 까지 실어야 '반복 없음' 이 반영된다(키를 빼면 유지).
           rrule: Patch.set(_rruleForSave),

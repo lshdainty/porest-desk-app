@@ -93,15 +93,15 @@ class _CapturingRepo extends CalendarRepository {
   Future<CalendarEvent> updateEvent({
     required int id,
     required String title,
-    String? description,
+    Patch<String> description = const Patch.keep(),
     String? eventType,
     String? color,
     int? calendarRowId,
     required String startDate,
     required String endDate,
     bool isAllDay = false,
-    int? labelRowId,
-    String? location,
+    Patch<int> labelRowId = const Patch.keep(),
+    Patch<String> location = const Patch.keep(),
     Patch<String> rrule = const Patch.keep(),
     List<int>? reminderMinutes,
   }) async {

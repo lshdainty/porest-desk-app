@@ -9,6 +9,7 @@ import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
@@ -170,21 +171,25 @@ class _BodyState extends ConsumerState<_Body> {
                 0)
           : null;
       if (_isEdit) {
-        // 메모(description)는 이 화면에 칸이 없다. 그런데 서버 `updateTemplate` 은
-        // 이 칸을 **무조건 대입**해서, 안 실으면 저장할 때마다 지워진다 —
-        // 웹 프리셋 상세는 그 값을 그리고 생성 API 는 여전히 받는데, 되살릴
-        // 입력칸이 웹·앱 어디에도 없다. 그래서 **읽은 값을 그대로 되돌려 보낸다.**
-        // 서버가 "키 없으면 유지" 로 바뀌어도 같은 값을 다시 쓸 뿐이라 안전하다.
+        // 이 화면이 가진 칸(거래처·결제 수단·계좌)은 **비운 상태 그대로** 실어야
+        // 지워진다 — 서버가 프리셋 수정도 "키 없으면 유지" 로 읽으므로(desk-back #325)
+        // 키를 빼면 '선택 안 함' 을 고르고 저장해도 옛 값이 그대로 남는다.
+        //
+        // 메모(description)는 이 화면에 칸이 없다. 웹 프리셋 상세는 그 값을 그리고
+        // 생성 API 는 여전히 받는데 되살릴 입력칸이 웹·앱 어디에도 없다. 그래서
+        // **읽은 값을 그대로 되돌려 보낸다** — null 을 실으면 남의 메모를 지운다.
         await repo.update(
           id: widget.edit!.rowId,
           templateName: name,
           categoryRowId: _categoryRowId,
-          assetRowId: _assetRowId,
+          assetRowId: Patch.set(_assetRowId),
           expenseType: _type,
           amount: amount,
           description: widget.edit!.description,
-          merchant: merchant.isEmpty ? null : merchant,
-          paymentMethod: _paymentMethod.isEmpty ? null : _paymentMethod,
+          merchant: Patch.set(merchant.isEmpty ? null : merchant),
+          paymentMethod: Patch.set(
+            _paymentMethod.isEmpty ? null : _paymentMethod,
+          ),
           lockAmount: _lockAmount,
         );
       } else {

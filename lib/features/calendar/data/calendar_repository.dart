@@ -88,18 +88,35 @@ class CalendarRepository {
     }
   }
 
+  /// 수정 — 일정 시트가 소유한 칸만 키를 싣는다(QA #99 의 계약을 캘린더로 넓힌다).
+  ///
+  /// 서버는 수정 본문의 [description]·[color]·[labelRowId]·[location]·[rrule] 을
+  /// `Optional` 로 읽는다(desk-back #325) — 키가 없으면 유지, 명시적 null 이면 지움.
+  /// 그래서 시트에서 **비울 수 있는** 칸은 [Patch] 로 받는다: 설명·장소는 입력을 지울 수
+  /// 있고, 라벨에는 '라벨 없음' 이 있다. 키를 빼면 셋 다 비우고 저장해도 옛 값이 남는다.
+  ///
+  /// [color] 는 [Patch] 가 아니다 — 색 선택기는 늘 값을 들고 있어(기본값이 있다) 비는
+  /// 상태 자체가 없다. [eventType] 도 마찬가지로 `eventTypeOrDefault` 가 늘 채운다.
+  ///
+  /// [calendarRowId] 도 [Patch] 가 아니다. 서버 `UpdateRequest` 의 이 칸은 `Optional` 이
+  /// 아닌 맨 `Long` 이고 서비스가 `if (calendarRowId != null)` 로만 읽어 **"소속 캘린더를
+  /// 뗀다" 라는 동작이 아예 없다**(일정은 늘 어느 캘린더엔가 속한다). 시트의 캘린더
+  /// 선택기에도 '선택 안 함' 이 없어 null 이 될 수 없다 — 키를 빼는 지금이 맞다.
+  ///
+  /// [reminderMinutes] 는 [Patch] 로 옮기지 않는다 — "null=무변경 / 리스트=전체 교체" 라는
+  /// 뜻이 이미 확정돼 있고(빈 리스트가 "전부 지움"), 거래 `splits`·자산 `holdings` 와 같다.
   Future<CalendarEvent> updateEvent({
     required int id,
     required String title,
-    String? description,
+    Patch<String> description = const Patch.keep(),
     String? eventType,
     String? color,
     int? calendarRowId,
     required String startDate,
     required String endDate,
     bool isAllDay = false,
-    int? labelRowId,
-    String? location,
+    Patch<int> labelRowId = const Patch.keep(),
+    Patch<String> location = const Patch.keep(),
     // 반복 규칙 — 이 화면이 소유한 칸이라 [Patch] 로 싣는다. 키를 빼면 서버가 지금
     // 값을 지키므로(2026-09-08 계약), 칩에서 '반복 없음' 을 골라도 반복이 안 풀린다.
     // 비우는 것까지 동작하게 하려면 명시적 null 을 실어야 한다.
@@ -113,15 +130,15 @@ class CalendarRepository {
         '/calendar/event/$id',
         data: {
           'title': title,
-          'description': ?description,
+          if (description.present) 'description': description.value,
           'eventType': eventTypeOrDefault(eventType),
           'color': ?color,
           'calendarRowId': ?calendarRowId,
           'startDate': startDate,
           'endDate': endDate,
           'isAllDay': isAllDay ? 'Y' : 'N',
-          'labelRowId': ?labelRowId,
-          'location': ?location,
+          if (labelRowId.present) 'labelRowId': labelRowId.value,
+          if (location.present) 'location': location.value,
           if (rrule.present) 'rrule': rrule.value,
           'reminderMinutes': ?reminderMinutes,
         },
