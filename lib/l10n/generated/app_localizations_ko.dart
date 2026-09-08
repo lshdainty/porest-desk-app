@@ -5197,6 +5197,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoTagSelect => '태그 선택';
 
   @override
+  String get todoTagNone => '태그 없음';
+
+  @override
   String get todoPriorityLabel => '우선순위';
 
   @override

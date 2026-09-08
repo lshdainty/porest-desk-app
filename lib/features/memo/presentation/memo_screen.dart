@@ -22,6 +22,7 @@ import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
+import 'package:porest_desk_app/features/memo/domain/memo_meta.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_detail_dialog.dart';
 
@@ -158,9 +159,9 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     final l = AppLocalizations.of(context);
     final hasQuery = _query.trim().isNotEmpty;
 
-    // 태그 정규화 — web `memo.tag || '개인'` 정합. raw tag 만 세면
-    // null 태그 메모가 칩 카운트에서 빠져 web(개인 8)과 app(개인 2)이 어긋난다.
-    String tagOf(Memo m) => (m.tag ?? '').isNotEmpty ? m.tag! : '개인';
+    // 태그 묶음 키 — 태그가 없으면 '태그 없음' sentinel(웹 `memoTagKey` 정합).
+    // raw tag 만 세면 태그 없는 메모가 칩 카운트에서 통째로 빠진다.
+    String tagOf(Memo m) => memoTagKey(m);
 
     // 검색 필터 (제목+내용 case-insensitive).
     var visible = all;
@@ -208,7 +209,11 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             for (final tag in tags)
               PTabItem(
                 value: tag,
-                label: '$tag ${all.where((m) => tagOf(m) == tag).length}',
+                // sentinel 은 문구로 바꿔 그린다 — 그대로 그리면 안 보이는
+                // 글자 하나가 칩 안에 남는다.
+                label:
+                    '${memoTagLabel(l, tag)} '
+                    '${all.where((m) => tagOf(m) == tag).length}',
               ),
           ],
         ),
@@ -420,7 +425,7 @@ class _MemoRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final swatch = memoSwatch(context, memo.color);
     final hasTitle = (memo.title ?? '').isNotEmpty;
-    final tag = (memo.tag ?? '').isNotEmpty ? memo.tag! : '개인';
+    final tag = memoTagLabel(l, memoTagKey(memo));
     final content = (memo.content ?? '').trim();
 
     return Material(

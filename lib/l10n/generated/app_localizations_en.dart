@@ -5263,6 +5263,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoTagSelect => 'Select tag';
 
   @override
+  String get todoTagNone => 'No tag';
+
+  @override
   String get todoPriorityLabel => 'Priority';
 
   @override

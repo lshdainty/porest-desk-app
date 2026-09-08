@@ -198,7 +198,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 label: l.todoTag,
                 tokens: t,
                 child: Text(
-                  todoTagOrDefault(todo.category),
+                  todoTagLabel(l, todoTagKey(todo.category)),
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.medium,

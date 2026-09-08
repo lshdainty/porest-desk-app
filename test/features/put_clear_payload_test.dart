@@ -152,12 +152,32 @@ void main() {
         title: '제목',
         content: const Patch.set(null),
         priority: 'MEDIUM',
-        category: '개인',
+        category: const Patch.set('업무'),
         dueDate: const Patch.set(null),
       );
 
       expectExplicitNull(captured.single, 'content');
       expectExplicitNull(captured.single, 'dueDate');
+      expect(captured.single['category'], '업무');
+    });
+
+    test('"태그 없음" 을 고르면 category 가 명시적 null 로 실린다', () async {
+      // 키가 빠지면 서버가 옛 태그를 지킨다 — 앱에서 태그를 뗄 수 없던 원인이다.
+      final (dio, captured) = _capturingDio(todoJson);
+
+      await TodoRepository(
+        dio,
+      ).update(id: 1, title: '제목', category: const Patch.set(null));
+
+      expectExplicitNull(captured.single, 'category');
+    });
+
+    test('화면이 태그를 안 넘기면 category 키가 아예 안 실린다', () async {
+      final (dio, captured) = _capturingDio(todoJson);
+
+      await TodoRepository(dio).update(id: 1, title: '제목');
+
+      expectAbsent(captured.single, 'category');
     });
 
     test('태그 칸(tagIds)은 수정 본문에 안 섞인다 — 전용 경로가 따로 있다', () async {

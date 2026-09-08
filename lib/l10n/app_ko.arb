@@ -2920,6 +2920,7 @@
   "todoUnset": "미설정",
   "todoTag": "태그",
   "todoTagSelect": "태그 선택",
+  "todoTagNone": "태그 없음",
   "todoPriorityLabel": "우선순위",
   "todoPriorityImportant": "중요",
   "todoPriorityRelaxed": "여유",

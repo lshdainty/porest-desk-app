@@ -18,7 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
+import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
 
 void showTodoEditDialog(BuildContext context, {Todo? edit}) {
   final l = AppLocalizations.of(context);
@@ -50,8 +50,11 @@ class _BodyState extends ConsumerState<_Body> {
   bool _previewContent = false;
   // 제목 입력 인터랙션 후에만 인라인 에러 노출.
   bool _titleTouched = false;
-  // 태그 = 기존 category 필드(자유 텍스트 → select 7종). 저장은 category 로.
-  late String _tag;
+
+  /// 고른 태그 이름 — **null 이면 태그 없음**. 담기는 곳은 기존 `category` 필드다.
+  /// 목록은 서버 태그 마스터가 SoT 라 앱이 이름을 지어내지 않는다(메모 편집기와
+  /// 같은 모양 — QA #98·#105).
+  late String? _tag;
   late String _priority;
   DateTime? _due;
   bool _submitting = false;
@@ -62,7 +65,10 @@ class _BodyState extends ConsumerState<_Body> {
     super.initState();
     _titleCtrl = TextEditingController(text: widget.edit?.title ?? '');
     _contentCtrl = TextEditingController(text: widget.edit?.content ?? '');
-    _tag = todoTagOrDefault(widget.edit?.category);
+    // 새 할 일은 '태그 없음' 으로 연다. 목록의 첫 태그(옛 코드는 하드코딩 '개인')를
+    // 채워 두면 제목만 쓰고 저장해도 그 태그가 붙는다 — 사용자가 시키지 않은 쓰기다.
+    final tag = widget.edit?.category?.trim() ?? '';
+    _tag = tag.isEmpty ? null : tag;
     _priority = widget.edit?.priority ?? 'MEDIUM';
     _due = widget.edit?.due;
     widget.controller.onSubmit = _submit;
@@ -75,15 +81,19 @@ class _BodyState extends ConsumerState<_Body> {
 
   bool get _canSubmit => !_submitting && _titleCtrl.text.trim().isNotEmpty;
 
-  /// 태그 선택지 — 서버 태그명 + 현재 값(미포함 시) + 기본 태그 보장.
+  /// 태그 선택지 — 서버 마스터 목록 + 지금 값(목록에 없으면 맨 앞에 보존).
+  ///
+  /// 목록이 비거나(태그를 하나도 안 만든 계정) 조회가 실패해도 select 는 비지
+  /// 않는다: "태그 없음" 항목이 build 에서 늘 앞에 붙고, 편집 중인 할 일이 들고
+  /// 있던 태그는 여기서 살아남는다. `AsyncValue.value` 는 로딩·에러에서 null 이라
+  /// `const []` 로 접는데, 그 덕에 조회가 실패해도 **지금 값이 지워지지 않는다** —
+  /// 못 고르게 될 뿐이다. 옛 코드처럼 없는 태그('개인')를 끼워 넣으면 저장할 때
+  /// 서버가 그 이름의 마스터를 새로 만들어, 사용자가 지운 태그가 되살아난다.
   List<String> _tagChoices() {
-    final server = ref.watch(todoTagListProvider).value ?? const [];
+    final server = ref.watch(todoTagListProvider).value ?? const <TodoTag>[];
     final names = [for (final t in server) t.tagName];
-    return [
-      if (!names.contains(_tag)) _tag,
-      ...names,
-      if (names.isEmpty && _tag != kTodoDefaultTag) kTodoDefaultTag,
-    ];
+    final current = _tag;
+    return [if (current != null && !names.contains(current)) current, ...names];
   }
 
   @override
@@ -113,7 +123,9 @@ class _BodyState extends ConsumerState<_Body> {
             _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
           ),
           priority: _priority,
-          category: _tag, // 태그 7종을 기존 category 필드에 저장
+          // 태그도 이 화면이 비울 수 있는 칸이다 — "태그 없음" 을 고르면 키를
+          // 빼지 말고 명시적 null 로 실어야 서버가 지운다(메모 편집기와 같다).
+          category: Patch.set(_tag),
           dueDate: Patch.set(_due == null ? null : _fmtDate(_due!)),
         );
       } else {
@@ -200,17 +212,20 @@ class _BodyState extends ConsumerState<_Body> {
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),
                     const SizedBox(height: PSpace.x4),
-                    PSelect<String>(
+                    PSelect<String?>(
                       value: _tag,
                       title: l.todoTagSelect,
+                      // 값이 null 이면 trigger 가 placeholder 를 띄운다 — 그 자리에
+                      // 항목과 같은 문구를 넣어 "태그 없음" 이 골라진 상태로 읽힌다.
+                      placeholder: l.todoTagNone,
                       // 서버 태그 마스터(설정 > 할일 태그) — 현재 값이 목록에
                       // 없으면(과거 데이터·삭제된 태그) 맨 앞에 유지해 보존.
                       items: [
+                        PSelectItem<String?>(value: null, label: l.todoTagNone),
                         for (final tag in _tagChoices())
-                          PSelectItem<String>(value: tag, label: tag),
+                          PSelectItem<String?>(value: tag, label: tag),
                       ],
-                      onChanged: (v) =>
-                          setState(() => _tag = v ?? kTodoDefaultTag),
+                      onChanged: (v) => setState(() => _tag = v),
                     ),
                   ],
                 ),

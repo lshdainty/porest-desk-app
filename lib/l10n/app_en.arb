@@ -2856,6 +2856,7 @@
   "todoUnset": "Not set",
   "todoTag": "Tag",
   "todoTagSelect": "Select tag",
+  "todoTagNone": "No tag",
   "todoPriorityLabel": "Priority",
   "todoPriorityImportant": "High",
   "todoPriorityRelaxed": "Low",

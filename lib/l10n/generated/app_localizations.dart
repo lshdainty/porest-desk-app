@@ -9716,6 +9716,12 @@ abstract class AppLocalizations {
   /// **'태그 선택'**
   String get todoTagSelect;
 
+  /// No description provided for @todoTagNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 없음'**
+  String get todoTagNone;
+
   /// No description provided for @todoPriorityLabel.
   ///
   /// In ko, this message translates to:

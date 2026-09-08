@@ -58,17 +58,20 @@ class TodoRepository {
 
   /// 수정 — 편집 화면이 소유한 칸만 키를 싣는다(QA #99).
   ///
-  /// [content] 와 [dueDate] 가 [Patch] 다. 메모는 지울 수 있고 기한은 안 정한
-  /// 상태로 되돌릴 수 있어, 둘 다 명시적 null 을 실어야 서버가 지운다.
-  /// 우선순위·카테고리는 화면이 늘 값을 들고 있다(둘 다 기본값이 있다).
-  /// 태그(`tagIds`)는 [updateTags] 가 따로 다룬다 — "null=미변경 · 빈 배열=전부 해제"
-  /// 라는 뜻이 이미 확정돼 있어(QA #87) 여기에 섞지 않는다.
+  /// [content] · [dueDate] · [category] 가 [Patch] 다. 메모는 지울 수 있고,
+  /// 기한은 안 정한 상태로 되돌릴 수 있고, **태그는 뗄 수 있다** — 셋 다 명시적
+  /// null 을 실어야 서버가 지운다. 종전엔 `category` 가 `String?` 이라 "태그 없음"
+  /// 을 보낼 방법이 없었고(널이면 키째 빠져 서버가 옛 태그를 지켰다), 그래서 앱에서
+  /// 한 번 붙은 태그를 뗄 수 없었다.
+  /// 우선순위는 화면이 늘 값을 들고 있다(기본값이 있다).
+  /// 태그 마스터 연결(`tagIds`)은 [updateTags] 가 따로 다룬다 —
+  /// "null=미변경 · 빈 배열=전부 해제" 라는 뜻이 이미 확정돼 있어(QA #87) 섞지 않는다.
   Future<Todo> update({
     required int id,
     required String title,
     Patch<String> content = const Patch.keep(),
     String? priority,
-    String? category,
+    Patch<String> category = const Patch.keep(),
     Patch<String> dueDate = const Patch.keep(),
   }) async {
     try {
@@ -78,7 +81,7 @@ class TodoRepository {
           'title': title,
           if (content.present) 'content': content.value,
           'priority': ?priority,
-          'category': ?category,
+          if (category.present) 'category': category.value,
           if (dueDate.present) 'dueDate': dueDate.value,
         },
       );
