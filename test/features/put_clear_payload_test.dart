@@ -186,14 +186,6 @@ void main() {
       expectAbsent(captured.single, 'category');
     });
 
-    test('하위 할 일 생성은 parentRowId 를 싣는다', () async {
-      final (dio, captured) = _capturingDio(todoJson);
-
-      await TodoRepository(dio).create(title: '하위', parentRowId: 7);
-
-      expect(captured.single['parentRowId'], 7);
-    });
-
     test('태그 칸(tagIds)은 수정 본문에 안 섞인다 — 전용 경로가 따로 있다', () async {
       final (dio, captured) = _capturingDio(todoJson);
 
@@ -209,7 +201,8 @@ void main() {
 
       expectAbsent(captured.single, 'content');
       expectAbsent(captured.single, 'dueDate');
-      // 최상위 할 일 — 부모 키가 실리면 서버가 남의 자식으로 만든다.
+      // 하위 할 일 개념은 걷어냈다(D5) — 부모를 실을 칸이 화면에도 없고 본문에도
+      // 안 실린다. 키가 다시 새면 서버가 남의 자식으로 만들어 목록에서 사라진다.
       expectAbsent(captured.single, 'parentRowId');
     });
   });
@@ -449,9 +442,23 @@ void main() {
       expect(captured.single['paymentMethod'], 'CARD');
     });
 
-    // 메모 칸은 앱 편집 시트에 아예 없다 — 화면이 읽은 값을 되돌려 보내고(#326),
-    // 값이 없으면 키를 뺀다. null 을 실으면 웹에서 적어 둔 메모가 사라진다.
-    test('앱 화면에 없는 메모는 값이 없으면 키도 없다', () async {
+    // 메모는 편집 시트에 칸이 생겼다(D2). 종전엔 칸이 없어 화면이 읽은 값을 그대로
+    // 되돌려 보냈는데(#326), 이제는 다른 칸과 같은 규칙이다 — 비우면 지워져야 한다.
+    test('메모를 비우면 description 이 명시적 null 로 실린다', () async {
+      final (dio, captured) = _capturingDio(presetJson);
+
+      await PresetRepository(dio).update(
+        id: 1,
+        templateName: '점심',
+        categoryRowId: 3,
+        expenseType: 'EXPENSE',
+        description: const Patch.set(null),
+      );
+
+      expectExplicitNull(captured.single, 'description');
+    });
+
+    test('화면이 메모를 안 넘기면 description 키가 아예 안 실린다', () async {
       final (dio, captured) = _capturingDio(presetJson);
 
       await PresetRepository(dio).update(
@@ -467,7 +474,7 @@ void main() {
       expectAbsent(captured.single, 'sortOrder');
     });
 
-    test('읽어 온 메모는 그대로 되돌아간다', () async {
+    test('적어 넣은 메모는 그대로 실린다', () async {
       final (dio, captured) = _capturingDio(presetJson);
 
       await PresetRepository(dio).update(
@@ -475,7 +482,7 @@ void main() {
         templateName: '점심',
         categoryRowId: 3,
         expenseType: 'EXPENSE',
-        description: '회사 근처 김밥천국',
+        description: const Patch.set('회사 근처 김밥천국'),
       );
 
       expect(captured.single['description'], '회사 근처 김밥천국');
