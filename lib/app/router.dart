@@ -31,6 +31,7 @@ import 'package:porest_desk_app/features/constellation/presentation/forest_repor
 import 'package:porest_desk_app/features/constellation/presentation/night_sky_screen.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_screen.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_screen.dart';
+import 'package:porest_desk_app/features/memo/presentation/memo_tag_management_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/splash_screen.dart';
 import 'package:porest_desk_app/features/dashboard/presentation/dashboard_screen.dart';
@@ -154,6 +155,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings/todo-tags',
         builder: (_, _) => const TodoTagManagementScreen(),
+      ),
+      GoRoute(
+        path: '/settings/memo-tags',
+        builder: (_, _) => const MemoTagManagementScreen(),
       ),
       GoRoute(
         path: '/settings/securities',

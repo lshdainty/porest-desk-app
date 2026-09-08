@@ -5197,6 +5197,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoTagSelect => '태그 선택';
 
   @override
+  String get todoTagNone => '태그 없음';
+
+  @override
   String get todoPriorityLabel => '우선순위';
 
   @override
@@ -5531,6 +5534,46 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get memoTagNone => '태그 없음';
+
+  @override
+  String get memoNewTag => '태그 추가';
+
+  @override
+  String get memoTagNamePlaceholder => '예: 아이디어';
+
+  @override
+  String get memoDeleteTagTitle => '태그 삭제';
+
+  @override
+  String memoDeleteTagConfirm(String name, int count) {
+    return '\"$name\" 태그를 삭제하면 이 태그를 쓰는 메모 $count건은 태그 없음으로 남아요.';
+  }
+
+  @override
+  String get memoTagLoadError => '태그 로드 실패';
+
+  @override
+  String get mtagTitle => '메모 태그';
+
+  @override
+  String get mtagDesc => '메모에 붙이는 태그예요. 목록 필터와 태그별 묶음에 사용돼요.';
+
+  @override
+  String get mtagEmpty => '태그가 없어요';
+
+  @override
+  String get mtagEditTitle => '태그 수정';
+
+  @override
+  String get mtagNameLabel => '이름';
+
+  @override
+  String get mtagColorLabel => '색상';
+
+  @override
+  String mtagUsage(int count) {
+    return '$count건에 사용 중';
+  }
 
   @override
   String get memoPinToTop => '상단에 고정';
@@ -6219,6 +6262,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsMenuTodoTag => '할일 태그';
+
+  @override
+  String get settingsMenuMemoTag => '메모 태그';
 
   @override
   String ttagUsage(int count) {

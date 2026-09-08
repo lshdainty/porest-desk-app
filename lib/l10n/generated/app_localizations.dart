@@ -9716,6 +9716,12 @@ abstract class AppLocalizations {
   /// **'태그 선택'**
   String get todoTagSelect;
 
+  /// No description provided for @todoTagNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 없음'**
+  String get todoTagNone;
+
   /// No description provided for @todoPriorityLabel.
   ///
   /// In ko, this message translates to:
@@ -10333,6 +10339,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'태그 없음'**
   String get memoTagNone;
+
+  /// No description provided for @memoNewTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 추가'**
+  String get memoNewTag;
+
+  /// No description provided for @memoTagNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 아이디어'**
+  String get memoTagNamePlaceholder;
+
+  /// No description provided for @memoDeleteTagTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 삭제'**
+  String get memoDeleteTagTitle;
+
+  /// No description provided for @memoDeleteTagConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 태그를 삭제하면 이 태그를 쓰는 메모 {count}건은 태그 없음으로 남아요.'**
+  String memoDeleteTagConfirm(String name, int count);
+
+  /// No description provided for @memoTagLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 로드 실패'**
+  String get memoTagLoadError;
+
+  /// No description provided for @mtagTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 태그'**
+  String get mtagTitle;
+
+  /// No description provided for @mtagDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모에 붙이는 태그예요. 목록 필터와 태그별 묶음에 사용돼요.'**
+  String get mtagDesc;
+
+  /// No description provided for @mtagEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그가 없어요'**
+  String get mtagEmpty;
+
+  /// No description provided for @mtagEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 수정'**
+  String get mtagEditTitle;
+
+  /// No description provided for @mtagNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get mtagNameLabel;
+
+  /// No description provided for @mtagColorLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상'**
+  String get mtagColorLabel;
+
+  /// No description provided for @mtagUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건에 사용 중'**
+  String mtagUsage(int count);
 
   /// No description provided for @memoPinToTop.
   ///
@@ -11467,6 +11545,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'할일 태그'**
   String get settingsMenuTodoTag;
+
+  /// No description provided for @settingsMenuMemoTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 태그'**
+  String get settingsMenuMemoTag;
 
   /// No description provided for @ttagUsage.
   ///

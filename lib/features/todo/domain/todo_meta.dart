@@ -5,20 +5,38 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
-/// 할일 화면/다이얼로그 공유 메타 — 태그 7종, 우선순위 색/라벨, 상대시간·overdue.
+/// 할일 화면/다이얼로그 공유 메타 — 태그 묶음 키, 우선순위 색/라벨, 상대시간·overdue.
 ///
-/// 웹 `screens-life.jsx` `TODO_TAGS` / `TODO_PRIO` / `lifeRelativeDate` 미러.
-/// tag 는 기존 `category` 필드에 저장(자유 텍스트 → select 7종).
+/// 웹 `screens-life.jsx` `TODO_PRIO` / `lifeRelativeDate` 미러.
+/// tag 는 기존 `category` 필드에 저장(자유 텍스트 — 목록은 서버 태그 마스터가 SoT).
 
-/// 기본 태그 — 빈 category 폴백. 태그 목록은 서버 태그 마스터
-/// (todoTagListProvider)가 SoT — 하드코딩 목록 강제 없음.
-const kTodoDefaultTag = '개인';
+/// '태그 없음' 묶음을 가리키는 sentinel — 칩 필터·묶음 키와 표시에만 쓰고
+/// **서버로는 나가지 않는다**(편집기는 이 값을 쓰지 않고 `null` 을 싣는다).
+///
+/// 종전엔 `category` 가 비면 '개인' 을 그렸다. 태그를 지우면 서버가 그 할 일의
+/// `category` 를 실제로 비우는데(`TodoTagServiceImpl.deleteTag`) 화면이 '개인' 을
+/// 계속 그리면, 삭제 확인창이 약속한 "태그 없음으로 남아요" 와 어긋난다 —
+/// **'개인' 태그를 지운 사용자가 여전히 '개인' 을 본다.**
+///
+/// 값은 U+FFFF(비문자)다. 태그 이름은 사용자가 치는 글자라 어떤 평범한 문자열도
+/// sentinel 로 쓸 수 없다. 웹 `src/pages/todo/lib/todo-tags.ts` 의 `NO_TAG_KEY` ·
+/// 메모 쪽 `kMemoNoTagKey` 와 **같은 값**이다.
+const kTodoNoTagKey = '\u{FFFF}';
 
-/// 빈 category → 기본 '개인'. (서버 태그 자유화 — 목록 밖 값도 그대로 표시)
-String todoTagOrDefault(String? raw) {
-  final v = raw?.trim();
-  return (v == null || v.isEmpty) ? kTodoDefaultTag : v;
+/// 칩 필터·묶음에서 이 할 일이 속할 키. 태그가 없으면 '태그 없음' 묶음이다.
+///
+/// 웹 `todoTagKey` 미러. 이름을 **지어내지 않는다** — 옛 `todoTagOrDefault` 는 빈
+/// `category` 를 '개인' 으로 채웠고, 그 값이 편집기 기본값으로 흘러 제목만 고쳐
+/// 저장해도 서버가 '개인' 태그를 새로 만들었다(QA #105).
+String todoTagKey(String? category) {
+  final v = category?.trim();
+  return (v == null || v.isEmpty) ? kTodoNoTagKey : v;
 }
+
+/// 묶음 키 → 화면 라벨. sentinel 은 번역 문구로 바꿔 그린다 — U+FFFF 를 그대로
+/// 그리면 안 보이는 글자 하나가 태그 이름 자리에 남는다. 웹 `tagKeyLabel` 미러.
+String todoTagLabel(AppLocalizations l, String key) =>
+    key == kTodoNoTagKey ? l.todoTagNone : key;
 
 /// 우선순위 메타 — 라벨 + chip 색/배경.
 ///

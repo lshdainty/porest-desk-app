@@ -87,11 +87,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   static String _ymd(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  /// 태그 — 서버 태그명 그대로(빈 값은 기본 태그).
-  static String _tagOf(Todo x) {
-    final v = x.category?.trim();
-    return (v == null || v.isEmpty) ? kTodoDefaultTag : v;
-  }
+  /// 태그 묶음 키 — 서버 태그명 그대로, 태그가 없으면 '태그 없음' sentinel.
+  /// 그리기 전에 [todoTagLabel] 로 문구를 씌운다.
+  static String _tagOf(Todo x) => todoTagKey(x.category);
 
   void _lockFor(int ms) {
     _lock = true;
@@ -221,7 +219,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   }
 
   Future<void> _openFilter(List<Todo> all) async {
-    // 서버 태그 마스터 ∪ 사용 중 category — 웹 TodoPage 병합 정합.
+    // 서버 태그 마스터 ∪ 사용 중 묶음 키 — 웹 TodoPage 병합 정합.
+    // '태그 없음' 은 그런 할 일이 실제로 있을 때만 칩이 된다(`_tagOf` 가 그때만
+    // sentinel 을 내놓는다). U+FFFF 라 정렬하면 늘 맨 뒤다.
     final server = ref.read(todoTagListProvider).value ?? const [];
     final tags = <String>{
       for (final t in server) t.tagName,
@@ -1126,7 +1126,7 @@ class _TodoRow extends StatelessWidget {
     final overdueColor = todoOverdueColor(context);
     final prio = todoPrioOf(todo.priority);
     final l = AppLocalizations.of(context);
-    final tag = _TodoScreenState._tagOf(todo);
+    final tag = todoTagLabel(l, _TodoScreenState._tagOf(todo));
     final hasNote = (todo.content ?? '').trim().isNotEmpty;
 
     return InkWell(
@@ -1321,7 +1321,9 @@ class _FilterSheetBodyState extends State<_FilterSheetBody> {
             children: [
               for (final tag in widget.allTags)
                 _FilterChip(
-                  label: tag,
+                  // sentinel 은 문구로 바꿔 그린다 — 그대로 그리면 안 보이는
+                  // 글자 하나가 칩 안에 남는다.
+                  label: todoTagLabel(l, tag),
                   on: _tags.contains(tag),
                   onTap: () => setState(() {
                     _tags.contains(tag) ? _tags.remove(tag) : _tags.add(tag);

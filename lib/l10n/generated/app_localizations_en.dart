@@ -5263,6 +5263,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoTagSelect => 'Select tag';
 
   @override
+  String get todoTagNone => 'No tag';
+
+  @override
   String get todoPriorityLabel => 'Priority';
 
   @override
@@ -5601,6 +5604,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memoTagNone => 'No tag';
+
+  @override
+  String get memoNewTag => 'Add tag';
+
+  @override
+  String get memoTagNamePlaceholder => 'e.g. Ideas';
+
+  @override
+  String get memoDeleteTagTitle => 'Delete tag';
+
+  @override
+  String memoDeleteTagConfirm(String name, int count) {
+    return 'Deleting \"$name\" will leave $count memos using it untagged.';
+  }
+
+  @override
+  String get memoTagLoadError => 'Failed to load tags';
+
+  @override
+  String get mtagTitle => 'Memo tags';
+
+  @override
+  String get mtagDesc =>
+      'Tags you attach to memos. Used for list filters and tag grouping.';
+
+  @override
+  String get mtagEmpty => 'No tags yet';
+
+  @override
+  String get mtagEditTitle => 'Edit tag';
+
+  @override
+  String get mtagNameLabel => 'Name';
+
+  @override
+  String get mtagColorLabel => 'Color';
+
+  @override
+  String mtagUsage(int count) {
+    return 'Used by $count memos';
+  }
 
   @override
   String get memoPinToTop => 'Pin to top';
@@ -6297,6 +6341,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMenuTodoTag => 'To-do tags';
+
+  @override
+  String get settingsMenuMemoTag => 'Memo tags';
 
   @override
   String ttagUsage(int count) {

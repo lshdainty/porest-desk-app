@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
+import 'package:porest_desk_app/features/memo/domain/memo_meta.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -107,7 +108,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final tagFg = memoTagFg(context, memo.color);
     final swatch = memoSwatch(context, memo.color);
     final hasTitle = (memo.title ?? '').isNotEmpty;
-    final tag = (memo.tag ?? '').isNotEmpty ? memo.tag! : '개인';
+    final tag = memoTagLabel(l, memoTagKey(memo));
     final content = (memo.content ?? '').trim();
 
     return ListView(
