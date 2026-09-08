@@ -153,8 +153,12 @@ class AssetRepository {
   /// [Patch.keep] 이 기본값이라 안 넘긴 칸은 키가 빠지고 서버가 지금 값을 지킨다.
   ///
   /// 나머지가 [Patch] 가 아닌 이유:
-  /// - `assetName`·`assetType`·`currency`·`isIncludedInTotal`·`isOverdraft` — 세 화면 다
+  /// - `assetName`·`assetType`·`isIncludedInTotal`·`isOverdraft` — 세 화면 다
   ///   늘 값을 들고 있어 비워질 일이 없다
+  /// - `currency` — **통화 칸을 가진 화면만** 싣는다(계좌 하나뿐이다). 카드·투자는
+  ///   고르는 자리가 없으므로 안 보낸다 — 'KRW' 를 실으면 웹에서 만든 외화 자산이
+  ///   앱 편집 한 번에 원화가 되고 서버가 환산율을 1 로 정규화한다. 값이 없으면
+  ///   키가 빠지고 서버가 지금 통화를 지킨다
   /// - `institution`·`cardCatalogRowId` — 고르는 칸이라 **떼는 조작이 없다**.
   ///   값이 없으면 원래 없던 것이다
   /// - `color` — 앱 어느 화면에도 없는 칸이다(웹에서만 고른다)
@@ -399,7 +403,12 @@ class AssetRepository {
     required String quantity,
     required int amount,
     int? fee,
-    required String tradeDate, // ISO-LOCAL-DATETIME
+
+    /// 거래일 — **안 보내면 서버가 사용자 시계의 지금으로 채운다**
+    /// (`AssetTradeServiceImpl` 의 `userClock.now`). `@NotNull` 이 아니다.
+    /// 앱에 거래일 칸이 없는 화면은 여기를 비워라 — 기기 시계로 만든 문자열은
+    /// 시간대 정보가 없어 사용자 시계와 갈라진다.
+    String? tradeDate, // ISO-LOCAL-DATETIME
     String? description,
 
     /// 결제 계좌 — null 이면 증권계좌 예수금에서.
@@ -417,7 +426,7 @@ class AssetRepository {
           'quantity': quantity,
           'amount': amount,
           'fee': fee ?? 0,
-          'tradeDate': tradeDate,
+          'tradeDate': ?tradeDate,
           'description': ?description,
           'settlementAssetRowId': settlementAssetRowId,
         },
@@ -442,7 +451,11 @@ class AssetRepository {
     required String quantity,
     required int amount,
     int? fee,
-    required String tradeDate,
+
+    /// 거래일 — 저장과 같은 규칙이다. 안 보내면 서버가 사용자 시계의 지금으로 잡아
+    /// 그 시점 예수금을 계산한다. **저장에서 안 보내면 여기서도 보내지 마라** —
+    /// 한쪽만 보내면 미리보기와 저장이 다른 시점을 본다.
+    String? tradeDate,
     int? settlementAssetRowId,
   }) async {
     try {
@@ -459,7 +472,7 @@ class AssetRepository {
           'quantity': quantity,
           'amount': amount,
           'fee': fee ?? 0,
-          'tradeDate': tradeDate,
+          'tradeDate': ?tradeDate,
           'settlementAssetRowId': settlementAssetRowId,
         },
       );

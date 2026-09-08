@@ -133,6 +133,18 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   bool get _isEdit => widget.edit != null || widget.editTransfer != null;
 
+  /// 결제 문자에서 온 초안인가 — 저장이 `/import/sms/commit` 으로 간다.
+  bool get _isSmsDraft => widget.smsDraft != null;
+
+  /// 종류 토글을 잠그는가.
+  ///
+  /// 편집은 종전부터 잠겨 있었다. **결제 문자 초안도 잠근다** — 저장 경로인
+  /// `/import/sms/commit` 은 `expenseType` 을 받지 않고 서버가 `EXPENSE` 로 박아
+  /// 넣는다(`SmsImportServiceImpl`). 그래서 토글을 수입으로 바꿔 저장해도 지출로
+  /// 남았고, 화면만 수입이라 말했다. 못 지키는 약속은 안 하는 게 낫다 —
+  /// 이 초안은 원래부터 "카드 결제라 유형·결제수단은 고정" 이다(initState 주석).
+  bool get _typeLocked => _isEdit || _isSmsDraft;
+
   @override
   void initState() {
     super.initState();
@@ -506,8 +518,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         _TxInputForm(
           controller: _input,
           onChanged: () => setState(_syncController),
-          typeReadOnly: _isEdit,
-          typeDisabledFor: _isEdit ? _input.type : null,
+          typeReadOnly: _typeLocked,
+          typeDisabledFor: _typeLocked ? _input.type : null,
           presetSlot: _isEdit
               ? null
               : _PresetSection(

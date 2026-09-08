@@ -170,6 +170,11 @@ class _BodyState extends ConsumerState<_Body> {
                 0)
           : null;
       if (_isEdit) {
+        // 메모(description)는 이 화면에 칸이 없다. 그런데 서버 `updateTemplate` 은
+        // 이 칸을 **무조건 대입**해서, 안 실으면 저장할 때마다 지워진다 —
+        // 웹 프리셋 상세는 그 값을 그리고 생성 API 는 여전히 받는데, 되살릴
+        // 입력칸이 웹·앱 어디에도 없다. 그래서 **읽은 값을 그대로 되돌려 보낸다.**
+        // 서버가 "키 없으면 유지" 로 바뀌어도 같은 값을 다시 쓸 뿐이라 안전하다.
         await repo.update(
           id: widget.edit!.rowId,
           templateName: name,
@@ -177,6 +182,7 @@ class _BodyState extends ConsumerState<_Body> {
           assetRowId: _assetRowId,
           expenseType: _type,
           amount: amount,
+          description: widget.edit!.description,
           merchant: merchant.isEmpty ? null : merchant,
           paymentMethod: _paymentMethod.isEmpty ? null : _paymentMethod,
           lockAmount: _lockAmount,
