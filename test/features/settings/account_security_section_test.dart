@@ -111,6 +111,22 @@ void main() {
       expect(find.text('준비중'), findsNothing);
     });
 
+    testWidgets('2단계 인증 행은 메뉴에 없다', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = await pumpAccount(
+        tester,
+        auth: _FakeAuth(AppLockAuthResult.success),
+      );
+      await container.read(settingsProvider.future);
+      await tester.pump();
+
+      // 켜도 서버·로컬 어디에도 안 남고 백엔드에 2FA 가 아예 없었다 — 켠 줄 알고
+      // 안심하게 만드는 행이라 뺐다(웹은 desk-front #360 에서 먼저 뺐다).
+      expect(find.text('2단계 인증'), findsNothing);
+      // 바로 아래 앱 잠금은 진짜 기능이다 — 같이 사라지면 안 된다.
+      expect(find.text('앱 잠금'), findsOneWidget);
+    });
+
     testWidgets('앱 잠금 스위치는 인증을 통과해야 켜진다', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final auth = _FakeAuth(AppLockAuthResult.failure);
@@ -118,10 +134,10 @@ void main() {
       await container.read(settingsProvider.future);
       await tester.pump();
 
-      // 보안 섹션의 스위치는 2FA·앱 잠금 둘뿐 — 앱 잠금이 두 번째다.
+      // 2단계 인증을 뺀 뒤 보안 섹션의 스위치는 앱 잠금 하나뿐이다.
       final switches = find.byType(PSwitch);
-      expect(switches, findsNWidgets(2));
-      await tester.tap(switches.at(1));
+      expect(switches, findsOneWidget);
+      await tester.tap(switches.first);
       await tester.pumpAndSettle();
 
       expect(auth.calls, 1);
