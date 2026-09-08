@@ -10328,6 +10328,12 @@ abstract class AppLocalizations {
   /// **'태그'**
   String get memoFieldTag;
 
+  /// No description provided for @memoTagNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 없음'**
+  String get memoTagNone;
+
   /// No description provided for @memoPinToTop.
   ///
   /// In ko, this message translates to:

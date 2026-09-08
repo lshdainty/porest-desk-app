@@ -3058,6 +3058,7 @@
   "memoFieldContent": "Content",
   "memoContentPlaceholder": "Write your memo here",
   "memoFieldTag": "Tag",
+  "memoTagNone": "No tag",
   "memoPinToTop": "Pin to top",
   "memoFieldColor": "Color",
   "dateToday": "Today",

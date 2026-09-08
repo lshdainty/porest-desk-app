@@ -5600,6 +5600,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memoFieldTag => 'Tag';
 
   @override
+  String get memoTagNone => 'No tag';
+
+  @override
   String get memoPinToTop => 'Pin to top';
 
   @override
