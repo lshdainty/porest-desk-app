@@ -201,11 +201,39 @@
   "assetNicknameDuplicate": "An asset with this alias already exists.",
   "assetAccountType": "Account type",
   "assetAccountNumber": "Account number",
-  "assetBalanceLabel": "Balance (KRW)",
+  "assetBalanceLabel": "Balance ({unit})",
+  "@assetBalanceLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetBalanceEditHint": "Changing the balance treats everything before now as already included. Only later transactions are added.",
-  "assetOverdraftUsedLabel": "Amount in use (KRW)",
-  "assetLoanRemainingLabel": "Remaining loan (KRW)",
-  "assetOverdraftLimitLabel": "Overdraft limit (KRW, optional)",
+  "assetOverdraftUsedLabel": "Amount in use ({unit})",
+  "@assetOverdraftUsedLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetLoanRemainingLabel": "Remaining loan ({unit})",
+  "@assetLoanRemainingLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetOverdraftLimitLabel": "Overdraft limit ({unit}, optional)",
+  "@assetOverdraftLimitLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetOverdraftHint": "Enter how much you are currently overdrawn. If money is left in the account, pick Checking instead.",
   "assetLoanHint": "Enter the amount still owed. The app takes care of the sign.",
   "assetCurrency": "Currency",
@@ -221,7 +249,14 @@
   "assetExchangeRateDesc": "Net worth converts balance × rate. Left empty it is added without conversion.",
   "assetMemoOptional": "Memo (optional)",
   "assetMemoPlaceholder": "Note last digits, payment day, limit, etc.",
-  "assetCreditLimitLabel": "Credit limit (KRW, optional)",
+  "assetCreditLimitLabel": "Credit limit ({unit}, optional)",
+  "@assetCreditLimitLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetCreditLimitPlaceholder": "e.g. 5,000,000",
   "assetCreditLimitHint": "Enter a limit to show the usage gauge.",
   "assetPaymentDayLabel": "Payment day",
@@ -268,7 +303,14 @@
   "assetCardSearchHint": "Search card or issuer",
   "assetNicknameOptional": "Nickname (optional)",
   "assetCardNicknamePlaceholder": "e.g. Shinhan Deep Dream",
-  "assetCurrentUsage": "Current usage (KRW)",
+  "assetCurrentUsage": "Current usage ({unit})",
+  "@assetCurrentUsage": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetCurrentUsageHint": "Enter the amount not yet paid. If left at 0, every expense entered on this card (including past dates) counts as unpaid usage.",
   "assetNewCard": "New card",
   "assetCatalogLoadError": "Failed to load catalog",

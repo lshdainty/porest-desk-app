@@ -438,20 +438,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetAccountNumber => '계좌번호';
 
   @override
-  String get assetBalanceLabel => '잔액 (원)';
+  String assetBalanceLabel(String unit) {
+    return '잔액 ($unit)';
+  }
 
   @override
   String get assetBalanceEditHint =>
       '잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.';
 
   @override
-  String get assetOverdraftUsedLabel => '사용 중인 금액 (원)';
+  String assetOverdraftUsedLabel(String unit) {
+    return '사용 중인 금액 ($unit)';
+  }
 
   @override
-  String get assetLoanRemainingLabel => '남은 대출 금액 (원)';
+  String assetLoanRemainingLabel(String unit) {
+    return '남은 대출 금액 ($unit)';
+  }
 
   @override
-  String get assetOverdraftLimitLabel => '마이너스 한도 (원, 선택)';
+  String assetOverdraftLimitLabel(String unit) {
+    return '마이너스 한도 ($unit, 선택)';
+  }
 
   @override
   String get assetOverdraftHint =>
@@ -482,7 +490,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetMemoPlaceholder => '계좌번호 뒷자리, 결제일, 한도 등 메모하세요';
 
   @override
-  String get assetCreditLimitLabel => '신용한도 (원, 선택)';
+  String assetCreditLimitLabel(String unit) {
+    return '신용한도 ($unit, 선택)';
+  }
 
   @override
   String get assetCreditLimitPlaceholder => '예: 5,000,000';
@@ -585,7 +595,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCardNicknamePlaceholder => '예: 신한 Deep Dream';
 
   @override
-  String get assetCurrentUsage => '현재 사용액 (원)';
+  String assetCurrentUsage(String unit) {
+    return '현재 사용액 ($unit)';
+  }
 
   @override
   String get assetCurrentUsageHint =>

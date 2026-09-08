@@ -204,11 +204,39 @@
   "assetNicknameDuplicate": "같은 별칭의 자산이 이미 있어요.",
   "assetAccountType": "계좌 종류",
   "assetAccountNumber": "계좌번호",
-  "assetBalanceLabel": "잔액 (원)",
+  "assetBalanceLabel": "잔액 ({unit})",
+  "@assetBalanceLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetBalanceEditHint": "잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.",
-  "assetOverdraftUsedLabel": "사용 중인 금액 (원)",
-  "assetLoanRemainingLabel": "남은 대출 금액 (원)",
-  "assetOverdraftLimitLabel": "마이너스 한도 (원, 선택)",
+  "assetOverdraftUsedLabel": "사용 중인 금액 ({unit})",
+  "@assetOverdraftUsedLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetLoanRemainingLabel": "남은 대출 금액 ({unit})",
+  "@assetLoanRemainingLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetOverdraftLimitLabel": "마이너스 한도 ({unit}, 선택)",
+  "@assetOverdraftLimitLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetOverdraftHint": "지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.",
   "assetLoanHint": "아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.",
   "assetCurrency": "통화",
@@ -224,7 +252,14 @@
   "assetExchangeRateDesc": "순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.",
   "assetMemoOptional": "메모 (선택)",
   "assetMemoPlaceholder": "계좌번호 뒷자리, 결제일, 한도 등 메모하세요",
-  "assetCreditLimitLabel": "신용한도 (원, 선택)",
+  "assetCreditLimitLabel": "신용한도 ({unit}, 선택)",
+  "@assetCreditLimitLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetCreditLimitPlaceholder": "예: 5,000,000",
   "assetCreditLimitHint": "한도를 입력하면 사용률 게이지가 표시됩니다.",
   "assetPaymentDayLabel": "결제일",
@@ -271,7 +306,14 @@
   "assetCardSearchHint": "카드명 또는 발급사 검색",
   "assetNicknameOptional": "별칭 (선택)",
   "assetCardNicknamePlaceholder": "예: 신한 Deep Dream",
-  "assetCurrentUsage": "현재 사용액 (원)",
+  "assetCurrentUsage": "현재 사용액 ({unit})",
+  "@assetCurrentUsage": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "assetCurrentUsageHint": "아직 결제되지 않은 사용액을 적어 주세요. 0으로 두면 이 카드에 입력하는 모든 내역(지난 날짜 포함)이 미결제 사용액으로 잡혀요.",
   "assetNewCard": "새 카드",
   "assetCatalogLoadError": "카탈로그 로드 실패",

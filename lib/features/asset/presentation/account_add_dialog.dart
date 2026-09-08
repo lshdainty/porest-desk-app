@@ -377,6 +377,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     // 설정의 기본 통화가 늦게 도착하면 이 폼을 다시 그린다 — 값은 `_currency` 가
     // 읽는다(고른 값 > 이 자산의 값 > 기본 통화).
     ref.watch(defaultCurrencyProvider);
+    // 라벨 괄호 안 단위. 표기 규칙은 `currencyUnit` 한 곳이고 웹도 그걸 쓴다.
+    final unit = currencyUnit(_currency);
     // 중복 검사는 `assetsProvider` 캐시를 읽는다 — 리스너가 도는 시점엔 아직
     // 로딩 중일 수 있어 그때 계산한 값은 믿을 수 없다. 그려질 때 다시 확정한다.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -498,10 +500,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   Text(
                     // 무엇을 묻는지가 종류마다 다르다 — 마이너스통장은 '얼마나 썼나',
                     // 대출은 '얼마나 남았나' 다. 둘 다 양수로 받는다.
+                    // 단위는 고른 통화를 따른다 — USD 를 골라 놓고 `(원)` 이라고
+                    // 적혀 있으면 라벨이 값을 속인다.
                     switch (_subType) {
-                      _SubType.overdraft => l.assetOverdraftUsedLabel,
-                      _SubType.loan => l.assetLoanRemainingLabel,
-                      _ => l.assetBalanceLabel,
+                      _SubType.overdraft => l.assetOverdraftUsedLabel(unit),
+                      _SubType.loan => l.assetLoanRemainingLabel(unit),
+                      _ => l.assetBalanceLabel(unit),
                     },
                     style: PTypo.caption.copyWith(
                       color: t.fgPrimary,
@@ -546,7 +550,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         if (_subType == _SubType.overdraft) ...[
           const SizedBox(height: PSpace.x20),
           Text(
-            l.assetOverdraftLimitLabel,
+            // 한도는 사용액과 **견주는** 값이다 — 단위가 갈리면 무엇과 무엇을
+            // 견줬는지 읽을 수 없다. 잔액 라벨과 같은 단위를 쓴다.
+            l.assetOverdraftLimitLabel(unit),
             style: PTypo.caption.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.medium,
