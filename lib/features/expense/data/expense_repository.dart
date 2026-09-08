@@ -88,7 +88,7 @@ class ExpenseRepository {
   ///
   /// [refundOfExpenseRowId] 는 [Patch] 가 아니다. 환불 연결은 **새 환불 거래를 만들 때만**
   /// 정해지고 편집 시트에는 그 칸이 없다 — null 로 실으면 환불 거래를 한 번 고칠 때마다
-  /// 원거래와의 연결이 끊겨 통계 상계가 사라진다.
+  /// 원거래와의 연결이 끊겨 통계 상계가 사라진다. 끊는 것은 [unlinkRefund] 가 한다.
   ///
   /// [splits] 가 non-null 이면 금액과 함께 분할을 원자적으로 교체(PUT body 에 splits 포함).
   /// null 이면 분할 미변경(백엔드가 기존 분할 유지). 금액↔분할 합 일치화(reconcile) 저장에 사용.
@@ -140,6 +140,27 @@ class ExpenseRepository {
                 },
             ],
         },
+      );
+      return _unwrap(res, Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 환불 연결만 끊는다 — 본문에 `refundOfExpenseRowId: null` **하나만** 싣는다.
+  ///
+  /// [update] 로는 끊을 수 없다. 편집 시트엔 이 칸이 없어 그 메서드는 키를 아예 안
+  /// 싣는데(안 그러면 메모만 고쳐도 연결이 끊긴다), 그래서 "끊어라" 를 보낼 자리가
+  /// 없었다. 상세의 '환불 취소' 버튼이 여기로 온다.
+  ///
+  /// 나머지 칸은 **키를 안 싣는다** — 서버가 안 온 칸을 그대로 두므로(QA #96) 금액·
+  /// 카테고리·일시를 다시 실을 이유가 없다. 다시 실으면 화면이 들고 있던 옛 값이
+  /// 그 사이 바뀐 값을 덮는다.
+  Future<Expense> unlinkRefund(int id) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/expense/$id',
+        data: {'refundOfExpenseRowId': null},
       );
       return _unwrap(res, Expense.fromJson);
     } on DioException catch (e) {

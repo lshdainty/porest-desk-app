@@ -294,6 +294,19 @@ void main() {
       expectAbsent(captured.single, 'splits');
     });
 
+    test('환불 취소만 그 키를 싣는다 — 명시적 null 하나뿐이다', () async {
+      final (dio, captured) = _capturingDio(expenseJson);
+
+      await ExpenseRepository(dio).unlinkRefund(1);
+
+      expectExplicitNull(captured.single, 'refundOfExpenseRowId');
+      // 나머지는 키가 없다 — 서버가 안 온 칸을 그대로 두므로(QA #96) 옛 금액·카테고리를
+      // 다시 실을 이유가 없다. 실으면 그 사이 웹에서 바뀐 값을 덮는다.
+      expect(captured.single.keys, [
+        'refundOfExpenseRowId',
+      ], reason: '환불 취소는 연결만 끊는다 — 다른 칸을 실으면 옛 값이 새 값을 덮는다');
+    });
+
     test('생성 경로는 그대로다 — null 인 칸은 키째 빠진다', () async {
       final (dio, captured) = _capturingDio(expenseJson);
 
