@@ -1308,12 +1308,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoPriorityLow => '낮음';
 
   @override
-  String get todoSubtask => '하위 작업';
-
-  @override
-  String get todoSubtaskAddHint => '+ 하위 작업 추가';
-
-  @override
   String get todoTagMgmt => '태그 관리';
 
   @override
@@ -5316,9 +5310,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get todoTagLoadError => '태그 로드 실패';
-
-  @override
-  String get todoSubtaskLoadError => '하위 작업 로드 실패';
 
   @override
   String get subManageTitle => '구독 관리';

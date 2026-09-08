@@ -1,4 +1,4 @@
-// 할 일 편집 시트 — 태그 표기(QA #103·#105) + 하위 할 일의 부모.
+// 할 일 편집 시트 — 태그 표기(QA #103·#105) + 하위 할 일이 사라진 자리(D5).
 //
 // ① 태그 없는 할 일을 '개인' 이라 부르지 않는다. 종전엔 편집기가 빈 `category` 를
 //    '개인' 으로 채워 열었고, 제목만 고쳐 저장해도 그 이름이 실려 **서버가 '개인'
@@ -6,7 +6,8 @@
 //    "태그 없음으로 남아요" 라고 약속해 놓고 화면이 그 말을 어긴 상태였다.
 // ② '태그 없음' 선택지가 없어 **한 번 붙은 태그를 앱에서 뗄 수 없었다.** 뗄 수
 //    있으려면 키를 빼지 말고 명시적 null 을 실어야 한다(PUT 은 "키 없음=유지").
-// ③ 하위 빠른 추가가 `parentRowId` 를 안 실어 최상위 할 일로 만들어졌다.
+// ③ 하위 할 일 개념을 걷어냈다 — 이 시트의 하위 목록·빠른 추가가 통째로 없다.
+//    부모를 실을 자리도 `TodoRepository.create` 에서 사라졌다.
 //
 // 에뮬레이터를 쓸 수 없는 환경이라(QA #23) 저장 페이로드를 위젯 테스트로 고정한다.
 // 리포지토리 단위 검증은 `test/features/put_clear_payload_test.dart` 에 있고,
@@ -42,7 +43,6 @@ class _CapturingRepo extends TodoRepository {
   String? title;
   bool created = false;
   String? createdCategory;
-  int? createdParentRowId;
 
   @override
   Future<Todo> update({
@@ -66,11 +66,9 @@ class _CapturingRepo extends TodoRepository {
     String? category,
     String? dueDate,
     String? type,
-    int? parentRowId,
   }) async {
     created = true;
     createdCategory = category;
-    createdParentRowId = parentRowId;
     return _todo;
   }
 }
@@ -93,7 +91,6 @@ Future<_CapturingRepo> _openEdit(
   Todo? edit = _todo,
   List<TodoTag> tags = const [],
   bool tagsFail = false,
-  List<Todo> subtasks = const [],
 }) async {
   final repo = _CapturingRepo();
   // 시트 본문이 세로로 길다 — 좁은 화면에서는 아래 칸이 아예 안 만들어진다.
@@ -107,7 +104,6 @@ Future<_CapturingRepo> _openEdit(
         todoTagListProvider.overrideWith(
           (ref) async => tagsFail ? throw Exception('할 일 태그 조회 실패') : tags,
         ),
-        todoSubtasksProvider.overrideWith((ref, id) async => subtasks),
       ],
       child: MaterialApp(
         theme: PorestTheme.light(),
@@ -229,26 +225,18 @@ void main() {
     });
   });
 
+  // 하위 할 일은 걷어냈다(D5). 시트를 열면 저장 버튼 하나만 있어야 한다 —
+  // 하위 섹션이 살아 있으면 '추가' 버튼이 하나 더 떠서 여기서 걸린다.
   group('하위 할 일', () {
-    testWidgets('빠른 추가가 부모를 실어 보낸다', (tester) async {
-      final repo = await _openEdit(tester);
+    testWidgets('편집 시트에 하위 목록도 빠른 추가도 없다', (tester) async {
+      await _openEdit(tester);
 
-      await tester.enterText(_field(l.todoSubtaskAddHint), '하위 항목');
-      await tester.pumpAndSettle();
-      // 시트 푸터의 저장(수정)이 아니라 하위 섹션의 '추가' 버튼이다.
-      await tester.tap(
-        find
-            .ancestor(of: find.text(l.calAdd), matching: find.byType(PButton))
-            .last,
-      );
-      await tester.pumpAndSettle();
-
-      expect(repo.created, isTrue);
       expect(
-        repo.createdParentRowId,
-        _todo.rowId,
-        reason: '부모를 안 실으면 서버가 최상위 할 일로 만든다 — 이 목록에서 사라진다',
+        find.text(l.calAdd),
+        findsNothing,
+        reason: '하위 빠른 추가의 \'추가\' 버튼이 남아 있다 — 화면만 걷어야 개념이 사라진다',
       );
+      expect(_submitButton(l.actionEdit), findsOneWidget);
     });
   });
 }

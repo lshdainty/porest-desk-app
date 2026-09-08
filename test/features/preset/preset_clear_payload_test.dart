@@ -10,9 +10,9 @@
 // 조작해서**(입력 지우기 · '선택 안 함' 고르기) 그 본문이 나가는지까지 태운다 —
 // 에뮬레이터를 쓸 수 없으므로(QA #23) 이게 "무엇을 보내는가" 의 마지막 잠금이다.
 //
-// 반대쪽도 같이 잠근다: **메모(description)는 이 시트에 칸이 없다.** 읽어 온 값을
-// 그대로 되돌려 보내야 하고(#326), 여기서 null 을 실으면 웹에서 적어 둔 메모가
-// 앱으로 프리셋을 고칠 때마다 사라진다 — 되살릴 입력칸이 웹·앱 어디에도 없다.
+// 메모(description)도 여기 속한다. 종전엔 시트에 칸이 없어 읽어 온 값을 그대로
+// 되돌려 보냈는데(#326), 칸이 생기면서(D2) 같은 규칙으로 들어왔다 — 비우면 지워지고
+// 안 건드리면 그대로 남는다. 칸이 생겼는데 되돌려 보내기만 하면 지울 방법이 없다.
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,7 +70,7 @@ class _CapturingRepo extends PresetRepository {
   Patch<int> assetRowId = const Patch.keep();
   Patch<String> merchant = const Patch.keep();
   Patch<String> paymentMethod = const Patch.keep();
-  String? description;
+  Patch<String> description = const Patch.keep();
 
   @override
   Future<ExpenseTemplate> update({
@@ -80,7 +80,7 @@ class _CapturingRepo extends PresetRepository {
     Patch<int> assetRowId = const Patch.keep(),
     required String expenseType,
     int? amount,
-    String? description,
+    Patch<String> description = const Patch.keep(),
     Patch<String> merchant = const Patch.keep(),
     Patch<String> paymentMethod = const Patch.keep(),
     bool lockAmount = false,
@@ -199,6 +199,22 @@ void main() {
     expect(repo.assetRowId.value, isNull);
   });
 
+  testWidgets('메모를 지우면 description 이 명시적 null 로 실린다', (tester) async {
+    final repo = await _open(tester, _filled);
+    await tester.enterText(_field(l.expMemoPlaceholder), '');
+    await tester.pumpAndSettle();
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+
+    expect(repo.called, isTrue, reason: '저장이 안 불렸다');
+    expect(
+      repo.description.present,
+      isTrue,
+      reason: 'description 키가 빠지면 지운 메모가 그대로 남는다 — 칸만 비고 값은 산다',
+    );
+    expect(repo.description.value, isNull);
+  });
+
   testWidgets('안 건드린 칸은 지금 값이 그대로 실린다', (tester) async {
     final repo = await _open(tester, _filled);
     await tester.tap(_submitButton(l.actionSave));
@@ -207,21 +223,19 @@ void main() {
     expect(repo.merchant.value, '김밥천국');
     expect(repo.paymentMethod.value, 'CARD');
     expect(repo.assetRowId.value, 7);
+    // 다른 칸을 비우는 저장이 메모까지 지우면 안 된다 — 칸이 생기기 전의 사고다.
+    expect(repo.description.value, '회사 근처 김밥천국');
   });
 
-  // 이 시트에 메모 칸은 없다 — 비우는 쪽을 고치면서 없는 칸에 null 을 실으면
-  // 웹에서 적어 둔 메모가 저장 한 번에 사라진다. 그게 이 수정의 제일 큰 위험이다.
-  testWidgets('칸이 없는 메모는 읽어 온 값이 그대로 되돌아간다', (tester) async {
+  // 거래처만 비운 저장이 메모까지 쓸어 가지 않는지 — 칸이 생겨도 남는 위험이다.
+  testWidgets('거래처만 비워도 메모는 그대로 실린다', (tester) async {
     final repo = await _open(tester, _filled);
     await tester.enterText(_field(l.presetMerchantPlaceholder), '');
     await tester.pumpAndSettle();
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
 
-    expect(
-      repo.description,
-      '회사 근처 김밥천국',
-      reason: '거래처를 비운 저장이 메모까지 지우면 되살릴 입력칸이 없다',
-    );
+    expect(repo.merchant.value, isNull);
+    expect(repo.description.value, '회사 근처 김밥천국');
   });
 }

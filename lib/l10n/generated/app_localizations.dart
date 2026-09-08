@@ -2492,18 +2492,6 @@ abstract class AppLocalizations {
   /// **'낮음'**
   String get todoPriorityLow;
 
-  /// No description provided for @todoSubtask.
-  ///
-  /// In ko, this message translates to:
-  /// **'하위 작업'**
-  String get todoSubtask;
-
-  /// No description provided for @todoSubtaskAddHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'+ 하위 작업 추가'**
-  String get todoSubtaskAddHint;
-
   /// No description provided for @todoTagMgmt.
   ///
   /// In ko, this message translates to:
@@ -9949,12 +9937,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'태그 로드 실패'**
   String get todoTagLoadError;
-
-  /// No description provided for @todoSubtaskLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'하위 작업 로드 실패'**
-  String get todoSubtaskLoadError;
 
   /// No description provided for @subManageTitle.
   ///

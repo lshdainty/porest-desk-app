@@ -1326,12 +1326,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoPriorityLow => 'Low';
 
   @override
-  String get todoSubtask => 'Subtasks';
-
-  @override
-  String get todoSubtaskAddHint => '+ Add subtask';
-
-  @override
   String get todoTagMgmt => 'Tags';
 
   @override
@@ -5383,9 +5377,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todoTagLoadError => 'Failed to load tags';
-
-  @override
-  String get todoSubtaskLoadError => 'Failed to load subtasks';
 
   @override
   String get subManageTitle => 'Manage subscription';

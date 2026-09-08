@@ -10,10 +10,8 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/markdown_preview.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
@@ -306,11 +304,6 @@ class _BodyState extends ConsumerState<_Body> {
               maxLines: 6,
               placeholder: l.todoContentPlaceholder,
             ),
-
-          if (_isEdit) ...[
-            const SizedBox(height: PSpace.x16),
-            _SubtaskSection(parentId: widget.edit!.rowId, tokens: t),
-          ],
         ],
       ),
     );
@@ -371,156 +364,6 @@ class _PriSeg extends StatelessWidget {
             ),
         ],
       ),
-    );
-  }
-}
-
-/// Todo 서브태스크 섹션 (#323).
-class _SubtaskSection extends ConsumerStatefulWidget {
-  const _SubtaskSection({required this.parentId, required this.tokens});
-  final int parentId;
-  final PorestTokens tokens;
-  @override
-  ConsumerState<_SubtaskSection> createState() => _SubtaskSectionState();
-}
-
-class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
-  final _ctrl = TextEditingController();
-  bool _adding = false;
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _addSubtask() async {
-    final title = _ctrl.text.trim();
-    if (title.isEmpty || _adding) return;
-    setState(() => _adding = true);
-    try {
-      final repo = await ref.read(todoRepositoryProvider.future);
-      // 부모를 실어야 하위 할 일로 만들어진다 — 안 실으면 서버가 최상위로
-      // 만들어(`parent` 가 null) 방금 적은 것이 이 목록에서 사라진다.
-      await repo.create(title: title, parentRowId: widget.parentId);
-      ref.invalidate(todoSubtasksProvider(widget.parentId));
-      _ctrl.clear();
-      setState(() => _adding = false);
-    } on ApiException {
-      if (!mounted) return;
-      setState(() => _adding = false);
-    }
-  }
-
-  Future<void> _toggleStatus(Todo sub) async {
-    final next = sub.status == 'COMPLETED' ? 'PENDING' : 'COMPLETED';
-    try {
-      final repo = await ref.read(todoRepositoryProvider.future);
-      await repo.setStatus(sub.rowId, next);
-      ref.invalidate(todoSubtasksProvider(widget.parentId));
-    } on ApiException {
-      if (!mounted) return;
-    }
-  }
-
-  Future<void> _deleteSubtask(int id) async {
-    try {
-      final repo = await ref.read(todoRepositoryProvider.future);
-      await repo.delete(id);
-      ref.invalidate(todoSubtasksProvider(widget.parentId));
-    } on ApiException {
-      if (!mounted) return;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = widget.tokens;
-    final l = AppLocalizations.of(context);
-    final async = ref.watch(todoSubtasksProvider(widget.parentId));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l.todoSubtask,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x4),
-        async.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Center(child: PCircularProgressIndicator()),
-          ),
-          error: (e, _) => Text(
-            l.todoSubtaskLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
-          ),
-          data: (subs) {
-            if (subs.isEmpty) return const SizedBox.shrink();
-            return Column(
-              children: [
-                for (final s in subs)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      children: [
-                        PButton.icon(
-                          icon: s.status == 'COMPLETED'
-                              ? LucideIcons.checkCircle
-                              : LucideIcons.circle,
-                          size: PButtonSize.sm,
-                          iconColor: s.status == 'COMPLETED'
-                              ? t.statusSuccess
-                              : t.fgTertiary,
-                          onPressed: () => _toggleStatus(s),
-                        ),
-                        Expanded(
-                          child: Text(
-                            s.title,
-                            style: PTypo.bodySm.copyWith(
-                              color: t.fgPrimary,
-                              decoration: s.status == 'COMPLETED'
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        PButton.icon(
-                          icon: LucideIcons.x,
-                          size: PButtonSize.sm,
-                          iconColor: t.fgTertiary,
-                          onPressed: () => _deleteSubtask(s.rowId),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Expanded(
-              child: PTextInput(
-                controller: _ctrl,
-                enabled: !_adding,
-                placeholder: l.todoSubtaskAddHint,
-                onSubmitted: (_) => _addSubtask(),
-                onChanged: (_) => setState(() {}),
-              ),
-            ),
-            const SizedBox(width: 6),
-            PButton(
-              label: l.calAdd,
-              loading: _adding,
-              onPressed: (_ctrl.text.trim().isEmpty || _adding)
-                  ? null
-                  : _addSubtask,
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

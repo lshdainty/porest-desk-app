@@ -14,12 +14,12 @@ import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_currency_fields.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 
 /// 계좌 추가/편집 다이얼로그 — front `AssetAddDialog` / `AssetEditDialog` 미러.
@@ -191,14 +191,6 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     return result;
   }
 
-  /// 1400.000000 을 1400 으로 — 서버가 소수 6자리로 주는 값을 그대로 보여 주면 지저분하다.
-  static String _trimRate(double rate) {
-    final s = rate.toStringAsFixed(6);
-    return s.contains('.')
-        ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
-        : s;
-  }
-
   static String _norm(String s) =>
       s.toLowerCase().replaceAll(RegExp(r'\s+'), '');
 
@@ -245,7 +237,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
     _currency = e?.currency ?? kDefaultCurrency;
     _fxRateCtrl = TextEditingController(
-      text: e?.exchangeRate != null ? _trimRate(e!.exchangeRate!) : '',
+      text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
     );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
@@ -550,71 +542,13 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         ],
 
         // 통화·환율 — 외화통장. 통화는 자산 유형과 무관하게 연다(해외 카드·외화 대출).
+        // 카드·투자 폼도 같은 위젯을 쓴다 — 세 폼이 각자 베끼면 한쪽만 고쳐진다.
         const SizedBox(height: PSpace.x20),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.assetCurrency,
-                    style: PTypo.caption.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
-                  const SizedBox(height: PSpace.x8),
-                  PSelect<String>(
-                    value: _currency,
-                    items: [
-                      for (final c in kCurrencies)
-                        PSelectItem(
-                          value: c.code,
-                          label: '${c.symbol} ${c.code}',
-                        ),
-                    ],
-                    onChanged: (v) =>
-                        setState(() => _currency = v ?? kDefaultCurrency),
-                  ),
-                ],
-              ),
-            ),
-            if (isForeignCurrency(_currency)) ...[
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.assetExchangeRate,
-                      style: PTypo.caption.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.medium,
-                      ),
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    PTextInput(
-                      controller: _fxRateCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      placeholder: l.assetExchangeRateHint(_currency),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
+        AssetCurrencyFields(
+          currency: _currency,
+          rateController: _fxRateCtrl,
+          onCurrencyChanged: (v) => setState(() => _currency = v),
         ),
-        if (isForeignCurrency(_currency)) ...[
-          const SizedBox(height: PSpace.x8),
-          Text(
-            l.assetExchangeRateDesc,
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
-          ),
-        ],
 
         // 메모 — 편집 모드에서만 노출 (web 동일).
         if (_isEdit) ...[

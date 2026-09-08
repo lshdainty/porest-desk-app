@@ -136,14 +136,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   /// 결제 문자에서 온 초안인가 — 저장이 `/import/sms/commit` 으로 간다.
   bool get _isSmsDraft => widget.smsDraft != null;
 
-  /// 종류 토글을 잠그는가.
+  /// 종류 토글을 잠그는가 — 편집뿐이다.
   ///
-  /// 편집은 종전부터 잠겨 있었다. **결제 문자 초안도 잠근다** — 저장 경로인
-  /// `/import/sms/commit` 은 `expenseType` 을 받지 않고 서버가 `EXPENSE` 로 박아
-  /// 넣는다(`SmsImportServiceImpl`). 그래서 토글을 수입으로 바꿔 저장해도 지출로
-  /// 남았고, 화면만 수입이라 말했다. 못 지키는 약속은 안 하는 게 낫다 —
-  /// 이 초안은 원래부터 "카드 결제라 유형·결제수단은 고정" 이다(initState 주석).
-  bool get _typeLocked => _isEdit || _isSmsDraft;
+  /// 결제 문자 초안도 한동안 잠겨 있었다(#326). 저장 경로인 `/import/sms/commit` 이
+  /// `expenseType` 을 안 받고 서버가 `EXPENSE` 를 박아 넣어서, 수입으로 바꿔 저장해도
+  /// 지출로 남았기 때문이다 — 화면만 수입이라 말하느니 못 고르게 두는 게 나았다.
+  /// **서버가 이제 그 값을 받으므로**(desk-back #326) 잠금을 푼다. 환불·입금 문자를
+  /// 수입으로 남길 수 있어야 그 달 지출이 부풀지 않는다.
+  bool get _typeLocked => _isEdit;
 
   @override
   void initState() {
@@ -415,6 +415,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           text: widget.smsDraft!.text,
           assetRowId: _input.assetRowId,
           categoryRowId: _input.categoryRowId,
+          // 종류를 안 실으면 서버가 지출로 본다 — 환불 문자를 수입으로 골라도
+          // 지출로 남아 그 달 지출이 부푼다(desk-back #326).
+          expenseType: _input.type,
           amount: amount,
           merchant: merchant,
           description: desc,
@@ -520,6 +523,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           onChanged: () => setState(_syncController),
           typeReadOnly: _typeLocked,
           typeDisabledFor: _typeLocked ? _input.type : null,
+          // 문자 초안은 지출↔수입만 오간다. 이체를 고르면 저장이 일반 이체 경로로
+          // 새고(`_submit` 의 TRANSFER 분기가 먼저다) 취소 문자 차단·카드 기억이
+          // 조용히 빠진다 — 그 경로에만 있는 가드다.
+          allowTransfer: !_isSmsDraft,
           presetSlot: _isEdit
               ? null
               : _PresetSection(
@@ -1249,6 +1256,7 @@ class _TxInputForm extends ConsumerWidget {
     required this.onChanged,
     this.typeReadOnly = false,
     this.typeDisabledFor,
+    this.allowTransfer = true,
     this.presetSlot,
   });
 
@@ -1256,6 +1264,9 @@ class _TxInputForm extends ConsumerWidget {
   final VoidCallback onChanged;
   final bool typeReadOnly;
   final String? typeDisabledFor;
+
+  /// 이체 선택지를 내놓는가 — 저장 경로가 이체를 못 받는 화면은 false 다.
+  final bool allowTransfer;
   final Widget? presetSlot;
 
   void _set(VoidCallback mutate) {
@@ -1289,7 +1300,24 @@ class _TxInputForm extends ConsumerWidget {
           size: PTabsSize.sm,
           expand: true,
           value: c.type,
-          onChanged: typeReadOnly ? (_) {} : (v) => _set(() => c.type = v),
+          onChanged: typeReadOnly
+              ? (_) {}
+              : (v) => _set(() {
+                  c.type = v;
+                  // 종류를 바꾸면 안 맞는 카테고리는 놓는다(웹 `AddTxSheet` 정합).
+                  // 서버가 종류≠카테고리 종류를 400 으로 막으므로(`ExpenseServiceImpl`)
+                  // 들고 있어 봐야 저장이 실패한다 — 문자 초안은 지출 카테고리를
+                  // 미리 채워 오므로 수입으로 바꾸는 순간 바로 걸린다.
+                  final cats = categoriesAsync.value;
+                  if (cats != null) {
+                    final cat = cats
+                        .where((x) => x.rowId == c.categoryRowId)
+                        .firstOrNull;
+                    if (cat == null || cat.expenseType != v) {
+                      c.categoryRowId = null;
+                    }
+                  }
+                }),
           items: [
             PTabItem(
               value: 'EXPENSE',
@@ -1301,7 +1329,7 @@ class _TxInputForm extends ConsumerWidget {
               label: l.expTypeIncome,
               disabled: typeReadOnly && typeDisabledFor != 'INCOME',
             ),
-            if (!typeReadOnly || c.type == 'TRANSFER')
+            if (allowTransfer && (!typeReadOnly || c.type == 'TRANSFER'))
               PTabItem(
                 value: 'TRANSFER',
                 label: l.expTypeTransfer,

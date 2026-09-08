@@ -66,6 +66,7 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _merchantCtrl;
+  late final TextEditingController _descCtrl;
   late final TextEditingController _amountCtrl;
   late String _type;
   int? _categoryRowId;
@@ -108,6 +109,7 @@ class _BodyState extends ConsumerState<_Body> {
     _nameCtrl = TextEditingController(text: t?.templateName ?? '');
     _categoryRowId = t?.categoryRowId;
     _merchantCtrl = TextEditingController(text: t?.merchant ?? '');
+    _descCtrl = TextEditingController(text: t?.description ?? '');
     _paymentMethod = t?.paymentMethod ?? '';
     _assetRowId = t?.assetRowId;
     _lockAmount = (t?.lockAmount ?? 'N') == 'Y';
@@ -126,6 +128,7 @@ class _BodyState extends ConsumerState<_Body> {
   void dispose() {
     _nameCtrl.dispose();
     _merchantCtrl.dispose();
+    _descCtrl.dispose();
     _amountCtrl.dispose();
     super.dispose();
   }
@@ -165,19 +168,19 @@ class _BodyState extends ConsumerState<_Body> {
       final repo = await ref.read(presetRepositoryProvider.future);
       final name = _nameTrim;
       final merchant = _merchantCtrl.text.trim();
+      final desc = _descCtrl.text.trim();
       // 웹: amount = lockAmount ? Number(amount||0) : undefined
       final amount = _lockAmount
           ? (int.tryParse(_amountCtrl.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
                 0)
           : null;
       if (_isEdit) {
-        // 이 화면이 가진 칸(거래처·결제 수단·계좌)은 **비운 상태 그대로** 실어야
+        // 이 화면이 가진 칸(거래처·메모·결제 수단·계좌)은 **비운 상태 그대로** 실어야
         // 지워진다 — 서버가 프리셋 수정도 "키 없으면 유지" 로 읽으므로(desk-back #325)
         // 키를 빼면 '선택 안 함' 을 고르고 저장해도 옛 값이 그대로 남는다.
         //
-        // 메모(description)는 이 화면에 칸이 없다. 웹 프리셋 상세는 그 값을 그리고
-        // 생성 API 는 여전히 받는데 되살릴 입력칸이 웹·앱 어디에도 없다. 그래서
-        // **읽은 값을 그대로 되돌려 보낸다** — null 을 실으면 남의 메모를 지운다.
+        // 메모(description)는 종전엔 칸이 없어 **읽은 값을 그대로 되돌려 보냈다**(#326).
+        // 이제 칸이 생겼으므로(D2) 지운 메모는 실제로 지워져야 한다.
         await repo.update(
           id: widget.edit!.rowId,
           templateName: name,
@@ -185,7 +188,7 @@ class _BodyState extends ConsumerState<_Body> {
           assetRowId: Patch.set(_assetRowId),
           expenseType: _type,
           amount: amount,
-          description: widget.edit!.description,
+          description: Patch.set(desc.isEmpty ? null : desc),
           merchant: Patch.set(merchant.isEmpty ? null : merchant),
           paymentMethod: Patch.set(
             _paymentMethod.isEmpty ? null : _paymentMethod,
@@ -199,6 +202,7 @@ class _BodyState extends ConsumerState<_Body> {
           assetRowId: _assetRowId,
           expenseType: _type,
           amount: amount,
+          description: desc.isEmpty ? null : desc,
           merchant: merchant.isEmpty ? null : merchant,
           paymentMethod: _paymentMethod.isEmpty ? null : _paymentMethod,
           lockAmount: _lockAmount,
@@ -298,7 +302,13 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         const SizedBox(height: 14),
 
-        // ⑤ 결제 수단
+        // ⑤ 메모 — 불러올 때 거래의 메모로 들어간다.
+        _FieldLabel(l.expDescription),
+        const SizedBox(height: PSpace.x4),
+        PTextInput(controller: _descCtrl, placeholder: l.expMemoPlaceholder),
+        const SizedBox(height: 14),
+
+        // ⑥ 결제 수단
         _FieldLabel(l.expPaymentMethod),
         const SizedBox(height: PSpace.x4),
         PSelect<String>(
@@ -314,7 +324,7 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         const SizedBox(height: 14),
 
-        // ⑥ 계좌·카드
+        // ⑦ 계좌·카드
         _FieldLabel(l.presetAssetCard),
         const SizedBox(height: PSpace.x4),
         assetsAsync.when(
@@ -343,7 +353,7 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         const SizedBox(height: 14),
 
-        // ⑦ '고정 금액 사용' 체크 카드
+        // ⑧ '고정 금액 사용' 체크 카드
         _LockAmountCard(
           lockAmount: _lockAmount,
           amountCtrl: _amountCtrl,
