@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -65,6 +66,16 @@ _RecurrenceOption _rruleToRecurrence(String? rrule) {
   return _RecurrenceOption.none;
 }
 
+/// 칩이 고른 반복을 저장 본문에 실을 RRULE 로 바꾼다 — 웹 `recurrenceToRrule` 과 같은 값.
+/// `none` 은 null 이고, 수정에서는 그 null 이 "반복을 지워라" 로 나간다.
+String? _recurrenceToRrule(_RecurrenceOption r) => switch (r) {
+  _RecurrenceOption.none => null,
+  _RecurrenceOption.daily => 'FREQ=DAILY',
+  _RecurrenceOption.weekly => 'FREQ=WEEKLY',
+  _RecurrenceOption.monthly => 'FREQ=MONTHLY',
+  _RecurrenceOption.yearly => 'FREQ=YEARLY',
+};
+
 const _reminderOptions = <int>[5, 15, 30, 60, 1440];
 
 String _reminderLabel(AppLocalizations l, int min) {
@@ -99,6 +110,14 @@ class _BodyState extends ConsumerState<_Body> {
   int? _userCalendarRowId;
   String _color = _kDefaultEventColor; // violet 기본
   _RecurrenceOption _recurrence = _RecurrenceOption.none;
+
+  /// 열었을 때 서버에 있던 반복 규칙과, 그것이 매핑된 칩.
+  ///
+  /// 칩 다섯 개는 `FREQ=` 하나만 표현한다 — 웹이 만든 `FREQ=WEEKLY;BYDAY=MO,WE` 나
+  /// 서버가 늘린 규칙을 칩으로 되그릴 수 없다. 그래서 **사용자가 칩을 안 바꿨으면
+  /// 원본을 그대로 되돌려 준다.** 안 그러면 여는 것만으로 세부 규칙이 뭉개진다.
+  String? _initialRrule;
+  _RecurrenceOption _initialRecurrence = _RecurrenceOption.none;
   final Set<int> _reminders = <int>{};
   bool _submitting = false;
 
@@ -119,7 +138,12 @@ class _BodyState extends ConsumerState<_Body> {
       // 소속 캘린더 식별자는 calendarRowId (userRowId=이벤트 소유자라 캘린더 매칭 불가).
       _userCalendarRowId = e.calendarRowId;
       _color = e.color ?? _kDefaultEventColor;
-      _recurrence = _rruleToRecurrence(e.rrule);
+      _initialRrule = e.rrule;
+      _initialRecurrence = _rruleToRecurrence(e.rrule);
+      _recurrence = _initialRecurrence;
+      // 기존 알림을 칩에 먼저 채운다. 이걸 건너뛰고 저장만 실으면 서버가 목록을
+      // 통째로 교체하므로, 웹에서 건 알림이 앱 저장 한 번에 전부 사라진다.
+      _reminders.addAll(e.reminderMinutes);
     } else {
       final d = widget.defaultDate ?? DateTime.now();
       _start = DateTime(d.year, d.month, d.day, 9, 0);
@@ -157,6 +181,15 @@ class _BodyState extends ConsumerState<_Body> {
   String _iso(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:00';
 
+  /// 저장 본문에 실을 반복 규칙. 칩을 안 바꿨으면 원본을 그대로 되돌린다.
+  String? get _rruleForSave => _recurrence == _initialRecurrence
+      ? _initialRrule
+      : _recurrenceToRrule(_recurrence);
+
+  /// 저장 본문에 실을 알림 사전분 — 서버가 이 목록으로 전체를 교체한다.
+  /// 오름차순으로 고정해 같은 선택이면 같은 본문이 나가게 한다.
+  List<int> get _reminderMinutesForSave => _reminders.toList()..sort();
+
   Future<void> _submit() async {
     setState(() => _submitting = true);
     _syncController();
@@ -183,6 +216,10 @@ class _BodyState extends ConsumerState<_Body> {
           location: _locationCtrl.text.trim().isEmpty
               ? null
               : _locationCtrl.text.trim(),
+          // 반복·알림은 이 화면이 소유한 칸이다 — 늘 실어야 칩이 실제로 동작한다.
+          // 반복은 명시적 null 까지 실어야 '반복 없음' 이 반영된다(키를 빼면 유지).
+          rrule: Patch.set(_rruleForSave),
+          reminderMinutes: _reminderMinutesForSave,
         );
       } else {
         await repo.createEvent(
@@ -199,6 +236,8 @@ class _BodyState extends ConsumerState<_Body> {
           location: _locationCtrl.text.trim().isEmpty
               ? null
               : _locationCtrl.text.trim(),
+          rrule: _rruleForSave,
+          reminderMinutes: _reminderMinutesForSave,
         );
       }
       ref.invalidate(monthEventsProvider(monthKey));

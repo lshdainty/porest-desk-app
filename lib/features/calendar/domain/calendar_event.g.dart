@@ -24,6 +24,11 @@ _CalendarEvent _$CalendarEventFromJson(Map<String, dynamic> json) =>
       labelColor: json['labelColor'] as String?,
       location: json['location'] as String?,
       rrule: json['rrule'] as String?,
+      reminders:
+          (json['reminders'] as List<dynamic>?)
+              ?.map((e) => EventReminder.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <EventReminder>[],
     );
 
 Map<String, dynamic> _$CalendarEventToJson(_CalendarEvent instance) =>
@@ -44,4 +49,23 @@ Map<String, dynamic> _$CalendarEventToJson(_CalendarEvent instance) =>
       'labelColor': instance.labelColor,
       'location': instance.location,
       'rrule': instance.rrule,
+      'reminders': instance.reminders,
+    };
+
+_EventReminder _$EventReminderFromJson(Map<String, dynamic> json) =>
+    _EventReminder(
+      rowId: (json['rowId'] as num?)?.toInt(),
+      eventRowId: (json['eventRowId'] as num?)?.toInt(),
+      reminderType: json['reminderType'] as String?,
+      minutesBefore: (json['minutesBefore'] as num?)?.toInt(),
+      isSent: json['isSent'] as String?,
+    );
+
+Map<String, dynamic> _$EventReminderToJson(_EventReminder instance) =>
+    <String, dynamic>{
+      'rowId': instance.rowId,
+      'eventRowId': instance.eventRowId,
+      'reminderType': instance.reminderType,
+      'minutesBefore': instance.minutesBefore,
+      'isSent': instance.isSent,
     };

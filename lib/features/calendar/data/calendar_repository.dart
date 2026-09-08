@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_aggregate.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
@@ -58,6 +59,10 @@ class CalendarRepository {
     bool isAllDay = false,
     int? labelRowId,
     String? location,
+    // 반복 규칙(RFC 5545 RRULE 본문) — 'FREQ=WEEKLY' 처럼 화면 칩이 고른 값.
+    String? rrule,
+    // 알림 사전분 목록. 생성은 '안 보냄 = 알림 없음' 이라 빈 목록과 뜻이 같다.
+    List<int>? reminderMinutes,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -73,6 +78,8 @@ class CalendarRepository {
           'isAllDay': isAllDay ? 'Y' : 'N',
           'labelRowId': ?labelRowId,
           'location': ?location,
+          'rrule': ?rrule,
+          'reminderMinutes': ?reminderMinutes,
         },
       );
       return _unwrap(res, CalendarEvent.fromJson);
@@ -93,6 +100,13 @@ class CalendarRepository {
     bool isAllDay = false,
     int? labelRowId,
     String? location,
+    // 반복 규칙 — 이 화면이 소유한 칸이라 [Patch] 로 싣는다. 키를 빼면 서버가 지금
+    // 값을 지키므로(2026-09-08 계약), 칩에서 '반복 없음' 을 골라도 반복이 안 풀린다.
+    // 비우는 것까지 동작하게 하려면 명시적 null 을 실어야 한다.
+    Patch<String> rrule = const Patch.keep(),
+    // 알림 사전분 목록. 서버는 **null=무변경 / 리스트=전체 교체** 로 읽는다 —
+    // 빈 리스트가 "전부 지움" 이다. 화면이 기존 알림을 읽어 채운 뒤에만 실어야 한다.
+    List<int>? reminderMinutes,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -108,6 +122,8 @@ class CalendarRepository {
           'isAllDay': isAllDay ? 'Y' : 'N',
           'labelRowId': ?labelRowId,
           'location': ?location,
+          if (rrule.present) 'rrule': rrule.value,
+          'reminderMinutes': ?reminderMinutes,
         },
       );
       return _unwrap(res, CalendarEvent.fromJson);

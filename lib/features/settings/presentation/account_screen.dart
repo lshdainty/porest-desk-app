@@ -32,7 +32,10 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 ///
 /// 프로필(중앙 정렬 헤더) + 보안 + 연결된 계정 + 구독·결제 + 계정 관리.
 /// 기능 연동: 프로필 표시, 비밀번호 변경, 로그아웃.
-/// UI only: 2FA, 생체인증, 기기/기록, 소셜 연결, 구독/결제, 회원탈퇴.
+/// UI only: 기기/기록, 소셜 연결, 구독/결제, 회원탈퇴.
+///
+/// 2단계 인증 스위치는 뺐다 — 켜도 서버·로컬 어디에도 남지 않고 백엔드에 2FA 자체가
+/// 없다. 문구 키(`accountTwoFa`)는 남겨 둔다(웹 desk-front #360 과 같은 처리).
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
 
@@ -41,8 +44,6 @@ class AccountScreen extends ConsumerStatefulWidget {
 }
 
 class _AccountScreenState extends ConsumerState<AccountScreen> {
-  bool _twoFa = false;
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -188,22 +189,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 chevron: true,
                 tokens: t,
                 onTap: () => showPasswordChangeDialog(context),
-              ),
-              const PDivider(),
-              _AccountRow(
-                icon: LucideIcons.monitor,
-                label: l.accountTwoFa,
-                desc: _twoFa ? l.accountOn : l.accountOff,
-                tokens: t,
-                // PSwitch 의 44px 탭 타깃이 행을 키우지 않게 트랙 높이(24)로 제한
-                // — 다른 행과 동일 높이 (web 정합).
-                trailing: SizedBox(
-                  height: 24,
-                  child: PSwitch(
-                    value: _twoFa,
-                    onChanged: (v) => setState(() => _twoFa = v),
-                  ),
-                ),
               ),
               const PDivider(),
               // 앱 잠금 — 로그인 세션과 별개로 앱 자체를 생체인증으로 잠근다.
