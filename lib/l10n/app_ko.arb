@@ -3124,6 +3124,35 @@
   "memoContentPlaceholder": "여기에 메모를 작성해주세요",
   "memoFieldTag": "태그",
   "memoTagNone": "태그 없음",
+  "memoNewTag": "태그 추가",
+  "memoTagNamePlaceholder": "예: 아이디어",
+  "memoDeleteTagTitle": "태그 삭제",
+  "memoDeleteTagConfirm": "\"{name}\" 태그를 삭제하면 이 태그를 쓰는 메모 {count}건은 태그 없음으로 남아요.",
+  "@memoDeleteTagConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memoTagLoadError": "태그 로드 실패",
+  "mtagTitle": "메모 태그",
+  "mtagDesc": "메모에 붙이는 태그예요. 목록 필터와 태그별 묶음에 사용돼요.",
+  "mtagEmpty": "태그가 없어요",
+  "mtagEditTitle": "태그 수정",
+  "mtagNameLabel": "이름",
+  "mtagColorLabel": "색상",
+  "mtagUsage": "{count}건에 사용 중",
+  "@mtagUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "memoPinToTop": "상단에 고정",
   "memoFieldColor": "색상",
   "dateToday": "오늘",
@@ -3764,6 +3793,7 @@
     }
   },
   "settingsMenuTodoTag": "할일 태그",
+  "settingsMenuMemoTag": "메모 태그",
   "ttagUsage": "{count}건에 사용 중",
   "calLabelUsage": "{count}건에 사용 중",
   "@calLabelUsage": {

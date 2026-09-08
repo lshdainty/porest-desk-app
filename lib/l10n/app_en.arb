@@ -3060,6 +3060,35 @@
   "memoContentPlaceholder": "Write your memo here",
   "memoFieldTag": "Tag",
   "memoTagNone": "No tag",
+  "memoNewTag": "Add tag",
+  "memoTagNamePlaceholder": "e.g. Ideas",
+  "memoDeleteTagTitle": "Delete tag",
+  "memoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} memos using it untagged.",
+  "@memoDeleteTagConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memoTagLoadError": "Failed to load tags",
+  "mtagTitle": "Memo tags",
+  "mtagDesc": "Tags you attach to memos. Used for list filters and tag grouping.",
+  "mtagEmpty": "No tags yet",
+  "mtagEditTitle": "Edit tag",
+  "mtagNameLabel": "Name",
+  "mtagColorLabel": "Color",
+  "mtagUsage": "Used by {count} memos",
+  "@mtagUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "memoPinToTop": "Pin to top",
   "memoFieldColor": "Color",
   "dateToday": "Today",
@@ -3614,6 +3643,7 @@
     }
   },
   "settingsMenuTodoTag": "To-do tags",
+  "settingsMenuMemoTag": "Memo tags",
   "ttagUsage": "Used by {count} to-dos",
   "calLabelUsage": "Used by {count} events",
   "@calLabelUsage": {

@@ -66,6 +66,11 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
           label: l.settingsMenuTodoTag,
           onTap: (c) => c.push('/settings/todo-tags'),
         ),
+        // 메모 태그는 할 일 태그 바로 아래다 — 웹 설정도 같은 순서로 놓는다.
+        _SettingsItem(
+          label: l.settingsMenuMemoTag,
+          onTap: (c) => c.push('/settings/memo-tags'),
+        ),
         _SettingsItem(
           label: l.settingsMenuCalendarLabel,
           onTap: (c) => c.push('/settings/calendar-labels'),
