@@ -21,6 +21,7 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_picker_options.dart';
 
 void showCalendarEventDialog(
   BuildContext context, {
@@ -151,13 +152,13 @@ class _BodyState extends ConsumerState<_Body> {
       _end = DateTime(d.year, d.month, d.day, 10, 0);
       _allDay = true; // 신규 일정 기본 종일 ON (웹 isAllDay default true 정합).
       // 생성 모드: 캘린더 로드 후 기본 캘린더 선택(저장 반영). 웹 EventForm useEffect 패턴.
+      // **고를 수 있는 것 중에서** 잡는다 — 기본 캘린더가 숨겨져 있는데 그대로 고르면
+      // 목록에 없는 값이 선택된 채로 남고, 저장하면 그 일정이 곧바로 사라진다.
       ref.read(userCalendarListProvider.future).then((cals) {
-        if (!mounted || _userCalendarRowId != null || cals.isEmpty) return;
-        final def = cals.firstWhere(
-          (c) => c.isDefault,
-          orElse: () => cals.first,
-        );
-        setState(() => _userCalendarRowId = def.rowId);
+        if (!mounted || _userCalendarRowId != null) return;
+        final def = defaultCalendarRowId(selectableCalendars(cals));
+        if (def == null) return;
+        setState(() => _userCalendarRowId = def);
       });
     }
     widget.controller.onSubmit = _submit;
@@ -310,13 +311,19 @@ class _BodyState extends ConsumerState<_Body> {
     final labelsAsync = ref.watch(eventLabelsProvider);
     final calendarsAsync = ref.watch(userCalendarListProvider);
 
-    final selectedCalendar = calendarsAsync.value?.firstWhere(
-      (c) => c.rowId == _userCalendarRowId,
-      orElse: () => calendarsAsync.value!.firstWhere(
-        (c) => c.isDefault,
-        orElse: () => calendarsAsync.value!.first,
-      ),
+    // 숨긴 캘린더는 고를 수 없다 — 다만 편집 중인 일정이 이미 든 캘린더는 남긴다.
+    // 기준은 연 순간의 소속(`widget.edit`)이다. 사용자가 다른 캘린더를 골랐다고
+    // 원래 자리가 목록에서 사라지면 되돌아갈 데가 없어진다.
+    final calendarOptions = selectableCalendars(
+      calendarsAsync.value ?? const [],
+      keepRowId: widget.edit?.calendarRowId,
     );
+    // 고를 수 있는 목록 밖의 값이 선택돼 있으면 셀렉트가 이름 없는 칸을 그린다 —
+    // 그때는 기본 선택으로 되돌린다(목록과 기본 선택은 늘 같은 규칙을 지난다).
+    final selectedCalendarRowId =
+        calendarOptions.any((c) => c.rowId == _userCalendarRowId)
+        ? _userCalendarRowId
+        : defaultCalendarRowId(calendarOptions);
 
     return ListView(
       controller: widget.scrollController,
@@ -369,14 +376,14 @@ class _BodyState extends ConsumerState<_Body> {
             l.calCalendarLoadError,
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
-          data: (cals) => PSelect<int>(
-            value: selectedCalendar?.rowId,
+          data: (_) => PSelect<int>(
+            value: selectedCalendarRowId,
             placeholder: l.calSelectCalendar,
             onChanged: (v) {
               if (v != null) setState(() => _userCalendarRowId = v);
             },
             items: [
-              for (final c in cals)
+              for (final c in calendarOptions)
                 PSelectItem<int>(
                   value: c.rowId,
                   label: c.calendarName,
