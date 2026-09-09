@@ -2040,6 +2040,19 @@ class AppLocalizationsKo extends AppLocalizations {
       '원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.';
 
   @override
+  String expRefundCap(String max) {
+    return '환불은 원거래 금액을 넘을 수 없어요 — 최대 $max원까지 넣을 수 있어요';
+  }
+
+  @override
+  String expRefundCapLeft(String refunded, String max) {
+    return '이미 $refunded원 환불됐어요 — 남은 $max원까지 넣을 수 있어요';
+  }
+
+  @override
+  String get expRefundCapUsedUp => '원거래 금액을 이미 다 환불했어요 — 더 넣을 금액이 없어요';
+
+  @override
   String get expTypeTransfer => '이체';
 
   @override

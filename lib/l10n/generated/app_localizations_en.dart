@@ -2070,6 +2070,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Unlink from the original transaction? The transaction stays and becomes ordinary income, and the original expense counts in full again.';
 
   @override
+  String expRefundCap(String max) {
+    return 'A refund cannot exceed the original amount — you can enter up to $max KRW';
+  }
+
+  @override
+  String expRefundCapLeft(String refunded, String max) {
+    return '$refunded KRW is already refunded — you can enter up to the remaining $max KRW';
+  }
+
+  @override
+  String get expRefundCapUsedUp =>
+      'The original amount is already fully refunded — nothing left to refund';
+
+  @override
   String get expTypeTransfer => 'Transfer';
 
   @override
