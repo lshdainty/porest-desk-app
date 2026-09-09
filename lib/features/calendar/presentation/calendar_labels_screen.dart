@@ -390,6 +390,10 @@ void _showLabelEditor(
         );
       }
       ref.invalidate(eventLabelsProvider);
+      // 일정 응답에 라벨 이름·색이 박혀서 온다(CalendarEvent.labelName/labelColor).
+      // 라벨을 고치면 이미 받아 둔 월 일정은 옛 이름·옛 색을 그대로 들고 있으므로
+      // 함께 무효화한다 — family 는 base 를 넘기면 모든 달이 무효화된다.
+      ref.invalidate(monthEventsProvider);
       if (!context.mounted) return;
       // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
       Navigator.of(context, rootNavigator: true).pop();
@@ -562,6 +566,8 @@ Future<void> _confirmDelete(
     final repo = await ref.read(calendarRepositoryProvider.future);
     await repo.deleteLabel(label.rowId);
     ref.invalidate(eventLabelsProvider);
+    // 지운 라벨이 박힌 일정도 다시 받는다 — 안 그러면 없는 라벨이 계속 붙어 보인다.
+    ref.invalidate(monthEventsProvider);
   } on ApiException {
     if (!context.mounted) return;
   }
