@@ -1210,6 +1210,26 @@
   "expRefundOfLinked": "This is a refund linked to the original transaction",
   "expRefundUnlink": "Unlink refund",
   "expRefundUnlinkConfirm": "Unlink from the original transaction? The transaction stays and becomes ordinary income, and the original expense counts in full again.",
+  "expRefundCap": "A refund cannot exceed the original amount — you can enter up to {max} KRW",
+  "@expRefundCap": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundCapLeft": "{refunded} KRW is already refunded — you can enter up to the remaining {max} KRW",
+  "@expRefundCapLeft": {
+    "placeholders": {
+      "refunded": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundCapUsedUp": "The original amount is already fully refunded — nothing left to refund",
   "expTypeTransfer": "Transfer",
   "expTransferFrom": "From",
   "expTransferTo": "To",

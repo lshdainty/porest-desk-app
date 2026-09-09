@@ -1213,6 +1213,26 @@
   "expRefundOfLinked": "원거래에 묶인 환불이에요",
   "expRefundUnlink": "환불 취소",
   "expRefundUnlinkConfirm": "원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.",
+  "expRefundCap": "환불은 원거래 금액을 넘을 수 없어요 — 최대 {max}원까지 넣을 수 있어요",
+  "@expRefundCap": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundCapLeft": "이미 {refunded}원 환불됐어요 — 남은 {max}원까지 넣을 수 있어요",
+  "@expRefundCapLeft": {
+    "placeholders": {
+      "refunded": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundCapUsedUp": "원거래 금액을 이미 다 환불했어요 — 더 넣을 금액이 없어요",
   "expTypeTransfer": "이체",
   "expTransferFrom": "보낼 자산",
   "expTransferTo": "받을 자산",

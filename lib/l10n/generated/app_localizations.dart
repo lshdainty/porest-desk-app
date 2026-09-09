@@ -3824,6 +3824,24 @@ abstract class AppLocalizations {
   /// **'원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.'**
   String get expRefundUnlinkConfirm;
 
+  /// No description provided for @expRefundCap.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불은 원거래 금액을 넘을 수 없어요 — 최대 {max}원까지 넣을 수 있어요'**
+  String expRefundCap(String max);
+
+  /// No description provided for @expRefundCapLeft.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 {refunded}원 환불됐어요 — 남은 {max}원까지 넣을 수 있어요'**
+  String expRefundCapLeft(String refunded, String max);
+
+  /// No description provided for @expRefundCapUsedUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'원거래 금액을 이미 다 환불했어요 — 더 넣을 금액이 없어요'**
+  String get expRefundCapUsedUp;
+
   /// No description provided for @expTypeTransfer.
   ///
   /// In ko, this message translates to:

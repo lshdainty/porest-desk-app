@@ -63,6 +63,19 @@ extension ExpenseX on Expense {
   /// 표시용 부호 적용 (지출=음수, 수입/이체=양수).
   int get signedAmount => expenseType == 'EXPENSE' ? -amount : amount;
 
+  /// 이 거래에 아직 환불할 수 있는 금액 — **금액 − 이미 환불된 금액**(QA #152).
+  ///
+  /// 환불 합계가 원거래를 넘으면 통계 상계가 원거래보다 커져 지출이 수입으로
+  /// 뒤집힌다. 그래서 상한은 원거래 금액이 아니라 **남은 금액**이다 —
+  /// 12,000원 지출에 5,000원을 환불해 뒀으면 다음 환불은 7,000원까지다.
+  ///
+  /// 음수로는 안 내려간다. 상한이 없던 시절에 쌓인 초과 환불이 남아 있어,
+  /// 그 거래를 열면 뺄셈이 음수로 떨어진다.
+  int get refundableAmount {
+    final left = amount - refundedAmount;
+    return left < 0 ? 0 : left;
+  }
+
   /// 'YYYY-MM-DD' 부분만 (그룹화·필터용).
   String? get expenseDateOnly => expenseDate?.substring(0, 10);
 }
