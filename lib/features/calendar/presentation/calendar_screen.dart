@@ -12,6 +12,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/format_locale.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -465,26 +466,39 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                 colorHex: cal.color,
                 name: cal.calendarName,
                 checked: cal.isVisible,
-                onToggle: () async {
-                  try {
-                    final repo = await ref.read(
-                      userCalendarRepositoryProvider.future,
-                    );
-                    await repo.toggleVisibility(cal.rowId);
-                    ref.invalidate(userCalendarListProvider);
-                  } on ApiException {
-                    // 서버 에러는 ErrorToastInterceptor 가 띄운다.
-                  } catch (_) {
-                    // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
-                    if (context.mounted) {
-                      showPSnackBar(
-                        context,
-                        l.calUpdateFailed,
-                        severity: PSnackSeverity.error,
-                      );
-                    }
-                  }
-                },
+                // 기본 캘린더는 표시를 끌 수 없다 — 서버가 이 토글을 400 으로
+                // 막는다. 스위치를 남기면 누르는 순간 에러만 뜨므로 **아예 안
+                // 그린다**(회색 체크박스로 두면 "왜 안 되지" 만 남는다).
+                // 대신 '기본' 표식으로 왜 이 행만 다른지를 남긴다 — 캘린더 관리
+                // 화면·웹이 쓰는 것과 같은 배지다.
+                onToggle: cal.isDefault
+                    ? null
+                    : () async {
+                        try {
+                          final repo = await ref.read(
+                            userCalendarRepositoryProvider.future,
+                          );
+                          await repo.toggleVisibility(cal.rowId);
+                          ref.invalidate(userCalendarListProvider);
+                        } on ApiException {
+                          // 서버 에러는 ErrorToastInterceptor 가 띄운다.
+                        } catch (_) {
+                          // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
+                          if (context.mounted) {
+                            showPSnackBar(
+                              context,
+                              l.calUpdateFailed,
+                              severity: PSnackSeverity.error,
+                            );
+                          }
+                        }
+                      },
+                trailing: cal.isDefault
+                    ? PBadge(
+                        label: l.calDefault,
+                        variant: PBadgeVariant.secondary,
+                      )
+                    : null,
                 tokens: t,
               ),
           const SizedBox(height: PSpace.x8),
@@ -534,12 +548,18 @@ class _FilterRow extends StatelessWidget {
     required this.name,
     required this.checked,
     required this.onToggle,
+    this.trailing,
     required this.tokens,
   });
   final String? colorHex;
   final String name;
   final bool checked;
-  final VoidCallback onToggle;
+
+  /// null 이면 **끌 수 없는 행** — 체크박스도 탭도 안 붙인다(기본 캘린더).
+  final VoidCallback? onToggle;
+
+  /// 이름 오른쪽 표식(기본 캘린더의 '기본' 배지). 없으면 안 그린다.
+  final Widget? trailing;
   final PorestTokens tokens;
 
   @override
@@ -551,14 +571,16 @@ class _FilterRow extends StatelessWidget {
         ThemeData.estimateBrightnessForColor(color) == Brightness.dark
         ? Colors.white
         : const Color(0xFF1A1F2E);
-    return InkWell(
-      onTap: onToggle,
-      borderRadius: PRadius.brMd,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-        child: Row(
-          children: [
-            // 체크박스 (checked 상태)
+    final locked = onToggle == null;
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+      child: Row(
+        children: [
+          // 체크박스 (checked 상태). 끌 수 없는 행은 빈 칸으로 두고 폭만
+          // 지킨다 — 목록에서 이름·색 점이 다른 행과 어긋나지 않게.
+          if (locked)
+            const SizedBox(width: 20, height: 20)
+          else
             AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               width: 20,
@@ -575,27 +597,35 @@ class _FilterRow extends StatelessWidget {
                   ? Icon(LucideIcons.check, size: 13, color: checkColor)
                   : null,
             ),
-            const SizedBox(width: PSpace.x12),
-            // 색 점 (웹 정합)
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: PSpace.x8),
-            // 이름
-            Expanded(
-              child: Text(
-                name,
-                style: PTypo.body.copyWith(
-                  color: checked ? t.fgPrimary : t.fgTertiary,
-                ),
+          const SizedBox(width: PSpace.x12),
+          // 색 점 (웹 정합)
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: PSpace.x8),
+          // 이름
+          Expanded(
+            child: Text(
+              name,
+              style: PTypo.body.copyWith(
+                color: checked ? t.fgPrimary : t.fgTertiary,
               ),
             ),
+          ),
+          if (trailing != null) ...[
+            const SizedBox(width: PSpace.x8),
+            trailing!,
           ],
-        ),
+        ],
       ),
     );
+    // 끌 수 없는 행은 InkWell 도 안 씌운다 — 눌러도 아무 일 없는 잉크가 번지면
+    // 사용자는 눌린 줄 알고 다시 누른다.
+    return locked
+        ? row
+        : InkWell(onTap: onToggle, borderRadius: PRadius.brMd, child: row);
   }
 }
 

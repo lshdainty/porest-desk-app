@@ -5,8 +5,10 @@
 // 아무것도 안 남으니 사용자는 저장이 실패했다고 읽는다. 고를 수 없게 막는다.
 //
 // 목록과 기본 선택을 **둘 다** 막아야 한다. 목록만 거르고 기본 선택을 그대로 두면
-// 기본 캘린더가 숨겨져 있을 때 목록에 없는 값이 선택된 상태가 되고, PSelect 는 그 값을
-// 이름 없는 칸으로 그린다.
+// 목록에 없는 값이 선택된 상태가 되고, PSelect 는 그 값을 이름 없는 칸으로 그린다.
+//
+// **기본 캘린더는 이 규칙 밖이다** (QA 결정 5) — 숨길 수 없으므로 언제나 목록에 남는다.
+// 아래 `_hiddenDefault` 는 토글을 막기 전 옛 데이터가 와도 그렇게 읽히는지를 본다.
 //
 // **예외 하나** — 편집 중인 일정이 이미 숨긴 캘린더에 있으면 그 캘린더는 남긴다.
 // 안 남기면 그 일정을 여는 것만으로 소속 캘린더가 다른 값으로 바뀌어 저장된다.
@@ -33,7 +35,8 @@ const _personal = UserCalendar(rowId: 1, calendarName: '개인', isDefault: true
 const _work = UserCalendar(rowId: 2, calendarName: '회사', isVisible: false);
 const _family = UserCalendar(rowId: 3, calendarName: '가족');
 
-/// 기본 캘린더가 숨겨진 배치 — 기본 선택이 어디로 가는지를 가른다.
+/// 서버가 기본 캘린더를 `isVisible: false` 로 내려준 배치 — 표시 토글을 막기 전에
+/// 꺼 둔 옛 데이터다. 기본 캘린더는 표시 고정이라(QA 결정 5) 그래도 보임으로 읽힌다.
 const _hiddenDefault = UserCalendar(
   rowId: 1,
   calendarName: '개인',
@@ -218,13 +221,24 @@ void main() {
       );
     });
 
-    test('기본 캘린더가 숨겨져 있으면 보이는 것 중 첫째', () {
+    // 기본 캘린더는 숨길 수 없다 (QA 결정 5) — 필터 시트에 스위치가 없고 서버도
+    // 토글을 400 으로 막는다. 그래서 "숨긴 기본 캘린더" 라는 상태가 아예 없다.
+    // 옛 데이터가 `isVisible: false` 로 남아 있어도 표시 판정이 보임으로 고정한다.
+    test('기본 캘린더는 숨김 값이 와도 목록에 남고 그대로 잡힌다', () {
+      expect(
+        selectableCalendars(const [
+          _hiddenDefault,
+          _work,
+          _family,
+        ]).map((c) => c.calendarName),
+        ['개인', '가족'],
+      );
       expect(
         defaultCalendarRowId(
           selectableCalendars(const [_hiddenDefault, _work, _family]),
         ),
-        3,
-        reason: '숨긴 기본 캘린더를 그대로 잡으면 목록에 없는 값이 선택된다',
+        1,
+        reason: '기본 캘린더를 빼면 서버가 자동 대입하는 캘린더와 화면이 갈린다',
       );
     });
 
@@ -243,15 +257,15 @@ void main() {
       expect(select.value, 1);
     });
 
-    testWidgets('기본 캘린더가 숨겨져 있으면 보이는 것이 잡히고 저장에도 그게 실린다', (tester) async {
+    testWidgets('기본 캘린더는 숨김 값이 와도 목록에 남고 저장에도 그게 실린다', (tester) async {
       final repo = await _open(
         tester,
         calendars: const [_hiddenDefault, _work, _family],
       );
 
       final select = tester.widget<PSelect<int>>(_calendarSelect(l));
-      expect(select.items.map((i) => i.label), ['가족']);
-      expect(select.value, 3);
+      expect(select.items.map((i) => i.label), ['개인', '가족']);
+      expect(select.value, 1);
 
       await tester.enterText(_field(l.calTitlePlaceholder), '스탠드업');
       await tester.pumpAndSettle();
@@ -261,8 +275,8 @@ void main() {
       expect(repo.created, isTrue, reason: '생성이 안 불렸다 — 테스트가 아무것도 안 본다');
       expect(
         repo.createdCalendarRowId,
-        3,
-        reason: '숨긴 캘린더로 저장하면 저장 직후 달력에서 사라진다',
+        1,
+        reason: '기본 캘린더를 빼면 사용자가 안 고른 캘린더로 저장이 나간다',
       );
     });
   });
