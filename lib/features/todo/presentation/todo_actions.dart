@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
@@ -35,6 +36,10 @@ class TodoActions implements ItemActions<Todo> {
       final repo = await ref.read(todoRepositoryProvider.future);
       await repo.delete(t.rowId);
       ref.invalidate(todoListProvider);
+      // 홈 위젯(할 일 개수·최근 할 일)의 원본 — 셸 상주라 스스로 안 받는다.
+      // 저장 경로(`todo_edit_dialog`)와 같은 짝을 맞춘다: 지운 항목이 홈에
+      // 남아 있으면 목록에서 없는 것을 탭하게 된다.
+      ref.invalidate(dashboardSummaryProvider);
       return true;
     } on ApiException {
       return false;

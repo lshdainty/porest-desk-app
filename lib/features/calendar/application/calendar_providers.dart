@@ -5,7 +5,6 @@ import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart'
 import 'package:porest_desk_app/features/calendar/data/event_comment_repository.dart';
 import 'package:porest_desk_app/features/calendar/data/holiday_repository.dart';
 import 'package:porest_desk_app/features/calendar/data/user_calendar_repository.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_aggregate.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/event_comment.dart';
 import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
@@ -40,15 +39,6 @@ final eventLabelsProvider = FutureProvider<List<EventLabel>>((ref) async {
   final repo = await ref.watch(calendarRepositoryProvider.future);
   return repo.labels();
 });
-
-/// 캘린더 통합 집계 — 단일 호출에 events/todos/expenses 묶음.
-typedef AggregateRange = ({String startDate, String endDate});
-
-final calendarAggregateProvider =
-    FutureProvider.family<CalendarAggregate, AggregateRange>((ref, key) async {
-      final repo = await ref.watch(calendarRepositoryProvider.future);
-      return repo.aggregate(startDate: key.startDate, endDate: key.endDate);
-    });
 
 /// 이벤트 코멘트 repository.
 final eventCommentRepositoryProvider = FutureProvider<EventCommentRepository>((

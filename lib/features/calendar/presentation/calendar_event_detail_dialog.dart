@@ -13,6 +13,7 @@ import 'package:porest_desk_app/features/calendar/application/calendar_providers
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
@@ -99,6 +100,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       ref.invalidate(
         monthEventsProvider((year: e.start.year, month: e.start.month)),
       );
+      // 홈 위젯(오늘 일정·다가오는 일정)의 원본 — 셸 상주라 스스로 안 받는다.
+      // 저장 경로(`calendar_event_dialog`)와 같은 짝을 맞춘다.
+      ref.invalidate(dashboardSummaryProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException {

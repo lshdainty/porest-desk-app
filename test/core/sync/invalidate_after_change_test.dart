@@ -5,12 +5,16 @@
 // provider 는 **앱을 다시 켤 때까지 옛 값**이다 — 탭을 오가도, 화면을 다시 열어도
 // 안 바뀌고 당겨서 새로고침해야만 풀린다. 목록에서 한 줄이 빠지는 것이 곧 버그다.
 //
-// 두 가지를 잠근다.
+// 세 가지를 잠근다.
 //  1. 무효화하면 홈이 **새 숫자를 그린다** — 그리고 무효화 전에는 안 그린다.
 //  2. 무효화 묶음이 화면이 읽는 provider 를 하나도 빠뜨리지 않는다(refetch 횟수).
+//  3. 할 일·메모·일정을 **지우는** 경로도 홈 위젯의 원본을 비운다(QA #156).
+//     추가·수정은 이미 비우는데 삭제만 목록 provider 만 비워, 지운 항목이 홈에
+//     그대로 남아 있었다 — 목록에서 사라진 것을 홈에서 탭하게 된다.
 //
 // 화면이 안 읽는 provider 를 목록에 넣어도 이 테스트는 통과한다. 그건 의도한 것이다 —
 // 여기서 막는 건 "빠뜨림" 이고, "죽은 것 끼워 넣기" 는 QA #151 이 grep 으로 잡는다.
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,10 +35,24 @@ import 'package:porest_desk_app/features/card/domain/card_performance.dart';
 import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
 import 'package:porest_desk_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
+import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
+import 'package:porest_desk_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
+import 'package:porest_desk_app/features/memo/data/memo_repository.dart';
+import 'package:porest_desk_app/features/memo/domain/memo.dart';
+import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
+import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
+import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
+import 'package:porest_desk_app/features/todo/domain/todo.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_actions.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 /// 이번 달 1일 (`_DashboardScreenState._ymdStart` 와 같은 규칙).
 String _monthStart() {
@@ -182,6 +200,67 @@ void main() {
     // 자산 변경은 거래를 건드리지 않는다 — 가계부 목록까지 밀지는 않는다.
     expect(counts['rangeExpenses'], 1);
   });
+  // ─── 3. 삭제도 홈 위젯의 원본을 비운다 (QA #156) ──────────────
+  //
+  // 홈의 할 일·다가오는 일정·메모 위젯은 `dashboardSummary` 하나를 읽는다. 삭제
+  // 경로가 목록 provider 만 비우면, 목록에서는 사라진 항목이 홈에는 그대로 남는다
+  // (홈은 셸에 상주하고 provider 도 autoDispose 가 아니라 스스로 다시 받지 않는다).
+  //
+  // 여기서 보는 건 "무효화 한 줄이 있다" 가 아니라 **원본이 실제로 다시 조회됐는가** 다.
+  testWidgets('할 일을 지우면 목록과 홈 위젯 원본을 함께 다시 받는다', (tester) async {
+    final h = await _pumpDeleteProbe(tester);
+
+    final done = todoActions.delete(h.context, h.ref, _todo);
+    await tester.pumpAndSettle();
+    expect(await done, isTrue, reason: '삭제가 실패했다 — 테스트가 아무것도 안 본다');
+
+    expect(h.counts['todoList'], 2, reason: '할 일 목록이 안 비워졌다');
+    expect(
+      h.counts['dashboardSummary'],
+      2,
+      reason: 'dashboardSummary 가 삭제 경로에 없다 — 지운 할 일이 홈 위젯에 그대로 남는다',
+    );
+  });
+
+  testWidgets('메모를 지우면 목록과 홈 위젯 원본을 함께 다시 받는다', (tester) async {
+    final h = await _pumpDeleteProbe(tester);
+
+    final done = memoActions.delete(h.context, h.ref, _memo);
+    await tester.pumpAndSettle();
+    expect(await done, isTrue, reason: '삭제가 실패했다 — 테스트가 아무것도 안 본다');
+
+    expect(h.counts['memoList'], 2, reason: '메모 목록이 안 비워졌다');
+    expect(
+      h.counts['dashboardSummary'],
+      2,
+      reason: 'dashboardSummary 가 삭제 경로에 없다 — 지운 메모가 홈 위젯에 그대로 남는다',
+    );
+  });
+
+  testWidgets('일정을 지우면 그 달 목록과 홈 위젯 원본을 함께 다시 받는다', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('ko'));
+    final h = await _pumpDeleteProbe(tester);
+
+    // 상세 시트 → 삭제 → 확인. 삭제는 확인 다이얼로그 뒤에 있어 시트를 실제로 몰아야 한다.
+    showCalendarEventDetailDialog(h.context, _event);
+    await tester.pumpAndSettle();
+    await tester.tap(_pButton(l.actionDelete));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: _pButton(l.actionDelete),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(h.counts['monthEvents'], 2, reason: '그 달 일정 목록이 안 비워졌다 — 삭제가 안 불렸다');
+    expect(
+      h.counts['dashboardSummary'],
+      2,
+      reason: 'dashboardSummary 가 삭제 경로에 없다 — 지운 일정이 홈 위젯에 그대로 남는다',
+    );
+  });
 }
 
 // ─── 프로브 ───────────────────────────────────────────────────
@@ -319,4 +398,138 @@ class _WatchAll extends ConsumerWidget {
     ref.watch(cardPerformanceProvider(_cardKey));
     return const SizedBox.shrink();
   }
+}
+
+// ─── 삭제 경로 프로브 ─────────────────────────────────────────
+
+const _todo = Todo(rowId: 7, title: '장보기');
+const _memo = Memo(rowId: 8, title: '장바구니');
+
+/// 이벤트가 속한 달 — 삭제는 이 달의 `monthEvents` 만 짚어 비운다.
+const _eventMonth = (year: 2026, month: 9);
+const _todoFilter = (status: null, priority: null);
+
+final _event = CalendarEvent.fromJson(const <String, dynamic>{
+  'rowId': 42,
+  'title': '주간 회의',
+  'eventType': 'WORK',
+  'startDate': '2026-09-10T09:00:00',
+  'endDate': '2026-09-10T10:00:00',
+  'isAllDay': 'N',
+});
+
+Finder _pButton(String label) =>
+    find.ancestor(of: find.text(label), matching: find.byType(PButton));
+
+class _FakeTodoRepo extends TodoRepository {
+  _FakeTodoRepo() : super(Dio());
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
+class _FakeMemoRepo extends MemoRepository {
+  _FakeMemoRepo() : super(Dio());
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
+class _FakeCalendarRepo extends CalendarRepository {
+  _FakeCalendarRepo() : super(Dio());
+
+  @override
+  Future<void> deleteEvent(int id) async {}
+}
+
+/// 삭제 경로가 읽는 자리 — watch 하지 않으면 invalidate 해도 refetch 되지 않는다.
+class _WatchDeleteTargets extends ConsumerWidget {
+  const _WatchDeleteTargets({required this.onReady});
+  final void Function(WidgetRef, BuildContext) onReady;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(dashboardSummaryProvider);
+    ref.watch(todoListProvider(_todoFilter));
+    ref.watch(memoListProvider);
+    ref.watch(monthEventsProvider(_eventMonth));
+    onReady(ref, context);
+    return const SizedBox.shrink();
+  }
+}
+
+typedef _DeleteHarness = ({
+  Map<String, int> counts,
+  WidgetRef ref,
+  BuildContext context,
+});
+
+/// 삭제 세 경로를 실제로 부를 수 있는 트리. 리포지토리만 가짜로 바꾼다 —
+/// 무효화는 진짜 코드가 해야 "목록에만 있고 홈에는 없다" 를 잡는다.
+Future<_DeleteHarness> _pumpDeleteProbe(WidgetTester tester) async {
+  // 일정 상세 시트는 ListView + footer 다 — 좁은 화면에서는 삭제 버튼이 안 만들어진다.
+  tester.view.physicalSize = const Size(1200, 4000);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+
+  final counts = <String, int>{};
+  void bump(String k) => counts[k] = (counts[k] ?? 0) + 1;
+  WidgetRef? capturedRef;
+  BuildContext? capturedCtx;
+
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        dashboardSummaryProvider.overrideWith((ref) async {
+          bump('dashboardSummary');
+          return DashboardSummary.fromJson(const <String, dynamic>{});
+        }),
+        todoListProvider.overrideWith((ref, filter) async {
+          bump('todoList');
+          return const <Todo>[];
+        }),
+        memoListProvider.overrideWith((ref) async {
+          bump('memoList');
+          return const <Memo>[];
+        }),
+        monthEventsProvider.overrideWith((ref, key) async {
+          bump('monthEvents');
+          return const <CalendarEvent>[];
+        }),
+        todoRepositoryProvider.overrideWith((ref) async => _FakeTodoRepo()),
+        memoRepositoryProvider.overrideWith((ref) async => _FakeMemoRepo()),
+        calendarRepositoryProvider.overrideWith(
+          (ref) async => _FakeCalendarRepo(),
+        ),
+        userCalendarListProvider.overrideWith(
+          (ref) async => const <UserCalendar>[],
+        ),
+      ],
+      child: MaterialApp(
+        theme: PorestTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: Scaffold(
+          body: _WatchDeleteTargets(
+            onReady: (r, c) {
+              capturedRef = r;
+              capturedCtx = c;
+            },
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+
+  for (final k in const [
+    'dashboardSummary',
+    'todoList',
+    'memoList',
+    'monthEvents',
+  ]) {
+    expect(counts[k], 1, reason: '$k 를 프로브가 watch 하지 않았다');
+  }
+  return (counts: counts, ref: capturedRef!, context: capturedCtx!);
 }

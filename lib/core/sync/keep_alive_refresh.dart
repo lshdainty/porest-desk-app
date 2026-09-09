@@ -44,7 +44,8 @@ void invalidateAfterExpenseChange(WidgetRef ref) {
   ref.invalidate(dashboardSummaryProvider);
   ref.invalidate(monthBudgetsProvider);
 
-  // 통계 — 통계 화면이 읽는 넷. rangeSummary 는 홈 합계도 같이 읽는다.
+  // 통계 — 60초 규칙([_invalidateStaleStats])이 함께 미는 다섯.
+  // rangeSummary 는 홈 합계도 같이 읽는다.
   ref.invalidate(rangeSummaryProvider);
   ref.invalidate(rangeExpensesProvider);
   ref.invalidate(heatmapProvider);
@@ -140,12 +141,12 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
   }
 }
 
-/// 통계 4종 — 마지막으로 **받아 온 지** 60초가 지났을 때만 다시 받는다.
+/// 통계 5종 — 마지막으로 **받아 온 지** 60초가 지났을 때만 다시 받는다.
 ///
 /// 통계 provider 는 autoDispose 가 아니고 통계 탭도 셸에 상주해 dispose 되지
 /// 않는다. 그래서 진입할 때 비우지 않으면 다른 기기에서 넣은 값이 당겨서
 /// 새로고침하거나 앱을 다시 켜기 전에는 안 보인다. 반대로 들어올 때마다 비우면
-/// 탭을 한 번 왕복하는 것만으로 조회 넷이 새로 나간다.
+/// 탭을 한 번 왕복하는 것만으로 조회 다섯이 새로 나간다.
 ///
 /// 그래서 웹 react-query 의 `staleTime: 60_000` 과 **같은 규칙**을 쓴다. 기준은
 /// **마지막 성공 조회 시각**(`StatsFreshness`)이지 마지막 무효화 시각이 아니다 —
@@ -164,4 +165,7 @@ void _invalidateStaleStats(WidgetRef ref) {
   ref.invalidate(rangeExpensesProvider);
   ref.invalidate(heatmapProvider);
   ref.invalidate(merchantSummaryProvider);
+  // 가맹점·달 거래(TX 상세 "이전 거래")도 같은 기준에 넣는다(QA #158). 빠져 있으면
+  // 이 조회만 앱을 다시 켤 때까지 옛 값이라, 다른 기기에서 넣은 거래가 안 보인다.
+  ref.invalidate(merchantMonthExpensesProvider);
 }
