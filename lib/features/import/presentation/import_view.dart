@@ -10,11 +10,13 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/import/data/import_repository.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 
 typedef _FieldMeta = ({
   String key,
@@ -132,6 +134,10 @@ class _ImportViewState extends ConsumerState<ImportView> {
         dupSkip: _dupSkip,
         autoCat: _autoCat,
       );
+      // 한 번에 수십 건이 들어온다 — 가계부·홈·통계가 전부 달라진다.
+      // 어느 달로 들어갔는지는 파일을 열기 전엔 알 수 없다 — 월 목록은 base 로 민다.
+      ref.invalidate(monthExpensesProvider);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       setState(() {
         _result = res;

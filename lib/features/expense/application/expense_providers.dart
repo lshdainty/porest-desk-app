@@ -76,18 +76,6 @@ final assetPeriodExpensesProvider =
       return all;
     });
 
-/// 자산 ID 로만 필터링한 거래 목록 (#254 — ExpenseScreen 자산 필터 배지용).
-/// front `?assetId=N` 쿼리 미러: 빈 list 일 수 있음.
-final expensesByAssetIdProvider = FutureProvider.family<List<Expense>, int>((
-  ref,
-  assetId,
-) async {
-  final repo = await ref.watch(expenseRepositoryProvider.future);
-  final all = await repo.search(assetId: assetId);
-  all.sort((a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
-  return all;
-});
-
 String _firstDay(int y, int m) =>
     '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-01';
 String _lastDay(int y, int m) {

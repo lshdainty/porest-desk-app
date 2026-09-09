@@ -15,37 +15,63 @@ import 'package:porest_desk_app/core/update/app_update.dart';
 /// 거래(expense) 변경 후 파급되는 provider 일괄 무효화.
 ///
 /// 거래 하나가 바뀌면 화면 여러 곳의 숫자가 함께 달라진다. 자산 잔액은 백엔드가
-/// 거래 history 로 계산하고, 통계·추이·요약은 그 거래를 집계해 만들며, 캘린더
-/// 일정이나 할일에 걸린 거래 목록도 같은 원본을 본다.
+/// 거래 history 로 계산하고, 통계·요약·예산·홈 위젯은 그 거래를 다시 집계한다.
 ///
-/// 예전엔 자산 쪽 다섯만 무효화해서, 거래를 고쳐도 **통계·캘린더·할일 화면은 옛
-/// 숫자를 그대로 들고 있었다**. 이 provider 들은 autoDispose 가 아니라 한 번 읽으면
-/// 앱을 끌 때까지 남는다 — 화면을 다시 열어도 갱신되지 않는다.
+/// 여기 든 provider 는 **autoDispose 가 아니다.** 게다가 홈·가계부·통계는 탭
+/// 셸(`IndexedStack`)에 계속 mount 되어 dispose 되지도 않는다 — 한 번 읽힌 값은
+/// 여기서 비우지 않는 한 앱을 끌 때까지 그대로다. 탭을 오가거나 화면을 다시 열어도
+/// 갱신되지 않고, 당겨서 새로고침해야만 풀린다.
+///
+/// **화면이 실제로 읽는 것만 넣는다.** 아무도 안 읽는 provider 를 끼워 두면 목록만
+/// 길어지고 "갱신하고 있다" 는 착시가 생겨, 정작 빠진 것을 못 찾는다.
 ///
 /// family provider 는 base 를 넘기면 모든 인스턴스가 무효화된다.
 void invalidateAfterExpenseChange(WidgetRef ref) {
-  // 자산 — 잔액은 거래 이력에서 계산된다.
+  // 자산 — 잔액·순자산은 거래 이력에서 계산된다.
   ref.invalidate(assetsProvider);
+  ref.invalidate(assetSummaryProvider);
   ref.invalidate(netWorthTrendProvider);
   ref.invalidate(assetByIdProvider);
   ref.invalidate(expensesByAssetProvider);
-  ref.invalidate(expensesByAssetIdProvider);
   ref.invalidate(assetBalanceTrendProvider);
   ref.invalidate(assetTransfersProvider);
   ref.invalidate(assetPeriodExpensesProvider);
 
-  // 통계 — 전부 거래를 집계해 만든다.
-  ref.invalidate(dailySummaryProvider);
-  ref.invalidate(monthlyTrendProvider);
-  ref.invalidate(assetExpenseSummaryProvider);
+  // 홈 — 이번 달 지출·예산·위젯이 전부 이 거래를 센다.
+  // 홈 합계는 `요약 ?? 목록합` 순서라, 옛 요약이 살아 있으면 새 목록으로 폴백조차
+  // 하지 않는다. 요약을 비우지 않으면 "오늘 목록만 바뀌는" 비대칭이 남는다.
+  ref.invalidate(dashboardSummaryProvider);
+  ref.invalidate(monthBudgetsProvider);
+
+  // 통계 — 통계 화면이 읽는 넷. rangeSummary 는 홈 합계도 같이 읽는다.
+  ref.invalidate(rangeSummaryProvider);
+  ref.invalidate(rangeExpensesProvider);
+  ref.invalidate(heatmapProvider);
+  ref.invalidate(merchantSummaryProvider);
   ref.invalidate(merchantMonthExpensesProvider);
 
   // 예산·카드 실적도 그 달 지출을 다시 센다.
   ref.invalidate(budgetComplianceProvider);
   ref.invalidate(cardPerformanceProvider);
 
-  // 캘린더 일정·할일 연결 거래는 넣지 않는다 — 모바일 레이아웃이 바뀌며 그 화면이
-  // 사라져 지금은 아무도 읽지 않는다(별도 정리 예정).
+  // 월별 거래 목록(`monthExpensesProvider`)은 부르는 쪽이 바뀐 달만 짚어 비운다 —
+  // 여기서 base 로 밀면 안 본 달까지 전부 다시 받는다.
+}
+
+/// 자산(계좌·카드·투자) 생성·수정·삭제 후 무효화.
+///
+/// 자산 목록만 비우면 순자산·추이·청구·실적이 옛 값으로 남는다. 전부 별도 조회이고,
+/// 셸에 상주하는 화면이 읽으므로 스스로 다시 받지 않는다.
+///
+/// 거래는 건드리지 않는다 — 자산을 고쳐도 그 자산에 달린 거래 자체는 그대로다.
+/// 거래까지 바뀌는 경로(카드 결제·이체 삭제 등)는 [invalidateAfterExpenseChange] 를 쓴다.
+void invalidateAfterAssetChange(WidgetRef ref) {
+  ref.invalidate(assetsProvider);
+  ref.invalidate(assetSummaryProvider);
+  ref.invalidate(netWorthTrendProvider);
+  ref.invalidate(assetByIdProvider);
+  ref.invalidate(cardBillingProvider);
+  ref.invalidate(cardPerformanceProvider);
 }
 
 /// keepAlive(앱 세션 캐시) provider 일괄 무효화.
@@ -67,9 +93,16 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   // 세션 내내 남는 조회들 — keepAlive 는 아니지만 autoDispose 도 아니라
   // 한 번 읽으면 그대로 굳는다. 다른 기기에서 바뀐 값을 여기서 함께 따라잡는다.
   ref.invalidate(dashboardLayoutProvider);
-  ref.invalidate(todoStatsProvider);
-  ref.invalidate(calendarAggregateProvider);
   ref.invalidate(budgetAlertThresholdProvider);
+  // 탭 6화면이 IndexedStack 에 상주해 dispose 되지 않는다 — 화면이 그리는 원본을
+  // 여기서 같이 비워야 웹에서 고친 값이 복귀 후에 보인다. 한 곳이라도 빠뜨리면
+  // 그 숫자만 앱을 다시 켤 때까지 옛 값으로 남는다.
+  ref.invalidate(dashboardSummaryProvider);
+  ref.invalidate(assetSummaryProvider);
+  ref.invalidate(rangeSummaryProvider);
+  ref.invalidate(monthExpensesProvider);
+  ref.invalidate(monthBudgetsProvider);
+  ref.invalidate(monthEventsProvider);
   // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은
   // 새 버전이 나와도 끌 때까지 몰랐다. version.json 은 1KB 정적 파일에 5초 타임아웃이라
   // resume 마다 한 번 더 물어봐도 부담이 없다.

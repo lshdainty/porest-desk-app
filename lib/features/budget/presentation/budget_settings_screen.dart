@@ -172,6 +172,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       final repo = await ref.read(budgetRepositoryProvider.future);
       await repo.delete(budget.rowId);
       ref.invalidate(monthBudgetsProvider(_key));
+      // 준수율은 keepAlive — 지운 예산이 남아 있으면 달성률이 옛 값으로 굳는다.
+      ref.invalidate(budgetComplianceProvider);
     } on ApiException {
       if (!mounted) return;
     }

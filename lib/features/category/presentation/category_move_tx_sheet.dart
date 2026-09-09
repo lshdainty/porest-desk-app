@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -142,6 +143,9 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
             );
       // 거래의 카테고리가 바뀌므로 목록·통계까지 새로 받는다.
       ref.invalidate(categoriesProvider);
+      // 그 카테고리의 거래가 전 기간에 흩어져 있다 — 어느 달이 바뀌는지 모른다.
+      ref.invalidate(monthExpensesProvider);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(

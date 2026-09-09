@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -231,7 +232,8 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         settlementAssetRowId: _settlementAssetRowId,
       );
       // 예수금·보유·실현손익이 한꺼번에 바뀐다 — 자산과 거래 목록을 모두 새로 받는다.
-      ref.invalidate(assetsProvider);
+      // 순자산·추이도 같은 매매로 움직이므로 자산 변경 묶음을 통째로 비운다.
+      invalidateAfterAssetChange(ref);
       ref.invalidate(assetTradesProvider(widget.asset.rowId));
       if (!mounted) return;
       Navigator.of(context).pop();
