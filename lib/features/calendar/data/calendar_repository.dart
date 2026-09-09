@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_aggregate.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
 
@@ -205,25 +204,6 @@ class CalendarRepository {
   Future<void> deleteLabel(int id) async {
     try {
       await _dio.delete<void>('/calendar/label/$id');
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  // ─── Aggregate ─────────────────────────────────
-
-  /// 캘린더 통합 집계 — events/todos/expenses 단일 호출.
-  /// GET /calendar/aggregate?startDate&endDate (YYYY-MM-DD).
-  Future<CalendarAggregate> aggregate({
-    required String startDate,
-    required String endDate,
-  }) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/calendar/aggregate',
-        queryParameters: {'startDate': startDate, 'endDate': endDate},
-      );
-      return _unwrap(res, CalendarAggregate.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
