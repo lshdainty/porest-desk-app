@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/sync/stats_freshness.dart';
 import 'package:porest_desk_app/features/stats/data/stats_repository.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
 
@@ -17,7 +18,12 @@ final rangeSummaryProvider = FutureProvider.family<RangeSummary, DateRange>((
   range,
 ) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.range(startDate: range.startDate, endDate: range.endDate);
+  final summary = await repo.range(
+    startDate: range.startDate,
+    endDate: range.endDate,
+  );
+  ref.markStatsFetched();
+  return summary;
 });
 
 typedef OptionalDateRange = ({String? startDate, String? endDate});
@@ -28,10 +34,12 @@ final merchantSummaryProvider =
       range,
     ) async {
       final repo = await ref.watch(statsRepositoryProvider.future);
-      return repo.byMerchant(
+      final merchants = await repo.byMerchant(
         startDate: range.startDate,
         endDate: range.endDate,
       );
+      ref.markStatsFetched();
+      return merchants;
     });
 
 final heatmapProvider = FutureProvider.family<List<HeatmapCell>, DateRange>((
@@ -39,5 +47,10 @@ final heatmapProvider = FutureProvider.family<List<HeatmapCell>, DateRange>((
   range,
 ) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.heatmap(startDate: range.startDate, endDate: range.endDate);
+  final cells = await repo.heatmap(
+    startDate: range.startDate,
+    endDate: range.endDate,
+  );
+  ref.markStatsFetched();
+  return cells;
 });

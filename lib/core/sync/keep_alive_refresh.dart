@@ -10,6 +10,7 @@ import 'package:porest_desk_app/features/saving_goal/application/saving_goal_pro
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
 import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:porest_desk_app/core/sync/stats_freshness.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 
 /// 거래(expense) 변경 후 파급되는 provider 일괄 무효화.
@@ -114,6 +115,8 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
 /// `/expense`·`/assets`·`/budget`·`/calendar` 등은 셸에 계속 mount 되어
 /// `initState` 가 재실행되지 않으므로, 라우트가 바뀔 때 진입하는 경로가 watch 하는
 /// keepAlive provider 만 골라 무효화한다(다른 탭은 건드리지 않아 불필요한 refetch 방지).
+///
+/// `/stats` 만 시각을 본다 — [_invalidateStaleStats] 참고.
 void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
   switch (path) {
     case '/home':
@@ -128,10 +131,37 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
       ref.invalidate(savingGoalListProvider);
     case '/stats':
       ref.invalidate(categoriesProvider);
+      _invalidateStaleStats(ref);
     case '/budget':
       ref.invalidate(budgetComplianceProvider);
     case '/calendar':
       ref.invalidate(userCalendarListProvider);
       ref.invalidate(eventLabelsProvider);
   }
+}
+
+/// 통계 4종 — 마지막으로 **받아 온 지** 60초가 지났을 때만 다시 받는다.
+///
+/// 통계 provider 는 autoDispose 가 아니고 통계 탭도 셸에 상주해 dispose 되지
+/// 않는다. 그래서 진입할 때 비우지 않으면 다른 기기에서 넣은 값이 당겨서
+/// 새로고침하거나 앱을 다시 켜기 전에는 안 보인다. 반대로 들어올 때마다 비우면
+/// 탭을 한 번 왕복하는 것만으로 조회 넷이 새로 나간다.
+///
+/// 그래서 웹 react-query 의 `staleTime: 60_000` 과 **같은 규칙**을 쓴다. 기준은
+/// **마지막 성공 조회 시각**(`StatsFreshness`)이지 마지막 무효화 시각이 아니다 —
+/// 무효화는 아무도 그 provider 를 안 보고 있으면 조회로 이어지지 않으므로,
+/// 비운 시각을 기준으로 삼으면 실제로는 한 번도 안 받은 채 시계만 돈다.
+///
+/// 60초 안이면 **아무것도 하지 않는다**(요청 0회). 한 번도 안 받았으면 비운다 —
+/// 안 읽힌 provider 를 비우는 것은 no-op 이다.
+///
+/// 타이머·폴링은 없다. 화면에 들어오는 이 순간에만 비교한다. 거래를 바꿨을 때의
+/// 무효화([invalidateAfterExpenseChange])는 시간과 무관하게 즉시 비운다.
+void _invalidateStaleStats(WidgetRef ref) {
+  final now = ref.read(statsClockProvider)();
+  if (!ref.read(statsFreshnessProvider).isStaleAt(now)) return;
+  ref.invalidate(rangeSummaryProvider);
+  ref.invalidate(rangeExpensesProvider);
+  ref.invalidate(heatmapProvider);
+  ref.invalidate(merchantSummaryProvider);
 }
