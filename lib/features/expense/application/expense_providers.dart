@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/sync/stats_freshness.dart';
 import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
@@ -42,7 +43,13 @@ final rangeExpensesProvider = FutureProvider.family<List<Expense>, RangeKey>((
   key,
 ) async {
   final repo = await ref.watch(expenseRepositoryProvider.future);
-  return repo.list(startDate: key.startDate, endDate: key.endDate);
+  final expenses = await repo.list(
+    startDate: key.startDate,
+    endDate: key.endDate,
+  );
+  // 통계 화면만 읽는 넷 중 하나 — 진입 갱신이 60초 규칙을 걸 수 있게 시각을 남긴다.
+  ref.markStatsFetched();
+  return expenses;
 });
 
 /// 자산 별 최근 거래 N건 — front `useSearchExpenses({assetId})` 미러.
