@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
@@ -37,6 +38,9 @@ class MemoActions implements ItemActions<Memo> {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.delete(m.rowId);
       ref.invalidate(memoListProvider);
+      // 홈 위젯(메모 개수·최근 메모)의 원본 — 셸 상주라 스스로 안 받는다.
+      // 저장 경로(`memo_edit_dialog`)와 같은 짝을 맞춘다.
+      ref.invalidate(dashboardSummaryProvider);
       // 메모는 별자리(할일 게이미피케이션)에도 점수로 들어간다 — 지우면 같이 다시 센다.
       invalidateConstellation(ref);
       return true;
