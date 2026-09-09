@@ -47,7 +47,7 @@ final rangeExpensesProvider = FutureProvider.family<List<Expense>, RangeKey>((
     startDate: key.startDate,
     endDate: key.endDate,
   );
-  // 통계 화면만 읽는 넷 중 하나 — 진입 갱신이 60초 규칙을 걸 수 있게 시각을 남긴다.
+  // 60초 규칙이 함께 미는 다섯 중 하나 — 진입 갱신이 기준을 걸 수 있게 시각을 남긴다.
   ref.markStatsFetched();
   return expenses;
 });
@@ -104,6 +104,10 @@ final merchantMonthExpensesProvider =
         endDate: _lastDay(key.year, key.month),
       );
       all.sort((a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+      // 60초 규칙([_invalidateStaleStats])이 이것도 민다 — 비우는 자리에만 넣고
+      // 시각을 안 남기면 이 provider 만 기준이 달라져, 스스로 받은 직후에도
+      // stale 로 읽혀 진입마다 조회가 한 번 더 나간다.
+      ref.markStatsFetched();
       return all;
     });
 
