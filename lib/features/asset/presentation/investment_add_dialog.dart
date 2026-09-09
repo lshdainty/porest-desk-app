@@ -13,6 +13,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -482,7 +483,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           holdings: holdings,
         );
       }
-      ref.invalidate(assetsProvider);
+      // 자산이 하나 늘거나 줄면 순자산·추이·청구·실적이 함께 달라진다 —
+      // 전부 별도 조회라 목록만 비우면 옛 값이 남는다.
+      invalidateAfterAssetChange(ref);
       ref.invalidate(investmentValuationMapProvider);
       if (!mounted) return;
       Navigator.of(context).pop();

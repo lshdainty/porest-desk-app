@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/stats/data/stats_repository.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_summaries.dart';
 
 final statsRepositoryProvider = FutureProvider<StatsRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
@@ -21,14 +20,6 @@ final rangeSummaryProvider = FutureProvider.family<RangeSummary, DateRange>((
   return repo.range(startDate: range.startDate, endDate: range.endDate);
 });
 
-final monthlyTrendProvider = FutureProvider.family<List<MonthlyTrend>, int>((
-  ref,
-  months,
-) async {
-  final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.trend(months: months);
-});
-
 typedef OptionalDateRange = ({String? startDate, String? endDate});
 
 final merchantSummaryProvider =
@@ -43,28 +34,10 @@ final merchantSummaryProvider =
       );
     });
 
-final assetExpenseSummaryProvider =
-    FutureProvider.family<List<AssetExpenseSummary>, OptionalDateRange>((
-      ref,
-      range,
-    ) async {
-      final repo = await ref.watch(statsRepositoryProvider.future);
-      return repo.byAsset(startDate: range.startDate, endDate: range.endDate);
-    });
-
 final heatmapProvider = FutureProvider.family<List<HeatmapCell>, DateRange>((
   ref,
   range,
 ) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
   return repo.heatmap(startDate: range.startDate, endDate: range.endDate);
-});
-
-/// 일별 요약.
-final dailySummaryProvider = FutureProvider.family<DailySummary, String>((
-  ref,
-  date,
-) async {
-  final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.daily(date);
 });

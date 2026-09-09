@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
@@ -54,7 +55,9 @@ class AssetActions implements ItemActions<Asset> {
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.delete(a.rowId);
-      ref.invalidate(assetsProvider);
+      // 자산이 하나 늘거나 줄면 순자산·추이·청구·실적이 함께 달라진다 —
+      // 전부 별도 조회라 목록만 비우면 옛 값이 남는다.
+      invalidateAfterAssetChange(ref);
       // 투자는 잔액이 보유수량 × 시세라, 자산만 무효화하면 지워진 종목의 평가액이
       // 캐시에 남아 합계가 어긋난다.
       if (kind == _AssetKind.invest) {

@@ -666,7 +666,8 @@ class _TradeHistory extends ConsumerWidget {
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.deleteTrade(rowId);
-      ref.invalidate(assetsProvider);
+      // 예수금·평가액이 되돌아간다 — 순자산·추이까지 다시 받는다.
+      invalidateAfterAssetChange(ref);
       ref.invalidate(assetTradesProvider(assetRowId));
       if (!context.mounted) return;
     } on ApiException {
@@ -1945,10 +1946,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         amount: amount,
         paymentDate: paymentDate,
       );
-      ref
-        ..invalidate(cardBillingProvider(widget.asset.rowId))
-        ..invalidate(assetsProvider)
-        ..invalidate(assetByIdProvider(widget.asset.rowId));
+      ref.invalidate(cardBillingProvider(widget.asset.rowId));
+      // 결제는 이체를 만든다 — 결제 계좌 잔액·홈 순자산·가계부까지 함께 바뀐다.
+      // 취소(_confirmAndCancelPayment)는 이미 이걸 불렀는데 결제만 빠져 있었다.
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
     } on ApiException {
       if (!mounted) return;
@@ -1985,7 +1986,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.payoffInstallment(widget.asset.rowId, due.expenseRowId);
+      // 남은 회차가 한 건으로 합쳐진다 — 가계부 목록·통계도 같이 달라진다.
       ref.invalidate(cardBillingProvider(widget.asset.rowId));
+      invalidateAfterExpenseChange(ref);
     } on ApiException {
       // 서버 메시지는 전역 인터셉터가 띄운다.
     }
@@ -2005,6 +2008,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.cancelInstallmentPayoff(widget.asset.rowId, due.expenseRowId);
       ref.invalidate(cardBillingProvider(widget.asset.rowId));
+      invalidateAfterExpenseChange(ref);
     } on ApiException {
       // 서버 메시지는 전역 인터셉터가 띄운다.
     }
@@ -2029,10 +2033,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.cancelCardPayment(billing.rowId);
       // 이체·잔액·청구가 함께 되돌아간다 — 가계부도 비운다(이자 지출 등).
-      ref
-        ..invalidate(cardBillingProvider(widget.asset.rowId))
-        ..invalidate(assetsProvider)
-        ..invalidate(assetByIdProvider(widget.asset.rowId));
+      ref.invalidate(cardBillingProvider(widget.asset.rowId));
       invalidateAfterExpenseChange(ref);
       if (!mounted) return;
     } on ApiException {

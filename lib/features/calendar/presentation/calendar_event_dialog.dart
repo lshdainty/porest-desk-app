@@ -9,6 +9,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -246,6 +247,8 @@ class _BodyState extends ConsumerState<_Body> {
         );
       }
       ref.invalidate(monthEventsProvider(monthKey));
+      // 홈 위젯(오늘 일정·다가오는 일정)의 원본 — 셸 상주라 스스로 안 받는다.
+      ref.invalidate(dashboardSummaryProvider);
       if (_isEdit) {
         final orig = widget.edit!.start;
         if (orig.year != _start.year || orig.month != _start.month) {

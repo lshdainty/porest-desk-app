@@ -4,7 +4,6 @@ import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
 import 'package:porest_desk_app/features/todo/data/todo_tag_repository.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_stats.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
 
 final todoRepositoryProvider = FutureProvider<TodoRepository>((ref) async {
@@ -26,12 +25,6 @@ final todoListProvider = FutureProvider.family<List<Todo>, TodoFilter>((
 final todoByIdProvider = FutureProvider.family<Todo, int>((ref, id) async {
   final repo = await ref.watch(todoRepositoryProvider.future);
   return repo.getById(id);
-});
-
-/// 전체 todo 통계 (대시보드/요약 위젯용).
-final todoStatsProvider = FutureProvider<TodoStats>((ref) async {
-  final repo = await ref.watch(todoRepositoryProvider.future);
-  return repo.stats();
 });
 
 // ─── TodoTag ────────────────────────────────────────────────

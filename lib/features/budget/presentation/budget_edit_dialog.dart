@@ -145,6 +145,8 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
       ref.invalidate(
         monthBudgetsProvider((year: widget.year, month: widget.month)),
       );
+      // 준수율은 keepAlive 라 스스로 다시 받지 않는다 — 예산을 고치면 같이 비운다.
+      ref.invalidate(budgetComplianceProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException {

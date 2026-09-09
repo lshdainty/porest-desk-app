@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -136,6 +137,8 @@ class _BodyState extends ConsumerState<_Body> {
         if (_pinned) await repo.pin(created.rowId);
       }
       ref.invalidate(memoListProvider);
+      // 홈 위젯(메모 개수·최근 메모)의 원본 — 셸 상주라 스스로 안 받는다.
+      ref.invalidate(dashboardSummaryProvider);
       // 별자리 게이미피케이션 — 메모 작성 별빛(+1, 일 2회) 반영
       invalidateConstellation(ref);
       if (!mounted) return;

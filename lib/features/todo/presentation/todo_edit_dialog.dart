@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/markdown_preview.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
@@ -140,6 +141,8 @@ class _BodyState extends ConsumerState<_Body> {
       // invalidate every TodoFilter currently active is hard;
       // safest: invalidate the unfiltered one and let consumers refetch.
       ref.invalidate(todoListProvider);
+      // 홈 위젯(할 일 개수·최근 할 일)의 원본 — 셸 상주라 스스로 안 받는다.
+      ref.invalidate(dashboardSummaryProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException {

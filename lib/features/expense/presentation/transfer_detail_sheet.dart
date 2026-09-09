@@ -10,6 +10,7 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
 import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -102,8 +103,9 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.deleteTransfer(widget.transfer.rowId);
-      // 서버가 양쪽 자산의 잔액 이력을 되돌리므로 자산·거래 목록 모두 새로 받는다.
-      ref.invalidate(assetsProvider);
+      // 서버가 양쪽 자산의 잔액 이력을 되돌리므로 자산·요약·통계를 모두 새로 받는다.
+      // 이체도 거래다 — 자산 목록만 비우면 홈 순자산과 통계가 옛 값으로 남는다.
+      invalidateAfterExpenseChange(ref);
       final d = widget.transfer.transferDate;
       if (d != null && d.length >= 7) {
         final parts = d.split('-');
