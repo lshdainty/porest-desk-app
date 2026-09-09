@@ -18,6 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_visibility.dart';
 import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
 import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
@@ -41,16 +42,26 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final eventsAsync = ref.watch(monthEventsProvider(_key));
-    final events = eventsAsync.value ?? const <CalendarEvent>[];
     final calendarsAsync = ref.watch(userCalendarListProvider);
     final calendars = calendarsAsync.value ?? const <UserCalendar>[];
+    final eventsAsync = ref.watch(monthEventsProvider(_key));
+    // 표시를 끈 캘린더의 일정은 화면에서 뺀다 (웹 CalendarContainer 정합).
+    // 그리드 라벨·"+N" 넘침 표시·날짜 시트가 모두 이 목록 하나를 보므로,
+    // 여기서 한 번 거르면 "점은 있는데 눌러도 없는" 상태가 생기지 않는다.
+    final events = visibleCalendarEvents(
+      eventsAsync.value ?? const <CalendarEvent>[],
+      calendars,
+    );
     final holidayVisible = ref.watch(holidayVisibleProvider);
     // 표시 개수 = 활성 사용자 캘린더 + 활성 내장 소스(공휴일). 웹 CalendarSourceToggle
     // totalCount(visible 캘린더 + enabled builtin) 정합 — 공휴일 누락으로 웹보다 1 적던 버그 fix.
     final visibleCount =
         calendars.where((c) => c.isVisible).length + (holidayVisible ? 1 : 0);
+    // 점도 표시 중인 캘린더만 — 웹 CalendarSourceToggle dotColors 정합
+    // (`userCalendars.filter(c => c.isVisible).slice(0, 3)`). 개수는 visible 로
+    // 세면서 점은 전부에서 뽑던 탓에 "1개" 옆에 점이 둘 찍히곤 했다.
     final dotColors = calendars
+        .where((c) => c.isVisible)
         .take(3)
         .map((c) => solidSwatchColor(context, c.color, fallback: t.fgBrand))
         .toList();
@@ -232,8 +243,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _openDayEventsSheet(DateTime day) {
-    final events =
-        ref.read(monthEventsProvider(_key)).value ?? const <CalendarEvent>[];
+    // 그리드와 같은 규칙 — 표시를 끈 캘린더의 일정은 시트에도 올리지 않는다.
+    final events = visibleCalendarEvents(
+      ref.read(monthEventsProvider(_key)).value ?? const <CalendarEvent>[],
+      ref.read(userCalendarListProvider).value ?? const <UserCalendar>[],
+    );
     final dayEvents = _eventsOnDay(events, day);
     // 공휴일 — 그리드와 동일하게 holidayVisible 게이트 + 월 범위에서 해당일 필터.
     // 웹 상세처럼 종일 항목으로 함께 노출.

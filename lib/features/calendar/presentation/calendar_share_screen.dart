@@ -743,6 +743,9 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
       await repo.delete(cal.rowId);
       ref.invalidate(userCalendarListProvider);
+      // 서버가 이 캘린더의 일정을 기본 캘린더로 옮긴다(UserCalendarServiceImpl).
+      // 월 일정을 다시 받지 않으면 지운 캘린더 소속인 채로(색·소속 모두 옛것) 남는다.
+      ref.invalidate(monthEventsProvider);
       if (mounted) Navigator.of(context).pop();
     } on ApiException {
       // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
