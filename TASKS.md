@@ -179,6 +179,9 @@
   - 앱 쪽 읽기(`dashboardLayoutProvider` + `getLayout`)는 되걷었다 — 재배치 화면이 끝내 안 와서 읽는 화면이 0개인 채
     포그라운드 복귀마다 무효화만 돌고 있었다("갱신하고 있다" 는 착시). 서버 엔드포인트는 그대로다.
     재배치 화면을 만들 때 provider 를 다시 세우면 된다.
+  - 쓰기(`updateLayout`)도 마저 걷었다 — 읽기를 걷고 나니 **읽는 짝 없는 쓰기 메서드 하나만** 남아 있었고,
+    그마저 부르는 곳이 처음부터 0개였다. `DashboardRepository` 는 `summary()` 로 계속 쓰이므로 클래스·provider 는 남는다.
+    서버 `PATCH /dashboard/layout` 은 그대로다.
 - [ ] **#232 HomeDesktop 5종 카드** (L) — 월별 막대 / 카테고리 도넛 / 예산 / 예정 결제 / 일정. 데스크톱 레이아웃 부재 (모바일 단일)
 - [x] **#233 월별 수입/지출 BarChart 표시** (commit `e7db6fa`) — Dashboard 에 `_MonthlyTrendCard` 추가
 
