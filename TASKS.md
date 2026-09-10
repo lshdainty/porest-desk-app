@@ -176,6 +176,9 @@
 
 - [x] **#230 DashboardSummary endpoint + provider** (commit `7cae516`) — `domain/dashboard_summary.dart` + `dashboard_repository.dart` + `dashboardSummaryProvider` + `_UpcomingCard` 위젯
 - [x] **#231 Dashboard layout GET/PATCH** (commit `7cae516`) — repo `getLayout/updateLayout` + provider. UI 측 위젯 재배치 화면은 후속
+  - 앱 쪽 읽기(`dashboardLayoutProvider` + `getLayout`)는 되걷었다 — 재배치 화면이 끝내 안 와서 읽는 화면이 0개인 채
+    포그라운드 복귀마다 무효화만 돌고 있었다("갱신하고 있다" 는 착시). 서버 엔드포인트는 그대로다.
+    재배치 화면을 만들 때 provider 를 다시 세우면 된다.
 - [ ] **#232 HomeDesktop 5종 카드** (L) — 월별 막대 / 카테고리 도넛 / 예산 / 예정 결제 / 일정. 데스크톱 레이아웃 부재 (모바일 단일)
 - [x] **#233 월별 수입/지출 BarChart 표시** (commit `e7db6fa`) — Dashboard 에 `_MonthlyTrendCard` 추가
 

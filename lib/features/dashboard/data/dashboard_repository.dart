@@ -26,23 +26,6 @@ class DashboardRepository {
     }
   }
 
-  /// 위젯 레이아웃 (JSON 문자열). GET /dashboard/layout.
-  Future<String?> getLayout() async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>('/dashboard/layout');
-      final body = ApiResponse<Map<String, dynamic>>.fromJson(
-        res.data ?? const {},
-        (raw) => raw! as Map<String, dynamic>,
-      );
-      if (!body.success || body.data == null) {
-        throw ApiException(code: body.code, message: body.message);
-      }
-      return body.data!['dashboard'] as String?;
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
   /// 위젯 레이아웃 갱신. PATCH /dashboard/layout.
   Future<void> updateLayout(String layoutJson) async {
     try {

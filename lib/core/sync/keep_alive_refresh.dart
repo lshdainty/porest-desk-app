@@ -187,7 +187,6 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(cardBenefitMappingsProvider);
   ref.invalidate(todoTagListProvider);
   ref.invalidate(memoTagListProvider);
-  ref.invalidate(dashboardLayoutProvider);
   // 탭이 읽는 것은 전부 시각을 본다 — 진입 갱신과 **같은 함수·같은 목록**이다.
   _invalidateStale(ref, ServerQuery.values);
   // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은

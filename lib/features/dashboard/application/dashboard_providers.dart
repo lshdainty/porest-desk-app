@@ -19,9 +19,3 @@ final dashboardSummaryProvider = FutureProvider<DashboardSummary>((ref) async {
   ref.markQueryFetched(ServerQuery.dashboardSummary);
   return summary;
 });
-
-/// Dashboard 위젯 레이아웃 JSON (#231).
-final dashboardLayoutProvider = FutureProvider<String?>((ref) async {
-  final repo = await ref.watch(dashboardRepositoryProvider.future);
-  return repo.getLayout();
-});
