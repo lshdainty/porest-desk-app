@@ -1007,7 +1007,9 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     final seriesLabel = widget.seriesLabel;
     final masked = widget.masked;
     final list = widget.async.value ?? const <AssetBalancePoint>[];
-    if (widget.async.isLoading && list.isEmpty) {
+    // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
+    // 값이 있으면 다시 받는 중에도 그 값을 그대로 그린다.
+    if (widget.async.isLoading && !widget.async.hasValue) {
       // 차트 영역 전체 PSkeleton — 부모 SizedBox(height:160) 의 영역에 fill.
       return SizedBox.expand(child: PSkeleton(borderRadius: PRadius.brLg));
     }
@@ -1276,7 +1278,9 @@ class _RecentExpenses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = async.value ?? const <Expense>[];
-    if (async.isLoading && list.isEmpty) {
+    // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
+    // 값이 있으면 다시 받는 중에도 그 값을 그대로 그린다.
+    if (async.isLoading && !async.hasValue) {
       // 실렌더와 같은 날짜 그룹 구조 — 그룹 사이 16, 헤더(날짜+요일+일 합계) + 행.
       // 평평한 행만 깔면 데이터가 오는 순간 헤더 높이만큼 목록이 밀린다.
       return Column(

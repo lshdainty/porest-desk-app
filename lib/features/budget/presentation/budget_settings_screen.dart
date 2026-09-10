@@ -318,7 +318,10 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                       categories: categories,
                       spentByCategory: spentByCategory,
                       masked: ref.watch(hideCardProvider('budget.manage')),
-                      loading: summaryAsync.isLoading,
+                      // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
+                      // 스켈레톤은 첫 로딩만.
+                      firstLoading:
+                          summaryAsync.isLoading && !summaryAsync.hasValue,
                       // 웹 정합: 카테고리 로딩 중에도 추가 비활성(빈 칩 다이얼로그 방지).
                       addDisabled: allBudgeted || categoriesAsync.isLoading,
                       tokens: t,
@@ -685,7 +688,7 @@ class _CategoryListCard extends StatelessWidget {
     required this.categories,
     required this.spentByCategory,
     required this.masked,
-    required this.loading,
+    required this.firstLoading,
     required this.addDisabled,
     required this.tokens,
     required this.onAdd,
@@ -696,7 +699,9 @@ class _CategoryListCard extends StatelessWidget {
   final List<ExpenseCategory> categories;
   final Map<int, int> spentByCategory;
   final bool masked;
-  final bool loading;
+
+  /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
+  final bool firstLoading;
   final bool addDisabled;
   final PorestTokens tokens;
   final VoidCallback onAdd;
@@ -733,7 +738,7 @@ class _CategoryListCard extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (loading && budgets.isEmpty)
+            if (firstLoading && budgets.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
                 child: Column(

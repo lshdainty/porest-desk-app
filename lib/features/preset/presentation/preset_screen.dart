@@ -79,7 +79,11 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(presetListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    final isLoading = listAsync.isLoading || categoriesAsync.isLoading;
+    // 두 조회 중 **아직 값이 없는** 쪽이 있을 때만 첫 로딩이다 — 다시 받는
+    // 중이어도 값이 있으면 그 값을 그린다. 스켈레톤은 첫 로딩만.
+    final firstLoading =
+        (listAsync.isLoading && !listAsync.hasValue) ||
+        (categoriesAsync.isLoading && !categoriesAsync.hasValue);
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -104,7 +108,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             items: const [],
             categories: const [],
             masked: ref.watch(hideCardProvider('etc.preset')),
-            isLoading: true,
+            firstLoading: true,
           ),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.lg),
@@ -120,7 +124,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             items: items,
             categories: categoriesAsync.value ?? const <ExpenseCategory>[],
             masked: ref.watch(hideCardProvider('etc.preset')),
-            isLoading: isLoading,
+            firstLoading: firstLoading,
           ),
         ),
       ),
@@ -132,7 +136,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     required List<ExpenseTemplate> items,
     required List<ExpenseCategory> categories,
     required bool masked,
-    required bool isLoading,
+    // 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
+    required bool firstLoading,
   }) {
     final totalUses = items.fold<int>(0, (s, p) => s + (p.useCount ?? 0));
     final expenseCount = items.where((p) => p.expenseType == 'EXPENSE').length;
@@ -149,7 +154,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
 
         // (2) 통계 3카드
         _StatsRow(
-          isLoading: isLoading,
+          firstLoading: firstLoading,
           presetCount: items.length,
           totalUses: totalUses,
           expenseCount: expenseCount,
@@ -167,7 +172,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         ),
 
         // (4) 리스트 — 카드 다이어트: 카드 없이 플랫 행 + 행 사이 구분선(web 정합).
-        isLoading
+        firstLoading
             ? const _ListSkeleton()
             : (sorted.isEmpty
                   ? const _EmptyState()
@@ -289,13 +294,15 @@ class _IntroBanner extends StatelessWidget {
 // ── (2) 통계 3카드 ─────────────────────────────────────────────────────────
 class _StatsRow extends StatelessWidget {
   const _StatsRow({
-    required this.isLoading,
+    required this.firstLoading,
     required this.presetCount,
     required this.totalUses,
     required this.expenseCount,
     required this.incomeCount,
   });
-  final bool isLoading;
+
+  /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
+  final bool firstLoading;
   final int presetCount;
   final int totalUses;
   final int expenseCount;
@@ -304,7 +311,7 @@ class _StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    if (isLoading) {
+    if (firstLoading) {
       return Row(
         children: [
           for (int i = 0; i < 3; i++) ...[
