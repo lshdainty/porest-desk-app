@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
@@ -36,7 +37,13 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     if (path != _lastPath) {
       _lastPath = path;
       Future.microtask(() {
-        if (mounted) invalidateKeepAliveForRoute(ref, path);
+        if (!mounted) return;
+        // 지금 어느 화면이 앞인지 적어 둔다 — 상주 화면이 "내가 보이는가" 를 알 수
+        // 있는 유일한 자리다(화면 안 GoRouterState 는 늘 자기 라우트를 돌려준다).
+        // 진입 갱신보다 먼저 적는다: 갱신이 부르는 조회를 그 화면이 이어받으려면
+        // 그때 이미 자기가 앞이라는 걸 알고 있어야 한다.
+        ref.read(activeShellRouteProvider.notifier).setPath(path);
+        invalidateKeepAliveForRoute(ref, path);
       });
     }
   }

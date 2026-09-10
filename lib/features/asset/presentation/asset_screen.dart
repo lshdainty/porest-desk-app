@@ -13,6 +13,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -35,6 +36,9 @@ const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
 const _investmentTypes = {'INVESTMENT'};
 const _loanTypes = {'LOAN'};
 
+/// 이 화면이 셸에서 차지하는 라우트 — "지금 내가 앞인가" 를 이 값으로 판정한다.
+const assetRoute = '/assets';
+
 class AssetScreen extends ConsumerStatefulWidget {
   const AssetScreen({super.key});
 
@@ -44,12 +48,45 @@ class AssetScreen extends ConsumerStatefulWidget {
 
 class _AssetScreenState extends ConsumerState<AssetScreen> {
   Timer? _valuationTimer;
+  // 한 번이라도 돌린 적이 있는가 — 첫 시작과 **재시작**을 가른다.
+  bool _startedOnce = false;
 
   @override
   void initState() {
     super.initState();
     // 토스 연결 평가액 라이브 갱신 — 시세(현재가)를 10초마다 재조회.
     // 게이트 OFF(비프로/미연결)·연결 자산 없음이면 빈 맵이라 NOP.
+    //
+    // **보고 있을 때만 돈다.** 이 화면은 탭 셸(IndexedStack)에 상주해 다른 탭으로
+    // 가도 dispose 되지 않는다 — dispose 의 cancel 만 믿으면 타이머는 앱을 끌 때까지
+    // 돌고, 아무도 안 보는 시세를 10초마다 받아 배터리·데이터를 쓴다.
+    // 그래서 라우트와 포그라운드를 각각 듣고 그때마다 다시 판정한다.
+    ref.listenManual(activeShellRouteProvider, (_, _) => _syncValuationTimer());
+    ref.listenManual(appForegroundProvider, (_, _) => _syncValuationTimer());
+    // 첫 판정은 microtask 로 미룬다 — initState 안에서는 provider 를 읽지도 비우지도
+    // 못한다(빌드 중이다). 셸이 첫 라우트를 적는 것도 같은 이유로 microtask 라,
+    // 먼저 예약된 그쪽이 먼저 돌아 여기서는 이미 어느 화면이 앞인지 알고 있다.
+    Future.microtask(_syncValuationTimer);
+  }
+
+  /// 보이면 돌리고, 안 보이면 멈춘다 — 라우트·포그라운드 어느 쪽이 바뀌어도 여기로 모인다.
+  void _syncValuationTimer() {
+    if (!mounted) return;
+    if (!isScreenVisible(ref, assetRoute)) {
+      _valuationTimer?.cancel();
+      _valuationTimer = null;
+      return;
+    }
+    // 이미 돌고 있으면 그대로 둔다. 부르는 자리가 둘이라 그냥 만들면 타이머가 겹쳐
+    // 같은 조회가 배로 나간다(멈추는 쪽은 한 번뿐이라 겹친 하나는 영영 안 꺼진다).
+    if (_valuationTimer != null) return;
+    // **재시작**이면 돌아온 직후 한 번은 바로 받는다 — 안 그러면 10초 동안 떠나기 전
+    // 시세를 본다. 진입·복귀 무효화(core/sync/keep_alive_refresh.dart)는 이 조회를
+    // 일부러 안 태운다(시세는 60초 신선도 규칙에 안 맞는다) — 여기서 안 밀면 아무도 안 민다.
+    // 첫 시작은 밀지 않는다: 화면이 build 에서 막 읽어 조회가 이미 나간 참이라,
+    // 여기서 또 비우면 자산 탭에 들어올 때마다 같은 조회가 두 번 나간다.
+    if (_startedOnce) ref.invalidate(investmentValuationMapProvider);
+    _startedOnce = true;
     _valuationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (mounted) ref.invalidate(investmentValuationMapProvider);
     });
