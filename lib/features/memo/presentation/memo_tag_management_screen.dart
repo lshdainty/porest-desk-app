@@ -78,30 +78,51 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   bool _busy = false;
 
+  /// 저장·삭제가 끝나기 전에 화면이 닫혀도 목록을 비울 수 있게 미리 잡아 둔다.
+  ///
+  /// `ref` 는 unmount 뒤에 쓰면 던지고(`_assertNotDisposed`), 그렇다고 `if (mounted)`
+  /// 로 막으면 **무효화 자체가 안 일어난다** — [memoTagListProvider] 는 keepAlive,
+  /// [memoListProvider] 는 autoDispose 가 아니라 둘 다 화면보다 오래 산다. 서버엔
+  /// 들어간 이름이 목록에는 옛 값으로 남아, 포그라운드 복귀 전까지 안 걷힌다.
+  /// 컨테이너는 `ProviderScope` 의 것이라 화면 수명과 무관하다(#348 와 같은 방식).
+  late ProviderContainer _container;
+
   @override
   void initState() {
     super.initState();
     // 진입 시 갱신 — keepAlive provider 라 다른 클라이언트 변경 반영 위해 무효화.
+    //
+    // 여기만 `mounted` 로 막는다. 이건 **화면에 그리기 전에 새로 읽는 것**이지
+    // 내가 방금 쓴 값을 걷어 내는 게 아니다 — 화면이 이미 사라졌으면 걷어 낼
+    // 헌 값도, 보여 줄 사람도 없다. 그래도 비우면 아무도 안 보는 GET 만 나간다.
     Future.microtask(() {
       if (mounted) ref.invalidate(memoTagListProvider);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _container = ProviderScope.containerOf(context, listen: false);
   }
 
   Future<void> _save(MemoTag? origin, String name, String color) async {
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      final repo = await ref.read(memoTagRepositoryProvider.future);
+      final repo = await _container.read(memoTagRepositoryProvider.future);
       if (origin == null) {
         await repo.create(tagName: name, color: color);
       } else {
         await repo.update(id: origin.rowId, tagName: name, color: color);
       }
-      ref.invalidate(memoTagListProvider);
+      // 저장 도중에 화면을 닫아도 여기까지 온다 — 서버엔 이미 들어갔으므로
+      // 목록은 반드시 걷어 낸다. 그래서 `ref` 가 아니라 컨테이너다.
+      _container.invalidate(memoTagListProvider);
       // 개명이면 서버가 그 태그를 쓰던 메모의 `tag` 문자열도 함께 옮긴다
       // (`MemoTagServiceImpl.updateTag`) — 목록을 안 걷어 내면 돌아갔을 때
       // 칩과 카드가 옛 이름을 계속 그린다.
-      ref.invalidate(memoListProvider);
+      _container.invalidate(memoListProvider);
       if (mounted) setState(() => _busy = false);
     } on ApiException {
       if (!mounted) return;
@@ -121,12 +142,12 @@ class _BodyState extends ConsumerState<_Body> {
     if (!ok || !mounted || _busy) return;
     setState(() => _busy = true);
     try {
-      final repo = await ref.read(memoTagRepositoryProvider.future);
+      final repo = await _container.read(memoTagRepositoryProvider.future);
       await repo.delete(tag.rowId);
-      ref.invalidate(memoTagListProvider);
+      _container.invalidate(memoTagListProvider);
       // 삭제는 그 태그를 쓰던 메모의 `tag` 를 비운다 — 목록도 다시 읽어야
       // 그 메모들이 '태그 없음' 으로 보인다.
-      ref.invalidate(memoListProvider);
+      _container.invalidate(memoListProvider);
       if (mounted) setState(() => _busy = false);
     } on ApiException {
       if (!mounted) return;
