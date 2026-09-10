@@ -3842,6 +3842,12 @@ abstract class AppLocalizations {
   /// **'원거래 금액을 이미 다 환불했어요 — 더 넣을 금액이 없어요'**
   String get expRefundCapUsedUp;
 
+  /// No description provided for @expRefundAmountLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 금액은 고칠 수 없어요 — 지우고 다시 넣어 주세요'**
+  String get expRefundAmountLocked;
+
   /// No description provided for @expTypeTransfer.
   ///
   /// In ko, this message translates to:

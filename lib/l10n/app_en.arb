@@ -1230,6 +1230,7 @@
     }
   },
   "expRefundCapUsedUp": "The original amount is already fully refunded — nothing left to refund",
+  "expRefundAmountLocked": "A refund amount cannot be edited — delete it and add it again",
   "expTypeTransfer": "Transfer",
   "expTransferFrom": "From",
   "expTransferTo": "To",
