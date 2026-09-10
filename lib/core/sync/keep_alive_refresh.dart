@@ -44,7 +44,7 @@ void invalidateAfterExpenseChange(WidgetRef ref) {
   ref.invalidate(dashboardSummaryProvider);
   ref.invalidate(monthBudgetsProvider);
 
-  // 통계 — 60초 규칙([_invalidateStaleStats])이 진입에서 **각자** 판정하는 다섯.
+  // 통계 — 60초 규칙([_invalidateStaleStats])이 진입·복귀에서 **각자** 판정하는 다섯.
   // 여기서는 시간과 무관하게 다섯을 **함께** 비운다(이 기기에서 바꾼 값이다).
   // rangeSummary 는 홈 합계도 같이 읽는다.
   ref.invalidate(rangeSummaryProvider);
@@ -83,6 +83,32 @@ void invalidateAfterAssetChange(WidgetRef ref) {
 /// 않는다. 다른 클라이언트(웹 등)에서 변경된 내용을 따라잡기 위해 앱이
 /// 포그라운드로 복귀할 때 한 번에 무효화한다(다음 watch 시 refetch).
 /// family provider 는 base 를 넘기면 모든 인스턴스가 무효화된다.
+///
+/// ## 통계 5종만 시각을 본다
+///
+/// 나머지는 여기서 무조건 비우지만 통계는 [_invalidateStaleStats] 를 그대로 태운다
+/// — 진입 갱신과 **같은 판정, 같은 목록**이다.
+///
+/// 낡음은 **흘러간 시간**의 함수지 그동안 앱이 보였느냐의 함수가 아니다. 다른
+/// 기기에서 값이 바뀔 확률은 내 앱이 백그라운드에 있었다고 달라지지 않는다.
+/// 복귀가 "오래 떠나 있었다" 는 신호인 것은 실제로 오래 걸렸을 때뿐인데, 그건
+/// 시계가 이미 재고 있다 — 1분 넘게 나갔다 오면 다섯이 전부 stale 이라 여기서
+/// 무조건 비우는 것과 결과가 같다. 갈리는 건 홈 버튼을 눌렀다 3초 만에 돌아온
+/// 경우뿐이고, 거기서 다시 받는 것은 이 앱이 스스로 정한 "60초 안이면 새 값"
+/// 과 어긋난다(웹 react-query 의 창 포커스 재조회도 stale 인 것만 다시 받는다).
+///
+/// 비용은 요청 수만이 아니다 — 통계 화면 도넛·하이라이트는 이전 값을 들고 있어도
+/// `isLoading` 이면 스켈레톤을 그린다. 무조건 비우면 잠깐 나갔다 올 때마다 보고
+/// 있던 화면이 껌뻑인다.
+///
+/// `rangeSummary` 는 홈·예산도 읽으므로 그 둘도 이 시계를 따르게 된다. 홈이
+/// 그리는 나머지 원본(요약·목록·예산)은 여기서 그대로 무조건 비우고, 앱을
+/// 접었다 켜는 실제 상황은 거의 다 1분을 넘는다.
+///
+/// **다섯을 함께 태우는 게 요점이다.** 예전엔 `rangeSummary` 한 줄만 무조건 비우는
+/// 목록에 있고 나머지 넷은 아예 없었다. 그래서 통계 탭을 켜 둔 채 앱을 접었다 켜면
+/// 합계만 새 값이고 히트맵·가맹점·추이는 옛 값이었다 — 탭을 떠나지 않으면 진입
+/// 갱신([invalidateKeepAliveForRoute])은 라우트가 안 바뀌어 돌지 않는다.
 void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(categoriesProvider);
   ref.invalidate(eventLabelsProvider);
@@ -102,10 +128,13 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   // 그 숫자만 앱을 다시 켤 때까지 옛 값으로 남는다.
   ref.invalidate(dashboardSummaryProvider);
   ref.invalidate(assetSummaryProvider);
-  ref.invalidate(rangeSummaryProvider);
   ref.invalidate(monthExpensesProvider);
   ref.invalidate(monthBudgetsProvider);
   ref.invalidate(monthEventsProvider);
+  // 통계 5종 — 여기만 시각을 본다(위 주석). 진입 갱신과 **같은 함수**를 태워
+  // 목록이 두 벌로 갈라지지 않게 한다. 갈라져 있던 결과가 이 묶음이
+  // `rangeSummary` 하나만 들고 있던 상태다.
+  _invalidateStaleStats(ref);
   // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은
   // 새 버전이 나와도 끌 때까지 몰랐다. version.json 은 1KB 정적 파일에 5초 타임아웃이라
   // resume 마다 한 번 더 물어봐도 부담이 없다.
@@ -144,6 +173,10 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
 
 /// 통계 5종 — 마지막으로 **받아 온 지** 60초가 지난 것만 비운다.
 ///
+/// 부르는 자리는 둘이다: 통계 탭 **진입**([invalidateKeepAliveForRoute])과
+/// **포그라운드 복귀**([invalidateKeepAliveProviders]). 둘 다 "지금 화면에 값을
+/// 내놓아야 하는 순간" 이고, 낡았는지는 어느 쪽이든 같은 시계로 잰다.
+///
 /// 통계 provider 는 autoDispose 가 아니고 통계 탭도 셸에 상주해 dispose 되지
 /// 않는다. 그래서 진입할 때 비우지 않으면 다른 기기에서 넣은 값이 당겨서
 /// 새로고침하거나 앱을 다시 켜기 전에는 안 보인다. 반대로 들어올 때마다 비우면
@@ -163,8 +196,9 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
 /// 60초 안인 것에는 **아무것도 하지 않는다**(요청 0회). 한 번도 안 받은 것은
 /// 비운다 — 안 읽힌 provider 를 비우는 것은 no-op 이다.
 ///
-/// 타이머·폴링은 없다. 화면에 들어오는 이 순간에만 비교한다. 거래를 바꿨을 때의
-/// 무효화([invalidateAfterExpenseChange])는 시간과 무관하게 다섯을 즉시 비운다.
+/// 타이머·폴링은 없다. 화면에 들어오는 순간과 포그라운드로 돌아오는 순간에만
+/// 비교한다. 거래를 바꿨을 때의 무효화([invalidateAfterExpenseChange])는 시간과
+/// 무관하게 다섯을 즉시 비운다.
 void _invalidateStaleStats(WidgetRef ref) {
   final now = ref.read(statsClockProvider)();
   final freshness = ref.read(statsFreshnessProvider);

@@ -15,6 +15,13 @@
 // 거래 상세를 여는 것만으로 통계 넷의 시계가 밀렸다 — 아래 "칸은 서로 밀지 않는다"
 // 두 테스트가 그 두 방향을 각각 잠근다.
 //
+// 이 시계를 보는 자리는 둘이다 — 통계 탭 **진입**(`invalidateKeepAliveForRoute`)과
+// **포그라운드 복귀**(`invalidateKeepAliveProviders`). 복귀는 한때 `rangeSummary`
+// 하나만 시간과 무관하게 비웠고 나머지 넷은 목록에 아예 없었다. 그래서 통계 탭을
+// 켜 둔 채 앱을 접었다 켜면 합계만 새 값이고 히트맵·가맹점·추이는 옛 값이었다 —
+// 탭을 떠나지 않으면 라우트가 안 바뀌어 진입 갱신도 안 돈다. 아래 "포그라운드 복귀"
+// 두 테스트가 **다섯이 같은 취급을 받는지**를 양방향으로 잠근다.
+//
 // 여기서 보는 건 "무효화 한 줄이 있다" 가 아니라 **리포지토리가 실제로 몇 번
 // 불렸는가** 다. 시각은 주입한 가짜 시계로 민다 — 진짜 60초를 기다리지 않는다.
 import 'package:dio/dio.dart';
@@ -264,6 +271,66 @@ void main() {
 
     for (final k in _statsKeys) {
       expect(h.counts[k], 2, reason: '$k — 이 기기에서 거래를 바꿨는데 60초를 기다리게 됐다');
+    }
+  });
+
+  // ─── 포그라운드 복귀 — 진입과 같은 시계, 같은 목록 ─────────────
+  testWidgets('포그라운드 복귀 — 1분 넘게 나갔다 오면 통계 5종을 함께 다시 받는다', (tester) async {
+    final h = await _pump(tester);
+
+    // 통계 탭을 켜 둔 채 앱을 접었다 켠 자리다 — 라우트가 안 바뀌므로 진입 갱신은
+    // 돌지 않는다. 여기서 빠진 provider 는 탭을 떠났다 돌아오기 전까지 옛 값이다.
+    h.clock.advance(const Duration(seconds: 61));
+    invalidateKeepAliveProviders(h.ref);
+    await tester.pumpAndSettle();
+
+    for (final k in _statsKeys) {
+      expect(
+        h.counts[k],
+        2,
+        reason:
+            '$k — 복귀 묶음이 안 비웠다. 하나만 들어 있으면 합계만 새 값이고 나머지는 옛 값인 '
+            '화면이 된다 — 어느 설계도 아닌 상태다',
+      );
+    }
+
+    // 복귀에서 받아 온 시각이 곧 기준이다 — 이어서 통계 탭에 들어가도 조용하다.
+    // (복귀와 진입이 서로 다른 시계를 보면 여기서 조회가 한 번 더 나간다.)
+    h.clock.advance(const Duration(seconds: 1));
+    invalidateKeepAliveForRoute(h.ref, '/stats');
+    await tester.pumpAndSettle();
+
+    for (final k in _statsKeys) {
+      expect(h.counts[k], 2, reason: '$k — 1초 전에 복귀가 받아 온 값을 진입이 또 받았다');
+    }
+  });
+
+  testWidgets('포그라운드 복귀 — 잠깐 나갔다 오면 다섯 다 조용하다', (tester) async {
+    final h = await _pump(tester);
+
+    // 홈 버튼을 눌렀다 30초 만에 돌아왔다. 낡음은 흘러간 시간의 함수라 30초짜리
+    // 외출은 아무것도 낡게 만들지 않는다.
+    h.clock.advance(const Duration(seconds: 30));
+    invalidateKeepAliveProviders(h.ref);
+    await tester.pumpAndSettle();
+
+    for (final k in _statsKeys) {
+      expect(
+        h.counts[k],
+        1,
+        reason:
+            '$k — 복귀가 시계를 무시하고 비웠다. 하나만 무조건이면 그 카드만 스켈레톤으로 껌뻑이고 '
+            '나머지 넷은 그대로인 비대칭이 된다',
+      );
+    }
+
+    // 조용한 게 "복귀에선 안 받는다" 는 뜻은 아니다 — 60초를 넘기면 다 같이 받는다.
+    h.clock.advance(const Duration(seconds: 31));
+    invalidateKeepAliveProviders(h.ref);
+    await tester.pumpAndSettle();
+
+    for (final k in _statsKeys) {
+      expect(h.counts[k], 2, reason: '$k — 61초 만에 돌아왔는데 다시 안 받았다');
     }
   });
 }
