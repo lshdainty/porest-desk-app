@@ -19,6 +19,7 @@ import 'package:porest_desk_app/shared/widgets/p_slider.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
+import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
@@ -77,10 +78,34 @@ class _Content extends ConsumerWidget {
         .patch(fields, optimistic: optimistic);
   }
 
+  /// 예산 임계값만 저장 뒤 한 곳을 더 비운다.
+  ///
+  /// 이 화면이 저장하는 값 중 **밖에서도 읽히는 건 이것 하나**다. 홈·예산의 게이지
+  /// 경고선은 `userPreferences` 가 아니라 [budgetAlertThresholdProvider] 에서 온다 —
+  /// 같은 `/users/me/preferences` 를 따로 GET 하는 별개 조회다. 여기서 안 비우면
+  /// 방금 내가 민 눈금이 게이지에는 60초 신선도 규칙이 돌 때까지 안 선다.
+  /// **무효화는 내가 한 것, 시계는 남이 한 것** — 내 손으로 바꾼 값을 남의 시계로
+  /// 기다리게 두지 않는다.
+  ///
+  /// **저장이 끝난 뒤**에 비운다. 먼저 비우면 새 GET 이 PATCH 를 앞질러 옛 값을
+  /// 물어 와, 게이지가 오히려 옛 눈금에 굳는다.
+  ///
+  /// 컨테이너를 미리 잡아 두는 이유 — 슬라이더를 놓자마자 뒤로 가면 PATCH 가
+  /// 끝나기 전에 이 위젯이 사라진다. `WidgetRef` 는 unmount 뒤에 쓰면 던지지만
+  /// 컨테이너는 `ProviderScope` 의 것이라 화면보다 오래 산다.
+  Future<void> _patchThreshold(ProviderContainer container, int v) async {
+    final saved = await container.read(userPreferencesProvider.notifier).patch({
+      'budgetAlertThreshold': v,
+    }, optimistic: (p) => p.copyWith(budgetAlertThreshold: v));
+    if (saved) container.invalidate(budgetAlertThresholdProvider);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final pushOn = prefs.pushEnabled;
+    // [_patchThreshold] 가 화면이 사라진 뒤에도 비울 수 있게 지금 잡아 둔다.
+    final container = ProviderScope.containerOf(context, listen: false);
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x24,
@@ -195,9 +220,7 @@ class _Content extends ConsumerWidget {
         // 3) 예산 알림 임계값
         _ThresholdCard(
           value: prefs.budgetAlertThreshold,
-          onChanged: (v) => _patch(ref, {
-            'budgetAlertThreshold': v,
-          }, (p) => p.copyWith(budgetAlertThreshold: v)),
+          onChanged: (v) => _patchThreshold(container, v),
         ),
         const SizedBox(height: PSpace.x32),
 
