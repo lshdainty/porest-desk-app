@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/sync/query_freshness.dart';
 import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 
@@ -13,7 +14,9 @@ final savingGoalRepositoryProvider = FutureProvider<SavingGoalRepository>((
 
 final savingGoalListProvider = FutureProvider<List<SavingGoal>>((ref) async {
   final repo = await ref.watch(savingGoalRepositoryProvider.future);
-  return repo.list();
+  final goals = await repo.list();
+  ref.markQueryFetched(ServerQuery.savingGoalList);
+  return goals;
 });
 
 final savingGoalByIdProvider = FutureProvider.family<SavingGoal, int>((

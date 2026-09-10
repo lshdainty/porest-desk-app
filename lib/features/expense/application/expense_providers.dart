@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/stats_freshness.dart';
+import 'package:porest_desk_app/core/sync/query_freshness.dart';
 import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
@@ -19,7 +19,9 @@ final expenseRepositoryProvider = FutureProvider<ExpenseRepository>((
 final categoriesProvider = FutureProvider<List<ExpenseCategory>>((ref) async {
   ref.keepAlive();
   final repo = await ref.watch(expenseRepositoryProvider.future);
-  return repo.categories();
+  final categories = await repo.categories();
+  ref.markQueryFetched(ServerQuery.categories);
+  return categories;
 });
 
 /// 월간 거래 목록 — `(year, month)` 키로 family.
@@ -32,7 +34,9 @@ final monthExpensesProvider = FutureProvider.family<List<Expense>, MonthKey>((
   final repo = await ref.watch(expenseRepositoryProvider.future);
   final start = _firstDay(key.year, key.month);
   final end = _lastDay(key.year, key.month);
-  return repo.list(startDate: start, endDate: end);
+  final expenses = await repo.list(startDate: start, endDate: end);
+  ref.markQueryFetched(ServerQuery.monthExpenses);
+  return expenses;
 });
 
 /// 임의 기간 거래 목록 — Stats 화면 추이 차트용.
@@ -47,8 +51,8 @@ final rangeExpensesProvider = FutureProvider.family<List<Expense>, RangeKey>((
     startDate: key.startDate,
     endDate: key.endDate,
   );
-  // 60초 규칙에 든 다섯 중 하나 — 진입 갱신이 기준을 걸 수 있게 **자기 칸**에 시각을 남긴다.
-  ref.markStatsFetched(StatsQuery.rangeExpenses);
+  // 60초 규칙에 든 조회 — 진입 갱신이 기준을 걸 수 있게 **자기 칸**에 시각을 남긴다.
+  ref.markQueryFetched(ServerQuery.rangeExpenses);
   return expenses;
 });
 
@@ -104,13 +108,13 @@ final merchantMonthExpensesProvider =
         endDate: _lastDay(key.year, key.month),
       );
       all.sort((a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
-      // 60초 규칙([_invalidateStaleStats])이 이것도 민다 — 비우는 자리에만 넣고
-      // 시각을 안 남기면 이 provider 만 기준이 달라져, 스스로 받은 직후에도
-      // stale 로 읽혀 진입마다 조회가 한 번 더 나간다.
+      // 60초 규칙이 이것도 민다 — 비우는 자리에만 넣고 시각을 안 남기면 이
+      // provider 만 기준이 달라져, 스스로 받은 직후에도 stale 로 읽혀 진입마다
+      // 조회가 한 번 더 나간다.
       //
-      // 칸은 **이것 하나**다. 거래 상세를 여는 이 조회가 통계 넷의 시계를 밀면,
-      // 밀린 만큼 통계 탭이 다른 기기의 변경을 못 따라잡는다([StatsQuery] 참고).
-      ref.markStatsFetched(StatsQuery.merchantMonthExpenses);
+      // 칸은 **이것 하나**다. 거래 상세를 여는 이 조회가 남의 시계를 밀면, 밀린
+      // 만큼 그 탭이 다른 기기의 변경을 못 따라잡는다([ServerQuery] 참고).
+      ref.markQueryFetched(ServerQuery.merchantMonthExpenses);
       return all;
     });
 

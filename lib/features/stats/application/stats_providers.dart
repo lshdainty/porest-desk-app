@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/stats_freshness.dart';
+import 'package:porest_desk_app/core/sync/query_freshness.dart';
 import 'package:porest_desk_app/features/stats/data/stats_repository.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
 
@@ -22,7 +22,7 @@ final rangeSummaryProvider = FutureProvider.family<RangeSummary, DateRange>((
     startDate: range.startDate,
     endDate: range.endDate,
   );
-  ref.markStatsFetched(StatsQuery.rangeSummary);
+  ref.markQueryFetched(ServerQuery.rangeSummary);
   return summary;
 });
 
@@ -38,7 +38,7 @@ final merchantSummaryProvider =
         startDate: range.startDate,
         endDate: range.endDate,
       );
-      ref.markStatsFetched(StatsQuery.merchantSummary);
+      ref.markQueryFetched(ServerQuery.merchantSummary);
       return merchants;
     });
 
@@ -51,6 +51,6 @@ final heatmapProvider = FutureProvider.family<List<HeatmapCell>, DateRange>((
     startDate: range.startDate,
     endDate: range.endDate,
   );
-  ref.markStatsFetched(StatsQuery.heatmap);
+  ref.markQueryFetched(ServerQuery.heatmap);
   return cells;
 });

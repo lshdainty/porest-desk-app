@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/sync/query_freshness.dart';
 import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
@@ -19,7 +20,9 @@ final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
 final assetsProvider = FutureProvider<List<Asset>>((ref) async {
   ref.keepAlive();
   final repo = await ref.watch(assetRepositoryProvider.future);
-  return repo.list();
+  final assets = await repo.list();
+  ref.markQueryFetched(ServerQuery.assets);
+  return assets;
 });
 
 typedef AssetSummaryKey = ({int? year, int? month});
@@ -27,7 +30,9 @@ typedef AssetSummaryKey = ({int? year, int? month});
 final assetSummaryProvider =
     FutureProvider.family<AssetSummary, AssetSummaryKey>((ref, key) async {
       final repo = await ref.watch(assetRepositoryProvider.future);
-      return repo.summary(year: key.year, month: key.month);
+      final summary = await repo.summary(year: key.year, month: key.month);
+      ref.markQueryFetched(ServerQuery.assetSummary);
+      return summary;
     });
 
 /// 최근 N개월 순자산 추이 (기본 12개월).
@@ -37,7 +42,9 @@ final netWorthTrendProvider = FutureProvider.family<List<NetWorthPoint>, int>((
 ) async {
   ref.keepAlive();
   final repo = await ref.watch(assetRepositoryProvider.future);
-  return repo.netWorthTrend(months: months);
+  final points = await repo.netWorthTrend(months: months);
+  ref.markQueryFetched(ServerQuery.netWorthTrend);
+  return points;
 });
 
 /// 단건 자산 (상세 화면 진입용).
@@ -67,7 +74,12 @@ final assetTransfersProvider =
       key,
     ) async {
       final repo = await ref.watch(assetRepositoryProvider.future);
-      return repo.listTransfers(startDate: key.startDate, endDate: key.endDate);
+      final transfers = await repo.listTransfers(
+        startDate: key.startDate,
+        endDate: key.endDate,
+      );
+      ref.markQueryFetched(ServerQuery.assetTransfers);
+      return transfers;
     });
 
 /// 신용카드 청구 사이클 (결제예정액·예정일·청구이력).
