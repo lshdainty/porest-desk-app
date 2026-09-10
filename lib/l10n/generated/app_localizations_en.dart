@@ -2084,6 +2084,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The original amount is already fully refunded — nothing left to refund';
 
   @override
+  String get expRefundAmountLocked =>
+      'A refund amount cannot be edited — delete it and add it again';
+
+  @override
   String get expTypeTransfer => 'Transfer';
 
   @override
