@@ -36,6 +36,16 @@ class UserPreferencesNotifier extends AsyncNotifier<UserPreferences> {
   /// 있으면(예산 경고선의 `budgetAlertThresholdProvider`) 저장이 끝난 뒤 그쪽을
   /// 비워야 하는데, 롤백된 저장까지 비우면 바뀌지도 않은 값을 다시 물어보게 된다.
   /// 낙관적 반영은 여기 결과와 무관하게 이미 화면에 나가 있다.
+  ///
+  /// `await` 뒤의 `state =` 는 **살아 있을 때만** 쓴다. 이 provider 는 autoDispose 라
+  /// 설정 화면을 PATCH 도중에 닫으면 마지막 구독자가 사라져 element 가 폐기된다 —
+  /// 그 뒤의 `state =` 는 `Ref._throwIfInvalidUsage` 를 타고 `UnmountedRefException`
+  /// 을 던진다(riverpod 3.2.1 `core/provider/notifier_provider.dart:89` →
+  /// `core/ref.dart:230`). 폐기 여부는 같은 소스가 공개로 내주는 `ref.mounted`
+  /// (`core/ref.dart:110`)로 본다.
+  ///
+  /// **catch 안에서도 본다.** 롤백이 두 번째 예외를 만들면 원래 실패 이유까지 삼킨다.
+  /// 어차피 폐기된 상태는 아무도 안 읽고, 재진입 때 `build` 가 다시 GET 한다.
   Future<bool> patch(
     Map<String, dynamic> fields, {
     required UserPreferences Function(UserPreferences prev) optimistic,
@@ -48,11 +58,13 @@ class UserPreferencesNotifier extends AsyncNotifier<UserPreferences> {
     try {
       final repo = await ref.read(userPreferencesRepositoryProvider.future);
       final updated = await repo.update(fields);
-      state = AsyncData(updated);
+      // 서버엔 들어갔다 — 화면이 사라졌어도 `true` 다. 이 값을 밖에서 읽는
+      // 화면(예산 경고선)은 컨테이너로 비우므로 여기 수명과 무관하다.
+      if (ref.mounted) state = AsyncData(updated);
       return true;
     } catch (_) {
       // 조용히 롤백.
-      state = AsyncData(prev);
+      if (ref.mounted) state = AsyncData(prev);
       return false;
     }
   }
