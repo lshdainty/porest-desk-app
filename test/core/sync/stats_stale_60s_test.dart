@@ -10,6 +10,11 @@
 // 그래서 웹 react-query 의 `staleTime: 60_000` 과 같은 규칙을 쓴다. 기준은
 // **마지막 성공 조회 시각**이지 마지막 무효화 시각이 아니다.
 //
+// 시각 칸은 **provider 마다 따로**다(`StatsQuery`). 처음엔 한 칸이었는데,
+// `merchantMonthExpenses` 를 읽는 곳이 통계 화면이 아니라 **거래 상세**라서
+// 거래 상세를 여는 것만으로 통계 넷의 시계가 밀렸다 — 아래 "칸은 서로 밀지 않는다"
+// 두 테스트가 그 두 방향을 각각 잠근다.
+//
 // 여기서 보는 건 "무효화 한 줄이 있다" 가 아니라 **리포지토리가 실제로 몇 번
 // 불렸는가** 다. 시각은 주입한 가짜 시계로 민다 — 진짜 60초를 기다리지 않는다.
 import 'package:dio/dio.dart';
@@ -30,19 +35,25 @@ const _range = (startDate: '2026-09-01', endDate: '2026-09-30');
 const _merchantRange = (startDate: '2026-09-01', endDate: '2026-09-30');
 const _merchantMonth = (merchant: '이마트', year: 2026, month: 9);
 
-/// 통계 5종의 조회 횟수 — 진입 갱신이 **재조회로 이어졌는지** 보는 자다.
-///
-/// `merchantMonthExpenses`(TX 상세 "이전 거래")는 QA #158 에서 같은 기준에
-/// 들어왔다. 비우는 자리(`_invalidateStaleStats`)와 시각을 남기는
-/// 자리(`ref.markStatsFetched()`)에 **둘 다** 있어야 기준이 맞는다 — 아래 두
-/// 테스트가 각각 한쪽씩 잠근다.
-const _statsKeys = <String>[
+/// 거래 상세를 **다른 가맹점**으로 여는 자리 — family 인스턴스가 새로 생겨
+/// 조회가 한 번 더 나가고, `merchantMonthExpenses` 칸의 시각이 그때로 밀린다.
+const _otherMerchantMonth = (merchant: '스타벅스', year: 2026, month: 9);
+
+/// **통계 화면**이 읽는 넷 — 거래 상세를 열어도 이 시계는 안 밀려야 한다.
+const _statsScreenKeys = <String>[
   'rangeSummary',
   'rangeExpenses',
   'heatmap',
   'merchantSummary',
-  'merchantMonthExpenses',
 ];
+
+/// 60초 규칙에 든 5종의 조회 횟수 — 진입 갱신이 **재조회로 이어졌는지** 보는 자다.
+///
+/// `merchantMonthExpenses`(TX 상세 "이전 거래")는 QA #158 에서 같은 기준에
+/// 들어왔다. 비우는 자리(`_invalidateStaleStats`)와 시각을 남기는
+/// 자리(`ref.markStatsFetched(StatsQuery.…)`)에 **같은 키로 둘 다** 있어야 기준이
+/// 맞는다 — 아래 테스트들이 방향별로 한쪽씩 잠근다.
+const _statsKeys = <String>[..._statsScreenKeys, 'merchantMonthExpenses'];
 
 void main() {
   testWidgets('60초 안에 다시 들어가면 통계 5종을 다시 받지 않는다', (tester) async {
@@ -153,6 +164,93 @@ void main() {
       reason:
           'merchantMonthExpenses 가 시각을 안 남겼다 — 비우는 목록에만 들어가 있어, 방금 받은 값도 '
           'stale 로 읽혀 통계 탭에 들어갈 때마다 조회가 한 번 더 나간다',
+    );
+  });
+
+  // ─── 칸은 서로 밀지 않는다 — provider 마다 따로 판정한다 ───────
+  testWidgets('거래 상세를 열어도 통계 4종의 시계는 안 밀린다 — 70초 뒤 진입에서 다시 받는다', (
+    tester,
+  ) async {
+    // 칸이 하나였을 때 이렇게 깨졌다:
+    //   0초  통계 진입      → 5종 조회 · 시각 = 0
+    //   30초 거래 상세 열기 → merchantMonthExpenses 조회 · 한 칸이면 시각이 30 으로 밀린다
+    //   70초 통계 진입      → 70-30 = 40 < 60 → 통계 넷이 70초째 옛 값을 그대로 쓴다
+    // 거래 상세는 자주 여는 화면이라, 통계 탭이 다른 기기의 변경을 못 따라잡는 창이 그만큼 넓어진다.
+    final detailOpen = ValueNotifier(false);
+    addTearDown(detailOpen.dispose);
+    final h = await _pump(tester, watch: _StatsWithTxDetail(detailOpen));
+
+    for (final k in _statsKeys) {
+      expect(h.counts[k], 1, reason: '$k 를 프로브가 watch 하지 않았다');
+    }
+
+    // 30초: 거래 상세를 다른 가맹점으로 연다 — 이 조회만 나간다.
+    h.clock.advance(const Duration(seconds: 30));
+    detailOpen.value = true;
+    await tester.pumpAndSettle();
+
+    expect(
+      h.counts['merchantMonthExpenses'],
+      2,
+      reason: '거래 상세를 열었는데 merchantMonthExpenses 조회가 안 나갔다 — 시나리오가 성립하지 않는다',
+    );
+    for (final k in _statsScreenKeys) {
+      expect(h.counts[k], 1, reason: '$k — 거래 상세를 여는 것이 통계 조회를 부르진 않는다');
+    }
+
+    // 70초: 통계 진입. 통계 넷은 마지막 조회로부터 70초, merchantMonthExpenses 는 40초.
+    h.clock.advance(const Duration(seconds: 40));
+    invalidateKeepAliveForRoute(h.ref, '/stats');
+    await tester.pumpAndSettle();
+
+    for (final k in _statsScreenKeys) {
+      expect(
+        h.counts[k],
+        2,
+        reason:
+            '$k — 거래 상세를 여는 것만으로 통계 시계가 밀렸다. 시각 칸을 하나로 공유하면 '
+            '거래 상세를 열 때마다 통계 탭이 다른 기기의 변경을 못 따라잡는 창이 넓어진다',
+      );
+    }
+    expect(
+      h.counts['merchantMonthExpenses'],
+      2,
+      reason:
+          'merchantMonthExpenses — 40초 전에 받았는데 다시 받았다. "하나라도 낡았으면 다 비운다" 가 '
+          '되면 안 된다(자기 시각을 지킨다)',
+    );
+  });
+
+  testWidgets('거꾸로도 각자다 — 낡은 가맹점·달 거래만 비우고 방금 받은 통계 4종은 그대로 둔다', (
+    tester,
+  ) async {
+    final h = await _pump(tester);
+
+    // 61초 뒤 통계 화면에서 당겨서 새로고침 — 통계 넷만 다시 받는다.
+    h.clock.advance(const Duration(seconds: 61));
+    h.ref.invalidate(rangeSummaryProvider);
+    h.ref.invalidate(rangeExpensesProvider);
+    h.ref.invalidate(heatmapProvider);
+    h.ref.invalidate(merchantSummaryProvider);
+    await tester.pumpAndSettle();
+    for (final k in _statsScreenKeys) {
+      expect(h.counts[k], 2, reason: '$k — 당겨서 새로고침이 재조회로 안 이어졌다');
+    }
+
+    // 62초: 통계 진입. 통계 넷은 1초 전에 받았고, merchantMonthExpenses 는 62초 전이다.
+    h.clock.advance(const Duration(seconds: 1));
+    invalidateKeepAliveForRoute(h.ref, '/stats');
+    await tester.pumpAndSettle();
+
+    for (final k in _statsScreenKeys) {
+      expect(h.counts[k], 2, reason: '$k — 1초 전에 받은 값을 또 받았다');
+    }
+    expect(
+      h.counts['merchantMonthExpenses'],
+      2,
+      reason:
+          'merchantMonthExpenses — 62초째 낡았는데 안 비웠다. 통계 넷이 방금 받았다고 이것까지 '
+          '건너뛰면 거래 상세가 다른 기기의 거래를 못 따라잡는다',
     );
   });
 
@@ -270,6 +368,36 @@ class _WatchStats extends ConsumerWidget {
     ref.watch(merchantMonthExpensesProvider(_merchantMonth));
     return const SizedBox.shrink();
   }
+}
+
+/// 거래 상세 dialog 의 "이전 거래" — **열려 있는 동안만** watch 한다.
+/// 통계 화면 넷과 다른 화면이라는 것이 시각 칸을 나눈 이유다.
+class _WatchOtherMerchantMonth extends ConsumerWidget {
+  const _WatchOtherMerchantMonth();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(merchantMonthExpensesProvider(_otherMerchantMonth));
+    return const SizedBox.shrink();
+  }
+}
+
+/// 통계 화면(다섯을 읽는 자리) + 여닫을 수 있는 거래 상세.
+class _StatsWithTxDetail extends StatelessWidget {
+  const _StatsWithTxDetail(this.detailOpen);
+  final ValueNotifier<bool> detailOpen;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      const _WatchStats(),
+      ValueListenableBuilder<bool>(
+        valueListenable: detailOpen,
+        builder: (context, isOpen, _) =>
+            isOpen ? const _WatchOtherMerchantMonth() : const SizedBox.shrink(),
+      ),
+    ],
+  );
 }
 
 /// TX 상세 "이전 거래" 만 열어 본 상태 — 통계 4종은 아직 아무도 안 읽었다.

@@ -22,7 +22,7 @@ final rangeSummaryProvider = FutureProvider.family<RangeSummary, DateRange>((
     startDate: range.startDate,
     endDate: range.endDate,
   );
-  ref.markStatsFetched();
+  ref.markStatsFetched(StatsQuery.rangeSummary);
   return summary;
 });
 
@@ -38,7 +38,7 @@ final merchantSummaryProvider =
         startDate: range.startDate,
         endDate: range.endDate,
       );
-      ref.markStatsFetched();
+      ref.markStatsFetched(StatsQuery.merchantSummary);
       return merchants;
     });
 
@@ -51,6 +51,6 @@ final heatmapProvider = FutureProvider.family<List<HeatmapCell>, DateRange>((
     startDate: range.startDate,
     endDate: range.endDate,
   );
-  ref.markStatsFetched();
+  ref.markStatsFetched(StatsQuery.heatmap);
   return cells;
 });

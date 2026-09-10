@@ -47,8 +47,8 @@ final rangeExpensesProvider = FutureProvider.family<List<Expense>, RangeKey>((
     startDate: key.startDate,
     endDate: key.endDate,
   );
-  // 60초 규칙이 함께 미는 다섯 중 하나 — 진입 갱신이 기준을 걸 수 있게 시각을 남긴다.
-  ref.markStatsFetched();
+  // 60초 규칙에 든 다섯 중 하나 — 진입 갱신이 기준을 걸 수 있게 **자기 칸**에 시각을 남긴다.
+  ref.markStatsFetched(StatsQuery.rangeExpenses);
   return expenses;
 });
 
@@ -107,7 +107,10 @@ final merchantMonthExpensesProvider =
       // 60초 규칙([_invalidateStaleStats])이 이것도 민다 — 비우는 자리에만 넣고
       // 시각을 안 남기면 이 provider 만 기준이 달라져, 스스로 받은 직후에도
       // stale 로 읽혀 진입마다 조회가 한 번 더 나간다.
-      ref.markStatsFetched();
+      //
+      // 칸은 **이것 하나**다. 거래 상세를 여는 이 조회가 통계 넷의 시계를 밀면,
+      // 밀린 만큼 통계 탭이 다른 기기의 변경을 못 따라잡는다([StatsQuery] 참고).
+      ref.markStatsFetched(StatsQuery.merchantMonthExpenses);
       return all;
     });
 
