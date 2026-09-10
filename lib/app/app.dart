@@ -8,6 +8,7 @@ import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/lock/app_lock_gate.dart';
+import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/notification/application/notification_stream_service.dart';
@@ -35,12 +36,19 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // 알림 폴링은 **앞에 있을 때만** 돈다 — 앱이 가려지거나 화면이 꺼지면 멈춘다.
+    // 폴링이 바꾸는 건 앱 안 배지뿐이라(폰 알림창은 아직 FCM 이 없다) 안 보이는 동안
+    // 받아 온 20건은 아무도 못 보고 사라진다 — 배터리·데이터만 쓴다.
+    // 조건이 둘이라 각각 듣고 그때마다 다시 판정한다([_syncNotificationPoller]).
+    ref.listenManual(
+      appForegroundProvider,
+      (_, _) => _syncNotificationPoller(),
+    );
     // 인증 성공 시 알림 폴링 시작, 로그아웃 시 정지.
     _authSub = ref.listenManual<AsyncValue>(authProvider, (prev, next) {
       final user = next.value;
-      final svc = ref.read(notificationStreamServiceProvider);
+      _syncNotificationPoller();
       if (user != null) {
-        svc.start();
         // 앱을 새로 켠 직후에도 세션 캐시를 한 번 비운다.
         //
         // resumed 는 이미 떠 있던 앱이 돌아올 때만 온다. 완전히 종료했다 켜면
@@ -58,10 +66,26 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
               .read(settingsProvider.notifier)
               .syncHideCardsFromServer(user.userId),
         );
-      } else {
-        svc.stop();
       }
     }, fireImmediately: true);
+  }
+
+  /// **로그인했고 + 앱이 앞에 있을 때만** 폴링한다 — 인증·포그라운드 어느 쪽이
+  /// 바뀌어도 여기로 모인다.
+  ///
+  /// 다시 부를 때 [NotificationStreamService.start] 를 그대로 쓴다. `start` 는 맨 앞에서
+  /// `stop` 을 부르므로 타이머가 겹치지 않고, 이어서 한 번 조회하므로 **돌아온 직후**
+  /// 배지가 곧바로 맞는다 — 안 밀면 복귀 후 최대 30초 동안 떠나기 전 값을 본다.
+  /// 새 알림 판정 기준(`_lastSeenId`)은 서비스 인스턴스가 들고 있고 `stop`·`start`
+  /// 어느 쪽도 건드리지 않는다 — 멈춘 사이 온 알림이 복귀 조회에서 새 것으로 잡힌다.
+  void _syncNotificationPoller() {
+    final svc = ref.read(notificationStreamServiceProvider);
+    final loggedIn = ref.read(authProvider).value != null;
+    if (loggedIn && ref.read(appForegroundProvider)) {
+      svc.start();
+    } else {
+      svc.stop();
+    }
   }
 
   @override
