@@ -44,7 +44,8 @@ void invalidateAfterExpenseChange(WidgetRef ref) {
   ref.invalidate(dashboardSummaryProvider);
   ref.invalidate(monthBudgetsProvider);
 
-  // 통계 — 60초 규칙([_invalidateStaleStats])이 함께 미는 다섯.
+  // 통계 — 60초 규칙([_invalidateStaleStats])이 진입에서 **각자** 판정하는 다섯.
+  // 여기서는 시간과 무관하게 다섯을 **함께** 비운다(이 기기에서 바꾼 값이다).
   // rangeSummary 는 홈 합계도 같이 읽는다.
   ref.invalidate(rangeSummaryProvider);
   ref.invalidate(rangeExpensesProvider);
@@ -141,7 +142,7 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
   }
 }
 
-/// 통계 5종 — 마지막으로 **받아 온 지** 60초가 지났을 때만 다시 받는다.
+/// 통계 5종 — 마지막으로 **받아 온 지** 60초가 지난 것만 비운다.
 ///
 /// 통계 provider 는 autoDispose 가 아니고 통계 탭도 셸에 상주해 dispose 되지
 /// 않는다. 그래서 진입할 때 비우지 않으면 다른 기기에서 넣은 값이 당겨서
@@ -153,19 +154,38 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
 /// 무효화는 아무도 그 provider 를 안 보고 있으면 조회로 이어지지 않으므로,
 /// 비운 시각을 기준으로 삼으면 실제로는 한 번도 안 받은 채 시계만 돈다.
 ///
-/// 60초 안이면 **아무것도 하지 않는다**(요청 0회). 한 번도 안 받았으면 비운다 —
-/// 안 읽힌 provider 를 비우는 것은 no-op 이다.
+/// **판정은 provider 마다 따로 한다.** "하나라도 낡았으면 다 비운다" 가 아니다 —
+/// 다섯이 각자 자기 [StatsQuery] 칸의 시각을 보므로, 방금 받은 것은 남이 낡았어도
+/// 그대로 두고 낡은 것만 비운다. 이 조회들은 읽는 화면이 다르다: 넷은 통계 화면이,
+/// `merchantMonthExpenses` 는 거래 상세가 읽는다. 한 칸을 공유하던 때는 거래 상세를
+/// 여는 것만으로 통계 넷의 시계가 밀려 통계 탭이 옛 값에 머물렀다([StatsQuery] 참고).
+///
+/// 60초 안인 것에는 **아무것도 하지 않는다**(요청 0회). 한 번도 안 받은 것은
+/// 비운다 — 안 읽힌 provider 를 비우는 것은 no-op 이다.
 ///
 /// 타이머·폴링은 없다. 화면에 들어오는 이 순간에만 비교한다. 거래를 바꿨을 때의
-/// 무효화([invalidateAfterExpenseChange])는 시간과 무관하게 즉시 비운다.
+/// 무효화([invalidateAfterExpenseChange])는 시간과 무관하게 다섯을 즉시 비운다.
 void _invalidateStaleStats(WidgetRef ref) {
   final now = ref.read(statsClockProvider)();
-  if (!ref.read(statsFreshnessProvider).isStaleAt(now)) return;
-  ref.invalidate(rangeSummaryProvider);
-  ref.invalidate(rangeExpensesProvider);
-  ref.invalidate(heatmapProvider);
-  ref.invalidate(merchantSummaryProvider);
+  final freshness = ref.read(statsFreshnessProvider);
+  bool stale(StatsQuery query) => freshness.isStaleAt(query, now);
+
+  // 한 줄이 한 조회다 — 왼쪽 키와 오른쪽 provider 가 짝이 맞는지 여기서 눈으로 본다.
+  if (stale(StatsQuery.rangeSummary)) {
+    ref.invalidate(rangeSummaryProvider);
+  }
+  if (stale(StatsQuery.rangeExpenses)) {
+    ref.invalidate(rangeExpensesProvider);
+  }
+  if (stale(StatsQuery.heatmap)) {
+    ref.invalidate(heatmapProvider);
+  }
+  if (stale(StatsQuery.merchantSummary)) {
+    ref.invalidate(merchantSummaryProvider);
+  }
   // 가맹점·달 거래(TX 상세 "이전 거래")도 같은 기준에 넣는다(QA #158). 빠져 있으면
   // 이 조회만 앱을 다시 켤 때까지 옛 값이라, 다른 기기에서 넣은 거래가 안 보인다.
-  ref.invalidate(merchantMonthExpensesProvider);
+  if (stale(StatsQuery.merchantMonthExpenses)) {
+    ref.invalidate(merchantMonthExpensesProvider);
+  }
 }
