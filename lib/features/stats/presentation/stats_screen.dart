@@ -1219,7 +1219,9 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
     final s = widget.state;
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final loading = widget.rangeAsync.isLoading;
+    // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 스켈레톤은 첫 로딩만.
+    final firstLoading =
+        widget.rangeAsync.isLoading && !widget.rangeAsync.hasValue;
     final bd = _periodBreakdown;
     final parents = _aggregateParent(bd);
     final isDrilled = _activeParentId != null;
@@ -1272,7 +1274,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
             trailing: _PeriodTrigger(state: s),
           ),
           const SizedBox(height: PSpace.x12),
-          if (loading)
+          if (firstLoading)
             const _DonutCardSkeleton()
           else if (view.isEmpty)
             _EmptyBox(text: l.statsNoCategoryData)
@@ -1444,7 +1446,8 @@ class _TopMerchantsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(title: _CardTitle(l.statsTopMerchantsTitle)),
-          if (async.isLoading && top.isEmpty)
+          // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
+          if (async.isLoading && !async.hasValue)
             const _MerchantListSkeleton()
           else if (top.isEmpty)
             _EmptyBox(text: l.statsNoMerchantData)
@@ -1632,7 +1635,7 @@ class _HeatmapCard extends StatelessWidget {
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
-          if (async.isLoading && cells.isEmpty)
+          if (async.isLoading && !async.hasValue)
             const _HeatmapSkeleton()
           else if (total == 0)
             Container(
@@ -1930,7 +1933,7 @@ class _HighlightsGrid extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         );
       } else {
-        avgSub = prevRangeAsync.isLoading
+        avgSub = prevRangeAsync.isLoading && !prevRangeAsync.hasValue
             ? l.statsMomCalculating
             : l.statsMomUnavailable;
       }
@@ -2204,8 +2207,10 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
       widget.rangeAsync,
       widget.monthExpAsync,
     );
-    final loading =
-        widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
+    // 두 조회 중 **아직 값이 없는** 쪽이 있을 때만 첫 로딩이다.
+    final firstLoading =
+        (widget.rangeAsync.isLoading && !widget.rangeAsync.hasValue) ||
+        (widget.monthExpAsync.isLoading && !widget.monthExpAsync.hasValue);
 
     // 수입 ↔ 지출 스케일 차이가 크면 한 축에 그릴 때 작은 시리즈가 묻힘.
     // → 지출을 (incomeNiceMax / expenseNiceMax) 로 스케일링해 시각적으론 같은 높이 범위를 차지하게.
@@ -2236,7 +2241,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
             title: _CardTitle(l.statsIncomeExpenseTrend),
             trailing: _PeriodTrigger(state: widget.state),
           ),
-          if (loading && data.isEmpty)
+          if (firstLoading && data.isEmpty)
             const _ChartSkeleton(height: 200)
           else if (data.isEmpty ||
               data.every((p) => p.income == 0 && p.expense == 0))
@@ -2530,7 +2535,8 @@ class _SavingsRateCard extends StatelessWidget {
         rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
     // 첫 로딩(캐시 없음) — 형제 추이 카드처럼 도넛형 스켈레톤. _CatTrendCard 와
     // 동일하게 rangeAsync 만으로 판정 (이 카드는 monthExpAsync 미사용).
-    if (rangeAsync.isLoading && buckets.isEmpty) {
+    // 버킷이 빈 값도 받아 온 값이다 — 그 땐 아래 빈 상태 렌더로 내려간다.
+    if (rangeAsync.isLoading && !rangeAsync.hasValue) {
       return const _Card(child: _SavingsRateSkeleton());
     }
     final sumIn = buckets.fold<int>(0, (sum, b) => sum + b.totalIncome);
@@ -2833,7 +2839,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
-          if (widget.rangeAsync.isLoading && buckets.isEmpty)
+          if (widget.rangeAsync.isLoading && !widget.rangeAsync.hasValue)
             const _CatTrendSkeleton()
           else if (top.isEmpty || maxSum <= 0)
             _EmptyBox(text: l.statsNoData)
@@ -3033,8 +3039,10 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final loading =
-        widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
+    // 두 조회 중 **아직 값이 없는** 쪽이 있을 때만 첫 로딩이다.
+    final firstLoading =
+        (widget.rangeAsync.isLoading && !widget.rangeAsync.hasValue) ||
+        (widget.monthExpAsync.isLoading && !widget.monthExpAsync.hasValue);
     final data = _computeTrendData(
       widget.state,
       widget.rangeAsync,
@@ -3061,7 +3069,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
-          if (loading && data.isEmpty)
+          if (firstLoading && data.isEmpty)
             const _ChartSkeleton(height: 180, showLegend: false)
           else if (data.isEmpty)
             _EmptyBox(text: l.statsNoData)
@@ -3828,7 +3836,10 @@ class _CompareCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final loading = rangeAsync.isLoading || prevRangeAsync.isLoading;
+    // 두 조회 중 **아직 값이 없는** 쪽이 있을 때만 첫 로딩이다.
+    final firstLoading =
+        (rangeAsync.isLoading && !rangeAsync.hasValue) ||
+        (prevRangeAsync.isLoading && !prevRangeAsync.hasValue);
 
     final cats = categoriesAsync.value ?? const <dynamic>[];
     dynamic catBy(int id) => cats
@@ -3911,7 +3922,7 @@ class _CompareCategoryCard extends StatelessWidget {
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
-          if (loading && top.isEmpty)
+          if (firstLoading && top.isEmpty)
             const _CompareListSkeleton()
           else if (top.isEmpty)
             _EmptyBox(text: l.statsNoCompareData)

@@ -341,15 +341,18 @@ class _SavingGoalsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final items = goals.asData?.value ?? const <SavingGoal>[];
-    final loading = goals.isLoading && items.isEmpty;
+    // `asData` 는 **AsyncData 일 때만** 값을 준다 — 재조회 상태에서는 null 이라
+    // 들고 있던 목록을 버린다. `value` 는 이전 값을 그대로 내놓는다.
+    final items = goals.value ?? const <SavingGoal>[];
+    // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
+    final firstLoading = goals.isLoading && !goals.hasValue;
     return PFlatSection(
       title: l.navSavingGoals,
       trailing: PFlatSectionLink(
         label: l.savingGoalManageLink,
         onTap: () => context.push('/saving-goals'),
       ),
-      child: loading
+      child: firstLoading
           ? Column(
               children: [
                 for (int i = 0; i < 2; i++) ...[

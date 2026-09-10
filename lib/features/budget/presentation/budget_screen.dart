@@ -233,7 +233,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         masked: ref.watch(
                           hideCardProvider('budget.categories'),
                         ),
-                        loading: summaryAsync.isLoading,
+                        // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
+                        // 스켈레톤은 첫 로딩만.
+                        firstLoading:
+                            summaryAsync.isLoading && !summaryAsync.hasValue,
                         tokens: t,
                         onGoSettings: () => context.push('/budget/settings'),
                       ),
@@ -1131,7 +1134,7 @@ class _CategoryListCard extends StatelessWidget {
     required this.categories,
     required this.spentByCategory,
     required this.masked,
-    required this.loading,
+    required this.firstLoading,
     required this.tokens,
     required this.onGoSettings,
     this.warnThreshold = _warnThreshold,
@@ -1141,7 +1144,9 @@ class _CategoryListCard extends StatelessWidget {
   final Map<int, int> spentByCategory;
   final double warnThreshold;
   final bool masked;
-  final bool loading;
+
+  /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
+  final bool firstLoading;
   final PorestTokens tokens;
   final VoidCallback onGoSettings;
 
@@ -1163,7 +1168,7 @@ class _CategoryListCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (loading && budgets.isEmpty)
+          if (firstLoading && budgets.isEmpty)
             // 예산 list placeholder — 3 rows (label + progress).
             Padding(
               padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
@@ -1384,7 +1389,8 @@ class _ComplianceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (async.isLoading && list.isEmpty)
+          // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
+          if (async.isLoading && !async.hasValue)
             const PSkeleton(width: double.infinity, height: 200)
           else if (list.isEmpty)
             SizedBox(

@@ -151,7 +151,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           _CategoryDonutCard(
             summary: summaryRangeAsync.value,
             categoriesAsync: categoriesAsync,
-            loading: summaryRangeAsync.isLoading,
+            // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 탭을 오갈 때마다
+            // 스켈레톤이 끼어들면 화면이 껌뻑인다. 스켈레톤은 첫 로딩만.
+            firstLoading:
+                summaryRangeAsync.isLoading && !summaryRangeAsync.hasValue,
             masked: ref.watch(hideCardProvider('home.categoryDonut')),
           ),
           const SizedBox(height: PSpace.x32),
@@ -941,12 +944,14 @@ class _CategoryDonutCard extends StatelessWidget {
   const _CategoryDonutCard({
     required this.summary,
     required this.categoriesAsync,
-    required this.loading,
+    required this.firstLoading,
     required this.masked,
   });
   final RangeSummary? summary;
   final AsyncValue<List<ExpenseCategory>> categoriesAsync;
-  final bool loading;
+
+  /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
+  final bool firstLoading;
   final bool masked;
 
   /// 카테고리 자체 색을 1순위로 사용, 없으면 [PorestChartPalette] fallback.
@@ -1006,7 +1011,7 @@ class _CategoryDonutCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (loading && topSegs.isEmpty)
+          if (firstLoading && topSegs.isEmpty)
             // 도넛 카드 placeholder — Web stats CategorySkeleton 미러 (작은 사이즈).
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -1231,7 +1236,8 @@ class _BudgetCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (budgetsAsync.isLoading && items.isEmpty)
+          // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
+          if (budgetsAsync.isLoading && !budgetsAsync.hasValue)
             // 예산 카드 placeholder — _BudgetRow 1:1: 행 상하 14 / 40 icon + name + amount / 8px pill.
             Column(
               children: [
