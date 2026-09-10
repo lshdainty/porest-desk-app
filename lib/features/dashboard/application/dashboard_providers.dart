@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/sync/query_freshness.dart';
 import 'package:porest_desk_app/features/dashboard/data/dashboard_repository.dart';
 import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
 
@@ -14,7 +15,9 @@ final dashboardRepositoryProvider = FutureProvider<DashboardRepository>((
 /// Home 화면 통합 요약 (#230).
 final dashboardSummaryProvider = FutureProvider<DashboardSummary>((ref) async {
   final repo = await ref.watch(dashboardRepositoryProvider.future);
-  return repo.summary();
+  final summary = await repo.summary();
+  ref.markQueryFetched(ServerQuery.dashboardSummary);
+  return summary;
 });
 
 /// Dashboard 위젯 레이아웃 JSON (#231).
