@@ -2307,8 +2307,9 @@ class _DiscoverPanelState extends ConsumerState<_DiscoverPanel> {
     final rankingsAsync = ref.watch(
       tossRankingsProvider('$type|$_market|$duration'),
     );
-    final rankings =
-        rankingsAsync.asData?.value.rankings ?? const <TossRankingItem>[];
+    // `asData` 는 AsyncData 일 때만 값을 준다 — 재조회 상태에서 들고 있던
+    // 랭킹을 버리므로 `value` 로 읽는다.
+    final rankings = rankingsAsync.value?.rankings ?? const <TossRankingItem>[];
 
     return Column(
       children: [
@@ -2343,7 +2344,9 @@ class _DiscoverPanelState extends ConsumerState<_DiscoverPanel> {
         ),
         const SizedBox(height: 10),
         // 카드 다이어트 — 발견 랭킹 리스트도 카드 없이 행 리듬만.
-        if (rankingsAsync.isLoading)
+        // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 스켈레톤은 첫 로딩만.
+        // 빈 랭킹도 받아 온 값이라 빈 상태 문구로 내려간다.
+        if (rankingsAsync.isLoading && !rankingsAsync.hasValue)
           // 문구 로딩을 스켈레톤으로 바꾸면 스크린리더에 남는 안내가 없어진다 —
           // 기존 로딩 문구를 Semantics 라벨로 살려 둔다.
           Semantics(
@@ -2430,14 +2433,19 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
     final l = AppLocalizations.of(context);
     final orderbookAsync = ref.watch(tossOrderbookProvider(widget.symbol));
     final tradesAsync = ref.watch(tossTradesProvider(widget.symbol));
-    final book = orderbookAsync.asData?.value;
+    // `asData` 는 AsyncData 일 때만 값을 준다 — 10초 폴링이 만드는 재조회
+    // 상태에서 들고 있던 호가·체결을 버리므로 `value` 로 읽는다.
+    final book = orderbookAsync.value;
     final hasBook =
         book != null && book.asks.isNotEmpty && book.bids.isNotEmpty;
-    final fills = _liveTradeFills(tradesAsync.asData?.value);
+    final fills = _liveTradeFills(tradesAsync.value);
 
     Widget content;
     if (_tab == 'book') {
-      if (orderbookAsync.isLoading) {
+      // 호가는 10초마다 다시 받는다(`_priceTimer`). 그때마다 스켈레톤을 깔면
+      // 들고 있던 호가창이 10초마다 사라진다 — 새 호가가 닿을 때까지 직전
+      // 호가를 그대로 둔다. 스켈레톤은 아직 아무것도 못 받았을 때만.
+      if (orderbookAsync.isLoading && !orderbookAsync.hasValue) {
         content = Semantics(
           label: l.stocksOrderbookLoading,
           child: _OrderBookSkeleton(
@@ -2457,7 +2465,8 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
         content = _QuotesEmpty(l.stocksOrderbookEmpty);
       }
     } else {
-      if (tradesAsync.isLoading) {
+      // 체결도 10초 폴링이다 — 직전 체결 테이프를 새 체결이 닿을 때까지 둔다.
+      if (tradesAsync.isLoading && !tradesAsync.hasValue) {
         content = Semantics(
           label: l.stocksTradesLoading,
           child: const _TradeTapeSkeleton(),
@@ -2656,9 +2665,12 @@ class _DailyQuoteTable extends ConsumerWidget {
     String fmtVol(int v) => krw(v);
 
     // 최근 9영업일 → 전일대비 등락 산출 → 8행.
-    final asc = candlesAsync.asData?.value == null
+    // `asData` 는 AsyncData 일 때만 값을 준다 — 재조회 상태에서 들고 있던
+    // 캔들을 버리므로 `value` 로 읽는다.
+    final page = candlesAsync.value;
+    final asc = page == null
         ? const <TossCandle>[]
-        : ([...candlesAsync.asData!.value!.candles]
+        : ([...page.candles]
             ..sort((a, b) => a.timestamp.compareTo(b.timestamp)));
     final recent = asc.length > 9 ? asc.sublist(asc.length - 9) : asc;
     final rows = <({String date, double close, double chg, int vol})>[];
@@ -2754,7 +2766,9 @@ class _DailyQuoteTable extends ConsumerWidget {
         children: [
           _SectionLabel(l.stocksDailyPrices, tokens: t),
           const SizedBox(height: 10),
-          if (candlesAsync.isLoading) ...[
+          // 캔들도 10초 폴링이다 — 다시 받는 동안 직전 표를 그대로 둔다.
+          // 스켈레톤은 아직 아무것도 못 받았을 때만.
+          if (candlesAsync.isLoading && !candlesAsync.hasValue) ...[
             // 헤더 행은 정적 틀 — 로딩에도 실제로 렌더하고 데이터 행만 스켈레톤.
             // 문구 로딩을 걷어낸 대신 Semantics 로 스크린리더 안내를 남긴다.
             Semantics(label: l.stocksDailyPricesLoading, child: dailyHead),
