@@ -31,12 +31,17 @@ class UserPreferencesNotifier extends AsyncNotifier<UserPreferences> {
 
   /// 부분 갱신 — 낙관적. [optimistic] 으로 즉시 로컬 반영 후 PATCH.
   /// 실패 시 이전 값으로 롤백.
-  Future<void> patch(
+  ///
+  /// **서버에 실제로 들어갔으면 `true`.** 이 값을 이 provider 밖에서도 읽는 화면이
+  /// 있으면(예산 경고선의 `budgetAlertThresholdProvider`) 저장이 끝난 뒤 그쪽을
+  /// 비워야 하는데, 롤백된 저장까지 비우면 바뀌지도 않은 값을 다시 물어보게 된다.
+  /// 낙관적 반영은 여기 결과와 무관하게 이미 화면에 나가 있다.
+  Future<bool> patch(
     Map<String, dynamic> fields, {
     required UserPreferences Function(UserPreferences prev) optimistic,
   }) async {
     final prev = state.value;
-    if (prev == null) return;
+    if (prev == null) return false;
 
     // 낙관적 즉시 반영.
     state = AsyncData(optimistic(prev));
@@ -44,9 +49,11 @@ class UserPreferencesNotifier extends AsyncNotifier<UserPreferences> {
       final repo = await ref.read(userPreferencesRepositoryProvider.future);
       final updated = await repo.update(fields);
       state = AsyncData(updated);
+      return true;
     } catch (_) {
       // 조용히 롤백.
       state = AsyncData(prev);
+      return false;
     }
   }
 }
