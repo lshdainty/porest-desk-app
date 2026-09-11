@@ -10007,7 +10007,7 @@ abstract class AppLocalizations {
   /// No description provided for @subFreeLockedDesc.
   ///
   /// In ko, this message translates to:
-  /// **'증권·가져오기 등 Pro 기능이 잠겨 있어요'**
+  /// **'증권 연동 · 실시간 시세가 잠겨 있어요'**
   String get subFreeLockedDesc;
 
   /// No description provided for @subSpotlightTitle.
@@ -10094,47 +10094,11 @@ abstract class AppLocalizations {
   /// **'예산 · 저축 목표 · 캘린더'**
   String get subFeatBudget;
 
-  /// No description provided for @subFeatMonthlyTx.
-  ///
-  /// In ko, this message translates to:
-  /// **'월 거래 기록'**
-  String get subFeatMonthlyTx;
-
-  /// No description provided for @subFeatTxLimit.
-  ///
-  /// In ko, this message translates to:
-  /// **'100건'**
-  String get subFeatTxLimit;
-
-  /// No description provided for @subFeatUnlimited.
-  ///
-  /// In ko, this message translates to:
-  /// **'무제한'**
-  String get subFeatUnlimited;
-
   /// No description provided for @subFeatSecurities.
   ///
   /// In ko, this message translates to:
-  /// **'증권 — 실시간 시세 · 종목 검색 · 관심종목'**
+  /// **'증권사 연동 · 실시간 시세 · 자산 평가'**
   String get subFeatSecurities;
-
-  /// No description provided for @subFeatImportExport.
-  ///
-  /// In ko, this message translates to:
-  /// **'CSV · Excel 가져오기 / 내보내기'**
-  String get subFeatImportExport;
-
-  /// No description provided for @subFeatCalendarShare.
-  ///
-  /// In ko, this message translates to:
-  /// **'다중 캘린더 공유'**
-  String get subFeatCalendarShare;
-
-  /// No description provided for @subFeatCardRec.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 혜택 추천'**
-  String get subFeatCardRec;
 
   /// No description provided for @subStarted.
   ///

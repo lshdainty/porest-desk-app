@@ -5435,7 +5435,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subFreeLockedDesc =>
-      'Pro features like securities and import are locked';
+      'Securities link and real-time quotes are locked';
 
   @override
   String get subSpotlightTitle => 'Securities investing is Pro-only';
@@ -5485,26 +5485,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subFeatBudget => 'Budget · savings goals · calendar';
 
   @override
-  String get subFeatMonthlyTx => 'Monthly transaction records';
-
-  @override
-  String get subFeatTxLimit => '100';
-
-  @override
-  String get subFeatUnlimited => 'Unlimited';
-
-  @override
   String get subFeatSecurities =>
-      'Securities — real-time quotes · ticker search · watchlist';
-
-  @override
-  String get subFeatImportExport => 'CSV · Excel import / export';
-
-  @override
-  String get subFeatCalendarShare => 'Shared multi-calendar';
-
-  @override
-  String get subFeatCardRec => 'Card benefit recommendations';
+      'Securities link · real-time quotes · asset valuation';
 
   @override
   String get subStarted => 'Your Porest Pro subscription is active';

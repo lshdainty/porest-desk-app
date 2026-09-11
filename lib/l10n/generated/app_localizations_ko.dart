@@ -5364,7 +5364,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get subFreeLockedDesc => '증권·가져오기 등 Pro 기능이 잠겨 있어요';
+  String get subFreeLockedDesc => '증권 연동 · 실시간 시세가 잠겨 있어요';
 
   @override
   String get subSpotlightTitle => '증권 투자는 Pro 전용이에요';
@@ -5414,25 +5414,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subFeatBudget => '예산 · 저축 목표 · 캘린더';
 
   @override
-  String get subFeatMonthlyTx => '월 거래 기록';
-
-  @override
-  String get subFeatTxLimit => '100건';
-
-  @override
-  String get subFeatUnlimited => '무제한';
-
-  @override
-  String get subFeatSecurities => '증권 — 실시간 시세 · 종목 검색 · 관심종목';
-
-  @override
-  String get subFeatImportExport => 'CSV · Excel 가져오기 / 내보내기';
-
-  @override
-  String get subFeatCalendarShare => '다중 캘린더 공유';
-
-  @override
-  String get subFeatCardRec => '카드 혜택 추천';
+  String get subFeatSecurities => '증권사 연동 · 실시간 시세 · 자산 평가';
 
   @override
   String get subStarted => 'Porest Pro 구독이 시작되었어요';

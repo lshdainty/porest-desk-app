@@ -2990,7 +2990,7 @@
       }
     }
   },
-  "subFreeLockedDesc": "Pro features like securities and import are locked",
+  "subFreeLockedDesc": "Securities link and real-time quotes are locked",
   "subSpotlightTitle": "Securities investing is Pro-only",
   "subSpotlightDesc": "Real-time quotes and order book, domestic and overseas ticker search, watchlists, and holding P&L — subscribe to Pro and the Securities tab opens right away.",
   "subCycleMonthly": "Monthly",
@@ -3022,13 +3022,7 @@
   "subFeatureColumn": "Feature",
   "subFeatLedger": "Ledger · asset management",
   "subFeatBudget": "Budget · savings goals · calendar",
-  "subFeatMonthlyTx": "Monthly transaction records",
-  "subFeatTxLimit": "100",
-  "subFeatUnlimited": "Unlimited",
-  "subFeatSecurities": "Securities — real-time quotes · ticker search · watchlist",
-  "subFeatImportExport": "CSV · Excel import / export",
-  "subFeatCalendarShare": "Shared multi-calendar",
-  "subFeatCardRec": "Card benefit recommendations",
+  "subFeatSecurities": "Securities link · real-time quotes · asset valuation",
   "subStarted": "Your Porest Pro subscription is active",
   "subFailed": "Couldn't start the subscription",
   "subCancelConfirmTitle": "Cancel subscription",
