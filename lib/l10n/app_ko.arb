@@ -3094,7 +3094,7 @@
   "subFeatureColumn": "기능",
   "subFeatLedger": "가계부 · 자산 관리",
   "subFeatBudget": "예산 · 저축 목표 · 캘린더",
-  "subFeatSecurities": "증권사 연동 · 실시간 시세 · 자산 평가",
+  "subFeatSecurities": "증권사 연동 · 실시간 시세 · 자산 실시간 금액",
   "subStarted": "Porest Pro 구독이 시작되었어요",
   "subFailed": "구독에 실패했어요",
   "subCancelConfirmTitle": "구독 해지",

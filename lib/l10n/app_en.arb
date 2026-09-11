@@ -3030,7 +3030,7 @@
   "subFeatureColumn": "Feature",
   "subFeatLedger": "Ledger · asset management",
   "subFeatBudget": "Budget · savings goals · calendar",
-  "subFeatSecurities": "Securities link · real-time quotes · asset valuation",
+  "subFeatSecurities": "Securities link · real-time quotes · real-time asset value",
   "subStarted": "Your Porest Pro subscription is active",
   "subFailed": "Couldn't start the subscription",
   "subCancelConfirmTitle": "Cancel subscription",

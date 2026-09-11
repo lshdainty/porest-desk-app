@@ -5419,7 +5419,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subFeatBudget => '예산 · 저축 목표 · 캘린더';
 
   @override
-  String get subFeatSecurities => '증권사 연동 · 실시간 시세 · 자산 평가';
+  String get subFeatSecurities => '증권사 연동 · 실시간 시세 · 자산 실시간 금액';
 
   @override
   String get subStarted => 'Porest Pro 구독이 시작되었어요';

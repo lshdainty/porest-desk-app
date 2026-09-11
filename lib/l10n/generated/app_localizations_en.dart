@@ -5491,7 +5491,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subFeatSecurities =>
-      'Securities link · real-time quotes · asset valuation';
+      'Securities link · real-time quotes · real-time asset value';
 
   @override
   String get subStarted => 'Your Porest Pro subscription is active';

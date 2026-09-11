@@ -10103,7 +10103,7 @@ abstract class AppLocalizations {
   /// No description provided for @subFeatSecurities.
   ///
   /// In ko, this message translates to:
-  /// **'증권사 연동 · 실시간 시세 · 자산 평가'**
+  /// **'증권사 연동 · 실시간 시세 · 자산 실시간 금액'**
   String get subFeatSecurities;
 
   /// No description provided for @subStarted.
