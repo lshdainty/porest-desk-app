@@ -3054,6 +3054,14 @@
       }
     }
   },
+  "subProUntil": "{date}까지 이용",
+  "@subProUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "subFreeLockedDesc": "증권 연동 · 실시간 시세가 잠겨 있어요",
   "subSpotlightTitle": "증권 투자는 Pro 전용이에요",
   "subSpotlightDesc": "실시간 시세·호가, 국내외 종목 검색, 관심종목, 보유 손익까지 — Pro를 구독하면 증권 탭이 바로 열려요.",
