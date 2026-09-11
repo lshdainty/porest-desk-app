@@ -2990,7 +2990,7 @@
       }
     }
   },
-  "subProUntil": "Pro until {date}",
+  "subProUntil": "Access until {date}",
   "@subProUntil": {
     "placeholders": {
       "date": {
