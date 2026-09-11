@@ -13,6 +13,7 @@ import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations_en.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
 
 /// 표에서 걷어 낸 네 줄의 한국어 문구. 키를 지웠으므로 문자열로 붙잡는다 —
@@ -25,6 +26,27 @@ const _removedRows = <String>[
   '다중 캘린더 공유',
   '카드 혜택 추천',
 ];
+
+/// 가운뎃점은 **U+00B7**, 양옆에 공백 하나씩. 이스케이프로 박아 둔다 —
+/// 눈으로는 같아 보이는 U+2022(•) · U+30FB(・) 를 붙여 넣어도 여기서 걸린다.
+const _sep = ' \u00B7 ';
+
+/// 증권 줄은 **세 레포가 같은 문자열**을 쓴다. 웹이
+/// `tests/subscription-copy-matches-gates.test.ts` 에서 전문 `toBe` 로 잠갔고,
+/// 설명서(`docs/asset/overview.md`)도 같은 말로 고쳤다.
+///
+/// 여기서 `l.subFeatSecurities` 로만 확인하면 **아무것도 안 지킨다** — arb 가 무슨 말로
+/// 바뀌든 테스트가 따라간다. 웹은 웹대로 잠겨 있으므로 앱이 옛 말로 돌아가도
+/// **웹 CI 는 안 깨지고** 세 레포가 조용히 어긋난다. 그래서 전문으로 붙잡는다.
+const _securitiesKo = '증권사 연동${_sep}실시간 시세${_sep}자산 실시간 금액';
+const _securitiesEn =
+    'Securities link${_sep}real-time quotes${_sep}real-time asset value';
+
+/// 설명서는 '자산 평가(액)' 을 **매일 오후 4시 종가 스냅샷**이라는 뜻으로 쓴다.
+/// Pro 게이트가 주는 건 그게 아니라 **자산 상세·편집의 실시간 금액 조회**
+/// (`useInvestValuation` → `features.includes("SECURITIES")`)다 — 겹치는 단어가
+/// '평가' 라 혜택 한 줄이 설명서와 다른 것을 가리켰다.
+const _ambiguousWord = '평가';
 
 Widget _app() => ProviderScope(
   // Free 계정 고정 — 표 내용은 플랜과 무관하지만 네트워크를 타지 않게 막는다.
@@ -123,5 +145,52 @@ void main() {
       find.descendant(of: table, matching: find.byIcon(LucideIcons.minus)),
       findsNWidgets(1),
     );
+  });
+
+  testWidgets('증권 줄은 웹과 같은 문구로 뜬다 — 표에 \'$_ambiguousWord\' 가 없다', (
+    tester,
+  ) async {
+    await _openSheet(tester);
+
+    expect(
+      find.descendant(of: _table(l), matching: find.text(_securitiesKo)),
+      findsOneWidget,
+      reason: '웹이 toBe 로 잠근 그 문자열 그대로여야 한다',
+    );
+
+    // 표의 **어느 줄도** 그 말로 광고하지 않는다. 증권 줄만 보지 않는 건
+    // 가계부·예산 줄이 나중에 같은 단어를 물고 들어오는 것도 막기 위해서다.
+    expect(
+      find.descendant(
+        of: _table(l),
+        matching: find.textContaining(_ambiguousWord),
+      ),
+      findsNothing,
+      reason: '설명서가 \'$_ambiguousWord\' 를 하루 한 번 종가 스냅샷이라는 다른 뜻으로 쓴다',
+    );
+  });
+
+  test('arb 문구가 웹의 toBe 와 한 글자도 다르지 않다 — ko · en', () {
+    expect(AppLocalizationsKo().subFeatSecurities, _securitiesKo);
+    expect(AppLocalizationsEn().subFeatSecurities, _securitiesEn);
+
+    expect(
+      AppLocalizationsKo().subFeatSecurities,
+      isNot(contains(_ambiguousWord)),
+    );
+    expect(
+      AppLocalizationsEn().subFeatSecurities,
+      isNot(contains('valuation')),
+    );
+
+    // 구분자가 U+00B7 그대로인지 — 웹이 같은 글자로 잠갔다.
+    expect(AppLocalizationsKo().subFeatSecurities.split(_sep), hasLength(3));
+    expect(AppLocalizationsEn().subFeatSecurities.split(_sep), hasLength(3));
+  });
+
+  // 잠긴 건 증권 줄뿐이다. Free 잠금 안내는 원래 '$_ambiguousWord' 를 쓰지 않으므로
+  // 이번 교체 범위 밖이고, 그대로 둔다는 것을 여기서 못박는다.
+  test('subFreeLockedDesc 는 건드리지 않았다', () {
+    expect(AppLocalizationsKo().subFreeLockedDesc, '증권 연동 · 실시간 시세가 잠겨 있어요');
   });
 }
