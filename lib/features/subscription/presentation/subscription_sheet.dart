@@ -41,20 +41,20 @@ class _PlanFeature {
   const _PlanFeature(this.label, this.free, this.pro, {this.star = false});
   final String label;
 
-  /// true=체크, false=대시, String=텍스트(예: '100건')
-  final Object free;
-  final Object pro;
+  /// true=체크, false=대시
+  final bool free;
+  final bool pro;
   final bool star;
 }
 
+/// Pro 가 실제로 더 주는 것은 증권 하나다 — 플랜 features 는 `["SECURITIES"]` 뿐이고
+/// 서버 게이트도 증권 API 에만 걸려 있다. 거래 건수·가져오기/내보내기·캘린더 공유·
+/// 카드 혜택에는 어떤 제한도 없으므로 여기에 적지 않는다 — 표에만 있는 제한은
+/// 광고가 된다(QA #161).
 List<_PlanFeature> _featuresOf(AppLocalizations l) => <_PlanFeature>[
   _PlanFeature(l.subFeatLedger, true, true),
   _PlanFeature(l.subFeatBudget, true, true),
-  _PlanFeature(l.subFeatMonthlyTx, l.subFeatTxLimit, l.subFeatUnlimited),
   _PlanFeature(l.subFeatSecurities, false, true, star: true),
-  _PlanFeature(l.subFeatImportExport, false, true),
-  _PlanFeature(l.subFeatCalendarShare, false, true),
-  _PlanFeature(l.subFeatCardRec, false, true),
 ];
 
 enum _Cycle { monthly, yearly }
@@ -476,26 +476,15 @@ class _SubscriptionSheetBodyState
     );
   }
 
-  Widget _featureCell(PorestTokens t, Object val, {required bool accent}) {
-    if (val == true) {
+  Widget _featureCell(PorestTokens t, bool val, {required bool accent}) {
+    if (val) {
       return Icon(
         LucideIcons.check,
         size: 15,
         color: accent ? t.fgBrand : t.statusSuccessFg,
       );
     }
-    if (val == false) {
-      return Icon(LucideIcons.minus, size: 15, color: t.fgDisabled);
-    }
-    return Text(
-      val.toString(),
-      style: TextStyle(
-        fontFamily: PTypo.sans,
-        fontSize: PFontSize.caption,
-        fontWeight: PFontWeight.bold,
-        color: accent ? t.fgBrand : t.fgSecondary,
-      ),
-    );
+    return Icon(LucideIcons.minus, size: 15, color: t.fgDisabled);
   }
 }
 
