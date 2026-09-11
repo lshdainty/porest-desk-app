@@ -5434,6 +5434,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String subProUntil(String date) {
+    return 'Pro until $date';
+  }
+
+  @override
   String get subFreeLockedDesc =>
       'Securities link and real-time quotes are locked';
 

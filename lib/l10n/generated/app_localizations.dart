@@ -10004,6 +10004,12 @@ abstract class AppLocalizations {
   /// **'다음 결제 {date} · {amount}'**
   String subNextBilling(String date, String amount);
 
+  /// No description provided for @subProUntil.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}까지 이용'**
+  String subProUntil(String date);
+
   /// No description provided for @subFreeLockedDesc.
   ///
   /// In ko, this message translates to:

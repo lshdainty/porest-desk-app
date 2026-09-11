@@ -56,6 +56,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         ref.watch(settingsProvider).value?.hideCards.length ?? 0;
     final hiddenTotal = kAllHideCards.length;
     final isSubscribed = subscription?.isActive ?? false;
+    // currentPeriodEnd 는 서버 UTC 시각 — 자르면 KST 밤 결제분의 갱신일이 하루
+    // 앞으로 보인다(subscription_sheet 와 같은 규칙). 못 읽는 값만 잘라 쓴다.
+    final periodEnd =
+        subscription?.currentPeriodEnd != null &&
+            subscription!.currentPeriodEnd!.length >= 10
+        ? (localDateKey(subscription.currentPeriodEnd) ??
+              subscription.currentPeriodEnd!.substring(0, 10))
+        : null;
+    // 유예 기간(해지했는데 기간이 남음)에는 다음 결제가 없다 — 그 날짜는 결제일이
+    // 아니라 이용이 끝나는 날이다. 구독 시트와 같은 문구를 쓴다.
+    final proDesc = !isSubscribed
+        ? l.accountProPromo
+        : (periodEnd != null && !subscription!.autoRenew)
+        ? l.subProUntil(periodEnd)
+        : '${periodEnd != null ? l.accountNextBilling(periodEnd) : ''}'
+              '${l.accountProActive}';
     final nameInitial = user != null && user.userName.isNotEmpty
         ? user.userName[0].toUpperCase()
         : '?';
@@ -307,11 +323,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          isSubscribed
-                              // currentPeriodEnd 는 서버 UTC 시각 — 자르면 KST 밤 결제분의
-                              // 갱신일이 하루 앞으로 보인다(subscription_sheet 와 같은 규칙).
-                              ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? l.accountNextBilling(localDateKey(subscription.currentPeriodEnd) ?? subscription.currentPeriodEnd!.substring(0, 10)) : ''}${l.accountProActive}'
-                              : l.accountProPromo,
+                          proDesc,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: PTypo.caption.copyWith(color: t.fgTertiary),

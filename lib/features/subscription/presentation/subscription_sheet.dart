@@ -85,11 +85,18 @@ class _SubscriptionSheetBodyState
     // currentPeriodEnd 는 서버가 `LocalDateTime.now()`(UTC)에 개월을 더해 만든 UTC
     // 시각이다 — 자르면 UTC 날짜가 나와, KST(+9) 밤 늦게 결제한 사용자에게 갱신일이
     // 하루 앞으로 보인다. 못 읽는 값만 예전처럼 잘라 쓴다.
-    final nextBill =
-        (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
+    final hasPeriodEnd =
+        sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10;
+    final nextBill = hasPeriodEnd
         ? (localDateKey(sub.currentPeriodEnd) ??
               sub.currentPeriodEnd!.substring(0, 10))
         : l.subNextBillingDate;
+    // 해지한 구독에 "다음 결제 {날짜}" 는 **없는 청구를 예고하는 말**이다 — 서버는
+    // 해지해도 만료일을 앞당기지 않고 `autoRenew=false` 로만 표시하므로, 그 날짜는
+    // 결제일이 아니라 **이용이 끝나는 날**이다. 그래서 문구를 갈라 쓴다.
+    // 날짜를 못 읽는 값이면 종전 문구를 그대로 둔다 — 자리 표시자를 끼우면
+    // "다음 결제일까지 이용" 이 되어 더 이상해진다.
+    final renews = (sub?.autoRenew ?? true) || !hasPeriodEnd;
     final proPrice = _cycle == _Cycle.monthly ? _proMonthly : _proYearly;
     final proPerMonth = _cycle == _Cycle.monthly
         ? _proMonthly
@@ -140,10 +147,12 @@ class _SubscriptionSheetBodyState
                     const SizedBox(height: 2),
                     Text(
                       isPro
-                          ? l.subNextBilling(
-                              nextBill,
-                              krwSigned(_proMonthly, false, unit: true),
-                            )
+                          ? (renews
+                                ? l.subNextBilling(
+                                    nextBill,
+                                    krwSigned(_proMonthly, false, unit: true),
+                                  )
+                                : l.subProUntil(nextBill))
                           : l.subFreeLockedDesc,
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),

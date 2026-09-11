@@ -5,6 +5,7 @@ library;
 
 import 'package:dio/dio.dart';
 
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 
 class MyFeatures {
@@ -63,7 +64,27 @@ class SubscriptionInfo {
   final String? currentPeriodEnd;
   final bool autoRenew;
 
-  bool get isActive => status == 'ACTIVE';
+  /// 지금 Pro 를 쓸 수 있는가 — 해지 뒤 **유예 기간**을 포함한다.
+  ///
+  /// 서버(desk-back #332)는 해지해도 만료일을 앞당기지 않는다. 응답은
+  /// `status=CANCELLED` · `autoRenew=false` · `currentPeriodEnd=<미래>` 로 남고
+  /// `features` 에도 `SECURITIES` 가 그대로 있어 증권 기능이 열려 있다. 그래서
+  /// `status == 'ACTIVE'` 만 보면 **돈 낸 기간이 남은 사람에게 시트가 "Free 플랜
+  /// 이용 중" 이라고 말한다** — 기능은 열려 있는데 화면만 잠긴 척했다.
+  ///
+  /// [currentPeriodEnd] 는 서버가 시간대 없이 주는 `[UTC]` 시각이라
+  /// [parseServerUtc] 로 읽는다 — 구독 시트가 날짜를 찍을 때와 같은 규칙이다.
+  /// 여기서 문자열을 잘라 비교하면 KST(+9) 자정 근처에서 하루가 어긋난다.
+  ///
+  /// **못 읽으면 종전대로 `ACTIVE` 만 본다.** 만료일이 없거나(무제한) 날짜만 있는
+  /// 값이면 유예의 끝이 언제인지 모르는데, 모르는 채로 열어 주면 되돌아올 날이 없어
+  /// 영영 안 막힌다. 서버도 `CANCELLED` 는 만료일이 있을 때만 센다.
+  bool get isActive {
+    if (status == 'ACTIVE') return true;
+    if (status != 'CANCELLED') return false;
+    final end = parseServerUtc(currentPeriodEnd);
+    return end != null && end.isAfter(DateTime.now());
+  }
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> j) => SubscriptionInfo(
     planCode: j['planCode'] as String,

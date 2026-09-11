@@ -5364,6 +5364,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String subProUntil(String date) {
+    return '$date까지 이용';
+  }
+
+  @override
   String get subFreeLockedDesc => '증권 연동 · 실시간 시세가 잠겨 있어요';
 
   @override

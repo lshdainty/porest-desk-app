@@ -2990,6 +2990,14 @@
       }
     }
   },
+  "subProUntil": "Pro until {date}",
+  "@subProUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "subFreeLockedDesc": "Securities link and real-time quotes are locked",
   "subSpotlightTitle": "Securities investing is Pro-only",
   "subSpotlightDesc": "Real-time quotes and order book, domestic and overseas ticker search, watchlists, and holding P&L — subscribe to Pro and the Securities tab opens right away.",
