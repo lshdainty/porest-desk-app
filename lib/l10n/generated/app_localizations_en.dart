@@ -5435,7 +5435,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String subProUntil(String date) {
-    return 'Pro until $date';
+    return 'Access until $date';
   }
 
   @override
