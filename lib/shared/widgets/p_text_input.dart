@@ -150,6 +150,17 @@ class PTextInput extends StatelessWidget {
         ),
         prefixIcon: prefix,
         suffixIcon: suffix,
+        // 접미 위젯을 48x48 로 부풀리지 않는다.
+        //
+        // Flutter 기본값(minWidth/minHeight 48)은 접미가 그보다 작으면 **가운데
+        // 정렬**한다. 그래서 오른쪽에 빈 16px 이 생겨 아이콘이 안쪽으로 밀렸다 —
+        // 달력·시계 아이콘이 칸 끝에서 28px, 같은 자리의 PSelect chevron 은 13px
+        // 이라 나란히 놓으면 어긋나 보였다(사용자 신고 2026-09-13).
+        //
+        // 탭 영역을 키워 주지도 않았다 — 제약은 바깥 상자만 넓히고 접미 위젯의
+        // 히트 영역(32x16)은 그대로였다. 탭 영역은 접미 쪽 패딩으로 만든다.
+        // p_search_field 는 같은 이유로 이미 이 제약을 덮어 두었다.
+        suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         prefixText: prefixText,
         suffixText: suffixText,
         suffixStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
@@ -175,5 +186,68 @@ class PTextInput extends StatelessWidget {
     );
     if (isMultiLine) return field;
     return SizedBox(height: search ? 36 : 40, child: field);
+  }
+}
+
+/// 입력칸 접미 버튼 — 웹 `<Button variant="ghost" size="icon">` 등가.
+///
+/// 웹은 이 버튼을 `absolute right-4` 로 띄우고 입력칸에 `padding-right: 40` 을
+/// 줘 글자가 버튼 밑으로 들어가지 않게 한다. Flutter 의 `suffixIcon` 은 흐름 안에
+/// 있으므로 **접미 폭이 그 padding-right 역할을 한다** — 그래서 앞쪽에 [_lead] 를
+/// 두어 글자가 끝에서 40 에 멈추게 맞춘다(`InputDecorator` 가 입력부와 접미 사이에
+/// 4 를 더 두는 것까지 뺀 값이다. 실측은 input_suffix_inset_test).
+///
+/// 크기는 웹 사용처를 그대로 따른다.
+///   - 날짜·시각 피커 `size-7`(28) + 글리프 `size-3.5`(14)
+///   - 비밀값 보기(SecretField) 32 + 글리프 16
+class PInputSuffixButton extends StatelessWidget {
+  const PInputSuffixButton({
+    super.key,
+    required this.child,
+    required this.onTap,
+    this.size = 28,
+    this.trailing = true,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  /// 탭 상자 한 변. 웹 버튼의 `size-*` 와 같은 값.
+  final double size;
+
+  /// 칸 오른쪽 끝에 붙는 버튼이면 웹 `right: 4` 만큼 띄우고 글자 멈춤선도 맞춘다.
+  final bool trailing;
+
+  /// 웹 `right: 4`.
+  static const double edge = 4;
+
+  /// 웹 `padding-right: 40`.
+  static const double textClearance = 40;
+
+  /// `InputDecorator` 가 입력부와 접미 사이에 두는 간격(실측 4).
+  static const double _decoratorGap = 4;
+
+  double get _lead {
+    final v = textClearance - size - edge - _decoratorGap;
+    return v > 0 ? v : 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: trailing ? _lead : 0,
+        right: trailing ? edge : 0,
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Center(child: child),
+        ),
+      ),
+    );
   }
 }

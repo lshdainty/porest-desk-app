@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_picker_sheet.dart';
@@ -19,6 +18,26 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 /// 흔들지 않는다.
 
 /// 접미 아이콘 — suffixIcon 은 탭을 받으므로 여기서 피커를 연다.
+///
+/// **웹 `InputDatePicker` / `InputTimePicker` 의 기하를 그대로 옮긴다.**
+///
+/// ```html
+/// <div class="relative flex gap-2">
+///   <Input class="pr-10" />                       <!-- h-10(40), px-[--spacing-md](12) -->
+///   <Button variant="ghost" size="icon"
+///           class="absolute top-1/2 right-1 size-7 -translate-y-1/2 p-0">
+///     <CalendarIcon class="size-3.5" />
+///   </Button>
+/// </div>
+/// ```
+///
+/// 옮기면 이렇게 된다.
+///   - 버튼 `size-7` = **28x28** 이 탭 영역. `right-1` 로 칸 오른쪽 끝에서 **4**.
+///   - 글리프 `size-3.5` = **14**, 버튼 가운데 → 오른쪽 끝에서 **11**.
+///   - 접미 전체 폭 **40** = 웹 `pr-10` — 친 글자가 버튼 밑으로 들어가지 않는다.
+///
+/// 아이콘이 14 인 것은 웹을 따른 것이다. 웹도 Select chevron 은 `h-4 w-4`(16)인데
+/// 날짜·시각 아이콘만 `size-3.5`(14)로 작게 쓴다.
 class _PickerSuffix extends StatelessWidget {
   const _PickerSuffix({
     required this.icon,
@@ -39,24 +58,17 @@ class _PickerSuffix extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (onClear != null)
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
+          PInputSuffixButton(
+            trailing: false,
             onTap: onClear,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: PSpace.x4),
-              child: Icon(LucideIcons.x, size: 14, color: t.fgTertiary),
-            ),
+            child: Icon(LucideIcons.x, size: 14, color: t.fgTertiary),
           ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        PInputSuffixButton(
           onTap: enabled ? onTap : null,
-          child: Padding(
-            padding: const EdgeInsets.only(left: PSpace.x4, right: PSpace.x12),
-            child: Icon(
-              icon,
-              size: 16,
-              color: enabled ? t.fgSecondary : t.fgTertiary,
-            ),
+          child: Icon(
+            icon,
+            size: 14,
+            color: enabled ? t.fgSecondary : t.fgTertiary,
           ),
         ),
       ],
