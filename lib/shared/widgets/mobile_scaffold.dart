@@ -84,106 +84,90 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
       }
     }
 
-    // 기기(제스처·하드웨어) 뒤로가기 — 화면 안 ← 버튼과 같은 곳으로 보낸다.
+    // 기기(제스처·하드웨어) 뒤로가기는 여기가 아니라 **branch 안 화면**이 받는다 —
+    // lib/shared/widgets/branch_back_to_home.dart 의 BranchBackToHome 이고,
+    // router.dart 가 홈이 아닌 branch 의 첫 화면마다 감싼다.
     //
-    // 홈이 아닌 branch 의 첫 화면(예: /expense)에서는 그 branch 네비게이터에 팝할
-    // 것이 없어 뒤로가기가 루트까지 올라가 앱이 그대로 꺼졌다(사용자 신고
-    // 2026-09-09). goBranch(0) 을 셸 안 ← 버튼에만 걸어 둔 탓이다 — 기기
-    // 뒤로가기는 그 버튼을 지나지 않는다.
-    //
-    // 홈(branch 0)에서는 막지 않는다. 거기서 뒤로가기는 앱을 끄는 게 맞다.
-    //
-    // 이 PopScope 는 셸 페이지 라우트(루트 네비게이터)에 걸린다. 그래서 아래 둘은
-    // 여기까지 오지 않는다 — go_router 의 popRoute 는 깊은 네비게이터부터
-    // maybePop 을 시도하고, Navigator 는 맨 위 라우트에게만 묻는다.
-    //   - 시트·다이얼로그: showPSheet · showDialog 는 루트 네비게이터에 얹혀
-    //     셸 페이지보다 위다 → 뒤로가기가 그것부터 닫는다
-    //   - branch 안에 push 된 화면: 그 branch 네비게이터가 먼저 팝한다
-    // 둘 다 test/shared/mobile_scaffold_back_test.dart 가 고정한다.
-    return PopScope(
-      canPop: idx == 0,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
-        navigationShell.goBranch(0);
-      },
-      child: Scaffold(
-        backgroundColor: t.bgSurface,
-        // Liquid Glass 플로팅 탭바 — 콘텐츠가 바 뒤로 지나가며 블러에 비친다.
-        extendBody: true,
-        // 헤더 아이콘은 페이지당 1개 — 홈=알림 벨, 그 외=검색 (클로드 디자인 정합).
-        appBar: MobileHeader(
-          title: title,
-          trailingIcon: idx == 0 ? LucideIcons.bell : LucideIcons.search,
-        ),
-        body: NotificationListener<ScrollNotification>(
-          onNotification: _tabBarCompact.onScroll,
-          child: navigationShell,
-        ),
-        // 한 인스턴스로 두 모드를 렌더 — 모드 전환 스태거 안무(공유 탭 = 가계부).
-        bottomNavigationBar: PTabBar(
-          controller: _tabBarCompact,
-          modeKey: isMoneyBranch ? 'money' : 'default',
-          sharedIndexes: const {1},
-          children: isMoneyBranch
-              ? [
-                  PTabBarBack(onTap: () => navigationShell.goBranch(0)),
-                  PTabBarItem(
-                    icon: LucideIcons.receiptText,
-                    label: l.navExpense,
-                    selected: routePath == '/expense',
-                    onTap: () => goMoney('/expense'),
-                  ),
-                  PTabBarItem(
-                    icon: LucideIcons.wallet,
-                    label: l.navAsset,
-                    selected: routePath == '/assets',
-                    onTap: () => goMoney('/assets'),
-                  ),
-                  PTabBarItem(
-                    icon: LucideIcons.chartPie,
-                    label: l.moreItemStats,
-                    selected: routePath == '/stats',
-                    onTap: () => goMoney('/stats'),
-                  ),
-                  PTabBarItem(
-                    icon: LucideIcons.filePen,
-                    label: l.navBudget,
-                    selected: routePath == '/budget',
-                    onTap: () => goMoney('/budget'),
-                  ),
-                ]
-              : [
-                  PTabBarItem(
-                    icon: LucideIcons.home,
-                    label: l.navHome,
-                    selected: idx == 0,
-                    onTap: () =>
-                        navigationShell.goBranch(0, initialLocation: idx == 0),
-                  ),
-                  PTabBarItem(
-                    icon: LucideIcons.receiptText,
-                    label: l.navExpense,
-                    selected: idx == 1,
-                    onTap: () =>
-                        navigationShell.goBranch(1, initialLocation: idx == 1),
-                  ),
-                  PTabBarFab(onTap: onAddTx),
-                  PTabBarItem(
-                    icon: LucideIcons.calendar1,
-                    label: l.navCalendar,
-                    selected: idx == 2,
-                    onTap: () =>
-                        navigationShell.goBranch(2, initialLocation: idx == 2),
-                  ),
-                  PTabBarItem(
-                    icon: LucideIcons.menu,
-                    label: l.navMore,
-                    selected: idx == 3,
-                    onTap: () =>
-                        navigationShell.goBranch(3, initialLocation: idx == 3),
-                  ),
-                ],
-        ),
+    // 여기(셸 = 루트 네비게이터)에 걸었더니 옛 방식 뒤로가기만 받고 **예측형
+    // (OnBackInvokedCallback)에서는 앱이 그대로 꺼졌다.** 이유와 근거는 그 위젯의
+    // 주석에 있다. 두 겹으로 두면 어느 쪽이 진짜인지 헷갈려 여기서는 걷었다.
+    return Scaffold(
+      backgroundColor: t.bgSurface,
+      // Liquid Glass 플로팅 탭바 — 콘텐츠가 바 뒤로 지나가며 블러에 비친다.
+      extendBody: true,
+      // 헤더 아이콘은 페이지당 1개 — 홈=알림 벨, 그 외=검색 (클로드 디자인 정합).
+      appBar: MobileHeader(
+        title: title,
+        trailingIcon: idx == 0 ? LucideIcons.bell : LucideIcons.search,
+      ),
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _tabBarCompact.onScroll,
+        child: navigationShell,
+      ),
+      // 한 인스턴스로 두 모드를 렌더 — 모드 전환 스태거 안무(공유 탭 = 가계부).
+      bottomNavigationBar: PTabBar(
+        controller: _tabBarCompact,
+        modeKey: isMoneyBranch ? 'money' : 'default',
+        sharedIndexes: const {1},
+        children: isMoneyBranch
+            ? [
+                PTabBarBack(onTap: () => navigationShell.goBranch(0)),
+                PTabBarItem(
+                  icon: LucideIcons.receiptText,
+                  label: l.navExpense,
+                  selected: routePath == '/expense',
+                  onTap: () => goMoney('/expense'),
+                ),
+                PTabBarItem(
+                  icon: LucideIcons.wallet,
+                  label: l.navAsset,
+                  selected: routePath == '/assets',
+                  onTap: () => goMoney('/assets'),
+                ),
+                PTabBarItem(
+                  icon: LucideIcons.chartPie,
+                  label: l.moreItemStats,
+                  selected: routePath == '/stats',
+                  onTap: () => goMoney('/stats'),
+                ),
+                PTabBarItem(
+                  icon: LucideIcons.filePen,
+                  label: l.navBudget,
+                  selected: routePath == '/budget',
+                  onTap: () => goMoney('/budget'),
+                ),
+              ]
+            : [
+                PTabBarItem(
+                  icon: LucideIcons.home,
+                  label: l.navHome,
+                  selected: idx == 0,
+                  onTap: () =>
+                      navigationShell.goBranch(0, initialLocation: idx == 0),
+                ),
+                PTabBarItem(
+                  icon: LucideIcons.receiptText,
+                  label: l.navExpense,
+                  selected: idx == 1,
+                  onTap: () =>
+                      navigationShell.goBranch(1, initialLocation: idx == 1),
+                ),
+                PTabBarFab(onTap: onAddTx),
+                PTabBarItem(
+                  icon: LucideIcons.calendar1,
+                  label: l.navCalendar,
+                  selected: idx == 2,
+                  onTap: () =>
+                      navigationShell.goBranch(2, initialLocation: idx == 2),
+                ),
+                PTabBarItem(
+                  icon: LucideIcons.menu,
+                  label: l.navMore,
+                  selected: idx == 3,
+                  onTap: () =>
+                      navigationShell.goBranch(3, initialLocation: idx == 3),
+                ),
+              ],
       ),
     );
   }
