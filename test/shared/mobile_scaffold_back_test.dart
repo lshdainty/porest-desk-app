@@ -20,6 +20,7 @@ import 'package:go_router/go_router.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/branch_back_to_home.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
@@ -61,6 +62,11 @@ class _Screen extends StatelessWidget {
 /// branch 0 홈 / branch 1 가계부(4 path) / branch 2 캘린더 / branch 3 전체.
 /// `/expense/detail` 만 테스트용으로 더 팠다: 지금 branch 안에 push 되는 화면이
 /// 하나도 없어서, 생겼을 때 홈으로 튀지 않는다는 걸 미리 못 박아 둔다.
+///
+/// 홈이 아닌 branch 의 첫 화면은 라우터와 똑같이 BranchBackToHome 으로 감싼다
+/// (뒤로가기를 받는 주체가 셸이 아니라 그 화면이다 — 셸에 걸면 예측형 뒤로가기에서
+/// 앱이 꺼진다). /expense/detail 은 감싸지 않는다 — 감싸면 상세에서 뒤로가기가
+/// 상세를 닫는 대신 홈으로 튄다.
 GoRouter _buildRouter(String initialLocation) {
   return GoRouter(
     initialLocation: initialLocation,
@@ -77,7 +83,8 @@ GoRouter _buildRouter(String initialLocation) {
             routes: [
               GoRoute(
                 path: '/expense',
-                builder: (_, _) => const _Screen('expense'),
+                builder: (_, _) =>
+                    const BranchBackToHome(child: _Screen('expense')),
                 routes: [
                   GoRoute(
                     path: 'detail',
@@ -87,15 +94,18 @@ GoRouter _buildRouter(String initialLocation) {
               ),
               GoRoute(
                 path: '/assets',
-                builder: (_, _) => const _Screen('assets'),
+                builder: (_, _) =>
+                    const BranchBackToHome(child: _Screen('assets')),
               ),
               GoRoute(
                 path: '/stats',
-                builder: (_, _) => const _Screen('stats'),
+                builder: (_, _) =>
+                    const BranchBackToHome(child: _Screen('stats')),
               ),
               GoRoute(
                 path: '/budget',
-                builder: (_, _) => const _Screen('budget'),
+                builder: (_, _) =>
+                    const BranchBackToHome(child: _Screen('budget')),
               ),
             ],
           ),
@@ -103,13 +113,18 @@ GoRouter _buildRouter(String initialLocation) {
             routes: [
               GoRoute(
                 path: '/calendar',
-                builder: (_, _) => const _Screen('calendar'),
+                builder: (_, _) =>
+                    const BranchBackToHome(child: _Screen('calendar')),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/more', builder: (_, _) => const _Screen('more')),
+              GoRoute(
+                path: '/more',
+                builder: (_, _) =>
+                    const BranchBackToHome(child: _Screen('more')),
+              ),
             ],
           ),
         ],

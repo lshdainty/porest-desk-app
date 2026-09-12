@@ -48,6 +48,7 @@ import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_gate.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_link_screen.dart';
+import 'package:porest_desk_app/shared/widgets/branch_back_to_home.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -246,31 +247,36 @@ final routerProvider = Provider<GoRouter>((ref) {
                     state.uri.queryParameters['assetId'] ?? '',
                   );
                   return NoTransitionPage(
-                    child: ExpenseScreen(
-                      key: ValueKey(
-                        'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}',
+                    child: BranchBackToHome(
+                      child: ExpenseScreen(
+                        key: ValueKey(
+                          'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}',
+                        ),
+                        initialMonth: month,
+                        focusTxId: txId,
+                        initialAssetId: assetId,
                       ),
-                      initialMonth: month,
-                      focusTxId: txId,
-                      initialAssetId: assetId,
                     ),
                   );
                 },
               ),
               GoRoute(
                 path: '/assets',
-                pageBuilder: (_, _) =>
-                    const NoTransitionPage(child: AssetScreen()),
+                pageBuilder: (_, _) => const NoTransitionPage(
+                  child: BranchBackToHome(child: AssetScreen()),
+                ),
               ),
               GoRoute(
                 path: '/stats',
-                pageBuilder: (_, _) =>
-                    const NoTransitionPage(child: StatsScreen()),
+                pageBuilder: (_, _) => const NoTransitionPage(
+                  child: BranchBackToHome(child: StatsScreen()),
+                ),
               ),
               GoRoute(
                 path: '/budget',
-                pageBuilder: (_, _) =>
-                    const NoTransitionPage(child: BudgetScreen()),
+                pageBuilder: (_, _) => const NoTransitionPage(
+                  child: BranchBackToHome(child: BudgetScreen()),
+                ),
               ),
             ],
           ),
@@ -278,8 +284,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/calendar',
-                pageBuilder: (_, _) =>
-                    const NoTransitionPage(child: CalendarScreen()),
+                pageBuilder: (_, _) => const NoTransitionPage(
+                  child: BranchBackToHome(child: CalendarScreen()),
+                ),
               ),
             ],
           ),
@@ -287,8 +294,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/more',
-                pageBuilder: (_, _) =>
-                    const NoTransitionPage(child: MoreScreen()),
+                pageBuilder: (_, _) => const NoTransitionPage(
+                  child: BranchBackToHome(child: MoreScreen()),
+                ),
               ),
             ],
           ),
