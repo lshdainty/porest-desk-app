@@ -341,16 +341,15 @@ class _RevealSuffix extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      // 웹 SecretField 와 같은 치수 — 버튼 32, 글리프 16, 오른쪽 끝에서 4.
+      // (날짜·시각 피커는 웹에서도 28/14 로 더 작다.)
+      child: PInputSuffixButton(
+        size: 32,
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.only(left: PSpace.x4, right: PSpace.x12),
-          child: Icon(
-            revealed ? LucideIcons.eyeOff : LucideIcons.eye,
-            size: 16,
-            color: t.fgSecondary,
-          ),
+        child: Icon(
+          revealed ? LucideIcons.eyeOff : LucideIcons.eye,
+          size: 16,
+          color: t.fgSecondary,
         ),
       ),
     );
