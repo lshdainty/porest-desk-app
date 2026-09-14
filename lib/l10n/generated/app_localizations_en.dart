@@ -4334,6 +4334,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String recurringFilterTransfer(int count) {
+    return 'Transfer $count';
+  }
+
+  @override
   String recurringFilterPaused(int count) {
     return 'Paused $count';
   }

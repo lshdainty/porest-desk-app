@@ -31,9 +31,15 @@ class RecurringRepository {
     }
   }
 
+  /// 이체 반복은 [categoryRowId] 가 없고 [toAssetRowId] 가 있다 — 서버가 둘을 짝으로 본다
+  /// (`RecurringTransferValidator`). 지출·수입에 이체 칸이 실려 가면 400 이다.
   Future<void> create({
-    required int categoryRowId,
+    int? categoryRowId,
     int? assetRowId, // 자산 미연결 반복거래 허용 — 서버도 nullable
+    /// 이체면 받는 자산.
+    int? toAssetRowId,
+    int? fee,
+    int? interestAmount,
     int? sourceExpenseRowId,
     required String expenseType,
     required int amount,
@@ -55,8 +61,11 @@ class RecurringRepository {
       await _dio.post<dynamic>(
         '/recurring-transaction',
         data: {
-          'categoryRowId': categoryRowId,
+          'categoryRowId': ?categoryRowId,
           'assetRowId': assetRowId,
+          'toAssetRowId': ?toAssetRowId,
+          'fee': ?fee,
+          'interestAmount': ?interestAmount,
           'sourceExpenseRowId': ?sourceExpenseRowId,
           'expenseType': expenseType,
           'amount': amount,
@@ -82,8 +91,12 @@ class RecurringRepository {
 
   Future<void> update({
     required int id,
-    required int categoryRowId,
+    int? categoryRowId,
     int? assetRowId, // 자산 미연결 반복거래 허용 — 서버도 nullable
+    /// 이체면 받는 자산. 안 실으면 서버가 지운다(이 화면의 PUT 은 전체 치환이다).
+    int? toAssetRowId,
+    int? fee,
+    int? interestAmount,
     required String expenseType,
     required int amount,
     required String frequency,
@@ -104,8 +117,11 @@ class RecurringRepository {
       await _dio.put<dynamic>(
         '/recurring-transaction/$id',
         data: {
-          'categoryRowId': categoryRowId,
+          'categoryRowId': ?categoryRowId,
           'assetRowId': assetRowId,
+          'toAssetRowId': ?toAssetRowId,
+          'fee': ?fee,
+          'interestAmount': ?interestAmount,
           'expenseType': expenseType,
           'amount': amount,
           'frequency': frequency,

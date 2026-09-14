@@ -2463,6 +2463,14 @@
       }
     }
   },
+  "recurringFilterTransfer": "이체 {count}",
+  "@recurringFilterTransfer": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringFilterPaused": "일시정지 {count}",
   "@recurringFilterPaused": {
     "placeholders": {

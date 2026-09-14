@@ -7976,6 +7976,12 @@ abstract class AppLocalizations {
   /// **'수입 {count}'**
   String recurringFilterIncome(int count);
 
+  /// No description provided for @recurringFilterTransfer.
+  ///
+  /// In ko, this message translates to:
+  /// **'이체 {count}'**
+  String recurringFilterTransfer(int count);
+
   /// No description provided for @recurringFilterPaused.
   ///
   /// In ko, this message translates to:

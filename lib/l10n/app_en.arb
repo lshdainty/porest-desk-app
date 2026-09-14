@@ -2447,6 +2447,14 @@
       }
     }
   },
+  "recurringFilterTransfer": "Transfer {count}",
+  "@recurringFilterTransfer": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringFilterPaused": "Paused {count}",
   "@recurringFilterPaused": {
     "placeholders": {

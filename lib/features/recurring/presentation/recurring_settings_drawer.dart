@@ -25,8 +25,10 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
@@ -40,10 +42,15 @@ import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.
 /// 정확히 하나만 제공한다. 거래 정보(카테고리·금액·가맹점)는 읽기 전용 요약
 /// 카드로 보여주고, 사용자는 반복 주기·종료·옵션만 설정한다. 가계부 거래 상세의
 /// "반복 설정"과 설정 화면의 "반복 거래 수정"이 같은 body를 공유한다.
+/// [transferSeed] — **새로 만들되 값만 물려받는다**(이체 상세의 "반복 설정").
+///
+/// [recurring] 과 달리 수정 모드로 들어가지 않는다. 이미 일어난 이체와 앞으로 실행될
+/// 규칙은 별개라, 여기서 금액을 고쳐도 그 이체는 그대로여야 한다(사용자 결정 2026-09-14).
 void showRecurringSettingsDialog(
   BuildContext context, {
   Expense? expense,
   RecurringTransaction? recurring,
+  AssetTransfer? transferSeed,
 }) {
   assert(
     !(expense != null && recurring != null),
@@ -60,6 +67,7 @@ void showRecurringSettingsDialog(
     contentBuilder: (ctx, scrollCtrl) => _RecurringSettingsBody(
       expense: expense,
       recurring: recurring,
+      transferSeed: transferSeed,
       scrollController: scrollCtrl,
       controller: controller,
     ),
@@ -78,9 +86,11 @@ class _RecurringSettingsBody extends ConsumerStatefulWidget {
     this.recurring,
     required this.scrollController,
     required this.controller,
+    this.transferSeed,
   });
   final Expense? expense;
   final RecurringTransaction? recurring;
+  final AssetTransfer? transferSeed;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -125,7 +135,24 @@ class _RecurringSettingsBodyState
     final e = widget.expense;
 
     if (_isAdd) {
-      _txInput = _TxInputController(date: DateTime.now());
+      final seed = widget.transferSeed;
+      _txInput = seed == null
+          ? _TxInputController(date: DateTime.now())
+          : _TxInputController(
+              // 이 이체가 일어난 날부터 반복한다 — 규칙은 이 거래를 본떠 만든 것이다.
+              date:
+                  DateTime.tryParse(
+                    (seed.transferDate ?? '').padRight(10).substring(0, 10),
+                  ) ??
+                  DateTime.now(),
+              type: 'TRANSFER',
+              amount: seed.amount,
+              memo: seed.description,
+              assetRowId: seed.fromAssetRowId,
+              toAssetRowId: seed.toAssetRowId,
+              fee: seed.fee,
+              interestAmount: seed.interestAmount,
+            );
     } else {
       // base date: edit → recurring.startDate, from-tx → expense.expenseDate
       final raw = (_isEdit ? (r!.startDate ?? '') : (e!.expenseDate ?? ''))
@@ -147,6 +174,9 @@ class _RecurringSettingsBodyState
           memo: r.description,
           categoryRowId: r.categoryRowId,
           assetRowId: r.assetRowId,
+          toAssetRowId: r.toAssetRowId,
+          fee: r.fee,
+          interestAmount: r.interestAmount,
           paymentMethod: r.paymentMethod ?? '',
         );
       } else {
@@ -207,8 +237,14 @@ class _RecurringSettingsBodyState
     }
     final i = _txInput;
     if (i != null) {
+      if (i.amountInt <= 0) return false;
+      // 이체는 카테고리가 없는 대신 양쪽 계좌가 있어야 성립한다 — 서버도 같은 규칙으로
+      // 거절한다. 못 막으면 "저장됐다" 고 남았다가 자정 배치만 조용히 실패한다.
+      if (i.isTransfer) {
+        return transferPartiesReady(i.assetRowId, i.toAssetRowId);
+      }
       // add·edit 공통 — 자산은 선택사항, 거래 폼과 같은 규칙(웹 정합).
-      return i.amountInt > 0 && i.categoryRowId != null;
+      return i.categoryRowId != null;
     }
     return widget.expense!.categoryRowId != null;
   }
@@ -233,8 +269,12 @@ class _RecurringSettingsBodyState
         // 폼 값 전부를 보낸다 — 다음 실행분부터 이 값으로 만들어진다.
         await repo.update(
           id: r.rowId,
-          categoryRowId: i.categoryRowId!,
+          // 이체 칸과 지출·수입 칸은 서로 배타다 — 섞여 실리면 서버가 400 이다.
+          categoryRowId: i.isTransfer ? null : i.categoryRowId,
           assetRowId: i.assetRowId,
+          toAssetRowId: i.isTransfer ? i.toAssetRowId : null,
+          fee: i.isTransfer ? i.feeOrNull : null,
+          interestAmount: i.isTransfer ? i.interestOrNull : null,
           expenseType: i.type,
           amount: i.amountInt,
           frequency: _frequency,
@@ -246,16 +286,19 @@ class _RecurringSettingsBodyState
           endDate: endDateStr,
           maxOccurrences: maxOcc,
           description: i.memoOrNull,
-          merchant: i.merchantOrNull,
-          paymentMethod: i.paymentMethodOrNull,
+          merchant: i.isTransfer ? null : i.merchantOrNull,
+          paymentMethod: i.isTransfer ? null : i.paymentMethodOrNull,
           autoLog: _autoLog,
           notifyDayBefore: _notifyDayBefore,
         );
       } else if (_isAdd) {
         final i = _txInput!;
         await repo.create(
-          categoryRowId: i.categoryRowId!,
+          categoryRowId: i.isTransfer ? null : i.categoryRowId,
           assetRowId: i.assetRowId,
+          toAssetRowId: i.isTransfer ? i.toAssetRowId : null,
+          fee: i.isTransfer ? i.feeOrNull : null,
+          interestAmount: i.isTransfer ? i.interestOrNull : null,
           sourceExpenseRowId: null,
           expenseType: i.type,
           amount: i.amountInt,
@@ -268,15 +311,15 @@ class _RecurringSettingsBodyState
           endDate: endDateStr,
           maxOccurrences: maxOcc,
           description: i.memoOrNull,
-          merchant: i.merchantOrNull,
-          paymentMethod: i.paymentMethodOrNull,
+          merchant: i.isTransfer ? null : i.merchantOrNull,
+          paymentMethod: i.isTransfer ? null : i.paymentMethodOrNull,
           autoLog: _autoLog,
           notifyDayBefore: _notifyDayBefore,
         );
       } else {
         final e = widget.expense!;
         await repo.create(
-          categoryRowId: e.categoryRowId!,
+          categoryRowId: e.categoryRowId,
           assetRowId: e.assetRowId,
           sourceExpenseRowId: e.rowId,
           expenseType: e.expenseType,
@@ -956,7 +999,7 @@ bool _allowTxAsset(Asset a, String paymentMethod, String type) {
   return true;
 }
 
-/// 반복 추가 전용 거래 입력 상태 (지출/수입). 시간/이체 없음.
+/// 반복 추가 전용 거래 입력 상태 (지출/수입/이체). 시간 없음.
 class _TxInputController {
   _TxInputController({
     DateTime? date,
@@ -966,23 +1009,52 @@ class _TxInputController {
     String? memo,
     this.categoryRowId,
     this.assetRowId,
+    this.toAssetRowId,
+    int? fee,
+    int? interestAmount,
     this.paymentMethod = '',
   }) : date = date ?? DateTime.now(),
        amountCtrl = TextEditingController(
          text: amount == null || amount == 0 ? '' : amount.toString(),
        ),
        merchantCtrl = TextEditingController(text: merchant ?? ''),
-       memoCtrl = TextEditingController(text: memo ?? '');
+       memoCtrl = TextEditingController(text: memo ?? ''),
+       feeCtrl = TextEditingController(
+         text: fee == null || fee == 0 ? '' : fee.toString(),
+       ),
+       interestCtrl = TextEditingController(
+         text: interestAmount == null || interestAmount == 0
+             ? ''
+             : interestAmount.toString(),
+       );
 
   final TextEditingController amountCtrl;
   final TextEditingController merchantCtrl;
   final TextEditingController memoCtrl;
+  final TextEditingController feeCtrl;
+  final TextEditingController interestCtrl;
 
-  String type; // EXPENSE / INCOME
+  String type; // EXPENSE / INCOME / TRANSFER
   int? categoryRowId;
+
+  /// 이체면 **보내는** 자산 — 서버도 같은 컬럼을 쓴다.
   int? assetRowId;
+
+  /// 이체면 **받는** 자산.
+  int? toAssetRowId;
   String paymentMethod;
   DateTime date;
+
+  bool get isTransfer => type == 'TRANSFER';
+  int? get feeOrNull {
+    final v = int.tryParse(feeCtrl.text.replaceAll(',', '')) ?? 0;
+    return v > 0 ? v : null;
+  }
+
+  int? get interestOrNull {
+    final v = int.tryParse(interestCtrl.text.replaceAll(',', '')) ?? 0;
+    return v > 0 ? v : null;
+  }
 
   int get amountInt => int.tryParse(amountCtrl.text.replaceAll(',', '')) ?? 0;
   String get isoDate =>
@@ -998,6 +1070,8 @@ class _TxInputController {
     amountCtrl.dispose();
     merchantCtrl.dispose();
     memoCtrl.dispose();
+    feeCtrl.dispose();
+    interestCtrl.dispose();
   }
 }
 
@@ -1023,8 +1097,11 @@ class _TxFields extends ConsumerWidget {
     final assetsAsync = ref.watch(assetsProvider);
 
     final amountInt = c.amountInt;
-    final amountColor = c.type == 'EXPENSE' ? t.fgExpense : t.fgIncome;
-    final amountPrefix = c.type == 'EXPENSE' ? '−' : '+';
+    // 이체는 지출도 수입도 아니다 — 가계부의 이체 행과 같이 중립색·무부호.
+    final amountColor = c.isTransfer
+        ? t.fgPrimary
+        : (c.type == 'EXPENSE' ? t.fgExpense : t.fgIncome);
+    final amountPrefix = c.isTransfer ? '' : (c.type == 'EXPENSE' ? '−' : '+');
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1040,6 +1117,7 @@ class _TxFields extends ConsumerWidget {
           items: [
             PTabItem(value: 'EXPENSE', label: l.expTypeExpense),
             PTabItem(value: 'INCOME', label: l.expTypeIncome),
+            PTabItem(value: 'TRANSFER', label: l.expTypeTransfer),
           ],
         ),
         const SizedBox(height: PSpace.x12),
@@ -1062,202 +1140,19 @@ class _TxFields extends ConsumerWidget {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // 카테고리
-        PSectionLabel(l.expCategory, variant: PSectionLabelVariant.eyebrow),
-        const SizedBox(height: PSpace.x8),
-        categoriesAsync.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: PCircularProgressIndicator()),
-          ),
-          error: (e, _) => Text(
-            '${l.categoryLoadError}: $e',
-            style: PTypo.caption.copyWith(color: t.statusDanger),
-          ),
-          data: (categories) {
-            final topCategories =
-                categories
-                    .where(
-                      (cat) =>
-                          cat.expenseType == c.type &&
-                          (cat.parentRowId == null || cat.parentRowId == 0),
-                    )
-                    .toList()
-                  ..sort(
-                    (a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0),
-                  );
-            if (topCategories.isEmpty) {
-              return Text(
-                l.expNoCategoryForType,
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
-              );
-            }
-
-            final childrenByParent = <int, List<dynamic>>{};
-            for (final cat in categories) {
-              if (cat.parentRowId == null ||
-                  cat.parentRowId == 0 ||
-                  cat.expenseType != c.type) {
-                continue;
-              }
-              childrenByParent.putIfAbsent(cat.parentRowId!, () => []).add(cat);
-            }
-            for (final list in childrenByParent.values) {
-              list.sort(
-                (a, b) => ((a.sortOrder ?? 0) as int).compareTo(
-                  (b.sortOrder ?? 0) as int,
-                ),
-              );
-            }
-
-            final selectedCat = c.categoryRowId == null
-                ? null
-                : categories
-                      .where((cat) => cat.rowId == c.categoryRowId)
-                      .firstOrNull;
-            final selectedParentId = selectedCat == null
-                ? null
-                : (selectedCat.parentRowId == null ||
-                          selectedCat.parentRowId == 0
-                      ? selectedCat.rowId
-                      : selectedCat.parentRowId);
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    const gap = 6.0;
-                    const columns = 5;
-                    final cellWidth =
-                        (constraints.maxWidth - gap * (columns - 1)) / columns;
-                    return Wrap(
-                      spacing: gap,
-                      runSpacing: gap,
-                      children: [
-                        for (final cat in topCategories)
-                          SizedBox(
-                            width: cellWidth,
-                            child: PCategoryTile(
-                              name: cat.categoryName,
-                              color: resolveChartColor(
-                                context,
-                                cat.color,
-                                fallback: t.fgBrand,
-                              ),
-                              icon: lucideByName(cat.icon ?? 'tag'),
-                              active: selectedParentId == cat.rowId,
-                              onTap: () => _set(() {
-                                final firstChild =
-                                    childrenByParent[cat.rowId]?.first;
-                                c.categoryRowId = firstChild != null
-                                    ? firstChild.rowId
-                                    : cat.rowId;
-                              }),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                ),
-                if (selectedParentId != null &&
-                    (childrenByParent[selectedParentId]?.isNotEmpty ??
-                        false)) ...[
-                  const SizedBox(height: 10),
-                  _SelectField<int>(
-                    value: c.categoryRowId,
-                    hint: l.expSubcategory,
-                    items: [
-                      _SelectOption<int>(
-                        selectedParentId,
-                        l.recurringParentCategory(
-                          topCategories
-                              .firstWhere(
-                                (cat) => cat.rowId == selectedParentId,
-                              )
-                              .categoryName,
-                        ),
-                      ),
-                      for (final child in childrenByParent[selectedParentId]!)
-                        _SelectOption<int>(
-                          child.rowId as int,
-                          child.categoryName as String,
-                        ),
-                    ],
-                    onChanged: (v) => _set(() => c.categoryRowId = v),
-                  ),
-                ],
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 거래처
-        PSectionLabel(
-          c.type == 'INCOME' ? l.expIncomeSource : l.recurringMerchant,
-        ),
-        const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: c.merchantCtrl,
-          placeholder: c.type == 'INCOME'
-              ? l.expIncomeSourcePlaceholder
-              : l.recurringMerchantPlaceholder,
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 결제 수단
-        PSectionLabel(
-          c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod,
-        ),
-        const SizedBox(height: PSpace.x4),
-        _SelectField<String>(
-          value: c.paymentMethod.isEmpty ? null : c.paymentMethod,
-          hint: l.recurringSelectNone,
-          items: [
-            _SelectOption<String>('', l.recurringSelectNone),
-            for (final pm in _txPaymentMethodValues)
-              _SelectOption<String>(pm, _txPayLabel(l, pm)),
-          ],
-          onChanged: (v) => _set(() {
-            c.paymentMethod = v ?? '';
-            if (c.assetRowId != null) {
-              final assets = assetsAsync.value ?? const [];
-              final cur = assets
-                  .where((a) => a.rowId == c.assetRowId)
-                  .firstOrNull;
-              if (cur != null && !_allowTxAsset(cur, c.paymentMethod, c.type)) {
-                c.assetRowId = null;
-              }
-            }
-          }),
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 계좌·카드
-        PSectionLabel(
-          c.type == 'INCOME' ? l.expDepositAccount : l.recurringAssetCard,
-        ),
-        const SizedBox(height: PSpace.x4),
-        assetsAsync.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: PCircularProgressIndicator()),
-          ),
-          error: (e, _) => Text(
-            '${l.recurringAssetLoadError}: $e',
-            style: PTypo.caption.copyWith(color: t.statusDanger),
-          ),
-          data: (assets) {
-            final filtered = assets
-                .where((a) => _allowTxAsset(a, c.paymentMethod, c.type))
-                .toList();
-            return _SelectField<int>(
+        if (c.isTransfer) ...[
+          // 이체 — 보내는/받는 계좌·수수료·(대출이면) 이자.
+          // 후보와 이자 조건은 거래 시트와 한 벌이다(`transfer_rules.dart`).
+          PSectionLabel(l.expWithdrawAccount),
+          const SizedBox(height: PSpace.x4),
+          assetsAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (assets) => _SelectField<int>(
               value: c.assetRowId,
-              hint: l.recurringSelectNone,
+              hint: l.expSelect,
               items: [
-                _SelectOption<int>(-1, l.recurringSelectNone),
-                for (final a in filtered)
+                for (final a in transferEligibleAssets(assets))
                   _SelectOption<int>(
                     a.rowId,
                     a.institution != null
@@ -1265,11 +1160,285 @@ class _TxFields extends ConsumerWidget {
                         : a.assetName,
                   ),
               ],
-              onChanged: (v) => _set(() => c.assetRowId = v == -1 ? null : v),
-            );
-          },
-        ),
-        const SizedBox(height: PSpace.x12),
+              onChanged: (v) => _set(() => c.assetRowId = v),
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+          PSectionLabel(l.expDepositAccount),
+          const SizedBox(height: PSpace.x4),
+          assetsAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (assets) => _SelectField<int>(
+              value: c.toAssetRowId,
+              hint: l.expSelect,
+              items: [
+                for (final a in transferEligibleAssets(
+                  assets,
+                ).where((a) => a.rowId != c.assetRowId))
+                  _SelectOption<int>(
+                    a.rowId,
+                    a.institution != null
+                        ? '${a.institution} · ${a.assetName}'
+                        : a.assetName,
+                  ),
+              ],
+              onChanged: (v) => _set(() => c.toAssetRowId = v),
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+          PSectionLabel(l.expFeeOptional),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: c.feeCtrl,
+            numbersOnly: true,
+            amountMax: kAmountMax,
+            placeholder: '0',
+          ),
+          const SizedBox(height: PSpace.x12),
+          if (isLoanTarget(assetsAsync.value, c.toAssetRowId)) ...[
+            PSectionLabel(l.expInterest),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: c.interestCtrl,
+              numbersOnly: true,
+              amountMax: kAmountMax,
+              placeholder: '0',
+              onChanged: (_) => _set(() {}),
+            ),
+            const SizedBox(height: PSpace.x4),
+            Builder(
+              builder: (_) {
+                final interest =
+                    int.tryParse(c.interestCtrl.text.replaceAll(',', '')) ?? 0;
+                return Text(
+                  (interest > 0 && amountInt > 0)
+                      ? l.expInterestSplit(
+                          krw(
+                            amountInt - interest < 0 ? 0 : amountInt - interest,
+                          ),
+                          krw(interest),
+                        )
+                      : l.expInterestHint,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                );
+              },
+            ),
+            const SizedBox(height: PSpace.x12),
+          ],
+        ] else ...[
+          // 카테고리
+          PSectionLabel(l.expCategory, variant: PSectionLabelVariant.eyebrow),
+          const SizedBox(height: PSpace.x8),
+          categoriesAsync.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: PCircularProgressIndicator()),
+            ),
+            error: (e, _) => Text(
+              '${l.categoryLoadError}: $e',
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (categories) {
+              final topCategories =
+                  categories
+                      .where(
+                        (cat) =>
+                            cat.expenseType == c.type &&
+                            (cat.parentRowId == null || cat.parentRowId == 0),
+                      )
+                      .toList()
+                    ..sort(
+                      (a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0),
+                    );
+              if (topCategories.isEmpty) {
+                return Text(
+                  l.expNoCategoryForType,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                );
+              }
+
+              final childrenByParent = <int, List<dynamic>>{};
+              for (final cat in categories) {
+                if (cat.parentRowId == null ||
+                    cat.parentRowId == 0 ||
+                    cat.expenseType != c.type) {
+                  continue;
+                }
+                childrenByParent
+                    .putIfAbsent(cat.parentRowId!, () => [])
+                    .add(cat);
+              }
+              for (final list in childrenByParent.values) {
+                list.sort(
+                  (a, b) => ((a.sortOrder ?? 0) as int).compareTo(
+                    (b.sortOrder ?? 0) as int,
+                  ),
+                );
+              }
+
+              final selectedCat = c.categoryRowId == null
+                  ? null
+                  : categories
+                        .where((cat) => cat.rowId == c.categoryRowId)
+                        .firstOrNull;
+              final selectedParentId = selectedCat == null
+                  ? null
+                  : (selectedCat.parentRowId == null ||
+                            selectedCat.parentRowId == 0
+                        ? selectedCat.rowId
+                        : selectedCat.parentRowId);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      const gap = 6.0;
+                      const columns = 5;
+                      final cellWidth =
+                          (constraints.maxWidth - gap * (columns - 1)) /
+                          columns;
+                      return Wrap(
+                        spacing: gap,
+                        runSpacing: gap,
+                        children: [
+                          for (final cat in topCategories)
+                            SizedBox(
+                              width: cellWidth,
+                              child: PCategoryTile(
+                                name: cat.categoryName,
+                                color: resolveChartColor(
+                                  context,
+                                  cat.color,
+                                  fallback: t.fgBrand,
+                                ),
+                                icon: lucideByName(cat.icon ?? 'tag'),
+                                active: selectedParentId == cat.rowId,
+                                onTap: () => _set(() {
+                                  final firstChild =
+                                      childrenByParent[cat.rowId]?.first;
+                                  c.categoryRowId = firstChild != null
+                                      ? firstChild.rowId
+                                      : cat.rowId;
+                                }),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  if (selectedParentId != null &&
+                      (childrenByParent[selectedParentId]?.isNotEmpty ??
+                          false)) ...[
+                    const SizedBox(height: 10),
+                    _SelectField<int>(
+                      value: c.categoryRowId,
+                      hint: l.expSubcategory,
+                      items: [
+                        _SelectOption<int>(
+                          selectedParentId,
+                          l.recurringParentCategory(
+                            topCategories
+                                .firstWhere(
+                                  (cat) => cat.rowId == selectedParentId,
+                                )
+                                .categoryName,
+                          ),
+                        ),
+                        for (final child in childrenByParent[selectedParentId]!)
+                          _SelectOption<int>(
+                            child.rowId as int,
+                            child.categoryName as String,
+                          ),
+                      ],
+                      onChanged: (v) => _set(() => c.categoryRowId = v),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: PSpace.x12),
+          // 거래처
+          PSectionLabel(
+            c.type == 'INCOME' ? l.expIncomeSource : l.recurringMerchant,
+          ),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: c.merchantCtrl,
+            placeholder: c.type == 'INCOME'
+                ? l.expIncomeSourcePlaceholder
+                : l.recurringMerchantPlaceholder,
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 결제 수단
+          PSectionLabel(
+            c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod,
+          ),
+          const SizedBox(height: PSpace.x4),
+          _SelectField<String>(
+            value: c.paymentMethod.isEmpty ? null : c.paymentMethod,
+            hint: l.recurringSelectNone,
+            items: [
+              _SelectOption<String>('', l.recurringSelectNone),
+              for (final pm in _txPaymentMethodValues)
+                _SelectOption<String>(pm, _txPayLabel(l, pm)),
+            ],
+            onChanged: (v) => _set(() {
+              c.paymentMethod = v ?? '';
+              if (c.assetRowId != null) {
+                final assets = assetsAsync.value ?? const [];
+                final cur = assets
+                    .where((a) => a.rowId == c.assetRowId)
+                    .firstOrNull;
+                if (cur != null &&
+                    !_allowTxAsset(cur, c.paymentMethod, c.type)) {
+                  c.assetRowId = null;
+                }
+              }
+            }),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 계좌·카드
+          PSectionLabel(
+            c.type == 'INCOME' ? l.expDepositAccount : l.recurringAssetCard,
+          ),
+          const SizedBox(height: PSpace.x4),
+          assetsAsync.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(child: PCircularProgressIndicator()),
+            ),
+            error: (e, _) => Text(
+              '${l.recurringAssetLoadError}: $e',
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (assets) {
+              final filtered = assets
+                  .where((a) => _allowTxAsset(a, c.paymentMethod, c.type))
+                  .toList();
+              return _SelectField<int>(
+                value: c.assetRowId,
+                hint: l.recurringSelectNone,
+                items: [
+                  _SelectOption<int>(-1, l.recurringSelectNone),
+                  for (final a in filtered)
+                    _SelectOption<int>(
+                      a.rowId,
+                      a.institution != null
+                          ? '${a.institution} · ${a.assetName}'
+                          : a.assetName,
+                    ),
+                ],
+                onChanged: (v) => _set(() => c.assetRowId = v == -1 ? null : v),
+              );
+            },
+          ),
+          const SizedBox(height: PSpace.x12),
+        ],
 
         // 반복 시작일 (날짜만 — 웹 정합)
         PSectionLabel(l.recurringStartDateLabel),

@@ -30,7 +30,7 @@ import 'package:porest_desk_app/features/recurring/presentation/recurring_settin
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 
-enum _Filter { all, expense, income, paused }
+enum _Filter { all, expense, income, transfer, paused }
 
 /// 반복 거래 매니저.
 ///
@@ -226,6 +226,19 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                         ),
                                       ),
                                       PTabItem(
+                                        value: _Filter.transfer,
+                                        label: l.recurringFilterTransfer(
+                                          items
+                                              .where(
+                                                (i) =>
+                                                    i.expenseType ==
+                                                        'TRANSFER' &&
+                                                    i.isActive == 'Y',
+                                              )
+                                              .length,
+                                        ),
+                                      ),
+                                      PTabItem(
                                         value: _Filter.paused,
                                         label: l.recurringFilterPaused(
                                           items
@@ -357,6 +370,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               return it.expenseType == 'EXPENSE' && active;
             case _Filter.income:
               return it.expenseType == 'INCOME' && active;
+            case _Filter.transfer:
+              return it.expenseType == 'TRANSFER' && active;
             case _Filter.paused:
               return !active;
           }
@@ -365,6 +380,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
   }
 
   _Stats _computeStats(List<RecurringTransaction> items) {
+    // 월 고정 지출·수입에는 이체가 안 들어간다 — 아래 필터가 종류를 못 박고 있다.
+    // 이체는 내 돈이 자리를 옮기는 것이라 쓴 돈도 번 돈도 아니다.
     final active = items.where((i) => i.isActive == 'Y').toList();
     final monthlyExpense = active
         .where((i) => i.expenseType == 'EXPENSE' && i.frequency == 'MONTHLY')
@@ -623,6 +640,8 @@ class _UpcomingRow extends StatelessWidget {
     final days = dueStart.difference(todayStart).inDays;
     final isToday = days == 0;
     final isExpense = item.expenseType == 'EXPENSE';
+    // 이체는 지출도 수입도 아니다 — 가계부의 이체 행과 같이 중립색·무부호.
+    final isTransfer = item.expenseType == 'TRANSFER';
     // 부호는 크기값에서 뽑는다 — 금액이 0 이면 안 붙는다(`−0`·`+0` 방지, QA #1).
     // `amount` 는 모델 기본값이 0 이라 서버가 안 주면 그대로 0 으로 온다.
     final amount = item.amount.abs();
@@ -698,11 +717,15 @@ class _UpcomingRow extends StatelessWidget {
             krwSigned(
               amount,
               masked,
-              sign: isExpense ? minusOf(amount) : plusOf(amount),
+              sign: isTransfer
+                  ? ''
+                  : (isExpense ? minusOf(amount) : plusOf(amount)),
               mask: '••••',
             ),
             style: PTypo.bodySm.copyWith(
-              color: isExpense ? tokens.fgExpense : tokens.fgIncome,
+              color: isTransfer
+                  ? tokens.fgPrimary
+                  : (isExpense ? tokens.fgExpense : tokens.fgIncome),
               fontWeight: PFontWeight.bold,
             ),
           ),
@@ -742,6 +765,8 @@ class _RecurringRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final isActive = item.isActive == 'Y';
     final isExpense = item.expenseType == 'EXPENSE';
+    // 이체는 지출도 수입도 아니다 — 가계부의 이체 행과 같이 중립색·무부호.
+    final isTransfer = item.expenseType == 'TRANSFER';
     // 부호는 크기값에서 뽑는다 — 금액이 0 이면 안 붙는다(`−0`·`+0` 방지, QA #1).
     // `amount` 는 모델 기본값이 0 이라 서버가 안 주면 그대로 0 으로 온다.
     final amount = item.amount.abs();
@@ -843,11 +868,15 @@ class _RecurringRow extends StatelessWidget {
                 krwSigned(
                   amount,
                   masked,
-                  sign: isExpense ? minusOf(amount) : plusOf(amount),
+                  sign: isTransfer
+                      ? ''
+                      : (isExpense ? minusOf(amount) : plusOf(amount)),
                   mask: '••••',
                 ),
                 style: PTypo.bodySm.copyWith(
-                  color: isExpense ? tokens.fgExpense : tokens.fgIncome,
+                  color: isTransfer
+                      ? tokens.fgPrimary
+                      : (isExpense ? tokens.fgExpense : tokens.fgIncome),
                   fontWeight: PFontWeight.bold,
                 ),
               ),

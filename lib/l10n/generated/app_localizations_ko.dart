@@ -4278,6 +4278,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String recurringFilterTransfer(int count) {
+    return '이체 $count';
+  }
+
+  @override
   String recurringFilterPaused(int count) {
     return '일시정지 $count';
   }

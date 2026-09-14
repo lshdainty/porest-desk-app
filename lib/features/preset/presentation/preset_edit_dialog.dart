@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -71,6 +73,11 @@ class _BodyState extends ConsumerState<_Body> {
   late String _type;
   int? _categoryRowId;
   int? _assetRowId;
+
+  /// 이체면 받는 자산. 지출·수입이면 null.
+  int? _toAssetRowId;
+  late final TextEditingController _feeCtrl;
+  late final TextEditingController _interestCtrl;
   late String _paymentMethod;
   late bool _lockAmount;
   bool _submitting = false;
@@ -112,6 +119,11 @@ class _BodyState extends ConsumerState<_Body> {
     _descCtrl = TextEditingController(text: t?.description ?? '');
     _paymentMethod = t?.paymentMethod ?? '';
     _assetRowId = t?.assetRowId;
+    _toAssetRowId = t?.toAssetRowId;
+    _feeCtrl = TextEditingController(text: t?.fee != null ? '${t!.fee}' : '');
+    _interestCtrl = TextEditingController(
+      text: t?.interestAmount != null ? '${t!.interestAmount}' : '',
+    );
     _lockAmount = (t?.lockAmount ?? 'N') == 'Y';
     _amountCtrl = TextEditingController(
       text: t?.amount != null ? '${t!.amount}' : '',
@@ -130,6 +142,8 @@ class _BodyState extends ConsumerState<_Body> {
     _merchantCtrl.dispose();
     _descCtrl.dispose();
     _amountCtrl.dispose();
+    _feeCtrl.dispose();
+    _interestCtrl.dispose();
     super.dispose();
   }
 
@@ -141,8 +155,28 @@ class _BodyState extends ConsumerState<_Body> {
       _nameTrim.isNotEmpty &&
       // touched 전엔 막지 않는다 — 기존 장문 이름 프리셋의 다른 필드는 고칠 수 있어야 한다.
       (!_touched || (_nameTrim.length <= _kNameMax && !_duplicate)) &&
-      _categoryRowId != null &&
+      // 이체는 카테고리가 없는 대신 양쪽 계좌가 있어야 성립한다 — 서버도 같은 규칙.
+      (_isTransfer
+          ? transferPartiesReady(_assetRowId, _toAssetRowId)
+          : _categoryRowId != null) &&
       (!_lockAmount || _amountValue > 0);
+
+  String _assetLabel(Asset a) =>
+      a.institution != null && a.institution!.isNotEmpty
+      ? '${a.institution} · ${a.assetName}'
+      : a.assetName;
+
+  bool get _isTransfer => _type == 'TRANSFER';
+
+  /// 이자 칸을 보이는가 — 규칙은 거래 시트와 한 벌이다(`transfer_rules.dart`).
+  bool get _showInterest =>
+      _isTransfer &&
+      isLoanTarget(ref.read(assetsProvider).value, _toAssetRowId);
+
+  int? _numOrNull(TextEditingController c) {
+    final v = int.tryParse(c.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    return v > 0 ? v : null;
+  }
 
   int get _amountValue =>
       int.tryParse(_amountCtrl.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -151,11 +185,20 @@ class _BodyState extends ConsumerState<_Body> {
   void _onTypeChanged(String next, List<ExpenseCategory> categories) {
     setState(() {
       _type = next;
-      final id = _categoryRowId;
-      if (id != null) {
-        final cat = categories.byRowId(id);
-        if (cat == null || cat.expenseType != next) {
-          _categoryRowId = null;
+      // 이체에는 카테고리가 없고, 지출·수입에는 이체 칸이 없다. 안 맞는 값이 남으면
+      // 저장할 때 서버가 400 으로 거절한다.
+      if (next == 'TRANSFER') {
+        _categoryRowId = null;
+      } else {
+        _toAssetRowId = null;
+        _feeCtrl.clear();
+        _interestCtrl.clear();
+        final id = _categoryRowId;
+        if (id != null) {
+          final cat = categories.byRowId(id);
+          if (cat == null || cat.expenseType != next) {
+            _categoryRowId = null;
+          }
         }
       }
     });
@@ -184,27 +227,42 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.update(
           id: widget.edit!.rowId,
           templateName: name,
-          categoryRowId: _categoryRowId,
+          categoryRowId: _isTransfer ? null : _categoryRowId,
           assetRowId: Patch.set(_assetRowId),
+          // 이체 칸도 이 시트의 칸이다 — 지출·수입으로 바꿔 저장하면 null 로 지워진다.
+          toAssetRowId: Patch.set(_isTransfer ? _toAssetRowId : null),
+          fee: Patch.set(_isTransfer ? _numOrNull(_feeCtrl) : null),
+          interestAmount: Patch.set(
+            _isTransfer && _showInterest ? _numOrNull(_interestCtrl) : null,
+          ),
           expenseType: _type,
           amount: amount,
           description: Patch.set(desc.isEmpty ? null : desc),
-          merchant: Patch.set(merchant.isEmpty ? null : merchant),
+          merchant: Patch.set(
+            _isTransfer || merchant.isEmpty ? null : merchant,
+          ),
           paymentMethod: Patch.set(
-            _paymentMethod.isEmpty ? null : _paymentMethod,
+            _isTransfer || _paymentMethod.isEmpty ? null : _paymentMethod,
           ),
           lockAmount: _lockAmount,
         );
       } else {
         await repo.create(
           templateName: name,
-          categoryRowId: _categoryRowId,
+          categoryRowId: _isTransfer ? null : _categoryRowId,
           assetRowId: _assetRowId,
+          toAssetRowId: _isTransfer ? _toAssetRowId : null,
+          fee: _isTransfer ? _numOrNull(_feeCtrl) : null,
+          interestAmount: _isTransfer && _showInterest
+              ? _numOrNull(_interestCtrl)
+              : null,
           expenseType: _type,
           amount: amount,
           description: desc.isEmpty ? null : desc,
-          merchant: merchant.isEmpty ? null : merchant,
-          paymentMethod: _paymentMethod.isEmpty ? null : _paymentMethod,
+          merchant: _isTransfer || merchant.isEmpty ? null : merchant,
+          paymentMethod: _isTransfer || _paymentMethod.isEmpty
+              ? null
+              : _paymentMethod,
           lockAmount: _lockAmount,
         );
       }
@@ -243,6 +301,7 @@ class _BodyState extends ConsumerState<_Body> {
           items: [
             PTabItem(value: 'EXPENSE', label: l.expTypeExpense),
             PTabItem(value: 'INCOME', label: l.expTypeIncome),
+            PTabItem(value: 'TRANSFER', label: l.expTypeTransfer),
           ],
           onChanged: (v) => _onTypeChanged(v, categories),
         ),
@@ -270,37 +329,103 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         const SizedBox(height: 10),
 
-        // ③ 카테고리 (5열 그룹 타일 grid)
-        _FieldLabel(l.expCategory),
-        const SizedBox(height: PSpace.x8),
-        categoriesAsync.when(
-          loading: () => _categoryGridSkeleton(),
-          error: (e, _) => Text(
-            l.categoryLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+        if (_isTransfer) ...[
+          // ③ 이체 — 보내는/받는 계좌·수수료·(대출이면) 이자.
+          // 후보와 이자 조건은 거래 시트·반복 설정과 한 벌이다(`transfer_rules.dart`).
+          _FieldLabel(l.expWithdrawAccount),
+          const SizedBox(height: PSpace.x4),
+          assetsAsync.when(
+            loading: () => const PSkeleton(width: double.infinity, height: 40),
+            error: (e, _) => Text(
+              l.presetAssetLoadError,
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (assets) => PSelect<int>(
+              value: _assetRowId,
+              placeholder: l.expSelect,
+              title: l.expWithdrawAccount,
+              items: [
+                for (final a in transferEligibleAssets(assets))
+                  PSelectItem(value: a.rowId, label: _assetLabel(a)),
+              ],
+              onChanged: (v) => setState(() => _assetRowId = v),
+            ),
           ),
-          data: (cats) => _CategoryGrid(
-            categories: cats,
-            type: _type,
-            categoryRowId: _categoryRowId,
-            onSelect: (id) => setState(() => _categoryRowId = id),
+          const SizedBox(height: 14),
+          _FieldLabel(l.expDepositAccount),
+          const SizedBox(height: PSpace.x4),
+          assetsAsync.when(
+            loading: () => const PSkeleton(width: double.infinity, height: 40),
+            error: (e, _) => Text(
+              l.presetAssetLoadError,
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (assets) => PSelect<int>(
+              value: _toAssetRowId,
+              placeholder: l.expSelect,
+              title: l.expDepositAccount,
+              items: [
+                for (final a in transferEligibleAssets(
+                  assets,
+                ).where((a) => a.rowId != _assetRowId))
+                  PSelectItem(value: a.rowId, label: _assetLabel(a)),
+              ],
+              onChanged: (v) => setState(() => _toAssetRowId = v),
+            ),
           ),
-        ),
-        // 세부 카테고리 — 반복거래와 동일 패턴: 자식이 있으면 상위/세부 선택으로 변경 가능
-        categoriesAsync.maybeWhen(
-          data: (cats) => _buildSubcategorySelect(l, cats),
-          orElse: () => const SizedBox.shrink(),
-        ),
-        const SizedBox(height: 14),
+          const SizedBox(height: 14),
+          _FieldLabel(l.expFeeOptional),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(controller: _feeCtrl, numbersOnly: true, placeholder: '0'),
+          const SizedBox(height: 14),
+          if (_showInterest) ...[
+            _FieldLabel(l.expInterest),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: _interestCtrl,
+              numbersOnly: true,
+              placeholder: '0',
+            ),
+            const SizedBox(height: PSpace.x4),
+            Text(
+              l.expInterestHint,
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+            const SizedBox(height: 14),
+          ],
+        ] else ...[
+          // ③ 카테고리 (5열 그룹 타일 grid)
+          _FieldLabel(l.expCategory),
+          const SizedBox(height: PSpace.x8),
+          categoriesAsync.when(
+            loading: () => _categoryGridSkeleton(),
+            error: (e, _) => Text(
+              l.categoryLoadError,
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (cats) => _CategoryGrid(
+              categories: cats,
+              type: _type,
+              categoryRowId: _categoryRowId,
+              onSelect: (id) => setState(() => _categoryRowId = id),
+            ),
+          ),
+          // 세부 카테고리 — 반복거래와 동일 패턴: 자식이 있으면 상위/세부 선택으로 변경 가능
+          categoriesAsync.maybeWhen(
+            data: (cats) => _buildSubcategorySelect(l, cats),
+            orElse: () => const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 14),
 
-        // ④ 기본 내역
-        _FieldLabel(l.presetMerchant),
-        const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: _merchantCtrl,
-          placeholder: l.presetMerchantPlaceholder,
-        ),
-        const SizedBox(height: 14),
+          // ④ 기본 내역
+          _FieldLabel(l.presetMerchant),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: _merchantCtrl,
+            placeholder: l.presetMerchantPlaceholder,
+          ),
+          const SizedBox(height: 14),
+        ],
 
         // ⑤ 메모 — 불러올 때 거래의 메모로 들어간다.
         _FieldLabel(l.expDescription),
@@ -308,50 +433,53 @@ class _BodyState extends ConsumerState<_Body> {
         PTextInput(controller: _descCtrl, placeholder: l.expMemoPlaceholder),
         const SizedBox(height: 14),
 
-        // ⑥ 결제 수단
-        _FieldLabel(l.expPaymentMethod),
-        const SizedBox(height: PSpace.x4),
-        PSelect<String>(
-          value: _paymentMethod.isEmpty ? null : _paymentMethod,
-          placeholder: l.presetSelectNone,
-          title: l.expPaymentMethod,
-          items: [
-            PSelectItem(value: '', label: l.presetSelectNone),
-            for (final v in _kPaymentMethodValues)
-              PSelectItem(value: v, label: _payLabel(l, v)),
-          ],
-          onChanged: (v) => setState(() => _paymentMethod = v ?? ''),
-        ),
-        const SizedBox(height: 14),
-
-        // ⑦ 계좌·카드
-        _FieldLabel(l.presetAssetCard),
-        const SizedBox(height: PSpace.x4),
-        assetsAsync.when(
-          loading: () => const PSkeleton(width: double.infinity, height: 40),
-          error: (e, _) => Text(
-            l.presetAssetLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
-          ),
-          data: (assets) => PSelect<int>(
-            value: _assetRowId,
+        if (!_isTransfer) ...[
+          // ⑥ 결제 수단
+          _FieldLabel(l.expPaymentMethod),
+          const SizedBox(height: PSpace.x4),
+          PSelect<String>(
+            value: _paymentMethod.isEmpty ? null : _paymentMethod,
             placeholder: l.presetSelectNone,
-            title: l.presetAssetCard,
+            title: l.expPaymentMethod,
             items: [
-              PSelectItem(value: -1, label: l.presetSelectNone),
-              for (final a in assets)
-                PSelectItem(
-                  value: a.rowId,
-                  label: a.institution != null && a.institution!.isNotEmpty
-                      ? '${a.institution} · ${a.assetName}'
-                      : a.assetName,
-                ),
+              PSelectItem(value: '', label: l.presetSelectNone),
+              for (final v in _kPaymentMethodValues)
+                PSelectItem(value: v, label: _payLabel(l, v)),
             ],
-            onChanged: (v) =>
-                setState(() => _assetRowId = (v == null || v == -1) ? null : v),
+            onChanged: (v) => setState(() => _paymentMethod = v ?? ''),
           ),
-        ),
-        const SizedBox(height: 14),
+          const SizedBox(height: 14),
+
+          // ⑦ 계좌·카드
+          _FieldLabel(l.presetAssetCard),
+          const SizedBox(height: PSpace.x4),
+          assetsAsync.when(
+            loading: () => const PSkeleton(width: double.infinity, height: 40),
+            error: (e, _) => Text(
+              l.presetAssetLoadError,
+              style: PTypo.caption.copyWith(color: t.statusDanger),
+            ),
+            data: (assets) => PSelect<int>(
+              value: _assetRowId,
+              placeholder: l.presetSelectNone,
+              title: l.presetAssetCard,
+              items: [
+                PSelectItem(value: -1, label: l.presetSelectNone),
+                for (final a in assets)
+                  PSelectItem(
+                    value: a.rowId,
+                    label: a.institution != null && a.institution!.isNotEmpty
+                        ? '${a.institution} · ${a.assetName}'
+                        : a.assetName,
+                  ),
+              ],
+              onChanged: (v) => setState(
+                () => _assetRowId = (v == null || v == -1) ? null : v,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
 
         // ⑧ '고정 금액 사용' 체크 카드
         _LockAmountCard(

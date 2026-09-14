@@ -58,6 +58,8 @@ class _Body extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final isExpense = template.expenseType == 'EXPENSE';
+    // 이체는 지출도 수입도 아니다 — 가계부의 이체 행과 같이 중립색·무부호.
+    final isTransfer = template.expenseType == 'TRANSFER';
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final cat = template.categoryRowId == null
         ? null
@@ -98,14 +100,16 @@ class _Body extends ConsumerWidget {
                   ? krwSigned(
                       template.amount!.abs(),
                       false,
-                      sign: isExpense ? '-' : '+',
+                      sign: isTransfer ? '' : (isExpense ? '-' : '+'),
                       unit: true,
                     )
                   : l.presetAmountEmpty,
               style: PTypo.displayMd.copyWith(
-                color: locked
-                    ? (isExpense ? t.fgExpense : t.fgIncome)
-                    : t.fgTertiary,
+                color: !locked
+                    ? t.fgTertiary
+                    : isTransfer
+                    ? t.fgPrimary
+                    : (isExpense ? t.fgExpense : t.fgIncome),
                 fontWeight: PFontWeight.bold,
               ),
             ),
@@ -117,18 +121,48 @@ class _Body extends ConsumerWidget {
               PDetailField(
                 label: l.presetTypeLabel,
                 child: Text(
-                  isExpense ? l.expTypeExpense : l.expTypeIncome,
+                  isTransfer
+                      ? l.expTypeTransfer
+                      : (isExpense ? l.expTypeExpense : l.expTypeIncome),
                   style: PTypo.bodySm,
                 ),
               ),
-              PDetailField(
-                label: l.expCategory,
-                child: Text(template.categoryName ?? '-', style: PTypo.bodySm),
-              ),
-              PDetailField(
-                label: l.presetAssetCard,
-                child: Text(template.assetName ?? '-', style: PTypo.bodySm),
-              ),
+              // 이체에는 카테고리가 없다 — 대신 보내는·받는 계좌를 나눠 보여 준다.
+              if (isTransfer) ...[
+                PDetailField(
+                  label: l.expWithdrawAccount,
+                  child: Text(template.assetName ?? '-', style: PTypo.bodySm),
+                ),
+                PDetailField(
+                  label: l.expDepositAccount,
+                  child: Text(template.toAssetName ?? '-', style: PTypo.bodySm),
+                ),
+                if ((template.fee ?? 0) > 0)
+                  PDetailField(
+                    label: l.transferFeePrefix,
+                    child: Text(krw(template.fee!), style: PTypo.bodySm),
+                  ),
+                if ((template.interestAmount ?? 0) > 0)
+                  PDetailField(
+                    label: l.expInterest,
+                    child: Text(
+                      krw(template.interestAmount!),
+                      style: PTypo.bodySm,
+                    ),
+                  ),
+              ] else ...[
+                PDetailField(
+                  label: l.expCategory,
+                  child: Text(
+                    template.categoryName ?? '-',
+                    style: PTypo.bodySm,
+                  ),
+                ),
+                PDetailField(
+                  label: l.presetAssetCard,
+                  child: Text(template.assetName ?? '-', style: PTypo.bodySm),
+                ),
+              ],
               if (template.merchant?.isNotEmpty == true)
                 PDetailField(
                   label: l.presetMerchant,

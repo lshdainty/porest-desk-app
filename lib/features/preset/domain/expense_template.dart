@@ -14,6 +14,16 @@ abstract class ExpenseTemplate with _$ExpenseTemplate {
     String? categoryName,
     int? assetRowId,
     String? assetName,
+
+    /// 이체일 때 받는 자산. 지출·수입이면 null.
+    int? toAssetRowId,
+    String? toAssetName,
+    int? fee,
+
+    /// 이체 이자 — 받는 자산이 대출일 때만 값이 있다.
+    int? interestAmount,
+
+    /// 'EXPENSE' | 'INCOME' | 'TRANSFER'
     required String expenseType,
     int? amount,
     String? description,

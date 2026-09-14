@@ -19,6 +19,16 @@ abstract class RecurringTransaction with _$RecurringTransaction {
     String? categoryName,
     @Default(0) int assetRowId,
     String? assetName,
+
+    /// 이체일 때 받는 자산. 지출·수입이면 null.
+    int? toAssetRowId,
+    String? toAssetName,
+
+    /// 이체 수수료. 지출·수입이면 null.
+    int? fee,
+
+    /// 이체 이자 — 받는 자산이 대출일 때만 값이 있다.
+    int? interestAmount,
     int? sourceExpenseRowId,
     required String expenseType,
     @Default(0) int amount,
