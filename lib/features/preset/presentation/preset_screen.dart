@@ -147,6 +147,9 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     final totalUses = items.fold<int>(0, (s, p) => s + (p.useCount ?? 0));
     final expenseCount = items.where((p) => p.expenseType == 'EXPENSE').length;
     final incomeCount = items.where((p) => p.expenseType == 'INCOME').length;
+    final transferCount = items
+        .where((p) => p.expenseType == 'TRANSFER')
+        .length;
     final sorted = _sorted(items);
 
     return ListView(
@@ -169,6 +172,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
           totalUses: totalUses,
           expenseCount: expenseCount,
           incomeCount: incomeCount,
+          transferCount: transferCount,
         ),
         // 묶음 경계 — 정보 묶음 ↔ toggle+list 묶음 사이 2xl(32, 사용자 결정, web 정합).
         const SizedBox(height: PSpace.x32),
@@ -309,6 +313,7 @@ class _StatsRow extends StatelessWidget {
     required this.totalUses,
     required this.expenseCount,
     required this.incomeCount,
+    required this.transferCount,
   });
 
   /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
@@ -317,6 +322,7 @@ class _StatsRow extends StatelessWidget {
   final int totalUses;
   final int expenseCount;
   final int incomeCount;
+  final int transferCount;
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +356,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             label: l.presetStatType,
-            value: '$expenseCount / $incomeCount',
+            value: '$expenseCount / $incomeCount / $transferCount',
           ),
         ),
       ],
@@ -502,6 +508,8 @@ class _PresetRow extends StatelessWidget {
         : t.fgTertiary;
     final bg = hasCat ? softBg(context, fg) : t.bgSunken;
     final isExpense = template.expenseType == 'EXPENSE';
+    // 이체는 지출도 수입도 아니다 — 가계부의 이체 행과 같이 중립색·무부호.
+    final isTransfer = template.expenseType == 'TRANSFER';
     final lock = (template.lockAmount ?? 'N') == 'Y';
     final amount = template.amount;
     final used = template.useCount ?? 0;
@@ -512,7 +520,8 @@ class _PresetRow extends StatelessWidget {
       if (masked) {
         amountText = kHideMask;
       } else {
-        amountText = '${isExpense ? '−' : '+'}${krw(amount)}';
+        amountText =
+            '${isTransfer ? '' : (isExpense ? '−' : '+')}${krw(amount)}';
       }
     } else {
       amountText = '—';
@@ -569,7 +578,15 @@ class _PresetRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (!isExpense) ...[
+                    if (isTransfer) ...[
+                      const SizedBox(width: 6),
+                      _MiniBadge(
+                        label: l.expTypeTransfer,
+                        bg: t.bgMuted,
+                        fg: t.fgTertiary,
+                        weight: PFontWeight.bold,
+                      ),
+                    ] else if (!isExpense) ...[
                       const SizedBox(width: 6),
                       _MiniBadge(
                         label: l.expTypeIncome,
@@ -587,7 +604,9 @@ class _PresetRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 _MetaLine(
-                  categoryName: template.categoryName,
+                  categoryName: isTransfer
+                      ? '${template.assetName ?? '-'} → ${template.toAssetName ?? '-'}'
+                      : template.categoryName,
                   merchant: template.merchant,
                   tokens: t,
                 ),
@@ -607,7 +626,9 @@ class _PresetRow extends StatelessWidget {
                   fontFamily: PTypo.sans,
                   fontSize: 12.5,
                   fontWeight: PFontWeight.bold,
-                  color: isExpense ? t.fgExpense : t.fgIncome,
+                  color: isTransfer
+                      ? t.fgPrimary
+                      : (isExpense ? t.fgExpense : t.fgIncome),
                 ),
               ),
               const SizedBox(height: 2),

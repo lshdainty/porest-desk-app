@@ -1,6 +1,9 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/shared/widgets/p_detail.dart';
+import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -187,6 +190,27 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
                   _ => l.transferAutoDefault,
                 },
                 style: PTypo.caption.copyWith(color: context.tokens.fgTertiary),
+              ),
+            ),
+          // 반복 설정 — 이 이체와 **같은 값으로 규칙을 새로 만든다**. 이 이체 자체는
+          // 건드리지 않는다: 이미 일어난 이체와 앞으로 실행될 규칙은 별개다(사용자 결정).
+          // 시스템이 만든 이체는 잠겨 있어 반복으로 옮길 대상이 아니다.
+          if (tr.autoSource == null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: PSpace.x8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  width: 84,
+                  child: PDetailQuickAction(
+                    icon: LucideIcons.repeat,
+                    label: l.expConvertRecurring,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      showRecurringSettingsDialog(context, transferSeed: tr);
+                    },
+                  ),
+                ),
               ),
             ),
           for (final (label, value) in rows)

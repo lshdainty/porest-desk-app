@@ -29,6 +29,7 @@ import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -299,6 +300,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       _input.memoCtrl.text = p.description ?? '';
       _input.merchantCtrl.text = p.merchant ?? '';
       _input.paymentMethod = p.paymentMethod ?? '';
+      // 이체 프리셋은 받는 계좌·수수료·이자를 함께 들고 온다. 보내는 계좌는
+      // assetRowId 한 칸을 지출·수입과 같이 쓴다(서버도 같은 컬럼이다).
+      _input.toAssetRowId = p.toAssetRowId;
+      _input.feeCtrl.text = p.fee != null ? '${p.fee}' : '';
+      _input.interestCtrl.text = p.interestAmount != null
+          ? '${p.interestAmount}'
+          : '';
       _input.amountLocked = locked;
     });
   }
@@ -308,19 +316,31 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     setState(() => _appliedPresetId = null);
   }
 
+  /// 프리셋으로 저장할 수 있는가 — 종류마다 있어야 하는 칸이 다르다.
+  /// 지출·수입은 카테고리가, 이체는 양쪽 계좌가 프리셋의 뼈대다.
+  bool get _canSavePreset {
+    if (_input.amountInt <= 0) return false;
+    return _input.type == 'TRANSFER'
+        ? transferPartiesReady(_input.assetRowId, _input.toAssetRowId)
+        : _input.categoryRowId != null;
+  }
+
   Future<void> _showSavePresetDialog() async {
-    final amount = _input.amountInt;
-    if (amount <= 0 || _input.categoryRowId == null) return;
+    if (!_canSavePreset) return;
+    final isTransfer = _input.type == 'TRANSFER';
     await showDialog<void>(
       context: context,
       builder: (_) => _SavePresetDialog(
-        seedExpenseType: _input.type == 'TRANSFER' ? 'EXPENSE' : _input.type,
-        seedAmount: amount,
-        seedCategoryRowId: _input.categoryRowId!,
+        seedExpenseType: _input.type,
+        seedAmount: _input.amountInt,
+        seedCategoryRowId: isTransfer ? null : _input.categoryRowId,
         seedAssetRowId: _input.assetRowId,
-        seedMerchant: _input.merchantCtrl.text.trim(),
+        seedToAssetRowId: isTransfer ? _input.toAssetRowId : null,
+        seedFee: isTransfer ? _input.feeOrNull : null,
+        seedInterest: isTransfer ? _input.interestOrNull : null,
+        seedMerchant: isTransfer ? '' : _input.merchantCtrl.text.trim(),
         seedDescription: _input.memoCtrl.text.trim(),
-        seedPaymentMethod: _input.paymentMethod,
+        seedPaymentMethod: isTransfer ? '' : _input.paymentMethod,
       ),
     );
   }
@@ -564,9 +584,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
               ? null
               : _PresetSection(
                   presets: presetsAsync.value ?? const [],
+                  type: _input.type,
                   categories: categoriesAsync.value ?? const [],
                   appliedId: _appliedPresetId,
-                  canSave: _input.amountInt > 0 && _input.categoryRowId != null,
+                  canSave: _canSavePreset,
                   onTap: _applyPreset,
                   onSave: _showSavePresetDialog,
                   onClear: _clearPresetMark,
@@ -657,6 +678,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 class _PresetSection extends StatelessWidget {
   const _PresetSection({
     required this.presets,
+    required this.type,
     required this.categories,
     required this.appliedId,
     required this.canSave,
@@ -667,6 +689,9 @@ class _PresetSection extends StatelessWidget {
   });
 
   final List<ExpenseTemplate> presets;
+
+  /// 지금 탭의 종류 — 이 종류의 프리셋만 칩으로 띄운다.
+  final String type;
   final List<ExpenseCategory> categories;
   final int? appliedId;
   final bool canSave;
@@ -678,11 +703,15 @@ class _PresetSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // 사용 빈도 desc 로 8개 (웹과 동일).
-    final sorted = [...presets]
+    // **지금 탭의 종류만** 사용 빈도 desc 로 8개 (웹과 동일).
+    //
+    // 종전엔 종류와 무관하게 8개라, 지출 탭에서 수입 프리셋을 누르면 `_applyPreset` 이
+    // 탭을 통째로 바꿨다 — 누른 사람은 "지출 하나를 빨리 넣으려고" 누른 것이다.
+    final mine = presets.where((p) => p.expenseType == type).toList();
+    final sorted = [...mine]
       ..sort((a, b) => (b.useCount ?? 0).compareTo(a.useCount ?? 0));
     final top = sorted.take(8).toList();
-    final hasMore = presets.length > top.length;
+    final hasMore = mine.length > top.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -955,6 +984,9 @@ class _SavePresetDialog extends ConsumerStatefulWidget {
     required this.seedAmount,
     required this.seedCategoryRowId,
     required this.seedAssetRowId,
+    required this.seedToAssetRowId,
+    required this.seedFee,
+    required this.seedInterest,
     required this.seedMerchant,
     required this.seedDescription,
     required this.seedPaymentMethod,
@@ -962,8 +994,15 @@ class _SavePresetDialog extends ConsumerStatefulWidget {
 
   final String seedExpenseType;
   final int seedAmount;
-  final int seedCategoryRowId;
+
+  /// 이체면 null — 이체에는 카테고리가 없다.
+  final int? seedCategoryRowId;
+
+  /// 이체면 **보내는** 자산.
   final int? seedAssetRowId;
+  final int? seedToAssetRowId;
+  final int? seedFee;
+  final int? seedInterest;
   final String seedMerchant;
   final String seedDescription;
   final String seedPaymentMethod;
@@ -1000,6 +1039,9 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
         templateName: name,
         categoryRowId: widget.seedCategoryRowId,
         assetRowId: widget.seedAssetRowId!,
+        toAssetRowId: widget.seedToAssetRowId,
+        fee: widget.seedFee,
+        interestAmount: widget.seedInterest,
         expenseType: widget.seedExpenseType,
         amount: _lockAmount ? widget.seedAmount : 0,
         description: widget.seedDescription.isEmpty
@@ -1156,13 +1198,8 @@ VoidCallback _syncKrwFromForeign(_TxInputController c) => () {
 ///
 /// 원금은 부채가 줄어드는 자산 이동이지만 이자는 은행으로 아예 나가는 비용이라,
 /// 입금 대상이 대출 자산일 때만 의미가 있다.
-bool _showInterest(_TxInputController c, List<Asset>? assets) {
-  if (c.type != 'TRANSFER' || c.toAssetRowId == null || assets == null) {
-    return false;
-  }
-  final to = assets.where((a) => a.rowId == c.toAssetRowId).firstOrNull;
-  return to?.assetType == 'LOAN';
-}
+bool _showInterest(_TxInputController c, List<Asset>? assets) =>
+    c.type == 'TRANSFER' && isLoanTarget(assets, c.toAssetRowId);
 
 /// 할부 입력을 보일지 — 신용카드 지출일 때만.
 bool _showInstallment(_TxInputController c, List<Asset>? assets) {
@@ -1187,16 +1224,6 @@ bool _allowTxAsset(Asset a, String paymentMethod, String type) {
   if (type == 'EXPENSE' && a.assetType == 'SAVINGS') return false;
   return true;
 }
-
-/// 이체 대상 자산 — 카드는 뺀다.
-///   체크카드: 잔액을 들지 않는다(긁는 즉시 연결 계좌에서 빠진다). 걸면 카드에
-///     있을 수 없는 잔액이 생긴다.
-///   신용카드: 대금 결제는 전용 기능(자산 상세 → 결제)이 담당한다. 그쪽은 이체와
-///     함께 card_billing 을 남기고, 자동 결제의 멱등 체크가 그 기록으로 걸린다.
-///     손으로 이체하면 기록이 없어 결제일에 자동 결제가 또 돌아 이중 차감된다.
-List<Asset> _transferAssets(List<Asset> assets) => assets
-    .where((a) => a.assetType != 'CHECK_CARD' && a.assetType != 'CREDIT_CARD')
-    .toList(growable: false);
 
 /// 거래 입력 상태 (지출/수입/이체).
 class _TxInputController {
@@ -1227,6 +1254,17 @@ class _TxInputController {
 
   /// 대출 상환의 이자 — 상환액 중 이 금액은 부채를 줄이지 않고 지출로 잡힌다.
   final TextEditingController interestCtrl;
+
+  /// 0·빈칸은 "없음" 이다 — 서버에 0 을 실어 보내도 뜻이 같아서 키를 뺀다.
+  int? get feeOrNull {
+    final v = int.tryParse(feeCtrl.text.replaceAll(',', '')) ?? 0;
+    return v > 0 ? v : null;
+  }
+
+  int? get interestOrNull {
+    final v = int.tryParse(interestCtrl.text.replaceAll(',', '')) ?? 0;
+    return v > 0 ? v : null;
+  }
 
   /// 해외 결제의 원 통화 금액·환율 — 셋이 함께여야 카드사 청구 환율과 대사할 수 있다.
   final TextEditingController origAmountCtrl;
@@ -1876,7 +1914,7 @@ class _TxInputForm extends ConsumerWidget {
               value: c.assetRowId,
               hint: l.expSelect,
               items: [
-                for (final a in _transferAssets(assets))
+                for (final a in transferEligibleAssets(assets))
                   _SelectOption<int>(
                     a.rowId,
                     a.institution != null
@@ -1897,7 +1935,7 @@ class _TxInputForm extends ConsumerWidget {
               value: c.toAssetRowId,
               hint: l.expSelect,
               items: [
-                for (final a in _transferAssets(
+                for (final a in transferEligibleAssets(
                   assets,
                 ).where((a) => a.rowId != c.assetRowId))
                   _SelectOption<int>(

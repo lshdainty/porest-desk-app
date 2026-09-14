@@ -59,6 +59,8 @@ class _Body extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final isExpense = item.expenseType == 'EXPENSE';
+    // 이체는 지출도 수입도 아니다 — 가계부의 이체 행과 같이 중립색·무부호.
+    final isTransfer = item.expenseType == 'TRANSFER';
     // 부호는 크기값에서 뽑는다 — 금액이 0 이면 안 붙는다(`−0원`·`+0원` 방지, QA #1).
     final amount = item.amount.abs();
     final categories = ref.watch(categoriesProvider).value ?? const [];
@@ -108,11 +110,15 @@ class _Body extends ConsumerWidget {
               krwSigned(
                 amount,
                 false,
-                sign: isExpense ? minusOf(amount) : plusOf(amount),
+                sign: isTransfer
+                    ? ''
+                    : (isExpense ? minusOf(amount) : plusOf(amount)),
                 unit: true,
               ),
               style: PTypo.displayMd.copyWith(
-                color: isExpense ? t.fgExpense : t.fgIncome,
+                color: isTransfer
+                    ? t.fgPrimary
+                    : (isExpense ? t.fgExpense : t.fgIncome),
                 fontWeight: PFontWeight.bold,
               ),
             ),
@@ -120,17 +126,39 @@ class _Body extends ConsumerWidget {
           ),
           PDetailFieldGroup(
             children: [
-              PDetailField(
-                label: l.expCategory,
-                child: Text(item.categoryName ?? '-', style: PTypo.bodySm),
-              ),
-              PDetailField(
-                label: l.recurringAssetCard,
-                child: Text(
-                  item.assetName ?? l.recurringNoAccount,
-                  style: PTypo.bodySm,
+              // 이체에는 카테고리가 없다 — 대신 보내는·받는 계좌를 나눠 보여 준다.
+              if (isTransfer) ...[
+                PDetailField(
+                  label: l.expWithdrawAccount,
+                  child: Text(item.assetName ?? '-', style: PTypo.bodySm),
                 ),
-              ),
+                PDetailField(
+                  label: l.expDepositAccount,
+                  child: Text(item.toAssetName ?? '-', style: PTypo.bodySm),
+                ),
+                if ((item.fee ?? 0) > 0)
+                  PDetailField(
+                    label: l.transferFeePrefix,
+                    child: Text(krw(item.fee!), style: PTypo.bodySm),
+                  ),
+                if ((item.interestAmount ?? 0) > 0)
+                  PDetailField(
+                    label: l.expInterest,
+                    child: Text(krw(item.interestAmount!), style: PTypo.bodySm),
+                  ),
+              ] else ...[
+                PDetailField(
+                  label: l.expCategory,
+                  child: Text(item.categoryName ?? '-', style: PTypo.bodySm),
+                ),
+                PDetailField(
+                  label: l.recurringAssetCard,
+                  child: Text(
+                    item.assetName ?? l.recurringNoAccount,
+                    style: PTypo.bodySm,
+                  ),
+                ),
+              ],
               if (item.maxOccurrences != null)
                 PDetailField(
                   label: l.recurringByCount,

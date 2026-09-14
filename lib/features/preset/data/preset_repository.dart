@@ -19,10 +19,17 @@ class PresetRepository {
     }
   }
 
+  /// 이체 프리셋은 [categoryRowId] 가 없고 [toAssetRowId] 가 있다 — 서버가 둘을 짝으로
+  /// 본다(`RecurringTransferValidator`). 지출·수입에 이체 칸이 실려 가면 400 이다.
   Future<ExpenseTemplate> create({
     required String templateName,
     int? categoryRowId,
     int? assetRowId,
+
+    /// 이체면 받는 자산.
+    int? toAssetRowId,
+    int? fee,
+    int? interestAmount,
     required String expenseType,
     int? amount,
     String? description,
@@ -38,6 +45,9 @@ class PresetRepository {
           'templateName': templateName,
           'categoryRowId': ?categoryRowId,
           'assetRowId': ?assetRowId,
+          'toAssetRowId': ?toAssetRowId,
+          'fee': ?fee,
+          'interestAmount': ?interestAmount,
           'expenseType': expenseType,
           'amount': ?amount,
           'description': ?description,
@@ -74,6 +84,11 @@ class PresetRepository {
     required String templateName,
     int? categoryRowId,
     Patch<int> assetRowId = const Patch.keep(),
+
+    /// 이체 칸도 이 시트의 칸이다 — 지출·수입으로 바꿔 저장하면 null 을 실어 지운다.
+    Patch<int> toAssetRowId = const Patch.keep(),
+    Patch<int> fee = const Patch.keep(),
+    Patch<int> interestAmount = const Patch.keep(),
     required String expenseType,
     int? amount,
     Patch<String> description = const Patch.keep(),
@@ -88,6 +103,9 @@ class PresetRepository {
           'templateName': templateName,
           'categoryRowId': ?categoryRowId,
           if (assetRowId.present) 'assetRowId': assetRowId.value,
+          if (toAssetRowId.present) 'toAssetRowId': toAssetRowId.value,
+          if (fee.present) 'fee': fee.value,
+          if (interestAmount.present) 'interestAmount': interestAmount.value,
           'expenseType': expenseType,
           'amount': ?amount,
           if (description.present) 'description': description.value,
