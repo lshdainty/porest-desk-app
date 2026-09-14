@@ -75,7 +75,12 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             onTabChanged: (v) => setState(() => _tab = v),
           ),
           error: (e, _) => ListView(
-            padding: const EdgeInsets.all(PSpace.x16),
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x16,
+            ),
             children: [
               Text(
                 '${l.dutchLoadFailed}\n$e',

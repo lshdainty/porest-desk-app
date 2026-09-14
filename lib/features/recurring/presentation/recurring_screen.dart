@@ -113,7 +113,12 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         child: listAsync.when(
           loading: () => const _RecurringSkeleton(),
           error: (e, _) => ListView(
-            padding: const EdgeInsets.all(PSpace.x16),
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x16,
+            ),
             children: [
               _ErrorBox(
                 message: '${l.recurringLoadError}\n$e',

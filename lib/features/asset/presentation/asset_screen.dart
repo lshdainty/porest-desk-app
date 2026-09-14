@@ -1394,7 +1394,12 @@ class _ErrorBox extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return ListView(
-      padding: const EdgeInsets.all(PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.x16,
+        PSpace.x24,
+        PSpace.x16,
+      ),
       children: [
         Container(
           padding: const EdgeInsets.all(PSpace.x16),

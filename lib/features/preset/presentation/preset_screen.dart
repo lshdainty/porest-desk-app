@@ -111,7 +111,12 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             firstLoading: true,
           ),
           error: (e, _) => ListView(
-            padding: const EdgeInsets.all(PSpace.lg),
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.lg,
+              PSpace.x24,
+              PSpace.lg,
+            ),
             children: [
               Text(
                 '${l.presetLoadError}\n$e',
@@ -145,7 +150,12 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     final sorted = _sorted(items);
 
     return ListView(
-      padding: const EdgeInsets.all(PSpace.lg),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.lg,
+        PSpace.x24,
+        PSpace.lg,
+      ),
       children: [
         // (1)+(2) 배너 + 취합카드 = 상단 정보 묶음. 사이는 md(12), 아래 toggle+list
         // 묶음과는 x16 으로 분리(사용자 결정, web wrapper 정합).

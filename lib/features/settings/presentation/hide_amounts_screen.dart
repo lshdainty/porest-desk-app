@@ -167,9 +167,9 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
             // 보여야 할 스위치가 탭 하나를 골라야 보이는 자리로 숨는다.
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                PSpace.x20,
+                PSpace.x24,
                 PSpace.x12,
-                PSpace.x20,
+                PSpace.x24,
                 0,
               ),
               child: Column(
@@ -240,9 +240,9 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
             // 안내 문구는 탭마다 같으므로 페이지 밖에 고정한다.
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                PSpace.x20,
+                PSpace.x24,
                 PSpace.x4,
-                PSpace.x20,
+                PSpace.x24,
                 PSpace.x16,
               ),
               child: Text(
@@ -273,9 +273,9 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
-                  PSpace.x20,
+                  PSpace.x24,
                   PSpace.x12,
-                  PSpace.x20,
+                  PSpace.x24,
                   PSpace.x12,
                 ),
                 child: PButton(
@@ -320,7 +320,7 @@ class _CardGrid extends StatelessWidget {
     // 2열 — 라벨이 길어 3열은 말줄임이 잦다.
     return GridView.count(
       crossAxisCount: 2,
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, PSpace.x24),
       mainAxisSpacing: PSpace.x8,
       crossAxisSpacing: PSpace.x8,
       childAspectRatio: 3.2,

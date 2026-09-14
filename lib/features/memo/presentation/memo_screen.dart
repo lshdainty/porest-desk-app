@@ -82,7 +82,12 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             body: const _MemoGridSkeleton(),
           ),
           error: (e, _) => ListView(
-            padding: const EdgeInsets.all(PSpace.x16),
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x16,
+            ),
             children: [
               Text(
                 '${l.memoLoadError}\n$e',

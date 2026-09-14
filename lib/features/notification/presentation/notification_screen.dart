@@ -72,7 +72,12 @@ class NotificationScreen extends ConsumerWidget {
         child: listAsync.when(
           loading: () => _NotiSkeleton(tokens: t),
           error: (e, _) => Padding(
-            padding: const EdgeInsets.all(PSpace.x16),
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x16,
+            ),
             child: Text(
               '${l.stateError}\n$e',
               style: PTypo.bodySm.copyWith(color: t.statusDanger),
