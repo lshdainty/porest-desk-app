@@ -24,6 +24,7 @@ import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_filter.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
@@ -183,31 +184,6 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     if (result != null && mounted) setState(() => _advFilter = result);
   }
 
-  /// 기간 필터 범위 — web computeFilterRange 미러 (클라 필터, v0.1).
-  /// null = 제한 없음(custom+날짜 미입력·month 는 월 뷰 그대로).
-  (String?, String?) _periodRange(ExpenseFilter f) {
-    switch (f.period) {
-      case FilterPeriod.custom:
-        if ((f.startDate ?? '').isNotEmpty && (f.endDate ?? '').isNotEmpty) {
-          return (f.startDate, f.endDate);
-        }
-        return (null, null);
-      case FilterPeriod.month:
-        return (null, null);
-      case FilterPeriod.week:
-        final today = DateTime.now();
-        final dow = today.weekday % 7; // 0=Sun
-        final monday = today.add(Duration(days: dow == 0 ? -6 : 1 - dow));
-        return (_ymdOf(monday), _ymdOf(monday.add(const Duration(days: 6))));
-      case FilterPeriod.threeMonth:
-        final today = DateTime.now();
-        return (
-          _ymdOf(DateTime(today.year, today.month - 2, 1)),
-          _ymdOf(today),
-        );
-    }
-  }
-
   static String _ymdOf(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
@@ -290,59 +266,54 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         ),
       ),
       data: (raw) {
-        final selectedCats = _advFilter.categoryIds;
         final cats = categoriesAsync.value;
-        final Set<int>? allowedCats = selectedCats.isEmpty
-            ? null
+        // 부모 카테고리를 고르면 자식 rowId 까지 함께 본다 — **빼고(exclude)에도 같이**
+        // 건다. 한쪽만 펼치면 "식비 빼고" 가 하위 '카페' 를 못 걸러 낸다.
+        Set<int> expand(Set<int> ids) => ids.isEmpty
+            ? ids
             : {
-                ...selectedCats,
+                ...ids,
                 if (cats != null)
                   for (final c in cats)
-                    if (c.parentRowId != null &&
-                        selectedCats.contains(c.parentRowId))
+                    if (c.parentRowId != null && ids.contains(c.parentRowId))
                       c.rowId,
               };
-        final (pStart, pEnd) = _periodRange(_advFilter);
+        final effective = _advFilter.copyWith(
+          categories: IncludeExclude(
+            include: expand(_advFilter.categories.include),
+            exclude: expand(_advFilter.categories.exclude),
+          ),
+        );
+
         final filtered =
-            raw.where((e) {
-              // 기간 필터(클라) — 월 데이터와의 교집합만 표시.
-              final d = e.expenseDateOnly ?? '';
-              if (pStart != null && d.compareTo(pStart) < 0) {
-                return false;
-              }
-              if (pEnd != null && d.compareTo(pEnd) > 0) {
-                return false;
-              }
-              if (_assetIdFilter != null && e.assetRowId != _assetIdFilter) {
-                return false;
-              }
-              if (allowedCats != null &&
-                  !(allowedCats.contains(e.categoryRowId) ||
-                      e.splitCategoryRowIds.any(allowedCats.contains))) {
-                return false;
-              }
-              if (_advFilter.assetIds.isNotEmpty &&
-                  !_advFilter.assetIds.contains(e.assetRowId)) {
-                return false;
-              }
-              if (_advFilter.types.length < 2 &&
-                  !_advFilter.types.contains(e.expenseType)) {
-                return false;
-              }
-              if (_advFilter.min != null && e.amount < _advFilter.min!) {
-                return false;
-              }
-              if (_advFilter.max != null && e.amount > _advFilter.max!) {
-                return false;
-              }
-              return true;
-            }).toList()..sort(
-              (a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
-            );
+            raw
+                .where(
+                  (e) => matchesFilter(
+                    FilterRow(
+                      date: e.expenseDateOnly ?? '',
+                      amount: e.amount,
+                      type: e.expenseType,
+                      // 분할 항목 카테고리까지 넣는다 — 포함은 "하나라도",
+                      // 제외는 "하나라도 걸리면".
+                      categoryIds: [
+                        if (e.categoryRowId != null) e.categoryRowId!,
+                        ...e.splitCategoryRowIds,
+                      ],
+                      assetIds: [if (e.assetRowId != null) e.assetRowId!],
+                    ),
+                    effective,
+                  ),
+                )
+                .toList()
+              ..sort(
+                (a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
+              );
 
         // 환불은 지출 상계, 아직 안 온 건 제외 — 서버 월 요약과 같은 규칙.
-        final monthIncome = incomeSum(raw);
-        final monthExpense = expenseSum(raw);
+        // 필터가 걸려 있으면 **걸러진 목록으로** 다시 센다(조합 15, 사용자 결정).
+        final filterOn = !_advFilter.isEmpty;
+        final monthIncome = incomeSum(filterOn ? filtered : raw);
+        final monthExpense = expenseSum(filterOn ? filtered : raw);
 
         // 일별 합계 — 캘린더 셀 밑 금액 (필터 적용분 기준).
         final byDay = <String, ({int out, int inn})>{};
@@ -363,25 +334,25 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           groups.putIfAbsent(d, () => []).add(e);
         }
 
-        // 이체 필터 — 이체에 개념이 없는 필터(카테고리·유형)가 걸리면 대상에서 뺀다.
-        // 자산 필터는 보내는 쪽·받는 쪽 둘 다 매칭(한 건이 자산 두 개에 걸침).
+        // 이체도 **같은 술어**로 본다. v1 은 카테고리가 걸리면 통째로 뺐는데,
+        // v2 는 이체를 type=null·categoryIds=[] 로 눕혀 규칙이 알아서 판정한다 —
+        // '모두 일치' 면 카테고리 조건에서 빠지고, '하나라도' 면 계좌·금액으로 남는다.
         final transferGroups = <String, List<AssetTransfer>>{};
-        final typeFiltered = _advFilter.types.length == 1;
-        if (!typeFiltered && _advFilter.categoryIds.isEmpty) {
-          for (final tr in (transfersAsync.value ?? const <AssetTransfer>[])) {
-            if (_advFilter.assetIds.isNotEmpty &&
-                !_advFilter.assetIds.contains(tr.fromAssetRowId) &&
-                !_advFilter.assetIds.contains(tr.toAssetRowId)) {
-              continue;
-            }
-            if (_advFilter.min != null && tr.amount < _advFilter.min!) continue;
-            if (_advFilter.max != null && tr.amount > _advFilter.max!) continue;
-            // transferDate 가 DATETIME 이라 그룹 키는 날짜 부분만 쓴다.
-            final raw = tr.transferDate ?? '';
-            if (raw.length < 10) continue;
-            final d = raw.substring(0, 10);
-            transferGroups.putIfAbsent(d, () => []).add(tr);
-          }
+        for (final tr in (transfersAsync.value ?? const <AssetTransfer>[])) {
+          final rawDate = tr.transferDate ?? '';
+          if (rawDate.length < 10) continue;
+          final d = rawDate.substring(0, 10);
+          final ok = matchesFilter(
+            FilterRow(
+              date: d,
+              amount: tr.amount,
+              type: null,
+              assetIds: [tr.fromAssetRowId, tr.toAssetRowId],
+            ),
+            effective,
+          );
+          if (!ok) continue;
+          transferGroups.putIfAbsent(d, () => []).add(tr);
         }
 
         // 이체만 있는 날도 그룹이 나와야 한다.
@@ -396,17 +367,16 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           _dayKeys.putIfAbsent(k, () => GlobalKey());
         }
 
-        final advCount =
-            _advFilter.categoryIds.length +
-            _advFilter.assetIds.length +
-            // web filterActiveCount 정합 — 기본(custom) 외 기간 선택도 카운트.
-            (_advFilter.period != FilterPeriod.custom ? 1 : 0) +
-            (pStart != null && _advFilter.period == FilterPeriod.custom
-                ? 1
-                : 0) +
-            (_advFilter.types.length < 2 ? 1 : 0) +
-            (_advFilter.min != null ? 1 : 0) +
-            (_advFilter.max != null ? 1 : 0);
+        // 배지 — 켜진 **포함 조건 수**(웹 filterActiveCount 정합).
+        // 기간은 항상 걸려 있고 '빼고' 는 포함 조건이 아니라 세지 않지만, 사람 눈에는
+        // 그 둘도 "필터가 걸린 상태" 라 조건이 0 이어도 1 로 쳐서 배지를 띄운다.
+        final baseCount = activeConditionCount(_advFilter);
+        final hasExclude =
+            _advFilter.categories.exclude.isNotEmpty ||
+            _advFilter.assets.exclude.isNotEmpty;
+        final advCount = baseCount > 0
+            ? baseCount
+            : (_advFilter.periods.length > 1 || hasExclude ? 1 : 0);
 
         // 필터 활성 시 — 월선택/총액/캘린더/divider 숨기고 온전히 리스트만(사용자 결정).
         final filterActive = advCount > 0 || _assetIdFilter != null;
@@ -1401,27 +1371,6 @@ class _FilterChipsRow extends ConsumerWidget {
   final List<ExpenseCategory> categories;
   final PorestTokens tokens;
 
-  /// copyWith 는 null 대입이 불가(`?? this`) — 제거 칩용 직접 재구성.
-  static ExpenseFilter _rebuild(
-    ExpenseFilter f, {
-    FilterPeriod? period,
-    bool clearDates = false,
-    Set<String>? types,
-    Set<int>? categoryIds,
-    Set<int>? assetIds,
-    bool clearMin = false,
-    bool clearMax = false,
-  }) => ExpenseFilter(
-    period: period ?? f.period,
-    startDate: clearDates ? null : f.startDate,
-    endDate: clearDates ? null : f.endDate,
-    types: types ?? f.types,
-    categoryIds: categoryIds ?? f.categoryIds,
-    assetIds: assetIds ?? f.assetIds,
-    min: clearMin ? null : f.min,
-    max: clearMax ? null : f.max,
-  );
-
   Widget _chip(PorestTokens t, String label, VoidCallback onRemove) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
@@ -1469,77 +1418,106 @@ class _FilterChipsRow extends ConsumerWidget {
         ),
       );
     }
-    if (f.period != FilterPeriod.custom) {
-      final label = switch (f.period) {
-        FilterPeriod.week => l.expPeriodWeek,
-        FilterPeriod.month => l.expThisMonth,
-        _ => l.expPeriod3Month,
+    // v2 는 조건이 여러 칸이라 항목마다 칩을 세우면 줄이 넘친다.
+    // **칸 단위 요약 칩**으로 줄이고, × 는 그 칸을 통째로 비운다(웹 정합).
+    if (activeConditionCount(f) > 1 && f.match == MatchMode.any) {
+      chips.add(
+        _chip(
+          t,
+          l.expFilterMatchAny,
+          () => onChange(f.copyWith(match: MatchMode.all)),
+        ),
+      );
+    }
+    if (f.periods.length > 1) {
+      chips.add(
+        _chip(
+          t,
+          '${l.expFilterPeriod} ${f.periods.length}',
+          () => onChange(f.copyWith(periods: [f.periods.first])),
+        ),
+      );
+    } else if (f.periods.length == 1) {
+      final p = f.periods.first;
+      String md(String d) => d.length < 10
+          ? d
+          : '${int.parse(d.substring(5, 7))}.${int.parse(d.substring(8, 10))}';
+      final label = switch (p.preset) {
+        FilterPeriodPreset.week => l.expPeriodWeek,
+        FilterPeriodPreset.month => l.expThisMonth,
+        FilterPeriodPreset.threeMonth => l.expPeriod3Month,
+        FilterPeriodPreset.custom => '${md(p.start)}~${md(p.end)}',
       };
-      chips.add(
-        _chip(
-          t,
-          label,
-          () => onChange(
-            _rebuild(f, period: FilterPeriod.custom, clearDates: true),
-          ),
-        ),
-      );
-    } else if ((f.startDate ?? '').isNotEmpty && (f.endDate ?? '').isNotEmpty) {
-      String md(String d) =>
-          '${int.parse(d.substring(5, 7))}.${int.parse(d.substring(8, 10))}';
-      chips.add(
-        _chip(
-          t,
-          '${md(f.startDate!)}~${md(f.endDate!)}',
-          () => onChange(_rebuild(f, clearDates: true)),
-        ),
-      );
+      chips.add(_chip(t, label, () => onChange(f.copyWith(periods: const []))));
     }
     if (f.types.length < 2) {
       chips.add(
         _chip(
           t,
           f.types.contains('EXPENSE') ? l.expFilterExpense : l.expFilterIncome,
-          () => onChange(_rebuild(f, types: const {'EXPENSE', 'INCOME'})),
+          () => onChange(f.copyWith(types: const {'EXPENSE', 'INCOME'})),
         ),
       );
     }
-    for (final id in f.categoryIds) {
-      final name = categories.byRowId(id)?.categoryName ?? '$id';
+    if (f.categories.include.isNotEmpty) {
+      final label = f.categories.include.length == 1
+          ? (categories.byRowId(f.categories.include.first)?.categoryName ??
+                '${f.categories.include.first}')
+          : '${l.expCategory} ${f.categories.include.length}';
       chips.add(
-        _chip(t, name, () {
-          final next = Set<int>.from(f.categoryIds)..remove(id);
-          onChange(_rebuild(f, categoryIds: next));
-        }),
+        _chip(
+          t,
+          label,
+          () => onChange(
+            f.copyWith(categories: f.categories.copyWith(include: const {})),
+          ),
+        ),
       );
     }
-    if (f.assetIds.isNotEmpty) {
+    if (f.categories.exclude.isNotEmpty) {
+      chips.add(
+        _chip(
+          t,
+          l.expFilterExcluded(f.categories.exclude.length),
+          () => onChange(
+            f.copyWith(categories: f.categories.copyWith(exclude: const {})),
+          ),
+        ),
+      );
+    }
+    if (f.assets.include.isNotEmpty) {
       final all = ref.watch(assetsProvider).value;
-      for (final id in f.assetIds) {
-        final name = all?.byRowId(id)?.assetName ?? '$id';
-        chips.add(
-          _chip(t, name, () {
-            final next = Set<int>.from(f.assetIds)..remove(id);
-            onChange(_rebuild(f, assetIds: next));
-          }),
-        );
-      }
-    }
-    if (f.min != null) {
+      final label = f.assets.include.length == 1
+          ? (all?.byRowId(f.assets.include.first)?.assetName ??
+                '${f.assets.include.first}')
+          : '${l.expAccountCard} ${f.assets.include.length}';
       chips.add(
         _chip(
           t,
-          l.expChipMin(krwSigned(f.min!, false, unit: true)),
-          () => onChange(_rebuild(f, clearMin: true)),
+          label,
+          () => onChange(
+            f.copyWith(assets: f.assets.copyWith(include: const {})),
+          ),
         ),
       );
     }
-    if (f.max != null) {
+    if (f.assets.exclude.isNotEmpty) {
       chips.add(
         _chip(
           t,
-          l.expChipMax(krwSigned(f.max!, false, unit: true)),
-          () => onChange(_rebuild(f, clearMax: true)),
+          l.expFilterExcluded(f.assets.exclude.length),
+          () => onChange(
+            f.copyWith(assets: f.assets.copyWith(exclude: const {})),
+          ),
+        ),
+      );
+    }
+    if (f.amountRanges.isNotEmpty) {
+      chips.add(
+        _chip(
+          t,
+          '${l.expAmountRange} ${f.amountRanges.length}',
+          () => onChange(f.copyWith(amountRanges: const [])),
         ),
       );
     }

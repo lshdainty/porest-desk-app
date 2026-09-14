@@ -17,12 +17,18 @@ class PCategoryTile extends StatelessWidget {
     required this.icon,
     required this.active,
     required this.onTap,
+    this.excluded = false,
   });
 
   final String name;
   final Color color;
   final IconData icon;
   final bool active;
+
+  /// '빼고' 상태 — 필터에서만 쓴다(칩 3상태: 고름 → 빼고 → 해제).
+  /// [active] 와 동시에 참일 수 없다. 취소선과 붉은 테두리로 "이건 뺀다" 를 말한다.
+  /// 웹 `CategoryTile` 의 `excluded` 미러.
+  final bool excluded;
   final VoidCallback onTap;
 
   @override
@@ -33,11 +39,19 @@ class PCategoryTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         decoration: BoxDecoration(
-          color: active ? t.bgBrandSubtle : Colors.transparent,
+          color: excluded
+              ? t.statusDangerSubtle
+              : active
+              ? t.bgBrandSubtle
+              : Colors.transparent,
           // 비활성 보더 제거(design 신판, 웹 CategoryTile 정합) —
           // transparent 로 두어 active 전환 시 1px 시프트 방지.
           border: Border.all(
-            color: active ? t.borderBrand : Colors.transparent,
+            color: excluded
+                ? t.statusDanger
+                : active
+                ? t.borderBrand
+                : Colors.transparent,
           ),
           borderRadius: PRadius.brLg,
         ),
@@ -52,7 +66,11 @@ class PCategoryTile extends StatelessWidget {
                 borderRadius: PRadius.tile(32),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, size: 18, color: color),
+              child: Opacity(
+                // 글자만 취소선이면 아이콘이 살아 있는 것처럼 보인다.
+                opacity: excluded ? 0.45 : 1,
+                child: Icon(icon, size: 18, color: color),
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -60,8 +78,16 @@ class PCategoryTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: PTypo.micro.copyWith(
-                color: active ? t.fgBrandStrong : t.fgSecondary,
-                fontWeight: active ? PFontWeight.bold : PFontWeight.medium,
+                color: excluded
+                    ? t.fgExpense
+                    : active
+                    ? t.fgBrandStrong
+                    : t.fgSecondary,
+                fontWeight: active || excluded
+                    ? PFontWeight.bold
+                    : PFontWeight.medium,
+                decoration: excluded ? TextDecoration.lineThrough : null,
+                decorationColor: excluded ? t.fgExpense : null,
               ),
             ),
           ],

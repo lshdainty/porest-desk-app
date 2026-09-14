@@ -12043,6 +12043,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{qty}주 보유'**
   String namuHoldingQty(String qty);
+
+  /// No description provided for @expFilterMatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건 맞추기'**
+  String get expFilterMatch;
+
+  /// No description provided for @expFilterMatchAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 일치'**
+  String get expFilterMatchAll;
+
+  /// No description provided for @expFilterMatchAny.
+  ///
+  /// In ko, this message translates to:
+  /// **'하나라도 일치'**
+  String get expFilterMatchAny;
+
+  /// No description provided for @expFilterMatchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건이 두 개 이상일 때 고를 수 있어요.'**
+  String get expFilterMatchHint;
+
+  /// No description provided for @expFilterAddPeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'+ 기간 추가'**
+  String get expFilterAddPeriod;
+
+  /// No description provided for @expFilterAddAmountRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'+ 구간 추가'**
+  String get expFilterAddAmountRange;
+
+  /// No description provided for @expFilterPeriodAlwaysAnd.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간은 항상 함께 적용돼요.'**
+  String get expFilterPeriodAlwaysAnd;
+
+  /// No description provided for @expFilterRemoveRow.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 줄 지우기'**
+  String get expFilterRemoveRow;
+
+  /// No description provided for @expFilterChipLegend.
+  ///
+  /// In ko, this message translates to:
+  /// **'한 번 더 누르면 \'빼고\'가 돼요.'**
+  String get expFilterChipLegend;
+
+  /// No description provided for @expFilterExcluded.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 빼고'**
+  String expFilterExcluded(int count);
 }
 
 class _AppLocalizationsDelegate

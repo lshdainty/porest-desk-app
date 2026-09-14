@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -17,63 +18,8 @@ import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_type_chip.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_filter.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-
-/// 필터 기간 옵션 — front `FilterPeriod` 미러.
-enum FilterPeriod { week, month, threeMonth, custom }
-
-/// 거래 필터 — front `FilterValue` 미러.
-///
-/// v0.1: 클라이언트 사이드 필터 (월간 조회 결과를 화면에서 필터). 빈 값이면 "전체".
-/// v0.2 에서 백엔드 query param 으로 이전 예정.
-class ExpenseFilter {
-  const ExpenseFilter({
-    this.period = FilterPeriod.custom,
-    this.startDate,
-    this.endDate,
-    this.types = const {'EXPENSE', 'INCOME'},
-    this.categoryIds = const {},
-    this.assetIds = const {},
-    this.min,
-    this.max,
-  });
-
-  final FilterPeriod period;
-  final String? startDate; // YYYY-MM-DD
-  final String? endDate; // YYYY-MM-DD
-  final Set<String> types; // {'EXPENSE','INCOME'}
-  final Set<int> categoryIds;
-  final Set<int> assetIds;
-  final int? min;
-  final int? max;
-
-  bool get isEmpty =>
-      categoryIds.isEmpty &&
-      assetIds.isEmpty &&
-      types.length == 2 &&
-      min == null &&
-      max == null;
-
-  ExpenseFilter copyWith({
-    FilterPeriod? period,
-    String? startDate,
-    String? endDate,
-    Set<String>? types,
-    Set<int>? categoryIds,
-    Set<int>? assetIds,
-    int? min,
-    int? max,
-  }) => ExpenseFilter(
-    period: period ?? this.period,
-    startDate: startDate ?? this.startDate,
-    endDate: endDate ?? this.endDate,
-    types: types ?? this.types,
-    categoryIds: categoryIds ?? this.categoryIds,
-    assetIds: assetIds ?? this.assetIds,
-    min: min ?? this.min,
-    max: max ?? this.max,
-  );
-}
 
 Future<ExpenseFilter?> showFilterDialog(
   BuildContext context,
@@ -125,86 +71,90 @@ class _FilterBody extends ConsumerStatefulWidget {
 }
 
 class _FilterBodyState extends ConsumerState<_FilterBody> {
-  late FilterPeriod _period;
-  late String? _startDate;
-  late String? _endDate;
+  late MatchMode _match;
+  late List<FilterPeriodRange> _periods;
   late Set<String> _types;
-  late Set<int> _categoryIds;
-  late Set<int> _assetIds;
-  late TextEditingController _minCtrl;
-  late TextEditingController _maxCtrl;
+  late IncludeExclude _cats;
+  late IncludeExclude _accs;
+
+  /// 금액 구간 칸마다 컨트롤러 두 개(최소·최대).
+  late List<(TextEditingController, TextEditingController)> _amounts;
 
   String _pad(int n) => n.toString().padLeft(2, '0');
-  String _today() {
-    final d = DateTime.now();
-    return '${d.year}-${_pad(d.month)}-${_pad(d.day)}';
-  }
-
-  String _today1MonthAgo() {
-    final d = DateTime.now();
-    final m = DateTime(d.year, d.month - 1, d.day);
-    return '${m.year}-${_pad(m.month)}-${_pad(m.day)}';
-  }
+  String _ymd(DateTime d) => '${d.year}-${_pad(d.month)}-${_pad(d.day)}';
 
   @override
   void initState() {
     super.initState();
-    _period = widget.initial.period;
-    _startDate = widget.initial.startDate ?? _today1MonthAgo();
-    _endDate = widget.initial.endDate ?? _today();
+    _match = widget.initial.match;
+    _periods = widget.initial.periods.isEmpty
+        ? [resolvePeriod(FilterPeriodPreset.month)]
+        : [...widget.initial.periods];
     _types = {...widget.initial.types};
-    _categoryIds = {...widget.initial.categoryIds};
-    _assetIds = {...widget.initial.assetIds};
-    _minCtrl = TextEditingController(
-      text: widget.initial.min?.toString() ?? '',
-    );
-    _maxCtrl = TextEditingController(
-      text: widget.initial.max?.toString() ?? '',
-    );
+    _cats = widget.initial.categories;
+    _accs = widget.initial.assets;
+    _amounts = [
+      for (final r in widget.initial.amountRanges)
+        (
+          TextEditingController(text: r.min?.toString() ?? ''),
+          TextEditingController(text: r.max?.toString() ?? ''),
+        ),
+    ];
     widget.controller.onSubmit = () async => _apply();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => widget.controller.setCanSubmit(!_customInvalid),
+      (_) => widget.controller.setCanSubmit(!_badPeriod),
     );
   }
 
   @override
   void dispose() {
-    _minCtrl.dispose();
-    _maxCtrl.dispose();
+    for (final (mn, mx) in _amounts) {
+      mn.dispose();
+      mx.dispose();
+    }
     super.dispose();
   }
 
-  bool get _customInvalid =>
-      _period == FilterPeriod.custom &&
-      (_startDate?.isNotEmpty ?? false) &&
-      (_endDate?.isNotEmpty ?? false) &&
-      (_startDate ?? '').compareTo(_endDate ?? '') > 0;
+  bool get _badPeriod => _periods.any(
+    (p) =>
+        p.start.isNotEmpty && p.end.isNotEmpty && p.start.compareTo(p.end) > 0,
+  );
+
+  /// 켜진 포함 조건 수 — 조건이 하나뿐이면 all/any 가 같은 결과라 세그먼트를 잠근다.
+  int get _conditionCount => activeConditionCount(_draft());
+
+  ExpenseFilter _draft() => ExpenseFilter(
+    match: _match,
+    periods: _periods,
+    types: _types,
+    categories: _cats,
+    assets: _accs,
+    amountRanges: [
+      for (final (mn, mx) in _amounts)
+        AmountRange(min: int.tryParse(mn.text), max: int.tryParse(mx.text)),
+    ],
+  );
 
   void _reset() {
     setState(() {
-      _period = FilterPeriod.custom;
-      _startDate = '';
-      _endDate = '';
+      _match = MatchMode.all;
+      _periods = [resolvePeriod(FilterPeriodPreset.month)];
       _types = {'EXPENSE', 'INCOME'};
-      _categoryIds.clear();
-      _assetIds.clear();
-      _minCtrl.text = '';
-      _maxCtrl.text = '';
+      _cats = const IncludeExclude();
+      _accs = const IncludeExclude();
+      for (final (mn, mx) in _amounts) {
+        mn.dispose();
+        mx.dispose();
+      }
+      _amounts = [];
     });
   }
 
   void _apply() {
+    final d = _draft();
     Navigator.of(context).pop(
-      ExpenseFilter(
-        period: _period,
-        startDate: _period == FilterPeriod.custom ? _startDate : null,
-        endDate: _period == FilterPeriod.custom ? _endDate : null,
-        types: _types,
-        categoryIds: _categoryIds,
-        assetIds: _assetIds,
-        min: int.tryParse(_minCtrl.text),
-        max: int.tryParse(_maxCtrl.text),
-      ),
+      // 조건이 하나뿐이면 any 를 골라 둔 것이 의미가 없다 — all 로 굳혀 보낸다.
+      _conditionCount <= 1 ? d.copyWith(match: MatchMode.all) : d,
     );
   }
 
@@ -212,12 +162,14 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.controller.setCanSubmit(!_customInvalid);
+      if (mounted) widget.controller.setCanSubmit(!_badPeriod);
     });
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
+        _matchSection(t),
+        const SizedBox(height: PSpace.x16),
         _periodSection(t),
         const SizedBox(height: PSpace.x16),
         _typeSection(t),
@@ -231,7 +183,13 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     );
   }
 
-  Widget _label(String text, PorestTokens t, {String? badge}) {
+  Widget _label(
+    String text,
+    PorestTokens t, {
+    String? badge,
+    String? exclBadge,
+    String? hint,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -253,8 +211,66 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               ),
             ),
           ],
+          if (exclBadge != null && exclBadge.isNotEmpty) ...[
+            const SizedBox(width: 4),
+            Text(
+              exclBadge,
+              style: PTypo.bodySm.copyWith(
+                color: t.fgExpense,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
+          ],
+          if (hint != null && hint.isNotEmpty) ...[
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                hint,
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  /// 조건을 어떻게 묶을지 — 기간·'빼고' 는 여기에 안 걸린다(항상 함께 적용).
+  Widget _matchSection(PorestTokens t) {
+    final l = AppLocalizations.of(context);
+    final locked = _conditionCount <= 1;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(l.expFilterMatch, t),
+        Opacity(
+          opacity: locked ? 0.5 : 1,
+          child: IgnorePointer(
+            ignoring: locked,
+            child: PTabs<MatchMode>(
+              value: locked ? MatchMode.all : _match,
+              onChanged: (v) => setState(() => _match = v),
+              variant: PTabsVariant.container,
+              size: PTabsSize.sm,
+              expand: true,
+              items: [
+                PTabItem(value: MatchMode.all, label: l.expFilterMatchAll),
+                PTabItem(value: MatchMode.any, label: l.expFilterMatchAny),
+              ],
+            ),
+          ),
+        ),
+        if (locked)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              l.expFilterMatchHint,
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+          ),
+      ],
     );
   }
 
@@ -264,35 +280,60 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label(l.expFilterPeriod, t),
-        PTabs<FilterPeriod>(
-          value: _period,
-          onChanged: (v) => setState(() => _period = v),
-          variant: PTabsVariant.container,
-          size: PTabsSize.sm,
-          expand: true,
-          items: [
-            PTabItem(value: FilterPeriod.week, label: l.expPeriodWeek),
-            PTabItem(value: FilterPeriod.month, label: l.expThisMonth),
-            PTabItem(value: FilterPeriod.threeMonth, label: l.expPeriod3Month),
-            PTabItem(value: FilterPeriod.custom, label: l.expPeriodCustom),
-          ],
-        ),
-        if (_period == FilterPeriod.custom) ...[
+        for (var i = 0; i < _periods.length; i++) ...[
+          if (i > 0) const SizedBox(height: PSpace.x12),
+          Row(
+            children: [
+              Expanded(
+                child: PTabs<FilterPeriodPreset>(
+                  value: _periods[i].preset,
+                  onChanged: (v) =>
+                      setState(() => _periods[i] = resolvePeriod(v)),
+                  variant: PTabsVariant.container,
+                  size: PTabsSize.sm,
+                  expand: true,
+                  items: [
+                    PTabItem(
+                      value: FilterPeriodPreset.week,
+                      label: l.expPeriodWeek,
+                    ),
+                    PTabItem(
+                      value: FilterPeriodPreset.month,
+                      label: l.expThisMonth,
+                    ),
+                    PTabItem(
+                      value: FilterPeriodPreset.threeMonth,
+                      label: l.expPeriod3Month,
+                    ),
+                    PTabItem(
+                      value: FilterPeriodPreset.custom,
+                      label: l.expPeriodCustom,
+                    ),
+                  ],
+                ),
+              ),
+              if (_periods.length > 1)
+                IconButton(
+                  icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
+                  tooltip: l.expFilterRemoveRow,
+                  onPressed: () => setState(() => _periods.removeAt(i)),
+                ),
+            ],
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: PDateInput(
-                  value: (_startDate?.isNotEmpty ?? false)
-                      ? DateTime.tryParse(_startDate!)
-                      : null,
+                  value: DateTime.tryParse(_periods[i].start),
                   onChanged: (d) {
-                    if (d != null) {
-                      setState(
-                        () => _startDate =
-                            '${d.year}-${_pad(d.month)}-${_pad(d.day)}',
-                      );
-                    }
+                    if (d == null) return;
+                    setState(
+                      () => _periods[i] = _periods[i].copyWith(
+                        preset: FilterPeriodPreset.custom,
+                        start: _ymd(d),
+                      ),
+                    );
                   },
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
@@ -304,16 +345,15 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               const SizedBox(width: 8),
               Expanded(
                 child: PDateInput(
-                  value: (_endDate?.isNotEmpty ?? false)
-                      ? DateTime.tryParse(_endDate!)
-                      : null,
+                  value: DateTime.tryParse(_periods[i].end),
                   onChanged: (d) {
-                    if (d != null) {
-                      setState(
-                        () => _endDate =
-                            '${d.year}-${_pad(d.month)}-${_pad(d.day)}',
-                      );
-                    }
+                    if (d == null) return;
+                    setState(
+                      () => _periods[i] = _periods[i].copyWith(
+                        preset: FilterPeriodPreset.custom,
+                        end: _ymd(d),
+                      ),
+                    );
                   },
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
@@ -322,15 +362,37 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               ),
             ],
           ),
-          if (_customInvalid)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                l.expDateRangeError,
-                style: PTypo.caption.copyWith(color: t.statusDangerFg),
-              ),
-            ),
         ],
+        if (_badPeriod)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              l.expDateRangeError,
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.expFilterPeriodAlwaysAnd,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
+              ),
+              if (_periods.length < ExpenseFilter.maxPeriods)
+                PButton(
+                  label: l.expFilterAddPeriod,
+                  variant: PButtonVariant.ghost,
+                  size: PButtonSize.sm,
+                  onPressed: () => setState(
+                    () => _periods.add(resolvePeriod(FilterPeriodPreset.month)),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -385,9 +447,13 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         _label(
           l.expCategory,
           t,
-          badge: _categoryIds.isEmpty
+          badge: _cats.include.isEmpty
               ? null
-              : '· ${l.expNSelected(_categoryIds.length)}',
+              : '· ${l.expNSelected(_cats.include.length)}',
+          exclBadge: _cats.exclude.isEmpty
+              ? null
+              : '· ${l.expFilterExcluded(_cats.exclude.length)}',
+          hint: l.expFilterChipLegend,
         ),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -410,14 +476,9 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                         fallback: t.fgBrand,
                       ),
                       icon: lucideByName(c.icon, fallback: LucideIcons.tag),
-                      active: _categoryIds.contains(c.rowId),
-                      onTap: () => setState(() {
-                        if (_categoryIds.contains(c.rowId)) {
-                          _categoryIds.remove(c.rowId);
-                        } else {
-                          _categoryIds.add(c.rowId);
-                        }
-                      }),
+                      active: _cats.include.contains(c.rowId),
+                      excluded: _cats.exclude.contains(c.rowId),
+                      onTap: () => setState(() => _cats = _cats.cycle(c.rowId)),
                     ),
                   ),
               ],
@@ -438,9 +499,13 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         _label(
           l.expAccountCard,
           t,
-          badge: _assetIds.isEmpty
+          badge: _accs.include.isEmpty
               ? null
-              : '· ${l.expNSelected(_assetIds.length)}',
+              : '· ${l.expNSelected(_accs.include.length)}',
+          exclBadge: _accs.exclude.isEmpty
+              ? null
+              : '· ${l.expFilterExcluded(_accs.exclude.length)}',
+          hint: l.expFilterChipLegend,
         ),
         // 다중선택 필터 칩 — spec toggle.md: outline PToggle + radius-md(둥근 사각형). pill 아님.
         Wrap(
@@ -448,19 +513,40 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           runSpacing: 6,
           children: [
             for (final a in assets)
-              PToggle(
-                label: a.assetName,
-                variant: PToggleVariant.outline,
-                size: PToggleSize.sm,
-                pressed: _assetIds.contains(a.rowId),
-                onChanged: (_) => setState(() {
-                  if (_assetIds.contains(a.rowId)) {
-                    _assetIds.remove(a.rowId);
-                  } else {
-                    _assetIds.add(a.rowId);
-                  }
-                }),
-              ),
+              // '빼고' 는 PToggle 에 상태가 없어 이름에 취소선으로 표시한다.
+              if (_accs.exclude.contains(a.rowId))
+                GestureDetector(
+                  onTap: () => setState(() => _accs = _accs.cycle(a.rowId)),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.x12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: t.statusDangerSubtle,
+                      border: Border.all(color: t.statusDanger),
+                      borderRadius: PRadius.brMd,
+                    ),
+                    child: Text(
+                      a.assetName,
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgExpense,
+                        fontWeight: PFontWeight.semi,
+                        decoration: TextDecoration.lineThrough,
+                        decorationColor: t.fgExpense,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                PToggle(
+                  label: a.assetName,
+                  variant: PToggleVariant.outline,
+                  size: PToggleSize.sm,
+                  pressed: _accs.include.contains(a.rowId),
+                  onChanged: (_) =>
+                      setState(() => _accs = _accs.cycle(a.rowId)),
+                ),
           ],
         ),
       ],
@@ -473,27 +559,52 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label(l.expAmountRange, t),
-        Row(
-          children: [
-            Expanded(
-              child: PTextInput(
-                controller: _minCtrl,
-                placeholder: l.expMinAmount,
-                numbersOnly: true,
-              ),
+        for (var i = 0; i < _amounts.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: PTextInput(
+                    controller: _amounts[i].$1,
+                    placeholder: l.expMinAmount,
+                    numbersOnly: true,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: PTextInput(
+                    controller: _amounts[i].$2,
+                    placeholder: l.expMaxAmount,
+                    numbersOnly: true,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
+                  tooltip: l.expFilterRemoveRow,
+                  onPressed: () => setState(() {
+                    final (mn, mx) = _amounts.removeAt(i);
+                    mn.dispose();
+                    mx.dispose();
+                  }),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: PTextInput(
-                controller: _maxCtrl,
-                placeholder: l.expMaxAmount,
-                numbersOnly: true,
-              ),
+          ),
+        if (_amounts.length < ExpenseFilter.maxAmountRanges)
+          PButton(
+            label: l.expFilterAddAmountRange,
+            variant: PButtonVariant.ghost,
+            size: PButtonSize.sm,
+            onPressed: () => setState(
+              () => _amounts.add((
+                TextEditingController(),
+                TextEditingController(),
+              )),
             ),
-          ],
-        ),
+          ),
       ],
     );
   }

@@ -4030,5 +4030,22 @@
         "type": "String"
       }
     }
+  },
+  "expFilterMatch": "조건 맞추기",
+  "expFilterMatchAll": "모두 일치",
+  "expFilterMatchAny": "하나라도 일치",
+  "expFilterMatchHint": "조건이 두 개 이상일 때 고를 수 있어요.",
+  "expFilterAddPeriod": "+ 기간 추가",
+  "expFilterAddAmountRange": "+ 구간 추가",
+  "expFilterPeriodAlwaysAnd": "기간은 항상 함께 적용돼요.",
+  "expFilterRemoveRow": "이 줄 지우기",
+  "expFilterChipLegend": "한 번 더 누르면 '빼고'가 돼요.",
+  "expFilterExcluded": "{count}개 빼고",
+  "@expFilterExcluded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

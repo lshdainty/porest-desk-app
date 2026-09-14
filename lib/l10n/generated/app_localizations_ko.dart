@@ -6567,4 +6567,36 @@ class AppLocalizationsKo extends AppLocalizations {
   String namuHoldingQty(String qty) {
     return '$qty주 보유';
   }
+
+  @override
+  String get expFilterMatch => '조건 맞추기';
+
+  @override
+  String get expFilterMatchAll => '모두 일치';
+
+  @override
+  String get expFilterMatchAny => '하나라도 일치';
+
+  @override
+  String get expFilterMatchHint => '조건이 두 개 이상일 때 고를 수 있어요.';
+
+  @override
+  String get expFilterAddPeriod => '+ 기간 추가';
+
+  @override
+  String get expFilterAddAmountRange => '+ 구간 추가';
+
+  @override
+  String get expFilterPeriodAlwaysAnd => '기간은 항상 함께 적용돼요.';
+
+  @override
+  String get expFilterRemoveRow => '이 줄 지우기';
+
+  @override
+  String get expFilterChipLegend => '한 번 더 누르면 \'빼고\'가 돼요.';
+
+  @override
+  String expFilterExcluded(int count) {
+    return '$count개 빼고';
+  }
 }

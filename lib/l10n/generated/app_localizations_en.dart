@@ -6662,4 +6662,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String namuHoldingQty(String qty) {
     return '$qty shares';
   }
+
+  @override
+  String get expFilterMatch => 'Condition matching';
+
+  @override
+  String get expFilterMatchAll => 'Match all';
+
+  @override
+  String get expFilterMatchAny => 'Match any';
+
+  @override
+  String get expFilterMatchHint =>
+      'You can choose this once two or more conditions are set.';
+
+  @override
+  String get expFilterAddPeriod => '+ Add period';
+
+  @override
+  String get expFilterAddAmountRange => '+ Add range';
+
+  @override
+  String get expFilterPeriodAlwaysAnd =>
+      'Periods always apply on top of the other conditions.';
+
+  @override
+  String get expFilterRemoveRow => 'Remove this row';
+
+  @override
+  String get expFilterChipLegend => 'Tap again to exclude it.';
+
+  @override
+  String expFilterExcluded(int count) {
+    return '$count excluded';
+  }
 }
