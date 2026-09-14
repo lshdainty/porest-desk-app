@@ -3880,5 +3880,22 @@
         "type": "String"
       }
     }
+  },
+  "expFilterMatch": "Condition matching",
+  "expFilterMatchAll": "Match all",
+  "expFilterMatchAny": "Match any",
+  "expFilterMatchHint": "You can choose this once two or more conditions are set.",
+  "expFilterAddPeriod": "+ Add period",
+  "expFilterAddAmountRange": "+ Add range",
+  "expFilterPeriodAlwaysAnd": "Periods always apply on top of the other conditions.",
+  "expFilterRemoveRow": "Remove this row",
+  "expFilterChipLegend": "Tap again to exclude it.",
+  "expFilterExcluded": "{count} excluded",
+  "@expFilterExcluded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
