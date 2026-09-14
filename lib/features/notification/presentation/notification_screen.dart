@@ -80,9 +80,20 @@ class NotificationScreen extends ConsumerWidget {
           ),
           data: (items) {
             if (items.isEmpty) {
-              return ListView(
+              return Column(
+                // 기본 정렬은 center 라 헤더·footer 가 제 폭을 못 갖는다 — 늘려서 채운다.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  PEmptyState(icon: LucideIcons.bell, message: l.notiEmpty),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        PEmptyState(
+                          icon: LucideIcons.bell,
+                          message: l.notiEmpty,
+                        ),
+                      ],
+                    ),
+                  ),
                   _NotiSettingsFooter(tokens: t),
                 ],
               );
@@ -91,40 +102,52 @@ class NotificationScreen extends ConsumerWidget {
             // SoT(NotificationsPopover) 정합 구조:
             //   [헤더 서브 '읽지 않은 알림 N개'] / [행 목록(구분선 없음)] / [footer '알림 설정 ›']
             // 행 사이 divider 미사용(SoT) — 위계는 unread 배경/좌측 엣지바로만.
-            return ListView(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
+            //
+            // 셋을 한 ListView 에 넣으면 footer 가 목록 끝에 붙어 **같이 흘러간다**
+            // (사용자 신고 2026-09-14 — 알림 다섯 개 바로 아래에 붙어 있었다).
+            // 헤더와 footer 는 Column 에 두고 가운데 행 목록만 스크롤시킨다.
+            return Column(
+              // 기본 정렬은 center 라 헤더·footer 가 제 폭을 못 갖는다 — 늘려서 채운다.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (unread > 0) _UnreadSubHeader(count: unread, tokens: t),
-                for (final n in items)
-                  _NotiRow(
-                    noti: n,
-                    tokens: t,
-                    now: now,
-                    onTap: () async {
-                      if (!n.isRead) {
-                        try {
-                          final repo = await ref.read(
-                            notificationRepositoryProvider.future,
-                          );
-                          await repo.markRead(n.rowId);
-                          ref.invalidate(notificationListProvider);
-                          ref.invalidate(unreadCountProvider);
-                        } catch (_) {}
-                      }
-                    },
-                    onDelete: () async {
-                      try {
-                        final repo = await ref.read(
-                          notificationRepositoryProvider.future,
-                        );
-                        await repo.delete(n.rowId);
-                        ref.invalidate(notificationListProvider);
-                        ref.invalidate(unreadCountProvider);
-                      } on ApiException {
-                        if (!context.mounted) return;
-                      }
-                    },
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
+                    children: [
+                      for (final n in items)
+                        _NotiRow(
+                          noti: n,
+                          tokens: t,
+                          now: now,
+                          onTap: () async {
+                            if (!n.isRead) {
+                              try {
+                                final repo = await ref.read(
+                                  notificationRepositoryProvider.future,
+                                );
+                                await repo.markRead(n.rowId);
+                                ref.invalidate(notificationListProvider);
+                                ref.invalidate(unreadCountProvider);
+                              } catch (_) {}
+                            }
+                          },
+                          onDelete: () async {
+                            try {
+                              final repo = await ref.read(
+                                notificationRepositoryProvider.future,
+                              );
+                              await repo.delete(n.rowId);
+                              ref.invalidate(notificationListProvider);
+                              ref.invalidate(unreadCountProvider);
+                            } on ApiException {
+                              if (!context.mounted) return;
+                            }
+                          },
+                        ),
+                    ],
                   ),
+                ),
                 _NotiSettingsFooter(tokens: t),
               ],
             );
@@ -147,9 +170,9 @@ class _UnreadSubHeader extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        PSpace.x16,
+        PSpace.x24,
         PSpace.x8,
-        PSpace.x16,
+        PSpace.x24,
         PSpace.x8,
       ),
       child: Text.rich(
@@ -180,8 +203,10 @@ class _NotiSettingsFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // 바닥에 고정되므로 위 여백(margin)은 필요 없고 경계선만 남긴다.
+    // SafeArea(top: false) 가 홈 인디케이터 인셋을 보상한다 — 고정 전에는
+    // 목록과 같이 흘러가서 인셋을 신경 쓸 일이 없었다.
     return Container(
-      margin: const EdgeInsets.only(top: PSpace.x4),
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x12,
         vertical: PSpace.x8,
@@ -190,13 +215,16 @@ class _NotiSettingsFooter extends StatelessWidget {
         color: tokens.bgSunken,
         border: Border(top: BorderSide(color: tokens.borderSubtle)),
       ),
-      child: PButton(
-        label: l.notiSettings,
-        trailingIcon: LucideIcons.chevronRight,
-        variant: PButtonVariant.ghost,
-        size: PButtonSize.sm,
-        fullWidth: true,
-        onPressed: () => context.push('/settings/notifications'),
+      child: SafeArea(
+        top: false,
+        child: PButton(
+          label: l.notiSettings,
+          trailingIcon: LucideIcons.chevronRight,
+          variant: PButtonVariant.ghost,
+          size: PButtonSize.sm,
+          fullWidth: true,
+          onPressed: () => context.push('/settings/notifications'),
+        ),
       ),
     );
   }
@@ -216,7 +244,7 @@ class _NotiSkeleton extends StatelessWidget {
       itemCount: 5,
       itemBuilder: (_, i) => Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
+          horizontal: PSpace.x24,
           vertical: PSpace.x12,
         ),
         child: Row(
@@ -346,7 +374,7 @@ class _NotiRowState extends State<_NotiRow> {
           ),
         ),
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
+          horizontal: PSpace.x24,
           vertical: PSpace.x12,
         ),
         child: Row(
