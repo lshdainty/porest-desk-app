@@ -5,24 +5,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
+import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -322,9 +321,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           preferredSize: const Size.fromHeight(40),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              PSpace.x16,
+              PSpace.x24,
               0,
-              PSpace.x16,
+              PSpace.x24,
               PSpace.x8,
             ),
             child: Align(
@@ -381,20 +380,56 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         tokens: t,
       );
     }
-    return ListView.separated(
+    // 가계부 목록과 **같은 조각**으로 그린다 — 행은 PExpenseRow, 날짜는 그룹 헤더.
+    // 예전에는 자체 _ResultRow 에 부제로 날짜를 넣고 구분선을 그려, 같은 거래가
+    // 두 화면에서 다르게 보였다(금액에 '원' 도 없었다).
+    final flags = ref.watch(maskFlagsProvider('etc.search'));
+    final groups = _groupByDay(_results);
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x24,
-        vertical: PSpace.x24,
+        vertical: PSpace.x8,
       ),
-      itemCount: _results.length,
-      separatorBuilder: (_, _) => PDivider(indent: 60),
-      itemBuilder: (_, i) => _ResultRow(
-        expense: _results[i],
-        category: _findCategory(categories, _results[i].categoryRowId),
-        masked: ref.watch(hideCardProvider('etc.search')),
-        tokens: t,
-      ),
+      itemCount: groups.length,
+      itemBuilder: (_, i) {
+        final g = groups[i];
+        return Padding(
+          // 날짜 그룹 사이는 넓은 여백으로 구분한다(헤어라인·카드 없음) — 가계부 정합.
+          padding: const EdgeInsets.only(top: PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PDayHeader(date: g.date, items: g.items, flags: flags),
+              const SizedBox(height: 6),
+              for (final e in g.items)
+                PExpenseRow(
+                  expense: e,
+                  masked: flags.of(
+                    e.expenseType == 'INCOME'
+                        ? MaskKind.income
+                        : MaskKind.expense,
+                  ),
+                  categoryColorOverride: _catColor(categories, e.categoryRowId),
+                  categoryIconOverride: _catIcon(categories, e.categoryRowId),
+                  onTap: () => _openDetail(e),
+                ),
+            ],
+          ),
+        );
+      },
     );
+  }
+
+  /// 결과를 날짜별로 묶는다 — 최신 날짜가 위(서버 정렬과 같은 방향).
+  List<({DateTime date, List<Expense> items})> _groupByDay(List<Expense> rows) {
+    final byDay = <String, List<Expense>>{};
+    for (final e in rows) {
+      final d = e.expenseDate;
+      if (d == null || d.length < 10) continue;
+      byDay.putIfAbsent(d.substring(0, 10), () => []).add(e);
+    }
+    final keys = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+    return [for (final k in keys) (date: parseIsoDate(k), items: byDay[k]!)];
   }
 
   dynamic _findCategory(List categories, int? rowId) {
@@ -406,132 +441,32 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
     return null;
   }
+
+  /// 카테고리 목록에서 해석한 색 — 거래에 박힌 값보다 우선한다(옛 _ResultRow 규칙 그대로).
+  String? _catColor(List categories, int? rowId) =>
+      _findCategory(categories, rowId)?.color as String?;
+
+  String? _catIcon(List categories, int? rowId) =>
+      _findCategory(categories, rowId)?.icon as String?;
+
+  void _openDetail(Expense e) => showTxDetailDialog(context, e);
 }
 
-/// 검색 결과 로딩 skeleton — 아이콘+제목+날짜 + 금액 행 × 6.
+/// 검색 결과 로딩 skeleton — 가계부와 같은 날짜 그룹 모양(구분선 없음).
 class _SearchLoadingSkeleton extends StatelessWidget {
   const _SearchLoadingSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-      itemCount: 6,
-      separatorBuilder: (_, _) => PDivider(),
-      itemBuilder: (_, i) => Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x24,
-          vertical: PSpace.x12,
-        ),
-        child: Row(
-          children: [
-            const PSkeleton(width: 36, height: 36),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PSkeleton.line(width: i.isEven ? 120 : 96),
-                  const SizedBox(height: 4),
-                  PSkeleton.line(width: 72, height: 12),
-                ],
-              ),
-            ),
-            const PSkeleton.line(width: 60),
-          ],
-        ),
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x24,
+        vertical: PSpace.x8,
       ),
-    );
-  }
-}
-
-class _ResultRow extends StatelessWidget {
-  const _ResultRow({
-    required this.expense,
-    required this.category,
-    required this.masked,
-    required this.tokens,
-  });
-  final Expense expense;
-  final dynamic category;
-  final bool masked;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final color = resolveChartColor(
-      context,
-      category?.color as String? ?? expense.categoryColor,
-      fallback: tokens.fgBrand,
-    );
-    final bg = softBg(context, color);
-    final isExpense = expense.expenseType == 'EXPENSE';
-    final dayLabel = expense.expenseDate != null
-        ? formatDay(parseIsoDate(expense.expenseDate!.substring(0, 10)))
-        : null;
-
-    return InkWell(
-      onTap: () => showTxDetailDialog(context, expense),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: PRadius.tile(36),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                lucideByName(
-                  (category?.icon as String?) ?? expense.categoryIcon,
-                  fallback: LucideIcons.tag,
-                ),
-                size: 18,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    expense.merchant ??
-                        expense.description ??
-                        expense.categoryName ??
-                        l.expTxFallback,
-                    style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      expense.categoryName,
-                      if (dayLabel != null) '${dayLabel.md} (${dayLabel.dow})',
-                    ].whereType<String>().join(' · '),
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: PSpace.x8),
-            Text(
-              krwSigned(expense.amount, masked, sign: isExpense ? '-' : '+'),
-              style: PTypo.bodySm.copyWith(
-                color: isExpense ? tokens.fgPrimary : tokens.statusSuccess,
-                fontWeight: PFontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+      itemCount: 2,
+      itemBuilder: (_, _) => const Padding(
+        padding: EdgeInsets.only(top: PSpace.x16),
+        child: PDayGroupSkeleton(rows: 3),
       ),
     );
   }

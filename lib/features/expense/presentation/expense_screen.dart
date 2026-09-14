@@ -20,6 +20,7 @@ import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
+import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -1293,23 +1294,7 @@ class _DayGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final ds =
-        '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    final now = DateTime.now();
-    final todayStr =
-        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final yest = now.subtract(const Duration(days: 1));
-    final yesterdayStr =
-        '${yest.year.toString().padLeft(4, '0')}-${yest.month.toString().padLeft(2, '0')}-${yest.day.toString().padLeft(2, '0')}';
-    final rel = ds == todayStr
-        ? l.txmToday
-        : ds == yesterdayStr
-        ? l.txmYesterday
-        : null;
-    final label = formatDay(date);
-    // 월 헤더와 같은 규칙 — 환불 상계 + 예정 제외.
-    final dayExpense = expenseSum(items);
-    final dayIncome = incomeSum(items);
+    // 날짜 라벨·오늘/어제·일 합계는 PDayHeader 가 들고 있다.
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
     // 카드 다이어트 — design `.m-scroll .tx-list`: day-head(라벨, 아래 10) + 플랫 행.
@@ -1319,55 +1304,7 @@ class _DayGroup extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // txm dayhead — "yy. m. d(요일) · 오늘/어제" + 일 합계 (design .txm-dayhead).
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})',
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgSecondary,
-                  fontWeight: PFontWeight.semi,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              if (rel != null)
-                Text(
-                  ' · $rel',
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                ),
-              const Spacer(),
-              if (dayExpense > 0)
-                Text(
-                  krwSigned(
-                    dayExpense,
-                    flags.of(MaskKind.expense),
-                    sign: '−',
-                    unit: true,
-                  ),
-                  style: PTypo.caption.copyWith(
-                    color: t.fgExpense,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-              if (dayIncome > 0) ...[
-                if (dayExpense > 0) const SizedBox(width: PSpace.x8),
-                Text(
-                  krwSigned(
-                    dayIncome,
-                    flags.of(MaskKind.income),
-                    sign: '+',
-                    unit: true,
-                  ),
-                  style: PTypo.caption.copyWith(
-                    color: t.fgIncome,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-              ],
-            ],
-          ),
+          PDayHeader(date: date, items: items, flags: flags),
           const SizedBox(height: 6),
           // 행 리스트 — 카드/구분선 없이 행 리듬만.
           Column(
@@ -1755,75 +1692,11 @@ class _TxmSkeleton extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(PSpace.x24, 24, PSpace.x24, 28),
             children: const [
-              _ExpenseDayGroupSkeleton(rows: 3),
+              PDayGroupSkeleton(rows: 3),
               SizedBox(height: PSpace.x16),
-              _ExpenseDayGroupSkeleton(rows: 2),
+              PDayGroupSkeleton(rows: 2),
             ],
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ExpenseDayGroupSkeleton extends StatelessWidget {
-  const _ExpenseDayGroupSkeleton({required this.rows});
-  final int rows;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // 날짜 헤더 — 플랫 day-head (_DayGroup 정합: 위 2 / 아래 10).
-        Padding(
-          padding: EdgeInsets.zero, // 실제 날짜 헤더 padding 제거 정합
-          child: Row(
-            children: const [
-              PSkeleton.line(width: 48, height: 13),
-              SizedBox(width: PSpace.x8),
-              PSkeleton.line(width: 24, height: 11),
-              Spacer(),
-              PSkeleton.line(width: 60, height: 11),
-              SizedBox(width: PSpace.x8),
-              PSkeleton.line(width: 60, height: 11),
-            ],
-          ),
-        ),
-        // 행 placeholder — 카드 다이어트: 카드/구분선 없이 행 리듬(12/10)만.
-        Column(
-          children: [
-            for (int i = 0; i < rows; i++) ...[
-              const Padding(
-                // 실제 ExpenseRow 와 같은 여백 — 스켈레톤이 다르면 데이터가 오는
-                // 순간 행이 좌우로 튄다.
-                padding: EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
-                child: Row(
-                  children: [
-                    // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
-                    PSkeleton(
-                      width: 40,
-                      height: 40,
-                      borderRadius: PRadius.brLg,
-                    ),
-                    SizedBox(width: PSpace.x12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PSkeleton.line(width: 120, height: 14),
-                          SizedBox(height: 2),
-                          PSkeleton.line(width: 80, height: 11),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: PSpace.x8),
-                    PSkeleton.line(width: 80, height: 14),
-                  ],
-                ),
-              ),
-            ],
-          ],
         ),
       ],
     );
