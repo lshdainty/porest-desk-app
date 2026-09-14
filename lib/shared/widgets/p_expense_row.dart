@@ -76,8 +76,19 @@ class PExpenseRow extends StatelessWidget {
     ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
 
     // design app.css `.tx-flat .tx-row`: 12px 10px + radius 10 — 플랫 리스트 행 리듬.
+    //
+    // **좌우는 0 이다. 좌우 여백은 목록(페이지)이 쥔다.**
+    // 행이 여기서 더 얹으면 그만큼 날짜 헤더와 어긋난다 — 미세하지만 목록 전체가
+    // 헤더보다 오른쪽으로 밀려 보인다(사용자 신고 2026-09-14: 헤더 24 / 행 34).
+    // 웹은 이 결정을 2026-08-19 에 했고(`porest-desk-front` f8899d6
+    // "fix(ledger): 거래 행이 날짜 헤더와 같은 지점에서 시작하도록",
+    // `LedgerRow` 의 `px-1 -mx-1` 로 상쇄) 앱만 10 을 들고 있었다.
+    //
+    // 로딩 자리표시(PDayGroupSkeleton)도 좌우 0 이라, 10 을 두면 **데이터가 오는
+    // 순간 행이 10 튄다** — 그쪽 주석이 "같은 여백" 이라고 적고 있었는데 사실이
+    // 아니었다. 정렬은 p_expense_row_alignment_test 가 잰다.
     final row = Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
       child: Row(
         children: [
           Container(
