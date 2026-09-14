@@ -2,9 +2,10 @@
 // (사용자 신고 2026-09-14 — 헤더 24 / 행 34 로 목록 전체가 오른쪽으로 밀려 보였다).
 //
 // 웹은 이 결정을 2026-08-19 에 했다 — `porest-desk-front` f8899d6
-// "fix(ledger): 거래 행이 날짜 헤더와 같은 지점에서 시작하도록", `LedgerRow` 의
-// `px-1 -mx-1` 로 좌우를 상쇄한다. 앱도 가계부 ExpenseRow 는 좌우 0 으로 따라갔는데
-// **공용 PExpenseRow 만 10 을 들고 있었다.**
+// "fix(ledger): 거래 행이 날짜 헤더와 같은 지점에서 시작하도록".
+// 앱에는 한동안 행 위젯이 둘이었고(가계부용 ExpenseRow / 공용 PExpenseRow),
+// 이 결정이 가계부 쪽에만 들어가 있었다. 지금은 **하나로 합쳤다** — 가계부 ·
+// 검색 · 거래상세 · 홈이 모두 ExpenseRow 를 쓴다.
 //
 // 로딩 자리표시(PDayGroupSkeleton)는 처음부터 0 이었다. 그래서 10 인 채로 두면
 // 데이터가 오는 순간 행이 10 튄다 — 그쪽 주석이 "실제 행과 같은 여백" 이라고
@@ -18,19 +19,24 @@ import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
-import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
 
 const _pagePad = 24.0;
 
-Expense _e({String type = 'EXPENSE'}) => Expense(
-  rowId: 1,
-  expenseType: type,
-  amount: 3000,
-  expenseDate: '2026-09-12T11:20:00',
-  merchant: '스타벅스',
-  categoryName: '식비',
-  assetName: '신한카드',
-);
+String _iso(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}T${d.hour.toString().padLeft(2, '0')}:'
+    '${d.minute.toString().padLeft(2, '0')}:00';
+
+Expense _e({String type = 'EXPENSE', DateTime? date, int amount = 3000}) =>
+    Expense(
+      rowId: 1,
+      expenseType: type,
+      amount: amount,
+      expenseDate: date == null ? '2026-09-12T11:20:00' : _iso(date),
+      merchant: '스타벅스',
+      categoryName: '식비',
+      assetName: '신한카드',
+    );
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -66,29 +72,7 @@ double _contentLeft(WidgetTester tester, Finder row) => tester
     .left;
 
 void main() {
-  testWidgets('날짜 헤더와 공용 행이 같은 지점에서 시작한다', (tester) async {
-    await _pump(
-      tester,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PDayHeader(
-            date: DateTime(2026, 9, 12),
-            items: [_e()],
-            flags: const MaskFlags.cardOnly(false),
-          ),
-          PExpenseRow(expense: _e()),
-        ],
-      ),
-    );
-    final head = tester.getRect(find.textContaining('26. 9. 12')).left;
-    expect(head, closeTo(_pagePad, 0.5));
-    // 고치기 전에는 34 였다(= 24 + 행이 얹던 10).
-    expect(_contentLeft(tester, find.byType(PExpenseRow)), closeTo(head, 0.5));
-  });
-
-  testWidgets('가계부 행도 같은 지점이다 — 두 행 위젯이 어긋나면 안 된다', (tester) async {
+  testWidgets('날짜 헤더와 행이 같은 지점에서 시작한다', (tester) async {
     await _pump(
       tester,
       Column(
@@ -109,6 +93,8 @@ void main() {
       ),
     );
     final head = tester.getRect(find.textContaining('26. 9. 12')).left;
+    expect(head, closeTo(_pagePad, 0.5));
+    // 고치기 전에는 34 였다(= 24 + 행이 얹던 10).
     expect(_contentLeft(tester, find.byType(ExpenseRow)), closeTo(head, 0.5));
   });
 
@@ -160,24 +146,91 @@ void main() {
     );
   });
 
-  testWidgets('공용 PExpenseRow 는 종류 색을 쓴다 — 목록에 쓰면 안 되는 이유', (tester) async {
-    // 이 차이를 기록해 둔다. 목록(가계부·검색)은 ExpenseRow 를, 요약 카드처럼
-    // 색이 필요한 자리는 PExpenseRow 를 쓴다.
-    // Color 객체는 같은 값이어도 == 가 아닐 수 있다 — 32비트 값으로 비교한다.
-    final colors = <String, int?>{};
-    for (final type in ['EXPENSE', 'INCOME']) {
-      await _pump(tester, PExpenseRow(expense: _e(type: type)));
-      colors[type] = tester
-          .widget<Text>(
-            find.descendant(
-              of: find.byType(PExpenseRow),
-              matching: find.textContaining('원'),
-            ),
-          )
-          .style
-          ?.color
-          ?.toARGB32();
-    }
-    expect(colors['INCOME'], isNot(colors['EXPENSE']));
+  testWidgets('예정(미래) 거래만 흐려진다 — 지나간 거래는 또렷하다', (tester) async {
+    // 회색으로 보이는 것은 금액 색이 아니라 **행 전체의 opacity 0.6** 이다.
+    // 합계에도 안 들어가는 값이라 지나간 거래와 같은 무게로 보이면 안 된다.
+    final past = DateTime.now().subtract(const Duration(days: 1));
+    final future = DateTime.now().add(const Duration(days: 3));
+    double opacityOf(WidgetTester t) => t
+        .widget<Opacity>(
+          find
+              .descendant(
+                of: find.byType(ExpenseRow),
+                matching: find.byType(Opacity),
+              )
+              .first,
+        )
+        .opacity;
+
+    await _pump(
+      tester,
+      ExpenseRow(
+        expense: _e(date: past),
+        category: null,
+        flags: const MaskFlags.cardOnly(false),
+      ),
+    );
+    expect(opacityOf(tester), 1);
+
+    await _pump(
+      tester,
+      ExpenseRow(
+        expense: _e(date: future),
+        category: null,
+        flags: const MaskFlags.cardOnly(false),
+      ),
+    );
+    expect(opacityOf(tester), lessThan(1));
+  });
+
+  testWidgets('행 금액의 마이너스는 U+2212 — 헤더 합계와 같은 기호다', (tester) async {
+    // NumberFormat 이 음수에 찍는 ASCII 하이픈은 U+2212 와 폭이 달라, 같은 카드
+    // 안에서 섞이면 tabular figures 정렬이 어긋난다(QA #22 가 잡았던 자리).
+    // 행은 오래 ASCII 를 쓰고 있었는데, 헤더 합계만 손으로 U+2212 를 붙여
+    // 가계부 목록이 내내 두 기호를 섞고 있었다.
+    await _pump(
+      tester,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PDayHeader(
+            date: DateTime(2026, 9, 12),
+            items: [_e()],
+            flags: const MaskFlags.cardOnly(false),
+          ),
+          ExpenseRow(
+            expense: _e(),
+            category: null,
+            flags: const MaskFlags.cardOnly(false),
+          ),
+        ],
+      ),
+    );
+    expect(find.text('−3,000원'), findsNWidgets(2)); // 헤더 합계 + 행
+    expect(find.textContaining('-3,000'), findsNothing); // ASCII 하이픈
+  });
+
+  testWidgets('수입은 +, 0 원은 부호 없음', (tester) async {
+    await _pump(
+      tester,
+      ExpenseRow(
+        expense: _e(type: 'INCOME'),
+        category: null,
+        flags: const MaskFlags.cardOnly(false),
+      ),
+    );
+    expect(find.text('+3,000원'), findsOneWidget);
+
+    await _pump(
+      tester,
+      ExpenseRow(
+        expense: _e(amount: 0),
+        category: null,
+        flags: const MaskFlags.cardOnly(false),
+      ),
+    );
+    // 빈 계정에서 `−0원` 으로 보이던 자리(QA #1).
+    expect(find.text('0원'), findsOneWidget);
   });
 }

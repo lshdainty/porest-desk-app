@@ -254,7 +254,7 @@ class _DateHeader extends StatelessWidget {
 
 /// 결제 알림 한 건 — 아이콘 + 가맹점 + (발신기관·시각) + 금액.
 ///
-/// 가계부 행(`PExpenseRow`)과 같은 시각 언어를 쓴다. 다만 아직 카테고리가 없어
+/// 가계부 행(`ExpenseRow`)과 같은 시각 언어를 쓴다. 다만 아직 카테고리가 없어
 /// 아이콘은 결제 수단(카드)으로 고정한다. 금액·가맹점은 로컬 미리보기라
 /// 못 읽을 수 있고, 그때는 원문 축약으로 대신한다.
 class _InboxRow extends StatelessWidget {
