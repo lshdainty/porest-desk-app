@@ -11,7 +11,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
 import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -19,14 +18,14 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
-import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 
 /// 거래 통합 검색 — 키워드 + (선택) 유형/금액 범위.
 class SearchScreen extends ConsumerStatefulWidget {
@@ -350,7 +349,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildBody(PorestTokens t, AppSettings settings, List categories) {
+  Widget _buildBody(
+    PorestTokens t,
+    AppSettings settings,
+    List<ExpenseCategory> categories,
+  ) {
     final l = AppLocalizations.of(context);
     if (_loading) {
       return const _SearchLoadingSkeleton();
@@ -402,16 +405,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               PDayHeader(date: g.date, items: g.items, flags: flags),
               const SizedBox(height: 6),
               for (final e in g.items)
-                PExpenseRow(
+                // 가계부와 **같은 행 위젯**을 쓴다. 공용 PExpenseRow 는 부제에 시각을
+                // 더 넣고 금액을 지출/수입 색으로 칠해, 같은 거래가 가계부와 다르게
+                // 보인다 — 행 금액 중립화는 2026-07-27 `73449cf` 의 사용자 결정이고
+                // 색 구분은 날짜 헤더의 일 합계만 한다.
+                ExpenseRow(
                   expense: e,
-                  masked: flags.of(
-                    e.expenseType == 'INCOME'
-                        ? MaskKind.income
-                        : MaskKind.expense,
-                  ),
-                  categoryColorOverride: _catColor(categories, e.categoryRowId),
-                  categoryIconOverride: _catIcon(categories, e.categoryRowId),
-                  onTap: () => _openDetail(e),
+                  category: _findCategory(categories, e.categoryRowId),
+                  flags: flags,
                 ),
             ],
           ),
@@ -432,24 +433,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     return [for (final k in keys) (date: parseIsoDate(k), items: byDay[k]!)];
   }
 
-  dynamic _findCategory(List categories, int? rowId) {
+  ExpenseCategory? _findCategory(List<ExpenseCategory> categories, int? rowId) {
     if (rowId == null) return null;
     for (final c in categories) {
-      try {
-        if (c.rowId == rowId) return c;
-      } catch (_) {}
+      if (c.rowId == rowId) return c;
     }
     return null;
   }
-
-  /// 카테고리 목록에서 해석한 색 — 거래에 박힌 값보다 우선한다(옛 _ResultRow 규칙 그대로).
-  String? _catColor(List categories, int? rowId) =>
-      _findCategory(categories, rowId)?.color as String?;
-
-  String? _catIcon(List categories, int? rowId) =>
-      _findCategory(categories, rowId)?.icon as String?;
-
-  void _openDetail(Expense e) => showTxDetailDialog(context, e);
 }
 
 /// 검색 결과 로딩 skeleton — 가계부와 같은 날짜 그룹 모양(구분선 없음).
