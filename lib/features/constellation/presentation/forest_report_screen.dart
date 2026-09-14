@@ -98,7 +98,12 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
       ),
       body: today == null || todos == null
           ? ListView(
-              padding: const EdgeInsets.all(PSpace.x20),
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x20,
+                PSpace.x24,
+                PSpace.x20,
+              ),
               children: const [
                 PSkeleton(
                   width: double.infinity,

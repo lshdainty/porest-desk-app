@@ -154,7 +154,12 @@ class _SmsPasteScreenState extends ConsumerState<SmsPasteScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(PSpace.x16),
+          padding: const EdgeInsets.fromLTRB(
+            PSpace.x24,
+            PSpace.x16,
+            PSpace.x24,
+            PSpace.x16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

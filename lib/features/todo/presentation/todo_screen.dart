@@ -272,7 +272,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       body: listAsync.when(
         loading: () => const _LedgerSkeleton(),
         error: (e, _) => ListView(
-          padding: const EdgeInsets.all(PSpace.x16),
+          padding: const EdgeInsets.fromLTRB(
+            PSpace.x24,
+            PSpace.x16,
+            PSpace.x24,
+            PSpace.x16,
+          ),
           children: [
             Text(
               '${l.todoLoadError}\n$e',

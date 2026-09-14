@@ -148,9 +148,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           if (_editMode)
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                PSpace.x20,
+                PSpace.x24,
                 PSpace.x12,
-                PSpace.x20,
+                PSpace.x24,
                 0,
               ),
               child: Align(
@@ -167,9 +167,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           else
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                PSpace.x20,
+                PSpace.x24,
                 PSpace.x16,
-                PSpace.x20,
+                PSpace.x24,
                 0,
               ),
               child: Row(
@@ -199,9 +199,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             child: categoriesAsync.when(
               loading: () => ListView(
                 padding: const EdgeInsets.fromLTRB(
-                  PSpace.x20,
+                  PSpace.x24,
                   PSpace.x0, // 검색바 label 과 gap 0 (label·list 는 한 묶음, 사용자 결정)
-                  PSpace.x20,
+                  PSpace.x24,
                   PSpace.x24,
                 ),
                 children: [
@@ -210,7 +210,12 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 ],
               ),
               error: (e, _) => Padding(
-                padding: const EdgeInsets.all(PSpace.x16),
+                padding: const EdgeInsets.fromLTRB(
+                  PSpace.x24,
+                  PSpace.x16,
+                  PSpace.x24,
+                  PSpace.x16,
+                ),
                 child: Text(
                   '${l.categoryLoadError}\n$e',
                   style: PTypo.bodySm.copyWith(color: t.statusDanger),
@@ -324,9 +329,9 @@ class _CategoryList extends StatelessWidget {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        PSpace.x20,
+        PSpace.x24,
         PSpace.x0, // 검색바 label 과 gap 0 (label·list 는 한 묶음, 사용자 결정)
-        PSpace.x20,
+        PSpace.x24,
         PSpace.x24,
       ),
       children: [
