@@ -383,7 +383,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         tokens: t,
       );
     }
-    // 가계부 목록과 **같은 조각**으로 그린다 — 행은 PExpenseRow, 날짜는 그룹 헤더.
+    // 가계부 목록과 **같은 조각**으로 그린다 — 행은 ExpenseRow, 날짜는 그룹 헤더.
     // 예전에는 자체 _ResultRow 에 부제로 날짜를 넣고 구분선을 그려, 같은 거래가
     // 두 화면에서 다르게 보였다(금액에 '원' 도 없었다).
     final flags = ref.watch(maskFlagsProvider('etc.search'));
@@ -405,10 +405,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               PDayHeader(date: g.date, items: g.items, flags: flags),
               const SizedBox(height: 6),
               for (final e in g.items)
-                // 가계부와 **같은 행 위젯**을 쓴다. 공용 PExpenseRow 는 부제에 시각을
-                // 더 넣고 금액을 지출/수입 색으로 칠해, 같은 거래가 가계부와 다르게
-                // 보인다 — 행 금액 중립화는 2026-07-27 `73449cf` 의 사용자 결정이고
-                // 색 구분은 날짜 헤더의 일 합계만 한다.
+                // 가계부·홈·거래상세와 **같은 행 위젯**이다(앱에 행 위젯은 이것 하나).
                 ExpenseRow(
                   expense: e,
                   category: _findCategory(categories, e.categoryRowId),

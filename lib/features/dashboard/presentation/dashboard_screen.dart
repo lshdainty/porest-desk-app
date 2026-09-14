@@ -17,7 +17,7 @@ import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
-import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -1509,14 +1509,15 @@ class _TodaySpendCard extends StatelessWidget {
             )
           else
             for (final e in todayTx)
-              PExpenseRow(
+              // 가계부·검색·거래상세와 **같은 행 위젯**이다. 예전에는 홈만 공용
+              // PExpenseRow 를 써서 부제에 시각이 더 붙고 금액이 지출/수입 색으로
+              // 칠해졌다 — 행 금액은 종류 무관 본문색이라는 결정(2026-07-27
+              // `73449cf`)이 홈에만 안 들어가 있었다.
+              ExpenseRow(
                 expense: e,
-                masked: masked,
-                categoryColorOverride:
-                    _findCategory(categories, e.categoryRowId)?.color
-                        as String?,
-                categoryIconOverride:
-                    _findCategory(categories, e.categoryRowId)?.icon as String?,
+                category: _findCategory(categories, e.categoryRowId),
+                // 종전 동작 그대로 — 화면 카드('home.todaySpend')만 본다.
+                flags: MaskFlags.cardOnly(masked),
                 onTap: () {
                   final dateStr = e.expenseDate?.substring(0, 7);
                   if (dateStr != null && dateStr.length == 7) {

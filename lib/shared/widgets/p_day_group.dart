@@ -108,7 +108,7 @@ class PDayHeader extends StatelessWidget {
 
 /// 날짜 그룹 한 덩어리의 로딩 자리표시 — 헤더 한 줄 + 행 [rows] 개.
 ///
-/// 실제 [PDayHeader] · `PExpenseRow` 와 **같은 여백**을 쓴다. 다르면 데이터가 오는
+/// 실제 [PDayHeader] · `ExpenseRow` 와 **같은 여백**을 쓴다. 다르면 데이터가 오는
 /// 순간 행이 좌우로 튄다.
 class PDayGroupSkeleton extends StatelessWidget {
   const PDayGroupSkeleton({super.key, required this.rows});
@@ -139,7 +139,7 @@ class PDayGroupSkeleton extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
                 child: Row(
                   children: [
-                    // PExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
+                    // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
                     PSkeleton(
                       width: 40,
                       height: 40,

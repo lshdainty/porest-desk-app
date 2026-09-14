@@ -29,6 +29,7 @@ class ExpenseRow extends StatelessWidget {
     required this.category,
     required this.flags,
     this.interactive = true,
+    this.onTap,
     super.key,
   });
 
@@ -40,6 +41,12 @@ class ExpenseRow extends StatelessWidget {
 
   /// false 면 InkWell tap 비활성 — 단순 표시 용도 (예: 가맹점 history).
   final bool interactive;
+
+  /// 탭했을 때 할 일. 안 주면 거래 상세 시트를 연다(목록의 기본 동작).
+  ///
+  /// 홈의 '오늘 쓴 돈' 은 상세를 띄우는 대신 가계부의 그 거래로 **이동**한다 —
+  /// 요약 카드라 거기서 더 볼 게 없고, 맥락째 옮겨 주는 편이 낫다.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +64,9 @@ class ExpenseRow extends StatelessWidget {
     final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
 
     return InkWell(
-      onTap: interactive ? () => showTxDetailDialog(context, expense) : null,
+      onTap: !interactive
+          ? null
+          : (onTap ?? () => showTxDetailDialog(context, expense)),
       borderRadius: BorderRadius.circular(10),
       // 아직 오지 않은 거래는 행째로 흐리게 — 합계에도 안 들어가는 값이라 지나간
       // 거래와 같은 무게로 보이면 안 된다. 배지만으로는 눈에 잘 안 걸린다.
@@ -149,10 +158,16 @@ class ExpenseRow extends StatelessWidget {
               ),
               const SizedBox(width: PSpace.x8),
               Text(
+                // 부호는 **손으로** 붙인다 — NumberFormat 이 음수에 찍는 ASCII
+                // 하이픈은 U+2212 와 폭이 달라, 같은 카드의 헤더 합계(−)와 섞이면
+                // tabular figures 정렬이 어긋난다(QA #22 와 같은 자리).
+                // 그래서 값은 절댓값으로 넘기고 부호는 minusOf 가 정한다.
                 krwSigned(
-                  expense.signedAmount,
+                  expense.signedAmount.abs(),
                   flags.ofType(expense.expenseType),
-                  sign: expense.signedAmount > 0 ? '+' : '',
+                  sign: expense.signedAmount > 0
+                      ? '+'
+                      : minusOf(expense.signedAmount.abs()),
                   unit: true,
                 ),
                 // 행 금액은 지출/수입 무관 일반 텍스트색 — 색 구분은 날짜 헤더 일 합계만(사용자 결정).
