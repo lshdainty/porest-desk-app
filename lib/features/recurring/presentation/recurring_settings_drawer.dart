@@ -26,6 +26,7 @@ import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
+import 'package:porest_desk_app/features/asset/presentation/transfer_account_fields.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -1141,91 +1142,19 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x16),
 
         if (c.isTransfer) ...[
-          // 이체 — 보내는/받는 계좌·수수료·(대출이면) 이자.
-          // 후보와 이자 조건은 거래 시트와 한 벌이다(`transfer_rules.dart`).
-          PSectionLabel(l.expWithdrawAccount),
-          const SizedBox(height: PSpace.x4),
-          assetsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            data: (assets) => _SelectField<int>(
-              value: c.assetRowId,
-              hint: l.expSelect,
-              items: [
-                for (final a in transferEligibleAssets(assets))
-                  _SelectOption<int>(
-                    a.rowId,
-                    a.institution != null
-                        ? '${a.institution} · ${a.assetName}'
-                        : a.assetName,
-                  ),
-              ],
-              onChanged: (v) => _set(() => c.assetRowId = v),
-            ),
+          // 이체 — 규칙과 화면 모두 거래 시트·프리셋 폼과 한 벌이다.
+          TransferAccountFields(
+            assets: assetsAsync,
+            fromAssetRowId: c.assetRowId,
+            toAssetRowId: c.toAssetRowId,
+            feeController: c.feeCtrl,
+            interestController: c.interestCtrl,
+            amountForHint: amountInt,
+            onFromChanged: (v) => _set(() => c.assetRowId = v),
+            onToChanged: (v) => _set(() => c.toAssetRowId = v),
+            onInterestChanged: () => _set(() {}),
+            labelBuilder: (text) => PSectionLabel(text),
           ),
-          const SizedBox(height: PSpace.x12),
-          PSectionLabel(l.expDepositAccount),
-          const SizedBox(height: PSpace.x4),
-          assetsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            data: (assets) => _SelectField<int>(
-              value: c.toAssetRowId,
-              hint: l.expSelect,
-              items: [
-                for (final a in transferEligibleAssets(
-                  assets,
-                ).where((a) => a.rowId != c.assetRowId))
-                  _SelectOption<int>(
-                    a.rowId,
-                    a.institution != null
-                        ? '${a.institution} · ${a.assetName}'
-                        : a.assetName,
-                  ),
-              ],
-              onChanged: (v) => _set(() => c.toAssetRowId = v),
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
-          PSectionLabel(l.expFeeOptional),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: c.feeCtrl,
-            numbersOnly: true,
-            amountMax: kAmountMax,
-            placeholder: '0',
-          ),
-          const SizedBox(height: PSpace.x12),
-          if (isLoanTarget(assetsAsync.value, c.toAssetRowId)) ...[
-            PSectionLabel(l.expInterest),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: c.interestCtrl,
-              numbersOnly: true,
-              amountMax: kAmountMax,
-              placeholder: '0',
-              onChanged: (_) => _set(() {}),
-            ),
-            const SizedBox(height: PSpace.x4),
-            Builder(
-              builder: (_) {
-                final interest =
-                    int.tryParse(c.interestCtrl.text.replaceAll(',', '')) ?? 0;
-                return Text(
-                  (interest > 0 && amountInt > 0)
-                      ? l.expInterestSplit(
-                          krw(
-                            amountInt - interest < 0 ? 0 : amountInt - interest,
-                          ),
-                          krw(interest),
-                        )
-                      : l.expInterestHint,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                );
-              },
-            ),
-            const SizedBox(height: PSpace.x12),
-          ],
         ] else ...[
           // 카테고리
           PSectionLabel(l.expCategory, variant: PSectionLabelVariant.eyebrow),

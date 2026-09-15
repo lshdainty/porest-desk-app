@@ -23,6 +23,7 @@ import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
 import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
 import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_detail_sheet.dart';
@@ -706,7 +707,8 @@ class _UpcomingRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${item.assetName ?? l.recurringNoAccount} · ${recurringSummaryText(l, item)}',
+                  '${isTransfer ? transferPartiesLabel(item.assetName, item.toAssetName) : (item.assetName ?? l.recurringNoAccount)}'
+                  ' · ${recurringSummaryText(l, item)}',
                   style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                 ),
               ],
@@ -856,7 +858,8 @@ class _RecurringRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${recurringSummaryText(l, item)} · ${item.assetName ?? l.recurringNoAccount}'
+                      '${recurringSummaryText(l, item)}'
+                      ' · ${isTransfer ? transferPartiesLabel(item.assetName, item.toAssetName) : (item.assetName ?? l.recurringNoAccount)}'
                       '${item.nextExecutionDate != null ? ' · ${l.recurringNext} ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
                       style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/transfer_account_fields.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -160,11 +160,6 @@ class _BodyState extends ConsumerState<_Body> {
           ? transferPartiesReady(_assetRowId, _toAssetRowId)
           : _categoryRowId != null) &&
       (!_lockAmount || _amountValue > 0);
-
-  String _assetLabel(Asset a) =>
-      a.institution != null && a.institution!.isNotEmpty
-      ? '${a.institution} · ${a.assetName}'
-      : a.assetName;
 
   bool get _isTransfer => _type == 'TRANSFER';
 
@@ -330,69 +325,20 @@ class _BodyState extends ConsumerState<_Body> {
         const SizedBox(height: 10),
 
         if (_isTransfer) ...[
-          // ③ 이체 — 보내는/받는 계좌·수수료·(대출이면) 이자.
-          // 후보와 이자 조건은 거래 시트·반복 설정과 한 벌이다(`transfer_rules.dart`).
-          _FieldLabel(l.expWithdrawAccount),
-          const SizedBox(height: PSpace.x4),
-          assetsAsync.when(
-            loading: () => const PSkeleton(width: double.infinity, height: 40),
-            error: (e, _) => Text(
-              l.presetAssetLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
-            ),
-            data: (assets) => PSelect<int>(
-              value: _assetRowId,
-              placeholder: l.expSelect,
-              title: l.expWithdrawAccount,
-              items: [
-                for (final a in transferEligibleAssets(assets))
-                  PSelectItem(value: a.rowId, label: _assetLabel(a)),
-              ],
-              onChanged: (v) => setState(() => _assetRowId = v),
-            ),
+          // ③ 이체 — 규칙과 화면 모두 거래 시트·반복 설정과 한 벌이다.
+          // 금액은 넘기지 않는다: 프리셋은 금액을 비워 두는 것이 정상 용도라
+          // 견줄 금액이 없고, 그래서 이자 안내도 쪼개지 않는다.
+          TransferAccountFields(
+            assets: assetsAsync,
+            fromAssetRowId: _assetRowId,
+            toAssetRowId: _toAssetRowId,
+            feeController: _feeCtrl,
+            interestController: _interestCtrl,
+            onFromChanged: (v) => setState(() => _assetRowId = v),
+            onToChanged: (v) => setState(() => _toAssetRowId = v),
+            labelBuilder: (text) => _FieldLabel(text),
+            loadErrorText: l.presetAssetLoadError,
           ),
-          const SizedBox(height: 14),
-          _FieldLabel(l.expDepositAccount),
-          const SizedBox(height: PSpace.x4),
-          assetsAsync.when(
-            loading: () => const PSkeleton(width: double.infinity, height: 40),
-            error: (e, _) => Text(
-              l.presetAssetLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
-            ),
-            data: (assets) => PSelect<int>(
-              value: _toAssetRowId,
-              placeholder: l.expSelect,
-              title: l.expDepositAccount,
-              items: [
-                for (final a in transferEligibleAssets(
-                  assets,
-                ).where((a) => a.rowId != _assetRowId))
-                  PSelectItem(value: a.rowId, label: _assetLabel(a)),
-              ],
-              onChanged: (v) => setState(() => _toAssetRowId = v),
-            ),
-          ),
-          const SizedBox(height: 14),
-          _FieldLabel(l.expFeeOptional),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(controller: _feeCtrl, numbersOnly: true, placeholder: '0'),
-          const SizedBox(height: 14),
-          if (_showInterest) ...[
-            _FieldLabel(l.expInterest),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: _interestCtrl,
-              numbersOnly: true,
-              placeholder: '0',
-            ),
-            const SizedBox(height: PSpace.x4),
-            Text(
-              l.expInterestHint,
-              style: PTypo.caption.copyWith(color: t.fgTertiary),
-            ),
-            const SizedBox(height: 14),
-          ],
         ] else ...[
           // ③ 카테고리 (5열 그룹 타일 grid)
           _FieldLabel(l.expCategory),
