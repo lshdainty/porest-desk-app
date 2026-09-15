@@ -41,6 +41,7 @@ class TransferAccountFields extends StatelessWidget {
     this.onInterestChanged,
     this.amountForHint,
     this.loadErrorText,
+    this.interestEnabled = true,
   });
 
   final AsyncValue<List<Asset>> assets;
@@ -66,6 +67,19 @@ class TransferAccountFields extends StatelessWidget {
 
   /// 자산 목록을 못 불러왔을 때 적을 문구. 없으면 아무것도 안 그린다(시트·드로어 기존 동작).
   final String? loadErrorText;
+
+  /// 이자 칸을 쓸 수 있는 화면인가 — **기본은 켜짐**.
+  ///
+  /// 이자는 받는 자산이 대출일 때만 뜨는데, 그 위에 화면마다 다른 조건이 하나 더 붙는
+  /// 자리가 있다. 프리셋 폼은 <b>금액을 고정했을 때만</b> 이자를 받는다 — 금액이 매달
+  /// 다르면 이자도 매달 달라서, 박아 둔 이자는 불러올 때마다 틀린 값이 된다
+  /// (사용자 결정 2026-09-15).
+  ///
+  /// 그 조건을 여기 넣으면 안 된다. 이 위젯은 거래 시트·반복 설정·프리셋 폼 셋이 쓰는데
+  /// 앞의 둘에는 "금액 고정" 이라는 게 없어서 이자 칸이 통째로 사라진다. 대출 상환
+  /// 이체에 이자를 못 적으면 이자 지출이 안 생기고 원금이 과다 상환된 것으로 기록된다.
+  /// 그래서 **조건은 호스트가 정한다.**
+  final bool interestEnabled;
 
   static String _label(Asset a) =>
       a.institution != null && a.institution!.isNotEmpty
@@ -113,7 +127,8 @@ class TransferAccountFields extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final showInterest = isLoanTarget(assets.value, toAssetRowId);
+    final showInterest =
+        interestEnabled && isLoanTarget(assets.value, toAssetRowId);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

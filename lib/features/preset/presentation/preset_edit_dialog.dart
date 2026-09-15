@@ -164,7 +164,11 @@ class _BodyState extends ConsumerState<_Body> {
   bool get _isTransfer => _type == 'TRANSFER';
 
   /// 이자 칸을 보이는가 — 규칙은 거래 시트와 한 벌이다(`transfer_rules.dart`).
+  /// 이자는 **금액을 고정했을 때만** 받는다(사용자 결정 2026-09-15). 금액이 매달
+  /// 다르면 이자도 매달 다르니, 박아 둔 이자는 불러올 때마다 틀린 값이 된다.
+  /// 수수료는 그대로 둔다 — 계좌 짝의 성질이라 매번 같을 수 있다.
   bool get _showInterest =>
+      _lockAmount &&
       _isTransfer &&
       isLoanTarget(ref.read(assetsProvider).value, _toAssetRowId);
 
@@ -338,6 +342,7 @@ class _BodyState extends ConsumerState<_Body> {
             onToChanged: (v) => setState(() => _toAssetRowId = v),
             labelBuilder: (text) => _FieldLabel(text),
             loadErrorText: l.presetAssetLoadError,
+            interestEnabled: _lockAmount,
           ),
         ] else ...[
           // ③ 카테고리 (5열 그룹 타일 grid)
