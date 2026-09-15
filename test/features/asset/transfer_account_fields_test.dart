@@ -179,4 +179,112 @@ void main() {
       expect(find.text(l.expInterest), findsNothing);
     });
   });
+
+  group('받는 계좌가 대출이 아니게 되면 이자도 버린다 (#177)', () {
+    // 이자 칸은 대출이 아닐 때 숨겨지지만 컨트롤러 값은 남아 있었다. 다시 대출로
+    // 바꾸면 옛 이자가 되살아나, 화면이 "이 이자가 저장돼 있다" 고 말한다.
+    // 저장값은 호스트가 `_showInterest` 로 걸러 맞았지만 화면이 틀렸다.
+    //
+    // 세 화면(거래 시트·반복 설정·프리셋 폼)이 같은 위젯을 쓰므로 여기서 한 번만 잰다.
+    testWidgets('대출 → 적금 → 대출 로 되돌아오면 이자 칸이 비어 있다', (tester) async {
+      final interest = TextEditingController(text: '20000');
+      addTearDown(interest.dispose);
+      int? to = 3; // 대출
+
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: PorestTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) => SingleChildScrollView(
+                  child: TransferAccountFields(
+                    assets: const AsyncValue.data([_bank, _savings, _loan]),
+                    fromAssetRowId: 1,
+                    toAssetRowId: to,
+                    feeController: TextEditingController(text: '500'),
+                    interestController: interest,
+                    onFromChanged: (_) {},
+                    onToChanged: (v) => setState(() => to = v),
+                    labelBuilder: (text) => Text(text),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(l.expInterest), findsOneWidget);
+      expect(interest.text, '20000');
+
+      // 적금으로 바꾼다 — 이자 칸이 사라진다.
+      await tester.tap(find.byType(PSelect<int>).at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('신한 · QA적금').last);
+      await tester.pumpAndSettle();
+      expect(find.text(l.expInterest), findsNothing);
+      expect(interest.text, '', reason: '칸만 감추고 값을 두면 다시 대출로 바꿀 때 되살아난다');
+
+      // 다시 대출로 — 빈 칸으로 열려야 한다.
+      await tester.tap(find.byType(PSelect<int>).at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('신한 · QA대출').last);
+      await tester.pumpAndSettle();
+      expect(find.text(l.expInterest), findsOneWidget);
+      expect(interest.text, '');
+    });
+
+    testWidgets('반대편 — 수수료는 받는 계좌를 바꿔도 남는다', (tester) async {
+      final fee = TextEditingController(text: '500');
+      addTearDown(fee.dispose);
+      int? to = 3;
+
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: PorestTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) => SingleChildScrollView(
+                  child: TransferAccountFields(
+                    assets: const AsyncValue.data([_bank, _savings, _loan]),
+                    fromAssetRowId: 1,
+                    toAssetRowId: to,
+                    feeController: fee,
+                    interestController: TextEditingController(),
+                    onFromChanged: (_) {},
+                    onToChanged: (v) => setState(() => to = v),
+                    labelBuilder: (text) => Text(text),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(PSelect<int>).at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('신한 · QA적금').last);
+      await tester.pumpAndSettle();
+
+      expect(fee.text, '500');
+    });
+  });
 }
