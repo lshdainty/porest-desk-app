@@ -436,7 +436,14 @@ class _BodyState extends ConsumerState<_Body> {
         _LockAmountCard(
           lockAmount: _lockAmount,
           amountCtrl: _amountCtrl,
-          onToggle: (v) => setState(() => _lockAmount = v),
+          onToggle: (v) => setState(() {
+            _lockAmount = v;
+            // 고정을 끄면 이자도 비운다 — 이자는 금액을 따라간다(2026-09-15 결정).
+            // 안 비우면 칸만 감춰졌다가 다시 켤 때 옛 이자가 되살아난다. 저장 결과는
+            // 어차피 맞지만(payload 가 null), 화면에 지난달 이자가 떠 있으면 사용자는
+            // 그 값이 저장된 줄 안다. 웹도 같은 자리에서 비운다.
+            if (!v) _interestCtrl.clear();
+          }),
         ),
       ],
     );
