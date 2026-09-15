@@ -30,6 +30,7 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
+import 'package:porest_desk_app/features/asset/presentation/transfer_account_fields.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -1904,99 +1905,19 @@ class _TxInputForm extends ConsumerWidget {
           ],
           const SizedBox(height: PSpace.x12),
         ] else ...[
-          // 이체 — 출금/입금/수수료
-          PSectionLabel(l.expWithdrawAccount),
-          const SizedBox(height: PSpace.x4),
-          assetsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            data: (assets) => _SelectField<int>(
-              value: c.assetRowId,
-              hint: l.expSelect,
-              items: [
-                for (final a in transferEligibleAssets(assets))
-                  _SelectOption<int>(
-                    a.rowId,
-                    a.institution != null
-                        ? '${a.institution} · ${a.assetName}'
-                        : a.assetName,
-                  ),
-              ],
-              onChanged: (v) => _set(() => c.assetRowId = v),
-            ),
+          // 이체 — 규칙과 화면 모두 반복 설정·프리셋 폼과 한 벌이다.
+          TransferAccountFields(
+            assets: assetsAsync,
+            fromAssetRowId: c.assetRowId,
+            toAssetRowId: c.toAssetRowId,
+            feeController: c.feeCtrl,
+            interestController: c.interestCtrl,
+            amountForHint: c.amountInt,
+            onFromChanged: (v) => _set(() => c.assetRowId = v),
+            onToChanged: (v) => _set(() => c.toAssetRowId = v),
+            onInterestChanged: () => _set(() {}),
+            labelBuilder: (text) => PSectionLabel(text),
           ),
-          const SizedBox(height: PSpace.x12),
-          PSectionLabel(l.expDepositAccount),
-          const SizedBox(height: PSpace.x4),
-          assetsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            data: (assets) => _SelectField<int>(
-              value: c.toAssetRowId,
-              hint: l.expSelect,
-              items: [
-                for (final a in transferEligibleAssets(
-                  assets,
-                ).where((a) => a.rowId != c.assetRowId))
-                  _SelectOption<int>(
-                    a.rowId,
-                    a.institution != null
-                        ? '${a.institution} · ${a.assetName}'
-                        : a.assetName,
-                  ),
-              ],
-              onChanged: (v) => _set(() => c.toAssetRowId = v),
-            ),
-          ),
-          if (c.assetRowId != null && c.assetRowId == c.toAssetRowId)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                l.expTransferSameAsset,
-                style: PTypo.caption.copyWith(color: t.statusDanger),
-              ),
-            ),
-          const SizedBox(height: PSpace.x12),
-          PSectionLabel(l.expFeeOptional),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: c.feeCtrl,
-            numbersOnly: true,
-            amountMax: kAmountMax,
-            placeholder: '0',
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 이자 — 대출 상환에만. 상환액 중 이자는 부채를 줄이지 않고 지출로 잡힌다.
-          if (_showInterest(c, assetsAsync.value)) ...[
-            PSectionLabel(l.expInterest),
-            const SizedBox(height: PSpace.x4),
-            PTextInput(
-              controller: c.interestCtrl,
-              numbersOnly: true,
-              amountMax: kAmountMax,
-              placeholder: '0',
-              onChanged: (_) => _set(() {}),
-            ),
-            const SizedBox(height: PSpace.x4),
-            Builder(
-              builder: (_) {
-                final interest =
-                    int.tryParse(c.interestCtrl.text.replaceAll(',', '')) ?? 0;
-                final amount = c.amountInt;
-                return Text(
-                  (interest > 0 && amount > 0)
-                      ? l.expInterestSplit(
-                          krw(amount - interest < 0 ? 0 : amount - interest),
-                          krw(interest),
-                        )
-                      : l.expInterestHint,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                );
-              },
-            ),
-            const SizedBox(height: PSpace.x12),
-          ],
         ],
 
         // 날짜(·시간)

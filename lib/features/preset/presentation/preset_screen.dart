@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/preset/presentation/preset_detail_sheet.dart';
@@ -605,7 +606,10 @@ class _PresetRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 _MetaLine(
                   categoryName: isTransfer
-                      ? '${template.assetName ?? '-'} → ${template.toAssetName ?? '-'}'
+                      ? transferPartiesLabel(
+                          template.assetName,
+                          template.toAssetName,
+                        )
                       : template.categoryName,
                   merchant: template.merchant,
                   tokens: t,
