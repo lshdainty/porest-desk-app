@@ -326,6 +326,20 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         : _input.categoryRowId != null;
   }
 
+  /// 프리셋으로 채운 뒤 저장한 경우 useCount/lastUsedAt 갱신.
+  ///
+  /// 지출·수입과 이체가 같이 쓴다 — 저장 경로가 갈려도 사용 기록 규칙은 하나다.
+  Future<void> _touchAppliedPreset() async {
+    if (_isEdit || _appliedPresetId == null) return;
+    try {
+      final pRepo = await ref.read(presetRepositoryProvider.future);
+      await pRepo.touch(_appliedPresetId!);
+      ref.invalidate(presetListProvider);
+    } catch (_) {
+      /* touch 실패는 본 거래 저장에 영향 없음 */
+    }
+  }
+
   Future<void> _showSavePresetDialog() async {
     if (!_canSavePreset) return;
     final isTransfer = _input.type == 'TRANSFER';
@@ -420,6 +434,11 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         }
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
         invalidateAfterExpenseChange(ref);
+        // 이체도 프리셋으로 채웠으면 사용 기록을 올린다 — 지출·수입(아래 공통 꼬리)과
+        // 같은 규칙. 이 분기가 여기서 return 해 그 꼬리에 못 닿는 바람에, 목록이
+        // "사용 많은 순" 정렬인데 이체 프리셋만 영영 0 이었다(#174).
+        // 시트를 닫기 전에 부른다 — 닫고 나면 이 State 가 사라진다.
+        await _touchAppliedPreset();
         if (!mounted) return;
         Navigator.of(context).pop();
       } on ApiException {
@@ -506,16 +525,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           exchangeRate: fxRate,
         );
       }
-      // 프리셋으로 채운 뒤 일반 저장한 경우 useCount/lastUsedAt 갱신.
-      if (!_isEdit && _appliedPresetId != null) {
-        try {
-          final pRepo = await ref.read(presetRepositoryProvider.future);
-          await pRepo.touch(_appliedPresetId!);
-          ref.invalidate(presetListProvider);
-        } catch (_) {
-          /* touch 실패는 본 거래 저장에 영향 없음 */
-        }
-      }
+      await _touchAppliedPreset();
       // 원래 거래의 월 + 새 월 모두 invalidate (날짜 변경 가능성)
       if (_isEdit && widget.edit!.expenseDate != null) {
         final orig = parseIsoDate(widget.edit!.expenseDate!.substring(0, 10));
@@ -1042,7 +1052,10 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
         assetRowId: widget.seedAssetRowId!,
         toAssetRowId: widget.seedToAssetRowId,
         fee: widget.seedFee,
-        interestAmount: widget.seedInterest,
+        // 이자는 금액을 따라간다 — 금액을 안 저장하면 이자도 안 저장한다
+        // (사용자 결정 2026-09-15). 금액이 매달 다르면 이자도 매달 다르니, 박아 둔
+        // 이자는 불러올 때마다 틀린 값이 된다. 수수료는 계좌 짝의 성질이라 그대로 둔다.
+        interestAmount: _lockAmount ? widget.seedInterest : null,
         expenseType: widget.seedExpenseType,
         amount: _lockAmount ? widget.seedAmount : 0,
         description: widget.seedDescription.isEmpty

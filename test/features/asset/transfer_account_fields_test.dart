@@ -53,6 +53,7 @@ Future<void> _pump(
   int? fromAssetRowId,
   int? toAssetRowId,
   int? amountForHint,
+  bool? interestEnabled,
 }) async {
   tester.view.physicalSize = const Size(1200, 2400);
   tester.view.devicePixelRatio = 1.0;
@@ -79,6 +80,7 @@ Future<void> _pump(
               feeController: TextEditingController(),
               interestController: TextEditingController(text: '20000'),
               amountForHint: amountForHint,
+              interestEnabled: interestEnabled ?? true,
               onFromChanged: (_) {},
               onToChanged: (_) {},
               labelBuilder: (text) => Text(text),
@@ -154,5 +156,27 @@ void main() {
 
     expect(find.text(l.expInterestHint), findsNothing);
     expect(find.text(l.expInterestSplit('80,000', '20,000')), findsOneWidget);
+  });
+
+  group('이자 칸 조건은 호스트가 정한다 (2026-09-15)', () {
+    // 이자는 받는 자산이 대출일 때만 뜨는데, 프리셋 폼은 그 위에 "금액을 고정했을
+    // 때만" 이라는 조건이 하나 더 붙는다. 그 조건을 이 위젯 안에 넣으면 거래 시트와
+    // 반복 설정에서 이자 칸이 통째로 사라진다 — 둘에는 "금액 고정" 이라는 게 없다.
+    // 대출 상환 이체에 이자를 못 적으면 이자 지출이 안 생기고 원금이 과다 상환된
+    // 것으로 기록된다. 그래서 기본은 켜짐이고 프리셋 폼만 끈다.
+    testWidgets('인자를 안 주면 켜진다 — 거래 시트·반복 설정이 쓰는 기본값', (tester) async {
+      await _pump(tester, fromAssetRowId: 1, toAssetRowId: 3);
+      expect(find.text(l.expInterest), findsOneWidget);
+    });
+
+    testWidgets('호스트가 끄면 대출이어도 안 뜬다 — 프리셋 폼이 금액 미고정일 때', (tester) async {
+      await _pump(
+        tester,
+        fromAssetRowId: 1,
+        toAssetRowId: 3,
+        interestEnabled: false,
+      );
+      expect(find.text(l.expInterest), findsNothing);
+    });
   });
 }
