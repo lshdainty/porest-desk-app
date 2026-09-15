@@ -152,7 +152,17 @@ class TransferAccountFields extends StatelessWidget {
           title: l.expDepositAccount,
           value: toAssetRowId,
           excludeFrom: true,
-          onChanged: onToChanged,
+          onChanged: (v) {
+            // 받는 자산이 대출이 아니게 되면 이자 칸이 사라진다 — 값도 같이 버린다.
+            // 안 버리면 다시 대출로 바꿨을 때 옛 이자가 되살아나고, 화면이 "이 이자가
+            // 저장돼 있다" 고 말한다. 저장값은 호스트가 걸러 맞지만 화면이 틀린다.
+            //
+            // 규칙이 하나이므로 자리도 하나다 — 이 위젯을 쓰는 세 화면(거래 시트 ·
+            // 반복 설정 · 프리셋 폼)이 각자 비우면 한쪽만 고쳐져 갈라진다. 웹은
+            // 렌더 중에 비우는 훅이 세 화면에 다 있지만, Dart 에는 그 자리가 없다.
+            if (!isLoanTarget(assets.value, v)) interestController.clear();
+            onToChanged(v);
+          },
         ),
         // 받는 목록에서 보내는 계좌를 빼므로 손으로는 같아질 수 없지만, 기존 이체를
         // 편집으로 열면 저장된 값이 같을 수 있다 — 그때 왜 저장이 안 되는지 알려 준다.
