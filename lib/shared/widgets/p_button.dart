@@ -23,8 +23,13 @@ enum PButtonVariant {
 
 enum PButtonSize { sm, md, lg, iconLg }
 
-/// 컨테이너 edge 에 붙는 ghost 버튼 광학 정렬용 — 해당 방향 좌/우 padding 제거.
-/// front `<Button flush="left|right">` 미러. box·hover 영역 위치는 그대로.
+/// 컨테이너 edge 에 붙는 ghost + 아이콘 버튼 광학 정렬용 — 해당 방향 좌/우 padding 제거.
+/// front `<Button flush="left|right">` 미러.
+///
+/// **flush ghost 는 텍스트 버튼이다** — 배경(splash·highlight) 없이 글자색으로만 반응한다.
+/// 기본 보조톤(fgSecondary), 누르는 동안 본문색(fgPrimary). 한쪽 padding 만 0 이라 채움
+/// 상자가 글자 기준으로 좌우 비대칭이 되기 때문이다(웹 2026-09-16 실측 · button.md Edge flush).
+/// 글자만 있는 ghost·채움 variant 에는 쓰지 않는다.
 enum PButtonFlush { left, right }
 
 class PButton extends StatelessWidget {
@@ -209,9 +214,10 @@ class PButton extends StatelessWidget {
         bg = Colors.transparent;
         // icon-only ghost(아이콘 액션)는 보조톤 fgSecondary — front button.md v96 정합.
         // iconLg(모바일 크롬 헤더)는 페이지당 1개 주 액션 — 약화 없이 중립 fgPrimary (v97).
+        // flush ghost(텍스트 버튼)도 보조톤에서 시작해 누르는 동안 본문색이 된다 — 아래 _FlushInk.
         fg = dangerous
             ? t.statusDangerFg
-            : (iconOnly && size != PButtonSize.iconLg
+            : ((flush != null || (iconOnly && size != PButtonSize.iconLg))
                   ? t.fgSecondary
                   : t.fgPrimary);
         border = BorderSide.none;
@@ -235,6 +241,38 @@ class PButton extends StatelessWidget {
         ? (size == PButtonSize.iconLg ? PRadius.brFull : PRadius.brMd)
         : _radius();
     final h = _height();
+    // flush ghost 는 텍스트 버튼 — 배경 없이 글자색만 바뀐다(위 PButtonFlush 주석).
+    final flushText =
+        variant == PButtonVariant.ghost && flush != null && !dangerous;
+    Widget body(Color c) => SizedBox(
+      height: h,
+      width: iconOnly ? h : null,
+      child: Padding(
+        padding: iconOnly ? EdgeInsets.zero : _padding(),
+        child: Row(
+          mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (loading)
+              PCircularProgressIndicator(
+                size: _iconSize(),
+                strokeWidth: 2,
+                color: c,
+              )
+            else if (icon != null)
+              Icon(icon, size: _iconSize(), color: iconColor ?? c),
+            if (!iconOnly && (loading || icon != null))
+              const SizedBox(width: PSpace.sm),
+            if (!iconOnly)
+              Text(label!, style: _textStyle(t).copyWith(color: c)),
+            if (!iconOnly && trailingIcon != null) ...[
+              const SizedBox(width: PSpace.sm),
+              Icon(trailingIcon, size: _iconSize(), color: iconColor ?? c),
+            ],
+          ],
+        ),
+      ),
+    );
     final btn = Material(
       // disabled 약화는 아래 Opacity(0.5)로 버튼 전체(글자·아이콘 포함)에 적용
       // — button.md States(disabled = opacity 0.5) + 웹 disabled:opacity-50 정합.
@@ -242,39 +280,17 @@ class PButton extends StatelessWidget {
       // 남아 50% 검정으로 깔리고, 글자색은 안 흐려져 disabled 구분이 안 되던 버그.
       color: bg,
       shape: RoundedRectangleBorder(borderRadius: radius, side: border),
-      child: InkWell(
-        onTap: disabled ? null : onPressed,
-        borderRadius: radius,
-        child: SizedBox(
-          height: h,
-          width: iconOnly ? h : null,
-          child: Padding(
-            padding: iconOnly ? EdgeInsets.zero : _padding(),
-            child: Row(
-              mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (loading)
-                  PCircularProgressIndicator(
-                    size: _iconSize(),
-                    strokeWidth: 2,
-                    color: fg,
-                  )
-                else if (icon != null)
-                  Icon(icon, size: _iconSize(), color: iconColor ?? fg),
-                if (!iconOnly && (loading || icon != null))
-                  const SizedBox(width: PSpace.sm),
-                if (!iconOnly)
-                  Text(label!, style: _textStyle(t).copyWith(color: fg)),
-                if (!iconOnly && trailingIcon != null) ...[
-                  const SizedBox(width: PSpace.sm),
-                  Icon(trailingIcon, size: _iconSize(), color: iconColor ?? fg),
-                ],
-              ],
+      child: flushText
+          ? _FlushInk(
+              onTap: disabled ? null : onPressed,
+              radius: radius,
+              builder: (pressed) => body(pressed ? t.fgPrimary : t.fgSecondary),
+            )
+          : InkWell(
+              onTap: disabled ? null : onPressed,
+              borderRadius: radius,
+              child: body(fg),
             ),
-          ),
-        ),
-      ),
     );
     final dimmed = disabled ? Opacity(opacity: 0.5, child: btn) : btn;
     final tipped = tooltip != null
@@ -282,6 +298,40 @@ class PButton extends StatelessWidget {
         : dimmed;
     return fullWidth ? SizedBox(width: double.infinity, child: tipped) : tipped;
   }
+}
+
+/// flush ghost 전용 탭 영역 — 배경(splash·highlight·hover)을 전부 걷고, 누르는 동안만
+/// `pressed` 를 true 로 넘겨 **글자색**으로 반응하게 한다(button.md Edge flush).
+class _FlushInk extends StatefulWidget {
+  const _FlushInk({
+    required this.onTap,
+    required this.radius,
+    required this.builder,
+  });
+
+  final VoidCallback? onTap;
+  final BorderRadius radius;
+  final Widget Function(bool pressed) builder;
+
+  @override
+  State<_FlushInk> createState() => _FlushInkState();
+}
+
+class _FlushInkState extends State<_FlushInk> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: widget.onTap,
+    borderRadius: widget.radius,
+    splashColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+    hoverColor: Colors.transparent,
+    onHighlightChanged: (v) {
+      if (v != _pressed) setState(() => _pressed = v);
+    },
+    child: widget.builder(_pressed),
+  );
 }
 
 /// front `<Field>` 등가 — 라벨 + 입력 + 헬퍼/에러 텍스트 묶음.
