@@ -31,8 +31,14 @@ class WithdrawalCheck {
   /// 남의 정산에 참가한 수 — "탈퇴한 사용자" 로 남는다.
   final int dutchPayParticipations;
 
-  /// 서버 `CheckResult.blocked` 의 문자열과 같아야 한다.
-  static const blockSubscription = 'SUBSCRIPTION';
+  /// 해지를 막는 사유 코드.
+  ///
+  /// **서버가 짓는 문자열이다** — desk-back `WithdrawalServiceImpl.check()` 가
+  /// `List.of("SUBSCRIPTION_ACTIVE")` 로 넣는다. 한 글자라도 다르면 [blockedBySubscription]
+  /// 이 조용히 false 가 되어, 구독 때문에 막힌 사람에게 **언제부터 가능한지 날짜를 못
+  /// 보여 준다**(실제로 `SUBSCRIPTION` 으로 적어 두고 dev 에서 뒤늦게 잡았다, 2026-09-17).
+  /// 서버를 고치면 여기도 같이 고쳐야 한다.
+  static const blockSubscription = 'SUBSCRIPTION_ACTIVE';
 
   bool get isBlocked => blocked.isNotEmpty;
   bool get blockedBySubscription => blocked.contains(blockSubscription);

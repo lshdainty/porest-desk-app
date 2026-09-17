@@ -25,9 +25,11 @@ void main() {
       expect(clear.blockedBySubscription, isFalse);
     });
 
+    // 서버가 실제로 보내는 리터럴을 쓴다 — 상수를 여기 넣으면 상수와 입력이 서로를
+    // 보고 끄덕이는 닫힌 고리가 되어, 둘 다 틀려도 초록불이 난다.
     test('구독이 막으면 언제부터 가능한지도 함께 온다', () {
       final blocked = WithdrawalCheck.fromJson(const {
-        'blocked': ['SUBSCRIPTION'],
+        'blocked': ['SUBSCRIPTION_ACTIVE'],
         'subscriptionPeriodEnd': '2026-09-30T15:00:00',
         'dutchPaysOwned': 2,
       });
@@ -36,6 +38,12 @@ void main() {
       // 이 날짜가 없으면 사용자는 기다릴지 지금 구독을 해지할지 정할 수 없다.
       expect(blocked.subscriptionPeriodEnd, isNotNull);
       expect(blocked.dutchPaysOwned, 2);
+    });
+
+    // 이 값은 서버(desk-back WithdrawalServiceImpl)가 짓는다. 한 글자만 달라도
+    // 구독으로 막힌 사람에게 날짜를 못 보여 준다 — 2026-09-17 dev 에서 잡은 자리다.
+    test('막는 사유 코드가 서버 문자열과 글자 그대로 같다', () {
+      expect(WithdrawalCheck.blockSubscription, 'SUBSCRIPTION_ACTIVE');
     });
 
     test('모르는 사유도 막는 것으로 본다 — 서버가 늘려도 앱이 뚫리지 않게', () {
