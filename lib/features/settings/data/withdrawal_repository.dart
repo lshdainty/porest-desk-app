@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/features/settings/domain/withdrawal_check.dart';
 
@@ -40,7 +41,10 @@ class WithdrawalRepository {
   /// 채울 수 없어 이 길이 막히면 해지를 아예 못 한다.
   Future<void> sendEmailCode() async {
     try {
-      await _dio.post<dynamic>('/users/me/reauth/email-code');
+      await _dio.post<dynamic>(
+        '/users/me/reauth/email-code',
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -56,7 +60,11 @@ class WithdrawalRepository {
 
   Future<String> _ticket(String path, Map<String, String> body) async {
     try {
-      final res = await _dio.post<Map<String, dynamic>>(path, data: body);
+      final res = await _dio.post<Map<String, dynamic>>(
+        path,
+        data: body,
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
       final resp = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data ?? const {},
         (raw) => (raw as Map<String, dynamic>?) ?? const {},

@@ -3999,7 +3999,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountWithdraw => 'Stop using desk';
 
   @override
-  String get accountWithdrawDesc => 'Your records are removed';
+  String get accountWithdrawDesc => 'Cannot be undone';
 
   @override
   String accountAppVersion(String version) {
@@ -4022,7 +4022,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawIntro =>
-      'Stopping desk removes everything you kept here, along with the items below.';
+      'Stopping desk signs you out immediately and cannot be undone.';
 
   @override
   String withdrawImpactCalendarsOwned(int count) {
@@ -4053,7 +4053,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawIrreversibleData =>
-      'Your records cannot be restored after this.';
+      'You will not be able to see your records again.';
+
+  @override
+  String get withdrawDataRetention =>
+      'Your records are kept and then destroyed under our privacy policy. Export anything you need before you stop.';
 
   @override
   String get withdrawReasonLabel => 'Why are you leaving? (optional)';
@@ -4121,7 +4125,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawnBody =>
-      'Thank you for using desk. Everything you kept here has been cleared.';
+      'Thank you for using desk. Remaining data is kept and then destroyed under our privacy policy.';
 
   @override
   String get notiUnreadPrefix => '';

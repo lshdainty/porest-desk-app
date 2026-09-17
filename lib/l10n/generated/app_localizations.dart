@@ -7361,7 +7361,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdrawDesc.
   ///
   /// In ko, this message translates to:
-  /// **'기록이 사라져요'**
+  /// **'복구할 수 없어요'**
   String get accountWithdrawDesc;
 
   /// No description provided for @accountAppVersion.
@@ -7397,7 +7397,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawIntro.
   ///
   /// In ko, this message translates to:
-  /// **'해지하면 desk 에 쌓아 둔 기록이 사라지고 아래 항목이 함께 정리돼요.'**
+  /// **'이용을 해지하면 바로 로그인이 막히고 되돌릴 수 없어요.'**
   String get withdrawIntro;
 
   /// No description provided for @withdrawImpactCalendarsOwned.
@@ -7439,8 +7439,14 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawIrreversibleData.
   ///
   /// In ko, this message translates to:
-  /// **'해지 후에는 기록을 되살릴 수 없어요.'**
+  /// **'해지한 뒤에는 기록을 다시 볼 수 없어요.'**
   String get withdrawIrreversibleData;
+
+  /// No description provided for @withdrawDataRetention.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내 주세요.'**
+  String get withdrawDataRetention;
 
   /// No description provided for @withdrawReasonLabel.
   ///
@@ -7559,7 +7565,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawnBody.
   ///
   /// In ko, this message translates to:
-  /// **'그동안 desk 를 써 주셔서 고마웠어요. 남아 있던 기록은 정리했어요.'**
+  /// **'그동안 desk 를 써 주셔서 고마웠어요. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
   String get withdrawnBody;
 
   /// No description provided for @notiUnreadPrefix.
