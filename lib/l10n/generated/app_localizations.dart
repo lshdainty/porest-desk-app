@@ -7406,6 +7406,174 @@ abstract class AppLocalizations {
   /// **'회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'**
   String get accountWithdrawConfirm;
 
+  /// No description provided for @withdrawIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지하면 desk 에 쌓아 둔 기록이 사라지고 아래 항목이 함께 정리돼요.'**
+  String get withdrawIntro;
+
+  /// No description provided for @withdrawImpactCalendarsOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 만든 공유 캘린더 {count}개가 삭제되고 멤버도 볼 수 없어요'**
+  String withdrawImpactCalendarsOwned(int count);
+
+  /// No description provided for @withdrawImpactCalendarMemberships.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 중인 캘린더 {count}개에서 빠져요'**
+  String withdrawImpactCalendarMemberships(int count);
+
+  /// No description provided for @withdrawImpactDutchPaysOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 만든 정산 {count}개가 삭제돼요'**
+  String withdrawImpactDutchPaysOwned(int count);
+
+  /// No description provided for @withdrawImpactDutchPayParticipations.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 중인 정산 {count}개에 탈퇴한 사용자로 남아요'**
+  String withdrawImpactDutchPayParticipations(int count);
+
+  /// No description provided for @withdrawIrreversibleTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'되돌릴 수 없어요'**
+  String get withdrawIrreversibleTitle;
+
+  /// No description provided for @withdrawIrreversibleRejoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 아이디와 이메일로는 다시 가입할 수 없어요.'**
+  String get withdrawIrreversibleRejoin;
+
+  /// No description provided for @withdrawIrreversibleData.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지 후에는 기록을 되살릴 수 없어요.'**
+  String get withdrawIrreversibleData;
+
+  /// No description provided for @withdrawReasonLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'떠나시는 이유 (선택)'**
+  String get withdrawReasonLabel;
+
+  /// No description provided for @withdrawReasonPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'알려 주시면 다음에 더 낫게 만들게요'**
+  String get withdrawReasonPlaceholder;
+
+  /// No description provided for @withdrawNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'계속'**
+  String get withdrawNext;
+
+  /// No description provided for @withdrawConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지하기'**
+  String get withdrawConfirm;
+
+  /// No description provided for @withdrawReauthIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'본인이 맞는지 한 번만 더 확인할게요.'**
+  String get withdrawReauthIntro;
+
+  /// No description provided for @withdrawUseEmailCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 없으신가요? 메일로 코드 받기'**
+  String get withdrawUseEmailCode;
+
+  /// No description provided for @withdrawUsePassword.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호로 확인하기'**
+  String get withdrawUsePassword;
+
+  /// No description provided for @withdrawCodeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 코드'**
+  String get withdrawCodeLabel;
+
+  /// No description provided for @withdrawCodePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'6자리 숫자'**
+  String get withdrawCodePlaceholder;
+
+  /// No description provided for @withdrawSendCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'코드 받기'**
+  String get withdrawSendCode;
+
+  /// No description provided for @withdrawResendCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 받기'**
+  String get withdrawResendCode;
+
+  /// No description provided for @withdrawCodeSent.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일로 코드를 보냈어요'**
+  String get withdrawCodeSent;
+
+  /// No description provided for @withdrawCodeHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일함에 코드가 안 보이면 스팸함도 확인해 주세요.'**
+  String get withdrawCodeHint;
+
+  /// No description provided for @withdrawFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해 주세요'**
+  String get withdrawFailed;
+
+  /// No description provided for @withdrawBlockedSubscription.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독이 남아 있어 아직 해지할 수 없어요'**
+  String get withdrawBlockedSubscription;
+
+  /// No description provided for @withdrawBlockedSubscriptionUntil.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독이 {date} 까지 남아 있어 아직 해지할 수 없어요'**
+  String withdrawBlockedSubscriptionUntil(String date);
+
+  /// No description provided for @withdrawBlockedOther.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 해지할 수 없는 상태예요'**
+  String get withdrawBlockedOther;
+
+  /// No description provided for @withdrawBlockedHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독을 먼저 해지하시면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.'**
+  String get withdrawBlockedHint;
+
+  /// No description provided for @withdrawnTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이용 해지가 끝났어요'**
+  String get withdrawnTitle;
+
+  /// No description provided for @withdrawnBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'그동안 desk 를 써 주셔서 고마웠어요. 남아 있던 기록은 정리했어요.'**
+  String get withdrawnBody;
+
   /// No description provided for @notiUnreadPrefix.
   ///
   /// In ko, this message translates to:

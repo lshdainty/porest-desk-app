@@ -3978,6 +3978,100 @@ class AppLocalizationsKo extends AppLocalizations {
       '회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.';
 
   @override
+  String get withdrawIntro => '해지하면 desk 에 쌓아 둔 기록이 사라지고 아래 항목이 함께 정리돼요.';
+
+  @override
+  String withdrawImpactCalendarsOwned(int count) {
+    return '내가 만든 공유 캘린더 $count개가 삭제되고 멤버도 볼 수 없어요';
+  }
+
+  @override
+  String withdrawImpactCalendarMemberships(int count) {
+    return '참여 중인 캘린더 $count개에서 빠져요';
+  }
+
+  @override
+  String withdrawImpactDutchPaysOwned(int count) {
+    return '내가 만든 정산 $count개가 삭제돼요';
+  }
+
+  @override
+  String withdrawImpactDutchPayParticipations(int count) {
+    return '참여 중인 정산 $count개에 탈퇴한 사용자로 남아요';
+  }
+
+  @override
+  String get withdrawIrreversibleTitle => '되돌릴 수 없어요';
+
+  @override
+  String get withdrawIrreversibleRejoin => '같은 아이디와 이메일로는 다시 가입할 수 없어요.';
+
+  @override
+  String get withdrawIrreversibleData => '해지 후에는 기록을 되살릴 수 없어요.';
+
+  @override
+  String get withdrawReasonLabel => '떠나시는 이유 (선택)';
+
+  @override
+  String get withdrawReasonPlaceholder => '알려 주시면 다음에 더 낫게 만들게요';
+
+  @override
+  String get withdrawNext => '계속';
+
+  @override
+  String get withdrawConfirm => '해지하기';
+
+  @override
+  String get withdrawReauthIntro => '본인이 맞는지 한 번만 더 확인할게요.';
+
+  @override
+  String get withdrawUseEmailCode => '비밀번호가 없으신가요? 메일로 코드 받기';
+
+  @override
+  String get withdrawUsePassword => '비밀번호로 확인하기';
+
+  @override
+  String get withdrawCodeLabel => '인증 코드';
+
+  @override
+  String get withdrawCodePlaceholder => '6자리 숫자';
+
+  @override
+  String get withdrawSendCode => '코드 받기';
+
+  @override
+  String get withdrawResendCode => '다시 받기';
+
+  @override
+  String get withdrawCodeSent => '메일로 코드를 보냈어요';
+
+  @override
+  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해 주세요.';
+
+  @override
+  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해 주세요';
+
+  @override
+  String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요';
+
+  @override
+  String withdrawBlockedSubscriptionUntil(String date) {
+    return '구독이 $date 까지 남아 있어 아직 해지할 수 없어요';
+  }
+
+  @override
+  String get withdrawBlockedOther => '아직 해지할 수 없는 상태예요';
+
+  @override
+  String get withdrawBlockedHint => '구독을 먼저 해지하시면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.';
+
+  @override
+  String get withdrawnTitle => '이용 해지가 끝났어요';
+
+  @override
+  String get withdrawnBody => '그동안 desk 를 써 주셔서 고마웠어요. 남아 있던 기록은 정리했어요.';
+
+  @override
   String get notiUnreadPrefix => '읽지 않은 알림 ';
 
   @override

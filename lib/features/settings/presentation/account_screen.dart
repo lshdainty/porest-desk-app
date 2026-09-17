@@ -14,6 +14,7 @@ import 'package:porest_desk_app/core/lock/app_lock.dart';
 import 'package:porest_desk_app/core/lock/app_lock_toggle.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/settings/presentation/withdrawal_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
@@ -401,7 +402,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 iconColor: t.statusDanger,
                 labelColor: t.statusDanger,
                 tokens: t,
-                onTap: () => _confirmWithdraw(context),
+                onTap: () => showWithdrawalSheet(context),
               ),
             ],
           ),
@@ -430,19 +431,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     if (ok) {
       ref.read(authProvider.notifier).logout();
     }
-  }
-
-  Future<void> _confirmWithdraw(BuildContext context) async {
-    final l = AppLocalizations.of(context);
-    // 되돌릴 수 없는 삭제라 destructive. 실제 탈퇴 처리는 아직 없어 확인해도 닫히기만 한다.
-    await showPConfirmDialog(
-      context,
-      title: l.accountWithdrawTitle,
-      message: l.accountWithdrawConfirm,
-      // 기본값 "확인" 은 결정 행위를 안 밝힌다(spec alert-dialog.md Don't).
-      confirmLabel: l.accountWithdrawAction,
-      destructive: true,
-    );
   }
 }
 

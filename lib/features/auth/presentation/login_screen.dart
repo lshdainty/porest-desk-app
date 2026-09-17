@@ -115,7 +115,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final exchanging = ref.watch(authProvider).isLoading;
     ref.listen(authProvider, (prev, next) {
       if (next.hasError && mounted) {
-        setState(() => _error = '${l.authLoginFailed}: ${next.error}');
+        final e = next.error;
+        // 해지한 계정은 "로그인 실패" 가 아니다 — 다시 눌러도 결과가 같다.
+        // 원문 대신 무엇이 끝났는지와, 같은 아이디로는 못 돌아온다는 것을 말한다.
+        final msg = e is ApiException && e.isWithdrawn
+            ? '${l.withdrawnTitle}\n${l.withdrawIrreversibleRejoin}'
+            : '${l.authLoginFailed}: $e';
+        setState(() => _error = msg);
       }
     });
     return Scaffold(
