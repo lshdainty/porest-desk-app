@@ -3949,7 +3949,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountWithdraw => 'desk 이용 해지';
 
   @override
-  String get accountWithdrawDesc => '기록이 사라져요';
+  String get accountWithdrawDesc => '복구할 수 없어요';
 
   @override
   String accountAppVersion(String version) {
@@ -3971,7 +3971,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountWithdrawTitle => 'desk 이용 해지';
 
   @override
-  String get withdrawIntro => '해지하면 desk 에 쌓아 둔 기록이 사라지고 아래 항목이 함께 정리돼요.';
+  String get withdrawIntro => '이용을 해지하면 바로 로그인이 막히고 되돌릴 수 없어요.';
 
   @override
   String withdrawImpactCalendarsOwned(int count) {
@@ -4000,7 +4000,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawIrreversibleRejoin => '같은 아이디와 이메일로는 다시 가입할 수 없어요.';
 
   @override
-  String get withdrawIrreversibleData => '해지 후에는 기록을 되살릴 수 없어요.';
+  String get withdrawIrreversibleData => '해지한 뒤에는 기록을 다시 볼 수 없어요.';
+
+  @override
+  String get withdrawDataRetention =>
+      '가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내 주세요.';
 
   @override
   String get withdrawReasonLabel => '떠나시는 이유 (선택)';
@@ -4062,7 +4066,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawnTitle => '이용 해지가 끝났어요';
 
   @override
-  String get withdrawnBody => '그동안 desk 를 써 주셔서 고마웠어요. 남아 있던 기록은 정리했어요.';
+  String get withdrawnBody =>
+      '그동안 desk 를 써 주셔서 고마웠어요. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.';
 
   @override
   String get notiUnreadPrefix => '읽지 않은 알림 ';

@@ -143,31 +143,45 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _withdraw() async {
     final l = AppLocalizations.of(context);
+    // **기다리기 전에** 뒷정리에 필요한 것을 손에 쥔다.
+    //
+    // 제출 중에 시트를 내리면(드래그·뒤로가기) 이 State 가 사라진다. 그런데 해지는
+    // 서버에서 이미 진행 중이라 그대로 끝난다 — 예전엔 거기서 `mounted` 검사에 걸려
+    // **로그아웃도 안내도 없이** 이미 없는 계정으로 앱이 계속 돌았다(2026-09-17 QA).
+    //
+    // navigator 의 context 는 시트보다 위에 있어 시트가 사라져도 살아 있다. 스낵바를
+    // 앱 전체 messenger 에 다는 것도 같은 이유다 — 곧 로그아웃이 화면을 바꾼다.
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final auth = ref.read(authProvider.notifier);
+    final repoFuture = ref.read(withdrawalRepositoryProvider.future);
+
     setState(() {
       _submitting = true;
       _reauthError = null;
     });
     _syncFooter();
     try {
-      final repo = await ref.read(withdrawalRepositoryProvider.future);
+      final repo = await repoFuture;
       final ticket = _method == _Method.password
           ? await repo.verifyPassword(_passwordCtrl.text)
           : await repo.verifyEmailCode(_codeCtrl.text);
       await repo.withdraw(reauthToken: ticket, reason: _reasonCtrl.text.trim());
-      if (!mounted) return;
-      // 순서가 중요하다. pop 하면 이 시트의 context 가 죽어 `context.tokens` 조차 못
-      // 읽으므로 **안내를 먼저 띄운다.** messenger 를 넘기는 것은 스낵바가 시트가
-      // 아니라 앱 전체에 달리게 하려는 것이다 — 곧이어 시트가 닫히고 로그아웃이
-      // 화면을 통째로 바꾸는데, 시트에 달려 있으면 같이 사라진다.
-      showPSnackBar(
-        context,
-        l.withdrawnTitle,
-        severity: PSnackSeverity.success,
-        messenger: ScaffoldMessenger.of(context),
-      );
-      Navigator.of(context).pop();
-      // 해지가 끝나면 이 세션도 끝이다 — 남겨 두면 이미 없는 계정으로 API 를 부른다.
-      ref.read(authProvider.notifier).logout();
+
+      // 여기서부터는 이 State 의 `mounted` 를 보지 않는다 — 해지는 이미 끝났고,
+      // 시트가 사라졌다고 로그아웃을 건너뛰면 안 된다.
+      if (navigator.mounted) {
+        navigator.pop();
+        showPSnackBar(
+          navigator.context,
+          l.withdrawnTitle,
+          severity: PSnackSeverity.success,
+          messenger: messenger,
+        );
+      }
+      // 화면이 통째로 사라졌어도 로그아웃은 한다 — 이게 빠지면 이미 없는 계정으로
+      // 앱이 계속 돈다.
+      auth.logout();
     } on ApiException catch (e) {
       if (!mounted) return;
       // 본인 확인 실패는 그 칸의 문제다 — 스낵바로 띄우면 어느 칸을 고쳐야 하는지
@@ -356,6 +370,13 @@ class _BodyState extends ConsumerState<_Body> {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: PSpace.lg),
+        // 데이터가 어떻게 되는지 — "사라진다" 가 아니라 보관 뒤 파기다. 내보내기
+        // 권유는 해지 전에만 할 수 있는 말이라 여기 둔다(설계서 결정 12).
+        Text(
+          l.withdrawDataRetention,
+          style: PTypo.bodySm.copyWith(color: t.fgSecondary),
         ),
         const SizedBox(height: PSpace.lg),
         PSectionLabel(l.withdrawReasonLabel),

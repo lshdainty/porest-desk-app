@@ -84,6 +84,29 @@ void main() {
   });
 
   group('문구', () {
+    // 해지는 soft delete 다 — 데이터는 남는다. "기록이 사라진다" 로 쓰면 사용자가
+    // 실제와 다른 것을 믿고 되돌릴 수 없는 버튼을 누른다(2026-09-17 QA #7).
+    test('문구가 "사라진다" 고 말하지 않는다 — 실제로는 접근이 막힐 뿐이다', () {
+      final ko = AppLocalizationsKo();
+      for (final line in [
+        ko.accountWithdrawDesc,
+        ko.withdrawIntro,
+        ko.withdrawIrreversibleData,
+        ko.withdrawnBody,
+      ]) {
+        expect(line, isNot(contains('사라')));
+      }
+      // 대신 실제로 벌어지는 일을 말한다.
+      expect(ko.withdrawIntro, contains('로그인'));
+      expect(ko.withdrawDataRetention, contains('보관'));
+      expect(ko.withdrawnBody, contains('보관'));
+    });
+
+    test('내보내기 권유는 해지 전에만 할 수 있는 말이라 확인창에 있다', () {
+      expect(AppLocalizationsKo().withdrawDataRetention, contains('내보내'));
+      expect(AppLocalizationsEn().withdrawDataRetention, contains('Export'));
+    });
+
     test('ko — 되돌릴 수 없는 것 둘을 반드시 말한다', () {
       final l = AppLocalizationsKo();
       // 같은 아이디로 다시 가입할 수 없다는 것은 여기서 말하지 않으면 알 길이 없다.
