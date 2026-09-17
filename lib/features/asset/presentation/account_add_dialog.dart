@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -297,6 +298,16 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   Future<void> _submit() async {
     if (_submitting) return;
     final l = AppLocalizations.of(context);
+    // 숨김을 푸는 저장은 본인 확인을 거친다 — 취소하면 저장도 안 한다(QA 22차 #2).
+    if (!await confirmAssetAmountUnhide(
+      context,
+      ref,
+      wasHidden: widget.edit?.isAmountHidden == 'Y',
+      nowHidden: _hideAmount,
+    )) {
+      return;
+    }
+    if (!mounted) return;
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? '$brand ${_subType.label(l)}' : nickname;

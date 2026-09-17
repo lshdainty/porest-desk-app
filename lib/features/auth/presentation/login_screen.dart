@@ -31,6 +31,25 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 /// WebView 를 차단한다(403 disallowed_useragent). 예전 시스템 브라우저 시절의 두 버그는
 /// 구조적으로 재발하지 않는다 — iOS 핸드오프는 서버 302 bounce 가, Android 백그라운드
 /// 상태 유실은 PKCE 디스크 보관([OAuthFlowStore])이 막는다.
+/// 로그인 실패를 사용자 문구로 바꾼다.
+///
+/// 원문(`ApiException.toString()`)을 그대로 띄우면 사용자에게
+/// `ApiException(AUTH_003, ...)` 같은 게 보인다. 아는 경우는 이름을 불러 주고,
+/// 나머지도 최소한 서버 메시지만 보여 준다. 화면 밖에 둔 이유는 테스트 때문이다 —
+/// 인라인 `switch` 는 로그인 화면을 통째로 띄우지 않으면 확인할 길이 없다.
+String loginErrorMessage(Object? e, AppLocalizations l) => switch (e) {
+  // 해지한 계정은 "로그인 실패" 가 아니다 — 다시 눌러도 결과가 같다.
+  // 무엇이 끝났는지와, 같은 아이디로는 못 돌아온다는 것을 말한다.
+  ApiException(isWithdrawn: true) =>
+    '${l.withdrawnTitle}\n${l.withdrawIrreversibleRejoin}',
+  // 딥링크 코드가 만료됐다 — 다시 누르면 된다. "실패" 라고만 하면 뭘 다시 해야
+  // 하는지 알 수 없다.
+  ApiException(code: 'AUTH_003') => l.authLoginExpired,
+  ApiException(message: final m) when m.isNotEmpty =>
+    '${l.authLoginFailed}: $m',
+  _ => '${l.authLoginFailed}: ${l.stateError}',
+};
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -116,12 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen(authProvider, (prev, next) {
       if (next.hasError && mounted) {
         final e = next.error;
-        // 해지한 계정은 "로그인 실패" 가 아니다 — 다시 눌러도 결과가 같다.
-        // 원문 대신 무엇이 끝났는지와, 같은 아이디로는 못 돌아온다는 것을 말한다.
-        final msg = e is ApiException && e.isWithdrawn
-            ? '${l.withdrawnTitle}\n${l.withdrawIrreversibleRejoin}'
-            : '${l.authLoginFailed}: $e';
-        setState(() => _error = msg);
+        setState(() => _error = loginErrorMessage(e, l));
       }
     });
     return Scaffold(

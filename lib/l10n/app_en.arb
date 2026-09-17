@@ -1600,6 +1600,7 @@
   "authSsoLogin": "SSO login",
   "authLoginTitle": "Login",
   "authLoginFailed": "Login failed",
+  "authLoginExpired": "Your sign-in timed out. Please sign in again.",
   "authLoginError": "Error during login",
   "authSecurityNotHttps": "Security error: the SSO server is not HTTPS ({url}).",
   "@authSecurityNotHttps": {

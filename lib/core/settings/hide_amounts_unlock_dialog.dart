@@ -54,6 +54,25 @@ Future<bool> confirmHideAmountsUnlock(
   return showHideAmountsUnlockDialog(context);
 }
 
+/// 자산 수정 폼의 "이 자산 금액 숨기기" 를 **끄고 저장**할 때 본인 확인을 거친다.
+///
+/// 앱은 자산 상세에 이 토글이 없어(사용자 결정) 수정 폼이 **유일한 해제 경로**다.
+/// 여기에 확인이 없으면 "풀 때는 본인 확인" 규칙 자체가 없는 것과 같다 — 스위치를 끄고
+/// 저장만 누르면 그냥 풀렸다(QA 22차 #2).
+///
+/// 켜는 쪽(`false → true`)과 안 건드린 저장은 그냥 통과한다. `true` 를 돌려주면
+/// 저장을 계속하고, `false` 면 저장을 멈춘다 — 폼 스위치는 끈 채로 남지만
+/// 서버 값은 숨김 그대로다.
+Future<bool> confirmAssetAmountUnhide(
+  BuildContext context,
+  WidgetRef ref, {
+  required bool wasHidden,
+  required bool nowHidden,
+}) async {
+  if (!wasHidden || nowHidden) return true;
+  return confirmHideAmountsUnlock(context, ref);
+}
+
 /// 카드 묶음 토글 — 켜기는 그냥, 풀기는 본인 확인을 거친다.
 ///
 /// 여러 장을 한 번에 넘기면 **인증도 한 번**이다. 카드마다 확인을 받으면

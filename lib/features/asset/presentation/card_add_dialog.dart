@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
@@ -244,6 +245,16 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   Future<void> _submit() async {
     if (!_canSubmit) return;
     final l = AppLocalizations.of(context);
+    // 숨김을 푸는 저장은 본인 확인을 거친다 — 취소하면 저장도 안 한다(QA 22차 #2).
+    if (!await confirmAssetAmountUnhide(
+      context,
+      ref,
+      wasHidden: widget.edit?.isAmountHidden == 'Y',
+      nowHidden: _hideAmount,
+    )) {
+      return;
+    }
+    if (!mounted) return;
     final edit = widget.edit;
     final nickname = _nicknameCtrl.text.trim();
     // 편집에서 상품을 다시 고르지 않았으면 기존 값으로 채운다.

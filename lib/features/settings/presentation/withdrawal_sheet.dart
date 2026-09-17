@@ -42,6 +42,14 @@ void showWithdrawalSheet(BuildContext context) {
 /// 본인 확인 방법. 비밀번호가 없는 소셜 전용 계정은 코드 말고 길이 없다.
 enum _Method { password, emailCode }
 
+/// 해지가 끝난 뒤 보여 주는 안내.
+///
+/// 곧 로그인 화면으로 튕기므로 여기가 "끝났다" 를 말할 **마지막 자리**다 — 웹의 해지
+/// 완료 화면과 같은 문구를 두 줄로 보여 준다. 화면 밖에 둔 이유는 테스트 때문이다
+/// (예전엔 제목만 보여 주고 본문 문구는 아무도 안 쓰는 키로 남아 있었다 — QA 22차 #5).
+String withdrawnDoneMessage(AppLocalizations l) =>
+    '${l.withdrawnTitle}\n${l.withdrawnBody}';
+
 class _Body extends ConsumerStatefulWidget {
   const _Body({super.key, required this.controller});
   final PSheetController controller;
@@ -174,8 +182,9 @@ class _BodyState extends ConsumerState<_Body> {
         navigator.pop();
         showPSnackBar(
           navigator.context,
-          l.withdrawnTitle,
+          withdrawnDoneMessage(l),
           severity: PSnackSeverity.success,
+          duration: const Duration(seconds: 6),
           messenger: messenger,
         );
       }

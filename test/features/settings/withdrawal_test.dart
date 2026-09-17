@@ -7,10 +7,13 @@
 // - 점검 응답을 우리가 읽는 방식 — 막힘 판정과 개수
 // - 되돌릴 수 없다는 두 문장이 ko·en 양쪽에 있다
 // - 해지한 계정의 로그인은 "로그인 실패" 가 아니라 **해지** 로 읽힌다
+// - 사용자에게 보이는 문구에 예외 원문(`ApiException(...)`)이 새지 않는다
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
 import 'package:porest_desk_app/features/settings/domain/withdrawal_check.dart';
+import 'package:porest_desk_app/features/settings/presentation/withdrawal_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_en.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
 
@@ -153,6 +156,57 @@ void main() {
       final ko = AppLocalizationsKo();
       expect(ko.withdrawImpactCalendarsOwned(3), contains('3'));
       expect(ko.withdrawImpactDutchPayParticipations(2), contains('2'));
+    });
+  });
+
+  // 해지가 끝났다는 안내는 **제목 + 본문** 두 줄이다. 예전엔 제목만 띄우고
+  // 본문 문구(`withdrawnBody`)는 아무도 안 쓰는 키로 남아 있었다 — 번역까지 해 두고
+  // 화면에는 안 나오는 상태였다(QA 22차 #5).
+  group('해지 완료 안내', () {
+    test('제목과 본문을 함께 보여 준다', () {
+      final ko = AppLocalizationsKo();
+      final msg = withdrawnDoneMessage(ko);
+      expect(msg, contains(ko.withdrawnTitle));
+      expect(msg, contains(ko.withdrawnBody));
+    });
+
+    test('en 도 같은 자리가 비어 있지 않다', () {
+      final en = AppLocalizationsEn();
+      expect(withdrawnDoneMessage(en), contains(en.withdrawnBody));
+    });
+  });
+
+  // 로그인 실패는 `ApiException.toString()` 을 그대로 띄우고 있었다 —
+  // 사용자에게 `ApiException(AUTH_003, ...)` 같은 게 보였다(QA 22차 #7).
+  group('로그인 실패 문구', () {
+    final ko = AppLocalizationsKo();
+
+    ApiException err(String code, [String message = '']) =>
+        ApiException(code: code, message: message, statusCode: 400);
+
+    test('해지 계정은 해지 안내로 말한다', () {
+      final msg = loginErrorMessage(err('USER_021'), ko);
+      expect(msg, contains(ko.withdrawnTitle));
+      expect(msg, contains(ko.withdrawIrreversibleRejoin));
+    });
+
+    test('만료는 "다시 로그인" 을 말한다 — 무엇을 하면 되는지', () {
+      expect(loginErrorMessage(err('AUTH_003'), ko), ko.authLoginExpired);
+    });
+
+    test('아는 게 없으면 서버 메시지만 보여 준다', () {
+      final msg = loginErrorMessage(err('AUTH_099', '알 수 없는 오류'), ko);
+      expect(msg, contains('알 수 없는 오류'));
+      expect(msg, isNot(contains('ApiException')));
+    });
+
+    test('메시지도 없으면 원문을 흘리지 않는다', () {
+      for (final e in <Object?>[err('AUTH_099'), Exception('boom'), null]) {
+        final msg = loginErrorMessage(e, ko);
+        expect(msg, isNot(contains('ApiException')));
+        expect(msg, isNot(contains('Exception')));
+        expect(msg, contains(ko.authLoginFailed));
+      }
     });
   });
 }
