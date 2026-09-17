@@ -337,14 +337,19 @@ class _ManageRowSkel extends StatelessWidget {
 class _ManageRow extends StatelessWidget {
   const _ManageRow({
     required this.asset,
-    required this.masked,
+    required bool masked,
     required this.negative,
     required this.tokens,
     required this.onTap,
-  });
+  }) : _cardMasked = masked;
 
   final Asset asset;
-  final bool masked;
+
+  /// 이 화면의 카드가 켜졌는가.
+  final bool _cardMasked;
+
+  /// 화면 카드 **또는** 이 자산 자체 — 합집합이다.
+  bool get masked => _cardMasked || asset.isAmountHidden == 'Y';
   final bool negative;
   final PorestTokens tokens;
   final VoidCallback onTap;
@@ -428,6 +433,17 @@ class _ManageRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       l.assetExcludedFromTotal,
+                      style: TextStyle(
+                        color: t.fgTertiary,
+                        fontSize: PFontSize.micro,
+                      ),
+                    ),
+                  ],
+                  // 카드로 가려진 것과 이 자산이라서 가려진 것을 구분해 준다.
+                  if (asset.isAmountHidden == 'Y') ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l.assetAmountHiddenBadge,
                       style: TextStyle(
                         color: t.fgTertiary,
                         fontSize: PFontSize.micro,

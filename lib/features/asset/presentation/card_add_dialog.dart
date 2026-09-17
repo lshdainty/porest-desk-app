@@ -125,6 +125,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   late _CardType _cardType;
   bool _includeDiscontinued = false;
   late bool _includeInTotal;
+  late bool _hideAmount;
   CardCatalogSummary? _selected;
   int? _paymentDay; // 결제일 1~31
   int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
@@ -194,6 +195,8 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _paymentDay = e?.paymentDay;
     _paymentAssetRowId = e?.paymentAssetRowId;
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
+    // 새 자산은 가리지 않는다 — 만들자마자 금액이 안 보이면 잘못 만든 줄 안다.
+    _hideAmount = e != null && e.isAmountHidden == 'Y';
     // 연결된 상품을 고른 상태로 되살린다. 카탈로그 목록은 rowId 로 하이라이트하므로
     // 요약(rowId·이름·이미지·발급사)만 있으면 충분하다.
     final c = e?.cardCatalog;
@@ -293,6 +296,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           exchangeRate: Patch.set(fxRate),
           institution: company,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          isAmountHidden: _hideAmount ? 'Y' : 'N',
           cardCatalogRowId: catalogRowId,
           creditLimit: Patch.set(creditLimit),
           paymentDay: Patch.set(isCredit ? _paymentDay : null),
@@ -308,6 +312,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           exchangeRate: fxRate,
           institution: company,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          isAmountHidden: _hideAmount ? 'Y' : 'N',
           cardCatalogRowId: catalogRowId,
           creditLimit: creditLimit,
           paymentDay: isCredit ? _paymentDay : null,
@@ -613,6 +618,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         IncludeInTotalCard(
           value: _includeInTotal,
           onChanged: (v) => setState(() => _includeInTotal = v),
+        ),
+        // 합계 포함 바로 아래 — 둘 다 자산 하나에 붙는 표시 규칙이라 나란히 둔다.
+        const SizedBox(height: PSpace.x12),
+        HideAmountCard(
+          value: _hideAmount,
+          onChanged: (v) => setState(() => _hideAmount = v),
         ),
       ],
     );

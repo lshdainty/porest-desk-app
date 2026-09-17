@@ -30,6 +30,8 @@ abstract class Asset with _$Asset {
     String? memo,
     int? sortOrder,
     String? isIncludedInTotal, // 'Y' | 'N'
+    /// 이 자산의 금액만 가린다. 화면 카드 가리기와 별개 축, 합집합.
+    String? isAmountHidden, // 'Y' | 'N'
     // 신용카드 청구 사이클 (CREDIT_CARD 전용, nullable).
     int? creditLimit, // 신용 한도
     int? paymentDay, // 결제일 (1~31)

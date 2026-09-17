@@ -90,6 +90,10 @@ void main() {
     expect(find.text(l.assetAccountEdit), findsNothing);
     expect(find.text(l.assetInstitutionBrand), findsNothing);
     // 기존 값이 채워져 있어야 한다 — 청구 사이클은 폼 아래쪽이라 스크롤해서 확인.
+    //
+    // **걸음을 작게 둔다.** 240 씩 끌면 남은 스크롤이 그보다 적을 때 한 번에 바닥까지
+    // 가면서 찾는 항목을 지나쳐 버린다 — 그러면 아무리 되풀이해도 못 찾는다
+    // (2026-09-17, 폼에 토글이 하나 늘어 남은 거리가 줄자 드러났다).
     expect(find.text('신한 Deep Dream'), findsWidgets);
     await tester.dragUntilVisible(
       find.text('5000000'),
@@ -100,7 +104,7 @@ void main() {
     await tester.dragUntilVisible(
       find.text(l.dayN(14)),
       find.byType(ListView).first,
-      const Offset(0, -240),
+      const Offset(0, -60),
     );
     expect(find.text(l.dayN(14)), findsOneWidget);
   });
