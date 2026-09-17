@@ -3996,10 +3996,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutDesc => 'This device only';
 
   @override
-  String get accountWithdraw => 'Delete account';
+  String get accountWithdraw => 'Stop using desk';
 
   @override
-  String get accountWithdrawDesc => 'Permanent deletion';
+  String get accountWithdrawDesc => 'Your records are removed';
 
   @override
   String accountAppVersion(String version) {
@@ -4018,14 +4018,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutConfirm => 'Are you sure you want to log out?';
 
   @override
-  String get accountWithdrawTitle => 'Delete account';
-
-  @override
-  String get accountWithdrawAction => 'Delete Account';
-
-  @override
-  String get accountWithdrawConfirm =>
-      'Deleting your account permanently erases all data.\nThis cannot be undone.';
+  String get accountWithdrawTitle => 'Stop using desk';
 
   @override
   String get withdrawIntro =>

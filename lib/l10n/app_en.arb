@@ -2280,8 +2280,8 @@
   "accountProStart": "Start Pro",
   "accountManage": "Account Management",
   "accountLogoutDesc": "This device only",
-  "accountWithdraw": "Delete account",
-  "accountWithdrawDesc": "Permanent deletion",
+  "accountWithdraw": "Stop using desk",
+  "accountWithdrawDesc": "Your records are removed",
   "accountAppVersion": "App version {version}",
   "@accountAppVersion": {
     "placeholders": {
@@ -2300,9 +2300,7 @@
     }
   },
   "accountLogoutConfirm": "Are you sure you want to log out?",
-  "accountWithdrawTitle": "Delete account",
-  "accountWithdrawAction": "Delete Account",
-  "accountWithdrawConfirm": "Deleting your account permanently erases all data.\nThis cannot be undone.",
+  "accountWithdrawTitle": "Stop using desk",
   "withdrawIntro": "Stopping desk removes everything you kept here, along with the items below.",
   "withdrawImpactCalendarsOwned": "{count} shared calendar(s) you created will be deleted — members lose access too",
   "@withdrawImpactCalendarsOwned": {

@@ -7355,13 +7355,13 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdraw.
   ///
   /// In ko, this message translates to:
-  /// **'회원 탈퇴'**
+  /// **'desk 이용 해지'**
   String get accountWithdraw;
 
   /// No description provided for @accountWithdrawDesc.
   ///
   /// In ko, this message translates to:
-  /// **'영구 삭제'**
+  /// **'기록이 사라져요'**
   String get accountWithdrawDesc;
 
   /// No description provided for @accountAppVersion.
@@ -7391,20 +7391,8 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdrawTitle.
   ///
   /// In ko, this message translates to:
-  /// **'회원 탈퇴'**
+  /// **'desk 이용 해지'**
   String get accountWithdrawTitle;
-
-  /// No description provided for @accountWithdrawAction.
-  ///
-  /// In ko, this message translates to:
-  /// **'탈퇴하기'**
-  String get accountWithdrawAction;
-
-  /// No description provided for @accountWithdrawConfirm.
-  ///
-  /// In ko, this message translates to:
-  /// **'회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'**
-  String get accountWithdrawConfirm;
 
   /// No description provided for @withdrawIntro.
   ///

@@ -3946,10 +3946,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutDesc => '이 기기에서만';
 
   @override
-  String get accountWithdraw => '회원 탈퇴';
+  String get accountWithdraw => 'desk 이용 해지';
 
   @override
-  String get accountWithdrawDesc => '영구 삭제';
+  String get accountWithdrawDesc => '기록이 사라져요';
 
   @override
   String accountAppVersion(String version) {
@@ -3968,14 +3968,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutConfirm => '정말 로그아웃 하시겠어요?';
 
   @override
-  String get accountWithdrawTitle => '회원 탈퇴';
-
-  @override
-  String get accountWithdrawAction => '탈퇴하기';
-
-  @override
-  String get accountWithdrawConfirm =>
-      '회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.';
+  String get accountWithdrawTitle => 'desk 이용 해지';
 
   @override
   String get withdrawIntro => '해지하면 desk 에 쌓아 둔 기록이 사라지고 아래 항목이 함께 정리돼요.';

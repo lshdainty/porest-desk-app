@@ -105,6 +105,19 @@ void main() {
       );
     });
 
+    // 버튼이 "회원 탈퇴" 였는데 실제로 하는 일은 desk 이용 해지뿐이다 — 계정은 남고
+    // 아이디·이메일은 재가입을 막으려고 계속 보관된다. 이름이 하는 일보다 크면
+    // 사용자가 다른 결과를 기대하고 누른다(되돌릴 수 없는 버튼이라 더 그렇다).
+    test('설정 행과 시트 제목이 같은 이름을 쓴다', () {
+      final ko = AppLocalizationsKo();
+      final en = AppLocalizationsEn();
+      expect(ko.accountWithdraw, ko.accountWithdrawTitle);
+      expect(en.accountWithdraw, en.accountWithdrawTitle);
+      // "탈퇴" 가 아니라 "해지" 다 — 계정은 남는다.
+      expect(ko.accountWithdraw, contains('해지'));
+      expect(ko.accountWithdraw, isNot(contains('탈퇴')));
+    });
+
     test('개수 안내는 숫자를 끼운다 — 0 이면 화면이 줄을 안 만든다', () {
       final ko = AppLocalizationsKo();
       expect(ko.withdrawImpactCalendarsOwned(3), contains('3'));
