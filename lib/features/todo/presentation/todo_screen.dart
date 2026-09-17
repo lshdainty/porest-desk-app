@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/shared/scroll/scroll_to_keyed.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -155,19 +156,23 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     }
   }
 
-  void _scrollToDay(String ds) {
-    _lockFor(800);
+  /// [order] 는 리스트에 **그려진 순서 그대로**의 그룹 목록이다(가계부와 같은 이유로
+  /// 필드가 아니라 인자다 — `expense_screen` 의 같은 함수 주석 참고).
+  void _scrollToDay(String ds, List<String> order) {
+    // 여러 프레임에 걸쳐 뛰므로 스크롤 스파이를 그동안 재운다.
+    _lockFor(1200);
     setState(() {
       _expanded = false;
       _compact = true;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _dayKeys[ds]?.currentContext;
-      if (ctx == null) return;
-      Scrollable.ensureVisible(
-        ctx,
-        duration: const Duration(milliseconds: 300),
-        alignment: 0.02,
+      if (!mounted) return;
+      // 가계부와 같은 자리다 — 먼 날짜는 아직 안 만들어져 있어 순번이 있어야 간다.
+      scrollToKeyedItem(
+        controller: _scrollCtrl,
+        key: _dayKeys[ds],
+        index: order.indexOf(ds),
+        count: order.length,
       );
     });
   }
@@ -493,7 +498,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           constToday: constToday,
           onSelect: (ds) {
             setState(() => _selected = ds);
-            if (byDay.containsKey(ds)) _scrollToDay(ds);
+            if (byDay.containsKey(ds)) {
+              _scrollToDay(ds, [
+                ...dayKeysSorted,
+                if (noDue.isNotEmpty) _kNoDueGroup,
+              ]);
+            }
           },
           onToggleExpand: () => setState(() {
             _expanded = !_expanded;
