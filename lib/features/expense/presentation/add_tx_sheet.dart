@@ -135,6 +135,12 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       _effectiveSplits.isNotEmpty &&
       _input.amountInt != _splitSum;
 
+  /// 편집 모드인가 — **지출·수입 편집과 이체 수정 둘 다** 여기 든다.
+  ///
+  /// 그래서 이 값으로 `widget.edit!` 를 감싸면 안 된다. 이체 수정은 `editTransfer` 로
+  /// 오고 `edit` 은 **null** 이라 그 자리에서 죽는다. 릴리스 빌드의 기본 `ErrorWidget` 은
+  /// 아무 글자 없는 회색 사각형이라, 본문이 통째로 회색으로 나오고 무슨 일이 난 건지도
+  /// 안 보였다(2026-09-18). 지출·수입만 뜻할 때는 `widget.edit != null` 을 직접 본다.
   bool get _isEdit => widget.edit != null || widget.editTransfer != null;
 
   /// 결제 문자에서 온 초안인가 — 저장이 `/import/sms/commit` 으로 간다.
@@ -452,12 +458,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
-      if (_isEdit) {
+      final edited = widget.edit;
+      if (edited != null) {
         // 이 시트가 소유한 칸은 비운 상태 그대로 실어야 지워진다 — 키를 빼면
         // 서버가 옛 값을 지킨다(QA #99). 환불 연결(refundOf)만 예외다:
         // 편집 시트엔 그 칸이 없어, null 로 실으면 원거래 연결이 끊긴다.
         await repo.update(
-          id: widget.edit!.rowId,
+          id: edited.rowId,
           categoryRowId: _input.categoryRowId!,
           assetRowId: Patch.set(_input.assetRowId),
           expenseType: _input.type,
@@ -475,7 +482,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           splits: _reconciledSplits,
         );
         // 분할이 교체됐을 수 있으니 분할 쿼리도 무효화.
-        ref.invalidate(expenseSplitsProvider(widget.edit!.rowId));
+        ref.invalidate(expenseSplitsProvider(edited.rowId));
       } else if (widget.smsDraft != null) {
         // 결제 문자는 전용 경로로 저장한다 — 서버가 원문을 다시 봐 취소 문자를 막고,
         // 체크했다면 (카드 힌트 → 자산) 을 기억한다. 저장 자체는 같은 지출 생성이다.
@@ -527,8 +534,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       }
       await _touchAppliedPreset();
       // 원래 거래의 월 + 새 월 모두 invalidate (날짜 변경 가능성)
-      if (_isEdit && widget.edit!.expenseDate != null) {
-        final orig = parseIsoDate(widget.edit!.expenseDate!.substring(0, 10));
+      if (edited?.expenseDate != null) {
+        final orig = parseIsoDate(edited!.expenseDate!.substring(0, 10));
         if (orig.year != d.year || orig.month != d.month) {
           ref.invalidate(
             monthExpensesProvider((year: orig.year, month: orig.month)),
@@ -558,9 +565,11 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         : ref.watch(presetListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
 
-    // 편집 모드: 기존 분할을 적재해 금액↔분할 합 불일치 판정(일치화 유도).
-    if (_isEdit) {
-      final sp = ref.watch(expenseSplitsProvider(widget.edit!.rowId)).value;
+    // 지출·수입 편집: 기존 분할을 적재해 금액↔분할 합 불일치 판정(일치화 유도).
+    // 이체에는 분할이 없다 — `_isEdit` 로 묶으면 이체 수정에서 `edit` 이 null 이라 죽는다.
+    final editedExpense = widget.edit;
+    if (editedExpense != null) {
+      final sp = ref.watch(expenseSplitsProvider(editedExpense.rowId)).value;
       _serverSplits = sp == null
           ? const []
           : [
@@ -669,11 +678,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   }
 
   void _openReconcile() {
+    // 분할은 지출·수입만 갖는다 — 이체 수정에는 이 버튼이 뜨지 않는다(`_splitMismatch`).
+    final edited = widget.edit;
+    if (edited == null) return;
     showSplitTxDialog(
       context,
-      widget.edit!,
+      edited,
       overrideTotal: _input.amountInt,
-      recordedTotal: widget.edit!.amount.abs(),
+      recordedTotal: edited.amount.abs(),
       initialSplits: _effectiveSplits,
       onReconciled: (splits) {
         if (!mounted) return;
