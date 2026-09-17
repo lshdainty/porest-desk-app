@@ -1603,6 +1603,7 @@
   "authSsoLogin": "SSO 로그인",
   "authLoginTitle": "로그인",
   "authLoginFailed": "로그인 실패",
+  "authLoginExpired": "로그인 시간이 지났어요. 다시 로그인해 주세요.",
   "authLoginError": "로그인 처리 중 오류",
   "authSecurityNotHttps": "보안 오류: SSO 서버가 HTTPS 가 아닙니다 ({url}).",
   "@authSecurityNotHttps": {

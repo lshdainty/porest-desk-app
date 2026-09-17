@@ -1,63 +1,99 @@
-// 자산별 금액 숨김 — **두 축이 합집합인가**, 그리고 폼이 그 값을 잃지 않는가.
+// 자산별 금액 숨김 — **화면이 실제로 가리는가**, 그리고 문구가 화면 단위 토글과
+// 섞이지 않는가.
 //
 // 화면 카드 가리기는 "이 화면의 이 묶음을 가린다" 는 사용자 설정이고, 자산 숨김은
-// "이 자산은 늘 가린다" 는 자산의 속성이다. 한쪽이 다른 쪽을 덮으면 켜 둔 것이 왜
-// 안 듣는지 사용자가 알 수 없다.
+// "이 자산은 늘 가린다" 는 자산의 속성이다. 두 축은 합집합이다.
+//
+// 예전엔 이 파일이 `MaskedAmount(force:)` 를 검사했는데, 그 위젯은 앱 화면에서
+// 부르는 자리가 하나도 없다 — 통과해도 화면이 가린다는 근거가 아니었다(QA 22차 #6).
+// 그래서 **실제 화면**(계좌·카드 관리)을 띄워 본다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/account_card_manage_screen.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_en.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
-import 'package:porest_desk_app/shared/widgets/masked_amount.dart';
 
-Future<String> pumpAmount(
+const _shown = Asset(
+  rowId: 8,
+  assetName: '주거래 통장',
+  assetType: 'BANK_ACCOUNT',
+  balance: 1200000,
+  institution: '국민은행',
+  isIncludedInTotal: 'Y',
+  isAmountHidden: 'N',
+);
+
+const _hiddenAsset = Asset(
+  rowId: 9,
+  assetName: '비상금 통장',
+  assetType: 'BANK_ACCOUNT',
+  balance: 470000,
+  institution: '국민은행',
+  isIncludedInTotal: 'Y',
+  isAmountHidden: 'Y',
+);
+
+Future<void> _pump(
   WidgetTester tester, {
-  required bool cardHidden,
-  required bool force,
+  required List<Asset> assets,
+  bool cardHidden = false,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [hideCardProvider.overrideWith((ref, card) => cardHidden)],
+      overrides: [
+        assetsProvider.overrideWith((ref) async => assets),
+        hideCardProvider.overrideWith((ref, card) => cardHidden),
+      ],
       child: MaterialApp(
-        home: Scaffold(
-          body: MaskedAmount(
-            12000,
-            card: 'asset.accounts',
-            force: force,
-            suffix: '',
-          ),
-        ),
+        theme: PorestTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: const SlidableAutoCloseBehavior(child: AccountCardManageScreen()),
       ),
     ),
   );
-  await tester.pump();
-  final text = tester.widget<Text>(find.byType(Text));
-  return text.data ?? '';
+  await tester.pumpAndSettle();
 }
 
 void main() {
-  group('MaskedAmount force — 합집합', () {
-    testWidgets('둘 다 꺼져 있으면 금액이 보인다', (tester) async {
-      final t = await pumpAmount(tester, cardHidden: false, force: false);
-      expect(t, contains('12,000'));
+  group('관리 행 — 자산 플래그만으로 가려진다', () {
+    // 화면 카드는 **안 가린 상태**다. 그래도 자산 플래그가 켜진 행만 가려져야 한다.
+    testWidgets('숨긴 자산만 가려지고 옆 행은 그대로 보인다', (tester) async {
+      await _pump(tester, assets: [_shown, _hiddenAsset]);
+
+      expect(find.text('1,200,000원'), findsOneWidget);
+      expect(find.text('470,000원'), findsNothing);
+      expect(find.text('••••'), findsOneWidget);
     });
 
-    testWidgets('자산만 가려도 가려진다 — 카드 설정과 무관하다', (tester) async {
-      final t = await pumpAmount(tester, cardHidden: false, force: true);
-      expect(t, contains('••'));
+    // 카드로 가려진 것과 이 자산이라서 가려진 것을 사용자가 구분할 수 있어야 한다 —
+    // 안 그러면 화면 토글을 풀어도 왜 안 보이는지 알 수 없다.
+    testWidgets('숨긴 행에만 배지가 붙는다', (tester) async {
+      await _pump(tester, assets: [_shown, _hiddenAsset]);
+      expect(
+        find.text(AppLocalizationsKo().assetAmountHiddenBadge),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('카드만 가려도 가려진다 — 종전 동작 그대로', (tester) async {
-      final t = await pumpAmount(tester, cardHidden: true, force: false);
-      expect(t, contains('••'));
-    });
+    testWidgets('화면 카드를 가리면 둘 다 가려지지만 배지는 숨긴 행만', (tester) async {
+      await _pump(tester, assets: [_shown, _hiddenAsset], cardHidden: true);
 
-    // 합집합이라는 뜻 — 자산을 안 가려 뒀다고 카드 설정이 풀리면 안 된다.
-    testWidgets('카드가 가리고 있으면 force=false 가 그걸 풀지 않는다', (tester) async {
-      final t = await pumpAmount(tester, cardHidden: true, force: false);
-      expect(t, contains('••'));
+      expect(find.text('1,200,000원'), findsNothing);
+      expect(find.text('••••'), findsNWidgets(2));
+      expect(
+        find.text(AppLocalizationsKo().assetAmountHiddenBadge),
+        findsOneWidget,
+      );
     });
   });
 

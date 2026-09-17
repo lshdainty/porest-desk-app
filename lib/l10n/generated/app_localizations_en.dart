@@ -2661,6 +2661,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authLoginFailed => 'Login failed';
 
   @override
+  String get authLoginExpired =>
+      'Your sign-in timed out. Please sign in again.';
+
+  @override
   String get authLoginError => 'Error during login';
 
   @override
