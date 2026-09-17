@@ -66,6 +66,7 @@ class _CapturingRepo extends AssetRepository {
     String? institution,
     Patch<String> memo = const Patch.keep(),
     String? isIncludedInTotal,
+    String? isAmountHidden,
     int? cardCatalogRowId,
     Patch<int> creditLimit = const Patch.keep(),
     Patch<int> paymentDay = const Patch.keep(),

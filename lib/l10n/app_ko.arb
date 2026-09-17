@@ -126,6 +126,9 @@
     }
   },
   "assetExcludedFromTotal": "총액 제외",
+  "assetAmountHiddenBadge": "금액 숨김",
+  "assetHideThisAmount": "금액 숨기기",
+  "assetHideThisAmountDesc": "이 자산의 금액만 가려요. 합계는 그대로 보여요",
   "assetManageTitle": "계좌·카드 관리",
   "assetTabAccountsSavings": "계좌·예금 {count}",
   "@assetTabAccountsSavings": {

@@ -340,6 +340,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetExcludedFromTotal => 'Excluded from total';
 
   @override
+  String get assetAmountHiddenBadge => 'Amount hidden';
+
+  @override
+  String get assetHideThisAmount => 'Hide amount';
+
+  @override
+  String get assetHideThisAmountDesc =>
+      'Masks only this asset\'s balance. Totals stay visible';
+
+  @override
   String get assetManageTitle => 'Manage accounts & cards';
 
   @override

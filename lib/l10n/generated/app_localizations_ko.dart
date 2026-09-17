@@ -337,6 +337,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetExcludedFromTotal => '총액 제외';
 
   @override
+  String get assetAmountHiddenBadge => '금액 숨김';
+
+  @override
+  String get assetHideThisAmount => '금액 숨기기';
+
+  @override
+  String get assetHideThisAmountDesc => '이 자산의 금액만 가려요. 합계는 그대로 보여요';
+
+  @override
   String get assetManageTitle => '계좌·카드 관리';
 
   @override

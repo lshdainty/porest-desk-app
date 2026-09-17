@@ -183,7 +183,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       final i = liveAssets.indexWhere((a) => a.rowId == widget.asset.rowId);
       if (i >= 0) asset = liveAssets[i];
     }
-    final masked = ref.watch(hideCardProvider('asset.detail'));
+    // 화면 카드 **또는** 이 자산 자체가 가려져 있으면 가린다 — 합집합이다.
+    // 두 축은 서로를 덮지 않는다(하나는 화면 설정, 하나는 자산의 속성).
+    final masked =
+        ref.watch(hideCardProvider('asset.detail')) ||
+        asset.isAmountHidden == 'Y';
     final meta = AssetTypeMeta.of(asset.assetType);
     final brandFg = resolveChartColor(
       context,

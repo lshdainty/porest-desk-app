@@ -123,6 +123,9 @@
     }
   },
   "assetExcludedFromTotal": "Excluded from total",
+  "assetAmountHiddenBadge": "Amount hidden",
+  "assetHideThisAmount": "Hide amount",
+  "assetHideThisAmountDesc": "Masks only this asset's balance. Totals stay visible",
   "assetManageTitle": "Manage accounts & cards",
   "assetTabAccountsSavings": "Accounts {count}",
   "@assetTabAccountsSavings": {

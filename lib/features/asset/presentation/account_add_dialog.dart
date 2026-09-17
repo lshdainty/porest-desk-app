@@ -153,6 +153,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late String _brand;
   late _SubType _subType;
   late bool _includeInTotal;
+  late bool _hideAmount;
   bool _submitting = false;
   bool _touched = false;
 
@@ -258,6 +259,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
     );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
+    // 새 자산은 가리지 않는다 — 만들자마자 금액이 안 보이면 잘못 만든 줄 안다.
+    _hideAmount = e != null && e.isAmountHidden == 'Y';
     widget.controller.onSubmit = _submit;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
@@ -344,6 +347,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           institution: brand,
           memo: Patch.set(memoForApi),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          isAmountHidden: _hideAmount ? 'Y' : 'N',
           creditLimit: Patch.set(limit),
           isOverdraft: isOverdraft,
         );
@@ -357,6 +361,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          isAmountHidden: _hideAmount ? 'Y' : 'N',
           creditLimit: limit,
           isOverdraft: isOverdraft,
         );
@@ -601,6 +606,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         IncludeInTotalCard(
           value: _includeInTotal,
           onChanged: (v) => setState(() => _includeInTotal = v),
+        ),
+        // 합계 포함 바로 아래 — 둘 다 자산 하나에 붙는 표시 규칙이라 나란히 둔다.
+        const SizedBox(height: PSpace.x12),
+        HideAmountCard(
+          value: _hideAmount,
+          onChanged: (v) => setState(() => _hideAmount = v),
         ),
       ],
     );

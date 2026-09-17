@@ -105,6 +105,8 @@ class AssetRepository {
     String? institution,
     String? memo,
     String? isIncludedInTotal, // 'Y' | 'N'
+    // 이 자산의 금액만 가림. null 이면 키를 안 싣는다 — 서버 PUT 은 "키 없음=유지" 다.
+    String? isAmountHidden, // 'Y' | 'N'
     int? sortOrder,
     int? cardCatalogRowId,
     int? creditLimit,
@@ -129,6 +131,7 @@ class AssetRepository {
           'institution': ?institution,
           'memo': ?memo,
           'isIncludedInTotal': ?isIncludedInTotal,
+          'isAmountHidden': ?isAmountHidden,
           'sortOrder': ?sortOrder,
           'cardCatalogRowId': ?cardCatalogRowId,
           'creditLimit': ?creditLimit,
@@ -177,6 +180,8 @@ class AssetRepository {
     String? institution,
     Patch<String> memo = const Patch.keep(),
     String? isIncludedInTotal, // 'Y' | 'N'
+    // 이 자산의 금액만 가림. null 이면 키를 안 싣는다 — 서버 PUT 은 "키 없음=유지" 다.
+    String? isAmountHidden, // 'Y' | 'N'
     int? cardCatalogRowId,
     Patch<int> creditLimit = const Patch.keep(),
     Patch<int> paymentDay = const Patch.keep(),
@@ -199,6 +204,7 @@ class AssetRepository {
           'institution': ?institution,
           if (memo.present) 'memo': memo.value,
           'isIncludedInTotal': ?isIncludedInTotal,
+          'isAmountHidden': ?isAmountHidden,
           'cardCatalogRowId': ?cardCatalogRowId,
           if (creditLimit.present) 'creditLimit': creditLimit.value,
           if (paymentDay.present) 'paymentDay': paymentDay.value,

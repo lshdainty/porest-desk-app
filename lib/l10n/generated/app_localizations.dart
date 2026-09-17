@@ -746,6 +746,24 @@ abstract class AppLocalizations {
   /// **'총액 제외'**
   String get assetExcludedFromTotal;
 
+  /// No description provided for @assetAmountHiddenBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 숨김'**
+  String get assetAmountHiddenBadge;
+
+  /// No description provided for @assetHideThisAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 숨기기'**
+  String get assetHideThisAmount;
+
+  /// No description provided for @assetHideThisAmountDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 자산의 금액만 가려요. 합계는 그대로 보여요'**
+  String get assetHideThisAmountDesc;
+
   /// No description provided for @assetManageTitle.
   ///
   /// In ko, this message translates to:

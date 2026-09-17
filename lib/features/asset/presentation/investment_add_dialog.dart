@@ -117,6 +117,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           : ref.read(defaultCurrencyProvider));
   late String _brand;
   late bool _includeInTotal;
+  late bool _hideAmount;
   late List<_EditRow> _rows;
   bool _submitting = false;
   // 종목 검색 디바운스 — 키 입력마다 서버 요청이 나가지 않게 300ms 지연.
@@ -193,6 +194,8 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       text: e?.exchangeRate != null ? trimExchangeRate(e!.exchangeRate!) : '',
     );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
+    // 새 자산은 가리지 않는다 — 만들자마자 금액이 안 보이면 잘못 만든 줄 안다.
+    _hideAmount = e != null && e.isAmountHidden == 'Y';
     // 기존 보유 복사. 레거시 단일 연동(tossSymbol/tossQuantity)은 보유 1건으로 이관.
     _rows = e == null
         ? []
@@ -466,6 +469,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           institution: brand,
           memo: Patch.set(memo.isEmpty ? null : memo),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          isAmountHidden: _hideAmount ? 'Y' : 'N',
           holdings: holdings,
         );
       } else {
@@ -480,6 +484,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           institution: brand,
           memo: memo.isEmpty ? null : memo,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          isAmountHidden: _hideAmount ? 'Y' : 'N',
           holdings: holdings,
         );
       }
@@ -701,6 +706,12 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         IncludeInTotalCard(
           value: _includeInTotal,
           onChanged: (v) => setState(() => _includeInTotal = v),
+        ),
+        // 합계 포함 바로 아래 — 둘 다 자산 하나에 붙는 표시 규칙이라 나란히 둔다.
+        const SizedBox(height: PSpace.x12),
+        HideAmountCard(
+          value: _hideAmount,
+          onChanged: (v) => setState(() => _hideAmount = v),
         ),
       ],
     );

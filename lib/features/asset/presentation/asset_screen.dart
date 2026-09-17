@@ -169,7 +169,17 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
               summaryDelta: summaryDelta,
               valuations: invMap,
               goals: ref.watch(savingGoalListProvider),
-              masked: ref.watch(hideCardProvider('asset.netWorth')),
+              // 카드를 **묶음마다** 읽는다. 예전엔 `asset.netWorth` 하나를 화면
+              // 전체에 흘려, 설정에서 "계좌" 만 껐는데 순자산·투자·카드까지 전부
+              // 가려졌다(2026-09-17 설계 조사, 웹은 카드별로 갈라 읽는다).
+              masks: _AssetMasks(
+                netWorth: ref.watch(hideCardProvider('asset.netWorth')),
+                accounts: ref.watch(hideCardProvider('asset.accounts')),
+                investments: ref.watch(hideCardProvider('asset.investments')),
+                cards: ref.watch(hideCardProvider('asset.cards')),
+                loans: ref.watch(hideCardProvider('asset.loans')),
+                savingGoals: ref.watch(hideCardProvider('asset.savingGoals')),
+              ),
               onToggleMask: () => context.push('/settings/hide-amounts'),
               tokens: t,
             );
@@ -180,6 +190,33 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
   }
 }
 
+/// 자산 화면의 마스킹 판정 — **묶음마다** 따로 든다.
+///
+/// 하나로 묶어 흘리면 설정에서 "계좌" 만 껐는데 순자산·투자·카드까지 전부 가려진다.
+/// 화면 최상단에서 한 번 읽어 이 값으로 내린다 — 행마다 provider 를 watch 하지 않는다.
+class _AssetMasks {
+  const _AssetMasks({
+    required this.netWorth,
+    required this.accounts,
+    required this.investments,
+    required this.cards,
+    required this.loans,
+    required this.savingGoals,
+  });
+
+  /// 순자산 히어로와 그 안의 계좌·투자·카드 소계.
+  ///
+  /// `asset.composition` 은 여기서 안 쓴다 — 앱 자산 화면에는 구성 도넛이 따로 없고,
+  /// 소계는 히어로 카드 안에 있어 그 카드를 따른다. 없는 자리에 바인딩을 만들면
+  /// 설정에서 켜도 아무 일이 안 일어난다.
+  final bool netWorth;
+  final bool accounts;
+  final bool investments;
+  final bool cards;
+  final bool loans;
+  final bool savingGoals;
+}
+
 class _AssetBody extends StatelessWidget {
   const _AssetBody({
     required this.assets,
@@ -187,7 +224,7 @@ class _AssetBody extends StatelessWidget {
     required this.summaryDelta,
     required this.valuations,
     required this.goals,
-    required this.masked,
+    required this.masks,
     required this.onToggleMask,
     required this.tokens,
   });
@@ -200,7 +237,7 @@ class _AssetBody extends StatelessWidget {
   final Map<int, InvestmentValuation> valuations;
   // 저축 목표 — 조회 전용 섹션 (관리는 설정 > 저축 목표).
   final AsyncValue<List<SavingGoal>> goals;
-  final bool masked;
+  final _AssetMasks masks;
   final VoidCallback onToggleMask;
   final PorestTokens tokens;
 
@@ -298,7 +335,7 @@ class _AssetBody extends StatelessWidget {
           accountsTotal: accountsTotal,
           investmentsTotal: investmentsTotal,
           cardsTotal: cardsTotal,
-          masked: masked,
+          masked: masks.netWorth,
           onToggleMask: onToggleMask,
           tokens: tokens,
         ),
@@ -307,7 +344,7 @@ class _AssetBody extends StatelessWidget {
           title: l.assetGroupAccount,
           assets: accounts,
           total: accountsTotal,
-          masked: masked,
+          masked: masks.accounts,
           tokens: tokens,
           kind: _GroupKind.account,
         ),
@@ -317,7 +354,7 @@ class _AssetBody extends StatelessWidget {
             title: l.assetGroupInvestment,
             assets: investments,
             total: investmentsTotal,
-            masked: masked,
+            masked: masks.investments,
             tokens: tokens,
             kind: _GroupKind.investment,
             valuations: valuations,
@@ -330,7 +367,7 @@ class _AssetBody extends StatelessWidget {
           total: cardsTotal,
           totalColor: tokens.fgExpense,
           negativeTotal: true,
-          masked: masked,
+          masked: masks.cards,
           tokens: tokens,
           kind: _GroupKind.card,
         ),
@@ -342,13 +379,17 @@ class _AssetBody extends StatelessWidget {
             total: loansTotal,
             totalColor: tokens.fgExpense,
             negativeTotal: true,
-            masked: masked,
+            masked: masks.loans,
             tokens: tokens,
             kind: _GroupKind.loan,
           ),
         ],
         const SizedBox(height: PSpace.x32),
-        _SavingGoalsSection(goals: goals, masked: masked, tokens: tokens),
+        _SavingGoalsSection(
+          goals: goals,
+          masked: masks.savingGoals,
+          tokens: tokens,
+        ),
       ],
     );
   }
@@ -854,13 +895,19 @@ class _TypeGroup extends StatelessWidget {
 class _AssetCard extends StatelessWidget {
   const _AssetCard({
     required this.asset,
-    required this.masked,
+    required bool masked,
     required this.negativeAmount,
     required this.tokens,
     this.valuation,
-  });
+  }) : _cardMasked = masked;
   final Asset asset;
-  final bool masked;
+
+  /// 이 묶음의 화면 카드가 켜졌는가.
+  final bool _cardMasked;
+
+  /// 화면 카드 **또는** 이 자산 자체가 가려져 있으면 가린다 — 합집합이다.
+  /// 두 축은 서로를 덮지 않는다(하나는 화면 설정, 하나는 자산의 속성).
+  bool get masked => _cardMasked || asset.isAmountHidden == 'Y';
   final bool negativeAmount;
   final PorestTokens tokens;
   // 투자 자산 라이브 평가(등락 표시용) — 투자 외엔 null.
@@ -1102,6 +1149,18 @@ class _AssetCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           l.assetExcludedFromTotal,
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.micro,
+                          ),
+                        ),
+                      ],
+                      // 카드로 가려진 것과 **이 자산이라서** 가려진 것을 구분해 준다 —
+                      // 배지가 없으면 왜 안 보이는지 알 수 없어 설정을 뒤지게 된다.
+                      if (asset.isAmountHidden == 'Y') ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          l.assetAmountHiddenBadge,
                           style: TextStyle(
                             color: t.fgTertiary,
                             fontSize: PFontSize.micro,

@@ -19,6 +19,7 @@ class MaskedAmount extends ConsumerWidget {
     this.style,
     this.maskedText = '••••••',
     required this.card,
+    this.force = false,
   });
 
   final int amount;
@@ -31,9 +32,15 @@ class MaskedAmount extends ConsumerWidget {
   /// 이 금액이 어느 카드에 속하는지 — 카드 목록은 [kHideCards] 에 있다.
   final String card;
 
+  /// 화면 카드와 **무관하게** 가린다 — 자산 하나에 붙은 `isAmountHidden` 같은 것.
+  ///
+  /// 두 축은 **합집합**이다. 카드 가리기는 "이 화면의 이 묶음을 가린다" 는 사용자
+  /// 설정이고, 이건 "이 자산은 늘 가린다" 는 대상의 속성이라 서로를 덮지 않는다.
+  final bool force;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hidden = ref.watch(hideCardProvider(card));
+    final hidden = ref.watch(hideCardProvider(card)) || force;
     final body = hidden ? maskedText : krw(amount, sign: sign, abs: abs);
     final resolvedSuffix = suffix ?? wonUnit();
     final text = resolvedSuffix.isEmpty ? body : '$body$resolvedSuffix';
@@ -50,6 +57,7 @@ class MaskedBlock extends ConsumerWidget {
     required this.child,
     this.placeholder,
     required this.card,
+    this.force = false,
   });
 
   final Widget child;
@@ -58,9 +66,12 @@ class MaskedBlock extends ConsumerWidget {
   /// 이 블록이 어느 카드에 속하는지.
   final String card;
 
+  /// [MaskedAmount.force] 와 같은 뜻 — 카드와 합집합이다.
+  final bool force;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hidden = ref.watch(hideCardProvider(card));
+    final hidden = ref.watch(hideCardProvider(card)) || force;
     if (!hidden) return child;
     return placeholder ??
         const Text('••••••', style: TextStyle(fontWeight: PFontWeight.bold));
