@@ -61,3 +61,36 @@ void scrollToKeyedItem({
 
   attempt(0);
 }
+
+/// 곧 만들어질 항목을 맞춘다 — **몇 프레임 기다려 준다.**
+///
+/// [scrollToKeyedItem] 과 다르다. 저쪽은 "어디 있는지 모르는 것을 찾아간다" 이고 이쪽은
+/// "이미 그 부근까지 왔으니, 만들어지기만 기다린다" 다. 그래서 순번도 컨트롤러도 필요 없다.
+///
+/// 앞선 그룹 이동이 **여러 프레임에 걸쳐** 끝난다(뛴다 → 다음 프레임 → 다시 시도).
+/// 그런데 호출부는 한 프레임 뒤에 한 번만 봤다 — 그 그룹 이동이 두 홉 이상 걸리면 행이
+/// 아직 안 만들어져 있고, `Scrollable.ensureVisible` 은 조용히 아무 일도 안 한다.
+/// 알림에서 들어온 거래가 화면에 안 걸리는 경우가 그것이다(QA 22차 추정).
+///
+/// [scrollToKeyedItem] 과 같은 이유로 프레임을 `await` 하지 않는다 — 위젯 테스트가
+/// 교착에 빠진다.
+void ensureVisibleWhenReady({
+  required GlobalKey? key,
+  double alignment = 0.2,
+  Duration duration = const Duration(milliseconds: 300),
+  int maxFrames = 8,
+}) {
+  if (key == null) return;
+
+  void attempt(int frame) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx, duration: duration, alignment: alignment);
+      return;
+    }
+    if (frame >= maxFrames) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => attempt(frame + 1));
+  }
+
+  attempt(0);
+}

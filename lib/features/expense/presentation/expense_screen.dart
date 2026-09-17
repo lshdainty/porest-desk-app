@@ -731,7 +731,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           // 알림·검색에서 들어온 거래는 목록 한참 아래일 수 있다 — 그 행은 아직
           // 안 만들어져 있어 바로 `ensureVisible` 하면 조용히 아무 일도 안 했다.
           // 먼저 **그 거래가 속한 날짜 그룹**으로 간 다음(그러면 행이 만들어진다)
-          // 다시 한 프레임 뒤에 행을 정확히 맞춘다.
+          // 행이 만들어지는 것을 기다려 정확히 맞춘다.
           String? focusDay;
           for (final e in filtered) {
             if (e.rowId == widget.focusTxId) {
@@ -752,16 +752,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                 alignment: 0.02,
               );
             }
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
-              if (ctx == null) return;
-              Scrollable.ensureVisible(
-                ctx,
-                duration: const Duration(milliseconds: 300),
-                alignment: 0.2,
-              );
-            });
+            // 그룹 이동은 여러 프레임에 걸쳐 끝난다 — 한 프레임 뒤에 한 번만 보면
+            // 두 홉 이상 걸린 경우 행이 아직 없어 조용히 건너뛴다(QA 22차 추정).
+            ensureVisibleWhenReady(key: _rowKeys[widget.focusTxId!]);
           });
         }
         return content;

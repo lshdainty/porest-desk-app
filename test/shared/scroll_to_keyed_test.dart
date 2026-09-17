@@ -8,6 +8,10 @@
 // - 화면 밖 항목은 애초에 context 가 없다(문제의 뿌리 — 이게 깨지면 이 헬퍼가 필요 없어진다)
 // - 그런 항목도 헬퍼를 거치면 화면에 들어온다
 // - 목록에 없는 항목을 불러도 죽지 않는다
+//
+// `ensureVisibleWhenReady` 는 그 다음 자리다 — 그룹까지는 갔고 행이 만들어지기만
+// 기다리는 경우. 그룹 이동이 두 홉 이상 걸리면 한 프레임 뒤 한 번의 시도는 아직 없는
+// 행을 만나 조용히 건너뛴다(QA 22차 추정).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:porest_desk_app/shared/scroll/scroll_to_keyed.dart';
@@ -106,5 +110,48 @@ void main() {
 
     // 아무 일도 안 일어났고 화면은 처음 그대로다.
     expect(find.text('day 0'), findsOneWidget);
+  });
+
+  group('ensureVisibleWhenReady — 만들어지기를 기다린다', () {
+    testWidgets('이미 만들어진 항목은 바로 맞춘다', (tester) async {
+      await pumpList(tester);
+
+      ensureVisibleWhenReady(key: keys[2]);
+      await tester.pumpAndSettle();
+
+      expect(tester.getRect(find.byKey(keys[2]!)).top, lessThan(600.0));
+    });
+
+    testWidgets('아직 안 만들어진 항목은 만들어진 뒤에 맞춘다', (tester) async {
+      await pumpList(tester);
+      expect(keys[30]!.currentContext, isNull);
+
+      ensureVisibleWhenReady(key: keys[30]);
+      // 아직 없다 — 여기서 포기하면 사용자 눈에는 "눌러도 반응이 없다" 다.
+      await tester.pump();
+      expect(ctrl.offset, 0.0);
+
+      // 앞선 그룹 이동이 몇 프레임 뒤에 끝나는 상황. 행 30 은 화면 바로 위에
+      // 만들어지지만(cacheExtent) 보이지는 않는다.
+      ctrl.jumpTo(31 * _rowHeight);
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      final rect = tester.getRect(find.byKey(keys[30]!));
+      expect(rect.top, greaterThanOrEqualTo(0.0));
+      expect(rect.top, lessThan(600.0));
+    });
+
+    testWidgets('끝까지 안 만들어져도 죽지 않는다', (tester) async {
+      await pumpList(tester);
+
+      ensureVisibleWhenReady(key: GlobalKey());
+      ensureVisibleWhenReady(key: null);
+      for (var i = 0; i < 12; i++) {
+        await tester.pump();
+      }
+
+      expect(ctrl.offset, 0.0);
+    });
   });
 }
