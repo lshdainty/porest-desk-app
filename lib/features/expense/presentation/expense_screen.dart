@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/shared/scroll/scroll_to_keyed.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
@@ -225,15 +226,22 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     }
   }
 
-  void _scrollToDay(String ds) {
-    _lockFor(800);
+  /// [order] 는 리스트에 **그려진 순서 그대로**의 날짜 그룹 목록이다. 필드로 들고
+  /// 있지 않고 받는 이유 — 그리는 쪽과 어긋날 여지를 아예 없앤다. 필드로 두면 누가
+  /// 대입 한 줄을 지우는 순간 순번이 -1 이 되어 **아무 일도 안 하는 상태로 조용히**
+  /// 돌아간다(이 버그가 정확히 그렇게 조용했다).
+  void _scrollToDay(String ds, List<String> order) {
+    // 먼 날짜는 아직 안 만들어져 있어 `ensureVisible` 만으로는 못 간다 —
+    // 그래서 순번을 함께 넘긴다(`scroll_to_keyed.dart` 설명 참고).
+    // 여러 프레임에 걸쳐 뛰므로 스크롤 스파이를 그동안 재운다.
+    _lockFor(1200);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _dayKeys[ds]?.currentContext;
-      if (ctx == null) return;
-      Scrollable.ensureVisible(
-        ctx,
-        duration: const Duration(milliseconds: 300),
-        alignment: 0.02,
+      if (!mounted) return;
+      scrollToKeyedItem(
+        controller: _scrollCtrl,
+        key: _dayKeys[ds],
+        index: order.indexOf(ds),
+        count: order.length,
       );
     });
   }
@@ -596,7 +604,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                 flags: ref.watch(maskFlagsProvider('ledger.calendar')),
                 onSelect: (ds) {
                   setState(() => _selected = ds);
-                  if (byDay.containsKey(ds)) _scrollToDay(ds);
+                  if (byDay.containsKey(ds)) _scrollToDay(ds, groupKeys);
                 },
                 onToggleExpand: () => setState(() {
                   _expanded = !_expanded;
@@ -720,16 +728,40 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           ],
         );
         if (widget.focusTxId != null && !_scrolledToFocus) {
+          // 알림·검색에서 들어온 거래는 목록 한참 아래일 수 있다 — 그 행은 아직
+          // 안 만들어져 있어 바로 `ensureVisible` 하면 조용히 아무 일도 안 했다.
+          // 먼저 **그 거래가 속한 날짜 그룹**으로 간 다음(그러면 행이 만들어진다)
+          // 다시 한 프레임 뒤에 행을 정확히 맞춘다.
+          String? focusDay;
+          for (final e in filtered) {
+            if (e.rowId == widget.focusTxId) {
+              focusDay = e.expenseDateOnly;
+              break;
+            }
+          }
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
-            final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
-            if (ctx == null) return;
-            Scrollable.ensureVisible(
-              ctx,
-              duration: const Duration(milliseconds: 300),
-              alignment: 0.2,
-            );
             _scrolledToFocus = true;
+            if (focusDay != null && focusDay.isNotEmpty) {
+              _lockFor(1200);
+              scrollToKeyedItem(
+                controller: _scrollCtrl,
+                key: _dayKeys[focusDay],
+                index: groupKeys.indexOf(focusDay),
+                count: groupKeys.length,
+                alignment: 0.02,
+              );
+            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
+              if (ctx == null) return;
+              Scrollable.ensureVisible(
+                ctx,
+                duration: const Duration(milliseconds: 300),
+                alignment: 0.2,
+              );
+            });
           });
         }
         return content;
