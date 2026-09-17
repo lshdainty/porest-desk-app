@@ -2296,8 +2296,8 @@
   "accountProStart": "Pro 시작",
   "accountManage": "계정 관리",
   "accountLogoutDesc": "이 기기에서만",
-  "accountWithdraw": "회원 탈퇴",
-  "accountWithdrawDesc": "영구 삭제",
+  "accountWithdraw": "desk 이용 해지",
+  "accountWithdrawDesc": "기록이 사라져요",
   "accountAppVersion": "앱 버전 {version}",
   "@accountAppVersion": {
     "placeholders": {
@@ -2316,9 +2316,7 @@
     }
   },
   "accountLogoutConfirm": "정말 로그아웃 하시겠어요?",
-  "accountWithdrawTitle": "회원 탈퇴",
-  "accountWithdrawAction": "탈퇴하기",
-  "accountWithdrawConfirm": "회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.",
+  "accountWithdrawTitle": "desk 이용 해지",
   "withdrawIntro": "해지하면 desk 에 쌓아 둔 기록이 사라지고 아래 항목이 함께 정리돼요.",
   "withdrawImpactCalendarsOwned": "내가 만든 공유 캘린더 {count}개가 삭제되고 멤버도 볼 수 없어요",
   "@withdrawImpactCalendarsOwned": {
