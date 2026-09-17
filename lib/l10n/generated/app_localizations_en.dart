@@ -4028,6 +4028,109 @@ class AppLocalizationsEn extends AppLocalizations {
       'Deleting your account permanently erases all data.\nThis cannot be undone.';
 
   @override
+  String get withdrawIntro =>
+      'Stopping desk removes everything you kept here, along with the items below.';
+
+  @override
+  String withdrawImpactCalendarsOwned(int count) {
+    return '$count shared calendar(s) you created will be deleted — members lose access too';
+  }
+
+  @override
+  String withdrawImpactCalendarMemberships(int count) {
+    return 'You will be removed from $count calendar(s) you joined';
+  }
+
+  @override
+  String withdrawImpactDutchPaysOwned(int count) {
+    return '$count settlement(s) you created will be deleted';
+  }
+
+  @override
+  String withdrawImpactDutchPayParticipations(int count) {
+    return 'You will appear as \"a former member\" in $count settlement(s) you joined';
+  }
+
+  @override
+  String get withdrawIrreversibleTitle => 'This cannot be undone';
+
+  @override
+  String get withdrawIrreversibleRejoin =>
+      'You cannot sign up again with the same ID or email address.';
+
+  @override
+  String get withdrawIrreversibleData =>
+      'Your records cannot be restored after this.';
+
+  @override
+  String get withdrawReasonLabel => 'Why are you leaving? (optional)';
+
+  @override
+  String get withdrawReasonPlaceholder =>
+      'Tell us and we will do better next time';
+
+  @override
+  String get withdrawNext => 'Continue';
+
+  @override
+  String get withdrawConfirm => 'Stop using desk';
+
+  @override
+  String get withdrawReauthIntro => 'Just once more, let us confirm it is you.';
+
+  @override
+  String get withdrawUseEmailCode => 'No password? Get a code by email';
+
+  @override
+  String get withdrawUsePassword => 'Use my password instead';
+
+  @override
+  String get withdrawCodeLabel => 'Verification code';
+
+  @override
+  String get withdrawCodePlaceholder => '6 digits';
+
+  @override
+  String get withdrawSendCode => 'Send code';
+
+  @override
+  String get withdrawResendCode => 'Send again';
+
+  @override
+  String get withdrawCodeSent => 'We sent a code to your email';
+
+  @override
+  String get withdrawCodeHint =>
+      'If you do not see it, check your spam folder.';
+
+  @override
+  String get withdrawFailed =>
+      'Could not stop your desk account. Please try again shortly';
+
+  @override
+  String get withdrawBlockedSubscription =>
+      'You still have an active subscription, so you cannot stop desk yet';
+
+  @override
+  String withdrawBlockedSubscriptionUntil(String date) {
+    return 'Your subscription runs until $date, so you cannot stop desk yet';
+  }
+
+  @override
+  String get withdrawBlockedOther => 'Your account cannot be stopped right now';
+
+  @override
+  String get withdrawBlockedHint =>
+      'Cancel your subscription first — you can stop desk once the paid period ends.';
+
+  @override
+  String get withdrawnTitle => 'Your desk account is closed';
+
+  @override
+  String get withdrawnBody =>
+      'Thank you for using desk. Everything you kept here has been cleared.';
+
+  @override
   String get notiUnreadPrefix => '';
 
   @override

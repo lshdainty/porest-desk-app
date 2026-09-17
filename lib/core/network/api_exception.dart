@@ -21,6 +21,15 @@ class ApiException implements Exception {
   bool get isUnauthorized => statusCode == 401 || code == 'AUTH_001';
   bool get isForbidden => statusCode == 403 || code == 'AUTH_003';
 
+  /// desk 이용을 해지한 계정으로 들어오려 한 것인가.
+  ///
+  /// desk-back `TokenExchangeService` 가 해지자의 토큰 교환을 이 코드로 끊는다.
+  /// 이걸 못 알아보면 로그인 화면이 보통의 실패로 보고 원문을 그대로 띄우는데,
+  /// 사용자는 왜 안 되는지 모른 채 다시 눌러 보게 된다.
+  ///
+  /// 문구가 아니라 **코드로** 본다 — 문구는 로케일마다 다르고 서버가 고치면 따라 바뀐다.
+  bool get isWithdrawn => code == 'USER_021';
+
   /// DioException 을 ApiException 으로 정규화.
   factory ApiException.fromDio(DioException e) {
     final res = e.response;
