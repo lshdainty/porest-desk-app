@@ -1411,9 +1411,10 @@ class _DayGroupHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final d = DateTime.tryParse(dayKey);
     final label = d == null ? null : formatDay(d);
-    // 서버 집계와 같은 규칙 — 환불 상계 + 예정 제외.
-    final dayExpense = expenseSum(items);
-    final dayIncome = incomeSum(items);
+    // 환불·예정은 빼고 **카드 이월은 넣는다** — 이 화면은 "이 카드로 쓴 것" 을 보여 주는
+    // 자리라, 목록에 있는 이월 거래가 그날 합계에서만 빠지면 숫자가 안 맞는다(D4).
+    final dayExpense = cardExpenseSum(items);
+    final dayIncome = cardIncomeSum(items);
     return Row(
       children: [
         Text(
