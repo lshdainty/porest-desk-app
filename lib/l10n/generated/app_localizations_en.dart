@@ -1249,6 +1249,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String assetBillingScheduledPortion(String amount) {
+    return 'Includes $amount not yet charged';
+  }
+
+  @override
   String get assetLimitSettings => 'Limit · payment';
 
   @override

@@ -2336,6 +2336,12 @@ abstract class AppLocalizations {
   /// **'카드 이용 기간 {period}'**
   String assetUsagePeriod(String period);
 
+  /// No description provided for @assetBillingScheduledPortion.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 안 온 예정 거래 {amount} 포함'**
+  String assetBillingScheduledPortion(String amount);
+
   /// No description provided for @assetLimitSettings.
   ///
   /// In ko, this message translates to:

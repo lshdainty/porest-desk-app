@@ -727,6 +727,10 @@
       }
     }
   },
+  "assetBillingScheduledPortion": "Includes {amount} not yet charged",
+  "@assetBillingScheduledPortion": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
   "assetLimitSettings": "Limit · payment",
   "assetLimitUsage": "Limit usage",
   "assetLimitPctUsed": "{pct}% used",

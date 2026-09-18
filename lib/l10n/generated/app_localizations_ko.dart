@@ -1230,6 +1230,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String assetBillingScheduledPortion(String amount) {
+    return '아직 안 온 예정 거래 $amount 포함';
+  }
+
+  @override
   String get assetLimitSettings => '한도 · 결제 설정';
 
   @override

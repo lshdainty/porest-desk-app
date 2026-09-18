@@ -1585,6 +1585,7 @@ class _CardStatement {
     this.installments = const [],
     this.lumpSumAmount,
     this.alreadyPaidAmount,
+    this.scheduledAmount,
   });
   final String label;
   final bool scheduled;
@@ -1602,6 +1603,12 @@ class _CardStatement {
   /// 예정 회차의 일시불 순사용액·기결제액 — 예정액 합을 설명하는 요약 행.
   final int? lumpSumAmount;
   final int? alreadyPaidAmount;
+
+  /// 이 회차 금액 중 **아직 오지 않은 분**.
+  ///
+  /// 한도 사용 게이지에 쓰는 잔액은 지금 이전만 세고 예정액은 기간 전체를 센다 — 딱
+  /// 이만큼 예정액이 커 보인다. 같은 화면의 두 숫자가 다른 이유라 그 자리에서 밝힌다.
+  final int? scheduledAmount;
 }
 
 /// 카드 월 실적 배지 — design 신판(달성/잔여 요약, 웹 CardPerfBadge 미러).
@@ -1764,6 +1771,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           installments: n.installments,
           lumpSumAmount: n.lumpSumAmount,
           alreadyPaidAmount: n.alreadyPaidAmount,
+          scheduledAmount: n.scheduledAmount,
         ),
       );
     }
@@ -1781,6 +1789,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           installments: b.upcomingInstallments,
           lumpSumAmount: b.upcomingLumpSumAmount,
           alreadyPaidAmount: b.upcomingAlreadyPaidAmount,
+          scheduledAmount: b.upcomingScheduledAmount,
         ),
       );
     }
@@ -2405,6 +2414,19 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   ],
                 ),
               ),
+              // 예정액이 한도 사용(=잔액)과 다른 이유를 그 숫자 바로 아래에서 밝힌다.
+              // 잔액은 아직 안 온 거래를 안 세고 예정액은 센다 — 딱 이만큼이다.
+              if (st?.scheduled == true && (st?.scheduledAmount ?? 0) > 0) ...[
+                const SizedBox(height: 6),
+                Text(
+                  widget.masked
+                      ? l.assetBillingScheduledPortion('••••••')
+                      : l.assetBillingScheduledPortion(
+                          krwSigned(st!.scheduledAmount!, false, unit: true),
+                        ),
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
+              ],
               if (st != null && !st.scheduled) ...[
                 const SizedBox(height: 6),
                 Row(
