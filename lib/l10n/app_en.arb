@@ -306,7 +306,7 @@
   "assetCardSearchHint": "Search card or issuer",
   "assetNicknameOptional": "Nickname (optional)",
   "assetCardNicknamePlaceholder": "e.g. Shinhan Deep Dream",
-  "assetCurrentUsage": "Current usage ({unit})",
+  "assetCurrentUsage": "Unpaid balance ({unit})",
   "@assetCurrentUsage": {
     "placeholders": {
       "unit": {
@@ -314,7 +314,7 @@
       }
     }
   },
-  "assetCurrentUsageHint": "Enter the amount not yet paid. If left at 0, every expense entered on this card (including past dates) counts as unpaid usage.",
+  "assetCurrentUsageHint": "Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.",
   "assetNewCard": "New card",
   "assetCatalogLoadError": "Failed to load catalog",
   "assetAnnualFee": "Annual fee",

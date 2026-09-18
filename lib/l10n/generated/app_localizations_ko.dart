@@ -605,12 +605,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetCurrentUsage(String unit) {
-    return '현재 사용액 ($unit)';
+    return '이전 미결제 사용액 ($unit)';
   }
 
   @override
   String get assetCurrentUsageHint =>
-      '아직 결제되지 않은 사용액을 적어 주세요. 0으로 두면 이 카드에 입력하는 모든 내역(지난 날짜 포함)이 미결제 사용액으로 잡혀요.';
+      '아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.';
 
   @override
   String get assetNewCard => '새 카드';

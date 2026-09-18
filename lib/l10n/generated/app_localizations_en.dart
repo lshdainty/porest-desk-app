@@ -615,12 +615,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String assetCurrentUsage(String unit) {
-    return 'Current usage ($unit)';
+    return 'Unpaid balance ($unit)';
   }
 
   @override
   String get assetCurrentUsageHint =>
-      'Enter the amount not yet paid. If left at 0, every expense entered on this card (including past dates) counts as unpaid usage.';
+      'Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.';
 
   @override
   String get assetNewCard => 'New card';

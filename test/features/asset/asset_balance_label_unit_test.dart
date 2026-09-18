@@ -149,12 +149,12 @@ void main() {
 
   testWidgets('카드 — 사용액·신용한도가 같은 단위다', (tester) async {
     await _host(tester, showCardAddDialog);
-    expect(find.text('현재 사용액 (원)'), findsOneWidget);
+    expect(find.text('이전 미결제 사용액 (원)'), findsOneWidget);
     expect(find.text('신용한도 (원, 선택)'), findsOneWidget);
 
     await _pickCurrency(tester, '\$ USD');
 
-    expect(find.text('현재 사용액 (\$)'), findsOneWidget);
+    expect(find.text('이전 미결제 사용액 (\$)'), findsOneWidget);
     expect(find.text('신용한도 (\$, 선택)'), findsOneWidget);
   });
 
