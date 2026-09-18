@@ -2336,12 +2336,6 @@ abstract class AppLocalizations {
   /// **'카드 이용 기간 {period}'**
   String assetUsagePeriod(String period);
 
-  /// No description provided for @assetBillingScheduledPortion.
-  ///
-  /// In ko, this message translates to:
-  /// **'아직 안 온 예정 거래 {amount} 포함'**
-  String assetBillingScheduledPortion(String amount);
-
   /// No description provided for @assetLimitSettings.
   ///
   /// In ko, this message translates to:
@@ -3584,11 +3578,65 @@ abstract class AppLocalizations {
   /// **'환불'**
   String get expRefund;
 
-  /// No description provided for @expRefundRecord.
+  /// No description provided for @expRefundConfirmTitle.
   ///
   /// In ko, this message translates to:
-  /// **'환불 기록'**
-  String get expRefundRecord;
+  /// **'환불 처리'**
+  String get expRefundConfirmTitle;
+
+  /// No description provided for @expRefundConfirmBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래를 환불로 표시하고 {amount}을 {asset}(으)로 되돌려요. 합계에서 빠져요.'**
+  String expRefundConfirmBody(String amount, String asset);
+
+  /// No description provided for @expRefundConfirmBodyCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 결제된 금액은 결제계좌로 환급돼요.'**
+  String get expRefundConfirmBodyCard;
+
+  /// No description provided for @expRefundConfirmBodyCardNoAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제계좌가 없어 카드 잔액만 정리돼요.'**
+  String get expRefundConfirmBodyCardNoAccount;
+
+  /// No description provided for @expRefundDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불일'**
+  String get expRefundDate;
+
+  /// No description provided for @expRefundConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 처리'**
+  String get expRefundConfirm;
+
+  /// No description provided for @expRefundedAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불됨 · {date}'**
+  String expRefundedAt(String date);
+
+  /// No description provided for @expRefundCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 취소'**
+  String get expRefundCancel;
+
+  /// No description provided for @expRefundCancelConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.'**
+  String get expRefundCancelConfirm;
+
+  /// No description provided for @expRefundedBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불됨'**
+  String get expRefundedBadge;
 
   /// No description provided for @expLumpSum.
   ///
@@ -3817,60 +3865,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'예정'**
   String get expScheduled;
-
-  /// No description provided for @expDeleteRefundWarn.
-  ///
-  /// In ko, this message translates to:
-  /// **'이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요'**
-  String expDeleteRefundWarn(int count, String amount);
-
-  /// No description provided for @expRefundLinked.
-  ///
-  /// In ko, this message translates to:
-  /// **'환불 {count}건 · {amount}원이 이 거래에 묶여 있어요'**
-  String expRefundLinked(int count, String amount);
-
-  /// No description provided for @expRefundOfLinked.
-  ///
-  /// In ko, this message translates to:
-  /// **'원거래에 묶인 환불이에요'**
-  String get expRefundOfLinked;
-
-  /// No description provided for @expRefundUnlink.
-  ///
-  /// In ko, this message translates to:
-  /// **'환불 취소'**
-  String get expRefundUnlink;
-
-  /// No description provided for @expRefundUnlinkConfirm.
-  ///
-  /// In ko, this message translates to:
-  /// **'원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.'**
-  String get expRefundUnlinkConfirm;
-
-  /// No description provided for @expRefundCap.
-  ///
-  /// In ko, this message translates to:
-  /// **'환불은 원거래 금액을 넘을 수 없어요 — 최대 {max}원까지 넣을 수 있어요'**
-  String expRefundCap(String max);
-
-  /// No description provided for @expRefundCapLeft.
-  ///
-  /// In ko, this message translates to:
-  /// **'이미 {refunded}원 환불됐어요 — 남은 {max}원까지 넣을 수 있어요'**
-  String expRefundCapLeft(String refunded, String max);
-
-  /// No description provided for @expRefundCapUsedUp.
-  ///
-  /// In ko, this message translates to:
-  /// **'원거래 금액을 이미 다 환불했어요 — 더 넣을 금액이 없어요'**
-  String get expRefundCapUsedUp;
-
-  /// No description provided for @expRefundAmountLocked.
-  ///
-  /// In ko, this message translates to:
-  /// **'환불 금액은 고칠 수 없어요 — 지우고 다시 넣어 주세요'**
-  String get expRefundAmountLocked;
 
   /// No description provided for @expTypeTransfer.
   ///

@@ -1249,11 +1249,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String assetBillingScheduledPortion(String amount) {
-    return 'Includes $amount not yet charged';
-  }
-
-  @override
   String get assetLimitSettings => 'Limit · payment';
 
   @override
@@ -1925,7 +1920,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expRefund => 'Refund';
 
   @override
-  String get expRefundRecord => 'Record refund';
+  String get expRefundConfirmTitle => 'Mark as refunded';
+
+  @override
+  String expRefundConfirmBody(String amount, String asset) {
+    return 'Marks this transaction as refunded and returns $amount to $asset. It leaves your totals.';
+  }
+
+  @override
+  String get expRefundConfirmBodyCard =>
+      'Any amount already paid goes back to the payment account.';
+
+  @override
+  String get expRefundConfirmBodyCardNoAccount =>
+      'No payment account is linked, so only the card balance is adjusted.';
+
+  @override
+  String get expRefundDate => 'Refund date';
+
+  @override
+  String get expRefundConfirm => 'Mark refunded';
+
+  @override
+  String expRefundedAt(String date) {
+    return 'Refunded · $date';
+  }
+
+  @override
+  String get expRefundCancel => 'Undo refund';
+
+  @override
+  String get expRefundCancelConfirm =>
+      'Remove the refund mark? This transaction counts in your totals again, and any refunded amount is reversed.';
+
+  @override
+  String get expRefundedBadge => 'Refunded';
 
   @override
   String get expLumpSum => 'Lump sum';
@@ -2062,45 +2091,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expScheduled => 'Scheduled';
-
-  @override
-  String expDeleteRefundWarn(int count, String amount) {
-    return '$count linked refund(s) ($amount KRW) will also be deleted';
-  }
-
-  @override
-  String expRefundLinked(int count, String amount) {
-    return '$count refund(s) · $amount KRW linked to this transaction';
-  }
-
-  @override
-  String get expRefundOfLinked =>
-      'This is a refund linked to the original transaction';
-
-  @override
-  String get expRefundUnlink => 'Unlink refund';
-
-  @override
-  String get expRefundUnlinkConfirm =>
-      'Unlink from the original transaction? The transaction stays and becomes ordinary income, and the original expense counts in full again.';
-
-  @override
-  String expRefundCap(String max) {
-    return 'A refund cannot exceed the original amount — you can enter up to $max KRW';
-  }
-
-  @override
-  String expRefundCapLeft(String refunded, String max) {
-    return '$refunded KRW is already refunded — you can enter up to the remaining $max KRW';
-  }
-
-  @override
-  String get expRefundCapUsedUp =>
-      'The original amount is already fully refunded — nothing left to refund';
-
-  @override
-  String get expRefundAmountLocked =>
-      'A refund amount cannot be edited — delete it and add it again';
 
   @override
   String get expTypeTransfer => 'Transfer';

@@ -18,12 +18,15 @@ mixin _$Expense {
  int get rowId; int? get userRowId; int? get categoryRowId; String? get categoryName; String? get categoryIcon; String? get categoryColor; int? get assetRowId; String? get assetName; String get expenseType;// 'EXPENSE' | 'INCOME'
  int get amount; String? get description; String? get expenseDate;// ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')
  String? get merchant; String? get paymentMethod;/// 할부 개월 (null = 일시불). 신용카드 결제에만 의미.
- int? get installmentMonths;/// 환불 원거래 행 아이디 (null = 환불 아님). 수입이면서 이 값이 있으면 지출 상계로 집계.
- int? get refundOfExpenseRowId;/// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
+ int? get installmentMonths;/// 환불 처리 시각 (null = 환불 아님). ISO LocalDateTime.
+///
+/// 환불은 **원거래에 찍는 표식**이다 — 수입 행을 만들지 않는다. 있으면
+/// 합계·예산·통계·카드 청구에서 삭제와 똑같이 빠지고, 내역·검색에는 남는다.
+ String? get refundedAt;/// 환불 마크가 만든 카드→결제계좌 환급 이체 (null = 없음).
+ int? get refundTransferRowId;/// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
  double? get originalAmount;/// 원 통화 (ISO 4217, 예: USD).
  String? get originalCurrency;/// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
- double? get exchangeRate;/// 이 거래에 달린 환불 건수·합계. 지우면 함께 사라지므로 화면이 미리 알린다.
- int get refundCount; int get refundedAmount;/// 시스템이 만든 거래의 출처 — `TRADE_REALIZED`(매도 실현손익) /
+ double? get exchangeRate;/// 시스템이 만든 거래의 출처 — `TRADE_REALIZED`(매도 실현손익) /
 /// `TRANSFER_INTEREST`(이체 이자). null 이면 손으로 쓴 거래다.
 ///
 /// 값이 있으면 금액·날짜·자산은 계산 결과라 고칠 수 없다. 원본 거래를 지우면
@@ -42,16 +45,16 @@ $ExpenseCopyWith<Expense> get copyWith => _$ExpenseCopyWithImpl<Expense>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.refundOfExpenseRowId, refundOfExpenseRowId) || other.refundOfExpenseRowId == refundOfExpenseRowId)&&(identical(other.originalAmount, originalAmount) || other.originalAmount == originalAmount)&&(identical(other.originalCurrency, originalCurrency) || other.originalCurrency == originalCurrency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.refundCount, refundCount) || other.refundCount == refundCount)&&(identical(other.refundedAmount, refundedAmount) || other.refundedAmount == refundedAmount)&&(identical(other.autoSource, autoSource) || other.autoSource == autoSource)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&const DeepCollectionEquality().equals(other.splitCategoryRowIds, splitCategoryRowIds)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.refundedAt, refundedAt) || other.refundedAt == refundedAt)&&(identical(other.refundTransferRowId, refundTransferRowId) || other.refundTransferRowId == refundTransferRowId)&&(identical(other.originalAmount, originalAmount) || other.originalAmount == originalAmount)&&(identical(other.originalCurrency, originalCurrency) || other.originalCurrency == originalCurrency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.autoSource, autoSource) || other.autoSource == autoSource)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&const DeepCollectionEquality().equals(other.splitCategoryRowIds, splitCategoryRowIds)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,installmentMonths,refundOfExpenseRowId,originalAmount,originalCurrency,exchangeRate,refundCount,refundedAmount,autoSource,calendarEventRowId,todoRowId,const DeepCollectionEquality().hash(splitCategoryRowIds),createAt,modifyAt]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,installmentMonths,refundedAt,refundTransferRowId,originalAmount,originalCurrency,exchangeRate,autoSource,calendarEventRowId,todoRowId,const DeepCollectionEquality().hash(splitCategoryRowIds),createAt,modifyAt]);
 
 @override
 String toString() {
-  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, installmentMonths: $installmentMonths, refundOfExpenseRowId: $refundOfExpenseRowId, originalAmount: $originalAmount, originalCurrency: $originalCurrency, exchangeRate: $exchangeRate, refundCount: $refundCount, refundedAmount: $refundedAmount, autoSource: $autoSource, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, splitCategoryRowIds: $splitCategoryRowIds, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, installmentMonths: $installmentMonths, refundedAt: $refundedAt, refundTransferRowId: $refundTransferRowId, originalAmount: $originalAmount, originalCurrency: $originalCurrency, exchangeRate: $exchangeRate, autoSource: $autoSource, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, splitCategoryRowIds: $splitCategoryRowIds, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -62,7 +65,7 @@ abstract mixin class $ExpenseCopyWith<$Res>  {
   factory $ExpenseCopyWith(Expense value, $Res Function(Expense) _then) = _$ExpenseCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? installmentMonths, int? refundOfExpenseRowId, double? originalAmount, String? originalCurrency, double? exchangeRate, int refundCount, int refundedAmount, String? autoSource, int? calendarEventRowId, int? todoRowId, List<int> splitCategoryRowIds, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? installmentMonths, String? refundedAt, int? refundTransferRowId, double? originalAmount, String? originalCurrency, double? exchangeRate, String? autoSource, int? calendarEventRowId, int? todoRowId, List<int> splitCategoryRowIds, String? createAt, String? modifyAt
 });
 
 
@@ -79,7 +82,7 @@ class _$ExpenseCopyWithImpl<$Res>
 
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? installmentMonths = freezed,Object? refundOfExpenseRowId = freezed,Object? originalAmount = freezed,Object? originalCurrency = freezed,Object? exchangeRate = freezed,Object? refundCount = null,Object? refundedAmount = null,Object? autoSource = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? splitCategoryRowIds = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? installmentMonths = freezed,Object? refundedAt = freezed,Object? refundTransferRowId = freezed,Object? originalAmount = freezed,Object? originalCurrency = freezed,Object? exchangeRate = freezed,Object? autoSource = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? splitCategoryRowIds = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -96,13 +99,12 @@ as String?,expenseDate: freezed == expenseDate ? _self.expenseDate : expenseDate
 as String?,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
 as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,installmentMonths: freezed == installmentMonths ? _self.installmentMonths : installmentMonths // ignore: cast_nullable_to_non_nullable
-as int?,refundOfExpenseRowId: freezed == refundOfExpenseRowId ? _self.refundOfExpenseRowId : refundOfExpenseRowId // ignore: cast_nullable_to_non_nullable
+as int?,refundedAt: freezed == refundedAt ? _self.refundedAt : refundedAt // ignore: cast_nullable_to_non_nullable
+as String?,refundTransferRowId: freezed == refundTransferRowId ? _self.refundTransferRowId : refundTransferRowId // ignore: cast_nullable_to_non_nullable
 as int?,originalAmount: freezed == originalAmount ? _self.originalAmount : originalAmount // ignore: cast_nullable_to_non_nullable
 as double?,originalCurrency: freezed == originalCurrency ? _self.originalCurrency : originalCurrency // ignore: cast_nullable_to_non_nullable
 as String?,exchangeRate: freezed == exchangeRate ? _self.exchangeRate : exchangeRate // ignore: cast_nullable_to_non_nullable
-as double?,refundCount: null == refundCount ? _self.refundCount : refundCount // ignore: cast_nullable_to_non_nullable
-as int,refundedAmount: null == refundedAmount ? _self.refundedAmount : refundedAmount // ignore: cast_nullable_to_non_nullable
-as int,autoSource: freezed == autoSource ? _self.autoSource : autoSource // ignore: cast_nullable_to_non_nullable
+as double?,autoSource: freezed == autoSource ? _self.autoSource : autoSource // ignore: cast_nullable_to_non_nullable
 as String?,calendarEventRowId: freezed == calendarEventRowId ? _self.calendarEventRowId : calendarEventRowId // ignore: cast_nullable_to_non_nullable
 as int?,todoRowId: freezed == todoRowId ? _self.todoRowId : todoRowId // ignore: cast_nullable_to_non_nullable
 as int?,splitCategoryRowIds: null == splitCategoryRowIds ? _self.splitCategoryRowIds : splitCategoryRowIds // ignore: cast_nullable_to_non_nullable
@@ -193,10 +195,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? installmentMonths,  int? refundOfExpenseRowId,  double? originalAmount,  String? originalCurrency,  double? exchangeRate,  int refundCount,  int refundedAmount,  String? autoSource,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? installmentMonths,  String? refundedAt,  int? refundTransferRowId,  double? originalAmount,  String? originalCurrency,  double? exchangeRate,  String? autoSource,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Expense() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.installmentMonths,_that.refundOfExpenseRowId,_that.originalAmount,_that.originalCurrency,_that.exchangeRate,_that.refundCount,_that.refundedAmount,_that.autoSource,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.installmentMonths,_that.refundedAt,_that.refundTransferRowId,_that.originalAmount,_that.originalCurrency,_that.exchangeRate,_that.autoSource,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
   return orElse();
 
 }
@@ -214,10 +216,10 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? installmentMonths,  int? refundOfExpenseRowId,  double? originalAmount,  String? originalCurrency,  double? exchangeRate,  int refundCount,  int refundedAmount,  String? autoSource,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? installmentMonths,  String? refundedAt,  int? refundTransferRowId,  double? originalAmount,  String? originalCurrency,  double? exchangeRate,  String? autoSource,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
 switch (_that) {
 case _Expense():
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.installmentMonths,_that.refundOfExpenseRowId,_that.originalAmount,_that.originalCurrency,_that.exchangeRate,_that.refundCount,_that.refundedAmount,_that.autoSource,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.installmentMonths,_that.refundedAt,_that.refundTransferRowId,_that.originalAmount,_that.originalCurrency,_that.exchangeRate,_that.autoSource,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -234,10 +236,10 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? installmentMonths,  int? refundOfExpenseRowId,  double? originalAmount,  String? originalCurrency,  double? exchangeRate,  int refundCount,  int refundedAmount,  String? autoSource,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? installmentMonths,  String? refundedAt,  int? refundTransferRowId,  double? originalAmount,  String? originalCurrency,  double? exchangeRate,  String? autoSource,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Expense() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.installmentMonths,_that.refundOfExpenseRowId,_that.originalAmount,_that.originalCurrency,_that.exchangeRate,_that.refundCount,_that.refundedAmount,_that.autoSource,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.installmentMonths,_that.refundedAt,_that.refundTransferRowId,_that.originalAmount,_that.originalCurrency,_that.exchangeRate,_that.autoSource,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
   return null;
 
 }
@@ -249,7 +251,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 @JsonSerializable()
 
 class _Expense implements Expense {
-  const _Expense({required this.rowId, this.userRowId, this.categoryRowId, this.categoryName, this.categoryIcon, this.categoryColor, this.assetRowId, this.assetName, required this.expenseType, required this.amount, this.description, this.expenseDate, this.merchant, this.paymentMethod, this.installmentMonths, this.refundOfExpenseRowId, this.originalAmount, this.originalCurrency, this.exchangeRate, this.refundCount = 0, this.refundedAmount = 0, this.autoSource, this.calendarEventRowId, this.todoRowId, final  List<int> splitCategoryRowIds = const <int>[], this.createAt, this.modifyAt}): _splitCategoryRowIds = splitCategoryRowIds;
+  const _Expense({required this.rowId, this.userRowId, this.categoryRowId, this.categoryName, this.categoryIcon, this.categoryColor, this.assetRowId, this.assetName, required this.expenseType, required this.amount, this.description, this.expenseDate, this.merchant, this.paymentMethod, this.installmentMonths, this.refundedAt, this.refundTransferRowId, this.originalAmount, this.originalCurrency, this.exchangeRate, this.autoSource, this.calendarEventRowId, this.todoRowId, final  List<int> splitCategoryRowIds = const <int>[], this.createAt, this.modifyAt}): _splitCategoryRowIds = splitCategoryRowIds;
   factory _Expense.fromJson(Map<String, dynamic> json) => _$ExpenseFromJson(json);
 
 @override final  int rowId;
@@ -270,17 +272,19 @@ class _Expense implements Expense {
 @override final  String? paymentMethod;
 /// 할부 개월 (null = 일시불). 신용카드 결제에만 의미.
 @override final  int? installmentMonths;
-/// 환불 원거래 행 아이디 (null = 환불 아님). 수입이면서 이 값이 있으면 지출 상계로 집계.
-@override final  int? refundOfExpenseRowId;
+/// 환불 처리 시각 (null = 환불 아님). ISO LocalDateTime.
+///
+/// 환불은 **원거래에 찍는 표식**이다 — 수입 행을 만들지 않는다. 있으면
+/// 합계·예산·통계·카드 청구에서 삭제와 똑같이 빠지고, 내역·검색에는 남는다.
+@override final  String? refundedAt;
+/// 환불 마크가 만든 카드→결제계좌 환급 이체 (null = 없음).
+@override final  int? refundTransferRowId;
 /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
 @override final  double? originalAmount;
 /// 원 통화 (ISO 4217, 예: USD).
 @override final  String? originalCurrency;
 /// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
 @override final  double? exchangeRate;
-/// 이 거래에 달린 환불 건수·합계. 지우면 함께 사라지므로 화면이 미리 알린다.
-@override@JsonKey() final  int refundCount;
-@override@JsonKey() final  int refundedAmount;
 /// 시스템이 만든 거래의 출처 — `TRADE_REALIZED`(매도 실현손익) /
 /// `TRANSFER_INTEREST`(이체 이자). null 이면 손으로 쓴 거래다.
 ///
@@ -314,16 +318,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.refundOfExpenseRowId, refundOfExpenseRowId) || other.refundOfExpenseRowId == refundOfExpenseRowId)&&(identical(other.originalAmount, originalAmount) || other.originalAmount == originalAmount)&&(identical(other.originalCurrency, originalCurrency) || other.originalCurrency == originalCurrency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.refundCount, refundCount) || other.refundCount == refundCount)&&(identical(other.refundedAmount, refundedAmount) || other.refundedAmount == refundedAmount)&&(identical(other.autoSource, autoSource) || other.autoSource == autoSource)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&const DeepCollectionEquality().equals(other._splitCategoryRowIds, _splitCategoryRowIds)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.installmentMonths, installmentMonths) || other.installmentMonths == installmentMonths)&&(identical(other.refundedAt, refundedAt) || other.refundedAt == refundedAt)&&(identical(other.refundTransferRowId, refundTransferRowId) || other.refundTransferRowId == refundTransferRowId)&&(identical(other.originalAmount, originalAmount) || other.originalAmount == originalAmount)&&(identical(other.originalCurrency, originalCurrency) || other.originalCurrency == originalCurrency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.autoSource, autoSource) || other.autoSource == autoSource)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&const DeepCollectionEquality().equals(other._splitCategoryRowIds, _splitCategoryRowIds)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,installmentMonths,refundOfExpenseRowId,originalAmount,originalCurrency,exchangeRate,refundCount,refundedAmount,autoSource,calendarEventRowId,todoRowId,const DeepCollectionEquality().hash(_splitCategoryRowIds),createAt,modifyAt]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,installmentMonths,refundedAt,refundTransferRowId,originalAmount,originalCurrency,exchangeRate,autoSource,calendarEventRowId,todoRowId,const DeepCollectionEquality().hash(_splitCategoryRowIds),createAt,modifyAt]);
 
 @override
 String toString() {
-  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, installmentMonths: $installmentMonths, refundOfExpenseRowId: $refundOfExpenseRowId, originalAmount: $originalAmount, originalCurrency: $originalCurrency, exchangeRate: $exchangeRate, refundCount: $refundCount, refundedAmount: $refundedAmount, autoSource: $autoSource, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, splitCategoryRowIds: $splitCategoryRowIds, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, installmentMonths: $installmentMonths, refundedAt: $refundedAt, refundTransferRowId: $refundTransferRowId, originalAmount: $originalAmount, originalCurrency: $originalCurrency, exchangeRate: $exchangeRate, autoSource: $autoSource, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, splitCategoryRowIds: $splitCategoryRowIds, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -334,7 +338,7 @@ abstract mixin class _$ExpenseCopyWith<$Res> implements $ExpenseCopyWith<$Res> {
   factory _$ExpenseCopyWith(_Expense value, $Res Function(_Expense) _then) = __$ExpenseCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? installmentMonths, int? refundOfExpenseRowId, double? originalAmount, String? originalCurrency, double? exchangeRate, int refundCount, int refundedAmount, String? autoSource, int? calendarEventRowId, int? todoRowId, List<int> splitCategoryRowIds, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? installmentMonths, String? refundedAt, int? refundTransferRowId, double? originalAmount, String? originalCurrency, double? exchangeRate, String? autoSource, int? calendarEventRowId, int? todoRowId, List<int> splitCategoryRowIds, String? createAt, String? modifyAt
 });
 
 
@@ -351,7 +355,7 @@ class __$ExpenseCopyWithImpl<$Res>
 
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? installmentMonths = freezed,Object? refundOfExpenseRowId = freezed,Object? originalAmount = freezed,Object? originalCurrency = freezed,Object? exchangeRate = freezed,Object? refundCount = null,Object? refundedAmount = null,Object? autoSource = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? splitCategoryRowIds = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? installmentMonths = freezed,Object? refundedAt = freezed,Object? refundTransferRowId = freezed,Object? originalAmount = freezed,Object? originalCurrency = freezed,Object? exchangeRate = freezed,Object? autoSource = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? splitCategoryRowIds = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_Expense(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -368,13 +372,12 @@ as String?,expenseDate: freezed == expenseDate ? _self.expenseDate : expenseDate
 as String?,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
 as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,installmentMonths: freezed == installmentMonths ? _self.installmentMonths : installmentMonths // ignore: cast_nullable_to_non_nullable
-as int?,refundOfExpenseRowId: freezed == refundOfExpenseRowId ? _self.refundOfExpenseRowId : refundOfExpenseRowId // ignore: cast_nullable_to_non_nullable
+as int?,refundedAt: freezed == refundedAt ? _self.refundedAt : refundedAt // ignore: cast_nullable_to_non_nullable
+as String?,refundTransferRowId: freezed == refundTransferRowId ? _self.refundTransferRowId : refundTransferRowId // ignore: cast_nullable_to_non_nullable
 as int?,originalAmount: freezed == originalAmount ? _self.originalAmount : originalAmount // ignore: cast_nullable_to_non_nullable
 as double?,originalCurrency: freezed == originalCurrency ? _self.originalCurrency : originalCurrency // ignore: cast_nullable_to_non_nullable
 as String?,exchangeRate: freezed == exchangeRate ? _self.exchangeRate : exchangeRate // ignore: cast_nullable_to_non_nullable
-as double?,refundCount: null == refundCount ? _self.refundCount : refundCount // ignore: cast_nullable_to_non_nullable
-as int,refundedAmount: null == refundedAmount ? _self.refundedAmount : refundedAmount // ignore: cast_nullable_to_non_nullable
-as int,autoSource: freezed == autoSource ? _self.autoSource : autoSource // ignore: cast_nullable_to_non_nullable
+as double?,autoSource: freezed == autoSource ? _self.autoSource : autoSource // ignore: cast_nullable_to_non_nullable
 as String?,calendarEventRowId: freezed == calendarEventRowId ? _self.calendarEventRowId : calendarEventRowId // ignore: cast_nullable_to_non_nullable
 as int?,todoRowId: freezed == todoRowId ? _self.todoRowId : todoRowId // ignore: cast_nullable_to_non_nullable
 as int?,splitCategoryRowIds: null == splitCategoryRowIds ? _self._splitCategoryRowIds : splitCategoryRowIds // ignore: cast_nullable_to_non_nullable

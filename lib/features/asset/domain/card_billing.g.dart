@@ -63,7 +63,6 @@ _CardBilling _$CardBillingFromJson(Map<String, dynamic> json) => _CardBilling(
   upcomingLumpSumAmount: (json['upcomingLumpSumAmount'] as num?)?.toInt(),
   upcomingAlreadyPaidAmount: (json['upcomingAlreadyPaidAmount'] as num?)
       ?.toInt(),
-  upcomingScheduledAmount: (json['upcomingScheduledAmount'] as num?)?.toInt(),
   upcomingInstallments:
       (json['upcomingInstallments'] as List<dynamic>?)
           ?.map((e) => InstallmentDue.fromJson(e as Map<String, dynamic>))
@@ -90,7 +89,6 @@ Map<String, dynamic> _$CardBillingToJson(_CardBilling instance) =>
       'upcomingAmount': instance.upcomingAmount,
       'upcomingLumpSumAmount': instance.upcomingLumpSumAmount,
       'upcomingAlreadyPaidAmount': instance.upcomingAlreadyPaidAmount,
-      'upcomingScheduledAmount': instance.upcomingScheduledAmount,
       'upcomingInstallments': instance.upcomingInstallments,
       'upcomingPeriodStart': instance.upcomingPeriodStart,
       'upcomingPeriodEnd': instance.upcomingPeriodEnd,
@@ -109,7 +107,6 @@ _UpcomingCycle _$UpcomingCycleFromJson(Map<String, dynamic> json) =>
       amount: (json['amount'] as num).toInt(),
       lumpSumAmount: (json['lumpSumAmount'] as num?)?.toInt(),
       alreadyPaidAmount: (json['alreadyPaidAmount'] as num?)?.toInt(),
-      scheduledAmount: (json['scheduledAmount'] as num?)?.toInt(),
       installments:
           (json['installments'] as List<dynamic>?)
               ?.map((e) => InstallmentDue.fromJson(e as Map<String, dynamic>))
@@ -125,6 +122,5 @@ Map<String, dynamic> _$UpcomingCycleToJson(_UpcomingCycle instance) =>
       'amount': instance.amount,
       'lumpSumAmount': instance.lumpSumAmount,
       'alreadyPaidAmount': instance.alreadyPaidAmount,
-      'scheduledAmount': instance.scheduledAmount,
       'installments': instance.installments,
     };

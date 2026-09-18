@@ -36,7 +36,6 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -58,10 +57,6 @@ void showAddTxSheet(
   String? defaultDate,
   Expense? edit,
 
-  /// 환불 모드 — 이 지출의 환불을 기록한다.
-  /// 수입으로 들어가되 원거래에 묶여 통계에서 지출을 상계한다(수입으로 부풀지 않는다).
-  Expense? refundOf,
-
   /// 이체 편집 모드 — 서버가 이자 지출·잔액 이력을 되돌렸다 다시 만든다(rowId 유지).
   AssetTransfer? editTransfer,
 
@@ -74,13 +69,10 @@ void showAddTxSheet(
   final isEdit = edit != null || editTransfer != null;
   showPSheet<void>(
     context,
-    title: isEdit
-        ? l.expEdit
-        : (refundOf != null ? l.expRefundRecord : l.expAdd),
+    title: isEdit ? l.expEdit : l.expAdd,
     contentBuilder: (ctx, scrollCtrl) => _AddTxBody(
       defaultDate: defaultDate,
       edit: edit,
-      refundOf: refundOf,
       editTransfer: editTransfer,
       smsDraft: smsDraft,
       scrollController: scrollCtrl,
@@ -97,7 +89,6 @@ class _AddTxBody extends ConsumerStatefulWidget {
   const _AddTxBody({
     this.defaultDate,
     this.edit,
-    this.refundOf,
     this.editTransfer,
     this.smsDraft,
     required this.scrollController,
@@ -105,7 +96,6 @@ class _AddTxBody extends ConsumerStatefulWidget {
   });
   final String? defaultDate;
   final Expense? edit;
-  final Expense? refundOf;
   final AssetTransfer? editTransfer;
   final SmsDraft? smsDraft;
   final ScrollController scrollController;
@@ -197,48 +187,24 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     } else {
       date = DateTime.now();
     }
-    // 환불 모드 — 타입은 수입 고정(원거래 연결이 상계를 만든다), 나머지는 원거래 승계.
-    // 부분 환불이면 금액만 고치면 된다.
-    final r = widget.refundOf;
-    // 환불 상한 — **원거래 금액이 아니라 남은 금액**이다(QA #152).
-    final refundCap = r == null ? null : _refundCapOf(r);
     // 결제 문자 초안 — 카드 결제라 유형·결제수단은 고정이고, 나머지는 파싱 값을 채운다.
     final sms = widget.smsDraft?.parsed;
     _input = _TxInputController(
-      type: tr != null
-          ? 'TRANSFER'
-          : (r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE')),
+      type: tr != null ? 'TRANSFER' : (e?.expenseType ?? 'EXPENSE'),
       amount: tr != null
           ? tr.amount.toString()
           : e != null
           ? e.amount.toString()
-          : (refundCap != null
-                // 이미 일부 환불된 거래는 **남은 금액**으로 연다. 원거래 금액으로
-                // 열면 그대로 저장만 눌러도 합계가 원거래를 넘는다 — 포매터는
-                // 타이핑을 막을 뿐, 처음부터 들어 있는 값은 안 건드린다.
-                ? (refundCap > 0 ? refundCap.toString() : '')
-                : (sms?.amount?.toString() ?? '')),
+          : (sms?.amount?.toString() ?? ''),
       memo: tr?.description ?? e?.description ?? '',
-      merchant: e?.merchant ?? r?.merchant ?? sms?.merchant ?? '',
-      paymentMethod:
-          e?.paymentMethod ?? r?.paymentMethod ?? (sms != null ? 'CARD' : ''),
-      categoryRowId: e?.categoryRowId ?? r?.categoryRowId ?? sms?.categoryRowId,
+      merchant: e?.merchant ?? sms?.merchant ?? '',
+      paymentMethod: e?.paymentMethod ?? (sms != null ? 'CARD' : ''),
+      categoryRowId: e?.categoryRowId ?? sms?.categoryRowId,
       // 이체는 출금 자산이 assetRowId, 입금 자산이 toAssetRowId 다.
-      assetRowId:
-          tr?.fromAssetRowId ??
-          e?.assetRowId ??
-          r?.assetRowId ??
-          sms?.assetRowId,
+      assetRowId: tr?.fromAssetRowId ?? e?.assetRowId ?? sms?.assetRowId,
       date: date,
       time: time,
     );
-    _input.refundCap = refundCap;
-    _input.refundedBefore = r?.refundedAmount ?? 0;
-    // 환불 행을 **고치는** 자리인가 — 환불은 만들고 취소하는 것이지 고치는 게 아니다.
-    // 환불 행은 평범한 수입 행(`INCOME` + 원거래 연결)이라 가계부 목록에 섞여 표준
-    // 편집 경로에 그대로 걸린다. 판정은 집계와 같은 규칙([isRefundTx])을 쓴다 —
-    // 여기서 조건을 다시 쓰면 상계에 드는 행과 잠기는 행이 갈린다.
-    _input.editingRefundRow = e != null && isRefundTx(e);
     if (tr != null) {
       _input.toAssetRowId = tr.toAssetRowId;
       if ((tr.fee ?? 0) > 0) _input.feeCtrl.text = tr.fee.toString();
@@ -246,9 +212,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         _input.interestCtrl.text = tr.interestAmount.toString();
       }
     }
-    // 편집·환불은 원거래의 통화를 승계한다 — 해외 결제를 고치는데 원화로 되돌아가면
+    // 편집은 그 거래의 통화를 승계한다 — 해외 결제를 고치는데 원화로 되돌아가면
     // 원 통화 기록이 조용히 지워진다.
-    final src = e ?? r;
+    final src = e;
     if (src != null) {
       // 원화 거래는 `originalCurrency` 가 `null` 로 온다 — 그때도 원화라고 못
       // 박는다. 안 박으면 설정의 기본 통화가 흘러들어, 원화로 적어 둔 거래를
@@ -369,10 +335,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   bool get _canSubmit {
     final amount = _input.amountInt;
     if (_submitting || amount <= 0) return false;
-    // 환불은 남은 환불 가능액을 넘을 수 없다(QA #152). 금액칸의 포매터는 **타이핑만**
-    // 막는다 — 프리셋 적용과 외화 환산은 칸에 값을 직접 꽂으므로 그 경로로 들어온
-    // 초과값은 여기서만 걸린다.
-    if (_input.amountOverRefundCap) return false;
     if (_input.type == 'TRANSFER') {
       return _input.assetRowId != null &&
           _input.toAssetRowId != null &&
@@ -395,10 +357,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 할부는 신용카드 지출에만 — 그 밖의 조합에선 값을 흘리지 않는다.
     final installment = _input.installmentMonths > 1
         ? _input.installmentMonths
-        : null;
-    // 환불 모드에서만 원거래를 묶는다 — 이 연결이 통계 상계를 만든다.
-    final refundOf = (widget.refundOf != null && _input.type == 'INCOME')
-        ? widget.refundOf!.rowId
         : null;
     // 원 통화는 셋이 함께여야 의미가 있다 — 서버도 반쪽이면 전부 비운다.
     final origAmount = _input.origAmountOrNull;
@@ -461,8 +419,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       final edited = widget.edit;
       if (edited != null) {
         // 이 시트가 소유한 칸은 비운 상태 그대로 실어야 지워진다 — 키를 빼면
-        // 서버가 옛 값을 지킨다(QA #99). 환불 연결(refundOf)만 예외다:
-        // 편집 시트엔 그 칸이 없어, null 로 실으면 원거래 연결이 끊긴다.
+        // 서버가 옛 값을 지킨다(QA #99). 환불 표식은 이 시트의 칸이 아니다 —
+        // 전용 경로(`POST/DELETE /expense/{id}/refund`)만 건드린다.
         await repo.update(
           id: edited.rowId,
           categoryRowId: _input.categoryRowId!,
@@ -474,7 +432,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           merchant: Patch.set(merchant),
           paymentMethod: Patch.set(payment),
           installmentMonths: Patch.set(installment),
-          refundOfExpenseRowId: refundOf,
           originalAmount: Patch.set(origAmount),
           originalCurrency: Patch.set(origCurrency),
           exchangeRate: Patch.set(fxRate),
@@ -526,7 +483,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           merchant: merchant,
           paymentMethod: payment,
           installmentMonths: installment,
-          refundOfExpenseRowId: refundOf,
           originalAmount: origAmount,
           originalCurrency: origCurrency,
           exchangeRate: fxRate,
@@ -1206,13 +1162,6 @@ String _trimNum(double? v) {
       : s;
 }
 
-/// 환불 금액칸에 걸 상한 — 남은 환불 가능액([ExpenseX.refundableAmount]).
-///
-/// 거래 상한(100억)을 넘기지 않는다 — 상한이 생기기 전에 저장된 999억 지출이
-/// 남아 있고, 그 환불을 100억 위로 열어 주면 서버의 `@Max` 가 받지 않는다.
-int _refundCapOf(Expense original) =>
-    original.refundableAmount.clamp(0, kAmountMax);
-
 VoidCallback _syncKrwFromForeign(_TxInputController c) => () {
   final a = c.origAmountOrNull;
   final r = c.fxRateOrNull;
@@ -1331,38 +1280,8 @@ class _TxInputController {
   TimeOfDay time;
   bool amountLocked = false; // 프리셋 금액 잠금 (applyPreset 에서 set)
 
-  /// 환불 모드에서 이 환불이 넘을 수 없는 금액 — **원거래 금액 − 이미 환불된 금액**.
-  /// `null` 이면 환불 모드가 아니다(시트를 열 때 굳는다).
-  int? refundCap;
-
-  /// 원거래에 **이미 달려 있던** 환불 합계 — 안내 문구가 남은 금액과 함께 읽어 준다.
-  int refundedBefore = 0;
-
-  /// 지금 이 입력이 환불로 나가는가.
-  ///
-  /// 원거래 연결(`refundOfExpenseRowId`)을 싣는 조건과 **같아야 한다** — 환불 모드로
-  /// 열었어도 종류를 지출로 바꾸면 연결이 안 실려 그냥 지출이 된다. 그때 상한이
-  /// 남아 있으면 환불과 무관한 지출이 원거래 금액에 묶인다.
-  bool get isRefundInput => refundCap != null && type == 'INCOME';
-
-  /// 금액칸에 걸 상한 — 환불이면 남은 환불 가능액, 아니면 거래 상한(100억).
-  int get amountMaxForInput => isRefundInput ? refundCap! : kAmountMax;
-
-  /// 남은 환불 가능액이 0 인가 — 원거래를 이미 다 환불했다.
-  bool get refundExhausted => isRefundInput && refundCap == 0;
-
-  /// 상한을 넘긴 금액이 칸에 들어와 있는가.
-  bool get amountOverRefundCap => isRefundInput && amountInt > refundCap!;
-
-  /// **이미 있는 환불 행을 편집 중인가** — 금액칸을 잠근다(시트를 열 때 굳는다).
-  ///
-  /// 새 환불을 적는 [refundCap] 모드와 **반대편이다.** 그쪽은 얼마를 돌려받았는지
-  /// 쳐 넣는 자리라 금액이 열려 있어야 하고, 여기는 이미 적힌 환불이다.
-  ///
-  /// 환불 금액을 고치면 원거래의 지출 상계액이 조용히 달라진다 — 서버(#330)는
-  /// 상한 초과만 400 으로 막으므로 상한 안에서는 자유롭게 고쳐진다. 금액이 틀렸으면
-  /// 환불을 지우고 다시 넣는다(삭제는 열려 있다).
-  bool editingRefundRow = false;
+  /// 금액칸에 걸 상한 — 거래 상한(100억) 하나다.
+  int get amountMaxForInput => kAmountMax;
 
   /// 시스템이 만든 거래의 출처 (TRADE_REALIZED / TRANSFER_INTEREST). null 이면 손으로 쓴 거래.
   /// 값이 있으면 금액·날짜·자산이 잠긴다 — 서버도 같은 규칙으로 거른다.
@@ -1519,17 +1438,10 @@ class _TxInputForm extends ConsumerWidget {
         PTextInput(
           controller: c.amountCtrl,
           numbersOnly: true,
-          // 환불이면 남은 환불 가능액이 상한이다 — 넘는 값은 타이핑 자체가 안 된다
-          // (`AmountLimitFormatter`, 거래 100억 상한과 같은 방식).
+          // 거래 100억 상한 — 넘는 값은 타이핑 자체가 안 된다
+          // (`AmountLimitFormatter`).
           amountMax: c.amountMaxForInput,
-          // 다 환불된 거래는 넣을 금액이 0 이다. 상한 0 이면 어차피 한 글자도
-          // 안 찍히는데, 살아 있는 칸으로 두면 키가 안 먹는 고장으로 보인다.
-          // 이미 적힌 환불 행은 금액 자체가 못 바뀐다 — 아래 한 줄이 이유를 말한다.
-          enabled:
-              !c.amountLocked &&
-              !c.isAutoGenerated &&
-              !c.refundExhausted &&
-              !c.editingRefundRow,
+          enabled: !c.amountLocked && !c.isAutoGenerated,
           placeholder: '0',
           prefixText: amountInt > 0 ? amountPrefix : null,
           suffixText: wonUnit(),
@@ -1539,34 +1451,6 @@ class _TxInputForm extends ConsumerWidget {
           ),
           onChanged: (_) => onChanged(),
         ),
-        // 환불 상한을 **말해 준다.** 조용히 안 찍히는 칸은 고장으로 보인다
-        // (웹 #130 이 그 상태였다: 상한에 걸려 값이 깎여도 아무 말이 없었다).
-        // 프리셋·외화 환산은 칸에 값을 직접 꽂아 상한을 넘길 수 있으므로,
-        // 그때는 같은 한 줄을 빨갛게 세워 저장이 막힌 이유를 잇는다.
-        if (c.isRefundInput) ...[
-          const SizedBox(height: PSpace.x4),
-          Text(
-            c.refundExhausted
-                ? l.expRefundCapUsedUp
-                : c.refundedBefore > 0
-                ? l.expRefundCapLeft(krw(c.refundedBefore), krw(c.refundCap!))
-                : l.expRefundCap(krw(c.refundCap!)),
-            style: PTypo.caption.copyWith(
-              color: (c.refundExhausted || c.amountOverRefundCap)
-                  ? t.statusDanger
-                  : t.fgTertiary,
-            ),
-          ),
-        ],
-        // 환불 행은 금액이 잠긴다 — 잠긴 이유와 **대신 할 일**을 같은 자리에서
-        // 말해 준다(지우고 다시 넣는다). 메모·날짜·카테고리는 그대로 열려 있다.
-        if (c.editingRefundRow) ...[
-          const SizedBox(height: PSpace.x4),
-          Text(
-            l.expRefundAmountLocked,
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-          ),
-        ],
         // 왜 못 고치는지 알려 준다 — 잠긴 칸만 보여 주면 고장으로 보인다.
         if (c.isAutoGenerated) ...[
           const SizedBox(height: PSpace.x4),

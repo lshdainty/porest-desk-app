@@ -59,6 +59,10 @@ class ExpenseRow extends StatelessWidget {
     final cName =
         category?.categoryName ?? expense.categoryName ?? l.expUncategorized;
 
+    // 환불된 거래 — 합계에서 빠져 있다. 예정 거래와 같은 흐림을 쓰되 **배지로 갈라
+    // 보인다**(금액 취소선까지 더한다). 흐림만으로는 "아직 안 온 것" 과 구분이 안 된다.
+    final refunded = expense.isRefunded;
+
     final fg = resolveChartColor(context, colorRaw, fallback: t.fgBrand);
     final bg = softBg(context, fg);
     final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
@@ -72,7 +76,7 @@ class ExpenseRow extends StatelessWidget {
       // 거래와 같은 무게로 보이면 안 된다. 배지만으로는 눈에 잘 안 걸린다.
       // 웹 LedgerRow 의 dim(opacity-60) 정합.
       child: Opacity(
-        opacity: _isScheduled(expense.expenseDate) ? 0.6 : 1,
+        opacity: _isScheduled(expense.expenseDate) || refunded ? 0.6 : 1,
         child: Padding(
           // design `.m-scroll .tx-list .tx-row`: 12px 10px + radius 10 (플랫 행 리듬).
           // web pl-1.5(6)−ml-1(4) = 순 좌측 +2 정합(사용자 결정). 우측 0.
@@ -131,6 +135,27 @@ class ExpenseRow extends StatelessWidget {
                             ),
                           ),
                         ],
+                        // 환불된 거래 — 그 자리에 남아 있지만 합계에서는 빠졌다.
+                        if (refunded) ...[
+                          const SizedBox(width: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.bgMuted,
+                              borderRadius: PRadius.brXs,
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context).expRefundedBadge,
+                              style: PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                         // 분할 거래 표시 — 분할 아이콘 + 개수(쉬운 식별).
                         if (expense.splitCategoryRowIds.isNotEmpty) ...[
                           const SizedBox(width: 5),
@@ -175,6 +200,10 @@ class ExpenseRow extends StatelessWidget {
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.14,
+                  // 환불된 거래의 금액은 취소선 — 부호는 원래대로 둔다(지출은 −).
+                  // 부호를 뒤집으면 목록만 보고 수입으로 읽는다.
+                  decoration: refunded ? TextDecoration.lineThrough : null,
+                  decorationColor: refunded ? t.fgTertiary : null,
                 ),
               ),
             ],
