@@ -730,6 +730,10 @@
       }
     }
   },
+  "assetBillingScheduledPortion": "아직 안 온 예정 거래 {amount} 포함",
+  "@assetBillingScheduledPortion": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
   "assetLimitSettings": "한도 · 결제 설정",
   "assetLimitUsage": "한도 사용",
   "assetLimitPctUsed": "{pct}% 사용",
