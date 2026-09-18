@@ -1131,6 +1131,32 @@
   "expRefundCancel": "Undo refund",
   "expRefundCancelConfirm": "Remove the refund mark? This transaction counts in your totals again, and any refunded amount is reversed.",
   "expRefundedBadge": "Refunded",
+  "expPaidDeleteNote": "This was already paid, so {amount} goes back to the payment account.",
+  "@expPaidDeleteNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expPaidDeleteFallback": "If this was in an already-paid cycle, it goes back to the payment account.",
+  "expRefundedDeleteNote": "This was already refunded. Deleting only removes it from the list.",
+  "expPaidReduceNote": "The reduced {amount} goes back to the payment account. Save?",
+  "@expPaidReduceNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundedToast": "{amount} went back to the payment account.",
+  "@expRefundedToast": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "expLumpSum": "Lump sum",
   "expInstallmentMonths": "{months} months",
   "@expInstallmentMonths": {

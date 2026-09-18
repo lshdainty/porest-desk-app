@@ -5,6 +5,7 @@ import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 
 /// `/expenses`, `/expense/categories`, `/expense` 호출.
@@ -176,9 +177,46 @@ class ExpenseRepository {
     }
   }
 
-  Future<void> delete(int id) async {
+  /// 지우거나 고치면 결제계좌로 얼마가 돌아오는지 **미리** 센다(설계 13-1).
+  ///
+  /// 인자를 비우면 삭제 미리보기다. 수정 미리보기는 바뀔 값만 싣는다. 서버는 DB 를
+  /// 바꾸지 않는다.
+  ///
+  /// 확인창을 네트워크에 묶지 않으려고 **3초**에서 끊는다 — 그때는 화면이 금액 없는
+  /// 문구로 넘어간다. 확인 버튼은 이 호출을 기다리지 않는다.
+  Future<RefundPreview> refundPreview(
+    int id, {
+    int? amount,
+    int? assetRowId,
+    String? expenseDate,
+  }) async {
     try {
-      await _dio.delete<void>('/expense/$id');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expense/$id/refund-preview',
+        queryParameters: {
+          'amount': ?amount,
+          'assetRowId': ?assetRowId,
+          'expenseDate': ?expenseDate,
+        },
+        options: Options(receiveTimeout: const Duration(seconds: 3)),
+      );
+      return _unwrap(res, RefundPreview.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 지운다.
+  ///
+  /// 결제 완료 회차의 카드 거래였다면 결제계좌로 돌려준 금액이 함께 온다(없으면 null).
+  /// 옛 서버는 본문 없이 200 을 주므로 그때도 null 이다.
+  Future<int?> delete(int id) async {
+    try {
+      final res = await _dio.delete<Map<String, dynamic>>('/expense/$id');
+      final data = res.data?['data'];
+      return data is Map<String, dynamic>
+          ? data['refundedAmount'] as int?
+          : null;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

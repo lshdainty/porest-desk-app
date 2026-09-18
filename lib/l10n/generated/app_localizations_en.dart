@@ -1957,6 +1957,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expRefundedBadge => 'Refunded';
 
   @override
+  String expPaidDeleteNote(String amount) {
+    return 'This was already paid, so $amount goes back to the payment account.';
+  }
+
+  @override
+  String get expPaidDeleteFallback =>
+      'If this was in an already-paid cycle, it goes back to the payment account.';
+
+  @override
+  String get expRefundedDeleteNote =>
+      'This was already refunded. Deleting only removes it from the list.';
+
+  @override
+  String expPaidReduceNote(String amount) {
+    return 'The reduced $amount goes back to the payment account. Save?';
+  }
+
+  @override
+  String expRefundedToast(String amount) {
+    return '$amount went back to the payment account.';
+  }
+
+  @override
   String get expLumpSum => 'Lump sum';
 
   @override

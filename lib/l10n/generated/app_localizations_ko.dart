@@ -1932,6 +1932,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expRefundedBadge => '환불됨';
 
   @override
+  String expPaidDeleteNote(String amount) {
+    return '이미 결제된 거래라 결제계좌로 $amount이 환급돼요.';
+  }
+
+  @override
+  String get expPaidDeleteFallback => '이미 결제된 회차의 거래라면 결제계좌로 환급돼요.';
+
+  @override
+  String get expRefundedDeleteNote => '이미 환급된 거래예요. 지우면 내역에서만 사라져요.';
+
+  @override
+  String expPaidReduceNote(String amount) {
+    return '줄어든 $amount이 결제계좌로 환급돼요. 저장할까요?';
+  }
+
+  @override
+  String expRefundedToast(String amount) {
+    return '결제계좌로 $amount이 환급됐어요.';
+  }
+
+  @override
   String get expLumpSum => '일시불';
 
   @override
