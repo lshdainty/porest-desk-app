@@ -328,10 +328,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         for (final e in countableTx(filtered)) {
           final d = e.expenseDateOnly ?? '';
           final cur = byDay[d] ?? (out: 0, inn: 0);
-          // 환불은 그날 지출에서 빠진다 — 파랑 '+' 로 그리면 월 헤더와 어긋난다.
-          byDay[d] = isRefundTx(e)
-              ? (out: cur.out - e.amount.abs(), inn: cur.inn)
-              : e.expenseType == 'EXPENSE'
+          // 환불된 거래는 `countableTx` 가 이미 뺐다 — 여기서 또 가르지 않는다.
+          byDay[d] = e.expenseType == 'EXPENSE'
               ? (out: cur.out + e.amount.abs(), inn: cur.inn)
               : (out: cur.out, inn: cur.inn + e.amount.abs());
         }
@@ -808,11 +806,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     }
     // 최다 지출 카테고리 fallback.
     final byCat = <int?, int>{};
-    // 환불은 그 카테고리 지출을 깎는다 — 안 그러면 전액 환불한 카테고리가 1위가 된다.
+    // 환불된 거래는 `countableTx` 가 이미 뺐다 — 전액 환불한 카테고리는 저절로
+    // 후보에서 빠진다.
     for (final e in countableTx(raw)) {
-      if (isRefundTx(e)) {
-        byCat[e.categoryRowId] = (byCat[e.categoryRowId] ?? 0) - e.amount.abs();
-      } else if (e.expenseType == 'EXPENSE') {
+      if (e.expenseType == 'EXPENSE') {
         byCat[e.categoryRowId] = (byCat[e.categoryRowId] ?? 0) + e.amount.abs();
       }
     }

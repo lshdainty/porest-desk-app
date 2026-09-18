@@ -1230,11 +1230,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String assetBillingScheduledPortion(String amount) {
-    return '아직 안 온 예정 거래 $amount 포함';
-  }
-
-  @override
   String get assetLimitSettings => '한도 · 결제 설정';
 
   @override
@@ -1902,7 +1897,39 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expRefund => '환불';
 
   @override
-  String get expRefundRecord => '환불 기록';
+  String get expRefundConfirmTitle => '환불 처리';
+
+  @override
+  String expRefundConfirmBody(String amount, String asset) {
+    return '이 거래를 환불로 표시하고 $amount을 $asset(으)로 되돌려요. 합계에서 빠져요.';
+  }
+
+  @override
+  String get expRefundConfirmBodyCard => '이미 결제된 금액은 결제계좌로 환급돼요.';
+
+  @override
+  String get expRefundConfirmBodyCardNoAccount => '결제계좌가 없어 카드 잔액만 정리돼요.';
+
+  @override
+  String get expRefundDate => '환불일';
+
+  @override
+  String get expRefundConfirm => '환불 처리';
+
+  @override
+  String expRefundedAt(String date) {
+    return '환불됨 · $date';
+  }
+
+  @override
+  String get expRefundCancel => '환불 취소';
+
+  @override
+  String get expRefundCancelConfirm =>
+      '환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.';
+
+  @override
+  String get expRefundedBadge => '환불됨';
 
   @override
   String get expLumpSum => '일시불';
@@ -2032,42 +2059,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expScheduled => '예정';
-
-  @override
-  String expDeleteRefundWarn(int count, String amount) {
-    return '이 거래에 달린 환불 $count건($amount원)도 함께 사라져요';
-  }
-
-  @override
-  String expRefundLinked(int count, String amount) {
-    return '환불 $count건 · $amount원이 이 거래에 묶여 있어요';
-  }
-
-  @override
-  String get expRefundOfLinked => '원거래에 묶인 환불이에요';
-
-  @override
-  String get expRefundUnlink => '환불 취소';
-
-  @override
-  String get expRefundUnlinkConfirm =>
-      '원거래와의 연결을 끊을까요? 거래는 그대로 남고 일반 수입이 돼요. 원거래의 지출도 깎이지 않고 전액으로 잡혀요.';
-
-  @override
-  String expRefundCap(String max) {
-    return '환불은 원거래 금액을 넘을 수 없어요 — 최대 $max원까지 넣을 수 있어요';
-  }
-
-  @override
-  String expRefundCapLeft(String refunded, String max) {
-    return '이미 $refunded원 환불됐어요 — 남은 $max원까지 넣을 수 있어요';
-  }
-
-  @override
-  String get expRefundCapUsedUp => '원거래 금액을 이미 다 환불했어요 — 더 넣을 금액이 없어요';
-
-  @override
-  String get expRefundAmountLocked => '환불 금액은 고칠 수 없어요 — 지우고 다시 넣어 주세요';
 
   @override
   String get expTypeTransfer => '이체';

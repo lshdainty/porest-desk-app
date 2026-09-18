@@ -727,10 +727,6 @@
       }
     }
   },
-  "assetBillingScheduledPortion": "Includes {amount} not yet charged",
-  "@assetBillingScheduledPortion": {
-    "placeholders": { "amount": { "type": "String" } }
-  },
   "assetLimitSettings": "Limit · payment",
   "assetLimitUsage": "Limit usage",
   "assetLimitPctUsed": "{pct}% used",
@@ -1108,7 +1104,33 @@
   },
   "expInstallment": "Installment",
   "expRefund": "Refund",
-  "expRefundRecord": "Record refund",
+  "expRefundConfirmTitle": "Mark as refunded",
+  "expRefundConfirmBody": "Marks this transaction as refunded and returns {amount} to {asset}. It leaves your totals.",
+  "@expRefundConfirmBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundConfirmBodyCard": "Any amount already paid goes back to the payment account.",
+  "expRefundConfirmBodyCardNoAccount": "No payment account is linked, so only the card balance is adjusted.",
+  "expRefundDate": "Refund date",
+  "expRefundConfirm": "Mark refunded",
+  "expRefundedAt": "Refunded · {date}",
+  "@expRefundedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundCancel": "Undo refund",
+  "expRefundCancelConfirm": "Remove the refund mark? This transaction counts in your totals again, and any refunded amount is reversed.",
+  "expRefundedBadge": "Refunded",
   "expLumpSum": "Lump sum",
   "expInstallmentMonths": "{months} months",
   "@expInstallmentMonths": {
@@ -1192,52 +1214,6 @@
   "updateCheckFailed": "Couldn't check for a new version",
   "updateRequiredDesc": "This update is required. You can't use the app until you install it.",
   "expScheduled": "Scheduled",
-  "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
-  "@expDeleteRefundWarn": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expRefundLinked": "{count} refund(s) · {amount} KRW linked to this transaction",
-  "@expRefundLinked": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expRefundOfLinked": "This is a refund linked to the original transaction",
-  "expRefundUnlink": "Unlink refund",
-  "expRefundUnlinkConfirm": "Unlink from the original transaction? The transaction stays and becomes ordinary income, and the original expense counts in full again.",
-  "expRefundCap": "A refund cannot exceed the original amount — you can enter up to {max} KRW",
-  "@expRefundCap": {
-    "placeholders": {
-      "max": {
-        "type": "String"
-      }
-    }
-  },
-  "expRefundCapLeft": "{refunded} KRW is already refunded — you can enter up to the remaining {max} KRW",
-  "@expRefundCapLeft": {
-    "placeholders": {
-      "refunded": {
-        "type": "String"
-      },
-      "max": {
-        "type": "String"
-      }
-    }
-  },
-  "expRefundCapUsedUp": "The original amount is already fully refunded — nothing left to refund",
-  "expRefundAmountLocked": "A refund amount cannot be edited — delete it and add it again",
   "expTypeTransfer": "Transfer",
   "expTransferFrom": "From",
   "expTransferTo": "To",

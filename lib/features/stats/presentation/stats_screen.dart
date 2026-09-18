@@ -2100,13 +2100,9 @@ List<_TrendPoint> _computeTrendData(
       final cur = byDate[key];
       if (cur == null) continue;
       if (isScheduledTx(raw)) continue;
-      if (isRefundTx(e)) {
-        byDate[key] = (
-          income: cur.income,
-          expense: cur.expense - e.amount.abs(),
-          label: cur.label,
-        );
-      } else if (e.expenseType == 'INCOME') {
+      // 환불된 거래는 삭제와 똑같이 빠진다 — 그 달 지출이 소급해 줄어든다.
+      if (isRefundedTx(e)) continue;
+      if (e.expenseType == 'INCOME') {
         byDate[key] = (
           income: cur.income + e.amount,
           expense: cur.expense,

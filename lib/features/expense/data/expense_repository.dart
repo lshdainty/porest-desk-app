@@ -50,7 +50,6 @@ class ExpenseRepository {
     String? merchant,
     String? paymentMethod,
     int? installmentMonths,
-    int? refundOfExpenseRowId,
     double? originalAmount,
     String? originalCurrency,
     double? exchangeRate,
@@ -68,7 +67,6 @@ class ExpenseRepository {
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,
           'installmentMonths': ?installmentMonths,
-          'refundOfExpenseRowId': ?refundOfExpenseRowId,
           'originalAmount': ?originalAmount,
           'originalCurrency': ?originalCurrency,
           'exchangeRate': ?exchangeRate,
@@ -86,9 +84,9 @@ class ExpenseRepository {
   /// 비우고, 할부를 일시불로 되돌리고, 통화를 원화로 되돌려 외화 3종을 걷는 저장이
   /// 그대로 반영돼야 한다. 키를 빼면 서버가 옛 값을 지킨다.
   ///
-  /// [refundOfExpenseRowId] 는 [Patch] 가 아니다. 환불 연결은 **새 환불 거래를 만들 때만**
-  /// 정해지고 편집 시트에는 그 칸이 없다 — null 로 실으면 환불 거래를 한 번 고칠 때마다
-  /// 원거래와의 연결이 끊겨 통계 상계가 사라진다. 끊는 것은 [unlinkRefund] 가 한다.
+  /// 환불 표식은 여기로 안 온다. 찍고 걷는 자리는 전용 경로 둘뿐이다([refund] ·
+  /// [cancelRefund]) — 수정 본문에 폐기된 `refundOfExpenseRowId` 가 섞이면 서버가
+  /// EXP_044 로 400 을 낸다. 환불된 거래는 아예 못 고친다(서버 EXP_043).
   ///
   /// [splits] 가 non-null 이면 금액과 함께 분할을 원자적으로 교체(PUT body 에 splits 포함).
   /// null 이면 분할 미변경(백엔드가 기존 분할 유지). 금액↔분할 합 일치화(reconcile) 저장에 사용.
@@ -104,7 +102,6 @@ class ExpenseRepository {
     Patch<String> merchant = const Patch.keep(),
     Patch<String> paymentMethod = const Patch.keep(),
     Patch<int> installmentMonths = const Patch.keep(),
-    int? refundOfExpenseRowId,
     Patch<double> originalAmount = const Patch.keep(),
     Patch<String> originalCurrency = const Patch.keep(),
     Patch<double> exchangeRate = const Patch.keep(),
@@ -124,7 +121,6 @@ class ExpenseRepository {
           if (paymentMethod.present) 'paymentMethod': paymentMethod.value,
           if (installmentMonths.present)
             'installmentMonths': installmentMonths.value,
-          'refundOfExpenseRowId': ?refundOfExpenseRowId,
           if (originalAmount.present) 'originalAmount': originalAmount.value,
           if (originalCurrency.present)
             'originalCurrency': originalCurrency.value,
@@ -147,20 +143,32 @@ class ExpenseRepository {
     }
   }
 
-  /// 환불 연결만 끊는다 — 본문에 `refundOfExpenseRowId: null` **하나만** 싣는다.
+  /// 환불 표식을 찍는다 — 전용 경로다(`POST /expense/{id}/refund`).
   ///
-  /// [update] 로는 끊을 수 없다. 편집 시트엔 이 칸이 없어 그 메서드는 키를 아예 안
-  /// 싣는데(안 그러면 메모만 고쳐도 연결이 끊긴다), 그래서 "끊어라" 를 보낼 자리가
-  /// 없었다. 상세의 '환불 취소' 버튼이 여기로 온다.
+  /// 수정 PUT 으로는 만들 수 없다. 환불은 원거래를 그 자리에서 합계·잔액에서 빼고,
+  /// 결제 완료 회차의 카드 거래라면 카드→결제계좌 환급 이체까지 만드는 일이라
+  /// "칸 하나 고치기" 와 무게가 다르다.
   ///
-  /// 나머지 칸은 **키를 안 싣는다** — 서버가 안 온 칸을 그대로 두므로(QA #96) 금액·
-  /// 카테고리·일시를 다시 실을 이유가 없다. 다시 실으면 화면이 들고 있던 옛 값이
-  /// 그 사이 바뀐 값을 덮는다.
-  Future<Expense> unlinkRefund(int id) async {
+  /// [refundedAt] 은 사용자가 고른 **환불일**이다(정오로 온다 — 자정이면 같은 날
+  /// 앞서 찍힌 거래보다 과거가 되어 카드 회차 판정이 하루 밀린다). 안 고르면 키를
+  /// 안 싣고 서버가 제 시각으로 찍는다.
+  Future<Expense> refund(int id, {String? refundedAt}) async {
     try {
-      final res = await _dio.put<Map<String, dynamic>>(
-        '/expense/$id',
-        data: {'refundOfExpenseRowId': null},
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/expense/$id/refund',
+        data: {'refundedAt': ?refundedAt},
+      );
+      return _unwrap(res, Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 환불 표식을 걷는다 — 환급 이체까지 되돌린다(`DELETE /expense/{id}/refund`).
+  Future<Expense> cancelRefund(int id) async {
+    try {
+      final res = await _dio.delete<Map<String, dynamic>>(
+        '/expense/$id/refund',
       );
       return _unwrap(res, Expense.fromJson);
     } on DioException catch (e) {

@@ -59,6 +59,41 @@ import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
   return (dio, captured);
 }
 
+/// 메서드·경로·본문을 함께 잡는 Dio — 전용 경로(POST/DELETE)를 보는 테스트용.
+///
+/// [_capturingDio] 는 본문만 잡는다. 환불은 "어느 경로로 갔나" 가 계약의 절반이라
+/// (수정 PUT 으로 가면 서버가 400) 메서드와 경로도 함께 본다.
+typedef _Call = ({String method, String path, Map<String, dynamic>? body});
+
+(Dio, List<_Call>) _capturingRequests(Map<String, dynamic> data) {
+  final calls = <_Call>[];
+  final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) {
+        calls.add((
+          method: options.method,
+          path: options.path,
+          body: (options.data as Map?)?.cast<String, dynamic>(),
+        ));
+        handler.resolve(
+          Response<Map<String, dynamic>>(
+            requestOptions: options,
+            statusCode: 200,
+            data: {
+              'success': true,
+              'code': 'COMMON_200',
+              'message': 'OK',
+              'data': data,
+            },
+          ),
+        );
+      },
+    ),
+  );
+  return (dio, calls);
+}
+
 /// 키가 실렸고 그 값이 null 이다 — "지워라".
 void expectExplicitNull(Map<String, dynamic> body, String key) {
   expect(body.containsKey(key), isTrue, reason: '$key 키가 빠졌다 — 서버가 옛 값을 지킨다');
@@ -278,7 +313,7 @@ void main() {
       }
     });
 
-    test('환불 연결과 분할은 키가 없다 — 편집 시트에 없는 칸이다', () async {
+    test('환불 표식과 분할은 키가 없다 — 편집 시트에 없는 칸이다', () async {
       final (dio, captured) = _capturingDio(expenseJson);
 
       await ExpenseRepository(dio).update(
@@ -290,21 +325,42 @@ void main() {
         description: const Patch.set(null),
       );
 
+      // 폐기된 옛 키가 섞이면 서버가 EXP_044 로 400 을 낸다.
       expectAbsent(captured.single, 'refundOfExpenseRowId');
+      expectAbsent(captured.single, 'refundedAt');
+      expectAbsent(captured.single, 'refundTransferRowId');
       expectAbsent(captured.single, 'splits');
     });
 
-    test('환불 취소만 그 키를 싣는다 — 명시적 null 하나뿐이다', () async {
-      final (dio, captured) = _capturingDio(expenseJson);
+    // 환불은 **전용 경로**다. 수정 PUT 으로 만들 수도 풀 수도 없다 — 원거래를
+    // 합계·잔액에서 빼고 카드 환급 이체까지 만드는 일이라 "칸 하나 고치기" 와 무게가
+    // 다르고, 옛 키를 실으면 서버가 400 을 낸다.
+    test('환불은 POST /expense/{id}/refund 로, 환불일만 싣는다', () async {
+      final (dio, calls) = _capturingRequests(expenseJson);
 
-      await ExpenseRepository(dio).unlinkRefund(1);
+      await ExpenseRepository(dio).refund(1, refundedAt: '2026-09-18T12:00:00');
 
-      expectExplicitNull(captured.single, 'refundOfExpenseRowId');
-      // 나머지는 키가 없다 — 서버가 안 온 칸을 그대로 두므로(QA #96) 옛 금액·카테고리를
-      // 다시 실을 이유가 없다. 실으면 그 사이 웹에서 바뀐 값을 덮는다.
-      expect(captured.single.keys, [
-        'refundOfExpenseRowId',
-      ], reason: '환불 취소는 연결만 끊는다 — 다른 칸을 실으면 옛 값이 새 값을 덮는다');
+      expect(calls.single.method, 'POST');
+      expect(calls.single.path, '/expense/1/refund');
+      expect(calls.single.body, {'refundedAt': '2026-09-18T12:00:00'});
+    });
+
+    test('환불일을 안 고르면 본문이 빈다 — 서버가 지금으로 찍는다', () async {
+      final (dio, calls) = _capturingRequests(expenseJson);
+
+      await ExpenseRepository(dio).refund(1);
+
+      expect(calls.single.body, isEmpty);
+    });
+
+    test('환불 취소는 DELETE 다 — 본문이 없다', () async {
+      final (dio, calls) = _capturingRequests(expenseJson);
+
+      await ExpenseRepository(dio).cancelRefund(1);
+
+      expect(calls.single.method, 'DELETE');
+      expect(calls.single.path, '/expense/1/refund');
+      expect(calls.single.body, isNull);
     });
 
     test('생성 경로는 그대로다 — null 인 칸은 키째 빠진다', () async {

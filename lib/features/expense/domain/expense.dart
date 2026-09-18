@@ -25,8 +25,14 @@ abstract class Expense with _$Expense {
     /// 할부 개월 (null = 일시불). 신용카드 결제에만 의미.
     int? installmentMonths,
 
-    /// 환불 원거래 행 아이디 (null = 환불 아님). 수입이면서 이 값이 있으면 지출 상계로 집계.
-    int? refundOfExpenseRowId,
+    /// 환불 처리 시각 (null = 환불 아님). ISO LocalDateTime.
+    ///
+    /// 환불은 **원거래에 찍는 표식**이다 — 수입 행을 만들지 않는다. 있으면
+    /// 합계·예산·통계·카드 청구에서 삭제와 똑같이 빠지고, 내역·검색에는 남는다.
+    String? refundedAt,
+
+    /// 환불 마크가 만든 카드→결제계좌 환급 이체 (null = 없음).
+    int? refundTransferRowId,
 
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
     double? originalAmount,
@@ -36,10 +42,6 @@ abstract class Expense with _$Expense {
 
     /// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
     double? exchangeRate,
-
-    /// 이 거래에 달린 환불 건수·합계. 지우면 함께 사라지므로 화면이 미리 알린다.
-    @Default(0) int refundCount,
-    @Default(0) int refundedAmount,
 
     /// 시스템이 만든 거래의 출처 — `TRADE_REALIZED`(매도 실현손익) /
     /// `TRANSFER_INTEREST`(이체 이자). null 이면 손으로 쓴 거래다.
@@ -63,18 +65,8 @@ extension ExpenseX on Expense {
   /// 표시용 부호 적용 (지출=음수, 수입/이체=양수).
   int get signedAmount => expenseType == 'EXPENSE' ? -amount : amount;
 
-  /// 이 거래에 아직 환불할 수 있는 금액 — **금액 − 이미 환불된 금액**(QA #152).
-  ///
-  /// 환불 합계가 원거래를 넘으면 통계 상계가 원거래보다 커져 지출이 수입으로
-  /// 뒤집힌다. 그래서 상한은 원거래 금액이 아니라 **남은 금액**이다 —
-  /// 12,000원 지출에 5,000원을 환불해 뒀으면 다음 환불은 7,000원까지다.
-  ///
-  /// 음수로는 안 내려간다. 상한이 없던 시절에 쌓인 초과 환불이 남아 있어,
-  /// 그 거래를 열면 뺄셈이 음수로 떨어진다.
-  int get refundableAmount {
-    final left = amount - refundedAmount;
-    return left < 0 ? 0 : left;
-  }
+  /// 환불된 거래인가 — 표식 하나로 판정한다.
+  bool get isRefunded => refundedAt != null;
 
   /// 'YYYY-MM-DD' 부분만 (그룹화·필터용).
   String? get expenseDateOnly => expenseDate?.substring(0, 10);

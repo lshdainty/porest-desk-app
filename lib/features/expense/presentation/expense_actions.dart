@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -23,8 +22,10 @@ class ExpenseActions implements ItemActions<Expense> {
   @override
   bool canDelete(Expense e) => e.autoSource == null;
 
+  /// 환불된 거래도 못 고친다 — 돈이 이미 자산으로 돌아가 되돌릴 기준이 없다
+  /// (서버도 EXP_043 으로 막는다). 먼저 환불을 취소해야 한다.
   @override
-  bool canEdit(Expense e) => e.autoSource == null;
+  bool canEdit(Expense e) => e.autoSource == null && !e.isRefunded;
 
   @override
   String deleteConfirmTitle(BuildContext context, Expense e) =>
@@ -38,16 +39,11 @@ class ExpenseActions implements ItemActions<Expense> {
       e.categoryName ??
       AppLocalizations.of(context).expTxFallback;
 
+  /// 환불이 거래를 만들지 않으므로 "함께 사라지는 환불" 경고는 없다 — 환불은
+  /// 원거래에 찍힌 표식이고, 원거래를 지우면 표식도 같이 없어진다.
   @override
-  String deleteConfirmMessage(BuildContext context, Expense e) {
-    final l = AppLocalizations.of(context);
-    final confirm = l.expDeleteConfirm(displayNameOf(context, e));
-    // 환불이 달려 있으면 그것도 함께 사라진다 — 모르고 지우면 지출 총액이 조용히 바뀐다.
-    final refundCount = e.refundCount;
-    if (refundCount <= 0) return confirm;
-    return '$confirm\n\n'
-        '${l.expDeleteRefundWarn(refundCount, krw(e.refundedAmount))}';
-  }
+  String deleteConfirmMessage(BuildContext context, Expense e) =>
+      AppLocalizations.of(context).expDeleteConfirm(displayNameOf(context, e));
 
   @override
   Future<bool> delete(BuildContext context, WidgetRef ref, Expense e) async {
@@ -68,25 +64,45 @@ class ExpenseActions implements ItemActions<Expense> {
     showAddTxSheet(context, edit: e);
   }
 
-  /// 환불 연결을 끊는다 — 거래는 남고 일반 수입이 된다.
+  /// 환불 표식을 찍는다 — 거래는 남고 합계·잔액에서만 빠진다(삭제와 같은 규칙).
   ///
-  /// 편집 저장으로는 못 끊는다(그래야 메모만 고쳐도 연결이 살아 있다). 끊는 자리는
-  /// 상세의 '환불 취소' 버튼 하나뿐이라, 확인창은 부르는 쪽이 띄운다.
+  /// 확인창은 부르는 쪽이 띄운다. 상세만 부르는 자리라서 여기 두면 목록 스와이프가
+  /// 쓰지 않는 문구를 안고 있게 된다.
   ///
-  /// 성공하면 서버가 돌려준 거래를 준다 — 상세가 그걸로 다시 그려 배너가 사라진다.
+  /// 성공하면 서버가 돌려준 거래를 준다 — 상세가 그걸로 다시 그려 배너가 뜬다.
   /// 실패는 null 이다(토스트는 인터셉터가 이미 띄웠다).
-  Future<Expense?> unlinkRefund(WidgetRef ref, Expense e) async {
+  Future<Expense?> refund(
+    WidgetRef ref,
+    Expense e, {
+    String? refundedAt,
+  }) async {
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
-      final updated = await repo.unlinkRefund(e.rowId);
-      // 원거래의 환불 수·환불액도 함께 바뀌는데 원거래가 **다른 달**일 수 있다 —
-      // 이 거래의 달만 무효화하면 그 달 목록이 옛 배지를 들고 남는다.
-      ref.invalidate(monthExpensesProvider);
-      invalidateAfterExpenseChange(ref);
+      final updated = await repo.refund(e.rowId, refundedAt: refundedAt);
+      _invalidateAfterRefund(ref);
       return updated;
     } on ApiException {
       return null;
     }
+  }
+
+  /// 환불 표식을 걷는다 — 마크가 만든 환급 이체까지 서버가 되돌린다.
+  Future<Expense?> cancelRefund(WidgetRef ref, Expense e) async {
+    try {
+      final repo = await ref.read(expenseRepositoryProvider.future);
+      final updated = await repo.cancelRefund(e.rowId);
+      _invalidateAfterRefund(ref);
+      return updated;
+    } on ApiException {
+      return null;
+    }
+  }
+
+  /// 환불은 달 하나로 끝나지 않는다 — 카드 환급 이체는 **오늘** 날짜로 생기므로
+  /// 원거래 달과 이번 달이 함께 바뀐다. 그래서 달을 가리지 않고 전부 무효화한다.
+  void _invalidateAfterRefund(WidgetRef ref) {
+    ref.invalidate(monthExpensesProvider);
+    invalidateAfterExpenseChange(ref);
   }
 
   /// 지운 거래가 속한 달의 목록과 자산 잔액을 다시 읽게 한다.
