@@ -34,6 +34,12 @@ abstract class Expense with _$Expense {
     /// 환불 마크가 만든 카드→결제계좌 환급 이체 (null = 없음).
     int? refundTransferRowId,
 
+    /// 이 저장이 **방금 만든** 카드 환급액 (null = 없음).
+    ///
+    /// 거래의 속성이 아니라 그 요청의 결과다 — 조회로 받은 거래에는 늘 null 이다.
+    /// 화면이 "결제계좌로 N원이 환급됐어요" 를 말할 재료다(설계 13-1).
+    int? refundedAmount,
+
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
     double? originalAmount,
 

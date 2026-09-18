@@ -1,13 +1,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/actions/item_actions.dart';
+import 'package:porest_desk_app/shared/widgets/p_toast.dart';
 
 /// 거래 하나에 할 수 있는 일 — 목록 행(스와이프)과 상세 시트가 같은 것을 부른다.
 ///
@@ -45,17 +48,43 @@ class ExpenseActions implements ItemActions<Expense> {
   String deleteConfirmMessage(BuildContext context, Expense e) =>
       AppLocalizations.of(context).expDeleteConfirm(displayNameOf(context, e));
 
+  /// 지운다.
+  ///
+  /// 결제 완료 회차의 카드 거래였다면 돈이 결제계좌로 돌아간다 — 그 금액을 토스트로
+  /// 알린다. 확인창이 이미 같은 금액을 예고했으면([previewed]) 알리지 않는다:
+  /// 사용자가 방금 읽은 숫자를 한 번 더 띄우면 소음이다(설계 13-2).
   @override
-  Future<bool> delete(BuildContext context, WidgetRef ref, Expense e) async {
+  Future<bool> delete(
+    BuildContext context,
+    WidgetRef ref,
+    Expense e, {
+    int? previewed,
+  }) async {
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
-      await repo.delete(e.rowId);
+      final refunded = await repo.delete(e.rowId);
       _invalidateAfterDelete(ref, e);
+      if (refunded != null && refunded != previewed && context.mounted) {
+        PToast.show(
+          context,
+          message: AppLocalizations.of(context).expRefundedToast(krw(refunded)),
+          tone: PToastTone.success,
+        );
+      }
       return true;
     } on ApiException {
       return false;
     }
   }
+
+  /// 지우면 결제계좌로 돈이 돌아갈 수 있는 거래인가 — 신용카드 + 결제계좌.
+  ///
+  /// 실제로 돌아가는지는 그 회차를 이미 냈는지에 달렸고 그건 서버만 안다. 여기서는
+  /// "그럴 수 있다" 까지만 본다 — 금액 없는 예고와 미리보기를 걸지 말지를 가른다.
+  bool paidRefundPossible(Asset? asset) =>
+      asset != null &&
+      asset.assetType == 'CREDIT_CARD' &&
+      asset.paymentAssetRowId != null;
 
   @override
   Future<void> edit(BuildContext context, WidgetRef ref, Expense e) async {

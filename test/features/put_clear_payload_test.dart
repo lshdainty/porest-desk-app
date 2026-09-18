@@ -26,6 +26,7 @@ import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
 import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
+import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
 import 'package:porest_desk_app/features/memo/data/memo_repository.dart';
 import 'package:porest_desk_app/features/preset/data/preset_repository.dart';
 import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
@@ -63,7 +64,12 @@ import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
 ///
 /// [_capturingDio] 는 본문만 잡는다. 환불은 "어느 경로로 갔나" 가 계약의 절반이라
 /// (수정 PUT 으로 가면 서버가 400) 메서드와 경로도 함께 본다.
-typedef _Call = ({String method, String path, Map<String, dynamic>? body});
+typedef _Call = ({
+  String method,
+  String path,
+  Map<String, dynamic>? body,
+  Map<String, dynamic> query,
+});
 
 (Dio, List<_Call>) _capturingRequests(Map<String, dynamic> data) {
   final calls = <_Call>[];
@@ -75,6 +81,7 @@ typedef _Call = ({String method, String path, Map<String, dynamic>? body});
           method: options.method,
           path: options.path,
           body: (options.data as Map?)?.cast<String, dynamic>(),
+          query: options.queryParameters.cast<String, dynamic>(),
         ));
         handler.resolve(
           Response<Map<String, dynamic>>(
@@ -351,6 +358,69 @@ void main() {
       await ExpenseRepository(dio).refund(1);
 
       expect(calls.single.body, isEmpty);
+    });
+
+    /// 미리보기는 확인창이 저장하기 **전에** 금액을 묻는 자리다(설계 13-1).
+    /// 인자를 비우면 삭제 미리보기 — 수정 값을 지어내지 않는다.
+    test('삭제 미리보기는 쿼리를 안 싣는다', () async {
+      final (dio, calls) = _capturingRequests({
+        'applies': true,
+        'refundAmount': 58600,
+        'reason': 'OK',
+      });
+
+      final preview = await ExpenseRepository(dio).refundPreview(77);
+
+      expect(calls.single.method, 'GET');
+      expect(calls.single.path, '/expense/77/refund-preview');
+      expect(calls.single.query, isEmpty);
+      expect(preview.refundAmount, 58600);
+      expect(preview.hasRefund, isTrue);
+    });
+
+    test('수정 미리보기는 바뀔 값만 싣는다', () async {
+      final (dio, calls) = _capturingRequests({
+        'applies': false,
+        'refundAmount': 0,
+        'reason': 'NOT_PAID_CYCLE',
+      });
+
+      await ExpenseRepository(dio).refundPreview(
+        77,
+        amount: 20000,
+        assetRowId: 9,
+        expenseDate: '2026-09-10T12:00:00',
+      );
+
+      expect(calls.single.query, {
+        'amount': 20000,
+        'assetRowId': 9,
+        'expenseDate': '2026-09-10T12:00:00',
+      });
+    });
+
+    /// 삭제 응답에 환급액이 실려 온다 — 옛 서버는 본문이 없으므로 그때도 안 깨진다.
+    test('삭제는 환급액을 돌려준다', () async {
+      final (dio, _) = _capturingRequests({'refundedAmount': 58600});
+
+      expect(await ExpenseRepository(dio).delete(77), 58600);
+    });
+
+    test('본문 없는 옛 응답에서도 null 로 지나간다', () async {
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) => handler.resolve(
+            Response<Map<String, dynamic>>(
+              requestOptions: options,
+              statusCode: 200,
+              data: {'success': true, 'code': 'COMMON_200', 'message': 'OK'},
+            ),
+          ),
+        ),
+      );
+
+      expect(await ExpenseRepository(dio).delete(77), isNull);
     });
 
     test('환불 취소는 DELETE 다 — 본문이 없다', () async {

@@ -1134,6 +1134,32 @@
   "expRefundCancel": "환불 취소",
   "expRefundCancelConfirm": "환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.",
   "expRefundedBadge": "환불됨",
+  "expPaidDeleteNote": "이미 결제된 거래라 결제계좌로 {amount}이 환급돼요.",
+  "@expPaidDeleteNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expPaidDeleteFallback": "이미 결제된 회차의 거래라면 결제계좌로 환급돼요.",
+  "expRefundedDeleteNote": "이미 환급된 거래예요. 지우면 내역에서만 사라져요.",
+  "expPaidReduceNote": "줄어든 {amount}이 결제계좌로 환급돼요. 저장할까요?",
+  "@expPaidReduceNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expRefundedToast": "결제계좌로 {amount}이 환급됐어요.",
+  "@expRefundedToast": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "expLumpSum": "일시불",
   "expInstallmentMonths": "{months}개월",
   "@expInstallmentMonths": {

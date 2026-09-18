@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_toast.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
@@ -36,6 +37,7 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -418,10 +420,41 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       final repo = await ref.read(expenseRepositoryProvider.future);
       final edited = widget.edit;
       if (edited != null) {
+        // 결제 완료 회차의 카드 거래가 줄어드는지 먼저 물어본다(설계 13-2).
+        // 돌려줄 돈이 있으면 한 번 확인받는다 — 돈이 움직이는 저장이다.
+        // 못 물어봤으면(실패·3초 초과) 묻지 않고 저장하고, 응답에 환급액이 실려 오면
+        // 그때 토스트로 알린다. 확인을 못 받았다고 저장을 막으면 아무것도 못 한다.
+        int? previewed;
+        try {
+          final preview = await repo.refundPreview(
+            edited.rowId,
+            amount: amount,
+            assetRowId: _input.assetRowId,
+            expenseDate: dateStr,
+          );
+          if (preview.hasRefund) {
+            previewed = preview.refundAmount;
+            if (!mounted) return;
+            final ok = await showPConfirmDialog(
+              context,
+              title: AppLocalizations.of(context).expEdit,
+              message: AppLocalizations.of(
+                context,
+              ).expPaidReduceNote(krw(preview.refundAmount)),
+              confirmLabel: AppLocalizations.of(context).actionSave,
+            );
+            if (!ok) {
+              return;
+            }
+          }
+        } on ApiException {
+          // 못 물어봤다 — 저장은 그대로 하고 결과로 알린다.
+        }
+
         // 이 시트가 소유한 칸은 비운 상태 그대로 실어야 지워진다 — 키를 빼면
         // 서버가 옛 값을 지킨다(QA #99). 환불 표식은 이 시트의 칸이 아니다 —
         // 전용 경로(`POST/DELETE /expense/{id}/refund`)만 건드린다.
-        await repo.update(
+        final saved = await repo.update(
           id: edited.rowId,
           categoryRowId: _input.categoryRowId!,
           assetRowId: Patch.set(_input.assetRowId),
@@ -438,6 +471,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           splits: _reconciledSplits,
         );
+        // 미리보기와 실제가 다를 때만 알린다 — 같으면 확인창에서 이미 읽었다.
+        final refunded = saved.refundedAmount;
+        if (refunded != null && refunded != previewed && mounted) {
+          PToast.show(
+            context,
+            message: AppLocalizations.of(
+              context,
+            ).expRefundedToast(krw(refunded)),
+            tone: PToastTone.success,
+          );
+        }
         // 분할이 교체됐을 수 있으니 분할 쿼리도 무효화.
         ref.invalidate(expenseSplitsProvider(edited.rowId));
       } else if (widget.smsDraft != null) {

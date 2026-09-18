@@ -3638,6 +3638,36 @@ abstract class AppLocalizations {
   /// **'환불됨'**
   String get expRefundedBadge;
 
+  /// No description provided for @expPaidDeleteNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 결제된 거래라 결제계좌로 {amount}이 환급돼요.'**
+  String expPaidDeleteNote(String amount);
+
+  /// No description provided for @expPaidDeleteFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 결제된 회차의 거래라면 결제계좌로 환급돼요.'**
+  String get expPaidDeleteFallback;
+
+  /// No description provided for @expRefundedDeleteNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 환급된 거래예요. 지우면 내역에서만 사라져요.'**
+  String get expRefundedDeleteNote;
+
+  /// No description provided for @expPaidReduceNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'줄어든 {amount}이 결제계좌로 환급돼요. 저장할까요?'**
+  String expPaidReduceNote(String amount);
+
+  /// No description provided for @expRefundedToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제계좌로 {amount}이 환급됐어요.'**
+  String expRefundedToast(String amount);
+
   /// No description provided for @expLumpSum.
   ///
   /// In ko, this message translates to:

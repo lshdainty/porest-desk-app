@@ -1288,6 +1288,8 @@ class _DayGroup extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     // 날짜 라벨·오늘/어제·일 합계는 PDayHeader 가 들고 있다.
     final categories = ref.watch(categoriesProvider).value ?? const [];
+    // 삭제 확인창의 환급 예고를 가르는 데 쓴다 — 카드 + 결제계좌인지만 본다.
+    final assets = ref.watch(assetsProvider).value;
 
     // 카드 다이어트 — design `.m-scroll .tx-list`: day-head(라벨, 아래 10) + 플랫 행.
     // 날짜 그룹 사이는 넓은 여백(24)으로 구분 (헤어라인·카드 없음).
@@ -1343,8 +1345,22 @@ class _DayGroup extends ConsumerWidget {
                                 context,
                                 e,
                               ),
-                              confirmMessage: expenseActions
-                                  .deleteConfirmMessage(context, e),
+                              // 카드 거래면 **금액 없는** 예고를 붙인다(설계 13-2).
+                              // 스와이프의 확인창은 액션을 만들 때 문구가 굳는
+                              // 선언형이라 상세처럼 열릴 때 미리보기를 걸 자리가
+                              // 없다 — 금액은 상세에서 지울 때 보인다.
+                              confirmMessage:
+                                  expenseActions.paidRefundPossible(
+                                    e.assetRowId == null
+                                        ? null
+                                        : assets?.byRowId(e.assetRowId!),
+                                  )
+                                  ? '${expenseActions.deleteConfirmMessage(context, e)} '
+                                        '${l.expPaidDeleteFallback}'
+                                  : expenseActions.deleteConfirmMessage(
+                                      context,
+                                      e,
+                                    ),
                               onSelect: () =>
                                   expenseActions.delete(context, ref, e),
                             ),

@@ -24,6 +24,8 @@ import 'package:porest_desk_app/features/recurring/presentation/recurring_settin
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
+import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
+import 'package:porest_desk_app/features/expense/presentation/delete_confirm_dialog.dart';
 import 'package:porest_desk_app/features/expense/presentation/refund_confirm_dialog.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
@@ -111,8 +113,13 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   @override
   void initState() {
     super.initState();
-    widget.controller.onDelete = _delete;
+    // 삭제는 그 거래의 자산을 봐야 한다(카드면 환급 안내를 띄운다) — build 에서
+    // 고른 자산을 여기 담아 두고 콜백이 읽는다.
+    widget.controller.onDelete = () => _delete(_assetForDelete);
   }
+
+  /// 마지막 build 가 고른 자산 — 삭제 확인창이 카드인지 가르는 데 쓴다.
+  Asset? _assetForDelete;
 
   void _setDeleting(bool v) {
     setState(() => _deleting = v);
@@ -124,24 +131,39 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   ///
   /// 확인은 이 화면 몫이다. 지운 뒤 시트를 닫는 것도 여기서만 필요하다 —
   /// 목록에서 지울 땐 닫을 시트가 없다.
-  Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+  Future<void> _delete(Asset? asset) async {
+    // 카드 거래만 물어본다 — 그 밖에는 돌려줄 자리가 없다.
+    final isCard = asset?.assetType == 'CREDIT_CARD';
+    final preview = isCard ? _loadRefundPreview() : null;
+
+    final result = await showDeleteConfirmDialog(
       context,
       title: expenseActions.deleteConfirmTitle(context, _e),
       message: expenseActions.deleteConfirmMessage(context, _e),
-      confirmLabel: l.actionDelete,
-      destructive: true,
+      preview: preview,
+      isCreditCard: isCard,
+      cardHasPaymentAsset: expenseActions.paidRefundPossible(asset),
     );
-    if (!ok || !mounted) return;
+    if (!result.ok || !mounted) return;
 
     _setDeleting(true);
     try {
-      final deleted = await expenseActions.delete(context, ref, _e);
+      final deleted = await expenseActions.delete(
+        context,
+        ref,
+        _e,
+        previewed: result.previewed,
+      );
       if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) _setDeleting(false);
     }
+  }
+
+  /// 확인창이 그릴 환급 미리보기 — 실패는 확인창이 폴백 문구로 받는다.
+  Future<RefundPreview> _loadRefundPreview() async {
+    final repo = await ref.read(expenseRepositoryProvider.future);
+    return repo.refundPreview(_e.rowId);
   }
 
   /// 환불 처리 — 원거래에 표식을 찍는다. 거래는 지워지지 않는다.
@@ -223,6 +245,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     final assets = ref.watch(assetsProvider).value ?? const [];
     final asset = assets.where((a) => a.rowId == e.assetRowId).firstOrNull;
+    _assetForDelete = asset;
     final assetLabel = asset == null
         ? null
         : (asset.institution != null && asset.institution!.isNotEmpty
