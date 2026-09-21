@@ -26,7 +26,19 @@ mixin _$Asset {
  int? get creditLimit;// 신용 한도
  int? get paymentDay;// 결제일 (1~31)
  int? get paymentAssetRowId;// 결제 출금계좌 자산 rowId
-// 연결된 카드 상품 (카드 자산 전용, nullable) — 편집 진입 시 선택 상태 복원용.
+/// 신용카드: 지금 이월 금액 — 카드를 만들 때 적은 "이전 미결제 사용액"(없으면 0).
+///
+/// 카드 수정 폼의 그 칸은 **이 값**으로 채우고 `carryoverAmount` 키로 보낸다(D7).
+/// 지금 총 미결제 잔액([balance])이 아니다 — 그걸로 채워 저장하면 이월 거래가 잔액만큼
+/// 새로 생겨 빚이 두 배가 됐다(QA 23차 1). 신용카드가 아니거나 옛 서버면 null.
+ int? get carryoverAmount;/// 신용카드: 이월 거래가 든 회차의 결제일이 됐으면 true — 이월 금액 칸을 읽기
+/// 전용으로 둔다(D15). 서버도 값이 바뀌면 400 이다.
+ bool get carryoverLocked;/// 신용카드: **이 날짜(`yyyy-MM-dd`) 이하 거래는 결제가 끝난(닫힌) 회차**다.
+///
+/// 결제일이 오늘(서울) 이하인 가장 최근 회차의 말일 — 서버가 결제일 이력·서울
+/// 시계로 정한다(D5·D11). 닫힌 회차에 걸린 변경은 기록만 바뀐다(D1). 결제일 없는
+/// 카드·신용카드가 아닌 자산·옛 서버면 null 이다(그때는 모두 열린 회차로 본다).
+ String? get cardClosedThrough;// 연결된 카드 상품 (카드 자산 전용, nullable) — 편집 진입 시 선택 상태 복원용.
  AssetCardCatalog? get cardCatalog;// 토스 연동 (INVESTMENT 전용, nullable). 토스 현재가 × 보유수량으로 평가액 실시간 계산.
 // deprecated — holdings(다건)로 대체. 서버 필드 잔존으로 파싱만 유지.
  String? get marketCode;// 종목 마스터 기준 시장코드 — 서버가 확정 못 했으면 없다
@@ -49,16 +61,16 @@ $AssetCopyWith<Asset> get copyWith => _$AssetCopyWithImpl<Asset>(this as Asset, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.cashBalance, cashBalance) || other.cashBalance == cashBalance)&&(identical(other.holdingBalance, holdingBalance) || other.holdingBalance == holdingBalance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal)&&(identical(other.isAmountHidden, isAmountHidden) || other.isAmountHidden == isAmountHidden)&&(identical(other.creditLimit, creditLimit) || other.creditLimit == creditLimit)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&(identical(other.cardCatalog, cardCatalog) || other.cardCatalog == cardCatalog)&&(identical(other.marketCode, marketCode) || other.marketCode == marketCode)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.tossQuantity, tossQuantity) || other.tossQuantity == tossQuantity)&&const DeepCollectionEquality().equals(other.holdings, holdings)&&(identical(other.monthlyUsedAmount, monthlyUsedAmount) || other.monthlyUsedAmount == monthlyUsedAmount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.cashBalance, cashBalance) || other.cashBalance == cashBalance)&&(identical(other.holdingBalance, holdingBalance) || other.holdingBalance == holdingBalance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal)&&(identical(other.isAmountHidden, isAmountHidden) || other.isAmountHidden == isAmountHidden)&&(identical(other.creditLimit, creditLimit) || other.creditLimit == creditLimit)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&(identical(other.carryoverAmount, carryoverAmount) || other.carryoverAmount == carryoverAmount)&&(identical(other.carryoverLocked, carryoverLocked) || other.carryoverLocked == carryoverLocked)&&(identical(other.cardClosedThrough, cardClosedThrough) || other.cardClosedThrough == cardClosedThrough)&&(identical(other.cardCatalog, cardCatalog) || other.cardCatalog == cardCatalog)&&(identical(other.marketCode, marketCode) || other.marketCode == marketCode)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.tossQuantity, tossQuantity) || other.tossQuantity == tossQuantity)&&const DeepCollectionEquality().equals(other.holdings, holdings)&&(identical(other.monthlyUsedAmount, monthlyUsedAmount) || other.monthlyUsedAmount == monthlyUsedAmount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,assetName,assetType,balance,cashBalance,holdingBalance,currency,exchangeRate,color,institution,memo,sortOrder,isIncludedInTotal,isAmountHidden,creditLimit,paymentDay,paymentAssetRowId,cardCatalog,marketCode,tossSymbol,tossQuantity,const DeepCollectionEquality().hash(holdings),monthlyUsedAmount]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,assetName,assetType,balance,cashBalance,holdingBalance,currency,exchangeRate,color,institution,memo,sortOrder,isIncludedInTotal,isAmountHidden,creditLimit,paymentDay,paymentAssetRowId,carryoverAmount,carryoverLocked,cardClosedThrough,cardCatalog,marketCode,tossSymbol,tossQuantity,const DeepCollectionEquality().hash(holdings),monthlyUsedAmount]);
 
 @override
 String toString() {
-  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, cashBalance: $cashBalance, holdingBalance: $holdingBalance, currency: $currency, exchangeRate: $exchangeRate, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal, isAmountHidden: $isAmountHidden, creditLimit: $creditLimit, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, cardCatalog: $cardCatalog, marketCode: $marketCode, tossSymbol: $tossSymbol, tossQuantity: $tossQuantity, holdings: $holdings, monthlyUsedAmount: $monthlyUsedAmount)';
+  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, cashBalance: $cashBalance, holdingBalance: $holdingBalance, currency: $currency, exchangeRate: $exchangeRate, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal, isAmountHidden: $isAmountHidden, creditLimit: $creditLimit, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, carryoverAmount: $carryoverAmount, carryoverLocked: $carryoverLocked, cardClosedThrough: $cardClosedThrough, cardCatalog: $cardCatalog, marketCode: $marketCode, tossSymbol: $tossSymbol, tossQuantity: $tossQuantity, holdings: $holdings, monthlyUsedAmount: $monthlyUsedAmount)';
 }
 
 
@@ -69,7 +81,7 @@ abstract mixin class $AssetCopyWith<$Res>  {
   factory $AssetCopyWith(Asset value, $Res Function(Asset) _then) = _$AssetCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String assetName, String assetType, int? balance, int? cashBalance, int? holdingBalance, String? currency, double? exchangeRate, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal, String? isAmountHidden, int? creditLimit, int? paymentDay, int? paymentAssetRowId, AssetCardCatalog? cardCatalog, String? marketCode, String? tossSymbol, int? tossQuantity, List<AssetHolding> holdings, int? monthlyUsedAmount
+ int rowId, int? userRowId, String assetName, String assetType, int? balance, int? cashBalance, int? holdingBalance, String? currency, double? exchangeRate, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal, String? isAmountHidden, int? creditLimit, int? paymentDay, int? paymentAssetRowId, int? carryoverAmount, bool carryoverLocked, String? cardClosedThrough, AssetCardCatalog? cardCatalog, String? marketCode, String? tossSymbol, int? tossQuantity, List<AssetHolding> holdings, int? monthlyUsedAmount
 });
 
 
@@ -86,7 +98,7 @@ class _$AssetCopyWithImpl<$Res>
 
 /// Create a copy of Asset
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? cashBalance = freezed,Object? holdingBalance = freezed,Object? currency = freezed,Object? exchangeRate = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,Object? isAmountHidden = freezed,Object? creditLimit = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? cardCatalog = freezed,Object? marketCode = freezed,Object? tossSymbol = freezed,Object? tossQuantity = freezed,Object? holdings = null,Object? monthlyUsedAmount = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? cashBalance = freezed,Object? holdingBalance = freezed,Object? currency = freezed,Object? exchangeRate = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,Object? isAmountHidden = freezed,Object? creditLimit = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? carryoverAmount = freezed,Object? carryoverLocked = null,Object? cardClosedThrough = freezed,Object? cardCatalog = freezed,Object? marketCode = freezed,Object? tossSymbol = freezed,Object? tossQuantity = freezed,Object? holdings = null,Object? monthlyUsedAmount = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -106,7 +118,10 @@ as String?,isAmountHidden: freezed == isAmountHidden ? _self.isAmountHidden : is
 as String?,creditLimit: freezed == creditLimit ? _self.creditLimit : creditLimit // ignore: cast_nullable_to_non_nullable
 as int?,paymentDay: freezed == paymentDay ? _self.paymentDay : paymentDay // ignore: cast_nullable_to_non_nullable
 as int?,paymentAssetRowId: freezed == paymentAssetRowId ? _self.paymentAssetRowId : paymentAssetRowId // ignore: cast_nullable_to_non_nullable
-as int?,cardCatalog: freezed == cardCatalog ? _self.cardCatalog : cardCatalog // ignore: cast_nullable_to_non_nullable
+as int?,carryoverAmount: freezed == carryoverAmount ? _self.carryoverAmount : carryoverAmount // ignore: cast_nullable_to_non_nullable
+as int?,carryoverLocked: null == carryoverLocked ? _self.carryoverLocked : carryoverLocked // ignore: cast_nullable_to_non_nullable
+as bool,cardClosedThrough: freezed == cardClosedThrough ? _self.cardClosedThrough : cardClosedThrough // ignore: cast_nullable_to_non_nullable
+as String?,cardCatalog: freezed == cardCatalog ? _self.cardCatalog : cardCatalog // ignore: cast_nullable_to_non_nullable
 as AssetCardCatalog?,marketCode: freezed == marketCode ? _self.marketCode : marketCode // ignore: cast_nullable_to_non_nullable
 as String?,tossSymbol: freezed == tossSymbol ? _self.tossSymbol : tossSymbol // ignore: cast_nullable_to_non_nullable
 as String?,tossQuantity: freezed == tossQuantity ? _self.tossQuantity : tossQuantity // ignore: cast_nullable_to_non_nullable
@@ -209,10 +224,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  int? cashBalance,  int? holdingBalance,  String? currency,  double? exchangeRate,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal,  String? isAmountHidden,  int? creditLimit,  int? paymentDay,  int? paymentAssetRowId,  AssetCardCatalog? cardCatalog,  String? marketCode,  String? tossSymbol,  int? tossQuantity,  List<AssetHolding> holdings,  int? monthlyUsedAmount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  int? cashBalance,  int? holdingBalance,  String? currency,  double? exchangeRate,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal,  String? isAmountHidden,  int? creditLimit,  int? paymentDay,  int? paymentAssetRowId,  int? carryoverAmount,  bool carryoverLocked,  String? cardClosedThrough,  AssetCardCatalog? cardCatalog,  String? marketCode,  String? tossSymbol,  int? tossQuantity,  List<AssetHolding> holdings,  int? monthlyUsedAmount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Asset() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.cashBalance,_that.holdingBalance,_that.currency,_that.exchangeRate,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal,_that.isAmountHidden,_that.creditLimit,_that.paymentDay,_that.paymentAssetRowId,_that.cardCatalog,_that.marketCode,_that.tossSymbol,_that.tossQuantity,_that.holdings,_that.monthlyUsedAmount);case _:
+return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.cashBalance,_that.holdingBalance,_that.currency,_that.exchangeRate,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal,_that.isAmountHidden,_that.creditLimit,_that.paymentDay,_that.paymentAssetRowId,_that.carryoverAmount,_that.carryoverLocked,_that.cardClosedThrough,_that.cardCatalog,_that.marketCode,_that.tossSymbol,_that.tossQuantity,_that.holdings,_that.monthlyUsedAmount);case _:
   return orElse();
 
 }
@@ -230,10 +245,10 @@ return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  int? cashBalance,  int? holdingBalance,  String? currency,  double? exchangeRate,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal,  String? isAmountHidden,  int? creditLimit,  int? paymentDay,  int? paymentAssetRowId,  AssetCardCatalog? cardCatalog,  String? marketCode,  String? tossSymbol,  int? tossQuantity,  List<AssetHolding> holdings,  int? monthlyUsedAmount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  int? cashBalance,  int? holdingBalance,  String? currency,  double? exchangeRate,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal,  String? isAmountHidden,  int? creditLimit,  int? paymentDay,  int? paymentAssetRowId,  int? carryoverAmount,  bool carryoverLocked,  String? cardClosedThrough,  AssetCardCatalog? cardCatalog,  String? marketCode,  String? tossSymbol,  int? tossQuantity,  List<AssetHolding> holdings,  int? monthlyUsedAmount)  $default,) {final _that = this;
 switch (_that) {
 case _Asset():
-return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.cashBalance,_that.holdingBalance,_that.currency,_that.exchangeRate,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal,_that.isAmountHidden,_that.creditLimit,_that.paymentDay,_that.paymentAssetRowId,_that.cardCatalog,_that.marketCode,_that.tossSymbol,_that.tossQuantity,_that.holdings,_that.monthlyUsedAmount);case _:
+return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.cashBalance,_that.holdingBalance,_that.currency,_that.exchangeRate,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal,_that.isAmountHidden,_that.creditLimit,_that.paymentDay,_that.paymentAssetRowId,_that.carryoverAmount,_that.carryoverLocked,_that.cardClosedThrough,_that.cardCatalog,_that.marketCode,_that.tossSymbol,_that.tossQuantity,_that.holdings,_that.monthlyUsedAmount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -250,10 +265,10 @@ return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  int? cashBalance,  int? holdingBalance,  String? currency,  double? exchangeRate,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal,  String? isAmountHidden,  int? creditLimit,  int? paymentDay,  int? paymentAssetRowId,  AssetCardCatalog? cardCatalog,  String? marketCode,  String? tossSymbol,  int? tossQuantity,  List<AssetHolding> holdings,  int? monthlyUsedAmount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  int? cashBalance,  int? holdingBalance,  String? currency,  double? exchangeRate,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal,  String? isAmountHidden,  int? creditLimit,  int? paymentDay,  int? paymentAssetRowId,  int? carryoverAmount,  bool carryoverLocked,  String? cardClosedThrough,  AssetCardCatalog? cardCatalog,  String? marketCode,  String? tossSymbol,  int? tossQuantity,  List<AssetHolding> holdings,  int? monthlyUsedAmount)?  $default,) {final _that = this;
 switch (_that) {
 case _Asset() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.cashBalance,_that.holdingBalance,_that.currency,_that.exchangeRate,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal,_that.isAmountHidden,_that.creditLimit,_that.paymentDay,_that.paymentAssetRowId,_that.cardCatalog,_that.marketCode,_that.tossSymbol,_that.tossQuantity,_that.holdings,_that.monthlyUsedAmount);case _:
+return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.cashBalance,_that.holdingBalance,_that.currency,_that.exchangeRate,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal,_that.isAmountHidden,_that.creditLimit,_that.paymentDay,_that.paymentAssetRowId,_that.carryoverAmount,_that.carryoverLocked,_that.cardClosedThrough,_that.cardCatalog,_that.marketCode,_that.tossSymbol,_that.tossQuantity,_that.holdings,_that.monthlyUsedAmount);case _:
   return null;
 
 }
@@ -265,7 +280,7 @@ return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_tha
 @JsonSerializable()
 
 class _Asset implements Asset {
-  const _Asset({required this.rowId, this.userRowId, required this.assetName, required this.assetType, this.balance, this.cashBalance, this.holdingBalance, this.currency, this.exchangeRate, this.color, this.institution, this.memo, this.sortOrder, this.isIncludedInTotal, this.isAmountHidden, this.creditLimit, this.paymentDay, this.paymentAssetRowId, this.cardCatalog, this.marketCode, this.tossSymbol, this.tossQuantity, final  List<AssetHolding> holdings = const <AssetHolding>[], this.monthlyUsedAmount}): _holdings = holdings;
+  const _Asset({required this.rowId, this.userRowId, required this.assetName, required this.assetType, this.balance, this.cashBalance, this.holdingBalance, this.currency, this.exchangeRate, this.color, this.institution, this.memo, this.sortOrder, this.isIncludedInTotal, this.isAmountHidden, this.creditLimit, this.paymentDay, this.paymentAssetRowId, this.carryoverAmount, this.carryoverLocked = false, this.cardClosedThrough, this.cardCatalog, this.marketCode, this.tossSymbol, this.tossQuantity, final  List<AssetHolding> holdings = const <AssetHolding>[], this.monthlyUsedAmount}): _holdings = holdings;
   factory _Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);
 
 @override final  int rowId;
@@ -297,6 +312,21 @@ class _Asset implements Asset {
 // 결제일 (1~31)
 @override final  int? paymentAssetRowId;
 // 결제 출금계좌 자산 rowId
+/// 신용카드: 지금 이월 금액 — 카드를 만들 때 적은 "이전 미결제 사용액"(없으면 0).
+///
+/// 카드 수정 폼의 그 칸은 **이 값**으로 채우고 `carryoverAmount` 키로 보낸다(D7).
+/// 지금 총 미결제 잔액([balance])이 아니다 — 그걸로 채워 저장하면 이월 거래가 잔액만큼
+/// 새로 생겨 빚이 두 배가 됐다(QA 23차 1). 신용카드가 아니거나 옛 서버면 null.
+@override final  int? carryoverAmount;
+/// 신용카드: 이월 거래가 든 회차의 결제일이 됐으면 true — 이월 금액 칸을 읽기
+/// 전용으로 둔다(D15). 서버도 값이 바뀌면 400 이다.
+@override@JsonKey() final  bool carryoverLocked;
+/// 신용카드: **이 날짜(`yyyy-MM-dd`) 이하 거래는 결제가 끝난(닫힌) 회차**다.
+///
+/// 결제일이 오늘(서울) 이하인 가장 최근 회차의 말일 — 서버가 결제일 이력·서울
+/// 시계로 정한다(D5·D11). 닫힌 회차에 걸린 변경은 기록만 바뀐다(D1). 결제일 없는
+/// 카드·신용카드가 아닌 자산·옛 서버면 null 이다(그때는 모두 열린 회차로 본다).
+@override final  String? cardClosedThrough;
 // 연결된 카드 상품 (카드 자산 전용, nullable) — 편집 진입 시 선택 상태 복원용.
 @override final  AssetCardCatalog? cardCatalog;
 // 토스 연동 (INVESTMENT 전용, nullable). 토스 현재가 × 보유수량으로 평가액 실시간 계산.
@@ -336,16 +366,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.cashBalance, cashBalance) || other.cashBalance == cashBalance)&&(identical(other.holdingBalance, holdingBalance) || other.holdingBalance == holdingBalance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal)&&(identical(other.isAmountHidden, isAmountHidden) || other.isAmountHidden == isAmountHidden)&&(identical(other.creditLimit, creditLimit) || other.creditLimit == creditLimit)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&(identical(other.cardCatalog, cardCatalog) || other.cardCatalog == cardCatalog)&&(identical(other.marketCode, marketCode) || other.marketCode == marketCode)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.tossQuantity, tossQuantity) || other.tossQuantity == tossQuantity)&&const DeepCollectionEquality().equals(other._holdings, _holdings)&&(identical(other.monthlyUsedAmount, monthlyUsedAmount) || other.monthlyUsedAmount == monthlyUsedAmount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.cashBalance, cashBalance) || other.cashBalance == cashBalance)&&(identical(other.holdingBalance, holdingBalance) || other.holdingBalance == holdingBalance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.exchangeRate, exchangeRate) || other.exchangeRate == exchangeRate)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal)&&(identical(other.isAmountHidden, isAmountHidden) || other.isAmountHidden == isAmountHidden)&&(identical(other.creditLimit, creditLimit) || other.creditLimit == creditLimit)&&(identical(other.paymentDay, paymentDay) || other.paymentDay == paymentDay)&&(identical(other.paymentAssetRowId, paymentAssetRowId) || other.paymentAssetRowId == paymentAssetRowId)&&(identical(other.carryoverAmount, carryoverAmount) || other.carryoverAmount == carryoverAmount)&&(identical(other.carryoverLocked, carryoverLocked) || other.carryoverLocked == carryoverLocked)&&(identical(other.cardClosedThrough, cardClosedThrough) || other.cardClosedThrough == cardClosedThrough)&&(identical(other.cardCatalog, cardCatalog) || other.cardCatalog == cardCatalog)&&(identical(other.marketCode, marketCode) || other.marketCode == marketCode)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.tossQuantity, tossQuantity) || other.tossQuantity == tossQuantity)&&const DeepCollectionEquality().equals(other._holdings, _holdings)&&(identical(other.monthlyUsedAmount, monthlyUsedAmount) || other.monthlyUsedAmount == monthlyUsedAmount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,assetName,assetType,balance,cashBalance,holdingBalance,currency,exchangeRate,color,institution,memo,sortOrder,isIncludedInTotal,isAmountHidden,creditLimit,paymentDay,paymentAssetRowId,cardCatalog,marketCode,tossSymbol,tossQuantity,const DeepCollectionEquality().hash(_holdings),monthlyUsedAmount]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,assetName,assetType,balance,cashBalance,holdingBalance,currency,exchangeRate,color,institution,memo,sortOrder,isIncludedInTotal,isAmountHidden,creditLimit,paymentDay,paymentAssetRowId,carryoverAmount,carryoverLocked,cardClosedThrough,cardCatalog,marketCode,tossSymbol,tossQuantity,const DeepCollectionEquality().hash(_holdings),monthlyUsedAmount]);
 
 @override
 String toString() {
-  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, cashBalance: $cashBalance, holdingBalance: $holdingBalance, currency: $currency, exchangeRate: $exchangeRate, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal, isAmountHidden: $isAmountHidden, creditLimit: $creditLimit, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, cardCatalog: $cardCatalog, marketCode: $marketCode, tossSymbol: $tossSymbol, tossQuantity: $tossQuantity, holdings: $holdings, monthlyUsedAmount: $monthlyUsedAmount)';
+  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, cashBalance: $cashBalance, holdingBalance: $holdingBalance, currency: $currency, exchangeRate: $exchangeRate, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal, isAmountHidden: $isAmountHidden, creditLimit: $creditLimit, paymentDay: $paymentDay, paymentAssetRowId: $paymentAssetRowId, carryoverAmount: $carryoverAmount, carryoverLocked: $carryoverLocked, cardClosedThrough: $cardClosedThrough, cardCatalog: $cardCatalog, marketCode: $marketCode, tossSymbol: $tossSymbol, tossQuantity: $tossQuantity, holdings: $holdings, monthlyUsedAmount: $monthlyUsedAmount)';
 }
 
 
@@ -356,7 +386,7 @@ abstract mixin class _$AssetCopyWith<$Res> implements $AssetCopyWith<$Res> {
   factory _$AssetCopyWith(_Asset value, $Res Function(_Asset) _then) = __$AssetCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String assetName, String assetType, int? balance, int? cashBalance, int? holdingBalance, String? currency, double? exchangeRate, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal, String? isAmountHidden, int? creditLimit, int? paymentDay, int? paymentAssetRowId, AssetCardCatalog? cardCatalog, String? marketCode, String? tossSymbol, int? tossQuantity, List<AssetHolding> holdings, int? monthlyUsedAmount
+ int rowId, int? userRowId, String assetName, String assetType, int? balance, int? cashBalance, int? holdingBalance, String? currency, double? exchangeRate, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal, String? isAmountHidden, int? creditLimit, int? paymentDay, int? paymentAssetRowId, int? carryoverAmount, bool carryoverLocked, String? cardClosedThrough, AssetCardCatalog? cardCatalog, String? marketCode, String? tossSymbol, int? tossQuantity, List<AssetHolding> holdings, int? monthlyUsedAmount
 });
 
 
@@ -373,7 +403,7 @@ class __$AssetCopyWithImpl<$Res>
 
 /// Create a copy of Asset
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? cashBalance = freezed,Object? holdingBalance = freezed,Object? currency = freezed,Object? exchangeRate = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,Object? isAmountHidden = freezed,Object? creditLimit = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? cardCatalog = freezed,Object? marketCode = freezed,Object? tossSymbol = freezed,Object? tossQuantity = freezed,Object? holdings = null,Object? monthlyUsedAmount = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? cashBalance = freezed,Object? holdingBalance = freezed,Object? currency = freezed,Object? exchangeRate = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,Object? isAmountHidden = freezed,Object? creditLimit = freezed,Object? paymentDay = freezed,Object? paymentAssetRowId = freezed,Object? carryoverAmount = freezed,Object? carryoverLocked = null,Object? cardClosedThrough = freezed,Object? cardCatalog = freezed,Object? marketCode = freezed,Object? tossSymbol = freezed,Object? tossQuantity = freezed,Object? holdings = null,Object? monthlyUsedAmount = freezed,}) {
   return _then(_Asset(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -393,7 +423,10 @@ as String?,isAmountHidden: freezed == isAmountHidden ? _self.isAmountHidden : is
 as String?,creditLimit: freezed == creditLimit ? _self.creditLimit : creditLimit // ignore: cast_nullable_to_non_nullable
 as int?,paymentDay: freezed == paymentDay ? _self.paymentDay : paymentDay // ignore: cast_nullable_to_non_nullable
 as int?,paymentAssetRowId: freezed == paymentAssetRowId ? _self.paymentAssetRowId : paymentAssetRowId // ignore: cast_nullable_to_non_nullable
-as int?,cardCatalog: freezed == cardCatalog ? _self.cardCatalog : cardCatalog // ignore: cast_nullable_to_non_nullable
+as int?,carryoverAmount: freezed == carryoverAmount ? _self.carryoverAmount : carryoverAmount // ignore: cast_nullable_to_non_nullable
+as int?,carryoverLocked: null == carryoverLocked ? _self.carryoverLocked : carryoverLocked // ignore: cast_nullable_to_non_nullable
+as bool,cardClosedThrough: freezed == cardClosedThrough ? _self.cardClosedThrough : cardClosedThrough // ignore: cast_nullable_to_non_nullable
+as String?,cardCatalog: freezed == cardCatalog ? _self.cardCatalog : cardCatalog // ignore: cast_nullable_to_non_nullable
 as AssetCardCatalog?,marketCode: freezed == marketCode ? _self.marketCode : marketCode // ignore: cast_nullable_to_non_nullable
 as String?,tossSymbol: freezed == tossSymbol ? _self.tossSymbol : tossSymbol // ignore: cast_nullable_to_non_nullable
 as String?,tossQuantity: freezed == tossQuantity ? _self.tossQuantity : tossQuantity // ignore: cast_nullable_to_non_nullable

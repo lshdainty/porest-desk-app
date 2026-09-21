@@ -38,7 +38,10 @@ String _groupLabel(AppLocalizations l, _Group g) => switch (g) {
 };
 
 class AccountCardManageScreen extends ConsumerStatefulWidget {
-  const AccountCardManageScreen({super.key});
+  const AccountCardManageScreen({super.key, this.editAssetId});
+
+  /// 들어오자마자 수정 폼을 열 자산 — 목록에 없으면(지워진 자산) 목록만 보여 준다.
+  final int? editAssetId;
 
   @override
   ConsumerState<AccountCardManageScreen> createState() =>
@@ -48,6 +51,32 @@ class AccountCardManageScreen extends ConsumerStatefulWidget {
 class _AccountCardManageScreenState
     extends ConsumerState<AccountCardManageScreen> {
   _Group _tab = _Group.account;
+
+  /// [AccountCardManageScreen.editAssetId] 를 한 번만 연다 — 폼을 닫고 목록이 다시
+  /// 그려질 때마다 또 열리면 빠져나갈 수 없다.
+  bool _editHandled = false;
+
+  /// 목록이 처음 도착하면 그 자산의 탭으로 옮기고 수정 폼을 연다.
+  ///
+  /// 인증은 폼의 몫이다 — 금액을 가린 자산은 숨김을 푸는 저장에서 본인 확인을
+  /// 거친다(자산 상세 [수정]으로 들어온 것과 같은 폼이다).
+  void _openRequestedEdit(List<Asset> assets) {
+    if (_editHandled) return;
+    final id = widget.editAssetId;
+    if (id == null) return;
+    _editHandled = true;
+    final asset = assets.byRowId(id);
+    if (asset == null) return;
+    final group = _Group.values.firstWhere(
+      (g) => _groupTypes[g]!.contains(asset.assetType),
+      orElse: () => _tab,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (group != _tab) setState(() => _tab = group);
+      showAssetEditForm(context, asset);
+    });
+  }
 
   void _onAdd() {
     switch (_tab) {
@@ -89,6 +118,7 @@ class _AccountCardManageScreenState
           ),
         ),
         data: (assets) {
+          _openRequestedEdit(assets);
           int countOf(_Group g) =>
               assets.where((a) => _groupTypes[g]!.contains(a.assetType)).length;
           final filtered = assets

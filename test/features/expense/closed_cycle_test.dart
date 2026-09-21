@@ -1,21 +1,21 @@
-// 닫힌 회차 규칙(2026-09-21 확정)의 앱 화면 — 웹과 같은 판정·같은 문구다.
+// 결제가 끝난 회차는 기록만(2026-09-21 확정 D1·D2) — 앱이 서버 조회 없이 가르는 판정.
 //
-//   - 저장 전에 물어볼 회차: 그 회차 결제일이 이미 왔을 때만(닫힘·당일). 서버
-//     `CardCycleMath` 와 같은 결제일 규칙이어야 한다 — 어긋나면 물어야 할 자리에서 안
-//     묻거나(돈이 말없이 움직인다) 안 물어도 될 자리에서 묻는다.
-//   - 확인창 문장: 미리보기를 사람 말로 — 기록만 남아요 / 추가로 빠져요 / 기록만 정리돼요.
-//   - 목록 행 "기록만" 배지, 삭제·환불 확인창의 기한 지남 문장.
-import 'dart:async';
-
+//   - 닫힌 회차 = 거래 날짜 ≤ 카드의 `cardClosedThrough`(서버가 내려 준다)
+//   - 할부가 닫힌 회차와 열린 회차에 걸치면 "지난 회차분은 기록만 남아요" 로 갈린다
+//     (첫 회차 말일 ≤ 경계 < 마지막 회차 말일)
+//   - 목록 행 "기록만" 배지
+//
+// 회차 경계는 서버가 정한다(결제일 이력·서울 시계). 여기서 다시 계산하면 결제일을
+// 바꾼 카드에서 어긋난다 — 그래서 날짜만 견주는지 고정한다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/core/settings/mask_flags.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
-import 'package:porest_desk_app/features/expense/presentation/paid_refund_note.dart';
+import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
@@ -39,6 +39,16 @@ const _expense = Expense(
   expenseDate: '2026-08-20T10:00:00',
 );
 
+/// 결제일 12일 카드 — 오늘 9/21 이면 8월분(9/12 결제)까지 닫혔다.
+const _card = Asset(
+  rowId: 9,
+  assetName: '현대카드',
+  assetType: 'CREDIT_CARD',
+  paymentDay: 12,
+  paymentAssetRowId: 3,
+  cardClosedThrough: '2026-08-31',
+);
+
 void main() {
   group('카드 회차 결제일', () {
     test('거래 달의 다음 달 결제일이다', () {
@@ -52,105 +62,155 @@ void main() {
     test('12월 거래는 다음 해 1월에 결제된다', () {
       expect(cardCyclePaymentDate('2026-12-05', 12), '2027-01-12');
     });
+  });
 
-    test('결제일이 지났거나 오늘이면 묻고, 전이면 묻지 않는다', () {
-      expect(isCardCycleDue('2026-08-20', 12, '2026-09-14'), isTrue);
-      expect(isCardCycleDue('2026-08-30', 12, '2026-09-12'), isTrue);
-      expect(isCardCycleDue('2026-09-13', 12, '2026-09-14'), isFalse);
+  // 결제일을 바꿔도 아직 결제 전인 회차는 옛 결제일에 결제된다(D5) — 확인창 문구의 재료.
+  group('결제일 변경 — 옛 결제일로 결제되는 회차', () {
+    test('닫힌 회차 경계의 다음 달 회차다', () {
+      // 25일 카드, 9/14 — 7월분까지 닫혔다. 8월분은 옛 결제일 9/25 에 결제된다.
+      final p = pendingCycleOnOldDay(
+        oldPaymentDay: 25,
+        cardClosedThrough: '2026-07-31',
+        todayKey: '2026-09-14',
+      );
+      expect((p.year, p.month, p.paymentDate), (2026, 8, '2026-09-25'));
+    });
+
+    test('12월 경계면 다음 해 1월 회차다', () {
+      final p = pendingCycleOnOldDay(
+        oldPaymentDay: 10,
+        cardClosedThrough: '2026-12-31',
+        todayKey: '2027-01-12',
+      );
+      expect((p.year, p.month, p.paymentDate), (2027, 1, '2027-02-10'));
+    });
+
+    test('경계가 없으면 오늘 기준 결제일이 안 온 첫 회차다', () {
+      final before = pendingCycleOnOldDay(
+        oldPaymentDay: 25,
+        cardClosedThrough: null,
+        todayKey: '2026-09-14',
+      );
+      expect((before.month, before.paymentDate), (8, '2026-09-25'));
+      // 결제일 당일부터 닫힌다(D2) — 그날이면 다음 회차다.
+      final onDay = pendingCycleOnOldDay(
+        oldPaymentDay: 25,
+        cardClosedThrough: null,
+        todayKey: '2026-09-25',
+      );
+      expect((onDay.month, onDay.paymentDate), (9, '2026-10-25'));
+      final january = pendingCycleOnOldDay(
+        oldPaymentDay: 10,
+        cardClosedThrough: null,
+        todayKey: '2026-01-05',
+      );
+      expect((january.year, january.month), (2025, 12));
     });
   });
 
-  group('저장 확인 문장', () {
+  group('닫힌 회차 판정 — 날짜 ≤ cardClosedThrough', () {
+    ClosedCycleSpan span(String date, {int? months, String? through}) =>
+        closedCycleSpan(
+          cardClosedThrough: through ?? '2026-08-31',
+          dateKey: date,
+          installmentMonths: months,
+        );
+
+    test('경계 날짜와 그 이전은 닫힌 회차다', () {
+      expect(span('2026-08-31T23:59:00'), ClosedCycleSpan.full);
+      expect(span('2026-08-01'), ClosedCycleSpan.full);
+      expect(span('2025-12-31T10:00:00'), ClosedCycleSpan.full);
+    });
+
+    test('경계 다음 날부터는 열린 회차다', () {
+      expect(span('2026-09-01T00:00:00'), ClosedCycleSpan.none);
+      expect(span('2026-09-21'), ClosedCycleSpan.none);
+    });
+
+    test('서버가 경계를 안 주면(결제일 없는 카드·옛 서버) 모두 열린 회차다', () {
+      expect(
+        closedCycleSpan(cardClosedThrough: null, dateKey: '2020-01-01'),
+        ClosedCycleSpan.none,
+      );
+    });
+
+    test('일시불·1개월은 통째로다', () {
+      expect(span('2026-08-20', months: 1), ClosedCycleSpan.full);
+      expect(span('2026-08-20', months: 0), ClosedCycleSpan.full);
+    });
+
+    test('할부가 경계를 넘어가면 걸친 것이다', () {
+      // 7월 3개월 = 7·8·9월 회차 — 9월 회차는 아직 열려 있다.
+      expect(span('2026-07-15', months: 3), ClosedCycleSpan.partial);
+      // 마지막 회차 말일이 곧 경계면 통째로 닫혔다.
+      expect(span('2026-07-15', months: 2), ClosedCycleSpan.full);
+    });
+
+    test('할부 마지막 회차가 해를 넘겨도 말일을 맞게 센다', () {
+      // 2026-11 부터 3개월 = 11·12·1월 → 마지막 회차 말일 2027-01-31.
+      expect(
+        span('2026-11-10', months: 3, through: '2027-01-31'),
+        ClosedCycleSpan.full,
+      );
+      expect(
+        span('2026-11-10', months: 3, through: '2026-12-31'),
+        ClosedCycleSpan.partial,
+      );
+    });
+
+    test('신용카드가 아니면 판정하지 않는다', () {
+      const account = Asset(
+        rowId: 3,
+        assetName: '통장',
+        assetType: 'BANK_ACCOUNT',
+        cardClosedThrough: '2026-08-31',
+      );
+      expect(
+        closedCycleSpanFor(account, dateKey: '2026-08-20'),
+        ClosedCycleSpan.none,
+      );
+      expect(
+        closedCycleSpanFor(null, dateKey: '2026-08-20'),
+        ClosedCycleSpan.none,
+      );
+    });
+  });
+
+  group('확인창 한 문구', () {
     late AppLocalizations l;
     setUpAll(() async {
       l = await AppLocalizations.delegate.load(const Locale('ko'));
     });
 
-    test('결제가 끝난 회차 — 기록만 남아요', () {
-      final notes = saveConfirmNotes(
-        l,
-        const RefundPreview(newRecordAmount: 25000),
+    test('닫힌 회차면 기록만 바뀌고 계좌 잔액은 그대로라고 말한다', () {
+      expect(
+        closedCycleNote(l, closedCycleSpanOfExpense(_expense, _card)),
+        '이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.',
       );
-      expect(notes, [l.expClosedCycleNote]);
     });
 
-    test('결제일 당일 — 추가로 빠지는 금액', () {
-      final notes = saveConfirmNotes(
-        l,
-        const RefundPreview(sameDayExtraPayment: 40000),
+    test('할부가 걸치면 지난 회차분만 기록이라고 말한다', () {
+      final e = _expense.copyWith(
+        expenseDate: '2026-07-15T10:00:00',
+        installmentMonths: 3,
       );
-      expect(notes.single, contains('40,000'));
+      expect(
+        closedCycleNote(l, closedCycleSpanOfExpense(e, _card)),
+        '지난 회차분은 기록만 남아요.',
+      );
     });
 
-    test('결제한 달이 지난 수정 — 기록만 정리돼요', () {
-      final notes = saveConfirmNotes(
-        l,
-        const RefundPreview(reason: 'REFUND_WINDOW_CLOSED'),
-      );
-      expect(notes, [l.expWindowClosedNote]);
+    test('열린 회차는 말이 없다', () {
+      final e = _expense.copyWith(expenseDate: '2026-09-10T10:00:00');
+      expect(closedCycleNote(l, closedCycleSpanOfExpense(e, _card)), isNull);
     });
 
-    test('환급만 있으면 종전 감액 문구 그대로', () {
-      final notes = saveConfirmNotes(
-        l,
-        const RefundPreview(applies: true, refundAmount: 2000, reason: 'OK'),
+    test('본문 뒤에 문단으로 붙는다', () {
+      expect(
+        withClosedCycleNote(l, '지울까요?', ClosedCycleSpan.full),
+        '지울까요?\n\n${l.expClosedCycleLine}',
       );
-      expect(notes, [l.expPaidReduceNote('2,000')]);
-    });
-
-    test('할 말이 없으면 비어 있다 — 묻지 않고 저장한다', () {
-      expect(saveConfirmNotes(l, const RefundPreview()), isEmpty);
-    });
-  });
-
-  group('삭제·환불 확인창 안내 한 줄', () {
-    testWidgets('결제한 달이 지났으면 기록만 정리된다고 말한다(R6)', (tester) async {
-      await tester.pumpWidget(
-        _host(
-          PaidRefundNote(
-            preview: Future.value(
-              const RefundPreview(reason: 'REFUND_WINDOW_CLOSED'),
-            ),
-            cardHasPaymentAsset: true,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final l = await AppLocalizations.delegate.load(const Locale('ko'));
-      expect(find.text(l.expWindowClosedNote), findsOneWidget);
-    });
-
-    testWidgets('돌려줄 돈이 있으면 금액을 말한다', (tester) async {
-      await tester.pumpWidget(
-        _host(
-          PaidRefundNote(
-            preview: Future.value(
-              const RefundPreview(
-                applies: true,
-                refundAmount: 25000,
-                reason: 'RECORD_ONLY_OK',
-              ),
-            ),
-            cardHasPaymentAsset: true,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.textContaining('25,000'), findsOneWidget);
-    });
-
-    testWidgets('못 물어봤으면 금액 없는 문구로 넘어간다', (tester) async {
-      // 위젯이 붙은 뒤에 실패시킨다 — 먼저 실패한 Future 는 받을 이가 없어 테스트가 깨진다.
-      final pending = Completer<RefundPreview>();
-      await tester.pumpWidget(
-        _host(
-          PaidRefundNote(preview: pending.future, cardHasPaymentAsset: true),
-        ),
-      );
-      pending.completeError(Exception('timeout'));
-      await tester.pumpAndSettle();
-      final l = await AppLocalizations.delegate.load(const Locale('ko'));
-      expect(find.text(l.expPaidDeleteFallback), findsOneWidget);
+      expect(withClosedCycleNote(l, '지울까요?', ClosedCycleSpan.none), '지울까요?');
     });
   });
 
@@ -177,6 +237,32 @@ void main() {
     testWidgets('정상 거래에는 없다', (tester) async {
       await pumpRow(tester, _expense);
       expect(find.text('기록만'), findsNothing);
+    });
+
+    // 할부의 지난 회차분만 기록용이면 남은 회차는 정상 청구된다 — 행 배지는 통째로
+    // 기록용인 거래에만 단다(D10). 일부는 상세가 "이 중 N원" 으로 말한다.
+    testWidgets('기록만 금액이 거래 금액보다 작으면 없다', (tester) async {
+      await pumpRow(
+        tester,
+        _expense.copyWith(
+          amount: 90000,
+          installmentMonths: 3,
+          cardSettledThrough: '2026-08-31',
+          recordOnlyAmount: 30000,
+        ),
+      );
+      expect(find.text('기록만'), findsNothing);
+    });
+
+    testWidgets('기록만 금액이 거래 금액과 같으면 단다', (tester) async {
+      await pumpRow(
+        tester,
+        _expense.copyWith(
+          cardSettledThrough: '2026-08-31',
+          recordOnlyAmount: 25000,
+        ),
+      );
+      expect(find.text('기록만'), findsOneWidget);
     });
 
     testWidgets('환불된 거래는 환불됨만 — 합계에서 빠진 쪽이 먼저다', (tester) async {

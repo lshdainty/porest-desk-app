@@ -25,6 +25,9 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   creditLimit: (json['creditLimit'] as num?)?.toInt(),
   paymentDay: (json['paymentDay'] as num?)?.toInt(),
   paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
+  carryoverAmount: (json['carryoverAmount'] as num?)?.toInt(),
+  carryoverLocked: json['carryoverLocked'] as bool? ?? false,
+  cardClosedThrough: json['cardClosedThrough'] as String?,
   cardCatalog: json['cardCatalog'] == null
       ? null
       : AssetCardCatalog.fromJson(json['cardCatalog'] as Map<String, dynamic>),
@@ -58,6 +61,9 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'creditLimit': instance.creditLimit,
   'paymentDay': instance.paymentDay,
   'paymentAssetRowId': instance.paymentAssetRowId,
+  'carryoverAmount': instance.carryoverAmount,
+  'carryoverLocked': instance.carryoverLocked,
+  'cardClosedThrough': instance.cardClosedThrough,
   'cardCatalog': instance.cardCatalog,
   'marketCode': instance.marketCode,
   'tossSymbol': instance.tossSymbol,

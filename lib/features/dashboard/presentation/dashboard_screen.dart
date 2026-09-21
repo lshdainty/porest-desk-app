@@ -28,6 +28,7 @@ import 'package:porest_desk_app/features/budget/domain/budget.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/app/theme/chart_palette.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
@@ -1465,9 +1466,9 @@ class _TodaySpendCard extends StatelessWidget {
             e.expenseDate!.substring(0, 10) != todayStr,
       )
       ..sort((a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
-    final todayTotal = todayTx
-        .where((e) => e.expenseType == 'EXPENSE')
-        .fold<int>(0, (s, e) => s + e.amount);
+    // 합계는 집계 규칙 하나(`expenseSum`)로 — 환불한 거래·카드 이월·아직 안 온 거래는
+    // 행으로는 보이되(환불은 취소선) 오늘 쓴 돈에는 안 든다(23차 12).
+    final todayTotal = expenseSum(todayTx);
 
     // 카드 다이어트 — design HomeMobile 오늘 쓴 돈: 헤드(gap 6) + tx-flat 행(12/10).
     return PFlatSection(

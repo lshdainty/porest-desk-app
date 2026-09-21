@@ -30,6 +30,7 @@ class ExpenseRow extends StatelessWidget {
     required this.flags,
     this.interactive = true,
     this.onTap,
+    this.showInstallment = false,
     super.key,
   });
 
@@ -47,6 +48,12 @@ class ExpenseRow extends StatelessWidget {
   /// 홈의 '오늘 쓴 돈' 은 상세를 띄우는 대신 가계부의 그 거래로 **이동**한다 —
   /// 요약 카드라 거기서 더 볼 게 없고, 맥락째 옮겨 주는 편이 낫다.
   final VoidCallback? onTap;
+
+  /// 할부면 보조 줄에 "할부 N개월" 을 붙인다 — 카드 상세의 이용 내역이 쓴다.
+  ///
+  /// 할부 행의 금액은 원금(전액)이라, 이 표시가 없으면 회차 청구(예정액)와 행 금액이
+  /// 왜 다른지 알 길이 없다. 가계부 목록은 결제 수단을 따지지 않으므로 끈다.
+  final bool showInstallment;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +202,13 @@ class ExpenseRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$cName · ${expense.assetName ?? '-'}',
+                      [
+                        cName,
+                        expense.assetName ?? '-',
+                        if (showInstallment &&
+                            (expense.installmentMonths ?? 1) > 1)
+                          l.assetInstallmentBadge(expense.installmentMonths!),
+                      ].join(' · '),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

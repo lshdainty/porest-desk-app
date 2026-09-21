@@ -619,8 +619,24 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get assetCurrentUsageHint =>
-      'Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.';
+  String get assetCurrentUsageHint => 'Enter the amount not yet paid.';
+
+  @override
+  String assetOutstandingNow(String amount) {
+    return 'Unpaid balance now $amount';
+  }
+
+  @override
+  String get assetCarryoverLocked =>
+      'This has already been paid, so it can\'t be changed';
+
+  @override
+  String get assetPaymentDayChangeTitle => 'Change payment day';
+
+  @override
+  String assetPaymentDayChangeConfirm(int month, String date) {
+    return 'The new payment day applies from the next cycle. Month $month charges are still paid on $date';
+  }
 
   @override
   String get assetNewCard => 'New card';
@@ -1928,8 +1944,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expRefundConfirmBodyCard =>
-      'Any amount already paid goes back to the payment account.';
+  String get expRefundConfirmBodyRecordOnly =>
+      'Marks this transaction as refunded. It leaves your totals.';
 
   @override
   String get expRefundConfirmBodyCardNoAccount =>
@@ -1954,29 +1970,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Remove the refund mark? This transaction counts in your totals again, and any refunded amount is reversed.';
 
   @override
+  String get expRefundCancelConfirmPlain =>
+      'Remove the refund mark? This transaction counts in your totals again.';
+
+  @override
   String get expRefundedBadge => 'Refunded';
 
   @override
-  String expPaidDeleteNote(String amount) {
-    return 'This was already paid, so $amount goes back to the payment account.';
-  }
-
-  @override
-  String get expPaidDeleteFallback =>
-      'If this was in an already-paid cycle, it goes back to the payment account.';
-
-  @override
-  String get expRefundedDeleteNote =>
-      'This was already refunded. Deleting only removes it from the list.';
-
-  @override
-  String expPaidReduceNote(String amount) {
-    return 'The reduced $amount goes back to the payment account. Save?';
-  }
-
-  @override
   String expRefundedToast(String amount) {
-    return '$amount went back to the payment account.';
+    return '$amount you paid in advance went back to your account';
   }
 
   @override
@@ -3074,6 +3076,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get expAutoSourceTransferInterest =>
       'Interest on a transfer. The amount is calculated from the transfer.';
+
+  @override
+  String get expAutoSourceCardCarryover =>
+      'This is the unpaid usage you entered when adding the card. Change the amount by editing the card.';
 
   @override
   String get expAutoSourceDefault =>
@@ -6847,27 +6853,56 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expWindowClosedNote =>
-      'The payment month has passed, so only the record is updated. Nothing goes back to your account';
+  String get expClosedCycleLine =>
+      'This cycle has already been paid. Only the record changes, and your account balance stays the same.';
 
   @override
-  String get expClosedCycleNote =>
-      'This cycle has already been paid, so it is kept as a record only. Nothing is taken from your account';
+  String get expClosedCyclePartLine =>
+      'Installments from past cycles stay as records only.';
 
   @override
-  String expSameDayPaymentNote(String amount) {
-    return 'Today is the payment day, so $amount more is taken from your account';
+  String get expFixBalance => 'Fix balance';
+
+  @override
+  String get expMoneyLockedNote =>
+      'This transaction has already been paid. To change the amount or date, tap Rewrite';
+
+  @override
+  String get expRewrite => 'Rewrite';
+
+  @override
+  String get expRewriteConfirmLead =>
+      'The original transaction is deleted and replaced with a new one.';
+
+  @override
+  String get expRewriteConfirmClosed =>
+      'Only the record changes, and your account balance stays the same.';
+
+  @override
+  String expRewriteConfirmOpen(String date) {
+    return 'The new transaction is billed on the $date payment. The original is removed from the paid cycle as a record only.';
   }
 
   @override
   String get expSaveConfirmTitle => 'Save this?';
 
   @override
-  String assetRecordedOnlyNote(String amount) {
-    return '$amount of this is record only. It was not taken from your account';
+  String get assetPreRegistrationNote =>
+      'These transactions are from before the card was added, so they may not match your actual statement';
+
+  @override
+  String get assetRecordCycle => 'Record-only cycle';
+
+  @override
+  String assetClosedPaidLine(String paid, String diff) {
+    return '$paid left your account. The other $diff is kept as a record only';
   }
 
   @override
-  String get assetPreRegistrationNote =>
-      'These transactions are from before the card was added, so they may not match your actual statement';
+  String assetClosedOverpaidLine(String recorded, String paid) {
+    return 'The record shows $recorded, but $paid left your account';
+  }
+
+  @override
+  String get assetPaymentDayMissing => 'Please set a payment day';
 }

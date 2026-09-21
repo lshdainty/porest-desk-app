@@ -1,4 +1,4 @@
-// 카드 폼의 입력 정책 — 사용액은 절대값 입력·음수 저장(QA #19), 별칭 상한(QA #16).
+// 카드 폼의 입력 정책 — 이월 금액 칸(D7·D15), 결제일 변경 확인(D5), 별칭 상한(QA #16).
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +15,7 @@ import 'package:porest_desk_app/features/card/domain/card_catalog_page.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
+/// 지금 총 미결제 잔액 500,000 · 그 가운데 카드를 만들 때 적은 이월 9,000.
 const _credit = Asset(
   rowId: 7,
   assetName: '신한 Deep Dream',
@@ -24,6 +25,8 @@ const _credit = Asset(
   isIncludedInTotal: 'Y',
   creditLimit: 5000000,
   paymentDay: 14,
+  carryoverAmount: 9000,
+  cardClosedThrough: '2026-08-31',
 );
 
 const _other = Asset(
@@ -47,7 +50,9 @@ const _emptyPage = CardCatalogPage(
 class _CapturingRepo extends AssetRepository {
   _CapturingRepo() : super(Dio());
 
+  bool updated = false;
   int? balance;
+  int? carryoverAmount;
   // 수정 본문에 어떤 상태로 실렸는지 — 값뿐 아니라 "키가 실렸나" 까지 본다(QA #99).
   Patch<int> creditLimit = const Patch.keep();
   Patch<int> paymentDay = const Patch.keep();
@@ -73,8 +78,11 @@ class _CapturingRepo extends AssetRepository {
     Patch<int> paymentAssetRowId = const Patch.keep(),
     bool? isOverdraft,
     List<AssetHolding>? holdings,
+    int? carryoverAmount,
   }) async {
+    updated = true;
     this.balance = balance;
+    this.carryoverAmount = carryoverAmount;
     this.creditLimit = creditLimit;
     this.paymentDay = paymentDay;
     this.paymentAssetRowId = paymentAssetRowId;
@@ -134,20 +142,117 @@ void main() {
     l = await AppLocalizations.delegate.load(const Locale('ko'));
   });
 
-  testWidgets('신용카드 편집은 사용액을 양수로 보여 준다', (tester) async {
+  // 이 칸은 "이전 미결제 사용액" — 카드를 만들 때 적은 이월 금액이다(D7). 지금 총
+  // 미결제 잔액으로 채우면 저장만 해도 이월이 잔액만큼 새로 생겨 빚이 두 배가 됐다
+  // (QA 23차 1 — 출시 차단). 잔액은 옆에 읽기 전용으로만 보인다.
+  testWidgets('신용카드 편집은 이월 금액으로 채우고, 지금 잔액은 옆에 읽기 전용', (tester) async {
     await _openEdit(tester, _credit);
-    // '현재 사용액' 이라는 라벨 아래 −500000 이 보이면 안 된다.
-    expect(find.text('500000'), findsOneWidget);
+    expect(find.text('9000'), findsOneWidget);
+    expect(find.text('500000'), findsNothing);
     expect(find.text('-500000'), findsNothing);
+    expect(find.text('지금 미결제 잔액 500,000원'), findsOneWidget);
   });
 
-  testWidgets('저장하면 다시 음수로 정규화된다', (tester) async {
+  testWidgets('이월 금액이 없는 카드(옛 서버 포함)는 0 으로 연다', (tester) async {
+    await _openEdit(tester, _credit.copyWith(carryoverAmount: null));
+    expect(tester.widget<TextField>(_field('0')).controller!.text, '0');
+    expect(find.text('500000'), findsNothing);
+  });
+
+  testWidgets('저장하면 carryoverAmount 키로 보내고 balance 는 안 싣는다', (tester) async {
     final repo = await _openEdit(tester, _credit);
-    await tester.enterText(_field('0'), '320000');
+    await tester.enterText(_field('0'), '32000');
     await tester.pumpAndSettle();
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
-    expect(repo.balance, -320000);
+    expect(repo.updated, isTrue);
+    expect(repo.carryoverAmount, 32000);
+    expect(repo.balance, isNull, reason: '서버는 신용카드 balance 를 무시한다 — 싣지 않는다');
+  });
+
+  testWidgets('이름만 고쳐 저장해도 이월은 그대로 실린다 — 빚이 늘지 않는다', (tester) async {
+    final repo = await _openEdit(tester, _credit);
+    await tester.enterText(_field(l.assetCardNicknamePlaceholder), '생활비 카드');
+    await tester.pumpAndSettle();
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.carryoverAmount, 9000);
+    expect(repo.balance, isNull);
+  });
+
+  group('이월이 든 회차의 결제일이 지났으면(D15)', () {
+    const locked = Asset(
+      rowId: 7,
+      assetName: '신한 Deep Dream',
+      assetType: 'CREDIT_CARD',
+      balance: -500000,
+      paymentDay: 14,
+      carryoverAmount: 9000,
+      carryoverLocked: true,
+    );
+
+    testWidgets('칸이 읽기 전용이고 이유를 말한다', (tester) async {
+      await _openEdit(tester, locked);
+      final input = tester.widget<TextField>(_field('0'));
+      expect(input.enabled, isFalse);
+      expect(find.text('결제가 끝나 고칠 수 없어요'), findsOneWidget);
+    });
+
+    testWidgets('저장해도 이월 키를 안 싣는다 — 값이 같아도', (tester) async {
+      final repo = await _openEdit(tester, locked);
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+      expect(repo.updated, isTrue);
+      expect(repo.carryoverAmount, isNull);
+      expect(repo.balance, isNull);
+    });
+  });
+
+  group('결제일 변경은 다음 회차부터(D5)', () {
+    Future<void> pickDay(WidgetTester tester, int day) async {
+      await tester.tap(find.text(l.dayN(14)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.dayN(day)).last);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('바꾸면 옛 결제일로 결제되는 회차를 말하고 확인받는다', (tester) async {
+      final repo = await _openEdit(tester, _credit);
+      await pickDay(tester, 5);
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      // 8월까지 닫혔다 → 9월분은 옛 결제일(14일)인 10월 14일에 결제된다.
+      expect(find.text('결제일 변경'), findsOneWidget);
+      expect(
+        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 9월분은 10월 14일에 결제돼요'),
+        findsOneWidget,
+      );
+      expect(repo.updated, isFalse, reason: '확인 전에는 보내지 않는다');
+
+      await tester.tap(find.text(l.actionSave).last);
+      await tester.pumpAndSettle();
+      expect(repo.updated, isTrue);
+      expect(repo.paymentDay.value, 5);
+    });
+
+    testWidgets('물러나면 저장하지 않는다', (tester) async {
+      final repo = await _openEdit(tester, _credit);
+      await pickDay(tester, 5);
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.actionCancel).last);
+      await tester.pumpAndSettle();
+      expect(repo.updated, isFalse);
+    });
+
+    testWidgets('결제일을 안 바꾸면 묻지 않는다', (tester) async {
+      final repo = await _openEdit(tester, _credit);
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('다음 회차부터'), findsNothing);
+      expect(repo.updated, isTrue);
+    });
   });
 
   testWidgets('사용액 칸에 `-` 는 타이핑되지 않는다', (tester) async {

@@ -118,11 +118,8 @@ void main() {
   });
 
   testWidgets('오늘 쓴 돈 합계도 U+2212 로 찍는다', (tester) async {
-    final now = DateTime.now();
-    final today =
-        '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}T09:00:00';
+    // 자정 — 합계는 아직 오지 않은 거래를 안 세므로(`expenseSum`) 늘 지난 시각을 쓴다.
+    final today = '${_todayKey()}T00:00:00';
     await _pumpHome(
       tester,
       todayTx: [
@@ -140,4 +137,47 @@ void main() {
     expect(find.text('−7,560원'), findsNWidgets(2));
     expect(find.text('-7,560원'), findsNothing);
   });
+
+  // 환불한 거래·카드 이월은 행으로는 보이되(환불은 취소선) 오늘 쓴 돈 합계에는 안 든다
+  // — 가계부 합계와 같은 규칙이다(23차 12).
+  testWidgets('오늘 쓴 돈 합계는 환불·카드 이월을 뺀다', (tester) async {
+    final today = '${_todayKey()}T00:00:00';
+    await _pumpHome(
+      tester,
+      todayTx: [
+        Expense(
+          rowId: 1,
+          expenseType: 'EXPENSE',
+          amount: 7560,
+          expenseDate: today,
+        ),
+        Expense(
+          rowId: 2,
+          expenseType: 'EXPENSE',
+          amount: 3000,
+          expenseDate: today,
+          refundedAt: today,
+        ),
+        Expense(
+          rowId: 3,
+          expenseType: 'EXPENSE',
+          amount: 500000,
+          expenseDate: today,
+          autoSource: 'CARD_CARRYOVER',
+        ),
+      ],
+    );
+
+    // 헤더 합계 −7,560원 + 그 행 하나. 10,560·507,560 이면 빠뜨린 것이다.
+    expect(find.text('−7,560원'), findsNWidgets(2));
+    expect(find.text('−10,560원'), findsNothing);
+    expect(find.text('−510,560원'), findsNothing);
+  });
+}
+
+String _todayKey() {
+  final now = DateTime.now();
+  return '${now.year.toString().padLeft(4, '0')}-'
+      '${now.month.toString().padLeft(2, '0')}-'
+      '${now.day.toString().padLeft(2, '0')}';
 }

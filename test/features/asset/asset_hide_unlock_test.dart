@@ -72,6 +72,7 @@ class _CapturingRepo extends AssetRepository {
     Patch<int> paymentAssetRowId = const Patch.keep(),
     bool? isOverdraft,
     List<AssetHolding>? holdings,
+    int? carryoverAmount,
   }) async {
     updateCalled = true;
     updatedHidden = isAmountHidden;

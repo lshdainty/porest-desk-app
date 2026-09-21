@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
 import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
@@ -24,8 +26,7 @@ import 'package:porest_desk_app/features/recurring/presentation/recurring_settin
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
-import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
-import 'package:porest_desk_app/features/expense/presentation/delete_confirm_dialog.dart';
+import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
 import 'package:porest_desk_app/features/expense/presentation/refund_confirm_dialog.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
@@ -43,29 +44,52 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 void showTxDetailDialog(BuildContext context, Expense expense) {
   final l = AppLocalizations.of(context);
   final controller = PSheetController();
+  // 지금 그리는 거래 — 환불·환불 취소로 서버가 돌려준 거래로 바뀐다. 본문과 footer 가
+  // 같이 본다. footer 가 열 때의 거래를 쥐고 있으면 환불 직후에도 [수정] 이 남는다
+  // (23차 낮음 — 누르면 EXP_043).
+  final current = ValueNotifier<Expense>(expense);
+  // footer 가 듣는 둘을 **한 번만** 묶는다. 빌드마다 새로 묶으면 footer 가 다시 그려질
+  // 때마다 다시 구독하는데, 시트가 닫히는 애니메이션 중엔 controller 가 이미 dispose 돼
+  // 그 자리에서 터진다.
+  final footerListenable = Listenable.merge([controller, current]);
   final isIncome = expense.expenseType == 'INCOME';
   showPSheet<void>(
     context,
     title: isIncome ? l.expIncomeDetail : l.expExpenseDetail,
     contentBuilder: (ctx, scrollCtrl) => _DetailBody(
       expense: expense,
+      current: current,
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) =>
-        _TxDetailFooter(expense: expense, controller: controller),
-  ).whenComplete(controller.dispose);
+    footerBuilder: (ctx) => _TxDetailFooter(
+      current: current,
+      controller: controller,
+      listenable: footerListenable,
+    ),
+  ).whenComplete(() {
+    controller.dispose();
+    current.dispose();
+  });
 }
 
 class _TxDetailFooter extends StatelessWidget {
-  const _TxDetailFooter({required this.expense, required this.controller});
-  final Expense expense;
+  const _TxDetailFooter({
+    required this.current,
+    required this.controller,
+    required this.listenable,
+  });
+  final ValueListenable<Expense> current;
   final PSheetController controller;
+
+  /// [controller]·[current] 를 묶은 것 — 시트를 열 때 한 번 만든다.
+  final Listenable listenable;
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: controller,
+      animation: listenable,
       builder: (ctx, _) {
+        final expense = current.value;
         final busy = controller.submitting;
         // 고칠 수 없는 거래 둘 — 시스템이 만든 것(매도 실현손익·이체 이자)은 원본을
         // 지워야 사라지고, 환불된 것은 돈이 이미 자산으로 돌아가 되돌릴 기준이 없다
@@ -90,10 +114,14 @@ class _TxDetailFooter extends StatelessWidget {
 class _DetailBody extends ConsumerStatefulWidget {
   const _DetailBody({
     required this.expense,
+    required this.current,
     required this.scrollController,
     required this.controller,
   });
   final Expense expense;
+
+  /// 본문이 바꾼 거래를 footer 에 알리는 자리.
+  final ValueNotifier<Expense> current;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -109,6 +137,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 화면이 그리는 거래. 열릴 때는 넘겨받은 것과 같지만, 환불을 찍거나 취소하면
   /// 서버가 돌려준 것으로 갈아 끼운다 — 그래야 배너가 그 자리에서 바뀐다.
   late Expense _e = widget.expense;
+
+  /// [_e] 를 바꾸고 footer 에도 알린다 — [수정] 이 환불 여부를 따라 숨고 나타난다.
+  void _setExpense(Expense e) {
+    setState(() => _e = e);
+    widget.current.value = e;
+  }
 
   @override
   void initState() {
@@ -130,21 +164,17 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 여기서 다시 짜면 무효화 하나만 어긋나도 경로에 따라 화면이 달라진다.
   ///
   /// 확인은 이 화면 몫이다. 지운 뒤 시트를 닫는 것도 여기서만 필요하다 —
-  /// 목록에서 지울 땐 닫을 시트가 없다.
+  /// 목록에서 지울 땐 닫을 시트가 없다. 확인창 본문은 스와이프와 같다 — 결제가 끝난
+  /// 회차의 카드 거래면 한 문구가 붙는다(D1). 서버에 묻지 않는다.
   Future<void> _delete(Asset? asset) async {
-    // 카드 거래만 물어본다 — 그 밖에는 돌려줄 자리가 없다.
-    final isCard = asset?.assetType == 'CREDIT_CARD';
-    final preview = isCard ? _loadRefundPreview() : null;
-
-    final result = await showDeleteConfirmDialog(
+    final ok = await showPConfirmDialog(
       context,
       title: expenseActions.deleteConfirmTitle(context, _e),
-      message: expenseActions.deleteConfirmMessage(context, _e),
-      preview: preview,
-      isCreditCard: isCard,
-      cardHasPaymentAsset: expenseActions.paidRefundPossible(asset),
+      message: expenseActions.deleteConfirmMessageWith(context, _e, asset),
+      confirmLabel: AppLocalizations.of(context).actionDelete,
+      destructive: true,
     );
-    if (!result.ok || !mounted) return;
+    if (!ok || !mounted) return;
 
     _setDeleting(true);
     try {
@@ -152,18 +182,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         context,
         ref,
         _e,
-        previewed: result.previewed,
+        asset: asset,
       );
       if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) _setDeleting(false);
     }
-  }
-
-  /// 확인창이 그릴 환급 미리보기 — 실패는 확인창이 폴백 문구로 받는다.
-  Future<RefundPreview> _loadRefundPreview() async {
-    final repo = await ref.read(expenseRepositoryProvider.future);
-    return repo.refundPreview(_e.rowId);
   }
 
   /// 환불 처리 — 원거래에 표식을 찍는다. 거래는 지워지지 않는다.
@@ -172,37 +196,46 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 사용자만 안다. 시각은 **정오**로 보낸다 — 자정이면 같은 날 앞서 찍힌 거래보다
   /// 과거가 되어 카드 회차 판정이 하루 밀린다.
   Future<void> _refund(Asset? asset) async {
-    // 결제계좌가 있는 카드만 물어본다 — 그 밖에는 돌려줄 자리가 없다.
-    final isCard = asset?.assetType == 'CREDIT_CARD';
     final picked = await showRefundConfirmDialog(
       context,
       expense: _e,
       asset: asset,
-      preview: isCard && expenseActions.paidRefundPossible(asset)
-          ? _loadRefundPreview()
-          : null,
     );
     if (picked == null || !mounted) return;
 
     setState(() => _refunding = true);
     try {
-      final updated = await expenseActions.refund(ref, _e, refundedAt: picked);
-      if (updated != null && mounted) setState(() => _e = updated);
+      final updated = await expenseActions.refund(
+        context,
+        ref,
+        _e,
+        refundedAt: picked,
+        asset: asset,
+      );
+      if (updated != null && mounted) _setExpense(updated);
     } finally {
       if (mounted) setState(() => _refunding = false);
     }
   }
 
-  /// 환불 취소 — 표식을 걷고, 마크가 만든 환급 이체까지 되돌린다.
+  /// 환불 취소 — 표식을 걷는다. 이 거래가 합계에 다시 들어간다.
   ///
-  /// 되돌리면 이 거래가 합계에 다시 들어가고 카드가 다시 빚이 된다. 돈이 움직이는
-  /// 일이라 삭제와 같은 무게로 묻는다.
-  Future<void> _cancelRefund() async {
+  /// 옛 환급 이체가 묶인 거래만 그 이체까지 되돌아간다(통장에서 다시 빠진다) — 그때만
+  /// "환급된 금액도 되돌아가요" 를 말한다. 나머지는 표식만 풀리므로, 결제가 끝난
+  /// 회차의 카드 거래면 기록만 바뀐다는 한 문구를 붙인다(D1).
+  Future<void> _cancelRefund(Asset? asset) async {
     final l = AppLocalizations.of(context);
+    final message = _e.refundTransferRowId != null
+        ? l.expRefundCancelConfirm
+        : withClosedCycleNote(
+            l,
+            l.expRefundCancelConfirmPlain,
+            closedCycleSpanOfExpense(_e, asset),
+          );
     final ok = await showPConfirmDialog(
       context,
       title: l.expRefundCancel,
-      message: l.expRefundCancelConfirm,
+      message: message,
       confirmLabel: l.expRefundCancel,
       destructive: true,
     );
@@ -211,10 +244,19 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     setState(() => _refunding = true);
     try {
       final updated = await expenseActions.cancelRefund(ref, _e);
-      if (updated != null && mounted) setState(() => _e = updated);
+      if (updated != null && mounted) _setExpense(updated);
     } finally {
       if (mounted) setState(() => _refunding = false);
     }
+  }
+
+  /// [잔액 고치기] — 이 시트를 닫고 결제계좌의 수정 폼으로 간다(D9).
+  ///
+  /// 시트가 닫히면 이 context 가 풀리므로 오래 사는 자리를 먼저 짚어 둔다.
+  void _openFixBalance(int paymentAssetRowId) {
+    final host = hostContextOf(context);
+    Navigator.of(context).pop();
+    pushAssetEdit(host, paymentAssetRowId);
   }
 
   String _paymentMethodLabel(AppLocalizations l, String? m) => switch (m) {
@@ -251,6 +293,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final assets = ref.watch(assetsProvider).value ?? const [];
     final asset = assets.where((a) => a.rowId == e.assetRowId).firstOrNull;
     _assetForDelete = asset;
+    // 결제가 끝난 회차에 걸린 카드 거래면 결제계좌 — 환불됨 배너의 [잔액 고치기].
+    final fixBalance = fixBalanceTargetOf(e, asset);
     final assetLabel = asset == null
         ? null
         : (asset.institution != null && asset.institution!.isNotEmpty
@@ -443,6 +487,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     child: Text(switch (e.autoSource) {
                       'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
                       'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
+                      // 카드 이월 — "원래 거래를 지우면…" 은 틀린 말이다. 원래
+                      // 거래가 없다(23차 10).
+                      'CARD_CARRYOVER' => l.expAutoSourceCardCarryover,
                       _ => l.expAutoSourceDefault,
                     }, style: PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
@@ -452,7 +499,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           ),
 
         // 환불됨 — 이 거래는 합계에서 빠져 있다. 되돌릴 자리를 함께 준다.
-        // 웹도 같은 자리·같은 문구다(설계서 7절).
+        // 웹도 같은 자리·같은 문구다(설계서 7절). 결제가 끝난 회차의 카드 거래면
+        // 통장은 그대로라 결제계좌 수정 폼으로 가는 [잔액 고치기] 를 단다(D9).
         if (e.isRefunded)
           PDetailSection(
             child: Container(
@@ -464,32 +512,54 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 color: t.bgMuted,
                 borderRadius: PRadius.brMd,
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(LucideIcons.undo2, size: 15, color: t.fgTertiary),
-                  const SizedBox(width: PSpace.x8),
-                  Expanded(
-                    child: Text(
-                      l.expRefundedAt(e.refundedAt!.substring(0, 10)),
-                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                  Row(
+                    children: [
+                      Icon(LucideIcons.undo2, size: 15, color: t.fgTertiary),
+                      const SizedBox(width: PSpace.x8),
+                      Expanded(
+                        child: Text(
+                          l.expRefundedAt(e.refundedAt!.substring(0, 10)),
+                          style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      PButton(
+                        label: l.expRefundCancel,
+                        variant: PButtonVariant.outline,
+                        size: PButtonSize.sm,
+                        loading: _refunding,
+                        onPressed: _deleting || _refunding
+                            ? null
+                            : () => _cancelRefund(asset),
+                      ),
+                    ],
+                  ),
+                  if (fixBalance != null) ...[
+                    const SizedBox(height: PSpace.x8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: PButton(
+                        label: l.expFixBalance,
+                        variant: PButtonVariant.outline,
+                        size: PButtonSize.sm,
+                        onPressed: _deleting || _refunding
+                            ? null
+                            : () => _openFixBalance(fixBalance),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  PButton(
-                    label: l.expRefundCancel,
-                    variant: PButtonVariant.outline,
-                    size: PButtonSize.sm,
-                    loading: _refunding,
-                    onPressed: _deleting || _refunding ? null : _cancelRefund,
-                  ),
+                  ],
                 ],
               ),
             ),
           ),
         // 기록만 — 결제가 끝난 회차에 뒤늦게 적은 카드 지출(닫힌 회차 R2). 계좌에서는
         // 안 빠졌다는 것을 상세에서 한 번 더 말한다. 할부는 지난 회차분만 기록용이라
-        // 금액이 거래보다 작으면 "이 중 N원" 으로 말한다. 웹도 같은 자리·같은 문구다.
-        if (e.isRecordOnly)
+        // 금액이 거래보다 작으면 "이 중 N원" 으로 말한다(행 배지는 통째일 때만, D10).
+        // 웹도 같은 자리·같은 문구다.
+        if (e.hasRecordOnlyPart)
           PDetailSection(
             child: Container(
               key: const ValueKey('record-only-note'),
@@ -502,11 +572,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 borderRadius: PRadius.brMd,
               ),
               child: Text(
-                (e.recordOnlyAmount ?? e.amount.abs()) < e.amount.abs()
-                    ? l.expRecordOnlyPartNote(
-                        krwSigned(e.recordOnlyAmount ?? 0, masked, unit: true),
-                      )
-                    : l.expRecordOnlyNote,
+                e.isRecordOnly
+                    ? l.expRecordOnlyNote
+                    : l.expRecordOnlyPartNote(
+                        krwSigned(e.recordOnlyShare, masked, unit: true),
+                      ),
                 style: PTypo.bodySm.copyWith(color: t.fgSecondary),
               ),
             ),
@@ -517,8 +587,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             children: [
               // 환불 — 지출에만, 아직 환불 안 한 것만. 누르면 확인 다이얼로그(환불일)
               // 이고, 확인하면 원거래에 표식이 찍혀 합계에서 빠진다. 시트를 닫지 않는다
-              // — 표식이 찍힌 모습(배너)을 그 자리에서 보여 준다.
-              if (!isIncome && !e.isRefunded)
+              // — 표식이 찍힌 모습(배너)을 그 자리에서 보여 준다. 시스템이 만든 거래
+              // (카드 이월 등)는 서버가 환불을 거절하므로 띄우지 않는다(23차 10).
+              if (!isIncome && !e.isRefunded && e.autoSource == null)
                 Expanded(
                   child: PDetailQuickAction(
                     icon: LucideIcons.undo2,
@@ -528,9 +599,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         : () => _refund(asset),
                   ),
                 ),
-              // 분할도 환불된 거래에는 안 띄운다 — 서버가 EXP_043 으로 막으므로
-              // 눌러 봐야 토스트만 뜬다.
-              if (!e.isRefunded)
+              // 분할도 환불된 거래·시스템이 만든 거래에는 안 띄운다 — 서버가 막으므로
+              // 눌러 봐야 토스트만 뜬다(EXP_043 · 23차 10).
+              if (!e.isRefunded && e.autoSource == null)
                 Expanded(
                   child: PDetailQuickAction(
                     icon: LucideIcons.scissors,

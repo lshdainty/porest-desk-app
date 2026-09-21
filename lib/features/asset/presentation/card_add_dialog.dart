@@ -6,6 +6,8 @@ import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/core/format/amount_limits.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
+import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -31,6 +33,8 @@ import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_currency_fields.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
 
 /// 카드 추가/편집 다이얼로그 — front `AssetEditDialog`(group='card') 미러.
 ///
@@ -135,6 +139,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
 
   bool get _isEdit => widget.edit != null;
 
+  /// 편집 중인 신용카드의 이월 금액을 고칠 수 없는가 — 이월이 든 회차의 결제일이
+  /// 됐다(D15). 결제가 끝난 회차라 기록을 바꿔도 통장은 그대로인데, 서버도 400 이다.
+  bool get _carryoverLocked =>
+      widget.edit?.assetType == 'CREDIT_CARD' &&
+      (widget.edit?.carryoverLocked ?? false);
+
   /// 별칭 길이 상한 — 계좌와 같은 값(QA #16).
   static const _kNicknameMax = 30;
 
@@ -183,9 +193,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
     _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
       ..addListener(_onNicknameChanged);
-    // '현재 사용액' 이라는 라벨 아래 −500000 이 보이면 안 된다 — 부호는 저장 규약이다.
+    // 이 칸은 "이전 미결제 사용액" — 카드를 만들 때 적은 **이월 금액**이다(D7). 편집은
+    // 서버가 내려 준 이월 금액으로 채운다. 지금 총 미결제 잔액(balance)으로 채우면 저장만
+    // 해도 이월이 잔액만큼 새로 생겨 빚이 두 배가 됐다(QA 23차 1). 부호는 저장 규약이라
+    // 절댓값만 보인다.
     _balanceCtrl = TextEditingController(
-      text: (e?.balance ?? 0).abs().toString(),
+      text: (e == null ? 0 : (e.carryoverAmount ?? 0)).abs().toString(),
     );
     _creditLimitCtrl = TextEditingController(
       text: e?.creditLimit?.toString() ?? '',
@@ -256,6 +269,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     }
     if (!mounted) return;
     final edit = widget.edit;
+    // 결제일을 바꾸면 다음 회차부터다(D5) — 아직 결제 전인 회차는 옛 결제일에 결제된다.
+    // 그걸 모르고 바꾸면 이번 달 결제가 사라진 줄 안다. 한 번 알리고 확인받는다.
+    if (!await _confirmPaymentDayChange(l)) return;
+    if (!mounted) return;
     final nickname = _nicknameCtrl.text.trim();
     // 편집에서 상품을 다시 고르지 않았으면 기존 값으로 채운다.
     final name = nickname.isNotEmpty
@@ -263,13 +280,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         : (_selected?.cardName ?? edit?.assetName ?? l.assetNewCard);
     // 체크카드는 잔액을 들지 않는다 — 사용액은 연결 계좌에서 이미 빠져 있다.
     //
-    // 신용카드 잔액은 미결제 사용액이라 음수로 저장한다 — 화면은 "현재 사용액" 을 묻고
-    // 사용자는 양수를 치는 게 자연스럽다. 서버도 같은 정규화를 하지만 여기서도 맞춰 보낸다.
+    // 신용카드의 이 칸은 이월 금액이다. 만들 때는 잔액(음수 — 미결제 사용액)으로 보내
+    // 서버가 이월 거래를 만든다. 서버도 같은 정규화를 하지만 여기서도 맞춰 보낸다.
+    final usage = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final outstanding = _cardType == _CardType.credit
-        ? signedBalance(
-            'CREDIT_CARD',
-            int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0,
-          )
+        ? signedBalance('CREDIT_CARD', usage)
         : 0;
     final company = _selected?.company?.name ?? edit?.institution;
     final catalogRowId = _selected?.rowId ?? edit?.cardCatalog?.rowId;
@@ -298,11 +313,16 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         // — 안 그러면 웹에서 USD 로 만든 해외 카드가 앱 편집 한 번에 원화가 되고
         // 서버가 환산율까지 1 로 정규화했다(`Asset.normalizeRate`). 이제 화면이
         // 지금 통화를 읽어 와 보여 주므로 그대로 실어도 값이 바뀌지 않는다.
+        //
+        // 신용카드는 잔액을 싣지 않는다 — 서버가 무시한다. 이월은 `carryoverAmount` 키로만
+        // 고치고(D7), 결제가 끝나 잠긴 이월은 키째 뺀다(D15 — 값이 같아도 안 보낸다).
+        // 체크카드는 종전처럼 0 을 싣는다.
         await repo.update(
           id: edit.rowId,
           assetName: name,
           assetType: _cardType.assetType,
-          balance: outstanding,
+          balance: isCredit ? null : outstanding,
+          carryoverAmount: isCredit && !_carryoverLocked ? usage : null,
           currency: _currency,
           exchangeRate: Patch.set(fxRate),
           institution: company,
@@ -334,6 +354,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       // 자산이 하나 늘거나 줄면 순자산·추이·청구·실적이 함께 달라진다 —
       // 전부 별도 조회라 목록만 비우면 옛 값이 남는다.
       invalidateAfterAssetChange(ref);
+      // 신용카드의 이월 금액은 **거래**다(이전 미결제 사용액) — 만들거나 고치면 가계부
+      // 목록·자산 상세 이용 내역도 달라진다. 자산만 비우면 옛 이월 행이 남는다.
+      if (isCredit) {
+        ref.invalidate(monthExpensesProvider);
+        invalidateAfterExpenseChange(ref);
+      }
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException {
@@ -341,6 +367,37 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     } finally {
       if (mounted) _setSubmitting(false);
     }
+  }
+
+  /// 결제일을 바꾸는 저장이면 확인받는다(D5) — 옛 결제일로 결제되는 회차를 말한다.
+  ///
+  /// 신용카드 편집에서, 원래 결제일이 있고 다른 날로 바꿀 때만 묻는다(처음 넣는 결제일은
+  /// 옛 결제일이 없다). 물러나면 false — 저장하지 않는다.
+  Future<bool> _confirmPaymentDayChange(AppLocalizations l) async {
+    final edit = widget.edit;
+    final oldDay = edit?.paymentDay;
+    final newDay = _paymentDay;
+    if (edit == null ||
+        _cardType != _CardType.credit ||
+        edit.assetType != 'CREDIT_CARD' ||
+        oldDay == null ||
+        newDay == null ||
+        oldDay == newDay) {
+      return true;
+    }
+    final today = toIsoLocal(DateTime.now()).substring(0, 10);
+    final pending = pendingCycleOnOldDay(
+      oldPaymentDay: oldDay,
+      cardClosedThrough: edit.cardClosedThrough,
+      todayKey: today,
+    );
+    final date = formatDay(DateTime.parse(pending.paymentDate)).md;
+    return showPConfirmDialog(
+      context,
+      title: l.assetPaymentDayChangeTitle,
+      message: l.assetPaymentDayChangeConfirm(pending.month, date),
+      confirmLabel: l.actionSave,
+    );
   }
 
   @override
@@ -571,8 +628,36 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
             numbersOnly: true,
             amountMax: kBalanceMax,
             placeholder: '0',
+            // 이월이 든 회차의 결제일이 됐으면 못 고친다(D15).
+            enabled: !_carryoverLocked,
           ),
           const SizedBox(height: 6),
+          if (_carryoverLocked) ...[
+            Text(
+              l.assetCarryoverLocked,
+              key: const ValueKey('carryover-locked-note'),
+              style: PTypo.micro.copyWith(color: t.fgSecondary),
+            ),
+            const SizedBox(height: 2),
+          ],
+          // 편집이면 지금 총 미결제 잔액을 옆에 보여 준다(읽기 전용). 이 칸이 그 값이
+          // 아니라는 것을 숫자로 가른다 — 예전엔 이 칸이 그 값으로 채워졌다.
+          if (widget.edit?.assetType == 'CREDIT_CARD') ...[
+            Text(
+              l.assetOutstandingNow(
+                krwSigned(
+                  (widget.edit!.balance ?? 0) < 0
+                      ? -(widget.edit!.balance ?? 0)
+                      : 0,
+                  false,
+                  unit: true,
+                ),
+              ),
+              key: const ValueKey('outstanding-now'),
+              style: PTypo.micro.copyWith(color: t.fgSecondary),
+            ),
+            const SizedBox(height: 2),
+          ],
           Text(
             l.assetCurrentUsageHint,
             style: PTypo.micro.copyWith(color: t.fgTertiary),

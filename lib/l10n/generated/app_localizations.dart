@@ -1223,8 +1223,32 @@ abstract class AppLocalizations {
   /// No description provided for @assetCurrentUsageHint.
   ///
   /// In ko, this message translates to:
-  /// **'아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.'**
+  /// **'아직 결제되지 않은 사용액을 적어 주세요.'**
   String get assetCurrentUsageHint;
+
+  /// No description provided for @assetOutstandingNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 미결제 잔액 {amount}'**
+  String assetOutstandingNow(String amount);
+
+  /// No description provided for @assetCarryoverLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 끝나 고칠 수 없어요'**
+  String get assetCarryoverLocked;
+
+  /// No description provided for @assetPaymentDayChangeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일 변경'**
+  String get assetPaymentDayChangeTitle;
+
+  /// No description provided for @assetPaymentDayChangeConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요'**
+  String assetPaymentDayChangeConfirm(int month, String date);
 
   /// No description provided for @assetNewCard.
   ///
@@ -3590,11 +3614,11 @@ abstract class AppLocalizations {
   /// **'이 거래를 환불로 표시하고 {amount}을 {asset}(으)로 되돌려요. 합계에서 빠져요.'**
   String expRefundConfirmBody(String amount, String asset);
 
-  /// No description provided for @expRefundConfirmBodyCard.
+  /// No description provided for @expRefundConfirmBodyRecordOnly.
   ///
   /// In ko, this message translates to:
-  /// **'이미 결제된 금액은 결제계좌로 환급돼요.'**
-  String get expRefundConfirmBodyCard;
+  /// **'이 거래를 환불로 표시해요. 합계에서 빠져요.'**
+  String get expRefundConfirmBodyRecordOnly;
 
   /// No description provided for @expRefundConfirmBodyCardNoAccount.
   ///
@@ -3632,40 +3656,22 @@ abstract class AppLocalizations {
   /// **'환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.'**
   String get expRefundCancelConfirm;
 
+  /// No description provided for @expRefundCancelConfirmPlain.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 표시를 지울까요? 이 거래가 합계에 다시 들어가요.'**
+  String get expRefundCancelConfirmPlain;
+
   /// No description provided for @expRefundedBadge.
   ///
   /// In ko, this message translates to:
   /// **'환불됨'**
   String get expRefundedBadge;
 
-  /// No description provided for @expPaidDeleteNote.
-  ///
-  /// In ko, this message translates to:
-  /// **'이미 결제된 거래라 결제계좌로 {amount}이 환급돼요.'**
-  String expPaidDeleteNote(String amount);
-
-  /// No description provided for @expPaidDeleteFallback.
-  ///
-  /// In ko, this message translates to:
-  /// **'이미 결제된 회차의 거래라면 결제계좌로 환급돼요.'**
-  String get expPaidDeleteFallback;
-
-  /// No description provided for @expRefundedDeleteNote.
-  ///
-  /// In ko, this message translates to:
-  /// **'이미 환급된 거래예요. 지우면 내역에서만 사라져요.'**
-  String get expRefundedDeleteNote;
-
-  /// No description provided for @expPaidReduceNote.
-  ///
-  /// In ko, this message translates to:
-  /// **'줄어든 {amount}이 결제계좌로 환급돼요. 저장할까요?'**
-  String expPaidReduceNote(String amount);
-
   /// No description provided for @expRefundedToast.
   ///
   /// In ko, this message translates to:
-  /// **'결제계좌로 {amount}이 환급됐어요.'**
+  /// **'미리 낸 돈 중 {amount}이 계좌로 돌아왔어요'**
   String expRefundedToast(String amount);
 
   /// No description provided for @expLumpSum.
@@ -5605,6 +5611,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.'**
   String get expAutoSourceTransferInterest;
+
+  /// No description provided for @expAutoSourceCardCarryover.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.'**
+  String get expAutoSourceCardCarryover;
 
   /// No description provided for @expAutoSourceDefault.
   ///
@@ -12344,23 +12356,53 @@ abstract class AppLocalizations {
   /// **'이 중 {amount}은 결제가 끝난 회차분이라 기록만 남았어요. 남은 회차는 정상 청구돼요'**
   String expRecordOnlyPartNote(String amount);
 
-  /// No description provided for @expWindowClosedNote.
+  /// No description provided for @expClosedCycleLine.
   ///
   /// In ko, this message translates to:
-  /// **'결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요'**
-  String get expWindowClosedNote;
+  /// **'이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.'**
+  String get expClosedCycleLine;
 
-  /// No description provided for @expClosedCycleNote.
+  /// No description provided for @expClosedCyclePartLine.
   ///
   /// In ko, this message translates to:
-  /// **'이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요'**
-  String get expClosedCycleNote;
+  /// **'지난 회차분은 기록만 남아요.'**
+  String get expClosedCyclePartLine;
 
-  /// No description provided for @expSameDayPaymentNote.
+  /// No description provided for @expFixBalance.
   ///
   /// In ko, this message translates to:
-  /// **'오늘이 결제일이라 계좌에서 {amount}이 추가로 빠져요'**
-  String expSameDayPaymentNote(String amount);
+  /// **'잔액 고치기'**
+  String get expFixBalance;
+
+  /// No description provided for @expMoneyLockedNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요'**
+  String get expMoneyLockedNote;
+
+  /// No description provided for @expRewrite.
+  ///
+  /// In ko, this message translates to:
+  /// **'고쳐 쓰기'**
+  String get expRewrite;
+
+  /// No description provided for @expRewriteConfirmLead.
+  ///
+  /// In ko, this message translates to:
+  /// **'원래 거래는 지워지고 새 거래로 바뀌어요.'**
+  String get expRewriteConfirmLead;
+
+  /// No description provided for @expRewriteConfirmClosed.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록만 바뀌고 계좌 잔액은 그대로예요.'**
+  String get expRewriteConfirmClosed;
+
+  /// No description provided for @expRewriteConfirmOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 거래는 {date} 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.'**
+  String expRewriteConfirmOpen(String date);
 
   /// No description provided for @expSaveConfirmTitle.
   ///
@@ -12368,17 +12410,35 @@ abstract class AppLocalizations {
   /// **'저장할까요?'**
   String get expSaveConfirmTitle;
 
-  /// No description provided for @assetRecordedOnlyNote.
-  ///
-  /// In ko, this message translates to:
-  /// **'이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요'**
-  String assetRecordedOnlyNote(String amount);
-
   /// No description provided for @assetPreRegistrationNote.
   ///
   /// In ko, this message translates to:
   /// **'카드 등록 이전 거래라 실제와 맞지 않을 수 있어요'**
   String get assetPreRegistrationNote;
+
+  /// No description provided for @assetRecordCycle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 회차'**
+  String get assetRecordCycle;
+
+  /// No description provided for @assetClosedPaidLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌에서 나간 돈은 {paid}이에요. 나머지 {diff}은 기록만 남긴 금액이에요'**
+  String assetClosedPaidLine(String paid, String diff);
+
+  /// No description provided for @assetClosedOverpaidLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록은 {recorded}인데 계좌에서는 {paid}이 나갔어요'**
+  String assetClosedOverpaidLine(String recorded, String paid);
+
+  /// No description provided for @assetPaymentDayMissing.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일을 넣어 주세요'**
+  String get assetPaymentDayMissing;
 }
 
 class _AppLocalizationsDelegate

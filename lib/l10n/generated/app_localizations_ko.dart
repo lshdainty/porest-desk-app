@@ -609,8 +609,23 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetCurrentUsageHint =>
-      '아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.';
+  String get assetCurrentUsageHint => '아직 결제되지 않은 사용액을 적어 주세요.';
+
+  @override
+  String assetOutstandingNow(String amount) {
+    return '지금 미결제 잔액 $amount';
+  }
+
+  @override
+  String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요';
+
+  @override
+  String get assetPaymentDayChangeTitle => '결제일 변경';
+
+  @override
+  String assetPaymentDayChangeConfirm(int month, String date) {
+    return '바꾼 결제일은 다음 회차부터 적용돼요. $month월분은 $date에 결제돼요';
+  }
 
   @override
   String get assetNewCard => '새 카드';
@@ -1905,7 +1920,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get expRefundConfirmBodyCard => '이미 결제된 금액은 결제계좌로 환급돼요.';
+  String get expRefundConfirmBodyRecordOnly => '이 거래를 환불로 표시해요. 합계에서 빠져요.';
 
   @override
   String get expRefundConfirmBodyCardNoAccount => '결제계좌가 없어 카드 잔액만 정리돼요.';
@@ -1929,27 +1944,14 @@ class AppLocalizationsKo extends AppLocalizations {
       '환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.';
 
   @override
+  String get expRefundCancelConfirmPlain => '환불 표시를 지울까요? 이 거래가 합계에 다시 들어가요.';
+
+  @override
   String get expRefundedBadge => '환불됨';
 
   @override
-  String expPaidDeleteNote(String amount) {
-    return '이미 결제된 거래라 결제계좌로 $amount이 환급돼요.';
-  }
-
-  @override
-  String get expPaidDeleteFallback => '이미 결제된 회차의 거래라면 결제계좌로 환급돼요.';
-
-  @override
-  String get expRefundedDeleteNote => '이미 환급된 거래예요. 지우면 내역에서만 사라져요.';
-
-  @override
-  String expPaidReduceNote(String amount) {
-    return '줄어든 $amount이 결제계좌로 환급돼요. 저장할까요?';
-  }
-
-  @override
   String expRefundedToast(String amount) {
-    return '결제계좌로 $amount이 환급됐어요.';
+    return '미리 낸 돈 중 $amount이 계좌로 돌아왔어요';
   }
 
   @override
@@ -3031,6 +3033,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expAutoSourceTransferInterest => '이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.';
+
+  @override
+  String get expAutoSourceCardCarryover =>
+      '카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.';
 
   @override
   String get expAutoSourceDefault => '자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.';
@@ -6738,24 +6744,50 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get expWindowClosedNote => '결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요';
+  String get expClosedCycleLine => '이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
 
   @override
-  String get expClosedCycleNote => '이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요';
+  String get expClosedCyclePartLine => '지난 회차분은 기록만 남아요.';
 
   @override
-  String expSameDayPaymentNote(String amount) {
-    return '오늘이 결제일이라 계좌에서 $amount이 추가로 빠져요';
+  String get expFixBalance => '잔액 고치기';
+
+  @override
+  String get expMoneyLockedNote => '결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요';
+
+  @override
+  String get expRewrite => '고쳐 쓰기';
+
+  @override
+  String get expRewriteConfirmLead => '원래 거래는 지워지고 새 거래로 바뀌어요.';
+
+  @override
+  String get expRewriteConfirmClosed => '기록만 바뀌고 계좌 잔액은 그대로예요.';
+
+  @override
+  String expRewriteConfirmOpen(String date) {
+    return '새 거래는 $date 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.';
   }
 
   @override
   String get expSaveConfirmTitle => '저장할까요?';
 
   @override
-  String assetRecordedOnlyNote(String amount) {
-    return '이 중 $amount은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요';
+  String get assetPreRegistrationNote => '카드 등록 이전 거래라 실제와 맞지 않을 수 있어요';
+
+  @override
+  String get assetRecordCycle => '기록 회차';
+
+  @override
+  String assetClosedPaidLine(String paid, String diff) {
+    return '계좌에서 나간 돈은 $paid이에요. 나머지 $diff은 기록만 남긴 금액이에요';
   }
 
   @override
-  String get assetPreRegistrationNote => '카드 등록 이전 거래라 실제와 맞지 않을 수 있어요';
+  String assetClosedOverpaidLine(String recorded, String paid) {
+    return '기록은 $recorded인데 계좌에서는 $paid이 나갔어요';
+  }
+
+  @override
+  String get assetPaymentDayMissing => '결제일을 넣어 주세요';
 }
