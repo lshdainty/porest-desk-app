@@ -50,7 +50,8 @@ bool moneyLockedOf(Expense e, Asset? asset) {
 ///   - 닫힌 회차(카드) — "기록만 바뀌고 계좌 잔액은 그대로예요."
 ///   - 할부가 닫힌 회차에 걸침 — "지난 회차분은 기록만 남아요."
 ///   - 열린 회차(카드) — "새 거래는 {그 회차 결제일} 결제에 청구돼요. 원래 거래는 이미
-///     결제된 회차에서 기록만 빠져요." 결제일은 거래 달의 다음 달 결제일이다
+///     결제된 회차에서 기록만 빠져요." 결제일은 거래 달의 다음 달 결제일이다 — 결제일
+///     변경이 대기 중인 회차면 서버가 준 실제 결제일(`nextPaymentDate`)
 ///   - 그 밖(계좌·현금·자산 없음·결제일 없는 카드) — 첫 문장만. 청구 회차가 없으니
 ///     결제일을 말할 수 없다
 String rewriteConfirmMessage(
@@ -74,7 +75,11 @@ String rewriteConfirmMessage(
     case ClosedCycleSpan.none:
       final day = newAsset.paymentDay;
       if (day == null) return lead;
-      final pay = DateTime.parse(cardCyclePaymentDate(dateKey, day));
+      // 결제일 변경이 대기 중이면 그 회차는 옛 결제일에 나간다(D5) — 서버가 준 실제
+      // 결제일을 쓰고, 그 뒤 회차만 지금 결제일로 센다(QA 26 4).
+      final pay = DateTime.parse(
+        cyclePaymentDate(dateKey, day, newAsset.nextPaymentDate),
+      );
       return '$lead ${l.expRewriteConfirmOpen(formatDay(pay).md)}';
   }
 }

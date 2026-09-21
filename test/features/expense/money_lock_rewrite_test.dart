@@ -151,6 +151,7 @@ Future<_FakeRepo> _open(
   WidgetTester tester,
   Expense edit, {
   List<ExpenseSplit> splits = const [],
+  Asset card = _card,
 }) async {
   final repo = _FakeRepo();
   tester.view.physicalSize = const Size(1500, 3000);
@@ -160,7 +161,7 @@ Future<_FakeRepo> _open(
     ProviderScope(
       overrides: [
         expenseRepositoryProvider.overrideWith((ref) async => repo),
-        assetsProvider.overrideWith((ref) async => const [_card]),
+        assetsProvider.overrideWith((ref) async => [card]),
         categoriesProvider.overrideWith((ref) async => const [_category]),
         presetListProvider.overrideWith((ref) async => const []),
         expenseSplitsProvider.overrideWith((ref, id) async => splits),
@@ -359,6 +360,34 @@ void main() {
         ),
         findsOneWidget,
       );
+    });
+
+    // 결제일 변경이 대기 중인 카드 — 9월분이 아직 옛 결제일(10/20)로 나간다. 지금
+    // 결제일(12일)로 세면 "10월 12일" 이라는 틀린 날짜를 말한다(QA 26 4).
+    testWidgets('결제일 변경이 대기 중이면 서버가 준 그 회차의 결제일을 말한다', (tester) async {
+      await _open(
+        tester,
+        _locked,
+        card: _card.copyWith(nextPaymentDate: '2026-10-20'),
+      );
+      await openRewrite(tester);
+
+      await tester.enterText(_fieldWith('2026-08-20'), '2026-09-10');
+      await tester.pump();
+      await tester.tap(_submit('저장'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('새 거래는 10월 20일 결제에 청구돼요.'), findsOneWidget);
+
+      // 그 뒤 회차(10월)는 지금 결제일로 센다.
+      await tester.tap(find.text('취소').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(_fieldWith('2026-09-10'), '2026-10-05');
+      await tester.pump();
+      await tester.tap(_submit('저장'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('새 거래는 11월 12일 결제에 청구돼요.'), findsOneWidget);
     });
 
     testWidgets('물러나면 보내지 않는다', (tester) async {

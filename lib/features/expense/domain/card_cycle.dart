@@ -17,6 +17,32 @@ String cardCyclePaymentDate(String dateKey, int paymentDay) {
   return '$ny-${_pad2(nm)}-${_pad2(day)}';
 }
 
+/// 결제일이 [paymentDate] 인 회차의 이용 달(`yyyy-MM`) — 결제일의 전달이다.
+String cycleMonthOfPaymentDate(String paymentDate) {
+  final y = int.parse(paymentDate.substring(0, 4));
+  final m = int.parse(paymentDate.substring(5, 7));
+  return m == 1 ? '${y - 1}-12' : '$y-${_pad2(m - 1)}';
+}
+
+/// 거래 날짜가 속한 회차의 **실제** 결제일 — 결제일 변경이 대기 중이어도 맞게(D5).
+///
+/// 결제일을 바꾸면 바꿀 때 아직 결제 전이던 회차는 옛 결제일로 나간다. 그 회차의 실제
+/// 결제일은 서버가 자산 응답에 [nextPaymentDate] 로 내려 준다(결제일 이력 반영). 거래
+/// 날짜가 그 회차(= [nextPaymentDate] 의 전달)에 들면 그 값을, 아니면 지금 결제일
+/// [paymentDay] 로 센다([cardCyclePaymentDate]) — 그 뒤 회차는 새 결제일로 나간다.
+String cyclePaymentDate(
+  String dateKey,
+  int paymentDay,
+  String? nextPaymentDate,
+) {
+  if (nextPaymentDate != null &&
+      nextPaymentDate.length >= 10 &&
+      dateKey.substring(0, 7) == cycleMonthOfPaymentDate(nextPaymentDate)) {
+    return nextPaymentDate.substring(0, 10);
+  }
+  return cardCyclePaymentDate(dateKey, paymentDay);
+}
+
 /// 결제가 끝난(닫힌) 회차에 얼마나 걸렸나 — 확인창의 한 문구를 고른다(D1·D2).
 ///
 /// 닫힌 회차에 걸린 변경은 **전부 기록용**이다 — 통장·카드 빚·다음 청구가 안 움직인다.
@@ -86,16 +112,27 @@ ClosedCycleSpan closedCycleSpanFor(
 /// 결제돼요" 의 재료(D5).
 ///
 /// 결제일 변경은 다음 회차부터다. 바꾸는 시점에 아직 결제 전인 가장 가까운 회차는 옛
-/// 결제일에 결제된다. 그 회차는 서버가 내려 준 `cardClosedThrough`(닫힌 회차 경계)의
-/// 다음 달 회차다. 경계가 없으면 오늘 기준으로 결제일이 아직 안 온 첫 회차를 옛
-/// 결제일로 센다(D2 — 결제일 당일부터 닫힌다).
+/// 결제일에 결제된다. 서버가 그 회차의 실제 결제일을 [nextPaymentDate] 로 내려 주면
+/// 그대로 쓴다 — 결제일을 이미 한 번 바꿔 둔 카드는 그 회차가 지금 결제일이 아니라 더
+/// 옛 결제일로 나간다(QA 26 4). 없으면(옛 서버) 서버가 내려 준 `cardClosedThrough`(닫힌
+/// 회차 경계)의 다음 달 회차를 옛 결제일로 센다. 경계도 없으면 오늘 기준으로 결제일이
+/// 아직 안 온 첫 회차다(D2 — 결제일 당일부터 닫힌다).
 ///
 /// 돌려주는 [month] 는 그 회차의 이용 달(`8월분`), [paymentDate] 는 `yyyy-MM-dd`.
 ({int year, int month, String paymentDate}) pendingCycleOnOldDay({
   required int oldPaymentDay,
   required String? cardClosedThrough,
   required String todayKey,
+  String? nextPaymentDate,
 }) {
+  if (nextPaymentDate != null && nextPaymentDate.length >= 10) {
+    final cycle = cycleMonthOfPaymentDate(nextPaymentDate);
+    return (
+      year: int.parse(cycle.substring(0, 4)),
+      month: int.parse(cycle.substring(5, 7)),
+      paymentDate: nextPaymentDate.substring(0, 10),
+    );
+  }
   int y;
   int m;
   if (cardClosedThrough != null && cardClosedThrough.length >= 7) {
