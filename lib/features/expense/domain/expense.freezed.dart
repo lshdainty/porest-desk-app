@@ -36,6 +36,9 @@ mixin _$Expense {
 /// 결제가 끝난(닫힌) 회차에 뒤늦게 적은 카드 지출에 붙는다 — 가계부 합계에는 들어가지만
 /// 계좌에서는 빠지지 않았고 이후 청구에도 안 얹힌다(닫힌 회차 규칙 R2). 'YYYY-MM-DD'.
  String? get cardSettledThrough;/// 그 가운데 기록만 남긴 금액 — 할부는 지난 회차분만이라 거래 금액보다 작을 수 있다.
+///
+/// 금액과 같을 때만 목록 행에 "기록만" 배지를 단다. 작으면 할부 일부라 상세에서
+/// "이 중 N원" 으로 말한다(D10).
  int? get recordOnlyAmount;/// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
  double? get originalAmount;/// 원 통화 (ISO 4217, 예: USD).
  String? get originalCurrency;/// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
@@ -310,6 +313,9 @@ class _Expense implements Expense {
 /// 계좌에서는 빠지지 않았고 이후 청구에도 안 얹힌다(닫힌 회차 규칙 R2). 'YYYY-MM-DD'.
 @override final  String? cardSettledThrough;
 /// 그 가운데 기록만 남긴 금액 — 할부는 지난 회차분만이라 거래 금액보다 작을 수 있다.
+///
+/// 금액과 같을 때만 목록 행에 "기록만" 배지를 단다. 작으면 할부 일부라 상세에서
+/// "이 중 N원" 으로 말한다(D10).
 @override final  int? recordOnlyAmount;
 /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
 @override final  double? originalAmount;

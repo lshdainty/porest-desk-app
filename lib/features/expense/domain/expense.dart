@@ -51,6 +51,9 @@ abstract class Expense with _$Expense {
     String? cardSettledThrough,
 
     /// 그 가운데 기록만 남긴 금액 — 할부는 지난 회차분만이라 거래 금액보다 작을 수 있다.
+    ///
+    /// 금액과 같을 때만 목록 행에 "기록만" 배지를 단다. 작으면 할부 일부라 상세에서
+    /// "이 중 N원" 으로 말한다(D10).
     int? recordOnlyAmount,
 
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
@@ -87,8 +90,19 @@ extension ExpenseX on Expense {
   /// 환불된 거래인가 — 표식 하나로 판정한다.
   bool get isRefunded => refundedAt != null;
 
-  /// 기록만 남긴 카드 지출인가 — 환불된 거래는 "환불됨" 이 먼저라 여기서 뺀다.
-  bool get isRecordOnly => !isRefunded && cardSettledThrough != null;
+  /// 기록만 남긴 금액 — 서버가 금액을 안 주고 표식만 있으면(옛 서버) 전액으로 본다.
+  int get recordOnlyShare =>
+      recordOnlyAmount ?? (cardSettledThrough != null ? amount.abs() : 0);
+
+  /// 기록만 남긴 몫이 있는가 — 상세 안내용(할부면 일부일 수 있다). 환불된 거래는
+  /// "환불됨" 이 먼저라 여기서 뺀다.
+  bool get hasRecordOnlyPart =>
+      !isRefunded && cardSettledThrough != null && recordOnlyShare > 0;
+
+  /// **통째로** 기록만 남긴 거래인가 — 목록 행의 "기록만" 배지(D10).
+  ///
+  /// 할부의 지난 회차분만 기록용인 거래에는 안 단다 — 남은 회차는 정상 청구된다.
+  bool get isRecordOnly => hasRecordOnlyPart && recordOnlyShare >= amount.abs();
 
   /// 'YYYY-MM-DD' 부분만 (그룹화·필터용).
   String? get expenseDateOnly => expenseDate?.substring(0, 10);

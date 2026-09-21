@@ -195,6 +195,32 @@ void main() {
       expect(find.text('기록만'), findsNothing);
     });
 
+    // 할부의 지난 회차분만 기록용이면 남은 회차는 정상 청구된다 — 행 배지는 통째로
+    // 기록용인 거래에만 단다(D10). 일부는 상세가 "이 중 N원" 으로 말한다.
+    testWidgets('기록만 금액이 거래 금액보다 작으면 없다', (tester) async {
+      await pumpRow(
+        tester,
+        _expense.copyWith(
+          amount: 90000,
+          installmentMonths: 3,
+          cardSettledThrough: '2026-08-31',
+          recordOnlyAmount: 30000,
+        ),
+      );
+      expect(find.text('기록만'), findsNothing);
+    });
+
+    testWidgets('기록만 금액이 거래 금액과 같으면 단다', (tester) async {
+      await pumpRow(
+        tester,
+        _expense.copyWith(
+          cardSettledThrough: '2026-08-31',
+          recordOnlyAmount: 25000,
+        ),
+      );
+      expect(find.text('기록만'), findsOneWidget);
+    });
+
     testWidgets('환불된 거래는 환불됨만 — 합계에서 빠진 쪽이 먼저다', (tester) async {
       await pumpRow(
         tester,

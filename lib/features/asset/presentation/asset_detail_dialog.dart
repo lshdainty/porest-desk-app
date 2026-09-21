@@ -20,7 +20,6 @@ import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
@@ -30,7 +29,6 @@ import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
-import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -44,6 +42,7 @@ import 'package:porest_desk_app/features/asset/presentation/holding_format.dart'
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_trade_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
 import 'package:porest_desk_app/features/stocks/application/live_prices.dart';
 import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
@@ -131,6 +130,20 @@ class _DetailFooterState extends ConsumerState<_DetailFooter> {
       },
     );
   }
+}
+
+/// 자산 상세의 거래 행 금액을 가리는 판정 — 화면 카드·종류 카드에 **이 자산의 숨김**을
+/// 합친다(합집합). 히어로만 가리고 행은 드러나면 가린 뜻이 없다 — 이 판정은 화면
+/// 단위로 한 번 만들어 행·일 합계·이체 행에 같이 흘린다(자리마다 따로 걸지 않는다).
+MaskFlags _assetMaskFlags(WidgetRef ref, Asset asset) {
+  final base = ref.watch(maskFlagsProvider('asset.detail'));
+  if (asset.isAmountHidden != 'Y') return base;
+  return MaskFlags(
+    card: true,
+    expense: base.expense,
+    income: base.income,
+    transfer: base.transfer,
+  );
 }
 
 String _titleFor(AppLocalizations l, Asset a) {
@@ -397,7 +410,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             async: recentAsync,
             transfers: assetTransfers,
             perspectiveAssetRowId: asset.rowId,
-            flags: ref.watch(maskFlagsProvider('asset.detail')),
+            flags: _assetMaskFlags(ref, asset),
             tokens: t,
           ),
         ],
@@ -1370,11 +1383,14 @@ class _RecentExpenses extends StatelessWidget {
               tokens: tokens,
             ),
           ),
+          // 가계부와 같은 행이다 — "환불됨"·"기록만" 배지·취소선·예정 흐림을 그대로
+          // 가진다(A3). 여기서 따로 그리면 그 표시가 이 화면에서만 빠진다.
           for (final e in entries[gi].value)
-            _ExpenseRow(
+            ExpenseRow(
               expense: e,
-              masked: flags.ofType(e.expenseType),
-              tokens: tokens,
+              category: null,
+              flags: flags,
+              showInstallment: true,
             ),
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬과 같은 자리.
           for (final tr in transfers.where(
@@ -1468,106 +1484,6 @@ class _DayGroupHeader extends StatelessWidget {
   }
 }
 
-class _ExpenseRow extends StatelessWidget {
-  const _ExpenseRow({
-    required this.expense,
-    required this.masked,
-    required this.tokens,
-  });
-  final Expense expense;
-  final bool masked;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final color = resolveChartColor(
-      context,
-      expense.categoryColor,
-      fallback: tokens.fgBrand,
-    );
-    final bg = softBg(context, color);
-    final title =
-        expense.merchant ??
-        expense.description ??
-        (expense.categoryName ?? l.assetTxFallback);
-    final subParts = [
-      expense.categoryName ?? l.assetCategoryOther,
-      if ((expense.assetName ?? '').isNotEmpty) expense.assetName!,
-      // 할부는 행 금액이 원금(전액)이라, 이 표시가 없으면 회차 청구(예정액)와
-      // 이 행의 금액이 왜 다른지 알 길이 없다.
-      if ((expense.installmentMonths ?? 1) > 1)
-        l.assetInstallmentBadge(expense.installmentMonths!),
-    ];
-    return InkWell(
-      onTap: () => showTxDetailDialog(context, expense),
-      borderRadius: PRadius.brMd,
-      child: Padding(
-        // 웹 LedgerRow 정합 — py-3(12), 좌우 0(헤더와 좌측 라인 일치).
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: PRadius.tile(36),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                lucideByName(expense.categoryIcon),
-                size: 18,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subParts.join(' · '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              masked
-                  ? '••••••'
-                  : krwSigned(
-                      expense.signedAmount,
-                      false,
-                      sign: expense.signedAmount > 0 ? '+' : '',
-                      unit: true,
-                    ),
-              style: PTypo.bodySm.copyWith(
-                color: tokens.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// 신용카드 청구 사이클 — 결제예정액·예정일 + '지금 결제' + 청구이력.
 /// GET /asset/{id}/billing 사용. '지금 결제' 후 billing/assets invalidate.
 /// chart green 시멘틱(실적 달성) — 다크 light variant 스왑(웹 --color-cat-green 미러).
@@ -1589,7 +1505,7 @@ class _CardStatement {
     this.installments = const [],
     this.lumpSumAmount,
     this.alreadyPaidAmount,
-    this.recordedOnly = 0,
+    this.paid,
     this.preRegistration = false,
   });
   final String label;
@@ -1602,15 +1518,16 @@ class _CardStatement {
   /// 다가오는 회차(결제가 임박한 쪽) — 회차를 고르기 전 기본으로 열리는 행.
   final bool upcoming;
 
-  /// 예정 회차에 빠지는 할부 구성 — 과거 회차는 서버가 내려주지 않는다.
+  /// 그 회차에 빠지는 할부 구성 — 닫힌 회차도 서버가 내려 준다(24차 8, 옛 서버면 빈 목록).
   final List<InstallmentDue> installments;
 
   /// 예정 회차의 일시불 순사용액·기결제액 — 예정액 합을 설명하는 요약 행.
   final int? lumpSumAmount;
   final int? alreadyPaidAmount;
 
-  /// 닫힌 회차 — 머리 금액 가운데 기록만 남긴 금액(계좌에서 안 빠졌다, 닫힌 회차 R2).
-  final int recordedOnly;
+  /// 닫힌 회차 — 계좌에서 실제로 나간 순 금액(결제 − 환급). 머리 금액(지금 기록 합)과
+  /// 다를 때만 그 아래 한 줄로 말한다(D10). 예정 회차는 null.
+  final int? paid;
 
   /// 카드 등록 전 회차 — 실제와 안 맞을 수 있다는 주의(R4).
   final bool preRegistration;
@@ -1797,8 +1714,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
       );
     }
     // 과거 회차 — 서버가 닫힌 회차를 내려 주면 그대로 쓴다. 결제 기록이 없는 회차(0원이라
-    // 건너뜀·카드 등록 전)도 기록용 거래가 있으면 들어 있다. 머리 금액은 앱이 결제한 금액과
-    // 기록만 남긴 금액의 합이다 — 아래 이용 내역 목록과 맞는다(닫힌 회차 규칙 R2·R4). 웹 미러.
+    // 건너뜀·카드 등록 전)도 기록용 거래가 있으면 들어 있다. 머리 금액은 그 회차의 **지금
+    // 기록 합**이다 — 아래 이용 내역 목록과 맞는다. 실제로 나간 돈이 다르면 그 아래 한
+    // 줄로 말한다(D10). 옛 서버(기록 합 없음)면 결제액 + 기록만 금액이다. 웹 미러.
     final closed = b?.closedCycles;
     if (closed != null) {
       for (final c in closed) {
@@ -1807,11 +1725,12 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           _CardStatement(
             label: d != null ? formatDay(d).md : c.paymentDate,
             scheduled: false,
-            amount: c.paidAmount + c.recordedOnlyAmount,
+            amount: c.recordedAmount ?? c.paidAmount + c.recordedOnlyAmount,
             paymentDate: c.paymentDate,
             periodStart: c.periodStart,
             periodEnd: c.periodEnd,
-            recordedOnly: c.recordedOnlyAmount,
+            installments: c.installmentDues,
+            paid: c.paidAmount,
             preRegistration: c.preRegistration,
           ),
         );
@@ -1858,10 +1777,30 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           paymentDate: paymentDate,
           periodStart: '$py-${pad2(pm)}-01',
           periodEnd: '$py-${pad2(pm)}-${pad2(pLast)}',
+          // 옛 서버의 결제 완료 행 — 머리 금액이 곧 낸 돈이다.
+          paid: entry.value.amount,
         ),
       );
     }
     return out;
+  }
+
+  /// 닫힌 회차 머리 아래 한 줄 — 기록 합(머리)과 계좌에서 나간 돈이 다를 때만(D10).
+  ///
+  /// 기록이 더 많으면(뒤늦게 적은 거래) 나간 돈과 나머지를, 기록이 더 적으면(지우거나
+  /// 환불한 거래) 기록과 나간 돈을 말한다. 같으면 말이 없다.
+  String? _closedCycleLine(AppLocalizations l, _CardStatement st, bool masked) {
+    final paid = st.paid;
+    if (paid == null) return null;
+    final recorded = st.amount;
+    String money(int v) => krwSigned(v, masked, unit: true);
+    if (recorded > paid) {
+      return l.assetClosedPaidLine(money(paid), money(recorded - paid));
+    }
+    if (recorded < paid) {
+      return l.assetClosedOverpaidLine(money(recorded), money(paid));
+    }
+    return null;
   }
 
   /// 결제 시트 — 금액을 고칠 수 있다(부분 선결제). 기본값은 남은 청구액.
@@ -2000,18 +1939,35 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     }
   }
 
-  /// 되돌릴 수 있는 가장 최근 결제.
+  /// 되돌릴 수 있는 가장 최근 결제 — 없으면 [결제 취소] 를 숨긴다.
   ///
   /// 결제는 실행하면 되돌릴 길이 없었다 — 그 이체는 청구와 묶여 있어 잠가 뒀고 취소
   /// 경로도 없었다. 잘못 눌렀을 때 바로 무를 수 있게 마지막 한 건을 짚어 준다.
-  BillingItem? _lastPayment(CardBilling? b) {
-    final done = (b?.history ?? const <BillingItem>[])
-        .where((h) => h.status == 'COMPLETED')
-        .toList();
+  ///
+  /// 단 둘은 무를 수 없다(D6, 서버도 400 으로 막는다).
+  ///   - **결제일이 된 회차**의 결제 — 무르면 그 회차를 다시 낼 길이 없어 빚이 떠돈다.
+  ///     회차로 가른다(`periodEnd ≤ cardClosedThrough`). 결제 행의 날짜는 수동 결제면
+  ///     누른 날이라 회차의 결제일이 아니다
+  ///   - **환급이 나간 회차**의 결제 — 결제만 되돌리면 돌려준 돈이 통장에 남아 유령 빚이
+  ///     된다. 같은 회차에 REFUNDED 행이 있으면 그렇다
+  BillingItem? _cancellablePayment(CardBilling? b) {
+    final history = b?.history ?? const <BillingItem>[];
+    final done = history.where((h) => h.status == 'COMPLETED').toList();
     if (done.isEmpty) return null;
-    return done.reduce(
+    final last = done.reduce(
       (a, x) => x.paymentDate.compareTo(a.paymentDate) > 0 ? x : a,
     );
+    final closedThrough = widget.asset.cardClosedThrough;
+    if (closedThrough != null && last.periodEnd.compareTo(closedThrough) <= 0) {
+      return null;
+    }
+    final refunded = history.any(
+      (h) =>
+          h.status == 'REFUNDED' &&
+          h.periodStart == last.periodStart &&
+          h.periodEnd == last.periodEnd,
+    );
+    return refunded ? null : last;
   }
 
   /// 할부 중도 전액 상환 — 남은 원금이 다가오는 결제 예정액에 한 번에 잡힌다.
@@ -2246,6 +2202,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     final limitPct = limit > 0 ? ((used / limit) * 100).round() : 0;
     final limitWarn = limitPct >= 80;
     final paymentDay = b?.paymentDay ?? asset.paymentDay;
+    final cancellable = _cancellablePayment(b);
+    // 이용 내역의 금액 가리기 — 화면·종류 카드에 이 카드 자체의 숨김까지(합집합).
+    final flags = _assetMaskFlags(ref, asset);
     // 고른 회차 기준 — 다가오는 회차를 다 낸 뒤 다음 회차를 골라도 낼 수 있어야 한다.
     final canPay =
         (st?.scheduled == true ? st!.amount : (b?.upcomingAmount ?? 0)) > 0 &&
@@ -2442,32 +2401,43 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
               ),
               if (st != null && !st.scheduled) ...[
                 const SizedBox(height: 6),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(LucideIcons.check, size: 13, color: green),
-                    const SizedBox(width: 4),
-                    Text(
-                      l.assetPaidDone,
-                      style: PTypo.caption.copyWith(
-                        color: green,
-                        fontWeight: PFontWeight.semi,
-                      ),
+                // 낸 돈이 0 인 회차는 "결제 완료" 가 아니다 — 기록만 있는 회차다(D10).
+                if (st.paid == 0)
+                  Text(
+                    l.assetRecordCycle,
+                    key: const ValueKey('record-cycle-label'),
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      fontWeight: PFontWeight.semi,
                     ),
-                  ],
-                ),
-              ],
-              // 기록만 남긴 금액 — 머리 금액에 들어 있지만 계좌에서는 빠지지 않았다.
-              // 문장은 남기고 금액만 가린다(금액 가리기).
-              if (st != null && !st.scheduled && st.recordedOnly > 0) ...[
-                const SizedBox(height: 6),
-                Text(
-                  l.assetRecordedOnlyNote(
-                    krwSigned(st.recordedOnly, masked, unit: true),
+                  )
+                else
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(LucideIcons.check, size: 13, color: green),
+                      const SizedBox(width: 4),
+                      Text(
+                        l.assetPaidDone,
+                        style: PTypo.caption.copyWith(
+                          color: green,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
+                    ],
                   ),
-                  key: const ValueKey('recorded-only-note'),
-                  style: PTypo.caption.copyWith(color: t.fgSecondary),
-                ),
+              ],
+              // 머리 금액(지금 기록 합)과 실제로 나간 돈이 다를 때만 한 줄(D10).
+              // 문장은 남기고 금액만 가린다(금액 가리기).
+              if (st != null && !st.scheduled) ...[
+                if (_closedCycleLine(l, st, masked) case final line?) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    line,
+                    key: const ValueKey('closed-cycle-paid-line'),
+                    style: PTypo.caption.copyWith(color: t.fgSecondary),
+                  ),
+                ],
               ],
               if (st != null && !st.scheduled && st.preRegistration) ...[
                 const SizedBox(height: 4),
@@ -2480,6 +2450,41 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             ],
           ),
         ),
+
+        // 결제일이 없는 옛 신용카드 — 서버는 이제 결제일을 필수로 받는다(D8). 그 카드는
+        // 늘 열린 회차로 보이니, 결제일을 넣으라고 이 자리에서 말한다(누르면 수정 폼).
+        if (paymentDay == null)
+          InkWell(
+            key: const ValueKey('payment-day-missing'),
+            onTap: _goEdit,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: t.borderSubtle)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 14),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 68,
+                    child: Text(
+                      l.assetPaymentDay,
+                      style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      l.assetPaymentDayMissing,
+                      style: PTypo.body.copyWith(
+                        color: t.statusWarningFg,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
+                  ),
+                  Icon(LucideIcons.chevronRight, size: 14, color: t.fgTertiary),
+                ],
+              ),
+            ),
+          ),
 
         // 결제일 · 카드 이용 기간
         if (paymentDay != null)
@@ -2515,9 +2520,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           ),
 
         // 이번 회차 구성 — 할부가 있을 때만. 예정액이 이용 내역 합과 다른 이유
-        // (과거 할부의 이번 회차분)를 이 자리에서 설명한다. 다가오는 회차에서만
-        // 그린다 — 과거 회차의 구성은 서버가 내려주지 않는다(청구 이력엔 합계만 남는다).
-        if (st?.scheduled == true && (st?.installments.isNotEmpty ?? false))
+        // (과거 할부의 이번 회차분)를 이 자리에서 설명한다. 닫힌 회차도 서버가 구성을
+        // 내려 준다(24차 8) — 기록용 회차분이면 "· 기록만" 을 붙이고, 이미 결제일이
+        // 지난 회차라 정리·되돌리기는 두지 않는다.
+        if (st?.installments.isNotEmpty ?? false)
           Container(
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: t.borderSubtle)),
@@ -2551,51 +2557,76 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  widget.masked
-                                      ? '${l.assetInstallmentSeq(due.sequence, due.installmentMonths)} · ••••••'
-                                      : '${l.assetInstallmentSeq(due.sequence, due.installmentMonths)} · ${l.assetInstallmentPrincipal(krwSigned(due.principalAmount, false, unit: true))}',
+                                  [
+                                    l.assetInstallmentSeq(
+                                      due.sequence,
+                                      due.installmentMonths,
+                                    ),
+                                    widget.masked
+                                        ? '••••••'
+                                        : l.assetInstallmentPrincipal(
+                                            krwSigned(
+                                              due.principalAmount,
+                                              false,
+                                              unit: true,
+                                            ),
+                                          ),
+                                    if (due.recordOnly) l.expRecordOnlyBadge,
+                                  ].join(' · '),
                                   style: PTypo.caption.copyWith(
                                     color: t.fgTertiary,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                // 정리/되돌리기 — 상환하면 남은 원금이 이 회차에
-                                // 몰리므로 두 상태가 같은 자리를 쓴다.
-                                due.paidOff
-                                    ? Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            l.assetInstallmentPaidOffBadge,
+                                if (!st.scheduled && due.paidOff) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    l.assetInstallmentPaidOffBadge,
+                                    style: PTypo.caption.copyWith(
+                                      color: t.statusSuccess,
+                                      fontWeight: PFontWeight.semi,
+                                    ),
+                                  ),
+                                ],
+                                if (st.scheduled) ...[
+                                  const SizedBox(height: 4),
+                                  // 정리/되돌리기 — 상환하면 남은 원금이 이 회차에
+                                  // 몰리므로 두 상태가 같은 자리를 쓴다.
+                                  due.paidOff
+                                      ? Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              l.assetInstallmentPaidOffBadge,
+                                              style: PTypo.caption.copyWith(
+                                                color: t.statusSuccess,
+                                                fontWeight: PFontWeight.semi,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            InkWell(
+                                              onTap: () => _undoPayoff(due),
+                                              child: Text(
+                                                l.assetInstallmentPayoffUndo,
+                                                style: PTypo.caption.copyWith(
+                                                  color: t.fgTertiary,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : InkWell(
+                                          onTap: () => _confirmPayoff(due),
+                                          child: Text(
+                                            l.assetInstallmentPayoff,
                                             style: PTypo.caption.copyWith(
-                                              color: t.statusSuccess,
+                                              color: t.fgBrand,
                                               fontWeight: PFontWeight.semi,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          InkWell(
-                                            onTap: () => _undoPayoff(due),
-                                            child: Text(
-                                              l.assetInstallmentPayoffUndo,
-                                              style: PTypo.caption.copyWith(
-                                                color: t.fgTertiary,
-                                                decoration:
-                                                    TextDecoration.underline,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : InkWell(
-                                        onTap: () => _confirmPayoff(due),
-                                        child: Text(
-                                          l.assetInstallmentPayoff,
-                                          style: PTypo.caption.copyWith(
-                                            color: t.fgBrand,
-                                            fontWeight: PFontWeight.semi,
-                                          ),
                                         ),
-                                      ),
+                                ],
                               ],
                             ),
                           ),
@@ -2665,17 +2696,21 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
           padding: const EdgeInsets.only(top: 14, bottom: 4),
           child: Row(
             children: [
-              Expanded(
-                child: _CardActionTile(
-                  icon: LucideIcons.zap,
-                  label: l.assetPayNow,
-                  enabled: canPay,
-                  onTap: b == null || st == null
-                      ? null
-                      : () => _confirmAndPay(b, st),
+              // 지금 결제 — 닫힌 회차를 보고 있을 땐 숨긴다(D10). 그 회차는 이미
+              // 결제일이 지나 더 낼 것이 없다.
+              if (st == null || st.scheduled) ...[
+                Expanded(
+                  child: _CardActionTile(
+                    icon: LucideIcons.zap,
+                    label: l.assetPayNow,
+                    enabled: canPay,
+                    onTap: b == null || st == null
+                        ? null
+                        : () => _confirmAndPay(b, st),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 8),
+              ],
               Expanded(
                 child: _CardActionTile(
                   icon: LucideIcons.slidersHorizontal,
@@ -2683,15 +2718,17 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   onTap: _goEdit,
                 ),
               ),
-              // 결제 취소 — 실수로 누른 결제를 무른다. 되돌릴 게 있을 때만 보인다.
-              if (_lastPayment(b) != null) ...[
+              // 결제 취소 — 실수로 누른 결제를 무른다. 되돌릴 수 있을 때만 보인다
+              // (결제일이 된 회차·환급이 나간 회차는 못 무른다, D6). 서버가 그래도
+              // 거절하면 그 메시지는 전역 인터셉터가 띄운다.
+              if (cancellable != null) ...[
                 const SizedBox(width: 8),
                 Expanded(
                   child: _CardActionTile(
                     icon: LucideIcons.undo2,
                     label: l.assetCancelPayment,
                     enabled: !_paying,
-                    onTap: () => _confirmAndCancelPayment(_lastPayment(b)!),
+                    onTap: () => _confirmAndCancelPayment(cancellable),
                   ),
                 ),
               ],
@@ -2923,7 +2960,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   padding: const EdgeInsets.only(top: PSpace.x16),
                   child: _RecentExpenses(
                     async: usageAsync,
-                    flags: ref.watch(maskFlagsProvider('asset.detail')),
+                    flags: flags,
                     tokens: t,
                   ),
                 )
@@ -2958,7 +2995,12 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       child: Column(
                         children: [
                           for (final e in list)
-                            _ExpenseRow(expense: e, masked: masked, tokens: t),
+                            ExpenseRow(
+                              expense: e,
+                              category: null,
+                              flags: flags,
+                              showInstallment: true,
+                            ),
                         ],
                       ),
                     );

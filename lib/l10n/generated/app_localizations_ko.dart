@@ -6737,10 +6737,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expSaveConfirmTitle => '저장할까요?';
 
   @override
-  String assetRecordedOnlyNote(String amount) {
-    return '이 중 $amount은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요';
+  String get assetPreRegistrationNote => '카드 등록 이전 거래라 실제와 맞지 않을 수 있어요';
+
+  @override
+  String get assetRecordCycle => '기록 회차';
+
+  @override
+  String assetClosedPaidLine(String paid, String diff) {
+    return '계좌에서 나간 돈은 $paid이에요. 나머지 $diff은 기록만 남긴 금액이에요';
   }
 
   @override
-  String get assetPreRegistrationNote => '카드 등록 이전 거래라 실제와 맞지 않을 수 있어요';
+  String assetClosedOverpaidLine(String recorded, String paid) {
+    return '기록은 $recorded인데 계좌에서는 $paid이 나갔어요';
+  }
+
+  @override
+  String get assetPaymentDayMissing => '결제일을 넣어 주세요';
 }

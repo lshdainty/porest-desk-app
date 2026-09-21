@@ -43,6 +43,7 @@ _InstallmentDue _$InstallmentDueFromJson(Map<String, dynamic> json) =>
       sequence: (json['sequence'] as num).toInt(),
       amount: (json['amount'] as num).toInt(),
       paidOff: json['paidOff'] as bool? ?? false,
+      recordOnly: json['recordOnly'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$InstallmentDueToJson(_InstallmentDue instance) =>
@@ -55,6 +56,7 @@ Map<String, dynamic> _$InstallmentDueToJson(_InstallmentDue instance) =>
       'sequence': instance.sequence,
       'amount': instance.amount,
       'paidOff': instance.paidOff,
+      'recordOnly': instance.recordOnly,
     };
 
 _CardBilling _$CardBillingFromJson(Map<String, dynamic> json) => _CardBilling(
@@ -108,9 +110,15 @@ _ClosedCycle _$ClosedCycleFromJson(Map<String, dynamic> json) => _ClosedCycle(
   periodEnd: json['periodEnd'] as String,
   paymentDate: json['paymentDate'] as String,
   paidAmount: (json['paidAmount'] as num?)?.toInt() ?? 0,
+  recordedAmount: (json['recordedAmount'] as num?)?.toInt(),
   recordedOnlyAmount: (json['recordedOnlyAmount'] as num?)?.toInt() ?? 0,
   preRegistration: json['preRegistration'] as bool? ?? false,
   refundableUntil: json['refundableUntil'] as String?,
+  installmentDues:
+      (json['installmentDues'] as List<dynamic>?)
+          ?.map((e) => InstallmentDue.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <InstallmentDue>[],
 );
 
 Map<String, dynamic> _$ClosedCycleToJson(_ClosedCycle instance) =>
@@ -119,9 +127,11 @@ Map<String, dynamic> _$ClosedCycleToJson(_ClosedCycle instance) =>
       'periodEnd': instance.periodEnd,
       'paymentDate': instance.paymentDate,
       'paidAmount': instance.paidAmount,
+      'recordedAmount': instance.recordedAmount,
       'recordedOnlyAmount': instance.recordedOnlyAmount,
       'preRegistration': instance.preRegistration,
       'refundableUntil': instance.refundableUntil,
+      'installmentDues': instance.installmentDues,
     };
 
 _UpcomingCycle _$UpcomingCycleFromJson(Map<String, dynamic> json) =>

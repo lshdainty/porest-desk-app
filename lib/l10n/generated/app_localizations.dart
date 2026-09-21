@@ -12350,17 +12350,35 @@ abstract class AppLocalizations {
   /// **'저장할까요?'**
   String get expSaveConfirmTitle;
 
-  /// No description provided for @assetRecordedOnlyNote.
-  ///
-  /// In ko, this message translates to:
-  /// **'이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요'**
-  String assetRecordedOnlyNote(String amount);
-
   /// No description provided for @assetPreRegistrationNote.
   ///
   /// In ko, this message translates to:
   /// **'카드 등록 이전 거래라 실제와 맞지 않을 수 있어요'**
   String get assetPreRegistrationNote;
+
+  /// No description provided for @assetRecordCycle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 회차'**
+  String get assetRecordCycle;
+
+  /// No description provided for @assetClosedPaidLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌에서 나간 돈은 {paid}이에요. 나머지 {diff}은 기록만 남긴 금액이에요'**
+  String assetClosedPaidLine(String paid, String diff);
+
+  /// No description provided for @assetClosedOverpaidLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록은 {recorded}인데 계좌에서는 {paid}이 나갔어요'**
+  String assetClosedOverpaidLine(String recorded, String paid);
+
+  /// No description provided for @assetPaymentDayMissing.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일을 넣어 주세요'**
+  String get assetPaymentDayMissing;
 }
 
 class _AppLocalizationsDelegate

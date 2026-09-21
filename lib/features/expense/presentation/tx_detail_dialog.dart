@@ -520,8 +520,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           ),
         // 기록만 — 결제가 끝난 회차에 뒤늦게 적은 카드 지출(닫힌 회차 R2). 계좌에서는
         // 안 빠졌다는 것을 상세에서 한 번 더 말한다. 할부는 지난 회차분만 기록용이라
-        // 금액이 거래보다 작으면 "이 중 N원" 으로 말한다. 웹도 같은 자리·같은 문구다.
-        if (e.isRecordOnly)
+        // 금액이 거래보다 작으면 "이 중 N원" 으로 말한다(행 배지는 통째일 때만, D10).
+        // 웹도 같은 자리·같은 문구다.
+        if (e.hasRecordOnlyPart)
           PDetailSection(
             child: Container(
               key: const ValueKey('record-only-note'),
@@ -534,11 +535,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 borderRadius: PRadius.brMd,
               ),
               child: Text(
-                (e.recordOnlyAmount ?? e.amount.abs()) < e.amount.abs()
-                    ? l.expRecordOnlyPartNote(
-                        krwSigned(e.recordOnlyAmount ?? 0, masked, unit: true),
-                      )
-                    : l.expRecordOnlyNote,
+                e.isRecordOnly
+                    ? l.expRecordOnlyNote
+                    : l.expRecordOnlyPartNote(
+                        krwSigned(e.recordOnlyShare, masked, unit: true),
+                      ),
                 style: PTypo.bodySm.copyWith(color: t.fgSecondary),
               ),
             ),

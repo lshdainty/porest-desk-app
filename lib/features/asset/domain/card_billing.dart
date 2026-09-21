@@ -26,7 +26,9 @@ abstract class BillingItem with _$BillingItem {
       _$BillingItemFromJson(json);
 }
 
-/// 다가오는 회차에 빠지는 할부 한 건 — 명세서의 "원금·N개월 중 k회차" 표시용.
+/// 회차에 빠지는 할부 한 건 — 명세서의 "원금·N개월 중 k회차" 표시용.
+///
+/// 다가오는·다음·닫힌 회차가 같은 모양으로 내려 준다.
 @freezed
 abstract class InstallmentDue with _$InstallmentDue {
   const factory InstallmentDue({
@@ -49,6 +51,10 @@ abstract class InstallmentDue with _$InstallmentDue {
     /// 중도 전액 상환으로 남은 원금을 몰아 받은 회차인지 —
     /// "남은 원금 정리" 배지를 달고 정리 버튼 대신 되돌리기를 보여준다.
     @Default(false) bool paidOff,
+
+    /// 기록용 회차분 — 결제가 끝난 회차에 뒤늦게 적어 계좌에서 안 빠졌다("· 기록만").
+    /// 옛 서버면 false.
+    @Default(false) bool recordOnly,
   }) = _InstallmentDue;
 
   factory InstallmentDue.fromJson(Map<String, dynamic> json) =>
@@ -93,25 +99,34 @@ abstract class CardBilling with _$CardBilling {
       _$CardBillingFromJson(json);
 }
 
-/// 닫힌 회차 하나 — 명세서 머리 금액은 `paidAmount + recordedOnlyAmount`.
+/// 닫힌 회차 하나 — 명세서 머리 금액은 [recordedAmount](그 회차의 지금 기록 합, D10).
 @freezed
 abstract class ClosedCycle with _$ClosedCycle {
   const factory ClosedCycle({
     required String periodStart, // 'yyyy-MM-dd'
     required String periodEnd,
+
+    /// 그 회차에 **실제로 적용된** 결제일(D5 — 결제일을 바꿨어도 그 회차 것).
     required String paymentDate,
 
-    /// 앱이 결제계좌에서 실제로 뺀 순 금액(결제 − 환급).
+    /// 앱이 결제계좌에서 실제로 뺀 순 금액(결제 − 환급). 0 이면 "기록 회차" 다.
     @Default(0) int paidAmount,
 
-    /// 기록만 남긴 금액 — 현실에선 결제됐지만 계좌에서는 안 빠졌다.
+    /// 그 회차의 **지금 기록 합** — 일시불 지출 − 카드 수입 + 할부 회차분(환불 제외,
+    /// 기록용 포함). 회차 머리 금액이다. 옛 서버면 null — 그때는 결제액 + 기록만 금액.
+    int? recordedAmount,
+
+    /// 하위 호환 — `max(0, recorded − paid)`. [recordedAmount] 가 없을 때만 쓴다.
     @Default(0) int recordedOnlyAmount,
 
     /// 카드 등록 전 회차 — "실제와 맞지 않을 수 있어요" 주의(R4).
     @Default(false) bool preRegistration,
 
-    /// 이 회차 거래를 지우거나 환불하면 결제계좌로 돌려주는 마지막 날.
+    /// 하위 호환 — 이제 늘 null(닫힌 회차는 돌려주지 않는다, D1). 읽지 않는다.
     String? refundableUntil,
+
+    /// 그 회차의 할부 회차분 구성 — "QC90000 2/3회차 30,000원 · 기록만". 옛 서버면 빈 목록.
+    @Default(<InstallmentDue>[]) List<InstallmentDue> installmentDues,
   }) = _ClosedCycle;
 
   factory ClosedCycle.fromJson(Map<String, dynamic> json) =>

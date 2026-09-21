@@ -4125,13 +4125,29 @@
   "expRecordOnlyChangedToast": "기록만 바뀌고 계좌 잔액은 그대로예요",
   "expFixBalance": "잔액 고치기",
   "expSaveConfirmTitle": "저장할까요?",
-  "assetRecordedOnlyNote": "이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요",
-  "@assetRecordedOnlyNote": {
+  "assetPreRegistrationNote": "카드 등록 이전 거래라 실제와 맞지 않을 수 있어요",
+  "assetRecordCycle": "기록 회차",
+  "assetClosedPaidLine": "계좌에서 나간 돈은 {paid}이에요. 나머지 {diff}은 기록만 남긴 금액이에요",
+  "@assetClosedPaidLine": {
     "placeholders": {
-      "amount": {
+      "paid": {
+        "type": "String"
+      },
+      "diff": {
         "type": "String"
       }
     }
   },
-  "assetPreRegistrationNote": "카드 등록 이전 거래라 실제와 맞지 않을 수 있어요"
+  "assetClosedOverpaidLine": "기록은 {recorded}인데 계좌에서는 {paid}이 나갔어요",
+  "@assetClosedOverpaidLine": {
+    "placeholders": {
+      "recorded": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      }
+    }
+  },
+  "assetPaymentDayMissing": "결제일을 넣어 주세요"
 }

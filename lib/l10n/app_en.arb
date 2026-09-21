@@ -3975,13 +3975,29 @@
   "expRecordOnlyChangedToast": "Only the record changed. Your account balance stays the same",
   "expFixBalance": "Fix balance",
   "expSaveConfirmTitle": "Save this?",
-  "assetRecordedOnlyNote": "{amount} of this is record only. It was not taken from your account",
-  "@assetRecordedOnlyNote": {
+  "assetPreRegistrationNote": "These transactions are from before the card was added, so they may not match your actual statement",
+  "assetRecordCycle": "Record-only cycle",
+  "assetClosedPaidLine": "{paid} left your account. The other {diff} is kept as a record only",
+  "@assetClosedPaidLine": {
     "placeholders": {
-      "amount": {
+      "paid": {
+        "type": "String"
+      },
+      "diff": {
         "type": "String"
       }
     }
   },
-  "assetPreRegistrationNote": "These transactions are from before the card was added, so they may not match your actual statement"
+  "assetClosedOverpaidLine": "The record shows {recorded}, but {paid} left your account",
+  "@assetClosedOverpaidLine": {
+    "placeholders": {
+      "recorded": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      }
+    }
+  },
+  "assetPaymentDayMissing": "Please set a payment day"
 }

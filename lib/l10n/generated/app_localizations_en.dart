@@ -6847,11 +6847,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expSaveConfirmTitle => 'Save this?';
 
   @override
-  String assetRecordedOnlyNote(String amount) {
-    return '$amount of this is record only. It was not taken from your account';
+  String get assetPreRegistrationNote =>
+      'These transactions are from before the card was added, so they may not match your actual statement';
+
+  @override
+  String get assetRecordCycle => 'Record-only cycle';
+
+  @override
+  String assetClosedPaidLine(String paid, String diff) {
+    return '$paid left your account. The other $diff is kept as a record only';
   }
 
   @override
-  String get assetPreRegistrationNote =>
-      'These transactions are from before the card was added, so they may not match your actual statement';
+  String assetClosedOverpaidLine(String recorded, String paid) {
+    return 'The record shows $recorded, but $paid left your account';
+  }
+
+  @override
+  String get assetPaymentDayMissing => 'Please set a payment day';
 }
