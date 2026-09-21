@@ -609,8 +609,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetCurrentUsageHint =>
-      '아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.';
+  String get assetCurrentUsageHint => '아직 결제되지 않은 사용액을 적어 주세요.';
 
   @override
   String assetOutstandingNow(String amount) {
@@ -619,6 +618,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요';
+
+  @override
+  String get assetPaymentDayChangeTitle => '결제일 변경';
 
   @override
   String assetPaymentDayChangeConfirm(int month, String date) {
@@ -1918,6 +1920,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get expRefundConfirmBodyRecordOnly => '이 거래를 환불로 표시해요. 합계에서 빠져요.';
+
+  @override
   String get expRefundConfirmBodyCardNoAccount => '결제계좌가 없어 카드 잔액만 정리돼요.';
 
   @override
@@ -3031,7 +3036,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expAutoSourceCardCarryover =>
-      '카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.';
+      '카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.';
 
   @override
   String get expAutoSourceDefault => '자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.';
@@ -6745,9 +6750,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expClosedCyclePartLine => '지난 회차분은 기록만 남아요.';
 
   @override
-  String get expRecordOnlyChangedToast => '기록만 바뀌고 계좌 잔액은 그대로예요';
-
-  @override
   String get expFixBalance => '잔액 고치기';
 
   @override
@@ -6757,16 +6759,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expRewrite => '고쳐 쓰기';
 
   @override
-  String get expRewriteConfirm =>
-      '원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
+  String get expRewriteConfirmLead => '원래 거래는 지워지고 새 거래로 바뀌어요.';
+
+  @override
+  String get expRewriteConfirmClosed => '기록만 바뀌고 계좌 잔액은 그대로예요.';
 
   @override
   String expRewriteConfirmOpen(String date) {
     return '새 거래는 $date 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.';
   }
-
-  @override
-  String get expRewriteConfirmOther => '원래 거래는 지워지고 새 거래로 바뀌어요.';
 
   @override
   String get expSaveConfirmTitle => '저장할까요?';

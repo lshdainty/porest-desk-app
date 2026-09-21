@@ -44,37 +44,39 @@ bool moneyLockedOf(Expense e, Asset? asset) {
       closedCycleSpanOfExpense(e, asset) != ClosedCycleSpan.none;
 }
 
-/// 고쳐 쓰기 확인창 본문(D13) — 새 거래가 떨어지는 회차로 가른다. 서버 조회 없음.
+/// 고쳐 쓰기 확인창 본문(D13) — 첫 문장 "원래 거래는 지워지고 새 거래로 바뀌어요."
+/// 뒤에 새 거래가 떨어지는 회차로 한 문장을 잇는다. 서버 조회 없음. 웹과 같은 문구다.
 ///
-///   - 닫힌 회차(카드) — "원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌
-///     잔액은 그대로예요." 할부가 걸치면 "지난 회차분은 기록만 남아요." 를 붙인다
+///   - 닫힌 회차(카드) — "기록만 바뀌고 계좌 잔액은 그대로예요."
+///   - 할부가 닫힌 회차에 걸침 — "지난 회차분은 기록만 남아요."
 ///   - 열린 회차(카드) — "새 거래는 {그 회차 결제일} 결제에 청구돼요. 원래 거래는 이미
 ///     결제된 회차에서 기록만 빠져요." 결제일은 거래 달의 다음 달 결제일이다
-///   - 그 밖(계좌·현금·자산 없음·결제일 없는 카드) — "원래 거래는 지워지고 새 거래로
-///     바뀌어요." 만. 청구 회차가 없으니 결제일을 말할 수 없다
+///   - 그 밖(계좌·현금·자산 없음·결제일 없는 카드) — 첫 문장만. 청구 회차가 없으니
+///     결제일을 말할 수 없다
 String rewriteConfirmMessage(
   AppLocalizations l, {
   required Asset? newAsset,
   required String dateKey,
   int? installmentMonths,
 }) {
-  if (newAsset != null && newAsset.assetType == 'CREDIT_CARD') {
-    final span = closedCycleSpanFor(
-      newAsset,
-      dateKey: dateKey,
-      installmentMonths: installmentMonths,
-    );
-    if (span == ClosedCycleSpan.full) return l.expRewriteConfirm;
-    if (span == ClosedCycleSpan.partial) {
-      return '${l.expRewriteConfirm}\n\n${l.expClosedCyclePartLine}';
-    }
-    final day = newAsset.paymentDay;
-    if (day != null) {
+  final lead = l.expRewriteConfirmLead;
+  if (newAsset == null || newAsset.assetType != 'CREDIT_CARD') return lead;
+  final span = closedCycleSpanFor(
+    newAsset,
+    dateKey: dateKey,
+    installmentMonths: installmentMonths,
+  );
+  switch (span) {
+    case ClosedCycleSpan.full:
+      return '$lead ${l.expRewriteConfirmClosed}';
+    case ClosedCycleSpan.partial:
+      return '$lead ${l.expClosedCyclePartLine}';
+    case ClosedCycleSpan.none:
+      final day = newAsset.paymentDay;
+      if (day == null) return lead;
       final pay = DateTime.parse(cardCyclePaymentDate(dateKey, day));
-      return l.expRewriteConfirmOpen(formatDay(pay).md);
-    }
+      return '$lead ${l.expRewriteConfirmOpen(formatDay(pay).md)}';
   }
-  return l.expRewriteConfirmOther;
 }
 
 /// 확인창 본문 — 기본 문장 뒤에 닫힌 회차 한 줄을 문단으로 붙인다.
@@ -103,8 +105,9 @@ int? fixBalanceTargetOf(Expense e, Asset? asset) {
 /// 그 금액이 응답에 실려 온다 — 사후에 한 번 알린다(스와이프 삭제 포함).
 ///
 /// [fixBalanceAssetId] 가 있으면(닫힌 회차 거래의 환불·삭제·고쳐 쓰기, D9) 토스트에
-/// [잔액 고치기] 를 단다 — 돌려받은 돈이 없어도 "기록만 바뀌고 계좌 잔액은 그대로" 를
-/// 말하며 띄운다. 둘 다 없으면 조용히 끝난다.
+/// [잔액 고치기] 를 단다 — 돌려받은 돈이 없어도 확인창과 같은 한 문구("이미 결제가
+/// 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.")로 띄운다(웹과 같다). 둘 다
+/// 없으면 조용히 끝난다.
 ///
 /// [host] 는 시트·행보다 오래 사는 context 다 — 지운 뒤 시트가 닫히고 행이 사라져도
 /// 토스트는 떠야 하고, 버튼은 그 뒤에 눌린다.
@@ -120,7 +123,7 @@ void showChangeResultToast(
   if (refunded > 0) {
     message = l.expRefundedToast(krwSigned(refunded, false, unit: true));
   } else if (fixBalanceAssetId != null) {
-    message = l.expRecordOnlyChangedToast;
+    message = l.expClosedCycleLine;
   } else {
     return;
   }

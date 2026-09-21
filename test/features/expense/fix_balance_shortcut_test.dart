@@ -162,7 +162,10 @@ void main() {
       await _pumpRouted(tester, _swipeRow(_closed, _card));
 
       await _swipeDeleteAndConfirm(tester);
-      expect(find.text('기록만 바뀌고 계좌 잔액은 그대로예요'), findsOneWidget);
+      expect(
+        find.text('이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.'),
+        findsOneWidget,
+      );
 
       await tester.tap(find.text('잔액 고치기'));
       await tester.pumpAndSettle();
@@ -182,7 +185,7 @@ void main() {
       await _swipeDeleteAndConfirm(tester);
 
       expect(find.text('잔액 고치기'), findsNothing);
-      expect(find.text('기록만 바뀌고 계좌 잔액은 그대로예요'), findsNothing);
+      expect(find.text('이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.'), findsNothing);
     });
 
     testWidgets('열린 회차 거래는 버튼이 없다', (tester) async {

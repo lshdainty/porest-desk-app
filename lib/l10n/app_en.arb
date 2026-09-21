@@ -314,7 +314,7 @@
       }
     }
   },
-  "assetCurrentUsageHint": "Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.",
+  "assetCurrentUsageHint": "Enter the amount not yet paid.",
   "assetOutstandingNow": "Unpaid balance now {amount}",
   "@assetOutstandingNow": {
     "placeholders": {
@@ -324,6 +324,7 @@
     }
   },
   "assetCarryoverLocked": "This has already been paid, so it can't be changed",
+  "assetPaymentDayChangeTitle": "Change payment day",
   "assetPaymentDayChangeConfirm": "The new payment day applies from the next cycle. Month {month} charges are still paid on {date}",
   "@assetPaymentDayChangeConfirm": {
     "placeholders": {
@@ -1136,6 +1137,7 @@
       }
     }
   },
+  "expRefundConfirmBodyRecordOnly": "Marks this transaction as refunded. It leaves your totals.",
   "expRefundConfirmBodyCardNoAccount": "No payment account is linked, so only the card balance is adjusted.",
   "expRefundDate": "Refund date",
   "expRefundConfirm": "Mark refunded",
@@ -1850,7 +1852,7 @@
   "expAutoLock": "Auto",
   "expAutoSourceTradeRealized": "Realized P/L from a sale. The amount is calculated from the trade.",
   "expAutoSourceTransferInterest": "Interest on a transfer. The amount is calculated from the transfer.",
-  "expAutoSourceCardCarryover": "This is the unpaid usage you entered when adding the card. It isn't counted in your ledger totals.",
+  "expAutoSourceCardCarryover": "This is the unpaid usage you entered when adding the card. Change the amount by editing the card.",
   "expAutoSourceDefault": "Created automatically. It disappears when the original is deleted.",
   "expPresetLock": "Preset lock",
   "expNoCategoryForType": "No categories for this type",
@@ -3993,11 +3995,11 @@
   },
   "expClosedCycleLine": "This cycle has already been paid. Only the record changes, and your account balance stays the same.",
   "expClosedCyclePartLine": "Installments from past cycles stay as records only.",
-  "expRecordOnlyChangedToast": "Only the record changed. Your account balance stays the same",
   "expFixBalance": "Fix balance",
   "expMoneyLockedNote": "This transaction has already been paid. To change the amount or date, tap Rewrite",
   "expRewrite": "Rewrite",
-  "expRewriteConfirm": "The original transaction is deleted and replaced with a new one. Only the record changes, and your account balance stays the same.",
+  "expRewriteConfirmLead": "The original transaction is deleted and replaced with a new one.",
+  "expRewriteConfirmClosed": "Only the record changes, and your account balance stays the same.",
   "expRewriteConfirmOpen": "The new transaction is billed on the {date} payment. The original is removed from the paid cycle as a record only.",
   "@expRewriteConfirmOpen": {
     "placeholders": {
@@ -4006,7 +4008,6 @@
       }
     }
   },
-  "expRewriteConfirmOther": "The original transaction is deleted and replaced with a new one.",
   "expSaveConfirmTitle": "Save this?",
   "assetPreRegistrationNote": "These transactions are from before the card was added, so they may not match your actual statement",
   "assetRecordCycle": "Record-only cycle",

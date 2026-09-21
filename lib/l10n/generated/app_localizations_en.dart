@@ -619,8 +619,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get assetCurrentUsageHint =>
-      'Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.';
+  String get assetCurrentUsageHint => 'Enter the amount not yet paid.';
 
   @override
   String assetOutstandingNow(String amount) {
@@ -630,6 +629,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get assetCarryoverLocked =>
       'This has already been paid, so it can\'t be changed';
+
+  @override
+  String get assetPaymentDayChangeTitle => 'Change payment day';
 
   @override
   String assetPaymentDayChangeConfirm(int month, String date) {
@@ -1942,6 +1944,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get expRefundConfirmBodyRecordOnly =>
+      'Marks this transaction as refunded. It leaves your totals.';
+
+  @override
   String get expRefundConfirmBodyCardNoAccount =>
       'No payment account is linked, so only the card balance is adjusted.';
 
@@ -3073,7 +3079,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expAutoSourceCardCarryover =>
-      'This is the unpaid usage you entered when adding the card. It isn\'t counted in your ledger totals.';
+      'This is the unpaid usage you entered when adding the card. Change the amount by editing the card.';
 
   @override
   String get expAutoSourceDefault =>
@@ -6855,10 +6861,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Installments from past cycles stay as records only.';
 
   @override
-  String get expRecordOnlyChangedToast =>
-      'Only the record changed. Your account balance stays the same';
-
-  @override
   String get expFixBalance => 'Fix balance';
 
   @override
@@ -6869,17 +6871,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expRewrite => 'Rewrite';
 
   @override
-  String get expRewriteConfirm =>
-      'The original transaction is deleted and replaced with a new one. Only the record changes, and your account balance stays the same.';
+  String get expRewriteConfirmLead =>
+      'The original transaction is deleted and replaced with a new one.';
+
+  @override
+  String get expRewriteConfirmClosed =>
+      'Only the record changes, and your account balance stays the same.';
 
   @override
   String expRewriteConfirmOpen(String date) {
     return 'The new transaction is billed on the $date payment. The original is removed from the paid cycle as a record only.';
   }
-
-  @override
-  String get expRewriteConfirmOther =>
-      'The original transaction is deleted and replaced with a new one.';
 
   @override
   String get expSaveConfirmTitle => 'Save this?';

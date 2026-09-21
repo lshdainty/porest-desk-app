@@ -142,7 +142,7 @@ void main() {
     expect(find.text('환불'), findsNothing);
     expect(find.text('내역 분할'), findsNothing);
     expect(
-      find.text('카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.'),
+      find.text('카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.'),
       findsOneWidget,
     );
     expect(find.textContaining('원래 거래를 지우면'), findsNothing);

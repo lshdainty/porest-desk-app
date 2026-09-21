@@ -331,7 +331,10 @@ void main() {
       expect(call.args['paymentMethod'], 'CARD');
       expect(call.args['splits'], isNull, reason: '분할이 없으면 키를 빼고 서버가 옮긴다');
       // 결제가 끝난 회차 거래를 고쳐 썼다 — 결제계좌 잔액을 고칠 길을 준다(D9).
-      expect(find.text('기록만 바뀌고 계좌 잔액은 그대로예요'), findsOneWidget);
+      expect(
+        find.text('이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.'),
+        findsOneWidget,
+      );
       expect(find.text('잔액 고치기'), findsOneWidget);
       await tester.pump(const Duration(seconds: 7));
       await tester.pumpAndSettle();
@@ -347,7 +350,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('새 거래는 10월 12일 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.'),
+        find.text(
+          '원래 거래는 지워지고 새 거래로 바뀌어요. '
+          '새 거래는 10월 12일 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.',
+        ),
         findsOneWidget,
       );
     });

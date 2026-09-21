@@ -394,7 +394,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     final date = formatDay(DateTime.parse(pending.paymentDate)).md;
     return showPConfirmDialog(
       context,
-      title: l.expSaveConfirmTitle,
+      title: l.assetPaymentDayChangeTitle,
       message: l.assetPaymentDayChangeConfirm(pending.month, date),
       confirmLabel: l.actionSave,
     );

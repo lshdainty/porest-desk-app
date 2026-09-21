@@ -317,7 +317,7 @@
       }
     }
   },
-  "assetCurrentUsageHint": "아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.",
+  "assetCurrentUsageHint": "아직 결제되지 않은 사용액을 적어 주세요.",
   "assetOutstandingNow": "지금 미결제 잔액 {amount}",
   "@assetOutstandingNow": {
     "placeholders": {
@@ -327,6 +327,7 @@
     }
   },
   "assetCarryoverLocked": "결제가 끝나 고칠 수 없어요",
+  "assetPaymentDayChangeTitle": "결제일 변경",
   "assetPaymentDayChangeConfirm": "바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요",
   "@assetPaymentDayChangeConfirm": {
     "placeholders": {
@@ -1139,6 +1140,7 @@
       }
     }
   },
+  "expRefundConfirmBodyRecordOnly": "이 거래를 환불로 표시해요. 합계에서 빠져요.",
   "expRefundConfirmBodyCardNoAccount": "결제계좌가 없어 카드 잔액만 정리돼요.",
   "expRefundDate": "환불일",
   "expRefundConfirm": "환불 처리",
@@ -1866,7 +1868,7 @@
   "expAutoLock": "자동 생성",
   "expAutoSourceTradeRealized": "주식을 팔아 생긴 실현손익이에요. 금액은 매매 내역에서 계산됩니다.",
   "expAutoSourceTransferInterest": "이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.",
-  "expAutoSourceCardCarryover": "카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.",
+  "expAutoSourceCardCarryover": "카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.",
   "expAutoSourceDefault": "자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.",
   "expPresetLock": "프리셋 잠금",
   "expNoCategoryForType": "이 타입에 해당하는 카테고리가 없습니다",
@@ -4143,11 +4145,11 @@
   },
   "expClosedCycleLine": "이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.",
   "expClosedCyclePartLine": "지난 회차분은 기록만 남아요.",
-  "expRecordOnlyChangedToast": "기록만 바뀌고 계좌 잔액은 그대로예요",
   "expFixBalance": "잔액 고치기",
   "expMoneyLockedNote": "결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요",
   "expRewrite": "고쳐 쓰기",
-  "expRewriteConfirm": "원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌 잔액은 그대로예요.",
+  "expRewriteConfirmLead": "원래 거래는 지워지고 새 거래로 바뀌어요.",
+  "expRewriteConfirmClosed": "기록만 바뀌고 계좌 잔액은 그대로예요.",
   "expRewriteConfirmOpen": "새 거래는 {date} 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.",
   "@expRewriteConfirmOpen": {
     "placeholders": {
@@ -4156,7 +4158,6 @@
       }
     }
   },
-  "expRewriteConfirmOther": "원래 거래는 지워지고 새 거래로 바뀌어요.",
   "expSaveConfirmTitle": "저장할까요?",
   "assetPreRegistrationNote": "카드 등록 이전 거래라 실제와 맞지 않을 수 있어요",
   "assetRecordCycle": "기록 회차",

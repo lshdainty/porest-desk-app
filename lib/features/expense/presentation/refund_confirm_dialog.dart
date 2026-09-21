@@ -86,24 +86,27 @@ class _RefundConfirmDialogState extends State<_RefundConfirmDialog> {
     final hasPaymentAsset = asset?.paymentAssetRowId != null;
     // 결제가 끝난 회차면 "기록만" 한 문구가 먼저다 — 그때는 결제계좌가 있든 없든
     // 아무 돈도 안 움직인다(D1).
+    final closedNote = closedCycleNote(l, closedCycleSpanOfExpense(e, asset));
     final note =
-        closedCycleNote(l, closedCycleSpanOfExpense(e, asset)) ??
+        closedNote ??
         (isCreditCard && !hasPaymentAsset
             ? l.expRefundConfirmBodyCardNoAccount
             : null);
+    // 본문도 갈린다 — 닫힌 회차는 "N원을 카드로 되돌려요" 가 거짓이다. 카드로 돌아가는
+    // 돈이 없는데 바로 아래 "계좌 잔액은 그대로예요" 와 부딪친다(웹과 같은 문구).
+    final body = closedNote != null
+        ? l.expRefundConfirmBodyRecordOnly
+        : l.expRefundConfirmBody(
+            krwSigned(e.amount.abs(), false, unit: true),
+            e.assetName ?? l.expValueNone,
+          );
     return PFormAlertDialog(
       title: l.expRefundConfirmTitle,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l.expRefundConfirmBody(
-              krwSigned(e.amount.abs(), false, unit: true),
-              e.assetName ?? l.expValueNone,
-            ),
-            style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-          ),
+          Text(body, style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
           if (note != null) ...[
             const SizedBox(height: PSpace.x8),
             Text(

@@ -223,6 +223,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 8월까지 닫혔다 → 9월분은 옛 결제일(14일)인 10월 14일에 결제된다.
+      expect(find.text('결제일 변경'), findsOneWidget);
       expect(
         find.text('바꾼 결제일은 다음 회차부터 적용돼요. 9월분은 10월 14일에 결제돼요'),
         findsOneWidget,

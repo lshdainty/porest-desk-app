@@ -1223,7 +1223,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCurrentUsageHint.
   ///
   /// In ko, this message translates to:
-  /// **'아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.'**
+  /// **'아직 결제되지 않은 사용액을 적어 주세요.'**
   String get assetCurrentUsageHint;
 
   /// No description provided for @assetOutstandingNow.
@@ -1237,6 +1237,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결제가 끝나 고칠 수 없어요'**
   String get assetCarryoverLocked;
+
+  /// No description provided for @assetPaymentDayChangeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일 변경'**
+  String get assetPaymentDayChangeTitle;
 
   /// No description provided for @assetPaymentDayChangeConfirm.
   ///
@@ -3608,6 +3614,12 @@ abstract class AppLocalizations {
   /// **'이 거래를 환불로 표시하고 {amount}을 {asset}(으)로 되돌려요. 합계에서 빠져요.'**
   String expRefundConfirmBody(String amount, String asset);
 
+  /// No description provided for @expRefundConfirmBodyRecordOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래를 환불로 표시해요. 합계에서 빠져요.'**
+  String get expRefundConfirmBodyRecordOnly;
+
   /// No description provided for @expRefundConfirmBodyCardNoAccount.
   ///
   /// In ko, this message translates to:
@@ -5603,7 +5615,7 @@ abstract class AppLocalizations {
   /// No description provided for @expAutoSourceCardCarryover.
   ///
   /// In ko, this message translates to:
-  /// **'카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.'**
+  /// **'카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.'**
   String get expAutoSourceCardCarryover;
 
   /// No description provided for @expAutoSourceDefault.
@@ -12356,12 +12368,6 @@ abstract class AppLocalizations {
   /// **'지난 회차분은 기록만 남아요.'**
   String get expClosedCyclePartLine;
 
-  /// No description provided for @expRecordOnlyChangedToast.
-  ///
-  /// In ko, this message translates to:
-  /// **'기록만 바뀌고 계좌 잔액은 그대로예요'**
-  String get expRecordOnlyChangedToast;
-
   /// No description provided for @expFixBalance.
   ///
   /// In ko, this message translates to:
@@ -12380,23 +12386,23 @@ abstract class AppLocalizations {
   /// **'고쳐 쓰기'**
   String get expRewrite;
 
-  /// No description provided for @expRewriteConfirm.
+  /// No description provided for @expRewriteConfirmLead.
   ///
   /// In ko, this message translates to:
-  /// **'원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌 잔액은 그대로예요.'**
-  String get expRewriteConfirm;
+  /// **'원래 거래는 지워지고 새 거래로 바뀌어요.'**
+  String get expRewriteConfirmLead;
+
+  /// No description provided for @expRewriteConfirmClosed.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록만 바뀌고 계좌 잔액은 그대로예요.'**
+  String get expRewriteConfirmClosed;
 
   /// No description provided for @expRewriteConfirmOpen.
   ///
   /// In ko, this message translates to:
   /// **'새 거래는 {date} 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.'**
   String expRewriteConfirmOpen(String date);
-
-  /// No description provided for @expRewriteConfirmOther.
-  ///
-  /// In ko, this message translates to:
-  /// **'원래 거래는 지워지고 새 거래로 바뀌어요.'**
-  String get expRewriteConfirmOther;
 
   /// No description provided for @expSaveConfirmTitle.
   ///

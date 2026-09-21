@@ -277,7 +277,9 @@ void main() {
   });
 
   group('환불 확인창', () {
-    testWidgets('금액에 단위가 붙고, 닫힌 회차면 한 문구를 말한다', (tester) async {
+    // 닫힌 회차는 카드로 되돌아가는 돈이 없다 — "N원을 카드로 되돌려요" 를 쓰면 바로
+    // 아래 "계좌 잔액은 그대로예요" 와 부딪친다. 본문도 갈린다(웹과 같은 문구).
+    testWidgets('닫힌 회차면 되돌린다는 말 없이 표시만 하고 한 문구를 말한다', (tester) async {
       await _pumpApp(
         tester,
         _opener(
@@ -288,8 +290,24 @@ void main() {
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('40,000원을 현대카드(으)로'), findsOneWidget);
+      expect(find.text('이 거래를 환불로 표시해요. 합계에서 빠져요.'), findsOneWidget);
+      expect(find.textContaining('되돌려요'), findsNothing);
       expect(find.text(_closedLine), findsOneWidget);
+    });
+
+    testWidgets('열린 회차는 되돌리는 금액을 단위와 함께 말한다', (tester) async {
+      await _pumpApp(
+        tester,
+        _opener(
+          (ctx) => showRefundConfirmDialog(ctx, expense: _open, asset: _card),
+        ),
+        repo: _FakeRepo(),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('40,000원을 현대카드(으)로 되돌려요'), findsOneWidget);
+      expect(find.text(_closedLine), findsNothing);
     });
 
     testWidgets('열린 회차 + 결제계좌 없는 카드는 그 안내만', (tester) async {
