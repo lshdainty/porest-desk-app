@@ -527,10 +527,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           exchangeRate: fxRate,
           rememberCard: _input.assetRowId != null && _input.smsRememberCard,
         );
-        _notifyCreated(
-          refundedAmount: committed.refundedAmount,
-          installment: installment,
-        );
+        _notifyCreated(refundedAmount: committed.refundedAmount);
         // 수신 보관함에서 온 문자면 기록됐으니 목록에서 뺀다.
         // 실패해도 본 저장에는 영향이 없다 — 목록에 한 줄 남을 뿐이다.
         final inboxId = widget.smsDraft!.inboxId;
@@ -556,10 +553,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           originalCurrency: origCurrency,
           exchangeRate: fxRate,
         );
-        _notifyCreated(
-          refundedAmount: created.refundedAmount,
-          installment: installment,
-        );
+        _notifyCreated(refundedAmount: created.refundedAmount);
       }
       await _touchAppliedPreset();
       // 원래 거래의 월 + 새 월 모두 invalidate (날짜 변경 가능성)
@@ -582,28 +576,20 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     }
   }
 
-  /// 새 거래를 저장한 뒤의 결과 토스트 — 웹 `notifyResult(created, …)` 와 같은 갈래.
+  /// 새 거래를 저장한 뒤의 결과 토스트 — 웹 `notifyResult(created)` 와 같다.
   ///
   /// 생성 응답에도 선결제 환급액이 실린다 — 열린 회차에 카드 수입을 넣어 미리 낸 돈이
-  /// 청구보다 많아지면 서버가 그만큼 결제계좌로 돌려준다(D3). 통장이 움직였으니 알린다
-  /// (D4, QA 26 1). 결제가 끝난 회차로 들어간 카드 거래면 통장은 그대로라는 한 문구와
-  /// 결제계좌의 [잔액 고치기] 를 단다(D9) — 삭제·환불·고쳐 쓰기와 같은 토스트다.
+  /// 청구보다 많아지면 서버가 그만큼 결제계좌로 돌려준다(D3). 통장이 움직였으니 그 금액만
+  /// 알린다(D4, QA 26 1). 닫힌 회차 새 입력의 [잔액 고치기](D9)는 달지 않는다 — D9 는 환불·
+  /// 삭제·고쳐 쓰기의 자리이고, 새 입력은 저장 전 확인창이 이미 "기록만" 을 말했다.
   ///
   /// 시트는 곧 닫힌다 — 토스트는 루트 쪽 context 에 띄워 페이지에 남긴다.
-  void _notifyCreated({required int? refundedAmount, int? installment}) {
+  void _notifyCreated({required int? refundedAmount}) {
     if (!mounted) return;
-    final id = _input.assetRowId;
-    final asset = id == null
-        ? null
-        : (ref.read(assetsProvider).value ?? const <Asset>[]).byRowId(id);
     showChangeResultToast(
       hostContextOf(context),
       refundedAmount: refundedAmount,
-      fixBalanceAssetId: fixBalanceTargetFor(
-        asset,
-        dateKey: _input.isoDate,
-        installmentMonths: installment,
-      ),
+      fixBalanceAssetId: null,
     );
   }
 

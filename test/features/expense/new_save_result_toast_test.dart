@@ -4,7 +4,8 @@
 // 미리 낸 돈이 청구보다 많아지면 서버가 그만큼 결제계좌로 돌려준다(D3). 앱은 생성 응답을
 // 버려 통장이 움직였는데 아무 말이 없었다. 여기서 잠그는 것은
 //   ① 새 저장 응답에 환급액이 있으면 "미리 낸 돈 중 N원이 계좌로 돌아왔어요"(D4)
-//   ② 결제가 끝난 회차로 들어간 카드 거래면 한 문구 + [잔액 고치기](D9, 결제계좌가 있을 때만)
+//   ② 결제가 끝난 회차로 들어간 새 입력은 저장 뒤 토스트가 없다 — [잔액 고치기](D9)는 환불·
+//      삭제·고쳐 쓰기의 자리다(웹 `notifyResult(created)` 도 같다). 저장 전 확인창이 이미 말했다
 //   ③ 열린 회차 + 환급 없음이면 조용하다
 //   ④ 문자 저장도 같은 토스트다(응답의 환급액은 서버가 실어 줄 때만)
 import 'package:dio/dio.dart';
@@ -220,7 +221,7 @@ void main() {
     expect(find.text(_closedLine), findsNothing);
   });
 
-  testWidgets('닫힌 회차 새 입력은 한 문구 + [잔액 고치기](D9)', (tester) async {
+  testWidgets('닫힌 회차 새 입력은 저장 전 확인창만 — 저장 뒤 토스트·[잔액 고치기] 없음', (tester) async {
     final repo = _FakeRepo();
     await _open(tester, date: '2026-08-20', repo: repo);
     await _fill(tester);
@@ -233,9 +234,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.created, 1);
-    expect(find.text(_closedLine), findsOneWidget, reason: '저장 뒤 토스트');
-    expect(find.text('잔액 고치기'), findsOneWidget);
-    await _drain(tester);
+    expect(find.text(_closedLine), findsNothing, reason: '저장 뒤 토스트 없음');
+    expect(find.text('잔액 고치기'), findsNothing);
   });
 
   testWidgets('결제계좌 없는 카드의 닫힌 회차 입력은 버튼도 토스트도 없다', (tester) async {
@@ -275,7 +275,7 @@ void main() {
       ),
     );
 
-    testWidgets('닫힌 회차면 같은 결과 토스트 + [잔액 고치기]', (tester) async {
+    testWidgets('닫힌 회차여도 저장 뒤 토스트·[잔액 고치기] 는 없다', (tester) async {
       final sms = _FakeSmsRepo();
       await _open(tester, date: '2026-08-20', smsRepo: sms, draft: draft);
       await _pickCard(tester);
@@ -286,9 +286,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(sms.committed, 1);
-      expect(find.text(_closedLine), findsOneWidget);
-      expect(find.text('잔액 고치기'), findsOneWidget);
-      await _drain(tester);
+      expect(find.text(_closedLine), findsNothing);
+      expect(find.text('잔액 고치기'), findsNothing);
     });
 
     testWidgets('응답에 환급액이 실리면 알린다', (tester) async {
