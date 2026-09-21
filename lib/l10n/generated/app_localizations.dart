@@ -1226,6 +1226,24 @@ abstract class AppLocalizations {
   /// **'아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.'**
   String get assetCurrentUsageHint;
 
+  /// No description provided for @assetOutstandingNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 미결제 잔액 {amount}'**
+  String assetOutstandingNow(String amount);
+
+  /// No description provided for @assetCarryoverLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 끝나 고칠 수 없어요'**
+  String get assetCarryoverLocked;
+
+  /// No description provided for @assetPaymentDayChangeConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요'**
+  String assetPaymentDayChangeConfirm(int month, String date);
+
   /// No description provided for @assetNewCard.
   ///
   /// In ko, this message translates to:

@@ -613,6 +613,19 @@ class AppLocalizationsKo extends AppLocalizations {
       '아직 결제되지 않은 사용액을 적어 주세요. 이 카드에 입력하는 내역은 지난 날짜여도 모두 미결제 사용액으로 잡혀요.';
 
   @override
+  String assetOutstandingNow(String amount) {
+    return '지금 미결제 잔액 $amount';
+  }
+
+  @override
+  String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요';
+
+  @override
+  String assetPaymentDayChangeConfirm(int month, String date) {
+    return '바꾼 결제일은 다음 회차부터 적용돼요. $month월분은 $date에 결제돼요';
+  }
+
+  @override
   String get assetNewCard => '새 카드';
 
   @override

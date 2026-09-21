@@ -64,6 +64,50 @@ void main() {
     });
   });
 
+  // 결제일을 바꿔도 아직 결제 전인 회차는 옛 결제일에 결제된다(D5) — 확인창 문구의 재료.
+  group('결제일 변경 — 옛 결제일로 결제되는 회차', () {
+    test('닫힌 회차 경계의 다음 달 회차다', () {
+      // 25일 카드, 9/14 — 7월분까지 닫혔다. 8월분은 옛 결제일 9/25 에 결제된다.
+      final p = pendingCycleOnOldDay(
+        oldPaymentDay: 25,
+        cardClosedThrough: '2026-07-31',
+        todayKey: '2026-09-14',
+      );
+      expect((p.year, p.month, p.paymentDate), (2026, 8, '2026-09-25'));
+    });
+
+    test('12월 경계면 다음 해 1월 회차다', () {
+      final p = pendingCycleOnOldDay(
+        oldPaymentDay: 10,
+        cardClosedThrough: '2026-12-31',
+        todayKey: '2027-01-12',
+      );
+      expect((p.year, p.month, p.paymentDate), (2027, 1, '2027-02-10'));
+    });
+
+    test('경계가 없으면 오늘 기준 결제일이 안 온 첫 회차다', () {
+      final before = pendingCycleOnOldDay(
+        oldPaymentDay: 25,
+        cardClosedThrough: null,
+        todayKey: '2026-09-14',
+      );
+      expect((before.month, before.paymentDate), (8, '2026-09-25'));
+      // 결제일 당일부터 닫힌다(D2) — 그날이면 다음 회차다.
+      final onDay = pendingCycleOnOldDay(
+        oldPaymentDay: 25,
+        cardClosedThrough: null,
+        todayKey: '2026-09-25',
+      );
+      expect((onDay.month, onDay.paymentDate), (9, '2026-10-25'));
+      final january = pendingCycleOnOldDay(
+        oldPaymentDay: 10,
+        cardClosedThrough: null,
+        todayKey: '2026-01-05',
+      );
+      expect((january.year, january.month), (2025, 12));
+    });
+  });
+
   group('닫힌 회차 판정 — 날짜 ≤ cardClosedThrough', () {
     ClosedCycleSpan span(String date, {int? months, String? through}) =>
         closedCycleSpan(

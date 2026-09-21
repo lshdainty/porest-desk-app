@@ -315,6 +315,26 @@
     }
   },
   "assetCurrentUsageHint": "Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.",
+  "assetOutstandingNow": "Unpaid balance now {amount}",
+  "@assetOutstandingNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetCarryoverLocked": "This has already been paid, so it can't be changed",
+  "assetPaymentDayChangeConfirm": "The new payment day applies from the next cycle. Month {month} charges are still paid on {date}",
+  "@assetPaymentDayChangeConfirm": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "assetNewCard": "New card",
   "assetCatalogLoadError": "Failed to load catalog",
   "assetAnnualFee": "Annual fee",

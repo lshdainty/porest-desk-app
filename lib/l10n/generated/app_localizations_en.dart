@@ -623,6 +623,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the amount not yet paid. Every expense entered on this card counts as unpaid usage, including ones dated in the past.';
 
   @override
+  String assetOutstandingNow(String amount) {
+    return 'Unpaid balance now $amount';
+  }
+
+  @override
+  String get assetCarryoverLocked =>
+      'This has already been paid, so it can\'t be changed';
+
+  @override
+  String assetPaymentDayChangeConfirm(int month, String date) {
+    return 'The new payment day applies from the next cycle. Month $month charges are still paid on $date';
+  }
+
+  @override
   String get assetNewCard => 'New card';
 
   @override

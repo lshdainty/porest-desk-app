@@ -167,7 +167,9 @@ class AssetRepository {
   ///   값이 없으면 원래 없던 것이다
   /// - `color` — 앱 어느 화면에도 없는 칸이다(웹에서만 고른다)
   /// - `balance` — null 이 "지운다" 가 아니라 "보유로 서버가 산정해 달라" 다.
-  ///   [_balanceBody] 를 보라
+  ///   [_balanceBody] 를 보라. 신용카드는 서버가 이 값을 무시한다 — 이월은
+  ///   `carryoverAmount` 로만 고친다(D7)
+  /// - `carryoverAmount` — 지우는 조작이 없다(0 이 "이월 없음"). null 이면 키가 빠진다
   /// - `holdings` — "null=미변경 · 리스트=교체" 라는 뜻이 이미 확정돼 있다(QA #91)
   Future<Asset> update({
     required int id,
@@ -190,6 +192,10 @@ class AssetRepository {
     bool? isOverdraft,
     // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
     List<AssetHolding>? holdings,
+    // 신용카드의 이월 금액("이전 미결제 사용액", D7) — 0 이상. null 이면 키를 안 싣는다
+    // (서버 PUT 은 "키 없음=유지"). 신용카드는 `balance` 를 서버가 무시하므로 이 키로만
+    // 이월을 고친다.
+    int? carryoverAmount,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -212,6 +218,7 @@ class AssetRepository {
             'paymentAssetRowId': paymentAssetRowId.value,
           'isOverdraft': ?isOverdraft,
           'holdings': ?holdings?.map(_holdingBody).toList(),
+          'carryoverAmount': ?carryoverAmount,
         },
       );
       return _unwrap(res, Asset.fromJson);

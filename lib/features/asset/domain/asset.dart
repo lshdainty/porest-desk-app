@@ -36,6 +36,17 @@ abstract class Asset with _$Asset {
     int? creditLimit, // 신용 한도
     int? paymentDay, // 결제일 (1~31)
     int? paymentAssetRowId, // 결제 출금계좌 자산 rowId
+    /// 신용카드: 지금 이월 금액 — 카드를 만들 때 적은 "이전 미결제 사용액"(없으면 0).
+    ///
+    /// 카드 수정 폼의 그 칸은 **이 값**으로 채우고 `carryoverAmount` 키로 보낸다(D7).
+    /// 지금 총 미결제 잔액([balance])이 아니다 — 그걸로 채워 저장하면 이월 거래가 잔액만큼
+    /// 새로 생겨 빚이 두 배가 됐다(QA 23차 1). 신용카드가 아니거나 옛 서버면 null.
+    int? carryoverAmount,
+
+    /// 신용카드: 이월 거래가 든 회차의 결제일이 됐으면 true — 이월 금액 칸을 읽기
+    /// 전용으로 둔다(D15). 서버도 값이 바뀌면 400 이다.
+    @Default(false) bool carryoverLocked,
+
     /// 신용카드: **이 날짜(`yyyy-MM-dd`) 이하 거래는 결제가 끝난(닫힌) 회차**다.
     ///
     /// 결제일이 오늘(서울) 이하인 가장 최근 회차의 말일 — 서버가 결제일 이력·서울

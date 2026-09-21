@@ -82,4 +82,47 @@ ClosedCycleSpan closedCycleSpanFor(
   );
 }
 
+/// 결제일을 바꿔도 **옛 결제일로 결제되는 회차** — 확인창 "N월분은 M월 D일에
+/// 결제돼요" 의 재료(D5).
+///
+/// 결제일 변경은 다음 회차부터다. 바꾸는 시점에 아직 결제 전인 가장 가까운 회차는 옛
+/// 결제일에 결제된다. 그 회차는 서버가 내려 준 `cardClosedThrough`(닫힌 회차 경계)의
+/// 다음 달 회차다. 경계가 없으면 오늘 기준으로 결제일이 아직 안 온 첫 회차를 옛
+/// 결제일로 센다(D2 — 결제일 당일부터 닫힌다).
+///
+/// 돌려주는 [month] 는 그 회차의 이용 달(`8월분`), [paymentDate] 는 `yyyy-MM-dd`.
+({int year, int month, String paymentDate}) pendingCycleOnOldDay({
+  required int oldPaymentDay,
+  required String? cardClosedThrough,
+  required String todayKey,
+}) {
+  int y;
+  int m;
+  if (cardClosedThrough != null && cardClosedThrough.length >= 7) {
+    final cy = int.parse(cardClosedThrough.substring(0, 4));
+    final cm = int.parse(cardClosedThrough.substring(5, 7));
+    y = cm == 12 ? cy + 1 : cy;
+    m = cm == 12 ? 1 : cm + 1;
+  } else {
+    final ty = int.parse(todayKey.substring(0, 4));
+    final tm = int.parse(todayKey.substring(5, 7));
+    // 지난달 회차는 이번 달에 결제된다 — 그 결제일이 아직 안 왔으면 그 회차다.
+    y = tm == 1 ? ty - 1 : ty;
+    m = tm == 1 ? 12 : tm - 1;
+    if (cardCyclePaymentDate(
+          '$y-${_pad2(m)}-01',
+          oldPaymentDay,
+        ).compareTo(todayKey) <=
+        0) {
+      y = ty;
+      m = tm;
+    }
+  }
+  return (
+    year: y,
+    month: m,
+    paymentDate: cardCyclePaymentDate('$y-${_pad2(m)}-01', oldPaymentDay),
+  );
+}
+
 String _pad2(int n) => n.toString().padLeft(2, '0');
