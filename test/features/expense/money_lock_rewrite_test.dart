@@ -5,7 +5,8 @@
 // 같은 값이 채워진 새 거래 시트를 열고, 저장은 `POST /expense/{id}/replace` 다.
 // 여기서 잠그는 것은
 //   ① 잠긴 거래의 편집 시트 — 돈 칸 전부 회색, 안내 + [고쳐 쓰기], 분류 칸은 열림
-//   ② 잠긴 거래의 저장은 돈 칸을 원래 값 그대로 돌려보낸다(서버가 "바뀌었다" 로 안 보게)
+//   ② 잠긴 거래의 저장은 묻지 않고, 돈 칸을 원래 값 그대로 돌려보낸다(서버가 "바뀌었다"
+//      로 안 보게)
 //   ③ [고쳐 쓰기] 저장 = replace 본문(생성 본문 + 적재한 분할) · 확인창 두 갈래 · 토스트
 //   ④ 열린 회차 거래는 지금처럼 고친다
 import 'package:dio/dio.dart';
@@ -253,16 +254,18 @@ void main() {
       expect(find.text('고쳐 쓰기'), findsNothing);
     });
 
-    testWidgets('저장은 돈 칸을 원래 값 그대로 돌려보낸다', (tester) async {
+    // 잠긴 거래는 카테고리·가맹점·메모만 바뀐다 — 통장에 일어나는 일이 없으니 묻지
+    // 않고 바로 저장한다(사용자 결정 2026-09-21). 확인창은 돈과 기록이 갈리는 자리에만.
+    testWidgets('저장은 확인 없이 한 번에, 돈 칸은 원래 값 그대로 돌려보낸다', (tester) async {
       final repo = await _open(tester, _locked);
 
       await tester.enterText(_fieldWith('버스'), '시내버스');
       await tester.pump();
       await tester.tap(_submit('저장'));
       await tester.pumpAndSettle();
-      // 닫힌 회차 저장 — 기록만 바뀐다는 한 문구로 한 번 묻는다.
-      await tester.tap(find.text('저장').last);
-      await tester.pumpAndSettle();
+
+      expect(find.textContaining('이미 결제가 끝난 회차예요'), findsNothing);
+      expect(repo.calls, hasLength(1));
 
       final args = repo.calls.single.args;
       expect(repo.calls.single.kind, 'update');
