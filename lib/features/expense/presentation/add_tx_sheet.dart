@@ -125,6 +125,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   // 편집 모드 분할 일치화: 서버 분할(build 에서 적재) + 이번 세션에서 맞춘 분할.
   List<SplitInput> _serverSplits = const [];
+
+  /// 고쳐 쓰기 시트가 원거래의 분할을 아직 불러오는 중인가 — 그동안 저장을 막는다.
+  bool _splitsPending = false;
   List<SplitInput>? _reconciledSplits;
   List<SplitInput> get _effectiveSplits => _reconciledSplits ?? _serverSplits;
   int get _splitSum => _effectiveSplits.fold<int>(0, (s, x) => s + x.amount);
@@ -363,6 +366,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     if (_input.categoryRowId == null) return false;
     // 분할 합 불일치 시 저장 보류 — 배너의 '분할 내역 맞추기'로 먼저 일치화.
     if (_splitMismatch) return false;
+    // 고쳐 쓰기는 분할을 본문에 싣는다 — 다 불러오기 전이면 빈 채로 나간다.
+    if (_splitsPending) return false;
     return true;
   }
 
@@ -504,7 +509,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         // 결제 문자는 전용 경로로 저장한다 — 서버가 원문을 다시 봐 취소 문자를 막고,
         // 체크했다면 (카드 힌트 → 자산) 을 기억한다. 저장 자체는 같은 지출 생성이다.
         final smsRepo = await ref.read(smsRepositoryProvider.future);
-        await smsRepo.commit(
+        final committed = await smsRepo.commit(
           text: widget.smsDraft!.text,
           assetRowId: _input.assetRowId,
           categoryRowId: _input.categoryRowId,
@@ -522,6 +527,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           exchangeRate: fxRate,
           rememberCard: _input.assetRowId != null && _input.smsRememberCard,
         );
+        _notifyCreated(refundedAmount: committed.refundedAmount);
         // 수신 보관함에서 온 문자면 기록됐으니 목록에서 뺀다.
         // 실패해도 본 저장에는 영향이 없다 — 목록에 한 줄 남을 뿐이다.
         final inboxId = widget.smsDraft!.inboxId;
@@ -533,7 +539,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           }
         }
       } else {
-        await repo.create(
+        final created = await repo.create(
           categoryRowId: _input.categoryRowId!,
           assetRowId: _input.assetRowId,
           expenseType: _input.type,
@@ -547,6 +553,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           originalCurrency: origCurrency,
           exchangeRate: fxRate,
         );
+        _notifyCreated(refundedAmount: created.refundedAmount);
       }
       await _touchAppliedPreset();
       // 원래 거래의 월 + 새 월 모두 invalidate (날짜 변경 가능성)
@@ -567,6 +574,23 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     } finally {
       if (mounted) _setSubmitting(false);
     }
+  }
+
+  /// 새 거래를 저장한 뒤의 결과 토스트 — 웹 `notifyResult(created)` 와 같다.
+  ///
+  /// 생성 응답에도 선결제 환급액이 실린다 — 열린 회차에 카드 수입을 넣어 미리 낸 돈이
+  /// 청구보다 많아지면 서버가 그만큼 결제계좌로 돌려준다(D3). 통장이 움직였으니 그 금액만
+  /// 알린다(D4, QA 26 1). 닫힌 회차 새 입력의 [잔액 고치기](D9)는 달지 않는다 — D9 는 환불·
+  /// 삭제·고쳐 쓰기의 자리이고, 새 입력은 저장 전 확인창이 이미 "기록만" 을 말했다.
+  ///
+  /// 시트는 곧 닫힌다 — 토스트는 루트 쪽 context 에 띄워 페이지에 남긴다.
+  void _notifyCreated({required int? refundedAmount}) {
+    if (!mounted) return;
+    showChangeResultToast(
+      hostContextOf(context),
+      refundedAmount: refundedAmount,
+      fixBalanceAssetId: null,
+    );
   }
 
   /// 고쳐 쓰기 저장(D13) — 확인받고 `POST /expense/{id}/replace` 로 보낸다.
@@ -650,9 +674,22 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           fixBalanceAssetId: fixBalance,
         );
       }
-    } on ApiException {
-      // 잠기지 않은 거래·중도 정리한 할부·이미 지운 거래 — 서버 메시지는 전역
-      // 인터셉터가 띄운다. 시트는 그대로 둔다.
+    } on ApiException catch (e) {
+      // 서버 메시지는 전역 인터셉터가 띄운다.
+      //
+      // 404 = 옛 거래가 이미 없다 — 응답만 못 받은 채 다시 눌렀으면 교체는 앞선 요청에서
+      // 끝났다(다른 기기에서 지웠어도 같다). 붙들고 있으면 사라진 거래를 또 고치려 들고
+      // 목록엔 옛 행이 남아 보인다 — 가계부·자산을 다시 읽게 하고 시트를 닫는다(QA 26 5).
+      // 새 거래가 어느 달에 생겼는지 모르므로 달을 가리지 않는다.
+      //
+      // 그 밖의 실패(잠기지 않은 거래·중도 정리한 할부 등)는 시트를 둔다 — 고친 값을
+      // 잃지 않고 다시 시도할 수 있다.
+      if (e.statusCode == 404) {
+        ref.invalidate(monthExpensesProvider);
+        ref.invalidate(expenseSplitsProvider(original.rowId));
+        invalidateAfterExpenseChange(ref);
+        if (mounted) Navigator.of(context).pop();
+      }
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -740,7 +777,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 이라 죽는다.
     final editedExpense = _splitSource;
     if (editedExpense != null) {
-      final sp = ref.watch(expenseSplitsProvider(editedExpense.rowId)).value;
+      final spAsync = ref.watch(expenseSplitsProvider(editedExpense.rowId));
+      final sp = spAsync.value;
+      // 고쳐 쓰기는 이 분할을 새 거래의 분할로 싣는다. 다 불러오기 전에 저장하면 분할 없이
+      // 나가 서버가 옛 분할을 옮기고, 금액을 바꿨다면 합이 안 맞아 400 이다 — 처음 불러오는
+      // 동안 저장을 막는다. 한 번이라도 실패했으면 막지 않는다(뒤에서 다시 시도하는 동안
+      // 저장을 붙잡아 두지 않는다) — 그때는 서버가 옛 분할로 판정한다.
+      _splitsPending =
+          _isReplace &&
+          spAsync.isLoading &&
+          !spAsync.hasValue &&
+          !spAsync.hasError;
       _serverSplits = sp == null
           ? const []
           : [
@@ -772,7 +819,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           // 조용히 빠진다 — 그 경로에만 있는 가드다. 고쳐 쓰기도 같다 — replace
           // 본문은 지출·수입 생성 본문이다.
           allowTransfer: !_isSmsDraft && !_isReplace,
-          onRewrite: _openRewrite,
+          // [고쳐 쓰기] 는 서버가 교체를 받는 거래에만 — 중도 정리한 할부는 잠겼어도 못
+          // 고쳐 쓴다(EXP_047). 판정이 없는 옛 서버면 잠금으로 본다(QA 26 3).
+          onRewrite:
+              editedForLock != null &&
+                  (editedForLock.replaceable ?? _input.moneyLocked)
+              ? _openRewrite
+              : null,
           presetSlot: _isEdit || _isReplace
               ? null
               : _PresetSection(
@@ -1695,6 +1748,8 @@ class _TxInputForm extends ConsumerWidget {
         ]
         // 결제가 끝난 카드 거래(D12) — 돈 칸은 회색이고, 바꾸려면 그 자리의
         // [고쳐 쓰기] 로 새 거래를 쓴다(D13). 카테고리·가맹점·메모는 그대로 고친다.
+        // 고쳐 쓸 수 없는 잠긴 거래(중도 정리한 할부)는 버튼 없이 왜 못 바꾸는지만
+        // 말한다 — 없는 버튼을 가리키면 안 된다(QA 26 3).
         else if (c.moneyLocked) ...[
           const SizedBox(height: PSpace.x8),
           Container(
@@ -1713,7 +1768,9 @@ class _TxInputForm extends ConsumerWidget {
                 const SizedBox(width: PSpace.x8),
                 Expanded(
                   child: Text(
-                    l.expMoneyLockedNote,
+                    onRewrite != null
+                        ? l.expMoneyLockedNote
+                        : l.expMoneyLockedPaidOffNote,
                     style: PTypo.caption.copyWith(color: t.fgSecondary),
                   ),
                 ),

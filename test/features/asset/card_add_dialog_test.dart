@@ -236,6 +236,26 @@ void main() {
       expect(repo.paymentDay.value, 5);
     });
 
+    // 결제일을 이미 한 번 바꿔 둔 카드(25 → 14): 8월분은 아직 옛 결제일 9/25 에 나간다.
+    // 지금 결제일(14일)로 세면 "8월분은 9월 14일" 이라는 틀린 날짜를 말한다(QA 26 4).
+    testWidgets('결제일 변경이 대기 중이면 서버가 준 그 회차의 결제일을 말한다', (tester) async {
+      await _openEdit(
+        tester,
+        _credit.copyWith(
+          cardClosedThrough: '2026-07-31',
+          nextPaymentDate: '2026-09-25',
+        ),
+      );
+      await pickDay(tester, 5);
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 8월분은 9월 25일에 결제돼요'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('물러나면 저장하지 않는다', (tester) async {
       final repo = await _openEdit(tester, _credit);
       await pickDay(tester, 5);

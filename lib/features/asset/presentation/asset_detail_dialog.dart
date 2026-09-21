@@ -1789,9 +1789,12 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
   ///
   /// 기록이 더 많으면(뒤늦게 적은 거래) 나간 돈과 나머지를, 기록이 더 적으면(지우거나
   /// 환불한 거래) 기록과 나간 돈을 말한다. 같으면 말이 없다.
+  ///
+  /// 낸 돈이 0 인 회차도 말이 없다 — "결제 완료" 자리에 이미 "기록 회차" 가 서 있어,
+  /// "계좌에서 나간 돈은 0원이에요…" 는 같은 말을 한 번 더 하는 셈이다(QA 26 확인 필요).
   String? _closedCycleLine(AppLocalizations l, _CardStatement st, bool masked) {
     final paid = st.paid;
-    if (paid == null) return null;
+    if (paid == null || paid == 0) return null;
     final recorded = st.amount;
     String money(int v) => krwSigned(v, masked, unit: true);
     if (recorded > paid) {
@@ -1946,32 +1949,39 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
   /// 되돌릴 수 있는 가장 최근 결제 — 없으면 [결제 취소] 를 숨긴다.
   ///
   /// 결제는 실행하면 되돌릴 길이 없었다 — 그 이체는 청구와 묶여 있어 잠가 뒀고 취소
-  /// 경로도 없었다. 잘못 눌렀을 때 바로 무를 수 있게 마지막 한 건을 짚어 준다.
+  /// 경로도 없었다. 잘못 눌렀을 때 바로 무를 수 있게 한 건을 짚어 준다.
   ///
-  /// 단 둘은 무를 수 없다(D6, 서버도 400 으로 막는다).
+  /// 단 둘은 무를 수 없다(D6, 서버도 400 으로 막는다) — 그런 결제는 **고르지 않고** 그
+  /// 앞의 무를 수 있는 결제를 찾는다. 가장 최근 결제만 보고 그게 못 무르는 것이면 버튼을
+  /// 숨겼더니, 닫힌 회차 자동 결제 뒤에 있던 열린 회차 선결제까지 무를 길이 없었다
+  /// (QA 26 확인 필요). 웹과 같은 판정이다.
   ///   - **결제일이 된 회차**의 결제 — 무르면 그 회차를 다시 낼 길이 없어 빚이 떠돈다.
-  ///     회차로 가른다(`periodEnd ≤ cardClosedThrough`). 결제 행의 날짜는 수동 결제면
-  ///     누른 날이라 회차의 결제일이 아니다
+  ///     회차 말일이 카드의 `cardClosedThrough` 이하이거나 서버가 내려 준 닫힌 회차 목록에
+  ///     든 회차다. 결제 행의 날짜는 수동 결제면 누른 날이라 회차의 결제일이 아니다
   ///   - **환급이 나간 회차**의 결제 — 결제만 되돌리면 돌려준 돈이 통장에 남아 유령 빚이
   ///     된다. 같은 회차에 REFUNDED 행이 있으면 그렇다
   BillingItem? _cancellablePayment(CardBilling? b) {
     final history = b?.history ?? const <BillingItem>[];
-    final done = history.where((h) => h.status == 'COMPLETED').toList();
-    if (done.isEmpty) return null;
-    final last = done.reduce(
+    final closedThrough = widget.asset.cardClosedThrough;
+    final closedStarts = {
+      for (final c in b?.closedCycles ?? const <ClosedCycle>[]) c.periodStart,
+    };
+    final refundedStarts = {
+      for (final h in history)
+        if (h.status == 'REFUNDED') h.periodStart,
+    };
+    final cancellable = history.where(
+      (h) =>
+          h.status == 'COMPLETED' &&
+          !(closedThrough != null &&
+              h.periodEnd.compareTo(closedThrough) <= 0) &&
+          !closedStarts.contains(h.periodStart) &&
+          !refundedStarts.contains(h.periodStart),
+    );
+    if (cancellable.isEmpty) return null;
+    return cancellable.reduce(
       (a, x) => x.paymentDate.compareTo(a.paymentDate) > 0 ? x : a,
     );
-    final closedThrough = widget.asset.cardClosedThrough;
-    if (closedThrough != null && last.periodEnd.compareTo(closedThrough) <= 0) {
-      return null;
-    }
-    final refunded = history.any(
-      (h) =>
-          h.status == 'REFUNDED' &&
-          h.periodStart == last.periodStart &&
-          h.periodEnd == last.periodEnd,
-    );
-    return refunded ? null : last;
   }
 
   /// 할부 중도 전액 상환 — 남은 원금이 다가오는 결제 예정액에 한 번에 잡힌다.

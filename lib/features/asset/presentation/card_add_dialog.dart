@@ -390,6 +390,9 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       oldPaymentDay: oldDay,
       cardClosedThrough: edit.cardClosedThrough,
       todayKey: today,
+      // 결제일을 이미 한 번 바꿔 둔 카드면 그 회차는 더 옛 결제일로 나간다 — 서버가 준
+      // 실제 결제일이 먼저다(QA 26 4).
+      nextPaymentDate: edit.nextPaymentDate,
     );
     final date = formatDay(DateTime.parse(pending.paymentDate)).md;
     return showPConfirmDialog(

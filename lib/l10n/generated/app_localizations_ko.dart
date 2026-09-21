@@ -6756,6 +6756,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expMoneyLockedNote => '결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요';
 
   @override
+  String get expMoneyLockedPaidOffNote =>
+      '결제가 끝난 거래예요. 중도 정리한 할부라 금액·날짜를 바꿀 수 없어요.';
+
+  @override
   String get expRewrite => '고쳐 쓰기';
 
   @override

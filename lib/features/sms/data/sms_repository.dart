@@ -113,13 +113,21 @@ class SmsCommitResult {
   const SmsCommitResult({
     required this.expenseRowId,
     required this.cardRemembered,
+    this.refundedAmount,
   });
   final int? expenseRowId;
   final bool cardRemembered;
 
+  /// 이 저장이 결제계좌로 **방금** 돌려준 금액(열린 회차 선결제 과납, D3·D4).
+  ///
+  /// 거래 생성 응답(`ExpenseResponse.refundedAmount`)과 같은 뜻이다. 지금 서버의 문자
+  /// 저장 응답에는 없어 늘 null 이다 — 서버가 실어 주면 그때부터 토스트가 뜬다.
+  final int? refundedAmount;
+
   factory SmsCommitResult.fromJson(Map<String, dynamic> j) => SmsCommitResult(
     expenseRowId: (j['expenseRowId'] as num?)?.toInt(),
     cardRemembered: j['cardRemembered'] as bool? ?? false,
+    refundedAmount: (j['refundedAmount'] as num?)?.toInt(),
   );
 }
 

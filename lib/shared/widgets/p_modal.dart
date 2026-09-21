@@ -344,13 +344,18 @@ Future<T?> showPSheet<T>(
           return Padding(
             padding: EdgeInsets.only(bottom: bottomInset),
             child: _SheetToastLayer(
+              // footer 는 본문 Column 이 아니라 층의 하단 막대 자리에 둔다 — 그래야
+              // floating 토스트가 footer 위에 선다(아래 _SheetToastLayer 설명).
+              footer: footerBuilder == null
+                  ? null
+                  : _buildSheetFooter(innerCtx, footerBuilder),
               child: _buildSheetColumn(
                 innerCtx,
                 title: title,
                 titleListenable: titleListenable,
                 headerActions: headerActions,
                 content: contentBuilder(innerCtx, scrollCtrl),
-                footerBuilder: footerBuilder,
+                footerBuilder: null,
                 expanded: true,
               ),
             ),
@@ -380,9 +385,16 @@ Future<T?> showPSheet<T>(
 /// 끌어올리는 기본형에만 둔다. shrinkWrap 형은 높이가 내용을 따라 정해지는데 Scaffold 는
 /// 받은 최대 높이를 다 차지해 시트가 화면 높이로 커진다(짧은 선택·확인 시트라 토스트를 띄운
 /// 채 머무는 일이 드물다).
+///
+/// footer 는 [Scaffold.bottomNavigationBar] 자리에 둔다. floating 토스트는 Scaffold 가 아는
+/// 하단 막대 **위**에 서는데, footer 가 본문 Column 의 마지막 줄이던 동안에는 Scaffold 가
+/// 그걸 몰라 토스트를 시트 맨 아래에 띄웠다 — 상세에서 환불한 뒤 6초짜리 토스트가
+/// [삭제][수정] 을 가렸다(QA 26). 하단 막대 자리는 가로를 꽉 채워 받고 본문은 그 위까지만
+/// 차지하므로, footer 모양·본문 높이는 Column 에 있을 때와 같다.
 class _SheetToastLayer extends StatelessWidget {
-  const _SheetToastLayer({required this.child});
+  const _SheetToastLayer({required this.child, this.footer});
   final Widget child;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -390,8 +402,26 @@ class _SheetToastLayer extends StatelessWidget {
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       body: child,
+      bottomNavigationBar: footer,
     );
   }
+}
+
+/// 시트 footer — 두 모드가 같은 모양을 쓴다(좌우 xl·위 md·아래 lg, surface 바탕).
+Widget _buildSheetFooter(
+  BuildContext ctx,
+  Widget Function(BuildContext) footerBuilder,
+) {
+  return Container(
+    padding: const EdgeInsets.fromLTRB(
+      PSpace.xl,
+      PSpace.md,
+      PSpace.xl,
+      PSpace.lg,
+    ),
+    color: ctx.tokens.bgSurface,
+    child: footerBuilder(ctx),
+  );
 }
 
 /// showPSheet 의 두 모드 (DraggableScrollableSheet / shrinkWrap) 가 공유하는
@@ -470,18 +500,8 @@ Widget _buildSheetColumn(
       // 이걸 빠뜨리면 본문만 화면 끝에 붙는다 — 실제로 카드 상세의 '지금 결제'·
       // '기간 선택' 시트가 그렇게 나갔다.
       if (expanded) Expanded(child: content) else content,
-      // Footer (옵션, 고정)
-      if (footerBuilder != null)
-        Container(
-          padding: const EdgeInsets.fromLTRB(
-            PSpace.xl,
-            PSpace.md,
-            PSpace.xl,
-            PSpace.lg,
-          ),
-          color: t.bgSurface,
-          child: footerBuilder(ctx),
-        ),
+      // Footer (옵션, 고정) — 기본형은 여기 안 온다. 층의 하단 막대 자리에 둔다.
+      if (footerBuilder != null) _buildSheetFooter(ctx, footerBuilder),
     ],
   );
 }

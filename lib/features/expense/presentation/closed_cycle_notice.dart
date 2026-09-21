@@ -50,7 +50,8 @@ bool moneyLockedOf(Expense e, Asset? asset) {
 ///   - 닫힌 회차(카드) — "기록만 바뀌고 계좌 잔액은 그대로예요."
 ///   - 할부가 닫힌 회차에 걸침 — "지난 회차분은 기록만 남아요."
 ///   - 열린 회차(카드) — "새 거래는 {그 회차 결제일} 결제에 청구돼요. 원래 거래는 이미
-///     결제된 회차에서 기록만 빠져요." 결제일은 거래 달의 다음 달 결제일이다
+///     결제된 회차에서 기록만 빠져요." 결제일은 거래 달의 다음 달 결제일이다 — 결제일
+///     변경이 대기 중인 회차면 서버가 준 실제 결제일(`nextPaymentDate`)
 ///   - 그 밖(계좌·현금·자산 없음·결제일 없는 카드) — 첫 문장만. 청구 회차가 없으니
 ///     결제일을 말할 수 없다
 String rewriteConfirmMessage(
@@ -74,7 +75,11 @@ String rewriteConfirmMessage(
     case ClosedCycleSpan.none:
       final day = newAsset.paymentDay;
       if (day == null) return lead;
-      final pay = DateTime.parse(cardCyclePaymentDate(dateKey, day));
+      // 결제일 변경이 대기 중이면 그 회차는 옛 결제일에 나간다(D5) — 서버가 준 실제
+      // 결제일을 쓰고, 그 뒤 회차만 지금 결제일로 센다(QA 26 4).
+      final pay = DateTime.parse(
+        cyclePaymentDate(dateKey, day, newAsset.nextPaymentDate),
+      );
       return '$lead ${l.expRewriteConfirmOpen(formatDay(pay).md)}';
   }
 }
@@ -94,8 +99,25 @@ String withClosedCycleNote(
 ///
 /// 닫힌 회차의 변경은 통장을 안 움직인다. 카드사가 실제로 돈을 돌려줬다면 사용자가
 /// 그 계좌의 잔액을 고쳐야 한다 — 그 수정 폼으로 바로 보내는 바로가기다.
-int? fixBalanceTargetOf(Expense e, Asset? asset) {
-  if (closedCycleSpanOfExpense(e, asset) == ClosedCycleSpan.none) return null;
+int? fixBalanceTargetOf(Expense e, Asset? asset) => fixBalanceTargetFor(
+  asset,
+  dateKey: e.expenseDate,
+  installmentMonths: e.installmentMonths,
+);
+
+/// [fixBalanceTargetOf] 의 재료판 — 아직 거래가 없는 자리(새 저장·문자 저장)가 폼의
+/// 카드·날짜·할부로 묻는다.
+int? fixBalanceTargetFor(
+  Asset? asset, {
+  required String? dateKey,
+  int? installmentMonths,
+}) {
+  final span = closedCycleSpanFor(
+    asset,
+    dateKey: dateKey,
+    installmentMonths: installmentMonths,
+  );
+  if (span == ClosedCycleSpan.none) return null;
   return asset?.paymentAssetRowId;
 }
 

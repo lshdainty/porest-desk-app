@@ -6868,6 +6868,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'This transaction has already been paid. To change the amount or date, tap Rewrite';
 
   @override
+  String get expMoneyLockedPaidOffNote =>
+      'This transaction has already been paid. It is a paid-off installment, so the amount and date can\'t be changed.';
+
+  @override
   String get expRewrite => 'Rewrite';
 
   @override

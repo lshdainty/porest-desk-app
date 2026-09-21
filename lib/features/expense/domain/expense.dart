@@ -64,6 +64,13 @@ abstract class Expense with _$Expense {
     /// 옛 서버면 false.
     @Default(false) bool moneyLocked,
 
+    /// [고쳐 쓰기] 를 쓸 수 있는 거래인가 — 잠겼고(`moneyLocked`) 환불 안 됐고 자동 생성이
+    /// 아니고 중도 정리하지 않은 할부. 서버가 판정해 내려 준다(QA 26 3).
+    ///
+    /// 잠겼는데 이게 false 면 사실상 중도 정리한 할부다 — 서버가 교체를 EXP_047 로 거절한다.
+    /// 옛 서버면 없다(null) — 그때는 잠금으로 본다.
+    bool? replaceable,
+
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
     double? originalAmount,
 

@@ -65,6 +65,35 @@ void main() {
   });
 
   // 결제일을 바꿔도 아직 결제 전인 회차는 옛 결제일에 결제된다(D5) — 확인창 문구의 재료.
+  // 결제일 변경이 대기 중인 카드 — 서버가 첫 열린 회차의 실제 결제일(`nextPaymentDate`)을
+  // 내려 준다. 그 회차는 그 날짜로, 그 뒤 회차는 지금 결제일로 센다(QA 26 4).
+  group('회차의 실제 결제일 — nextPaymentDate', () {
+    test('결제일의 전달이 그 회차의 이용 달이다', () {
+      expect(cycleMonthOfPaymentDate('2026-09-25'), '2026-08');
+      expect(cycleMonthOfPaymentDate('2027-01-10'), '2026-12');
+    });
+
+    test('그 회차 날짜면 서버가 준 결제일, 그 뒤 회차는 지금 결제일', () {
+      // 25일 → 21일 → 10일로 바꾼 카드: 8월분은 옛 결제일 9/25, 9월분부터 10일.
+      expect(cyclePaymentDate('2026-08-20', 10, '2026-09-25'), '2026-09-25');
+      expect(cyclePaymentDate('2026-09-03', 10, '2026-09-25'), '2026-10-10');
+    });
+
+    test('서버가 안 주면 지금 결제일로만 센다', () {
+      expect(cyclePaymentDate('2026-08-20', 10, null), '2026-09-10');
+    });
+
+    test('결제일 변경 확인창도 그 회차를 쓴다', () {
+      final p = pendingCycleOnOldDay(
+        oldPaymentDay: 21,
+        cardClosedThrough: '2026-07-31',
+        todayKey: '2026-09-21',
+        nextPaymentDate: '2026-09-25',
+      );
+      expect((p.year, p.month, p.paymentDate), (2026, 8, '2026-09-25'));
+    });
+  });
+
   group('결제일 변경 — 옛 결제일로 결제되는 회차', () {
     test('닫힌 회차 경계의 다음 달 회차다', () {
       // 25일 카드, 9/14 — 7월분까지 닫혔다. 8월분은 옛 결제일 9/25 에 결제된다.
