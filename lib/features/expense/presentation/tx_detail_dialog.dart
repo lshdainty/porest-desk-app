@@ -585,11 +585,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         PDetailSection(
           child: Row(
             children: [
-              // 환불 — 지출에만, 아직 환불 안 한 것만. 누르면 확인 다이얼로그(환불일)
-              // 이고, 확인하면 원거래에 표식이 찍혀 합계에서 빠진다. 시트를 닫지 않는다
-              // — 표식이 찍힌 모습(배너)을 그 자리에서 보여 준다. 시스템이 만든 거래
-              // (카드 이월 등)는 서버가 환불을 거절하므로 띄우지 않는다(23차 10).
-              if (!isIncome && !e.isRefunded && e.autoSource == null)
+              // 환불 — 누르면 확인 다이얼로그(환불일)이고, 확인하면 원거래에 표식이
+              // 찍혀 합계에서 빠진다. 시트를 닫지 않는다 — 표식이 찍힌 모습(배너)을 그
+              // 자리에서 보여 준다. 띄울지는 [ExpenseActions.canRefund] 하나가 정한다
+              // (지출·환불 전·사람이 쓴 거래·거래일이 오늘 이전).
+              if (expenseActions.canRefund(e))
                 Expanded(
                   child: PDetailQuickAction(
                     icon: LucideIcons.undo2,

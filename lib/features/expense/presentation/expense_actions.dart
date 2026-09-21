@@ -32,6 +32,29 @@ class ExpenseActions implements ItemActions<Expense> {
   @override
   bool canEdit(Expense e) => e.autoSource == null && !e.isRefunded;
 
+  /// 환불할 수 있는 거래인가 — [환불] 을 띄우는 자리는 이 판정 하나를 본다.
+  ///
+  /// 지출만, 아직 환불 안 한 것만, 사람이 쓴 것만이다(카드 이월 같은 시스템 거래는
+  /// 서버가 환불을 거절한다, 23차 10). 그리고 **거래일이 오늘보다 뒤인 예정 거래는
+  /// 뺀다** — 환불일은 거래일부터 오늘까지만 받으므로(D16) 어떤 날짜를 골라도 서버가
+  /// 거절한다. 날짜만 견준다(기기 날짜) — 오늘 날짜인데 시각만 뒤인 거래는 오늘을
+  /// 환불일로 받으니 둔다. 거래일이 지나면 버튼이 나타난다. 서버의 거절은 그대로다.
+  ///
+  /// 지금 [환불] 은 상세에만 있다 — 행 스와이프는 수정·삭제뿐이다(웹도 같다).
+  bool canRefund(Expense e, {DateTime? now}) {
+    if (e.expenseType == 'INCOME' || e.isRefunded || e.autoSource != null) {
+      return false;
+    }
+    final raw = e.expenseDate;
+    if (raw == null || raw.length < 10) return true;
+    final n = now ?? DateTime.now();
+    final today =
+        '${n.year.toString().padLeft(4, '0')}-'
+        '${n.month.toString().padLeft(2, '0')}-'
+        '${n.day.toString().padLeft(2, '0')}';
+    return raw.substring(0, 10).compareTo(today) <= 0;
+  }
+
   @override
   String deleteConfirmTitle(BuildContext context, Expense e) =>
       AppLocalizations.of(context).expDelete;

@@ -38,8 +38,11 @@ Future<String?> showRefundConfirmDialog(
 /// 환불일로 고를 수 있는 범위 — 거래일부터 오늘까지(D16).
 ///
 /// 날짜만 견준다(시각을 버린다). 칸이 `YYYY-MM-DD` 를 자정으로 읽으므로 거래 시각을
-/// 남겨 두면 거래일 당일이 범위 밖으로 떨어진다. 아직 오지 않은 거래(예정)는 거래일이
-/// 오늘보다 뒤라 범위가 뒤집힌다 — 그때는 오늘 하루로 좁혀 두고 판정은 서버에 맡긴다.
+/// 남겨 두면 거래일 당일이 범위 밖으로 떨어진다.
+///
+/// 거래일이 오늘보다 뒤인 예정 거래에는 [환불] 이 아예 없다
+/// (`ExpenseActions.canRefund`). 그래도 범위가 뒤집히지 않게만 막아 둔다 — 시트를
+/// 연 채 기기 날짜가 거꾸로 바뀌는 경우까지 달력이 깨질 까닭은 없다.
 ({DateTime first, DateTime last}) refundDateRange(
   Expense expense, {
   DateTime? now,

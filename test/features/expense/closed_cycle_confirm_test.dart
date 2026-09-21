@@ -356,7 +356,8 @@ void main() {
       expect(r.last, DateTime(2026, 9, 21));
     });
 
-    test('아직 오지 않은 거래면 범위가 뒤집히지 않게 오늘로 좁힌다', () {
+    // 예정 거래에는 [환불] 이 없다(canRefund) — 이건 달력이 깨지지 않게 두는 방어다.
+    test('거래일이 오늘보다 뒤여도 범위가 뒤집히지 않는다', () {
       final r = refundDateRange(
         _closed.copyWith(expenseDate: '2026-10-01T09:00:00'),
         now: DateTime(2026, 9, 21, 8),

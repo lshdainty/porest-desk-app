@@ -1,5 +1,5 @@
-// 확인창은 돈과 기록이 갈리는 자리에만(Q1) — 사용자 결정 2026-09-21. 웹도 같은
-// 규칙이다.
+// 확인창은 돈과 기록이 갈리는 자리에만(Q1), 예정 거래에는 [환불] 이 없다(Q2)
+// — 사용자 결정 2026-09-21. 웹도 같은 규칙이다.
 //
 // Q1 저장 확인창
 //   - 잠긴 거래(결제 끝남)의 편집 저장 — 묻지 않고 한 번에 저장한다(카테고리·가맹점·
@@ -7,6 +7,10 @@
 //   - 열린 회차 거래를 닫힌 회차 날짜로 옮기는 편집 저장 — 묻는다
 //   - 열린 회차 거래를 열린 회차 안에서 고치는 저장 — 묻지 않는다
 //   - 닫힌 회차로 들어가는 새 저장 — 묻는다
+// Q2 [환불]
+//   - 거래일이 오늘보다 뒤면 없다(환불일은 거래일~오늘이라 서버가 어떤 날짜로도 거절한다)
+//   - 오늘·지난 날이면 있다. 오늘인데 시각만 뒤여도 있다
+//   - 판정은 `expenseActions.canRefund` 하나다. 행 스와이프에는 [환불] 이 없다
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,12 +26,15 @@ import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
+import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 
 const _closedLine = '이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
 
@@ -163,6 +170,14 @@ Finder _fieldWith(String text) =>
 Finder _submit(String label) =>
     find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
 
+/// 기기 날짜 기준 [days] 날 뒤(음수면 앞)의 `yyyy-MM-dd`.
+String _dayKey(int days) {
+  final d = DateTime.now().add(Duration(days: days));
+  return '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+}
+
 void main() {
   group('Q1 편집 저장 — 확인창은 돈과 기록이 갈리는 자리에만', () {
     Future<_FakeRepo> openEdit(WidgetTester tester, Expense e) async {
@@ -238,6 +253,107 @@ void main() {
       await tester.tap(find.text('저장').last);
       await tester.pumpAndSettle();
       expect(repo.creates, hasLength(1));
+    });
+  });
+
+  group('Q2 [환불] — 예정 거래에는 없다', () {
+    test('판정 하나 — 거래일이 오늘보다 뒤면 거짓, 날짜만 본다', () {
+      final now = DateTime(2026, 9, 21, 9, 30);
+      bool can(String date) =>
+          expenseActions.canRefund(_open.copyWith(expenseDate: date), now: now);
+
+      expect(can('2026-09-22T00:00:00'), isFalse);
+      expect(can('2026-10-01T09:00:00'), isFalse);
+      expect(can('2026-09-21T23:59:00'), isTrue, reason: '오늘인데 시각만 뒤');
+      expect(can('2026-09-21T00:00:00'), isTrue);
+      expect(can('2026-08-20T10:00:00'), isTrue);
+    });
+
+    test('수입·환불된 거래·시스템 거래는 날짜와 무관하게 거짓', () {
+      final now = DateTime(2026, 9, 21);
+      expect(
+        expenseActions.canRefund(
+          _open.copyWith(expenseType: 'INCOME'),
+          now: now,
+        ),
+        isFalse,
+      );
+      expect(
+        expenseActions.canRefund(
+          _open.copyWith(refundedAt: '2026-09-15T12:00:00'),
+          now: now,
+        ),
+        isFalse,
+      );
+      expect(
+        expenseActions.canRefund(
+          _open.copyWith(autoSource: 'CARD_CARRYOVER'),
+          now: now,
+        ),
+        isFalse,
+      );
+    });
+
+    Future<void> openDetail(WidgetTester tester, Expense e) async {
+      await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, e)));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('상세 — 거래일이 내일 뒤면 [환불] 이 없다', (tester) async {
+      await openDetail(
+        tester,
+        _open.copyWith(expenseDate: '${_dayKey(2)}T09:00:00'),
+      );
+
+      expect(find.text('환불'), findsNothing);
+      expect(find.text('내역 분할'), findsOneWidget, reason: '다른 동작은 그대로');
+    });
+
+    testWidgets('상세 — 오늘 거래는 시각이 뒤여도 [환불] 이 있다', (tester) async {
+      await openDetail(
+        tester,
+        _open.copyWith(expenseDate: '${_dayKey(0)}T23:59:59'),
+      );
+
+      expect(find.text('환불'), findsOneWidget);
+    });
+
+    testWidgets('상세 — 지난 거래는 [환불] 이 있다', (tester) async {
+      await openDetail(
+        tester,
+        _open.copyWith(expenseDate: '${_dayKey(-3)}T09:00:00'),
+      );
+
+      expect(find.text('환불'), findsOneWidget);
+    });
+
+    testWidgets('스와이프 — [환불] 은 없다(수정·삭제뿐), 예정 거래도 같다', (tester) async {
+      late List<PSwipeAction> future;
+      late List<PSwipeAction> past;
+      await _pump(
+        tester,
+        Consumer(
+          builder: (ctx, ref, _) {
+            future = expenseActions.swipeActions(
+              ctx,
+              ref,
+              _open.copyWith(expenseDate: '${_dayKey(2)}T09:00:00'),
+              asset: _card,
+            );
+            past = expenseActions.swipeActions(
+              ctx,
+              ref,
+              _open.copyWith(expenseDate: '${_dayKey(-3)}T09:00:00'),
+              asset: _card,
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
+
+      expect(future.map((a) => a.label), ['수정', '삭제']);
+      expect(past.map((a) => a.label), ['수정', '삭제']);
     });
   });
 }
