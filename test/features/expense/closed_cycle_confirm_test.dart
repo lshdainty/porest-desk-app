@@ -381,7 +381,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(repo.refundedAt, endsWith('T12:00:00'));
-      expect(find.text('미리 낸 돈 중 8,000원이 계좌로 돌아왔어요'), findsOneWidget);
+      // 상세 시트가 열린 채 뜬다 — 시트 위에 보여야 한다(Q5, 전엔 시트 아래 페이지에만 그려져 가려졌다).
+      expect(
+        find.descendant(
+          of: find.byType(DraggableScrollableSheet),
+          matching: find.text('미리 낸 돈 중 8,000원이 계좌로 돌아왔어요'),
+        ),
+        findsOneWidget,
+      );
       await _drainToast(tester);
     });
   });
