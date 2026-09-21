@@ -6837,6 +6837,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Installments from past cycles stay as records only.';
 
   @override
+  String get expRecordOnlyChangedToast =>
+      'Only the record changed. Your account balance stays the same';
+
+  @override
+  String get expFixBalance => 'Fix balance';
+
+  @override
   String get expSaveConfirmTitle => 'Save this?';
 
   @override

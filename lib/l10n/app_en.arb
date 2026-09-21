@@ -3972,6 +3972,8 @@
   },
   "expClosedCycleLine": "This cycle has already been paid. Only the record changes, and your account balance stays the same.",
   "expClosedCyclePartLine": "Installments from past cycles stay as records only.",
+  "expRecordOnlyChangedToast": "Only the record changed. Your account balance stays the same",
+  "expFixBalance": "Fix balance",
   "expSaveConfirmTitle": "Save this?",
   "assetRecordedOnlyNote": "{amount} of this is record only. It was not taken from your account",
   "@assetRecordedOnlyNote": {

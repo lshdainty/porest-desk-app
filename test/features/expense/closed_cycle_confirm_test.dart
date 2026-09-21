@@ -174,7 +174,7 @@ Future<void> _pumpApp(
 
 /// 토스트가 스스로 닫히게 둔다 — 남은 타이머가 있으면 테스트가 끝나며 실패한다.
 Future<void> _drainToast(WidgetTester tester) async {
-  await tester.pump(const Duration(seconds: 5));
+  await tester.pump(const Duration(seconds: 7));
   await tester.pumpAndSettle();
 }
 

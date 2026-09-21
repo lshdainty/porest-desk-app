@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
 import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -39,23 +40,53 @@ String withClosedCycleNote(
   return note == null ? message : '$message\n\n$note';
 }
 
+/// [잔액 고치기] 가 갈 결제계좌 — 닫힌 회차에 걸린 신용카드 거래이고 결제계좌가
+/// 있을 때만(D9). 없으면 null.
+///
+/// 닫힌 회차의 변경은 통장을 안 움직인다. 카드사가 실제로 돈을 돌려줬다면 사용자가
+/// 그 계좌의 잔액을 고쳐야 한다 — 그 수정 폼으로 바로 보내는 바로가기다.
+int? fixBalanceTargetOf(Expense e, Asset? asset) {
+  if (closedCycleSpanOfExpense(e, asset) == ClosedCycleSpan.none) return null;
+  return asset?.paymentAssetRowId;
+}
+
 /// 바꾼 뒤의 결과 토스트 — 미리 낸 돈이 계좌로 돌아왔으면 그 금액을 말한다(D4).
 ///
 /// 미리보기는 없다. 열린 회차에서 미리 낸 돈이 남을 때만 서버가 결제계좌로 돌려주고,
 /// 그 금액이 응답에 실려 온다 — 사후에 한 번 알린다(스와이프 삭제 포함).
 ///
+/// [fixBalanceAssetId] 가 있으면(닫힌 회차 거래의 환불·삭제·고쳐 쓰기, D9) 토스트에
+/// [잔액 고치기] 를 단다 — 돌려받은 돈이 없어도 "기록만 바뀌고 계좌 잔액은 그대로" 를
+/// 말하며 띄운다. 둘 다 없으면 조용히 끝난다.
+///
 /// [host] 는 시트·행보다 오래 사는 context 다 — 지운 뒤 시트가 닫히고 행이 사라져도
-/// 토스트는 떠야 한다.
-void showChangeResultToast(BuildContext host, {required int? refundedAmount}) {
+/// 토스트는 떠야 하고, 버튼은 그 뒤에 눌린다.
+void showChangeResultToast(
+  BuildContext host, {
+  required int? refundedAmount,
+  int? fixBalanceAssetId,
+}) {
   if (!host.mounted) return;
+  final l = AppLocalizations.of(host);
   final refunded = refundedAmount ?? 0;
-  if (refunded <= 0) return;
+  final String message;
+  if (refunded > 0) {
+    message = l.expRefundedToast(krwSigned(refunded, false, unit: true));
+  } else if (fixBalanceAssetId != null) {
+    message = l.expRecordOnlyChangedToast;
+  } else {
+    return;
+  }
   PToast.show(
     host,
-    message: AppLocalizations.of(
-      host,
-    ).expRefundedToast(krwSigned(refunded, false, unit: true)),
-    tone: PToastTone.success,
+    message: message,
+    tone: refunded > 0 ? PToastTone.success : PToastTone.info,
+    // 누를 버튼이 있으면 조금 더 오래 둔다 — 3초는 읽고 누르기에 짧다.
+    duration: Duration(seconds: fixBalanceAssetId != null ? 6 : 3),
+    actionLabel: fixBalanceAssetId != null ? l.expFixBalance : null,
+    onAction: fixBalanceAssetId == null
+        ? null
+        : () => pushAssetEdit(host, fixBalanceAssetId),
   );
 }
 

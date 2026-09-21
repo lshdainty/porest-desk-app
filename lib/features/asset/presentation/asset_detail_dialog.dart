@@ -39,6 +39,7 @@ import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_actions.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
 import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_trade_sheet.dart';
@@ -123,7 +124,9 @@ class _DetailFooterState extends ConsumerState<_DetailFooter> {
         if (widget.onEdit != null) {
           widget.onEdit!();
         } else {
-          context.push('/account-card-manage');
+          // 관리 화면 목록이 아니라 이 자산의 수정 폼으로 바로 간다(D9) —
+          // [잔액 고치기]와 같은 경로다.
+          pushAssetEdit(context, widget.asset.rowId);
         }
       },
     );
@@ -2087,7 +2090,8 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     if (widget.onEdit != null) {
       widget.onEdit!();
     } else {
-      context.push('/account-card-manage');
+      // 상세 [수정]과 같은 경로 — 이 카드의 수정 폼으로 바로 간다(D9).
+      pushAssetEdit(context, widget.asset.rowId);
     }
   }
 

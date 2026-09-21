@@ -17,6 +17,7 @@ import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
 import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
@@ -143,7 +144,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     _setDeleting(true);
     try {
-      final deleted = await expenseActions.delete(context, ref, _e);
+      final deleted = await expenseActions.delete(
+        context,
+        ref,
+        _e,
+        asset: asset,
+      );
       if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) _setDeleting(false);
@@ -170,6 +176,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         ref,
         _e,
         refundedAt: picked,
+        asset: asset,
       );
       if (updated != null && mounted) setState(() => _e = updated);
     } finally {
@@ -209,6 +216,15 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     }
   }
 
+  /// [잔액 고치기] — 이 시트를 닫고 결제계좌의 수정 폼으로 간다(D9).
+  ///
+  /// 시트가 닫히면 이 context 가 풀리므로 오래 사는 자리를 먼저 짚어 둔다.
+  void _openFixBalance(int paymentAssetRowId) {
+    final host = hostContextOf(context);
+    Navigator.of(context).pop();
+    pushAssetEdit(host, paymentAssetRowId);
+  }
+
   String _paymentMethodLabel(AppLocalizations l, String? m) => switch (m) {
     'CASH' => l.expPayCash,
     'CARD' => l.expPayCard,
@@ -243,6 +259,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final assets = ref.watch(assetsProvider).value ?? const [];
     final asset = assets.where((a) => a.rowId == e.assetRowId).firstOrNull;
     _assetForDelete = asset;
+    // 결제가 끝난 회차에 걸린 카드 거래면 결제계좌 — 환불됨 배너의 [잔액 고치기].
+    final fixBalance = fixBalanceTargetOf(e, asset);
     final assetLabel = asset == null
         ? null
         : (asset.institution != null && asset.institution!.isNotEmpty
@@ -444,7 +462,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           ),
 
         // 환불됨 — 이 거래는 합계에서 빠져 있다. 되돌릴 자리를 함께 준다.
-        // 웹도 같은 자리·같은 문구다(설계서 7절).
+        // 웹도 같은 자리·같은 문구다(설계서 7절). 결제가 끝난 회차의 카드 거래면
+        // 통장은 그대로라 결제계좌 수정 폼으로 가는 [잔액 고치기] 를 단다(D9).
         if (e.isRefunded)
           PDetailSection(
             child: Container(
@@ -456,26 +475,45 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 color: t.bgMuted,
                 borderRadius: PRadius.brMd,
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(LucideIcons.undo2, size: 15, color: t.fgTertiary),
-                  const SizedBox(width: PSpace.x8),
-                  Expanded(
-                    child: Text(
-                      l.expRefundedAt(e.refundedAt!.substring(0, 10)),
-                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                  Row(
+                    children: [
+                      Icon(LucideIcons.undo2, size: 15, color: t.fgTertiary),
+                      const SizedBox(width: PSpace.x8),
+                      Expanded(
+                        child: Text(
+                          l.expRefundedAt(e.refundedAt!.substring(0, 10)),
+                          style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      PButton(
+                        label: l.expRefundCancel,
+                        variant: PButtonVariant.outline,
+                        size: PButtonSize.sm,
+                        loading: _refunding,
+                        onPressed: _deleting || _refunding
+                            ? null
+                            : () => _cancelRefund(asset),
+                      ),
+                    ],
+                  ),
+                  if (fixBalance != null) ...[
+                    const SizedBox(height: PSpace.x8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: PButton(
+                        label: l.expFixBalance,
+                        variant: PButtonVariant.outline,
+                        size: PButtonSize.sm,
+                        onPressed: _deleting || _refunding
+                            ? null
+                            : () => _openFixBalance(fixBalance),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  PButton(
-                    label: l.expRefundCancel,
-                    variant: PButtonVariant.outline,
-                    size: PButtonSize.sm,
-                    loading: _refunding,
-                    onPressed: _deleting || _refunding
-                        ? null
-                        : () => _cancelRefund(asset),
-                  ),
+                  ],
                 ],
               ),
             ),

@@ -6728,6 +6728,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expClosedCyclePartLine => '지난 회차분은 기록만 남아요.';
 
   @override
+  String get expRecordOnlyChangedToast => '기록만 바뀌고 계좌 잔액은 그대로예요';
+
+  @override
+  String get expFixBalance => '잔액 고치기';
+
+  @override
   String get expSaveConfirmTitle => '저장할까요?';
 
   @override

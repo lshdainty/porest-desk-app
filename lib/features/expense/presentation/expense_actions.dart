@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -89,7 +90,7 @@ class ExpenseActions implements ItemActions<Expense> {
           kind: PSwipeKind.destructive,
           confirmTitle: deleteConfirmTitle(context, e),
           confirmMessage: deleteConfirmMessageWith(context, e, asset),
-          onSelect: () => delete(context, ref, e),
+          onSelect: () => delete(context, ref, e, asset: asset),
         ),
     ];
   }
@@ -98,15 +99,32 @@ class ExpenseActions implements ItemActions<Expense> {
   ///
   /// 열린 회차에서 미리 낸 돈이 남아 결제계좌로 돌아갔으면 그 금액을 토스트로 알린다
   /// (D4) — 스와이프로 지워도 같다. 미리보기가 없으니 예고한 금액과 견주지 않는다.
+  /// 결제가 끝난 회차의 거래였으면 토스트에 [잔액 고치기] 를 단다(D9).
+  ///
+  /// [asset] 은 부르는 쪽이 이미 들고 있는 그 거래의 자산이다(목록·상세 둘 다 자산
+  /// 목록을 보고 있다). 안 주면 자산 목록 캐시에서 찾는다.
   @override
-  Future<bool> delete(BuildContext context, WidgetRef ref, Expense e) async {
+  Future<bool> delete(
+    BuildContext context,
+    WidgetRef ref,
+    Expense e, {
+    Asset? asset,
+  }) async {
     // 행은 지워지며 사라지고 상세 시트는 닫힌다 — 토스트는 그보다 오래 사는 자리에.
     final host = hostContextOf(context);
+    // 지우기 전에 짚어 둔다 — 결제가 끝난 회차였으면 [잔액 고치기] 를 단다(D9).
+    final fixBalance = fixBalanceTargetOf(e, asset ?? assetOfExpense(ref, e));
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       final refunded = await repo.delete(e.rowId);
       _invalidateAfterDelete(ref, e);
-      if (host.mounted) showChangeResultToast(host, refundedAmount: refunded);
+      if (host.mounted) {
+        showChangeResultToast(
+          host,
+          refundedAmount: refunded,
+          fixBalanceAssetId: fixBalance,
+        );
+      }
       return true;
     } on ApiException {
       return false;
@@ -126,21 +144,27 @@ class ExpenseActions implements ItemActions<Expense> {
   /// 쓰지 않는 문구를 안고 있게 된다.
   ///
   /// 성공하면 서버가 돌려준 거래를 준다 — 상세가 그걸로 다시 그려 배너가 뜬다.
-  /// 미리 낸 돈이 계좌로 돌아갔으면 토스트로 알린다(D4). 실패는 null 이다(토스트는
-  /// 인터셉터가 이미 띄웠다).
+  /// 미리 낸 돈이 계좌로 돌아갔으면 토스트로 알리고(D4), 결제가 끝난 회차였으면
+  /// [잔액 고치기] 를 단다(D9). 실패는 null 이다(토스트는 인터셉터가 이미 띄웠다).
   Future<Expense?> refund(
     BuildContext context,
     WidgetRef ref,
     Expense e, {
     String? refundedAt,
+    Asset? asset,
   }) async {
     final host = hostContextOf(context);
+    final fixBalance = fixBalanceTargetOf(e, asset ?? assetOfExpense(ref, e));
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       final updated = await repo.refund(e.rowId, refundedAt: refundedAt);
       _invalidateAfterRefund(ref);
       if (host.mounted) {
-        showChangeResultToast(host, refundedAmount: updated.refundedAmount);
+        showChangeResultToast(
+          host,
+          refundedAmount: updated.refundedAmount,
+          fixBalanceAssetId: fixBalance,
+        );
       }
       return updated;
     } on ApiException {
@@ -185,4 +209,11 @@ class ExpenseActions implements ItemActions<Expense> {
     // 바뀌었다(캐시 무효화 범위 확장). 자산뿐 아니라 통계까지 같이 다시 읽는다.
     invalidateAfterExpenseChange(ref);
   }
+}
+
+/// 거래가 단 자산 — 확인창 문구와 결과 토스트가 카드인지·닫힌 회차인지 본다.
+Asset? assetOfExpense(WidgetRef ref, Expense e) {
+  final id = e.assetRowId;
+  if (id == null) return null;
+  return ref.read(assetsProvider).value?.byRowId(id);
 }

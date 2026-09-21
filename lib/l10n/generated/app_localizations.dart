@@ -12332,6 +12332,18 @@ abstract class AppLocalizations {
   /// **'지난 회차분은 기록만 남아요.'**
   String get expClosedCyclePartLine;
 
+  /// No description provided for @expRecordOnlyChangedToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록만 바뀌고 계좌 잔액은 그대로예요'**
+  String get expRecordOnlyChangedToast;
+
+  /// No description provided for @expFixBalance.
+  ///
+  /// In ko, this message translates to:
+  /// **'잔액 고치기'**
+  String get expFixBalance;
+
   /// No description provided for @expSaveConfirmTitle.
   ///
   /// In ko, this message translates to:

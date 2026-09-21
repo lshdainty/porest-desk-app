@@ -108,9 +108,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
+      // `?edit=<자산 id>` 면 그 자산의 수정 폼을 바로 연다(D9 — [잔액 고치기]·자산 상세
+      // [수정]). 없거나 못 찾으면 목록으로 들어온다.
       GoRoute(
         path: '/account-card-manage',
-        builder: (_, _) => const AccountCardManageScreen(),
+        builder: (_, state) => AccountCardManageScreen(
+          editAssetId: int.tryParse(state.uri.queryParameters['edit'] ?? ''),
+        ),
       ),
       // /assets, /budget, /stats 는 shell branch 1 (가계부) 안 sub-routes 로
       // 이동 — 하단바 (MoneyTabBar) 가 shell scaffold 가 한 번 build 되어

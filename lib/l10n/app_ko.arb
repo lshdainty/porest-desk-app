@@ -4122,6 +4122,8 @@
   },
   "expClosedCycleLine": "이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.",
   "expClosedCyclePartLine": "지난 회차분은 기록만 남아요.",
+  "expRecordOnlyChangedToast": "기록만 바뀌고 계좌 잔액은 그대로예요",
+  "expFixBalance": "잔액 고치기",
   "expSaveConfirmTitle": "저장할까요?",
   "assetRecordedOnlyNote": "이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요",
   "@assetRecordedOnlyNote": {
