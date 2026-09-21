@@ -94,8 +94,25 @@ String withClosedCycleNote(
 ///
 /// 닫힌 회차의 변경은 통장을 안 움직인다. 카드사가 실제로 돈을 돌려줬다면 사용자가
 /// 그 계좌의 잔액을 고쳐야 한다 — 그 수정 폼으로 바로 보내는 바로가기다.
-int? fixBalanceTargetOf(Expense e, Asset? asset) {
-  if (closedCycleSpanOfExpense(e, asset) == ClosedCycleSpan.none) return null;
+int? fixBalanceTargetOf(Expense e, Asset? asset) => fixBalanceTargetFor(
+  asset,
+  dateKey: e.expenseDate,
+  installmentMonths: e.installmentMonths,
+);
+
+/// [fixBalanceTargetOf] 의 재료판 — 아직 거래가 없는 자리(새 저장·문자 저장)가 폼의
+/// 카드·날짜·할부로 묻는다.
+int? fixBalanceTargetFor(
+  Asset? asset, {
+  required String? dateKey,
+  int? installmentMonths,
+}) {
+  final span = closedCycleSpanFor(
+    asset,
+    dateKey: dateKey,
+    installmentMonths: installmentMonths,
+  );
+  if (span == ClosedCycleSpan.none) return null;
   return asset?.paymentAssetRowId;
 }
 

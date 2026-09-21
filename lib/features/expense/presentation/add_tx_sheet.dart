@@ -504,7 +504,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         // 결제 문자는 전용 경로로 저장한다 — 서버가 원문을 다시 봐 취소 문자를 막고,
         // 체크했다면 (카드 힌트 → 자산) 을 기억한다. 저장 자체는 같은 지출 생성이다.
         final smsRepo = await ref.read(smsRepositoryProvider.future);
-        await smsRepo.commit(
+        final committed = await smsRepo.commit(
           text: widget.smsDraft!.text,
           assetRowId: _input.assetRowId,
           categoryRowId: _input.categoryRowId,
@@ -522,6 +522,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           exchangeRate: fxRate,
           rememberCard: _input.assetRowId != null && _input.smsRememberCard,
         );
+        _notifyCreated(
+          refundedAmount: committed.refundedAmount,
+          installment: installment,
+        );
         // 수신 보관함에서 온 문자면 기록됐으니 목록에서 뺀다.
         // 실패해도 본 저장에는 영향이 없다 — 목록에 한 줄 남을 뿐이다.
         final inboxId = widget.smsDraft!.inboxId;
@@ -533,7 +537,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           }
         }
       } else {
-        await repo.create(
+        final created = await repo.create(
           categoryRowId: _input.categoryRowId!,
           assetRowId: _input.assetRowId,
           expenseType: _input.type,
@@ -546,6 +550,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           originalAmount: origAmount,
           originalCurrency: origCurrency,
           exchangeRate: fxRate,
+        );
+        _notifyCreated(
+          refundedAmount: created.refundedAmount,
+          installment: installment,
         );
       }
       await _touchAppliedPreset();
@@ -567,6 +575,31 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     } finally {
       if (mounted) _setSubmitting(false);
     }
+  }
+
+  /// 새 거래를 저장한 뒤의 결과 토스트 — 웹 `notifyResult(created, …)` 와 같은 갈래.
+  ///
+  /// 생성 응답에도 선결제 환급액이 실린다 — 열린 회차에 카드 수입을 넣어 미리 낸 돈이
+  /// 청구보다 많아지면 서버가 그만큼 결제계좌로 돌려준다(D3). 통장이 움직였으니 알린다
+  /// (D4, QA 26 1). 결제가 끝난 회차로 들어간 카드 거래면 통장은 그대로라는 한 문구와
+  /// 결제계좌의 [잔액 고치기] 를 단다(D9) — 삭제·환불·고쳐 쓰기와 같은 토스트다.
+  ///
+  /// 시트는 곧 닫힌다 — 토스트는 루트 쪽 context 에 띄워 페이지에 남긴다.
+  void _notifyCreated({required int? refundedAmount, int? installment}) {
+    if (!mounted) return;
+    final id = _input.assetRowId;
+    final asset = id == null
+        ? null
+        : (ref.read(assetsProvider).value ?? const <Asset>[]).byRowId(id);
+    showChangeResultToast(
+      hostContextOf(context),
+      refundedAmount: refundedAmount,
+      fixBalanceAssetId: fixBalanceTargetFor(
+        asset,
+        dateKey: _input.isoDate,
+        installmentMonths: installment,
+      ),
+    );
   }
 
   /// 고쳐 쓰기 저장(D13) — 확인받고 `POST /expense/{id}/replace` 로 보낸다.
