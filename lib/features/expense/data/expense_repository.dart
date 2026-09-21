@@ -189,6 +189,7 @@ class ExpenseRepository {
     int? amount,
     int? assetRowId,
     String? expenseDate,
+    int? installmentMonths,
   }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
@@ -197,6 +198,35 @@ class ExpenseRepository {
           'amount': ?amount,
           'assetRowId': ?assetRowId,
           'expenseDate': ?expenseDate,
+          'installmentMonths': ?installmentMonths,
+        },
+        options: Options(receiveTimeout: const Duration(seconds: 3)),
+      );
+      return _unwrap(res, RefundPreview.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 새 카드 지출을 저장하면 어떻게 되는지 **미리** 센다 — 결제가 끝난 회차면 기록만
+  /// 남고([RefundPreview.newRecordAmount]), 오늘이 결제일이면 결제계좌에서 추가로
+  /// 빠진다([RefundPreview.sameDayExtraPayment]). 서버는 DB 를 바꾸지 않는다.
+  ///
+  /// 3초에서 끊는다 — 저장 확인을 네트워크에 묶지 않는다.
+  Future<RefundPreview> cardSavePreview({
+    required int assetRowId,
+    required int amount,
+    required String expenseDate,
+    int? installmentMonths,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expense/card-save-preview',
+        queryParameters: {
+          'assetRowId': assetRowId,
+          'amount': amount,
+          'expenseDate': expenseDate,
+          'installmentMonths': ?installmentMonths,
         },
         options: Options(receiveTimeout: const Duration(seconds: 3)),
       );

@@ -6725,4 +6725,37 @@ class AppLocalizationsKo extends AppLocalizations {
   String expFilterExcluded(int count) {
     return '$count개 빼고';
   }
+
+  @override
+  String get expRecordOnlyBadge => '기록만';
+
+  @override
+  String get expRecordOnlyNote => '결제가 끝난 회차에 적은 거래라 기록만 남았어요. 계좌에서는 빠지지 않았어요';
+
+  @override
+  String expRecordOnlyPartNote(String amount) {
+    return '이 중 $amount은 결제가 끝난 회차분이라 기록만 남았어요. 남은 회차는 정상 청구돼요';
+  }
+
+  @override
+  String get expWindowClosedNote => '결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요';
+
+  @override
+  String get expClosedCycleNote => '이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요';
+
+  @override
+  String expSameDayPaymentNote(String amount) {
+    return '오늘이 결제일이라 계좌에서 $amount이 추가로 빠져요';
+  }
+
+  @override
+  String get expSaveConfirmTitle => '저장할까요?';
+
+  @override
+  String assetRecordedOnlyNote(String amount) {
+    return '이 중 $amount은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요';
+  }
+
+  @override
+  String get assetPreRegistrationNote => '카드 등록 이전 거래라 실제와 맞지 않을 수 있어요';
 }

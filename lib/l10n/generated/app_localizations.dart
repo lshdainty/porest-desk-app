@@ -12325,6 +12325,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{count}개 빼고'**
   String expFilterExcluded(int count);
+
+  /// No description provided for @expRecordOnlyBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록만'**
+  String get expRecordOnlyBadge;
+
+  /// No description provided for @expRecordOnlyNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 끝난 회차에 적은 거래라 기록만 남았어요. 계좌에서는 빠지지 않았어요'**
+  String get expRecordOnlyNote;
+
+  /// No description provided for @expRecordOnlyPartNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 중 {amount}은 결제가 끝난 회차분이라 기록만 남았어요. 남은 회차는 정상 청구돼요'**
+  String expRecordOnlyPartNote(String amount);
+
+  /// No description provided for @expWindowClosedNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요'**
+  String get expWindowClosedNote;
+
+  /// No description provided for @expClosedCycleNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요'**
+  String get expClosedCycleNote;
+
+  /// No description provided for @expSameDayPaymentNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘이 결제일이라 계좌에서 {amount}이 추가로 빠져요'**
+  String expSameDayPaymentNote(String amount);
+
+  /// No description provided for @expSaveConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장할까요?'**
+  String get expSaveConfirmTitle;
+
+  /// No description provided for @assetRecordedOnlyNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요'**
+  String assetRecordedOnlyNote(String amount);
+
+  /// No description provided for @assetPreRegistrationNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 등록 이전 거래라 실제와 맞지 않을 수 있어요'**
+  String get assetPreRegistrationNote;
 }
 
 class _AppLocalizationsDelegate

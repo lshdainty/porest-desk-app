@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RefundPreview {
 
- bool get applies; int get refundAmount; String get reason;
+ bool get applies; int get refundAmount; String get reason;/// 이번 저장으로 기록만 남는 금액 — 결제가 끝난 회차에 떨어진 몫(R2). 옛 서버면 0.
+ int get newRecordAmount;/// 오늘이 결제일이라 결제계좌에서 추가로 빠질 금액(R3). 옛 서버면 0.
+ int get sameDayExtraPayment;
 /// Create a copy of RefundPreview
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $RefundPreviewCopyWith<RefundPreview> get copyWith => _$RefundPreviewCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RefundPreview&&(identical(other.applies, applies) || other.applies == applies)&&(identical(other.refundAmount, refundAmount) || other.refundAmount == refundAmount)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RefundPreview&&(identical(other.applies, applies) || other.applies == applies)&&(identical(other.refundAmount, refundAmount) || other.refundAmount == refundAmount)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.newRecordAmount, newRecordAmount) || other.newRecordAmount == newRecordAmount)&&(identical(other.sameDayExtraPayment, sameDayExtraPayment) || other.sameDayExtraPayment == sameDayExtraPayment));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,applies,refundAmount,reason);
+int get hashCode => Object.hash(runtimeType,applies,refundAmount,reason,newRecordAmount,sameDayExtraPayment);
 
 @override
 String toString() {
-  return 'RefundPreview(applies: $applies, refundAmount: $refundAmount, reason: $reason)';
+  return 'RefundPreview(applies: $applies, refundAmount: $refundAmount, reason: $reason, newRecordAmount: $newRecordAmount, sameDayExtraPayment: $sameDayExtraPayment)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $RefundPreviewCopyWith<$Res>  {
   factory $RefundPreviewCopyWith(RefundPreview value, $Res Function(RefundPreview) _then) = _$RefundPreviewCopyWithImpl;
 @useResult
 $Res call({
- bool applies, int refundAmount, String reason
+ bool applies, int refundAmount, String reason, int newRecordAmount, int sameDayExtraPayment
 });
 
 
@@ -65,12 +67,14 @@ class _$RefundPreviewCopyWithImpl<$Res>
 
 /// Create a copy of RefundPreview
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? applies = null,Object? refundAmount = null,Object? reason = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? applies = null,Object? refundAmount = null,Object? reason = null,Object? newRecordAmount = null,Object? sameDayExtraPayment = null,}) {
   return _then(_self.copyWith(
 applies: null == applies ? _self.applies : applies // ignore: cast_nullable_to_non_nullable
 as bool,refundAmount: null == refundAmount ? _self.refundAmount : refundAmount // ignore: cast_nullable_to_non_nullable
 as int,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
-as String,
+as String,newRecordAmount: null == newRecordAmount ? _self.newRecordAmount : newRecordAmount // ignore: cast_nullable_to_non_nullable
+as int,sameDayExtraPayment: null == sameDayExtraPayment ? _self.sameDayExtraPayment : sameDayExtraPayment // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -155,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool applies,  int refundAmount,  String reason)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool applies,  int refundAmount,  String reason,  int newRecordAmount,  int sameDayExtraPayment)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RefundPreview() when $default != null:
-return $default(_that.applies,_that.refundAmount,_that.reason);case _:
+return $default(_that.applies,_that.refundAmount,_that.reason,_that.newRecordAmount,_that.sameDayExtraPayment);case _:
   return orElse();
 
 }
@@ -176,10 +180,10 @@ return $default(_that.applies,_that.refundAmount,_that.reason);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool applies,  int refundAmount,  String reason)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool applies,  int refundAmount,  String reason,  int newRecordAmount,  int sameDayExtraPayment)  $default,) {final _that = this;
 switch (_that) {
 case _RefundPreview():
-return $default(_that.applies,_that.refundAmount,_that.reason);case _:
+return $default(_that.applies,_that.refundAmount,_that.reason,_that.newRecordAmount,_that.sameDayExtraPayment);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +200,10 @@ return $default(_that.applies,_that.refundAmount,_that.reason);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool applies,  int refundAmount,  String reason)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool applies,  int refundAmount,  String reason,  int newRecordAmount,  int sameDayExtraPayment)?  $default,) {final _that = this;
 switch (_that) {
 case _RefundPreview() when $default != null:
-return $default(_that.applies,_that.refundAmount,_that.reason);case _:
+return $default(_that.applies,_that.refundAmount,_that.reason,_that.newRecordAmount,_that.sameDayExtraPayment);case _:
   return null;
 
 }
@@ -211,12 +215,16 @@ return $default(_that.applies,_that.refundAmount,_that.reason);case _:
 @JsonSerializable()
 
 class _RefundPreview implements RefundPreview {
-  const _RefundPreview({this.applies = false, this.refundAmount = 0, this.reason = ''});
+  const _RefundPreview({this.applies = false, this.refundAmount = 0, this.reason = '', this.newRecordAmount = 0, this.sameDayExtraPayment = 0});
   factory _RefundPreview.fromJson(Map<String, dynamic> json) => _$RefundPreviewFromJson(json);
 
 @override@JsonKey() final  bool applies;
 @override@JsonKey() final  int refundAmount;
 @override@JsonKey() final  String reason;
+/// 이번 저장으로 기록만 남는 금액 — 결제가 끝난 회차에 떨어진 몫(R2). 옛 서버면 0.
+@override@JsonKey() final  int newRecordAmount;
+/// 오늘이 결제일이라 결제계좌에서 추가로 빠질 금액(R3). 옛 서버면 0.
+@override@JsonKey() final  int sameDayExtraPayment;
 
 /// Create a copy of RefundPreview
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RefundPreview&&(identical(other.applies, applies) || other.applies == applies)&&(identical(other.refundAmount, refundAmount) || other.refundAmount == refundAmount)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RefundPreview&&(identical(other.applies, applies) || other.applies == applies)&&(identical(other.refundAmount, refundAmount) || other.refundAmount == refundAmount)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.newRecordAmount, newRecordAmount) || other.newRecordAmount == newRecordAmount)&&(identical(other.sameDayExtraPayment, sameDayExtraPayment) || other.sameDayExtraPayment == sameDayExtraPayment));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,applies,refundAmount,reason);
+int get hashCode => Object.hash(runtimeType,applies,refundAmount,reason,newRecordAmount,sameDayExtraPayment);
 
 @override
 String toString() {
-  return 'RefundPreview(applies: $applies, refundAmount: $refundAmount, reason: $reason)';
+  return 'RefundPreview(applies: $applies, refundAmount: $refundAmount, reason: $reason, newRecordAmount: $newRecordAmount, sameDayExtraPayment: $sameDayExtraPayment)';
 }
 
 
@@ -251,7 +259,7 @@ abstract mixin class _$RefundPreviewCopyWith<$Res> implements $RefundPreviewCopy
   factory _$RefundPreviewCopyWith(_RefundPreview value, $Res Function(_RefundPreview) _then) = __$RefundPreviewCopyWithImpl;
 @override @useResult
 $Res call({
- bool applies, int refundAmount, String reason
+ bool applies, int refundAmount, String reason, int newRecordAmount, int sameDayExtraPayment
 });
 
 
@@ -268,12 +276,14 @@ class __$RefundPreviewCopyWithImpl<$Res>
 
 /// Create a copy of RefundPreview
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? applies = null,Object? refundAmount = null,Object? reason = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? applies = null,Object? refundAmount = null,Object? reason = null,Object? newRecordAmount = null,Object? sameDayExtraPayment = null,}) {
   return _then(_RefundPreview(
 applies: null == applies ? _self.applies : applies // ignore: cast_nullable_to_non_nullable
 as bool,refundAmount: null == refundAmount ? _self.refundAmount : refundAmount // ignore: cast_nullable_to_non_nullable
 as int,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
-as String,
+as String,newRecordAmount: null == newRecordAmount ? _self.newRecordAmount : newRecordAmount // ignore: cast_nullable_to_non_nullable
+as int,sameDayExtraPayment: null == sameDayExtraPayment ? _self.sameDayExtraPayment : sameDayExtraPayment // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

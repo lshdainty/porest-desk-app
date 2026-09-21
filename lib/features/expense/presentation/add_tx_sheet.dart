@@ -37,7 +37,10 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
+import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
 import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
+import 'package:porest_desk_app/features/expense/presentation/paid_refund_note.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -424,6 +427,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         // 돌려줄 돈이 있으면 한 번 확인받는다 — 돈이 움직이는 저장이다.
         // 못 물어봤으면(실패·3초 초과) 묻지 않고 저장하고, 응답에 환급액이 실려 오면
         // 그때 토스트로 알린다. 확인을 못 받았다고 저장을 막으면 아무것도 못 한다.
+        //
+        // 닫힌 회차 규칙도 같은 자리에서 묻는다 — 결제가 끝난 회차로 옮기면 기록만 남고,
+        // 결제한 달이 지난 감액은 돌려주지 않고, 결제일 당일이면 그 자리에서 더 빠진다.
         int? previewed;
         try {
           final preview = await repo.refundPreview(
@@ -431,17 +437,18 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             amount: amount,
             assetRowId: _input.assetRowId,
             expenseDate: dateStr,
+            installmentMonths: installment,
           );
-          if (preview.hasRefund) {
-            previewed = preview.refundAmount;
-            if (!mounted) return;
+          if (preview.hasRefund) previewed = preview.refundAmount;
+          if (!mounted) return;
+          final l = AppLocalizations.of(context);
+          final notes = saveConfirmNotes(l, preview);
+          if (notes.isNotEmpty) {
             final ok = await showPConfirmDialog(
               context,
-              title: AppLocalizations.of(context).expEdit,
-              message: AppLocalizations.of(
-                context,
-              ).expPaidReduceNote(krw(preview.refundAmount)),
-              confirmLabel: AppLocalizations.of(context).actionSave,
+              title: l.expEdit,
+              message: notes.join('\n\n'),
+              confirmLabel: l.actionSave,
             );
             if (!ok) {
               return;
@@ -484,6 +491,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         }
         // 분할이 교체됐을 수 있으니 분할 쿼리도 무효화.
         ref.invalidate(expenseSplitsProvider(edited.rowId));
+      } else if (!await _confirmCardSave(
+        repo,
+        amount: amount,
+        dateStr: dateStr,
+        installment: installment,
+      )) {
+        // 저장 확인에서 물러났다 — 아무것도 보내지 않는다.
+        return;
       } else if (widget.smsDraft != null) {
         // 결제 문자는 전용 경로로 저장한다 — 서버가 원문을 다시 봐 취소 문자를 막고,
         // 체크했다면 (카드 힌트 → 자산) 을 기억한다. 저장 자체는 같은 지출 생성이다.
@@ -550,6 +565,48 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       if (!mounted) return;
     } finally {
       if (mounted) _setSubmitting(false);
+    }
+  }
+
+  /// 새 카드 지출 — 그 회차 결제일이 이미 왔으면(닫힘·당일) 저장 전에 한 번 묻는다(R2·R3).
+  ///
+  /// 결제일 전 회차는 묻지 않는다 — 평소대로 청구될 뿐이라 요청을 보낼 이유가 없다.
+  /// 못 물어봤으면(실패·3초 초과) 묻지 않고 저장한다 — 규칙은 서버에서 그대로 돈다.
+  /// 돌려주는 값이 false 면 사용자가 물러난 것이다.
+  Future<bool> _confirmCardSave(
+    ExpenseRepository repo, {
+    required int amount,
+    required String dateStr,
+    int? installment,
+  }) async {
+    if (_input.type != 'EXPENSE' || _input.assetRowId == null) return true;
+    final assets = ref.read(assetsProvider).value ?? const <Asset>[];
+    final card = assets.where((a) => a.rowId == _input.assetRowId).firstOrNull;
+    final day = card?.paymentDay;
+    if (card == null || card.assetType != 'CREDIT_CARD' || day == null) {
+      return true;
+    }
+    final today = toIsoLocal(DateTime.now()).substring(0, 10);
+    if (!isCardCycleDue(dateStr.substring(0, 10), day, today)) return true;
+    try {
+      final preview = await repo.cardSavePreview(
+        assetRowId: card.rowId,
+        amount: amount,
+        expenseDate: dateStr,
+        installmentMonths: installment,
+      );
+      if (!mounted) return false;
+      final l = AppLocalizations.of(context);
+      final notes = saveConfirmNotes(l, preview);
+      if (notes.isEmpty) return true;
+      return showPConfirmDialog(
+        context,
+        title: l.expSaveConfirmTitle,
+        message: notes.join('\n\n'),
+        confirmLabel: l.actionSave,
+      );
+    } on ApiException {
+      return true;
     }
   }
 

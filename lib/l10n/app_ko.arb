@@ -4127,5 +4127,35 @@
         "type": "int"
       }
     }
-  }
+  },
+  "expRecordOnlyBadge": "기록만",
+  "expRecordOnlyNote": "결제가 끝난 회차에 적은 거래라 기록만 남았어요. 계좌에서는 빠지지 않았어요",
+  "expRecordOnlyPartNote": "이 중 {amount}은 결제가 끝난 회차분이라 기록만 남았어요. 남은 회차는 정상 청구돼요",
+  "@expRecordOnlyPartNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expWindowClosedNote": "결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요",
+  "expClosedCycleNote": "이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요",
+  "expSameDayPaymentNote": "오늘이 결제일이라 계좌에서 {amount}이 추가로 빠져요",
+  "@expSameDayPaymentNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expSaveConfirmTitle": "저장할까요?",
+  "assetRecordedOnlyNote": "이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요",
+  "@assetRecordedOnlyNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetPreRegistrationNote": "카드 등록 이전 거래라 실제와 맞지 않을 수 있어요"
 }

@@ -3977,5 +3977,35 @@
         "type": "int"
       }
     }
-  }
+  },
+  "expRecordOnlyBadge": "Record only",
+  "expRecordOnlyNote": "This was added to a cycle that was already paid, so it is kept as a record only. It was not taken from your account",
+  "expRecordOnlyPartNote": "{amount} of this belongs to cycles that were already paid, so it is kept as a record only. The remaining installments are billed as usual",
+  "@expRecordOnlyPartNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expWindowClosedNote": "The payment month has passed, so only the record is updated. Nothing goes back to your account",
+  "expClosedCycleNote": "This cycle has already been paid, so it is kept as a record only. Nothing is taken from your account",
+  "expSameDayPaymentNote": "Today is the payment day, so {amount} more is taken from your account",
+  "@expSameDayPaymentNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expSaveConfirmTitle": "Save this?",
+  "assetRecordedOnlyNote": "{amount} of this is record only. It was not taken from your account",
+  "@assetRecordedOnlyNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetPreRegistrationNote": "These transactions are from before the card was added, so they may not match your actual statement"
 }

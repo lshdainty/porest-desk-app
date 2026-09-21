@@ -156,6 +156,28 @@ class ExpenseRow extends StatelessWidget {
                             ),
                           ),
                         ],
+                        // 기록만 — 결제가 끝난 회차에 뒤늦게 적은 카드 지출(닫힌 회차 R2).
+                        // 합계에는 들어가므로 흐리지 않고 배지만 단다.
+                        if (expense.isRecordOnly) ...[
+                          const SizedBox(width: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.bgMuted,
+                              borderRadius: PRadius.brXs,
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context).expRecordOnlyBadge,
+                              style: PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                         // 분할 거래 표시 — 분할 아이콘 + 개수(쉬운 식별).
                         if (expense.splitCategoryRowIds.isNotEmpty) ...[
                           const SizedBox(width: 5),

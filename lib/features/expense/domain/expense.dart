@@ -40,6 +40,15 @@ abstract class Expense with _$Expense {
     /// 화면이 "결제계좌로 N원이 환급됐어요" 를 말할 재료다(설계 13-1).
     int? refundedAmount,
 
+    /// 이 날짜(회차 말일)까지의 카드 회차분은 계좌 이체 없이 정리된 **기록용** (null = 정상).
+    ///
+    /// 결제가 끝난(닫힌) 회차에 뒤늦게 적은 카드 지출에 붙는다 — 가계부 합계에는 들어가지만
+    /// 계좌에서는 빠지지 않았고 이후 청구에도 안 얹힌다(닫힌 회차 규칙 R2). 'YYYY-MM-DD'.
+    String? cardSettledThrough,
+
+    /// 그 가운데 기록만 남긴 금액 — 할부는 지난 회차분만이라 거래 금액보다 작을 수 있다.
+    int? recordOnlyAmount,
+
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
     double? originalAmount,
 
@@ -73,6 +82,9 @@ extension ExpenseX on Expense {
 
   /// 환불된 거래인가 — 표식 하나로 판정한다.
   bool get isRefunded => refundedAt != null;
+
+  /// 기록만 남긴 카드 지출인가 — 환불된 거래는 "환불됨" 이 먼저라 여기서 뺀다.
+  bool get isRecordOnly => !isRefunded && cardSettledThrough != null;
 
   /// 'YYYY-MM-DD' 부분만 (그룹화·필터용).
   String? get expenseDateOnly => expenseDate?.substring(0, 10);

@@ -82,10 +82,40 @@ abstract class CardBilling with _$CardBilling {
     /// 다가오는 회차의 다음 회차 — 지금 쌓이고 있는 이용분(당월 1일~말일, 다음 달 결제일).
     /// 결제일 미설정이거나 옛 서버면 null.
     UpcomingCycle? nextCycle,
+
+    /// 닫힌 회차(결제일이 지난) — 회차 선택기의 과거 칸, 최신 회차부터. 결제 기록이 있는
+    /// 회차와 기록용 거래가 있는 회차의 합집합이다(닫힌 회차 규칙 R2·R4).
+    /// **옛 서버면 null** — 그때는 [history] 의 결제 완료 행으로 그린다.
+    List<ClosedCycle>? closedCycles,
   }) = _CardBilling;
 
   factory CardBilling.fromJson(Map<String, dynamic> json) =>
       _$CardBillingFromJson(json);
+}
+
+/// 닫힌 회차 하나 — 명세서 머리 금액은 `paidAmount + recordedOnlyAmount`.
+@freezed
+abstract class ClosedCycle with _$ClosedCycle {
+  const factory ClosedCycle({
+    required String periodStart, // 'yyyy-MM-dd'
+    required String periodEnd,
+    required String paymentDate,
+
+    /// 앱이 결제계좌에서 실제로 뺀 순 금액(결제 − 환급).
+    @Default(0) int paidAmount,
+
+    /// 기록만 남긴 금액 — 현실에선 결제됐지만 계좌에서는 안 빠졌다.
+    @Default(0) int recordedOnlyAmount,
+
+    /// 카드 등록 전 회차 — "실제와 맞지 않을 수 있어요" 주의(R4).
+    @Default(false) bool preRegistration,
+
+    /// 이 회차 거래를 지우거나 환불하면 결제계좌로 돌려주는 마지막 날.
+    String? refundableUntil,
+  }) = _ClosedCycle;
+
+  factory ClosedCycle.fromJson(Map<String, dynamic> json) =>
+      _$ClosedCycleFromJson(json);
 }
 
 /// 회차 하나 — 청구 응답의 nextCycle. 결제일·청구 기간·예정액(선결제 차감 후)·할부 구성.
