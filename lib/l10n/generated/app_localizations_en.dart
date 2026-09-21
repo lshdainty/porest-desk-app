@@ -1928,10 +1928,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expRefundConfirmBodyCard =>
-      'Any amount already paid goes back to the payment account.';
-
-  @override
   String get expRefundConfirmBodyCardNoAccount =>
       'No payment account is linked, so only the card balance is adjusted.';
 
@@ -1954,29 +1950,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Remove the refund mark? This transaction counts in your totals again, and any refunded amount is reversed.';
 
   @override
+  String get expRefundCancelConfirmPlain =>
+      'Remove the refund mark? This transaction counts in your totals again.';
+
+  @override
   String get expRefundedBadge => 'Refunded';
 
   @override
-  String expPaidDeleteNote(String amount) {
-    return 'This was already paid, so $amount goes back to the payment account.';
-  }
-
-  @override
-  String get expPaidDeleteFallback =>
-      'If this was in an already-paid cycle, it goes back to the payment account.';
-
-  @override
-  String get expRefundedDeleteNote =>
-      'This was already refunded. Deleting only removes it from the list.';
-
-  @override
-  String expPaidReduceNote(String amount) {
-    return 'The reduced $amount goes back to the payment account. Save?';
-  }
-
-  @override
   String expRefundedToast(String amount) {
-    return '$amount went back to the payment account.';
+    return '$amount you paid in advance went back to your account';
   }
 
   @override
@@ -6847,17 +6829,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expWindowClosedNote =>
-      'The payment month has passed, so only the record is updated. Nothing goes back to your account';
+  String get expClosedCycleLine =>
+      'This cycle has already been paid. Only the record changes, and your account balance stays the same.';
 
   @override
-  String get expClosedCycleNote =>
-      'This cycle has already been paid, so it is kept as a record only. Nothing is taken from your account';
-
-  @override
-  String expSameDayPaymentNote(String amount) {
-    return 'Today is the payment day, so $amount more is taken from your account';
-  }
+  String get expClosedCyclePartLine =>
+      'Installments from past cycles stay as records only.';
 
   @override
   String get expSaveConfirmTitle => 'Save this?';

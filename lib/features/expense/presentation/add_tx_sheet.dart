@@ -22,7 +22,6 @@ import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_toast.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
@@ -37,10 +36,8 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
 import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
-import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
-import 'package:porest_desk_app/features/expense/presentation/paid_refund_note.dart';
+import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -418,46 +415,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       return;
     }
 
+    // 결제가 끝난 회차로 가는 저장이면 먼저 한 번 묻는다 — 기록만 바뀌고 계좌 잔액은
+    // 그대로다(D1). 서버에 묻지 않는다 — 판정은 카드의 cardClosedThrough 하나다.
+    // 물러나면 아무것도 보내지 않는다.
+    if (!await _confirmClosedCycleSave(installment: installment)) return;
+    if (!mounted) return;
+
     _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       final edited = widget.edit;
       if (edited != null) {
-        // 결제 완료 회차의 카드 거래가 줄어드는지 먼저 물어본다(설계 13-2).
-        // 돌려줄 돈이 있으면 한 번 확인받는다 — 돈이 움직이는 저장이다.
-        // 못 물어봤으면(실패·3초 초과) 묻지 않고 저장하고, 응답에 환급액이 실려 오면
-        // 그때 토스트로 알린다. 확인을 못 받았다고 저장을 막으면 아무것도 못 한다.
-        //
-        // 닫힌 회차 규칙도 같은 자리에서 묻는다 — 결제가 끝난 회차로 옮기면 기록만 남고,
-        // 결제한 달이 지난 감액은 돌려주지 않고, 결제일 당일이면 그 자리에서 더 빠진다.
-        int? previewed;
-        try {
-          final preview = await repo.refundPreview(
-            edited.rowId,
-            amount: amount,
-            assetRowId: _input.assetRowId,
-            expenseDate: dateStr,
-            installmentMonths: installment,
-          );
-          if (preview.hasRefund) previewed = preview.refundAmount;
-          if (!mounted) return;
-          final l = AppLocalizations.of(context);
-          final notes = saveConfirmNotes(l, preview);
-          if (notes.isNotEmpty) {
-            final ok = await showPConfirmDialog(
-              context,
-              title: l.expEdit,
-              message: notes.join('\n\n'),
-              confirmLabel: l.actionSave,
-            );
-            if (!ok) {
-              return;
-            }
-          }
-        } on ApiException {
-          // 못 물어봤다 — 저장은 그대로 하고 결과로 알린다.
-        }
-
         // 이 시트가 소유한 칸은 비운 상태 그대로 실어야 지워진다 — 키를 빼면
         // 서버가 옛 값을 지킨다(QA #99). 환불 표식은 이 시트의 칸이 아니다 —
         // 전용 경로(`POST/DELETE /expense/{id}/refund`)만 건드린다.
@@ -478,27 +446,15 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           splits: _reconciledSplits,
         );
-        // 미리보기와 실제가 다를 때만 알린다 — 같으면 확인창에서 이미 읽었다.
-        final refunded = saved.refundedAmount;
-        if (refunded != null && refunded != previewed && mounted) {
-          PToast.show(
-            context,
-            message: AppLocalizations.of(
-              context,
-            ).expRefundedToast(krw(refunded)),
-            tone: PToastTone.success,
+        // 열린 회차에서 미리 낸 돈이 남아 계좌로 돌아갔으면 사후에 알린다(D4).
+        if (mounted) {
+          showChangeResultToast(
+            hostContextOf(context),
+            refundedAmount: saved.refundedAmount,
           );
         }
         // 분할이 교체됐을 수 있으니 분할 쿼리도 무효화.
         ref.invalidate(expenseSplitsProvider(edited.rowId));
-      } else if (!await _confirmCardSave(
-        repo,
-        amount: amount,
-        dateStr: dateStr,
-        installment: installment,
-      )) {
-        // 저장 확인에서 물러났다 — 아무것도 보내지 않는다.
-        return;
       } else if (widget.smsDraft != null) {
         // 결제 문자는 전용 경로로 저장한다 — 서버가 원문을 다시 봐 취소 문자를 막고,
         // 체크했다면 (카드 힌트 → 자산) 을 기억한다. 저장 자체는 같은 지출 생성이다.
@@ -568,46 +524,38 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     }
   }
 
-  /// 새 카드 지출 — 그 회차 결제일이 이미 왔으면(닫힘·당일) 저장 전에 한 번 묻는다(R2·R3).
+  /// 결제가 끝난 회차에 걸리는 카드 거래면 저장 전에 한 번 묻는다(D1·D2).
   ///
-  /// 결제일 전 회차는 묻지 않는다 — 평소대로 청구될 뿐이라 요청을 보낼 이유가 없다.
-  /// 못 물어봤으면(실패·3초 초과) 묻지 않고 저장한다 — 규칙은 서버에서 그대로 돈다.
-  /// 돌려주는 값이 false 면 사용자가 물러난 것이다.
-  Future<bool> _confirmCardSave(
-    ExpenseRepository repo, {
-    required int amount,
-    required String dateStr,
-    int? installment,
-  }) async {
-    if (_input.type != 'EXPENSE' || _input.assetRowId == null) return true;
-    final assets = ref.read(assetsProvider).value ?? const <Asset>[];
-    final card = assets.where((a) => a.rowId == _input.assetRowId).firstOrNull;
-    final day = card?.paymentDay;
-    if (card == null || card.assetType != 'CREDIT_CARD' || day == null) {
-      return true;
-    }
-    final today = toIsoLocal(DateTime.now()).substring(0, 10);
-    if (!isCardCycleDue(dateStr.substring(0, 10), day, today)) return true;
-    try {
-      final preview = await repo.cardSavePreview(
-        assetRowId: card.rowId,
-        amount: amount,
-        expenseDate: dateStr,
+  /// 새 저장·편집 저장·문자 저장이 같은 판정이다 — 저장될 날짜·카드·할부가 그 카드의
+  /// `cardClosedThrough` 이하면 "이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은
+  /// 그대로예요", 할부가 걸치면 "지난 회차분은 기록만 남아요". **서버에 묻지 않는다** —
+  /// 예전의 저장 미리보기(3초 제한·실패 폴백)는 걷었다.
+  ///
+  /// 열린 회차는 묻지 않는다 — 평소대로 청구될 뿐이다. 돌려주는 값이 false 면 사용자가
+  /// 물러난 것이다.
+  Future<bool> _confirmClosedCycleSave({int? installment}) async {
+    if (_input.type == 'TRANSFER') return true;
+    final id = _input.assetRowId;
+    if (id == null) return true;
+    final asset = (ref.read(assetsProvider).value ?? const <Asset>[]).byRowId(
+      id,
+    );
+    final l = AppLocalizations.of(context);
+    final note = closedCycleNote(
+      l,
+      closedCycleSpanFor(
+        asset,
+        dateKey: _input.isoDate,
         installmentMonths: installment,
-      );
-      if (!mounted) return false;
-      final l = AppLocalizations.of(context);
-      final notes = saveConfirmNotes(l, preview);
-      if (notes.isEmpty) return true;
-      return showPConfirmDialog(
-        context,
-        title: l.expSaveConfirmTitle,
-        message: notes.join('\n\n'),
-        confirmLabel: l.actionSave,
-      );
-    } on ApiException {
-      return true;
-    }
+      ),
+    );
+    if (note == null) return true;
+    return showPConfirmDialog(
+      context,
+      title: widget.edit != null ? l.expEdit : l.expSaveConfirmTitle,
+      message: note,
+      confirmLabel: l.actionSave,
+    );
   }
 
   @override

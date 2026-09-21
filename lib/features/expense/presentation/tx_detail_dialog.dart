@@ -24,8 +24,7 @@ import 'package:porest_desk_app/features/recurring/presentation/recurring_settin
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
-import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
-import 'package:porest_desk_app/features/expense/presentation/delete_confirm_dialog.dart';
+import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
 import 'package:porest_desk_app/features/expense/presentation/refund_confirm_dialog.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
@@ -130,40 +129,25 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 여기서 다시 짜면 무효화 하나만 어긋나도 경로에 따라 화면이 달라진다.
   ///
   /// 확인은 이 화면 몫이다. 지운 뒤 시트를 닫는 것도 여기서만 필요하다 —
-  /// 목록에서 지울 땐 닫을 시트가 없다.
+  /// 목록에서 지울 땐 닫을 시트가 없다. 확인창 본문은 스와이프와 같다 — 결제가 끝난
+  /// 회차의 카드 거래면 한 문구가 붙는다(D1). 서버에 묻지 않는다.
   Future<void> _delete(Asset? asset) async {
-    // 카드 거래만 물어본다 — 그 밖에는 돌려줄 자리가 없다.
-    final isCard = asset?.assetType == 'CREDIT_CARD';
-    final preview = isCard ? _loadRefundPreview() : null;
-
-    final result = await showDeleteConfirmDialog(
+    final ok = await showPConfirmDialog(
       context,
       title: expenseActions.deleteConfirmTitle(context, _e),
-      message: expenseActions.deleteConfirmMessage(context, _e),
-      preview: preview,
-      isCreditCard: isCard,
-      cardHasPaymentAsset: expenseActions.paidRefundPossible(asset),
+      message: expenseActions.deleteConfirmMessageWith(context, _e, asset),
+      confirmLabel: AppLocalizations.of(context).actionDelete,
+      destructive: true,
     );
-    if (!result.ok || !mounted) return;
+    if (!ok || !mounted) return;
 
     _setDeleting(true);
     try {
-      final deleted = await expenseActions.delete(
-        context,
-        ref,
-        _e,
-        previewed: result.previewed,
-      );
+      final deleted = await expenseActions.delete(context, ref, _e);
       if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) _setDeleting(false);
     }
-  }
-
-  /// 확인창이 그릴 환급 미리보기 — 실패는 확인창이 폴백 문구로 받는다.
-  Future<RefundPreview> _loadRefundPreview() async {
-    final repo = await ref.read(expenseRepositoryProvider.future);
-    return repo.refundPreview(_e.rowId);
   }
 
   /// 환불 처리 — 원거래에 표식을 찍는다. 거래는 지워지지 않는다.
@@ -172,37 +156,45 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 사용자만 안다. 시각은 **정오**로 보낸다 — 자정이면 같은 날 앞서 찍힌 거래보다
   /// 과거가 되어 카드 회차 판정이 하루 밀린다.
   Future<void> _refund(Asset? asset) async {
-    // 결제계좌가 있는 카드만 물어본다 — 그 밖에는 돌려줄 자리가 없다.
-    final isCard = asset?.assetType == 'CREDIT_CARD';
     final picked = await showRefundConfirmDialog(
       context,
       expense: _e,
       asset: asset,
-      preview: isCard && expenseActions.paidRefundPossible(asset)
-          ? _loadRefundPreview()
-          : null,
     );
     if (picked == null || !mounted) return;
 
     setState(() => _refunding = true);
     try {
-      final updated = await expenseActions.refund(ref, _e, refundedAt: picked);
+      final updated = await expenseActions.refund(
+        context,
+        ref,
+        _e,
+        refundedAt: picked,
+      );
       if (updated != null && mounted) setState(() => _e = updated);
     } finally {
       if (mounted) setState(() => _refunding = false);
     }
   }
 
-  /// 환불 취소 — 표식을 걷고, 마크가 만든 환급 이체까지 되돌린다.
+  /// 환불 취소 — 표식을 걷는다. 이 거래가 합계에 다시 들어간다.
   ///
-  /// 되돌리면 이 거래가 합계에 다시 들어가고 카드가 다시 빚이 된다. 돈이 움직이는
-  /// 일이라 삭제와 같은 무게로 묻는다.
-  Future<void> _cancelRefund() async {
+  /// 옛 환급 이체가 묶인 거래만 그 이체까지 되돌아간다(통장에서 다시 빠진다) — 그때만
+  /// "환급된 금액도 되돌아가요" 를 말한다. 나머지는 표식만 풀리므로, 결제가 끝난
+  /// 회차의 카드 거래면 기록만 바뀐다는 한 문구를 붙인다(D1).
+  Future<void> _cancelRefund(Asset? asset) async {
     final l = AppLocalizations.of(context);
+    final message = _e.refundTransferRowId != null
+        ? l.expRefundCancelConfirm
+        : withClosedCycleNote(
+            l,
+            l.expRefundCancelConfirmPlain,
+            closedCycleSpanOfExpense(_e, asset),
+          );
     final ok = await showPConfirmDialog(
       context,
       title: l.expRefundCancel,
-      message: l.expRefundCancelConfirm,
+      message: message,
       confirmLabel: l.expRefundCancel,
       destructive: true,
     );
@@ -480,7 +472,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     variant: PButtonVariant.outline,
                     size: PButtonSize.sm,
                     loading: _refunding,
-                    onPressed: _deleting || _refunding ? null : _cancelRefund,
+                    onPressed: _deleting || _refunding
+                        ? null
+                        : () => _cancelRefund(asset),
                   ),
                 ],
               ),

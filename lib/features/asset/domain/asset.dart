@@ -36,6 +36,12 @@ abstract class Asset with _$Asset {
     int? creditLimit, // 신용 한도
     int? paymentDay, // 결제일 (1~31)
     int? paymentAssetRowId, // 결제 출금계좌 자산 rowId
+    /// 신용카드: **이 날짜(`yyyy-MM-dd`) 이하 거래는 결제가 끝난(닫힌) 회차**다.
+    ///
+    /// 결제일이 오늘(서울) 이하인 가장 최근 회차의 말일 — 서버가 결제일 이력·서울
+    /// 시계로 정한다(D5·D11). 닫힌 회차에 걸린 변경은 기록만 바뀐다(D1). 결제일 없는
+    /// 카드·신용카드가 아닌 자산·옛 서버면 null 이다(그때는 모두 열린 회차로 본다).
+    String? cardClosedThrough,
     // 연결된 카드 상품 (카드 자산 전용, nullable) — 편집 진입 시 선택 상태 복원용.
     AssetCardCatalog? cardCatalog,
     // 토스 연동 (INVESTMENT 전용, nullable). 토스 현재가 × 보유수량으로 평가액 실시간 계산.

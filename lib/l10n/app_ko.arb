@@ -1119,7 +1119,6 @@
       }
     }
   },
-  "expRefundConfirmBodyCard": "이미 결제된 금액은 결제계좌로 환급돼요.",
   "expRefundConfirmBodyCardNoAccount": "결제계좌가 없어 카드 잔액만 정리돼요.",
   "expRefundDate": "환불일",
   "expRefundConfirm": "환불 처리",
@@ -1133,26 +1132,9 @@
   },
   "expRefundCancel": "환불 취소",
   "expRefundCancelConfirm": "환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.",
+  "expRefundCancelConfirmPlain": "환불 표시를 지울까요? 이 거래가 합계에 다시 들어가요.",
   "expRefundedBadge": "환불됨",
-  "expPaidDeleteNote": "이미 결제된 거래라 결제계좌로 {amount}이 환급돼요.",
-  "@expPaidDeleteNote": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expPaidDeleteFallback": "이미 결제된 회차의 거래라면 결제계좌로 환급돼요.",
-  "expRefundedDeleteNote": "이미 환급된 거래예요. 지우면 내역에서만 사라져요.",
-  "expPaidReduceNote": "줄어든 {amount}이 결제계좌로 환급돼요. 저장할까요?",
-  "@expPaidReduceNote": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expRefundedToast": "결제계좌로 {amount}이 환급됐어요.",
+  "expRefundedToast": "미리 낸 돈 중 {amount}이 계좌로 돌아왔어요",
   "@expRefundedToast": {
     "placeholders": {
       "amount": {
@@ -4138,16 +4120,8 @@
       }
     }
   },
-  "expWindowClosedNote": "결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요",
-  "expClosedCycleNote": "이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요",
-  "expSameDayPaymentNote": "오늘이 결제일이라 계좌에서 {amount}이 추가로 빠져요",
-  "@expSameDayPaymentNote": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "expClosedCycleLine": "이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.",
+  "expClosedCyclePartLine": "지난 회차분은 기록만 남아요.",
   "expSaveConfirmTitle": "저장할까요?",
   "assetRecordedOnlyNote": "이 중 {amount}은 기록만 남긴 금액이에요. 계좌에서는 빠지지 않았어요",
   "@assetRecordedOnlyNote": {

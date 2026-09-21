@@ -1285,10 +1285,9 @@ class _DayGroup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final l = AppLocalizations.of(context);
     // 날짜 라벨·오늘/어제·일 합계는 PDayHeader 가 들고 있다.
     final categories = ref.watch(categoriesProvider).value ?? const [];
-    // 삭제 확인창의 환급 예고를 가르는 데 쓴다 — 카드 + 결제계좌인지만 본다.
+    // 삭제 확인창이 결제가 끝난 회차인지 가르는 데 쓴다 — 카드의 cardClosedThrough.
     final assets = ref.watch(assetsProvider).value;
 
     // 카드 다이어트 — design `.m-scroll .tx-list`: day-head(라벨, 아래 10) + 플랫 행.
@@ -1324,47 +1323,18 @@ class _DayGroup extends ConsumerWidget {
                           : null,
                       // 밀면 편집·삭제가 바로 나온다. 탭은 그대로 상세로 —
                       // 스와이프는 지름길이지 유일한 경로가 아니다.
-                      // 삭제는 expenseActions 가 한다(상세 시트와 같은 것).
+                      // 액션·확인 문구는 expenseActions 가 정한다(상세 시트와
+                      // 같은 것). 결제가 끝난 회차면 한 문구가 붙는다(D1).
                       child: PSwipeActions(
                         groupTag: 'expense-list',
-                        actions: [
-                          if (expenseActions.canEdit(e))
-                            PSwipeAction(
-                              label: l.actionEdit,
-                              icon: LucideIcons.pencil,
-                              kind: PSwipeKind.primary,
-                              onSelect: () =>
-                                  expenseActions.edit(context, ref, e),
-                            ),
-                          if (expenseActions.canDelete(e))
-                            PSwipeAction(
-                              label: l.actionDelete,
-                              icon: LucideIcons.trash2,
-                              kind: PSwipeKind.destructive,
-                              confirmTitle: expenseActions.deleteConfirmTitle(
-                                context,
-                                e,
-                              ),
-                              // 카드 거래면 **금액 없는** 예고를 붙인다(설계 13-2).
-                              // 스와이프의 확인창은 액션을 만들 때 문구가 굳는
-                              // 선언형이라 상세처럼 열릴 때 미리보기를 걸 자리가
-                              // 없다 — 금액은 상세에서 지울 때 보인다.
-                              confirmMessage:
-                                  expenseActions.paidRefundPossible(
-                                    e.assetRowId == null
-                                        ? null
-                                        : assets?.byRowId(e.assetRowId!),
-                                  )
-                                  ? '${expenseActions.deleteConfirmMessage(context, e)} '
-                                        '${l.expPaidDeleteFallback}'
-                                  : expenseActions.deleteConfirmMessage(
-                                      context,
-                                      e,
-                                    ),
-                              onSelect: () =>
-                                  expenseActions.delete(context, ref, e),
-                            ),
-                        ],
+                        actions: expenseActions.swipeActions(
+                          context,
+                          ref,
+                          e,
+                          asset: e.assetRowId == null
+                              ? null
+                              : assets?.byRowId(e.assetRowId!),
+                        ),
                         child: ExpenseRow(
                           expense: e,
                           category: e.categoryRowId == null

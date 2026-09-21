@@ -1905,9 +1905,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get expRefundConfirmBodyCard => '이미 결제된 금액은 결제계좌로 환급돼요.';
-
-  @override
   String get expRefundConfirmBodyCardNoAccount => '결제계좌가 없어 카드 잔액만 정리돼요.';
 
   @override
@@ -1929,27 +1926,14 @@ class AppLocalizationsKo extends AppLocalizations {
       '환불 표시를 지울까요? 이 거래가 합계에 다시 들어가고, 환급된 금액도 되돌아가요.';
 
   @override
+  String get expRefundCancelConfirmPlain => '환불 표시를 지울까요? 이 거래가 합계에 다시 들어가요.';
+
+  @override
   String get expRefundedBadge => '환불됨';
 
   @override
-  String expPaidDeleteNote(String amount) {
-    return '이미 결제된 거래라 결제계좌로 $amount이 환급돼요.';
-  }
-
-  @override
-  String get expPaidDeleteFallback => '이미 결제된 회차의 거래라면 결제계좌로 환급돼요.';
-
-  @override
-  String get expRefundedDeleteNote => '이미 환급된 거래예요. 지우면 내역에서만 사라져요.';
-
-  @override
-  String expPaidReduceNote(String amount) {
-    return '줄어든 $amount이 결제계좌로 환급돼요. 저장할까요?';
-  }
-
-  @override
   String expRefundedToast(String amount) {
-    return '결제계좌로 $amount이 환급됐어요.';
+    return '미리 낸 돈 중 $amount이 계좌로 돌아왔어요';
   }
 
   @override
@@ -6738,15 +6722,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get expWindowClosedNote => '결제한 달이 지나 기록만 정리돼요. 계좌로는 환급되지 않아요';
+  String get expClosedCycleLine => '이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
 
   @override
-  String get expClosedCycleNote => '이미 결제가 끝난 회차라 기록만 남아요. 계좌에서는 빠지지 않아요';
-
-  @override
-  String expSameDayPaymentNote(String amount) {
-    return '오늘이 결제일이라 계좌에서 $amount이 추가로 빠져요';
-  }
+  String get expClosedCyclePartLine => '지난 회차분은 기록만 남아요.';
 
   @override
   String get expSaveConfirmTitle => '저장할까요?';

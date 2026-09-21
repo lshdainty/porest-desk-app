@@ -5,7 +5,6 @@ import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 
 /// `/expenses`, `/expense/categories`, `/expense` 호출.
@@ -146,13 +145,14 @@ class ExpenseRepository {
 
   /// 환불 표식을 찍는다 — 전용 경로다(`POST /expense/{id}/refund`).
   ///
-  /// 수정 PUT 으로는 만들 수 없다. 환불은 원거래를 그 자리에서 합계·잔액에서 빼고,
-  /// 결제 완료 회차의 카드 거래라면 카드→결제계좌 환급 이체까지 만드는 일이라
-  /// "칸 하나 고치기" 와 무게가 다르다.
+  /// 수정 PUT 으로는 만들 수 없다. 환불은 원거래를 그 자리에서 합계에서 빼는 일이라
+  /// "칸 하나 고치기" 와 무게가 다르다. 결제가 끝난 회차의 카드 거래는 통계에서만
+  /// 빠지고(D1), 열린 회차에서 미리 낸 돈이 남으면 서버가 결제계좌로 돌려준다 —
+  /// 그 금액이 응답의 `refundedAmount` 다(D3·D4).
   ///
   /// [refundedAt] 은 사용자가 고른 **환불일**이다(정오로 온다 — 자정이면 같은 날
-  /// 앞서 찍힌 거래보다 과거가 되어 카드 회차 판정이 하루 밀린다). 안 고르면 키를
-  /// 안 싣고 서버가 제 시각으로 찍는다.
+  /// 앞서 찍힌 거래보다 과거가 되어 카드 회차 판정이 하루 밀린다). 거래일부터
+  /// 오늘까지만 받는다(D16). 안 고르면 키를 안 싣고 서버가 제 시각으로 찍는다.
   Future<Expense> refund(int id, {String? refundedAt}) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -165,7 +165,10 @@ class ExpenseRepository {
     }
   }
 
-  /// 환불 표식을 걷는다 — 환급 이체까지 되돌린다(`DELETE /expense/{id}/refund`).
+  /// 환불 표식을 걷는다(`DELETE /expense/{id}/refund`).
+  ///
+  /// 표식만 풀린다. 옛 환급 이체가 묶인 거래(`refundTransferRowId`)만 그 이체까지
+  /// 되돌린다 — 통장에서 다시 빠진다.
   Future<Expense> cancelRefund(int id) async {
     try {
       final res = await _dio.delete<Map<String, dynamic>>(
@@ -177,69 +180,10 @@ class ExpenseRepository {
     }
   }
 
-  /// 지우거나 고치면 결제계좌로 얼마가 돌아오는지 **미리** 센다(설계 13-1).
-  ///
-  /// 인자를 비우면 삭제 미리보기다. 수정 미리보기는 바뀔 값만 싣는다. 서버는 DB 를
-  /// 바꾸지 않는다.
-  ///
-  /// 확인창을 네트워크에 묶지 않으려고 **3초**에서 끊는다 — 그때는 화면이 금액 없는
-  /// 문구로 넘어간다. 확인 버튼은 이 호출을 기다리지 않는다.
-  Future<RefundPreview> refundPreview(
-    int id, {
-    int? amount,
-    int? assetRowId,
-    String? expenseDate,
-    int? installmentMonths,
-  }) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/expense/$id/refund-preview',
-        queryParameters: {
-          'amount': ?amount,
-          'assetRowId': ?assetRowId,
-          'expenseDate': ?expenseDate,
-          'installmentMonths': ?installmentMonths,
-        },
-        options: Options(receiveTimeout: const Duration(seconds: 3)),
-      );
-      return _unwrap(res, RefundPreview.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  /// 새 카드 지출을 저장하면 어떻게 되는지 **미리** 센다 — 결제가 끝난 회차면 기록만
-  /// 남고([RefundPreview.newRecordAmount]), 오늘이 결제일이면 결제계좌에서 추가로
-  /// 빠진다([RefundPreview.sameDayExtraPayment]). 서버는 DB 를 바꾸지 않는다.
-  ///
-  /// 3초에서 끊는다 — 저장 확인을 네트워크에 묶지 않는다.
-  Future<RefundPreview> cardSavePreview({
-    required int assetRowId,
-    required int amount,
-    required String expenseDate,
-    int? installmentMonths,
-  }) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/expense/card-save-preview',
-        queryParameters: {
-          'assetRowId': assetRowId,
-          'amount': amount,
-          'expenseDate': expenseDate,
-          'installmentMonths': ?installmentMonths,
-        },
-        options: Options(receiveTimeout: const Duration(seconds: 3)),
-      );
-      return _unwrap(res, RefundPreview.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
   /// 지운다.
   ///
-  /// 결제 완료 회차의 카드 거래였다면 결제계좌로 돌려준 금액이 함께 온다(없으면 null).
-  /// 옛 서버는 본문 없이 200 을 주므로 그때도 null 이다.
+  /// 열린 회차에서 미리 낸 돈이 남아 결제계좌로 돌려줬다면 그 금액이 함께 온다
+  /// (없으면 null, D3·D4). 옛 서버는 본문 없이 200 을 주므로 그때도 null 이다.
   Future<int?> delete(int id) async {
     try {
       final res = await _dio.delete<Map<String, dynamic>>('/expense/$id');

@@ -1116,7 +1116,6 @@
       }
     }
   },
-  "expRefundConfirmBodyCard": "Any amount already paid goes back to the payment account.",
   "expRefundConfirmBodyCardNoAccount": "No payment account is linked, so only the card balance is adjusted.",
   "expRefundDate": "Refund date",
   "expRefundConfirm": "Mark refunded",
@@ -1130,26 +1129,9 @@
   },
   "expRefundCancel": "Undo refund",
   "expRefundCancelConfirm": "Remove the refund mark? This transaction counts in your totals again, and any refunded amount is reversed.",
+  "expRefundCancelConfirmPlain": "Remove the refund mark? This transaction counts in your totals again.",
   "expRefundedBadge": "Refunded",
-  "expPaidDeleteNote": "This was already paid, so {amount} goes back to the payment account.",
-  "@expPaidDeleteNote": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expPaidDeleteFallback": "If this was in an already-paid cycle, it goes back to the payment account.",
-  "expRefundedDeleteNote": "This was already refunded. Deleting only removes it from the list.",
-  "expPaidReduceNote": "The reduced {amount} goes back to the payment account. Save?",
-  "@expPaidReduceNote": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expRefundedToast": "{amount} went back to the payment account.",
+  "expRefundedToast": "{amount} you paid in advance went back to your account",
   "@expRefundedToast": {
     "placeholders": {
       "amount": {
@@ -3988,16 +3970,8 @@
       }
     }
   },
-  "expWindowClosedNote": "The payment month has passed, so only the record is updated. Nothing goes back to your account",
-  "expClosedCycleNote": "This cycle has already been paid, so it is kept as a record only. Nothing is taken from your account",
-  "expSameDayPaymentNote": "Today is the payment day, so {amount} more is taken from your account",
-  "@expSameDayPaymentNote": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "expClosedCycleLine": "This cycle has already been paid. Only the record changes, and your account balance stays the same.",
+  "expClosedCyclePartLine": "Installments from past cycles stay as records only.",
   "expSaveConfirmTitle": "Save this?",
   "assetRecordedOnlyNote": "{amount} of this is record only. It was not taken from your account",
   "@assetRecordedOnlyNote": {

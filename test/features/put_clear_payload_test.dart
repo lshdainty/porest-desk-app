@@ -26,7 +26,6 @@ import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
 import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
-import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
 import 'package:porest_desk_app/features/memo/data/memo_repository.dart';
 import 'package:porest_desk_app/features/preset/data/preset_repository.dart';
 import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
@@ -340,8 +339,8 @@ void main() {
     });
 
     // 환불은 **전용 경로**다. 수정 PUT 으로 만들 수도 풀 수도 없다 — 원거래를
-    // 합계·잔액에서 빼고 카드 환급 이체까지 만드는 일이라 "칸 하나 고치기" 와 무게가
-    // 다르고, 옛 키를 실으면 서버가 400 을 낸다.
+    // 합계에서 빼는 일이라 "칸 하나 고치기" 와 무게가 다르고, 옛 키를 실으면 서버가
+    // 400 을 낸다.
     test('환불은 POST /expense/{id}/refund 로, 환불일만 싣는다', () async {
       final (dio, calls) = _capturingRequests(expenseJson);
 
@@ -360,46 +359,8 @@ void main() {
       expect(calls.single.body, isEmpty);
     });
 
-    /// 미리보기는 확인창이 저장하기 **전에** 금액을 묻는 자리다(설계 13-1).
-    /// 인자를 비우면 삭제 미리보기 — 수정 값을 지어내지 않는다.
-    test('삭제 미리보기는 쿼리를 안 싣는다', () async {
-      final (dio, calls) = _capturingRequests({
-        'applies': true,
-        'refundAmount': 58600,
-        'reason': 'OK',
-      });
-
-      final preview = await ExpenseRepository(dio).refundPreview(77);
-
-      expect(calls.single.method, 'GET');
-      expect(calls.single.path, '/expense/77/refund-preview');
-      expect(calls.single.query, isEmpty);
-      expect(preview.refundAmount, 58600);
-      expect(preview.hasRefund, isTrue);
-    });
-
-    test('수정 미리보기는 바뀔 값만 싣는다', () async {
-      final (dio, calls) = _capturingRequests({
-        'applies': false,
-        'refundAmount': 0,
-        'reason': 'NOT_PAID_CYCLE',
-      });
-
-      await ExpenseRepository(dio).refundPreview(
-        77,
-        amount: 20000,
-        assetRowId: 9,
-        expenseDate: '2026-09-10T12:00:00',
-      );
-
-      expect(calls.single.query, {
-        'amount': 20000,
-        'assetRowId': 9,
-        'expenseDate': '2026-09-10T12:00:00',
-      });
-    });
-
-    /// 삭제 응답에 환급액이 실려 온다 — 옛 서버는 본문이 없으므로 그때도 안 깨진다.
+    /// 삭제 응답에 선결제 환급액이 실려 온다(D4) — 옛 서버는 본문이 없으므로 그때도
+    /// 안 깨진다.
     test('삭제는 환급액을 돌려준다', () async {
       final (dio, _) = _capturingRequests({'refundedAmount': 58600});
 
