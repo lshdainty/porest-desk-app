@@ -168,6 +168,12 @@ void main() {
       expect(_head('25,000'), findsOneWidget);
       expect(find.text('기록 회차'), findsOneWidget);
       expect(find.text('결제 완료'), findsNothing);
+      // "계좌에서 나간 돈은 0원이에요…" 는 "기록 회차" 와 같은 말이라 붙이지 않는다.
+      expect(
+        find.byKey(const ValueKey('closed-cycle-paid-line')),
+        findsNothing,
+      );
+      expect(find.textContaining('0원이에요'), findsNothing);
     });
 
     testWidgets('같으면 아래 한 줄이 없다', (tester) async {
@@ -307,6 +313,59 @@ void main() {
             paymentDate: '2026-09-12',
           ),
         ]),
+      );
+
+      expect(find.text('결제 취소'), findsNothing);
+    });
+
+    // 가장 최근 결제가 닫힌 회차의 자동 결제여도, 그 앞의 열린 회차 선결제는 무를 수
+    // 있다 — 버튼이 있고, 무르는 대상이 그 선결제다(QA 26 확인 필요).
+    testWidgets('닫힌 회차 자동 결제 뒤에 있는 열린 회차 선결제를 고른다', (tester) async {
+      await _open(
+        tester,
+        billing: withHistory([
+          _payment(
+            rowId: 1,
+            periodStart: '2026-09-01',
+            periodEnd: '2026-09-30',
+            paymentDate: '2026-09-05',
+          ),
+          _payment(
+            rowId: 2,
+            periodStart: '2026-08-01',
+            periodEnd: '2026-08-31',
+            paymentDate: '2026-09-12',
+          ),
+        ]),
+      );
+
+      expect(find.text('결제 취소'), findsOneWidget);
+      await tester.tap(find.text('결제 취소'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('2026-09-05에 낸'), findsOneWidget);
+      expect(find.textContaining('2026-09-12에 낸'), findsNothing);
+    });
+
+    testWidgets('서버가 닫힌 회차로 내려 준 회차의 결제는 고르지 않는다', (tester) async {
+      await _open(
+        tester,
+        card: _card.copyWith(cardClosedThrough: null),
+        billing: CardBilling(
+          cardAssetRowId: 9,
+          upcomingAmount: 40000,
+          nextPaymentDate: '2026-10-12',
+          upcomingPeriodStart: '2026-09-01',
+          upcomingPeriodEnd: '2026-09-30',
+          closedCycles: [_august(paid: 50000, recorded: 50000)],
+          history: [
+            _payment(
+              rowId: 2,
+              periodStart: '2026-08-01',
+              periodEnd: '2026-08-31',
+              paymentDate: '2026-09-12',
+            ),
+          ],
+        ),
       );
 
       expect(find.text('결제 취소'), findsNothing);
