@@ -56,6 +56,14 @@ abstract class Expense with _$Expense {
     /// "이 중 N원" 으로 말한다(D10).
     int? recordOnlyAmount,
 
+    /// 돈 칸 잠금(D12) — 결제일이 된 회차분이 하나라도 있는 신용카드 거래(또는 기록용
+    /// 표식이 있는 거래)면 서버가 true 로 내린다.
+    ///
+    /// true 면 금액·날짜·시간·자산·할부·유형·통화 3칸·결제수단을 못 고친다. 카테고리·
+    /// 가맹점·메모만 고치고, 돈 칸은 [고쳐 쓰기](`POST /expense/{id}/replace`)로 바꾼다.
+    /// 옛 서버면 false.
+    @Default(false) bool moneyLocked,
+
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
     double? originalAmount,
 

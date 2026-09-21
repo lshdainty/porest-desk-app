@@ -12362,6 +12362,36 @@ abstract class AppLocalizations {
   /// **'잔액 고치기'**
   String get expFixBalance;
 
+  /// No description provided for @expMoneyLockedNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요'**
+  String get expMoneyLockedNote;
+
+  /// No description provided for @expRewrite.
+  ///
+  /// In ko, this message translates to:
+  /// **'고쳐 쓰기'**
+  String get expRewrite;
+
+  /// No description provided for @expRewriteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌 잔액은 그대로예요.'**
+  String get expRewriteConfirm;
+
+  /// No description provided for @expRewriteConfirmOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 거래는 {date} 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.'**
+  String expRewriteConfirmOpen(String date);
+
+  /// No description provided for @expRewriteConfirmOther.
+  ///
+  /// In ko, this message translates to:
+  /// **'원래 거래는 지워지고 새 거래로 바뀌어요.'**
+  String get expRewriteConfirmOther;
+
   /// No description provided for @expSaveConfirmTitle.
   ///
   /// In ko, this message translates to:

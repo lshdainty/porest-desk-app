@@ -65,24 +65,31 @@ void showAddTxSheet(
   /// 결제 문자 초안 — 파싱 결과로 폼을 채우고, 저장은 문자 전용 경로로 보낸다
   /// (카드 연결 기억·취소 문자 차단이 그 경로에 있다).
   SmsDraft? smsDraft,
+
+  /// 고쳐 쓰기(D13) — 결제가 끝나 돈 칸이 잠긴 거래. 그 값이 전부 채워진 **새 거래**
+  /// 시트로 열고, 저장은 `POST /expense/{id}/replace` 로 보낸다(옛 거래 삭제 + 새 거래
+  /// 생성 + 분할·연결 이전이 서버 한 트랜잭션). 문자 초안과 같은 자리의 시드다.
+  Expense? replaceOf,
 }) {
   final controller = PSheetController();
   final l = AppLocalizations.of(context);
   final isEdit = edit != null || editTransfer != null;
+  final isReplace = replaceOf != null && !isEdit;
   showPSheet<void>(
     context,
-    title: isEdit ? l.expEdit : l.expAdd,
+    title: isReplace ? l.expRewrite : (isEdit ? l.expEdit : l.expAdd),
     contentBuilder: (ctx, scrollCtrl) => _AddTxBody(
       defaultDate: defaultDate,
       edit: edit,
       editTransfer: editTransfer,
       smsDraft: smsDraft,
+      replaceOf: isReplace ? replaceOf : null,
       scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: isEdit ? l.actionSave : l.expAddShort,
+      submitLabel: isEdit || isReplace ? l.actionSave : l.expAddShort,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -93,6 +100,7 @@ class _AddTxBody extends ConsumerStatefulWidget {
     this.edit,
     this.editTransfer,
     this.smsDraft,
+    this.replaceOf,
     required this.scrollController,
     required this.controller,
   });
@@ -100,6 +108,7 @@ class _AddTxBody extends ConsumerStatefulWidget {
   final Expense? edit;
   final AssetTransfer? editTransfer;
   final SmsDraft? smsDraft;
+  final Expense? replaceOf;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -119,13 +128,20 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   List<SplitInput>? _reconciledSplits;
   List<SplitInput> get _effectiveSplits => _reconciledSplits ?? _serverSplits;
   int get _splitSum => _effectiveSplits.fold<int>(0, (s, x) => s + x.amount);
-  // 금액을 바꿔 분할 합과 어긋남(편집·지출/수입만). 이때 저장을 막고 일치화 유도.
+  // 금액을 바꿔 분할 합과 어긋남(편집·고쳐 쓰기, 지출/수입만). 이때 저장을 막고
+  // 일치화 유도 — 고쳐 쓰기도 서버가 분할 합을 새 금액과 견줘 400 을 낸다.
   bool get _splitMismatch =>
-      _isEdit &&
+      _splitSource != null &&
       _input.type != 'TRANSFER' &&
       _input.amountInt > 0 &&
       _effectiveSplits.isNotEmpty &&
       _input.amountInt != _splitSum;
+
+  /// 분할을 적재할 원거래 — 지출·수입 편집이나 고쳐 쓰기의 옛 거래. 이체는 분할이 없다.
+  Expense? get _splitSource => widget.edit ?? widget.replaceOf;
+
+  /// 고쳐 쓰기 시트인가(D13) — 새 거래 모드로 열리고 저장은 replace API 다.
+  bool get _isReplace => widget.replaceOf != null;
 
   /// 편집 모드인가 — **지출·수입 편집과 이체 수정 둘 다** 여기 든다.
   ///
@@ -150,7 +166,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   @override
   void initState() {
     super.initState();
-    final e = widget.edit;
+    // 고쳐 쓰기는 편집과 같은 값으로 채운다 — 원거래의 모든 칸이 시드다(D13).
+    final e = widget.edit ?? widget.replaceOf;
     DateTime date;
     TimeOfDay time = TimeOfDay.now();
     final tr = widget.editTransfer;
@@ -415,6 +432,22 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       return;
     }
 
+    // 고쳐 쓰기는 따로 묻고 따로 보낸다(D13) — 옛 거래를 지우고 새 거래를 만든다.
+    if (_isReplace) {
+      await _submitReplace(
+        amount: amount,
+        dateStr: dateStr,
+        desc: desc,
+        merchant: merchant,
+        payment: payment,
+        installment: installment,
+        origAmount: origAmount,
+        origCurrency: origCurrency,
+        fxRate: fxRate,
+      );
+      return;
+    }
+
     // 결제가 끝난 회차로 가는 저장이면 먼저 한 번 묻는다 — 기록만 바뀌고 계좌 잔액은
     // 그대로다(D1). 서버에 묻지 않는다 — 판정은 카드의 cardClosedThrough 하나다.
     // 물러나면 아무것도 보내지 않는다.
@@ -429,22 +462,34 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         // 이 시트가 소유한 칸은 비운 상태 그대로 실어야 지워진다 — 키를 빼면
         // 서버가 옛 값을 지킨다(QA #99). 환불 표식은 이 시트의 칸이 아니다 —
         // 전용 경로(`POST/DELETE /expense/{id}/refund`)만 건드린다.
+        //
+        // 돈 칸이 잠긴 거래(D12)는 카테고리·가맹점·메모만 고친다. 돈 칸은 **원래 값
+        // 그대로** 돌려보낸다 — 폼을 거치며 초·환율 소수점이 깎이면 서버가 "바뀌었다"
+        // 고 보고 거절한다(EXP_045). 지울 수 있는 돈 칸은 키째 빼서 서버가 지키게 한다.
+        final locked = _input.moneyLocked;
         final saved = await repo.update(
           id: edited.rowId,
           categoryRowId: _input.categoryRowId!,
-          assetRowId: Patch.set(_input.assetRowId),
-          expenseType: _input.type,
-          amount: amount,
-          expenseDate: dateStr,
+          assetRowId: locked
+              ? const Patch.keep()
+              : Patch.set(_input.assetRowId),
+          expenseType: locked ? edited.expenseType : _input.type,
+          amount: locked ? edited.amount : amount,
+          expenseDate: locked ? (edited.expenseDate ?? dateStr) : dateStr,
           description: Patch.set(desc),
           merchant: Patch.set(merchant),
-          paymentMethod: Patch.set(payment),
-          installmentMonths: Patch.set(installment),
-          originalAmount: Patch.set(origAmount),
-          originalCurrency: Patch.set(origCurrency),
-          exchangeRate: Patch.set(fxRate),
+          paymentMethod: locked ? const Patch.keep() : Patch.set(payment),
+          installmentMonths: locked
+              ? const Patch.keep()
+              : Patch.set(installment),
+          originalAmount: locked ? const Patch.keep() : Patch.set(origAmount),
+          originalCurrency: locked
+              ? const Patch.keep()
+              : Patch.set(origCurrency),
+          exchangeRate: locked ? const Patch.keep() : Patch.set(fxRate),
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
-          splits: _reconciledSplits,
+          // 잠긴 거래는 금액이 안 바뀌니 맞출 분할도 없다.
+          splits: locked ? null : _reconciledSplits,
         );
         // 열린 회차에서 미리 낸 돈이 남아 계좌로 돌아갔으면 사후에 알린다(D4).
         if (mounted) {
@@ -524,6 +569,104 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     }
   }
 
+  /// 고쳐 쓰기 저장(D13) — 확인받고 `POST /expense/{id}/replace` 로 보낸다.
+  ///
+  /// 옛 거래는 이미 결제가 끝난 회차다. 새 거래가 닫힌 회차에 떨어지면 기록만 바뀌고,
+  /// 열린 회차면 그 회차 결제일에 정상 청구된다(D14 — 재청구 방지 표식은 없다). 어느
+  /// 쪽인지 확인창이 말한다. 성공하면 결제계좌가 있는 카드에 [잔액 고치기] 토스트(D9),
+  /// 미리 낸 돈이 돌아왔으면 그 금액(D4).
+  Future<void> _submitReplace({
+    required int amount,
+    required String dateStr,
+    String? desc,
+    String? merchant,
+    String? payment,
+    int? installment,
+    double? origAmount,
+    String? origCurrency,
+    double? fxRate,
+  }) async {
+    final original = widget.replaceOf!;
+    final l = AppLocalizations.of(context);
+    final assets = ref.read(assetsProvider).value ?? const <Asset>[];
+    Asset? assetOf(int? id) => id == null ? null : assets.byRowId(id);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.expRewrite,
+      message: rewriteConfirmMessage(
+        l,
+        newAsset: assetOf(_input.assetRowId),
+        dateKey: _input.isoDate,
+        installmentMonths: installment,
+      ),
+      confirmLabel: l.actionSave,
+    );
+    if (!ok || !mounted) return;
+    // 시트가 닫혀도 토스트·[잔액 고치기] 는 남는다 — 오래 사는 자리를 먼저 짚는다.
+    final host = hostContextOf(context);
+    final fixBalance = fixBalanceTargetOf(
+      original,
+      assetOf(original.assetRowId),
+    );
+
+    _setSubmitting(true);
+    try {
+      final repo = await ref.read(expenseRepositoryProvider.future);
+      // 분할은 시트가 적재·일치화한 값을 싣는다. 비었거나 아직 못 읽었으면 키를
+      // 빼고 서버가 옛 분할을 옮긴다 — 빈 리스트를 실으면 분할이 지워진다.
+      final splits = _effectiveSplits.isEmpty ? null : _effectiveSplits;
+      final saved = await repo.replace(
+        original.rowId,
+        categoryRowId: _input.categoryRowId!,
+        assetRowId: _input.assetRowId,
+        expenseType: _input.type,
+        amount: amount,
+        expenseDate: dateStr,
+        description: desc,
+        merchant: merchant,
+        paymentMethod: payment,
+        installmentMonths: installment,
+        originalAmount: origAmount,
+        originalCurrency: origCurrency,
+        exchangeRate: fxRate,
+        splits: splits,
+      );
+      // 옛 거래의 달·새 거래의 달이 함께 바뀐다. 분할도 옛 거래에서 새 거래로 옮겨졌다.
+      final origDate = original.expenseDate;
+      if (origDate != null && origDate.length >= 10) {
+        final o = parseIsoDate(origDate.substring(0, 10));
+        ref.invalidate(monthExpensesProvider((year: o.year, month: o.month)));
+      }
+      final d = _input.date;
+      ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
+      ref.invalidate(expenseSplitsProvider(original.rowId));
+      ref.invalidate(expenseSplitsProvider(saved.rowId));
+      invalidateAfterExpenseChange(ref);
+      if (mounted) Navigator.of(context).pop();
+      if (host.mounted) {
+        showChangeResultToast(
+          host,
+          refundedAmount: saved.refundedAmount,
+          fixBalanceAssetId: fixBalance,
+        );
+      }
+    } on ApiException {
+      // 잠기지 않은 거래·중도 정리한 할부·이미 지운 거래 — 서버 메시지는 전역
+      // 인터셉터가 띄운다. 시트는 그대로 둔다.
+    } finally {
+      if (mounted) _setSubmitting(false);
+    }
+  }
+
+  /// [고쳐 쓰기] — 이 편집 시트를 닫고 같은 값이 채워진 새 거래 시트를 연다(D13).
+  void _openRewrite() {
+    final e = widget.edit;
+    if (e == null) return;
+    final host = hostContextOf(context);
+    Navigator.of(context).pop();
+    showAddTxSheet(host, replaceOf: e);
+  }
+
   /// 결제가 끝난 회차에 걸리는 카드 거래면 저장 전에 한 번 묻는다(D1·D2).
   ///
   /// 새 저장·편집 저장·문자 저장이 같은 판정이다 — 저장될 날짜·카드·할부가 그 카드의
@@ -565,14 +708,29 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 이 시트보다 늦게 도착할 수 있고, 열 때 한 번만 읽으면 첫 렌더의 원화에
     // 잠긴다. 아직 안 고른 **새 거래**에만 닿는다(`_TxInputController.currency`).
     _input.defaultCurrency = ref.watch(defaultCurrencyProvider);
-    final presetsAsync = _isEdit
+    // 고쳐 쓰기는 원거래 값으로 채운 시트다 — 프리셋이 그 값을 덮어쓰면 안 된다.
+    final presetsAsync = _isEdit || _isReplace
         ? const AsyncValue<List<ExpenseTemplate>>.data(<ExpenseTemplate>[])
         : ref.watch(presetListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
 
-    // 지출·수입 편집: 기존 분할을 적재해 금액↔분할 합 불일치 판정(일치화 유도).
-    // 이체에는 분할이 없다 — `_isEdit` 로 묶으면 이체 수정에서 `edit` 이 null 이라 죽는다.
-    final editedExpense = widget.edit;
+    // 돈 칸 잠금(D12) — 지출·수입 편집에서만. 서버 플래그가 먼저고, 카드의 닫힌 회차
+    // 경계로 한 번 더 본다(`moneyLockedOf`).
+    final editedForLock = widget.edit;
+    final lockAssetId = editedForLock?.assetRowId;
+    _input.moneyLocked =
+        editedForLock != null &&
+        moneyLockedOf(
+          editedForLock,
+          lockAssetId == null
+              ? null
+              : ref.watch(assetsProvider).value?.byRowId(lockAssetId),
+        );
+
+    // 지출·수입 편집·고쳐 쓰기: 기존 분할을 적재해 금액↔분할 합 불일치 판정(일치화
+    // 유도). 이체에는 분할이 없다 — `_isEdit` 로 묶으면 이체 수정에서 `edit` 이 null
+    // 이라 죽는다.
+    final editedExpense = _splitSource;
     if (editedExpense != null) {
       final sp = ref.watch(expenseSplitsProvider(editedExpense.rowId)).value;
       _serverSplits = sp == null
@@ -603,9 +761,11 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           typeDisabledFor: _typeLocked ? _input.type : null,
           // 문자 초안은 지출↔수입만 오간다. 이체를 고르면 저장이 일반 이체 경로로
           // 새고(`_submit` 의 TRANSFER 분기가 먼저다) 취소 문자 차단·카드 기억이
-          // 조용히 빠진다 — 그 경로에만 있는 가드다.
-          allowTransfer: !_isSmsDraft,
-          presetSlot: _isEdit
+          // 조용히 빠진다 — 그 경로에만 있는 가드다. 고쳐 쓰기도 같다 — replace
+          // 본문은 지출·수입 생성 본문이다.
+          allowTransfer: !_isSmsDraft && !_isReplace,
+          onRewrite: _openRewrite,
+          presetSlot: _isEdit || _isReplace
               ? null
               : _PresetSection(
                   presets: presetsAsync.value ?? const [],
@@ -684,7 +844,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   void _openReconcile() {
     // 분할은 지출·수입만 갖는다 — 이체 수정에는 이 버튼이 뜨지 않는다(`_splitMismatch`).
-    final edited = widget.edit;
+    // 고쳐 쓰기는 옛 거래의 분할을 새 금액에 맞춘다.
+    final edited = _splitSource;
     if (edited == null) return;
     showSplitTxDialog(
       context,
@@ -1345,6 +1506,16 @@ class _TxInputController {
   /// 금액·날짜·자산을 못 고치는가 — 계산 결과라서.
   bool get isAutoGenerated => autoSource != null;
 
+  /// 결제가 끝난 카드 거래라 돈 칸을 못 고치는가(D12) — 시트가 매 빌드 흘려 넣는다.
+  bool moneyLocked = false;
+
+  /// 돈 칸 전부 — 금액·날짜·시간·자산·결제수단·할부·통화 3칸 — 을 잠그는가.
+  ///
+  /// 자동 생성 거래와 결제가 끝난 거래가 같은 잠금을 쓴다. 통화·환율·결제수단·할부도
+  /// 함께 잠근다 — 환율을 고치면 금액이 다시 계산돼 덮이고(`_syncKrwFromForeign`),
+  /// 결제수단을 바꾸면 안 맞는 자산이 풀린다. 한 칸만 열어 둬도 돈 칸이 새로 바뀐다.
+  bool get moneyFieldsLocked => isAutoGenerated || moneyLocked;
+
   int get amountInt => int.tryParse(amountCtrl.text.replaceAll(',', '')) ?? 0;
   String get isoDate =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -1383,6 +1554,7 @@ class _TxInputForm extends ConsumerWidget {
     this.typeDisabledFor,
     this.allowTransfer = true,
     this.presetSlot,
+    this.onRewrite,
   });
 
   final _TxInputController controller;
@@ -1393,6 +1565,9 @@ class _TxInputForm extends ConsumerWidget {
   /// 이체 선택지를 내놓는가 — 저장 경로가 이체를 못 받는 화면은 false 다.
   final bool allowTransfer;
   final Widget? presetSlot;
+
+  /// 돈 칸이 잠긴 거래의 [고쳐 쓰기] — 잠금 안내 옆에 단다(D13).
+  final VoidCallback? onRewrite;
 
   void _set(VoidCallback mutate) {
     mutate();
@@ -1490,7 +1665,7 @@ class _TxInputForm extends ConsumerWidget {
           // 거래 100억 상한 — 넘는 값은 타이핑 자체가 안 된다
           // (`AmountLimitFormatter`).
           amountMax: c.amountMaxForInput,
-          enabled: !c.amountLocked && !c.isAutoGenerated,
+          enabled: !c.amountLocked && !c.moneyFieldsLocked,
           placeholder: '0',
           prefixText: amountInt > 0 ? amountPrefix : null,
           suffixText: wonUnit(),
@@ -1508,6 +1683,43 @@ class _TxInputForm extends ConsumerWidget {
             'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
             _ => l.expAutoSourceDefault,
           }, style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        ]
+        // 결제가 끝난 카드 거래(D12) — 돈 칸은 회색이고, 바꾸려면 그 자리의
+        // [고쳐 쓰기] 로 새 거래를 쓴다(D13). 카테고리·가맹점·메모는 그대로 고친다.
+        else if (c.moneyLocked) ...[
+          const SizedBox(height: PSpace.x8),
+          Container(
+            key: const ValueKey('money-lock-note'),
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x12,
+              vertical: PSpace.x8,
+            ),
+            decoration: BoxDecoration(
+              color: t.bgMuted,
+              borderRadius: PRadius.brMd,
+            ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.lock, size: 14, color: t.fgTertiary),
+                const SizedBox(width: PSpace.x8),
+                Expanded(
+                  child: Text(
+                    l.expMoneyLockedNote,
+                    style: PTypo.caption.copyWith(color: t.fgSecondary),
+                  ),
+                ),
+                if (onRewrite != null) ...[
+                  const SizedBox(width: PSpace.x8),
+                  PButton(
+                    label: l.expRewrite,
+                    variant: PButtonVariant.outline,
+                    size: PButtonSize.sm,
+                    onPressed: onRewrite,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
         const SizedBox(height: PSpace.x16),
 
@@ -1666,6 +1878,7 @@ class _TxInputForm extends ConsumerWidget {
           _SelectField<String>(
             // ''(선택 안 함)도 유효 default — null 변환 금지(웹 정합: '선택 안 함' selected).
             value: c.paymentMethod,
+            enabled: !c.moneyFieldsLocked,
             hint: l.expNone,
             items: [
               _SelectOption<String>('', l.expNone),
@@ -1709,7 +1922,7 @@ class _TxInputForm extends ConsumerWidget {
               return _SelectField<int>(
                 // null(미선택)도 '선택 안 함'(-1) default로 표시 — 웹 정합.
                 value: c.assetRowId ?? -1,
-                enabled: !c.isAutoGenerated,
+                enabled: !c.moneyFieldsLocked,
                 hint: l.expNone,
                 items: [
                   _SelectOption<int>(-1, l.expNone),
@@ -1771,6 +1984,7 @@ class _TxInputForm extends ConsumerWidget {
             const SizedBox(height: PSpace.x4),
             _SelectField<int>(
               value: c.installmentMonths,
+              enabled: !c.moneyFieldsLocked,
               hint: l.expLumpSum,
               items: [
                 _SelectOption<int>(0, l.expLumpSum),
@@ -1801,6 +2015,7 @@ class _TxInputForm extends ConsumerWidget {
               Expanded(
                 child: _SelectField<String>(
                   value: c.currency,
+                  enabled: !c.moneyFieldsLocked,
                   hint: kDefaultCurrency,
                   items: [
                     for (final cur in kCurrencies)
@@ -1824,6 +2039,7 @@ class _TxInputForm extends ConsumerWidget {
                 Expanded(
                   child: PTextInput(
                     controller: c.origAmountCtrl,
+                    enabled: !c.moneyFieldsLocked,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -1835,6 +2051,7 @@ class _TxInputForm extends ConsumerWidget {
                 Expanded(
                   child: PTextInput(
                     controller: c.fxRateCtrl,
+                    enabled: !c.moneyFieldsLocked,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -1888,7 +2105,7 @@ class _TxInputForm extends ConsumerWidget {
             Expanded(
               child: PDateInput(
                 value: c.date,
-                enabled: !c.isAutoGenerated,
+                enabled: !c.moneyFieldsLocked,
                 onChanged: (d) {
                   if (d != null) _set(() => c.date = d);
                 },
@@ -1901,7 +2118,7 @@ class _TxInputForm extends ConsumerWidget {
               width: 116,
               child: PTimeInput(
                 value: c.time,
-                enabled: !c.isAutoGenerated,
+                enabled: !c.moneyFieldsLocked,
                 onChanged: (tm) {
                   if (tm != null) _set(() => c.time = tm);
                 },

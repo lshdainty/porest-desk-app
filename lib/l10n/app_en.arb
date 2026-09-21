@@ -3994,6 +3994,18 @@
   "expClosedCyclePartLine": "Installments from past cycles stay as records only.",
   "expRecordOnlyChangedToast": "Only the record changed. Your account balance stays the same",
   "expFixBalance": "Fix balance",
+  "expMoneyLockedNote": "This transaction has already been paid. To change the amount or date, tap Rewrite",
+  "expRewrite": "Rewrite",
+  "expRewriteConfirm": "The original transaction is deleted and replaced with a new one. Only the record changes, and your account balance stays the same.",
+  "expRewriteConfirmOpen": "The new transaction is billed on the {date} payment. The original is removed from the paid cycle as a record only.",
+  "@expRewriteConfirmOpen": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expRewriteConfirmOther": "The original transaction is deleted and replaced with a new one.",
   "expSaveConfirmTitle": "Save this?",
   "assetPreRegistrationNote": "These transactions are from before the card was added, so they may not match your actual statement",
   "assetRecordCycle": "Record-only cycle",

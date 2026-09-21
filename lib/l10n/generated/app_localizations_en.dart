@@ -6858,6 +6858,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expFixBalance => 'Fix balance';
 
   @override
+  String get expMoneyLockedNote =>
+      'This transaction has already been paid. To change the amount or date, tap Rewrite';
+
+  @override
+  String get expRewrite => 'Rewrite';
+
+  @override
+  String get expRewriteConfirm =>
+      'The original transaction is deleted and replaced with a new one. Only the record changes, and your account balance stays the same.';
+
+  @override
+  String expRewriteConfirmOpen(String date) {
+    return 'The new transaction is billed on the $date payment. The original is removed from the paid cycle as a record only.';
+  }
+
+  @override
+  String get expRewriteConfirmOther =>
+      'The original transaction is deleted and replaced with a new one.';
+
+  @override
   String get expSaveConfirmTitle => 'Save this?';
 
   @override

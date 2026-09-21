@@ -143,6 +143,65 @@ class ExpenseRepository {
     }
   }
 
+  /// 고쳐 쓰기 — 결제가 끝나 돈 칸이 잠긴 거래를 새 거래로 바꾼다
+  /// (`POST /expense/{id}/replace`, D13).
+  ///
+  /// 본문은 [create] 와 같다. 서버가 한 트랜잭션에서 옛 거래를 지우고 새 거래를 만들며
+  /// 분할·더치페이·반복 규칙·일정·할 일 연결을 새 거래로 옮긴다. 응답은 **새 거래**다
+  /// (새 rowId) — 열린 회차에서 미리 낸 돈이 남으면 `refundedAmount` 가 실린다(D4).
+  ///
+  /// [splits] 가 null 이면 키를 안 싣는다 — 서버가 옛 분할을 옮긴다(합이 새 금액과
+  /// 다르면 400). 리스트면 그것으로 새 분할을 만든다(시트가 적재·일치화한 값).
+  Future<Expense> replace(
+    int id, {
+    required int categoryRowId,
+    int? assetRowId,
+    required String expenseType,
+    required int amount,
+    required String expenseDate,
+    String? description,
+    String? merchant,
+    String? paymentMethod,
+    int? installmentMonths,
+    double? originalAmount,
+    String? originalCurrency,
+    double? exchangeRate,
+    List<SplitInput>? splits,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/expense/$id/replace',
+        data: {
+          'categoryRowId': categoryRowId,
+          'assetRowId': assetRowId,
+          'expenseType': expenseType,
+          'amount': amount,
+          'expenseDate': expenseDate,
+          'description': ?description,
+          'merchant': ?merchant,
+          'paymentMethod': ?paymentMethod,
+          'installmentMonths': ?installmentMonths,
+          'originalAmount': ?originalAmount,
+          'originalCurrency': ?originalCurrency,
+          'exchangeRate': ?exchangeRate,
+          if (splits != null)
+            'splits': [
+              for (final s in splits)
+                {
+                  'categoryRowId': s.categoryRowId,
+                  'amount': s.amount,
+                  'label': ?s.label,
+                  'sortOrder': ?s.sortOrder,
+                },
+            ],
+        },
+      );
+      return _unwrap(res, Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   /// 환불 표식을 찍는다 — 전용 경로다(`POST /expense/{id}/refund`).
   ///
   /// 수정 PUT 으로는 만들 수 없다. 환불은 원거래를 그 자리에서 합계에서 빼는 일이라

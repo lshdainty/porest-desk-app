@@ -4144,6 +4144,18 @@
   "expClosedCyclePartLine": "지난 회차분은 기록만 남아요.",
   "expRecordOnlyChangedToast": "기록만 바뀌고 계좌 잔액은 그대로예요",
   "expFixBalance": "잔액 고치기",
+  "expMoneyLockedNote": "결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요",
+  "expRewrite": "고쳐 쓰기",
+  "expRewriteConfirm": "원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌 잔액은 그대로예요.",
+  "expRewriteConfirmOpen": "새 거래는 {date} 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.",
+  "@expRewriteConfirmOpen": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expRewriteConfirmOther": "원래 거래는 지워지고 새 거래로 바뀌어요.",
   "expSaveConfirmTitle": "저장할까요?",
   "assetPreRegistrationNote": "카드 등록 이전 거래라 실제와 맞지 않을 수 있어요",
   "assetRecordCycle": "기록 회차",

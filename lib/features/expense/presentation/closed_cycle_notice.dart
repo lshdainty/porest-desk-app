@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
@@ -29,6 +30,52 @@ ClosedCycleSpan closedCycleSpanOfExpense(Expense e, Asset? asset) =>
       dateKey: e.expenseDate,
       installmentMonths: e.installmentMonths,
     );
+
+/// 이 거래의 돈 칸이 잠겼나(D12) — 서버 플래그가 먼저고, 규칙으로 한 번 더 본다.
+///
+/// 잠금 = 신용카드 거래이고 (기록용 표식이 있거나 결제일이 된 회차분이 하나라도 있음).
+/// 할부는 첫 회차부터 본다 — 첫 회차가 닫혔으면 걸친 것이다. 서버가 `moneyLocked` 를
+/// 내려 주면 그것으로 충분하지만, 규칙을 같이 보면 자산 목록만 새로 받은 사이에도
+/// 잠긴 거래를 풀어 놓지 않는다(서버는 돈 칸이 바뀌면 어차피 400 이다).
+bool moneyLockedOf(Expense e, Asset? asset) {
+  if (e.moneyLocked) return true;
+  if (asset?.assetType != 'CREDIT_CARD') return false;
+  return e.cardSettledThrough != null ||
+      closedCycleSpanOfExpense(e, asset) != ClosedCycleSpan.none;
+}
+
+/// 고쳐 쓰기 확인창 본문(D13) — 새 거래가 떨어지는 회차로 가른다. 서버 조회 없음.
+///
+///   - 닫힌 회차(카드) — "원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌
+///     잔액은 그대로예요." 할부가 걸치면 "지난 회차분은 기록만 남아요." 를 붙인다
+///   - 열린 회차(카드) — "새 거래는 {그 회차 결제일} 결제에 청구돼요. 원래 거래는 이미
+///     결제된 회차에서 기록만 빠져요." 결제일은 거래 달의 다음 달 결제일이다
+///   - 그 밖(계좌·현금·자산 없음·결제일 없는 카드) — "원래 거래는 지워지고 새 거래로
+///     바뀌어요." 만. 청구 회차가 없으니 결제일을 말할 수 없다
+String rewriteConfirmMessage(
+  AppLocalizations l, {
+  required Asset? newAsset,
+  required String dateKey,
+  int? installmentMonths,
+}) {
+  if (newAsset != null && newAsset.assetType == 'CREDIT_CARD') {
+    final span = closedCycleSpanFor(
+      newAsset,
+      dateKey: dateKey,
+      installmentMonths: installmentMonths,
+    );
+    if (span == ClosedCycleSpan.full) return l.expRewriteConfirm;
+    if (span == ClosedCycleSpan.partial) {
+      return '${l.expRewriteConfirm}\n\n${l.expClosedCyclePartLine}';
+    }
+    final day = newAsset.paymentDay;
+    if (day != null) {
+      final pay = DateTime.parse(cardCyclePaymentDate(dateKey, day));
+      return l.expRewriteConfirmOpen(formatDay(pay).md);
+    }
+  }
+  return l.expRewriteConfirmOther;
+}
 
 /// 확인창 본문 — 기본 문장 뒤에 닫힌 회차 한 줄을 문단으로 붙인다.
 String withClosedCycleNote(

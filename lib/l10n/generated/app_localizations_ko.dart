@@ -6747,6 +6747,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFixBalance => '잔액 고치기';
 
   @override
+  String get expMoneyLockedNote => '결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요';
+
+  @override
+  String get expRewrite => '고쳐 쓰기';
+
+  @override
+  String get expRewriteConfirm =>
+      '원래 거래는 지워지고 새 거래로 바뀌어요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
+
+  @override
+  String expRewriteConfirmOpen(String date) {
+    return '새 거래는 $date 결제에 청구돼요. 원래 거래는 이미 결제된 회차에서 기록만 빠져요.';
+  }
+
+  @override
+  String get expRewriteConfirmOther => '원래 거래는 지워지고 새 거래로 바뀌어요.';
+
+  @override
   String get expSaveConfirmTitle => '저장할까요?';
 
   @override
