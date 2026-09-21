@@ -3997,6 +3997,7 @@
   "expClosedCyclePartLine": "Installments from past cycles stay as records only.",
   "expFixBalance": "Fix balance",
   "expMoneyLockedNote": "This transaction has already been paid. To change the amount or date, tap Rewrite",
+  "expMoneyLockedPaidOffNote": "This transaction has already been paid. It is a paid-off installment, so the amount and date can't be changed.",
   "expRewrite": "Rewrite",
   "expRewriteConfirmLead": "The original transaction is deleted and replaced with a new one.",
   "expRewriteConfirmClosed": "Only the record changes, and your account balance stays the same.",

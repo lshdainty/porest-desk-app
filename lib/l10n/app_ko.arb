@@ -4147,6 +4147,7 @@
   "expClosedCyclePartLine": "지난 회차분은 기록만 남아요.",
   "expFixBalance": "잔액 고치기",
   "expMoneyLockedNote": "결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요",
+  "expMoneyLockedPaidOffNote": "결제가 끝난 거래예요. 중도 정리한 할부라 금액·날짜를 바꿀 수 없어요.",
   "expRewrite": "고쳐 쓰기",
   "expRewriteConfirmLead": "원래 거래는 지워지고 새 거래로 바뀌어요.",
   "expRewriteConfirmClosed": "기록만 바뀌고 계좌 잔액은 그대로예요.",
