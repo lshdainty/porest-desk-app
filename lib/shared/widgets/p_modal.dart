@@ -343,20 +343,55 @@ Future<T?> showPSheet<T>(
               : mq.viewPadding.bottom;
           return Padding(
             padding: EdgeInsets.only(bottom: bottomInset),
-            child: _buildSheetColumn(
-              innerCtx,
-              title: title,
-              titleListenable: titleListenable,
-              headerActions: headerActions,
-              content: contentBuilder(innerCtx, scrollCtrl),
-              footerBuilder: footerBuilder,
-              expanded: true,
+            child: _SheetToastLayer(
+              child: _buildSheetColumn(
+                innerCtx,
+                title: title,
+                titleListenable: titleListenable,
+                headerActions: headerActions,
+                content: contentBuilder(innerCtx, scrollCtrl),
+                footerBuilder: footerBuilder,
+                expanded: true,
+              ),
             ),
           );
         },
       );
     },
   );
+}
+
+/// 시트 위에도 토스트가 보이게 하는 층 — 시트 본문을 투명 [Scaffold] 로 감싼다.
+///
+/// 토스트(`PToast`·`showPSnackBar`·에러 인터셉터)는 앱 전역 ScaffoldMessenger 의 SnackBar
+/// 다. messenger 는 등록된 **루트 Scaffold 마다** SnackBar 를 그리는데, 시트는 루트
+/// 네비게이터의 모달 라우트라 그동안 루트 Scaffold 가 페이지 하나뿐이었다 — 시트가 열린 채
+/// 띄운 토스트는 시트 **아래** 페이지에 그려져 가려졌다(상세에서 환불한 뒤 "미리 낸 돈 중
+/// N원이 계좌로 돌아왔어요", 저장 중 API 에러 토스트).
+///
+/// 새 messenger 를 두지 않는 게 요점이다. 이 Scaffold 는 같은 전역 messenger 에 루트로
+/// 하나 더 등록될 뿐이라, 토스트는 시트 위와 페이지 양쪽에 그려지고 **시트를 닫아도 페이지
+/// 쪽 토스트는 남는다**(저장 → 시트 닫힘 → 토스트 흐름이 그대로다). 시트 안에 messenger 를
+/// 따로 두면 시트를 닫는 순간 그 안의 토스트가 같이 사라진다.
+///
+/// 키보드 높이는 바깥 Padding 이 이미 올려 두었으므로 [Scaffold.resizeToAvoidBottomInset]
+/// 을 끈다 — 켜면 토스트가 키보드 높이만큼 한 번 더 떠오른다.
+///
+/// 끌어올리는 기본형에만 둔다. shrinkWrap 형은 높이가 내용을 따라 정해지는데 Scaffold 는
+/// 받은 최대 높이를 다 차지해 시트가 화면 높이로 커진다(짧은 선택·확인 시트라 토스트를 띄운
+/// 채 머무는 일이 드물다).
+class _SheetToastLayer extends StatelessWidget {
+  const _SheetToastLayer({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false,
+      body: child,
+    );
+  }
 }
 
 /// showPSheet 의 두 모드 (DraggableScrollableSheet / shrinkWrap) 가 공유하는
