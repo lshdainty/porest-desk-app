@@ -669,15 +669,23 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   /// 결제가 끝난 회차에 걸리는 카드 거래면 저장 전에 한 번 묻는다(D1·D2).
   ///
-  /// 새 저장·편집 저장·문자 저장이 같은 판정이다 — 저장될 날짜·카드·할부가 그 카드의
-  /// `cardClosedThrough` 이하면 "이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은
-  /// 그대로예요", 할부가 걸치면 "지난 회차분은 기록만 남아요". **서버에 묻지 않는다** —
-  /// 예전의 저장 미리보기(3초 제한·실패 폴백)는 걷었다.
+  /// 저장될 날짜·카드·할부가 그 카드의 `cardClosedThrough` 이하면 "이미 결제가 끝난
+  /// 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요", 할부가 걸치면 "지난 회차분은
+  /// 기록만 남아요". **서버에 묻지 않는다** — 예전의 저장 미리보기(3초 제한·실패
+  /// 폴백)는 걷었다.
+  ///
+  /// 확인창은 **돈과 기록이 갈리는 자리에만** 둔다(사용자 결정 2026-09-21).
+  ///   - 새 저장(문자 저장 포함) — 닫힌 회차로 들어가면 묻는다
+  ///   - 편집 저장 — 원래 거래가 **안 잠겼고** 새 날짜·새 카드가 닫힌 회차에 들면 묻는다
+  ///     (열린 회차 거래를 닫힌 회차로 옮기는 저장)
+  ///   - 잠긴 거래(D12)의 편집 저장 — 묻지 않는다. 돈 칸이 잠겨 카테고리·가맹점·메모만
+  ///     바뀌고, 돈 칸은 원래 값 그대로 나간다 — 통장에 일어나는 일이 없다
   ///
   /// 열린 회차는 묻지 않는다 — 평소대로 청구될 뿐이다. 돌려주는 값이 false 면 사용자가
   /// 물러난 것이다.
   Future<bool> _confirmClosedCycleSave({int? installment}) async {
     if (_input.type == 'TRANSFER') return true;
+    if (widget.edit != null && _input.moneyLocked) return true;
     final id = _input.assetRowId;
     if (id == null) return true;
     final asset = (ref.read(assetsProvider).value ?? const <Asset>[]).byRowId(
