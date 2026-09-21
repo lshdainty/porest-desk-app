@@ -2071,6 +2071,67 @@ class _TrendPoint {
   int get savings => income - expense;
 }
 
+/// 일별 추이 — 기간의 하루하루에 (수입, 지출)을 모은다. 거래가 없는 날도 0 으로 선다.
+///
+/// 서버 집계와 같은 규칙(`countableTx`) — 아직 안 온 것·환불된 것·카드 이월은 세지
+/// 않는다. 안 그러면 같은 화면의 저축률 위젯(서버 값)과 선 그래프가 어긋난다(23차 12 —
+/// 이월이 카드를 등록한 날 지출로 솟았다).
+@visibleForTesting
+List<({String label, int income, int expense})> dailyTrendOf(
+  List<Expense> exps,
+  DateTime from,
+  DateTime to,
+) {
+  final fromDay = DateTime(from.year, from.month, from.day);
+  final toDay = DateTime(to.year, to.month, to.day);
+  final days = toDay.difference(fromDay).inDays + 1;
+  final byDate = <String, ({int income, int expense, String label})>{};
+  for (var i = 0; i < days; i++) {
+    final d = fromDay.add(Duration(days: i));
+    byDate[_ymd(d)] = (income: 0, expense: 0, label: '${d.month}/${d.day}');
+  }
+  for (final e in countableTx(exps)) {
+    final raw = e.expenseDate ?? '';
+    if (raw.length < 10) continue;
+    final key = raw.substring(0, 10);
+    final cur = byDate[key];
+    if (cur == null) continue;
+    byDate[key] = e.expenseType == 'INCOME'
+        ? (
+            income: cur.income + e.amount,
+            expense: cur.expense,
+            label: cur.label,
+          )
+        : (
+            income: cur.income,
+            expense: cur.expense + e.amount,
+            label: cur.label,
+          );
+  }
+  return byDate.values.toList();
+}
+
+/// 지출 건수 — 합계와 같은 규칙으로 센다(`countableTx`). 환불한 거래·카드 이월은
+/// 금액 합계에서 빠지는데 건수에만 남으면 "건당 평균" 이 틀린다(23차 12).
+@visibleForTesting
+int statsExpenseCount(List<Expense> exps) =>
+    countableTx(exps).where((x) => x.expenseType == 'EXPENSE').length;
+
+/// 요일별 지출 합. index 0=월 .. 6=일 (DateTime.weekday 1=월~7=일).
+///
+/// 합계와 같은 규칙(`countableTx`) — 환불·카드 이월·아직 안 온 거래는 뺀다(23차 12).
+@visibleForTesting
+List<int> statsWeekdaySums(List<Expense> exps) {
+  final res = List<int>.filled(7, 0);
+  for (final e in countableTx(exps)) {
+    if (e.expenseType != 'EXPENSE') continue;
+    final d = DateTime.tryParse(e.expenseDate ?? '');
+    if (d == null) continue;
+    res[d.weekday - 1] += e.amount;
+  }
+  return res;
+}
+
 List<_TrendPoint> _computeTrendData(
   _StatsScreenState s,
   AsyncValue<RangeSummary> rangeAsync,
@@ -2082,42 +2143,8 @@ List<_TrendPoint> _computeTrendData(
 
   if (useDaily) {
     final exps = monthExpAsync.value ?? const <Expense>[];
-    final fromDay = DateTime(s._from.year, s._from.month, s._from.day);
-    final toDay = DateTime(s._to.year, s._to.month, s._to.day);
-    final days = toDay.difference(fromDay).inDays + 1;
-    final byDate = <String, ({int income, int expense, String label})>{};
-    for (var i = 0; i < days; i++) {
-      final d = fromDay.add(Duration(days: i));
-      final key = _ymd(d);
-      byDate[key] = (income: 0, expense: 0, label: '${d.month}/${d.day}');
-    }
-    // 서버 집계와 같은 규칙 — 환불은 지출 상계, 아직 안 온 건 세지 않는다.
-    // 안 그러면 같은 화면의 저축률 위젯(서버 값)과 선 그래프가 어긋난다.
-    for (final e in exps) {
-      final raw = e.expenseDate ?? '';
-      if (raw.length < 10) continue;
-      final key = raw.substring(0, 10);
-      final cur = byDate[key];
-      if (cur == null) continue;
-      if (isScheduledTx(raw)) continue;
-      // 환불된 거래는 삭제와 똑같이 빠진다 — 그 달 지출이 소급해 줄어든다.
-      if (isRefundedTx(e)) continue;
-      if (e.expenseType == 'INCOME') {
-        byDate[key] = (
-          income: cur.income + e.amount,
-          expense: cur.expense,
-          label: cur.label,
-        );
-      } else {
-        byDate[key] = (
-          income: cur.income,
-          expense: cur.expense + e.amount,
-          label: cur.label,
-        );
-      }
-    }
     return [
-      for (final v in byDate.values)
+      for (final v in dailyTrendOf(exps, s._from, s._to))
         _TrendPoint(label: v.label, income: v.income, expense: v.expense),
     ];
   }
@@ -3421,8 +3448,7 @@ class _CompareMetricsCard extends StatelessWidget {
   final AsyncValue<List<Expense>> prevExpAsync;
   final bool masked;
 
-  static int _txCount(List<Expense> e) =>
-      e.where((x) => x.expenseType == 'EXPENSE').length;
+  static int _txCount(List<Expense> e) => statsExpenseCount(e);
 
   @override
   Widget build(BuildContext context) {
@@ -3545,17 +3571,7 @@ class _CompareWeekdayCard extends StatefulWidget {
   final AsyncValue<List<Expense>> prevExpAsync;
   final bool masked;
 
-  /// EXPENSE 만 요일별 합산. index 0=월 .. 6=일 (DateTime.weekday 1=월~7=일).
-  static List<int> _byWeekday(List<Expense> exps) {
-    final res = List<int>.filled(7, 0);
-    for (final e in exps) {
-      if (e.expenseType != 'EXPENSE') continue;
-      final d = DateTime.tryParse(e.expenseDate ?? '');
-      if (d == null) continue;
-      res[d.weekday - 1] += e.amount;
-    }
-    return res;
-  }
+  static List<int> _byWeekday(List<Expense> exps) => statsWeekdaySums(exps);
 
   @override
   State<_CompareWeekdayCard> createState() => _CompareWeekdayCardState();

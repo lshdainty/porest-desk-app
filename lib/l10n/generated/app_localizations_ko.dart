@@ -3030,6 +3030,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expAutoSourceTransferInterest => '이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.';
 
   @override
+  String get expAutoSourceCardCarryover =>
+      '카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.';
+
+  @override
   String get expAutoSourceDefault => '자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.';
 
   @override

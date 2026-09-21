@@ -1681,6 +1681,7 @@ class _TxInputForm extends ConsumerWidget {
           Text(switch (c.autoSource) {
             'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
             'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
+            'CARD_CARRYOVER' => l.expAutoSourceCardCarryover,
             _ => l.expAutoSourceDefault,
           }, style: PTypo.micro.copyWith(color: t.fgTertiary)),
         ]
@@ -2073,7 +2074,11 @@ class _TxInputForm extends ConsumerWidget {
                   c.currency,
                   Localizations.localeOf(context).toString(),
                 ),
-                krw((c.origAmountOrNull! * c.fxRateOrNull!).round()),
+                krwSigned(
+                  (c.origAmountOrNull! * c.fxRateOrNull!).round(),
+                  false,
+                  unit: true,
+                ),
               ),
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),

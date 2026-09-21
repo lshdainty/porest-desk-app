@@ -3072,6 +3072,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Interest on a transfer. The amount is calculated from the transfer.';
 
   @override
+  String get expAutoSourceCardCarryover =>
+      'This is the unpaid usage you entered when adding the card. It isn\'t counted in your ledger totals.';
+
+  @override
   String get expAutoSourceDefault =>
       'Created automatically. It disappears when the original is deleted.';
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,29 +44,52 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 void showTxDetailDialog(BuildContext context, Expense expense) {
   final l = AppLocalizations.of(context);
   final controller = PSheetController();
+  // 지금 그리는 거래 — 환불·환불 취소로 서버가 돌려준 거래로 바뀐다. 본문과 footer 가
+  // 같이 본다. footer 가 열 때의 거래를 쥐고 있으면 환불 직후에도 [수정] 이 남는다
+  // (23차 낮음 — 누르면 EXP_043).
+  final current = ValueNotifier<Expense>(expense);
+  // footer 가 듣는 둘을 **한 번만** 묶는다. 빌드마다 새로 묶으면 footer 가 다시 그려질
+  // 때마다 다시 구독하는데, 시트가 닫히는 애니메이션 중엔 controller 가 이미 dispose 돼
+  // 그 자리에서 터진다.
+  final footerListenable = Listenable.merge([controller, current]);
   final isIncome = expense.expenseType == 'INCOME';
   showPSheet<void>(
     context,
     title: isIncome ? l.expIncomeDetail : l.expExpenseDetail,
     contentBuilder: (ctx, scrollCtrl) => _DetailBody(
       expense: expense,
+      current: current,
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) =>
-        _TxDetailFooter(expense: expense, controller: controller),
-  ).whenComplete(controller.dispose);
+    footerBuilder: (ctx) => _TxDetailFooter(
+      current: current,
+      controller: controller,
+      listenable: footerListenable,
+    ),
+  ).whenComplete(() {
+    controller.dispose();
+    current.dispose();
+  });
 }
 
 class _TxDetailFooter extends StatelessWidget {
-  const _TxDetailFooter({required this.expense, required this.controller});
-  final Expense expense;
+  const _TxDetailFooter({
+    required this.current,
+    required this.controller,
+    required this.listenable,
+  });
+  final ValueListenable<Expense> current;
   final PSheetController controller;
+
+  /// [controller]·[current] 를 묶은 것 — 시트를 열 때 한 번 만든다.
+  final Listenable listenable;
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: controller,
+      animation: listenable,
       builder: (ctx, _) {
+        final expense = current.value;
         final busy = controller.submitting;
         // 고칠 수 없는 거래 둘 — 시스템이 만든 것(매도 실현손익·이체 이자)은 원본을
         // 지워야 사라지고, 환불된 것은 돈이 이미 자산으로 돌아가 되돌릴 기준이 없다
@@ -90,10 +114,14 @@ class _TxDetailFooter extends StatelessWidget {
 class _DetailBody extends ConsumerStatefulWidget {
   const _DetailBody({
     required this.expense,
+    required this.current,
     required this.scrollController,
     required this.controller,
   });
   final Expense expense;
+
+  /// 본문이 바꾼 거래를 footer 에 알리는 자리.
+  final ValueNotifier<Expense> current;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -109,6 +137,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 화면이 그리는 거래. 열릴 때는 넘겨받은 것과 같지만, 환불을 찍거나 취소하면
   /// 서버가 돌려준 것으로 갈아 끼운다 — 그래야 배너가 그 자리에서 바뀐다.
   late Expense _e = widget.expense;
+
+  /// [_e] 를 바꾸고 footer 에도 알린다 — [수정] 이 환불 여부를 따라 숨고 나타난다.
+  void _setExpense(Expense e) {
+    setState(() => _e = e);
+    widget.current.value = e;
+  }
 
   @override
   void initState() {
@@ -178,7 +212,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         refundedAt: picked,
         asset: asset,
       );
-      if (updated != null && mounted) setState(() => _e = updated);
+      if (updated != null && mounted) _setExpense(updated);
     } finally {
       if (mounted) setState(() => _refunding = false);
     }
@@ -210,7 +244,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     setState(() => _refunding = true);
     try {
       final updated = await expenseActions.cancelRefund(ref, _e);
-      if (updated != null && mounted) setState(() => _e = updated);
+      if (updated != null && mounted) _setExpense(updated);
     } finally {
       if (mounted) setState(() => _refunding = false);
     }
@@ -453,6 +487,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     child: Text(switch (e.autoSource) {
                       'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
                       'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
+                      // 카드 이월 — "원래 거래를 지우면…" 은 틀린 말이다. 원래
+                      // 거래가 없다(23차 10).
+                      'CARD_CARRYOVER' => l.expAutoSourceCardCarryover,
                       _ => l.expAutoSourceDefault,
                     }, style: PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
@@ -550,8 +587,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             children: [
               // 환불 — 지출에만, 아직 환불 안 한 것만. 누르면 확인 다이얼로그(환불일)
               // 이고, 확인하면 원거래에 표식이 찍혀 합계에서 빠진다. 시트를 닫지 않는다
-              // — 표식이 찍힌 모습(배너)을 그 자리에서 보여 준다.
-              if (!isIncome && !e.isRefunded)
+              // — 표식이 찍힌 모습(배너)을 그 자리에서 보여 준다. 시스템이 만든 거래
+              // (카드 이월 등)는 서버가 환불을 거절하므로 띄우지 않는다(23차 10).
+              if (!isIncome && !e.isRefunded && e.autoSource == null)
                 Expanded(
                   child: PDetailQuickAction(
                     icon: LucideIcons.undo2,
@@ -561,9 +599,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         : () => _refund(asset),
                   ),
                 ),
-              // 분할도 환불된 거래에는 안 띄운다 — 서버가 EXP_043 으로 막으므로
-              // 눌러 봐야 토스트만 뜬다.
-              if (!e.isRefunded)
+              // 분할도 환불된 거래·시스템이 만든 거래에는 안 띄운다 — 서버가 막으므로
+              // 눌러 봐야 토스트만 뜬다(EXP_043 · 23차 10).
+              if (!e.isRefunded && e.autoSource == null)
                 Expanded(
                   child: PDetailQuickAction(
                     icon: LucideIcons.scissors,

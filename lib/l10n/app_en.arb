@@ -1850,6 +1850,7 @@
   "expAutoLock": "Auto",
   "expAutoSourceTradeRealized": "Realized P/L from a sale. The amount is calculated from the trade.",
   "expAutoSourceTransferInterest": "Interest on a transfer. The amount is calculated from the transfer.",
+  "expAutoSourceCardCarryover": "This is the unpaid usage you entered when adding the card. It isn't counted in your ledger totals.",
   "expAutoSourceDefault": "Created automatically. It disappears when the original is deleted.",
   "expPresetLock": "Preset lock",
   "expNoCategoryForType": "No categories for this type",

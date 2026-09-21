@@ -1848,7 +1848,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             final dateSuffix = l.assetPayConfirmDateSuffix(st.paymentDate);
             final moveNote = b.paymentAssetRowId == null
                 ? l.assetPayNoAccountNote
-                : (debt < v ? l.assetPayMoveNote(krw(debt)) : null);
+                : (debt < v
+                      ? l.assetPayMoveNote(krwSigned(debt, false, unit: true))
+                      : null);
             // 시트 본문 좌우는 호출처가 쥔다 — showPSheet 는 헤더·푸터만 24 를 준다.
             return Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -1897,7 +1899,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   if (v > 0 && v < upcoming) ...[
                     const SizedBox(height: PSpace.x8),
                     Text(
-                      l.assetPayRemainder(krw(upcoming - v)),
+                      l.assetPayRemainder(
+                        krwSigned(upcoming - v, false, unit: true),
+                      ),
                       style: PTypo.micro.copyWith(color: t.fgTertiary),
                     ),
                   ],

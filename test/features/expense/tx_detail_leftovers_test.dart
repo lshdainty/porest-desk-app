@@ -1,0 +1,287 @@
+// 23차에서 남은 앱 결함 — 거래 상세·스와이프·금액 단위.
+//
+//   ① 상세에서 환불하면 footer 의 [수정] 이 그 자리에서 사라진다(누르면 EXP_043 이던 것)
+//   ② 카드 이월 거래 상세 — 환불·분할이 없고, 안내가 "원래 거래를 지우면…" 이 아니다
+//   ③ 환불된 행을 밀면 [수정] 이 없다(삭제는 있다)
+//   ④ 금액을 문장에 넣을 때 단위(원)를 붙인다 — 결제 시트·해외 결제 환산 줄
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:porest_desk_app/app/theme/theme_data.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
+import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_detail_dialog.dart';
+import 'package:porest_desk_app/features/card/application/card_providers.dart';
+import 'package:porest_desk_app/features/card/domain/card_performance.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
+import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
+import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
+import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
+
+const _account = Asset(
+  rowId: 3,
+  assetName: '생활비 통장',
+  assetType: 'BANK_ACCOUNT',
+  balance: 1000000,
+);
+
+const _category = ExpenseCategory(
+  rowId: 11,
+  categoryName: '식비',
+  expenseType: 'EXPENSE',
+  sortOrder: 0,
+  icon: 'utensils',
+  color: '#2c70bf',
+);
+
+const _plain = Expense(
+  rowId: 5,
+  categoryRowId: 11,
+  categoryName: '식비',
+  assetRowId: 3,
+  assetName: '생활비 통장',
+  expenseType: 'EXPENSE',
+  amount: 12000,
+  merchant: '점심',
+  expenseDate: '2026-09-10T12:00:00',
+);
+
+class _FakeRepo extends ExpenseRepository {
+  _FakeRepo() : super(Dio(BaseOptions(baseUrl: 'https://example.invalid')));
+
+  @override
+  Future<Expense> refund(int id, {String? refundedAt}) async =>
+      _plain.copyWith(refundedAt: refundedAt);
+
+  @override
+  Future<Expense> cancelRefund(int id) async => _plain;
+}
+
+Future<void> _pump(WidgetTester tester, Widget home) async {
+  tester.view.physicalSize = const Size(1500, 3000);
+  tester.view.devicePixelRatio = 3.0;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        expenseRepositoryProvider.overrideWith((ref) async => _FakeRepo()),
+        assetsProvider.overrideWith((ref) async => const [_account]),
+        categoriesProvider.overrideWith((ref) async => const [_category]),
+        presetListProvider.overrideWith((ref) async => const []),
+        expenseSplitsProvider.overrideWith((ref, id) async => const []),
+        merchantMonthExpensesProvider.overrideWith(
+          (ref, key) async => const [],
+        ),
+        hideCardProvider.overrideWith((ref, card) => false),
+        defaultCurrencyProvider.overrideWith((ref) => 'KRW'),
+      ],
+      child: MaterialApp(
+        theme: PorestTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: Scaffold(body: home),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Widget _opener(void Function(BuildContext) open) => Builder(
+  builder: (ctx) =>
+      TextButton(onPressed: () => open(ctx), child: const Text('open')),
+);
+
+void main() {
+  testWidgets('상세에서 환불하면 [수정] 이 그 자리에서 사라지고, 취소하면 돌아온다', (tester) async {
+    await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, _plain)));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(find.text('수정'), findsOneWidget);
+    expect(find.text('내역 분할'), findsOneWidget, reason: '보통 거래에는 있다');
+
+    await tester.tap(find.text('환불'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('환불 처리').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('환불 취소'), findsOneWidget, reason: '배너가 떴다');
+    expect(find.text('수정'), findsNothing, reason: 'footer 도 환불된 거래를 본다');
+
+    await tester.tap(find.text('환불 취소'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('환불 취소').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('수정'), findsOneWidget);
+  });
+
+  testWidgets('카드 이월 거래 상세 — 환불·분할이 없고 이월이라고 말한다', (tester) async {
+    final carryover = _plain.copyWith(
+      merchant: '이전 미결제 사용액',
+      autoSource: 'CARD_CARRYOVER',
+    );
+    await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, carryover)));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('환불'), findsNothing);
+    expect(find.text('내역 분할'), findsNothing);
+    expect(
+      find.text('카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('원래 거래를 지우면'), findsNothing);
+  });
+
+  testWidgets('환불된 행을 밀면 [수정] 은 없고 [삭제] 만 있다', (tester) async {
+    final refunded = _plain.copyWith(refundedAt: '2026-09-15T12:00:00');
+    late List<PSwipeAction> actions;
+    await _pump(
+      tester,
+      Consumer(
+        builder: (ctx, ref, _) {
+          actions = expenseActions.swipeActions(
+            ctx,
+            ref,
+            refunded,
+            asset: _account,
+          );
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+
+    expect(actions.map((a) => a.label), ['삭제']);
+  });
+
+  testWidgets('해외 결제 환산 줄에 원화 단위가 붙는다', (tester) async {
+    await _pump(tester, _opener((ctx) => showAddTxSheet(ctx)));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    // 통화 select — 결제수단 select 와 둘뿐인 문자열 select 의 마지막.
+    await tester.tap(find.byType(PSelect<String>).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('\$ USD').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byWidgetPredicate(
+        (w) => w is TextField && w.decoration?.hintText == '현지 금액',
+      ),
+      '5.5',
+    );
+    await tester.enterText(
+      find.byWidgetPredicate(
+        (w) => w is TextField && w.decoration?.hintText == '환율',
+      ),
+      '1400',
+    );
+    await tester.pump();
+
+    expect(find.textContaining('→ 7,700원'), findsOneWidget);
+  });
+
+  group('카드 결제 시트 — 금액에 단위(원)', () {
+    const card = Asset(
+      rowId: 9,
+      assetName: '현대카드',
+      assetType: 'CREDIT_CARD',
+      balance: -9000,
+      paymentDay: 12,
+      paymentAssetRowId: 3,
+      cardClosedThrough: '2026-08-31',
+    );
+
+    testWidgets('사용액 캡 안내와 남은 금액이 "N원" 으로 읽힌다', (tester) async {
+      tester.view.physicalSize = const Size(1500, 3600);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            assetsProvider.overrideWith((ref) async => const [card]),
+            hideCardProvider.overrideWith((ref, c) => false),
+            cardBillingProvider.overrideWith(
+              (ref, id) async => const CardBilling(
+                cardAssetRowId: 9,
+                upcomingAmount: 40000,
+                nextPaymentDate: '2026-10-12',
+                upcomingPeriodStart: '2026-09-01',
+                upcomingPeriodEnd: '2026-09-30',
+                paymentAssetRowId: 3,
+              ),
+            ),
+            cardPerformanceProvider.overrideWith(
+              (ref, key) async => const CardPerformance(
+                assetRowId: 9,
+                yearMonth: '2026-09',
+                isRequired: false,
+                currentAmount: 0,
+                achievementRate: 0,
+                isAchieved: false,
+              ),
+            ),
+            assetBalanceTrendProvider.overrideWith(
+              (ref, key) async => const [],
+            ),
+            assetTransfersProvider.overrideWith(
+              (ref, key) async => const <AssetTransfer>[],
+            ),
+            expensesByAssetProvider.overrideWith(
+              (ref, key) async => const <Expense>[],
+            ),
+            assetPeriodExpensesProvider.overrideWith(
+              (ref, key) async => const <Expense>[],
+            ),
+          ],
+          child: MaterialApp(
+            theme: PorestTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            home: Scaffold(
+              body: Builder(
+                builder: (ctx) => TextButton(
+                  onPressed: () => showAssetDetailRich(ctx, card),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('지금 결제'));
+      await tester.pumpAndSettle();
+
+      // 빚(9,000)보다 청구(40,000)가 크다 — 계좌에서는 9,000원만 빠진다.
+      expect(find.textContaining('사용액으로 잡힌 9,000원만 빠져요'), findsOneWidget);
+
+      await tester.enterText(
+        find.byWidgetPredicate(
+          (w) => w is TextField && w.controller?.text == '40000',
+        ),
+        '30000',
+      );
+      await tester.pump();
+      expect(find.text('남은 10,000원은 결제일에 빠져요'), findsOneWidget);
+    });
+  });
+}

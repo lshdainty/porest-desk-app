@@ -5600,6 +5600,12 @@ abstract class AppLocalizations {
   /// **'이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.'**
   String get expAutoSourceTransferInterest;
 
+  /// No description provided for @expAutoSourceCardCarryover.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드를 등록할 때 적은 이전 미결제 사용액이에요. 가계부 합계에는 들어가지 않아요.'**
+  String get expAutoSourceCardCarryover;
+
   /// No description provided for @expAutoSourceDefault.
   ///
   /// In ko, this message translates to:
