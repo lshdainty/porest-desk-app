@@ -81,6 +81,9 @@ _CardBilling _$CardBillingFromJson(Map<String, dynamic> json) => _CardBilling(
   nextCycle: json['nextCycle'] == null
       ? null
       : UpcomingCycle.fromJson(json['nextCycle'] as Map<String, dynamic>),
+  closedCycles: (json['closedCycles'] as List<dynamic>?)
+      ?.map((e) => ClosedCycle.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$CardBillingToJson(_CardBilling instance) =>
@@ -97,6 +100,28 @@ Map<String, dynamic> _$CardBillingToJson(_CardBilling instance) =>
       'paymentAssetRowId': instance.paymentAssetRowId,
       'history': instance.history,
       'nextCycle': instance.nextCycle,
+      'closedCycles': instance.closedCycles,
+    };
+
+_ClosedCycle _$ClosedCycleFromJson(Map<String, dynamic> json) => _ClosedCycle(
+  periodStart: json['periodStart'] as String,
+  periodEnd: json['periodEnd'] as String,
+  paymentDate: json['paymentDate'] as String,
+  paidAmount: (json['paidAmount'] as num?)?.toInt() ?? 0,
+  recordedOnlyAmount: (json['recordedOnlyAmount'] as num?)?.toInt() ?? 0,
+  preRegistration: json['preRegistration'] as bool? ?? false,
+  refundableUntil: json['refundableUntil'] as String?,
+);
+
+Map<String, dynamic> _$ClosedCycleToJson(_ClosedCycle instance) =>
+    <String, dynamic>{
+      'periodStart': instance.periodStart,
+      'periodEnd': instance.periodEnd,
+      'paymentDate': instance.paymentDate,
+      'paidAmount': instance.paidAmount,
+      'recordedOnlyAmount': instance.recordedOnlyAmount,
+      'preRegistration': instance.preRegistration,
+      'refundableUntil': instance.refundableUntil,
     };
 
 _UpcomingCycle _$UpcomingCycleFromJson(Map<String, dynamic> json) =>

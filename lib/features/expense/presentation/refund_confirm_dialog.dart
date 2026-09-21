@@ -6,6 +6,8 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
+import 'package:porest_desk_app/features/expense/presentation/paid_refund_note.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
@@ -19,19 +21,29 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 ///
 /// 확인하면 `YYYY-MM-DDT12:00:00` 을 돌려준다. **정오**인 이유 — 자정으로 보내면 같은
 /// 날 앞서 찍힌 거래보다 과거가 되어 카드 회차 판정이 하루 밀린다. 취소면 null.
+///
+/// [preview] 는 삭제와 같은 미리보기다 — 환불도 돈은 삭제와 똑같이 움직인다. 결제계좌가
+/// 있는 카드면 얼마가 돌아오는지, 결제한 달이 지났으면 안 돌아온다는 것을 말한다(R6).
 Future<String?> showRefundConfirmDialog(
   BuildContext context, {
   required Expense expense,
   required Asset? asset,
+  Future<RefundPreview>? preview,
 }) => showDialog<String>(
   context: context,
-  builder: (ctx) => _RefundConfirmDialog(expense: expense, asset: asset),
+  builder: (ctx) =>
+      _RefundConfirmDialog(expense: expense, asset: asset, preview: preview),
 );
 
 class _RefundConfirmDialog extends StatefulWidget {
-  const _RefundConfirmDialog({required this.expense, required this.asset});
+  const _RefundConfirmDialog({
+    required this.expense,
+    required this.asset,
+    required this.preview,
+  });
   final Expense expense;
   final Asset? asset;
+  final Future<RefundPreview>? preview;
 
   @override
   State<_RefundConfirmDialog> createState() => _RefundConfirmDialogState();
@@ -70,12 +82,15 @@ class _RefundConfirmDialogState extends State<_RefundConfirmDialog> {
             ),
             style: PTypo.bodySm.copyWith(color: t.fgSecondary),
           ),
-          if (isCreditCard) ...[
+          if (isCreditCard && hasPaymentAsset)
+            PaidRefundNote(
+              preview: widget.preview,
+              cardHasPaymentAsset: hasPaymentAsset,
+            )
+          else if (isCreditCard) ...[
             const SizedBox(height: PSpace.x8),
             Text(
-              hasPaymentAsset
-                  ? l.expRefundConfirmBodyCard
-                  : l.expRefundConfirmBodyCardNoAccount,
+              l.expRefundConfirmBodyCardNoAccount,
               style: PTypo.bodySm.copyWith(color: t.fgSecondary),
             ),
           ],

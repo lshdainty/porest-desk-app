@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/expense/domain/refund_preview.dart';
+import 'package:porest_desk_app/features/expense/presentation/paid_refund_note.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -22,9 +20,9 @@ typedef DeleteConfirmResult = ({bool ok, int? previewed});
 /// 확인창이 아무 말도 안 하면, 계좌에 출처 모를 입금이 하나 생긴 것으로 보인다
 /// (이체 메모에만 남는다).
 ///
-/// 그래서 [preview] 를 받아 네 갈래로 그린다 — 도는 중 스켈레톤 / 금액 / "이미
-/// 환급된 거래" / 못 물어봤으면 금액 없는 문구. **삭제 버튼은 기다리지 않는다**:
-/// 느린 네트워크가 삭제를 막으면 안 된다.
+/// 그래서 [preview] 를 받아 [PaidRefundNote] 로 그린다 — 도는 중 스켈레톤 / 금액 /
+/// "이미 환급된 거래" / 결제한 달이 지나 기록만 정리 / 못 물어봤으면 금액 없는 문구.
+/// **삭제 버튼은 기다리지 않는다**: 느린 네트워크가 삭제를 막으면 안 된다.
 Future<DeleteConfirmResult> showDeleteConfirmDialog(
   BuildContext context, {
   required String title,
@@ -66,34 +64,6 @@ class _DeleteConfirmDialog extends StatefulWidget {
 
 class _DeleteConfirmDialogState extends State<_DeleteConfirmDialog> {
   RefundPreview? _preview;
-  bool _loading = false;
-  bool _failed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final future = widget.preview;
-    if (future == null || !widget.isCreditCard) {
-      return;
-    }
-    _loading = true;
-    future.then(
-      (p) {
-        if (!mounted) return;
-        setState(() {
-          _preview = p;
-          _loading = false;
-        });
-      },
-      onError: (_) {
-        if (!mounted) return;
-        setState(() {
-          _failed = true;
-          _loading = false;
-        });
-      },
-    );
-  }
 
   /// 예고할 금액 — 없으면 null. 실제 환급액을 이 값과 비교해 토스트를 가른다.
   int? get _previewedAmount {
@@ -115,7 +85,12 @@ class _DeleteConfirmDialogState extends State<_DeleteConfirmDialog> {
             widget.message,
             style: PTypo.bodySm.copyWith(color: t.fgSecondary),
           ),
-          if (widget.isCreditCard) ..._note(context, l, t),
+          if (widget.isCreditCard)
+            PaidRefundNote(
+              preview: widget.preview,
+              cardHasPaymentAsset: widget.cardHasPaymentAsset,
+              onResolved: (p) => _preview = p,
+            ),
         ],
       ),
       actions: [
@@ -137,36 +112,5 @@ class _DeleteConfirmDialogState extends State<_DeleteConfirmDialog> {
         ),
       ],
     );
-  }
-
-  List<Widget> _note(BuildContext context, AppLocalizations l, PorestTokens t) {
-    if (_loading) {
-      // 줄이 나중에 나타나며 버튼이 밀리지 않게 자리만 잡아 둔다.
-      return [
-        const SizedBox(height: PSpace.x8),
-        Container(
-          height: 14,
-          decoration: BoxDecoration(
-            color: t.bgMuted,
-            borderRadius: PRadius.brXs,
-          ),
-        ),
-      ];
-    }
-    final p = _preview;
-    String? text;
-    if (p != null && p.alreadyRefunded) {
-      text = l.expRefundedDeleteNote;
-    } else if (p != null && p.hasRefund) {
-      text = l.expPaidDeleteNote(krw(p.refundAmount));
-    } else if ((_failed || p == null) && widget.cardHasPaymentAsset) {
-      // 못 물어봤을 때만 금액 없는 문구로 넘어간다 — 물어봐서 0 이면 조용히 둔다.
-      text = l.expPaidDeleteFallback;
-    }
-    if (text == null) return const [];
-    return [
-      const SizedBox(height: PSpace.x8),
-      Text(text, style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-    ];
   }
 }

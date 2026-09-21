@@ -6833,4 +6833,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String expFilterExcluded(int count) {
     return '$count excluded';
   }
+
+  @override
+  String get expRecordOnlyBadge => 'Record only';
+
+  @override
+  String get expRecordOnlyNote =>
+      'This was added to a cycle that was already paid, so it is kept as a record only. It was not taken from your account';
+
+  @override
+  String expRecordOnlyPartNote(String amount) {
+    return '$amount of this belongs to cycles that were already paid, so it is kept as a record only. The remaining installments are billed as usual';
+  }
+
+  @override
+  String get expWindowClosedNote =>
+      'The payment month has passed, so only the record is updated. Nothing goes back to your account';
+
+  @override
+  String get expClosedCycleNote =>
+      'This cycle has already been paid, so it is kept as a record only. Nothing is taken from your account';
+
+  @override
+  String expSameDayPaymentNote(String amount) {
+    return 'Today is the payment day, so $amount more is taken from your account';
+  }
+
+  @override
+  String get expSaveConfirmTitle => 'Save this?';
+
+  @override
+  String assetRecordedOnlyNote(String amount) {
+    return '$amount of this is record only. It was not taken from your account';
+  }
+
+  @override
+  String get assetPreRegistrationNote =>
+      'These transactions are from before the card was added, so they may not match your actual statement';
 }

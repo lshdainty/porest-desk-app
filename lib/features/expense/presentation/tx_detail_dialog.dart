@@ -172,10 +172,15 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 사용자만 안다. 시각은 **정오**로 보낸다 — 자정이면 같은 날 앞서 찍힌 거래보다
   /// 과거가 되어 카드 회차 판정이 하루 밀린다.
   Future<void> _refund(Asset? asset) async {
+    // 결제계좌가 있는 카드만 물어본다 — 그 밖에는 돌려줄 자리가 없다.
+    final isCard = asset?.assetType == 'CREDIT_CARD';
     final picked = await showRefundConfirmDialog(
       context,
       expense: _e,
       asset: asset,
+      preview: isCard && expenseActions.paidRefundPossible(asset)
+          ? _loadRefundPreview()
+          : null,
     );
     if (picked == null || !mounted) return;
 
@@ -478,6 +483,31 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     onPressed: _deleting || _refunding ? null : _cancelRefund,
                   ),
                 ],
+              ),
+            ),
+          ),
+        // 기록만 — 결제가 끝난 회차에 뒤늦게 적은 카드 지출(닫힌 회차 R2). 계좌에서는
+        // 안 빠졌다는 것을 상세에서 한 번 더 말한다. 할부는 지난 회차분만 기록용이라
+        // 금액이 거래보다 작으면 "이 중 N원" 으로 말한다. 웹도 같은 자리·같은 문구다.
+        if (e.isRecordOnly)
+          PDetailSection(
+            child: Container(
+              key: const ValueKey('record-only-note'),
+              padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x12,
+                vertical: PSpace.x8,
+              ),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brMd,
+              ),
+              child: Text(
+                (e.recordOnlyAmount ?? e.amount.abs()) < e.amount.abs()
+                    ? l.expRecordOnlyPartNote(
+                        krwSigned(e.recordOnlyAmount ?? 0, masked, unit: true),
+                      )
+                    : l.expRecordOnlyNote,
+                style: PTypo.bodySm.copyWith(color: t.fgSecondary),
               ),
             ),
           ),

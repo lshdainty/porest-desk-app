@@ -1586,6 +1586,8 @@ class _CardStatement {
     this.installments = const [],
     this.lumpSumAmount,
     this.alreadyPaidAmount,
+    this.recordedOnly = 0,
+    this.preRegistration = false,
   });
   final String label;
   final bool scheduled;
@@ -1603,6 +1605,12 @@ class _CardStatement {
   /// 예정 회차의 일시불 순사용액·기결제액 — 예정액 합을 설명하는 요약 행.
   final int? lumpSumAmount;
   final int? alreadyPaidAmount;
+
+  /// 닫힌 회차 — 머리 금액 가운데 기록만 남긴 금액(계좌에서 안 빠졌다, 닫힌 회차 R2).
+  final int recordedOnly;
+
+  /// 카드 등록 전 회차 — 실제와 안 맞을 수 있다는 주의(R4).
+  final bool preRegistration;
 }
 
 /// 카드 월 실적 배지 — design 신판(달성/잔여 요약, 웹 CardPerfBadge 미러).
@@ -1785,7 +1793,29 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         ),
       );
     }
-    // 과거 회차 — 결제월별 합산: 같은 달에 여러 번(선결제 등) 결제해도 월 1행(사용자 결정).
+    // 과거 회차 — 서버가 닫힌 회차를 내려 주면 그대로 쓴다. 결제 기록이 없는 회차(0원이라
+    // 건너뜀·카드 등록 전)도 기록용 거래가 있으면 들어 있다. 머리 금액은 앱이 결제한 금액과
+    // 기록만 남긴 금액의 합이다 — 아래 이용 내역 목록과 맞는다(닫힌 회차 규칙 R2·R4). 웹 미러.
+    final closed = b?.closedCycles;
+    if (closed != null) {
+      for (final c in closed) {
+        final d = DateTime.tryParse(c.paymentDate);
+        out.add(
+          _CardStatement(
+            label: d != null ? formatDay(d).md : c.paymentDate,
+            scheduled: false,
+            amount: c.paidAmount + c.recordedOnlyAmount,
+            paymentDate: c.paymentDate,
+            periodStart: c.periodStart,
+            periodEnd: c.periodEnd,
+            recordedOnly: c.recordedOnlyAmount,
+            preRegistration: c.preRegistration,
+          ),
+        );
+      }
+      return out;
+    }
+    // 옛 서버 — 결제월별 합산: 같은 달에 여러 번(선결제 등) 결제해도 월 1행(사용자 결정).
     // 라벨은 정규 결제일(paymentDay, 말일 보정), 기간은 결제월의 전월 1일~말일(백엔드 회차 규칙 미러).
     String pad2(int n) => n.toString().padLeft(2, '0');
     final byMonth = <String, ({int amount, String latest})>{};
@@ -2421,6 +2451,26 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       ),
                     ),
                   ],
+                ),
+              ],
+              // 기록만 남긴 금액 — 머리 금액에 들어 있지만 계좌에서는 빠지지 않았다.
+              // 문장은 남기고 금액만 가린다(금액 가리기).
+              if (st != null && !st.scheduled && st.recordedOnly > 0) ...[
+                const SizedBox(height: 6),
+                Text(
+                  l.assetRecordedOnlyNote(
+                    krwSigned(st.recordedOnly, masked, unit: true),
+                  ),
+                  key: const ValueKey('recorded-only-note'),
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
+              ],
+              if (st != null && !st.scheduled && st.preRegistration) ...[
+                const SizedBox(height: 4),
+                Text(
+                  l.assetPreRegistrationNote,
+                  key: const ValueKey('pre-registration-note'),
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
                 ),
               ],
             ],
