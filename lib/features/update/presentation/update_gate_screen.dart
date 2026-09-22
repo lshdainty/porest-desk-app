@@ -16,6 +16,7 @@ import 'package:porest_desk_app/features/update/presentation/release_notes_view.
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 새 버전이 나왔을 때 앞을 막고 알리는 화면.
 ///
@@ -354,9 +355,7 @@ class _Actions extends ConsumerWidget {
 
     // 앱 안에서 못 받았으면 브라우저에 넘긴다. 거기서는 받아지는 경우가 있다.
     final l = AppLocalizations.of(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
+    showPSnackBar(context, l.updateSheetFailed, severity: PSnackSeverity.error);
     await openReleaseExternally(release);
   }
 }

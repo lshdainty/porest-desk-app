@@ -13,7 +13,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_toast.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 const _footerKey = ValueKey('sheet-footer-row');
 const _bodyKey = ValueKey('sheet-body');
@@ -75,9 +75,9 @@ Finder _inSheet(Finder f) =>
 void main() {
   testWidgets('토스트가 footer 위에 뜨고 footer 버튼이 그대로 눌린다', (tester) async {
     await _openSheet(tester);
-    PToast.show(
+    showPSnackBar(
       _sheetCtx,
-      message: '미리 낸 돈 중 5,000원이 계좌로 돌아왔어요',
+      '미리 낸 돈 중 5,000원이 계좌로 돌아왔어요',
       actionLabel: '잔액 고치기',
       onAction: () {},
       duration: const Duration(seconds: 6),

@@ -7,7 +7,7 @@ import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dar
 import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_toast.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 결제가 끝난 회차에 걸린 거래를 바꿀 때 하는 말 — 확인창 **한 문구**와 결과 토스트.
 ///
@@ -149,16 +149,18 @@ void showChangeResultToast(
   } else {
     return;
   }
-  PToast.show(
+  showPSnackBar(
     host,
-    message: message,
-    tone: refunded > 0 ? PToastTone.success : PToastTone.info,
-    // 누를 버튼이 있으면 조금 더 오래 둔다 — 3초는 읽고 누르기에 짧다.
-    duration: Duration(seconds: fixBalanceAssetId != null ? 6 : 3),
+    message,
+    severity: refunded > 0 ? PSnackSeverity.success : PSnackSeverity.info,
+    // 누를 버튼이 있으면 6초 — 기본 4초는 읽고 누르기에 짧다(sonner.md, 웹도 6초).
+    duration: Duration(seconds: fixBalanceAssetId != null ? 6 : 4),
     actionLabel: fixBalanceAssetId != null ? l.expFixBalance : null,
     onAction: fixBalanceAssetId == null
         ? null
         : () => pushAssetEdit(host, fixBalanceAssetId),
+    // 바꾼 결과는 앞 토스트 뒤에 줄 서지 않고 바로 뜬다.
+    replace: true,
   );
 }
 

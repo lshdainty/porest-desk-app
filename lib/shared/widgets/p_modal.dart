@@ -368,7 +368,7 @@ Future<T?> showPSheet<T>(
 
 /// 시트 위에도 토스트가 보이게 하는 층 — 시트 본문을 투명 [Scaffold] 로 감싼다.
 ///
-/// 토스트(`PToast`·`showPSnackBar`·에러 인터셉터)는 앱 전역 ScaffoldMessenger 의 SnackBar
+/// 토스트(`showPSnackBar`·에러 인터셉터)는 앱 전역 ScaffoldMessenger 의 SnackBar
 /// 다. messenger 는 등록된 **루트 Scaffold 마다** SnackBar 를 그리는데, 시트는 루트
 /// 네비게이터의 모달 라우트라 그동안 루트 Scaffold 가 페이지 하나뿐이었다 — 시트가 열린 채
 /// 띄운 토스트는 시트 **아래** 페이지에 그려져 가려졌다(상세에서 환불한 뒤 "미리 낸 돈 중
