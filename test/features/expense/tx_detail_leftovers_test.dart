@@ -31,6 +31,7 @@ import 'package:porest_desk_app/features/preset/application/preset_providers.dar
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
+import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 
 const _account = Asset(
   rowId: 3,
@@ -146,6 +147,42 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('원래 거래를 지우면'), findsNothing);
+  });
+
+  // 자동 거래는 반복·더치페이의 원본이 될 수 없다 — 숨기지 않고 끈다(2026-09-22 결정).
+  for (final source in [
+    'CARD_CARRYOVER',
+    'TRADE_REALIZED',
+    'TRANSFER_INTEREST',
+  ]) {
+    testWidgets('$source — [반복 설정]·[더치페이] 가 보이되 꺼져 있다', (tester) async {
+      final auto = _plain.copyWith(autoSource: source);
+      await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, auto)));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      for (final label in ['반복 설정', '더치페이']) {
+        final action = find.widgetWithText(PDetailQuickAction, label);
+        expect(action, findsOneWidget, reason: '$label 은 숨기지 않는다');
+        expect(tester.widget<PDetailQuickAction>(action).onTap, isNull);
+        // 꺼진 모양 — button.md 비활성과 같이 통째로 0.5.
+        expect(
+          find.ancestor(of: find.text(label), matching: find.byType(Opacity)),
+          findsWidgets,
+        );
+      }
+    });
+  }
+
+  testWidgets('보통 거래는 [반복 설정]·[더치페이] 가 켜져 있다', (tester) async {
+    await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, _plain)));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    for (final label in ['반복 설정', '더치페이']) {
+      final action = find.widgetWithText(PDetailQuickAction, label);
+      expect(tester.widget<PDetailQuickAction>(action).onTap, isNotNull);
+    }
   });
 
   testWidgets('환불된 행을 밀면 [수정] 은 없고 [삭제] 만 있다', (tester) async {

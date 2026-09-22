@@ -236,6 +236,10 @@ class PDetailSection extends StatelessWidget {
 }
 
 /// 원형 퀵 액션 — 44 원(sunken / active brand-subtle) + 라벨, 우상단 뱃지.
+///
+/// [onTap] 이 null 이면 꺼진 버튼이다 — button.md 비활성과 같게 통째로 opacity 0.5
+/// (PButton · 웹 DetailQuickAction 과 같은 규칙). 예전엔 글자·아이콘 색만 tertiary 로
+/// 바꿔 웹과 모양이 갈렸다.
 class PDetailQuickAction extends StatelessWidget {
   const PDetailQuickAction({
     super.key,
@@ -256,12 +260,8 @@ class PDetailQuickAction extends StatelessWidget {
     final t = context.tokens;
     final disabled = onTap == null;
     final circleColor = active ? t.bgBrandSubtle : t.bgSunken;
-    final iconColor = disabled
-        ? t.fgTertiary
-        : active
-        ? t.fgBrand
-        : t.fgSecondary;
-    return InkWell(
+    final iconColor = active ? t.fgBrand : t.fgSecondary;
+    final action = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(PSpace.x12),
       child: Padding(
@@ -300,11 +300,7 @@ class PDetailQuickAction extends StatelessWidget {
             Text(
               label,
               style: PTypo.caption.copyWith(
-                color: disabled
-                    ? t.fgTertiary
-                    : active
-                    ? t.fgBrandStrong
-                    : t.fgSecondary,
+                color: active ? t.fgBrandStrong : t.fgSecondary,
                 fontWeight: active ? PFontWeight.bold : PFontWeight.semi,
               ),
             ),
@@ -312,6 +308,7 @@ class PDetailQuickAction extends StatelessWidget {
         ),
       ),
     );
+    return disabled ? Opacity(opacity: 0.5, child: action) : action;
   }
 }
 

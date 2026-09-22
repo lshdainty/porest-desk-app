@@ -616,11 +616,15 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                           },
                   ),
                 ),
+              // 자동으로 만들어진 거래(이월 · 매도 손익 · 이체 이자)는 반복·더치페이의 원본이
+              // 될 수 없다 — 이월로 반복을 만들면 매달 "이전 미결제 사용액" 이라는 일반
+              // 지출이 생겼다. 숨기지 않고 끈다(사용자 결정 2026-09-22). 서버도 EXP_050 으로
+              // 거절한다.
               Expanded(
                 child: PDetailQuickAction(
                   icon: LucideIcons.repeat,
                   label: l.expConvertRecurring,
-                  onTap: _deleting
+                  onTap: _deleting || e.autoSource != null
                       ? null
                       : () {
                           Navigator.of(context).pop();
@@ -632,7 +636,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 child: PDetailQuickAction(
                   icon: LucideIcons.users,
                   label: l.dutchTitle,
-                  onTap: _deleting
+                  onTap: _deleting || e.autoSource != null
                       ? null
                       : () {
                           Navigator.of(context).pop();
