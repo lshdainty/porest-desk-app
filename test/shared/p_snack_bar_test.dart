@@ -127,7 +127,9 @@ void main() {
     });
   }
 
-  testWidgets('버튼은 카드 안 오른쪽의 SM primary 이고, 누르면 닫히며 콜백이 돈다', (tester) async {
+  testWidgets('버튼은 카드 안 글 아래 줄 오른쪽 끝의 SM primary 이고, 누르면 닫히며 콜백이 돈다', (
+    tester,
+  ) async {
     var taps = 0;
     await tester.pumpWidget(
       _host(
@@ -159,9 +161,14 @@ void main() {
     final cardRect = tester.getRect(card);
     final buttonRect = tester.getRect(button);
     expect(cardRect.contains(buttonRect.center), isTrue);
+    // 글 옆이 아니라 아래 줄(sonner.md 2026-09-22) — 옆에 두면 글 폭이 버튼만큼 줄어
+    // 같은 문구가 한 줄 더 접힌다.
+    final textRect = tester.getRect(find.textContaining('이미 결제가'));
+    expect(buttonRect.top, greaterThanOrEqualTo(textRect.bottom));
+    // 오른쪽 끝 — 카드 안쪽 여백(16) 에 붙는다.
     expect(
-      buttonRect.left,
-      greaterThan(tester.getRect(find.textContaining('이미 결제가')).right - 1),
+      buttonRect.right,
+      moreOrLessEquals(cardRect.right - 16, epsilon: 0.5),
     );
 
     await tester.tap(button);
