@@ -62,6 +62,13 @@ abstract final class PTracking {
 ///
 /// 폰트 패밀리는 [pubspec.yaml] 에 등록된 `Pretendard` 와 `JetBrainsMono`.
 /// 색상은 [`PorestTokens`] 가 적용 시점에 [`TextStyle.copyWith`] 로 덧씌운다.
+///
+/// 자간 — SoT 토큰(DESIGN.desk.md typography)에서 자간이 있는 건 display-xl/lg/md 와
+/// overline 뿐이다. 나머지는 **0 을 명시**한다. 비워 두면 ThemeData 가 Material 3 기본
+/// 자간(bodyMedium 0.25 · bodyLarge 0.5 · bodySmall 0.4 · labelMedium 0.5 …)으로 채우고,
+/// 그 값이 DefaultTextStyle 을 타고 앱 글자 거의 전부에 번졌다 — 같은 문구가 웹보다
+/// 넓게 그려졌다(2026-09-22). h3·h4·h2·micro 는 웹의 옛 --tracking-* 값을 들고 있었는데
+/// 토큰에는 없는 값이라 함께 0 으로 맞췄다. h1(30px)은 토큰 크기표에 없는 크기라 그대로다.
 abstract final class PTypo {
   static const String sans = 'Pretendard';
   static const String mono = 'JetBrainsMono';
@@ -101,21 +108,21 @@ abstract final class PTypo {
     fontFamily: sans,
     fontSize: 24,
     height: 1.3,
-    letterSpacing: -0.288,
+    letterSpacing: 0, // SoT display-sm — 자간 없음
     fontWeight: FontWeight.w700,
   );
   static const TextStyle h3 = TextStyle(
     fontFamily: sans,
     fontSize: 20,
     height: 1.4,
-    letterSpacing: -0.24,
+    letterSpacing: 0, // SoT title-lg — 자간 없음
     fontWeight: FontWeight.w600, // SoT title-lg lh 1.4
   );
   static const TextStyle h4 = TextStyle(
     fontFamily: sans,
     fontSize: 18,
     height: 1.4,
-    letterSpacing: -0.216,
+    letterSpacing: 0, // SoT title-md — 자간 없음
     fontWeight: FontWeight.w600, // SoT title-md 18/1.4
   );
 
@@ -124,24 +131,28 @@ abstract final class PTypo {
     fontFamily: sans,
     fontSize: 16,
     height: 1.6,
+    letterSpacing: 0,
     fontWeight: FontWeight.w400,
   );
   static const TextStyle body = TextStyle(
     fontFamily: sans,
     fontSize: 14,
     height: 1.5,
+    letterSpacing: 0,
     fontWeight: FontWeight.w400,
   );
   static const TextStyle bodySm = TextStyle(
     fontFamily: sans,
     fontSize: 13,
     height: 1.5,
+    letterSpacing: 0,
     fontWeight: FontWeight.w400,
   );
   static const TextStyle caption = TextStyle(
     fontFamily: sans,
     fontSize: 12,
     height: 1.5,
+    letterSpacing: 0,
     fontWeight: FontWeight.w500,
   );
   // Label — SoT label-md 14/500/1.4 (DESIGN.desk.md). 폼 라벨(control 위)은
@@ -151,13 +162,14 @@ abstract final class PTypo {
     fontFamily: sans,
     fontSize: 14,
     height: 1.4,
+    letterSpacing: 0,
     fontWeight: FontWeight.w500,
   );
   static const TextStyle micro = TextStyle(
     fontFamily: sans,
     fontSize: 11,
     height: 1.5,
-    letterSpacing: 0.44,
+    letterSpacing: 0, // SoT badge(11px) — 자간 없음
     fontWeight: FontWeight.w500,
   );
 
@@ -166,6 +178,7 @@ abstract final class PTypo {
     fontFamily: sans,
     fontSize: 22,
     height: 1.2,
+    letterSpacing: 0,
     fontWeight: FontWeight.w500,
     fontFeatures: [FontFeature.tabularFigures()],
   );
@@ -173,6 +186,7 @@ abstract final class PTypo {
     fontFamily: sans,
     fontSize: 14,
     height: 1.4,
+    letterSpacing: 0,
     fontWeight: FontWeight.w500,
     fontFeatures: [FontFeature.tabularFigures()],
   );
