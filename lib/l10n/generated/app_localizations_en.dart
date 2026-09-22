@@ -4166,6 +4166,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Thank you for using desk. Remaining data is kept and then destroyed under our privacy policy.';
 
   @override
+  String get withdrawnToLogin => 'Go to sign in';
+
+  @override
   String get notiUnreadPrefix => '';
 
   @override

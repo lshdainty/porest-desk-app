@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/features/update/presentation/update_gate_screen.dart';
 import 'package:porest_desk_app/features/asset/presentation/account_card_manage_screen.dart';
@@ -33,6 +34,7 @@ import 'package:porest_desk_app/features/todo/presentation/todo_screen.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_screen.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_tag_management_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
+import 'package:porest_desk_app/features/auth/presentation/withdrawn_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/splash_screen.dart';
 import 'package:porest_desk_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:porest_desk_app/features/expense/presentation/expense_screen.dart';
@@ -69,6 +71,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final loggedIn = auth.hasValue && auth.value != null;
       final atSplash = loc == '/';
       final atLogin = loc == '/login';
+      final atWithdrawn = loc == '/withdrawn';
 
       // 새 버전이 있으면 전체 화면으로 가로막고 알린다.
       //
@@ -90,6 +93,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (atGate) return loggedIn ? '/home' : '/login';
 
       if (!loggedIn) {
+        // 해지한 계정으로 로그인하려 했다(USER_021) — 로그인 화면의 에러 글이 아니라 해지
+        // 완료 화면이다. 다시 눌러도 결과가 같으니 왜 안 되는지부터 말한다(웹 /withdrawn
+        // 과 같은 화면). 여기서 보는 이유: 교환은 딥링크 리스너에서 돌아 로그인 화면이
+        // 뜨기 전(콜드 스타트)에 실패가 떨어질 수 있고, 그러면 화면의 listen 은 못 듣는다.
+        final e = auth.error;
+        if (e is ApiException && e.isWithdrawn) {
+          return atWithdrawn ? null : '/withdrawn';
+        }
+        // 해지 완료 화면은 로그아웃 상태에서 보는 화면이다 — 해지 직후의 로그아웃이
+        // 로그인 화면으로 튕기지 않게 둔다. 떠날 때는 화면의 버튼이 /login 으로 보낸다.
+        if (atWithdrawn) return null;
         // 로그아웃 상태에서 splash/login 외 접근 시 → /login
         return atLogin ? null : '/login';
       }
@@ -101,6 +115,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/withdrawn', builder: (_, _) => const WithdrawnScreen()),
       // 새 버전 안내 — 리다이렉트로만 들어온다(강제/일반은 화면이 스스로 가른다).
       GoRoute(
         path: '/update-gate',

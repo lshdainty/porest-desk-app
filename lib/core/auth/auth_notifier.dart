@@ -71,6 +71,14 @@ class AuthNotifier extends AsyncNotifier<User?> {
     }
   }
 
+  /// 로그인 실패를 확인했다 — 에러를 걷고 로그아웃 상태로 돌린다.
+  ///
+  /// 해지한 계정(`USER_021`)은 라우터가 해지 완료 화면으로 보낸다. 그 화면에서 로그인
+  /// 화면으로 갈 때 부른다 — 에러가 남아 있으면 라우터가 다시 완료 화면으로 돌려보낸다.
+  void dismissLoginError() {
+    if (state.hasError) state = const AsyncData(null);
+  }
+
   /// 로그아웃: 서버 호출 + 쿠키 정리 + 상태 초기화.
   Future<void> logout() async {
     final repo = await ref.read(authRepositoryProvider.future);

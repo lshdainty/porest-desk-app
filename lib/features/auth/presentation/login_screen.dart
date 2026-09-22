@@ -39,7 +39,8 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 /// 인라인 `switch` 는 로그인 화면을 통째로 띄우지 않으면 확인할 길이 없다.
 String loginErrorMessage(Object? e, AppLocalizations l) => switch (e) {
   // 해지한 계정은 "로그인 실패" 가 아니다 — 다시 눌러도 결과가 같다.
-  // 무엇이 끝났는지와, 같은 아이디로는 못 돌아온다는 것을 말한다.
+  // 무엇이 끝났는지와, 같은 아이디로는 못 돌아온다는 것을 말한다. 보통은 라우터가
+  // 해지 완료 화면으로 보내 이 글은 안 보인다 — 그 길이 빠졌을 때의 대비다.
   ApiException(isWithdrawn: true) =>
     '${l.withdrawnTitle}\n${l.withdrawIrreversibleRejoin}',
   // 딥링크 코드가 만료됐다 — 다시 누르면 된다. "실패" 라고만 하면 뭘 다시 해야
@@ -135,6 +136,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen(authProvider, (prev, next) {
       if (next.hasError && mounted) {
         final e = next.error;
+        // 해지한 계정은 라우터가 해지 완료 화면으로 보낸다 — 여기서 에러 글을 그리면
+        // 화면이 바뀌기 전 한 프레임 번쩍인다.
+        if (e is ApiException && e.isWithdrawn) return;
         setState(() => _error = loginErrorMessage(e, l));
       }
     });

@@ -2380,6 +2380,7 @@
   "withdrawBlockedHint": "Cancel your subscription first — you can stop desk once the paid period ends.",
   "withdrawnTitle": "Your desk account is closed",
   "withdrawnBody": "Thank you for using desk. Remaining data is kept and then destroyed under our privacy policy.",
+  "withdrawnToLogin": "Go to sign in",
   "notiUnreadPrefix": "",
   "notiUnreadSuffix": " unread",
   "notiSettings": "Notification settings",

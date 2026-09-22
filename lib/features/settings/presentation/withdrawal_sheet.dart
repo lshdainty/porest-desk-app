@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
@@ -41,14 +42,6 @@ void showWithdrawalSheet(BuildContext context) {
 
 /// 본인 확인 방법. 비밀번호가 없는 소셜 전용 계정은 코드 말고 길이 없다.
 enum _Method { password, emailCode }
-
-/// 해지가 끝난 뒤 보여 주는 안내.
-///
-/// 곧 로그인 화면으로 튕기므로 여기가 "끝났다" 를 말할 **마지막 자리**다 — 웹의 해지
-/// 완료 화면과 같은 문구를 두 줄로 보여 준다. 화면 밖에 둔 이유는 테스트 때문이다
-/// (예전엔 제목만 보여 주고 본문 문구는 아무도 안 쓰는 키로 남아 있었다 — QA 22차 #5).
-String withdrawnDoneMessage(AppLocalizations l) =>
-    '${l.withdrawnTitle}\n${l.withdrawnBody}';
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({super.key, required this.controller});
@@ -157,10 +150,10 @@ class _BodyState extends ConsumerState<_Body> {
     // 서버에서 이미 진행 중이라 그대로 끝난다 — 예전엔 거기서 `mounted` 검사에 걸려
     // **로그아웃도 안내도 없이** 이미 없는 계정으로 앱이 계속 돌았다(2026-09-17 QA).
     //
-    // navigator 의 context 는 시트보다 위에 있어 시트가 사라져도 살아 있다. 스낵바를
-    // 앱 전체 messenger 에 다는 것도 같은 이유다 — 곧 로그아웃이 화면을 바꾼다.
+    // navigator 의 context 는 시트보다 위에 있어 시트가 사라져도 살아 있다. 라우터도
+    // 같은 이유로 미리 쥔다 — 해지가 끝나면 완료 화면으로 보낸다.
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
     final auth = ref.read(authProvider.notifier);
     final repoFuture = ref.read(withdrawalRepositoryProvider.future);
 
@@ -178,16 +171,12 @@ class _BodyState extends ConsumerState<_Body> {
 
       // 여기서부터는 이 State 의 `mounted` 를 보지 않는다 — 해지는 이미 끝났고,
       // 시트가 사라졌다고 로그아웃을 건너뛰면 안 된다.
-      if (navigator.mounted) {
-        navigator.pop();
-        showPSnackBar(
-          navigator.context,
-          withdrawnDoneMessage(l),
-          severity: PSnackSeverity.success,
-          duration: const Duration(seconds: 6),
-          messenger: messenger,
-        );
-      }
+      if (navigator.mounted) navigator.pop();
+      // 해지 완료 화면(웹 /withdrawn 과 같은 화면)으로 보낸 **뒤** 로그아웃한다. 먼저
+      // 로그아웃하면 라우터가 로그인 화면으로 보내 한 번 번쩍인다. 완료 화면은 로그아웃
+      // 상태에서도 열려 있는 화면이라 로그아웃이 끝나도 그대로 남는다. 예전엔 6초짜리
+      // 토스트였다 — 폰에서 4줄에, 재가입 안내 없이 사라졌다(2026-09-22).
+      router.go('/withdrawn');
       // 화면이 통째로 사라졌어도 로그아웃은 한다 — 이게 빠지면 이미 없는 계정으로
       // 앱이 계속 돈다.
       auth.logout();
