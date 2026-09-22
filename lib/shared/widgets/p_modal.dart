@@ -299,7 +299,10 @@ Future<T?> showPSheet<T>(
     // 문제 방지(웹은 시트 z-index 가 탭바 위, 동일 정합).
     useRootNavigator: true,
     isScrollControlled: true,
-    backgroundColor: context.tokens.bgSurface,
+    // 배경색은 넘기지 않는다 — 테마의 bottomSheetTheme.modalBackgroundColor(bgSurface)를
+    // 시트가 그릴 때마다 읽게 둔다. 여기서 `context.tokens.bgSurface` 를 넘기면 **여는
+    // 순간의 색**이 박혀, 시트를 연 채 다크로 바뀌면 배경은 흰색인데 글자만 밝아져 거의
+    // 안 보였다(2026-09-22 iOS 시뮬레이터 자동 다크 전환).
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
