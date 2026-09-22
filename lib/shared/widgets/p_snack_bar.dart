@@ -37,8 +37,9 @@ void showPSnackBar(
   PSnackSeverity severity = PSnackSeverity.neutral,
   Duration duration = const Duration(seconds: 4),
 
-  /// 오른쪽 버튼(sonner.md ⓔ) — SM primary, 한 토스트에 하나. 누르면 토스트를 닫고
-  /// [onAction] 을 부른다. 누를 시간이 필요하니 [duration] 을 6초 이상으로 준다.
+  /// 버튼(sonner.md ⓔ) — SM primary, 한 토스트에 하나. 글 아래 줄 오른쪽 끝에 선다.
+  /// 누르면 토스트를 닫고 [onAction] 을 부른다. 누를 시간이 필요하니 [duration] 을
+  /// 6초 이상으로 준다.
   ///
   /// Material `SnackBarAction` 을 쓰지 않는다 — SnackBar 는 action 을 content 바깥에
   /// 두므로, 여기서 그린 카드 옆 투명한 자리에 글자 버튼만 떠 버린다.
@@ -99,38 +100,59 @@ void showPSnackBar(
         // 모바일에서 눈에 안 들어왔다. 내용이 길면 자연히 늘어난다.
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 52 - PSpace.x12 * 2),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          // 줄 묶음은 최소 높이 안에서 세로 가운데 — 한 줄짜리가 위로 쏠리지 않는다
+          // (sonner.md align-content:center).
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (icon != null) ...[
-                Icon(icon, size: 20, color: iconColor),
-                const SizedBox(width: PSpace.x12),
-              ],
-              Expanded(
-                child: Text(
-                  message,
-                  // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
-                  // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
-                  // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
-                  // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: PFontSize.titleSm,
-                    fontWeight: PFontWeight.semi,
-                    height: 1.4,
-                    color: t.fgPrimary,
+              Row(
+                // 아이콘은 제목 첫 줄에 붙는다 — 두 줄이어도 가운데로 안 내려간다.
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (icon != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Icon(icon, size: 20, color: iconColor),
+                    ),
+                    const SizedBox(width: PSpace.md),
+                  ],
+                  Expanded(
+                    child: Text(
+                      message,
+                      // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
+                      // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
+                      // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
+                      // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: PFontSize.titleSm,
+                        fontWeight: PFontWeight.semi,
+                        height: 1.4,
+                        // 자간 없음(sonner.md ⓒ). 안 주면 SnackBar 의 content 글꼴
+                        // (bodyMedium, 자간 0.25)을 물려받아 같은 문구가 더 넓게 접힌다.
+                        letterSpacing: 0,
+                        color: t.fgPrimary,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
+              // 버튼은 글 옆이 아니라 아래 줄 오른쪽 끝(sonner.md 2026-09-22). 옆에 두면
+              // 글 폭이 버튼만큼 줄어 두 문장짜리 안내가 폰에서 3줄로 접혔다.
               if (actionLabel != null && onAction != null) ...[
-                const SizedBox(width: PSpace.md),
-                PButton(
-                  label: actionLabel,
-                  size: PButtonSize.sm,
-                  onPressed: () {
-                    m.hideCurrentSnackBar();
-                    onAction();
-                  },
+                const SizedBox(height: PSpace.md),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: PButton(
+                    label: actionLabel,
+                    size: PButtonSize.sm,
+                    onPressed: () {
+                      m.hideCurrentSnackBar();
+                      onAction();
+                    },
+                  ),
                 ),
               ],
             ],
