@@ -1,5 +1,7 @@
-# Uncomment this line to define a global platform for your project
-# platform :ios, '14.0'
+# 최소 iOS — 앱 타깃(IPHONEOS_DEPLOYMENT_TARGET)과 같은 값이다.
+# 15.0: Xcode 27 이 iOS 15 미만 대상을 빌드하지 않는다(2026-09-22 iOS 시뮬레이터 테스트).
+# iOS 15 는 iOS 14 와 지원 기기가 같다 — 못 쓰게 되는 아이폰은 없다.
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -39,5 +41,12 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # 포드마다 자기 최소 iOS 를 들고 온다(9.0 짜리가 있었다). Xcode 27 은 15.0 미만이면
+    # 포드 프로젝트째 빌드를 거부하므로 앱과 같은 15.0 아래는 끌어올린다.
+    target.build_configurations.each do |config|
+      if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
   end
 end

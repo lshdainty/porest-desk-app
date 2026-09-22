@@ -179,6 +179,13 @@ gh run view <runId> --repo lshdainty/porest-desk-app --log-failed | tail -60
 `ios/Runner.xcodeproj` 의 `IPHONEOS_DEPLOYMENT_TARGET` 과 맞는지 확인한다.
 **Dart 에서 안 불러도 `pubspec` 에 있는 한 pod 은 붙는다** — 코드로 가른다고 피해지지 않는다.
 
+### 최소 iOS 는 15.0
+
+앱 타깃(`IPHONEOS_DEPLOYMENT_TARGET`)과 `ios/Podfile` 의 `platform :ios` 가 같은 값이다.
+Podfile `post_install` 은 그보다 낮은 포드를 끌어올린다 — 포드마다 자기 최소 iOS 를 들고
+오는데(9.0 짜리가 있었다) Xcode 27 은 15.0 미만이면 포드 프로젝트째 빌드를 거부한다
+(2026-09-22 iOS 시뮬레이터 테스트에서 발견, 14.0 → 15.0). 값을 바꿀 땐 세 자리를 같이 바꾼다.
+
 ### 실제로 이렇게 깨졌다
 
 2026-08-21. `workmanager` 를 넣으면서 iOS 최소 14.0 요구를 확인하지 않았다(앱은 13.0).
