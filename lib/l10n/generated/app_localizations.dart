@@ -7631,8 +7631,14 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawnBody.
   ///
   /// In ko, this message translates to:
-  /// **'그동안 desk 를 써 주셔서 고마웠어요. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
+  /// **'그동안 desk 를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
   String get withdrawnBody;
+
+  /// No description provided for @withdrawnToLogin.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 화면으로'**
+  String get withdrawnToLogin;
 
   /// No description provided for @notiUnreadPrefix.
   ///

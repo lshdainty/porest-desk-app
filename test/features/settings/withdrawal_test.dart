@@ -13,7 +13,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
 import 'package:porest_desk_app/features/settings/domain/withdrawal_check.dart';
-import 'package:porest_desk_app/features/settings/presentation/withdrawal_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_en.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
 
@@ -159,22 +158,8 @@ void main() {
     });
   });
 
-  // 해지가 끝났다는 안내는 **제목 + 본문** 두 줄이다. 예전엔 제목만 띄우고
-  // 본문 문구(`withdrawnBody`)는 아무도 안 쓰는 키로 남아 있었다 — 번역까지 해 두고
-  // 화면에는 안 나오는 상태였다(QA 22차 #5).
-  group('해지 완료 안내', () {
-    test('제목과 본문을 함께 보여 준다', () {
-      final ko = AppLocalizationsKo();
-      final msg = withdrawnDoneMessage(ko);
-      expect(msg, contains(ko.withdrawnTitle));
-      expect(msg, contains(ko.withdrawnBody));
-    });
-
-    test('en 도 같은 자리가 비어 있지 않다', () {
-      final en = AppLocalizationsEn();
-      expect(withdrawnDoneMessage(en), contains(en.withdrawnBody));
-    });
-  });
+  // 해지 완료 안내(제목 + 본문 + 재가입 불가)는 이제 토스트가 아니라 화면이다 —
+  // test/features/auth/withdrawn_screen_test.dart 가 화면에 셋 다 나오는지 본다.
 
   // 로그인 실패는 `ApiException.toString()` 을 그대로 띄우고 있었다 —
   // 사용자에게 `ApiException(AUTH_003, ...)` 같은 게 보였다(QA 22차 #7).
