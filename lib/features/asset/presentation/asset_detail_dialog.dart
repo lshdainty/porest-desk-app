@@ -1826,6 +1826,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     }
 
     ctrl.addListener(syncCanSubmit);
+    // 채워 둔 금액으로 한 번 판정한다 — 리스너는 입력이 바뀔 때만 돌아, 안 부르면
+    // [결제하기] 가 기본값(꺼짐)으로 남는다. 금액 칸을 한 번 눌러야 켜졌다(2026-09-22 iOS).
+    syncCanSubmit();
     int? picked;
     sheet.onSubmit = () async {
       picked = parsed();

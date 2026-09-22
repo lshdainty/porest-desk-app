@@ -23,6 +23,7 @@ import 'package:porest_desk_app/features/card/domain/card_performance.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 const _card = Asset(
   rowId: 9,
@@ -242,6 +243,31 @@ void main() {
     );
 
     expect(find.text('지금 결제'), findsOneWidget);
+  });
+
+  // 금액 칸에 남은 청구액이 채워져 있는데 [결제하기] 가 꺼져 있었다 — 금액 칸을 한 번
+  // 눌러야 켜졌다. 판정 리스너가 입력이 바뀔 때만 돌았다(2026-09-22 iOS 시뮬레이터 F-2).
+  testWidgets('[지금 결제] 시트의 [결제하기] 는 칸을 안 건드려도 켜져 있다', (tester) async {
+    await _open(
+      tester,
+      billing: const CardBilling(
+        cardAssetRowId: 9,
+        upcomingAmount: 40000,
+        nextPaymentDate: '2026-10-12',
+        upcomingPeriodStart: '2026-09-01',
+        upcomingPeriodEnd: '2026-09-30',
+      ),
+    );
+    await tester.tap(find.text('지금 결제'));
+    await tester.pumpAndSettle();
+
+    final pay = find.widgetWithText(PButton, '결제하기');
+    expect(pay, findsOneWidget);
+    expect(
+      tester.widget<PButton>(pay).onPressed,
+      isNotNull,
+      reason: '채워진 40,000원으로 바로 결제할 수 있어야 한다',
+    );
   });
 
   testWidgets('닫힌 회차의 할부 회차분 — "· 기록만", 정리 버튼 없음', (tester) async {

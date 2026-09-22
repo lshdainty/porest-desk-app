@@ -56,6 +56,10 @@ void invalidateAfterExpenseChange(WidgetRef ref) {
   // 예산·카드 실적도 그 달 지출을 다시 센다.
   ref.invalidate(budgetComplianceProvider);
   ref.invalidate(cardPerformanceProvider);
+  // 카드 청구(회차 금액·[결제 취소])도 거래에서 나온다. 빠져 있던 동안 거래를 고치면
+  // 자산 목록의 잔액은 바로 맞는데 카드 상세의 회차 금액·버튼만 앱을 다시 켤 때까지 옛
+  // 값이었다 — 환급이 나간 회차에 [결제 취소] 가 보이기도 했다(2026-09-22 iOS 시뮬레이터).
+  ref.invalidate(cardBillingProvider);
 
   // 월별 거래 목록(`monthExpensesProvider`)은 부르는 쪽이 바뀐 달만 짚어 비운다 —
   // 여기서 base 로 밀면 안 본 달까지 전부 다시 받는다.
@@ -187,6 +191,9 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(cardBenefitMappingsProvider);
   ref.invalidate(todoTagListProvider);
   ref.invalidate(memoTagListProvider);
+  // 카드 청구 — 카드 상세(탭이 아니라 자산 탭에서 여는 시트)가 읽는다. 다른 기기에서
+  // 거래를 고쳤으면 복귀할 때 회차 금액이 바뀌어야 한다. 안 읽히고 있으면 no-op 이다.
+  ref.invalidate(cardBillingProvider);
   // 탭이 읽는 것은 전부 시각을 본다 — 진입 갱신과 **같은 함수·같은 목록**이다.
   _invalidateStale(ref, ServerQuery.values);
   // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은

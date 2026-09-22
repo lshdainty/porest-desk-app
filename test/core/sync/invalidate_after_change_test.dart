@@ -181,6 +181,23 @@ void main() {
     }
   });
 
+  testWidgets('invalidateKeepAliveProviders — 앱 복귀 때 카드 청구도 다시 받는다', (
+    tester,
+  ) async {
+    final counts = <String, int>{};
+    final ref = await _pumpProbe(tester, counts);
+    expect(counts['cardBilling'], 1);
+
+    invalidateKeepAliveProviders(ref);
+    await tester.pumpAndSettle();
+
+    expect(
+      counts['cardBilling'],
+      2,
+      reason: '다른 기기에서 거래를 고친 뒤 돌아와도 카드 상세의 회차 금액이 옛 값이다',
+    );
+  });
+
   testWidgets('invalidateAfterAssetChange — 순자산·추이·청구·실적까지 다시 받는다', (
     tester,
   ) async {
@@ -281,6 +298,9 @@ const _expenseKeys = <String>[
   'merchantSummary',
   'budgetCompliance',
   'cardPerformance',
+  // 카드 상세의 회차 금액·[결제 취소] — 빠져 있던 동안 거래를 고쳐도 앱을 다시 켤
+  // 때까지 옛 값이었다(2026-09-22 iOS 시뮬레이터).
+  'cardBilling',
 ];
 
 const _assetKeys = <String>[
