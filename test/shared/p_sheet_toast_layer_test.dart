@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_toast.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 void main() {
   late BuildContext sheetCtx;
@@ -48,9 +48,9 @@ void main() {
   testWidgets('시트 안에서 띄운 토스트가 시트 위에 그려지고 버튼이 눌린다', (tester) async {
     await openSheet(tester);
     var tapped = 0;
-    PToast.show(
+    showPSnackBar(
       sheetCtx,
-      message: '미리 낸 돈 중 5,000원이 계좌로 돌아왔어요',
+      '미리 낸 돈 중 5,000원이 계좌로 돌아왔어요',
       actionLabel: '잔액 고치기',
       onAction: () => tapped++,
     );
@@ -65,11 +65,7 @@ void main() {
 
   testWidgets('시트를 닫아도 페이지 쪽 토스트는 남는다 — 저장 → 닫힘 → 토스트 흐름', (tester) async {
     await openSheet(tester);
-    PToast.show(
-      sheetCtx,
-      message: '저장했어요',
-      duration: const Duration(seconds: 10),
-    );
+    showPSnackBar(sheetCtx, '저장했어요', duration: const Duration(seconds: 10));
     await tester.pumpAndSettle();
     Navigator.of(sheetCtx).pop();
     await tester.pumpAndSettle();

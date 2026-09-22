@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 /// Snackbar severity — color/icon 분기 (success/info/warning/error/neutral).
 enum PSnackSeverity { neutral, success, info, warning, error }
@@ -26,12 +27,27 @@ enum PSnackSeverity { neutral, success, info, warning, error }
 /// 그렇게 정의한 적이 없다 — 표면은 중립으로 두고 <b>왼쪽 아이콘만</b> semantic 색을
 /// 쓴다(`surface-default` + `border-default` 1px + `radius-md` + `shadow-lg`).
 /// 웹 sonner 와 같은 톤이라 두 클라이언트가 같은 무게로 말한다.
+///
+/// 앱의 토스트는 전부 여기를 지난다. 예전엔 옆에 `PToast` 가 따로 있었는데, 스펙이
+/// 바뀌는 동안 그쪽만 옛 모양(severity 색 12% 배경 + 테두리 + 그림자 없음)에 머물렀다.
+/// 배경이 거의 투명해서 목록 위에 뜨면 아래 글자가 토스트 글자와 겹쳐 보였다.
 void showPSnackBar(
   BuildContext context,
   String message, {
   PSnackSeverity severity = PSnackSeverity.neutral,
   Duration duration = const Duration(seconds: 4),
-  SnackBarAction? action,
+
+  /// 오른쪽 버튼(sonner.md ⓔ) — SM primary, 한 토스트에 하나. 누르면 토스트를 닫고
+  /// [onAction] 을 부른다. 누를 시간이 필요하니 [duration] 을 6초 이상으로 준다.
+  ///
+  /// Material `SnackBarAction` 을 쓰지 않는다 — SnackBar 는 action 을 content 바깥에
+  /// 두므로, 여기서 그린 카드 옆 투명한 자리에 글자 버튼만 떠 버린다.
+  String? actionLabel,
+  VoidCallback? onAction,
+
+  /// 떠 있거나 줄 선 토스트를 걷고 바로 띄운다. 기본은 줄을 서서 앞 토스트가 끝난
+  /// 뒤에 뜬다.
+  bool replace = false,
 
   /// 직접 넘기는 messenger — 전역 키로 띄울 때 쓴다. ScaffoldMessenger.of 는
   /// 자기 자신의 context 에서는 못 찾으므로(위로만 탐색) 그 경우 필수다.
@@ -47,12 +63,18 @@ void showPSnackBar(
     PSnackSeverity.error => (t.statusDanger, LucideIcons.circleAlert),
   };
 
-  (messenger ?? ScaffoldMessenger.of(context)).showSnackBar(
+  final m = messenger ?? ScaffoldMessenger.of(context);
+  if (replace) m.clearSnackBars();
+  m.showSnackBar(
     SnackBar(
       // 색을 직접 그리므로 Material 기본 배경·여백을 걷어낸다.
       backgroundColor: Colors.transparent,
       elevation: 0,
       padding: EdgeInsets.zero,
+      // SnackBar 는 기본으로 자기 Material 경계에서 자른다(Clip.hardEdge). 아래 카드의
+      // shadow-md 가 그 경계 밖에 그려져 통째로 잘렸고, 흰 토스트가 흰 목록 위에서
+      // 경계 없이 떠 있었다.
+      clipBehavior: Clip.none,
       behavior: SnackBarBehavior.floating,
       duration: duration,
       content: Container(
@@ -100,11 +122,21 @@ void showPSnackBar(
                   ),
                 ),
               ),
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(width: PSpace.md),
+                PButton(
+                  label: actionLabel,
+                  size: PButtonSize.sm,
+                  onPressed: () {
+                    m.hideCurrentSnackBar();
+                    onAction();
+                  },
+                ),
+              ],
             ],
           ),
         ),
       ),
-      action: action,
     ),
   );
 }

@@ -16,6 +16,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_alert.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 업데이트 — 설정에서 들어와 지금 상태를 확인하고, 있으면 여기서 받는다.
 ///
@@ -297,9 +298,7 @@ class _DownloadButton extends ConsumerWidget {
 
     // 앱 안에서 못 받았으면 브라우저에 넘긴다. 거기서는 받아지는 경우가 있다.
     final l = AppLocalizations.of(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
+    showPSnackBar(context, l.updateSheetFailed, severity: PSnackSeverity.error);
     await openReleaseExternally(release);
   }
 }
