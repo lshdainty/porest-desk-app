@@ -119,6 +119,7 @@ class _CapturingRepo extends AssetRepository {
     int? paymentAssetRowId,
     bool? isOverdraft,
     List<AssetHolding>? holdings,
+    int? dueCarryoverAmount,
   }) async {
     created = {'currency': currency, 'exchangeRate': exchangeRate};
     return _fake();
@@ -144,6 +145,7 @@ class _CapturingRepo extends AssetRepository {
     bool? isOverdraft,
     List<AssetHolding>? holdings,
     int? carryoverAmount,
+    int? dueCarryoverAmount,
   }) async {
     updated = {
       'currency': currency,

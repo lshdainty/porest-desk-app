@@ -47,6 +47,11 @@ abstract class Asset with _$Asset {
     /// 전용으로 둔다(D15). 서버도 값이 바뀌면 400 이다.
     @Default(false) bool carryoverLocked,
 
+    /// 신용카드: **결제 대기 청구분** 칸(2026-09-22 사용자 결정) — 결제일 전에 카드를 등록할
+    /// 때 따로 적은 지난달 청구분. 청구분이 있거나 등록한 달의 그 회차 결제일이 아직 안
+    /// 왔으면 값(폼이 칸을 그린다), 아니면 null. 옛 서버도 null 이다.
+    DueCarryover? dueCarryover,
+
     /// 신용카드: 결제일이 **오늘보다 뒤인 첫 회차**의 실제 결제일(`yyyy-MM-dd`).
     ///
     /// 결제일을 바꾸면 다음 회차부터 적용된다(D5) — 바꿀 때 아직 결제 전이던 회차는 옛
@@ -77,6 +82,24 @@ abstract class Asset with _$Asset {
   }) = _Asset;
 
   factory Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);
+}
+
+/// 신용카드의 결제 대기 청구분 칸 — 백엔드 `AssetApiDto.DueCarryoverResponse`.
+@freezed
+abstract class DueCarryover with _$DueCarryover {
+  const factory DueCarryover({
+    /// 지금 청구분(없으면 0).
+    @Default(0) int amount,
+
+    /// 그 회차 결제일이 됐다 — 이미 결제에 들어가 칸이 읽기 전용이다(D15 와 같다).
+    @Default(false) bool locked,
+
+    /// 그 회차의 결제일(`yyyy-MM-dd`) — 칸 이름에 쓴다("9월 25일에 결제될 금액").
+    String? paymentDate,
+  }) = _DueCarryover;
+
+  factory DueCarryover.fromJson(Map<String, dynamic> json) =>
+      _$DueCarryoverFromJson(json);
 }
 
 /// 자산에 연결된 카드 상품 요약 — 백엔드 `CardCatalogBriefResponse` 미러.

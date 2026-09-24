@@ -162,4 +162,30 @@ ClosedCycleSpan closedCycleSpanFor(
   );
 }
 
+/// 새 카드의 결제 대기 청구분 칸(2026-09-22 사용자 결정) — 웹 `pendingBillWindow` 미러,
+/// 서버 `dueCycleFor` 와 같은 규칙.
+///
+/// 결제일 전에 카드를 등록하면 실제 카드사는 지난달 청구분을 다가오는 결제일에, 이번 달 쓴
+/// 금액을 그다음 결제일에 뺀다. 오늘이 이번 달 결제일(지난달 회차의 결제일) 전이면 그 회차가
+/// 결제를 기다린다 — 두 날짜(`yyyy-MM-dd`)를 준다. 결제일 당일부터는 닫힌 회차라(D2)
+/// "오늘보다 뒤" 로 가른다. 결제일이 없거나 이미 지났으면 null(칸 하나 — 종전 그대로).
+({String dueDate, String afterDate})? pendingBillWindow(
+  String todayKey,
+  int? paymentDay,
+) {
+  if (paymentDay == null || paymentDay < 1) return null;
+  final y = int.parse(todayKey.substring(0, 4));
+  final m = int.parse(todayKey.substring(5, 7));
+  final prevMonth = m == 1 ? '${y - 1}-12-01' : '$y-${_pad2(m - 1)}-01';
+  final dueDate = cardCyclePaymentDate(prevMonth, paymentDay);
+  if (dueDate.compareTo(todayKey) <= 0) return null;
+  return (
+    dueDate: dueDate,
+    afterDate: cardCyclePaymentDate(
+      '${todayKey.substring(0, 7)}-01',
+      paymentDay,
+    ),
+  );
+}
+
 String _pad2(int n) => n.toString().padLeft(2, '0');

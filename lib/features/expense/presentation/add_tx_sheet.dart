@@ -1742,7 +1742,8 @@ class _TxInputForm extends ConsumerWidget {
           Text(switch (c.autoSource) {
             'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
             'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
-            'CARD_CARRYOVER' => l.expAutoSourceCardCarryover,
+            'CARD_CARRYOVER' ||
+            'CARD_CARRYOVER_DUE' => l.expAutoSourceCardCarryover,
             _ => l.expAutoSourceDefault,
           }, style: PTypo.micro.copyWith(color: t.fgTertiary)),
         ]

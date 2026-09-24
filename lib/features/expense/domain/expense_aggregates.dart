@@ -34,7 +34,8 @@ bool isRefundedTx(Expense e) => e.refundedAt != null;
 ///
 /// 등록 전에 이미 쓴 돈이라 그 달의 지출이 아니다. 목록에는 보이고(자동 생성이라 수정·삭제는
 /// 잠겨 있다) 합계에서만 빠진다.
-bool isCardCarryoverTx(Expense e) => e.autoSource == 'CARD_CARRYOVER';
+bool isCardCarryoverTx(Expense e) =>
+    e.autoSource == 'CARD_CARRYOVER' || e.autoSource == 'CARD_CARRYOVER_DUE';
 
 /// 집계 대상만 남긴다 — 아직 안 온 것 · **환불된 것** · **카드 이월**을 뺀다.
 Iterable<Expense> countableTx(Iterable<Expense> all) => all.where(

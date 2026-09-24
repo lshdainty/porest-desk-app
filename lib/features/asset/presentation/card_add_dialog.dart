@@ -89,6 +89,12 @@ extension on _CardType {
   };
 }
 
+/// 오늘 — 결제 대기 청구분 칸은 오늘이 이번 달 결제일 전인지로 열린다. 테스트가 날짜를
+/// 고정하도록 갈아 끼운다(`freshnessClockProvider` 와 같은 모양).
+final cardFormClockProvider = Provider<DateTime Function()>(
+  (ref) => DateTime.now,
+);
+
 class _CardAddBody extends ConsumerStatefulWidget {
   const _CardAddBody({
     required this.edit,
@@ -106,6 +112,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   late final TextEditingController _keywordCtrl;
   late final TextEditingController _nicknameCtrl;
   late final TextEditingController _balanceCtrl;
+  late final TextEditingController _dueCtrl;
   late final TextEditingController _creditLimitCtrl;
   late final TextEditingController _fxRateCtrl;
 
@@ -144,6 +151,37 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   bool get _carryoverLocked =>
       widget.edit?.assetType == 'CREDIT_CARD' &&
       (widget.edit?.carryoverLocked ?? false);
+
+  String get _todayKey =>
+      toIsoLocal(ref.read(cardFormClockProvider)()).substring(0, 10);
+
+  /// 새 신용카드의 결제 대기 청구분 창 — 오늘이 이번 달 결제일 전일 때만 있다. 결제일을
+  /// 바꾸면 따라 바뀐다.
+  ({String dueDate, String afterDate})? get _newCardBillWindow =>
+      !_isEdit && _cardType == _CardType.credit
+      ? pendingBillWindow(_todayKey, _paymentDay)
+      : null;
+
+  /// 결제 대기 청구분 칸(2026-09-22 사용자 결정) — 웹 `dueField` 미러.
+  ///
+  /// 결제일 전에 카드를 등록하면 실제 카드사는 지난달 청구분을 다가오는 결제일에, 이번 달
+  /// 쓴 금액을 그다음 결제일에 뺀다. 한 칸으로 받으면 전부 다음 달에 빠져 한 달 동안 통장
+  /// 잔액이 실제보다 많았다. 그래서 두 칸으로 받는다.
+  ///  - 새 카드: 오늘이 이번 달 결제일 전이면 연다
+  ///  - 기존 카드: 서버가 칸을 줄 때만 — 청구분이 있거나 등록한 달의 그 회차가 아직 열려
+  ///    있을 때. 그 회차 결제일이 되면 잠긴다(D15 와 같다)
+  ({String paymentDate, bool locked})? get _dueField {
+    final window = _newCardBillWindow;
+    if (window != null) return (paymentDate: window.dueDate, locked: false);
+    final e = widget.edit;
+    final date = e?.dueCarryover?.paymentDate;
+    if (e?.assetType == 'CREDIT_CARD' &&
+        _cardType == _CardType.credit &&
+        date != null) {
+      return (paymentDate: date, locked: e!.dueCarryover!.locked);
+    }
+    return null;
+  }
 
   /// 별칭 길이 상한 — 계좌와 같은 값(QA #16).
   static const _kNicknameMax = 30;
@@ -200,6 +238,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _balanceCtrl = TextEditingController(
       text: (e == null ? 0 : (e.carryoverAmount ?? 0)).abs().toString(),
     );
+    // 결제 대기 청구분 — 기존 카드는 서버가 준 값으로 연다. 칸이 없으면 안 쓴다(`_dueField`).
+    _dueCtrl = TextEditingController(
+      text: (e?.assetType == 'CREDIT_CARD' ? (e?.dueCarryover?.amount ?? 0) : 0)
+          .abs()
+          .toString(),
+    );
     _creditLimitCtrl = TextEditingController(
       text: e?.creditLimit?.toString() ?? '',
     );
@@ -250,6 +294,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl.dispose();
     _nicknameCtrl.dispose();
     _balanceCtrl.dispose();
+    _dueCtrl.dispose();
     _creditLimitCtrl.dispose();
     _fxRateCtrl.dispose();
     super.dispose();
@@ -283,6 +328,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     // 신용카드의 이 칸은 이월 금액이다. 만들 때는 잔액(음수 — 미결제 사용액)으로 보내
     // 서버가 이월 거래를 만든다. 서버도 같은 정규화를 하지만 여기서도 맞춰 보낸다.
     final usage = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
+    // 결제 대기 청구분은 칸이 있을 때만 읽는다 — 결제일을 바꿔 칸이 사라졌으면 적어 둔
+    // 값이 남아 있어도 안 보낸다.
+    final dueField = _dueField;
+    final due = dueField == null
+        ? 0
+        : int.tryParse(_dueCtrl.text.replaceAll(',', '')) ?? 0;
     final outstanding = _cardType == _CardType.credit
         ? signedBalance('CREDIT_CARD', usage)
         : 0;
@@ -323,6 +374,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           assetType: _cardType.assetType,
           balance: isCredit ? null : outstanding,
           carryoverAmount: isCredit && !_carryoverLocked ? usage : null,
+          // 청구분 칸이 열려 있으면 0 도 싣는다 — 0 이면 서버가 지운다. 잠긴 칸은 키째 뺀다.
+          dueCarryoverAmount: isCredit && dueField != null && !dueField.locked
+              ? due
+              : null,
           currency: _currency,
           exchangeRate: Patch.set(fxRate),
           institution: company,
@@ -349,6 +404,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           paymentDay: isCredit ? _paymentDay : null,
           // 계좌 연결은 두 종류 다 쓴다 — 신용은 결제일 자동이체, 체크는 즉시 차감.
           paymentAssetRowId: _paymentAssetRowId,
+          // 만들 때는 청구분이 있을 때만 싣는다 — 없으면 [balance] 하나로 종전 그대로다.
+          dueCarryoverAmount: isCredit && dueField != null && due > 0
+              ? due
+              : null,
         );
       }
       // 자산이 하나 늘거나 줄면 순자산·추이·청구·실적이 함께 달라진다 —
@@ -385,7 +444,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         oldDay == newDay) {
       return true;
     }
-    final today = toIsoLocal(DateTime.now()).substring(0, 10);
+    final today = _todayKey;
     final pending = pendingCycleOnOldDay(
       oldPaymentDay: oldDay,
       cardClosedThrough: edit.cardClosedThrough,
@@ -428,6 +487,8 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     );
     final pageAsync = ref.watch(cardCatalogPageProvider(searchKey));
     final isCredit = _cardType == _CardType.credit;
+    final newCardBillWindow = _newCardBillWindow;
+    final dueField = _dueField;
     // 결제 출금계좌 후보 — 본인 소유 BANK_ACCOUNT 자산.
     final bankAccounts = (ref.watch(assetsProvider).value ?? const <Asset>[])
         .where((a) => a.assetType == 'BANK_ACCOUNT')
@@ -616,9 +677,48 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         // 체크카드는 잔액 개념이 없다 — 긁는 즉시 연결 계좌에서 빠지므로
         // 카드가 들고 있을 금액이 없다. 신용카드만 결제일까지 사용액을 든다.
         if (isCredit) ...[
+          // 결제 대기 청구분(2026-09-22) — 결제일 전에 등록하면 지난달 청구분은 다가오는
+          // 결제일에, 그 뒤 쓴 금액은 그다음 결제일에 빠진다. 칸 이름에 그 날짜를 쓴다.
+          if (dueField != null) ...[
+            const SizedBox(height: PSpace.x20),
+            Text(
+              l.assetDueCarryoverLabel(
+                formatDay(DateTime.parse(dueField.paymentDate)).md,
+                unit,
+              ),
+              key: const ValueKey('due-carryover-label'),
+              style: PTypo.caption.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.medium,
+              ),
+            ),
+            const SizedBox(height: PSpace.x8),
+            PTextInput(
+              key: const ValueKey('due-carryover-input'),
+              controller: _dueCtrl,
+              numbersOnly: true,
+              amountMax: kBalanceMax,
+              placeholder: '0',
+              enabled: !dueField.locked,
+            ),
+            const SizedBox(height: 6),
+            if (dueField.locked)
+              Text(
+                l.assetCarryoverLocked,
+                key: const ValueKey('due-carryover-locked-note'),
+                style: PTypo.micro.copyWith(color: t.fgSecondary),
+              )
+            else
+              Text(
+                l.assetDueCarryoverHint,
+                style: PTypo.micro.copyWith(color: t.fgTertiary),
+              ),
+          ],
           const SizedBox(height: PSpace.x20),
           Text(
-            l.assetCurrentUsage(unit),
+            dueField != null
+                ? l.assetCarryoverAfterLabel(unit)
+                : l.assetCurrentUsage(unit),
             style: PTypo.caption.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.medium,
@@ -662,7 +762,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
             const SizedBox(height: 2),
           ],
           Text(
-            l.assetCurrentUsageHint,
+            dueField == null
+                ? l.assetCurrentUsageHint
+                : newCardBillWindow != null
+                ? l.assetCarryoverAfterHint(
+                    formatDay(DateTime.parse(newCardBillWindow.afterDate)).md,
+                  )
+                : l.assetCarryoverAfterHintNoDate,
             style: PTypo.micro.copyWith(color: t.fgTertiary),
           ),
         ],

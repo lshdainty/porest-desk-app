@@ -1238,6 +1238,36 @@ abstract class AppLocalizations {
   /// **'결제가 끝나 고칠 수 없어요'**
   String get assetCarryoverLocked;
 
+  /// No description provided for @assetDueCarryoverLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}에 결제될 금액 ({unit})'**
+  String assetDueCarryoverLabel(String date, String unit);
+
+  /// No description provided for @assetDueCarryoverHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드사 앱에 \'결제 예정 금액\'으로 보이는 금액이에요. 그날 결제계좌에서 빠져요.'**
+  String get assetDueCarryoverHint;
+
+  /// No description provided for @assetCarryoverAfterLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'그 뒤 쓴 금액 ({unit})'**
+  String assetCarryoverAfterLabel(String unit);
+
+  /// No description provided for @assetCarryoverAfterHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 청구 뒤로 쓴 금액이에요. {date}에 결제돼요.'**
+  String assetCarryoverAfterHint(String date);
+
+  /// No description provided for @assetCarryoverAfterHintNoDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 청구 뒤로 쓴 금액이에요.'**
+  String get assetCarryoverAfterHintNoDate;
+
   /// No description provided for @assetPaymentDayChangeTitle.
   ///
   /// In ko, this message translates to:

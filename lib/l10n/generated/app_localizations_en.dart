@@ -631,6 +631,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'This has already been paid, so it can\'t be changed';
 
   @override
+  String assetDueCarryoverLabel(String date, String unit) {
+    return 'Due on $date ($unit)';
+  }
+
+  @override
+  String get assetDueCarryoverHint =>
+      'The amount your card app shows as due. It leaves your payment account that day.';
+
+  @override
+  String assetCarryoverAfterLabel(String unit) {
+    return 'Spent since then ($unit)';
+  }
+
+  @override
+  String assetCarryoverAfterHint(String date) {
+    return 'Spent after the last statement. Paid on $date.';
+  }
+
+  @override
+  String get assetCarryoverAfterHintNoDate => 'Spent after the last statement.';
+
+  @override
   String get assetPaymentDayChangeTitle => 'Change payment day';
 
   @override
