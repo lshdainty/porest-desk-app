@@ -453,7 +453,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       // 실제 결제일이 먼저다(QA 26 4).
       nextPaymentDate: edit.nextPaymentDate,
     );
-    final date = formatDay(DateTime.parse(pending.paymentDate)).md;
+    final date = monthDay(DateTime.parse(pending.paymentDate));
     return showPConfirmDialog(
       context,
       title: l.assetPaymentDayChangeTitle,
@@ -683,7 +683,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
             const SizedBox(height: PSpace.x20),
             Text(
               l.assetDueCarryoverLabel(
-                formatDay(DateTime.parse(dueField.paymentDate)).md,
+                monthDay(DateTime.parse(dueField.paymentDate)),
                 unit,
               ),
               key: const ValueKey('due-carryover-label'),
@@ -766,7 +766,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 ? l.assetCurrentUsageHint
                 : newCardBillWindow != null
                 ? l.assetCarryoverAfterHint(
-                    formatDay(DateTime.parse(newCardBillWindow.afterDate)).md,
+                    monthDay(DateTime.parse(newCardBillWindow.afterDate)),
                   )
                 : l.assetCarryoverAfterHintNoDate,
             style: PTypo.micro.copyWith(color: t.fgTertiary),

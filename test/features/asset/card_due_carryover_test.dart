@@ -169,7 +169,7 @@ class _Repo extends AssetRepository {
   return (dio, captured);
 }
 
-String _md(String key) => formatDay(DateTime.parse(key)).md;
+String _md(String key) => monthDay(DateTime.parse(key));
 
 Finder get _dueInput => find.descendant(
   of: find.byKey(const ValueKey('due-carryover-input')),
@@ -501,6 +501,45 @@ void main() {
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
       expect(repo.updated!['dueCarryoverAmount'], isNull);
+    });
+  });
+
+  // 결제일을 말하는 문장은 웹처럼 연도를 안 붙인다(QA 28 4). 앱 formatDay 는 올해가 아니면
+  // 연도를 붙여서 12월에 "2027년 1월 7일에 결제돼요" 가 됐다 — 웹은 "1월 7일에 결제돼요".
+  group('12월 — 결제일 문장에 연도가 없다', () {
+    testWidgets('새 카드 안내: 그다음 결제일이 내년 1월이어도 "1월 7일"', (tester) async {
+      await _host(tester, showCardAddDialog, today: DateTime(2026, 12, 3, 9));
+      await tester.tap(find.text(l.assetPaymentDaySelect));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.dayN(7)).last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('12월 7일에 결제될 금액 (원)'), findsOneWidget);
+      expect(find.text('지난 청구 뒤로 쓴 금액이에요. 1월 7일에 결제돼요.'), findsOneWidget);
+      expect(find.textContaining('2027년'), findsNothing);
+    });
+
+    testWidgets('결제일 변경 확인창: "12월분은 1월 25일에 결제돼요"', (tester) async {
+      // 12/28 — 11월분은 12/25 에 결제가 끝났고, 12월분이 옛 결제일(25일)인 1/25 에 나간다.
+      await _host(
+        tester,
+        (ctx) => showCardEditDialog(
+          ctx,
+          _credit.copyWith(dueCarryover: null, cardClosedThrough: '2026-11-30'),
+        ),
+        today: DateTime(2026, 12, 28, 9),
+      );
+      await tester.tap(find.text(l.dayN(25)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.dayN(5)).last);
+      await tester.pumpAndSettle();
+      await tester.tap(_submitButton(l.actionSave));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 12월분은 1월 25일에 결제돼요'),
+        findsOneWidget,
+      );
     });
   });
 }
