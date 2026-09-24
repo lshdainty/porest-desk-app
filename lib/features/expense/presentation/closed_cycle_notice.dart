@@ -80,7 +80,7 @@ String rewriteConfirmMessage(
       final pay = DateTime.parse(
         cyclePaymentDate(dateKey, day, newAsset.nextPaymentDate),
       );
-      return '$lead ${l.expRewriteConfirmOpen(formatDay(pay).md)}';
+      return '$lead ${l.expRewriteConfirmOpen(monthDay(pay))}';
   }
 }
 

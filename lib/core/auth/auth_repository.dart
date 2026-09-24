@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:porest_desk_app/core/auth/user.dart';
 
 /// 인증 관련 Desk 백엔드 호출을 모은 얇은 어댑터.
@@ -15,6 +16,10 @@ class AuthRepository {
   /// OAuth2 인가코드(PKCE)를 desk 토큰으로 교환. POST /auth/exchange-code.
   /// 인앱 WebView 가 가로챈 code+codeVerifier 를 BFF 로 교환한다.
   /// 성공 시 응답 쿠키(`desk_access_token`)가 cookie_jar 에 저장된다 — 사용자 정보는 [check] 로.
+  ///
+  /// 실패는 전역 오류 토스트에 싣지 않는다. 로그인 흐름이 자기 자리에 그린다 — 로그인
+  /// 화면의 에러 줄(`loginErrorMessage`), 해지한 계정(USER_021)이면 해지 완료 화면.
+  /// 토스트까지 뜨면 겹친다(QA 28 1 — 해지 완료 화면 위에 빨간 토스트).
   Future<void> exchangeCode({
     required String code,
     required String codeVerifier,
@@ -28,6 +33,7 @@ class AuthRepository {
           'codeVerifier': codeVerifier,
           'redirectUri': redirectUri,
         },
+        options: Options(extra: {kSilentErrorToast: true}),
       );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);

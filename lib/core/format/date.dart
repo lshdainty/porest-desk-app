@@ -36,6 +36,14 @@ DayLabel formatDay(DateTime d) {
   );
 }
 
+/// porest-desk-front `formatMonthDay` 포팅 — ko "M월 D일" / en "Jan 25". **연도를 안 붙인다.**
+///
+/// 결제일처럼 문장 안에 드는 날짜에 쓴다. 문장은 웹과 한 글자도 같아야 하는데(문구는
+/// 웹·앱 한 벌), [formatDay] 는 올해가 아니면 연도를 붙여(반복 거래 목록용) 12월에
+/// "2027년 1월 25일에 결제돼요" 가 됐다 — 웹은 "1월 25일에 결제돼요"(QA 28 4).
+String monthDay(DateTime d) =>
+    localeIsEn() ? DateFormat.MMMd('en').format(d) : '${d.month}월 ${d.day}일';
+
 /// porest-desk-front `formatMonthDayDow` 포팅 — ko "8월 3일 (월)" / en "Aug 3 (Mon)".
 ///
 /// 올해가 아니면 [formatDay] 가 md 에 연도를 넣어 준다 → "2027년 1월 1일 (금)".
