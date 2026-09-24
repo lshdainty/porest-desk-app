@@ -4895,7 +4895,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryParentMoveHint.
   ///
   /// In ko, this message translates to:
-  /// **'다른 상위로 이동할 수 있어요. 최상위로 올리려면 연결된 거래를 옮긴 뒤 새로 만들어 주세요.'**
+  /// **'다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨 주세요.'**
   String get categoryParentMoveHint;
 
   /// No description provided for @categoryMakeRoot.
