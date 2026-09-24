@@ -131,27 +131,31 @@ void main() {
     expect(find.text('수정'), findsOneWidget);
   });
 
-  testWidgets('카드 이월 거래 상세 — 환불·분할이 없고 이월이라고 말한다', (tester) async {
-    final carryover = _plain.copyWith(
-      merchant: '이전 미결제 사용액',
-      autoSource: 'CARD_CARRYOVER',
-    );
-    await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, carryover)));
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
+  // 결제 대기 청구분(CARD_CARRYOVER_DUE, 2026-09-22)도 같은 이월이다.
+  for (final source in ['CARD_CARRYOVER', 'CARD_CARRYOVER_DUE']) {
+    testWidgets('카드 이월 거래 상세($source) — 환불·분할이 없고 이월이라고 말한다', (tester) async {
+      final carryover = _plain.copyWith(
+        merchant: '이전 미결제 사용액',
+        autoSource: source,
+      );
+      await _pump(tester, _opener((ctx) => showTxDetailDialog(ctx, carryover)));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('환불'), findsNothing);
-    expect(find.text('내역 분할'), findsNothing);
-    expect(
-      find.text('카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.'),
-      findsOneWidget,
-    );
-    expect(find.textContaining('원래 거래를 지우면'), findsNothing);
-  });
+      expect(find.text('환불'), findsNothing);
+      expect(find.text('내역 분할'), findsNothing);
+      expect(
+        find.text('카드를 등록할 때 적은 이전 미결제 사용액이에요. 금액은 카드 수정에서 바꿔요.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('원래 거래를 지우면'), findsNothing);
+    });
+  }
 
   // 자동 거래는 반복·더치페이의 원본이 될 수 없다 — 숨기지 않고 끈다(2026-09-22 결정).
   for (final source in [
     'CARD_CARRYOVER',
+    'CARD_CARRYOVER_DUE',
     'TRADE_REALIZED',
     'TRANSFER_INTEREST',
   ]) {

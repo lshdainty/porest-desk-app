@@ -620,6 +620,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요';
 
   @override
+  String assetDueCarryoverLabel(String date, String unit) {
+    return '$date에 결제될 금액 ($unit)';
+  }
+
+  @override
+  String get assetDueCarryoverHint =>
+      '카드사 앱에 \'결제 예정 금액\'으로 보이는 금액이에요. 그날 결제계좌에서 빠져요.';
+
+  @override
+  String assetCarryoverAfterLabel(String unit) {
+    return '그 뒤 쓴 금액 ($unit)';
+  }
+
+  @override
+  String assetCarryoverAfterHint(String date) {
+    return '지난 청구 뒤로 쓴 금액이에요. $date에 결제돼요.';
+  }
+
+  @override
+  String get assetCarryoverAfterHintNoDate => '지난 청구 뒤로 쓴 금액이에요.';
+
+  @override
   String get assetPaymentDayChangeTitle => '결제일 변경';
 
   @override

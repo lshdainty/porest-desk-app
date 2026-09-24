@@ -324,6 +324,35 @@
     }
   },
   "assetCarryoverLocked": "This has already been paid, so it can't be changed",
+  "assetDueCarryoverLabel": "Due on {date} ({unit})",
+  "@assetDueCarryoverLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetDueCarryoverHint": "The amount your card app shows as due. It leaves your payment account that day.",
+  "assetCarryoverAfterLabel": "Spent since then ({unit})",
+  "@assetCarryoverAfterLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetCarryoverAfterHint": "Spent after the last statement. Paid on {date}.",
+  "@assetCarryoverAfterHint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "assetCarryoverAfterHintNoDate": "Spent after the last statement.",
   "assetPaymentDayChangeTitle": "Change payment day",
   "assetPaymentDayChangeConfirm": "The new payment day applies from the next cycle. Month {month} charges are still paid on {date}",
   "@assetPaymentDayChangeConfirm": {

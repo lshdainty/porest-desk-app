@@ -83,6 +83,7 @@ class _CapturingRepo extends AssetRepository {
     int? paymentAssetRowId,
     bool? isOverdraft,
     List<AssetHolding>? holdings,
+    int? dueCarryoverAmount,
   }) async {
     captured = {
       'assetName': assetName,
@@ -114,6 +115,7 @@ class _CapturingRepo extends AssetRepository {
     bool? isOverdraft,
     List<AssetHolding>? holdings,
     int? carryoverAmount,
+    int? dueCarryoverAmount,
   }) async {
     captured = {
       'assetName': assetName,

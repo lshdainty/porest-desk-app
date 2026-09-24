@@ -47,4 +47,12 @@ void main() {
     expect(isCardCarryoverTx(carryover), isTrue);
     expect(isCardCarryoverTx(plain), isFalse);
   });
+
+  // 결제일 전에 등록하며 따로 적은 지난달 청구분(2026-09-22)도 등록 전에 쓴 돈이다.
+  test('결제 대기 청구분도 같은 이월이다 — 가계부에서 빠지고 카드에는 남는다', () {
+    final due = tx(rowId: 4, amount: 120000, autoSource: 'CARD_CARRYOVER_DUE');
+    expect(isCardCarryoverTx(due), isTrue);
+    expect(expenseSum([plain, due]), 12000);
+    expect(cardExpenseSum([plain, due]), 132000);
+  });
 }

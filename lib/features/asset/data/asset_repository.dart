@@ -117,6 +117,9 @@ class AssetRepository {
     bool? isOverdraft,
     // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
     List<AssetHolding>? holdings,
+    // 신용카드: 결제를 기다리던 지난달 청구분(양수) — 다가오는 결제일에 청구된다. [balance] 는
+    // 그 뒤 쓴 금액이다. null 이면 키를 안 싣는다(없음).
+    int? dueCarryoverAmount,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -139,6 +142,7 @@ class AssetRepository {
           'paymentAssetRowId': ?paymentAssetRowId,
           'isOverdraft': ?isOverdraft,
           'holdings': ?holdings?.map(_holdingBody).toList(),
+          'dueCarryoverAmount': ?dueCarryoverAmount,
         },
       );
       return _unwrap(res, Asset.fromJson);
@@ -196,6 +200,8 @@ class AssetRepository {
     // (서버 PUT 은 "키 없음=유지"). 신용카드는 `balance` 를 서버가 무시하므로 이 키로만
     // 이월을 고친다.
     int? carryoverAmount,
+    // 신용카드: 결제 대기 청구분 — null 이면 키가 빠진다(유지), 0 이면 서버가 지운다.
+    int? dueCarryoverAmount,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -219,6 +225,7 @@ class AssetRepository {
           'isOverdraft': ?isOverdraft,
           'holdings': ?holdings?.map(_holdingBody).toList(),
           'carryoverAmount': ?carryoverAmount,
+          'dueCarryoverAmount': ?dueCarryoverAmount,
         },
       );
       return _unwrap(res, Asset.fromJson);

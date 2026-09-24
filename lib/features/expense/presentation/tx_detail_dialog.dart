@@ -489,7 +489,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                       'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
                       // 카드 이월 — "원래 거래를 지우면…" 은 틀린 말이다. 원래
                       // 거래가 없다(23차 10).
-                      'CARD_CARRYOVER' => l.expAutoSourceCardCarryover,
+                      'CARD_CARRYOVER' ||
+                      'CARD_CARRYOVER_DUE' => l.expAutoSourceCardCarryover,
                       _ => l.expAutoSourceDefault,
                     }, style: PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),

@@ -327,6 +327,35 @@
     }
   },
   "assetCarryoverLocked": "결제가 끝나 고칠 수 없어요",
+  "assetDueCarryoverLabel": "{date}에 결제될 금액 ({unit})",
+  "@assetDueCarryoverLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetDueCarryoverHint": "카드사 앱에 '결제 예정 금액'으로 보이는 금액이에요. 그날 결제계좌에서 빠져요.",
+  "assetCarryoverAfterLabel": "그 뒤 쓴 금액 ({unit})",
+  "@assetCarryoverAfterLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "assetCarryoverAfterHint": "지난 청구 뒤로 쓴 금액이에요. {date}에 결제돼요.",
+  "@assetCarryoverAfterHint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "assetCarryoverAfterHintNoDate": "지난 청구 뒤로 쓴 금액이에요.",
   "assetPaymentDayChangeTitle": "결제일 변경",
   "assetPaymentDayChangeConfirm": "바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요",
   "@assetPaymentDayChangeConfirm": {
