@@ -2679,7 +2679,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryParentMoveHint =>
-      'You can move it under a different parent. To promote it to top level, move its linked transactions and recreate it.';
+      'You can move it under a different parent. To make it top-level, create a new top-level category and move the transactions.';
 
   @override
   String get categoryMakeRoot => '— Keep as top-level category —';
