@@ -31,6 +31,7 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
 import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
@@ -345,6 +346,10 @@ class _RecurringSettingsBodyState
         );
       }
       ref.invalidate(recurringListProvider);
+      // 만들거나 고친 규칙의 회차가 오늘이면 서버가 그 거래를 바로 기록한다(QA 30 1, back
+      // #360) — 가계부·자산·홈도 함께 새로 받는다.
+      ref.invalidate(monthExpensesProvider);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException {

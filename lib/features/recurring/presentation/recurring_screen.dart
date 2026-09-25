@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
 import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
@@ -57,6 +58,10 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       final repo = await ref.read(recurringRepositoryProvider.future);
       await repo.toggle(it.rowId);
       ref.invalidate(recurringListProvider);
+      // 다시 켤 때 오늘이 회차면 서버가 그 거래를 바로 기록한다(QA 30 1·4, back #360) —
+      // 가계부·자산·홈도 함께 새로 받는다.
+      ref.invalidate(monthExpensesProvider);
+      invalidateAfterExpenseChange(ref);
     } on ApiException {
       if (!mounted) return;
     } finally {
