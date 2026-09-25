@@ -10,7 +10,6 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/patch.dart';
 import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
@@ -435,14 +434,8 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // 색상
-        PSectionLabel(l.calFieldColor, variant: PSectionLabelVariant.header),
-        const SizedBox(height: PSpace.x8),
-        PColorPicker(
-          selected: _color,
-          onChanged: (hex) => setState(() => _color = hex),
-        ),
-        const SizedBox(height: PSpace.x16),
+        // 일정마다 고르는 색 칸은 두지 않는다(사용자 결정 2026-09-25) — 화면은 라벨 → 캘린더
+        // 색으로 칠해서 고른 색이 한 번도 보이지 않았다(QA 30 12). 저장값은 종전 그대로다.
 
         // 종일 — web 정합: [토글][라벨] 좌측 정렬
         Row(

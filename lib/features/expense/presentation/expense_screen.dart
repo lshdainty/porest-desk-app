@@ -181,7 +181,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   Future<void> _openFilter() async {
-    final result = await showFilterDialog(context, _advFilter);
+    final result = await showFilterDialog(
+      context,
+      _advFilter,
+      defaultPeriod: monthPeriodOf(_month),
+    );
     if (result != null && mounted) setState(() => _advFilter = result);
   }
 
@@ -375,14 +379,20 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
 
         // 배지 — 켜진 **포함 조건 수**(웹 filterActiveCount 정합).
         // 기간은 항상 걸려 있고 '빼고' 는 포함 조건이 아니라 세지 않지만, 사람 눈에는
-        // 그 둘도 "필터가 걸린 상태" 라 조건이 0 이어도 1 로 쳐서 배지를 띄운다.
+        // 그 둘도 "필터가 걸린 상태" 라 조건이 0 이어도 1 로 쳐서 배지를 띄운다. 기간이 한
+        // 칸이어도 보고 있는 달과 다르면 마찬가지다(QA 30 10).
         final baseCount = activeConditionCount(_advFilter);
         final hasExclude =
             _advFilter.categories.exclude.isNotEmpty ||
             _advFilter.assets.exclude.isNotEmpty;
+        final periodChanged =
+            _advFilter.periods.length == 1 &&
+            !samePeriod(_advFilter.periods.first, monthPeriodOf(_month));
         final advCount = baseCount > 0
             ? baseCount
-            : (_advFilter.periods.length > 1 || hasExclude ? 1 : 0);
+            : (_advFilter.periods.length > 1 || hasExclude || periodChanged
+                  ? 1
+                  : 0);
 
         // 필터 활성 시 — 월선택/총액/캘린더/divider 숨기고 온전히 리스트만(사용자 결정).
         final filterActive = advCount > 0 || _assetIdFilter != null;

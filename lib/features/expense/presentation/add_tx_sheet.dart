@@ -1269,8 +1269,13 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
   @override
   void initState() {
     super.initState();
-    _nameCtrl = TextEditingController(text: widget.seedMerchant);
+    // 이름을 칠 때마다 다시 그린다 — [저장] 이 이름 칸을 보고 켜지는데, 듣는 쪽이 없어 이름을
+    // 쳐도 안 켜지다가 '금액 고정' 을 건드려야 켜졌다(QA 30 14).
+    _nameCtrl = TextEditingController(text: widget.seedMerchant)
+      ..addListener(_onNameChanged);
   }
+
+  void _onNameChanged() => setState(() {});
 
   @override
   void dispose() {
@@ -1280,15 +1285,16 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
 
   Future<void> _submit() async {
     final name = _nameCtrl.text.trim();
+    // 계좌 없이도 저장한다 — 서버·리포지토리는 비운 계좌를 받는다. 종전엔 계좌가 비면 안내 없이
+    // 그냥 끝나 누른 게 아무 일도 안 한 것처럼 보였다(QA 30 14).
     if (name.isEmpty || _submitting) return;
-    if (widget.seedAssetRowId == null) return;
     setState(() => _submitting = true);
     try {
       final repo = await ref.read(presetRepositoryProvider.future);
       await repo.create(
         templateName: name,
         categoryRowId: widget.seedCategoryRowId,
-        assetRowId: widget.seedAssetRowId!,
+        assetRowId: widget.seedAssetRowId,
         toAssetRowId: widget.seedToAssetRowId,
         fee: widget.seedFee,
         // 이자는 금액을 따라간다 — 금액을 안 저장하면 이자도 안 저장한다
@@ -1898,17 +1904,10 @@ class _TxInputForm extends ConsumerWidget {
                     _SelectField<int>(
                       value: c.categoryRowId,
                       hint: l.expSubcategory,
+                      // 상위 자신은 고를 수 없다 — 이 칸은 하위가 있는 상위에서만 뜨고, 하위가
+                      // 있는 상위에는 서버가 거래를 안 받는다(EXP_009). 종전엔 첫 칸이 상위라
+                      // 고르면 저장에서 막혔다(QA 30 13, 웹과 같다).
                       items: [
-                        _SelectOption<int>(
-                          selectedParentId,
-                          l.expTopCategorySuffix(
-                            topCategories
-                                .firstWhere(
-                                  (cat) => cat.rowId == selectedParentId,
-                                )
-                                .categoryName,
-                          ),
-                        ),
                         for (final child in childrenByParent[selectedParentId]!)
                           _SelectOption<int>(
                             child.rowId as int,

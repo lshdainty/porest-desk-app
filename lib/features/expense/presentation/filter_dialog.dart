@@ -23,8 +23,11 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 Future<ExpenseFilter?> showFilterDialog(
   BuildContext context,
-  ExpenseFilter current,
-) async {
+  ExpenseFilter current, {
+
+  /// 보고 있는 달의 기간 — 처음 열 때와 초기화에 쓴다(`monthPeriodOf`). 없으면 이번 달.
+  FilterPeriodRange? defaultPeriod,
+}) async {
   final controller = PSheetController();
   final formKey = GlobalKey<_FilterBodyState>();
   final l = AppLocalizations.of(context);
@@ -34,6 +37,7 @@ Future<ExpenseFilter?> showFilterDialog(
     contentBuilder: (ctx, scrollCtrl) => _FilterBody(
       key: formKey,
       initial: current,
+      defaultPeriod: defaultPeriod,
       scrollController: scrollCtrl,
       controller: controller,
     ),
@@ -59,10 +63,12 @@ class _FilterBody extends ConsumerStatefulWidget {
   const _FilterBody({
     super.key,
     required this.initial,
+    this.defaultPeriod,
     required this.scrollController,
     required this.controller,
   });
   final ExpenseFilter initial;
+  final FilterPeriodRange? defaultPeriod;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -88,7 +94,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     super.initState();
     _match = widget.initial.match;
     _periods = widget.initial.periods.isEmpty
-        ? [resolvePeriod(FilterPeriodPreset.month)]
+        ? [widget.defaultPeriod ?? resolvePeriod(FilterPeriodPreset.month)]
         : [...widget.initial.periods];
     _types = {...widget.initial.types};
     _cats = widget.initial.categories;
@@ -138,7 +144,9 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   void _reset() {
     setState(() {
       _match = MatchMode.all;
-      _periods = [resolvePeriod(FilterPeriodPreset.month)];
+      _periods = [
+        widget.defaultPeriod ?? resolvePeriod(FilterPeriodPreset.month),
+      ];
       _types = {'EXPENSE', 'INCOME'};
       _cats = const IncludeExclude();
       _accs = const IncludeExclude();

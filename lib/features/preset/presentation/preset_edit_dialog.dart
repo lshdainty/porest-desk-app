@@ -480,18 +480,15 @@ class _BodyState extends ConsumerState<_Body> {
       return const SizedBox.shrink();
     }
 
-    final parentName = cats.byRowId(selectedParentId)?.categoryName ?? '';
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: PSelect<int>(
         value: _categoryRowId,
         placeholder: l.expSubcategory,
         title: l.expSubcategory,
+        // 상위 자신은 고를 수 없다 — 하위가 있는 상위는 프리셋도 거래도 안 받는다
+        // (EXPENSE_CATEGORY_NOT_LEAF). 거래 추가와 같다(QA 30 13).
         items: [
-          PSelectItem(
-            value: selectedParentId,
-            label: l.recurringParentCategory(parentName),
-          ),
           for (final child in children)
             PSelectItem(value: child.rowId, label: child.categoryName),
         ],

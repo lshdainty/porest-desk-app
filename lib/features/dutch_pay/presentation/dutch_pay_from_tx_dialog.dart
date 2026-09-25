@@ -99,6 +99,10 @@ class _BodyState extends ConsumerState<_Body> {
 
   // 마지막 build 에서 계산된 footer snapshot — _DutchPayFooter 가 읽음.
   List<_Participant> _lastParticipants = const [];
+
+  /// 지난 build 가 본 나 — "나도 포함" 을 끈 정산에 0원 결제자로 싣는다.
+  String _meName = '나';
+  int? _meRowId;
   bool _lastMatched = false;
   int _lastPerPerson = 0;
 
@@ -303,13 +307,22 @@ class _BodyState extends ConsumerState<_Body> {
         dutchPayDate: _expenseDay,
         sourceExpenseRowId: widget.expense.rowId,
         participants: [
+          // "나도 포함" 을 끄면 "내가 전액 결제, 다른 사람 몫만 받아요" — 나는 결제자이고 내 몫은
+          // 0원이다. 종전엔 나를 빼고 전원 isPayer false 로 보내 서버가 400 "결제한 사람을 한 명
+          // 골라 주세요" 로 막았다(QA 30 3). 서버는 결제자에게만 0원을 받는다(back #360).
+          if (!_includeMyself)
+            (
+              name: _meName.trim(),
+              userRowId: _meRowId,
+              amount: 0,
+              isPayer: true,
+            ),
           for (var i = 0; i < participants.length; i++)
             (
               name: participants[i].name.trim(),
               userRowId: participants[i].userRowId,
               amount: amounts[i],
-              // 내 지출에서 만든 정산이라 결제자는 나다. 나를 뺀 경우(=내가 참여자가
-              // 아닌 경우)에는 아무도 표시되지 않고, 서버가 첫 사람을 결제자로 본다.
+              // 내 지출에서 만든 정산이라 결제자는 나다.
               isPayer: participants[i].isMe,
             ),
         ],
@@ -353,6 +366,8 @@ class _BodyState extends ConsumerState<_Body> {
     final perPerson = _perPerson(_totalAbs, participants.length);
 
     _lastParticipants = participants;
+    _meName = meName;
+    _meRowId = meRowId;
     _lastMatched = matched;
     _lastPerPerson = perPerson;
     WidgetsBinding.instance.addPostFrameCallback((_) {
