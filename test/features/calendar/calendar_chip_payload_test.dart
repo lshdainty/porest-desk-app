@@ -270,4 +270,11 @@ void main() {
       expect(repo.updated!['reminderMinutes'], [10]);
     });
   });
+
+  // 일정마다 고르는 색 칸은 없다(사용자 결정 2026-09-25) — 화면은 라벨 → 캘린더 색으로 칠해
+  // 고른 색이 한 번도 보이지 않았다(QA 30 12).
+  testWidgets('일정 폼에 색상 칸이 없다', (tester) async {
+    await _open(tester);
+    expect(find.text(l.calFieldColor), findsNothing);
+  });
 }
