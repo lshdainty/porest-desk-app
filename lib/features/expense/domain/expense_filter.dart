@@ -230,6 +230,26 @@ bool matchesFilter(FilterRow row, ExpenseFilter f) {
 String _pad(int n) => n.toString().padLeft(2, '0');
 String _ymd(DateTime d) => '${d.year}-${_pad(d.month)}-${_pad(d.day)}';
 
+/// 보고 있는 달의 기본 기간 — 웹 `monthPeriodOf` 미러. 필터를 처음 열거나 초기화할 때 쓴다.
+///
+/// 이번 달이면 종전과 같은 "이번 달"(1일~오늘) 프리셋이다. 다른 달을 보고 있으면 그 달 1일~말일
+/// 이다. 종전엔 늘 오늘 기준 이번 달이라, 8월을 보다가 필터를 열면 9월이 잡혀 있었다(QA 30 10).
+FilterPeriodRange monthPeriodOf(DateTime month) {
+  final today = DateTime.now();
+  if (month.year == today.year && month.month == today.month) {
+    return resolvePeriod(FilterPeriodPreset.month);
+  }
+  return FilterPeriodRange(
+    preset: FilterPeriodPreset.custom,
+    start: _ymd(DateTime(month.year, month.month, 1)),
+    end: _ymd(DateTime(month.year, month.month + 1, 0)),
+  );
+}
+
+/// 두 기간이 같은 날들을 가리키는가 — 프리셋 이름은 안 본다.
+bool samePeriod(FilterPeriodRange a, FilterPeriodRange b) =>
+    a.start == b.start && a.end == b.end;
+
 /// 프리셋을 실제 범위로 바꾼다 — 웹 `resolvePeriod` 미러.
 ///
 /// v1 은 프리셋 이름만 들고 다니다 화면에서 범위를 계산했다. v2 는 기간이 여러

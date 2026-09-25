@@ -349,4 +349,35 @@ void main() {
       expect(v.isEmpty, isTrue);
     });
   });
+
+  // 필터의 기본 기간은 보고 있는 달이다(QA 30 10, 웹 monthPeriodOf 와 같다). 기간 하나만 바꿔
+  // 걸어도 배지가 뜨려면 "보고 있는 달과 같은가" 를 날짜로 비교할 수 있어야 한다.
+  group('보고 있는 달의 기본 기간', () {
+    test('지난 달이면 그 달 1일~말일(직접 입력 기간)', () {
+      final p = monthPeriodOf(DateTime(2000, 2, 1));
+      expect(p.preset, FilterPeriodPreset.custom);
+      expect((p.start, p.end), ('2000-02-01', '2000-02-29'));
+    });
+
+    test('이번 달이면 종전과 같은 "이번 달"(1일~오늘)', () {
+      final now = DateTime.now();
+      final p = monthPeriodOf(DateTime(now.year, now.month, 1));
+      expect(p.preset, FilterPeriodPreset.month);
+      expect(samePeriod(p, resolvePeriod(FilterPeriodPreset.month)), isTrue);
+    });
+
+    test('같은 날들이면 프리셋 이름이 달라도 같은 기간이다', () {
+      const a = FilterPeriodRange(
+        preset: FilterPeriodPreset.month,
+        start: '2026-09-01',
+        end: '2026-09-25',
+      );
+      const b = FilterPeriodRange(
+        preset: FilterPeriodPreset.custom,
+        start: '2026-09-01',
+        end: '2026-09-25',
+      );
+      expect(samePeriod(a, b), isTrue);
+    });
+  });
 }
