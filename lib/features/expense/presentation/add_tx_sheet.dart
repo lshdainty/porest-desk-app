@@ -1904,17 +1904,10 @@ class _TxInputForm extends ConsumerWidget {
                     _SelectField<int>(
                       value: c.categoryRowId,
                       hint: l.expSubcategory,
+                      // 상위 자신은 고를 수 없다 — 이 칸은 하위가 있는 상위에서만 뜨고, 하위가
+                      // 있는 상위에는 서버가 거래를 안 받는다(EXP_009). 종전엔 첫 칸이 상위라
+                      // 고르면 저장에서 막혔다(QA 30 13, 웹과 같다).
                       items: [
-                        _SelectOption<int>(
-                          selectedParentId,
-                          l.expTopCategorySuffix(
-                            topCategories
-                                .firstWhere(
-                                  (cat) => cat.rowId == selectedParentId,
-                                )
-                                .categoryName,
-                          ),
-                        ),
                         for (final child in childrenByParent[selectedParentId]!)
                           _SelectOption<int>(
                             child.rowId as int,

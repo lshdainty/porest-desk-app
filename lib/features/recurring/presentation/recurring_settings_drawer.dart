@@ -1264,17 +1264,9 @@ class _TxFields extends ConsumerWidget {
                     _SelectField<int>(
                       value: c.categoryRowId,
                       hint: l.expSubcategory,
+                      // 상위 자신은 고를 수 없다 — 하위가 있는 상위는 반복 거래를 안 받는다
+                      // (EXPENSE_CATEGORY_NOT_LEAF). 거래 추가와 같다(QA 30 13).
                       items: [
-                        _SelectOption<int>(
-                          selectedParentId,
-                          l.recurringParentCategory(
-                            topCategories
-                                .firstWhere(
-                                  (cat) => cat.rowId == selectedParentId,
-                                )
-                                .categoryName,
-                          ),
-                        ),
                         for (final child in childrenByParent[selectedParentId]!)
                           _SelectOption<int>(
                             child.rowId as int,
