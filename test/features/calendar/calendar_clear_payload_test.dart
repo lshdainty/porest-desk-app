@@ -80,6 +80,7 @@ class _CapturingRepo extends CalendarRepository {
     Patch<String> location = const Patch.keep(),
     Patch<String> rrule = const Patch.keep(),
     List<int>? reminderMinutes,
+    String? occurrenceStartDate,
   }) async {
     called = true;
     this.description = description;

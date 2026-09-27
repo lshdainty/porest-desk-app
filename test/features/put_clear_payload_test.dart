@@ -719,6 +719,29 @@ void main() {
       expect(captured.single['eventType'], kDefaultCalendarEventType);
     });
 
+    // 반복 일정에서 연 회차 — 서버가 그 회차에서 바뀐 만큼만 반복 전체를 옮긴다(QA 30 2).
+    test('연 회차의 원래 시작은 넘기면 실리고, 안 넘기면 키가 없다', () async {
+      final (dio, captured) = _capturingDio(eventJson);
+      final repo = CalendarRepository(dio);
+
+      await repo.updateEvent(
+        id: 1,
+        title: '회의',
+        startDate: '2026-09-24T09:00:00',
+        endDate: '2026-09-24T10:00:00',
+        occurrenceStartDate: '2026-09-24T09:00:00',
+      );
+      await repo.updateEvent(
+        id: 1,
+        title: '회의',
+        startDate: '2026-09-10T09:00:00',
+        endDate: '2026-09-10T10:00:00',
+      );
+
+      expect(captured.first['occurrenceStartDate'], '2026-09-24T09:00:00');
+      expectAbsent(captured.last, 'occurrenceStartDate');
+    });
+
     test('생성 경로는 그대로다 — null 인 칸은 키째 빠진다', () async {
       final (dio, captured) = _capturingDio(eventJson);
 

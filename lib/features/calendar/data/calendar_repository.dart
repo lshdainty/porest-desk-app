@@ -123,6 +123,11 @@ class CalendarRepository {
     // 알림 사전분 목록. 서버는 **null=무변경 / 리스트=전체 교체** 로 읽는다 —
     // 빈 리스트가 "전부 지움" 이다. 화면이 기존 알림을 읽어 채운 뒤에만 실어야 한다.
     List<int>? reminderMinutes,
+    // 반복 일정에서 연 회차의 원래 시작 — 목록 응답이 그 회차에 준 startDate 그대로.
+    // 수정은 반복 전체에 적용되는데 시트는 연 회차의 날짜로 채워진다. 이 값이 없으면
+    // 서버가 시트의 날짜를 반복의 새 시작으로 써서, 뒤 회차를 열어 저장만 해도 앞
+    // 회차들이 사라졌다(QA 30 2). 실으면 그 회차에서 바뀐 만큼만 반복 전체가 옮겨진다.
+    String? occurrenceStartDate,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -140,6 +145,7 @@ class CalendarRepository {
           if (location.present) 'location': location.value,
           if (rrule.present) 'rrule': rrule.value,
           'reminderMinutes': ?reminderMinutes,
+          'occurrenceStartDate': ?occurrenceStartDate,
         },
       );
       return _unwrap(res, CalendarEvent.fromJson);
