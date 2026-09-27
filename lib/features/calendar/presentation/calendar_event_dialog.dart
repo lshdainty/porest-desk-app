@@ -226,6 +226,11 @@ class _BodyState extends ConsumerState<_Body> {
           // 반복은 명시적 null 까지 실어야 '반복 없음' 이 반영된다(키를 빼면 유지).
           rrule: Patch.set(_rruleForSave),
           reminderMinutes: _reminderMinutesForSave,
+          // 반복 일정은 연 회차를 함께 알린다 — 안 알리면 서버가 이 회차 날짜를 반복의
+          // 새 시작으로 써서 앞 회차들이 사라졌다(QA 30 2).
+          occurrenceStartDate: widget.edit!.rrule != null
+              ? widget.edit!.startDate
+              : null,
         );
       } else {
         await repo.createEvent(

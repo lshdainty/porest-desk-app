@@ -104,11 +104,13 @@ class _CapturingRepo extends CalendarRepository {
     Patch<String> location = const Patch.keep(),
     Patch<String> rrule = const Patch.keep(),
     List<int>? reminderMinutes,
+    String? occurrenceStartDate,
   }) async {
     updated = {
       'rrulePresent': rrule.present,
       'rrule': rrule.value,
       'reminderMinutes': reminderMinutes,
+      'occurrenceStartDate': occurrenceStartDate,
     };
     return _fake();
   }
@@ -268,6 +270,31 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(repo.updated!['reminderMinutes'], [10]);
+    });
+
+    // 시트는 연 회차의 날짜로 채워진다. 그 날짜만 보내면 서버가 반복의 새 시작으로 써서
+    // 뒤 회차를 열어 저장만 해도 앞 회차들이 사라졌다(QA 30 2).
+    testWidgets('반복 일정은 연 회차의 원래 시작을 목록 값 그대로 함께 싣는다', (tester) async {
+      final repo = await _open(
+        tester,
+        edit: CalendarEvent.fromJson(_webMadeEventJson),
+      );
+      await tester.tap(_submit(l.actionEdit));
+      await tester.pumpAndSettle();
+
+      expect(repo.updated!['occurrenceStartDate'], '2026-09-10T09:00:00');
+    });
+
+    testWidgets('반복이 아닌 일정은 연 회차를 싣지 않는다', (tester) async {
+      final repo = await _open(
+        tester,
+        edit: CalendarEvent.fromJson(_plainEventJson),
+      );
+      await tester.tap(_submit(l.actionEdit));
+      await tester.pumpAndSettle();
+
+      expect(repo.updated, isNotNull, reason: '수정이 안 불렸다');
+      expect(repo.updated!['occurrenceStartDate'], isNull);
     });
   });
 
