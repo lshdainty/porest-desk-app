@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -6,6 +8,8 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
+import 'package:porest_desk_app/core/sync/query_freshness.dart';
 import 'package:porest_desk_app/features/stocks/application/namu_providers.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/stocks/data/namu_repository.dart';
@@ -37,9 +41,79 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
   StockMasterItem? _selected;
   // 국내·해외는 나무 쪽 엔드포인트가 달라 한 번에 못 받는다 — 사용자가 고른다.
   String _currency = 'KRW';
+  Timer? _priceTimer; // 고른 종목의 현재가 폴링 — 고르기 전에는 없다
+
+  @override
+  void initState() {
+    super.initState();
+    // 받아 둔 값은 앱을 끌 때까지 그대로다(autoDispose 가 아니다). 여기서 밀지 않으면
+    // 아무도 안 민다 — 예전엔 처음 받은 시세·보유 종목이 앱을 다시 켤 때까지 굳어 있었다.
+    // 박자는 웹 나무 화면과 같다(namu_providers.dart 의 표).
+    //
+    // 현재가 — 종목을 고른 뒤 30초마다, 그 종목 하나만([_pick]).
+    // 보유 종목 — 주기로 조르지 않는다. 화면에 들어올 때·앱으로 돌아올 때·통화를 바꿀
+    // 때 받은 지 30초가 지났으면 다시 받는다.
+    ref.listenManual(appForegroundProvider, (wasForeground, isForeground) {
+      if (isForeground && wasForeground == false) _refreshHoldingsIfStale();
+    });
+    // 첫 판정은 microtask 로 미룬다 — initState 안에서는 provider 를 비우지 못한다
+    // (빌드 중이다).
+    Future.microtask(_refreshHoldingsIfStale);
+  }
+
+  /// 종목을 고른다 — 그 자리에서 시세를 받고, 거기서부터 30초 박자를 센다.
+  void _pick(StockMasterItem item) {
+    // 예전에 본 종목이면 그때 값이 남아 있다. 안 비우면 다음 폴링까지 묵은 시세가
+    // "현재가" 로 보인다.
+    _refreshPrice(item);
+    setState(() => _selected = item);
+    // 박자는 **고른 순간부터** 센다(웹도 조회가 붙은 때부터 센다). 화면을 연 때부터
+    // 세면 고른 지 몇 초 만에 한 번 더 나간다.
+    _priceTimer?.cancel();
+    _priceTimer = Timer.periodic(
+      namuPricePollInterval,
+      (_) => _refreshSelectedPrice(),
+    );
+  }
+
+  /// 고른 종목의 현재가를 다시 받는다 — 폴링 한 박자.
+  void _refreshSelectedPrice() {
+    final selected = _selected;
+    if (!mounted || selected == null) return;
+    // 앱이 가려진 동안은 건너뛴다(웹도 탭이 가려지면 주기 조회를 멈춘다). 타이머는
+    // 그대로 두므로 돌아오면 다음 박자에 이어서 받는다.
+    if (!ref.read(appForegroundProvider)) return;
+    _refreshPrice(selected);
+  }
+
+  /// [item] 의 현재가를 다시 받는다. 받는 중이면 그 결과를 기다린다 — 응답이 느릴 때
+  /// 박자마다, 또는 같은 종목을 연달아 누를 때마다 겹쳐 나가면 나무 유량만 쓴다.
+  void _refreshPrice(StockMasterItem item) {
+    final price = namuPriceProvider(item);
+    // 처음 고른 종목은 현재가 카드가 그려지면서 받는다.
+    if (!ref.exists(price) || ref.read(price).isLoading) return;
+    ref.invalidate(price);
+  }
+
+  /// 지금 보는 통화의 보유 종목이 낡았으면 다시 받는다.
+  void _refreshHoldingsIfStale() {
+    if (!mounted) return;
+    final provider = namuHoldingsProvider(_currency);
+    // 아직 안 읽은 통화는 패널이 그려지면서 처음 받는다.
+    if (!ref.exists(provider)) return;
+    // 받는 중이면 그 결과를 기다린다 — 여기서 또 비우면 같은 조회가 겹쳐 나간다.
+    if (ref.read(provider).isLoading) return;
+    // 시각은 **성공한 조회**만 남긴다. 실패한 조회는 그래서 늘 낡은 것으로 읽힌다 —
+    // 처음부터 실패했으면 시각이 없고, 다시 받다 실패했으면 이미 30초가 지난 값이다.
+    final fetchedAt = ref.read(namuHoldingsFetchedAtProvider)[_currency];
+    if (namuHoldingsStale(fetchedAt, ref.read(freshnessClockProvider)())) {
+      ref.invalidate(provider);
+    }
+  }
 
   @override
   void dispose() {
+    _priceTimer?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -59,7 +133,10 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
       children: [
         PTabs<String>(
           value: _currency,
-          onChanged: (v) => setState(() => _currency = v),
+          onChanged: (v) {
+            setState(() => _currency = v);
+            _refreshHoldingsIfStale();
+          },
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
@@ -82,10 +159,7 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
           const SizedBox(height: PSpace.x16),
         ],
         if (_keyword.length >= 2)
-          _SearchResults(
-            keyword: _keyword,
-            onPick: (item) => setState(() => _selected = item),
-          )
+          _SearchResults(keyword: _keyword, onPick: _pick)
         else
           Padding(
             padding: const EdgeInsets.only(top: PSpace.x32),
@@ -118,6 +192,10 @@ class _HoldingsPanel extends ConsumerWidget {
     final holdingsAsync = ref.watch(namuHoldingsProvider(currency));
 
     return holdingsAsync.when(
+      // 다시 받다 실패하면 보던 값을 그대로 둔다. 예전엔 다시 받는 일이 없어 값이
+      // 오류로 뒤집힐 일도 없었다 — 앱으로 돌아온 순간의 실패 한 번으로 보유 종목이
+      // "계좌가 없을 수 있어요" 로 바뀌면 안 된다. 다음 진입·복귀 때 다시 받는다.
+      skipError: true,
       loading: () => const PSkeleton(height: 140),
       // 계좌가 없거나 조회가 막히면 화면을 비우지 않고 이유를 보여준다.
       error: (_, _) => PCard(
@@ -337,6 +415,9 @@ class _PriceCard extends ConsumerWidget {
           ),
           const SizedBox(height: PSpace.x12),
           priceAsync.when(
+            // 폴링 한 번이 실패해도 방금까지 보던 시세를 그대로 둔다(웹과 같다).
+            // 처음부터 못 받은 경우에만 오류 문구가 나온다.
+            skipError: true,
             loading: () => const PSkeleton(height: 28, width: 140),
             error: (_, _) => Text(
               l.namuPriceError,
