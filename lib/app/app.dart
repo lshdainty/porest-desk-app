@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/auth/session_owner.dart';
+import 'package:porest_desk_app/core/auth/user.dart';
 import 'package:porest_desk_app/core/lock/app_lock_gate.dart';
 import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -15,6 +17,7 @@ import 'package:porest_desk_app/features/notification/application/notification_s
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
 import 'package:porest_desk_app/app/router.dart';
+import 'package:porest_desk_app/app/session_scope.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 
 /// 화면 밖(네트워크 인터셉터 등)에서 토스트를 띄우기 위한 전역 키.
@@ -30,7 +33,15 @@ class PorestDeskApp extends ConsumerStatefulWidget {
 
 class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
     with WidgetsBindingObserver {
-  ProviderSubscription<AsyncValue>? _authSub;
+  ProviderSubscription<AsyncValue<User?>>? _authSub;
+
+  /// 다른 사람이 들어와 컨테이너를 새로 만들어 달라고 한 뒤다 — 이 셸은 다음 프레임에
+  /// 사라진다. 그때까지 들어오는 신호(인증 변화·포그라운드 복귀)에는 손대지 않는다.
+  ///
+  /// 다음 프레임이 곧바로 오지 않을 수 있다. 앱이 가려진 채로 로그인이 끝나면 프레임은
+  /// 복귀할 때까지 멈춰 있고, 복귀 신호는 **이 셸이 먼저** 받는다. 거기서 대기 중인
+  /// 결제 문자를 꺼내면(네이티브는 꺼내는 순간 비운다) 곧 사라질 화면이 들고 없어진다.
+  bool _handedOver = false;
 
   @override
   void initState() {
@@ -45,7 +56,29 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
       (_, _) => _syncNotificationPoller(),
     );
     // 인증 성공 시 알림 폴링 시작, 로그아웃 시 정지.
-    _authSub = ref.listenManual<AsyncValue>(authProvider, (prev, next) {
+    _authSub = ref.listenManual<AsyncValue<User?>>(authProvider, (prev, next) {
+      if (_handedOver) return;
+      // 앞사람과 다른 사람이 로그인했다 — 이 컨테이너가 들고 있는 값은 전부 앞사람
+      // 몫이다. 비우지 않고 컨테이너째 새로 만든다(이유는 SessionScope 주석).
+      //
+      // **맨 먼저** 가리고 여기서 끝낸다. 아래 로그인 직후 처리를 이어 하면 곧 버려질
+      // 컨테이너에 조회를 걸고, 대기 중인 결제 문자를 여기서 소비해 버린다 — 새
+      // 컨테이너가 앱을 새로 켠 것과 같은 길로 처음부터 다시 한다.
+      if (ref.read(sessionOwnerProvider).replacedBy(next)) {
+        final restart = ref.read(sessionRestartProvider);
+        if (restart != null) {
+          _handedOver = true;
+          // 떠 있던 토스트도 앞사람 것이다. ScaffoldMessenger 는 전역 키라 컨테이너를
+          // 갈아도 플러터가 새 트리로 옮겨 붙인다 — 직접 걷어야 한다.
+          // `clearSnackBars` 는 줄 선 것만 버리고 지금 것은 사라지는 애니메이션을
+          // 태운다. 그 몇 프레임 동안 글자가 읽히므로 `remove` 로 그 자리에서 걷는다.
+          appMessengerKey.currentState
+            ?..clearSnackBars()
+            ..removeCurrentSnackBar();
+          restart();
+          return;
+        }
+      }
       final user = next.value;
       _syncNotificationPoller();
       if (user != null) {
@@ -79,6 +112,7 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
   /// 새 알림 판정 기준(`_lastSeenId`)은 서비스 인스턴스가 들고 있고 `stop`·`start`
   /// 어느 쪽도 건드리지 않는다 — 멈춘 사이 온 알림이 복귀 조회에서 새 것으로 잡힌다.
   void _syncNotificationPoller() {
+    if (_handedOver) return;
     final svc = ref.read(notificationStreamServiceProvider);
     final loggedIn = ref.read(authProvider).value != null;
     if (loggedIn && ref.read(appForegroundProvider)) {
@@ -100,6 +134,7 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
     // 앱이 포그라운드로 복귀하면 세션 캐시(keepAlive) provider 를 무효화해
     // 백그라운드 동안 다른 클라이언트(웹 등)에서 바뀐 내용을 따라잡는다.
     // 로그인 상태일 때만 — 비로그인 시 불필요한 요청 방지.
+    if (_handedOver) return;
     if (state == AppLifecycleState.resumed &&
         ref.read(authProvider).value != null) {
       invalidateKeepAliveProviders(ref);
@@ -153,6 +188,14 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
       // 화면마다 두게 하면 새 리스트를 붙일 때 잊어버리고, 그러면 행이 여러 개
       // 열린 채로 남는다 — 실제로 가계부에서 그렇게 됐다. 여기 한 번만 둔다.
       // 리스트끼리는 groupTag 로 갈라지므로 하나로 충분하다.
+      //
+      // 주의 — 이 builder 안쪽(라우터 위)의 State 는 **계정이 바뀌어도 살아남는다.**
+      // 컨테이너를 새로 만들 때 트리도 새로 그리지만, 위 `scaffoldMessengerKey` 가
+      // 전역 키라 플러터가 옛 ScaffoldMessenger 를 그 아래 트리째 새 자리로 옮겨
+      // 붙인다(라우터부터는 새 GoRouter 의 키라 새로 만들어진다). 그래서 여기에는
+      // 사용자 데이터를 State 로 들지 말고, `ref.listenManual` 도 걸지 않는다 —
+      // `ref.watch`·`ref.listen` 은 새 컨테이너로 옮겨 가지만 listenManual 은 버려진
+      // 컨테이너에 묶인 채 남는다.
       builder: (context, child) => SlidableAutoCloseBehavior(
         child: AppLockGate(child: child ?? const SizedBox.shrink()),
       ),

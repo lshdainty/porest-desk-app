@@ -45,6 +45,9 @@ final dioProvider = FutureProvider<Dio>((ref) async {
               // dio 는 "세션 만료" 신호만 올리고(auth 의존성 없음), AuthNotifier 가
               // 이를 구독해 logout 한다 — dio↔auth 순환(CircularDependencyError) 제거.
               Future.microtask(() {
+                // 계정이 바뀌어 컨테이너가 버려진 뒤에 도착한 401 은 알릴 곳이 없다 —
+                // 새 컨테이너는 자기 dio 를 쓴다. 폐기된 ref 는 읽으면 던진다.
+                if (!ref.mounted) return;
                 ref.read(sessionExpiredProvider.notifier).bump();
               });
             },
