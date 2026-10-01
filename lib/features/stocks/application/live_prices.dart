@@ -12,6 +12,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/features/stocks/application/securities_providers.dart';
+import 'package:porest_desk_app/features/stocks/application/securities_retry.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
@@ -59,6 +60,14 @@ class LivePrices {
 ///
 /// 게이트(프로 + 증권사 연결)는 호출부가 이미 확인한 것으로 본다 — 심볼이 비어 있으면
 /// 어차피 조회가 없다.
+///
+/// **스스로 비워지지 않는다.** 한 번 받으면 누가 이 provider 를 무효화할 때까지 그 값이다.
+/// 자산 화면의 10초 주기는 `refreshLiveValuation` 으로 이것까지 민다 — 평가 맵만 밀면 받아
+/// 둔 시세로 다시 계산할 뿐이라, 2026-08-25 시세 조회를 여기로 모은 뒤 한 달 넘게 자산 화면
+/// 시세가 앱을 켤 때 값에 멈춰 있었다.
+///
+/// **실패해도 다시 조르지 않는다**([securitiesNoRetry]) — 다음 주기에 다시 받는다. 웹
+/// `useSecuritiesPrices` 가 `retry: false` 에 10초 주기인 것과 같다.
 final livePricesProvider = FutureProvider.family<LivePrices, String>((
   ref,
   symbolsCsv,
@@ -101,7 +110,7 @@ final livePricesProvider = FutureProvider.family<LivePrices, String>((
   }
 
   return LivePrices._(bySymbol, rates, prevCloses);
-});
+}, retry: securitiesNoRetry);
 
 /// 심볼 집합을 provider 키로 쓸 문자열로. 정렬해 같은 집합이 같은 키가 되게 한다.
 String livePricesKey(Iterable<String> symbols) {

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/core/sync/query_freshness.dart';
@@ -108,7 +109,9 @@ typedef InvestmentValuation = ({int value, int? changeAmt});
 ///   하나도 없으면 null(등락 미표시).
 /// - holdings 가 없는 자산: 기존 tossSymbol/tossQuantity 단일 연동 경로(deprecated) 유지.
 /// - 직접입력만 있는 자산은 시세가 불필요하므로 게이트(프로+증권사연결)와 무관하게 평가.
-/// - 화면에서 invalidate 하면 시세를 재조회해 실시간 갱신된다.
+/// - **시세를 새로 받으려면 [refreshLiveValuation] 을 쓴다.** 이 provider 만 무효화하면 받아
+///   둔 시세로 다시 계산할 뿐이다 — 시세는 [livePricesProvider] 에 있고 그건 스스로 안 비워진다.
+/// - 다시 받다 실패하면 **직전 시세로** 평가한다. 한 번도 못 받았을 때만 서버 잔액이다.
 final investmentValuationMapProvider =
     FutureProvider<Map<int, InvestmentValuation>>((ref) async {
       final features = ref.watch(myFeaturesProvider).asData?.value;
@@ -139,12 +142,17 @@ final investmentValuationMapProvider =
       // 자산 상세·추가/편집도 같은 걸 써야 한 화면에서 금액이 어긋나지 않는다.
       LivePrices live = const LivePrices.empty();
       if (enabled && symbols.isNotEmpty) {
+        final key = livePricesKey(symbols);
         try {
-          live = await ref.watch(
-            livePricesProvider(livePricesKey(symbols)).future,
-          );
+          live = await ref.watch(livePricesProvider(key).future);
         } catch (_) {
-          live = const LivePrices.empty();
+          // 다시 받다 실패하면 직전에 받은 시세로 평가한다 — 웹(react-query)이 실패한 재조회
+          // 동안 앞 데이터를 그대로 보여 주는 것과 같다. 안 그러면 증권사가 한 번 거절할
+          // 때마다 평가액이 서버 잔액으로 뛰었다가 10초 뒤 돌아온다. 실패 상태도 앞 값을
+          // 들고 있다(riverpod `AsyncError.copyWithPrevious`). 한 번도 못 받았으면 빈 시세다.
+          live =
+              ref.read(livePricesProvider(key)).value ??
+              const LivePrices.empty();
         }
       }
 
@@ -199,6 +207,22 @@ final investmentValuationMapProvider =
       }
       return map;
     });
+
+/// 자산 화면의 실시간 평가를 새로 받는다 — **시세 조회까지** 무효화한다.
+///
+/// 평가 맵([investmentValuationMapProvider])만 무효화하면 받아 둔 시세로 다시 계산할 뿐이다.
+/// 시세는 [livePricesProvider] 에 들어 있고 그 provider 는 스스로 비워지지 않는다.
+/// 2026-08-25 시세 조회를 그쪽으로 모은 뒤(`31105a0`) 자산 화면의 10초 타이머가 평가 맵만
+/// 밀어서, 앱을 켤 때 받은 시세가 다시 켤 때까지 그대로였다(웹은 10초마다 다시 받았다).
+///
+/// 시세가 바뀌면 그걸 읽는 평가 맵·상세·추가/편집이 함께 다시 계산된다. 평가 맵도 같이 미는
+/// 건 시세 말고 다른 것(자산 목록 등)이 바뀐 경우까지 한 번에 맞추려는 것이다.
+///
+/// [invalidate] 는 화면이면 `ref.invalidate`, 테스트면 `container.invalidate` 를 넘긴다.
+void refreshLiveValuation(void Function(ProviderOrFamily provider) invalidate) {
+  invalidate(livePricesProvider);
+  invalidate(investmentValuationMapProvider);
+}
 
 /// (호환) 토스 연동 투자 자산의 라이브 평가액(KRW) 맵 — investmentValuationMapProvider 의 value 투영.
 final tossValuationMapProvider = FutureProvider<Map<int, int>>((ref) async {
