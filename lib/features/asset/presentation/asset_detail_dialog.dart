@@ -430,10 +430,8 @@ class _InvChangeLine extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final v = ref
-        .watch(investmentValuationMapProvider)
-        .asData
-        ?.value[assetRowId];
+    // 다시 받는 동안 앞 값을 든다(asData 는 그때 비어 등락이 깜빡인다) — asset_screen 과 같다.
+    final v = ref.watch(investmentValuationMapProvider).value?[assetRowId];
     final chg = v?.changeAmt;
     if (masked || v == null || chg == null) return const SizedBox.shrink();
     final base = v.value - chg;
@@ -509,7 +507,7 @@ class _HoldingsSection extends ConsumerWidget {
     // 환산 규칙은 livePricesProvider 한 곳에 있다 — 목록·추가/편집과 같은 걸 써야
     // 한 화면에서 총액과 종목별 금액이 어긋나지 않는다.
     final live = gate && symbols.isNotEmpty
-        ? ref.watch(livePricesProvider(livePricesKey(symbols))).asData?.value
+        ? ref.watch(livePricesProvider(livePricesKey(symbols))).value
         : null;
 
     double? unitKrw(String symbol) => live?.unitKrw(symbol);

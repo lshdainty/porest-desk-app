@@ -401,10 +401,8 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,
     }.toList()..sort();
     if (!gate || symbols.isEmpty) return const {};
-    final live = ref
-        .watch(livePricesProvider(livePricesKey(symbols)))
-        .asData
-        ?.value;
+    // 다시 받는 동안·실패한 동안에도 앞 시세를 쓴다 — 자산 목록·상세와 같은 값을 보여야 한다.
+    final live = ref.watch(livePricesProvider(livePricesKey(symbols))).value;
     if (live == null) return const {};
     return {for (final s in symbols) s: live.unitKrw(s)};
   }

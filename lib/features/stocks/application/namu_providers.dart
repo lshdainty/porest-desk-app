@@ -9,7 +9,7 @@
 /// |---|---|---|
 /// | 현재가 | 30초 폴링(`WATCH_POLL_MS`), 탭이 가려지면 멈춤 | [namuPricePollInterval] |
 /// | 보유 종목 | 폴링 없음. 진입·창 복귀 때 30초 지났으면(`staleTime`) | [namuHoldingsStaleTime] |
-/// | 실패한 조회 | 다시 안 친다(`retry: false`) | [_noRetry] |
+/// | 실패한 조회 | 다시 안 친다(`retry: false`) | [securitiesNoRetry] |
 ///
 /// 웹이 안 조르는 것은 앱도 안 조른다.
 library;
@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/core/sync/query_freshness.dart';
+import 'package:porest_desk_app/features/stocks/application/securities_retry.dart';
 import 'package:porest_desk_app/features/stocks/data/namu_repository.dart';
 import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 
@@ -30,13 +31,6 @@ const namuPricePollInterval = Duration(seconds: 30);
 
 /// 나무 보유 종목이 낡았다고 보는 시간.
 const namuHoldingsStaleTime = Duration(seconds: 30);
-
-/// 실패한 나무 조회를 자동으로 다시 치지 않는다.
-///
-/// riverpod 은 실패한 provider 를 기본으로 최대 10번(0.2초부터 두 배씩) 다시 만든다.
-/// 나무가 429(유량 초과)로 거절했을 때 그러면 한도를 넘긴 바로 그 순간에 열 번을 더
-/// 친다. 다음 조회는 화면이 정한 박자에 맡긴다.
-Duration? _noRetry(int retryCount, Object error) => null;
 
 final namuRepositoryProvider = FutureProvider<NamuRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
@@ -74,7 +68,7 @@ final namuHoldingsProvider = FutureProvider.family<NamuHoldings, String>((
     )();
   }
   return holdings;
-}, retry: _noRetry);
+}, retry: securitiesNoRetry);
 
 /// 선택 종목의 나무 현재가. 국내·해외 분기는 stock_master 의 국가코드가 정한다.
 final namuPriceProvider = FutureProvider.family<BrokerPrice?, StockMasterItem>((
@@ -85,4 +79,4 @@ final namuPriceProvider = FutureProvider.family<BrokerPrice?, StockMasterItem>((
   return item.countryCode == 'KR'
       ? repo.getKrPrice(item.symbol)
       : repo.getGbPrice(item.symbol);
-}, retry: _noRetry);
+}, retry: securitiesNoRetry);

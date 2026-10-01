@@ -54,7 +54,9 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
   @override
   void initState() {
     super.initState();
-    // 토스 연결 평가액 라이브 갱신 — 시세(현재가)를 10초마다 재조회.
+    // 연동 평가액 라이브 갱신 — 시세(현재가)를 10초마다 다시 받는다(웹과 같은 주기).
+    // **시세 조회까지 민다**(refreshLiveValuation) — 평가 맵만 밀면 받아 둔 시세로 다시
+    // 계산할 뿐이라, 2026-08-25 부터 한 달 넘게 앱을 켤 때 시세에 멈춰 있었다.
     // 게이트 OFF(비프로/미연결)·연결 자산 없음이면 빈 맵이라 NOP.
     //
     // **보고 있을 때만 돈다.** 이 화면은 탭 셸(IndexedStack)에 상주해 다른 탭으로
@@ -85,10 +87,10 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     // 일부러 안 태운다(시세는 60초 신선도 규칙에 안 맞는다) — 여기서 안 밀면 아무도 안 민다.
     // 첫 시작은 밀지 않는다: 화면이 build 에서 막 읽어 조회가 이미 나간 참이라,
     // 여기서 또 비우면 자산 탭에 들어올 때마다 같은 조회가 두 번 나간다.
-    if (_startedOnce) ref.invalidate(investmentValuationMapProvider);
+    if (_startedOnce) refreshLiveValuation(ref.invalidate);
     _startedOnce = true;
     _valuationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (mounted) ref.invalidate(investmentValuationMapProvider);
+      if (mounted) refreshLiveValuation(ref.invalidate);
     });
   }
 
@@ -107,8 +109,10 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
       assetSummaryProvider((year: null, month: null)),
     );
     // 투자 자산 라이브 평가(평가액·등락) 맵 — holdings/레거시 연동 공용. 게이트 OFF·미평가 시 빈 맵.
+    // `asData` 가 아니라 `value` 다 — 10초마다 다시 받는 동안 상태가 로딩으로 바뀌는데,
+    // asData 는 그때 비어서 평가액이 서버 잔액으로 깜빡였다가 돌아온다. value 는 앞 값을 든다.
     final invMap =
-        ref.watch(investmentValuationMapProvider).asData?.value ??
+        ref.watch(investmentValuationMapProvider).value ??
         const <int, InvestmentValuation>{};
     final valMap = {for (final e in invMap.entries) e.key: e.value.value};
 
@@ -125,7 +129,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
           ref.invalidate(assetsProvider);
           ref.invalidate(assetSummaryProvider);
           ref.invalidate(netWorthTrendProvider);
-          ref.invalidate(investmentValuationMapProvider);
+          refreshLiveValuation(ref.invalidate); // 당겨서 새로고침도 시세까지 다시 받는다
           ref.invalidate(savingGoalListProvider);
           await ref.read(assetsProvider.future);
         },
