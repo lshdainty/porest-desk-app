@@ -6841,4 +6841,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String dsProgressSemantics(String label, String max, String current) {
     return '$label $max 중 $current';
   }
+
+  @override
+  String get dsFieldOptional => '선택';
+
+  @override
+  String dsFieldCountSemantics(int count, int max) {
+    return '$max자 중 $count자';
+  }
+
+  @override
+  String get dsInputClear => '지우기';
 }

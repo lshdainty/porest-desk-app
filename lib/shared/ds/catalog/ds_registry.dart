@@ -6,12 +6,15 @@ import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
+import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
+import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
+import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
@@ -69,9 +72,9 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Divider', 'divider', demo: _divider),
   ]),
   DsFamily('text-field', '4 텍스트 필드', [
-    DsEntry('Field', 'field'),
-    DsEntry('Input', 'input'),
-    DsEntry('Textarea', 'textarea'),
+    DsEntry('Field', 'field', demo: _field),
+    DsEntry('Input', 'input', demo: _input),
+    DsEntry('Textarea', 'textarea', demo: _textarea),
   ]),
   DsFamily('selection', '5 선택 컨트롤', [
     DsEntry('Checkbox', 'checkbox'),
@@ -129,6 +132,9 @@ Widget _notificationBadge(BuildContext context) =>
 Widget _tagGroup(BuildContext context) => const TagGroupDemo();
 Widget _avatar(BuildContext context) => const AvatarDemo();
 Widget _divider(BuildContext context) => const DividerDemo();
+Widget _field(BuildContext context) => const FieldDemo();
+Widget _input(BuildContext context) => const InputDemo();
+Widget _textarea(BuildContext context) => const TextareaDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});

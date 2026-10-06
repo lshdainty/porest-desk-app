@@ -4254,5 +4254,25 @@
         "type": "String"
       }
     }
+  },
+  "dsFieldOptional": "선택",
+  "@dsFieldOptional": {
+    "description": "Field — 한 화면 칸의 2/3 이상이 필수일 때 선택 칸의 라벨 뒤에 붙는 글(field.yaml optionalIndicator — 글은 정해져 있다)"
+  },
+  "dsFieldCountSemantics": "{max}자 중 {count}자",
+  "@dsFieldCountSemantics": {
+    "description": "Field — 꼬리의 글자 수(보이는 글은 \"4/12\")를 화면 읽기 프로그램이 읽는 글",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "dsInputClear": "지우기",
+  "@dsInputClear": {
+    "description": "Input — 값을 한 번에 지우는 버튼(원 X 아이콘)의 이름"
   }
 }

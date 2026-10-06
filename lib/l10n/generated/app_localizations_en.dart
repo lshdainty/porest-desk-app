@@ -6956,4 +6956,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String dsProgressSemantics(String label, String max, String current) {
     return '$label: $current of $max';
   }
+
+  @override
+  String get dsFieldOptional => 'Optional';
+
+  @override
+  String dsFieldCountSemantics(int count, int max) {
+    return '$count of $max characters';
+  }
+
+  @override
+  String get dsInputClear => 'Clear';
 }
