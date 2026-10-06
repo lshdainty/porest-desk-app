@@ -326,7 +326,11 @@ void main() {
           ),
         ),
       );
-      if (state == 'focused') await tester.showKeyboard(find.byKey(filled));
+      if (state == 'focused') {
+        await tester.showKeyboard(find.byKey(filled));
+        // 포커스가 닿는 프레임 — 테두리 색 전환이 여기서 시작한다
+        await tester.pump();
+      }
       // 색 전환(100ms)이 끝나게
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -779,7 +783,11 @@ void main() {
           ),
         ),
       );
-      if (state == 'focused') await tester.showKeyboard(find.byKey(filled));
+      if (state == 'focused') {
+        await tester.showKeyboard(find.byKey(filled));
+        // 포커스가 닿는 프레임 — 테두리 색 전환이 여기서 시작한다
+        await tester.pump();
+      }
       await tester.pump(const Duration(milliseconds: 300));
 
       final k = _Check(mode, want, '${mode.name} $combo $state');
