@@ -4,6 +4,7 @@ import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
+import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
@@ -11,8 +12,10 @@ import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
+import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
+import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
 
@@ -77,9 +80,9 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Textarea', 'textarea', demo: _textarea),
   ]),
   DsFamily('selection', '5 선택 컨트롤', [
-    DsEntry('Checkbox', 'checkbox'),
-    DsEntry('Radio', 'radio-group'),
-    DsEntry('Switch', 'switch'),
+    DsEntry('Checkbox', 'checkbox', demo: _checkbox),
+    DsEntry('Radio', 'radio-group', demo: _radio),
+    DsEntry('Switch', 'switch', demo: _switch),
   ]),
   DsFamily('pickers', '6 고르는 칸', [
     DsEntry('Input Button', 'input-button'),
@@ -135,6 +138,9 @@ Widget _divider(BuildContext context) => const DividerDemo();
 Widget _field(BuildContext context) => const FieldDemo();
 Widget _input(BuildContext context) => const InputDemo();
 Widget _textarea(BuildContext context) => const TextareaDemo();
+Widget _checkbox(BuildContext context) => const CheckboxDemo();
+Widget _radio(BuildContext context) => const RadioDemo();
+Widget _switch(BuildContext context) => const SwitchDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
