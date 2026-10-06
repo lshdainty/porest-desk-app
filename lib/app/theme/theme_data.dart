@@ -13,7 +13,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 /// - 표준 Material 위젯 (Buttons, AppBar 등) → ColorScheme + Material 톤
 /// - POREST 커스텀 위젯 → `context.tokens.bgCanvas` 류
 ///
-/// porest-design 이 만든 역할 색 · 그림자([PColors] · [PShadows], `porest_tokens.g.dart`)도 같이
+/// porest-design 이 만든 역할 색 · 그림자 · 그라디언트([PColors] · [PShadows] · [PGradients], `porest_tokens.g.dart`)도 같이
 /// 얹는다 — 새 컴포넌트 라이브러리(`lib/shared/ds`)는 `context.colors.fgNeutral` 처럼 이것만 쓴다.
 abstract final class PorestTheme {
   static ThemeData light() => _build(
@@ -21,6 +21,7 @@ abstract final class PorestTheme {
     tokens: PorestTokens.light,
     colors: PColors.light,
     shadows: PShadows.light,
+    gradients: PGradients.light,
     seed: PorestPalette.cobalt500,
   );
 
@@ -29,6 +30,7 @@ abstract final class PorestTheme {
     tokens: PorestTokens.dark,
     colors: PColors.dark,
     shadows: PShadows.dark,
+    gradients: PGradients.dark,
     seed: PorestPalette.cobalt400,
   );
 
@@ -37,6 +39,7 @@ abstract final class PorestTheme {
     required PorestTokens tokens,
     required PColors colors,
     required PShadows shadows,
+    required PGradients gradients,
     required Color seed,
   }) {
     final scheme = ColorScheme.fromSeed(
@@ -69,7 +72,7 @@ abstract final class PorestTheme {
     );
 
     return base.copyWith(
-      extensions: [tokens, colors, shadows],
+      extensions: [tokens, colors, shadows, gradients],
       textTheme: _textTheme(tokens.fgPrimary, tokens.fgSecondary),
       appBarTheme: AppBarTheme(
         backgroundColor: tokens.bgSurface,

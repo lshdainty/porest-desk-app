@@ -6937,4 +6937,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dsProgressCircleLabel => 'Loading';
+
+  @override
+  String get dsLoadingWaiting => 'Loading…';
+
+  @override
+  String get dsLoadingSlow => 'This is taking longer than usual.';
+
+  @override
+  String dsProgressOver(String amount) {
+    return '$amount over';
+  }
+
+  @override
+  String get dsProgressReached => 'Reached';
+
+  @override
+  String dsProgressSemantics(String label, String max, String current) {
+    return '$label: $current of $max';
+  }
 }

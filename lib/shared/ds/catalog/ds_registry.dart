@@ -2,7 +2,11 @@ import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
+import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
+import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
+import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
+import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
@@ -38,10 +42,14 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Button', 'button', demo: _button),
   ]),
   DsFamily('loading', '2 로딩', [
-    DsEntry('Skeleton', 'skeleton'),
-    DsEntry('Progress', 'progress'),
-    DsEntry('Scroll Fog', 'scroll-fog'),
-    DsEntry('Content Placeholder', 'content-placeholder'),
+    DsEntry('Skeleton', 'skeleton', demo: _skeleton),
+    DsEntry('Progress', 'progress', demo: _progress),
+    DsEntry('Scroll Fog', 'scroll-fog', demo: _scrollFog),
+    DsEntry(
+      'Content Placeholder',
+      'content-placeholder',
+      demo: _contentPlaceholder,
+    ),
   ]),
   DsFamily('display', '3 표시', [
     DsEntry('Badge', 'badge'),
@@ -100,6 +108,11 @@ const List<DsFamily> dsFamilies = [
 
 Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
 Widget _button(BuildContext context) => const ButtonDemo();
+Widget _skeleton(BuildContext context) => const SkeletonDemo();
+Widget _progress(BuildContext context) => const ProgressDemo();
+Widget _scrollFog(BuildContext context) => const ScrollFogDemo();
+Widget _contentPlaceholder(BuildContext context) =>
+    const ContentPlaceholderDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});

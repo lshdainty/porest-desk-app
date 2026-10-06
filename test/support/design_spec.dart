@@ -17,6 +17,9 @@ class DesignSpec {
 
   final Map<String, dynamic> _json;
 
+  /// 원본 그대로 — motion 처럼 규칙 밖의 값을 읽을 때.
+  Map<String, dynamic> get json => _json;
+
   Map<String, List<String>> get axes => {
     for (final e in (_json['axes'] as Map<String, dynamic>).entries)
       e.key: (e.value as List).cast<String>(),
@@ -97,3 +100,34 @@ bool sameColor(Color expected, Color actual) {
 
 String colorHex(Color c) =>
     '#${c.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
+
+/// "1000ms" → Duration.
+Duration specMs(Object? value) {
+  final m = RegExp(r'^(\d+(?:\.\d+)?)ms$').firstMatch('$value');
+  if (m == null) throw ArgumentError('ms 값이 아니다: $value');
+  return Duration(microseconds: (double.parse(m.group(1)!) * 1000).round());
+}
+
+/// "cubic-bezier(a, b, c, d)" → 네 수.
+List<double> specCubic(Object? value) {
+  final m = RegExp(r'^cubic-bezier\(([^)]*)\)$').firstMatch('$value');
+  if (m == null) throw ArgumentError('cubic-bezier 가 아니다: $value');
+  return m.group(1)!.split(',').map((s) => double.parse(s.trim())).toList();
+}
+
+/// "linear-gradient([방향,] #색 비율%, …)" → 색 · 비율(0 ~ 1). 방향은 읽지 않는다.
+({List<Color> colors, List<double> stops}) specGradient(Object? value) {
+  final m = RegExp(r'^linear-gradient\((.*)\)$').firstMatch('$value');
+  if (m == null) throw ArgumentError('linear-gradient 가 아니다: $value');
+  final colors = <Color>[];
+  final stops = <double>[];
+  for (final part in m.group(1)!.split(',').map((s) => s.trim())) {
+    final stop = RegExp(
+      r'^(#[0-9a-fA-F]{6,8})\s+(-?\d+(?:\.\d+)?)%$',
+    ).firstMatch(part);
+    if (stop == null) continue; // 방향
+    colors.add(specColor(stop.group(1)));
+    stops.add(double.parse(stop.group(2)!) / 100);
+  }
+  return (colors: colors, stops: stops);
+}

@@ -2763,8 +2763,155 @@ class PShadows extends ThemeExtension<PShadows> {
   }
 }
 
+/// 그라디언트 — 가림 마스크 · 스켈레톤 반짝임, 라이트 · 다크(DESIGN.md v104).
+/// 마스크(fadeMask)는 위 → 아래로 적었다 — 쓰는 자리에서 begin · end 만 바꿔 방향을 붙인다(색 · 비율은 그대로).
+/// `context.gradients.shimmerNeutral`
+@immutable
+class PGradients extends ThemeExtension<PGradients> {
+  const PGradients({required this.fadeMask, required this.shimmerNeutral});
+
+  /// gradient-fade-mask
+  final LinearGradient fadeMask;
+
+  /// gradient-shimmer-neutral
+  final LinearGradient shimmerNeutral;
+
+  static const PGradients light = PGradients(
+    fadeMask: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0x00000000),
+        Color(0x03000000),
+        Color(0x05000000),
+        Color(0x0D000000),
+        Color(0x14000000),
+        Color(0x21000000),
+        Color(0x2E000000),
+        Color(0x40000000),
+        Color(0x52000000),
+        Color(0x66000000),
+        Color(0x7A000000),
+        Color(0x94000000),
+        Color(0xAB000000),
+        Color(0xC7000000),
+        Color(0xE3000000),
+        Color(0xFF000000),
+      ],
+      stops: [
+        0,
+        0.08,
+        0.16,
+        0.22,
+        0.29,
+        0.35,
+        0.41,
+        0.47,
+        0.53,
+        0.59,
+        0.65,
+        0.71,
+        0.78,
+        0.84,
+        0.92,
+        1,
+      ],
+    ),
+    shimmerNeutral: LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [
+        Color(0x00FFFFFF),
+        Color(0xABFFFFFF),
+        Color(0xABFFFFFF),
+        Color(0x00FFFFFF),
+      ],
+      stops: [0, 0.46, 0.54, 1],
+    ),
+  );
+
+  static const PGradients dark = PGradients(
+    fadeMask: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0x00000000),
+        Color(0x03000000),
+        Color(0x05000000),
+        Color(0x0D000000),
+        Color(0x14000000),
+        Color(0x21000000),
+        Color(0x2E000000),
+        Color(0x40000000),
+        Color(0x52000000),
+        Color(0x66000000),
+        Color(0x7A000000),
+        Color(0x94000000),
+        Color(0xAB000000),
+        Color(0xC7000000),
+        Color(0xE3000000),
+        Color(0xFF000000),
+      ],
+      stops: [
+        0,
+        0.08,
+        0.16,
+        0.22,
+        0.29,
+        0.35,
+        0.41,
+        0.47,
+        0.53,
+        0.59,
+        0.65,
+        0.71,
+        0.78,
+        0.84,
+        0.92,
+        1,
+      ],
+    ),
+    shimmerNeutral: LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [
+        Color(0x00FFFFFF),
+        Color(0x1AFFFFFF),
+        Color(0x1AFFFFFF),
+        Color(0x00FFFFFF),
+      ],
+      stops: [0, 0.46, 0.54, 1],
+    ),
+  );
+
+  @override
+  PGradients copyWith({
+    LinearGradient? fadeMask,
+    LinearGradient? shimmerNeutral,
+  }) {
+    return PGradients(
+      fadeMask: fadeMask ?? this.fadeMask,
+      shimmerNeutral: shimmerNeutral ?? this.shimmerNeutral,
+    );
+  }
+
+  @override
+  PGradients lerp(ThemeExtension<PGradients>? other, double t) {
+    if (other is! PGradients) return this;
+    return PGradients(
+      fadeMask: LinearGradient.lerp(fadeMask, other.fadeMask, t)!,
+      shimmerNeutral: LinearGradient.lerp(
+        shimmerNeutral,
+        other.shimmerNeutral,
+        t,
+      )!,
+    );
+  }
+}
+
 /// 컨텍스트에서 꺼내는 짧은 이름.
 extension PDesignTokensContext on BuildContext {
   PColors get colors => Theme.of(this).extension<PColors>()!;
   PShadows get shadows => Theme.of(this).extension<PShadows>()!;
+  PGradients get gradients => Theme.of(this).extension<PGradients>()!;
 }
