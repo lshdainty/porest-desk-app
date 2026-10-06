@@ -6934,4 +6934,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetPaymentDayMissing => 'Please set a payment day';
+
+  @override
+  String get dsProgressCircleLabel => 'Loading';
 }

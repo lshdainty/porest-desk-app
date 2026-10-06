@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
+import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
@@ -32,8 +34,8 @@ class DsFamily {
 
 const List<DsFamily> dsFamilies = [
   DsFamily('button', '1 버튼', [
-    DsEntry('Progress Circle', 'progress-circle'),
-    DsEntry('Button', 'button'),
+    DsEntry('Progress Circle', 'progress-circle', demo: _progressCircle),
+    DsEntry('Button', 'button', demo: _button),
   ]),
   DsFamily('loading', '2 로딩', [
     DsEntry('Skeleton', 'skeleton'),
@@ -95,6 +97,9 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('list', '13 목록', [DsEntry('List', 'list')]),
 ];
+
+Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
+Widget _button(BuildContext context) => const ButtonDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});

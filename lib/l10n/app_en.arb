@@ -4064,5 +4064,6 @@
       }
     }
   },
-  "assetPaymentDayMissing": "Please set a payment day"
+  "assetPaymentDayMissing": "Please set a payment day",
+  "dsProgressCircleLabel": "Loading"
 }

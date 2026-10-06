@@ -4214,5 +4214,9 @@
       }
     }
   },
-  "assetPaymentDayMissing": "결제일을 넣어 주세요"
+  "assetPaymentDayMissing": "결제일을 넣어 주세요",
+  "dsProgressCircleLabel": "불러오는 중",
+  "@dsProgressCircleLabel": {
+    "description": "로딩 원(Progress Circle)의 기본 이름 — 스크린 리더가 읽는다. 기다리는 일을 알면 그 이름을 넘긴다(영수증 사진 올리는 중)"
+  }
 }

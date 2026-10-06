@@ -12481,6 +12481,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결제일을 넣어 주세요'**
   String get assetPaymentDayMissing;
+
+  /// 로딩 원(Progress Circle)의 기본 이름 — 스크린 리더가 읽는다. 기다리는 일을 알면 그 이름을 넘긴다(영수증 사진 올리는 중)
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오는 중'**
+  String get dsProgressCircleLabel;
 }
 
 class _AppLocalizationsDelegate

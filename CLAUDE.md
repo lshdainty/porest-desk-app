@@ -14,6 +14,11 @@
 - `lib/shared/ds/` — **새 컴포넌트 라이브러리**(2026-10-06~). porest-design 에서 SEED 와 비교해 확정한
   스펙만 만든다 — 웹 42개 중 39개다(Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
   Menu Sheet 가 맡는다). 만든 것은 debug 빌드 전용 카탈로그 `/dev/ds`(설정 > 개발)에서 라이트 · 다크로 본다.
+  컴포넌트마다 폴더 하나 — `lib/shared/ds/<name>/p_<name>.dart`(위젯) · `<name>_demo.dart`(카탈로그 견본).
+  옛 위젯과 이름이 같다(`PButton`) — 한 파일에서 둘을 다 부르면 `as` 로 가른다.
+- **스펙대로인지는 위젯 테스트가 잰다** — `test/shared/ds/p_<name>_spec_test.dart` 가 스펙 JSON 을
+  `test/support/design_spec.dart` 로 풀어(웹 검사기 · 사이트와 같은 방식) 변형 × 크기 × 상태 × 라이트 · 다크를
+  모두 돈다. 위젯을 만들면 이 테스트를 같이 쓴다.
 - `lib/shared/widgets/p_<name>.dart` — **옛 위젯**. 화면을 하나씩 `shared/ds` 로 옮기는 동안만 남는다 — 새로 쓰지
   않는다. 옮기는 순서는 "먼저 라이브러리를 다 만들고, 화면은 나중에 화면 단위로" 다.
 - `lib/app/theme/porest_tokens.g.dart` · `test/fixtures/design_spec/*.json` — porest-design 이 내보낸 파일.

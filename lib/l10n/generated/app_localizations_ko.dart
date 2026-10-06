@@ -6819,4 +6819,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetPaymentDayMissing => '결제일을 넣어 주세요';
+
+  @override
+  String get dsProgressCircleLabel => '불러오는 중';
 }
