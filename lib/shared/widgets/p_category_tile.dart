@@ -48,7 +48,7 @@ class PCategoryTile extends StatelessWidget {
           // transparent 로 두어 active 전환 시 1px 시프트 방지.
           border: Border.all(
             color: excluded
-                ? t.statusDanger
+                ? t.statusDangerBorder
                 : active
                 ? t.borderBrand
                 : Colors.transparent,

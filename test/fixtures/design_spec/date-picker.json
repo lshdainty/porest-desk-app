@@ -1,0 +1,618 @@
+{
+  "name": "DatePicker",
+  "source": "specs/components/date-picker.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "달력 — 시트 · 팝오버의 본문",
+    "presets": "빠른 기간 — 기간 달력 위 칩 한 줄(하나 고르기)",
+    "header": "머리 — 왼쪽 연 · 월 제목, 오른쪽 이전 · 다음",
+    "title": "연 · 월 제목 — 누르면 날짜 자리에 연 · 월 휠",
+    "titleIcon": "제목 셰브론 — 휠이 열리면 위로",
+    "navButton": "이전 · 다음 — 한 달씩(두 달 보기는 한 달씩, PageUp · PageDown 은 두 달)",
+    "weekday": "요일 줄 — \"일\" … \"토\", 읽는 이름은 \"일요일\" …",
+    "cell": "날짜 칸 — 칸 전체가 누르는 자리",
+    "dayVisual": "날짜 원 — 오늘 · 고름 · 호버",
+    "dayLabel": "날짜 숫자",
+    "rangeBand": "기간 띠 — 시작 · 끝 원 사이를 잇는다",
+    "monthLabel": "달 이름 — 이어지는 달 · 두 달 보기에서 달마다",
+    "wheel": "연 · 월 휠 — 요일 줄과 날짜 자리를 덮는다(Wheel Picker)",
+    "fog": "아래 안개 — 이어지는 달의 아래 끝",
+    "footer": "바닥 — \"완료\"(기간은 \"초기화\" + \"완료\")",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "selection": [
+      "single",
+      "range",
+      "multiple"
+    ],
+    "visibleRange": [
+      "month",
+      "twoMonths",
+      "continuous"
+    ]
+  },
+  "defaults": {
+    "selection": "single",
+    "visibleRange": "month"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused",
+    "today",
+    "selected",
+    "inRange",
+    "outside",
+    "disabled",
+    "readOnly"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "width": 336,
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          }
+        },
+        "presets": {
+          "chip": "Chip outlineStrong medium 36",
+          "gap": 8,
+          "paddingBottom": 12
+        },
+        "header": {
+          "height": 48
+        },
+        "title": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "paddingX": 4,
+          "gap": 4,
+          "radius": 8
+        },
+        "titleIcon": {
+          "size": 20,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "navButton": {
+          "size": 40,
+          "iconSize": 18,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "weekday": {
+          "height": 48,
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "cell": {
+          "height": 48,
+          "weeks": 6,
+          "cursor": "pointer"
+        },
+        "dayVisual": {
+          "size": 42,
+          "radius": 9999,
+          "background": "transparent",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "dayLabel": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "rangeBand": {
+          "height": 42,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "monthLabel": {
+          "height": 48,
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "wheel": {
+          "height": 336,
+          "columns": "연 120 · 월 96",
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          }
+        },
+        "footer": {
+          "paddingTop": 16
+        }
+      },
+      "hovered": {
+        "dayVisual": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "dayVisual": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "today": {
+        "dayVisual": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "dayLabel": {
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "selected": {
+        "dayVisual": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "dayLabel": {
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "inRange": {
+        "dayVisual": {
+          "background": "transparent"
+        },
+        "dayLabel": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "outside": {
+        "cell": {
+          "cursor": "default"
+        },
+        "dayLabel": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "disabled": {
+        "cell": {
+          "cursor": "not-allowed"
+        },
+        "dayLabel": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          },
+          "textDecoration": "line-through"
+        }
+      },
+      "readOnly": {
+        "cell": {
+          "cursor": "default"
+        },
+        "dayVisual": {
+          "background": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          }
+        },
+        "dayLabel": {
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "visibleRange": "twoMonths"
+      },
+      "enabled": {
+        "root": {
+          "width": 696,
+          "columnGap": 24
+        },
+        "header": {
+          "height": 48
+        },
+        "title": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "visibleRange": "continuous"
+      },
+      "enabled": {
+        "root": {
+          "height": "시트에 맞춘다"
+        },
+        "header": {
+          "height": 0
+        },
+        "weekday": {
+          "position": "sticky"
+        },
+        "monthLabel": {
+          "paddingX": 4
+        },
+        "cell": {
+          "weeks": "그 달의 주 수"
+        },
+        "fog": {
+          "height": 96
+        }
+      }
+    }
+  ],
+  "motion": {
+    "날짜 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ]
+    },
+    "제목 셰브론": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "rotate 0 → 180°"
+      ],
+      "note": "연 · 월 휠이 열리면 — 휠과 날짜는 모션 없이 바뀐다"
+    },
+    "누름 — 이전 · 다음": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "Button 과 같은 2px 거리 축소 — 날짜 칸은 줄지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "width",
+      "note": "팝오버 — 칸 48 × 7. 시트는 시트 폭 − 좌우 24 · 24(360 화면 312 · 칸 44.6)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "presets",
+      "prop": "chip",
+      "note": "하나 고르기(라디오) — 고른 칩은 짙은 채움, 달력에서 다른 날을 누르면 풀린다. 이름 · 범위는 date-picker.md 의 '빠른 기간'"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "presets",
+      "prop": "gap",
+      "note": "칩 사이 8 — 시트는 한 줄 가로 스크롤(화면 끝까지), 팝오버는 줄바꿈"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "presets",
+      "prop": "paddingBottom",
+      "note": "칩 줄 ↔ 머리 12"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "paddingX",
+      "note": "제목 글자는 머리 왼쪽에서 4 — 누르는 자리는 머리 높이 48 전체"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "gap",
+      "note": "글자 ↔ 셰브론"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "radius",
+      "note": "바탕이 없어 초점 링에만 보인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "titleIcon",
+      "prop": "size",
+      "note": "lucide chevron-down"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "navButton",
+      "prop": "size",
+      "note": "Button ghost iconOnly medium — 둘 사이 0, 머리 오른쪽 끝, 누르는 영역 44"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "navButton",
+      "prop": "iconSize",
+      "note": "lucide chevron-left · chevron-right"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "height",
+      "note": "폭은 달력 폭 ÷ 7 — 칸 전체가 누르는 자리, 칸 사이 0"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "weeks",
+      "note": "늘 6주 — 달을 넘겨도 머리 · 바닥이 움직이지 않는다(이어지는 달만 그 달의 주 수)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "dayVisual",
+      "prop": "size",
+      "note": "칸 위 3 · 가로 가운데 — 원 · 띠끼리 6 떨어진다. 칸이 44 보다 좁으면(320 화면) 칸 폭 − 2"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "dayLabel",
+      "prop": "typography",
+      "note": "숫자 폭을 같게(tabular-nums)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "rangeBand",
+      "prop": "height",
+      "note": "칸 위 3 — 원과 같은 높이(칸이 좁아 원이 줄면 띠도 같이). 시작 칸은 원 가운데부터 오른쪽, 끝 칸은 왼쪽부터 원 가운데까지, 사이 칸은 칸 폭 전체 — 줄 끝에서 둥글리지 않고 칸 끝에서 끊는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "wheel",
+      "prop": "height",
+      "note": "요일 줄 48 + 6주 288 자리를 덮는다 — Wheel Picker medium 44 × 7 = 308 을 가운데에(위아래 14). 열린 동안 이전 · 다음은 막힌다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "wheel",
+      "prop": "columns",
+      "note": "연은 오른쪽 · 월은 왼쪽 정렬로 가운데에 모은다(SEED 와 같다) — 항목은 \"2026년\" · \"10월\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "footer",
+      "prop": "paddingTop",
+      "note": "팝오버 — 달력 아래 16, 버튼 small 36 오른쪽 맞춤. 시트는 Bottom Sheet 바닥(위 12 · 아래 16, large 48 — 하나면 폭 전체, 둘이면 반씩)"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "dayVisual",
+      "prop": "background",
+      "note": "마우스(고운 포인터)만 — 축소 없음. 오늘(옅은 원) · 기간 사이 날(띠) 위에서는 한 단계 짙은 bg-neutral-weak-pressed(옅은 원 · 띠와 같은 색이 되어 안 보이지 않게). 막힌 날 · 읽기 전용 · 앞뒤 달에는 없다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "dayVisual",
+      "prop": "background",
+      "note": "터치는 누르는 동안 — 오늘 · 기간 사이 날 위에서는 bg-neutral-weak-pressed. 날짜는 줄지 않는다(이전 · 다음은 Button 처럼 2px 축소)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "원 자리(42) 안쪽 — 칸이 아니라 원 둘레"
+    },
+    {
+      "rule": 0,
+      "state": "today",
+      "slot": "dayLabel",
+      "prop": "fontWeight",
+      "note": "색이 아니라 굵기로도 알린다 — 고른 날 · 기간 안에서도 굵기는 남는다"
+    },
+    {
+      "rule": 0,
+      "state": "selected",
+      "slot": "dayVisual",
+      "prop": "background",
+      "note": "하루 · 여러 날의 고른 날, 기간의 시작 · 끝 — 오늘이어도 이 모양이 이긴다(굵기는 남는다)"
+    },
+    {
+      "rule": 0,
+      "state": "inRange",
+      "slot": "dayVisual",
+      "prop": "background",
+      "note": "띠가 바탕 — 오늘이어도 원은 그리지 않는다(굵기만 남는다)"
+    },
+    {
+      "rule": 0,
+      "state": "outside",
+      "slot": "dayLabel",
+      "prop": "foreground",
+      "note": "앞뒤 달 날짜 — 보이기만 하고 누르지 못한다(숫자만 보조 기술에 숨기고 칸은 남겨 요일 짝을 지킨다). 기간 띠도 그리지 않는다. 다른 달은 이전 · 다음 · 화살표 키로"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "dayLabel",
+      "prop": "textDecoration",
+      "note": "고를 수 없는 날 — 흐린 색과 함께 취소선. aria-disabled 라 키보드 초점은 간다"
+    },
+    {
+      "rule": 0,
+      "state": "readOnly",
+      "slot": "dayVisual",
+      "prop": "background",
+      "note": "확정된 시작일 — 채움은 남기고 톤을 낮춘다(SEED palette gray-600 의 역할 짝). 누르지 못하지만 초점은 간다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "width",
+      "note": "336 + 24 + 336 — 팝오버 폭 744(Popover 최대 480 의 예외)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "columnGap",
+      "note": "두 달 사이 24"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "height",
+      "note": "머리를 나누지 않는다 — 달 이름은 달마다 가운데, 이전 버튼은 첫 달 왼쪽 끝 · 다음 버튼은 둘째 달 오른쪽 끝(위 4)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "typography",
+      "note": "달 이름은 누르지 않는다 — 연 · 월 휠이 없다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "시트를 화면 높이의 90% 로 열고 머리 · 칩 줄 · 바닥을 뺀 높이 — 그 안에서 달이 위아래로 이어진다(스크롤바 숨김)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "height",
+      "note": "머리 없음 — 스크롤이 달을 넘긴다. 연 · 월 휠도 없다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "weekday",
+      "prop": "position",
+      "note": "맨 위에 붙는다 — 달마다의 요일 줄은 없다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "monthLabel",
+      "prop": "paddingX",
+      "note": "왼쪽 정렬, 달 아래 16"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "weeks",
+      "note": "4 ~ 6 — 앞뒤 달 날짜는 비운다(달이 이어져 다음 달이 바로 아래에 있다)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "height",
+      "note": "아래 끝 — 투명에서 바탕색으로"
+    }
+  ]
+}

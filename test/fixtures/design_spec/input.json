@@ -1,0 +1,558 @@
+{
+  "name": "Input",
+  "source": "specs/components/input.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "상자(Container) — 테두리 · 바탕 · 모서리. 어디를 눌러도 입력으로 포커스가 간다",
+    "value": "입력(<input>) — 상자 높이를 채운다. 맨 앞 · 맨 뒤면 상자의 좌우 여백까지 차지한다",
+    "placeholder": "빈 칸의 예시 글 — 칸 이름 대신 쓰지 않는다",
+    "prefixIcon": "앞 아이콘 — 검색 돋보기처럼 칸의 뜻을 돕는다",
+    "prefixText": "앞 글자 — https:// · 만 · − 같은 고정 글",
+    "suffixText": "뒤 글자 — 단위(원 · % · 일 · 회 · cm)",
+    "suffixIcon": "뒤 아이콘",
+    "clearButton": "지우기 버튼 — 값이 있고 막히지 않았을 때만. 검색칸 · 선택 사항인 칸에 둔다"
+  },
+  "axes": {
+    "variant": [
+      "outline",
+      "underline"
+    ],
+    "size": [
+      "large",
+      "medium",
+      "responsive"
+    ]
+  },
+  "defaults": {
+    "variant": "outline",
+    "size": "responsive"
+  },
+  "states": [
+    "enabled",
+    "focused",
+    "invalid",
+    "disabled",
+    "readonly"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "cursor": "text",
+          "transitionProperty": "border-color",
+          "transitionDuration": "100ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "value": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": 400
+        },
+        "placeholder": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "fontWeight": 400
+        },
+        "prefixIcon": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "prefixText": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "fontWeight": 400
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "fontWeight": 400
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "clearButton": {
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "radius": 9999
+        }
+      },
+      "focused": {
+        "root": {
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "invalid": {
+        "root": {
+          "borderColor": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "cursor": "not-allowed"
+        },
+        "value": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "placeholder": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "prefixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "prefixText": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline"
+      },
+      "enabled": {
+        "root": {
+          "borderWidth": 1
+        }
+      },
+      "focused": {
+        "root": {
+          "borderWidth": 2
+        }
+      },
+      "invalid": {
+        "root": {
+          "borderWidth": 2
+        }
+      },
+      "disabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "readonly": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "underline"
+      },
+      "enabled": {
+        "root": {
+          "borderBottomWidth": 1,
+          "radius": 0,
+          "paddingX": 0
+        }
+      },
+      "focused": {
+        "root": {
+          "borderBottomWidth": 2
+        }
+      },
+      "invalid": {
+        "root": {
+          "borderBottomWidth": 2
+        }
+      },
+      "readonly": {
+        "value": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "placeholder": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 52,
+          "radius": 12,
+          "paddingX": 16,
+          "gap": 10
+        },
+        "value": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "placeholder": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "prefixIcon": {
+          "size": 20
+        },
+        "prefixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixIcon": {
+          "size": 20
+        },
+        "clearButton": {
+          "size": 22
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 40,
+          "radius": 8,
+          "paddingX": 14,
+          "gap": 8
+        },
+        "value": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "placeholder": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "prefixIcon": {
+          "size": 16
+        },
+        "prefixText": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixIcon": {
+          "size": 16
+        },
+        "clearButton": {
+          "size": 18
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "underline",
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 40,
+          "paddingY": 8,
+          "gap": 10
+        },
+        "value": {
+          "typography": {
+            "fontSize": 18,
+            "lineHeight": 24,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "placeholder": {
+          "typography": {
+            "fontSize": 18,
+            "lineHeight": 24,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "prefixIcon": {
+          "size": 24
+        },
+        "prefixText": {
+          "typography": {
+            "fontSize": 18,
+            "lineHeight": 24,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 18,
+            "lineHeight": 24,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixIcon": {
+          "size": 24
+        },
+        "clearButton": {
+          "size": 22
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "underline",
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 34,
+          "paddingY": 6,
+          "gap": 8
+        },
+        "value": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "placeholder": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "prefixIcon": {
+          "size": 20
+        },
+        "prefixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixIcon": {
+          "size": 20
+        },
+        "clearButton": {
+          "size": 18
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "responsive"
+      },
+      "enabled": {
+        "root": {
+          "breakpoint": 1280
+        }
+      }
+    }
+  ],
+  "motion": {
+    "포커스 · 오류 — 테두리": {
+      "duration": "100ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "border-color"
+      ],
+      "note": "안쪽에 덧그린 2px 의 색이 나타나고 사라진다. SEED 는 0.1s — porest d2 = 100ms"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "transitionProperty",
+      "note": "덧그린 2px 의 색만 — 두께는 바로 바뀐다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "transitionDuration",
+      "note": "SEED 는 0.1s 를 바로 적었다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "clearButton",
+      "prop": "color",
+      "note": "lucide circle-x. 이름 \"지우기\" — 누르면 값을 비우고 입력에 포커스를 둔다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "읽기 전용이면 바뀌지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "invalid",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "포커스해도 그대로"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "상자 안쪽에 그린다(inset)"
+    },
+    {
+      "rule": 1,
+      "state": "focused",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "안쪽에 덧그린다 — 내용이 밀리지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "흐리게 하지 않는다(v106)"
+    },
+    {
+      "rule": 1,
+      "state": "readonly",
+      "slot": "root",
+      "prop": "background",
+      "note": "값은 진한 글자 그대로 — 바탕만으로 편집 칸과 가른다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderBottomWidth",
+      "note": "아래만 — 모서리 · 좌우 여백 없음"
+    },
+    {
+      "rule": 2,
+      "state": "readonly",
+      "slot": "value",
+      "prop": "foreground",
+      "note": "바탕이 없어 글자로 가른다"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "breakpoint",
+      "note": "미만은 large, 이상은 medium 의 값을 쓴다(SEED lg) — 앱은 늘 large"
+    }
+  ]
+}

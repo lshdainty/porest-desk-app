@@ -378,7 +378,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           error: (_, _) => Text(
             l.calCalendarLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+            style: PTypo.caption.copyWith(color: t.statusDangerFg),
           ),
           data: (_) => PSelect<int>(
             value: selectedCalendarRowId,
@@ -415,7 +415,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           error: (_, _) => Text(
             l.calLabelLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+            style: PTypo.caption.copyWith(color: t.statusDangerFg),
           ),
           data: (labels) => PSelect<int>(
             value: _labelRowId ?? 0,

@@ -1,0 +1,440 @@
+{
+  "name": "List",
+  "source": "specs/components/list.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "목록(List) — 줄을 세로로 잇는다. 배경 · 줄 사이 간격 없음",
+    "item": "한 줄(List Item) — 누르는 줄은 줄 전체가 누르는 영역",
+    "background": "바탕 층 — 누름 · 호버 · 강조 바탕. 콘텐츠 뒤에 깔리고 줄지 않는다",
+    "content": "콘텐츠 층 — 앞 · 본문 · 뒤를 담는다. 누르면 이 층만 준다",
+    "prefix": "앞 붙이개 자리",
+    "icon": "앞 아이콘 — 설정 · 메뉴 줄",
+    "tile": "앞 타일(색 상자) — 색이 뜻을 가진 내용 줄(거래 · 카테고리 · 알림 종류)",
+    "body": "본문 — 제목 + 설명",
+    "title": "제목",
+    "detail": "설명",
+    "suffix": "뒤 붙이개 자리 — 값 글자 · 화살표 · 컨트롤 · 작은 버튼",
+    "suffixText": "뒤 값 글자",
+    "suffixIcon": "뒤 아이콘 — 오른쪽 화살표",
+    "divider": "줄 사이 선(ListDivider) — 필요할 때만",
+    "focusRing": "키보드 포커스 링(웹) — 줄 안쪽"
+  },
+  "axes": {
+    "align": [
+      "center",
+      "top"
+    ],
+    "highlight": [
+      "none",
+      "highlighted"
+    ]
+  },
+  "defaults": {
+    "align": "center",
+    "highlight": "none"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "gap": 0
+        },
+        "item": {
+          "paddingY": 12,
+          "paddingX": 24,
+          "alignItems": "center",
+          "cursor": "pointer",
+          "touchTarget": "44 × 44"
+        },
+        "background": {
+          "background": "transparent",
+          "insetX": 0,
+          "radius": 0,
+          "transitionProperty": "background-color, inset, border-radius",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "content": {
+          "transitionProperty": "scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "prefix": {
+          "paddingRight": 12
+        },
+        "icon": {
+          "size": 22,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "tile": {
+          "size": 40,
+          "radius": 12,
+          "background": "chart-{색}-weak",
+          "iconSize": 20,
+          "color": "chart-{색}"
+        },
+        "body": {
+          "gap": 2,
+          "paddingRight": 10
+        },
+        "title": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "detail": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "suffix": {
+          "gap": 4
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "suffixIcon": {
+          "size": 18,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "divider": {
+          "height": 1,
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "hovered": {
+        "background": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "insetX": 6,
+          "radius": 10
+        }
+      },
+      "pressed": {
+        "background": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "insetX": 6,
+          "radius": 10
+        },
+        "content": {
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "item": {
+          "cursor": "not-allowed"
+        },
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "tile": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "title": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "detail": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "align": "top"
+      },
+      "enabled": {
+        "item": {
+          "alignItems": "flex-start"
+        }
+      }
+    },
+    {
+      "when": {
+        "highlight": "highlighted"
+      },
+      "enabled": {
+        "background": {
+          "background": {
+            "light": "#E8F1FE",
+            "dark": "#20314E"
+          }
+        }
+      },
+      "hovered": {
+        "background": {
+          "background": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          }
+        },
+        "detail": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "background": {
+          "background": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          }
+        },
+        "detail": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름 · 호버 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color",
+        "inset",
+        "border-radius"
+      ],
+      "note": "바탕이 좌우 6 들어오며 모서리 10 으로 둥글어진다"
+    },
+    "누름 — 콘텐츠": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "콘텐츠 층만 2px 거리 축소(줄은 세로로 1px 남짓) — 모션 줄이기면 하지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "줄 사이 간격 없음 — 줄의 위아래 여백이 간격이다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "paddingX",
+      "note": "화면 가장자리 규칙 24(SEED 16). 안쪽 여백을 바꿔도 이보다 좁히지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "cursor",
+      "note": "누르는 줄만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "touchTarget",
+      "note": "누르는 줄은 줄 전체 — 한 줄짜리도 46 이라 44 를 넘는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "background",
+      "prop": "transitionProperty",
+      "note": "누르면 바탕이 안쪽으로 들어오며 둥글어진다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "background",
+      "prop": "transitionDuration",
+      "note": "SEED 는 바탕 색만 color-transition, 들임 · 모서리는 d3 — 둘 다 150ms 라 하나로 적었다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "tile",
+      "prop": "radius",
+      "note": "크기 × 0.3 — 타일 크기를 바꾸면 모서리도 그 비율로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "tile",
+      "prop": "background",
+      "note": "카테고리 색의 옅은 바탕(v111) — 이체 줄은 회색(chart-gray-weak, 2026-10-04). 은행 · 카드 같은 물건 줄은 Logo Tile(logo-tile.yaml)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "tile",
+      "prop": "color",
+      "note": "카테고리 색 — 옅은 바탕 위 3:1 이상(가장 낮은 yellow 라이트 3.63). 이체 줄은 chart-gray. 아이콘이 없는 카테고리는 태그 아이콘(lucide tag) — 빈 칸 · 첫 글자를 넣지 않는다(2026-10-04)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "paddingRight",
+      "note": "본문과 뒤 붙이개 사이"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "fontWeight",
+      "note": "SEED 와 같다 — 굵기는 목록 제목 · 금액 같은 자리에 남긴다(사용자 결정)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "background",
+      "note": "기본은 줄 폭 전체 — 들일 때(inset)는 좌우 24"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "insetX",
+      "note": "바탕이 좌우로 6 들어온다(SEED marginX)"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "radius",
+      "note": "카드 안에서는 카드 모서리 − 카드 가장자리에서 바탕까지 거리(동심 모서리) — 목록의 itemRadius 로 바꾼다. 모서리 16 카드에 줄을 바로 넣으면 16 − 6"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "content",
+      "prop": "scale",
+      "note": "콘텐츠 층만 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px. 줄은 폭 ÷ 4 가 기준이라 세로로는 1px 남짓 준다. 줄 안의 스위치 · 체크 · 라디오는 따로 줄지 않는다(v104)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "줄 안쪽 — 화면 폭 줄은 바깥 링이 잘린다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "background",
+      "prop": "background",
+      "note": "바탕만 바뀐다 — 점 · 막대는 두지 않는다(사용자 결정, SEED)"
+    },
+    {
+      "rule": 2,
+      "state": "hovered",
+      "slot": "detail",
+      "prop": "foreground",
+      "note": "짙은 강조 바탕 위에서도 4.5:1 — fg-neutral-subtle 은 4.32:1 로 모자란다(사용자 결정 2026-10-01). 화살표는 그대로"
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "name": "Table",
+  "source": "specs/components/table.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "head": "ⓓ TableHead `<th>`",
+    "header": "ⓒ TableHeader `<thead>`",
+    "cell": "ⓔ TableCell `<td>`",
+    "row": "ⓕ TableRow `<tr>`",
+    "footer": "ⓖ TableFooter `<tfoot>` — 합계/요약 row",
+    "caption": "ⓗ TableCaption `<caption>`",
+    "selectColumn": "ⓙ Selection column — Checkbox",
+    "sortHeader": "정렬 가능한 헤더 — Button ghost sm wrap + 화살표",
+    "sortIcon": "정렬 화살표 icon",
+    "bulkBar": "ⓐ bulk action bar — 사용처 합성",
+    "numericCell": "숫자 cell"
+  },
+  "axes": {
+    "sort": [
+      "inactive",
+      "active"
+    ],
+    "bulk": [
+      "hidden",
+      "visible"
+    ]
+  },
+  "defaults": {},
+  "states": [
+    "default",
+    "hover",
+    "selected"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "default": {
+        "head": {
+          "height": 40,
+          "paddingX": 8,
+          "typography": {
+            "fontSize": 12,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 600,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "textTransform": "uppercase",
+          "letterSpacing": "tracking-wide"
+        },
+        "header": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#1A1F2E"
+          }
+        },
+        "cell": {
+          "padding": 8,
+          "typography": {
+            "fontSize": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "row": {
+          "borderBottomWidth": 1,
+          "borderBottomColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "background": "transparent"
+        }
+      },
+      "hover": {
+        "row": {
+          "background": {
+            "light": "#F5F6FA80",
+            "dark": "#353B4D80"
+          }
+        }
+      },
+      "selected": {
+        "row": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {},
+      "default": {
+        "footer": {
+          "background": {
+            "light": "#F5F6FA80",
+            "dark": "#353B4D80"
+          }
+        },
+        "caption": {
+          "marginTop": 12,
+          "typography": {
+            "fontSize": 14,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "row": {
+          "transitionProperty": "colors",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.16, 1, 0.3, 1)"
+        },
+        "selectColumn": {
+          "width": 48
+        },
+        "sortIcon": {
+          "size": 16
+        },
+        "bulkBar": {
+          "background": {
+            "light": "#0147AD1A",
+            "dark": "#7AA9F61A"
+          },
+          "radius": 4,
+          "paddingX": 12,
+          "paddingY": 4
+        },
+        "numericCell": {
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "right"
+        }
+      }
+    },
+    {
+      "when": {
+        "sort": "inactive"
+      },
+      "default": {
+        "sortHeader": {
+          "background": "transparent",
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "sort": "active"
+      },
+      "default": {
+        "sortHeader": {
+          "background": "transparent",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "bulk": "hidden"
+      },
+      "default": {
+        "bulkBar": {
+          "mount": "unmount"
+        }
+      }
+    },
+    {
+      "when": {
+        "bulk": "visible"
+      },
+      "default": {
+        "bulkBar": {
+          "foreground": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "header",
+      "prop": "background",
+      "note": "다크모드 자동 swap"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "sortIcon",
+      "prop": "size",
+      "note": "16×16 — lucide `ArrowUp`/`ArrowDown`/`ArrowUpDown`"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "bulkBar",
+      "prop": "background",
+      "note": "primary 10% mix — `color-mix(in srgb, var(--color-primary) 10%, transparent)`"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "numericCell",
+      "prop": "textAlign",
+      "note": "우측 — `text-right font-mono tabular-nums`"
+    },
+    {
+      "rule": 2,
+      "state": "default",
+      "slot": "sortHeader",
+      "prop": "foreground",
+      "note": "+ ↑↓ hint on hover"
+    },
+    {
+      "rule": 3,
+      "state": "default",
+      "slot": "sortHeader",
+      "prop": "foreground",
+      "note": "+ ↑ 또는 ↓ 노출"
+    },
+    {
+      "rule": 5,
+      "state": "default",
+      "slot": "bulkBar",
+      "prop": "foreground",
+      "note": "primary text"
+    }
+  ]
+}

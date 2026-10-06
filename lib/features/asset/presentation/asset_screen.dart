@@ -948,9 +948,9 @@ class _AssetCard extends StatelessWidget {
         asset.assetType == 'CREDIT_CARD' && (asset.creditLimit ?? 0) > 0;
     final gaugeRatio = showGauge ? balance.abs() / asset.creditLimit! : 0.0;
     final gaugeColor = gaugeRatio >= 0.9
-        ? t.statusDanger
+        ? t.statusDangerFg
         : gaugeRatio >= 0.7
-        ? t.statusWarning
+        ? t.statusWarningFg
         : t.fgBrand;
 
     // design acc-card 플랫 행 — 구분선 없이 padding(12/10)+radius 10, 탭 hover 톤.

@@ -229,7 +229,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text(
               '${l.cardLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
             ),
           ),
           data: (page) {

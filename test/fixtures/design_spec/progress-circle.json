@@ -1,0 +1,345 @@
+{
+  "name": "ProgressCircle",
+  "source": "specs/components/progress-circle.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "원 상자 — 지름 · 두께, 정사각",
+    "track": "트랙 — 원 전체, 옅은 색",
+    "range": "호 — 진행을 그린다. 12시에서 시작하고 끝이 둥글다"
+  },
+  "axes": {
+    "size": [
+      "24",
+      "40",
+      "inherit"
+    ],
+    "tone": [
+      "neutral",
+      "brand",
+      "staticWhite",
+      "inherit"
+    ],
+    "mode": [
+      "indeterminate",
+      "determinate"
+    ]
+  },
+  "defaults": {
+    "size": "40",
+    "tone": "neutral",
+    "mode": "indeterminate"
+  },
+  "states": [
+    "enabled",
+    "reducedMotion"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "range": {
+          "linecap": "round",
+          "start": "12시"
+        }
+      },
+      "reducedMotion": {
+        "root": {
+          "rotate": "멈춤"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "24"
+      },
+      "enabled": {
+        "root": {
+          "size": 24,
+          "thickness": 3
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "40"
+      },
+      "enabled": {
+        "root": {
+          "size": 40,
+          "thickness": 5
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "inherit"
+      },
+      "enabled": {
+        "root": {
+          "size": "부품이 정함",
+          "thickness": "부품이 정함"
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "neutral"
+      },
+      "enabled": {
+        "root": {
+          "track": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          },
+          "range": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "brand"
+      },
+      "enabled": {
+        "root": {
+          "track": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          },
+          "range": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "staticWhite"
+      },
+      "enabled": {
+        "root": {
+          "track": "#FFFFFF4D",
+          "range": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "inherit"
+      },
+      "enabled": {
+        "root": {
+          "track": "currentColor 30%",
+          "range": "currentColor"
+        }
+      }
+    },
+    {
+      "when": {
+        "mode": "indeterminate"
+      },
+      "enabled": {
+        "range": {
+          "length": "늘었다 줄며"
+        }
+      },
+      "reducedMotion": {
+        "range": {
+          "length": "원둘레의 75%"
+        }
+      }
+    },
+    {
+      "when": {
+        "mode": "determinate"
+      },
+      "enabled": {
+        "range": {
+          "length": "값만큼",
+          "transitionDuration": "300ms",
+          "transitionEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "reducedMotion": {
+        "range": {
+          "transitionDuration": "0ms"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "회전": {
+      "duration": "1200ms",
+      "easing": "cubic-bezier(0.35, 0.25, 0.65, 0.75)",
+      "properties": [
+        "rotate 0 → 360°"
+      ],
+      "note": "값 없는 원 — 쉬지 않고 되풀이. 모션 줄이기면 멈춘다"
+    },
+    "호 머리": {
+      "duration": "1200ms",
+      "easing": "cubic-bezier(0.35, 0, 0.65, 1)",
+      "properties": [
+        "stroke-dasharray 0 → 원둘레(0 ~ 75%) · 그대로(75 ~ 100%)"
+      ],
+      "note": "값 없는 원 — 회전과 같은 박자로 되풀이"
+    },
+    "호 꼬리": {
+      "duration": "1200ms",
+      "easing": "cubic-bezier(0.35, 0, 0.65, 0.6)",
+      "properties": [
+        "stroke-dashoffset 0(0 ~ 33.33%) → −원둘레(100%)"
+      ],
+      "note": "머리와 겹쳐 호가 늘었다 줄며 돈다"
+    },
+    "채움": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "stroke-dashoffset"
+      ],
+      "note": "값 있는 원 — 값이 바뀔 때. 처음 그릴 때는 움직이지 않는다. 모션 줄이기면 바로"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "range",
+      "prop": "linecap",
+      "note": "끝을 둥글게 — 값이 0 이면 호를 지운다(둥근 점이 남지 않게)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "range",
+      "prop": "start",
+      "note": "−90° 에서 시계 방향으로"
+    },
+    {
+      "rule": 0,
+      "state": "reducedMotion",
+      "slot": "root",
+      "prop": "rotate",
+      "note": "돌지 않는다(v104) — 값 없는 원은 고정된 호, 값 있는 원은 채움이 바로 바뀐다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "thickness",
+      "note": "선 가운데 반지름 10.5"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "thickness",
+      "note": "선 가운데 반지름 17.5"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "size",
+      "note": "--progress-size — Button 14 · 14 · 16 · 18(button.yaml progressCircle)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "thickness",
+      "note": "--progress-thickness — Button 2"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "track",
+      "note": "흰 면 위 1.15 · 다크 1.30 — 장식"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "range",
+      "note": "흰 면 위 4.18 · 다크 4.13(떠 있는 면 3.58), 트랙과 3.63 · 3.18 — 3:1 이상(사용자 결정)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "track",
+      "note": "Button brandOutline 의 로딩 원 트랙과 같다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "range",
+      "note": "다크는 밝은 짝 — 흰 면 위 Desk 8.38 · HR 5.06, 다크 Desk 6.10 · HR 6.23. 트랙과 Desk 6.59 · 4.73 · HR 4.20 · 4.59"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "track",
+      "note": "Button v112 의 채운 버튼과 같다(SEED 18%)"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "range",
+      "note": "딤(overlay-dim-light 50%) 위 3.95 · 다크 딤(65%) 위 19.27"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "track",
+      "note": "부품이 --progress-track 을 정하면 그 값 — Button 은 변형마다"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "range",
+      "note": "부품이 --progress-range 를 정하면 그 값"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "range",
+      "prop": "length",
+      "note": "머리가 원둘레만큼 늘고(1.2초의 0 ~ 75%) 꼬리가 따라와 줄인다(33.33 ~ 100%) — 아래 모션"
+    },
+    {
+      "rule": 8,
+      "state": "reducedMotion",
+      "slot": "range",
+      "prop": "length",
+      "note": "12시부터 시계 방향 3/4 — 돌지 않는 고정 호"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "range",
+      "prop": "length",
+      "note": "(값 − min) ÷ (max − min) — min · max 를 지킨다(기본 0 · 100). max 면 꽉 찬 원"
+    },
+    {
+      "rule": 9,
+      "state": "reducedMotion",
+      "slot": "range",
+      "prop": "transitionDuration",
+      "note": "채움이 바로 바뀐다"
+    }
+  ]
+}

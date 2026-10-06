@@ -1,0 +1,506 @@
+{
+  "name": "ImageFrame",
+  "source": "specs/components/image-frame.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "틀 — 비율 상자. 폭은 부르는 쪽, 높이는 폭 ÷ 비율. 모서리로 자르고(overflow hidden) 안의 층을 따로 쌓는다(isolation)",
+    "image": "그림 — 틀을 채운다. 카드 그림이 세로면 시계 방향으로 90° 돌려 채운다",
+    "plate": "판 — 잘리지 않게 넣은(contain) 그림 뒤의 흰 판",
+    "stroke": "안쪽 1px 윤곽 — 그림 · 스켈레톤 · 대체 그림 위에 늘 겹친다",
+    "skeleton": "불러오는 동안 — 틀과 같은 모서리의 Skeleton(면 + 반짝임)",
+    "fallback": "없음 · 실패 — Content Placeholder(옅은 면 + 선 아이콘). 아는 카드사의 카드 그림은 카드 면(card-art.yaml)",
+    "floater": "그림 위 자리 — 네 모서리, 한 자리에 하나 · 틀 하나에 둘까지. 배지(solid) 또는 Indicator",
+    "indicator": "장수 · 길이 글(Indicator) — \"1 / 12\" · \"+9\". 상태 · 강조에는 쓰지 않는다(그건 배지)"
+  },
+  "axes": {
+    "ratio": [
+      "1:1",
+      "2:1",
+      "16:9",
+      "4:3",
+      "6:7",
+      "4:5",
+      "2:3",
+      "card"
+    ],
+    "radius": [
+      "0",
+      "4",
+      "6",
+      "8"
+    ],
+    "fit": [
+      "cover",
+      "contain"
+    ]
+  },
+  "defaults": {
+    "ratio": "4:3",
+    "radius": "8",
+    "fit": "cover"
+  },
+  "states": [
+    "loaded",
+    "loading",
+    "fallback"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "loaded": {
+        "root": {
+          "width": "부르는 쪽",
+          "height": "폭 ÷ 비율",
+          "overflow": "hidden"
+        },
+        "image": {
+          "width": "100%",
+          "height": "100%",
+          "objectFit": "cover",
+          "loading": "lazy"
+        },
+        "stroke": {
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#0000000C",
+            "dark": "#FFFFFF0D"
+          }
+        },
+        "floater": {
+          "offset": 6
+        },
+        "indicator": {
+          "background": "rgba(0, 0, 0, 0.65)",
+          "foreground": "#FFFFFF",
+          "typography": {
+            "fontSize": 11,
+            "lineHeight": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "paddingX": 6,
+          "paddingY": 2,
+          "minHeight": 19,
+          "radius": 9999
+        }
+      },
+      "loading": {
+        "skeleton": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "shimmer": {
+            "light": "linear-gradient(90deg, #ffffff00 0%, #ffffffab 46%, #ffffffab 54%, #ffffff00 100%)",
+            "dark": "linear-gradient(90deg, #ffffff00 0%, #ffffff1a 46%, #ffffff1a 54%, #ffffff00 100%)"
+          }
+        },
+        "image": {
+          "opacity": 0
+        }
+      },
+      "fallback": {
+        "fallback": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "glyphSize": "틀 높이의 50%",
+          "glyphColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        },
+        "image": {
+          "display": "none"
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "1:1"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": 1
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "2:1"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": 2
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "16:9"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": "16 / 9"
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "4:3"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": "4 / 3"
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "6:7"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": "6 / 7"
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "4:5"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": "4 / 5"
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "2:3"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": "2 / 3"
+        }
+      }
+    },
+    {
+      "when": {
+        "ratio": "card"
+      },
+      "loaded": {
+        "root": {
+          "aspectRatio": 1.586
+        },
+        "image": {
+          "rotate": "90deg"
+        }
+      }
+    },
+    {
+      "when": {
+        "radius": "4"
+      },
+      "loaded": {
+        "root": {
+          "radius": 4
+        }
+      }
+    },
+    {
+      "when": {
+        "radius": "6"
+      },
+      "loaded": {
+        "root": {
+          "radius": 6
+        }
+      }
+    },
+    {
+      "when": {
+        "radius": "8"
+      },
+      "loaded": {
+        "root": {
+          "radius": 8
+        }
+      }
+    },
+    {
+      "when": {
+        "radius": "0"
+      },
+      "loaded": {
+        "root": {
+          "radius": 0
+        }
+      }
+    },
+    {
+      "when": {
+        "fit": "cover"
+      },
+      "loaded": {
+        "image": {
+          "objectFit": "cover"
+        }
+      }
+    },
+    {
+      "when": {
+        "fit": "contain"
+      },
+      "loaded": {
+        "image": {
+          "objectFit": "contain"
+        },
+        "plate": {
+          "background": "#FFFFFF"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "그림이 옴": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "opacity 0 → 1"
+      ],
+      "note": "스켈레톤을 걷고 그림을 투명도로 — Skeleton 의 '내용으로 바뀜' 과 같다. 모션 줄이기면 바로. 실패 · 없음으로 바뀔 때는 움직임이 없다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "width",
+      "note": "고정 폭(목록 · 썸네일)이면 그 폭, 아니면 부모 폭을 채운다 — 모서리는 그 폭으로 고른다(radius)"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "height",
+      "note": "그림이 오기 전에 자리를 잡는다 — 그림이 와도 줄이 밀리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "overflow",
+      "note": "모서리로 그림 · 스켈레톤 · 대체 그림을 자른다. 안의 층은 따로 쌓는다(isolation: isolate — SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "image",
+      "prop": "objectFit",
+      "note": "가운데를 남겨 자른다(SEED — 사진은 늘 cover). 로고 · 글이 든 그림만 fit contain"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "image",
+      "prop": "loading",
+      "note": "화면에 들어올 때 받는다 — 첫 화면의 큰 그림(상세 위 카드 그림)만 eager"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "stroke",
+      "prop": "borderWidth",
+      "note": "안쪽(inset box-shadow) — 크기가 변하지 않는다. 그림 위에 그리고(SEED ::after) 누르기를 막지 않는다. 모서리는 틀을 따른다"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "stroke",
+      "prop": "borderColor",
+      "note": "v118 — 검정 4.7% · 다크 흰 5%. 흰 그림이 흰 바탕에 묻히지 않고(1.11 · 장식), 어두운 그림 둘레에는 테가 생기지 않는다. 늘 그린다 — 끄는 속성이 없다"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "floater",
+      "prop": "offset",
+      "note": "틀 가장자리 → 요소 바깥 상자 6(SEED). 네 모서리 — 위 시작 · 위 끝 · 아래 시작 · 아래 끝. 한 자리에 하나 · 틀 하나에 둘까지 · 틀의 짧은 변이 80 이상일 때만"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "indicator",
+      "prop": "background",
+      "note": "검정 65% — 두 모드 같다(그림은 모드를 따르지 않는다). SEED static-black-alpha-800(63.5%)의 가장 가까운 porest 값. overlay-dim-light(50%)면 흰 그림 위 흰 글자가 3.95 로 모자란다"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "indicator",
+      "prop": "foreground",
+      "note": "흰 그림 위 7.00 · 검은 그림 위 21:1 — 어떤 그림 위에서도 4.5 를 넘는다"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "indicator",
+      "prop": "typography",
+      "note": "11 / 15 — 글자 크기 설정을 따른다(SEED rem)"
+    },
+    {
+      "rule": 0,
+      "state": "loaded",
+      "slot": "indicator",
+      "prop": "minHeight",
+      "note": "15 + 2 + 2 — 글이 커지면 따라 커진다"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "skeleton",
+      "prop": "background",
+      "note": "Skeleton 의 면 — 틀과 같은 모서리(틀이 자른다). 흰 면 위 1.08 · 다크 1.30. 처음부터 깐다 — 빈 칸이 없다"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "skeleton",
+      "prop": "shimmer",
+      "note": "Skeleton 의 반짝임 그대로 — 화면의 스켈레톤과 한 박자, 모션 줄이기면 멈춘다"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "image",
+      "prop": "opacity",
+      "note": "받는 동안 그림을 보이지 않게 둔다(자리 · 대체 글은 그대로) — 다 받으면 나타난다(motion)"
+    },
+    {
+      "rule": 0,
+      "state": "fallback",
+      "slot": "fallback",
+      "prop": "background",
+      "note": "Content Placeholder — 틀을 채운다. 제 모서리가 없고 틀이 자른다"
+    },
+    {
+      "rule": 0,
+      "state": "fallback",
+      "slot": "fallback",
+      "prop": "glyphSize",
+      "note": "16 ~ 160 · 틀 폭이 좁으면 폭에 맞춘다(Content Placeholder). 기본 lucide image, 카드 그림은 credit-card"
+    },
+    {
+      "rule": 0,
+      "state": "fallback",
+      "slot": "fallback",
+      "prop": "glyphColor",
+      "note": "면 위 1.14 · 다크 1.20 — 장식. 무엇이 없는지는 alt 를 이어받은 이름이 말한다"
+    },
+    {
+      "rule": 0,
+      "state": "fallback",
+      "slot": "image",
+      "prop": "display",
+      "note": "깨진 그림 아이콘 · alt 글이 보이지 않는다. 10초가 지나 바뀐 뒤에 그림이 와도 다시 바꾸지 않는다"
+    },
+    {
+      "rule": 3,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "≈ 1.78"
+    },
+    {
+      "rule": 4,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "≈ 1.33 — 기본(SEED)"
+    },
+    {
+      "rule": 5,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "≈ 0.86"
+    },
+    {
+      "rule": 6,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "0.8"
+    },
+    {
+      "rule": 7,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "≈ 0.67"
+    },
+    {
+      "rule": 8,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "ISO 카드 85.6 × 53.98 — 목록 56(높이 35.3) · 격자 · 상세 모두 이 비율. 최대 높이로 비율을 바꾸지 않는다"
+    },
+    {
+      "rule": 8,
+      "state": "loaded",
+      "slot": "image",
+      "prop": "rotate",
+      "note": "그림의 원래 폭 < 높이(세로 카드)면 시계 방향으로 90° — 그림 상자를 틀의 높이 × 폭으로 잡아 돌리고 cover 로 채운다. 원래 크기를 안 뒤(다 받은 뒤)에 정하고 보인다. 가로 · 정사각 그림은 그대로"
+    },
+    {
+      "rule": 9,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "radius",
+      "note": "폭 24 이하(SEED r1)"
+    },
+    {
+      "rule": 10,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "radius",
+      "note": "폭 25 ~ 48(SEED r1.5) — 목록 앞 40 · 48"
+    },
+    {
+      "rule": 11,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "radius",
+      "note": "폭 49 이상(SEED r2) — 목록 카드 56 · 격자 · 상세"
+    },
+    {
+      "rule": 12,
+      "state": "loaded",
+      "slot": "root",
+      "prop": "radius",
+      "note": "화면 폭 — 좌우가 화면 끝에 닿는 그림(SEED 의 'Rounded 를 끈다'). 윤곽은 그대로"
+    },
+    {
+      "rule": 14,
+      "state": "loaded",
+      "slot": "image",
+      "prop": "objectFit",
+      "note": "잘리지 않게 넣는다 — 둘레는 판"
+    },
+    {
+      "rule": 14,
+      "state": "loaded",
+      "slot": "plate",
+      "prop": "background",
+      "note": "흰 판 — 두 모드 같다(로고 · 글이 든 그림은 흰 바탕에 맞춰 만든다). 다크에서도 그림의 검은 부분이 사라지지 않는다"
+    }
+  ]
+}

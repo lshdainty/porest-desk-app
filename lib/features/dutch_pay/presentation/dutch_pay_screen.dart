@@ -84,7 +84,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             children: [
               Text(
                 '${l.dutchLoadFailed}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
               ),
             ],
           ),

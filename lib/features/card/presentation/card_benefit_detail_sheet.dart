@@ -84,7 +84,7 @@ class _CardBenefitDetailContentState
         children: [
           Text(
             '${l.cardDetailLoadError}\n$e',
-            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
           ),
         ],
       ),

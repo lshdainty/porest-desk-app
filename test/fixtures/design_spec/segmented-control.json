@@ -1,0 +1,425 @@
+{
+  "name": "SegmentedControl",
+  "source": "specs/components/segmented-control.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "트랙 — 알약. 놓인 자리 폭을 채우고 칸이 그 폭을 똑같이 나눈다",
+    "item": "칸 — 누르는 자리. 모든 칸이 같은 폭 · 같은 높이",
+    "label": "글 — 짧게. 길면 단어 단위로 줄을 바꾼다",
+    "indicator": "고른 알약 — 고른 칸 뒤에 깔리고, 다른 칸을 고르면 미끄러져 옮긴다",
+    "notification": "알림 점 — 새 내용이 있는 칸에만, 글 오른쪽 위",
+    "focusRing": "키보드 포커스 링(웹) — 칸 바깥"
+  },
+  "axes": {
+    "selected": [
+      "unselected",
+      "selected"
+    ]
+  },
+  "defaults": {
+    "selected": "unselected"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "padding": 4,
+          "radius": 9999,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "width": "놓인 자리 폭",
+          "columns": "칸 수(2 ~ 4)"
+        },
+        "item": {
+          "minHeight": 34,
+          "paddingX": 12,
+          "paddingY": 6,
+          "radius": 9999,
+          "cursor": "pointer",
+          "touchTarget": "칸 전체",
+          "transitionProperty": "background-color, color, box-shadow",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "label": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "textAlign": "center"
+        },
+        "indicator": {
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "borderWidth": 1,
+          "radius": 9999,
+          "inset": 4,
+          "transitionProperty": "transform",
+          "transitionDuration": "200ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "notification": {
+          "size": 6,
+          "radius": 9999,
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "gap": 2
+        }
+      },
+      "pressed": {
+        "label": {
+          "scale": "글 2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "item": {
+          "cursor": "not-allowed"
+        },
+        "label": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "unselected"
+      },
+      "hovered": {
+        "item": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1
+        },
+        "label": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "item": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1
+        },
+        "label": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "selected"
+      },
+      "enabled": {
+        "label": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "item": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "borderWidth": 1
+        }
+      },
+      "pressed": {
+        "item": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "borderWidth": 1
+        }
+      },
+      "disabled": {
+        "item": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "borderWidth": 1
+        }
+      }
+    }
+  ],
+  "motion": {
+    "고른 알약 — 미끄러짐": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "transform"
+      ]
+    },
+    "누름 · 호버 · 고름 — 색": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color",
+        "color",
+        "box-shadow"
+      ]
+    },
+    "누름 — 글": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "칸 안의 글만 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "SEED bg.neutral-weak-alpha 의 불투명 짝"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "width",
+      "note": "트랙이 자리를 채우고 칸 수로 똑같이 나눈다(최소 폭 없음) — 넓은 화면에서는 놓는 자리를 좁힌다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "columns",
+      "note": "모든 칸이 같은 폭 · 같은 높이(가장 높은 칸에 맞춘다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "minHeight",
+      "note": "트랙 안쪽 4 를 더해 42"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "paddingX",
+      "note": "SEED 24 → 12 — 칸이 트랙을 나누므로 폰에서 4개도 들어간다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "touchTarget",
+      "note": "34 × 칸 폭 — AA ✓(24 이상) · AAA 는 44 에 모자란다(SEED 와 같다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "16 / 22 — 고르든 안 고르든 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "fontWeight",
+      "note": "고르든 안 고르든 700"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "textAlign",
+      "note": "길면 단어 단위로 줄을 바꾼다(v114)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "background",
+      "note": "흰 알약 — 다크에서는 트랙보다 어둡다(SEED 도 다크 알약이 검정)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "borderColor",
+      "note": "안쪽 1px(inset) 짙은 테두리 — 고른 칸을 트랙과 15.20 · 10.32:1 로 가른다(SEED 옅은 1px 은 1.14 · 1.20 — 사용자 결정 2026-10-02)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "inset",
+      "note": "트랙 안쪽 4 — 폭 = (트랙 − 8) ÷ 칸 수, 고른 칸 번호만큼 옆으로 옮긴다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "transitionProperty",
+      "note": "고른 칸으로 미끄러진다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notification",
+      "prop": "background",
+      "note": "브랜드 글자색 — 트랙 위 Desk 7.76 · 4.69 · HR 4.69 · 4.79(bg-brand-solid 는 다크에서 1.33 · 2.20 이라 안 보인다). 고른 칸에는 없다 — 고르면 사라진다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notification",
+      "prop": "gap",
+      "note": "글 끝에서 2, 글 위쪽에 맞춘다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "label",
+      "prop": "scale",
+      "note": "칸 바탕은 그대로, 안의 글만 준다(SEED scaleScope: content · v104) — 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "칸 바깥 — 알약을 따라 둥글다"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "cursor",
+      "note": "누름 바탕 · 축소 없음"
+    },
+    {
+      "rule": 1,
+      "state": "hovered",
+      "slot": "item",
+      "prop": "borderColor",
+      "note": "안쪽 1px — 고른 알약과 같은 테두리"
+    },
+    {
+      "rule": 1,
+      "state": "hovered",
+      "slot": "label",
+      "prop": "foreground",
+      "note": "누름 바탕 위에서 한 단계 짙게 — fg-neutral-subtle 이면 다크 3.91:1, muted 4.95 · 라이트 6.17(List 의 강조 줄과 같은 방법)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "foreground",
+      "note": "글자색만 바뀐다 — 굵기 · 크기 그대로"
+    },
+    {
+      "rule": 2,
+      "state": "hovered",
+      "slot": "item",
+      "prop": "background",
+      "note": "칸에 칠해 알약을 덮는다 — 짙은 테두리는 그대로"
+    },
+    {
+      "rule": 2,
+      "state": "pressed",
+      "slot": "item",
+      "prop": "background",
+      "note": "SEED palette.gray-100 의 역할 짝 — 짙은 테두리는 그대로"
+    },
+    {
+      "rule": 2,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "background",
+      "note": "고른 채 막힘 — 칸에 칠해 알약을 덮는다"
+    },
+    {
+      "rule": 2,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "borderColor",
+      "note": "짙은 1px 를 회색으로 남겨 무엇을 골랐는지 보인다(Chip 의 고른 채 막힘과 같다)"
+    }
+  ]
+}

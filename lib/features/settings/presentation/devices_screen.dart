@@ -135,7 +135,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                 child: Text(
                   '${l.devicesLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
                 ),
               ),
               data: (devices) => devices.isEmpty

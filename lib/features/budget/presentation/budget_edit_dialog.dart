@@ -257,7 +257,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
               loading: () => const Center(child: PCircularProgressIndicator()),
               error: (e, _) => Text(
                 l.budgetCategoryLoadError,
-                style: PTypo.caption.copyWith(color: t.statusDanger),
+                style: PTypo.caption.copyWith(color: t.statusDangerFg),
               ),
               data: (categories) => Wrap(
                 spacing: PSpace.x8,

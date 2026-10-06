@@ -1,0 +1,760 @@
+{
+  "name": "Chip",
+  "source": "specs/components/chip.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "알약 — 모서리 full. 글만큼 넓어지고 줄바꿈 · 말줄임하지 않는다",
+    "label": "글 — 명사로 짧게, 한 줄",
+    "prefixIcon": "앞 아이콘 — 묶음 안에서 모두 두거나 모두 뺀다",
+    "suffixIcon": "뒤 아이콘 — 여는 칩의 아래 화살표",
+    "removeButton": "입력값 칩의 지우기 — 이름 \"{글} 지우기\", 칩 안에서 따로 눌린다",
+    "icon": "아이콘만 있는 칩의 아이콘 — 이름(aria-label) 필수",
+    "focusRing": "키보드 포커스 링(웹)",
+    "group": "묶음(Chip Group) — 줄바꿈(폼 · 시트 안) 또는 한 줄 가로 스크롤(목록 위 필터 바 · 제안 줄)",
+    "scrollRow": "가로 스크롤 줄 — 목록 위 필터 바 · 제안 줄만(줄바꿈 묶음에는 없다). 줄을 화면 끝까지 낸다"
+  },
+  "axes": {
+    "variant": [
+      "solid",
+      "outlineStrong",
+      "outlineWeak"
+    ],
+    "size": [
+      "small",
+      "medium",
+      "large"
+    ],
+    "layout": [
+      "withText",
+      "iconOnly"
+    ],
+    "selected": [
+      "unselected",
+      "selected"
+    ]
+  },
+  "defaults": {
+    "variant": "outlineWeak",
+    "size": "medium",
+    "layout": "withText",
+    "selected": "unselected"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "radius": 9999,
+          "gap": 6,
+          "cursor": "pointer",
+          "touchTarget": "44 × 44",
+          "transitionProperty": "background-color, color, box-shadow",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "label": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500
+        },
+        "removeButton": {
+          "color": "currentColor"
+        },
+        "group": {
+          "gap": 8,
+          "rowGap": 8,
+          "minHeight": 36
+        },
+        "scrollRow": {
+          "paddingX": 24,
+          "paddingY": 6,
+          "marginY": "−6px",
+          "overflowX": "auto",
+          "fog": "좌우 20px",
+          "scrollPadding": 24
+        }
+      },
+      "pressed": {
+        "root": {
+          "scale": "칩 전체 2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "removeButton": {
+          "scale": "지우기 2px 거리 축소"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        },
+        "group": {
+          "outlineWidth": 2,
+          "outlineOffset": 2,
+          "outlineColor": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "cursor": "not-allowed",
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small"
+      },
+      "enabled": {
+        "root": {
+          "height": 32,
+          "paddingX": 12
+        },
+        "prefixIcon": {
+          "size": 14
+        },
+        "suffixIcon": {
+          "size": 14
+        },
+        "removeButton": {
+          "size": 14
+        },
+        "icon": {
+          "size": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "height": 36,
+          "paddingX": 14
+        },
+        "prefixIcon": {
+          "size": 16
+        },
+        "suffixIcon": {
+          "size": 14
+        },
+        "removeButton": {
+          "size": 14
+        },
+        "icon": {
+          "size": 16
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "height": 40,
+          "paddingX": 16
+        },
+        "prefixIcon": {
+          "size": 16
+        },
+        "suffixIcon": {
+          "size": 16
+        },
+        "removeButton": {
+          "size": 16
+        },
+        "icon": {
+          "size": 16
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small",
+        "layout": "withText"
+      },
+      "enabled": {
+        "root": {
+          "minWidth": 44
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium",
+        "layout": "withText"
+      },
+      "enabled": {
+        "root": {
+          "minWidth": 48
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large",
+        "layout": "withText"
+      },
+      "enabled": {
+        "root": {
+          "minWidth": 52
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small",
+        "layout": "iconOnly"
+      },
+      "enabled": {
+        "root": {
+          "width": 32,
+          "paddingX": 0
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium",
+        "layout": "iconOnly"
+      },
+      "enabled": {
+        "root": {
+          "width": 36,
+          "paddingX": 0
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large",
+        "layout": "iconOnly"
+      },
+      "enabled": {
+        "root": {
+          "width": 40,
+          "paddingX": 0
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "selected": "unselected"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "selected": "selected"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "borderWidth": 1
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outlineStrong"
+      },
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outlineStrong",
+        "selected": "selected"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "borderWidth": 0,
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "borderWidth": 1
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outlineWeak"
+      },
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outlineWeak",
+        "selected": "selected"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름 · 호버 · 고름 — 색": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color",
+        "color",
+        "box-shadow"
+      ]
+    },
+    "누름 — 칩": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "칩 전체 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "아이콘 ↔ 글(SEED label paddingX 6)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "touchTarget",
+      "note": "보이는 칩과 따로 누르는 영역을 가로 · 세로 44 까지 넓힌다(Button 과 같다 — 글이 있는 칩은 최소 폭 44 · 48 · 52 라 가로는 이미 44 이상이고, 아이콘만 있는 칩 32 · 36 · 40 은 가로도 44 로). AA ✓ · AAA ✓. 줄바꿈 묶음(줄 사이 8)에서 small 만 위아래 줄의 영역이 4 겹친다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "세 크기 모두 14 / 19 — 폰트 크기 설정을 따른다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "color",
+      "note": "글자색 그대로 — 이름 \"{글} 지우기\", 누르는 영역 24 × 24, 칩 안에서 따로 눌린다(칩 자체는 버튼이 아니다). 호버 바탕은 없고 누르면 지우기만 따로 준다(아래 pressed — Input Button 의 지우기와 같다). 키보드 포커스 링은 지우기가 아니라 칩 둘레에 그린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "gap",
+      "note": "칩 사이 — 줄바꿈 묶음은 줄 사이도 8(SEED 예제)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "minHeight",
+      "note": "비었을 때만 — 입력값을 다 지우면 포커스가 묶음으로 오므로 링이 납작한 선이 되지 않게 칩 한 줄(medium) 높이를 남긴다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "scrollRow",
+      "prop": "paddingX",
+      "note": "줄을 화면 끝까지 내고 안쪽 여백을 화면 여백만큼 — 스크롤해도 첫 칩이 여백에서 시작한다. 이미 화면 여백 안에 있으면 바깥 −24 로 화면 끝까지 낸다(bleed)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "scrollRow",
+      "prop": "paddingY",
+      "note": "스크롤 칸은 넘친 것을 자르므로 — 누르는 영역 44 · 포커스 링이 잘리지 않게"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "scrollRow",
+      "prop": "marginY",
+      "note": "안쪽 위아래 6 을 바깥에서 되돌려 줄 높이는 칩 그대로다. 줄을 두 겹(바깥 묶음 · 안쪽 스크롤 칸)으로 둬 부모의 위아래 간격(space-y · gap)이 지워지지 않게 한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "scrollRow",
+      "prop": "overflowX",
+      "note": "스크롤바는 숨긴다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "scrollRow",
+      "prop": "fog",
+      "note": "Scroll Fog row(scroll-fog.yaml) — gradient-fade-mask 마스크, 늘 켜짐. 안쪽 여백 24 가 흐림보다 넓어 처음 · 끝의 칩은 흐리지 않는다(2026-10-03)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "scrollRow",
+      "prop": "scrollPadding",
+      "note": "키보드로 칩을 옮겨도 화면 여백 안에 멈춘다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "scale",
+      "note": "기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(SEED scaleScope: self · v104) — 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "removeButton",
+      "prop": "scale",
+      "note": "입력값 칩의 지우기만 따로 준다(기준 24 — SEED scaleScope: self, Input Button 의 지우기와 같다). 칩은 누름이 아니다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "group",
+      "prop": "outlineWidth",
+      "note": "묶음이 포커스를 받았을 때(입력값을 다 지운 뒤) — 키보드 포커스에만, 모서리 없이 묶음 둘레"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "cursor",
+      "note": "누름 축소 · 누름 바탕 없음"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "SEED 루트 6 + 글 6 — 아이콘이 있어도 가장자리 ↔ 아이콘 12"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "size",
+      "note": "누르는 영역 24 × 24"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "SEED 루트 8 + 글 6"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "size",
+      "note": "누르는 영역 24 × 24"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "SEED 루트 10 + 글 6"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "size",
+      "note": "누르는 영역 24 × 24"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "SEED bg.neutral-weak-alpha 의 불투명 짝 — 회색 바탕(bg-layer-basement) 위에서는 사라져 흰 표면 위에서만 쓴다"
+    },
+    {
+      "rule": 11,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "고른 채 막힘 — 회색 채움에 짙은 1px 를 남겨 안 고른 칩과 가른다"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "SEED stroke.neutral-muted 의 불투명 짝 — 안쪽 1px(inset)"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "짙은 채움 위 테두리는 지운다(SEED Chip Tabs 와 같다)"
+    },
+    {
+      "rule": 13,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "고른 채 막힘 — 짙은 1px 로 안 고른 칩과 가른다"
+    },
+    {
+      "rule": 14,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "SEED stroke.neutral-muted 의 불투명 짝 — 안쪽 1px(inset)"
+    },
+    {
+      "rule": 15,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "고름 — 짙은 1px(v113)"
+    },
+    {
+      "rule": 15,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "고른 채 막힘 — 짙은 1px 를 회색으로 남긴다"
+    }
+  ]
+}

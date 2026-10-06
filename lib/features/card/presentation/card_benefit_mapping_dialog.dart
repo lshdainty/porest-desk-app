@@ -167,7 +167,7 @@ class _BodyState extends ConsumerState<_Body> {
           loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => Text(
             '${l.cardMappingLoadError}: $e',
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+            style: PTypo.caption.copyWith(color: t.statusDangerFg),
           ),
           data: (mappings) {
             if (mappings.isEmpty) {

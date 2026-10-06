@@ -286,7 +286,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           children: [
             Text(
               '${l.todoLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
             ),
           ],
         ),

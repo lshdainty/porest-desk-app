@@ -130,7 +130,7 @@ class _PSelectState<T> extends State<PSelect<T>> {
           ),
           decoration: BoxDecoration(
             border: Border.all(
-              color: hasError ? t.statusDanger : t.borderDefault,
+              color: hasError ? t.statusDangerBorder : t.borderDefault,
               width: hasError ? 1.5 : 1,
             ),
             borderRadius: PRadius.brSm,
@@ -211,7 +211,7 @@ class _PSelectState<T> extends State<PSelect<T>> {
         Text(
           caption,
           style: PTypo.caption.copyWith(
-            color: hasError ? t.statusDanger : t.fgTertiary,
+            color: hasError ? t.statusDangerFg : t.fgTertiary,
           ),
         ),
       ],

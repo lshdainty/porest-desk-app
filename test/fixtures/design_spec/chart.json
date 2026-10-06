@@ -1,0 +1,316 @@
+{
+  "name": "Chart",
+  "source": "specs/components/chart.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "container": "ChartContainer",
+    "tick": "Axis tick 텍스트",
+    "gridLine": "CartesianGrid 선",
+    "tooltip": "ChartTooltipContent",
+    "indicator": "tooltip 의 시리즈 indicator",
+    "legend": "ChartLegend",
+    "series": "시리즈(Bar/Line/Area/Pie/Radial 등) — fill/stroke"
+  },
+  "axes": {
+    "indicator": [
+      "dot",
+      "line",
+      "dashed"
+    ],
+    "palette": [
+      "red",
+      "orange",
+      "yellow",
+      "green",
+      "blue",
+      "indigo",
+      "violet",
+      "pink",
+      "brown",
+      "gray"
+    ]
+  },
+  "defaults": {},
+  "states": [
+    "default"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "default": {
+        "container": {
+          "aspectRatio": "16:9"
+        },
+        "tick": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "gridLine": {
+          "color": {
+            "light": "#E5E8EF80",
+            "dark": "#40475780"
+          }
+        },
+        "tooltip": {
+          "minWidth": 128,
+          "paddingX": 12,
+          "paddingY": 8,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "radius": 4,
+          "shadow": {
+            "light": "0 2px 8px -1px rgba(15, 18, 28, 0.08), 0 1px 3px -1px rgba(15, 18, 28, 0.04)",
+            "dark": "0 2px 8px -1px rgba(0, 0, 0, 0.40), 0 1px 3px -1px rgba(0, 0, 0, 0.20), inset 0 1px 0 0 rgba(255, 255, 255, 0.06)"
+          },
+          "typography": {
+            "fontSize": 13,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "legend": {
+          "gap": 8
+        }
+      }
+    },
+    {
+      "when": {
+        "indicator": "dot"
+      },
+      "default": {
+        "indicator": {
+          "width": 10,
+          "height": 10,
+          "radius": 2
+        }
+      }
+    },
+    {
+      "when": {
+        "indicator": "line"
+      },
+      "default": {
+        "indicator": {
+          "width": 4
+        }
+      }
+    },
+    {
+      "when": {
+        "indicator": "dashed"
+      },
+      "default": {
+        "indicator": {
+          "width": 0,
+          "background": "transparent",
+          "borderWidth": 1.5,
+          "borderStyle": "dashed"
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "red"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "orange"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#BE490D",
+            "dark": "#FF8758"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "yellow"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#8C7400",
+            "dark": "#C5A721"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "green"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#167F3F",
+            "dark": "#25C062"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "blue"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#1D6EC9",
+            "dark": "#69ABFF"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "indigo"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#5E60C8",
+            "dark": "#99A1FE"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "violet"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#8B4DBA",
+            "dark": "#C793F3"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "pink"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#B83B7A",
+            "dark": "#F485B6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "brown"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#9A6536",
+            "dark": "#CF9F77"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "palette": "gray"
+      },
+      "default": {
+        "series": {
+          "color": {
+            "light": "#62697A",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "container",
+      "prop": "aspectRatio",
+      "note": "`aspect-video` (사용처 override 가능)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "tick",
+      "prop": "color",
+      "note": "(inline class override)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "gridLine",
+      "prop": "color",
+      "note": "(inline class override)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "tooltip",
+      "prop": "minWidth",
+      "note": "`min-w-[8rem]`"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "tooltip",
+      "prop": "shadow",
+      "note": "inline — `style={{ boxShadow: \"var(--shadow-md)\" }}`"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "tooltip",
+      "prop": "typography",
+      "note": "+ tabular-nums — `font-mono tabular-nums` (value)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "legend",
+      "prop": "gap",
+      "note": "Recharts 기본"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "indicator",
+      "prop": "radius",
+      "note": "`rounded-[2px]`"
+    },
+    {
+      "rule": 2,
+      "state": "default",
+      "slot": "indicator",
+      "prop": "width",
+      "note": "4×height"
+    }
+  ]
+}

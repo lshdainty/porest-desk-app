@@ -1,0 +1,239 @@
+{
+  "name": "ScrollFog",
+  "source": "specs/components/scroll-fog.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "스크롤 상자 — 넘친 내용이 이 안에서 스크롤된다. 마스크를 이 상자에 건다",
+    "fog": "흐림 — 정한 쪽 가장자리에서 깊이만큼 투명 → 불투명",
+    "content": "안쪽 — 흐린 쪽에 깊이 이상의 여백"
+  },
+  "axes": {
+    "use": [
+      "box",
+      "row",
+      "overlayBody",
+      "page"
+    ]
+  },
+  "defaults": {
+    "use": "box"
+  },
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "fog": {
+          "mask": "linear-gradient(#00000000 0%, #00000003 8%, #00000005 16%, #0000000d 22%, #00000014 29%, #00000021 35%, #0000002e 41%, #00000040 47%, #00000052 53%, #00000066 59%, #0000007a 65%, #00000094 71%, #000000ab 78%, #000000c7 84%, #000000e3 92%, #000000ff 100%)",
+          "size": 20
+        }
+      }
+    },
+    {
+      "when": {
+        "use": "box"
+      },
+      "enabled": {
+        "root": {
+          "overflowY": "auto"
+        },
+        "fog": {
+          "placement": "넘치는 방향의 양 끝"
+        },
+        "content": {
+          "padding": 20,
+          "scrollPadding": 20
+        }
+      }
+    },
+    {
+      "when": {
+        "use": "row"
+      },
+      "enabled": {
+        "root": {
+          "overflowX": "auto"
+        },
+        "fog": {
+          "placement": "좌 · 우",
+          "size": 20
+        },
+        "content": {
+          "paddingX": 24,
+          "scrollPadding": 24
+        }
+      }
+    },
+    {
+      "when": {
+        "use": "overlayBody"
+      },
+      "enabled": {
+        "root": {
+          "overflowY": "auto"
+        },
+        "fog": {
+          "placement": "위 · 아래",
+          "size": "위 20px · 아래 80px"
+        },
+        "content": {
+          "paddingTop": 20,
+          "paddingBottom": 80,
+          "scrollPadding": "위 20px · 아래 80px"
+        }
+      }
+    },
+    {
+      "when": {
+        "use": "page"
+      },
+      "enabled": {
+        "root": {
+          "overflowY": "auto"
+        },
+        "fog": {
+          "placement": "위 · 아래",
+          "size": "위 20px · 아래 80px"
+        },
+        "content": {
+          "paddingTop": 20,
+          "paddingBottom": 80,
+          "scrollPadding": "위 20px · 아래 80px"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "mask",
+      "note": "색을 덮지 않는 마스크(mask-image) — 흐린 쪽마다 방향을 붙여 하나씩 겹친다(mask-composite: intersect). 바탕색과 상관없이 맞고 라이트 · 다크 같다. 누르기를 막지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "size",
+      "note": "기본 깊이 — SEED 의 최소 20"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "overflowY",
+      "note": "가로로 넘치면 overflowX — 흐림도 그 방향"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "placement",
+      "note": "세로 스크롤은 위 · 아래, 가로 스크롤은 좌 · 우"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "padding",
+      "note": "흐린 쪽 — 깊이와 같게. 다른 쪽은 놓인 자리의 여백 그대로"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "scrollPadding",
+      "note": "흐린 쪽 — 키보드로 옮긴 요소가 흐림 아래 멈추지 않게"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "overflowX",
+      "note": "한 줄 가로 스크롤 — 스크롤바는 숨긴다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "size",
+      "note": "좌우 20(SEED Chip Tabs 와 같다)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "paddingX",
+      "note": "화면 여백 24 — 흐림 20 보다 넓어 처음 · 끝의 칩은 흐리지 않는다(Chip 의 가로 스크롤 줄 · Chip Tabs 목록과 같은 값). 바깥에 포커스 링을 그리는 내용(칩)이면 위아래에도 링 자리를 둔다 — ChipGroup 은 위아래 6 여백 · 바깥 −6. 두지 않으면 스크롤 상자가 링을 자른다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "scrollPadding",
+      "note": "키보드로 칩을 옮겨도 여백 안에 멈춘다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "size",
+      "note": "SEED Bottom Sheet 의 권장 — 아래가 깊어 더 있다는 것이 잘 보인다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "paddingTop",
+      "note": "머리 아래 — 머리 아래 여백(16)은 그대로 두고 본문 안에 더한다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "paddingBottom",
+      "note": "끝까지 내려도 마지막 줄이 흐림 아래 남지 않는다 — 바닥 버튼 위"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "scrollPadding",
+      "note": "키보드로 옮긴 칸이 흐림 아래 멈추지 않게"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "size",
+      "note": "SEED 의 화면 전체 세로 스크롤 권장 — 위는 머리(상단 바) 아래, 아래는 바닥 고정 버튼 위에서 끝난다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "paddingTop",
+      "note": "머리 아래 — 화면 머리 ↔ 제목 여백(spacing-nav-to-title 20)과 같다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "paddingBottom",
+      "note": "바닥 고정 버튼 위 — 화면 아래 여백(spacing-screen-bottom 56) 대신 80"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "scrollPadding",
+      "note": "키보드로 옮긴 칸이 흐림 아래 멈추지 않게"
+    }
+  ]
+}

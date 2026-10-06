@@ -1,0 +1,185 @@
+{
+  "name": "CardArt",
+  "source": "specs/components/card-art.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "카드 그림 — Image Frame ratio card(1.586). 그림이 있으면 그림, 없으면 카드 면 또는 대체 그림",
+    "face": "카드 면 — 그림이 없는 아는 카드사의 카드. 기관 색 한 색, 글은 왼쪽 아래",
+    "issuer": "회사 이름 — 카드 이름 위 한 줄",
+    "name": "카드 이름 — 회사 이름 아래, medium 한 줄 · large 두 줄까지",
+    "initial": "회사 첫 글자 — 작은 면(폭 96 미만) 가운데. 회사 · 카드 이름 대신"
+  },
+  "axes": {
+    "size": [
+      "small",
+      "medium",
+      "large"
+    ]
+  },
+  "defaults": {
+    "size": "medium"
+  },
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "aspectRatio": 1.586
+        },
+        "face": {
+          "background": "기관 색",
+          "foreground": "기관 글자색"
+        },
+        "issuer": {
+          "fontWeight": 500,
+          "overflowX": "말줄임"
+        },
+        "name": {
+          "fontWeight": 700,
+          "lineClamp": 1
+        },
+        "initial": {
+          "fontWeight": 700,
+          "lineHeight": 1,
+          "textTransform": "uppercase"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small"
+      },
+      "enabled": {
+        "initial": {
+          "fontSize": "면 높이의 40%"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "face": {
+          "paddingX": 10,
+          "paddingBottom": 8
+        },
+        "issuer": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "name": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "face": {
+          "paddingX": 16,
+          "paddingBottom": 14
+        },
+        "issuer": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "name": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "lineClamp": 2
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "aspectRatio",
+      "note": "Image Frame ratio card — 모서리는 폭으로(목록 56 · 격자 · 상세 8 · 카탈로그 44 는 6), 윤곽 stroke-neutral-overlay 는 면 위에도 늘"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "face",
+      "prop": "background",
+      "note": "institution-colors.yaml 의 color — 모드를 따르지 않는다(라이트 · 다크 같다). 광택 띠 · 그라디언트 없이 한 색"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "face",
+      "prop": "foreground",
+      "note": "표의 text — white 면 static-white, dark 면 라이트 fg-neutral · 다크 fg-neutral-inverted. 78곳 모두 4.52:1 이상"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "issuer",
+      "prop": "overflowX",
+      "note": "한 줄 — 넘치면 말줄임(…)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "lineClamp",
+      "note": "medium 은 한 줄 — 폭 96 면(높이 60.5)에 회사 16 + 두 줄 38 + 아래 8 = 62 가 넘쳐(글자 125% 면 폭 120 까지) 한 줄로 둔다. 넘치면 말줄임"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "initial",
+      "prop": "lineHeight",
+      "note": "면 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "initial",
+      "prop": "textTransform",
+      "note": "회사 이름의 첫 글자 하나(Avatar 규칙 — 글자 단위, 로마자는 대문자). \"KB국민카드\" → \"K\" · \"신한카드\" → \"신\""
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "initial",
+      "prop": "fontSize",
+      "note": "정수로 반올림하고 가장 작아도 10 — 목록 56(높이 35.3) 14 · 미리보기 68(42.9) 17 · 카탈로그 44(27.7) 11. 회사 · 카드 이름은 두지 않는다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "lineClamp",
+      "note": "두 줄까지 — 단어 단위로 바꾸고(v114) 넘치면 말줄임"
+    }
+  ]
+}

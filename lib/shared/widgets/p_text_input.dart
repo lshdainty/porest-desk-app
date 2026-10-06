@@ -180,7 +180,7 @@ class PTextInput extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: radius,
-          borderSide: BorderSide(color: t.statusDanger),
+          borderSide: BorderSide(color: t.statusDangerBorder),
         ),
       ),
     );

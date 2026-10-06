@@ -218,7 +218,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 ),
                 child: Text(
                   '${l.categoryLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
                 ),
               ),
               data: (categories) {

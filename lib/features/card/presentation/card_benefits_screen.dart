@@ -303,7 +303,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           padding: const EdgeInsets.only(top: PSpace.x16),
           child: Text(
             '${l.cardLoadError}\n$_error',
-            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
           ),
         ),
       ];

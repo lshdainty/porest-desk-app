@@ -1,0 +1,328 @@
+{
+  "name": "Sidebar",
+  "source": "specs/components/sidebar.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "Sidebar 패널",
+    "headerFooter": "SidebarHeader · SidebarFooter",
+    "group": "SidebarGroup — 메뉴 그룹 wrapper",
+    "groupLabel": "SidebarGroupLabel — 그룹 카테고리 헤딩",
+    "menu": "SidebarMenu — menu item 묶음(`<ul>`)",
+    "menuButton": "SidebarMenuButton — icon + 라벨",
+    "focusRing": "메뉴 버튼 키보드 포커스 링",
+    "trigger": "SidebarTrigger — PanelLeft 토글 버튼",
+    "provider": "SidebarProvider — context · 단축키"
+  },
+  "axes": {
+    "size": [
+      "default",
+      "sm",
+      "lg"
+    ],
+    "sidebar": [
+      "expanded",
+      "collapsed (offcanvas)",
+      "collapsed (icon)",
+      "mobile"
+    ],
+    "part": [
+      "menuButton"
+    ]
+  },
+  "defaults": {},
+  "states": [
+    "default",
+    "hover",
+    "focus-visible",
+    "active",
+    "disabled",
+    "data-state=open"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "default": {
+        "headerFooter": {
+          "padding": 8
+        },
+        "group": {
+          "padding": 8
+        },
+        "groupLabel": {
+          "typography": {
+            "fontSize": 12,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 600,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "textTransform": "uppercase",
+          "letterSpacing": "wide"
+        },
+        "menu": {
+          "gap": 4
+        },
+        "menuButton": {
+          "gap": 8,
+          "radius": 4,
+          "iconSize": 16
+        },
+        "trigger": {
+          "width": 28,
+          "height": 28
+        },
+        "provider": {
+          "shortcut": "Ctrl/⌘ + B"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "default"
+      },
+      "default": {
+        "menuButton": {
+          "height": 32,
+          "padding": 8,
+          "typography": {
+            "fontSize": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "sm"
+      },
+      "default": {
+        "menuButton": {
+          "height": 28,
+          "typography": {
+            "fontSize": 13,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "lg"
+      },
+      "default": {
+        "menuButton": {
+          "height": 48,
+          "typography": {
+            "fontSize": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "sidebar": "expanded"
+      },
+      "default": {
+        "root": {
+          "width": "16rem"
+        }
+      }
+    },
+    {
+      "when": {
+        "sidebar": "collapsed (offcanvas)"
+      },
+      "default": {
+        "root": {
+          "width": 0
+        }
+      }
+    },
+    {
+      "when": {
+        "sidebar": "collapsed (icon)"
+      },
+      "default": {
+        "root": {
+          "width": "3rem"
+        }
+      }
+    },
+    {
+      "when": {
+        "sidebar": "mobile"
+      },
+      "default": {
+        "root": {
+          "width": "18rem"
+        }
+      }
+    },
+    {
+      "when": {
+        "part": "menuButton"
+      },
+      "default": {
+        "menuButton": {
+          "background": "transparent",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hover": {
+        "menuButton": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "active": {
+        "menuButton": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "fontWeight": 500
+        }
+      },
+      "disabled": {
+        "menuButton": {
+          "opacity": 0.5,
+          "cursor": "not-allowed"
+        }
+      },
+      "data-state=open": {
+        "menuButton": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "colors": {
+      "duration": "150ms",
+      "properties": [
+        "colors"
+      ]
+    },
+    "width": {
+      "duration": "200ms",
+      "easing": "linear",
+      "properties": [
+        "width"
+      ],
+      "note": "`transition-[width] duration-200 ease-linear`"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "groupLabel",
+      "prop": "letterSpacing",
+      "note": "`tracking-wide`"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "menuButton",
+      "prop": "gap",
+      "note": "icon ↔ label"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "menuButton",
+      "prop": "radius",
+      "note": "menu family 정합"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "menuButton",
+      "prop": "iconSize",
+      "note": "16×16 — `[&>svg]:size-4`"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "trigger",
+      "prop": "height",
+      "note": "PanelLeft — [`Button`](button.md) `variant=\"ghost\" size=\"icon\"`"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "provider",
+      "prop": "shortcut",
+      "note": "Provider 자동 binding"
+    },
+    {
+      "rule": 4,
+      "state": "default",
+      "slot": "root",
+      "prop": "width",
+      "note": "256px — `--sidebar-width`"
+    },
+    {
+      "rule": 6,
+      "state": "default",
+      "slot": "root",
+      "prop": "width",
+      "note": "48px — `--sidebar-width-icon`"
+    },
+    {
+      "rule": 7,
+      "state": "default",
+      "slot": "root",
+      "prop": "width",
+      "note": "288px — `--sidebar-width-mobile`"
+    },
+    {
+      "rule": 8,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 8,
+      "state": "active",
+      "slot": "menuButton",
+      "prop": "fontWeight",
+      "note": "`font-medium`"
+    },
+    {
+      "rule": 8,
+      "state": "disabled",
+      "slot": "menuButton",
+      "prop": "cursor",
+      "note": "`cursor-not-allowed`"
+    }
+  ]
+}

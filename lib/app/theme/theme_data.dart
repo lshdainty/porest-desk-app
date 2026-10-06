@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:porest_desk_app/app/theme/colors.dart';
+import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -11,22 +12,31 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 /// Material 3 베이스 위에 [PorestTokens] 를 [ThemeExtension] 으로 얹어 두 채널 사용:
 /// - 표준 Material 위젯 (Buttons, AppBar 등) → ColorScheme + Material 톤
 /// - POREST 커스텀 위젯 → `context.tokens.bgCanvas` 류
+///
+/// porest-design 이 만든 역할 색 · 그림자([PColors] · [PShadows], `porest_tokens.g.dart`)도 같이
+/// 얹는다 — 새 컴포넌트 라이브러리(`lib/shared/ds`)는 `context.colors.fgNeutral` 처럼 이것만 쓴다.
 abstract final class PorestTheme {
   static ThemeData light() => _build(
     brightness: Brightness.light,
     tokens: PorestTokens.light,
+    colors: PColors.light,
+    shadows: PShadows.light,
     seed: PorestPalette.cobalt500,
   );
 
   static ThemeData dark() => _build(
     brightness: Brightness.dark,
     tokens: PorestTokens.dark,
+    colors: PColors.dark,
+    shadows: PShadows.dark,
     seed: PorestPalette.cobalt400,
   );
 
   static ThemeData _build({
     required Brightness brightness,
     required PorestTokens tokens,
+    required PColors colors,
+    required PShadows shadows,
     required Color seed,
   }) {
     final scheme = ColorScheme.fromSeed(
@@ -59,7 +69,7 @@ abstract final class PorestTheme {
     );
 
     return base.copyWith(
-      extensions: [tokens],
+      extensions: [tokens, colors, shadows],
       textTheme: _textTheme(tokens.fgPrimary, tokens.fgSecondary),
       appBarTheme: AppBarTheme(
         backgroundColor: tokens.bgSurface,
@@ -123,7 +133,7 @@ abstract final class PorestTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: tokens.statusDanger),
+          borderSide: BorderSide(color: tokens.statusDangerBorder),
         ),
       ),
       // specs/components/button.md spec — md(default):
@@ -194,11 +204,12 @@ abstract final class PorestTheme {
         strokeWidth: 2,
       ),
       // specs/components/checkbox.md spec — md(default):
-      // 18×18 / border-strong 1px / radius-sm / checked = bgBrand fill + fgOnBrand check
+      // 18×18 / border-strong 1px / radius-sm / checked = bgBrandSolid fill + fgOnBrand check
+      // (흰 체크를 얹는 채움이라 채움 역할 — bgBrand 는 다크에서 밝은 글자 색이다. 웹 checkbox 와 같다)
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return tokens.bgDisabled;
-          if (states.contains(WidgetState.selected)) return tokens.bgBrand;
+          if (states.contains(WidgetState.selected)) return tokens.bgBrandSolid;
           return tokens.bgSurface;
         }),
         checkColor: WidgetStateProperty.all(tokens.fgOnBrand),
@@ -209,7 +220,7 @@ abstract final class PorestTheme {
         shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
-      // specs/components/switch.md — track + thumb, brand 채움
+      // specs/components/switch.md — track + thumb, brand 채움(흰 손잡이를 얹으니 채움 역할)
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return tokens.fgDisabled;
@@ -217,7 +228,7 @@ abstract final class PorestTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return tokens.bgDisabled;
-          if (states.contains(WidgetState.selected)) return tokens.bgBrand;
+          if (states.contains(WidgetState.selected)) return tokens.bgBrandSolid;
           return tokens.bgTrack;
         }),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),

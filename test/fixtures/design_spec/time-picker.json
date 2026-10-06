@@ -1,0 +1,106 @@
+{
+  "name": "TimePicker",
+  "source": "specs/components/time-picker.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "휠 — Wheel Picker medium, 칼럼 셋",
+    "periodColumn": "오전 · 오후 — 반복하지 않는다",
+    "hourColumn": "시 — 1 · 2 … 12(0 을 채우지 않는다), 오른쪽 정렬, 반복",
+    "minuteColumn": "분 — 2자리(00 · 05 …), 분 간격을 따른다, 반복",
+    "indicator": "선택 띠 — 세 칼럼을 가로지르는 한 줄"
+  },
+  "axes": {
+    "minuteStep": [
+      "1",
+      "5",
+      "10",
+      "15",
+      "30"
+    ]
+  },
+  "defaults": {
+    "minuteStep": "5"
+  },
+  "states": [
+    "enabled",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "height": 220,
+          "columnOrder": "오전·오후 → 시 → 분",
+          "valueFormat": "24시간 {hour, minute}"
+        },
+        "periodColumn": {
+          "align": "center",
+          "items": "오전 · 오후"
+        },
+        "hourColumn": {
+          "align": "right",
+          "items": "1 ~ 12"
+        },
+        "minuteColumn": {
+          "align": "center",
+          "items": "분 간격대로 00 ~ 59"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "44 × 5 — Wheel Picker medium"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "columnOrder",
+      "note": "locale 순서(ko) — 단위 글자(시 · 분)는 쓰지 않는다. 단위는 칼럼 이름과 자리가 알린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "valueFormat",
+      "note": "화면은 12시간, 값은 24시간. 비었으면 지금 시각을 분 간격에 맞춰 반올림한 자리를 짚기만 한다(고른 것처럼 넣지 않는다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "periodColumn",
+      "prop": "items",
+      "note": "반복하지 않는다 — 두 칸에서 멈춘다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "hourColumn",
+      "prop": "align",
+      "note": "한 자리 · 두 자리 수의 끝을 맞춘다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "hourColumn",
+      "prop": "items",
+      "note": "반복 — 11 ↔ 12 를 넘으면 오전 · 오후가 따라 바뀐다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "minuteColumn",
+      "prop": "items",
+      "note": "반복 — 55 → 00 을 넘어도 시는 그대로다"
+    }
+  ]
+}

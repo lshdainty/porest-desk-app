@@ -91,7 +91,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             children: [
               Text(
                 '${l.memoLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
               ),
             ],
           ),

@@ -1,0 +1,224 @@
+{
+  "name": "IconPicker",
+  "source": "specs/components/icon-picker.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "trigger": "ⓐ trigger — 현재 아이콘 미리보기 버튼",
+    "popover": "ⓑ popover content",
+    "search": "ⓒ search input",
+    "grid": "ⓓ grid",
+    "cell": "grid cell — 아이콘 버튼",
+    "focusRing": "키보드 포커스 링"
+  },
+  "axes": {
+    "size": [
+      "sm",
+      "md",
+      "lg"
+    ],
+    "selected": [
+      "inactive",
+      "active"
+    ]
+  },
+  "defaults": {
+    "size": "md",
+    "selected": "inactive"
+  },
+  "states": [
+    "enabled",
+    "hover",
+    "focus-visible"
+  ],
+  "rules": [
+    {
+      "when": {
+        "size": "sm"
+      },
+      "enabled": {
+        "trigger": {
+          "height": 32,
+          "width": 32
+        },
+        "popover": {
+          "width": 288
+        },
+        "grid": {
+          "columns": 8
+        },
+        "cell": {
+          "height": 28,
+          "width": 28
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "md"
+      },
+      "enabled": {
+        "trigger": {
+          "height": 40,
+          "width": 40,
+          "radius": 8,
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "shadow": {
+            "light": "0 1px 2px 0 rgba(15, 18, 28, 0.05)",
+            "dark": "0 1px 2px 0 rgba(0, 0, 0, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)"
+          }
+        },
+        "popover": {
+          "width": 320,
+          "padding": 12,
+          "transitionProperty": "fade + scale",
+          "transitionDuration": "150ms"
+        },
+        "search": {
+          "size": "input-sm 톤"
+        },
+        "grid": {
+          "columns": 8,
+          "gap": 4,
+          "maxHeight": 240
+        },
+        "cell": {
+          "height": 32,
+          "width": 32,
+          "radius": 4
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "lg"
+      },
+      "enabled": {
+        "trigger": {
+          "height": 48,
+          "width": 48
+        },
+        "popover": {
+          "width": 384
+        },
+        "grid": {
+          "columns": 8
+        },
+        "cell": {
+          "height": 36,
+          "width": 36
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "inactive"
+      },
+      "enabled": {
+        "cell": {
+          "background": "transparent",
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "hover": {
+        "cell": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "active"
+      },
+      "enabled": {
+        "cell": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "foreground": "#FFFFFF"
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "height",
+      "note": "input height 정합"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "popover",
+      "prop": "transitionProperty",
+      "note": "popover 기본"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "search",
+      "prop": "size",
+      "note": "input spec"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "grid",
+      "prop": "gap",
+      "note": "cell 사이"
+    },
+    {
+      "rule": 3,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 4,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    }
+  ]
+}

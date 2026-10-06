@@ -1806,7 +1806,7 @@ class _TxInputForm extends ConsumerWidget {
             ),
             error: (e, _) => Text(
               '${l.categoryLoadError}: $e',
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
             data: (categories) {
               final topCategories =
@@ -1979,7 +1979,7 @@ class _TxInputForm extends ConsumerWidget {
             ),
             error: (e, _) => Text(
               '${l.expAssetLoadError}: $e',
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
             data: (assets) {
               final filtered = assets

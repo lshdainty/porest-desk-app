@@ -1,0 +1,145 @@
+{
+  "name": "Slider",
+  "source": "specs/components/slider.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "Slider 전체 — 터치 영역",
+    "track": "트랙",
+    "fill": "채움(시작점 → thumb, range 는 두 thumb 사이)",
+    "thumb": "손잡이",
+    "focusRing": "thumb 키보드 포커스 링"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "enabled",
+    "hover",
+    "focus-visible",
+    "active / dragging",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "track": {
+          "height": 4,
+          "radius": 9999,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "fill": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        },
+        "thumb": {
+          "width": 16,
+          "height": 16,
+          "background": "#FFFFFF",
+          "borderWidth": 2,
+          "borderStyle": "solid",
+          "borderColor": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "shadow": {
+            "light": "0 1px 2px 0 rgba(15, 18, 28, 0.05)",
+            "dark": "0 1px 2px 0 rgba(0, 0, 0, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)"
+          }
+        },
+        "root": {
+          "paddingY": 8
+        }
+      },
+      "hover": {
+        "thumb": {
+          "cursor": "grab"
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "active / dragging": {
+        "thumb": {
+          "cursor": "grabbing"
+        }
+      },
+      "disabled": {
+        "track": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "fill": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        },
+        "thumb": {
+          "opacity": 0.5,
+          "pointerEvents": "none"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "background",
+      "note": "#FFFFFF 고정"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingY",
+      "note": "touch area"
+    },
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "track",
+      "prop": "background",
+      "note": "opacity 0.5"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "fill",
+      "prop": "background",
+      "note": "opacity 0.5"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "thumb",
+      "prop": "pointerEvents",
+      "note": "`pointer-events-none`"
+    }
+  ]
+}

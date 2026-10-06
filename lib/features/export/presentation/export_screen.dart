@@ -450,7 +450,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               alignment: Alignment.centerLeft,
               child: Text(
                 l.exportDateRangeError,
-                style: PTypo.caption.copyWith(color: t.statusDanger),
+                style: PTypo.caption.copyWith(color: t.statusDangerFg),
               ),
             ),
           ],

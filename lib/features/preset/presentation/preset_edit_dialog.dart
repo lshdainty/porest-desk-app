@@ -352,7 +352,7 @@ class _BodyState extends ConsumerState<_Body> {
             loading: () => _categoryGridSkeleton(),
             error: (e, _) => Text(
               l.categoryLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
             data: (cats) => _CategoryGrid(
               categories: cats,
@@ -408,7 +408,7 @@ class _BodyState extends ConsumerState<_Body> {
             loading: () => const PSkeleton(width: double.infinity, height: 40),
             error: (e, _) => Text(
               l.presetAssetLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
             data: (assets) => PSelect<int>(
               value: _assetRowId,

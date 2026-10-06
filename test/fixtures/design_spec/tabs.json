@@ -1,0 +1,408 @@
+{
+  "name": "Tabs",
+  "source": "specs/components/tabs.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "list": "목록 — 탭을 담는 줄. 놓인 화면 · 구역 폭을 채우고 바닥에 구획 선",
+    "trigger": "탭 하나 — 누르는 자리",
+    "label": "글 — 이름만(개수를 붙이지 않는다). 줄바꿈 · 말줄임하지 않고 탭이 넓어진다",
+    "indicator": "막대 — 고른 탭 아래 2px. 다른 탭을 고르면 미끄러져 옮긴다",
+    "notification": "알림 점 — 새 소식이 있는 탭 하나에만, 글 오른쪽 위. 내용을 보면 사라진다",
+    "focusRing": "키보드 포커스 링(웹) — 탭 안쪽",
+    "content": "내용 칸(tabpanel) — 고른 탭의 내용. 바로 바뀌고 다른 탭의 상태(스크롤 · 입력)를 남긴다"
+  },
+  "axes": {
+    "layout": [
+      "fill",
+      "hug"
+    ],
+    "size": [
+      "small",
+      "medium"
+    ],
+    "selected": [
+      "unselected",
+      "selected"
+    ]
+  },
+  "defaults": {
+    "layout": "fill",
+    "size": "small",
+    "selected": "unselected"
+  },
+  "states": [
+    "enabled",
+    "pressed",
+    "focused",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "list": {
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderBottomColor": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          },
+          "borderBottomWidth": 1
+        },
+        "trigger": {
+          "paddingX": 10,
+          "paddingY": 10,
+          "alignItems": "flex-end",
+          "cursor": "pointer",
+          "touchTarget": "탭 전체"
+        },
+        "label": {
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "indicator": {
+          "height": 2,
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "radius": 0,
+          "transitionProperty": "left, width",
+          "transitionDuration": "200ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "notification": {
+          "size": 6,
+          "radius": 9999,
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "gap": 2
+        }
+      },
+      "pressed": {
+        "trigger": {
+          "scale": "탭 2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "trigger": {
+          "cursor": "not-allowed"
+        },
+        "label": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "selected"
+      },
+      "enabled": {
+        "label": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "disabled": {
+        "indicator": {
+          "background": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "fill"
+      },
+      "enabled": {
+        "list": {
+          "paddingX": 0
+        },
+        "trigger": {
+          "grow": 1
+        },
+        "indicator": {
+          "insetX": 16
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "hug"
+      },
+      "enabled": {
+        "list": {
+          "paddingX": 16,
+          "overflowX": "auto",
+          "scrollPadding": 16
+        },
+        "trigger": {
+          "grow": 0
+        },
+        "indicator": {
+          "insetX": 0
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small"
+      },
+      "enabled": {
+        "list": {
+          "minHeight": 40
+        },
+        "trigger": {
+          "minHeight": 40
+        },
+        "label": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "list": {
+          "minHeight": 44
+        },
+        "trigger": {
+          "minHeight": 44
+        },
+        "label": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "막대 — 미끄러짐": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "left",
+        "width"
+      ],
+      "note": "글자색은 전환 없이 바로 — 내용 칸도 애니메이션 없이 바로 바뀐다(폰 1차 탭의 밀어 넘기기는 손을 따라 움직인다)"
+    },
+    "누름 — 탭": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "탭 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "background",
+      "note": "불투명 — 위에 붙어 있어도 아래 내용이 비치지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "borderBottomColor",
+      "note": "안쪽 1px(inset) — 선이 탭 높이를 밀지 않는다. SEED stroke.neutral-muted 의 불투명 구획 선(v102)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "alignItems",
+      "note": "글을 아래로 붙인다 — 아래 10, 남는 높이는 위로(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "touchTarget",
+      "note": "목록 높이가 곧 누르는 높이 — small 40 · medium 44. 가로는 탭 폭(Hug 는 글 + 20)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "fontWeight",
+      "note": "고르든 안 고르든 700 — 고를 때 폭이 흔들리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "background",
+      "note": "글자색과 같은 짙은 중립색 — 브랜드 색이 아니다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "radius",
+      "note": "끝이 각지다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "transitionProperty",
+      "note": "고른 탭의 자리 · 폭으로 미끄러진다. 글자색은 전환 없이 바로 바뀐다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notification",
+      "prop": "background",
+      "note": "브랜드 글자색 — 목록 바탕과 Desk 8.38 · 6.10 · HR 5.06 · 6.23(bg-brand-solid 는 다크에서 1.73 · 2.86 이라 안 보인다). 고른 탭에는 없다 — 내용을 보면 사라진다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notification",
+      "prop": "gap",
+      "note": "글 끝에서 2, 글 위쪽에 맞춘다 — 탭 폭을 넓히지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "trigger",
+      "prop": "scale",
+      "note": "기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(SEED scaleScope: self · v104) — 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "탭 안쪽 — 이웃 탭 · 바닥 선에 걸리지 않는다. 모서리는 각지다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "trigger",
+      "prop": "cursor",
+      "note": "축소 없음"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "foreground",
+      "note": "글자색만 바뀐다 — 굵기 · 크기 그대로"
+    },
+    {
+      "rule": 1,
+      "state": "disabled",
+      "slot": "indicator",
+      "prop": "background",
+      "note": "목록 전체가 막혔을 때 고른 탭의 막대도 전용 색"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "grow",
+      "note": "칸을 똑같이 나눈다 — 글이 칸보다 길면 그 탭만 넓어진다(그러면 Hug 로)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "insetX",
+      "note": "탭 폭에서 좌우 16 씩 들인다 — 막대 = 탭 폭 − 32. 360 폰 2 · 3 · 4 · 5개면 148 · 88 · 58 · 40"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "paddingX",
+      "note": "SEED 16 — 탭의 좌우 10 이 더해져 첫 글이 26 에서 시작한다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "overflowX",
+      "note": "넘치면 가로 스크롤 — 스크롤바는 숨긴다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "scrollPadding",
+      "note": "고른 탭이 화면 밖이면 16 여유를 두고 가까운 쪽으로 스크롤한다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "grow",
+      "note": "글 + 좌우 10"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "insetX",
+      "note": "탭 폭 그대로(좌우 10 포함) — 글보다 20 길다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "14 / 19 — 글은 아래 10, 위 11"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "16 / 22 — 글은 아래 10, 위 12"
+    }
+  ]
+}

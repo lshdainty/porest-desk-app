@@ -91,7 +91,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                 child: Text(
                   '${l.calCalendarLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
                 ),
               ),
               data: (calendars) => _CalendarSections(
@@ -829,7 +829,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
             loading: () => const PListSkeleton(rows: 2, showAvatar: true),
             error: (e, _) => Text(
               l.calMemberLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
             data: (members) => Column(
               children: [
@@ -970,8 +970,8 @@ class _MemberRow extends StatelessWidget {
   Color _roleColor(BuildContext context, String role) {
     final t = context.tokens;
     return switch (role) {
-      'OWNER' => t.statusInfo,
-      'EDIT' => t.statusSuccess,
+      'OWNER' => t.statusInfoFg,
+      'EDIT' => t.statusSuccessFg,
       _ => t.fgTertiary,
     };
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:porest_desk_app/app/theme/colors.dart';
-import 'package:porest_desk_app/app/theme/shadow.dart';
+import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 
 /// POREST 의미론적 토큰 (light/dark 분기 적용된 의미 단위).
 ///
@@ -191,192 +191,151 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final List<BoxShadow> shadowLg;
   final List<BoxShadow> shadowXl;
 
-  /// Light 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
-  static const PorestTokens light = PorestTokens(
-    bgCanvas: PorestPalette.slate50,
-    bgSurface: PorestPalette.slate0,
-    bgSurfaceRaised: PorestPalette.slate0,
-    bgSunken: PorestPalette.slate100,
-    bgMuted: PorestPalette.slate100,
-    bgInverse: PorestPalette.slate950,
-    bgBrand: PorestPalette.cobalt500,
-    bgBrandHover: PorestPalette.cobalt600,
-    bgBrandPress: PorestPalette.cobalt700,
-    // desk-front `--bg-brand-subtle: color-mix(srgb, --color-primary 8%, transparent)`
-    // = cobalt500(#0147AD) @ 8% alpha. solid cobalt50 사용 시 톤이 짙어 web 정합 X.
-    bgBrandSubtle: Color(0x140147AD), // cobalt500 @ 8% alpha (0x14 ≈ 0.078)
-    bgBrandMuted: Color(0x240147AD), // cobalt500 @ 14% alpha (0x24 ≈ 0.141)
-    bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — primary 고정
+  /// 역할 색에서 옛 이름을 만든다 — 라이트 · 다크가 같은 식이다.
+  ///
+  /// 옛 이름은 porest-design 역할 색([PColors] · [PShadows], `porest_tokens.g.dart`)의 값을
+  /// 따른다. 짝은 DESIGN.md v102 표의 "Desk 웹 이름" 칸이고, 웹 `index.css` 가 같은 짝으로
+  /// 옛 로컬 이름을 잇는다 — 두 제품이 같은 값을 쓴다(앱 적용 5A, 2026-10-06).
+  /// 역할 색에 짝이 없는 이름(호버 오버레이 · 틴트 · 히어로)만 호출하는 쪽이 값을 넘긴다.
+  ///
+  /// 새 코드는 이 이름 말고 `context.colors.fgNeutral` 처럼 역할 이름을 쓴다. 화면을 옮기면 걷는다.
+  factory PorestTokens._fromRoles(
+    PColors c,
+    PShadows s, {
+    required Color bgHoverSubtle,
+    required Color bgHoverStrong,
+    required Color bgBrandTint,
+    required Color bgBrandTintStrong,
+    required Color borderBrandMid,
+    required Color surfaceHero,
+    required Color bgHeroGradientStart,
+    required Color bgHeroGradientEnd,
+    required Color fgOnHeroChgUp,
+    required Color fgOnHeroChgDown,
+    required Color fgOnHeroSpot,
+  }) => PorestTokens(
+    bgCanvas: c.bgLayerBasement,
+    bgSurface: c.bgLayerDefault,
+    bgSurfaceRaised: c.bgLayerFloating,
+    bgSunken: c.bgNeutralWeak,
+    bgMuted: c.bgNeutralWeak,
+    bgInverse: c.bgNeutralInverted,
+    // 앱의 bgBrand 는 강조색이다(새로고침 · 진행 표시 · 차트 선 · 아이콘) — 다크에서 밝은
+    // primary-light 였다. DESIGN 에서 primary · primary-light 는 fg-brand 의 별칭이라 그 값을
+    // 따른다. 흰 글자를 얹는 채움은 bgBrandSolid 다(웹 --bg-brand 는 채움이라 bg-brand-solid).
+    bgBrand: c.fgBrand,
+    bgBrandHover: c.bgBrandSolidPressed,
+    bgBrandPress: c.bgBrandSolidPressed,
+    bgBrandSubtle: c.bgBrandWeak,
+    bgBrandMuted: c.bgBrandWeakPressed,
+    bgBrandSolid: c.bgBrandSolid,
+    bgHoverSubtle: bgHoverSubtle,
+    bgHoverStrong: bgHoverStrong,
+    bgRowHover: c.bgLayerDefaultPressed,
+    bgDisabled: c.bgDisabled,
+    // progress.md track = surface-input(웹 .budget-bar 의 --bg-sunken) — surface-input 은
+    // bg-neutral-weak 의 별칭이다.
+    bgTrack: c.bgNeutralWeak,
+    fgPrimary: c.fgNeutral,
+    fgSecondary: c.fgNeutralMuted,
+    fgTertiary: c.fgNeutralSubtle,
+    fgDisabled: c.fgDisabled,
+    fgPlaceholder: c.fgPlaceholder,
+    fgOnBrand: c.staticWhite,
+    fgBrand: c.fgBrand,
+    fgBrandStrong: c.fgBrandContrast,
+    fgLink: c.fgBrand,
+    fgLinkHover: c.fgBrand,
+    fgOnDanger: c.staticWhite,
+    fgOnSuccess: c.staticWhite,
+    borderSubtle: c.strokeNeutralSubtle,
+    borderDefault: c.strokeNeutralWeak,
+    borderStrong: c.strokeNeutralSolid,
+    borderFocus: c.strokeFocusRing,
+    borderBrand: c.strokeBrandSolid,
+    // status* 는 채움(흰 글자를 얹는 자리), status*Fg 는 글자 · 아이콘, status*Border 는 선이다.
+    statusSuccess: c.bgPositiveSolid,
+    statusSuccessSubtle: c.bgPositiveWeak,
+    statusSuccessFg: c.fgPositive,
+    statusWarning: c.bgWarningSolid,
+    statusWarningSubtle: c.bgWarningWeak,
+    statusWarningFg: c.fgWarning,
+    statusDanger: c.bgCriticalSolid,
+    statusDangerSubtle: c.bgCriticalWeak,
+    statusDangerFg: c.fgCritical,
+    statusInfo: c.bgInformativeSolid,
+    statusInfoSubtle: c.bgInformativeWeak,
+    statusInfoFg: c.fgInformative,
+    // Tx semantic — 지출=critical / 수입=brand / 이체=informative(웹 fg-expense · fg-income · fg-transfer)
+    fgExpense: c.fgCritical,
+    fgIncome: c.fgBrand,
+    fgTransfer: c.fgInformative,
+    bgExpenseSubtle: c.bgCriticalWeak,
+    bgIncomeSubtle: c.bgBrandWeak,
+    bgTransferSubtle: c.bgInformativeWeak,
+    bgBrandTint: bgBrandTint,
+    bgBrandTintStrong: bgBrandTintStrong,
+    bgTableHead: c.bgLayerBasement,
+    borderBrandSoft: c.strokeBrandWeak,
+    borderBrandMid: borderBrandMid,
+    statusSuccessBorder: c.strokePositiveSolid,
+    statusWarningBorder: c.strokeWarningSolid,
+    statusDangerBorder: c.strokeCriticalSolid,
+    statusDangerPress: c.bgCriticalSolidPressed,
+    statusInfoBorder: c.strokeInformativeSolid,
+    surfaceHero: surfaceHero,
+    bgHeroGradientStart: bgHeroGradientStart,
+    bgHeroGradientEnd: bgHeroGradientEnd,
+    fgOnHeroChgUp: fgOnHeroChgUp,
+    fgOnHeroChgDown: fgOnHeroChgDown,
+    fgOnHeroSpot: fgOnHeroSpot,
+    // 옛 shadow-sm · md · lg · xl 은 s1 ~ s4 의 별칭이다(DESIGN.md v104).
+    shadowSm: s.s1,
+    shadowMd: s.s2,
+    shadowLg: s.s3,
+    shadowXl: s.s4,
+  );
+
+  /// Light 모드 의미론 토큰 — 역할 색([PColors.light])에서 만든다.
+  static final PorestTokens light = PorestTokens._fromRoles(
+    PColors.light,
+    PShadows.light,
     bgHoverSubtle: PorestPalette.slate50,
     bgHoverStrong: PorestPalette.slate100,
-    bgRowHover: PorestPalette.slate50,
-    bgDisabled: PorestPalette.slate100,
-    // progress.md track = surface-input — 웹 .budget-bar(--bg-sunken) 정합.
-    bgTrack: PorestPalette.slate100,
-    fgPrimary: PorestPalette.slate950,
-    fgSecondary: PorestPalette.slate700,
-    fgTertiary: PorestPalette.slate600,
-    fgDisabled: PorestPalette.slate400,
-    fgPlaceholder: PorestPalette.slate500,
-    fgOnBrand: PorestPalette.slate0,
-    // desk-front `--fg-brand`/`--fg-brand-strong`/`--fg-link` 전부 light=--color-primary
-    // (cobalt500 #0147AD). 더 진한 톤(cobalt700/800) 쓰면 web과 톤 불일치.
-    fgBrand: PorestPalette.cobalt500,
-    fgBrandStrong: PorestPalette.cobalt500,
-    fgLink: PorestPalette.cobalt500,
-    fgLinkHover: PorestPalette.cobalt500,
-    fgOnDanger: PorestPalette.slate0,
-    fgOnSuccess: PorestPalette.slate0,
-    borderSubtle: PorestPalette.slate200,
-    borderDefault: PorestPalette.slate200,
-    borderStrong: PorestPalette.slate500,
-    borderFocus: PorestPalette.cobalt500,
-    borderBrand: PorestPalette.cobalt500,
-    statusSuccess: PorestPalette.statusSuccessBase,
-    statusSuccessSubtle: Color(0x1F16803F), // success @ 12% alpha
-    statusSuccessFg: PorestPalette.statusSuccessBase,
-    statusWarning: PorestPalette.statusWarningBase,
-    statusWarningSubtle: Color(0x1FC84D0E), // warning @ 12% alpha
-    statusWarningFg: PorestPalette.statusWarningBase,
-    statusDanger: PorestPalette.statusErrorBase,
-    statusDangerSubtle: Color(0x1FDC2626), // error @ 12% alpha
-    statusDangerFg: PorestPalette.statusErrorBase,
-    statusInfo: PorestPalette.statusInfoBase,
-    statusInfoSubtle: Color(0x1F1D6FCB), // info @ 12% alpha
-    statusInfoFg: PorestPalette.statusInfoBase,
-    // Tx semantic — desk-front fg-expense=danger-fg, fg-income=fg-brand, fg-transfer=info-fg
-    fgExpense: PorestPalette.statusErrorBase,
-    fgIncome: PorestPalette.cobalt700,
-    fgTransfer: PorestPalette.statusInfoBase,
-    bgExpenseSubtle: Color(0x1FDC2626),
-    bgIncomeSubtle: PorestPalette.cobalt50,
-    bgTransferSubtle: Color(0x1F1D6FCB),
-    // Interaction tints
-    bgBrandTint: Color(
-      0xFFEAF2FB,
-    ), // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
+    // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
+    bgBrandTint: const Color(0xFFEAF2FB),
     bgBrandTintStrong: PorestPalette.cobalt100,
-    bgTableHead: PorestPalette.slate100,
-    // Border 변형
-    borderBrandSoft: PorestPalette.cobalt200,
     borderBrandMid: PorestPalette.cobalt300,
-    // Status 변형 (spec border = base color)
-    statusSuccessBorder: PorestPalette.statusSuccessBase,
-    statusWarningBorder: PorestPalette.statusWarningBase,
-    statusDangerBorder: PorestPalette.statusErrorBase,
-    statusDangerPress: PorestPalette.statusErrorBase,
-    statusInfoBorder: PorestPalette.statusInfoBase,
     surfaceHero: PorestPalette.cobalt50,
     // desk-front .balance-hero: linear-gradient(135deg, bg-brand 0%, color-mix(srgb, bg-brand 60%, #000) 100%)
-    // bg-brand=cobalt500 #0147AD, end ≈ #012B68 (60% × cobalt500 on black)
-    bgHeroGradientStart: PorestPalette.cobalt500,
-    bgHeroGradientEnd: Color(0xFF012B68),
+    // bg-brand = bg-brand-solid(#0147AD), end ≈ #012B68 (60% × bg-brand on black)
+    bgHeroGradientStart: PColors.light.bgBrandSolid,
+    bgHeroGradientEnd: const Color(0xFF012B68),
     fgOnHeroChgUp: PorestPalette.heroChgUp,
     fgOnHeroChgDown: PorestPalette.heroChgDown,
     // desk-front .balance-hero::after: radial gradient(fg-on-brand 22%, transparent 70%) — 흰색 광원
     fgOnHeroSpot: PorestPalette.slate0,
-    shadowSm: PShadow.sm,
-    shadowMd: PShadow.md,
-    shadowLg: PShadow.lg,
-    shadowXl: PShadow.xl,
   );
 
-  /// Dark 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
-  static const PorestTokens dark = PorestTokens(
-    bgCanvas: PorestPalette.slate950,
-    bgSurface: PorestPalette.slate900,
-    // design tokens.css dark: `--bg-surface-raised: #2d3346` — surface(#242938) 한 단계 위
-    // 패널. 모바일 카드 다이어트의 keep(raised) 카드가 다크에서도 떠 보이게 한다.
-    bgSurfaceRaised: PorestPalette.slate850,
-    // desk-front dark: `--bg-sunken: --color-surface-input`(#2D3346) — muted 와 동일값.
-    // 종전 slate950(페이지 배경과 동일)은 미러 오류 — 퀵액션 원 등이 웹보다 어두웠음.
-    bgSunken: PorestPalette.slate850,
-    bgMuted: PorestPalette.slate850,
-    bgInverse: PorestPalette.slate50,
-    bgBrand: PorestPalette.cobalt400,
-    bgBrandHover: PorestPalette.cobalt300,
-    bgBrandPress: PorestPalette.cobalt200,
-    // desk-front dark: `--bg-brand-subtle: color-mix(srgb, --color-primary 12%, transparent)`
-    // = cobalt500(#0147AD) @ 12% alpha. solid cobalt900 사용 시 거의 검정이라 web 정합 X.
-    bgBrandSubtle: Color(0x1F0147AD), // cobalt500 @ 12% alpha (0x1F ≈ 0.122)
-    bgBrandMuted: Color(0x380147AD), // cobalt500 @ 22% alpha (0x38 ≈ 0.220)
-    bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — 다크에서도 primary 고정(light 아님)
-    bgHoverSubtle: Color(0x0AFFFFFF),
-    bgHoverStrong: Color(0x14FFFFFF),
-    bgRowHover: Color(0x08FFFFFF),
-    bgDisabled: Color(0x0DFFFFFF),
-    // progress.md track = surface-input-dark(#2D3346) — 종전 흰색 14% 알파는
-    // 스펙 근거 없는 임의 값(웹 .budget-bar 보다 밝게 보이던 원인).
-    bgTrack: PorestPalette.slate850,
-    fgPrimary: PorestPalette.slate50,
-    fgSecondary: PorestPalette.slateDarkText2,
-    fgTertiary: PorestPalette.slateDarkText3,
-    fgDisabled: PorestPalette.slateDarkTextDisabled,
-    fgPlaceholder: PorestPalette.slateDarkText3,
-    fgOnBrand: PorestPalette.slate0,
-    // desk-front dark: 전부 --color-primary-light (#5FA0E5 = cobalt400) 사용.
-    fgBrand: PorestPalette.cobalt400,
-    fgBrandStrong: PorestPalette.cobalt400,
-    fgLink: PorestPalette.cobalt400,
-    fgLinkHover: PorestPalette.cobalt400,
-    fgOnDanger: PorestPalette.slate0,
-    fgOnSuccess: PorestPalette.slate0,
-    borderSubtle: PorestPalette.slate800,
-    borderDefault: PorestPalette.slate800,
-    borderStrong: PorestPalette.slateDarkBorderStrong,
-    borderFocus: PorestPalette.cobalt400,
-    borderBrand: PorestPalette.cobalt400,
-    statusSuccess: PorestPalette.statusSuccessBase,
-    statusSuccessSubtle: Color(0x2E16803F), // success @ 18% alpha
-    statusSuccessFg: PorestPalette.statusSuccessLight,
-    statusWarning: PorestPalette.statusWarningBase,
-    statusWarningSubtle: Color(0x2EC84D0E),
-    statusWarningFg: PorestPalette.statusWarningLight,
-    statusDanger: PorestPalette.statusErrorBase,
-    statusDangerSubtle: Color(0x2EDC2626),
-    statusDangerFg: PorestPalette.statusErrorLight,
-    statusInfo: PorestPalette.statusInfoBase,
-    statusInfoSubtle: Color(0x2E1D6FCB),
-    statusInfoFg: PorestPalette.statusInfoLight,
-    // Tx semantic — desk-front 다크 미러
-    // 지출=error-light(#F87171), 수입=primary-light(cobalt400 #5FA0E5).
-    // 웹 --fg-income(=fg-brand=primary-light)와 정합. cobalt300은 한 톤 밝아 어긋났음.
-    fgExpense: PorestPalette.statusErrorLight,
-    fgIncome: PorestPalette.cobalt400,
-    fgTransfer: PorestPalette.statusInfoLight,
-    bgExpenseSubtle: Color(0x2EDC2626),
-    bgIncomeSubtle: Color(0x80001A42), // cobalt900 @ 50%
-    bgTransferSubtle: Color(0x2E1D6FCB),
-    // Interaction tints — cobalt 근사 hex+alpha
-    bgBrandTint: Color(
-      0x1F5FA0E5,
-    ), // cobalt400 @12% — canvas(#1A1F2E) 위 합성 시 #222E44 (디자인 정합)
-    bgBrandTintStrong: Color(0x385FA0E5), // cobalt400 @22%
-    bgTableHead: Color(0x0AFFFFFF), // oklch(1 0 0 / 0.04)
-    // Border 변형 — cobalt brand
-    borderBrandSoft: Color(0x665FA0E5), // cobalt400 @ 40%
-    borderBrandMid: Color(0x8097C2EE), // cobalt300 @ 50%
-    // Status 변형 (dark mode = base color border)
-    statusSuccessBorder: PorestPalette.statusSuccessBase,
-    statusWarningBorder: PorestPalette.statusWarningBase,
-    statusDangerBorder: PorestPalette.statusErrorBase,
-    statusDangerPress: PorestPalette.statusErrorLight,
-    statusInfoBorder: PorestPalette.statusInfoBase,
-    surfaceHero: Color(0x80001A42), // cobalt900 @ 50%
-    // Hero gradient (dark) — primary-light(cobalt400 #5FA0E5) 기반.
-    // 어두운 페이지 배경에서 카드를 밝게 도드라지게 + 디자인 시스템 dark brand 원칙
-    // (fgBrand/border 등 전부 cobalt400=primary-light) 정합. start는 primary-light,
-    // end는 primary(cobalt500)로 흘려 하단 split 영역 대비 확보.
-    bgHeroGradientStart: PorestPalette.cobalt400, // primary-light #5FA0E5
-    bgHeroGradientEnd: PorestPalette.cobalt500, // primary #0147AD
+  /// Dark 모드 의미론 토큰 — 역할 색([PColors.dark])에서 만든다.
+  static final PorestTokens dark = PorestTokens._fromRoles(
+    PColors.dark,
+    PShadows.dark,
+    bgHoverSubtle: const Color(0x0AFFFFFF),
+    bgHoverStrong: const Color(0x14FFFFFF),
+    // cobalt400 @12% — canvas(#1A1F2E) 위 합성 시 #222E44 (디자인 정합)
+    bgBrandTint: const Color(0x1F5FA0E5),
+    bgBrandTintStrong: const Color(0x385FA0E5), // cobalt400 @22%
+    borderBrandMid: const Color(0x8097C2EE), // cobalt300 @ 50%
+    surfaceHero: const Color(0x80001A42), // cobalt900 @ 50%
+    // 웹 .dark .balance-hero: primary-light → 브랜드 채움 그라디언트. 어두운 페이지에서 카드를
+    // 밝게 도드라지게 한다. primary-light 는 fg-brand(다크)의 별칭이고, 끝은 채움 역할이다.
+    bgHeroGradientStart: PColors.dark.fgBrand,
+    bgHeroGradientEnd: PColors.dark.bgBrandSolid,
     // 다크 = 더 밝은 코발트 그라데이션 → 50% 혼합으로 더 옅게(웹 .dark .chg 정합)
     fgOnHeroChgUp: PorestPalette.heroChgUpDark,
     fgOnHeroChgDown: PorestPalette.heroChgDownDark,
     fgOnHeroSpot: PorestPalette.slate0,
-    shadowSm: PShadow.smDark,
-    shadowMd: PShadow.mdDark,
-    shadowLg: PShadow.lgDark,
-    shadowXl: PShadow.xlDark,
   );
 
   @override

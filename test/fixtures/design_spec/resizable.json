@@ -1,0 +1,176 @@
+{
+  "name": "Resizable",
+  "source": "specs/components/resizable.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "handle": "ⓒ handle — 1px 라인(PanelResizeHandle)",
+    "hitArea": "ⓔ hit area(`::after`)",
+    "grip": "ⓓ grip box — withHandle 옵션일 때만",
+    "focusRing": "키보드 포커스 링"
+  },
+  "axes": {
+    "direction": [
+      "horizontal",
+      "vertical"
+    ]
+  },
+  "defaults": {
+    "direction": "horizontal"
+  },
+  "states": [
+    "default",
+    "hover",
+    "dragging",
+    "focus-visible"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "default": {
+        "handle": {
+          "thickness": 1,
+          "background": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        },
+        "hitArea": {
+          "thickness": 4
+        },
+        "grip": {
+          "width": 12,
+          "height": 16,
+          "iconSize": 10,
+          "radius": 4,
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1
+        }
+      }
+    },
+    {
+      "when": {
+        "direction": "horizontal"
+      },
+      "hover": {
+        "handle": {
+          "cursor": "ew-resize"
+        }
+      },
+      "dragging": {
+        "handle": {
+          "attribute": "data-resize-handle-active"
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 1,
+          "offset": 1,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "direction": "vertical"
+      },
+      "hover": {
+        "handle": {
+          "cursor": "ns-resize"
+        }
+      },
+      "dragging": {
+        "handle": {
+          "attribute": "data-resize-handle-active"
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 1,
+          "offset": 1,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "handle",
+      "prop": "thickness",
+      "note": "`w-px` (horizontal) / `h-px` (vertical)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "hitArea",
+      "prop": "thickness",
+      "note": "라인 + 좌우 2px씩 — `::after` `w-1 -translate-x-1/2`"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "grip",
+      "prop": "iconSize",
+      "note": "lucide `GripVertical`"
+    },
+    {
+      "rule": 1,
+      "state": "hover",
+      "slot": "handle",
+      "prop": "cursor",
+      "note": "브라우저 native — Handle · Grip box (변화 없음)"
+    },
+    {
+      "rule": 1,
+      "state": "dragging",
+      "slot": "handle",
+      "prop": "attribute",
+      "note": "자동 — document cursor 유지. Handle · Grip box (변화 없음)"
+    },
+    {
+      "rule": 1,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-1 ring-ring ring-offset-1` — 1px ring, handle이 얇아 작게. Handle · Grip box (변화 없음)"
+    },
+    {
+      "rule": 2,
+      "state": "hover",
+      "slot": "handle",
+      "prop": "cursor",
+      "note": "브라우저 native — Handle · Grip box (변화 없음)"
+    },
+    {
+      "rule": 2,
+      "state": "dragging",
+      "slot": "handle",
+      "prop": "attribute",
+      "note": "자동 — document cursor 유지. Handle · Grip box (변화 없음)"
+    },
+    {
+      "rule": 2,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-1 ring-ring ring-offset-1` — 1px ring, handle이 얇아 작게. Handle · Grip box (변화 없음)"
+    }
+  ]
+}

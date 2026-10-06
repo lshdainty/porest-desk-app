@@ -1,0 +1,199 @@
+{
+  "name": "Command",
+  "source": "specs/components/command.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "input": "CommandInput — wrapper(border-b) + input",
+    "searchIcon": "Input 좌측 Search 아이콘",
+    "list": "CommandList — 스크롤 영역",
+    "group": "CommandGroup — list 내부 여백 컨테이너",
+    "groupHeading": "CommandGroup heading",
+    "item": "CommandItem",
+    "separator": "CommandSeparator",
+    "empty": "CommandEmpty — 결과 없음 안내",
+    "shortcut": "CommandShortcut"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "enabled",
+    "filled",
+    "focus-visible",
+    "selected",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "input": {
+          "height": 40,
+          "background": "transparent",
+          "borderColor": "(wrapper border-b)",
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "paddingX": 12,
+          "paddingY": 8,
+          "typography": {
+            "fontSize": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "searchIcon": {
+          "size": 16
+        },
+        "list": {
+          "maxHeight": 300,
+          "padding": 4
+        },
+        "group": {
+          "paddingX": 4
+        },
+        "groupHeading": {
+          "paddingY": 8,
+          "paddingX": 12,
+          "typography": {
+            "fontSize": 13,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500
+        },
+        "item": {
+          "background": "transparent",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "paddingY": 8,
+          "paddingX": 12,
+          "radius": 4,
+          "typography": {
+            "fontSize": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "gap": 8
+        },
+        "separator": {
+          "marginY": 4
+        },
+        "empty": {
+          "paddingY": 24
+        },
+        "shortcut": {
+          "fontSize": {
+            "fontSize": 13,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      },
+      "filled": {
+        "input": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "focus-visible": {
+        "input": {
+          "borderColor": "(wrapper border-b)",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "selected": {
+        "item": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "input": {
+          "background": "transparent",
+          "borderColor": "—"
+        },
+        "item": {
+          "background": "transparent"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "input",
+      "prop": "height",
+      "note": "Input md spec 정합"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "input",
+      "prop": "foreground",
+      "note": "placeholder"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "input",
+      "prop": "paddingX",
+      "note": "wrapper"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "paddingX",
+      "note": "group 내부 컨테이너"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "groupHeading",
+      "prop": "fontWeight",
+      "note": "`font-medium`"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "gap",
+      "note": "icon-text"
+    },
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "input",
+      "prop": "borderColor",
+      "note": "no ring change"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "input",
+      "prop": "background",
+      "note": "opacity 0.5"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "background",
+      "note": "opacity 0.5"
+    }
+  ]
+}

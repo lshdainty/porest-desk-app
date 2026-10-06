@@ -1,0 +1,183 @@
+{
+  "name": "ColorSwatch",
+  "source": "specs/components/color-swatch.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "container": "grid container — radiogroup",
+    "swatch": "셀(RadioGroup.Item) — 팔레트 색 채움 · 테두리 · 모양",
+    "check": "check indicator (active)",
+    "focusRing": "키보드 포커스 링"
+  },
+  "axes": {
+    "size": [
+      "sm",
+      "md",
+      "lg"
+    ],
+    "selected": [
+      "inactive",
+      "active"
+    ]
+  },
+  "defaults": {
+    "selected": "inactive"
+  },
+  "states": [
+    "enabled",
+    "hover",
+    "focus-visible",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "container": {
+          "gap": 8
+        },
+        "swatch": {
+          "width": "grid 균등",
+          "height": "aspect-ratio: 1",
+          "aspectRatio": "1:1",
+          "borderWidth": 2,
+          "radius": "var(--radius-tile)",
+          "transitionProperty": "transform",
+          "transitionDuration": "150ms"
+        }
+      },
+      "hover": {
+        "swatch": {
+          "scale": 1.05
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "swatch": {
+          "opacity": 0.5,
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "sm"
+      },
+      "enabled": {
+        "check": {
+          "size": 12
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "md"
+      },
+      "enabled": {
+        "check": {
+          "size": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "lg"
+      },
+      "enabled": {
+        "check": {
+          "size": 16
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "inactive"
+      },
+      "enabled": {
+        "swatch": {
+          "borderColor": "transparent"
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "active"
+      },
+      "enabled": {
+        "swatch": {
+          "borderColor": "currentColor",
+          "indicator": "✓ Check"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "width",
+      "note": "container/N"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "height",
+      "note": "자동"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "aspectRatio",
+      "note": "정사각형"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "radius",
+      "note": "(= radius-lg 12)"
+    },
+    {
+      "rule": 0,
+      "state": "hover",
+      "slot": "swatch",
+      "prop": "scale",
+      "note": "`scale(1.05)`"
+    },
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "swatch",
+      "prop": "opacity",
+      "note": "`opacity 0.5 cursor-not-allowed`"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "borderColor",
+      "note": "`color: var(--swatch-fg)`"
+    }
+  ]
+}

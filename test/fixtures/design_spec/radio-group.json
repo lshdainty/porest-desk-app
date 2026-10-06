@@ -1,0 +1,416 @@
+{
+  "name": "Radio Group",
+  "source": "specs/components/radio-group.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "Radio 한 줄 — 동그라미 + 라벨, 누르는 영역",
+    "radiomark": "동그라미(Radiomark) — 배경 · 테두리. 라벨이 따로 서는 자리에는 이것만 넣어 쓴다",
+    "dot": "가운데 점 — 선택을 나타낸다",
+    "label": "글자(Label)",
+    "focusRing": "키보드 포커스 링(웹)",
+    "group": "묶음(Radio Group) — 세로로 쌓는다"
+  },
+  "axes": {
+    "size": [
+      "medium",
+      "large"
+    ],
+    "tone": [
+      "neutral",
+      "brand"
+    ],
+    "weight": [
+      "regular",
+      "bold"
+    ],
+    "checked": [
+      "unchecked",
+      "checked"
+    ]
+  },
+  "defaults": {
+    "size": "medium",
+    "tone": "neutral",
+    "weight": "regular",
+    "checked": "unchecked"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "gap": 8,
+          "cursor": "pointer",
+          "alignSelf": "flex-start",
+          "touchTarget": "44 × 44"
+        },
+        "radiomark": {
+          "radius": 9999,
+          "transitionProperty": "background-color, border-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "dot": {
+          "radius": 9999,
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "label": {
+          "fontFamily": "Pretendard, Inter, sans-serif",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "group": {
+          "gap": 12
+        }
+      },
+      "pressed": {
+        "radiomark": {
+          "scale": "세로 2px 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "cursor": "not-allowed"
+        },
+        "label": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 32
+        },
+        "radiomark": {
+          "size": 20
+        },
+        "dot": {
+          "size": 8
+        },
+        "label": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 36
+        },
+        "radiomark": {
+          "size": 24
+        },
+        "dot": {
+          "size": 10
+        },
+        "label": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "weight": "regular"
+      },
+      "enabled": {
+        "label": {
+          "fontWeight": 400
+        }
+      }
+    },
+    {
+      "when": {
+        "weight": "bold"
+      },
+      "enabled": {
+        "label": {
+          "fontWeight": 700
+        }
+      }
+    },
+    {
+      "when": {
+        "checked": "unchecked"
+      },
+      "enabled": {
+        "radiomark": {
+          "background": "transparent",
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "borderWidth": 1
+        },
+        "dot": {
+          "color": "transparent"
+        }
+      },
+      "hovered": {
+        "radiomark": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "radiomark": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "radiomark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "checked": "checked"
+      },
+      "enabled": {
+        "radiomark": {
+          "borderWidth": 0
+        }
+      },
+      "disabled": {
+        "radiomark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "dot": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "neutral",
+        "checked": "checked"
+      },
+      "enabled": {
+        "radiomark": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "dot": {
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "hovered": {
+        "radiomark": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "radiomark": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "brand",
+        "checked": "checked"
+      },
+      "enabled": {
+        "radiomark": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        },
+        "dot": {
+          "color": "#FFFFFF"
+        }
+      },
+      "hovered": {
+        "radiomark": {
+          "background": {
+            "light": "#013D96",
+            "dark": "#1A5AC2"
+          }
+        }
+      },
+      "pressed": {
+        "radiomark": {
+          "background": {
+            "light": "#013D96",
+            "dark": "#1A5AC2"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "선택 안 됨 ↔ 선택": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background",
+        "border",
+        "dot color"
+      ],
+      "note": "채움 · 테두리 · 점이 색으로 함께 바뀐다(SEED Radiomark 와 같다) — 점은 커지거나 줄지 않는다"
+    },
+    "누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "동그라미만 세로 2px 거리 축소 — 라벨은 줄지 않는다(v104)"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "alignSelf",
+      "note": "줄은 동그라미 + 라벨만큼만 차지한다 — 묶음 폭으로 늘이지 않는다(직접 짠 줄은 묶음 폭을 쓴다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "touchTarget",
+      "note": "라벨까지 묶어 44 — 라벨이 따로 서는 자리에서 동그라미만 쓰면 그 줄 전체가 누르는 영역(SEED touch target · 기초 Inclusive)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "gap",
+      "note": "묶음 안 줄 사이(세로) — 줄 32 · 36 에 12 를 더해 44 · 48 마다 한 줄이라 이웃 줄과 누르는 영역(44)이 겹치지 않는다(사용자 결정 — SEED 는 4). 가로 배치는 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "radiomark",
+      "prop": "scale",
+      "note": "동그라미만 준다 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(Feedback 의 눌림 피드백, v104)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "cursor",
+      "note": "포인터 이벤트는 켜 둔다 — 끄면 이 커서가 안 보인다(SEED 와 같다)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "radiomark",
+      "prop": "borderColor",
+      "note": "3:1 이상 — v109(SEED 는 옅은 선)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "dot",
+      "prop": "color",
+      "note": "선택 안 됨에는 점이 보이지 않는다"
+    },
+    {
+      "rule": 5,
+      "state": "pressed",
+      "slot": "radiomark",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝"
+    },
+    {
+      "rule": 5,
+      "state": "disabled",
+      "slot": "radiomark",
+      "prop": "background",
+      "note": "SEED palette.gray-300 자리"
+    },
+    {
+      "rule": 5,
+      "state": "disabled",
+      "slot": "radiomark",
+      "prop": "borderColor",
+      "note": "SEED stroke.neutral-weak(gray-400)"
+    },
+    {
+      "rule": 6,
+      "state": "disabled",
+      "slot": "radiomark",
+      "prop": "background",
+      "note": "Checkbox 와 같게 — 켜진 모양 그대로 색만(사용자 결정). SEED 는 채움을 빼고 테두리 + 커진 점"
+    }
+  ]
+}

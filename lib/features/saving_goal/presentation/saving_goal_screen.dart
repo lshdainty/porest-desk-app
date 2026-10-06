@@ -75,7 +75,7 @@ class SavingGoalScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text(
               '${l.savingGoalLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
             ),
           ),
           data: (items) {

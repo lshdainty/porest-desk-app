@@ -143,7 +143,7 @@ class CardPerformanceBar extends ConsumerWidget {
                     Text(
                       l.cardPerfAchieved,
                       style: PTypo.caption.copyWith(
-                        color: t.statusSuccess,
+                        color: t.statusSuccessFg,
                         fontWeight: PFontWeight.bold,
                       ),
                     ),

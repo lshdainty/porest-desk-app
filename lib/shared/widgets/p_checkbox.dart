@@ -88,7 +88,7 @@ class PCheckbox extends StatelessWidget {
         t.bgBrandSolid.withValues(alpha: 0.5),
       ),
       (true, _, false) => (t.bgMuted, t.borderDefault),
-      (_, true, _) => (t.bgSurface, t.statusDanger),
+      (_, true, _) => (t.bgSurface, t.statusDangerBorder),
       // 채움·테두리는 다크에서도 primary 고정(bgBrandSolid) — web checkbox bg-primary 정합.
       (false, false, true) => (t.bgBrandSolid, t.bgBrandSolid),
       (false, false, false) => (t.bgSurface, t.borderStrong),
@@ -208,7 +208,7 @@ class _HelperText extends StatelessWidget {
           fontFamily: PTypo.sans,
           fontSize: PFontSize.caption,
           fontWeight: PFontWeight.regular,
-          color: error ? t.statusDanger : t.fgTertiary,
+          color: error ? t.statusDangerFg : t.fgTertiary,
         ),
       ),
     );

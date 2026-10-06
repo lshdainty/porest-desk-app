@@ -231,7 +231,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           error: (e, _) => Text(
             '${l.todoTagLoadError}: $e',
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+            style: PTypo.caption.copyWith(color: t.statusDangerFg),
           ),
           data: (tags) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,0 +1,209 @@
+{
+  "name": "Toggle Group",
+  "source": "specs/components/toggle-group.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "item": "ⓑ item — Toggle BASE 상속 + `rounded-none border-0`(outer border 가 형태 결정)",
+    "icon": "item 아이콘(선택)",
+    "focusRing": "키보드 포커스 링"
+  },
+  "axes": {
+    "visual": [
+      "subtle",
+      "solid"
+    ],
+    "size": [
+      "sm",
+      "default",
+      "lg"
+    ],
+    "pressed": [
+      "off",
+      "on"
+    ]
+  },
+  "defaults": {
+    "visual": "subtle"
+  },
+  "states": [
+    "enabled",
+    "hover",
+    "focus-visible",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "item": {
+          "typography": {
+            "fontSize": 12,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 600
+        },
+        "icon": {
+          "size": 16
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "item": {
+          "opacity": 0.5,
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "sm"
+      },
+      "enabled": {
+        "item": {
+          "paddingY": 4,
+          "paddingX": 8,
+          "minHeight": 28
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "default"
+      },
+      "enabled": {
+        "item": {
+          "paddingY": 4,
+          "paddingX": 12,
+          "minHeight": 32
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "lg"
+      },
+      "enabled": {
+        "item": {
+          "paddingY": 8,
+          "paddingX": 16,
+          "minHeight": 40
+        }
+      }
+    },
+    {
+      "when": {
+        "pressed": "off"
+      },
+      "enabled": {
+        "item": {
+          "background": "transparent",
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "visual": "subtle",
+        "pressed": "off"
+      },
+      "hover": {
+        "item": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "visual": "solid",
+        "pressed": "off"
+      },
+      "hover": {
+        "item": {
+          "background": "transparent"
+        }
+      }
+    },
+    {
+      "when": {
+        "visual": "subtle",
+        "pressed": "on"
+      },
+      "enabled": {
+        "item": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": 600
+        }
+      }
+    },
+    {
+      "when": {
+        "visual": "solid",
+        "pressed": "on"
+      },
+      "enabled": {
+        "item": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "foreground": "#FFFFFF",
+          "fontWeight": 600,
+          "shadow": "none"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` (inset) — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "pointerEvents",
+      "note": "`pointer-events: none`"
+    },
+    {
+      "rule": 6,
+      "state": "hover",
+      "slot": "item",
+      "prop": "background",
+      "note": "hover 분리 안 함 — solid 톤은 selected 만 강조"
+    }
+  ]
+}

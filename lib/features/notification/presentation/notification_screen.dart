@@ -80,7 +80,7 @@ class NotificationScreen extends ConsumerWidget {
             ),
             child: Text(
               '${l.stateError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
             ),
           ),
           data: (items) {

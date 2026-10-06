@@ -1,0 +1,219 @@
+{
+  "name": "NotificationBadge",
+  "source": "specs/components/notification-badge.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "점(small) · 숫자 알약(large) — 붙는 대상의 상자 위에 겹쳐 놓인다(자리를 차지하지 않는다)",
+    "label": "숫자 — large 만. 0 이면 배지가 없고, 100 이상이면 \"99+\""
+  },
+  "axes": {
+    "size": [
+      "small",
+      "large"
+    ],
+    "attach": [
+      "icon",
+      "text"
+    ]
+  },
+  "defaults": {
+    "size": "small",
+    "attach": "icon"
+  },
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "radius": 9999
+        },
+        "label": {
+          "fontWeight": 700
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small"
+      },
+      "enabled": {
+        "root": {
+          "size": 6,
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minWidth": 18,
+          "minHeight": 18,
+          "paddingX": 4,
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        },
+        "label": {
+          "typography": {
+            "fontSize": 11,
+            "lineHeight": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": "#FFFFFF",
+          "numerals": "tabular-nums"
+        }
+      }
+    },
+    {
+      "when": {
+        "attach": "icon"
+      },
+      "enabled": {
+        "root": {
+          "position": "absolute — 아이콘 상자 기준"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small",
+        "attach": "icon"
+      },
+      "enabled": {
+        "root": {
+          "top": 1,
+          "right": 1
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large",
+        "attach": "icon"
+      },
+      "enabled": {
+        "root": {
+          "position": "absolute — 왼쪽 아래 꼭짓점 = (아이콘 폭 − 8, 14)"
+        }
+      }
+    },
+    {
+      "when": {
+        "attach": "text"
+      },
+      "enabled": {
+        "root": {
+          "position": "absolute — 글 끝 + 2 · 줄 상자 위 끝",
+          "gap": 2
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "fontWeight",
+      "note": "숫자(large)에만 있다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "브랜드 글자색 — 다크에서 밝은 짝(표면 위 Desk 8.38 · 6.10 · HR 5.06 · 6.23). bg-brand-solid 는 다크 표면과 1.73 · 2.86 이라 쓰지 않는다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "minHeight",
+      "note": "글자가 커지지 않아 늘 18 — 폭만 숫자를 따른다(1 · 8 은 18 × 18, 12 는 약 22, 99+ 는 약 32)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "알약 면은 다크 표면과 Desk 1.73 · HR 2.86 — 흰 숫자가 정보를 들고 있다(8.36 · 5.06)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "11 / 15 — 글자 크기 설정을 따르지 않는 px(text-t1-static, 앱 TextScaler.noScaling — SEED t1-static). 커지면 아이콘을 덮는다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "foreground",
+      "note": "Desk 8.38 · 다크 8.36 · HR 5.06 · 5.06"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "numerals",
+      "note": "숫자 폭을 같게 — 수가 바뀌어도 흔들리지 않는다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "position",
+      "note": "버튼 상자가 아니라 아이콘(24 · 20)의 상자에서 잰다 — 아이콘 크기 · 버튼 높이를 바꾸지 않는다. 점 · 숫자의 자리는 크기마다 아래 조합 규칙"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "top",
+      "note": "아이콘 상자 위에서 1 — 24 아이콘이면 y 1 ~ 7"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "right",
+      "note": "아이콘 상자 오른쪽에서 1 — 24 아이콘이면 x 17 ~ 23. 아이콘 안쪽에 놓인다(SEED: top 7 · right 7 + translate(100%, −100%))"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "position",
+      "note": "24 아이콘이면 (16, 14) — left 16 · top −4. 위 · 오른쪽으로 튀어나와 숫자가 길수록 오른쪽으로 자란다(SEED: top 14 · right 8 + translate(100%, −100%)). 한 자리면 아이콘 버튼 44 안, 두 자리 · 99+ 는 버튼 밖으로 나간다"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "position",
+      "note": "글 상자 기준 — 마지막 글자 뒤 2, 위는 글 줄 상자의 위 끝(글자 상자보다 1 위). 탭 · 칸 폭과 줄 높이를 바꾸지 않는다(SEED: right −2 + translate(100%, 0)). Chip Tabs 만 칩 안 글 뒤 6 · 세로 가운데 흐름(chip-tabs.yaml)"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "글 끝 ↔ 점 · 알약"
+    }
+  ]
+}

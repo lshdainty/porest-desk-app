@@ -270,7 +270,7 @@ class _BodyState extends ConsumerState<_Body> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(LucideIcons.triangleAlert, size: 18, color: t.statusWarning),
+            Icon(LucideIcons.triangleAlert, size: 18, color: t.statusWarningFg),
             const SizedBox(width: PSpace.x8),
             Expanded(
               child: Text(

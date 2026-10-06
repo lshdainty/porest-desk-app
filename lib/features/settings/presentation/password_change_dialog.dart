@@ -162,7 +162,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 l.passwordSameAsCurrent,
-                style: PTypo.caption.copyWith(color: t.statusDanger),
+                style: PTypo.caption.copyWith(color: t.statusDangerFg),
               ),
             ),
           const SizedBox(height: PSpace.x12),
@@ -184,14 +184,14 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
                   ? l.passwordMatched
                   : l.passwordMismatch,
               // 불일치는 규칙 미달(아직 채우는 중)과 달리 두 값이 어긋난 '충돌'
-              failColor: t.statusDanger,
+              failColor: t.statusDangerFg,
             ),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _error!,
-                style: PTypo.caption.copyWith(color: t.statusDanger),
+                style: PTypo.caption.copyWith(color: t.statusDangerFg),
               ),
             ),
         ],

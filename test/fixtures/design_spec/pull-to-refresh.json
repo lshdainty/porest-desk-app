@@ -1,0 +1,206 @@
+{
+  "name": "PullToRefresh",
+  "source": "specs/components/pull-to-refresh.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "스크롤 영역 — 맨 위에 있을 때 아래로 당기면 시작한다",
+    "indicator": "지시자 칸 — 영역 맨 위(머리 바로 아래)에 내용과 겹친다, 원판 없음",
+    "circle": "원 — Progress Circle 24 · neutral",
+    "content": "내용 — 당긴 만큼 내려온다"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "idle",
+    "pulling",
+    "ready",
+    "refreshing"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "idle": {
+        "root": {
+          "threshold": 88,
+          "multiplier": "0.75"
+        },
+        "indicator": {
+          "height": 88,
+          "translateY": "−88px",
+          "opacity": 0
+        },
+        "circle": {
+          "size": 24
+        },
+        "content": {
+          "translateY": 0
+        }
+      },
+      "pulling": {
+        "indicator": {
+          "translateY": "min(당긴 거리 − 88, 0)",
+          "opacity": "당긴 거리 ÷ 88"
+        },
+        "circle": {
+          "mode": "determinate"
+        },
+        "content": {
+          "translateY": "당긴 거리"
+        }
+      },
+      "ready": {
+        "indicator": {
+          "translateY": 0,
+          "opacity": 1
+        },
+        "circle": {
+          "mode": "determinate"
+        },
+        "content": {
+          "translateY": "당긴 거리"
+        }
+      },
+      "refreshing": {
+        "indicator": {
+          "translateY": 0,
+          "opacity": 1
+        },
+        "circle": {
+          "mode": "indeterminate"
+        },
+        "content": {
+          "translateY": 88
+        }
+      }
+    }
+  ],
+  "motion": {
+    "놓음 — 88 로": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "translateY → 88"
+      ],
+      "note": "문턱을 넘겨 놓으면 — 모션 줄이기면 바로"
+    },
+    "끝남 — 제자리로": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "translateY → 0"
+      ],
+      "note": "새로 고침이 끝나면 지시자와 함께 — 모션 줄이기면 바로"
+    },
+    "문턱 전 놓음": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "translateY → 0"
+      ],
+      "note": "새로 고치지 않는다 — 모션 줄이기면 바로"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "idle",
+      "slot": "root",
+      "prop": "threshold",
+      "note": "당긴 거리가 88 을 넘으면 문턱 — 손가락으로 약 117"
+    },
+    {
+      "rule": 0,
+      "state": "idle",
+      "slot": "root",
+      "prop": "multiplier",
+      "note": "당긴 거리 = 손가락 이동 × 0.75. 처음 아래로 움직인 자리부터 세고, 위로 되돌리면 0 에 머문다"
+    },
+    {
+      "rule": 0,
+      "state": "idle",
+      "slot": "indicator",
+      "prop": "height",
+      "note": "원 24 + 위아래 32 — 누르기는 받지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "idle",
+      "slot": "indicator",
+      "prop": "translateY",
+      "note": "칸 높이만큼 위 — 머리 뒤로 숨는다"
+    },
+    {
+      "rule": 0,
+      "state": "idle",
+      "slot": "circle",
+      "prop": "size",
+      "note": "Progress Circle 24 · neutral · 원판 없음"
+    },
+    {
+      "rule": 0,
+      "state": "pulling",
+      "slot": "indicator",
+      "prop": "translateY",
+      "note": "지시자 칸이 내려오다 문턱에서 제자리에 선다"
+    },
+    {
+      "rule": 0,
+      "state": "pulling",
+      "slot": "indicator",
+      "prop": "opacity",
+      "note": "0 → 1"
+    },
+    {
+      "rule": 0,
+      "state": "pulling",
+      "slot": "circle",
+      "prop": "mode",
+      "note": "값 = 당긴 거리 ÷ 88 × 100(0 → 100)"
+    },
+    {
+      "rule": 0,
+      "state": "pulling",
+      "slot": "content",
+      "prop": "translateY",
+      "note": "상한 없음 — 손가락을 따라온다"
+    },
+    {
+      "rule": 0,
+      "state": "ready",
+      "slot": "indicator",
+      "prop": "translateY",
+      "note": "제자리 — 더 당겨도 내려오지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "ready",
+      "slot": "circle",
+      "prop": "mode",
+      "note": "값 100 — 꽉 찬 원"
+    },
+    {
+      "rule": 0,
+      "state": "ready",
+      "slot": "content",
+      "prop": "translateY",
+      "note": "88 을 넘어서도 손가락을 따라온다"
+    },
+    {
+      "rule": 0,
+      "state": "refreshing",
+      "slot": "circle",
+      "prop": "mode",
+      "note": "돈다 — 이름 \"새로 고치는 중\""
+    },
+    {
+      "rule": 0,
+      "state": "refreshing",
+      "slot": "content",
+      "prop": "translateY",
+      "note": "새로 고침이 끝날 때까지(성공 · 실패 모두) 머문다 — 그동안 끌기는 받지 않는다"
+    }
+  ]
+}

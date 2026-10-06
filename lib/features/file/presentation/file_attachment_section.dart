@@ -170,7 +170,7 @@ class _FileAttachmentSectionState extends ConsumerState<FileAttachmentSection> {
           ),
           error: (e, _) => Text(
             l.fileLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+            style: PTypo.caption.copyWith(color: t.statusDangerFg),
           ),
           data: (files) {
             if (files.isEmpty) {

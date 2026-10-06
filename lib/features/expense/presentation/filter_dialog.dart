@@ -532,7 +532,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                     ),
                     decoration: BoxDecoration(
                       color: t.statusDangerSubtle,
-                      border: Border.all(color: t.statusDanger),
+                      border: Border.all(color: t.statusDangerBorder),
                       borderRadius: PRadius.brMd,
                     ),
                     child: Text(

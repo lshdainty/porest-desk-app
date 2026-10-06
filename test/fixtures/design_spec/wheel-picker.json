@@ -1,0 +1,228 @@
+{
+  "name": "WheelPicker",
+  "source": "specs/components/wheel-picker.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "휠 — 칼럼 묶음을 가운데에 모은다",
+    "column": "칼럼 — 항목 글 폭만큼(좌우 여백 포함). 칼럼마다 Tab 자리 하나",
+    "item": "항목 — 짧은 한 줄 글(숫자 · 짧은 낱말). 버튼 · 링크 · 여러 줄은 넣지 않는다",
+    "indicator": "선택 띠 — 가운데 줄, 칼럼을 모두 가로지른다",
+    "fog": "안개 — 위아래 끝이 바탕으로 흐려진다",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "size": [
+      "small",
+      "medium"
+    ],
+    "visibleItems": [
+      "5",
+      "7"
+    ]
+  },
+  "defaults": {
+    "size": "medium",
+    "visibleItems": "5"
+  },
+  "states": [
+    "enabled",
+    "focused",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "height": "항목 높이 × 보이는 수",
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          }
+        },
+        "column": {
+          "width": "항목 글 폭 + 좌우 16"
+        },
+        "item": {
+          "paddingX": 16,
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          },
+          "selectedForeground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "numerals": "tabular-nums"
+        },
+        "indicator": {
+          "insetX": 16,
+          "radius": 8,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "fog": {
+          "height": "min(휠 높이 × 40%, 항목 3칸)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "item": {
+          "selectedForeground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "item": {
+          "height": 44,
+          "typography": {
+            "fontSize": 26,
+            "lineHeight": 35,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "indicator": {
+          "height": 44
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small"
+      },
+      "enabled": {
+        "item": {
+          "height": 36,
+          "typography": {
+            "fontSize": 20,
+            "lineHeight": 27,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "indicator": {
+          "height": 36
+        }
+      }
+    }
+  ],
+  "motion": {
+    "정착 — 끌기를 놓을 때": {
+      "duration": "220ms ~ 360ms",
+      "easing": "ease-out cubic",
+      "properties": [
+        "scroll"
+      ]
+    },
+    "정착 — 휠 · 트랙패드": {
+      "duration": "160ms",
+      "easing": "ease-out cubic",
+      "properties": [
+        "scroll"
+      ],
+      "note": "마지막 휠 입력 120ms 뒤 가까운 칸으로"
+    },
+    "항목 누르기": {
+      "duration": "부드러운 스크롤",
+      "properties": [
+        "scroll"
+      ],
+      "note": "모션 줄이기면 모든 이동을 바로(v104)"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "medium 5개 220 · 7개 308, small 5개 180"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "column",
+      "prop": "width",
+      "note": "칼럼 묶음은 휠 가운데. 반복(loop)은 칼럼마다 — 끄면 첫 값 · 끝 값에서 멈춘다. 연 · 월 휠(달력 머리 · 달만 고르기)은 연 120 · 월 96 고정(date-picker.yaml)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "foreground",
+      "note": "가운데가 아닌 항목 — 띠에 걸친 부분만 아래 고른 색으로 칠한다(굴리는 동안에도)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "numerals",
+      "note": "숫자 폭을 같게"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "indicator",
+      "prop": "insetX",
+      "note": "휠 좌우 끝에서 16 들인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "height",
+      "note": "medium 5개 88 · 7개 123 · small 5개 72 — 위아래 끝에서 바탕색으로(gradient-fade-mask)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "가운데(고른) 항목 둘레 안쪽, 모서리 8 — 키보드로 들어올 때만. 터치 · 마우스로 굴리는 동안은 숨긴다"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "selectedForeground",
+      "note": "고른 항목도 흐리게 — 띠는 남는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "typography",
+      "note": "26 / 35 — 글자 크기 설정을 따르지 않는 px(SEED t10-static), 휠 칸이 넘치지 않게"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "typography",
+      "note": "20 / 27 — 글자 크기 설정을 따르지 않는 px(SEED t7-static)"
+    }
+  ]
+}

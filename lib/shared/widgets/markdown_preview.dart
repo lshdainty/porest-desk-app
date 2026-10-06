@@ -97,7 +97,7 @@ class MarkdownPreview extends StatelessWidget {
                   child: Icon(
                     isDone ? Icons.check_box : Icons.check_box_outline_blank,
                     size: 14,
-                    color: isDone ? t.statusSuccess : t.fgTertiary,
+                    color: isDone ? t.statusSuccessFg : t.fgTertiary,
                   ),
                 ),
                 const SizedBox(width: 6),
