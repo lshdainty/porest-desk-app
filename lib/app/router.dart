@@ -50,6 +50,7 @@ import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_gate.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_link_screen.dart';
+import 'package:porest_desk_app/shared/ds/catalog/ds_catalog_screen.dart';
 import 'package:porest_desk_app/shared/widgets/branch_back_to_home.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
 
@@ -208,6 +209,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings/update',
         builder: (_, _) => const UpdateScreen(),
       ),
+      // 개발 전용 — 새 컴포넌트 라이브러리 카탈로그. 운영 빌드에는 길이 없다(설정 > 개발).
+      if (kDebugMode)
+        GoRoute(path: '/dev/ds', builder: (_, _) => const DsCatalogScreen()),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
       GoRoute(
         path: '/notifications',
