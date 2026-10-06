@@ -1,12 +1,17 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
+import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
+import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
+import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
+import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
@@ -52,11 +57,16 @@ const List<DsFamily> dsFamilies = [
     ),
   ]),
   DsFamily('display', '3 표시', [
-    DsEntry('Badge', 'badge'),
-    DsEntry('Notification Badge', 'notification-badge'),
-    DsEntry('Tag Group', 'tag-group'),
-    DsEntry('Avatar', 'avatar'),
-    DsEntry('Divider', 'divider'),
+    DsEntry('Badge', 'badge', demo: _badge),
+    DsEntry(
+      'Notification Badge',
+      'notification-badge',
+      demo: _notificationBadge,
+    ),
+    DsEntry('Tag Group', 'tag-group', demo: _tagGroup),
+    // Avatar Stack(avatar-stack.yaml)은 Avatar 견본 안에 — 웹 등록부도 한 줄이다
+    DsEntry('Avatar', 'avatar', demo: _avatar),
+    DsEntry('Divider', 'divider', demo: _divider),
   ]),
   DsFamily('text-field', '4 텍스트 필드', [
     DsEntry('Field', 'field'),
@@ -113,6 +123,12 @@ Widget _progress(BuildContext context) => const ProgressDemo();
 Widget _scrollFog(BuildContext context) => const ScrollFogDemo();
 Widget _contentPlaceholder(BuildContext context) =>
     const ContentPlaceholderDemo();
+Widget _badge(BuildContext context) => const BadgeDemo();
+Widget _notificationBadge(BuildContext context) =>
+    const NotificationBadgeDemo();
+Widget _tagGroup(BuildContext context) => const TagGroupDemo();
+Widget _avatar(BuildContext context) => const AvatarDemo();
+Widget _divider(BuildContext context) => const DividerDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
