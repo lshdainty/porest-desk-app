@@ -1,0 +1,217 @@
+{
+  "name": "Breadcrumb",
+  "source": "specs/components/breadcrumb.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "list": "BreadcrumbList(`<ol>`) — 항목 · separator 를 한 줄로",
+    "item": "BreadcrumbItem(`<li>`)",
+    "link": "BreadcrumbLink(`<a>`) — 상위 페이지",
+    "page": "BreadcrumbPage — 현재 페이지(non-clickable)",
+    "separator": "`>` 또는 `/`",
+    "ellipsis": "긴 경로 축약(선택)",
+    "focusRing": "키보드 포커스 링(link)"
+  },
+  "axes": {
+    "separator": [
+      "chevron",
+      "slash"
+    ]
+  },
+  "defaults": {},
+  "states": [
+    "enabled",
+    "hover",
+    "focus-visible",
+    "pressed"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "list": {
+          "typography": {
+            "fontSize": 14,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "gap": 8
+        },
+        "item": {
+          "gap": 8
+        },
+        "link": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "page": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": 500
+        },
+        "separator": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "iconSize": 14
+        },
+        "ellipsis": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "size": 36,
+          "iconSize": 16
+        }
+      },
+      "hover": {
+        "link": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "focus-visible": {
+        "link": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "radius": 2
+        }
+      },
+      "pressed": {
+        "link": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "separator": "chevron"
+      },
+      "enabled": {
+        "separator": {
+          "glyph": ">"
+        }
+      }
+    },
+    {
+      "when": {
+        "separator": "slash"
+      },
+      "enabled": {
+        "separator": {
+          "glyph": "/"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "link": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "properties": [
+        "color"
+      ]
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "gap",
+      "note": "item ↔ separator ↔ item"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "gap",
+      "note": "link ↔ chevron"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "page",
+      "prop": "foreground",
+      "note": "current — `aria-current=\"page\"`"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "separator",
+      "prop": "foreground",
+      "note": "정적"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "ellipsis",
+      "prop": "foreground",
+      "note": "정적"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "ellipsis",
+      "prop": "size",
+      "note": "hit area"
+    },
+    {
+      "rule": 0,
+      "state": "hover",
+      "slot": "link",
+      "prop": "foreground",
+      "note": "`transition-[color]`"
+    },
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "link",
+      "prop": "foreground",
+      "note": "전환 중"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "separator",
+      "prop": "glyph",
+      "note": "`ChevronRight` svg"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "separator",
+      "prop": "glyph",
+      "note": "텍스트"
+    }
+  ]
+}

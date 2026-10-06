@@ -1,0 +1,87 @@
+{
+  "name": "ContentPlaceholder",
+  "source": "specs/components/content-placeholder.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "자리 — 담는 틀(이미지 틀)을 채운다. 모서리는 담는 틀이 자른다",
+    "glyph": "그림 — 가운데, 정사각. 무엇이 없는지 말하는 선 아이콘"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "width": "100%",
+          "height": "100%",
+          "radius": 0,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "glyph": {
+          "size": "틀 높이의 50%",
+          "minWidth": 16,
+          "maxWidth": 160,
+          "color": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "strokeWidth": "1.5"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "width",
+      "note": "담는 틀을 채운다 — 크기 · 비율은 담는 틀이 정한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "radius",
+      "note": "제 모서리가 없다 — 담는 틀(카드 · 썸네일)이 자른다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "Skeleton 면과 같은 색 — 흰 면 위 1.08 · 다크 1.30"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "glyph",
+      "prop": "size",
+      "note": "정사각 — 16 이상 160 이하로 자른다(SEED). 틀 폭이 그보다 좁으면 폭에 맞춘다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "glyph",
+      "prop": "color",
+      "note": "면 위 1.14 · 다크 1.20 — 장식(SEED gray-400 의 짝). 무엇이 없는지는 대체 글이 말한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "glyph",
+      "prop": "strokeWidth",
+      "note": "lucide 24 격자 기준 — 그림 크기를 따라 굵어진다(Result Section 아이콘과 같은 결, v106)"
+    }
+  ]
+}

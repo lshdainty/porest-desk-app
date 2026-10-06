@@ -421,7 +421,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                           ),
                     style: PTypo.money.copyWith(
                       color: _viaCash && (_cashAfter ?? 0) < 0
-                          ? t.statusDanger
+                          ? t.statusDangerFg
                           : t.fgPrimary,
                       fontWeight: PFontWeight.bold,
                     ),
@@ -466,14 +466,14 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                 const SizedBox(height: 6),
                 Text(
                   l.tradeInsufficientCash,
-                  style: PTypo.micro.copyWith(color: t.statusDanger),
+                  style: PTypo.micro.copyWith(color: t.statusDangerFg),
                 ),
               ],
               if (_isSell && _qty > _heldQty) ...[
                 const SizedBox(height: 6),
                 Text(
                   l.tradeInsufficientQty,
-                  style: PTypo.micro.copyWith(color: t.statusDanger),
+                  style: PTypo.micro.copyWith(color: t.statusDangerFg),
                 ),
               ],
             ],

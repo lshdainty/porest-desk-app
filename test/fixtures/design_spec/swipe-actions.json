@@ -1,0 +1,226 @@
+{
+  "name": "Swipe Actions",
+  "source": "specs/components/swipe-actions.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "row": "ⓐ 감싸는 리스트 행 — 스펙이 내부를 정의하지 않는다",
+    "track": "ⓑ 행 뒤에 드러나는 영역 — 배경을 칠하지 않는다",
+    "action": "ⓒ 액션 한 칸(버튼) — 원형 배지 + 그 아래 라벨, 세로 가운데. 터치 대상은 이 칸 전체",
+    "badge": "원형 배지 — 색은 여기만",
+    "icon": "배지 안 아이콘",
+    "label": "배지 아래 라벨",
+    "focusRing": "키보드 포커스 링"
+  },
+  "axes": {
+    "kind": [
+      "neutral",
+      "primary",
+      "destructive"
+    ],
+    "size": [
+      "default"
+    ]
+  },
+  "defaults": {},
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "badge": {
+          "background": "kind 색"
+        },
+        "action": {
+          "brightness": "100%",
+          "shadow": "none",
+          "transform": "translateX(0)",
+          "cursor": "pointer"
+        }
+      },
+      "hovered": {
+        "action": {
+          "brightness": "92%"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "pressed": {
+        "action": {
+          "brightness": "88%"
+        }
+      },
+      "disabled": {
+        "action": {
+          "opacity": 0.4,
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "neutral"
+      },
+      "enabled": {
+        "badge": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "icon": {
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "label": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "primary"
+      },
+      "enabled": {
+        "badge": {
+          "background": {
+            "light": "#1D6EC9",
+            "dark": "#69ABFF"
+          }
+        },
+        "icon": {
+          "color": "#FFFFFF"
+        },
+        "label": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "destructive"
+      },
+      "enabled": {
+        "badge": {
+          "background": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        },
+        "icon": {
+          "color": "#FFFFFF"
+        },
+        "label": {
+          "color": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "default"
+      },
+      "enabled": {
+        "action": {
+          "height": "행 높이",
+          "width": "배지 + 앞 간격",
+          "paddingY": 0,
+          "paddingX": "앞 간격만",
+          "touchTarget": "✅ · ✅"
+        },
+        "badge": {
+          "size": 36,
+          "radius": 9999
+        },
+        "icon": {
+          "size": 18
+        },
+        "label": {
+          "typography": {
+            "fontSize": 12,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 600,
+          "lineHeight": 1.3
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "background",
+      "note": "배경은 배지에만 있다 — kind 별 값은 Kinds 표"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "inset — `2px var(--color-border-focus)`"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "height",
+      "note": "min 56"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "width",
+      "note": "첫 액션 56, 이후 48"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "touchTarget",
+      "note": "AA · AAA"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "radius",
+      "note": "원형"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "font-size(12)만 토큰 그대로 — 굵기 · 줄 높이는 이 컴포넌트 override(12 / 600 / 1.3)"
+    }
+  ]
+}

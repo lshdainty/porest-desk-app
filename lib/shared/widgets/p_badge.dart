@@ -151,13 +151,13 @@ class PBadge extends StatelessWidget {
       case PBadgeVariant.outline:
         return (Colors.transparent, t.fgPrimary, t.borderDefault);
       case PBadgeVariant.outlineSuccess:
-        return (Colors.transparent, t.statusSuccessFg, t.statusSuccess);
+        return (Colors.transparent, t.statusSuccessFg, t.statusSuccessBorder);
       case PBadgeVariant.outlineInfo:
-        return (Colors.transparent, t.statusInfoFg, t.statusInfo);
+        return (Colors.transparent, t.statusInfoFg, t.statusInfoBorder);
       case PBadgeVariant.outlineWarning:
-        return (Colors.transparent, t.statusWarningFg, t.statusWarning);
+        return (Colors.transparent, t.statusWarningFg, t.statusWarningBorder);
       case PBadgeVariant.outlineError:
-        return (Colors.transparent, t.statusDangerFg, t.statusDanger);
+        return (Colors.transparent, t.statusDangerFg, t.statusDangerBorder);
     }
   }
 }

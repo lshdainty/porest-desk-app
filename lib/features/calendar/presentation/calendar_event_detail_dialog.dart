@@ -273,7 +273,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             ddLabel,
                             style: PTypo.micro.copyWith(
                               color: dd >= 0 && dd <= 3
-                                  ? t.statusDanger
+                                  ? t.statusDangerFg
                                   : t.fgTertiary,
                               fontWeight: PFontWeight.bold,
                             ),

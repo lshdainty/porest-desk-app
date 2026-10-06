@@ -147,7 +147,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                 child: Text(
                   '${l.calLabelLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
                 ),
               ),
               data: (labels) {

@@ -133,7 +133,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
             padding: const EdgeInsets.all(24),
             child: Text(
               '${l.cardSearchError}: $e',
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
           ),
           data: (page) {

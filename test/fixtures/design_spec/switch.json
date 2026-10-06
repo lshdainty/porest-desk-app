@@ -1,0 +1,435 @@
+{
+  "name": "Switch",
+  "source": "specs/components/switch.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "Switch 한 줄 — 스위치 + 라벨, 누르는 영역",
+    "switchmark": "스위치(Switchmark) — 트랙. 설정 줄에는 이것만 끼워 쓴다",
+    "thumb": "엄지 — 켜면 오른쪽으로 가고 커진다",
+    "label": "글자(Label)",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "size": [
+      "16",
+      "24",
+      "32"
+    ],
+    "tone": [
+      "neutral",
+      "brand"
+    ],
+    "checked": [
+      "unchecked",
+      "checked"
+    ]
+  },
+  "defaults": {
+    "size": "24",
+    "tone": "neutral",
+    "checked": "unchecked"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "cursor": "pointer",
+          "alignSelf": "flex-start",
+          "touchTarget": "44 × 44"
+        },
+        "switchmark": {
+          "radius": 9999,
+          "transitionProperty": "background-color",
+          "transitionDuration": "50ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)",
+          "transitionDelay": "20ms"
+        },
+        "thumb": {
+          "radius": 9999,
+          "transitionProperty": "translate, scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "label": {
+          "fontFamily": "Pretendard, Inter, sans-serif",
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "pressed": {
+        "switchmark": {
+          "scale": "세로 2px 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "cursor": "not-allowed"
+        },
+        "label": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "16"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 24,
+          "gap": 6
+        },
+        "switchmark": {
+          "width": 26,
+          "height": 16,
+          "padding": 2
+        },
+        "thumb": {
+          "size": 12
+        },
+        "label": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "24"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 24,
+          "gap": 8
+        },
+        "switchmark": {
+          "width": 38,
+          "height": 24,
+          "padding": 2
+        },
+        "thumb": {
+          "size": 20
+        },
+        "label": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "32"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 32,
+          "gap": 10
+        },
+        "switchmark": {
+          "width": 52,
+          "height": 32,
+          "padding": 3
+        },
+        "thumb": {
+          "size": 26
+        },
+        "label": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "checked": "unchecked"
+      },
+      "enabled": {
+        "switchmark": {
+          "background": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          }
+        },
+        "thumb": {
+          "scale": 0.8,
+          "translateX": 0
+        }
+      },
+      "disabled": {
+        "switchmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1
+        },
+        "thumb": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "checked": "checked"
+      },
+      "enabled": {
+        "thumb": {
+          "scale": 1
+        }
+      },
+      "disabled": {
+        "switchmark": {
+          "background": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "thumb": {
+          "color": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "16",
+        "checked": "checked"
+      },
+      "enabled": {
+        "thumb": {
+          "translateX": 10
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "24",
+        "checked": "checked"
+      },
+      "enabled": {
+        "thumb": {
+          "translateX": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "32",
+        "checked": "checked"
+      },
+      "enabled": {
+        "thumb": {
+          "translateX": 20
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "neutral"
+      },
+      "enabled": {
+        "thumb": {
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "neutral",
+        "checked": "checked"
+      },
+      "enabled": {
+        "switchmark": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "brand"
+      },
+      "enabled": {
+        "thumb": {
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "brand",
+        "checked": "checked"
+      },
+      "enabled": {
+        "switchmark": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "끔 ↔ 켬 — 엄지": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "translate",
+        "scale"
+      ],
+      "note": "엄지가 옆으로 가며 0.8 ↔ 1 로 바뀐다(SEED)"
+    },
+    "끔 ↔ 켬 — 색": {
+      "duration": "50ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "track background",
+        "thumb color"
+      ],
+      "note": "20ms 뒤에 시작한다 — 엄지가 움직이기 시작한 뒤에 색이 바뀐다"
+    },
+    "누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "스위치만 세로 2px 거리 축소 — 색은 바뀌지 않는다(v104)"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "alignSelf",
+      "note": "줄은 스위치 + 라벨만큼만 차지한다 — 세로로 쌓아도 폭으로 늘이지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "touchTarget",
+      "note": "라벨까지 묶어 44 — 설정 줄에 스위치만 끼우면 그 줄 전체가 누르는 영역(SEED touch target · 기초 Inclusive)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "switchmark",
+      "prop": "transitionDelay",
+      "note": "엄지가 움직이기 시작한 뒤에 색이 바뀐다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "transitionProperty",
+      "note": "색은 트랙과 같이 50ms · 20ms 뒤"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "switchmark",
+      "prop": "scale",
+      "note": "스위치만 준다 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px. 색은 바뀌지 않는다(Feedback 의 눌림 피드백, v104)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "cursor",
+      "note": "포인터 이벤트는 켜 둔다 — 끄면 이 커서가 안 보인다(SEED 와 같다)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "minHeight",
+      "note": "트랙(16)보다 크다 — 누르는 영역의 바닥(SEED)"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "switchmark",
+      "prop": "background",
+      "note": "표면과 3:1 이상(v109). SEED 는 palette.gray-600"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "scale",
+      "note": "끄면 엄지가 작아진다 — 색 말고도 자리 · 크기로 켬 · 끔이 갈린다(SEED)"
+    },
+    {
+      "rule": 4,
+      "state": "disabled",
+      "slot": "switchmark",
+      "prop": "borderColor",
+      "note": "안쪽 선 — 트랙 크기는 그대로"
+    },
+    {
+      "rule": 5,
+      "state": "disabled",
+      "slot": "switchmark",
+      "prop": "background",
+      "note": "켜진 모양 그대로 색만(사용자 결정) — 채운 트랙 + 밝은 엄지"
+    }
+  ]
+}

@@ -4214,5 +4214,45 @@
       }
     }
   },
-  "assetPaymentDayMissing": "결제일을 넣어 주세요"
+  "assetPaymentDayMissing": "결제일을 넣어 주세요",
+  "dsProgressCircleLabel": "불러오는 중",
+  "@dsProgressCircleLabel": {
+    "description": "로딩 원(Progress Circle)의 기본 이름 — 스크린 리더가 읽는다. 기다리는 일을 알면 그 이름을 넘긴다(영수증 사진 올리는 중)"
+  },
+  "dsLoadingWaiting": "불러오는 중…",
+  "@dsLoadingWaiting": {
+    "description": "기다리는 영역이 1초를 넘으면 보조 기술에 한 번 읽는 글(Skeleton 의 상태 글). 세 점이 아니라 말줄임표 하나"
+  },
+  "dsLoadingSlow": "평소보다 오래 걸리고 있어요.",
+  "@dsLoadingSlow": {
+    "description": "기다리는 영역이 5초를 넘으면 보이고 읽는 글(Skeleton 의 오래 걸림 글)"
+  },
+  "dsProgressOver": "{amount} 초과",
+  "@dsProgressOver": {
+    "description": "Progress — 한도를 넘었을 때 오른쪽 글(\"20,000원 초과\")",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dsProgressReached": "달성",
+  "@dsProgressReached": {
+    "description": "Progress — 목표에 닿았을 때 오른쪽 글"
+  },
+  "dsProgressSemantics": "{label} {max} 중 {current}",
+  "@dsProgressSemantics": {
+    "description": "Progress 막대의 이름 — \"식비 예산 400,000원 중 350,000원\"",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  }
 }

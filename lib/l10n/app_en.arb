@@ -4064,5 +4064,11 @@
       }
     }
   },
-  "assetPaymentDayMissing": "Please set a payment day"
+  "assetPaymentDayMissing": "Please set a payment day",
+  "dsProgressCircleLabel": "Loading",
+  "dsLoadingWaiting": "Loading…",
+  "dsLoadingSlow": "This is taking longer than usual.",
+  "dsProgressOver": "{amount} over",
+  "dsProgressReached": "Reached",
+  "dsProgressSemantics": "{label}: {current} of {max}"
 }

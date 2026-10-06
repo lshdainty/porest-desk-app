@@ -364,7 +364,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         child: Center(
           child: Text(
             '${l.searchFailed}: $_error',
-            style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
           ),
         ),
       );

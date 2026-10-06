@@ -6819,4 +6819,26 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetPaymentDayMissing => '결제일을 넣어 주세요';
+
+  @override
+  String get dsProgressCircleLabel => '불러오는 중';
+
+  @override
+  String get dsLoadingWaiting => '불러오는 중…';
+
+  @override
+  String get dsLoadingSlow => '평소보다 오래 걸리고 있어요.';
+
+  @override
+  String dsProgressOver(String amount) {
+    return '$amount 초과';
+  }
+
+  @override
+  String get dsProgressReached => '달성';
+
+  @override
+  String dsProgressSemantics(String label, String max, String current) {
+    return '$label $max 중 $current';
+  }
 }

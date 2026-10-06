@@ -1,0 +1,750 @@
+{
+  "name": "InstitutionColors",
+  "source": "specs/components/institution-colors.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "data": {
+    "name": "InstitutionColors",
+    "entries": [
+      {
+        "name": "신한",
+        "category": "시중은행",
+        "aliases": [
+          "신한은행"
+        ],
+        "color": "#0046FF",
+        "text": "white"
+      },
+      {
+        "name": "KB국민",
+        "category": "시중은행",
+        "aliases": [
+          "KB",
+          "국민",
+          "KB국민은행"
+        ],
+        "color": "#FFBC00",
+        "text": "dark"
+      },
+      {
+        "name": "우리",
+        "category": "시중은행",
+        "aliases": [
+          "우리은행"
+        ],
+        "color": "#0067AC",
+        "text": "white"
+      },
+      {
+        "name": "하나",
+        "category": "시중은행",
+        "aliases": [
+          "KEB하나",
+          "하나은행"
+        ],
+        "color": "#008485",
+        "text": "white"
+      },
+      {
+        "name": "NH농협",
+        "category": "시중은행",
+        "aliases": [
+          "농협",
+          "NH농협은행"
+        ],
+        "color": "#00A651",
+        "text": "dark"
+      },
+      {
+        "name": "IBK기업",
+        "category": "시중은행",
+        "aliases": [
+          "기업",
+          "IBK",
+          "기업은행"
+        ],
+        "color": "#004098",
+        "text": "white"
+      },
+      {
+        "name": "SC제일",
+        "category": "시중은행",
+        "aliases": [
+          "제일",
+          "SC",
+          "SC제일은행"
+        ],
+        "color": "#1EA54E",
+        "ci": "#009A44",
+        "text": "dark"
+      },
+      {
+        "name": "씨티",
+        "category": "시중은행",
+        "aliases": [
+          "시티",
+          "씨티은행",
+          "한국씨티"
+        ],
+        "color": "#056DAE",
+        "text": "white"
+      },
+      {
+        "name": "카카오뱅크",
+        "category": "인터넷은행",
+        "aliases": [
+          "카뱅"
+        ],
+        "color": "#FEE500",
+        "text": "dark"
+      },
+      {
+        "name": "토스뱅크",
+        "category": "인터넷은행",
+        "aliases": [
+          "토스"
+        ],
+        "color": "#0064FF",
+        "text": "white"
+      },
+      {
+        "name": "케이뱅크",
+        "category": "인터넷은행",
+        "aliases": [
+          "K뱅크",
+          "K Bank"
+        ],
+        "color": "#0214A1",
+        "text": "white"
+      },
+      {
+        "name": "부산",
+        "category": "지방은행",
+        "aliases": [
+          "부산은행",
+          "BNK부산"
+        ],
+        "color": "#0033A0",
+        "text": "white"
+      },
+      {
+        "name": "대구",
+        "category": "지방은행",
+        "aliases": [
+          "대구은행",
+          "iM뱅크",
+          "DGB대구"
+        ],
+        "color": "#1464AC",
+        "text": "white"
+      },
+      {
+        "name": "경남",
+        "category": "지방은행",
+        "aliases": [
+          "경남은행",
+          "BNK경남"
+        ],
+        "color": "#0E4C92",
+        "text": "white"
+      },
+      {
+        "name": "광주",
+        "category": "지방은행",
+        "aliases": [
+          "광주은행",
+          "JB광주"
+        ],
+        "color": "#00428A",
+        "text": "white"
+      },
+      {
+        "name": "전북",
+        "category": "지방은행",
+        "aliases": [
+          "전북은행",
+          "JB전북"
+        ],
+        "color": "#0F3E8C",
+        "text": "white"
+      },
+      {
+        "name": "제주",
+        "category": "지방은행",
+        "aliases": [
+          "제주은행"
+        ],
+        "color": "#F47216",
+        "text": "dark"
+      },
+      {
+        "name": "KDB산업",
+        "category": "특수은행",
+        "aliases": [
+          "산업",
+          "산업은행",
+          "KDB"
+        ],
+        "color": "#004098",
+        "text": "white"
+      },
+      {
+        "name": "수출입",
+        "category": "특수은행",
+        "aliases": [
+          "수출입은행",
+          "EXIM"
+        ],
+        "color": "#003A6C",
+        "text": "white"
+      },
+      {
+        "name": "수협",
+        "category": "특수은행",
+        "aliases": [
+          "수협은행",
+          "Sh수협"
+        ],
+        "color": "#003DA5",
+        "text": "white"
+      },
+      {
+        "name": "우체국",
+        "category": "저축기관",
+        "aliases": [
+          "우체국예금",
+          "우체국금융"
+        ],
+        "color": "#E4002B",
+        "text": "white"
+      },
+      {
+        "name": "새마을금고",
+        "category": "저축기관",
+        "aliases": [
+          "새마을",
+          "MG"
+        ],
+        "color": "#D61E29",
+        "text": "white"
+      },
+      {
+        "name": "신협",
+        "category": "저축기관",
+        "aliases": [
+          "신용협동조합"
+        ],
+        "color": "#003A70",
+        "text": "white"
+      },
+      {
+        "name": "산림조합",
+        "category": "저축기관",
+        "aliases": [
+          "산림조합중앙회"
+        ],
+        "color": "#2E7D32",
+        "text": "white"
+      },
+      {
+        "name": "SBI저축",
+        "category": "저축기관",
+        "aliases": [
+          "SBI저축은행",
+          "SBI"
+        ],
+        "color": "#0E3E85",
+        "text": "white"
+      },
+      {
+        "name": "OK저축",
+        "category": "저축기관",
+        "aliases": [
+          "OK저축은행"
+        ],
+        "color": "#FECC00",
+        "text": "dark"
+      },
+      {
+        "name": "웰컴저축",
+        "category": "저축기관",
+        "aliases": [
+          "웰컴저축은행"
+        ],
+        "color": "#E30613",
+        "text": "white"
+      },
+      {
+        "name": "페퍼저축",
+        "category": "저축기관",
+        "aliases": [
+          "페퍼저축은행",
+          "Pepper"
+        ],
+        "color": "#B3002D",
+        "text": "white"
+      },
+      {
+        "name": "HSBC",
+        "category": "외국계",
+        "aliases": [
+          "홍콩상하이",
+          "에이치에스비씨"
+        ],
+        "color": "#DB0011",
+        "text": "white"
+      },
+      {
+        "name": "ICBC",
+        "category": "외국계",
+        "aliases": [
+          "공상은행",
+          "중국공상은행"
+        ],
+        "color": "#D6001C",
+        "text": "white"
+      },
+      {
+        "name": "BoA",
+        "category": "외국계",
+        "aliases": [
+          "뱅크오브아메리카",
+          "Bank of America"
+        ],
+        "color": "#012169",
+        "text": "white"
+      },
+      {
+        "name": "도이치",
+        "category": "외국계",
+        "aliases": [
+          "도이치뱅크",
+          "Deutsche"
+        ],
+        "color": "#004A8F",
+        "text": "white"
+      },
+      {
+        "name": "JP모건",
+        "category": "외국계",
+        "aliases": [
+          "JPMorgan",
+          "JP모건체이스"
+        ],
+        "color": "#006CB7",
+        "text": "white"
+      },
+      {
+        "name": "현금",
+        "category": "기타",
+        "aliases": [
+          "지갑",
+          "Cash"
+        ],
+        "color": "#64748B",
+        "text": "white"
+      },
+      {
+        "name": "삼성증권",
+        "category": "증권사",
+        "aliases": [
+          "삼성"
+        ],
+        "color": "#1428A0",
+        "text": "white"
+      },
+      {
+        "name": "미래에셋",
+        "category": "증권사",
+        "aliases": [
+          "미래에셋증권"
+        ],
+        "color": "#2C3E50",
+        "text": "white"
+      },
+      {
+        "name": "NH투자",
+        "category": "증권사",
+        "aliases": [
+          "NH투자증권"
+        ],
+        "color": "#00A651",
+        "text": "dark"
+      },
+      {
+        "name": "한국투자",
+        "category": "증권사",
+        "aliases": [
+          "한투",
+          "한국투자증권"
+        ],
+        "color": "#00529B",
+        "text": "white"
+      },
+      {
+        "name": "KB증권",
+        "category": "증권사",
+        "aliases": [],
+        "color": "#FFBC00",
+        "text": "dark"
+      },
+      {
+        "name": "신한투자",
+        "category": "증권사",
+        "aliases": [
+          "신한금융투자",
+          "신한투자증권"
+        ],
+        "color": "#0046FF",
+        "text": "white"
+      },
+      {
+        "name": "하나증권",
+        "category": "증권사",
+        "aliases": [],
+        "color": "#008485",
+        "text": "white"
+      },
+      {
+        "name": "키움증권",
+        "category": "증권사",
+        "aliases": [
+          "키움"
+        ],
+        "color": "#ED022F",
+        "ci": "#FF0033",
+        "text": "white"
+      },
+      {
+        "name": "메리츠증권",
+        "category": "증권사",
+        "aliases": [
+          "메리츠",
+          "메리츠종합금융증권"
+        ],
+        "color": "#E60012",
+        "text": "white"
+      },
+      {
+        "name": "대신증권",
+        "category": "증권사",
+        "aliases": [
+          "대신"
+        ],
+        "color": "#F58220",
+        "text": "dark"
+      },
+      {
+        "name": "유안타증권",
+        "category": "증권사",
+        "aliases": [
+          "유안타",
+          "동양"
+        ],
+        "color": "#10B981",
+        "text": "dark"
+      },
+      {
+        "name": "유진투자",
+        "category": "증권사",
+        "aliases": [
+          "유진투자증권"
+        ],
+        "color": "#003595",
+        "text": "white"
+      },
+      {
+        "name": "교보증권",
+        "category": "증권사",
+        "aliases": [
+          "교보"
+        ],
+        "color": "#004A8F",
+        "text": "white"
+      },
+      {
+        "name": "IBK투자",
+        "category": "증권사",
+        "aliases": [
+          "IBK투자증권"
+        ],
+        "color": "#004098",
+        "text": "white"
+      },
+      {
+        "name": "DB금융투자",
+        "category": "증권사",
+        "aliases": [
+          "DB",
+          "DB금투"
+        ],
+        "color": "#008456",
+        "text": "white"
+      },
+      {
+        "name": "SK증권",
+        "category": "증권사",
+        "aliases": [
+          "SK"
+        ],
+        "color": "#EA002C",
+        "text": "white"
+      },
+      {
+        "name": "현대차증권",
+        "category": "증권사",
+        "aliases": [
+          "현대차",
+          "HMC투자"
+        ],
+        "color": "#002C5F",
+        "text": "white"
+      },
+      {
+        "name": "하이투자",
+        "category": "증권사",
+        "aliases": [
+          "하이투자증권"
+        ],
+        "color": "#004098",
+        "text": "white"
+      },
+      {
+        "name": "한화투자",
+        "category": "증권사",
+        "aliases": [
+          "한화투자증권",
+          "한화"
+        ],
+        "color": "#FF7900",
+        "text": "dark"
+      },
+      {
+        "name": "BNK투자",
+        "category": "증권사",
+        "aliases": [
+          "BNK투자증권"
+        ],
+        "color": "#0033A0",
+        "text": "white"
+      },
+      {
+        "name": "한양증권",
+        "category": "증권사",
+        "aliases": [
+          "한양"
+        ],
+        "color": "#004098",
+        "text": "white"
+      },
+      {
+        "name": "LS증권",
+        "category": "증권사",
+        "aliases": [
+          "이베스트",
+          "이베스트투자",
+          "E-best"
+        ],
+        "color": "#005EB8",
+        "text": "white"
+      },
+      {
+        "name": "부국증권",
+        "category": "증권사",
+        "aliases": [
+          "부국"
+        ],
+        "color": "#003366",
+        "text": "white"
+      },
+      {
+        "name": "신영증권",
+        "category": "증권사",
+        "aliases": [
+          "신영"
+        ],
+        "color": "#005EB8",
+        "text": "white"
+      },
+      {
+        "name": "카카오페이증권",
+        "category": "증권사",
+        "aliases": [
+          "카카오페이"
+        ],
+        "color": "#FEE500",
+        "text": "dark"
+      },
+      {
+        "name": "토스증권",
+        "category": "증권사",
+        "aliases": [],
+        "color": "#0064FF",
+        "text": "white"
+      },
+      {
+        "name": "KRX 금시장",
+        "category": "상품거래소",
+        "aliases": [
+          "한국거래소",
+          "KRX",
+          "금시장"
+        ],
+        "color": "#C9A227",
+        "text": "dark"
+      },
+      {
+        "name": "한국금거래소",
+        "category": "상품거래소",
+        "aliases": [
+          "koreagoldx",
+          "금거래소"
+        ],
+        "color": "#B8232F",
+        "text": "white"
+      },
+      {
+        "name": "한국표준금거래소",
+        "category": "상품거래소",
+        "aliases": [
+          "표준금거래소"
+        ],
+        "color": "#8C6A1F",
+        "text": "white"
+      },
+      {
+        "name": "삼성금거래소",
+        "category": "상품거래소",
+        "aliases": [
+          "삼성금"
+        ],
+        "color": "#1428A0",
+        "text": "white"
+      },
+      {
+        "name": "한국조폐공사",
+        "category": "상품거래소",
+        "aliases": [
+          "조폐공사",
+          "오롯",
+          "KOMSCO"
+        ],
+        "color": "#00594F",
+        "text": "white"
+      },
+      {
+        "name": "기타 금은방",
+        "category": "상품거래소",
+        "aliases": [
+          "금은방",
+          "직접보관",
+          "실물"
+        ],
+        "color": "#AF8A4E",
+        "ci": "#A78246",
+        "text": "dark"
+      },
+      {
+        "name": "업비트",
+        "category": "가상자산",
+        "aliases": [
+          "Upbit",
+          "UPBIT",
+          "두나무"
+        ],
+        "color": "#1F55F4",
+        "text": "white"
+      },
+      {
+        "name": "빗썸",
+        "category": "가상자산",
+        "aliases": [
+          "Bithumb",
+          "BITHUMB"
+        ],
+        "color": "#F2811D",
+        "text": "dark"
+      },
+      {
+        "name": "코인원",
+        "category": "가상자산",
+        "aliases": [
+          "Coinone",
+          "COINONE"
+        ],
+        "color": "#F95B2A",
+        "ci": "#F55826",
+        "text": "dark"
+      },
+      {
+        "name": "코빗",
+        "category": "가상자산",
+        "aliases": [
+          "Korbit",
+          "KORBIT"
+        ],
+        "color": "#1D3FFF",
+        "text": "white"
+      },
+      {
+        "name": "신한카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#0046FF",
+        "text": "white"
+      },
+      {
+        "name": "KB국민카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#FFBC00",
+        "text": "dark"
+      },
+      {
+        "name": "우리카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#0067AC",
+        "text": "white"
+      },
+      {
+        "name": "하나카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#008485",
+        "text": "white"
+      },
+      {
+        "name": "NH농협카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#00A651",
+        "text": "dark"
+      },
+      {
+        "name": "삼성카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#1428A0",
+        "text": "white"
+      },
+      {
+        "name": "현대카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#1C2951",
+        "text": "white"
+      },
+      {
+        "name": "롯데카드",
+        "category": "카드사",
+        "aliases": [],
+        "color": "#EA1721",
+        "ci": "#ED1C24",
+        "text": "white"
+      }
+    ]
+  }
+}

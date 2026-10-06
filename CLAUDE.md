@@ -11,8 +11,26 @@
 ## WHAT (산출물)
 
 `porest-design`에 정의된 디자인 시스템을 Flutter/Dart로 구현한 모바일 클라이언트:
-- `lib/shared/widgets/p_<name>.dart` — porest-design `specs/components/<name>.md` SoT 미러 (shadcn 패턴, P prefix)
-- `lib/app/theme/tokens.dart` / `colors.dart` / `radius.dart` / `spacing.dart` / `typography.dart` — porest-design 토큰 미러 (Flutter ThemeExtension)
+- `lib/shared/ds/` — **새 컴포넌트 라이브러리**(2026-10-06~). porest-design 에서 SEED 와 비교해 확정한
+  스펙만 만든다 — 웹 42개 중 39개다(Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
+  Menu Sheet 가 맡는다). 만든 것은 debug 빌드 전용 카탈로그 `/dev/ds`(설정 > 개발)에서 라이트 · 다크로 본다.
+  컴포넌트마다 폴더 하나 — `lib/shared/ds/<name>/p_<name>.dart`(위젯) · `<name>_demo.dart`(카탈로그 견본).
+  옛 위젯과 이름이 같다(`PButton`) — 한 파일에서 둘을 다 부르면 `as` 로 가른다.
+- **스펙대로인지는 위젯 테스트가 잰다** — `test/shared/ds/p_<name>_spec_test.dart` 가 스펙 JSON 을
+  `test/support/design_spec.dart` 로 풀어(웹 검사기 · 사이트와 같은 방식) 변형 × 크기 × 상태 × 라이트 · 다크를
+  모두 돈다. 위젯을 만들면 이 테스트를 같이 쓴다.
+- `lib/shared/widgets/p_<name>.dart` — **옛 위젯**. 화면을 하나씩 `shared/ds` 로 옮기는 동안만 남는다 — 새로 쓰지
+  않는다. 옮기는 순서는 "먼저 라이브러리를 다 만들고, 화면은 나중에 화면 단위로" 다.
+- `lib/app/theme/porest_tokens.g.dart` · `test/fixtures/design_spec/*.json` — porest-design 이 내보낸 파일.
+  **손으로 고치지 않는다** — `scripts/sync_design.sh`(옆 폴더 `../porest-design`, 다르면 `PORESTDESIGN_DIR`)로
+  다시 가져온다. 토큰은 새 이름만 담는다 — `PSpacing` · `PRounded` · `PTypography` · `PDuration` · `PEasing` ·
+  `PTouch` 와 ThemeExtension `PColors`(`context.colors`) · `PShadows`(`context.shadows`). 스펙 JSON 은 위젯이
+  아니라 테스트가 읽는다 — 위젯이 스펙 값과 같은지 본다.
+- `lib/app/theme/tokens.dart`(`PorestTokens`) — 옛 이름을 DESIGN.md v102 표대로 역할 색에서 만든다(`_fromRoles`,
+  웹 `index.css` 와 같은 짝). `status*` 는 채움(흰 글자를 얹는 자리), `status*Fg` 는 글자 · 아이콘,
+  `status*Border` 는 선이다. 새 코드는 `context.colors.fgNeutral` 처럼 역할 이름을 쓴다.
+- `lib/app/theme/spacing.dart` · `radius.dart` · `typography.dart` 등 — 옛 토큰. **이름이 겹치니 조심한다** —
+  옛 `PSpace.x4` 는 4px, 새 `PSpacing.x4` 는 16px(SEED 눈금)이다. 새 코드는 생성 토큰만 쓴다.
 - `lib/features/**/*.dart` — 위 위젯을 사용한 화면 — spec 위반 inline override 금지
 
 ## HOW (작업 규칙 — 절대 4 규칙)
@@ -44,7 +62,7 @@
 ## 금지 사항
 
 - **위젯 사용 시 inline prop으로 spec 토큰을 override 금지** — 예:
-  - `PButton(borderRadius: BorderRadius.circular(10))` ❌ (Button spec은 `radius-sm` 4px 고정)
+  - `PButton(borderRadius: BorderRadius.circular(10))` ❌ (Button spec은 크기마다 모서리가 정해져 있다 — 8 · 12 · 알약)
   - `PTextInput(height: 60)` ❌ (Input spec sizes 표 외 값 금지)
   - 정당한 inline은 spec 외 영역 (padding, margin, position, color 등 spec이 호출처 결정으로 명시한 부분)만.
 

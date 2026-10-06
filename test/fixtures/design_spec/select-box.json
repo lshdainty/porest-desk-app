@@ -1,0 +1,437 @@
+{
+  "name": "Select Box",
+  "source": "specs/components/select-box.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "상자 — 테두리 · 바탕 · 모서리. 펼침을 뺀 전부가 누르는 영역",
+    "trigger": "누르는 자리(label) — 콘텐츠 + 오른쪽 컨트롤. 누르면 이 자리만 준다",
+    "content": "콘텐츠 — 앞 · 본문",
+    "prefix": "앞 — 아이콘 22 · 그림",
+    "body": "본문 — 제목 + 설명",
+    "label": "제목 — 배지를 옆에 둘 수 있다",
+    "description": "설명 — 두 줄까지",
+    "control": "오른쪽 컨트롤 — Radiomark(하나 고르기) · 칸 없는 체크(여럿) · 없음",
+    "footer": "펼침 — 고른 상자 아래 딸린 입력 · 안내",
+    "focusRing": "키보드 포커스 링(웹) — 상자 바깥",
+    "group": "묶음 — 1 ~ 3열 격자(하나 고르기 radiogroup · 여럿 fieldset)"
+  },
+  "axes": {
+    "layout": [
+      "horizontal",
+      "vertical"
+    ],
+    "selected": [
+      "unselected",
+      "selected"
+    ]
+  },
+  "defaults": {
+    "layout": "horizontal",
+    "selected": "unselected"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "radius": 12,
+          "background": "transparent",
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "touchTarget": "44 × 44",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "trigger": {
+          "gap": 6,
+          "grow": 1,
+          "cursor": "pointer",
+          "transitionProperty": "scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "prefix": {
+          "size": 22,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "body": {
+          "gap": 2,
+          "paddingRight": 4
+        },
+        "label": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "gap": 4
+        },
+        "description": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "control": {
+          "size": 20
+        },
+        "footer": {
+          "paddingX": 20,
+          "paddingBottom": 16
+        },
+        "group": {
+          "gapY": 12,
+          "gapX": 12,
+          "columns": "1 ~ 3"
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        },
+        "trigger": {
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        },
+        "trigger": {
+          "cursor": "not-allowed"
+        },
+        "prefix": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "label": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "description": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "horizontal"
+      },
+      "enabled": {
+        "trigger": {
+          "paddingY": 16,
+          "paddingLeft": 20,
+          "paddingRight": 16,
+          "alignItems": "center"
+        },
+        "content": {
+          "gap": 12,
+          "direction": "row"
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "vertical"
+      },
+      "enabled": {
+        "trigger": {
+          "paddingY": 20,
+          "paddingX": 16,
+          "alignItems": "flex-start"
+        },
+        "content": {
+          "gap": 10,
+          "direction": "column"
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "selected"
+      },
+      "enabled": {
+        "root": {
+          "borderWidth": 2,
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름 · 호버 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ]
+    },
+    "고름 — 테두리": {
+      "duration": "100ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "border-color"
+      ],
+      "note": "SEED 는 0.1s 를 바로 적었다 — porest d2 = 100ms"
+    },
+    "누름 — 누르는 자리": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "콘텐츠 + 컨트롤만 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    },
+    "펼침 — 열 때 · 높이": {
+      "duration": "400ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "height"
+      ],
+      "note": "SEED 도 토큰 없이 400ms. 높이는 grid-template-rows 0fr → 1fr 로 바꾼다(내용 높이를 재지 않는다)"
+    },
+    "펼침 — 열 때 · 투명도": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity"
+      ]
+    },
+    "펼침 — 닫을 때 · 높이": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "height"
+      ],
+      "note": "grid-template-rows 1fr → 0fr"
+    },
+    "펼침 — 닫을 때 · 투명도": {
+      "duration": "400ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity"
+      ],
+      "note": "내용이 높이보다 먼저 사라지지 않게 투명도가 늦다. 모션 줄이기면 높이는 바로 바뀌고 투명도만 150ms(기초 Motion)"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "상자 안쪽에 그린다(inset) — 고른 테두리 2px 도 안쪽에 덧그려 내용이 밀리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "touchTarget",
+      "note": "펼침을 뺀 상자 전체 — 가장 작은 상자(가로형 · 제목만)도 54"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "transitionProperty",
+      "note": "고른 테두리는 따로 — 아래 motion"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "gap",
+      "note": "콘텐츠와 컨트롤 사이"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "grow",
+      "note": "상자가 같은 높이로 늘면 남는 자리까지 채운다 — 내용이 짧은 상자의 빈 아래쪽도 눌린다(SEED flex-grow: 1)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "cursor",
+      "note": "누르는 자리에만 — 펼침은 누르는 영역이 아니다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "paddingRight",
+      "note": "본문과 컨트롤 사이(trigger 간격에 더한다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "fontWeight",
+      "note": "SEED 와 같다 — 선택지를 비교하며 읽는 자리라 List 제목(400)보다 한 단계 굵다(사용자 결정)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "gap",
+      "note": "제목 옆 배지 사이"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "foreground",
+      "note": "SEED 와 같다 — List 설명(fg-neutral-subtle)보다 한 단계 진하다. 두 줄까지"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "control",
+      "prop": "size",
+      "note": "하나 고르기 = Radiomark medium(neutral) · 여럿 = Checkbox Ghost medium(체크 14) · 없음. 따로 줄지 않고 자기 포커스 링도 그리지 않는다(링은 상자가). 상자를 올리거나 누르면 라디오는 자기 누름 색이 된다(고른 라디오는 한 단계 짙게 — SEED Radiomark pressed), 칸 없는 체크는 바탕이 없다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "footer",
+      "prop": "paddingX",
+      "note": "SEED 예제 값 — 화면마다 갈리지 않게 컴포넌트가 정한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "gapY",
+      "note": "SEED spacing-y.component-default"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "columns",
+      "note": "2열 이상은 세로형 · 상자 높이를 가장 긴 상자에 맞춘다(줄마다 같은 높이 — SEED grid-auto-rows 1fr). 칸이 비면 1열로 쌓거나 열 수를 맞춘다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "trigger",
+      "prop": "scale",
+      "note": "누르는 자리(콘텐츠 + 컨트롤)만 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px. 테두리 · 바탕은 그대로, 컨트롤은 따로 줄지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "상자 바깥 — SEED 와 같다(상자는 화면 폭이 아니라 링이 잘리지 않는다). 컨트롤은 자기 링을 끈다 — 링이 두 겹이 되지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "앞 ↔ 본문"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "alignItems",
+      "note": "컨트롤은 위 오른쪽"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "앞(위) ↔ 본문"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "고른 상자만 짙은 테두리 — 바탕은 바꾸지 않는다(사용자 결정, SEED). v113"
+    },
+    {
+      "rule": 3,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "고른 채 막히면 2px 옅은 선"
+    }
+  ]
+}

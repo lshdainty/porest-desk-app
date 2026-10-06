@@ -614,7 +614,9 @@ class _TradeHistory extends ConsumerWidget {
                 Text(
                   tr.tradeType == 'SELL' ? l.tradeSell : l.tradeBuy,
                   style: PTypo.micro.copyWith(
-                    color: tr.tradeType == 'SELL' ? t.fgBrand : t.statusDanger,
+                    color: tr.tradeType == 'SELL'
+                        ? t.fgBrand
+                        : t.statusDangerFg,
                     fontWeight: PFontWeight.bold,
                   ),
                 ),
@@ -2597,7 +2599,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                   Text(
                                     l.assetInstallmentPaidOffBadge,
                                     style: PTypo.caption.copyWith(
-                                      color: t.statusSuccess,
+                                      color: t.statusSuccessFg,
                                       fontWeight: PFontWeight.semi,
                                     ),
                                   ),
@@ -2613,7 +2615,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                                             Text(
                                               l.assetInstallmentPaidOffBadge,
                                               style: PTypo.caption.copyWith(
-                                                color: t.statusSuccess,
+                                                color: t.statusSuccessFg,
                                                 fontWeight: PFontWeight.semi,
                                               ),
                                             ),

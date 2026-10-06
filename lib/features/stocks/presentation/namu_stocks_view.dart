@@ -237,7 +237,7 @@ class _HoldingsPanel extends ConsumerWidget {
               style: PTypo.bodySm.copyWith(
                 color: h.totalProfitLossValue >= 0
                     ? t.statusSuccessFg
-                    : t.statusDanger,
+                    : t.statusDangerFg,
                 fontWeight: PFontWeight.semi,
               ),
             ),
@@ -303,7 +303,7 @@ class _HoldingRow extends StatelessWidget {
               Text(
                 '${up ? '+' : ''}${_fmt(item.profitLossValue)}',
                 style: PTypo.micro.copyWith(
-                  color: up ? t.statusSuccessFg : t.statusDanger,
+                  color: up ? t.statusSuccessFg : t.statusDangerFg,
                 ),
               ),
             ],

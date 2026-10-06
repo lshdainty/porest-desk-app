@@ -1,0 +1,774 @@
+{
+  "name": "PageBanner",
+  "source": "specs/components/page-banner.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "띠 — 화면 폭 전체, 모서리 없음",
+    "icon": "앞 아이콘 — 첫 줄 가운데",
+    "content": "제목 · 본문과 버튼 — 한 줄에 안 들어가면 버튼이 다음 줄로",
+    "title": "제목 — 상태를 나타내는 짧은 말(연결 끊김 · 곧 만료)",
+    "description": "본문 — 제목을 되풀이하지 않는다",
+    "button": "버튼 — 하나, 글 버튼",
+    "suffixIcon": "뒤 화살표 — 띠 전체를 누르는 Actionable 에만",
+    "closeButton": "닫기 — Dismissible 에만. 이름 \"닫기\"",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "tone": [
+      "neutral",
+      "informative",
+      "positive",
+      "warning",
+      "critical"
+    ],
+    "variant": [
+      "weak",
+      "solid"
+    ],
+    "interaction": [
+      "display",
+      "actionable",
+      "dismissible"
+    ]
+  },
+  "defaults": {
+    "tone": "neutral",
+    "variant": "weak",
+    "interaction": "display"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "width": "100%",
+          "minHeight": 40,
+          "paddingX": 24,
+          "paddingY": 10,
+          "gap": 8,
+          "radius": 0,
+          "alignItems": "flex-start"
+        },
+        "icon": {
+          "size": 16,
+          "marginTop": 2
+        },
+        "content": {
+          "gap": 6,
+          "justifyContent": "space-between"
+        },
+        "title": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700
+        },
+        "description": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500
+        },
+        "button": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "touchTarget": "글 + 사방 11 × 40",
+          "radius": 4
+        },
+        "suffixIcon": {
+          "size": 16
+        },
+        "closeButton": {
+          "size": 40,
+          "iconSize": 16,
+          "radius": 8
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "neutral"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "informative"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#EAF3FE",
+            "dark": "#21344D"
+          },
+          "foreground": {
+            "light": "#0F5FB3",
+            "dark": "#ACCEFB"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "positive"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#EAF5EC",
+            "dark": "#223927"
+          },
+          "foreground": {
+            "light": "#026E33",
+            "dark": "#AED6B6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "warning"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#FFEFE8",
+            "dark": "#4B2B1F"
+          },
+          "foreground": {
+            "light": "#A53E0A",
+            "dark": "#F9BFA9"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "critical"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#FFEFEC",
+            "dark": "#532722"
+          },
+          "foreground": {
+            "light": "#C01016",
+            "dark": "#FFBCB3"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "neutral"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "informative"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#1D6EC9",
+            "dark": "#0F65BF"
+          },
+          "foreground": "#FFFFFF"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "positive"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#167F3F",
+            "dark": "#117539"
+          },
+          "foreground": "#FFFFFF"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "warning"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#BE490D",
+            "dark": "#B04209"
+          },
+          "foreground": "#FFFFFF"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "critical"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#D72323",
+            "dark": "#CC0E17"
+          },
+          "foreground": "#FFFFFF"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable"
+      },
+      "pressed": {
+        "content": {
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "weak",
+        "tone": "neutral"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "weak",
+        "tone": "informative"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#D7E6FB",
+            "dark": "#204069"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#D7E6FB",
+            "dark": "#204069"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "weak",
+        "tone": "positive"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#D8EADB",
+            "dark": "#20482B"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#D8EADB",
+            "dark": "#20482B"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "weak",
+        "tone": "warning"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#FAE0D5",
+            "dark": "#65321D"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#FAE0D5",
+            "dark": "#65321D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "weak",
+        "tone": "critical"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#FFDEDA",
+            "dark": "#722722"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#FFDEDA",
+            "dark": "#722722"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "solid",
+        "tone": "neutral"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "solid",
+        "tone": "informative"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#0F5FB3",
+            "dark": "#1F70CB"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#0F5FB3",
+            "dark": "#1F70CB"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "solid",
+        "tone": "positive"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#026E33",
+            "dark": "#198140"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#026E33",
+            "dark": "#198140"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "solid",
+        "tone": "warning"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#A53E0A",
+            "dark": "#BF4A10"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#A53E0A",
+            "dark": "#BF4A10"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "actionable",
+        "variant": "solid",
+        "tone": "critical"
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#C01016",
+            "dark": "#D82424"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#C01016",
+            "dark": "#D82424"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "display"
+      },
+      "pressed": {
+        "button": {
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      }
+    },
+    {
+      "when": {
+        "interaction": "dismissible"
+      },
+      "pressed": {
+        "closeButton": {
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ]
+    },
+    "바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ]
+    },
+    "닫힘": {
+      "duration": "0ms",
+      "properties": [
+        "바로 사라짐"
+      ],
+      "note": "닫으면 바로 걷고 다시 띄우지 않는다(닫음을 기억한다) — 초점은 다음 요소로"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "width",
+      "note": "화면 폭 전체 — 페이지 머리 바로 아래(위에 사진이 있으면 그 아래), 한 화면에 하나"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "SEED 16 → 화면 여백 24"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "아이콘 ↔ 글"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "radius",
+      "note": "모서리 없음"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "alignItems",
+      "note": "아이콘은 첫 줄에 붙는다 — 화살표 · 닫기는 띠 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "size",
+      "note": "lucide 선 아이콘 — 위 2(첫 줄 가운데). 톤마다 기본은 Callout 과 같다(info · info · circle-check · triangle-alert · circle-alert)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "본문과 버튼이 한 줄에 안 들어가면 버튼이 다음 줄 본문 시작선으로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "justifyContent",
+      "note": "한 줄에 들어가면 버튼은 오른쪽 끝(SEED 와 같다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "typography",
+      "note": "본문과 한 문단 — 사이는 띄어쓰기 두 칸"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "typography",
+      "note": "단어 단위 줄바꿈(v114)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "touchTarget",
+      "note": "바깥 여백 −11 로 띠 높이를 늘리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "radius",
+      "note": "바탕이 없어 포커스 링에만 보인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "suffixIcon",
+      "prop": "size",
+      "note": "chevron-right — 글과 8"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "closeButton",
+      "prop": "size",
+      "note": "투명 상자 — 바깥 여백 −12 로 띠 높이를 늘리지 않는다. 아이콘은 오른쪽 끝에서 24, 글과 8"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "화면 끝까지 차는 띠라 안쪽에 — 버튼 · 닫기도 같다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "옅은 바탕 위 3.91 이상. 짙은 바탕은 띠 글자색(아래 solid 규칙) — 브랜드 링은 짙은 띠 위 1.00 ~ 3.24 다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "글 · 아이콘 · 버튼 · 화살표 · 닫기가 모두 이 색"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.09 · 다크 5.78"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.07 · 5.79"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.06 · 5.79"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.06 · 5.77"
+    },
+    {
+      "rule": 11,
+      "state": "pressed",
+      "slot": "content",
+      "prop": "scale",
+      "note": "안의 내용만(SEED scaleScope: content) — 바탕은 그대로. 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 22,
+      "state": "pressed",
+      "slot": "button",
+      "prop": "scale",
+      "note": "글 버튼만 — 바탕 없음"
+    },
+    {
+      "rule": 23,
+      "state": "pressed",
+      "slot": "closeButton",
+      "prop": "scale",
+      "note": "기준 40 — 바탕 없음"
+    }
+  ]
+}

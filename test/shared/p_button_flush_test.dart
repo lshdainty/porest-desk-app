@@ -22,7 +22,7 @@ Color _iconColor(WidgetTester tester) =>
     tester.widget<Icon>(find.byIcon(LucideIcons.eyeOff)).color!;
 
 void main() {
-  const tokens = PorestTokens.light;
+  final tokens = PorestTokens.light;
 
   testWidgets('flush ghost 는 보조톤에서 시작한다', (tester) async {
     await tester.pumpWidget(

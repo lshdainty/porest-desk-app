@@ -1,0 +1,397 @@
+{
+  "name": "Menu",
+  "source": "specs/components/menu.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "content": "메뉴 — 트리거 아래(모자라면 위 · 옆) 8",
+    "group": "묶음 — 묶음 사이에만 선을 긋는다",
+    "groupLabel": "묶음 이름 — 있을 때만, 누를 수 없다",
+    "divider": "묶음 사이 선 — 줄 사이에는 없다",
+    "item": "줄 — 누르면 실행하고 닫힌다. 글은 메뉴 안에서 줄바꿈된다",
+    "itemIcon": "앞 아이콘 — 쓰면 모든 줄에",
+    "itemLabel": "이름 — 동사로 짧게(2 ~ 6자)",
+    "itemDescription": "설명 — 한 줄, 꼭 필요한 줄에만",
+    "suffixIcon": "뒤 아이콘 — 바깥 링크처럼 방향을 알릴 때만",
+    "highlight": "호버 · 누름 바탕 — 좌우 8 들인 알약",
+    "focusRing": "키보드 포커스 링 — 알약 자리에(웹)"
+  },
+  "axes": {
+    "tone": [
+      "neutral",
+      "critical"
+    ]
+  },
+  "defaults": {
+    "tone": "neutral"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "content": {
+          "width": 200,
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          },
+          "radius": 20,
+          "shadow": {
+            "light": "0 8px 24px -4px rgba(15, 18, 28, 0.10), 0 2px 6px -2px rgba(15, 18, 28, 0.05)",
+            "dark": "0 8px 24px -4px rgba(0, 0, 0, 0.50), 0 2px 6px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)"
+          },
+          "paddingY": 8,
+          "offset": 8,
+          "align": "end",
+          "maxHeight": "min(480px, 남은 화면)",
+          "zIndex": 200
+        },
+        "item": {
+          "paddingY": 10,
+          "paddingX": 16,
+          "gap": 8,
+          "height": 39,
+          "cursor": "pointer",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "itemIcon": {
+          "size": 18,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "itemLabel": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "itemDescription": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "gap": 2
+        },
+        "suffixIcon": {
+          "size": 16,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "highlight": {
+          "background": "transparent",
+          "insetX": 8,
+          "radius": 12
+        },
+        "groupLabel": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "paddingY": 8,
+          "paddingX": 16
+        },
+        "divider": {
+          "color": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          },
+          "height": 1,
+          "marginX": 16,
+          "marginY": 8
+        }
+      },
+      "hovered": {
+        "highlight": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "highlight": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        },
+        "item": {
+          "scale": "콘텐츠 2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "item": {
+          "cursor": "not-allowed"
+        },
+        "itemIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "itemLabel": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "itemDescription": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "highlight": {
+          "background": "transparent"
+        }
+      }
+    },
+    {
+      "when": {
+        "tone": "critical"
+      },
+      "enabled": {
+        "itemIcon": {
+          "color": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        },
+        "itemLabel": {
+          "foreground": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "열림": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale 0.95 → 1",
+        "opacity 0 → 1"
+      ],
+      "note": "트리거 쪽 변을 기준점으로 커진다"
+    },
+    "닫힘": {
+      "duration": "100ms",
+      "easing": "cubic-bezier(0.35, 0, 1, 1)",
+      "properties": [
+        "scale → 0.95",
+        "opacity → 0"
+      ]
+    },
+    "호버 알약": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ]
+    },
+    "누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ]
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "width",
+      "note": "글이 길면 줄을 바꾼다 — 폭을 늘리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "offset",
+      "note": "트리거와 8 — 화면 가장자리와도 8(Menu 는 1280 이상이라 안전 영역이 없다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "align",
+      "note": "트리거의 오른쪽 끝에 맞춘다(줄 끝 ⋮ · 머리 더보기) — 왼쪽에 놓인 트리거는 start. 모자라면 화면 안으로 민다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "maxHeight",
+      "note": "남은 화면이 200 보다 좁아도 200 은 둔다 — 먼저 줄이고, 200 아래로 내려가야 반대편으로 뒤집는다. 넘치면 메뉴 안 스크롤"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "zIndex",
+      "note": "z-floating — specs/z-index.md L3. 페이지에서도, 대화상자 · 시트 안에서도"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "height",
+      "note": "한 줄 — 설명이 있으면 57. 글이 길면 줄을 바꿔 늘어난다(말줄임 없음)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "transitionProperty",
+      "note": "알약 바탕과 들임(inset) · 모서리가 함께"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemIcon",
+      "prop": "size",
+      "note": "lucide · 여러 줄이면 세로 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemLabel",
+      "prop": "typography",
+      "note": "단어 단위 줄바꿈(v114)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemDescription",
+      "prop": "gap",
+      "note": "이름 ↔ 설명"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "highlight",
+      "prop": "background",
+      "note": "마우스를 올리거나 누를 때만 칠한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "highlight",
+      "prop": "insetX",
+      "note": "좌우 8 들어온 알약 — 글은 알약 안쪽 8 지점에서 시작한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "marginX",
+      "note": "좌우 16 들인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "marginY",
+      "note": "묶음 사이 8 + 선 1 + 8"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "highlight",
+      "prop": "background",
+      "note": "메뉴 바탕(bg-layer-floating) 위의 누름 색"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "item",
+      "prop": "scale",
+      "note": "아이콘 · 글만 준다(SEED scaleScope: content) — 알약은 그대로. 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "알약 자리(좌우 8 들임 · 모서리 12) 안쪽에 — 바탕은 칠하지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "highlight",
+      "prop": "background",
+      "note": "호버 · 누름 바탕이 없다 — 눌러도 실행하지 않고 닫히지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "itemLabel",
+      "prop": "foreground",
+      "note": "설명은 fg-neutral-subtle 그대로"
+    }
+  ]
+}

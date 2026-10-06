@@ -1,0 +1,173 @@
+{
+  "name": "Accordion",
+  "source": "specs/components/accordion.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "item": "AccordionItem — 항목 하나. 외곽 container 없이 아래 테두리로만 나뉜다",
+    "trigger": "AccordionTrigger — 펼침 버튼(글자 + chevron)",
+    "chevron": "ChevronDown 아이콘",
+    "content": "AccordionContent — 펼친 내용",
+    "focusRing": "키보드 포커스 링(trigger)"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "closed",
+    "hover",
+    "focus-visible",
+    "open",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "closed": {
+        "item": {
+          "borderBottomWidth": 1,
+          "borderBottomColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        },
+        "trigger": {
+          "paddingY": 16,
+          "typography": {
+            "fontSize": 16,
+            "fontWeight": 500,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "gap": "flex justify-between"
+        },
+        "chevron": {
+          "size": 16,
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          },
+          "rotate": "0°"
+        },
+        "content": {
+          "paddingBottom": 16,
+          "paddingTop": 0,
+          "typography": {
+            "fontSize": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "hover": {
+        "trigger": {
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "radius": 2
+        }
+      },
+      "open": {
+        "chevron": {
+          "rotate": "180°"
+        }
+      },
+      "disabled": {
+        "trigger": {
+          "opacity": 0.5,
+          "cursor": "not-allowed",
+          "pointerEvents": "none"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "trigger": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "properties": [
+        "color"
+      ]
+    },
+    "chevron": {
+      "duration": "200ms",
+      "properties": [
+        "transform"
+      ]
+    },
+    "content": {
+      "duration": "200ms",
+      "note": "accordion-down/up — keyframes from DESIGN.md `--motion-duration-base`"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "closed",
+      "slot": "trigger",
+      "prop": "gap",
+      "note": "text ↔ chevron — text-left + chevron-right"
+    },
+    {
+      "rule": 0,
+      "state": "closed",
+      "slot": "chevron",
+      "prop": "rotate",
+      "note": "down"
+    },
+    {
+      "rule": 0,
+      "state": "hover",
+      "slot": "trigger",
+      "prop": "foreground",
+      "note": "또는 underline · `transition-[color]`"
+    },
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 0,
+      "state": "open",
+      "slot": "chevron",
+      "prop": "rotate",
+      "note": "up — `data-[state=open]:rotate-180`"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "trigger",
+      "prop": "cursor",
+      "note": "`cursor-not-allowed`"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "trigger",
+      "prop": "pointerEvents",
+      "note": "`pointer-events-none`"
+    }
+  ]
+}

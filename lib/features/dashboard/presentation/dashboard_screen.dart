@@ -450,7 +450,7 @@ class _HomeTodosWidget extends StatelessWidget {
                     ? Icon(
                         LucideIcons.checkCircle,
                         size: 18,
-                        color: t.statusSuccess,
+                        color: t.statusSuccessFg,
                       )
                     : Container(
                         width: 18,
@@ -826,7 +826,7 @@ class _MonthExpenseCard extends StatelessWidget {
           if (hasError)
             Text(
               l.dashMonthTxError,
-              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
             )
           else
             Row(

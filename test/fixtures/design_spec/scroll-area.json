@@ -1,0 +1,144 @@
+{
+  "name": "Scroll Area",
+  "source": "specs/components/scroll-area.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "scrollbar": "ScrollAreaScrollbar — vertical 우측 · horizontal 하단 막대",
+    "track": "스크롤바 바탕",
+    "thumb": "ScrollAreaThumb — 끌어 옮기는 손잡이",
+    "firefox": "Firefox 표준 — 전역 native scrollbar",
+    "webkitScrollbar": "WebKit 글로벌 — `::-webkit-scrollbar` (전역)",
+    "webkitThumb": "WebKit 글로벌 — `::-webkit-scrollbar-thumb` (전역)",
+    "scrollbarHide": "`.scrollbar-hide` utility — 스크롤바 완전 숨김(opt-in)"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "default",
+    "hover",
+    "dragging",
+    "no overflow"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "default": {
+        "scrollbar": {
+          "size": 6,
+          "borderWidth": 1,
+          "borderColor": "transparent",
+          "transitionProperty": "colors",
+          "transitionDuration": "150ms"
+        },
+        "track": {
+          "background": "transparent"
+        },
+        "thumb": {
+          "background": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "radius": 9999
+        },
+        "firefox": {
+          "scrollbarWidth": "thin",
+          "thumbColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "trackColor": "transparent"
+        },
+        "webkitScrollbar": {
+          "width": 6,
+          "height": 6
+        },
+        "webkitThumb": {
+          "background": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "radius": 9999
+        },
+        "scrollbarHide": {
+          "display": "none"
+        }
+      },
+      "no overflow": {
+        "track": {
+          "background": "—"
+        },
+        "thumb": {
+          "background": "—"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "scrollbar",
+      "prop": "size",
+      "note": "두께 — `w-1.5` (vertical) / `h-1.5` (horizontal)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "scrollbar",
+      "prop": "borderWidth",
+      "note": "`border-l border-l-transparent` (vertical) / `border-t border-t-transparent` (horizontal)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "scrollbar",
+      "prop": "borderColor",
+      "note": "hover 시 색 부여 가능"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "track",
+      "prop": "background",
+      "note": "Radix 기본 background 없음"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "thumb",
+      "prop": "radius",
+      "note": "pill"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "firefox",
+      "prop": "trackColor",
+      "note": "`scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent;` (전역)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "webkitScrollbar",
+      "prop": "height",
+      "note": "`::-webkit-scrollbar { width: 6px; height: 6px }` (전역)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "webkitThumb",
+      "prop": "radius",
+      "note": "pill — `::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-full); }` (전역)"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "scrollbarHide",
+      "prop": "display",
+      "note": "`.scrollbar-hide` (opt-in, Firefox/IE 폴백 포함)"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "name": "ListHeader",
+  "source": "specs/components/list-header.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "목록 제목 — 글자 + 오른쪽 작은 버튼 자리",
+    "action": "오른쪽 작은 버튼(도움말 · 전체 보기) — 있을 때만"
+  },
+  "axes": {
+    "variant": [
+      "mediumWeak",
+      "boldSolid"
+    ]
+  },
+  "defaults": {
+    "variant": "mediumWeak"
+  },
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "paddingX": 24,
+          "paddingY": 8,
+          "gap": 10,
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "mediumWeak"
+      },
+      "enabled": {
+        "root": {
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "boldSolid"
+      },
+      "enabled": {
+        "root": {
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "줄과 같은 24 — 제목과 줄의 왼쪽이 맞는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "제목과 오른쪽 버튼 사이"
+    }
+  ]
+}

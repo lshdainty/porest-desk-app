@@ -1,0 +1,411 @@
+{
+  "name": "BottomSheet",
+  "source": "specs/components/bottom-sheet.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "overlay": "딤 — 시트 뒤 화면 전체",
+    "root": "시트 — 위 두 모서리만 둥글다. 넓은 화면에서는 가운데에 선다",
+    "handle": "손잡이 — 스냅 높이를 둘 때만",
+    "closeButton": "닫기 — 원, 오른쪽 위. 이름 \"닫기\"",
+    "header": "머리 — 제목 · 설명",
+    "title": "제목 — 시트를 쓰면 늘 있다",
+    "description": "설명 — 덧붙일 말이 있을 때만",
+    "body": "본문 — 넘치면 이 안에서 스크롤",
+    "fog": "끝 흐림 — Scroll Fog(scroll-fog.yaml 의 overlayBody). 넘칠 수 있는 본문에만 걸고, 걸면 늘 켜져 있다",
+    "footer": "바닥 — 버튼",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "handle": [
+      "hidden",
+      "shown"
+    ],
+    "scrollFog": [
+      "off",
+      "on"
+    ]
+  },
+  "defaults": {
+    "handle": "hidden",
+    "scrollFog": "off"
+  },
+  "states": [
+    "enabled",
+    "pressed",
+    "focused"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "overlay": {
+          "background": {
+            "light": "rgba(0, 0, 0, 0.50)",
+            "dark": "rgba(0, 0, 0, 0.65)"
+          },
+          "zIndex": 100
+        },
+        "root": {
+          "maxWidth": 480,
+          "maxHeight": "화면 높이의 90%",
+          "radius": 24,
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          },
+          "shadow": "none",
+          "paddingBottom": "안전 영역",
+          "zIndex": 101
+        },
+        "closeButton": {
+          "size": 28,
+          "radius": 9999,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "iconSize": 14,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "top": 24,
+          "right": 24,
+          "touchTarget": "44 × 44",
+          "transitionProperty": "background-color, scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "header": {
+          "paddingTop": 24,
+          "paddingBottom": 16,
+          "paddingX": 24,
+          "gap": 8
+        },
+        "title": {
+          "typography": {
+            "fontSize": 22,
+            "lineHeight": 30,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "description": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "body": {
+          "paddingX": 24,
+          "paddingBottom": 16
+        },
+        "footer": {
+          "paddingTop": 12,
+          "paddingX": 24,
+          "paddingBottom": 16,
+          "gap": 8,
+          "buttonSize": "large 48"
+        }
+      },
+      "pressed": {
+        "closeButton": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          },
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "handle": "shown"
+      },
+      "enabled": {
+        "handle": {
+          "width": 36,
+          "height": 4,
+          "radius": 9999,
+          "background": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "top": 6,
+          "touchTarget": "44 × 44"
+        }
+      }
+    },
+    {
+      "when": {
+        "scrollFog": "on"
+      },
+      "enabled": {
+        "fog": {
+          "mask": "linear-gradient(#00000000 0%, #00000003 8%, #00000005 16%, #0000000d 22%, #00000014 29%, #00000021 35%, #0000002e 41%, #00000040 47%, #00000052 53%, #00000066 59%, #0000007a 65%, #00000094 71%, #000000ab 78%, #000000c7 84%, #000000e3 92%, #000000ff 100%)",
+          "size": "위 20px · 아래 80px"
+        },
+        "body": {
+          "paddingTop": 20,
+          "paddingBottom": 80,
+          "scrollPadding": "위 20px · 아래 80px"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "열림 — 시트": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.03, 0.4, 0.1, 1)",
+      "properties": [
+        "translateY 100% → 0"
+      ],
+      "note": "모션 줄이기면 150ms 서서히 나타남(v104)"
+    },
+    "열림 — 딤": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "opacity 0 → 1"
+      ]
+    },
+    "닫힘 — 시트": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0.35, 0, 1, 1)",
+      "properties": [
+        "translateY → 100%"
+      ],
+      "note": "끌다 놓아 되돌아갈 때도 같은 시간 · 곡선"
+    },
+    "닫힘 — 딤": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0.35, 0, 1, 1)",
+      "properties": [
+        "opacity → 0"
+      ]
+    },
+    "누름 — 닫기 버튼": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ]
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "overlay",
+      "prop": "background",
+      "note": "porest 딤(v102 — SEED 0.455 는 들이지 않았다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "overlay",
+      "prop": "zIndex",
+      "note": "z-modal — specs/z-index.md L2. 시트는 z-modal-content 101"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "maxWidth",
+      "note": "그보다 좁은 화면은 화면 폭 전체, 넓으면 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "maxHeight",
+      "note": "넘을 내용은 시트가 아니라 페이지로 둔다(SEED) — 시트 안 스크롤로 버티지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "radius",
+      "note": "위 두 모서리만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "shadow",
+      "note": "그림자 없이 딤과 표면 색으로 뜬다(SEED · Elevation)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingBottom",
+      "note": "바닥 버튼 아래 safe-area-inset-bottom 만큼"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "zIndex",
+      "note": "z-modal-content — specs/z-index.md L2"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "closeButton",
+      "prop": "size",
+      "note": "원 — 누르는 영역은 사방 8 넓혀 44 × 44"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "closeButton",
+      "prop": "iconSize",
+      "note": "lucide x"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "closeButton",
+      "prop": "top",
+      "note": "시트 위에서 24 — 제목 첫 줄 가운데와 맞는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "closeButton",
+      "prop": "right",
+      "note": "SEED 16 → 화면 여백 24"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "paddingX",
+      "note": "닫기 버튼이 있으면 제목 오른쪽 64(24 + 원 28 + 12)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "gap",
+      "note": "제목 ↔ 설명"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "paddingBottom",
+      "note": "바닥이 없을 때만 — 그 아래 안전 영역. 바닥이 있으면 0"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "footer",
+      "prop": "paddingBottom",
+      "note": "그 아래 안전 영역"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "footer",
+      "prop": "gap",
+      "note": "버튼 둘이면 반씩 나눈다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "footer",
+      "prop": "buttonSize",
+      "note": "Button large — 하나면 폭 전체"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "closeButton",
+      "prop": "scale",
+      "note": "기준 28 → 0.929(SEED scaleScope: self · v104) — 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "handle",
+      "prop": "background",
+      "note": "SEED palette.gray-400 의 짝(porest gray-400). 누름 색은 두지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "handle",
+      "prop": "top",
+      "note": "시트 위에서 6, 가로 가운데"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "handle",
+      "prop": "touchTarget",
+      "note": "누르면 다음(더 높은) 스냅 높이로 — 가장 높은 높이에서 누르면 닫힌다(SEED). 보조 기술에는 숨긴다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "mask",
+      "note": "Scroll Fog overlayBody(scroll-fog.yaml) — 늘 켜져 있다. 넘쳤는지 재서 켜고 끄지 않는다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "fog",
+      "prop": "size",
+      "note": "본문 상자의 위 · 아래 끝(SEED Bottom Sheet 의 권장)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "paddingTop",
+      "note": "머리 아래 16 은 그대로 두고 본문 안에 더한다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "paddingBottom",
+      "note": "바닥이 있어도 — 끝까지 내려도 마지막 줄이 흐림 아래 남지 않는다. 바닥이 없으면 그 아래 안전 영역"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "scrollPadding",
+      "note": "키보드로 옮긴 칸이 흐림 아래 멈추지 않게"
+    }
+  ]
+}

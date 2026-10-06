@@ -101,7 +101,7 @@ class TransferAccountFields extends StatelessWidget {
           ? const SizedBox.shrink()
           : Text(
               loadErrorText!,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
       data: (list) {
         final candidates = excludeFrom
@@ -171,7 +171,7 @@ class TransferAccountFields extends StatelessWidget {
             padding: const EdgeInsets.only(top: PSpace.x4),
             child: Text(
               l.expTransferSameAsset,
-              style: PTypo.caption.copyWith(color: t.statusDanger),
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
           ),
         const SizedBox(height: PSpace.x12),

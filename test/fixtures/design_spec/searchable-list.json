@@ -1,0 +1,259 @@
+{
+  "name": "SearchableList",
+  "source": "specs/components/searchable-list.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "searchInput": "상단 검색 input",
+    "searchIcon": "검색 input 좌측 Search 아이콘",
+    "container": "결과 목록 상자 — 테두리 · 모양 · 배경 · 최대 높이(스크롤)",
+    "row": "결과 행 — 여백 · 구분선 · 배경, thumbnail ↔ 텍스트 간격",
+    "thumbnail": "좌측 썸네일(card) — 이미지 · swatch",
+    "title": "주제목",
+    "subtitle": "부제목",
+    "emptyState": "결과 0건 안내(\"검색 결과가 없어요\")",
+    "focusRing": "키보드 포커스 링(각 row inner)"
+  },
+  "axes": {
+    "size": [
+      "sm",
+      "md",
+      "lg"
+    ],
+    "selected": [
+      "inactive",
+      "active"
+    ]
+  },
+  "defaults": {
+    "selected": "inactive"
+  },
+  "states": [
+    "enabled",
+    "hover",
+    "focus-visible",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "searchInput": {
+          "tone": "input-md 톤",
+          "paddingLeft": 36
+        },
+        "searchIcon": {
+          "size": 14,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "container": {
+          "borderWidth": 1,
+          "borderColor": "border-subtle",
+          "radius": 6,
+          "background": "var(--bg-surface)"
+        },
+        "row": {
+          "dividerWidth": 1,
+          "dividerColor": "border-subtle",
+          "cursor": "pointer"
+        },
+        "thumbnail": {
+          "radius": 4
+        },
+        "title": {
+          "fontSize": 13
+        },
+        "subtitle": {
+          "fontSize": 11.5,
+          "fontWeight": "regular",
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "emptyState": {
+          "paddingY": 24,
+          "fontSize": 12,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "row": {
+          "opacity": 0.7
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "sm"
+      },
+      "enabled": {
+        "container": {
+          "maxHeight": 200
+        },
+        "row": {
+          "paddingY": 8,
+          "paddingX": 12,
+          "gap": 10
+        },
+        "thumbnail": {
+          "width": 32,
+          "height": 20
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "md"
+      },
+      "enabled": {
+        "container": {
+          "maxHeight": 260
+        },
+        "row": {
+          "paddingY": 10,
+          "paddingX": 12,
+          "gap": 12
+        },
+        "thumbnail": {
+          "width": 44,
+          "height": 28
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "lg"
+      },
+      "enabled": {
+        "container": {
+          "maxHeight": 320
+        },
+        "row": {
+          "paddingY": 14,
+          "paddingX": 16,
+          "gap": 14
+        },
+        "thumbnail": {
+          "width": 56,
+          "height": 36
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "inactive"
+      },
+      "enabled": {
+        "row": {
+          "background": "transparent"
+        },
+        "title": {
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": "medium"
+        }
+      },
+      "hover": {
+        "row": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "active"
+      },
+      "enabled": {
+        "row": {
+          "background": "var(--bg-brand-subtle)"
+        },
+        "title": {
+          "color": "var(--color-primary-strong)",
+          "fontWeight": "semi"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "searchInput",
+      "prop": "tone",
+      "note": "input spec"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "container",
+      "prop": "borderColor",
+      "note": "`var(--color-border-subtle)`"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "container",
+      "prop": "radius",
+      "note": "`var(--radius-md)`"
+    },
+    {
+      "rule": 0,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "row",
+      "prop": "opacity",
+      "note": "`opacity 0.7` + badge 표시"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "row",
+      "prop": "gap",
+      "note": "thumb ↔ text"
+    },
+    {
+      "rule": 4,
+      "state": "hover",
+      "slot": "row",
+      "prop": "background",
+      "note": "subtle"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "color",
+      "note": "또는 `var(--color-primary)` 환경에 맞춰"
+    }
+  ]
+}

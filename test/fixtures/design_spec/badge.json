@@ -1,0 +1,708 @@
+{
+  "name": "Badge",
+  "source": "specs/components/badge.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "상자 — 둥근 사각. 글만큼 넓어지고 최대 폭이 없다(부모가 좁을 때만 글이 말줄임)",
+    "prefixIcon": "앞 아이콘 — 글자색을 따른다. 없어도 된다",
+    "label": "글 — 한 줄",
+    "group": "배지 여럿 — 한 대상에 둘까지, 사이 4"
+  },
+  "axes": {
+    "variant": [
+      "weak",
+      "solid",
+      "outline"
+    ],
+    "tone": [
+      "neutral",
+      "brand",
+      "informative",
+      "positive",
+      "warning",
+      "critical"
+    ],
+    "size": [
+      "medium",
+      "large"
+    ]
+  },
+  "defaults": {
+    "variant": "weak",
+    "tone": "neutral",
+    "size": "medium"
+  },
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "alignItems": "center",
+          "gap": 2,
+          "maxWidth": "none",
+          "cursor": "default"
+        },
+        "prefixIcon": {
+          "color": "currentColor"
+        },
+        "label": {
+          "overflowX": "말줄임"
+        },
+        "group": {
+          "gap": 4
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 20,
+          "paddingX": 6,
+          "paddingY": 2,
+          "radius": 4
+        },
+        "prefixIcon": {
+          "size": 12
+        },
+        "label": {
+          "typography": {
+            "fontSize": 11,
+            "lineHeight": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 24,
+          "paddingX": 8,
+          "paddingY": 4,
+          "radius": 6
+        },
+        "prefixIcon": {
+          "size": 14
+        },
+        "label": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak"
+      },
+      "enabled": {
+        "label": {
+          "fontWeight": 500
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid"
+      },
+      "enabled": {
+        "label": {
+          "fontWeight": 700
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline"
+      },
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "borderWidth": 1
+        },
+        "label": {
+          "fontWeight": 700
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "neutral"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "brand"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#E8F1FE",
+            "dark": "#20314E"
+          },
+          "foreground": {
+            "light": "#013D96",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "informative"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#EAF3FE",
+            "dark": "#21344D"
+          },
+          "foreground": {
+            "light": "#0F5FB3",
+            "dark": "#ACCEFB"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "positive"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#EAF5EC",
+            "dark": "#223927"
+          },
+          "foreground": {
+            "light": "#026E33",
+            "dark": "#AED6B6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "warning"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#FFEFE8",
+            "dark": "#4B2B1F"
+          },
+          "foreground": {
+            "light": "#A53E0A",
+            "dark": "#F9BFA9"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "weak",
+        "tone": "critical"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#FFEFEC",
+            "dark": "#532722"
+          },
+          "foreground": {
+            "light": "#C01016",
+            "dark": "#FFBCB3"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "neutral"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "brand"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          },
+          "foreground": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "informative"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#1D6EC9",
+            "dark": "#0F65BF"
+          },
+          "foreground": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "positive"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#167F3F",
+            "dark": "#117539"
+          },
+          "foreground": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "warning"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#BE490D",
+            "dark": "#B04209"
+          },
+          "foreground": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "solid",
+        "tone": "critical"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#D72323",
+            "dark": "#CC0E17"
+          },
+          "foreground": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "tone": "neutral"
+      },
+      "enabled": {
+        "root": {
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "tone": "brand"
+      },
+      "enabled": {
+        "root": {
+          "borderColor": {
+            "light": "#79A6F3",
+            "dark": "#4C83DC"
+          },
+          "foreground": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "tone": "informative"
+      },
+      "enabled": {
+        "root": {
+          "borderColor": {
+            "light": "#B9D4F6",
+            "dark": "#1C4E8A"
+          },
+          "foreground": {
+            "light": "#1D6EC9",
+            "dark": "#69ABFF"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "tone": "positive"
+      },
+      "enabled": {
+        "root": {
+          "borderColor": {
+            "light": "#BBDAC1",
+            "dark": "#1A582F"
+          },
+          "foreground": {
+            "light": "#167F3F",
+            "dark": "#25C062"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "tone": "warning"
+      },
+      "enabled": {
+        "root": {
+          "borderColor": {
+            "light": "#F5C7B6",
+            "dark": "#833615"
+          },
+          "foreground": {
+            "light": "#BE490D",
+            "dark": "#FF8758"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "outline",
+        "tone": "critical"
+      },
+      "enabled": {
+        "root": {
+          "borderColor": {
+            "light": "#FEC4BC",
+            "dark": "#93231F"
+          },
+          "foreground": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "앞 아이콘 ↔ 글"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "maxWidth",
+      "note": "최대 폭이 없다(SEED 3.0 — 옛 108 · 120 을 걷었다). 부모가 좁거나 따로 막을 때만 글이 한 줄 말줄임(min-width 0 · overflow hidden)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "cursor",
+      "note": "누르지 않는다 — 누르는 자리 · 포커스가 없다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "prefixIcon",
+      "prop": "color",
+      "note": "글자색을 따른다 — 보조 기술에는 숨긴다(aria-hidden)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "overflowX",
+      "note": "한 줄(nowrap · text-overflow ellipsis) — 줄바꿈하지 않는다. 글 전체는 DOM 에 남아 보조 기술이 다 읽는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "gap",
+      "note": "배지 사이 4(SEED 그림) — 한 대상에 둘까지. 넘치면 줄바꿈하지 않고 줄인다(배지를 고른다)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "11 / 15 — 글자 크기 설정을 따른다(SEED rem). 최소 높이는 그대로, 글이 커지면 상자가 따라 커진다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "typography",
+      "note": "12 / 16 — 글자 크기 설정을 따른다(SEED rem)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "안쪽 1px(inset box-shadow) — 상자 크기가 변하지 않는다(SEED)"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "회색 바탕(bg-layer-basement)과 같은 색 — 흰 표면 위에서만 쓴다"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "6.58 · 다크 5.93"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "Desk 8.74 · 다크 5.48 · HR 5.58 · 5.42"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.67 · 7.80"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.72 · 7.78"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.70 · 7.84"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.65 · 7.79"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "다크는 밝은 면 + 짙은 글자로 뒤집힌다(SEED 와 같은 방식)"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "16.41 · 13.42"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "Desk 8.38 · 8.36 · HR 5.06 · 5.06"
+    },
+    {
+      "rule": 14,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.09 · 5.78"
+    },
+    {
+      "rule": 15,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.07 · 5.79"
+    },
+    {
+      "rule": 16,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "주황 — SEED 의 노랑 + 검정 글자가 아니다(porest 주의 색은 주황, Page Banner 와 같다)"
+    },
+    {
+      "rule": 16,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.06 · 5.79"
+    },
+    {
+      "rule": 17,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.06 · 5.77"
+    },
+    {
+      "rule": 18,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "1.23 · 1.56 — 글이 배지를 알린다(선은 장식)"
+    },
+    {
+      "rule": 18,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "7.11 · 7.70"
+    },
+    {
+      "rule": 19,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "Desk 2.45 · 3.86 · HR 2.53 · 4.01 — 의미 색 넷보다 짙다(v109 값 그대로)"
+    },
+    {
+      "rule": 19,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "Desk 8.38 · 6.10 · HR 5.06 · 6.23"
+    },
+    {
+      "rule": 20,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "v117 — 1.52 · 1.73(시트 위 1.50)"
+    },
+    {
+      "rule": 20,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.09 · 6.12"
+    },
+    {
+      "rule": 21,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "v117 — 1.51 · 1.71"
+    },
+    {
+      "rule": 21,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.07 · 6.07"
+    },
+    {
+      "rule": 22,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "v117 — 1.53 · 1.73"
+    },
+    {
+      "rule": 22,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.06 · 6.11"
+    },
+    {
+      "rule": 23,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "v117 — 1.52 · 1.73"
+    },
+    {
+      "rule": 23,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "foreground",
+      "note": "5.06 · 6.08"
+    }
+  ]
+}

@@ -1,0 +1,411 @@
+{
+  "name": "Input Button",
+  "source": "specs/components/input-button.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "상자 — 테두리 · 바탕 · 모서리. 배경 층 버튼이 누르는 영역 전체",
+    "value": "고른 값 — 한 줄, 넘치면 말줄임",
+    "placeholder": "고르기 전의 글 — 고를 값의 종류(\"날짜 선택\")",
+    "prefixIcon": "앞 아이콘",
+    "prefixText": "앞 글자",
+    "suffixText": "뒤 글자",
+    "suffixIcon": "뒤 아이콘 — 여는 것을 알린다(달력 · 시계 · 아래 화살표)",
+    "clearButton": "지우기 — 값이 있고 막히지 않았을 때만, 선택 사항인 칸에",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "size": [
+      "large",
+      "medium",
+      "responsive"
+    ]
+  },
+  "defaults": {
+    "size": "responsive"
+  },
+  "states": [
+    "enabled",
+    "pressed",
+    "focused",
+    "invalid",
+    "disabled",
+    "readonly"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1,
+          "cursor": "pointer",
+          "touchTarget": "상자 전체",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "value": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": 400
+        },
+        "placeholder": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "fontWeight": 400
+        },
+        "prefixIcon": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "prefixText": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "clearButton": {
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "radius": 9999
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "콘텐츠 2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "clearButton": {
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "invalid": {
+        "root": {
+          "borderWidth": 2,
+          "borderColor": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "cursor": "not-allowed"
+        },
+        "value": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "placeholder": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "prefixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "prefixText": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixText": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "suffixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "readonly": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "cursor": "default"
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 52,
+          "radius": 12,
+          "paddingX": 16,
+          "gap": 10
+        },
+        "value": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "placeholder": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "prefixIcon": {
+          "size": 20
+        },
+        "prefixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixIcon": {
+          "size": 20
+        },
+        "clearButton": {
+          "size": 22
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 40,
+          "radius": 8,
+          "paddingX": 14,
+          "gap": 8
+        },
+        "value": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "placeholder": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "prefixIcon": {
+          "size": 16
+        },
+        "prefixText": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixText": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "suffixIcon": {
+          "size": 16
+        },
+        "clearButton": {
+          "size": 18
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "responsive"
+      },
+      "enabled": {
+        "root": {
+          "breakpoint": 1280
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름 · 호버 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ]
+    },
+    "누름 — 콘텐츠": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "값 · 붙이개만 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    },
+    "오류 — 테두리": {
+      "duration": "100ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "border-color"
+      ],
+      "note": "안쪽에 덧그린 2px 의 색이 나타나고 사라진다. SEED 는 0.1s"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "상자 안쪽(inset). 오류의 2px 는 안쪽에 덧그린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "touchTarget",
+      "note": "large 52 · 폭 전체 — AA ✓ · AAA ✓, medium 40 은 데스크톱에서만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "transitionProperty",
+      "note": "누름 · 호버 바탕"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "clearButton",
+      "prop": "color",
+      "note": "lucide circle-x. 이름 \"지우기\" — 누르면 값을 비운다(열지 않는다)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝. 마우스는 호버에 같은 바탕"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "scale",
+      "note": "값 · 붙이개만 준다(SEED scaleScope: content) — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px. 테두리 · 바탕은 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "clearButton",
+      "prop": "scale",
+      "note": "지우기만 따로 준다(SEED scaleScope: self) — 상자는 누름이 아니다"
+    },
+    {
+      "rule": 0,
+      "state": "invalid",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "1px 위에 2px 가 나타난다(100ms) — 두께는 바로"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "흐리게 하지 않는다(v106)"
+    },
+    {
+      "rule": 0,
+      "state": "readonly",
+      "slot": "root",
+      "prop": "background",
+      "note": "값은 진한 글자 그대로 — 바탕만으로 가른다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "breakpoint",
+      "note": "미만은 large, 이상은 medium 의 값을 쓴다(SEED lg) — 앱은 늘 large"
+    }
+  ]
+}

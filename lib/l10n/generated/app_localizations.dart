@@ -12481,6 +12481,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결제일을 넣어 주세요'**
   String get assetPaymentDayMissing;
+
+  /// 로딩 원(Progress Circle)의 기본 이름 — 스크린 리더가 읽는다. 기다리는 일을 알면 그 이름을 넘긴다(영수증 사진 올리는 중)
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오는 중'**
+  String get dsProgressCircleLabel;
+
+  /// 기다리는 영역이 1초를 넘으면 보조 기술에 한 번 읽는 글(Skeleton 의 상태 글). 세 점이 아니라 말줄임표 하나
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오는 중…'**
+  String get dsLoadingWaiting;
+
+  /// 기다리는 영역이 5초를 넘으면 보이고 읽는 글(Skeleton 의 오래 걸림 글)
+  ///
+  /// In ko, this message translates to:
+  /// **'평소보다 오래 걸리고 있어요.'**
+  String get dsLoadingSlow;
+
+  /// Progress — 한도를 넘었을 때 오른쪽 글("20,000원 초과")
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount} 초과'**
+  String dsProgressOver(String amount);
+
+  /// Progress — 목표에 닿았을 때 오른쪽 글
+  ///
+  /// In ko, this message translates to:
+  /// **'달성'**
+  String get dsProgressReached;
+
+  /// Progress 막대의 이름 — "식비 예산 400,000원 중 350,000원"
+  ///
+  /// In ko, this message translates to:
+  /// **'{label} {max} 중 {current}'**
+  String dsProgressSemantics(String label, String max, String current);
 }
 
 class _AppLocalizationsDelegate

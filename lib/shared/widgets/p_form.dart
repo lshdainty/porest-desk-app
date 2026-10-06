@@ -105,14 +105,14 @@ class PFormGroup extends StatelessWidget {
                 fontFamily: PTypo.sans,
                 fontSize: PFontSize.body,
                 fontWeight: PFontWeight.medium,
-                color: hasError ? t.statusDanger : t.fgPrimary,
+                color: hasError ? t.statusDangerFg : t.fgPrimary,
               ),
               children: [
                 TextSpan(text: label),
                 if (required)
                   TextSpan(
                     text: ' *',
-                    style: TextStyle(color: t.statusDanger),
+                    style: TextStyle(color: t.statusDangerFg),
                   ),
               ],
             ),
@@ -139,7 +139,7 @@ class PFormGroup extends StatelessWidget {
               fontFamily: PTypo.sans,
               fontSize: PFontSize.bodySm,
               fontWeight: PFontWeight.medium,
-              color: t.statusDanger,
+              color: t.statusDangerFg,
             ),
           ),
         ],

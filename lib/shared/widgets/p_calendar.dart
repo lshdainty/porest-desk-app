@@ -366,7 +366,8 @@ class _DayCell extends StatelessWidget {
     FontWeight weight = PFontWeight.regular;
 
     if (isSelected) {
-      btnBg = t.bgBrand;
+      // 흰 글자를 얹는 채움 — 채움 역할(웹 calendar selected 와 같다)
+      btnBg = t.bgBrandSolid;
       textColor = t.fgOnBrand;
       weight = PFontWeight.semi;
     } else if (isToday) {

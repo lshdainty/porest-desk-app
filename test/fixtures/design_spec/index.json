@@ -1,0 +1,343 @@
+{
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "components": [
+    {
+      "file": "accordion.json",
+      "name": "Accordion",
+      "source": "specs/components/accordion.yaml"
+    },
+    {
+      "file": "alert-dialog.json",
+      "name": "AlertDialog",
+      "source": "specs/components/alert-dialog.yaml"
+    },
+    {
+      "file": "aspect-ratio.json",
+      "name": "AspectRatio",
+      "source": "specs/components/aspect-ratio.yaml"
+    },
+    {
+      "file": "avatar-stack.json",
+      "name": "AvatarStack",
+      "source": "specs/components/avatar-stack.yaml"
+    },
+    {
+      "file": "avatar.json",
+      "name": "Avatar",
+      "source": "specs/components/avatar.yaml"
+    },
+    {
+      "file": "badge.json",
+      "name": "Badge",
+      "source": "specs/components/badge.yaml"
+    },
+    {
+      "file": "bottom-sheet.json",
+      "name": "BottomSheet",
+      "source": "specs/components/bottom-sheet.yaml"
+    },
+    {
+      "file": "breadcrumb.json",
+      "name": "Breadcrumb",
+      "source": "specs/components/breadcrumb.yaml"
+    },
+    {
+      "file": "button.json",
+      "name": "Button",
+      "source": "specs/components/button.yaml"
+    },
+    {
+      "file": "callout.json",
+      "name": "Callout",
+      "source": "specs/components/callout.yaml"
+    },
+    {
+      "file": "card-art.json",
+      "name": "CardArt",
+      "source": "specs/components/card-art.yaml"
+    },
+    {
+      "file": "card.json",
+      "name": "Card",
+      "source": "specs/components/card.yaml"
+    },
+    {
+      "file": "chart.json",
+      "name": "Chart",
+      "source": "specs/components/chart.yaml"
+    },
+    {
+      "file": "checkbox.json",
+      "name": "Checkbox",
+      "source": "specs/components/checkbox.yaml"
+    },
+    {
+      "file": "chip-tabs.json",
+      "name": "ChipTabs",
+      "source": "specs/components/chip-tabs.yaml"
+    },
+    {
+      "file": "chip.json",
+      "name": "Chip",
+      "source": "specs/components/chip.yaml"
+    },
+    {
+      "file": "color-swatch.json",
+      "name": "ColorSwatch",
+      "source": "specs/components/color-swatch.yaml"
+    },
+    {
+      "file": "command.json",
+      "name": "Command",
+      "source": "specs/components/command.yaml"
+    },
+    {
+      "file": "content-placeholder.json",
+      "name": "ContentPlaceholder",
+      "source": "specs/components/content-placeholder.yaml"
+    },
+    {
+      "file": "date-picker.json",
+      "name": "DatePicker",
+      "source": "specs/components/date-picker.yaml"
+    },
+    {
+      "file": "dialog.json",
+      "name": "Dialog",
+      "source": "specs/components/dialog.yaml"
+    },
+    {
+      "file": "divider.json",
+      "name": "Divider",
+      "source": "specs/components/divider.yaml"
+    },
+    {
+      "file": "field.json",
+      "name": "Field",
+      "source": "specs/components/field.yaml"
+    },
+    {
+      "file": "help-bubble.json",
+      "name": "HelpBubble",
+      "source": "specs/components/help-bubble.yaml"
+    },
+    {
+      "file": "icon-picker.json",
+      "name": "IconPicker",
+      "source": "specs/components/icon-picker.yaml"
+    },
+    {
+      "file": "image-frame.json",
+      "name": "ImageFrame",
+      "source": "specs/components/image-frame.yaml"
+    },
+    {
+      "file": "input-button.json",
+      "name": "Input Button",
+      "source": "specs/components/input-button.yaml"
+    },
+    {
+      "file": "input-otp.json",
+      "name": "InputOTP",
+      "source": "specs/components/input-otp.yaml"
+    },
+    {
+      "file": "input.json",
+      "name": "Input",
+      "source": "specs/components/input.yaml"
+    },
+    {
+      "file": "institution-colors.json",
+      "name": "InstitutionColors",
+      "source": "specs/components/institution-colors.yaml"
+    },
+    {
+      "file": "list-header.json",
+      "name": "ListHeader",
+      "source": "specs/components/list-header.yaml"
+    },
+    {
+      "file": "list.json",
+      "name": "List",
+      "source": "specs/components/list.yaml"
+    },
+    {
+      "file": "logo-tile.json",
+      "name": "LogoTile",
+      "source": "specs/components/logo-tile.yaml"
+    },
+    {
+      "file": "menu-sheet.json",
+      "name": "MenuSheet",
+      "source": "specs/components/menu-sheet.yaml"
+    },
+    {
+      "file": "menu.json",
+      "name": "Menu",
+      "source": "specs/components/menu.yaml"
+    },
+    {
+      "file": "navigation-menu.json",
+      "name": "Navigation Menu",
+      "source": "specs/components/navigation-menu.yaml"
+    },
+    {
+      "file": "notification-badge.json",
+      "name": "NotificationBadge",
+      "source": "specs/components/notification-badge.yaml"
+    },
+    {
+      "file": "page-banner.json",
+      "name": "PageBanner",
+      "source": "specs/components/page-banner.yaml"
+    },
+    {
+      "file": "pagination.json",
+      "name": "Pagination",
+      "source": "specs/components/pagination.yaml"
+    },
+    {
+      "file": "popover.json",
+      "name": "Popover",
+      "source": "specs/components/popover.yaml"
+    },
+    {
+      "file": "progress-circle.json",
+      "name": "ProgressCircle",
+      "source": "specs/components/progress-circle.yaml"
+    },
+    {
+      "file": "progress.json",
+      "name": "Progress",
+      "source": "specs/components/progress.yaml"
+    },
+    {
+      "file": "pull-to-refresh.json",
+      "name": "PullToRefresh",
+      "source": "specs/components/pull-to-refresh.yaml"
+    },
+    {
+      "file": "radio-group.json",
+      "name": "Radio Group",
+      "source": "specs/components/radio-group.yaml"
+    },
+    {
+      "file": "resizable.json",
+      "name": "Resizable",
+      "source": "specs/components/resizable.yaml"
+    },
+    {
+      "file": "result-section.json",
+      "name": "ResultSection",
+      "source": "specs/components/result-section.yaml"
+    },
+    {
+      "file": "scroll-area.json",
+      "name": "Scroll Area",
+      "source": "specs/components/scroll-area.yaml"
+    },
+    {
+      "file": "scroll-fog.json",
+      "name": "ScrollFog",
+      "source": "specs/components/scroll-fog.yaml"
+    },
+    {
+      "file": "searchable-list.json",
+      "name": "SearchableList",
+      "source": "specs/components/searchable-list.yaml"
+    },
+    {
+      "file": "segmented-control.json",
+      "name": "SegmentedControl",
+      "source": "specs/components/segmented-control.yaml"
+    },
+    {
+      "file": "select-box.json",
+      "name": "Select Box",
+      "source": "specs/components/select-box.yaml"
+    },
+    {
+      "file": "select.json",
+      "name": "Select",
+      "source": "specs/components/select.yaml"
+    },
+    {
+      "file": "sheet.json",
+      "name": "Sheet",
+      "source": "specs/components/sheet.yaml"
+    },
+    {
+      "file": "sidebar.json",
+      "name": "Sidebar",
+      "source": "specs/components/sidebar.yaml"
+    },
+    {
+      "file": "skeleton.json",
+      "name": "Skeleton",
+      "source": "specs/components/skeleton.yaml"
+    },
+    {
+      "file": "slider.json",
+      "name": "Slider",
+      "source": "specs/components/slider.yaml"
+    },
+    {
+      "file": "snackbar.json",
+      "name": "Snackbar",
+      "source": "specs/components/snackbar.yaml"
+    },
+    {
+      "file": "swipe-actions.json",
+      "name": "Swipe Actions",
+      "source": "specs/components/swipe-actions.yaml"
+    },
+    {
+      "file": "switch.json",
+      "name": "Switch",
+      "source": "specs/components/switch.yaml"
+    },
+    {
+      "file": "table.json",
+      "name": "Table",
+      "source": "specs/components/table.yaml"
+    },
+    {
+      "file": "tabs.json",
+      "name": "Tabs",
+      "source": "specs/components/tabs.yaml"
+    },
+    {
+      "file": "tag-group.json",
+      "name": "TagGroup",
+      "source": "specs/components/tag-group.yaml"
+    },
+    {
+      "file": "textarea.json",
+      "name": "Textarea",
+      "source": "specs/components/textarea.yaml"
+    },
+    {
+      "file": "time-picker.json",
+      "name": "TimePicker",
+      "source": "specs/components/time-picker.yaml"
+    },
+    {
+      "file": "toggle-group.json",
+      "name": "Toggle Group",
+      "source": "specs/components/toggle-group.yaml"
+    },
+    {
+      "file": "toggle.json",
+      "name": "Toggle",
+      "source": "specs/components/toggle.yaml"
+    },
+    {
+      "file": "wheel-picker.json",
+      "name": "WheelPicker",
+      "source": "specs/components/wheel-picker.yaml"
+    }
+  ]
+}

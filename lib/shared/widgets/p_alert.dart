@@ -50,22 +50,22 @@ class PAlert extends StatelessWidget {
         LucideIcons.info,
       ),
       PAlertVariant.info => (
-        t.statusInfo,
+        t.statusInfoFg,
         t.statusInfoSubtle,
         LucideIcons.info,
       ),
       PAlertVariant.success => (
-        t.statusSuccess,
+        t.statusSuccessFg,
         t.statusSuccessSubtle,
         LucideIcons.checkCircle2,
       ),
       PAlertVariant.warning => (
-        t.statusWarning,
+        t.statusWarningFg,
         t.statusWarningSubtle,
         LucideIcons.alertTriangle,
       ),
       PAlertVariant.error => (
-        t.statusDanger,
+        t.statusDangerFg,
         t.statusDangerSubtle,
         LucideIcons.alertOctagon,
       ),

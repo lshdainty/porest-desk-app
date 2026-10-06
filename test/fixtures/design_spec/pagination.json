@@ -1,0 +1,296 @@
+{
+  "name": "Pagination",
+  "source": "specs/components/pagination.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "링크 상자 — ⓓ ⓔ PaginationLink · ⓕ ⓖ PaginationPrevious / Next",
+    "content": "ⓑ PaginationContent — 항목 줄",
+    "ellipsis": "ⓗ PaginationEllipsis",
+    "icon": "chevron · ellipsis 아이콘",
+    "focusRing": "키보드 포커스 링"
+  },
+  "axes": {
+    "link": [
+      "active",
+      "inactive",
+      "prev-next"
+    ]
+  },
+  "defaults": {},
+  "states": [
+    "default",
+    "hover",
+    "focus-visible",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "default": {
+        "content": {
+          "gap": 4
+        },
+        "ellipsis": {
+          "height": 40,
+          "width": 40
+        },
+        "icon": {
+          "size": 16
+        }
+      }
+    },
+    {
+      "when": {
+        "link": "active"
+      },
+      "default": {
+        "root": {
+          "height": 40,
+          "width": 40,
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "borderWidth": 1,
+          "ariaCurrent": "page"
+        }
+      },
+      "hover": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "brightness": "95%"
+        }
+      },
+      "disabled": {
+        "root": {
+          "opacity": 0.5,
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    {
+      "when": {
+        "link": "inactive"
+      },
+      "default": {
+        "root": {
+          "height": 40,
+          "width": 40,
+          "background": "transparent",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hover": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "brightness": "95%"
+        }
+      },
+      "disabled": {
+        "root": {
+          "opacity": 0.5
+        }
+      }
+    },
+    {
+      "when": {
+        "link": "prev-next"
+      },
+      "default": {
+        "root": {
+          "height": 40,
+          "paddingX": "가변",
+          "background": "transparent",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hover": {
+        "root": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "focus-visible": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "brightness": "95%"
+        }
+      },
+      "disabled": {
+        "root": {
+          "opacity": 0.5
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "content",
+      "prop": "gap",
+      "note": "item 사이"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "ellipsis",
+      "prop": "width",
+      "note": "Button `medium` · `iconOnly` 와 동일"
+    },
+    {
+      "rule": 0,
+      "state": "default",
+      "slot": "icon",
+      "prop": "size",
+      "note": "chevron, ellipsis"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "root",
+      "prop": "width",
+      "note": "Button `size=\"medium\" layout=\"iconOnly\"`"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "표 칸은 `+ border`"
+    },
+    {
+      "rule": 1,
+      "state": "default",
+      "slot": "root",
+      "prop": "ariaCurrent",
+      "note": "`aria-current=\"page\"` (semantic) — 시각 변화 없음, semantic만"
+    },
+    {
+      "rule": 1,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+    },
+    {
+      "rule": 1,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "brightness",
+      "note": "`brightness-95` (Button SoT)"
+    },
+    {
+      "rule": 1,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "cursor",
+      "note": "`cursor-not-allowed`"
+    },
+    {
+      "rule": 2,
+      "state": "default",
+      "slot": "root",
+      "prop": "width",
+      "note": "Button `size=\"medium\" layout=\"iconOnly\"`"
+    },
+    {
+      "rule": 2,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2`"
+    },
+    {
+      "rule": 2,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "brightness",
+      "note": "`brightness-95`"
+    },
+    {
+      "rule": 3,
+      "state": "default",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "Button `size=\"medium\"` (`h-10 px-x4`)"
+    },
+    {
+      "rule": 3,
+      "state": "focus-visible",
+      "slot": "focusRing",
+      "prop": "color",
+      "note": "`ring-2 ring-ring ring-offset-2`"
+    },
+    {
+      "rule": 3,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "brightness",
+      "note": "`brightness-95`"
+    }
+  ]
+}

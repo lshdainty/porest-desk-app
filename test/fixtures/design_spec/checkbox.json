@@ -1,0 +1,796 @@
+{
+  "name": "Checkbox",
+  "source": "specs/components/checkbox.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "Checkbox 한 줄 — 칸 + 라벨, 누르는 영역",
+    "checkmark": "칸(Checkmark) — 배경 · 테두리 · 모양. 목록 행에는 이것만 넣어 쓴다",
+    "icon": "체크 · 가로줄(lucide `Check` · `Minus`)",
+    "label": "글자(Label)",
+    "focusRing": "키보드 포커스 링(웹)",
+    "group": "묶음(Checkbox Group) — 세로로 쌓는다"
+  },
+  "axes": {
+    "size": [
+      "medium",
+      "large"
+    ],
+    "shape": [
+      "square",
+      "ghost"
+    ],
+    "tone": [
+      "neutral",
+      "brand"
+    ],
+    "weight": [
+      "regular",
+      "bold"
+    ],
+    "checked": [
+      "unchecked",
+      "checked",
+      "indeterminate"
+    ]
+  },
+  "defaults": {
+    "size": "medium",
+    "shape": "square",
+    "tone": "neutral",
+    "weight": "regular",
+    "checked": "unchecked"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "gap": 8,
+          "cursor": "pointer",
+          "alignSelf": "flex-start",
+          "touchTarget": "44 × 44"
+        },
+        "checkmark": {
+          "radius": 4,
+          "transitionProperty": "background-color, border-color, color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "icon": {
+          "glyph": "Check"
+        },
+        "label": {
+          "fontFamily": "Pretendard, Inter, sans-serif",
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "group": {
+          "gap": 12
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "scale": "세로 2px 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "root": {
+          "cursor": "not-allowed"
+        },
+        "label": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 32
+        },
+        "checkmark": {
+          "size": 20
+        },
+        "label": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "minHeight": 36
+        },
+        "checkmark": {
+          "size": 24
+        },
+        "label": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium",
+        "shape": "square"
+      },
+      "enabled": {
+        "icon": {
+          "size": 12
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large",
+        "shape": "square"
+      },
+      "enabled": {
+        "icon": {
+          "size": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium",
+        "shape": "ghost"
+      },
+      "enabled": {
+        "icon": {
+          "size": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large",
+        "shape": "ghost"
+      },
+      "enabled": {
+        "icon": {
+          "size": 18
+        }
+      }
+    },
+    {
+      "when": {
+        "weight": "regular"
+      },
+      "enabled": {
+        "label": {
+          "fontWeight": 400
+        }
+      }
+    },
+    {
+      "when": {
+        "weight": "bold"
+      },
+      "enabled": {
+        "label": {
+          "fontWeight": 700
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "checked": "unchecked"
+      },
+      "enabled": {
+        "checkmark": {
+          "background": "transparent",
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "borderWidth": 1
+        },
+        "icon": {
+          "glyph": "none"
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "checked": "checked"
+      },
+      "enabled": {
+        "checkmark": {
+          "borderWidth": 0
+        }
+      },
+      "disabled": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "checked": "indeterminate"
+      },
+      "enabled": {
+        "checkmark": {
+          "borderWidth": 0
+        },
+        "icon": {
+          "glyph": "Minus"
+        }
+      },
+      "disabled": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "tone": "neutral",
+        "checked": "checked"
+      },
+      "enabled": {
+        "checkmark": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "icon": {
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "tone": "neutral",
+        "checked": "indeterminate"
+      },
+      "enabled": {
+        "checkmark": {
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "icon": {
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "tone": "brand",
+        "checked": "checked"
+      },
+      "enabled": {
+        "checkmark": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        },
+        "icon": {
+          "color": "#FFFFFF"
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#013D96",
+            "dark": "#1A5AC2"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#013D96",
+            "dark": "#1A5AC2"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "square",
+        "tone": "brand",
+        "checked": "indeterminate"
+      },
+      "enabled": {
+        "checkmark": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        },
+        "icon": {
+          "color": "#FFFFFF"
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#013D96",
+            "dark": "#1A5AC2"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#013D96",
+            "dark": "#1A5AC2"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "ghost"
+      },
+      "enabled": {
+        "checkmark": {
+          "background": "transparent",
+          "borderWidth": 0
+        },
+        "icon": {
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "ghost",
+        "checked": "indeterminate"
+      },
+      "enabled": {
+        "icon": {
+          "glyph": "Minus"
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "ghost",
+        "tone": "neutral",
+        "checked": "checked"
+      },
+      "enabled": {
+        "icon": {
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "ghost",
+        "tone": "neutral",
+        "checked": "indeterminate"
+      },
+      "enabled": {
+        "icon": {
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "disabled": {
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "ghost",
+        "tone": "brand",
+        "checked": "checked"
+      },
+      "enabled": {
+        "icon": {
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          }
+        }
+      },
+      "disabled": {
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "shape": "ghost",
+        "tone": "brand",
+        "checked": "indeterminate"
+      },
+      "enabled": {
+        "icon": {
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "hovered": {
+        "checkmark": {
+          "background": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          }
+        }
+      },
+      "pressed": {
+        "checkmark": {
+          "background": {
+            "light": "#D7E5FC",
+            "dark": "#1F3A69"
+          }
+        }
+      },
+      "disabled": {
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "선택 안 됨 ↔ 선택 ↔ 일부 선택": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background",
+        "border",
+        "icon color"
+      ],
+      "note": "칸의 채움 · 테두리 · 아이콘 색이 함께 바뀐다(SEED Checkmark 와 같다) — 아이콘은 커지거나 줄지 않는다"
+    },
+    "누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "칸만 세로 2px 거리 축소 — 라벨은 줄지 않는다(v104)"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "alignSelf",
+      "note": "줄은 칸 + 라벨만큼만 차지한다 — 묶음 폭으로 늘이지 않는다(직접 짠 줄은 묶음 폭을 쓴다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "touchTarget",
+      "note": "라벨까지 묶어 44 — 목록 행에서 칸만 쓰면 줄 전체가 누르는 영역(SEED touch target · 기초 Inclusive)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "glyph",
+      "note": "lucide `Check` · 선 3"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "gap",
+      "note": "묶음 안 줄 사이(세로) — 줄 32 · 36 에 12 를 더해 44 · 48 마다 한 줄이라 이웃 줄과 누르는 영역(44)이 겹치지 않는다(사용자 결정 — SEED 는 4)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "checkmark",
+      "prop": "scale",
+      "note": "칸만 준다 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(Feedback 의 눌림 피드백, v104)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "root",
+      "prop": "cursor",
+      "note": "포인터 이벤트는 켜 둔다 — 끄면 이 커서가 안 보인다(SEED 와 같다)"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "checkmark",
+      "prop": "borderColor",
+      "note": "3:1 이상 — v109(SEED 는 옅은 선)"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "glyph",
+      "note": "선택 안 된 칸에는 아이콘이 없다"
+    },
+    {
+      "rule": 9,
+      "state": "pressed",
+      "slot": "checkmark",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝"
+    },
+    {
+      "rule": 9,
+      "state": "disabled",
+      "slot": "checkmark",
+      "prop": "borderColor",
+      "note": "SEED stroke.neutral-muted 의 불투명 짝"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "glyph",
+      "note": "lucide `Minus` · 선 3"
+    },
+    {
+      "rule": 16,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "color",
+      "note": "선택 안 됨도 옅은 체크로 보인다"
+    },
+    {
+      "rule": 17,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "glyph",
+      "note": "lucide `Minus` · 선 3"
+    },
+    {
+      "rule": 18,
+      "state": "pressed",
+      "slot": "checkmark",
+      "prop": "background",
+      "note": "SEED palette.gray-200"
+    },
+    {
+      "rule": 20,
+      "state": "pressed",
+      "slot": "checkmark",
+      "prop": "background",
+      "note": "SEED palette.carrot-200 자리 — 브랜드 200"
+    }
+  ]
+}

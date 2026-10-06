@@ -356,7 +356,11 @@ class _ImportViewState extends ConsumerState<ImportView> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(LucideIcons.triangleAlert, size: 17, color: t.statusDanger),
+              Icon(
+                LucideIcons.triangleAlert,
+                size: 17,
+                color: t.statusDangerFg,
+              ),
               const SizedBox(width: PSpace.x8),
               Expanded(
                 child: Column(
@@ -458,7 +462,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
                             TextSpan(
                               text: ' *',
                               style: PTypo.bodySm.copyWith(
-                                color: t.statusDanger,
+                                color: t.statusDangerFg,
                               ),
                             ),
                         ],
@@ -588,7 +592,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
                             child: Text(
                               l.importDupBadge,
                               style: PTypo.micro.copyWith(
-                                color: t.statusWarning,
+                                color: t.statusWarningFg,
                                 fontWeight: PFontWeight.bold,
                               ),
                             ),

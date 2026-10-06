@@ -1,0 +1,163 @@
+{
+  "name": "InputOTP",
+  "source": "specs/components/input-otp.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "ⓐ container — cell · separator 가로 배치",
+    "cell": "ⓑ cell — 한 자리",
+    "separator": "ⓒ separator — 그룹 표시(옵션)",
+    "focusRing": "활성 cell 의 outline · error ring"
+  },
+  "axes": {},
+  "defaults": {},
+  "states": [
+    "empty",
+    "filled",
+    "focus",
+    "error",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "empty": {
+        "root": {
+          "gap": 4
+        },
+        "cell": {
+          "width": 40,
+          "height": 40,
+          "typography": {
+            "fontSize": 18,
+            "fontWeight": 600,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontFamily": "ui-monospace",
+          "radius": 8,
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "touchTarget": "40 × 40"
+        },
+        "separator": {
+          "paddingY": 0,
+          "paddingX": 4
+        }
+      },
+      "filled": {
+        "cell": {
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "focus": {
+        "cell": {
+          "background": "empty 또는 filled 유지"
+        },
+        "focusRing": {
+          "width": 2,
+          "offset": 1,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "error": {
+        "cell": {
+          "background": "empty/filled 유지",
+          "borderColor": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        },
+        "focusRing": {
+          "width": 2,
+          "color": {
+            "light": "#D723234D",
+            "dark": "#FF84774D"
+          }
+        }
+      },
+      "disabled": {
+        "cell": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          },
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "cursor": "not-allowed"
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "empty",
+      "slot": "cell",
+      "prop": "fontFamily",
+      "note": "monospace"
+    },
+    {
+      "rule": 0,
+      "state": "empty",
+      "slot": "cell",
+      "prop": "touchTarget",
+      "note": "AA ✓ / AAA ⚠ 미달 (모바일 IME 자동 채우기로 직접 탭 비중 낮음)"
+    },
+    {
+      "rule": 0,
+      "state": "focus",
+      "slot": "focusRing",
+      "prop": "width",
+      "note": "outline"
+    },
+    {
+      "rule": 0,
+      "state": "error",
+      "slot": "focusRing",
+      "prop": "width",
+      "note": "ring"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "cell",
+      "prop": "background",
+      "note": "opacity 0.5"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "cell",
+      "prop": "borderColor",
+      "note": "opacity 0.5"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "cell",
+      "prop": "cursor",
+      "note": "`cursor:not-allowed`"
+    }
+  ]
+}

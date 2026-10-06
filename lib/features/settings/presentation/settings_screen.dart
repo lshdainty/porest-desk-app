@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -136,6 +137,15 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
         ),
       ],
     ),
+    // 개발 전용 — 새 컴포넌트 라이브러리 카탈로그(lib/shared/ds/catalog). 운영 빌드에는
+    // 길도 이 줄도 없다(kDebugMode). 개발 도구라 글은 l10n 을 거치지 않는다.
+    if (kDebugMode)
+      _SettingsGroup(
+        label: '개발',
+        items: [
+          _SettingsItem(label: '컴포넌트 카탈로그', onTap: (c) => c.push('/dev/ds')),
+        ],
+      ),
   ];
 }
 

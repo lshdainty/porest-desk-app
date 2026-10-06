@@ -1,0 +1,224 @@
+{
+  "name": "Progress",
+  "source": "specs/components/progress.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "9d344caf3f10"
+  },
+  "slots": {
+    "root": "묶음 — 이름 줄 · 막대 · 금액 줄",
+    "label": "이름 — 무엇이 얼마나 찼나(식비 예산 · 여행 자금)",
+    "status": "오른쪽 글 — 비율 · \"N원 초과\" · \"달성\"",
+    "track": "트랙 — 막대 바탕(값이 0 이어도 보인다)",
+    "fill": "채움 — 값만큼, 넘쳐도 끝까지만",
+    "amount": "금액 줄 — \"현재 / 목표\""
+  },
+  "axes": {
+    "meaning": [
+      "limit",
+      "goal"
+    ]
+  },
+  "defaults": {
+    "meaning": "limit"
+  },
+  "states": [
+    "enabled",
+    "over",
+    "reached"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "gap": 6
+        },
+        "label": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "status": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "track": {
+          "height": 8,
+          "radius": 9999,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "fill": {
+          "width": "값 ÷ 목표(최대 100%)",
+          "radius": 9999,
+          "background": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "transitionProperty": "width",
+          "transitionDuration": "300ms",
+          "transitionEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "amount": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "numerals": "tabular-nums"
+        }
+      }
+    },
+    {
+      "when": {
+        "meaning": "limit"
+      },
+      "over": {
+        "fill": {
+          "width": "100%",
+          "background": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        },
+        "status": {
+          "foreground": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          },
+          "fontWeight": 700
+        }
+      }
+    },
+    {
+      "when": {
+        "meaning": "goal"
+      },
+      "reached": {
+        "fill": {
+          "width": "100%"
+        },
+        "status": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": 700
+        }
+      }
+    }
+  ],
+  "motion": {
+    "채움": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "width"
+      ],
+      "note": "값이 바뀔 때만 — 처음 그릴 때는 움직이지 않는다. 모션 줄이기면 바로"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "이름 줄 ↔ 막대 ↔ 금액 줄 6"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "status",
+      "prop": "typography",
+      "note": "이름 줄 오른쪽 끝, 글자 바탕선 맞춤 — 숫자 폭을 같게(tabular-nums). 비율은 반올림한 정수(\"88%\")"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "track",
+      "prop": "background",
+      "note": "흰 면 위 1.08 · 다크 1.30 — 장식(값은 채움이 보인다). 흰 면 위에 둔다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "fill",
+      "prop": "width",
+      "note": "넘쳐도 끝까지만 채운다. 값이 0 보다 크면 적어도 높이만큼(8) — 둥근 끝이 찌그러지지 않게"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "fill",
+      "prop": "background",
+      "note": "브랜드 글자색 — 다크는 밝은 짝. 트랙과 Desk 7.76 · 다크 4.69, HR 4.69 · 4.79"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "amount",
+      "prop": "numerals",
+      "note": "\"350,000원 / 400,000원\" — 현재 / 목표"
+    },
+    {
+      "rule": 1,
+      "state": "over",
+      "slot": "fill",
+      "prop": "width",
+      "note": "끝까지 — 얼마나 넘었는지는 글이 말한다"
+    },
+    {
+      "rule": 1,
+      "state": "over",
+      "slot": "fill",
+      "prop": "background",
+      "note": "트랙과 4.68 · 다크 4.68"
+    },
+    {
+      "rule": 1,
+      "state": "over",
+      "slot": "status",
+      "prop": "foreground",
+      "note": "\"20,000원 초과\" — 흰 면 위 5.06 · 다크 6.08"
+    },
+    {
+      "rule": 2,
+      "state": "reached",
+      "slot": "fill",
+      "prop": "width",
+      "note": "넘어도 끝까지만 — 색은 그대로 브랜드"
+    },
+    {
+      "rule": 2,
+      "state": "reached",
+      "slot": "status",
+      "prop": "foreground",
+      "note": "\"달성\" — 색을 바꾸지 않는다(사용자 결정)"
+    }
+  ]
+}

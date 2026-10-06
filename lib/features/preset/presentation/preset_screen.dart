@@ -121,7 +121,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             children: [
               Text(
                 '${l.presetLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
               ),
             ],
           ),

@@ -58,10 +58,10 @@ void showPSnackBar(
   // 아이콘 색만 severity 를 탄다. neutral 은 아이콘 자체가 없다(스펙: default kind).
   final (Color? iconColor, IconData? icon) = switch (severity) {
     PSnackSeverity.neutral => (null, null),
-    PSnackSeverity.success => (t.statusSuccess, LucideIcons.circleCheck),
-    PSnackSeverity.info => (t.statusInfo, LucideIcons.info),
-    PSnackSeverity.warning => (t.statusWarning, LucideIcons.triangleAlert),
-    PSnackSeverity.error => (t.statusDanger, LucideIcons.circleAlert),
+    PSnackSeverity.success => (t.statusSuccessFg, LucideIcons.circleCheck),
+    PSnackSeverity.info => (t.statusInfoFg, LucideIcons.info),
+    PSnackSeverity.warning => (t.statusWarningFg, LucideIcons.triangleAlert),
+    PSnackSeverity.error => (t.statusDangerFg, LucideIcons.circleAlert),
   };
 
   final m = messenger ?? ScaffoldMessenger.of(context);

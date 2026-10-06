@@ -368,7 +368,7 @@ class PField extends StatelessWidget {
             ),
             if (required) ...[
               const SizedBox(width: 2),
-              Text('*', style: PTypo.caption.copyWith(color: t.statusDanger)),
+              Text('*', style: PTypo.caption.copyWith(color: t.statusDangerFg)),
             ],
           ],
         ),
@@ -378,7 +378,7 @@ class PField extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             errorText!,
-            style: PTypo.caption.copyWith(color: t.statusDanger),
+            style: PTypo.caption.copyWith(color: t.statusDangerFg),
           ),
         ] else if (hint != null) ...[
           const SizedBox(height: 2),
