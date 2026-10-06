@@ -4070,5 +4070,8 @@
   "dsLoadingSlow": "This is taking longer than usual.",
   "dsProgressOver": "{amount} over",
   "dsProgressReached": "Reached",
-  "dsProgressSemantics": "{label}: {current} of {max}"
+  "dsProgressSemantics": "{label}: {current} of {max}",
+  "dsFieldOptional": "Optional",
+  "dsFieldCountSemantics": "{count} of {max} characters",
+  "dsInputClear": "Clear"
 }

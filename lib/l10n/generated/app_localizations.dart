@@ -12517,6 +12517,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{label} {max} 중 {current}'**
   String dsProgressSemantics(String label, String max, String current);
+
+  /// Field — 한 화면 칸의 2/3 이상이 필수일 때 선택 칸의 라벨 뒤에 붙는 글(field.yaml optionalIndicator — 글은 정해져 있다)
+  ///
+  /// In ko, this message translates to:
+  /// **'선택'**
+  String get dsFieldOptional;
+
+  /// Field — 꼬리의 글자 수(보이는 글은 "4/12")를 화면 읽기 프로그램이 읽는 글
+  ///
+  /// In ko, this message translates to:
+  /// **'{max}자 중 {count}자'**
+  String dsFieldCountSemantics(int count, int max);
+
+  /// Input — 값을 한 번에 지우는 버튼(원 X 아이콘)의 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get dsInputClear;
 }
 
 class _AppLocalizationsDelegate

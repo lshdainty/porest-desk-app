@@ -13,17 +13,26 @@ import '../../support/design_spec.dart';
 
 final _spec = DesignSpec.load('skeleton');
 
-Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) =>
-    MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      home: MediaQuery(
-        data: MediaQueryData(disableAnimations: reduceMotion),
-        child: Scaffold(body: Center(child: child)),
-      ),
-    );
+// supportsAnnounce — 플랫폼이 알림(SemanticsService.sendAnnouncement)을 받는지. 받지 않으면(안드로이드 등) 상태 글은
+// 라이브 영역으로 읽힌다
+Widget _host(
+  Brightness mode,
+  Widget child, {
+  bool reduceMotion = false,
+  bool supportsAnnounce = true,
+}) => MaterialApp(
+  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: const Locale('ko'),
+  home: MediaQuery(
+    data: MediaQueryData(
+      disableAnimations: reduceMotion,
+      supportsAnnounce: supportsAnnounce,
+    ),
+    child: Scaffold(body: Center(child: child)),
+  ),
+);
 
 PSkeletonShimmerPainter? _shimmer(WidgetTester tester, [int index = 0]) {
   final paints = find.byWidgetPredicate(
@@ -344,6 +353,65 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1001));
       await tester.pump(const Duration(seconds: 4));
       expect(said, ['불러오는 중…', '평소보다 오래 걸리고 있어요.']);
+    });
+
+    testWidgets('알림을 받지 않는 플랫폼에서는 라이브 영역으로 읽고, 다 오면 비운다', (tester) async {
+      final said = <String>[];
+      tester.binding.defaultBinaryMessenger
+          .setMockDecodedMessageHandler<dynamic>(SystemChannels.accessibility, (
+            message,
+          ) async {
+            final m = message as Map;
+            if (m['type'] == 'announce') {
+              said.add((m['data'] as Map)['message'] as String);
+            }
+            return null;
+          });
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger
+            .setMockDecodedMessageHandler<dynamic>(
+              SystemChannels.accessibility,
+              null,
+            ),
+      );
+      final semantics = tester.ensureSemantics();
+      final pending = ValueNotifier(true);
+      addTearDown(pending.dispose);
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          supportsAnnounce: false,
+          PLoadingAnnouncer(
+            child: ValueListenableBuilder<bool>(
+              valueListenable: pending,
+              builder: (context, p, _) => skeletonRegion(pending: p),
+            ),
+          ),
+        ),
+      );
+      // 라이브 영역만 — 5초부터는 영역이 보이는 오래 걸림 글도 그린다(그것은 보통 글이다)
+      Finder live([String? text]) => find.byWidgetPredicate(
+        (w) =>
+            w is Semantics &&
+            (w.properties.liveRegion ?? false) &&
+            (text == null || w.properties.label == text),
+      );
+      await tester.pump(const Duration(milliseconds: 1001));
+      await tester.pump(); // 프레임이 끝난 뒤 바꾼다
+      expect(said, isEmpty);
+      expect(
+        tester.getSemantics(live('불러오는 중…')),
+        matchesSemantics(label: '불러오는 중…', isLiveRegion: true),
+      );
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump();
+      expect(live('평소보다 오래 걸리고 있어요.'), findsOneWidget);
+      pending.value = false;
+      await tester.pump();
+      await tester.pump();
+      expect(live(), findsNothing);
+      expect(said, isEmpty);
+      semantics.dispose();
     });
   });
 }

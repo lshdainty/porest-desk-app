@@ -203,11 +203,25 @@ class _PLoadingAnnouncerState extends State<PLoadingAnnouncer> {
   final Map<Object, PWaitPhase> _phases = {};
   final Set<String> _said = {};
 
+  /// 알림을 받지 않는 플랫폼(MediaQuery.supportsAnnounce 가 false — 안드로이드 등)에서 읽힐 글. 화면 밖 라이브
+  /// 영역에 두면 글이 바뀔 때 읽힌다(Field 의 오류와 같은 길).
+  String? _live;
+
+  /// 라이브 영역 글을 바꾼다 — 영역의 빌드 · 정리 중에 불리므로 그 프레임이 끝난 뒤에 바꾼다.
+  void _setLive(String? text) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _live != text) setState(() => _live = text);
+    });
+  }
+
   /// 영역 하나가 기다리기를 멈췄다(다 왔다 · 실패 · 떠남). 모두 끝나면 다음 기다림은 처음부터 센다.
   /// 떠날 때는 새 글을 넣지 않는다 — 남은 영역의 글은 이미 읽혔다.
   void leave(Object region) {
     _phases.remove(region);
-    if (_phases.isEmpty) _said.clear();
+    if (_phases.isEmpty) {
+      _said.clear();
+      if (_live != null) _setLive(null);
+    }
   }
 
   /// 영역 하나의 기다림 — [context] 는 그 영역의 것(글 · 방향을 읽는다).
@@ -222,19 +236,46 @@ class _PLoadingAnnouncerState extends State<PLoadingAnnouncer> {
         : null;
     // 같은 글은 한 번만
     if (next != null && _said.add(next)) {
-      unawaited(
-        SemanticsService.sendAnnouncement(
-          View.of(context),
-          next,
-          Directionality.of(context),
-        ),
-      );
+      if (MediaQuery.supportsAnnounceOf(context)) {
+        unawaited(
+          SemanticsService.sendAnnouncement(
+            View.of(context),
+            next,
+            Directionality.of(context),
+          ),
+        );
+      } else {
+        _setLive(next);
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) =>
-      _AnnouncerScope(announcer: this, child: widget.child);
+  Widget build(BuildContext context) => _AnnouncerScope(
+    announcer: this,
+    // 앱 맨 위에 두므로 자리를 바꾸지 않는다 — 받은 제약을 그대로 넘기고(passthrough), 방향 없이 놓는다
+    child: Stack(
+      alignment: Alignment.topLeft,
+      fit: StackFit.passthrough,
+      children: [
+        widget.child,
+        // 보이지 않는 상태 글 — 알림을 받지 않는 플랫폼에서만 쓴다
+        if (_live != null)
+          Positioned(
+            left: 0,
+            top: 0,
+            width: 1,
+            height: 1,
+            child: Semantics(
+              container: true,
+              liveRegion: true,
+              label: _live,
+              child: const SizedBox.shrink(),
+            ),
+          ),
+      ],
+    ),
+  );
 }
 
 class _AnnouncerScope extends InheritedWidget {
