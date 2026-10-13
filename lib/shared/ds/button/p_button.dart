@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
@@ -90,8 +91,10 @@ class PButton extends StatefulWidget {
   final IconData? icon;
   final String? semanticLabel;
 
-  /// 없으면 비활성.
-  final VoidCallback? onPressed;
+  /// 없으면 비활성. 누른 동작이 끝날 때까지 한 번이다 — [Future] 를 돌려주면(`async` 함수 · mutateAsync) 그것이
+  /// 끝날 때(이행 · 거부)까지 다음 누름을 버린다(시간 창은 없다, 사용자 결정 2026-10-08). 돌려주지 않으면 잠그지 않는다.
+  /// 거부는 삼키지 않고 그대로 넘긴다 — 부르는 쪽이 잡지 않은 오류는 전처럼 한 번 알려진다.
+  final FutureOr<void> Function()? onPressed;
   final PButtonVariant variant;
   final PButtonSize size;
   final PButtonGhostColor ghostColor;
@@ -248,12 +251,14 @@ PButtonColors resolvePButtonColors(
       c.staticWhite.withValues(alpha: 0.3),
       c.staticWhite,
     ),
+    // 로딩 원은 stroke-brand-solid — Progress Circle brand 톤(다크는 밝은 짝). 채움 색 bg-brand-solid 는 다크에서도 짙어
+    // 투명한 버튼 위에서 1.73:1 이었다(2026-10-08 까지)
     PButtonVariant.brandOutline => (
       const Color(0x00000000),
       c.bgLayerDefaultPressed,
       c.fgBrand,
       c.bgBrandWeakPressed,
-      c.bgBrandSolid,
+      c.strokeBrandSolid,
     ),
     PButtonVariant.neutralOutline => (
       const Color(0x00000000),
@@ -318,6 +323,9 @@ PButtonColors resolvePButtonColors(
 class _PButtonState extends State<PButton> {
   bool _pressed = false;
 
+  /// 누른 동작이 끝나기 전 — [PButton.onPressed] 가 돌려준 Future 가 끝날 때까지 다음 누름을 버린다.
+  bool _inFlight = false;
+
   /// 누름 축소의 기준 길이 max(높이, 폭 ÷ 4, 24) — 누르는 순간 그려진 크기에서 잰다.
   double _pressBasis = 24;
 
@@ -335,9 +343,17 @@ class _PButtonState extends State<PButton> {
   }
 
   void _activate() {
-    // 로딩 중엔 누르기를 삼킨다 — 두 번 제출 방지
-    if (!_enabled || widget.loading) return;
-    widget.onPressed!();
+    // 로딩 중 · 누른 동작이 끝나기 전엔 누르기를 삼킨다 — 두 번 제출 방지
+    if (!_enabled || widget.loading || _inFlight) return;
+    final result = widget.onPressed!();
+    if (result is! Future<void>) return;
+    _inFlight = true;
+    // 끝나면(이행 · 거부) 푼다. whenComplete 는 거부를 그대로 넘긴다 — 잡지 않은 오류는 처리되지 않은 오류로 알려진다
+    unawaited(
+      result.whenComplete(() {
+        _inFlight = false;
+      }),
+    );
   }
 
   @override
