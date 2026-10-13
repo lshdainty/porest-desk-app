@@ -3,257 +3,412 @@
   "source": "specs/components/searchable-list.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "searchInput": "상단 검색 input",
-    "searchIcon": "검색 input 좌측 Search 아이콘",
-    "container": "결과 목록 상자 — 테두리 · 모양 · 배경 · 최대 높이(스크롤)",
-    "row": "결과 행 — 여백 · 구분선 · 배경, thumbnail ↔ 텍스트 간격",
-    "thumbnail": "좌측 썸네일(card) — 이미지 · swatch",
-    "title": "주제목",
-    "subtitle": "부제목",
-    "emptyState": "결과 0건 안내(\"검색 결과가 없어요\")",
-    "focusRing": "키보드 포커스 링(각 row inner)"
+    "root": "묶음 — 위 검색칸 + 아래 결과. 검색 시트 · 팝오버 안 또는 화면 · 단계 안",
+    "field": "검색칸 — Input 밑줄형 · 앞 돋보기 · 지우기, 이름 \"검색\"",
+    "results": "결과 목록 — listbox. 줄은 List 의 누르는 줄",
+    "groupHeader": "분류 머리 — List Header mediumWeak(\"시중은행\" · \"증권사\")",
+    "option": "결과 줄 — List 줄. 초점은 받지 않는다",
+    "highlight": "강조 바탕 — 화살표 · 마우스로 짚은 줄",
+    "prefix": "앞 붙이개 — Logo Tile 40 · 카드 그림 56 · Avatar",
+    "title": "제목 — 16 / 22",
+    "detail": "설명 — 13 / 18",
+    "radio": "오른쪽 라디오 — 지금 고른 값",
+    "status": "결과 없음 · 실패 — Result Section medium",
+    "skeleton": "불러오는 줄 — 줄 모양 스켈레톤"
   },
   "axes": {
     "size": [
-      "sm",
-      "md",
-      "lg"
+      "large",
+      "medium"
+    ],
+    "placement": [
+      "sheet",
+      "inline"
+    ],
+    "prefix": [
+      "none",
+      "logo",
+      "cardArt",
+      "avatar"
     ],
     "selected": [
-      "inactive",
-      "active"
+      "other",
+      "current"
     ]
   },
   "defaults": {
-    "selected": "inactive"
+    "size": "large",
+    "placement": "sheet",
+    "prefix": "none",
+    "selected": "other"
   },
   "states": [
     "enabled",
-    "hover",
-    "focus-visible",
-    "disabled"
+    "highlighted",
+    "pressed"
   ],
   "rules": [
     {
       "when": {},
       "enabled": {
-        "searchInput": {
-          "tone": "input-md 톤",
-          "paddingLeft": 36
+        "root": {
+          "gap": 8
         },
-        "searchIcon": {
-          "size": 14,
-          "color": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
-          }
+        "field": {
+          "variant": "underline",
+          "height": 40,
+          "marginX": 24,
+          "position": "sticky"
         },
-        "container": {
-          "borderWidth": 1,
-          "borderColor": "border-subtle",
-          "radius": 6,
-          "background": "var(--bg-surface)"
+        "results": {
+          "role": "listbox",
+          "debounce": "300ms",
+          "maxHeight": "놓인 자리"
         },
-        "row": {
-          "dividerWidth": 1,
-          "dividerColor": "border-subtle",
-          "cursor": "pointer"
+        "groupHeader": {
+          "variant": "mediumWeak"
         },
-        "thumbnail": {
-          "radius": 4
+        "option": {
+          "role": "option",
+          "paddingY": 12,
+          "paddingX": 24,
+          "cursor": "pointer",
+          "touchTarget": "줄 전체"
         },
-        "title": {
-          "fontSize": 13
-        },
-        "subtitle": {
-          "fontSize": 11.5,
-          "fontWeight": "regular",
-          "color": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
-          }
-        },
-        "emptyState": {
-          "paddingY": 24,
-          "fontSize": 12,
-          "color": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
-          }
-        }
-      },
-      "focus-visible": {
-        "focusRing": {
-          "width": 2,
-          "offset": 2,
-          "color": {
-            "light": "#0147AD",
-            "dark": "#7AA9F6"
-          }
-        }
-      },
-      "disabled": {
-        "row": {
-          "opacity": 0.7
-        }
-      }
-    },
-    {
-      "when": {
-        "size": "sm"
-      },
-      "enabled": {
-        "container": {
-          "maxHeight": 200
-        },
-        "row": {
-          "paddingY": 8,
-          "paddingX": 12,
-          "gap": 10
-        },
-        "thumbnail": {
-          "width": 32,
-          "height": 20
-        }
-      }
-    },
-    {
-      "when": {
-        "size": "md"
-      },
-      "enabled": {
-        "container": {
-          "maxHeight": 260
-        },
-        "row": {
-          "paddingY": 10,
-          "paddingX": 12,
-          "gap": 12
-        },
-        "thumbnail": {
-          "width": 44,
-          "height": 28
-        }
-      }
-    },
-    {
-      "when": {
-        "size": "lg"
-      },
-      "enabled": {
-        "container": {
-          "maxHeight": 320
-        },
-        "row": {
-          "paddingY": 14,
-          "paddingX": 16,
-          "gap": 14
-        },
-        "thumbnail": {
-          "width": 56,
-          "height": 36
-        }
-      }
-    },
-    {
-      "when": {
-        "selected": "inactive"
-      },
-      "enabled": {
-        "row": {
-          "background": "transparent"
+        "highlight": {
+          "background": "transparent",
+          "insetX": 6,
+          "radius": 10
         },
         "title": {
-          "color": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
             "light": "#1A1F2E",
             "dark": "#F5F6FA"
+          }
+        },
+        "detail": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
           },
-          "fontWeight": "medium"
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "radio": {
+          "size": 24
+        },
+        "status": {
+          "size": "Result Section medium"
+        },
+        "skeleton": {
+          "size": "줄 다섯"
         }
       },
-      "hover": {
-        "row": {
+      "highlighted": {
+        "highlight": {
           "background": {
-            "light": "#F5F6FA",
+            "light": "#F7F8FD",
             "dark": "#353B4D"
           }
         }
+      },
+      "pressed": {
+        "highlight": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        },
+        "option": {
+          "scale": "2px 거리 축소"
+        }
       }
     },
     {
       "when": {
-        "selected": "active"
+        "size": "medium"
       },
       "enabled": {
-        "row": {
-          "background": "var(--bg-brand-subtle)"
-        },
-        "title": {
-          "color": "var(--color-primary-strong)",
-          "fontWeight": "semi"
+        "field": {
+          "height": 34
+        }
+      }
+    },
+    {
+      "when": {
+        "placement": "sheet"
+      },
+      "enabled": {
+        "option": {
+          "press": "고르고 닫는다"
+        }
+      }
+    },
+    {
+      "when": {
+        "placement": "inline"
+      },
+      "enabled": {
+        "option": {
+          "press": "라디오만 바뀐다"
+        }
+      }
+    },
+    {
+      "when": {
+        "prefix": "logo"
+      },
+      "enabled": {
+        "prefix": {
+          "size": 40
+        }
+      }
+    },
+    {
+      "when": {
+        "prefix": "cardArt"
+      },
+      "enabled": {
+        "prefix": {
+          "width": 56
+        }
+      }
+    },
+    {
+      "when": {
+        "prefix": "avatar"
+      },
+      "enabled": {
+        "prefix": {
+          "size": 36
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "current"
+      },
+      "enabled": {
+        "radio": {
+          "display": "켬"
         }
       }
     }
   ],
+  "motion": {
+    "강조 · 누름 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ],
+      "note": "화살표로 옮길 때는 바로(전환 없이) — 빠르게 누르면 바탕이 따라오지 못한다"
+    },
+    "누름 — 콘텐츠": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "모션 줄이기면 하지 않는다"
+    }
+  },
   "notes": [
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "searchInput",
-      "prop": "tone",
-      "note": "input spec"
+      "slot": "root",
+      "prop": "gap",
+      "note": "검색칸 ↔ 결과 목록 8"
     },
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "container",
-      "prop": "borderColor",
-      "note": "`var(--color-border-subtle)`"
+      "slot": "field",
+      "prop": "variant",
+      "note": "Input 밑줄형(input.yaml) — 화면(시트)에 입력이 하나뿐인 목록 위 검색. 아래 1px stroke-neutral-weak, 입력 중 2px stroke-neutral-contrast · 모서리 · 좌우 여백 없음. 앞 돋보기 · 지우기 · placeholder \"{무엇} 검색\" · 이름 \"검색\"(사용자 결정 17A — 상자형 52 는 고르지 않았다)"
     },
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "container",
+      "slot": "field",
+      "prop": "height",
+      "note": "large — 위아래 8 · 글 18 / 24(t6) · 앞 아이콘 24 · 지우기 22(누르는 영역 44) · 사이 10"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "field",
+      "prop": "marginX",
+      "note": "좌우 24 — 밑줄형은 좌우 여백이 없어 돋보기가 줄의 앞 붙이개와 한 줄에 선다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "field",
+      "prop": "position",
+      "note": "위에 붙는다 — 목록만 스크롤"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "results",
+      "prop": "role",
+      "note": "보조 기술 이름은 그 목록의 대상(\"은행\") — 입력칸이 aria-controls 로 가리킨다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "results",
+      "prop": "debounce",
+      "note": "서버 검색 — 마지막 입력 뒤 300ms 에 한 번 보낸다(글자마다 보내지 않는다). 들고 있는 목록을 거르면 바로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "results",
+      "prop": "maxHeight",
+      "note": "시트는 시트 높이를 채우고, 팝오버는 Popover 최대 높이(600) 안에서 스크롤한다. 강조한 줄은 늘 보이게 스크롤한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "groupHeader",
+      "prop": "variant",
+      "note": "List Header — 14 · 500 · fg-neutral-subtle · 좌우 24 · 위아래 8(list-header.yaml). 분류마다 하나, 걸러져 줄이 없는 분류는 머리도 숨긴다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "option",
+      "prop": "paddingY",
+      "note": "List 줄 그대로 — 좌우 24. 높이 46(한 줄) · 66(두 줄) · 64(앞 40)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "option",
+      "prop": "touchTarget",
+      "note": "46 이상 — AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "highlight",
+      "prop": "insetX",
+      "note": "좌우 6 들어온 바탕(List 의 누름 바탕)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "highlight",
       "prop": "radius",
-      "note": "`var(--radius-md)`"
+      "note": "10 — List 의 누름 바탕과 같다"
     },
     {
       "rule": 0,
-      "state": "focus-visible",
-      "slot": "focusRing",
-      "prop": "color",
-      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+      "state": "enabled",
+      "slot": "detail",
+      "prop": "foreground",
+      "note": "카드사 · 종류 · 연회비처럼 여럿이면 Tag Group(\" · \")"
     },
     {
       "rule": 0,
-      "state": "disabled",
-      "slot": "row",
-      "prop": "opacity",
-      "note": "`opacity 0.7` + badge 표시"
+      "state": "enabled",
+      "slot": "radio",
+      "prop": "size",
+      "note": "Radio 의 동그라미(Radiomark) large — 보는 표시라 보조 기술에 숨긴다(고름은 aria-selected 가 알린다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "status",
+      "prop": "size",
+      "note": "결과 자리 가운데 — 0건 \"'{검색어}'에 대한 검색 결과가 없어요\" · 실패 \"검색 결과를 불러오지 못했어요\" + 다시 시도. 바뀌면 role=\"status\" 로 한 번 알린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "skeleton",
+      "prop": "size",
+      "note": "List 줄 높이 그대로 — 앞 자리(Logo Tile 12 · 카드 그림 Image Frame 의 모서리) + 제목 t5(22) 40% + 설명 t3(18) 60%. 1 · 5 · 10초 시간표(skeleton.md)"
+    },
+    {
+      "rule": 0,
+      "state": "highlighted",
+      "slot": "highlight",
+      "prop": "background",
+      "note": "화살표로 짚은 줄 · 마우스를 올린 줄이 같은 바탕 — 줄은 하나만 강조된다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "option",
+      "prop": "scale",
+      "note": "콘텐츠 층만(List) — 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "field",
+      "prop": "height",
+      "note": "medium — 위아래 6 · 글 16 / 22(t5) · 앞 아이콘 20 · 지우기 18 · 사이 8"
     },
     {
       "rule": 2,
       "state": "enabled",
-      "slot": "row",
-      "prop": "gap",
-      "note": "thumb ↔ text"
+      "slot": "option",
+      "prop": "press",
+      "note": "하나 고르기 — \"완료\" 를 두지 않는다(Input Button 의 \"목록은 누르면 바로\"). 열면 검색칸에 초점, 지금 값이 보이게 스크롤"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "option",
+      "prop": "press",
+      "note": "고른 것을 라디오로 보이고 아무것도 닫거나 넘기지 않는다 — 단계의 버튼(\"다음\" · \"저장\")이 반영한다(Select Box 의 \"반영은 버튼\")"
     },
     {
       "rule": 4,
-      "state": "hover",
-      "slot": "row",
-      "prop": "background",
-      "note": "subtle"
+      "state": "enabled",
+      "slot": "prefix",
+      "prop": "size",
+      "note": "Logo Tile 40 · 모서리 12 · 기관 색 + 첫 글자(logo-tile.yaml) — 이름 옆이라 장식"
     },
     {
       "rule": 5,
       "state": "enabled",
-      "slot": "title",
-      "prop": "color",
-      "note": "또는 `var(--color-primary)` 환경에 맞춰"
+      "slot": "prefix",
+      "prop": "width",
+      "note": "카드 그림 — Image Frame 카드 비율(1.586) · 폭 56 이라 모서리 8. 그림이 없으면 카드 면(card-art.yaml)"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "prefix",
+      "prop": "size",
+      "note": "제목 한 줄 36 · 제목 + 설명 42(Avatar)"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "radio",
+      "prop": "display",
+      "note": "Radio 켬 모양 — 바탕 bg-neutral-inverted + 가운데 점(radio-group.yaml). 줄 바탕은 그대로 — 고른 줄을 칠하지 않는다"
     }
   ]
 }

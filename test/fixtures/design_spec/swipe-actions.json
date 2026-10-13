@@ -3,15 +3,16 @@
   "source": "specs/components/swipe-actions.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "row": "ⓐ 감싸는 리스트 행 — 스펙이 내부를 정의하지 않는다",
-    "track": "ⓑ 행 뒤에 드러나는 영역 — 배경을 칠하지 않는다",
-    "action": "ⓒ 액션 한 칸(버튼) — 원형 배지 + 그 아래 라벨, 세로 가운데. 터치 대상은 이 칸 전체",
+    "row": "ⓐ 감싸는 목록 줄 — 스펙이 내부를 정의하지 않는다. 닫혔을 때 초점을 받을 수 있다(tabIndex -1)",
+    "track": "ⓑ 줄 뒤에 드러나는 자리 — 바탕을 칠하지 않는다",
+    "action": "ⓒ 동작 한 칸(버튼) — 원형 배지 + 그 아래 라벨, 세로 가운데. 누르는 자리는 이 칸 전체",
     "badge": "원형 배지 — 색은 여기만",
     "icon": "배지 안 아이콘",
     "label": "배지 아래 라벨",
+    "moreButton": "줄 끝 ⋮ — 같은 동작을 Menu Sheet 로 여는 다른 길",
     "focusRing": "키보드 포커스 링"
   },
   "axes": {
@@ -44,16 +45,20 @@
           "shadow": "none",
           "transform": "translateX(0)",
           "cursor": "pointer"
+        },
+        "moreButton": {
+          "size": 40
         }
       },
       "hovered": {
         "action": {
-          "brightness": "92%"
+          "brightness": "88%"
         }
       },
       "focused": {
         "focusRing": {
           "width": 2,
+          "offset": -2,
           "color": {
             "light": "#0147AD",
             "dark": "#7AA9F6"
@@ -67,8 +72,25 @@
       },
       "disabled": {
         "action": {
-          "opacity": 0.4,
           "cursor": "not-allowed"
+        },
+        "badge": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "label": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
         }
       }
     },
@@ -81,6 +103,11 @@
           "background": {
             "light": "#F5F6FA",
             "dark": "#353B4D"
+          },
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
           }
         },
         "icon": {
@@ -109,7 +136,10 @@
           }
         },
         "icon": {
-          "color": "#FFFFFF"
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
         },
         "label": {
           "color": {
@@ -131,7 +161,10 @@
           }
         },
         "icon": {
-          "color": "#FFFFFF"
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          }
         },
         "label": {
           "color": {
@@ -147,11 +180,12 @@
       },
       "enabled": {
         "action": {
-          "height": "행 높이",
+          "height": "줄 높이",
           "width": "배지 + 앞 간격",
           "paddingY": 0,
           "paddingX": "앞 간격만",
-          "touchTarget": "✅ · ✅"
+          "gap": 2,
+          "touchTarget": "칸 전체"
         },
         "badge": {
           "size": 36,
@@ -163,50 +197,138 @@
         "label": {
           "typography": {
             "fontSize": 12,
+            "lineHeight": 16,
             "fontWeight": 400,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
-          "fontWeight": 600,
+          "fontWeight": 700,
           "lineHeight": 1.3
         }
       }
     }
   ],
+  "motion": {
+    "열림 · 닫힘": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "transform"
+      ],
+      "note": "모션 줄이기면 바로 — 끌기 따라가기는 모션이 아니라 그대로"
+    }
+  },
   "notes": [
     {
       "rule": 0,
       "state": "enabled",
       "slot": "badge",
       "prop": "background",
-      "note": "배경은 배지에만 있다 — kind 별 값은 Kinds 표"
+      "note": "바탕은 배지에만 있다 — kind 별 값은 Kinds 표"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "transform",
+      "note": "누를 때 움직이지 않는다 — 손가락으로 밀어 둔 트레이와 이중으로 움직인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "moreButton",
+      "prop": "size",
+      "note": "Button ghost · iconOnly · medium — 아이콘 18(lucide ellipsis-vertical) · 누르는 영역 44 · 이름 \"{줄 이름} 더보기\" · 1280 미만이라 Menu Sheet"
     },
     {
       "rule": 0,
       "state": "focused",
       "slot": "focusRing",
+      "prop": "offset",
+      "note": "안쪽 — 트레이 바깥으로 나가면 줄 경계에서 잘린다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "background",
+      "note": "줄 바탕과 1.08 · 다크 1.30 이라 안쪽 1px 테두리로 둘레를 잡는다(배지는 아이콘 · 라벨로 읽힌다)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "background",
+      "note": "라이트 #1D6EC9 · 다크 #69ABFF — 줄 바탕과 5.09 · 다크 6.12(지금 다크 bg-informative-solid #0F65BF 는 2.51)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "icon",
       "prop": "color",
-      "note": "inset — `2px var(--color-border-focus)`"
+      "note": "라이트 흰 · 다크 짙은 글자 — 배지 위 5.09 · 6.12"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "color",
+      "note": "주 동작도 라벨은 회색 — 색은 배지가 말한다(앱의 파랑 라벨은 스펙과 다르다)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "background",
+      "note": "라이트 #D72323 · 다크 #FF8477 — 줄 바탕과 5.06 · 다크 6.08(지금 다크 bg-critical-solid #CC0E17 은 2.51)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "color",
+      "note": "라이트 흰 · 다크 짙은 글자 — 배지 위 5.06 · 6.08"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "color",
+      "note": "줄 바탕 위 5.06 · 다크 6.08 — 라이트 · 다크 한 토큰(옛 error · error-light 두 벌을 걷는다)"
     },
     {
       "rule": 4,
       "state": "enabled",
       "slot": "action",
       "prop": "height",
-      "note": "min 56"
+      "note": "min 56 — 줄이 56 보다 낮으면 56"
     },
     {
       "rule": 4,
       "state": "enabled",
       "slot": "action",
       "prop": "width",
-      "note": "첫 액션 56, 이후 48"
+      "note": "첫 액션 56, 이후 48 — 앞 간격(첫 20 · 다음 12) + 배지 36"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "paddingX",
+      "note": "첫 동작 앞 20 · 동작끼리 12 — 마지막 동작은 화면 끝에 붙는다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "gap",
+      "note": "배지 ↔ 라벨 2"
     },
     {
       "rule": 4,
       "state": "enabled",
       "slot": "action",
       "prop": "touchTarget",
-      "note": "AA · AAA"
+      "note": "48 ~ 56 × 줄 높이(56 이상) — AA ✓ · AAA ✓"
     },
     {
       "rule": 4,
@@ -220,7 +342,21 @@
       "state": "enabled",
       "slot": "label",
       "prop": "typography",
-      "note": "font-size(12)만 토큰 그대로 — 굵기 · 줄 높이는 이 컴포넌트 override(12 / 600 / 1.3)"
+      "note": "12 — 굵기 · 줄 높이는 이 컴포넌트의 값(12 / 700 / 1.3). 칸 폭 48 이 좁아 기본 줄 높이면 두 줄에서 넘친다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "fontWeight",
+      "note": "v100 — 600 은 쓰지 않는다. 버튼 글자와 같은 700"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "label",
+      "prop": "lineHeight",
+      "note": "웹 · 앱 같은 값 — 앱의 1.5 를 고친다"
     }
   ]
 }

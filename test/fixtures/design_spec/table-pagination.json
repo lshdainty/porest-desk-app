@@ -1,0 +1,307 @@
+{
+  "name": "TablePagination",
+  "source": "specs/components/table-pagination.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "7b4422ff0b45"
+  },
+  "slots": {
+    "root": "줄 — 표 아래, 한 줄. 왼쪽 줄 수 · 오른쪽 범위 · 이전 · 다음",
+    "pageSize": "줄 수 고르기 — Select medium \"10개\" · 선택지 10 · 25 · 50",
+    "pageSizeSuffix": "줄 수 뒤 글 — \"씩 보기\"",
+    "pageRange": "범위 고르기 — Select medium \"11-20\" · 목록 최대 높이 240",
+    "total": "전체 수 — \"/ 총 237개\"",
+    "arrow": "이전 · 다음 — Pagination 의 화살표 칸 40. 끝에서는 막힌다",
+    "focusRing": "키보드 포커스 링(웹)"
+  },
+  "axes": {
+    "total": [
+      "known",
+      "unknown"
+    ]
+  },
+  "defaults": {
+    "total": "known"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "height": 40,
+          "justifyContent": "space-between",
+          "gap": 16,
+          "marginTop": 12
+        },
+        "pageSize": {
+          "size": "Select medium",
+          "minWidth": 96,
+          "gap": 8
+        },
+        "pageSizeSuffix": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "pageRange": {
+          "size": "Select medium",
+          "minWidth": 96,
+          "maxHeight": 240,
+          "gap": 8
+        },
+        "total": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "numerals": "tabular-nums"
+        },
+        "arrow": {
+          "size": 40,
+          "radius": 8,
+          "iconSize": 16,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "background": "transparent",
+          "touchTarget": "40 × 44",
+          "cursor": "pointer",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        }
+      },
+      "hovered": {
+        "arrow": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "arrow": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "disabled": {
+        "arrow": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          },
+          "cursor": "not-allowed"
+        },
+        "pageRange": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "total": "unknown"
+      },
+      "enabled": {
+        "pageRange": {
+          "display": "글로만"
+        },
+        "total": {
+          "display": "none"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "바탕 색": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ]
+    },
+    "누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ]
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "한 줄 — 줄바꿈하지 않는다. 좁으면 표와 같은 가로 스크롤 상자 안에 둔다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "justifyContent",
+      "note": "왼쪽 줄 수 · 오른쪽 범위와 화살표"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "왼쪽 묶음 ↔ 오른쪽 묶음 · 범위 묶음 ↔ 화살표 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "marginTop",
+      "note": "표 아래 12 — 따로 정한 간격이 없는 컴포넌트 사이(v101 역할 간격)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "pageSize",
+      "prop": "size",
+      "note": "높이 40 · 최소 폭 96 · 모서리 8 — 선택지 \"10개\" · \"25개\" · \"50개\"(3 ~ 4개를 넘지 않는다). 화면 폭과 상관없이 medium(Select 1280 규칙의 예외 — 사용자 결정 2026-10-08)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "pageSize",
+      "prop": "gap",
+      "note": "고르기 ↔ \"씩 보기\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "pageRange",
+      "prop": "size",
+      "note": "높이 40 · 최소 폭 96 — 선택지는 범위(\"1-10\" · \"11-20\" …). 200개를 넘으면 첫 · 마지막 · 지금 둘레만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "pageRange",
+      "prop": "maxHeight",
+      "note": "열린 목록의 최대 높이 — Select 기본 480 대신(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "pageRange",
+      "prop": "gap",
+      "note": "고르기 ↔ \"/ 총 N개\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "total",
+      "prop": "numerals",
+      "note": "수는 세 자리마다 쉼표(\"1,240\")"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "arrow",
+      "prop": "size",
+      "note": "Pagination 의 화살표 칸 — 둘이 붙는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "arrow",
+      "prop": "iconSize",
+      "note": "lucide chevron-left · chevron-right"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "arrow",
+      "prop": "touchTarget",
+      "note": "위아래만 44 — Pagination 과 같은 예외. AA ✓ · AAA ⚠"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "arrow",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "arrow",
+      "prop": "scale",
+      "note": "기준 40 → 0.95 — 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "칸 바깥 — 고르기의 링은 Select 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "arrow",
+      "prop": "color",
+      "note": "첫 쪽의 이전 · 마지막 쪽의 다음 — 숨기지 않고 막는다(Pagination 과 다르다). 빈 표면 둘 다"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "pageRange",
+      "prop": "foreground",
+      "note": "빈 표 \"0-0\" — 줄 수는 그대로 바꿀 수 있다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "pageRange",
+      "prop": "display",
+      "note": "\"11-20\" — 범위 고르기 · \"/ 총 N개\" 가 없다. 다음이 있는지만 안다"
+    }
+  ]
+}

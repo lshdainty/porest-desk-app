@@ -3,7 +3,7 @@
   "source": "specs/components/date-picker.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "달력 — 시트 · 팝오버의 본문",

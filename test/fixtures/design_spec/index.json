@@ -1,7 +1,7 @@
 {
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "components": [
     {
@@ -35,14 +35,14 @@
       "source": "specs/components/badge.yaml"
     },
     {
+      "file": "bottom-navigation.json",
+      "name": "BottomNavigation",
+      "source": "specs/components/bottom-navigation.yaml"
+    },
+    {
       "file": "bottom-sheet.json",
       "name": "BottomSheet",
       "source": "specs/components/bottom-sheet.yaml"
-    },
-    {
-      "file": "breadcrumb.json",
-      "name": "Breadcrumb",
-      "source": "specs/components/breadcrumb.yaml"
     },
     {
       "file": "button.json",
@@ -63,6 +63,11 @@
       "file": "card.json",
       "name": "Card",
       "source": "specs/components/card.yaml"
+    },
+    {
+      "file": "category-icons.json",
+      "name": "CategoryIcons",
+      "source": "specs/components/category-icons.yaml"
     },
     {
       "file": "chart.json",
@@ -86,7 +91,7 @@
     },
     {
       "file": "color-swatch.json",
-      "name": "ColorSwatch",
+      "name": "Color Swatch",
       "source": "specs/components/color-swatch.yaml"
     },
     {
@@ -120,13 +125,18 @@
       "source": "specs/components/field.yaml"
     },
     {
+      "file": "floating-action-button.json",
+      "name": "FloatingActionButton",
+      "source": "specs/components/floating-action-button.yaml"
+    },
+    {
       "file": "help-bubble.json",
       "name": "HelpBubble",
       "source": "specs/components/help-bubble.yaml"
     },
     {
       "file": "icon-picker.json",
-      "name": "IconPicker",
+      "name": "Icon Picker",
       "source": "specs/components/icon-picker.yaml"
     },
     {
@@ -135,13 +145,18 @@
       "source": "specs/components/image-frame.yaml"
     },
     {
+      "file": "infinite-list.json",
+      "name": "InfiniteList",
+      "source": "specs/components/infinite-list.yaml"
+    },
+    {
       "file": "input-button.json",
       "name": "Input Button",
       "source": "specs/components/input-button.yaml"
     },
     {
       "file": "input-otp.json",
-      "name": "InputOTP",
+      "name": "Input OTP",
       "source": "specs/components/input-otp.yaml"
     },
     {
@@ -178,11 +193,6 @@
       "file": "menu.json",
       "name": "Menu",
       "source": "specs/components/menu.yaml"
-    },
-    {
-      "file": "navigation-menu.json",
-      "name": "Navigation Menu",
-      "source": "specs/components/navigation-menu.yaml"
     },
     {
       "file": "notification-badge.json",
@@ -265,14 +275,14 @@
       "source": "specs/components/select.yaml"
     },
     {
-      "file": "sheet.json",
-      "name": "Sheet",
-      "source": "specs/components/sheet.yaml"
+      "file": "side-navigation.json",
+      "name": "SideNavigation",
+      "source": "specs/components/side-navigation.yaml"
     },
     {
-      "file": "sidebar.json",
-      "name": "Sidebar",
-      "source": "specs/components/sidebar.yaml"
+      "file": "side-panel.json",
+      "name": "SidePanel",
+      "source": "specs/components/side-panel.yaml"
     },
     {
       "file": "skeleton.json",
@@ -300,6 +310,11 @@
       "source": "specs/components/switch.yaml"
     },
     {
+      "file": "table-pagination.json",
+      "name": "TablePagination",
+      "source": "specs/components/table-pagination.yaml"
+    },
+    {
       "file": "table.json",
       "name": "Table",
       "source": "specs/components/table.yaml"
@@ -325,14 +340,14 @@
       "source": "specs/components/time-picker.yaml"
     },
     {
-      "file": "toggle-group.json",
-      "name": "Toggle Group",
-      "source": "specs/components/toggle-group.yaml"
-    },
-    {
       "file": "toggle.json",
       "name": "Toggle",
       "source": "specs/components/toggle.yaml"
+    },
+    {
+      "file": "top-navigation.json",
+      "name": "TopNavigation",
+      "source": "specs/components/top-navigation.yaml"
     },
     {
       "file": "wheel-picker.json",

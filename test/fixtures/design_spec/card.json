@@ -3,52 +3,195 @@
   "source": "specs/components/card.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "root": "카드 상자(container) — 배경 · 테두리 · 그림자 · 모양",
-    "area": "모든 영역 — CardHeader · CardContent · CardFooter",
-    "header": "CardHeader — title · description 을 세로로 쌓는다",
-    "focusRing": "키보드 포커스 링(interactive Card)"
+    "root": "카드 면 — 바닥(bg-layer-basement) 위 흰 면 + 1px 테두리, 그림자 없음",
+    "header": "카드 머리 — 제목 + 오른쪽 동작 한 줄",
+    "title": "머리 제목 — 무엇의 카드인지",
+    "headerAction": "머리 동작 — \"전체 보기\" + chevron, 글 버튼",
+    "content": "본문 — 글 · 숫자 · 차트 · 표(CardContent). 목록은 list",
+    "list": "카드 안 목록 — List 줄이 가장자리까지, 누름 바탕은 동심 모서리",
+    "statLabel": "지표 라벨 — \"이번 달 지출\"",
+    "statValue": "지표 숫자 — 큰 숫자",
+    "delta": "증감 — ▲ · ▼ + 값",
+    "deltaText": "증감 글 — 기준 · 뜻(\"지난달보다\")",
+    "heroLabel": "순자산 라벨 — 흰 글자",
+    "heroAmount": "순자산 금액 — 흰 큰 숫자",
+    "heroDetail": "순자산 아래 글 · 증감 — 흰 글자",
+    "heroGlow": "순자산 장식 빛 — 오른쪽 위",
+    "focusRing": "키보드 포커스 링(웹)"
   },
   "axes": {
     "variant": [
-      "shadow",
-      "bordered",
-      "muted",
-      "brand"
+      "default",
+      "hero"
     ],
-    "viewport": [
-      "mobile",
-      "desktop"
+    "press": [
+      "none",
+      "whole",
+      "peers"
+    ],
+    "body": [
+      "content",
+      "list"
+    ],
+    "stat": [
+      "none",
+      "large",
+      "small"
+    ],
+    "delta": [
+      "none",
+      "up",
+      "down",
+      "flat"
     ]
   },
   "defaults": {
-    "variant": "shadow"
+    "variant": "default",
+    "press": "none",
+    "body": "content",
+    "stat": "none",
+    "delta": "none"
   },
   "states": [
-    "default",
-    "hover",
-    "disabled",
-    "focus-visible"
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused"
   ],
   "rules": [
     {
       "when": {},
-      "default": {
+      "enabled": {
         "root": {
-          "radius": 12
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "shadow": "none",
+          "radius": 16,
+          "padding": 24,
+          "gap": 8,
+          "overflow": "hidden"
         },
         "header": {
+          "alignItems": "center",
+          "justifyContent": "space-between",
+          "gap": 8,
+          "paddingBottom": 8
+        },
+        "title": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "headerAction": {
+          "height": 32,
+          "paddingLeft": 8,
+          "paddingRight": 4,
+          "radius": 8,
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "iconSize": 16,
+          "gap": 2,
+          "touchTarget": "44 × 44"
+        },
+        "content": {
+          "gap": 12
+        },
+        "list": {
+          "itemRadius": 10
+        },
+        "statLabel": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "statValue": {
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "numerals": "tabular-nums",
+          "marginTop": 4
+        },
+        "delta": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "numerals": "tabular-nums",
+          "marginTop": 4
+        },
+        "deltaText": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
           "gap": 4
         }
       },
-      "disabled": {
-        "root": {
-          "opacity": 0.5
+      "hovered": {
+        "headerAction": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
         }
       },
-      "focus-visible": {
+      "pressed": {
+        "headerAction": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
         "focusRing": {
           "width": 2,
           "offset": 2,
@@ -61,134 +204,548 @@
     },
     {
       "when": {
-        "viewport": "mobile"
+        "body": "list"
       },
-      "default": {
-        "area": {
-          "padding": 16
+      "enabled": {
+        "root": {
+          "padding": 0,
+          "paddingBottom": 12
+        },
+        "header": {
+          "paddingX": 24,
+          "paddingTop": 24,
+          "paddingBottom": 4
         }
       }
     },
     {
       "when": {
-        "viewport": "desktop"
+        "press": "whole"
       },
-      "default": {
-        "area": {
+      "enabled": {
+        "root": {
+          "cursor": "pointer",
+          "transitionProperty": "background-color, scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "hero",
+        "press": "whole"
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "press": "peers"
+      },
+      "enabled": {
+        "root": {
+          "cursor": "pointer",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        }
+      },
+      "hovered": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "root": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "stat": "large"
+      },
+      "enabled": {
+        "statValue": {
+          "typography": {
+            "fontSize": 24,
+            "lineHeight": 32,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "stat": "small"
+      },
+      "enabled": {
+        "statValue": {
+          "typography": {
+            "fontSize": 20,
+            "lineHeight": 27,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "delta": "up"
+      },
+      "enabled": {
+        "delta": {
+          "foreground": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "delta": "down"
+      },
+      "enabled": {
+        "delta": {
+          "foreground": {
+            "light": "#1D6EC9",
+            "dark": "#69ABFF"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "delta": "flat"
+      },
+      "enabled": {
+        "delta": {
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "hero"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#0147AD",
+            "dark": "#1049A4"
+          },
+          "gradientEnd": {
+            "light": "#002460",
+            "dark": "#1F3A69"
+          },
+          "borderWidth": 0,
           "padding": 24
-        }
-      }
-    },
-    {
-      "when": {
-        "variant": "shadow"
-      },
-      "default": {
-        "root": {
-          "background": {
-            "light": "#FFFFFF",
-            "dark": "#242938"
+        },
+        "heroGlow": {
+          "size": 240,
+          "background": "#FFFFFF38"
+        },
+        "heroLabel": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
           },
-          "borderColor": "none",
-          "shadow": {
-            "light": "0 1px 2px 0 rgba(15, 18, 28, 0.05)",
-            "dark": "0 1px 2px 0 rgba(0, 0, 0, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)"
-          }
-        }
-      },
-      "hover": {
-        "root": {
-          "shadow": {
-            "light": "0 2px 8px -1px rgba(15, 18, 28, 0.08), 0 1px 3px -1px rgba(15, 18, 28, 0.04)",
-            "dark": "0 2px 8px -1px rgba(0, 0, 0, 0.40), 0 1px 3px -1px rgba(0, 0, 0, 0.20), inset 0 1px 0 0 rgba(255, 255, 255, 0.06)"
-          }
-        }
-      }
-    },
-    {
-      "when": {
-        "variant": "bordered"
-      },
-      "default": {
-        "root": {
-          "background": {
-            "light": "#FFFFFF",
-            "dark": "#242938"
+          "fontWeight": 500,
+          "foreground": "#FFFFFF"
+        },
+        "heroAmount": {
+          "typography": {
+            "fontSize": 32,
+            "lineHeight": 42,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
           },
-          "borderColor": "border-subtle",
-          "borderWidth": 1,
-          "shadow": "none"
-        }
-      }
-    },
-    {
-      "when": {
-        "variant": "muted"
-      },
-      "default": {
-        "root": {
-          "background": "bg-muted",
-          "borderColor": "none",
-          "shadow": "none"
-        }
-      }
-    },
-    {
-      "when": {
-        "variant": "brand"
-      },
-      "default": {
-        "root": {
-          "background": "bg-brand-subtle",
-          "borderColor": "border-brand",
-          "borderWidth": 1,
-          "shadow": "none"
+          "fontWeight": 700,
+          "foreground": "#FFFFFF",
+          "numerals": "tabular-nums",
+          "marginTop": 6
+        },
+        "heroDetail": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": "#FFFFFF",
+          "marginTop": 4
         }
       }
     }
   ],
+  "motion": {
+    "누름 — 면": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ],
+      "note": "누르는 카드의 면 · 머리 동작의 바탕"
+    },
+    "누름 — 축소": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "press whole 만 2px 거리 — peers 는 축소 없음, 모션 줄이기면 하지 않는다"
+    }
+  },
   "notes": [
     {
       "rule": 0,
-      "state": "default",
-      "slot": "header",
-      "prop": "gap",
-      "note": "Section gap — header 내 title-description"
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "바닥 bg-layer-basement 위 — 폰 · 데스크톱 · 라이트 · 다크가 같은 규칙. 흰 바탕 위에 카드를 두지 않는다"
     },
     {
       "rule": 0,
-      "state": "focus-visible",
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "카드 외곽(SEED 토큰 설명) — 면과 바닥이 1.08 · 다크 1.13 이라 선이 경계를 맡는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "shadow",
+      "note": "그림자 없음 — 그림자는 떠 있는 몇 안 되는 요소(Elevation). 누르거나 올려도 그림자가 생기지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "radius",
+      "note": "16 — 카드 안 목록의 동심 모서리(16 − 6 = 10) · Skeleton 카드 면 16 과 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "padding",
+      "note": "폭과 상관없이 24(14B) — List 줄 24 · Bottom Sheet 24 와 같다. 목록 카드는 좌우 0(body list)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "위아래로 쌓인 카드 사이 8(SEED \"8px Gap\") — 폰 · 데스크톱 한 열. 데스크톱 격자의 칸 사이는 layout-gutter 24"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "overflow",
+      "note": "목록 줄의 누름 바탕 · 순자산 장식 빛을 모서리에서 자른다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "paddingBottom",
+      "note": "머리 ↔ 본문 8 — 목록 카드는 4(줄이 제 위 여백 12 를 가진다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerAction",
+      "prop": "height",
+      "note": "보이는 상자 — 누를 때 바탕 bg-layer-default-pressed · 모서리 8"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerAction",
+      "prop": "iconSize",
+      "note": "lucide chevron-right — 글 뒤 2"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerAction",
+      "prop": "touchTarget",
+      "note": "보이는 32 위아래로 6 씩 · 옆은 글 폭 + 여백(44 보다 좁으면 44). AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "본문 안 요소 사이 기본 12(spacing-component-default)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "itemRadius",
+      "note": "누름 · 호버 바탕 모서리 10 = 카드 16 − 바탕 들임 6(List 동심 모서리). List 줄의 좌우 24 는 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "statValue",
+      "prop": "numerals",
+      "note": "돈은 줄이지 않고 원까지 · 빼기는 U+2212. 숫자가 굴러가는 애니메이션을 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "statValue",
+      "prop": "marginTop",
+      "note": "라벨 ↔ 숫자"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "delta",
+      "prop": "marginTop",
+      "note": "숫자 ↔ 증감 줄"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "deltaText",
+      "prop": "gap",
+      "note": "증감 값 ↔ 글"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "headerAction",
+      "prop": "scale",
+      "note": "글 버튼만 — 카드는 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
       "slot": "focusRing",
-      "prop": "color",
-      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+      "prop": "offset",
+      "note": "카드 · 머리 동작 바깥"
     },
     {
       "rule": 1,
-      "state": "default",
-      "slot": "area",
+      "state": "enabled",
+      "slot": "root",
       "prop": "padding",
-      "note": "모든 영역"
+      "note": "좌우 0 — List 줄이 제 좌우 24 · 위아래 12 를 가진다(Bottom Sheet 본문에 List 를 둘 때와 같다). 머리가 없으면 위 12 — 첫 줄의 12 와 합쳐 보이는 24(아래와 같게)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingBottom",
+      "note": "12 — 마지막 줄의 아래 12 와 합쳐 보이는 24, 위(머리 24)와 같다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "paddingX",
+      "note": "줄의 글자와 머리 제목이 한 줄에 선다 — 폭과 상관없이 24"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "paddingTop",
+      "note": "폭과 상관없이 24 — 다른 카드 · 시트의 위 여백과 같다"
     },
     {
       "rule": 2,
-      "state": "default",
-      "slot": "area",
-      "prop": "padding",
-      "note": "모든 영역"
+      "state": "hovered",
+      "slot": "root",
+      "prop": "background",
+      "note": "면만 바뀐다 — 테두리 · 글자색 그대로, 그림자 · 위로 뜨기 없음"
+    },
+    {
+      "rule": 2,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "scale",
+      "note": "카드 전체(Root Scale) — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(v104). 모션 줄이기면 하지 않는다"
+    },
+    {
+      "rule": 3,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "background",
+      "note": "바뀌지 않는다 — 채움 그라디언트에는 누름 색 짝이 없어 2px 축소만(SEED Feedback: 색은 -pressed 짝이 있는 표면에서만)"
+    },
+    {
+      "rule": 3,
+      "state": "hovered",
+      "slot": "root",
+      "prop": "background",
+      "note": "바뀌지 않는다"
+    },
+    {
+      "rule": 4,
+      "state": "pressed",
+      "slot": "root",
+      "prop": "background",
+      "note": "축소하지 않는다 — 안의 버튼이 각자 제 누름을 가진다(SEED Feedback)"
     },
     {
       "rule": 5,
-      "state": "default",
-      "slot": "root",
-      "prop": "background",
-      "note": "#F0F2F7 / dark #2D3346"
+      "state": "enabled",
+      "slot": "statValue",
+      "prop": "typography",
+      "note": "24 / 32"
     },
     {
       "rule": 6,
-      "state": "default",
+      "state": "enabled",
+      "slot": "statValue",
+      "prop": "typography",
+      "note": "20 / 27 — 데스크톱 격자에 셋 · 넷씩 둘 때. 여백은 그대로 24. 폰은 지표 카드를 한 줄에 하나(large) — 둘씩이면 \"1,240,000원\" 20 / 700(120)이 칸 101 에 들어가지 않는다(360 폭 실측)"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "delta",
+      "prop": "foreground",
+      "note": "▲ + 값(\"▲ 12%\") — 어디서나 오르면 빨강(증권과 같은 관례). 좋고 나쁨은 글이 말한다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "delta",
+      "prop": "foreground",
+      "note": "▼ + 값(\"▼ 3%\") — 부호는 화살표가 말한다(+ · − 를 같이 쓰지 않는다)"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "delta",
+      "prop": "foreground",
+      "note": "화살표 없이 \"변화 없음\""
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
       "slot": "root",
       "prop": "background",
-      "note": "primary 8% / dark 12%"
+      "note": "135° 그라디언트의 시작(왼쪽 위) — 라이트 #0147AD(brand-600) · 다크 #1049A4(brand-500-dark). HR 에는 이 카드가 없다"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gradientEnd",
+      "note": "그라디언트의 끝(오른쪽 아래) — 라이트 brand-900 #002460(지금 #012B68 에 가장 가까운 팔레트 단계, ΔE00 2.4) · 다크 brand-300-dark #1F3A69. 다크도 짙은 채움이다"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "테두리 없음 — 채움이 경계다"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "padding",
+      "note": "24 — 다른 카드와 같다"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "heroGlow",
+      "prop": "size",
+      "note": "오른쪽 위 장식 빛 — 원의 오른쪽 −40 · 위 −80(카드 밖으로 나간 부분은 모서리가 자른다)"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "heroGlow",
+      "prop": "background",
+      "note": "가운데 흰 22% → 지름의 70% 에서 투명. 장식이라 보조 기술에 숨긴다 — 흰 글자 대비는 이 빛 위에서도 4.5 이상(가장 낮은 자리 4.88)"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "heroLabel",
+      "prop": "foreground",
+      "note": "흐리게(불투명도) 두지 않는다 — 흰 글자 그대로(v106)"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "heroAmount",
+      "prop": "typography",
+      "note": "32 / 42"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "heroAmount",
+      "prop": "fontWeight",
+      "note": "v100 — 지금 800"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "heroDetail",
+      "prop": "foreground",
+      "note": "증감도 흰 글자 + ▲ · ▼ — 빨강 · 파랑은 브랜드 채움 위 1.66 · 1.65(라이트)라 읽히지 않는다"
     }
   ]
 }

@@ -3,7 +3,7 @@
   "source": "specs/components/image-frame.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "틀 — 비율 상자. 폭은 부르는 쪽, 높이는 폭 ÷ 비율. 모서리로 자르고(overflow hidden) 안의 층을 따로 쌓는다(isolation)",
@@ -126,7 +126,7 @@
       },
       "loaded": {
         "root": {
-          "aspectRatio": 1
+          "aspectRatio": "1 / 1"
         }
       }
     },
@@ -136,7 +136,7 @@
       },
       "loaded": {
         "root": {
-          "aspectRatio": 2
+          "aspectRatio": "2 / 1"
         }
       }
     },
@@ -196,7 +196,7 @@
       },
       "loaded": {
         "root": {
-          "aspectRatio": 1.586
+          "aspectRatio": "1.586 / 1"
         },
         "image": {
           "rotate": "90deg"

@@ -3,7 +3,7 @@
   "source": "specs/components/scroll-area.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "scrollbar": "ScrollAreaScrollbar — vertical 우측 · horizontal 하단 막대",
