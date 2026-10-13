@@ -3,7 +3,7 @@
   "source": "specs/components/logo-tile.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "타일 — 정사각 · 모서리 크기 × 0.3. 기관 색 면 또는 이름 색 면",

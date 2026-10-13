@@ -3,7 +3,7 @@
   "source": "specs/components/avatar-stack.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "묶음 — 아바타를 가로로 겹쳐 놓는다. 뒤에 오는 아바타가 위",
@@ -22,10 +22,15 @@
       "80",
       "96",
       "108"
+    ],
+    "surface": [
+      "default",
+      "floating"
     ]
   },
   "defaults": {
-    "size": "24"
+    "size": "24",
+    "surface": "default"
   },
   "states": [
     "enabled"
@@ -58,6 +63,25 @@
           "outlineColor": {
             "light": "#FFFFFF",
             "dark": "#242938"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "surface": "floating"
+      },
+      "enabled": {
+        "item": {
+          "outlineColor": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          }
+        },
+        "overflow": {
+          "outlineColor": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
           }
         }
       }
@@ -266,7 +290,7 @@
       "state": "enabled",
       "slot": "item",
       "prop": "outlineColor",
-      "note": "바깥 링 — 놓인 바탕과 같은 색으로 앞 아바타를 끊는다(SEED). 시트 · 대화상자 · 팝오버 안(bg-layer-floating)이면 그 바탕색 — 다크에서 두 바탕이 다르다(#242938 · #2D3346). 아바타의 1px 안쪽 테두리는 그대로 남는다"
+      "note": "바깥 링 — 놓인 바탕과 같은 색으로 앞 아바타를 끊는다(SEED). 시트 · 대화상자 · 팝오버 안은 surface floating 의 바탕색 — 다크에서 두 바탕이 다르다(#242938 · #2D3346). 아바타의 1px 안쪽 테두리는 그대로 남는다"
     },
     {
       "rule": 0,
@@ -285,9 +309,9 @@
     {
       "rule": 1,
       "state": "enabled",
-      "slot": "root",
-      "prop": "gap",
-      "note": "25%"
+      "slot": "item",
+      "prop": "outlineColor",
+      "note": "시트 · 대화상자 · 팝오버 안 — 그 바탕색"
     },
     {
       "rule": 2,
@@ -301,35 +325,35 @@
       "state": "enabled",
       "slot": "root",
       "prop": "gap",
-      "note": "22%"
+      "note": "25%"
     },
     {
       "rule": 4,
       "state": "enabled",
       "slot": "root",
       "prop": "gap",
-      "note": "24%"
+      "note": "22%"
     },
     {
       "rule": 5,
       "state": "enabled",
       "slot": "root",
       "prop": "gap",
-      "note": "25%"
+      "note": "24%"
     },
     {
       "rule": 6,
       "state": "enabled",
       "slot": "root",
       "prop": "gap",
-      "note": "23%"
+      "note": "25%"
     },
     {
       "rule": 7,
       "state": "enabled",
       "slot": "root",
       "prop": "gap",
-      "note": "25%"
+      "note": "23%"
     },
     {
       "rule": 8,
@@ -347,6 +371,13 @@
     },
     {
       "rule": 10,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "25%"
+    },
+    {
+      "rule": 11,
       "state": "enabled",
       "slot": "root",
       "prop": "gap",

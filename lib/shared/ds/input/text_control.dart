@@ -272,6 +272,9 @@ abstract class PTextControlState<W extends PTextControl> extends State<W> {
           focusNode: focusNode,
           decoration: null,
           style: style,
+          // 캐럿은 글자색(fg-neutral) — 고른 글은 기기 기본 하이라이트(input.yaml value.caretColor, 2026-10-08).
+          // 막힌 칸은 포커스를 받지 않아 캐럿이 없다
+          cursorColor: context.colors.fgNeutral,
           enabled: !disabled,
           readOnly: readOnly,
           autofocus: widget.autofocus,

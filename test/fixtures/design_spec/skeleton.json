@@ -3,7 +3,7 @@
   "source": "specs/components/skeleton.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "면 — 곧 나타날 내용 하나의 자리(글 한 줄 · 숫자 · 카드 · 아바타 · 사진)",
@@ -66,7 +66,8 @@
             "light": "#535866",
             "dark": "#B7BDCC"
           },
-          "gap": 16
+          "gap": 16,
+          "paddingX": 0
         }
       },
       "reducedMotion": {
@@ -234,6 +235,13 @@
       "slot": "slowText",
       "prop": "gap",
       "note": "스켈레톤 영역은 첫 스켈레톤 위 16(왼쪽 맞춤), 가운데 원이면 원 아래 16(가운데 맞춤). 영역 하나에 한 줄 — 단어 단위 줄바꿈(v114)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "slowText",
+      "prop": "paddingX",
+      "note": "목록 카드(body list) 바로 아래 영역이면 24 — 목록 카드는 줄마다 24 를 갖고 카드 여백이 없다. 실패 Result Section 도 같다(Card 23B). 내용 카드 안이면 카드의 24 가 맡는다"
     },
     {
       "rule": 0,

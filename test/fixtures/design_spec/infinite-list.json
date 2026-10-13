@@ -1,0 +1,140 @@
+{
+  "name": "InfiniteList",
+  "source": "specs/components/infinite-list.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "7b4422ff0b45"
+  },
+  "slots": {
+    "root": "목록 끝 자리 — 목록 맨 아래 가운데. 상태 하나를 보인다",
+    "sentinel": "다음 쪽을 부르는 자리 — 목록 끝이 화면 아래에서 이만큼 안으로 오면 받는다",
+    "progress": "불러오는 중 — Progress Circle 24",
+    "message": "글 — 못 불러옴 · 끝",
+    "retryButton": "다시 시도 — 못 불러왔을 때만"
+  },
+  "axes": {
+    "status": [
+      "loading",
+      "error",
+      "end"
+    ]
+  },
+  "defaults": {
+    "status": "loading"
+  },
+  "states": [
+    "enabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "paddingY": 24,
+          "justifyContent": "center"
+        },
+        "sentinel": {
+          "threshold": 300
+        }
+      }
+    },
+    {
+      "when": {
+        "status": "loading"
+      },
+      "enabled": {
+        "progress": {
+          "size": 24
+        }
+      }
+    },
+    {
+      "when": {
+        "status": "error"
+      },
+      "enabled": {
+        "message": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        },
+        "retryButton": {
+          "buttonSize": "small 36",
+          "marginTop": 12
+        }
+      }
+    },
+    {
+      "when": {
+        "status": "end"
+      },
+      "enabled": {
+        "message": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingY",
+      "note": "목록 마지막 줄 아래 24 · 그 아래는 화면 바닥 여백(탭 바가 있으면 그 여백)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "sentinel",
+      "prop": "threshold",
+      "note": "목록 끝이 화면 아래 끝에서 300 안으로 오면 다음 쪽을 받는다(지금 Desk 앱 값). 받는 중이거나 끝이면 부르지 않는다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "progress",
+      "prop": "size",
+      "note": "Progress Circle 24 · neutral — skeleton.md 의 '목록 끝 더 불러오기'. 1초가 지나야 보인다(그 전에 오면 깜빡이지 않는다)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "message",
+      "prop": "foreground",
+      "note": "\"더 불러오지 못했어요.\" — 이미 받은 줄은 그대로 둔다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "retryButton",
+      "prop": "buttonSize",
+      "note": "Button neutralWeak small \"다시 시도\" — 누르면 그 쪽을 다시 받는다(로딩을 건다)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "message",
+      "prop": "foreground",
+      "note": "\"모두 봤어요.\"(목록마다 \"카드를 모두 봤어요.\" 처럼 바꿀 수 있다) — 바탕 위 5.50 · 다크 6.09. 한 쪽만으로 끝나는 짧은 목록에는 두지 않는다"
+    }
+  ]
+}

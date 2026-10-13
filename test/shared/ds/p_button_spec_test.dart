@@ -2,7 +2,9 @@
 // × 상태 × 라이트 · 다크를 모두 돈다. 웹은 같은 JSON 을 크로미움에서 잰다(desk-front `npm run ds:check`).
 //
 // 앱에 없는 상태(웹의 hovered · focused)와 문장으로 된 값(커서 · 모션 · "세로 2px 축소")은 재지 않는다 —
-// 누름 축소 · 누르는 영역 · 로딩의 누르기 막기는 아래의 동작 테스트가 본다.
+// 누름 축소 · 누르는 영역 · 로딩의 누르기 막기 · 누른 동작이 끝날 때까지 한 번은 아래의 동작 테스트가 본다.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -245,6 +247,70 @@ void main() {
     await tester.tap(find.byType(PButton));
     await tester.pump(const Duration(milliseconds: 100));
     expect(taps, 0);
+  });
+
+  testWidgets('누른 동작이 끝날 때까지 한 번 — Future 가 끝나기 전의 누름은 버리고 끝나면 다시 누른다', (
+    tester,
+  ) async {
+    var calls = 0;
+    final done = Completer<void>();
+    await tester.pumpWidget(
+      _host(
+        Brightness.light,
+        PButton(
+          label: '저장',
+          onPressed: () {
+            calls++;
+            return done.future;
+          },
+        ),
+      ),
+    );
+    await tester.tap(find.byType(PButton));
+    await tester.tap(find.byType(PButton));
+    await tester.tap(find.byType(PButton));
+    expect(calls, 1);
+
+    done.complete();
+    await tester.pump();
+    await tester.tap(find.byType(PButton));
+    expect(calls, 2);
+  });
+
+  testWidgets('Future 가 거부돼도 잠금은 풀린다 — 거부는 삼키지 않고 그대로 넘어간다', (tester) async {
+    var calls = 0;
+    final failed = Completer<void>();
+    await tester.pumpWidget(
+      _host(
+        Brightness.light,
+        PButton(
+          label: '저장',
+          onPressed: () {
+            calls++;
+            // 잡지 않은 오류가 되지 않게 이 테스트가 직접 받는다 — 위젯은 거부를 그대로 넘긴다
+            return failed.future.catchError((_) {});
+          },
+        ),
+      ),
+    );
+    await tester.tap(find.byType(PButton));
+    await tester.tap(find.byType(PButton));
+    expect(calls, 1);
+
+    failed.completeError(StateError('저장 실패'));
+    await tester.pump();
+    await tester.tap(find.byType(PButton));
+    expect(calls, 2);
+  });
+
+  testWidgets('Future 를 돌려주지 않으면 잠그지 않는다 — 연달아 눌러도 그때마다 불린다', (tester) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      _host(Brightness.light, PButton(label: '저장', onPressed: () => calls++)),
+    );
+    await tester.tap(find.byType(PButton));
+    await tester.tap(find.byType(PButton));
+    expect(calls, 2);
   });
 
   testWidgets('비활성이면 누르지 않고, 활성이면 한 번 누른다', (tester) async {

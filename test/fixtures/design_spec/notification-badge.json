@@ -3,7 +3,7 @@
   "source": "specs/components/notification-badge.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "점(small) · 숫자 알약(large) — 붙는 대상의 상자 위에 겹쳐 놓인다(자리를 차지하지 않는다)",
@@ -157,7 +157,7 @@
       "state": "enabled",
       "slot": "label",
       "prop": "typography",
-      "note": "11 / 15 — 글자 크기 설정을 따르지 않는 px(text-t1-static, 앱 TextScaler.noScaling — SEED t1-static). 커지면 아이콘을 덮는다"
+      "note": "11 / 15 — 글자 크기 설정을 따르지 않는 px(웹 text-t1-static, 앱 TextScaler.noScaling — SEED t1-static). 커지면 아이콘을 덮는다"
     },
     {
       "rule": 2,

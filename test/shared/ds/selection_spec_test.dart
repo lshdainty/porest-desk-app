@@ -5,6 +5,7 @@
 // 누름 축소("세로 2px 축소")는 그려진 크기로, 누르는 영역("44 × 44")은 넓힌 자리를 눌러서, 줄 맞춤(alignSelf
 // flex-start)은 넓은 부모 안에서, 아이콘(lucide Check · Minus, 선 3)은 그린 선으로 잰다.
 import 'dart:math' as math;
+import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -16,6 +17,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
+import 'package:porest_desk_app/shared/ds/field/p_field.dart';
 import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/p_switch.dart';
@@ -1152,6 +1154,108 @@ void main() {
   });
 
   // ── Radio 동작 ────────────────────────────────────────────
+  group('Checkbox 묶음 — Field 의 막힘 · 오류', () {
+    Widget fielded({
+      bool disabled = false,
+      bool invalid = false,
+      bool? groupDisabled,
+      bool? groupInvalid,
+      required List<bool> calls,
+    }) => PField(
+      label: '내보낼 데이터',
+      disabled: disabled,
+      invalid: invalid,
+      errorMessage: invalid ? '하나 이상 골라주세요.' : null,
+      child: PCheckboxGroup(
+        disabled: groupDisabled,
+        invalid: groupInvalid,
+        children: [
+          PCheckbox(label: '거래 내역', checked: false, onChanged: calls.add),
+          PCheckbox(label: '예산', checked: false, onChanged: calls.add),
+        ],
+      ),
+    );
+
+    testWidgets('막힌 Field 안의 칸은 눌리지 않는다 — 묶음 · 칸이 막힘으로 읽힌다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final calls = <bool>[];
+      await tester.pumpWidget(
+        _host(Brightness.light, fielded(disabled: true, calls: calls)),
+      );
+      await tester.tap(find.text(keepAll('거래 내역')), warnIfMissed: false);
+      await tester.tap(find.text(keepAll('예산')), warnIfMissed: false);
+      expect(calls, isEmpty);
+      // 칸마다 막힘 — 비활성 색으로 그린다(칸에 onChanged 가 있어도)
+      for (final box in tester.widgetList<PCheckmark>(
+        find.byType(PCheckmark),
+      )) {
+        expect(box.enabled, isFalse);
+      }
+      semantics.dispose();
+    });
+
+    testWidgets('막히지 않은 Field 안에서는 그대로 누른다', (tester) async {
+      final calls = <bool>[];
+      await tester.pumpWidget(_host(Brightness.light, fielded(calls: calls)));
+      await tester.tap(find.text(keepAll('거래 내역')));
+      expect(calls, [true]);
+    });
+
+    testWidgets('묶음에 직접 준 disabled 가 Field 보다 이긴다', (tester) async {
+      final calls = <bool>[];
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          fielded(disabled: true, groupDisabled: false, calls: calls),
+        ),
+      );
+      await tester.tap(find.text(keepAll('거래 내역')));
+      expect(calls, [true]);
+    });
+
+    testWidgets('Field 의 오류는 칸마다 오류로 읽는다 — 모양은 바뀌지 않는다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final calls = <bool>[];
+      await tester.pumpWidget(
+        _host(Brightness.light, fielded(invalid: true, calls: calls)),
+      );
+      for (final label in ['거래 내역', '예산']) {
+        final node = tester.getSemantics(find.text(keepAll(label)));
+        expect(node.validationResult, SemanticsValidationResult.invalid);
+      }
+      // 오류여도 칸은 눌린다 · 모양(비활성 색)은 바뀌지 않는다
+      await tester.tap(find.text(keepAll('거래 내역')));
+      expect(calls, [true]);
+      for (final box in tester.widgetList<PCheckmark>(
+        find.byType(PCheckmark),
+      )) {
+        expect(box.enabled, isTrue);
+      }
+      semantics.dispose();
+    });
+
+    testWidgets('Field 밖의 묶음은 아무것도 걸지 않는다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final calls = <bool>[];
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PCheckboxGroup(
+            semanticLabel: '내보낼 데이터',
+            children: [
+              PCheckbox(label: '거래 내역', checked: false, onChanged: calls.add),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.text(keepAll('거래 내역')));
+      expect(calls, [true]);
+      final node = tester.getSemantics(find.text(keepAll('거래 내역')));
+      expect(node.validationResult, SemanticsValidationResult.none);
+      semantics.dispose();
+    });
+  });
+
   group('Radio 동작', () {
     Widget repeatGroup({
       required String? value,
@@ -1517,6 +1621,89 @@ void main() {
       expect(tester.getSize(dot), size);
       await tester.pump(specMs(motion['duration']));
       expect(_decoration(tester, dot).color, PColors.dark.staticWhite);
+    });
+
+    // Field 의 막힘 · 오류 · 필수가 묶음에 닿는다(웹 useFieldGroupState, field.md 2026-10-08)
+    Widget fielded({
+      bool disabled = false,
+      bool invalid = false,
+      bool required = false,
+      required ValueChanged<String> onChanged,
+      bool? groupDisabled,
+    }) => PField(
+      label: '반복',
+      disabled: disabled,
+      invalid: invalid,
+      required: required,
+      errorMessage: invalid ? '반복을 골라주세요.' : null,
+      child: PRadioGroup<String>(
+        value: 'none',
+        onChanged: onChanged,
+        disabled: groupDisabled,
+        children: const [
+          PRadio(value: 'none', label: '반복 없음'),
+          PRadio(value: 'monthly', label: '매월'),
+        ],
+      ),
+    );
+
+    testWidgets('막힌 Field 안의 선택지는 눌리지 않는다 — 묶음이 막힘이다', (tester) async {
+      final calls = <String>[];
+      await tester.pumpWidget(
+        _host(Brightness.light, fielded(disabled: true, onChanged: calls.add)),
+      );
+      await tester.tap(find.text(keepAll('매월')), warnIfMissed: false);
+      expect(calls, isEmpty);
+      // 막힘은 골라 둔 선택을 지우지 않는다
+      expect(
+        tester
+            .widget<PRadioGroup<String>>(find.byType(PRadioGroup<String>))
+            .value,
+        'none',
+      );
+    });
+
+    testWidgets('막히지 않은 Field 안에서는 그대로 누른다', (tester) async {
+      final calls = <String>[];
+      await tester.pumpWidget(
+        _host(Brightness.light, fielded(onChanged: calls.add)),
+      );
+      await tester.tap(find.text(keepAll('매월')));
+      expect(calls, ['monthly']);
+    });
+
+    testWidgets('묶음에 직접 준 disabled 가 Field 의 막힘보다 이긴다', (tester) async {
+      final calls = <String>[];
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          fielded(disabled: true, groupDisabled: false, onChanged: calls.add),
+        ),
+      );
+      await tester.tap(find.text(keepAll('매월')));
+      expect(calls, ['monthly']);
+    });
+
+    testWidgets('Field 의 오류 · 필수를 묶음이 읽는다 — 모양은 바뀌지 않는다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          fielded(invalid: true, required: true, onChanged: (_) {}),
+        ),
+      );
+      final node = tester.getSemantics(
+        find
+            .descendant(
+              of: find.byType(PRadioGroup<String>),
+              matching: find.byType(Semantics),
+            )
+            .first,
+      );
+      // Flutter 3.44 의 플래그는 bool 이 아니라 Tristate 다
+      expect(node.flagsCollection.isRequired, Tristate.isTrue);
+      expect(node.validationResult, SemanticsValidationResult.invalid);
+      semantics.dispose();
     });
   });
 

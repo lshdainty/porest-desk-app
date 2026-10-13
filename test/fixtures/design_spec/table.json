@@ -3,249 +3,706 @@
   "source": "specs/components/table.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "head": "ⓓ TableHead `<th>`",
-    "header": "ⓒ TableHeader `<thead>`",
-    "cell": "ⓔ TableCell `<td>`",
-    "row": "ⓕ TableRow `<tr>`",
-    "footer": "ⓖ TableFooter `<tfoot>` — 합계/요약 row",
-    "caption": "ⓗ TableCaption `<caption>`",
-    "selectColumn": "ⓙ Selection column — Checkbox",
-    "sortHeader": "정렬 가능한 헤더 — Button ghost sm wrap + 화살표",
-    "sortIcon": "정렬 화살표 icon",
-    "bulkBar": "ⓐ bulk action bar — 사용처 합성",
-    "numericCell": "숫자 cell"
+    "root": "표 상자 — 카드 안에 가장자리까지 붙는다. 표와 넘김 줄(Table Pagination)을 담고, 넘치면 함께 가로로 민다",
+    "caption": "표 이름 `<caption>` — 보이는 제목은 카드 머리, 여기는 같은 글을 숨겨 둔다",
+    "headerRow": "머리 줄 `<thead><tr>` — 바탕 없음, 아래 선",
+    "headerCell": "머리 칸 `<th scope=\"col\">` — 열 이름. ⋮ 열은 글 없이 숨긴 \"동작\"",
+    "sortButton": "정렬 버튼 — 정렬할 수 있는 열의 머리 칸을 채운다",
+    "sortIcon": "정렬 표시 ↑↓ — 정렬할 수 있는 열에 늘 있다",
+    "row": "본문 줄 `<tr>` — 아래 선(마지막 줄까지)",
+    "cell": "본문 칸 `<td>` — 첫 열(이름)은 `<th scope=\"row\">`",
+    "detail": "칸의 둘째 줄 · 보조 글(ID · 부서 · 단위) — 옅은 글",
+    "thumbnail": "칸 앞 그림 — Image Frame 1:1 48",
+    "badge": "상태 칸 — Badge medium weak",
+    "checkbox": "선택 칸 — Checkbox large 24(머리는 전체 · 일부)",
+    "moreButton": "줄 끝 ⋮ — Button ghost iconOnly medium, 이름 \"{줄 이름} 더보기\"",
+    "bulkBar": "일괄 작업 바 — 고른 줄이 있을 때만, 표 위",
+    "focusRing": "키보드 포커스 링(웹)"
   },
   "axes": {
-    "sort": [
-      "inactive",
-      "active"
+    "row": [
+      "text",
+      "rich"
     ],
-    "bulk": [
-      "hidden",
-      "visible"
+    "align": [
+      "start",
+      "end"
+    ],
+    "sort": [
+      "none",
+      "sortable",
+      "ascending",
+      "descending"
+    ],
+    "selection": [
+      "none",
+      "empty",
+      "some",
+      "all"
+    ],
+    "width": [
+      "wide",
+      "narrow"
     ]
   },
-  "defaults": {},
+  "defaults": {
+    "row": "text",
+    "align": "start",
+    "sort": "none",
+    "selection": "none",
+    "width": "wide"
+  },
   "states": [
-    "default",
-    "hover",
-    "selected"
+    "enabled",
+    "hovered",
+    "pressed",
+    "focused"
   ],
   "rules": [
     {
       "when": {},
-      "default": {
-        "head": {
-          "height": 40,
-          "paddingX": 8,
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "overflowX": "auto",
+          "paddingX": 24
+        },
+        "caption": {
+          "display": "숨긴 글"
+        },
+        "headerRow": {
+          "minHeight": 41,
+          "background": "transparent",
+          "borderBottomWidth": 1,
+          "borderBottomColor": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          },
+          "position": "sticky",
+          "zIndex": 1
+        },
+        "headerCell": {
+          "paddingY": 10,
+          "paddingX": 16,
           "typography": {
-            "fontSize": 12,
+            "fontSize": 14,
+            "lineHeight": 19,
             "fontWeight": 400,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
-          "fontWeight": 600,
+          "lineHeight": 20,
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "textAlign": "start"
+        },
+        "row": {
+          "minHeight": 45,
+          "borderBottomWidth": 1,
+          "borderBottomColor": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          },
+          "background": "transparent",
+          "cursor": "pointer",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "cell": {
+          "paddingY": 12,
+          "paddingX": 16,
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "lineHeight": 20,
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "alignItems": "center"
+        },
+        "detail": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
           "foreground": {
             "light": "#62697A",
             "dark": "#A2A8B7"
           },
-          "textTransform": "uppercase",
-          "letterSpacing": "tracking-wide"
+          "gap": 2
         },
-        "header": {
+        "thumbnail": {
+          "size": 48,
+          "gap": 12
+        },
+        "badge": {
+          "size": "Badge medium"
+        },
+        "checkbox": {
+          "display": "none",
+          "size": 24,
+          "touchTarget": "44 × 44"
+        },
+        "moreButton": {
+          "size": 40,
+          "touchTarget": "44 × 44"
+        },
+        "bulkBar": {
+          "display": "none",
+          "minHeight": 48,
+          "paddingX": 16,
+          "radius": 12,
           "background": {
-            "light": "#F5F6FA",
-            "dark": "#1A1F2E"
-          }
-        },
-        "cell": {
-          "padding": 8,
-          "typography": {
-            "fontSize": 15,
-            "fontWeight": 400,
-            "fontFamily": "Pretendard, Inter, sans-serif"
+            "light": "#E8F1FE",
+            "dark": "#20314E"
           },
-          "foreground": {
-            "light": "#1A1F2E",
-            "dark": "#F5F6FA"
-          }
-        },
-        "row": {
-          "borderBottomWidth": 1,
-          "borderBottomColor": {
-            "light": "#E5E8EF",
-            "dark": "#404757"
-          },
-          "background": "transparent"
+          "gap": 8,
+          "marginBottom": 8
         }
       },
-      "hover": {
+      "hovered": {
         "row": {
           "background": {
-            "light": "#F5F6FA80",
-            "dark": "#353B4D80"
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
           }
-        }
-      },
-      "selected": {
-        "row": {
+        },
+        "sortButton": {
           "background": {
-            "light": "#F5F6FA",
+            "light": "#F7F8FD",
             "dark": "#353B4D"
           }
         }
-      }
-    },
-    {
-      "when": {},
-      "default": {
-        "footer": {
-          "background": {
-            "light": "#F5F6FA80",
-            "dark": "#353B4D80"
-          }
-        },
-        "caption": {
-          "marginTop": 12,
-          "typography": {
-            "fontSize": 14,
-            "fontWeight": 400,
-            "fontFamily": "Pretendard, Inter, sans-serif"
-          },
-          "foreground": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
-          }
-        },
+      },
+      "pressed": {
         "row": {
-          "transitionProperty": "colors",
-          "transitionDuration": "150ms",
-          "transitionEasing": "cubic-bezier(0.16, 1, 0.3, 1)"
-        },
-        "selectColumn": {
-          "width": 48
-        },
-        "sortIcon": {
-          "size": 16
-        },
-        "bulkBar": {
           "background": {
-            "light": "#0147AD1A",
-            "dark": "#7AA9F61A"
-          },
-          "radius": 4,
-          "paddingX": 12,
-          "paddingY": 4
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
         },
-        "numericCell": {
-          "fontVariantNumeric": "tabular-nums",
-          "textAlign": "right"
-        }
-      }
-    },
-    {
-      "when": {
-        "sort": "inactive"
-      },
-      "default": {
-        "sortHeader": {
-          "background": "transparent",
-          "foreground": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
+        "sortButton": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
           }
         }
-      }
-    },
-    {
-      "when": {
-        "sort": "active"
       },
-      "default": {
-        "sortHeader": {
-          "background": "transparent",
-          "foreground": {
-            "light": "#1A1F2E",
-            "dark": "#F5F6FA"
-          }
-        }
-      }
-    },
-    {
-      "when": {
-        "bulk": "hidden"
-      },
-      "default": {
-        "bulkBar": {
-          "mount": "unmount"
-        }
-      }
-    },
-    {
-      "when": {
-        "bulk": "visible"
-      },
-      "default": {
-        "bulkBar": {
-          "foreground": {
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
             "light": "#0147AD",
             "dark": "#7AA9F6"
           }
         }
       }
+    },
+    {
+      "when": {
+        "row": "rich"
+      },
+      "enabled": {
+        "row": {
+          "minHeight": 72
+        }
+      }
+    },
+    {
+      "when": {
+        "align": "end"
+      },
+      "enabled": {
+        "headerCell": {
+          "textAlign": "end"
+        },
+        "cell": {
+          "textAlign": "end",
+          "numerals": "tabular-nums"
+        }
+      }
+    },
+    {
+      "when": {
+        "sort": "sortable"
+      },
+      "enabled": {
+        "sortButton": {
+          "width": "칸 전체",
+          "gap": 6,
+          "cursor": "pointer"
+        },
+        "sortIcon": {
+          "size": 16,
+          "color": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "sort": "ascending"
+      },
+      "enabled": {
+        "sortButton": {
+          "width": "칸 전체",
+          "gap": 6,
+          "cursor": "pointer"
+        },
+        "sortIcon": {
+          "size": 16,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "sort": "descending"
+      },
+      "enabled": {
+        "sortButton": {
+          "width": "칸 전체",
+          "gap": 6,
+          "cursor": "pointer"
+        },
+        "sortIcon": {
+          "size": 16,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selection": "empty"
+      },
+      "enabled": {
+        "checkbox": {
+          "display": "보임"
+        }
+      }
+    },
+    {
+      "when": {
+        "selection": "some"
+      },
+      "enabled": {
+        "checkbox": {
+          "display": "머리 체크 일부"
+        },
+        "bulkBar": {
+          "display": "보임"
+        }
+      }
+    },
+    {
+      "when": {
+        "selection": "all"
+      },
+      "enabled": {
+        "checkbox": {
+          "display": "머리 체크 켬"
+        },
+        "bulkBar": {
+          "display": "보임"
+        }
+      }
+    },
+    {
+      "when": {
+        "width": "narrow"
+      },
+      "enabled": {
+        "root": {
+          "display": "List 줄",
+          "overflowX": "visible"
+        },
+        "cell": {
+          "display": "제목 · 설명 · 값"
+        },
+        "checkbox": {
+          "display": "앞 체크 24"
+        },
+        "moreButton": {
+          "display": "줄 끝 ⋮"
+        }
+      }
     }
   ],
+  "motion": {
+    "줄 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ],
+      "note": "누르는 줄 · 정렬 버튼의 호버 · 누름 — 축소는 없다"
+    }
+  },
   "notes": [
     {
       "rule": 0,
-      "state": "default",
-      "slot": "header",
+      "state": "enabled",
+      "slot": "root",
       "prop": "background",
-      "note": "다크모드 자동 swap"
+      "note": "카드 면(bg-layer-default)이 바탕 — 표는 카드(card.md) 안에 가장자리까지 붙는다. 바깥 테두리 · 모서리 · 세로 선 · 줄무늬 없음"
     },
     {
-      "rule": 1,
-      "state": "default",
-      "slot": "sortIcon",
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "overflowX",
+      "note": "열이 상자보다 넓으면 표와 넘김 줄이 함께 가로로 밀린다(Table Pagination). 768 미만은 표 대신 List 줄이라 밀지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "첫 칸 앞 · 끝 칸 뒤만 — 카드 여백 24 와 같아 카드 머리와 첫 열 글자가 한 줄에 선다. 줄 선은 상자 끝까지 긋는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "caption",
+      "prop": "display",
+      "note": "보이는 제목은 카드 머리(16 / 22 · 700). caption 은 같은 글을 화면 밖에 둔다 — 보조 기술이 표 이름으로 읽는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerRow",
+      "prop": "minHeight",
+      "note": "선 1 포함 — 위아래 10 + 글 20(SEED 문서 표)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerRow",
+      "prop": "background",
+      "note": "머리 바탕 없음. 상자 안에서 고정할 때만 카드 면과 같은 bg-layer-default 로 칠해 지나가는 줄을 가린다 — 바탕이 달라 보이지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerRow",
+      "prop": "position",
+      "note": "표 상자가 스스로 세로로 스크롤할 때만(위 0) — 페이지 스크롤에는 붙이지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerRow",
+      "prop": "zIndex",
+      "note": "표 상자 안의 겹침 — 층이 아니다(specs/z-index.md)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerCell",
+      "prop": "lineHeight",
+      "note": "SEED 문서 표 14 / 20 — t4(14 / 19)보다 1 높여 머리 41 · 줄 45 를 SEED 와 맞춘다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "row",
+      "prop": "minHeight",
+      "note": "선 1 포함 — 위아래 12 + 글 20(SEED 문서 표). 한 표 안에서 줄 높이를 섞지 않는다 — 썸네일 · 두 줄 칸이 하나라도 있으면 모든 줄이 72"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "row",
+      "prop": "borderBottomColor",
+      "note": "마지막 줄까지 — 표 끝을 마감한다(SEED 문서 표). 줄무늬 · 세로 선은 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "row",
+      "prop": "cursor",
+      "note": "누르는 줄만 — 줄을 누르면 상세가 열린다. 보기만 하는 표는 default"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "lineHeight",
+      "note": "머리와 같은 14 / 20"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "alignItems",
+      "note": "칸의 내용은 세로 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "detail",
+      "prop": "gap",
+      "note": "윗줄 ↔ 둘째 줄"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumbnail",
       "prop": "size",
-      "note": "16×16 — lucide `ArrowUp`/`ArrowDown`/`ArrowUpDown`"
+      "note": "Image Frame 1:1 — 모서리는 폭 48 이하라 6(image-frame.yaml). 사람은 Avatar 42, 기관은 Logo Tile 40"
     },
     {
-      "rule": 1,
-      "state": "default",
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumbnail",
+      "prop": "gap",
+      "note": "그림 ↔ 글"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "size",
+      "note": "20 · weak — 톤은 상태의 뜻(badge.md). 한 열은 한 변형, 왼쪽 맞춤"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "display",
+      "note": "고르는 표만 — 첫 열(selection empty · some · all)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "size",
+      "note": "Checkbox large — 열 폭은 24 + 여백(첫 칸이라 앞 24 · 뒤 16). 줄을 누르면 상세라 체크만 고른다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "touchTarget",
+      "note": "체크 가운데 — 줄 45 안에 든다. AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "moreButton",
+      "prop": "size",
+      "note": "Button ghost · iconOnly · medium — 아이콘 18(lucide ellipsis-vertical). 열 폭 80(앞 16 + 40 + 끝 24 — 끝 열이라 카드 여백), 머리 칸은 글 없이 숨긴 \"동작\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "moreButton",
+      "prop": "touchTarget",
+      "note": "보이는 40 바깥으로 2 씩 — 줄 45 안에 든다. AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "bulkBar",
+      "prop": "minHeight",
+      "note": "표 위 — 고른 수 글(t4 14 · 500 \"3개 선택됨\") + 동작 버튼(Button ghost small) + 선택 해제 ✕"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "bulkBar",
+      "prop": "paddingX",
+      "note": "왼쪽 16 · 오른쪽은 끝 버튼이 붙도록 8"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "bulkBar",
       "prop": "background",
-      "note": "primary 10% mix — `color-mix(in srgb, var(--color-primary) 10%, transparent)`"
+      "note": "한 값 — 지금 표 10% · DESIGN 8% 두 벌을 걷는다. 고른 줄에는 바탕을 칠하지 않는다(체크로만)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "bulkBar",
+      "prop": "marginBottom",
+      "note": "바 ↔ 표 머리"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "row",
+      "prop": "background",
+      "note": "누르는 줄만 — 줄 전체(줄 선 위까지). List 의 누름 바탕과 같은 색"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "row",
+      "prop": "background",
+      "note": "바탕만 — 표의 줄 · 칸은 이웃과 붙어 있어 줄이지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "안쪽 — 줄 안의 링크 · 버튼 · 정렬 버튼에. 표 상자 가장자리에서 잘리지 않게"
     },
     {
       "rule": 1,
-      "state": "default",
-      "slot": "numericCell",
-      "prop": "textAlign",
-      "note": "우측 — `text-right font-mono tabular-nums`"
+      "state": "enabled",
+      "slot": "row",
+      "prop": "minHeight",
+      "note": "선 1 포함(SEED 그림) — 썸네일 48 이 세로 가운데. 칸 여백 12 보다 높이가 먼저다"
     },
     {
       "rule": 2,
-      "state": "default",
-      "slot": "sortHeader",
-      "prop": "foreground",
-      "note": "+ ↑↓ hint on hover"
+      "state": "enabled",
+      "slot": "headerCell",
+      "prop": "textAlign",
+      "note": "머리도 오른쪽 — 글 + ↑↓ 묶음이 열 오른쪽 끝에 붙는다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "numerals",
+      "note": "고정폭 숫자 — 자릿수가 위아래로 맞는다. 고정폭 글꼴(mono)은 쓰지 않는다. 돈은 줄이지 않고 원까지, 빼기는 U+2212(−)"
     },
     {
       "rule": 3,
-      "state": "default",
-      "slot": "sortHeader",
-      "prop": "foreground",
-      "note": "+ ↑ 또는 ↓ 노출"
+      "state": "enabled",
+      "slot": "sortButton",
+      "prop": "width",
+      "note": "머리 칸의 여백을 버튼이 가진다 — 칸 어디를 눌러도 정렬. 누르는 영역 칸 폭 × 41(위아래로 44 까지 넓힌다). 누를 때마다 내림 ↔ 오름(두 단계 — 정렬 없음으로 돌아가지 않는다), 처음 누르면 숫자 · 날짜 열은 내림 · 글 열은 오름(사용자 결정 18A)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "sortButton",
+      "prop": "gap",
+      "note": "글 ↔ ↑↓"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "sortIcon",
+      "prop": "size",
+      "note": "↑ 와 ↓ 를 나란히 한 표시 — 두 화살표를 따로 칠한다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "sortIcon",
+      "prop": "color",
+      "note": "정렬할 수 있는 열에 늘 보인다 — 둘 다 흐린 색"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "sortIcon",
+      "prop": "color",
+      "note": "↑ 만 짙게 — ↓ 는 fg-neutral-muted 그대로. 머리 칸에 aria-sort=\"ascending\""
     },
     {
       "rule": 5,
-      "state": "default",
+      "state": "enabled",
+      "slot": "sortIcon",
+      "prop": "color",
+      "note": "↓ 만 짙게 — ↑ 는 fg-neutral-muted 그대로. 머리 칸에 aria-sort=\"descending\""
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "display",
+      "note": "머리 체크는 꺼짐 — 누르면 지금 쪽의 줄을 모두 고른다"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "display",
+      "note": "indeterminate — 누르면 모두 고른다"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
       "slot": "bulkBar",
-      "prop": "foreground",
-      "note": "primary text"
+      "prop": "display",
+      "note": "\"{n}개 선택됨\" — 보조 기술에 고른 수를 알린다(role=\"status\")"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "display",
+      "note": "누르면 모두 푼다 — 지금 쪽의 줄만"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "bulkBar",
+      "prop": "display",
+      "note": "\"{n}개 선택됨\""
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "display",
+      "note": "768 미만은 표를 그리지 않는다 — 줄마다 List 의 누르는 줄(list.yaml). 넘김 줄 대신 끝없이 불러오기(infinite-list.yaml)"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "overflowX",
+      "note": "가로로 밀지 않는다"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "display",
+      "note": "첫 열 → 제목(t5 16 / 22), 다음 열 1 ~ 2개 → 설명(t3 13 · \" · \" 로 잇는다), 핵심 숫자 하나 또는 상태 → 오른쪽 값(숫자는 t5 · 고정폭 숫자, 상태는 Badge). 나머지 열은 줄을 눌러 여는 상세에"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "checkbox",
+      "prop": "display",
+      "note": "고르는 표는 List 의 여럿 고르기(ListCheckItem) — 체크를 앞에"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "moreButton",
+      "prop": "display",
+      "note": "1280 미만이라 Menu Sheet 를 연다(menu.md). 폰 스와이프는 같은 동작의 지름길(swipe-actions.md)"
     }
   ]
 }

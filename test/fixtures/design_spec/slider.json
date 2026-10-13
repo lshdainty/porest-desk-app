@@ -3,67 +3,157 @@
   "source": "specs/components/slider.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "root": "Slider 전체 — 터치 영역",
-    "track": "트랙",
-    "fill": "채움(시작점 → thumb, range 는 두 thumb 사이)",
-    "thumb": "손잡이",
-    "focusRing": "thumb 키보드 포커스 링"
+    "root": "Slider — 손잡이 줄 + 표식. 폭은 놓인 자리",
+    "control": "손잡이 줄 — 높이 44 전체가 누르는 자리(트랙을 누르면 그 자리로 건너뛴다)",
+    "track": "트랙 — 고를 수 있는 범위",
+    "fill": "채움 — 최솟값에서 손잡이까지(범위는 두 손잡이 사이)",
+    "tick": "눈금 — 구간이 2 ~ 5개일 때만, 트랙 · 채움을 끊는 틈",
+    "thumb": "손잡이 — 원. 보조 기술에는 role=\"slider\"",
+    "valueIndicator": "말풍선 — 손잡이 위 지금 값(끄는 동안 · 마우스를 올렸을 때 · 키보드 포커스일 때)",
+    "markers": "표식 — 아래 양 끝 값(2 ~ 5 구간이면 단계마다)",
+    "headerValue": "머리 값 — Field 머리 오른쪽의 지금 값, 늘 보인다",
+    "focusRing": "키보드 포커스 링 — 손잡이 둘레"
   },
-  "axes": {},
-  "defaults": {},
+  "axes": {
+    "mode": [
+      "single",
+      "range"
+    ],
+    "ticks": [
+      "none",
+      "discrete"
+    ]
+  },
+  "defaults": {
+    "mode": "single",
+    "ticks": "none"
+  },
   "states": [
     "enabled",
-    "hover",
-    "focus-visible",
-    "active / dragging",
+    "hovered",
+    "focused",
+    "pressed",
     "disabled"
   ],
   "rules": [
     {
       "when": {},
       "enabled": {
+        "root": {
+          "width": "놓인 자리 폭",
+          "gap": 2,
+          "paddingTop": 24,
+          "commit": "손을 뗄 때 한 번"
+        },
+        "control": {
+          "height": 44,
+          "cursor": "pointer",
+          "touchTarget": "44 × 폭",
+          "touchAction": "none",
+          "dragStart": "150ms · 3px"
+        },
         "track": {
           "height": 4,
           "radius": 9999,
           "background": {
-            "light": "#F5F6FA",
-            "dark": "#353B4D"
+            "light": "#E5E8EF",
+            "dark": "#404757"
           }
         },
         "fill": {
           "background": {
-            "light": "#0147AD",
-            "dark": "#7AA9F6"
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
           }
         },
+        "tick": {
+          "width": 4
+        },
         "thumb": {
-          "width": 16,
-          "height": 16,
-          "background": "#FFFFFF",
-          "borderWidth": 2,
-          "borderStyle": "solid",
-          "borderColor": {
-            "light": "#0147AD",
-            "dark": "#7AA9F6"
+          "size": 20,
+          "radius": 9999,
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
           },
-          "shadow": {
-            "light": "0 1px 2px 0 rgba(15, 18, 28, 0.05)",
-            "dark": "0 1px 2px 0 rgba(0, 0, 0, 0.30), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)"
-          }
+          "borderWidth": 0,
+          "shadow": "none",
+          "cursor": "grab",
+          "inset": 10,
+          "pageStep": 10,
+          "keyboard": "← → ↑ ↓ 한 단계 · Shift + 화살표 · PageUp · PageDown 10단계 · Home · End 끝"
         },
-        "root": {
-          "paddingY": 8
+        "valueIndicator": {
+          "display": "숨김",
+          "background": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "foreground": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "numerals": "tabular-nums",
+          "paddingY": 4,
+          "paddingX": 8,
+          "radius": 6,
+          "minWidth": 24,
+          "offsetY": 12,
+          "arrowWidth": 8,
+          "arrowHeight": 6,
+          "clamp": "트랙 안",
+          "enterScale": 0.9,
+          "enterOpacity": 0,
+          "enterOffsetY": 5,
+          "exitOpacity": 0,
+          "exitOffsetY": 5
+        },
+        "markers": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          },
+          "align": "양 끝"
+        },
+        "headerValue": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "numerals": "tabular-nums",
+          "content": "지금 값 + 단위",
+          "position": "Field 머리 오른쪽"
         }
       },
-      "hover": {
-        "thumb": {
-          "cursor": "grab"
+      "hovered": {
+        "valueIndicator": {
+          "display": "보임"
         }
       },
-      "focus-visible": {
+      "focused": {
         "focusRing": {
           "width": 2,
           "offset": 2,
@@ -71,14 +161,24 @@
             "light": "#0147AD",
             "dark": "#7AA9F6"
           }
+        },
+        "valueIndicator": {
+          "display": "보임"
         }
       },
-      "active / dragging": {
+      "pressed": {
         "thumb": {
+          "size": 24,
           "cursor": "grabbing"
+        },
+        "valueIndicator": {
+          "display": "보임"
         }
       },
       "disabled": {
+        "control": {
+          "cursor": "not-allowed"
+        },
         "track": {
           "background": {
             "light": "#F5F6FA",
@@ -87,59 +187,468 @@
         },
         "fill": {
           "background": {
-            "light": "#0147AD",
-            "dark": "#7AA9F6"
+            "light": "#8A91A0",
+            "dark": "#838997"
           }
         },
         "thumb": {
-          "opacity": 0.5,
-          "pointerEvents": "none"
+          "background": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          },
+          "cursor": "not-allowed"
+        },
+        "markers": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "headerValue": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "mode": "single"
+      },
+      "enabled": {
+        "fill": {
+          "span": "최솟값 → 손잡이"
+        },
+        "thumb": {
+          "name": "Field 라벨"
+        }
+      }
+    },
+    {
+      "when": {
+        "mode": "range"
+      },
+      "enabled": {
+        "fill": {
+          "span": "두 손잡이 사이"
+        },
+        "thumb": {
+          "name": "{라벨} 최소 · {라벨} 최대"
+        },
+        "valueIndicator": {
+          "target": "움직이는 손잡이"
+        }
+      }
+    },
+    {
+      "when": {
+        "ticks": "none"
+      },
+      "enabled": {
+        "markers": {
+          "content": "최솟값 · 최댓값"
+        }
+      }
+    },
+    {
+      "when": {
+        "ticks": "discrete"
+      },
+      "enabled": {
+        "tick": {
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "backgroundOnFloating": {
+            "light": "#FFFFFF",
+            "dark": "#2D3346"
+          },
+          "position": "단계 자리"
+        },
+        "markers": {
+          "content": "단계마다"
+        },
+        "thumb": {
+          "snap": "단계 자리"
         }
       }
     }
   ],
+  "motion": {
+    "손잡이 · 채움 — 건너뛰기": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "left",
+        "width"
+      ],
+      "note": "트랙을 누르거나 키보드로 옮길 때 150ms — 끄는 동안은 손가락을 1:1 로 따라가 전환이 없다(SEED). 모션 줄이기면 바로"
+    },
+    "손잡이 — 누름": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "20 → 24(SEED 1.2배)"
+    },
+    "말풍선 — 나타남": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "opacity",
+        "transform"
+      ],
+      "note": "0.9배 · 투명 0 · 아래 5 에서 제자리로(SEED). 모션 줄이기면 투명도만"
+    },
+    "말풍선 — 사라짐": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity",
+        "transform"
+      ],
+      "note": "투명 0 · 아래 5 로(SEED)"
+    }
+  },
   "notes": [
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "thumb",
-      "prop": "background",
-      "note": "#FFFFFF 고정"
+      "slot": "root",
+      "prop": "width",
+      "note": "Field 의 입력 자리를 채운다 — 폭이 정해진 자리에 두지 않는다"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "root",
-      "prop": "paddingY",
-      "note": "touch area"
+      "prop": "gap",
+      "note": "손잡이 줄 ↔ 표식 2(SEED)"
     },
     {
       "rule": 0,
-      "state": "focus-visible",
-      "slot": "focusRing",
-      "prop": "color",
-      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingTop",
+      "note": "말풍선 자리 — Field 머리 ↔ 손잡이 줄 32(Field 간격 8 + 24). 말풍선(26)은 손잡이(20) 위 12 에 뜨고 누른 손잡이를 따라 올라가지 않아 머리(라벨 · 머리 값)와 6 이 남는다. 비교 페이지 2C 그림의 자리(30)를 토큰으로. 누르는 자리는 손잡이 줄 44 그대로"
     },
     {
       "rule": 0,
-      "state": "disabled",
+      "state": "enabled",
+      "slot": "root",
+      "prop": "commit",
+      "note": "끄는 동안은 화면(채움 · 손잡이 · 머리 값 · 말풍선)만 따라가고 손을 뗄 때 한 번 저장한다(onValueCommit · 앱 onChangeEnd). 키보드는 키마다 한 번. 요청 중에도 막지 않는다 — 실패하면 값을 되돌리고 Field 오류로 알린다(사용자 결정 2026-10-09)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "control",
+      "prop": "height",
+      "note": "줄 전체가 누르는 자리 — 손잡이 20 위아래 12 · 트랙 4 위아래 20 이 모두 눌린다(SEED 26 은 44 에 못 미친다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "control",
+      "prop": "touchTarget",
+      "note": "AA ✓ · AAA ✓. 손잡이 밖을 누르면 가장 가까운 손잡이가 그 자리(가장 가까운 단계)로 건너뛴다(Tap jump) — 누르기만 하면 말풍선은 뜨지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "control",
+      "prop": "touchAction",
+      "note": "가로로 끄는 동안 화면이 스크롤되지 않게 — 줄 밖은 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "control",
+      "prop": "dragStart",
+      "note": "SEED dragStartDelay — 손잡이 밖을 짧게 누르면 그 자리로 건너뛰기만 한다(말풍선 없음). 150ms 넘게 누르고 있거나 3px 넘게 움직이면 끌기가 된다(손잡이 24 + 말풍선). 손잡이를 누르면 바로 끌기"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "track",
       "prop": "background",
-      "note": "opacity 0.5"
+      "note": "SEED palette.gray-400 의 역할 짝(같은 gray-400). 흰 표면 위 1.23 · 다크 1.56(시트 1.35) — 트랙은 범위의 바탕이고 값은 채움 · 손잡이가 말한다"
     },
     {
       "rule": 0,
-      "state": "disabled",
+      "state": "enabled",
       "slot": "fill",
       "prop": "background",
-      "note": "opacity 0.5"
+      "note": "SEED fg.neutral — 트랙 위 13.38 · 다크 8.62. 모서리는 따로 두지 않는다 — 트랙이 잘라 준다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "tick",
+      "prop": "width",
+      "note": "트랙 높이(4) 그대로의 틈 — SEED thick. 연속 값의 가는 눈금(thin 1)은 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "background",
+      "note": "SEED bg.neutral-solid 의 역할 짝 — 라이트는 채움과 같은 #1A1F2E, 다크는 채움과 같은 #F5F6FA(SEED 도 다크에서 같다). 흰 표면 위 16.41 · 다크 13.42"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "borderWidth",
+      "note": "테두리 · 그림자 없음(사용자 결정 1B — 흰 손잡이 + 테두리 + 그림자는 고르지 않았다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "inset",
+      "note": "트랙 안쪽 — 손잡이 가운데가 트랙 양 끝에서 반지름(10)만큼 들어온 자리까지만 간다. 손잡이가 트랙 밖으로 나가지 않는다(SEED). 채움도 그 가운데까지"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "pageStep",
+      "note": "Shift + 화살표 · PageUp · PageDown 이 한 번에 옮기는 단계 수(APG)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "keyboard",
+      "note": "APG — 포커스한 손잡이만 움직인다. 범위면 다른 손잡이 값이 끝이다(넘지 않는다). RTL 은 ← → 만 뒤집고 ↑ 는 늘 늘린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "display",
+      "note": "끄는 동안(pressed) · 마우스를 손잡이에 올렸을 때(hovered) · 키보드 포커스일 때(focused)만 보인다. 보조 기술에는 숨긴다(aria-hidden) — 값은 손잡이의 aria-valuetext 가 읽힌다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "background",
+      "note": "손잡이와 같은 색"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "foreground",
+      "note": "말풍선 위 16.41 · 다크 13.42"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "numerals",
+      "note": "끄는 동안 숫자 폭이 흔들리지 않게"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "minWidth",
+      "note": "좌우 여백 8 × 2 + 화살표 8(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "offsetY",
+      "note": "상자 아래 끝 ↔ 손잡이(20) 위 끝(SEED offsetY 12). 누른 손잡이가 1.2배로 커져도 말풍선은 그 자리 그대로다(눈으로는 10) — 화살표가 그 사이에서 손잡이 가운데를 가리킨다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "arrowWidth",
+      "note": "SEED valueIndicatorArrow width x2 — 상자 바탕과 같은 색"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "arrowHeight",
+      "note": "SEED valueIndicatorArrow height x1_5 — 상자 아래로 나온다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "clamp",
+      "note": "손잡이가 트랙 끝에 가면 상자만 안쪽으로 밀리고 화살표는 손잡이 가운데를 그대로 가리킨다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "enterScale",
+      "note": "나타날 때 0.9배 · 투명 0 · 아래 5 에서 제자리로(SEED enterScale · enterOpacity)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "enterOffsetY",
+      "note": "아래로 5 에서 시작한다 — 모션 줄이기면 확대 · 이동 없이 투명도만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "exitOpacity",
+      "note": "사라질 때 투명 0 · 아래 5 로(SEED exitOpacity — 확대는 그대로 1)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "markers",
+      "prop": "foreground",
+      "note": "흰 표면 7.11 · 다크 7.70(시트 6.67). 보조 기술에는 숨긴다(aria-hidden)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "markers",
+      "prop": "align",
+      "note": "최솟값은 왼쪽 끝, 최댓값은 오른쪽 끝에 글을 맞춘다 — 단계 표식(ticks discrete)의 가운데 것은 단계 자리 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerValue",
+      "prop": "fontWeight",
+      "note": "라벨(16 · 500)과 같은 크기로 한 단계 굵게 — 머리 오른쪽"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerValue",
+      "prop": "content",
+      "note": "\"80%\" — formatValue 의 글. 범위면 \"30 ~ 70만원\". 보조 기술에는 숨긴다(값은 손잡이가 읽힌다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerValue",
+      "prop": "position",
+      "note": "Field 의 headerAction 자리(라벨 오른쪽)에 두는 글이다 — 줄 높이 22 가 머리 높이와 같아 라벨과 한 줄에 맞는다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "손잡이 둘레 원 — 키보드 포커스에만"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "valueIndicator",
+      "prop": "display",
+      "note": "키보드로 옮기는 동안 늘 — 키를 누를 때마다 값이 바뀐다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "thumb",
+      "prop": "size",
+      "note": "SEED 1.2배 — 끄는 동안 손가락 밑에서 손잡이가 보이게"
     },
     {
       "rule": 0,
       "state": "disabled",
       "slot": "thumb",
-      "prop": "pointerEvents",
-      "note": "`pointer-events-none`"
+      "prop": "background",
+      "note": "채움과 같은 색 — 불투명도로 흐리게 하지 않는다(v106). Tab 순서에서 빠진다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "fill",
+      "prop": "span",
+      "note": "트랙 왼쪽 끝(RTL 은 오른쪽 끝)에서 손잡이 가운데까지"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "name",
+      "note": "aria-labelledby = 칸 이름(Field) — 라벨이 없으면 aria-label. 값은 aria-valuetext(\"80%\")"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "fill",
+      "prop": "span",
+      "note": "SEED range"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "name",
+      "note": "손잡이마다 범위에서 하는 일 — \"시작 · 끝\" 처럼 바꿀 수 있다(thumbLabels). 두 손잡이는 서로를 넘지 않는다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "valueIndicator",
+      "prop": "target",
+      "note": "두 손잡이 가운데 끌거나 마우스를 올리거나 포커스한 손잡이 위에만 뜬다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "markers",
+      "prop": "content",
+      "note": "양 끝 둘(SEED count 2) — 단계를 숫자로 늘어놓지 않는다(지금 제품의 숫자 여섯은 걷는다). 단계는 끄는 동안 말풍선으로 안다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "tick",
+      "prop": "background",
+      "note": "흰 표면 위 — 놓인 표면과 같은 색으로 트랙 · 채움을 끊는다(SEED fg.on-neutral-solid 의 자리). 양 끝을 뺀 단계 자리마다(구간 − 1개)"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "tick",
+      "prop": "backgroundOnFloating",
+      "note": "시트 · 팝오버 위 — 그 표면과 같은 색"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "tick",
+      "prop": "position",
+      "note": "손잡이가 설 수 있는 자리와 같다 — 트랙 양 끝에서 10 들어온 범위를 구간 수로 똑같이 나눈다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "markers",
+      "prop": "content",
+      "note": "\"1점 · 2점 · 3점 · 4점 · 5점\" — 끝 둘은 끝에 맞추고 나머지는 단계 자리 가운데"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "thumb",
+      "prop": "snap",
+      "note": "끄는 동안에도 단계 자리로만 선다 · 트랙을 누르면 가장 가까운 단계로"
     }
   ]
 }

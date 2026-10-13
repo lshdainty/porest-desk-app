@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
+import 'package:porest_desk_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 칸 · 라벨 · 줄 높이가 함께 정해진다. medium 20(라벨 14 · 줄 32, 기본) · large 24(라벨 16 · 줄 36 — 한 화면의
 /// 중심 선택, 모바일에서 홀로 서는 선택).
@@ -288,7 +289,9 @@ class PCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final s = _sizes[size]!;
-    final onChanged = this.onChanged;
+    // 묶음(Field)이 막았으면 칸은 눌리지 않는다 — 칸에 직접 준 onChanged 가 없을 때와 같다
+    final group = PCheckboxGroupState.maybeOf(context);
+    final onChanged = group?.disabled == true ? null : this.onChanged;
     final enabled = onChanged != null;
     return SelectionControl(
       label: label,
@@ -305,6 +308,8 @@ class PCheckbox extends StatelessWidget {
       semantics: SelectionSemantics(
         checked: checked ?? false,
         mixed: checked == null,
+        // 오류는 칸마다 — role=group 은 오류를 받지 않아 묶음에는 걸지 않는다(웹 aria-invalid)
+        invalid: group?.invalid ?? false,
       ),
       markBuilder: (pressed) => PCheckmark(
         checked: checked,
@@ -324,26 +329,72 @@ class PCheckbox extends StatelessWidget {
 /// [semanticLabel] 은 무엇을 고르는지 — 묶음의 이름으로 읽는다. 부모(전체)를 맨 위에 둘 때 그 값(선택 · 일부 선택 ·
 /// 선택 안 됨)은 쓰는 쪽이 자식에서 정한다. 오류는 칸을 바꾸지 않고 묶음 아래 글로 알린다 — 제목 · 오류 글은 묶음을
 /// Field 로 감싸 붙인다(field.md).
+///
+/// Field 의 막힘 · 오류가 칸에 닿는다(웹 `useFieldGroupState`, 2026-10-08) — 막힌 Field 안의 칸은 눌리지 않고
+/// (묶음은 막힘으로 읽힌다), 오류인 Field 안의 칸은 오류로 읽힌다(칸의 모양은 그대로 — 오류는 묶음 아래 글이다).
+/// 묶음에 직접 준 [disabled] · [invalid] 가 Field 보다 이긴다. 필수는 묶음에 걸지 않는다(role=group 은 받지
+/// 않는다 — 고르지 않고 내면 오류 글이 알린다).
 class PCheckboxGroup extends StatelessWidget {
-  const PCheckboxGroup({super.key, required this.children, this.semanticLabel});
+  const PCheckboxGroup({
+    super.key,
+    required this.children,
+    this.semanticLabel,
+    this.disabled,
+    this.invalid,
+  });
 
   final List<Widget> children;
 
   /// 묶음의 이름(웹 aria-label).
   final String? semanticLabel;
 
+  /// 칸을 모두 막는다. null 이면 Field 의 값.
+  final bool? disabled;
+
+  /// 칸을 모두 오류로 읽는다. null 이면 Field 의 값.
+  final bool? invalid;
+
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      label: semanticLabel,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: PSpacing.x3,
-        children: children,
+    final field = PFieldScope.maybeOf(context)?.data;
+    final off = disabled ?? field?.disabled ?? false;
+    final bad = invalid ?? field?.invalid ?? false;
+    return PCheckboxGroupState(
+      disabled: off,
+      invalid: bad,
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: semanticLabel,
+        // 묶음의 막힘 — 웹 aria-disabled
+        enabled: off ? false : null,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: PSpacing.x3,
+          children: children,
+        ),
       ),
     );
   }
+}
+
+/// 묶음이 칸에 넘기는 상태 — 막힘 · 오류. [PCheckbox] 가 읽는다. 칸에 직접 준 값이 이긴다.
+class PCheckboxGroupState extends InheritedWidget {
+  const PCheckboxGroupState({
+    super.key,
+    required this.disabled,
+    required this.invalid,
+    required super.child,
+  });
+
+  final bool disabled;
+  final bool invalid;
+
+  static PCheckboxGroupState? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PCheckboxGroupState>();
+
+  @override
+  bool updateShouldNotify(PCheckboxGroupState oldWidget) =>
+      disabled != oldWidget.disabled || invalid != oldWidget.invalid;
 }
