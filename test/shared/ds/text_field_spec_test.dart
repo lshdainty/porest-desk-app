@@ -380,10 +380,13 @@ void main() {
       }
 
       // 값 · 예시 글 · 붙이개
-      final value = _editable(tester, f).style;
+      final editable = _editable(tester, f);
+      final value = editable.style;
       k.typo('value.typography', value);
       k.weight('value.fontWeight', value);
       k.color('value.foreground', value.color!);
+      // 캐럿은 글자색 — input.yaml value.caretColor(2026-10-08)
+      k.color('value.caretColor', editable.cursorColor);
       final placeholder = _textStyle(tester, e, '금액');
       k.typo('placeholder.typography', placeholder);
       k.weight('placeholder.fontWeight', placeholder);
@@ -812,10 +815,13 @@ void main() {
       k.px('value.paddingY', padding.top);
       k.px('value.paddingY', padding.bottom);
 
-      final value = _editable(tester, f).style;
+      final editable = _editable(tester, f);
+      final value = editable.style;
       k.typo('value.typography', value);
       k.weight('value.fontWeight', value);
       k.color('value.foreground', value.color!);
+      // 캐럿은 글자색 — textarea.yaml value.caretColor(Input 과 같다, 2026-10-08)
+      k.color('value.caretColor', editable.cursorColor);
       final placeholder = _textStyle(tester, e, '예: 가족 행사 참석');
       k.typo('placeholder.typography', placeholder);
       k.weight('placeholder.fontWeight', placeholder);

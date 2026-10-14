@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart' show SemanticsValidationResult;
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
+import 'package:porest_desk_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 동그라미 · 점 · 라벨 · 줄 높이가 함께 정해진다(Checkbox 와 같은 크기 — 한 폼에 함께 서도 줄이 맞는다).
 /// medium 20(점 8 · 라벨 14 · 줄 32, 기본) · large 24(점 10 · 라벨 16 · 줄 36).
@@ -187,6 +189,9 @@ class PRadioGroup<T> extends StatelessWidget {
     required this.onChanged,
     required this.children,
     this.semanticLabel,
+    this.disabled,
+    this.invalid,
+    this.required,
   });
 
   /// 고른 값 — 없으면 아무것도 고르지 않았다. 골라 둘 수 있으면 처음부터 하나를 골라 둔다.
@@ -201,9 +206,23 @@ class PRadioGroup<T> extends StatelessWidget {
   /// 묶음의 이름(웹 aria-label) — 무엇을 고르는지.
   final String? semanticLabel;
 
+  /// 선택지를 모두 막는다. null 이면 Field 의 값 — 막힌 Field 안의 선택지는 눌리지 않는다(웹 `useFieldGroupState`).
+  final bool? disabled;
+
+  /// 오류로 읽는다(웹 radiogroup 의 aria-invalid). null 이면 Field 의 값 — 모양은 바뀌지 않는다(오류는 묶음 아래 글).
+  final bool? invalid;
+
+  /// 필수로 읽는다(웹 radiogroup 의 aria-required). null 이면 Field 의 값.
+  final bool? required;
+
   @override
   Widget build(BuildContext context) {
-    final onChanged = this.onChanged;
+    // Field 의 막힘 · 오류 · 필수 — 묶음에 직접 준 값이 이긴다
+    final field = PFieldScope.maybeOf(context)?.data;
+    final off = disabled ?? field?.disabled ?? false;
+    final bad = invalid ?? field?.invalid ?? false;
+    final need = required ?? field?.required ?? false;
+    final onChanged = off ? null : this.onChanged;
     return _PRadioGroupScope(
       enabled: onChanged != null,
       child: RadioGroup<T>(
@@ -215,6 +234,10 @@ class PRadioGroup<T> extends StatelessWidget {
         // 이름은 RadioGroup 의 묶음 노드에 붙는다(그 안의 선택지는 저마다 노드다)
         child: Semantics(
           label: semanticLabel,
+          isRequired: need ? true : null,
+          validationResult: bad
+              ? SemanticsValidationResult.invalid
+              : SemanticsValidationResult.none,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

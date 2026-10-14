@@ -1,108 +1,214 @@
 {
-  "name": "InputOTP",
+  "name": "Input OTP",
   "source": "specs/components/input-otp.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "root": "ⓐ container — cell · separator 가로 배치",
-    "cell": "ⓑ cell — 한 자리",
-    "separator": "ⓒ separator — 그룹 표시(옵션)",
-    "focusRing": "활성 cell 의 outline · error ring"
+    "field": "코드 칸 — Input 상자형 한 칸. 이름은 Field 라벨(\"인증 코드\")",
+    "value": "입력 — 숫자만, 최대 6자리",
+    "placeholder": "빈 칸의 글 — \"6자리 숫자\"",
+    "description": "설명 — Field 꼬리, 유효 시간 · 틀릴 수 있는 횟수",
+    "resend": "다시 받기 — Button neutralWeak medium, 칸 아래. 남은 초를 붙이고 그동안 막힌다"
   },
-  "axes": {},
-  "defaults": {},
+  "axes": {
+    "size": [
+      "large",
+      "medium",
+      "responsive"
+    ],
+    "resend": [
+      "first",
+      "ready",
+      "cooldown"
+    ]
+  },
+  "defaults": {
+    "size": "responsive",
+    "resend": "ready"
+  },
   "states": [
-    "empty",
-    "filled",
-    "focus",
-    "error",
+    "enabled",
+    "focused",
+    "invalid",
     "disabled"
   ],
   "rules": [
     {
       "when": {},
-      "empty": {
-        "root": {
-          "gap": 4
-        },
-        "cell": {
-          "width": 40,
-          "height": 40,
-          "typography": {
-            "fontSize": 18,
-            "fontWeight": 600,
-            "fontFamily": "Pretendard, Inter, sans-serif"
-          },
-          "fontFamily": "ui-monospace",
-          "radius": 8,
-          "borderWidth": 1,
+      "enabled": {
+        "field": {
+          "variant": "outline",
+          "width": "놓인 자리 폭",
+          "background": "transparent",
           "borderColor": {
             "light": "#E5E8EF",
             "dark": "#404757"
-          },
-          "background": {
-            "light": "#F5F6FA",
-            "dark": "#353B4D"
-          },
-          "touchTarget": "40 × 40"
+          }
         },
-        "separator": {
-          "paddingY": 0,
-          "paddingX": 4
-        }
-      },
-      "filled": {
-        "cell": {
-          "background": {
-            "light": "#FFFFFF",
-            "dark": "#242938"
+        "value": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "numerals": "tabular-nums",
+          "textAlign": "start",
+          "inputMode": "numeric",
+          "autoComplete": "one-time-code",
+          "filter": "숫자만 · 앞 6자리",
+          "autoSubmit": "없음"
+        },
+        "placeholder": {
+          "content": "6자리 숫자",
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "description": {
+          "content": "10분 안에 입력해주세요 · 5번 틀리면 다시 받아요.",
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "resend": {
+          "variant": "neutralWeak",
+          "height": 40,
+          "marginTop": 12,
+          "cooldown": "60초",
+          "focus": "보내면 칸으로"
+        }
+      },
+      "focused": {
+        "field": {
+          "borderColor": {
             "light": "#1A1F2E",
             "dark": "#F5F6FA"
           }
         }
       },
-      "focus": {
-        "cell": {
-          "background": "empty 또는 filled 유지"
-        },
-        "focusRing": {
-          "width": 2,
-          "offset": 1,
-          "color": {
-            "light": "#0147AD",
-            "dark": "#7AA9F6"
-          }
-        }
-      },
-      "error": {
-        "cell": {
-          "background": "empty/filled 유지",
+      "invalid": {
+        "field": {
           "borderColor": {
             "light": "#D72323",
             "dark": "#FF8477"
           }
         },
-        "focusRing": {
-          "width": 2,
-          "color": {
-            "light": "#D723234D",
-            "dark": "#FF84774D"
+        "description": {
+          "content": "코드가 맞지 않거나 시간이 지났어요. 확인하거나 다시 받아주세요.",
+          "foreground": {
+            "light": "#D72323",
+            "dark": "#FF8477"
           }
         }
       },
       "disabled": {
-        "cell": {
+        "field": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "value": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "field": {
+          "minHeight": 52,
+          "radius": 12,
+          "paddingX": 16
+        },
+        "value": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "field": {
+          "minHeight": 40,
+          "radius": 8,
+          "paddingX": 14
+        },
+        "value": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "responsive"
+      },
+      "enabled": {
+        "field": {
+          "breakpoint": 1280
+        }
+      }
+    },
+    {
+      "when": {
+        "resend": "first"
+      },
+      "enabled": {
+        "resend": {
+          "label": "코드 받기"
+        }
+      }
+    },
+    {
+      "when": {
+        "resend": "ready"
+      },
+      "enabled": {
+        "resend": {
+          "label": "다시 받기"
+        }
+      }
+    },
+    {
+      "when": {
+        "resend": "cooldown"
+      },
+      "enabled": {
+        "resend": {
+          "label": "다시 받기({n}초)",
           "background": {
             "light": "#F5F6FA",
             "dark": "#353B4D"
           },
-          "borderColor": {
-            "light": "#E5E8EF",
-            "dark": "#404757"
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
           },
           "cursor": "not-allowed"
         }
@@ -112,52 +218,178 @@
   "notes": [
     {
       "rule": 0,
-      "state": "empty",
-      "slot": "cell",
-      "prop": "fontFamily",
-      "note": "monospace"
+      "state": "enabled",
+      "slot": "field",
+      "prop": "variant",
+      "note": "Input 상자형(input.yaml) — 크기 · 모서리 · 테두리 · 포커스 · 오류 · 막힘은 Input 그대로. 칸을 자릿수만큼 나누지 않는다(사용자 결정 10A — 6칸 · 6칸 모양은 고르지 않았다)"
     },
     {
       "rule": 0,
-      "state": "empty",
-      "slot": "cell",
-      "prop": "touchTarget",
-      "note": "AA ✓ / AAA ⚠ 미달 (모바일 IME 자동 채우기로 직접 탭 비중 낮음)"
-    },
-    {
-      "rule": 0,
-      "state": "focus",
-      "slot": "focusRing",
+      "state": "enabled",
+      "slot": "field",
       "prop": "width",
-      "note": "outline"
+      "note": "Field 의 입력 자리를 채운다"
     },
     {
       "rule": 0,
-      "state": "error",
-      "slot": "focusRing",
-      "prop": "width",
-      "note": "ring"
-    },
-    {
-      "rule": 0,
-      "state": "disabled",
-      "slot": "cell",
-      "prop": "background",
-      "note": "opacity 0.5"
-    },
-    {
-      "rule": 0,
-      "state": "disabled",
-      "slot": "cell",
+      "state": "enabled",
+      "slot": "field",
       "prop": "borderColor",
-      "note": "opacity 0.5"
+      "note": "안쪽 1px(Input)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "numerals",
+      "note": "숫자 폭을 고르게 — 고정폭 글꼴(mono) · 글자 사이 띄움은 쓰지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "textAlign",
+      "note": "다른 입력칸과 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "inputMode",
+      "note": "숫자 키보드 — type=\"number\" 는 쓰지 않는다(Input)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "autoComplete",
+      "note": "웹 autocomplete — iOS · 안드로이드가 받은 코드를 키보드 위에 제안한다. 앱은 AutofillHints.oneTimeCode"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "filter",
+      "note": "치기 · 붙여넣기 · 자동 채우기 모두 — 글에서 숫자만 뽑아 앞 6자리를 쓴다(\"123 456\" · \"123-456\" · \"인증 코드: 123456\" → 123456). maxLength 를 걸지 않는다 — 브라우저가 먼저 잘라 숫자를 잃는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "autoSubmit",
+      "note": "6자리를 채워도 보내지 않는다 — 확인 단추를 누른다(고칠 틈을 둔다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "placeholder",
+      "prop": "content",
+      "note": "자릿수를 알린다 — 보내는 코드가 바뀌면 같이"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "content",
+      "note": "늘 보인다(사용자 결정 11B) — 서버 규칙(유효 600초 · 틀림 5번 · 다시 받기 60초 — porest-sso-back ReauthServiceImpl)이 바뀌면 글도 바꾼다. 오류가 나면 Field 규칙대로 오류 글이 이 자리를 대신하고, 칸을 고치면 돌아온다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "typography",
+      "note": "Field 설명 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "variant",
+      "note": "Button — 옅은 회색 채움"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "height",
+      "note": "Button medium — 칸 옆이 아니라 아래에 둬 칸(52 · 40)과 높이를 맞출 일이 없다(지금 웹은 칸 40 옆 36)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "marginTop",
+      "note": "Field 꼬리(설명 · 오류) ↔ 단추 12. 왼쪽 맞춤"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "cooldown",
+      "note": "보낸 뒤 60초 동안 막는다(서버 COOLDOWN 60) — 남은 초를 1초마다 줄여 보인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "focus",
+      "note": "단추가 막히며 초점이 본문으로 빠지지 않게 — 코드를 보내면 초점을 코드 칸으로 옮긴다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "field",
+      "prop": "borderColor",
+      "note": "안쪽 2px(Input) — 내용이 밀리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "invalid",
+      "slot": "field",
+      "prop": "borderColor",
+      "note": "안쪽 2px(Input) — 포커스해도 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "invalid",
+      "slot": "description",
+      "prop": "content",
+      "note": "Field 오류(14 · fg-critical + 아이콘 16)가 설명을 대신한다(18A) — 칸을 고치기 시작하면 설명 줄이 돌아온다"
     },
     {
       "rule": 0,
       "state": "disabled",
-      "slot": "cell",
-      "prop": "cursor",
-      "note": "`cursor:not-allowed`"
+      "slot": "field",
+      "prop": "background",
+      "note": "Input 그대로 — 흐리게 하지 않는다(v106)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "field",
+      "prop": "breakpoint",
+      "note": "미만은 large, 이상은 medium 의 값(Input) — 앱은 늘 large"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "label",
+      "note": "처음 — 보내기 전"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "label",
+      "note": "남은 초를 괄호에 붙인다(앞 글자에 붙여 쓴다 — International Design). 0 이 되면 \"다시 받기\""
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "resend",
+      "prop": "background",
+      "note": "Button 막힘 — 흐리게 하지 않는다(v106)"
     }
   ]
 }

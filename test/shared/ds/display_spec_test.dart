@@ -461,14 +461,20 @@ void main() {
     ];
 
     for (final mode in Brightness.values) {
-      testWidgets('${mode.name} — 크기마다 겹침 · 링 · "+N"', (tester) async {
+      testWidgets('${mode.name} — 크기 × 바탕마다 겹침 · 링 · "+N"', (tester) async {
         final failures = <String>[];
-        for (final combo in spec.combos(['size'])) {
+        // surface(default · floating) — 떠 있는 바탕(시트 · 대화상자 · 팝오버)의 링은 bg-layer-floating(2026-10-08)
+        for (final combo in spec.combos(['size', 'surface'])) {
           final size = PAvatarSize.values.byName('s${combo['size']}');
           await tester.pumpWidget(
             _host(
               mode,
-              PAvatarStack(key: UniqueKey(), people: people, size: size),
+              PAvatarStack(
+                key: UniqueKey(),
+                people: people,
+                size: size,
+                onFloating: combo['surface'] == 'floating',
+              ),
             ),
           );
           final k = _Check(mode, spec.resolve(combo, 'enabled'), '$combo');
@@ -498,6 +504,21 @@ void main() {
           final more = find.byKey(const ValueKey('avatar-stack-overflow'));
           final moreDeco =
               tester.widget<Container>(more).decoration! as BoxDecoration;
+          // "+N" 원도 아바타와 같은 링 — 같은 두께 · 같은 바탕색(avatar-stack.yaml overflow.outline*)
+          final moreRing =
+              (tester
+                          .widget<DecoratedBox>(
+                            find.ancestor(
+                              of: more,
+                              matching: find.byType(DecoratedBox),
+                            ),
+                          )
+                          .decoration
+                      as BoxDecoration)
+                  .boxShadow!
+                  .single;
+          k.px('overflow.outlineWidth', moreRing.spreadRadius);
+          k.color('overflow.outlineColor', moreRing.color);
           k.color('overflow.background', moreDeco.color!);
           k.px('overflow.size', tester.getSize(more).width);
           final moreText = tester.widget<Text>(find.text('+2')).style!;

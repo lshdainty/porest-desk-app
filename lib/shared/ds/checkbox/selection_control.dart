@@ -104,12 +104,16 @@ class SelectionSemantics {
     this.inMutuallyExclusiveGroup = false,
     this.selected,
     this.hint,
+    this.invalid = false,
   });
 
   final bool? checked;
   final bool? mixed;
   final bool? toggled;
   final bool inMutuallyExclusiveGroup;
+
+  /// 오류로 읽는다(웹 aria-invalid) — 모양은 바꾸지 않는다. Field 의 오류가 묶음을 거쳐 칸마다 온다.
+  final bool invalid;
 
   /// iOS 의 Radio — VoiceOver 는 선택을 selected 로 읽는다(Flutter RawRadio 와 같다).
   final bool? selected;
@@ -220,6 +224,9 @@ class _SelectionControlState extends State<SelectionControl> {
         selected: s.selected,
         inMutuallyExclusiveGroup: s.inMutuallyExclusiveGroup ? true : null,
         hint: s.hint,
+        validationResult: s.invalid
+            ? SemanticsValidationResult.invalid
+            : SemanticsValidationResult.none,
         onTap: enabled ? _activate : null,
         // 막혀도 짜임은 그대로 둔다 — 바뀌면 그 아래가 새로 만들어져 색 전환이 끊긴다
         child: Shortcuts(

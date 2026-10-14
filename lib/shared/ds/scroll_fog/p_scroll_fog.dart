@@ -111,48 +111,62 @@ class PScrollFogMask extends StatelessWidget {
   final double end;
   final Widget child;
 
+  /// 흐린 쪽마다 층 하나 — 시작 쪽 · 끝 쪽. 상자가 두 깊이의 합보다 낮아도 두 층을 곱하므로 양 끝이 함께 흐리다
+  /// (웹 `mask-composite: intersect` — scroll-fog.yaml fog.mask, 2026-10-08). 깊이 0 인 쪽은 층이 없다.
   @override
   Widget build(BuildContext context) {
     final fade = context.gradients.fadeMask;
-    return ShaderMask(
-      blendMode: BlendMode.dstIn,
-      shaderCallback: (bounds) =>
-          fogGradient(fade, axis, bounds.size, start, end).createShader(bounds),
-      child: child,
-    );
+    Widget masked = child;
+    // 층마다 따로 dstIn 으로 씌운다 — dstIn 을 겹쳐 쓰면 알파가 곱해진다(intersect 와 같다)
+    for (final layer in [(start, false), (end, true)]) {
+      final (depth, atEnd) = layer;
+      if (depth <= 0) continue;
+      masked = ShaderMask(
+        blendMode: BlendMode.dstIn,
+        shaderCallback: (bounds) => fogLayer(
+          fade,
+          axis,
+          bounds.size,
+          depth,
+          atEnd: atEnd,
+        ).createShader(bounds),
+        child: masked,
+      );
+    }
+    return masked;
   }
 }
 
-/// 한 축의 마스크 — 시작 쪽 흐림(투명 → 불투명) · 가운데 불투명 · 끝 쪽 흐림(불투명 → 투명).
-/// 토큰(위 → 아래 16단계)의 비율을 깊이만큼으로 줄여 양 끝에 놓는다 — 상자가 깊이 합보다 작으면 반씩 나눈다.
+/// 한 쪽 흐림의 층 — 상자 전체 크기. 시작 쪽은 투명 → 불투명, 끝 쪽은 반대 방향이다. 토큰(위 → 아래 16단계)의
+/// 단계는 그 쪽 깊이의 몫이라 깊이 안에서 불투명에 닿고, 그 뒤는 끝까지 불투명이다(곱해도 가리지 않는다).
 @visibleForTesting
-LinearGradient fogGradient(
+LinearGradient fogLayer(
   LinearGradient fade,
   Axis axis,
   Size size,
-  double start,
-  double end,
-) {
+  double depth, {
+  required bool atEnd,
+}) {
   final length = axis == Axis.vertical ? size.height : size.width;
-  final total = start + end;
-  final scale = length <= 0 || total <= length ? 1.0 : length / total;
-  final s = length <= 0 ? 0.0 : start * scale / length;
-  final e = length <= 0 ? 0.0 : end * scale / length;
+  // 깊이가 상자보다 길어도 상자 안에서 끝낸다 — 한 쪽만 봐서는 겹치지 않는다
+  final share = length <= 0 ? 0.0 : math.min(1.0, depth / length);
   final stops = fade.stops!;
-  final colors = <Color>[];
-  final at = <double>[];
-  for (var i = 0; i < stops.length; i++) {
-    colors.add(fade.colors[i]);
-    at.add(stops[i] * s);
+  final colors = <Color>[...fade.colors];
+  final at = <double>[for (final s in stops) s * share];
+  // 깊이 뒤는 불투명으로 끝까지 — 마지막 단계가 불투명이라 한 점만 더한다
+  if (at.last < 1) {
+    colors.add(fade.colors.last);
+    at.add(1);
   }
-  for (var i = stops.length - 1; i >= 0; i--) {
-    colors.add(fade.colors[i]);
-    // 반씩 나눈 작은 상자에서 소수 오차로 거꾸로 가지 않게
-    at.add(math.max(at.last, 1 - stops[i] * e));
-  }
+  final forward = !atEnd;
+  final vertical = axis == Axis.vertical;
   return LinearGradient(
-    begin: axis == Axis.vertical ? Alignment.topCenter : Alignment.centerLeft,
-    end: axis == Axis.vertical ? Alignment.bottomCenter : Alignment.centerRight,
+    begin: vertical
+        ? (forward ? Alignment.topCenter : Alignment.bottomCenter)
+        : (forward ? Alignment.centerLeft : Alignment.centerRight),
+    end: vertical
+        ? (forward ? Alignment.bottomCenter : Alignment.topCenter)
+        : (forward ? Alignment.centerRight : Alignment.centerLeft),
     colors: colors,
     stops: at,
   );

@@ -1,62 +1,126 @@
 {
-  "name": "ColorSwatch",
+  "name": "Color Swatch",
   "source": "specs/components/color-swatch.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
-    "container": "grid container — radiogroup",
-    "swatch": "셀(RadioGroup.Item) — 팔레트 색 채움 · 테두리 · 모양",
-    "check": "check indicator (active)",
-    "focusRing": "키보드 포커스 링"
+    "group": "묶음 — radiogroup, 5 × 2 격자. 이름은 Field 라벨(\"색상\")",
+    "swatch": "색 칸 — 원 40, 누르는 44. 이름은 색 이름",
+    "check": "체크 — 고른 칸 가운데",
+    "ring": "고른 고리 — 칸 바깥 2 띄워 2px",
+    "current": "지금 색 칸 — 팔레트 밖 색(\"지금 색\") · 색 없음(\"자동\"). 격자 앞, 묶음의 첫 칸",
+    "currentLabel": "지금 색 칸 아래 글",
+    "divider": "지금 색 칸 ↔ 격자 사이 세로 선",
+    "focusRing": "키보드 포커스 링 — 고리 바깥"
   },
   "axes": {
-    "size": [
-      "sm",
-      "md",
-      "lg"
+    "color": [
+      "red",
+      "orange",
+      "yellow",
+      "green",
+      "blue",
+      "indigo",
+      "violet",
+      "pink",
+      "brown",
+      "gray"
     ],
     "selected": [
-      "inactive",
-      "active"
+      "unselected",
+      "selected"
+    ],
+    "current": [
+      "none",
+      "custom",
+      "auto"
     ]
   },
   "defaults": {
-    "selected": "inactive"
+    "color": "red",
+    "selected": "unselected",
+    "current": "none"
   },
   "states": [
     "enabled",
-    "hover",
-    "focus-visible",
+    "hovered",
+    "focused",
+    "pressed",
     "disabled"
   ],
   "rules": [
     {
       "when": {},
       "enabled": {
-        "container": {
-          "gap": 8
+        "group": {
+          "columns": 5,
+          "gap": 12,
+          "width": 248,
+          "order": "색상환",
+          "keyboard": "← → · ↑ ↓ · Home · End"
         },
         "swatch": {
-          "width": "grid 균등",
-          "height": "aspect-ratio: 1",
-          "aspectRatio": "1:1",
-          "borderWidth": 2,
-          "radius": "var(--radius-tile)",
-          "transitionProperty": "transform",
-          "transitionDuration": "150ms"
+          "size": 40,
+          "radius": 9999,
+          "touchTarget": "44 × 44",
+          "cursor": "pointer",
+          "name": "색 이름",
+          "tooltip": "색 이름"
+        },
+        "check": {
+          "size": 16,
+          "strokeWidth": 2.5,
+          "color": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "display": "숨김"
+        },
+        "ring": {
+          "outlineWidth": 2,
+          "outlineOffset": 2,
+          "outlineColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "display": "숨김"
+        },
+        "currentLabel": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          },
+          "marginTop": 6
+        },
+        "divider": {
+          "width": 1,
+          "color": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "gap": 16,
+          "stackBelow": 321
         }
       },
-      "hover": {
+      "pressed": {
         "swatch": {
-          "scale": 1.05
+          "scale": "칸 2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
         }
       },
-      "focus-visible": {
+      "focused": {
         "focusRing": {
           "width": 2,
-          "offset": 2,
+          "offset": 6,
           "color": {
             "light": "#0147AD",
             "dark": "#7AA9F6"
@@ -65,119 +129,430 @@
       },
       "disabled": {
         "swatch": {
-          "opacity": 0.5,
           "cursor": "not-allowed"
         }
       }
     },
     {
       "when": {
-        "size": "sm"
-      },
-      "enabled": {
-        "check": {
-          "size": 12
-        }
-      }
-    },
-    {
-      "when": {
-        "size": "md"
-      },
-      "enabled": {
-        "check": {
-          "size": 14
-        }
-      }
-    },
-    {
-      "when": {
-        "size": "lg"
-      },
-      "enabled": {
-        "check": {
-          "size": 16
-        }
-      }
-    },
-    {
-      "when": {
-        "selected": "inactive"
+        "color": "red"
       },
       "enabled": {
         "swatch": {
-          "borderColor": "transparent"
+          "background": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
         }
       }
     },
     {
       "when": {
-        "selected": "active"
+        "color": "orange"
       },
       "enabled": {
         "swatch": {
-          "borderColor": "currentColor",
-          "indicator": "✓ Check"
+          "background": {
+            "light": "#BE490D",
+            "dark": "#FF8758"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "yellow"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#8C7400",
+            "dark": "#C5A721"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "green"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#167F3F",
+            "dark": "#25C062"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "blue"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#1D6EC9",
+            "dark": "#69ABFF"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "indigo"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#5E60C8",
+            "dark": "#99A1FE"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "violet"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#8B4DBA",
+            "dark": "#C793F3"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "pink"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#B83B7A",
+            "dark": "#F485B6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "brown"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#9A6536",
+            "dark": "#CF9F77"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "color": "gray"
+      },
+      "enabled": {
+        "swatch": {
+          "background": {
+            "light": "#62697A",
+            "dark": "#B7BDCC"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "selected": "selected"
+      },
+      "enabled": {
+        "check": {
+          "display": "보임"
+        },
+        "ring": {
+          "display": "보임"
+        }
+      },
+      "disabled": {
+        "ring": {
+          "outlineColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "current": "custom"
+      },
+      "enabled": {
+        "current": {
+          "size": 40,
+          "background": "저장된 색 그대로",
+          "name": "지금 색"
+        },
+        "check": {
+          "color": "fg-neutral · fg-neutral-inverted 가운데 대비가 큰 쪽"
+        }
+      }
+    },
+    {
+      "when": {
+        "current": "auto"
+      },
+      "enabled": {
+        "current": {
+          "size": 40,
+          "background": "차트가 쓸 색",
+          "borderWidth": 2,
+          "borderStyle": "dashed",
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "name": "자동"
         }
       }
     }
   ],
+  "motion": {
+    "누름 — 칸": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "칸 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    },
+    "고름 — 고리 · 체크": {
+      "duration": "0ms",
+      "properties": [
+        "box-shadow",
+        "opacity"
+      ],
+      "note": "바로 나타난다 — 옛 hover 1.05배 확대는 걷었다"
+    }
+  },
   "notes": [
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "swatch",
+      "slot": "group",
+      "prop": "columns",
+      "note": "늘 5개씩 두 줄 — 폭과 상관없이(폭을 나눈 네모 · 줄바꿈은 고르지 않았다, 13B). ↑ ↓ 가 늘 같은 칸으로 간다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
+      "prop": "gap",
+      "note": "칸 사이 · 줄 사이 12 — 누르는 영역 44 가 겹치지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "group",
       "prop": "width",
-      "note": "container/N"
+      "note": "40 × 5 + 12 × 4"
     },
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "swatch",
-      "prop": "height",
-      "note": "자동"
+      "slot": "group",
+      "prop": "order",
+      "note": "빨강 → 주황 → 노랑 → 초록 → 파랑 → 남색 → 보라 → 분홍 → 갈색 → 회색(DESIGN.md 차트 색 표의 차례)"
     },
     {
       "rule": 0,
       "state": "enabled",
-      "slot": "swatch",
-      "prop": "aspectRatio",
-      "note": "정사각형"
+      "slot": "group",
+      "prop": "keyboard",
+      "note": "radiogroup — 묶음에 Tab 하나(고른 칸, 없으면 첫 칸), 화살표로 옮기며 고른다. ← → 는 차례대로(줄 끝에서 다음 줄로), ↑ ↓ 는 위아래 줄의 같은 칸. 끝에서 처음으로 돈다(APG radiogroup). 지금 색 칸은 차례의 맨 앞(그 칸에서 ↑ ↓ 는 그대로). Enter 는 고르지 않고 폼을 보낸다(Radio Group 과 같다)"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "swatch",
       "prop": "radius",
-      "note": "(= radius-lg 12)"
+      "note": "원 — 색 점(아바타 · 범례)과 같은 모양이라 \"색\" 으로 읽힌다"
     },
     {
       "rule": 0,
-      "state": "hover",
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "touchTarget",
+      "note": "보이는 40 둘레로 2 씩 — 칸 사이 12 라 겹치지 않는다. AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "name",
+      "note": "\"빨강\" — 라디오의 이름. \"색상 N\" · hex 를 이름으로 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "tooltip",
+      "note": "마우스를 올리면 porest Tooltip 으로 같은 이름(네이티브 title 은 쓰지 않는다) — 색으로 가리기 어려운 사람도 이름을 본다. Icon Picker 의 칸 툴팁과 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "check",
+      "prop": "size",
+      "note": "lucide check"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "check",
+      "prop": "strokeWidth",
+      "note": "v106 — 선택은 선 2.5"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "check",
+      "prop": "color",
+      "note": "라이트 흰 · 다크 짙은 글자 — 칸 위 라이트 4.55 ~ 5.50 · 다크 6.07 ~ 7.70(다크 800-dark 칸 위 흰 체크는 1.88 ~ 2.39 라 쓰지 않는다 — 아바타 이니셜과 같은 규칙)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "ring",
+      "prop": "outlineWidth",
+      "note": "칸 바깥에 두르는 고리 — 칸 크기를 바꾸지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "ring",
+      "prop": "outlineOffset",
+      "note": "칸과 고리 사이 2 는 놓인 표면 색 — 칸 색과 고리가 붙지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "ring",
+      "prop": "outlineColor",
+      "note": "Select Box(v113)의 고른 테두리와 같은 짙은 색 — 흰 표면 16.41 · 다크 13.42(시트 11.62)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "currentLabel",
+      "prop": "foreground",
+      "note": "흰 표면 7.11 · 다크 7.70"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "currentLabel",
+      "prop": "marginTop",
+      "note": "지금 색 칸 아래 6"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "gap",
+      "note": "지금 색 칸 ↔ 선 ↔ 격자 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "stackBelow",
+      "note": "지금 색 칸 · 선 · 격자의 폭(40 + 16 + 1 + 16 + 248). 놓인 자리가 이보다 좁으면(360 폰 본문 312) 지금 색 칸을 격자 위 줄에 두고 선을 가로 1px 로 — 사이는 그대로 16. 390 폰(342) · 대화상자는 옆으로 둔다"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
       "slot": "swatch",
       "prop": "scale",
-      "note": "`scale(1.05)`"
+      "note": "기준 40 — Feedback 의 눌림 피드백(v104). 모션 줄이기면 하지 않는다"
     },
     {
       "rule": 0,
-      "state": "focus-visible",
+      "state": "focused",
       "slot": "focusRing",
-      "prop": "color",
-      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+      "prop": "offset",
+      "note": "고른 고리(띄움 2 + 2px) 바깥 — 키보드 포커스에만"
     },
     {
       "rule": 0,
       "state": "disabled",
       "slot": "swatch",
-      "prop": "opacity",
-      "note": "`opacity 0.5 cursor-not-allowed`"
+      "prop": "cursor",
+      "note": "칸의 색은 그대로 둔다 — 색이 곧 값이다(Logo Tile · Avatar 처럼)"
     },
     {
-      "rule": 5,
+      "rule": 3,
       "state": "enabled",
       "slot": "swatch",
+      "prop": "background",
+      "note": "흰 표면과 가장 낮은 4.55 · 흰 체크 4.55"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "background",
+      "note": "고를 수 있지만 새 항목의 첫 색으로는 주지 않는다 — 회색은 차트의 \"기타\" 전용(v110)"
+    },
+    {
+      "rule": 11,
+      "state": "disabled",
+      "slot": "ring",
+      "prop": "outlineColor",
+      "note": "고른 채 막히면 고리를 회색으로 남겨 무엇을 골랐는지 보인다(Chip 의 고른 채 막힘과 같다)"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "current",
+      "prop": "background",
+      "note": "팔레트 밖 hex(가져오기의 #9E9E9E) — 다크 짝이 없어 두 모드 같은 값"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "current",
+      "prop": "name",
+      "note": "아래 글도 \"지금 색\" — 고르면(처음에는 골라져 있다) 저장 값을 그대로 둔다"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "check",
+      "prop": "color",
+      "note": "두 모드 모두 하나는 짙고 하나는 밝다 — 어떤 색 위에서도 라이트 4.06 · 다크 3.67 이상(#9E9E9E 위 라이트 6.13 · 다크 5.41). 흰색 고정 후보는 다크에서 밝은 둘이 되어 #9E9E9E 위 2.68 이라 걷었다"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "current",
+      "prop": "background",
+      "note": "색이 없는 항목은 차트에서 쓰지 않은 색을 받는다(데이터 결정 9A) — 그 색을 칠해 보인다"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "current",
       "prop": "borderColor",
-      "note": "`color: var(--swatch-fg)`"
+      "note": "점선 — 정해진 색이 아니라는 표시"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "current",
+      "prop": "name",
+      "note": "아래 글도 \"자동\" — 고르면 색 없음 그대로 둔다"
     }
   ]
 }

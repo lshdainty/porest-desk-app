@@ -3,7 +3,7 @@
   "source": "specs/components/input.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "상자(Container) — 테두리 · 바탕 · 모서리. 어디를 눌러도 입력으로 포커스가 간다",
@@ -13,7 +13,7 @@
     "prefixText": "앞 글자 — https:// · 만 · − 같은 고정 글",
     "suffixText": "뒤 글자 — 단위(원 · % · 일 · 회 · cm)",
     "suffixIcon": "뒤 아이콘",
-    "clearButton": "지우기 버튼 — 값이 있고 막히지 않았을 때만. 검색칸 · 선택 사항인 칸에 둔다"
+    "clearButton": "지우기 버튼 — 값이 있고 막히지 않았을 때만. 검색칸 · 선택 사항인 칸에 둔다. 누르는 영역 44"
   },
   "axes": {
     "variant": [
@@ -57,7 +57,11 @@
             "light": "#1A1F2E",
             "dark": "#F5F6FA"
           },
-          "fontWeight": 400
+          "fontWeight": 400,
+          "caretColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
         },
         "placeholder": {
           "foreground": {
@@ -97,7 +101,8 @@
             "light": "#62697A",
             "dark": "#A2A8B7"
           },
-          "radius": 9999
+          "radius": 9999,
+          "touchTarget": "44 × 44"
         }
       },
       "focused": {
@@ -487,16 +492,30 @@
     {
       "rule": 0,
       "state": "enabled",
+      "slot": "value",
+      "prop": "caretColor",
+      "note": "캐럿은 글자색 — 고른 글은 기기 기본 하이라이트(::selection 을 두지 않는다). SEED 도 정하지 않았다. 앱은 cursorColor 를 이 색으로(사용자 결정 2026-10-08)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "clearButton",
       "prop": "color",
       "note": "lucide circle-x. 이름 \"지우기\" — 누르면 값을 비우고 입력에 포커스를 둔다"
     },
     {
       "rule": 0,
+      "state": "enabled",
+      "slot": "clearButton",
+      "prop": "touchTarget",
+      "note": "보이는 원(22 · 18)과 따로 둘레로 넓힌다 — 상자 밖은 상자가 자른다(medium 40 은 44 × 40). 기초 Inclusive Design v106(사용자 결정 2026-10-08)"
+    },
+    {
+      "rule": 0,
       "state": "focused",
       "slot": "root",
       "prop": "borderColor",
-      "note": "읽기 전용이면 바뀌지 않는다"
+      "note": "읽기 전용이면 바뀌지 않는다 — 읽기 전용은 포커스 표시가 없다(SEED 와 같다, 사용자 결정 2026-10-08 — 까닭 · 2.4.7 은 input.md)"
     },
     {
       "rule": 0,

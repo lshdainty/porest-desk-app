@@ -3,7 +3,7 @@
   "source": "specs/components/result-section.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "묶음 — 놓인 자리 가운데",
@@ -176,6 +176,13 @@
     }
   },
   "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingX",
+      "note": "카드(card.md) 안에서는 0 — 카드 안 여백 24 가 가장자리를 맡는다(2026-10-09 사용자 결정, 데이터 표시 비교 페이지 23B). 표의 빈 줄도 카드 안이다(칸이 24). 목록 카드(body list)에 바로 두면 24 — 목록 카드는 줄마다 24 를 가져 카드 여백이 없다"
+    },
     {
       "rule": 0,
       "state": "enabled",

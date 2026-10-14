@@ -3,7 +3,7 @@
   "source": "specs/components/card-art.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "9d344caf3f10"
+    "sha256": "7b4422ff0b45"
   },
   "slots": {
     "root": "카드 그림 — Image Frame ratio card(1.586). 그림이 있으면 그림, 없으면 카드 면 또는 대체 그림",
@@ -30,7 +30,7 @@
       "when": {},
       "enabled": {
         "root": {
-          "aspectRatio": 1.586
+          "aspectRatio": "1.586 / 1"
         },
         "face": {
           "background": "기관 색",
