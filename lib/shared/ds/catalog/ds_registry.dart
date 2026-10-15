@@ -10,6 +10,7 @@ import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
+import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
@@ -106,7 +107,7 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('menus', '9 메뉴', [
     DsEntry('Menu Sheet', 'menu-sheet'),
-    DsEntry('Help Bubble', 'help-bubble'),
+    DsEntry('Help Bubble', 'help-bubble', demo: _helpBubble),
     DsEntry('Tooltip', 'tooltip'),
   ]),
   DsFamily('date-time', '10 날짜 · 시각', [
@@ -153,6 +154,7 @@ Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
+Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
