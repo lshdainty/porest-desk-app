@@ -1,0 +1,610 @@
+{
+  "name": "Collapsible",
+  "source": "specs/components/collapsible.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "1691cc5c2f1f"
+  },
+  "slots": {
+    "root": "접는 자리 하나 — 트리거 + 펼친 내용. surface card 면 Card 면",
+    "heading": "머리말 — 트리거를 감싼다(heading > button). 모양은 없다",
+    "trigger": "트리거 — 줄 전체가 누르는 자리(button). Accordion 항목과 같은 모양",
+    "background": "트리거 바탕 층 — 누름 · 호버 바탕. 줄지 않는다",
+    "content": "트리거 콘텐츠 층 — 본문 · 꺾쇠. 누르면 이 층만 준다",
+    "body": "본문 — 이름 + 설명",
+    "title": "이름 — 무엇을 여닫는지. 상태마다 바꾸지 않는다",
+    "description": "설명 — 있을 때만(합계 · 적용한 필터 수)",
+    "chevron": "꺾쇠 — 오른쪽 끝. 펼치면 위를 가리킨다",
+    "panel": "펼친 내용 — 높이로 펼치고 접는다. 안에서 스크롤하지 않는다",
+    "divider": "트리거 위 선 — 경고 상자 아래 줄일 때만",
+    "box": "경고 상자 — surface warning 일 때 Collapsible 을 품는 상자(분할 합계 경고). 위에 경고 글, 아래 줄이 트리거",
+    "focusRing": "키보드 포커스 링(웹) — 트리거 안쪽"
+  },
+  "axes": {
+    "open": [
+      "collapsed",
+      "expanded"
+    ],
+    "description": [
+      "none",
+      "shown"
+    ],
+    "layout": [
+      "text",
+      "rows"
+    ],
+    "surface": [
+      "default",
+      "card",
+      "warning"
+    ]
+  },
+  "defaults": {
+    "open": "collapsed",
+    "description": "none",
+    "layout": "text",
+    "surface": "default"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "heading": {
+          "level": "h3"
+        },
+        "trigger": {
+          "minHeight": 54,
+          "paddingY": 16,
+          "paddingX": 24,
+          "textAlign": "left",
+          "cursor": "pointer",
+          "touchTarget": "트리거 전체"
+        },
+        "background": {
+          "background": "transparent",
+          "insetX": 0,
+          "radius": 0,
+          "transitionProperty": "background-color, inset, border-radius",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "content": {
+          "gap": 12,
+          "alignItems": "center",
+          "transitionProperty": "scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "body": {
+          "gap": 2
+        },
+        "title": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "lineClamp": "none"
+        },
+        "description": {
+          "typography": {
+            "fontSize": 13,
+            "lineHeight": 18,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "lineClamp": "none"
+        },
+        "chevron": {
+          "size": 20,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "rotate": "0deg",
+          "transitionProperty": "rotate",
+          "transitionDuration": "300ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "panel": {
+          "display": "숨김",
+          "paddingTop": 0,
+          "paddingX": 24,
+          "paddingBottom": 16,
+          "maxHeight": "none"
+        }
+      },
+      "hovered": {
+        "background": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "insetX": 6,
+          "radius": 10
+        }
+      },
+      "pressed": {
+        "background": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "insetX": 6,
+          "radius": 10
+        },
+        "content": {
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          },
+          "radius": 0
+        }
+      },
+      "disabled": {
+        "trigger": {
+          "cursor": "not-allowed"
+        },
+        "title": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "description": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "chevron": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "open": "expanded"
+      },
+      "enabled": {
+        "chevron": {
+          "rotate": "180deg"
+        },
+        "panel": {
+          "display": "보임"
+        }
+      }
+    },
+    {
+      "when": {
+        "description": "shown"
+      },
+      "enabled": {
+        "trigger": {
+          "minHeight": 74
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "rows"
+      },
+      "enabled": {
+        "panel": {
+          "paddingBottom": 8
+        }
+      }
+    },
+    {
+      "when": {
+        "surface": "card"
+      },
+      "enabled": {
+        "root": {
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "radius": 16,
+          "overflow": "hidden"
+        },
+        "panel": {
+          "paddingBottom": 24
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "radius": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "surface": "warning"
+      },
+      "enabled": {
+        "box": {
+          "background": {
+            "light": "#FFEFE8",
+            "dark": "#4B2B1F"
+          },
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#F5C7B6",
+            "dark": "#833615"
+          },
+          "radius": 12,
+          "overflow": "hidden",
+          "paddingTop": 14,
+          "paddingX": 16,
+          "paddingBottom": 12
+        },
+        "trigger": {
+          "paddingX": 16
+        },
+        "panel": {
+          "paddingX": 16
+        },
+        "divider": {
+          "height": 1,
+          "background": {
+            "light": "#F5C7B6",
+            "dark": "#833615"
+          },
+          "display": "트리거 위"
+        }
+      },
+      "hovered": {
+        "background": {
+          "background": {
+            "light": "#FAE0D5",
+            "dark": "#65321D"
+          }
+        }
+      },
+      "pressed": {
+        "background": {
+          "background": {
+            "light": "#FAE0D5",
+            "dark": "#65321D"
+          }
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "radius": 10
+        }
+      }
+    }
+  ],
+  "motion": {
+    "펼침 · 접힘 — 높이": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "height"
+      ],
+      "note": "Accordion 과 같다(사용자 결정 3A) — 펼쳐도 초점 · 스크롤은 그대로"
+    },
+    "꺾쇠 — 회전": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "rotate"
+      ],
+      "note": "0 → 180° — 모션 줄이기면 바로 뒤집힌다"
+    },
+    "모션 줄이기 — 펼침 · 접힘": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity"
+      ],
+      "note": "높이를 움직이지 않고 150ms 서서히(v104)"
+    },
+    "누름 · 호버 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color",
+        "inset",
+        "border-radius"
+      ]
+    },
+    "누름 — 콘텐츠": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "모션 줄이기면 하지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "heading",
+      "prop": "level",
+      "note": "놓인 자리의 머리말 차례에 맞춘다(Accordion 과 같다) — 대화상자 · 시트 · 카드 제목(h2) 아래면 h3"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "minHeight",
+      "note": "위아래 16 + 이름 22 — Accordion 항목과 같다. 이름이 줄을 바꾸면 늘어난다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "paddingX",
+      "note": "화면 가장자리 규칙 24"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "touchTarget",
+      "note": "줄 폭 × 54 이상 — 글 단추 · 꺾쇠만 누르게 하지 않는다(사용자 결정 9A). AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "background",
+      "prop": "transitionProperty",
+      "note": "Accordion 과 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "본문 ↔ 꺾쇠 12"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "gap",
+      "note": "이름 ↔ 설명 2"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "lineClamp",
+      "note": "늘 줄을 바꾼다(10A)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "chevron",
+      "prop": "size",
+      "note": "lucide chevron-down — 접혀 있으면 아래"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "display",
+      "note": "접혀 있으면 내용을 그리지 않는다 — 보조 기술도 읽지 않는다(앱도)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "paddingX",
+      "note": "트리거와 같은 좌우 — 내용(줄 · 칸 · 글)은 이 안에서 시작한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "paddingBottom",
+      "note": "트리거 위아래와 같은 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "maxHeight",
+      "note": "패널 안에서 스크롤하지 않는다 — 길면 놓인 화면 · 시트가 스크롤한다"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "background",
+      "note": "Accordion 과 같다 — 시트 · 대화상자 위에서도 같은 값"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "content",
+      "prop": "scale",
+      "note": "콘텐츠 층만 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(v104)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "트리거 안쪽 — 카드 · 상자 · 시트가 바깥 링을 자르지 않게"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "radius",
+      "note": "흰 면의 줄 — 각진 링"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "chevron",
+      "prop": "rotate",
+      "note": "위로"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "display",
+      "note": "초점은 트리거에 그대로 · 저절로 스크롤하지 않는다(따라오는 것)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "minHeight",
+      "note": "위아래 16 + 이름 22 + 2 + 설명 18"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "paddingBottom",
+      "note": "8 — 줄마다 위아래 12 를 가져 마지막 줄의 글 아래로 20(비교 페이지 9A 의 분할 내역). 줄의 좌우는 0 — 패널의 좌우가 들인다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "Card 면 — 바닥(bg-layer-basement) 위"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "radius",
+      "note": "Card 16 — 트리거가 카드 머리다. 안의 누름 바탕은 16 − 6 = 10 으로 동심"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "paddingBottom",
+      "note": "카드 안 여백 24(Card) — 칸 묶음 아래"
+    },
+    {
+      "rule": 4,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "radius",
+      "note": "카드 모서리 16 − 링 들임 2 = 14 — 트리거가 카드 맨 위라 모서리를 따른다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "background",
+      "note": "놓인 면 — 경고 글(제목 · 설명)과 아래 줄의 트리거를 함께 담는다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "radius",
+      "note": "12 — 지금 분할 경고 상자의 모서리"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "overflow",
+      "note": "아래 줄의 누름 바탕 · 펼친 내용을 모서리에서 자른다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "paddingTop",
+      "note": "경고 글 위 14"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "paddingX",
+      "note": "경고 글 좌우 16 — 트리거 좌우와 같다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "paddingBottom",
+      "note": "경고 글 ↔ 아래 줄의 선 12"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "paddingX",
+      "note": "경고 상자의 안쪽 여백 16 — 상자 글과 같은 자리에 선다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "background",
+      "note": "트리거 위 — 상자 안 경고 글과 트리거 줄을 가른다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "display",
+      "note": "상자 폭 끝까지"
+    },
+    {
+      "rule": 5,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "background",
+      "note": "놓인 면(bg-warning-weak)의 누름 짝 — 꺾쇠 4.37 · 4.35 · 이름 13.04 · 9.59"
+    },
+    {
+      "rule": 5,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "radius",
+      "note": "상자 모서리 12 − 링 들임 2 = 10 — 트리거가 상자 맨 아래라 모서리를 따른다"
+    }
+  ]
+}

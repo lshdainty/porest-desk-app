@@ -1,40 +1,48 @@
 {
-  "name": "Scroll Area",
+  "name": "ScrollArea",
   "source": "specs/components/scroll-area.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
-    "scrollbar": "ScrollAreaScrollbar — vertical 우측 · horizontal 하단 막대",
-    "track": "스크롤바 바탕",
-    "thumb": "ScrollAreaThumb — 끌어 옮기는 손잡이",
-    "firefox": "Firefox 표준 — 전역 native scrollbar",
-    "webkitScrollbar": "WebKit 글로벌 — `::-webkit-scrollbar` (전역)",
-    "webkitThumb": "WebKit 글로벌 — `::-webkit-scrollbar-thumb` (전역)",
-    "scrollbarHide": "`.scrollbar-hide` utility — 스크롤바 완전 숨김(opt-in)"
+    "box": "스크롤 상자 — overflow 를 둔 요소(문서 전체 포함). 이름 · 초점 · 넘침 막기",
+    "scrollbar": "스크롤바 — 세로는 오른쪽, 가로는 아래. 전역 한 벌(웹)",
+    "thumb": "막대 — 끌어 옮긴다",
+    "track": "바탕 — 투명",
+    "firefox": "Firefox 규칙 — @supports not selector(::-webkit-scrollbar) 안에서만",
+    "focusRing": "키보드 포커스 링(웹) — 초점을 받는 상자 안쪽"
   },
-  "axes": {},
-  "defaults": {},
+  "axes": {
+    "context": [
+      "page",
+      "overlay",
+      "row"
+    ],
+    "focusable": [
+      "inside",
+      "none"
+    ]
+  },
+  "defaults": {
+    "context": "page",
+    "focusable": "inside"
+  },
   "states": [
-    "default",
-    "hover",
-    "dragging",
-    "no overflow"
+    "enabled",
+    "focused"
   ],
   "rules": [
     {
       "when": {},
-      "default": {
-        "scrollbar": {
-          "size": 6,
-          "borderWidth": 1,
-          "borderColor": "transparent",
-          "transitionProperty": "colors",
-          "transitionDuration": "150ms"
+      "enabled": {
+        "box": {
+          "overflow": "auto"
         },
-        "track": {
-          "background": "transparent"
+        "scrollbar": {
+          "width": 6,
+          "height": 6,
+          "display": "늘 보임"
         },
         "thumb": {
           "background": {
@@ -42,6 +50,9 @@
             "dark": "#838997"
           },
           "radius": 9999
+        },
+        "track": {
+          "background": "transparent"
         },
         "firefox": {
           "scrollbarWidth": "thin",
@@ -50,28 +61,48 @@
             "dark": "#838997"
           },
           "trackColor": "transparent"
-        },
-        "webkitScrollbar": {
-          "width": 6,
-          "height": 6
-        },
-        "webkitThumb": {
-          "background": {
-            "light": "#767C8B",
-            "dark": "#838997"
-          },
-          "radius": 9999
-        },
-        "scrollbarHide": {
-          "display": "none"
+        }
+      }
+    },
+    {
+      "when": {
+        "context": "overlay"
+      },
+      "enabled": {
+        "box": {
+          "overscrollBehavior": "contain"
+        }
+      }
+    },
+    {
+      "when": {
+        "context": "row"
+      },
+      "enabled": {
+        "scrollbar": {
+          "display": "숨김"
+        }
+      }
+    },
+    {
+      "when": {
+        "focusable": "none"
+      },
+      "enabled": {
+        "box": {
+          "tabIndex": 0,
+          "role": "region",
+          "name": "필수"
         }
       },
-      "no overflow": {
-        "track": {
-          "background": "—"
-        },
-        "thumb": {
-          "background": "—"
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
         }
       }
     }
@@ -79,66 +110,115 @@
   "notes": [
     {
       "rule": 0,
-      "state": "default",
-      "slot": "scrollbar",
-      "prop": "size",
-      "note": "두께 — `w-1.5` (vertical) / `h-1.5` (horizontal)"
+      "state": "enabled",
+      "slot": "box",
+      "prop": "overflow",
+      "note": "넘치는 방향만(overflow-y · overflow-x) — 스크롤은 브라우저 그대로(휠 · 키보드 · 끌기 · 관성). 가로채지 않는다"
     },
     {
       "rule": 0,
-      "state": "default",
+      "state": "enabled",
       "slot": "scrollbar",
-      "prop": "borderWidth",
-      "note": "`border-l border-l-transparent` (vertical) / `border-t border-t-transparent` (horizontal)"
+      "prop": "width",
+      "note": "세로 스크롤바 — ::-webkit-scrollbar 전역 한 벌(지금 Desk 웹과 같다)"
     },
     {
       "rule": 0,
-      "state": "default",
+      "state": "enabled",
       "slot": "scrollbar",
-      "prop": "borderColor",
-      "note": "hover 시 색 부여 가능"
+      "prop": "height",
+      "note": "가로 스크롤바"
     },
     {
       "rule": 0,
-      "state": "default",
-      "slot": "track",
+      "state": "enabled",
+      "slot": "scrollbar",
+      "prop": "display",
+      "note": "넘치면 보인다 — 맥 · 폰의 겹침 스크롤바는 OS 설정대로. 세로 스크롤바는 숨기지 않는다 — 부품이 스크롤을 제 모양으로 쓰는 자리(Wheel Picker 의 휠 · Date Picker 의 이어지는 달)만 그 스펙대로 숨긴다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumb",
       "prop": "background",
-      "note": "Radix 기본 background 없음"
+      "note": "흰 면 4.18 · 바닥 3.87 · 떠 있는 표면 4.18 / 다크 4.13 · 4.68 · 3.58(≥ 3) — 지금 Desk 웹 #767C8B 와 같다"
     },
     {
       "rule": 0,
-      "state": "default",
+      "state": "enabled",
       "slot": "thumb",
       "prop": "radius",
-      "note": "pill"
+      "note": "알약"
     },
     {
       "rule": 0,
-      "state": "default",
+      "state": "enabled",
+      "slot": "track",
+      "prop": "background",
+      "note": "바탕을 칠하지 않는다 — 지금 HR 의 회색 track 을 걷는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "firefox",
+      "prop": "scrollbarWidth",
+      "note": "@supports not selector(::-webkit-scrollbar) 안에서만 — 밖에 두면 크로미움이 webkit 6px 을 버리고 10 · 15px 로 그린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "firefox",
+      "prop": "thumbColor",
+      "note": "scrollbar-color 의 첫 값"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "firefox",
       "prop": "trackColor",
-      "note": "`scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent;` (전역)"
+      "note": "scrollbar-color 의 둘째 값"
     },
     {
-      "rule": 0,
-      "state": "default",
-      "slot": "webkitScrollbar",
-      "prop": "height",
-      "note": "`::-webkit-scrollbar { width: 6px; height: 6px }` (전역)"
+      "rule": 1,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "overscrollBehavior",
+      "note": "끝에 닿아도 뒤 화면이 따라 스크롤되지 않게 — 시트 · 대화상자 · 팝오버의 본문과 그 안 상자(지금 웹 1곳 · HR 0)"
     },
     {
-      "rule": 0,
-      "state": "default",
-      "slot": "webkitThumb",
-      "prop": "radius",
-      "note": "pill — `::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: var(--radius-full); }` (전역)"
-    },
-    {
-      "rule": 0,
-      "state": "default",
-      "slot": "scrollbarHide",
+      "rule": 2,
+      "state": "enabled",
+      "slot": "scrollbar",
       "prop": "display",
-      "note": "`.scrollbar-hide` (opt-in, Firefox/IE 폴백 포함)"
+      "note": "가로 줄만 — scrollbar-width: none + ::-webkit-scrollbar 숨김(.scrollbar-hide). 끝은 Scroll Fog row 흐림이 알린다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "tabIndex",
+      "note": "상자 자신이 Tab 정지점 — 초점을 두고 ↑ ↓ · PageUp · PageDown · Home · End 로 스크롤한다(WCAG 2.1.1)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "role",
+      "note": "이름을 달 수 있게 — 역할 없는 div 에는 aria-label 을 쓸 수 없다(ARIA 1.2)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "box",
+      "prop": "name",
+      "note": "무엇의 상자인지 — \"10월 9일 일정\" · \"휴가 정책\"(aria-label 또는 aria-labelledby)"
+    },
+    {
+      "rule": 3,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "상자 안쪽 — 바깥 링은 카드 · 시트에 잘린다"
     }
   ]
 }

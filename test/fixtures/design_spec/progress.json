@@ -3,7 +3,7 @@
   "source": "specs/components/progress.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
     "root": "묶음 — 이름 줄 · 막대 · 금액 줄",
