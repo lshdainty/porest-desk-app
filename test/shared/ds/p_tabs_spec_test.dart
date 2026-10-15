@@ -64,7 +64,6 @@ PTab<String> _tab(
   label: label,
   enabled: enabled,
   notification: notification,
-  notificationLabel: notification ? '새 소식' : null,
 );
 
 /// 견본 — 카테고리 · 추이 · 비교. 재는 탭은 가운데(추이)이고, 알림 점은 첫 탭(안 고른 탭)에 둔다.
@@ -402,143 +401,140 @@ void main() {
   group('Chip Tabs 스펙', () {
     for (final mode in Brightness.values) {
       for (final combo in _chipTabsSpec.combos(['variant', 'size'])) {
-        testWidgets(
-          '${mode.name} ${combo['variant']} ${combo['size']} — 스펙 값이다',
-          (tester) async {
-            final variant = PChipTabsVariant.values.byName(combo['variant']!);
-            final size = PChipTabsSize.values.byName(combo['size']!);
-            final where = '${mode.name} ${combo['variant']} ${combo['size']}';
-            final want = _chipTabsSpec.resolve(combo, 'enabled');
-            final k = _Check(mode, want, where);
-            await tester.pumpWidget(
-              _host(
-                mode,
-                PChipTabs<String>(
-                  value: 'holding',
-                  onChanged: (_) {},
-                  semanticLabel: '자산',
-                  variant: variant,
-                  size: size,
-                  items: [
-                    _tab('all', '전체', notification: true),
-                    _tab('holding', '보유'),
-                    _tab('watch', '관심'),
-                  ],
-                ),
+        testWidgets('${mode.name} ${combo['variant']} ${combo['size']} — 스펙 값이다', (
+          tester,
+        ) async {
+          final variant = PChipTabsVariant.values.byName(combo['variant']!);
+          final size = PChipTabsSize.values.byName(combo['size']!);
+          final where = '${mode.name} ${combo['variant']} ${combo['size']}';
+          final want = _chipTabsSpec.resolve(combo, 'enabled');
+          final k = _Check(mode, want, where);
+          await tester.pumpWidget(
+            _host(
+              mode,
+              PChipTabs<String>(
+                value: 'holding',
+                onChanged: (_) {},
+                semanticLabel: '자산',
+                variant: variant,
+                size: size,
+                items: [
+                  _tab('all', '전체', notification: true),
+                  _tab('holding', '보유'),
+                  _tab('watch', '관심'),
+                ],
               ),
-            );
-            await tester.pump(const Duration(milliseconds: 400));
-            final scroll = find.byKey(const ValueKey('chip-tabs-scroll'));
-            final viewport = tester.getRect(scroll);
-            final chips = [
-              for (var i = 0; i < 3; i++) tester.getRect(_chipBox.at(i)),
-            ];
+            ),
+          );
+          await tester.pump(const Duration(milliseconds: 400));
+          final scroll = find.byKey(const ValueKey('chip-tabs-scroll'));
+          final viewport = tester.getRect(scroll);
+          final chips = [
+            for (var i = 0; i < 3; i++) tester.getRect(_chipBox.at(i)),
+          ];
 
-            // 목록 — 좌우 화면 여백 24 · 위아래 8 · 칩 사이 8 · 한 줄 가로 스크롤 · 스크롤바 숨김
-            k.px('list.paddingX', chips.first.left - viewport.left);
-            k.px('list.paddingY', chips.first.top - viewport.top);
-            k.px('list.paddingY', viewport.bottom - chips.first.bottom);
-            k.px('list.gap', chips[1].left - chips[0].right);
-            k.px('list.gap', chips[2].left - chips[1].right);
-            final widgetScroll = tester.widget<SingleChildScrollView>(scroll);
-            if (widgetScroll.scrollDirection != Axis.horizontal) {
-              k.fail('list.overflowX: 가로 스크롤이 아니다');
-            }
-            if (find.byType(Scrollbar).evaluate().isNotEmpty) {
-              k.fail('list.overflowX: 스크롤바는 숨긴다');
-            }
-            // 바탕 · 바닥 선이 없다 — 목록에 칠하는 것이 없다
-            if (find
-                .descendant(
-                  of: scroll,
-                  matching: find.byKey(const ValueKey('tabs-list')),
-                )
-                .evaluate()
-                .isNotEmpty) {
-              k.fail('list: 바탕 · 바닥 선이 없다');
-            }
-            // 양 끝 흐림 — Scroll Fog row(좌우 20)
-            final fog = tester.widget<PScrollFogMask>(
-              find.byType(PScrollFogMask),
+          // 목록 — 좌우 화면 여백 24 · 위아래 8 · 칩 사이 8 · 한 줄 가로 스크롤 · 스크롤바 숨김
+          k.px('list.paddingX', chips.first.left - viewport.left);
+          k.px('list.paddingY', chips.first.top - viewport.top);
+          k.px('list.paddingY', viewport.bottom - chips.first.bottom);
+          k.px('list.gap', chips[1].left - chips[0].right);
+          k.px('list.gap', chips[2].left - chips[1].right);
+          final widgetScroll = tester.widget<SingleChildScrollView>(scroll);
+          if (widgetScroll.scrollDirection != Axis.horizontal) {
+            k.fail('list.overflowX: 가로 스크롤이 아니다');
+          }
+          if (find.byType(Scrollbar).evaluate().isNotEmpty) {
+            k.fail('list.overflowX: 스크롤바는 숨긴다');
+          }
+          // 바탕 · 바닥 선이 없다 — 목록에 칠하는 것이 없다
+          if (find
+              .descendant(
+                of: scroll,
+                matching: find.byKey(const ValueKey('tabs-list')),
+              )
+              .evaluate()
+              .isNotEmpty) {
+            k.fail('list: 바탕 · 바닥 선이 없다');
+          }
+          // 양 끝 흐림 — Scroll Fog row(좌우 20)
+          final fog = tester.widget<PScrollFogMask>(
+            find.byType(PScrollFogMask),
+          );
+          if (fog.axis != Axis.horizontal || fog.start != 20 || fog.end != 20) {
+            k.fail('list.fog: 좌우 20 — ${fog.axis} ${fog.start} ${fog.end}');
+          }
+          // 칩 — Chip 그대로: 높이는 Chip medium · large 가 정한다(chip.json root.height — Q-010-2), 변형은 Solid → solid ·
+          // Outline → outlineStrong
+          final visual = tester.widget<ChipVisual>(
+            find.byType(ChipVisual).first,
+          );
+          final wantVariant = combo['variant'] == 'solid'
+              ? PChipVariant.solid
+              : PChipVariant.outlineStrong;
+          if (visual.variant != wantVariant) {
+            k.fail(
+              'trigger.chip: ${want['trigger.chip']} — 실제 ${visual.variant}',
             );
-            if (fog.axis != Axis.horizontal ||
-                fog.start != 20 ||
-                fog.end != 20) {
-              k.fail('list.fog: 좌우 20 — ${fog.axis} ${fog.start} ${fog.end}');
-            }
-            // 칩 — Chip 그대로: 높이 36 · 40, 변형은 Solid → solid · Outline → outlineStrong
-            k.px('trigger.height', chips.first.height);
-            final visual = tester.widget<ChipVisual>(
-              find.byType(ChipVisual).first,
+          }
+          final chipSize = combo['size'] == 'medium' ? 'medium' : 'large';
+          final chipWant = _chipSpec.resolve({
+            'variant': wantVariant.name,
+            'size': chipSize,
+          }, 'enabled');
+          final chipHeight = (chipWant['root.height']! as num).toDouble();
+          if ((chips.first.height - chipHeight).abs() > 0.01) {
+            k.fail(
+              'trigger.chipSize: ${want['trigger.chipSize']} — Chip 높이 $chipHeight · 실제 ${chips.first.height}',
             );
-            final wantVariant = combo['variant'] == 'solid'
-                ? PChipVariant.solid
-                : PChipVariant.outlineStrong;
-            if (visual.variant != wantVariant) {
-              k.fail(
-                'trigger.chip: ${want['trigger.chip']} — 실제 ${visual.variant}',
-              );
-            }
-            final chipSize = combo['size'] == 'medium' ? 'medium' : 'large';
-            final chipWant = _chipSpec.resolve({
-              'variant': wantVariant.name,
-              'size': chipSize,
-            }, 'enabled');
-            k.px(
-              'trigger.height',
-              (chipWant['root.height']! as num) -
-                  chips.first.height +
-                  (want['trigger.height']! as num),
-            );
-            // 고른 칩(보유)은 Chip 의 고른 모습, 안 고른 칩은 안 고른 모습
-            final selectedDeco = _decoration(tester, _chipBox.at(1));
-            final unselectedDeco = _decoration(tester, _chipBox.at(2));
-            final selWant = _chipSpec.resolve({
-              'variant': wantVariant.name,
-              'size': chipSize,
-              'selected': 'selected',
-            }, 'enabled');
-            final unWant = _chipSpec.resolve({
-              'variant': wantVariant.name,
-              'size': chipSize,
-            }, 'enabled');
-            if (!sameColor(
-              specColor(pickMode(selWant['root.background'], mode)),
-              selectedDeco.color!,
-            )) {
-              k.fail('고른 칩 바탕이 Chip 과 다르다');
-            }
-            final unBg = unWant['root.background'];
-            if (unBg is String && unBg == 'transparent') {
-              if (unselectedDeco.color!.a != 0) k.fail('안 고른 칩 바탕이 Chip 과 다르다');
-            } else if (!sameColor(
-              specColor(pickMode(unBg, mode)),
-              unselectedDeco.color!,
-            )) {
-              k.fail('안 고른 칩 바탕이 Chip 과 다르다');
-            }
-            // 알림 점 — 안 고른 첫 칩의 글 뒤 6 · 세로 가운데 · 6px 원 · 브랜드 글자색, 칩 폭이 그만큼 넓어진다
-            final dot = tester.getRect(_chipDot);
-            final label = tester.getRect(
-              find.descendant(of: _chipBox.first, matching: find.byType(Text)),
-            );
-            k.px('notification.size', dot.width);
-            k.px('notification.size', dot.height);
-            k.px('notification.gap', dot.left - label.right);
-            if ((dot.center.dy - chips.first.center.dy).abs() > 0.5) {
-              k.fail('notification: 세로 가운데가 아니다');
-            }
-            final dotDeco = _decoration(tester, _chipDot);
-            k.px(
-              'notification.radius',
-              (dotDeco.borderRadius! as BorderRadius).topLeft.x,
-            );
-            k.color('notification.background', dotDeco.color!);
-            // 줄어들지 않는다 — 좁은 폭에서도 칩은 제 폭
-            k.px('trigger.shrink', 0);
-            if (k.failures.isNotEmpty) fail(k.failures.join('\n'));
-          },
-        );
+          }
+          // 고른 칩(보유)은 Chip 의 고른 모습, 안 고른 칩은 안 고른 모습
+          final selectedDeco = _decoration(tester, _chipBox.at(1));
+          final unselectedDeco = _decoration(tester, _chipBox.at(2));
+          final selWant = _chipSpec.resolve({
+            'variant': wantVariant.name,
+            'size': chipSize,
+            'selected': 'selected',
+          }, 'enabled');
+          final unWant = _chipSpec.resolve({
+            'variant': wantVariant.name,
+            'size': chipSize,
+          }, 'enabled');
+          if (!sameColor(
+            specColor(pickMode(selWant['root.background'], mode)),
+            selectedDeco.color!,
+          )) {
+            k.fail('고른 칩 바탕이 Chip 과 다르다');
+          }
+          final unBg = unWant['root.background'];
+          if (unBg is String && unBg == 'transparent') {
+            if (unselectedDeco.color!.a != 0) k.fail('안 고른 칩 바탕이 Chip 과 다르다');
+          } else if (!sameColor(
+            specColor(pickMode(unBg, mode)),
+            unselectedDeco.color!,
+          )) {
+            k.fail('안 고른 칩 바탕이 Chip 과 다르다');
+          }
+          // 알림 점 — 안 고른 첫 칩의 글 뒤 6 · 세로 가운데 · 6px 원 · 브랜드 글자색, 칩 폭이 그만큼 넓어진다
+          final dot = tester.getRect(_chipDot);
+          final label = tester.getRect(
+            find.descendant(of: _chipBox.first, matching: find.byType(Text)),
+          );
+          k.px('notification.size', dot.width);
+          k.px('notification.size', dot.height);
+          k.px('notification.gap', dot.left - label.right);
+          if ((dot.center.dy - chips.first.center.dy).abs() > 0.5) {
+            k.fail('notification: 세로 가운데가 아니다');
+          }
+          final dotDeco = _decoration(tester, _chipDot);
+          k.px(
+            'notification.radius',
+            (dotDeco.borderRadius! as BorderRadius).topLeft.x,
+          );
+          k.color('notification.background', dotDeco.color!);
+          // 줄어들지 않는다 — 좁은 폭에서도 칩은 제 폭
+          k.px('trigger.shrink', 0);
+          if (k.failures.isNotEmpty) fail(k.failures.join('\n'));
+        });
       }
     }
   });
@@ -816,11 +812,7 @@ void main() {
       semantics.dispose();
     });
 
-    test('알림 점이 있으면 읽는 글을 함께 준다 · 탭은 2개 이상', () {
-      expect(
-        () => PTab<String>(value: 'a', label: '완료', notification: true),
-        throwsAssertionError,
-      );
+    test('탭은 2개 이상 — 알림 점의 읽는 글("새 소식")은 컴포넌트가 갖는다', () {
       expect(
         () => PTabs<String>(
           value: 'a',

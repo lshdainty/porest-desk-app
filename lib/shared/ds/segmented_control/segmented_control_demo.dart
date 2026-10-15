@@ -17,7 +17,6 @@ PSegmentedItem<String> _item(
   label: label,
   enabled: enabled,
   notification: notification,
-  notificationLabel: notification ? '새 내용' : null,
 );
 
 /// 카탈로그(/dev/ds) — 고름 × 상태(기본 · 비활성), 알림 점, 칸 수 2 ~ 4 · 긴 글 · 트랙 전체 막힘. 눌러서 고르고 · 화살표로
