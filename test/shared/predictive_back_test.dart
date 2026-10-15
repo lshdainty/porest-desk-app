@@ -20,6 +20,7 @@ import 'package:go_router/go_router.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/widgets/branch_back_to_home.dart';
 import 'package:groo_damda_app/shared/widgets/mobile_scaffold.dart';
 
@@ -48,24 +49,24 @@ GoRouter _buildRouter(String initialLocation) {
             routes: [
               GoRoute(
                 path: '/expense',
-                builder: (_, _) =>
-                    const BranchBackToHome(child: _Screen('expense')),
+                builder: (_, state) => BranchBackToHome(
+                  child: MoneyBundleScreen(
+                    tab: MoneyTab.fromQuery(state.uri.queryParameters['tab']),
+                    pages: const [
+                      _Screen('expense'),
+                      _Screen('assets'),
+                      _Screen('stats'),
+                      _Screen('budget'),
+                    ],
+                  ),
+                ),
               ),
-              GoRoute(
-                path: '/assets',
-                builder: (_, _) =>
-                    const BranchBackToHome(child: _Screen('assets')),
-              ),
-              GoRoute(
-                path: '/stats',
-                builder: (_, _) =>
-                    const BranchBackToHome(child: _Screen('stats')),
-              ),
-              GoRoute(
-                path: '/budget',
-                builder: (_, _) =>
-                    const BranchBackToHome(child: _Screen('budget')),
-              ),
+              for (final tab in [
+                MoneyTab.assets,
+                MoneyTab.stats,
+                MoneyTab.budget,
+              ])
+                GoRoute(path: tab.legacyPath, redirect: (_, _) => tab.location),
             ],
           ),
           StatefulShellBranch(

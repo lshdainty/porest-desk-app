@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +45,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
         _NavItem(
           label: l.navAsset,
           desc: l.moreDescAsset,
-          onTap: (c) => c.go('/assets'),
+          onTap: (c) => c.go(MoneyTab.assets.location),
         ),
         // 증권 메뉴는 구독(SECURITIES) 보유 시에만 노출
         if (hasSecurities)
@@ -56,7 +57,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
         _NavItem(
           label: l.navBudget,
           desc: l.moreDescBudget,
-          onTap: (c) => c.go('/budget'),
+          onTap: (c) => c.go(MoneyTab.budget.location),
         ),
         _NavItem(
           label: l.navSavingGoals,
@@ -66,7 +67,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
         _NavItem(
           label: l.moreItemStats,
           desc: l.moreDescStats,
-          onTap: (c) => c.go('/stats'),
+          onTap: (c) => c.go(MoneyTab.stats.location),
         ),
         _NavItem(
           label: l.navRecurring,

@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -1007,7 +1008,7 @@ class _CategoryDonutCard extends StatelessWidget {
       title: l.expCategory,
       trailing: PFlatSectionLink(
         label: l.dashSeeMore,
-        onTap: () => context.go('/stats'),
+        onTap: () => context.go(MoneyTab.stats.location),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1232,7 +1233,7 @@ class _BudgetCard extends StatelessWidget {
       trailing: PFlatSectionLink(
         label: l.expFilterAll,
         // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
-        onTap: () => context.go('/budget'),
+        onTap: () => context.go(MoneyTab.budget.location),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

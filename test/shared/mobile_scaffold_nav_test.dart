@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
@@ -25,25 +26,72 @@ class _Screen extends StatelessWidget {
   );
 }
 
+/// 입력 상태를 가진 화면 — 탭을 옮겨도 남는지 본다.
+class _Counter extends StatefulWidget {
+  const _Counter(this.name);
+  final String name;
+
+  @override
+  State<_Counter> createState() => _CounterState();
+}
+
+class _CounterState extends State<_Counter> {
+  int n = 0;
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    children: [
+      TextButton(
+        key: ValueKey('inc-${widget.name}'),
+        onPressed: () => setState(() => n++),
+        child: Text('${widget.name}:$n'),
+      ),
+    ],
+  );
+}
+
 GoRouter _router(String initial) => GoRouter(
   initialLocation: initial,
   routes: [
+    for (final tab in [MoneyTab.assets, MoneyTab.stats, MoneyTab.budget])
+      GoRoute(path: tab.legacyPath, redirect: (_, _) => tab.location),
     StatefulShellRoute.indexedStack(
       builder: (_, _, shell) => MobileScaffold(navigationShell: shell),
-      branches: [
-        for (final paths in [
-          ['/home'],
-          ['/expense', '/assets', '/stats', '/budget'],
-          ['/calendar'],
-          ['/more'],
-        ])
-          StatefulShellBranch(
-            routes: [
-              for (final p in paths)
-                GoRoute(path: p, builder: (_, _) => _Screen(p.substring(1))),
-            ],
+      branches:
+          [
+            for (final paths in [
+              ['/home'],
+              ['/calendar'],
+              ['/more'],
+            ])
+              StatefulShellBranch(
+                routes: [
+                  for (final p in paths)
+                    GoRoute(
+                      path: p,
+                      builder: (_, _) => _Screen(p.substring(1)),
+                    ),
+                ],
+              ),
+          ]..insert(
+            1,
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/expense',
+                  builder: (_, state) => MoneyBundleScreen(
+                    tab: MoneyTab.fromQuery(state.uri.queryParameters['tab']),
+                    pages: const [
+                      _Counter('expense'),
+                      _Counter('assets'),
+                      _Counter('stats'),
+                      _Counter('budget'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-      ],
     ),
   ],
 );
@@ -110,36 +158,94 @@ void main() {
     h.dispose();
   });
 
-  testWidgets('가계부 — 탭 바는 "가계부" 현재, 위 Line Tabs 가 네 화면을 오간다', (tester) async {
-    final router = await pump(tester, '/assets');
-    final tabs = tester.widget<PTabs<String>>(find.byType(PTabs<String>));
-    expect(tabs.value, '/assets');
+  testWidgets('가계부 — 탭 바는 "가계부" 현재, 위 Line Tabs(medium)가 네 화면을 오간다', (
+    tester,
+  ) async {
+    final router = await pump(tester, '/expense?tab=assets');
+    final tabs = tester.widget<PTabs<MoneyTab>>(find.byType(PTabs<MoneyTab>));
+    expect(tabs.value, MoneyTab.assets);
+    expect(tabs.size, PTabsSize.medium);
     expect(tabs.items.map((t) => t.label), ['가계부', '자산', '통계·분석', '예산']);
     expect(
       tester.widget<PTopNavigation>(find.byType(PTopNavigation)).title,
       '가계부',
     );
-    final bar = tester.widget<PBottomNavigation>(
-      find.byType(PBottomNavigation),
-    );
-    expect(bar.items.map((i) => i.current), [false, true, false, false]);
-
+    for (final t in MoneyTab.values) {
+      router.go(t.location);
+      await tester.pumpAndSettle();
+      final bar = tester.widget<PBottomNavigation>(
+        find.byType(PBottomNavigation),
+      );
+      expect(bar.items.map((i) => i.current), [false, true, false, false]);
+    }
     await tester.tap(find.text('예산').first);
     await tester.pumpAndSettle();
-    expect(router.state.matchedLocation, '/budget');
+    expect(router.state.uri.queryParameters['tab'], 'budget');
     expect(
-      tester.widget<PTabs<String>>(find.byType(PTabs<String>)).value,
-      '/budget',
+      tester.widget<PTabs<MoneyTab>>(find.byType(PTabs<MoneyTab>)).value,
+      MoneyTab.budget,
     );
   });
 
-  testWidgets('가계부 탭을 다시 누르면 첫 화면(/expense)으로 간다', (tester) async {
-    final router = await pump(tester, '/stats');
+  testWidgets('탭을 옮겨도 앞 탭의 상태가 남는다', (tester) async {
+    await pump(tester, '/expense');
+    await tester.tap(find.byKey(const ValueKey('inc-expense')));
+    await tester.pump();
+    expect(find.text('expense:1'), findsOneWidget);
+
+    await tester.tap(find.text('통계·분석').first);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(PTabs<MoneyTab>),
+        matching: find.text('가계부'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('expense:1'), findsOneWidget);
+  });
+
+  testWidgets('좌우로 밀면 탭이 옮겨진다', (tester) async {
+    final router = await pump(tester, '/expense');
+    await tester.drag(find.byType(PageView), const Offset(-400, 0));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.queryParameters['tab'], 'assets');
+    expect(
+      tester.widget<PTabs<MoneyTab>>(find.byType(PTabs<MoneyTab>)).value,
+      MoneyTab.assets,
+    );
+  });
+
+  testWidgets('옛 경로(/assets /stats /budget)는 그 탭을 고른 채 묶음으로 간다', (
+    tester,
+  ) async {
+    for (final t in [MoneyTab.assets, MoneyTab.stats, MoneyTab.budget]) {
+      final router = await pump(tester, t.legacyPath);
+      expect(router.state.matchedLocation, '/expense', reason: t.query);
+      expect(
+        tester.widget<PTabs<MoneyTab>>(find.byType(PTabs<MoneyTab>)).value,
+        t,
+      );
+    }
+  });
+
+  testWidgets('이미 묶음에 있어도 다른 경로의 링크가 탭을 고른다', (tester) async {
+    final router = await pump(tester, '/expense');
+    router.go('/stats');
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<PTabs<MoneyTab>>(find.byType(PTabs<MoneyTab>)).value,
+      MoneyTab.stats,
+    );
+  });
+
+  testWidgets('가계부 탭을 다시 누르면 첫 탭(/expense)으로 간다', (tester) async {
+    final router = await pump(tester, '/expense?tab=stats');
     await tester.tap(
       find.byKey(const ValueKey('bottom-navigation-item')).at(1),
     );
     await tester.pumpAndSettle();
-    expect(router.state.matchedLocation, '/expense');
+    expect(router.state.uri.toString(), '/expense');
   });
 
   testWidgets('지금 탭을 다시 누르면 맨 위로 올라간다', (tester) async {

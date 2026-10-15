@@ -12,15 +12,11 @@ import 'package:groo_damda_app/features/notification/application/notification_pr
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
-import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 /// 바 이름 — l10n 키가 아직 없다(질문 후보). 웹 · 데모와 같은 글.
 const String _kMainMenuLabel = '주 메뉴';
-
-/// 가계부 branch(index 1) 안 네 화면 — 임시 선택(Q-017): 탭 바에는 넷 모두 "가계부" 현재이고,
-/// 화면 위 Line Tabs 가 넷을 오간다. 경로는 웹과 같다.
-const List<String> _kMoneyPaths = ['/expense', '/assets', '/stats', '/budget'];
 
 /// 홈 · 가계부 · 캘린더 · 전체 — 탭 칸 순서 = branch index(캘린더 2 · 전체 3).
 const int _kBranchCalendar = 2;
@@ -76,7 +72,9 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     // 셸(IndexedStack) 화면은 계속 mount 되어 initState 진입 갱신이 안 되므로,
     // 라우트가 바뀔 때 진입 경로가 watch 하는 keepAlive provider 를 갱신한다.
     // build 직전 호출이라 provider 변경은 microtask 로 다음 프레임에 미룬다.
-    final path = GoRouterState.of(context).matchedLocation;
+    final router = GoRouterState.of(context);
+    // 가계부 묶음(/expense)은 고른 탭의 경로로 적는다 — 탭이 바뀌어도 이 자리가 다시 돈다.
+    final path = shellActivePath(router.uri, router.matchedLocation);
     if (path != _lastPath) {
       _lastPath = path;
       Future.microtask(() {
@@ -97,8 +95,6 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     final l = AppLocalizations.of(context);
     final navigationShell = widget.navigationShell;
     final idx = navigationShell.currentIndex;
-    final isMoneyBranch = idx == 1;
-    final routePath = GoRouterState.of(context).matchedLocation;
     final unread = ref.watch(unreadCountProvider).value ?? 0;
 
     // 제목은 탭 이름 — 가계부 안 네 화면은 Line Tabs 가 가르므로 제목은 늘 "가계부".
@@ -161,22 +157,6 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
                     ),
                 ],
               ),
-              if (isMoneyBranch)
-                PTabs<String>(
-                  semanticLabel: l.navExpense,
-                  value: _kMoneyPaths.contains(routePath)
-                      ? routePath
-                      : _kMoneyPaths.first,
-                  onChanged: (path) {
-                    if (path != routePath) context.go(path);
-                  },
-                  items: [
-                    PTab(value: '/expense', label: l.navExpense),
-                    PTab(value: '/assets', label: l.navAsset),
-                    PTab(value: '/stats', label: l.moreItemStats),
-                    PTab(value: '/budget', label: l.navBudget),
-                  ],
-                ),
               Expanded(
                 child: NotificationListener<ScrollNotification>(
                   onNotification: _onScroll,
