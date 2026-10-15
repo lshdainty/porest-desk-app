@@ -25,6 +25,7 @@ import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
@@ -111,7 +112,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Tooltip', 'tooltip'),
   ]),
   DsFamily('date-time', '10 날짜 · 시각', [
-    DsEntry('Wheel Picker', 'wheel-picker'),
+    DsEntry('Wheel Picker', 'wheel-picker', demo: _wheelPicker),
     DsEntry('Time Picker', 'time-picker'),
     DsEntry('Date Picker', 'date-picker'),
   ]),
@@ -155,6 +156,7 @@ Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
+Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
