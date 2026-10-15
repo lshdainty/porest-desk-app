@@ -1465,6 +1465,54 @@ void main() {
       },
     );
 
+    testWidgets(
+      '머리 오른쪽에 위젯(headerTrailing — Slider 머리 값) — 머리 22 를 넘치지 않고 오른쪽 끝에 서며 버튼과 함께 둘 수 없다(Q-015)',
+      (tester) async {
+        await tester.pumpWidget(
+          _host(
+            _light,
+            const PField(
+              label: '알림 기준',
+              headerTrailing: Text(
+                '80%',
+                key: ValueKey('trailing'),
+                style: TextStyle(fontSize: 16, height: 22 / 16),
+              ),
+              child: PInput(),
+            ),
+          ),
+        );
+        final field = tester.getRect(find.byType(PField));
+        final trailing = tester.getRect(find.byKey(const ValueKey('trailing')));
+        final labelRect = tester.getRect(_richText(RegExp('^알림 기준')));
+        expect(
+          trailing.right,
+          field.right - PSpacing.x0_5,
+          reason: '머리 오른쪽 끝(좌우 2)',
+        );
+        expect(
+          trailing.top,
+          field.top,
+          reason: '위아래로 넘치지 않는다(버튼의 −5 는 버튼일 때만)',
+        );
+        expect(trailing.height, 22);
+        expect(labelRect.center.dy, closeTo(trailing.center.dy, 0.5));
+        expect(
+          tester.getRect(find.byType(PInput)).top - labelRect.bottom,
+          PSpacing.x2,
+          reason: '머리 높이 22 그대로 — 입력까지 8',
+        );
+        expect(
+          () => PField(
+            headerAction: PFieldAction(label: '예시', onPressed: () {}),
+            headerTrailing: const SizedBox(),
+            child: const PInput(),
+          ),
+          throwsAssertionError,
+        );
+      },
+    );
+
     testWidgets('필수 점 · "선택" 은 글자 크기 설정을 따라 커진다(rem) — 라벨 줄 위에서 4rem 아래', (
       tester,
     ) async {
