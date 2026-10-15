@@ -14,6 +14,7 @@ import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
+import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
 import 'package:porest_desk_app/shared/ds/list/list_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
@@ -98,7 +99,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Switch', 'switch', demo: _switch),
   ]),
   DsFamily('pickers', '6 고르는 칸', [
-    DsEntry('Input Button', 'input-button'),
+    DsEntry('Input Button', 'input-button', demo: _inputButton),
     DsEntry('Select', 'select', demo: _select),
     DsEntry('Select Box', 'select-box', demo: _selectBox),
   ]),
@@ -150,6 +151,8 @@ Widget _avatar(BuildContext context) => const AvatarDemo();
 Widget _divider(BuildContext context) => const DividerDemo();
 Widget _field(BuildContext context) => const FieldDemo();
 Widget _input(BuildContext context) => const InputDemo();
+
+Widget _inputButton(BuildContext context) => const InputButtonDemo();
 Widget _textarea(BuildContext context) => const TextareaDemo();
 Widget _checkbox(BuildContext context) => const CheckboxDemo();
 Widget _radio(BuildContext context) => const RadioDemo();
