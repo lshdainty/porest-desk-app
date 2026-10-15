@@ -81,6 +81,17 @@ abstract final class PorestTheme {
 
     return base.copyWith(
       extensions: [tokens, colors, shadows, gradients],
+      // 스크롤바 — 전역 한 벌(porest-design scroll-area.yaml). 막대는 `stroke-neutral-solid` 6px 알약, 바탕은 투명이고
+      // 올리거나 끌어도 모양이 바뀌지 않는다. 앱은 스크롤할 때만 보이는 플랫폼 스크롤바를 둔다(웹은 넘치면 늘 보인다).
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: WidgetStatePropertyAll(colors.strokeNeutralSolid),
+        trackColor: const WidgetStatePropertyAll(Color(0x00000000)),
+        trackBorderColor: const WidgetStatePropertyAll(Color(0x00000000)),
+        thickness: const WidgetStatePropertyAll(6),
+        radius: const Radius.circular(PRounded.full),
+        thumbVisibility: const WidgetStatePropertyAll(false),
+        trackVisibility: const WidgetStatePropertyAll(false),
+      ),
       textTheme: _textTheme(tokens.fgPrimary, tokens.fgSecondary),
       appBarTheme: AppBarTheme(
         backgroundColor: tokens.bgSurface,
