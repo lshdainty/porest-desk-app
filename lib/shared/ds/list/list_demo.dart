@@ -1155,6 +1155,7 @@ class _NestedDemoState extends State<_NestedDemo> {
                     prefix: _tile(context, _Tone.gray, LucideIcons.tag),
                     title: '기타',
                     detail: '지출 · 하위 없음',
+                    expandLabel: '기타 하위 카테고리',
                     onTap: _noop,
                   ),
                 ],
@@ -1202,7 +1203,7 @@ class _NestedDemoState extends State<_NestedDemo> {
           ],
         ),
         DemoRow(
-          label: '늘 펼친 화면 · 편집 — expandLabel 이 없으면 꺾쇠 자리를 비우고 늘 펼친다',
+          label: '늘 펼친 화면 · 편집 — collapsible: false 면 꺾쇠 자리를 비우고 늘 펼친다',
           children: [
             _Cell(
               width: 400,
@@ -1213,6 +1214,7 @@ class _NestedDemoState extends State<_NestedDemo> {
                     prefix: _tile(context, _Tone.violet, LucideIcons.coffee),
                     title: '취미',
                     detail: '꺾쇠 자리를 비우고 늘 펼친다',
+                    collapsible: false,
                     onTap: _noop,
                     children: _children(context, const [
                       '영화',
@@ -1322,7 +1324,7 @@ class _WorstDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return DemoBlock(
       title:
-          '가장 나쁜 값 — 아주 긴 제목 · 1억이 넘는 금액 · 띄어쓰기 없는 긴 낱말 · 접힌 하위 줄이 많은 부모. 스펙대로 그린 모습이다 — 뒤 붙이개가 줄지 않아 아주 긴 값 앞에서 본문이 눌린다(질문 후보)',
+          '가장 나쁜 값 — 아주 긴 제목 · 1억이 넘는 금액 · 띄어쓰기 없는 긴 낱말 · 접힌 하위 줄이 많은 부모. 스펙(Q-001)대로 그린 모습이다 — 글로 넘긴 값은 본문이 1em 이 된 뒤에야 줄고 줄 끝에서 끊으며, 위젯(금액 노드 · 화살표)은 줄지 않고 본문이 양보한다',
       children: [
         DemoRow(
           label: '긴 제목 · 큰 금액 320',
@@ -1378,8 +1380,14 @@ class _WorstDemo extends StatelessWidget {
                         'porest-desk-front-design-system-list-component-with-a-very-long-name',
                     detail: '띄어쓰기 없는 낱말은 칸 끝에서만 끊긴다',
                   ),
-                  // 뒤 붙이개는 줄지 않는다 — 긴 값 앞에서 본문이 눌린다(질문 후보)
+                  // 글로 넘긴 값 — 본문이 1em 이 된 뒤에야 줄고 줄 끝에서 끊는다
                   PListItem(title: '이메일 주소', suffix: Text('desk@example.kr')),
+                  PListItem(
+                    title: '이메일 주소',
+                    suffix: Text(
+                      'porest-desk-front-design-system-list-component-with-a-very-long-name@example.kr',
+                    ),
+                  ),
                 ],
               ),
             ),

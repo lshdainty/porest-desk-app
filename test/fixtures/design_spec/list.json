@@ -41,13 +41,18 @@
     "expanded": [
       "collapsed",
       "expanded"
+    ],
+    "mode": [
+      "foldable",
+      "fixed"
     ]
   },
   "defaults": {
     "align": "center",
     "highlight": "none",
     "nest": "none",
-    "expanded": "collapsed"
+    "expanded": "collapsed",
+    "mode": "foldable"
   },
   "states": [
     "enabled",
@@ -102,7 +107,9 @@
         },
         "body": {
           "gap": 2,
-          "paddingRight": 10
+          "paddingRight": 10,
+          "flexGrow": 1,
+          "minWidth": "1em"
         },
         "title": {
           "typography": {
@@ -115,7 +122,8 @@
           "foreground": {
             "light": "#1A1F2E",
             "dark": "#F5F6FA"
-          }
+          },
+          "overflowWrap": "anywhere"
         },
         "detail": {
           "typography": {
@@ -127,10 +135,12 @@
           "foreground": {
             "light": "#62697A",
             "dark": "#A2A8B7"
-          }
+          },
+          "overflowWrap": "anywhere"
         },
         "suffix": {
-          "gap": 4
+          "gap": 4,
+          "shrink": 0
         },
         "suffixText": {
           "typography": {
@@ -142,7 +152,9 @@
           "foreground": {
             "light": "#62697A",
             "dark": "#A2A8B7"
-          }
+          },
+          "shrink": 1,
+          "overflowWrap": "anywhere"
         },
         "suffixIcon": {
           "size": 18,
@@ -379,6 +391,19 @@
           "display": "보임"
         }
       }
+    },
+    {
+      "when": {
+        "mode": "fixed"
+      },
+      "enabled": {
+        "expandButton": {
+          "display": "빈 자리"
+        },
+        "subList": {
+          "display": "보임"
+        }
+      }
     }
   ],
   "motion": {
@@ -499,9 +524,58 @@
     {
       "rule": 0,
       "state": "enabled",
+      "slot": "body",
+      "prop": "flexGrow",
+      "note": "남는 폭을 본문이 쓰고, 값이 길면 본문이 먼저 양보한다(SEED content flexGrow 1)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "minWidth",
+      "note": "본문은 한 글자(1em)까지 준다 — 뒤 여백 10 은 따로 더한다(레시피 calc(1em + 10px)). 값이 본문 위로 넘쳐 겹치지 않게(2026-10-15 사용자 결정 — 구현 세션 질문 Q-001, 안 A)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "title",
       "prop": "fontWeight",
       "note": "SEED 와 같다 — 굵기는 목록 제목 · 금액 같은 자리에 남긴다(사용자 결정)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "overflowWrap",
+      "note": "평소에는 단어 단위(v114 — keep-all + break-word)로 바꾸고, 본문이 낱말 하나보다 좁아질 때만 글자 사이에서 끊어 칸 밖으로 넘치지 않는다(Q-001 A)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "detail",
+      "prop": "overflowWrap",
+      "note": "글 설명도 제목처럼 — 본문이 낱말 하나보다 좁아질 때만 글자 사이에서 끊어 뒤 붙이개에 닿지 않는다(2026-10-15 사용자 결정 — 구현 세션 질문 Q-001, 안 A). Tag Group 설명은 그 스펙대로 한 줄 말줄임"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "suffix",
+      "prop": "shrink",
+      "note": "줄지 않는다(SEED suffix flexShrink 0) — 값이 길면 본문이 1em 까지 양보한다. 금액 · 화살표 · 컨트롤 · 작은 버튼은 한 덩어리로 선다. 값을 줄여 적는 것(억 단위 등)은 그 화면이 정한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "suffixText",
+      "prop": "shrink",
+      "note": "글 값(이메일 · 계좌번호 · 긴 이름 — suffix 에 글을 그대로 넘긴 것)만 — 본문이 1em 이 된 뒤에야 준다(최소 폭 0)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "suffixText",
+      "prop": "overflowWrap",
+      "note": "남는 폭보다 길면 줄 끝에서 끊는다 — 본문 위로 넘쳐 덮지 않는다(Q-001 A). 말줄임으로 자르지 않는다(10A)"
     },
     {
       "rule": 0,
@@ -564,7 +638,7 @@
       "state": "enabled",
       "slot": "expandButton",
       "prop": "size",
-      "note": "보이는 상자 = 누르는 영역. 하위가 없는 줄 · 늘 펼쳐 두는 화면(편집 모드)은 같은 폭의 빈 자리"
+      "note": "보이는 상자 = 누르는 영역. 하위가 없는 줄 · 늘 펼친 편집 화면(mode fixed — collapsible={false})은 같은 폭의 빈 자리"
     },
     {
       "rule": 3,
@@ -606,7 +680,7 @@
       "state": "enabled",
       "slot": "expandButton",
       "prop": "name",
-      "note": "고정 이름 + aria-expanded · aria-controls(하위 줄 묶음) — 상태마다 \"접기 · 펼치기\" 로 바꾸지 않는다(사용자 결정 7C)"
+      "note": "고정 이름(레시피 expandLabel — 접는 줄이면 필수, 유니언 타입이라 빠뜨리면 타입 오류 · 하위가 없는 줄에도 준다) + aria-expanded · aria-controls(하위 줄 묶음) — 상태마다 \"접기 · 펼치기\" 로 바꾸지 않는다(사용자 결정 7C · Q-002)"
     },
     {
       "rule": 3,
@@ -656,6 +730,20 @@
       "slot": "expandButton",
       "prop": "rotate",
       "note": "아래로 — 하위 줄이 펼쳐졌다"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "display",
+      "note": "꺾쇠 단추를 그리지 않고 같은 폭 44(+ 뒤 4)를 비운다 — 접는 화면과 부모 타일 자리(52)가 같다(17B). 이름 · aria-expanded · aria-controls 없음, 빈 자리는 aria-hidden(2026-10-15 사용자 결정 — 구현 세션 질문 Q-002, 안 B)"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "subList",
+      "prop": "display",
+      "note": "늘 펼친다 — open · defaultOpen · onOpenChange 를 받지 않는다(타입이 막는다)"
     }
   ]
 }

@@ -29,6 +29,9 @@ const double kPListIconSize = 22;
 /// 꺾쇠 단추 자리 — 보이는 상자 44 + 단추 뒤 4(부모 줄의 앞 붙이개가 52 에서 시작한다).
 const double kPListExpandSlot = PTouch.min + PSpacing.x1;
 
+/// 본문 최소 폭 — 1em(본문 글자 크기) + 뒤 여백 10(list.yaml body.minWidth `1em`, 뒤 여백은 따로).
+final double kPListBodyMinWidth = PTypography.t5.fontSize! + PSpacing.x2_5;
+
 /// 부모 줄의 최소 콘텐츠 높이 — 꺾쇠 단추(44)가 위아래 2 를 줄의 여백에 겹쳐 타일 40 줄의 높이(64)를 그대로 둔다.
 const double kPListExpandSlotHeight = PTouch.min - 2 * PSpacing.x0_5;
 
@@ -307,6 +310,47 @@ class _PListRowFrameState extends State<PListRowFrame> {
     if (_disabled) _pressed = false;
   }
 
+  /// 본문 + 뒤 붙이개(porest-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
+  ///   글([Text]로 넘긴 값) — 본문이 최소 폭(1em + 뒤 여백 10)이 된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다.
+  ///   위젯(금액 노드 · 화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다. 큰 금액을 줄이는 건 화면 몫이다.
+  Widget _bodyAndSuffix(Widget bodyNode, Color detailColor, Color arrowColor) {
+    final suffix = widget.suffix;
+    if (suffix == null) return bodyNode;
+    final isText = suffix is Text;
+    final styled = DefaultTextStyle(
+      key: const ValueKey('plist-suffix'),
+      style: PTypography.t5.copyWith(color: detailColor),
+      child: IconTheme(
+        data: IconThemeData(size: PSpacing.x4_5, color: arrowColor),
+        child: suffix,
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 글 값이 쓸 수 있는 가장 넓은 폭 — 본문 최소 폭을 남긴다
+        final textMax = math.max(
+          0.0,
+          constraints.maxWidth - kPListBodyMinWidth,
+        );
+        return Row(
+          crossAxisAlignment: widget.align == PListAlign.top
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
+          children: [
+            Expanded(child: bodyNode),
+            if (isText)
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: textMax),
+                child: styled,
+              )
+            else
+              styled,
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -413,16 +457,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
                 child: widget.prefix!,
               ),
             ),
-          Expanded(child: bodyNode),
-          if (widget.suffix != null)
-            DefaultTextStyle(
-              key: const ValueKey('plist-suffix'),
-              style: PTypography.t5.copyWith(color: detailColor),
-              child: IconTheme(
-                data: IconThemeData(size: PSpacing.x4_5, color: arrowColor),
-                child: widget.suffix!,
-              ),
-            ),
+          Expanded(child: _bodyAndSuffix(bodyNode, detailColor, arrowColor)),
         ],
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/button/p_button.dart';
+import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 크기 — 지름(px). 기본 48. 글 한 줄 안 20 · 줄 안 묶음 24 · 한 줄 목록 36 · 두 줄 목록 42 · 계정 화면 머리 80 …
 enum PAvatarSize { s20, s24, s36, s42, s48, s56, s64, s80, s96, s108 }
@@ -97,6 +99,11 @@ Color avatarHueColor(PColors c, String name) => [
 /// 700 · 줄 높이 1 · 글자 크기 설정을 따르지 않는다)이 보인다. 모든 크기에 안쪽 1px 테두리(stroke-neutral-overlay) —
 /// 흰 사진이 흰 바탕에 묻히지 않게, 크기는 변하지 않는다. 누르지 않는다(누르는 자리는 감싼 버튼).
 /// 옆에 이름이 있으면 읽지 않는다(기본). 이름 없이 아바타만 있으면 [decorative] false — 이름을 읽는다.
+///
+/// 사진 바꾸기 자리(avatar.yaml edit=photo · 상태 uploading)에서 올리는 중이면 [uploadProgress](0 ~ 1, 범위 밖은 끝에서
+/// 멈춘다)를 준다 — 원 위 딤(라이트 50% · 다크 65%) 가운데 값 있는 Progress Circle 24(staticWhite, 이름 [uploadLabel],
+/// 값 글 "40%"). 올리는 동안은 보조 기술에서 숨기지 않는다 — 이름이 있으면(decorative false) 이름을 가진 묶음으로 읽고
+/// 안의 진행 원이 따로 읽힌다(웹 role="group").
 class PAvatar extends StatelessWidget {
   const PAvatar({
     super.key,
@@ -104,6 +111,8 @@ class PAvatar extends StatelessWidget {
     this.image,
     this.size = PAvatarSize.s48,
     this.decorative = true,
+    this.uploadProgress,
+    this.uploadLabel = '프로필 사진 올리는 중',
   });
 
   /// 표시 이름 — 이니셜 · 이름 색 · 읽는 이름.
@@ -112,23 +121,34 @@ class PAvatar extends StatelessWidget {
   final PAvatarSize size;
   final bool decorative;
 
+  /// 올리는 중 0 ~ 1 — 주면 원 위 딤 + 값 있는 원 24(staticWhite). 끝나면 null. 유한하지 않은 값은 주지 않은 것으로 본다.
+  final double? uploadProgress;
+
+  /// 올리는 중 진행 원의 이름 — 기본은 웹과 같은 "프로필 사진 올리는 중"(문구는 부르는 쪽이 바꿔 넘긴다).
+  final String uploadLabel;
+
+  bool get _uploading => uploadProgress != null && uploadProgress!.isFinite;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final m = avatarMetrics(size);
+    // 이니셜 글자는 읽지 않는다 — 이름은 바깥(Semantics)이 가진다(웹 aria-hidden)
     final initial = ColoredBox(
       color: avatarHueColor(c, name),
       child: Center(
-        child: Text(
-          avatarInitial(name),
-          textScaler: TextScaler.noScaling,
-          style: TextStyle(
-            fontFamily: PTypography.fontFamily,
-            fontSize: m.initial,
-            height: 1,
-            fontWeight: FontWeight.w700,
-            color: c.fgNeutralInverted,
-            leadingDistribution: TextLeadingDistribution.even,
+        child: ExcludeSemantics(
+          child: Text(
+            avatarInitial(name),
+            textScaler: TextScaler.noScaling,
+            style: TextStyle(
+              fontFamily: PTypography.fontFamily,
+              fontSize: m.initial,
+              height: 1,
+              fontWeight: FontWeight.w700,
+              color: c.fgNeutralInverted,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
           ),
         ),
       ),
@@ -156,15 +176,121 @@ class PAvatar extends StatelessWidget {
                   frame == null && !wasSync ? const SizedBox.shrink() : child,
               errorBuilder: (context, error, stack) => const SizedBox.shrink(),
             ),
+          // 올리는 중 덮개 — 원 위 딤 + 값 있는 원 24. 위의 안쪽 테두리 아래에 깔린다
+          if (_uploading)
+            ColoredBox(
+              key: const ValueKey('avatar-upload'),
+              color: c.overlayDim,
+              child: Center(
+                child: PProgressCircle(
+                  size: PProgressCircleSize.s24,
+                  tone: PProgressCircleTone.staticWhite,
+                  value: uploadProgress!.clamp(0.0, 1.0) * 100,
+                  semanticsLabel: uploadLabel,
+                ),
+              ),
+            ),
         ],
       ),
     );
+    if (_uploading) {
+      // 올리는 동안은 숨기지 않는다 — 진행 원이 읽혀야 한다. 이름이 있으면 이름을 가진 묶음, 장식이면 진행 원만
+      return decorative
+          ? face
+          : Semantics(
+              container: true,
+              explicitChildNodes: true,
+              label: name.trim(),
+              child: face,
+            );
+    }
     if (decorative) return ExcludeSemantics(child: face);
     return Semantics(
       container: true,
       image: true,
       label: name.trim(),
       child: ExcludeSemantics(child: face),
+    );
+  }
+}
+
+/// 사진 바꾸기 — 아바타 + 늘 보이는 버튼 둘(avatar.yaml edit=photo). 마우스 올림에 기대는 덮개를 두지 않는다.
+/// 아바타(기본 108 — HR 직원 정보 수정 · 앱 프로필 수정) 아래 16 에 "사진 바꾸기"(Button neutralWeak small) ·
+/// "사진 지우기"(ghost small — 사진이 있을 때만), 사이 8 · 가운데 정렬 · 좁으면 줄을 바꾼다. 올리는 동안([uploadProgress]
+/// 가 있을 때)은 두 버튼이 막힌다. 아바타는 옆에 이름이 없으니 늘 이름을 읽는다(decorative false).
+///
+/// 문구는 호출하는 쪽이 넘긴다. [onChange] 는 고르기 자리를 연다 — 스펙은 앱에서 Menu Sheet("사진 찍기 · 앨범에서 고르기")를
+/// 열게 하지만 Menu Sheet 가 아직 없어 콜백만 받는다. 실패를 Field 오류 글로 알리는 것 · 파일을 고르는 창 · 올리는 일은
+/// 부르는 쪽이 한다.
+class PAvatarPhotoEdit extends StatelessWidget {
+  const PAvatarPhotoEdit({
+    super.key,
+    required this.name,
+    required this.changeLabel,
+    required this.removeLabel,
+    required this.onChange,
+    required this.onRemove,
+    this.image,
+    this.size = PAvatarSize.s108,
+    this.uploadProgress,
+    this.uploadLabel = '프로필 사진 올리는 중',
+  });
+
+  /// 표시 이름 — 이니셜 · 이름 색 · 아바타를 읽는 이름.
+  final String name;
+
+  /// 사진 — 없으면 이니셜이고 "사진 지우기" 도 없다.
+  final ImageProvider? image;
+  final PAvatarSize size;
+
+  /// 올리는 중 0 ~ 1 — 주면 원 위 딤 + 값 있는 원 · 두 버튼 막힘. 끝나면 null.
+  final double? uploadProgress;
+  final String changeLabel;
+  final String removeLabel;
+  final String uploadLabel;
+  final VoidCallback onChange;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final uploading = uploadProgress != null && uploadProgress!.isFinite;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      // 아바타 ↔ 버튼 줄 16
+      spacing: PSpacing.x4,
+      children: [
+        PAvatar(
+          name: name,
+          image: image,
+          size: size,
+          decorative: false,
+          uploadProgress: uploadProgress,
+          uploadLabel: uploadLabel,
+        ),
+        Wrap(
+          key: const ValueKey('avatar-edit-actions'),
+          alignment: WrapAlignment.center,
+          // 버튼 사이 8 — 좁아 줄이 바뀌어도 같다
+          spacing: PSpacing.x2,
+          runSpacing: PSpacing.x2,
+          children: [
+            PButton(
+              label: changeLabel,
+              variant: PButtonVariant.neutralWeak,
+              size: PButtonSize.small,
+              onPressed: uploading ? null : onChange,
+            ),
+            if (image != null)
+              PButton(
+                label: removeLabel,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.small,
+                onPressed: uploading ? null : onRemove,
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -250,6 +250,14 @@ const _behavior = {
   'expandButton.transitionProperty',
   'expandButton.name',
   'subList.display',
+  // 값이 길 때(Q-001) — 가장 나쁜 값 묶음의 '값이 길 때' 테스트가 잰다
+  'body.flexGrow',
+  'body.minWidth',
+  'title.overflowWrap',
+  'detail.overflowWrap',
+  'suffix.shrink',
+  'suffixText.shrink',
+  'suffixText.overflowWrap',
 };
 
 /// 앱에 없는 값 — 포커스 링은 웹 상태(키보드 포커스 링)다.
@@ -517,6 +525,7 @@ Widget _parentList(
         prefix: tile(c.chartGrayWeak, c.chartGray, LucideIcons.tag),
         title: '기타',
         detail: '지출 · 하위 없음',
+        expandLabel: '기타 하위 카테고리',
         onTap: enabled ? _noop : null,
       ),
     ],
@@ -2202,6 +2211,7 @@ Widget _food({
   ValueChanged<bool>? onOpenChange,
   VoidCallback? onEdit = _noop,
   String? expandLabel = '식비 하위 카테고리',
+  bool collapsible = true,
   PListAlign align = PListAlign.center,
   bool withChildren = true,
   VoidCallback? onChild,
@@ -2217,9 +2227,10 @@ Widget _food({
       ),
       title: '식비',
       detail: '지출 · 하위 2개',
-      expandLabel: expandLabel,
+      collapsible: collapsible,
+      expandLabel: collapsible ? expandLabel : null,
       open: open,
-      defaultOpen: defaultOpen,
+      defaultOpen: collapsible ? defaultOpen : null,
       onOpenChange: onOpenChange,
       onTap: onEdit,
       children: withChildren
@@ -2255,6 +2266,7 @@ Widget _food({
       ),
       title: '기타',
       detail: '지출 · 하위 없음',
+      expandLabel: '기타 하위 카테고리',
       onTap: _noop,
     ),
   ],
@@ -2458,15 +2470,101 @@ void _parentTests() {
       expect(item.bottom - button.bottom, 10);
     });
 
-    testWidgets('expandLabel 이 없으면(늘 펼쳐 두는 편집 모드) 꺾쇠 자리를 비우고 하위 줄은 늘 보인다', (
+    testWidgets(
+      'collapsible: false(늘 펼친 편집 모드) — 꺾쇠 자리를 비우고 하위 줄은 늘 보이며 expanded 로 읽히지 않는다',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          _host(Brightness.light, _food(collapsible: false)),
+        );
+        expect(_expandButton, findsNothing);
+        expect(_key('plist-expand-slot'), findsNWidgets(2));
+        expect(_childRows, findsNWidgets(2));
+        // 빈 자리는 접는 줄의 꺾쇠 자리와 같은 폭(44 + 뒤 4) — 타일은 접는 줄과 같은 52 에 선다
+        expect(
+          tester.getSize(_key('plist-expand-slot').first).width,
+          kPListExpandSlot,
+        );
+        // 읽는 말에 꺾쇠 · 펼침 상태가 없다
+        expect(find.bySemanticsLabel('식비 하위 카테고리'), findsNothing);
+        expect(
+          tester.getSemantics(_bodies.first),
+          isNot(containsSemantics(hasExpandedState: true)),
+        );
+        handle.dispose();
+      },
+    );
+
+    testWidgets('늘 펼친 줄 — 접힘이 없다(open · 누름 어느 것도 하위 줄을 감추지 않는다)', (
       tester,
     ) async {
       await tester.pumpWidget(
-        _host(Brightness.light, _food(expandLabel: null)),
+        _host(Brightness.light, _food(collapsible: false)),
       );
-      expect(_expandButton, findsNothing);
-      expect(_key('plist-expand-slot'), findsNWidgets(2));
+      await tester.pump(const Duration(milliseconds: 400));
       expect(_childRows, findsNWidgets(2));
+      expect(_key('plist-sub-list-hidden'), findsNothing);
+    });
+
+    test('접는 줄은 하위가 없어도 expandLabel 이 필수다 — 늘 펼친 줄은 주지 않는다(생성자 assert)', () {
+      // 접는 줄(기본) — expandLabel 없음 · 빈 문자열
+      expect(
+        () => PListParentItem(title: '기타', onTap: _noop),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => PListParentItem(title: '기타', expandLabel: '', onTap: _noop),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => PListParentItem(
+          title: '기타',
+          expandLabel: '기타 하위 카테고리',
+          onTap: _noop,
+        ),
+        returnsNormally,
+      );
+      // 늘 펼친 줄 — 접는 줄의 속성이 하나라도 있으면 안 된다
+      expect(
+        () => PListParentItem(title: '취미', collapsible: false, onTap: _noop),
+        returnsNormally,
+      );
+      expect(
+        () => PListParentItem(
+          title: '취미',
+          collapsible: false,
+          expandLabel: '취미 하위 카테고리',
+          onTap: _noop,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => PListParentItem(
+          title: '취미',
+          collapsible: false,
+          open: true,
+          onTap: _noop,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => PListParentItem(
+          title: '취미',
+          collapsible: false,
+          defaultOpen: false,
+          onTap: _noop,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => PListParentItem(
+          title: '취미',
+          collapsible: false,
+          onOpenChange: (_) {},
+          onTap: _noop,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
     });
 
     testWidgets('단추 가장자리를 눌러도 단추가 받는다', (tester) async {
@@ -2798,16 +2896,78 @@ void _worstTests() {
       expect(tester.getRect(_suffixes).top, row.top);
     });
 
-    testWidgets('1억이 넘는 금액은 줄지 않는다 — 본문이 눌린다(질문 후보)', (tester) async {
-      Future<Size> suffixSize(double width) async {
+    // 스펙(Q-001)의 값 — 같은 JSON 을 웹도 읽는다
+    final want = _spec.resolve(const {
+      'align': 'center',
+      'highlight': 'none',
+    }, 'enabled');
+
+    testWidgets('스펙 값 — 본문은 1em 아래로 안 줄고, 위젯 값은 안 줄며 글 값만 줄고 끝에서 끊는다', (
+      tester,
+    ) async {
+      expect(want['body.flexGrow'], 1);
+      expect(want['body.minWidth'], '1em');
+      expect(want['title.overflowWrap'], 'anywhere');
+      expect(want['detail.overflowWrap'], 'anywhere');
+      expect(want['suffix.shrink'], 0);
+      expect(want['suffixText.shrink'], 1);
+      expect(want['suffixText.overflowWrap'], 'anywhere');
+      // 1em = 본문 글자 크기(t5 16) + 뒤 여백 10
+      expect(kPListBodyMinWidth, 16 + 10);
+    });
+
+    for (final width in const [320.0, 360.0]) {
+      testWidgets('글로 넘긴 긴 값은 본문이 1em 이 된 뒤에야 줄고 줄 끝에서 끊는다 — 폭 $width, 넘침 0', (
+        tester,
+      ) async {
+        for (final value in const [
+          'desk@example.kr',
+          'porest-desk-front-design-system-list-component-with-a-very-long-name@example.kr',
+          '2026년 10월 2일 오후 2:30 · 포레스트 체크카드 · 개인 사업자',
+        ]) {
+          await tester.pumpWidget(
+            _host(
+              Brightness.light,
+              PList(
+                semanticLabel: '긴 값',
+                children: [
+                  PListItem(
+                    prefix: const Icon(LucideIcons.mail),
+                    title: '이메일 주소',
+                    suffix: Text(value),
+                  ),
+                ],
+              ),
+              width: width,
+            ),
+          );
+          expect(tester.takeException(), isNull, reason: '$value @ $width');
+          final body = tester.getRect(_bodies);
+          final suffix = tester.getRect(_suffixes);
+          final row = tester.getRect(_rows);
+          expect(body.width, greaterThanOrEqualTo(kPListBodyMinWidth - 0.5));
+          expect(
+            body.right,
+            lessThanOrEqualTo(suffix.left + 0.5),
+            reason: '값이 본문 위로 넘치지 않는다',
+          );
+          expect(
+            suffix.right,
+            lessThanOrEqualTo(row.right + 0.5),
+            reason: '값이 줄 밖으로 나가지 않는다',
+          );
+        }
+      });
+    }
+
+    testWidgets('글 값은 자리가 남으면 줄지 않는다 — 본문이 양보하는 쪽은 그다음이다', (tester) async {
+      Future<Size> suffixSize(double width, String value) async {
         await tester.pumpWidget(
           _host(
             Brightness.light,
-            const PList(
-              semanticLabel: '자산',
-              children: [
-                PListItem(title: '입출금 통장', suffix: Text('-123,456,789원')),
-              ],
+            PList(
+              semanticLabel: '값',
+              children: [PListItem(title: '이메일', suffix: Text(value))],
             ),
             width: width,
           ),
@@ -2815,10 +2975,89 @@ void _worstTests() {
         return tester.getSize(_suffixes);
       }
 
-      final wide = await suffixSize(800);
-      final narrow = await suffixSize(300);
-      expect(narrow, wide, reason: '뒤 붙이개는 줄지 않는다');
+      const value = 'desk@example.kr';
+      final wide = await suffixSize(800, value);
+      // 본문(이메일)이 눌려도 본문 최소 폭이 남는 폭 — 값은 그대로다
+      final mid = await suffixSize(
+        wide.width + 48 + kPListBodyMinWidth + 4,
+        value,
+      );
+      expect(mid.width, wide.width);
+      // 더 좁아지면 값이 줄고 본문은 최소 폭에 머문다
+      final narrow = await suffixSize(
+        wide.width + 48 + kPListBodyMinWidth - 40,
+        value,
+      );
+      expect(narrow.width, lessThan(wide.width));
+      expect(narrow.height, greaterThan(wide.height), reason: '줄이 바뀐다');
+      final body = tester.getRect(_bodies);
+      expect(body.width, closeTo(kPListBodyMinWidth, 0.5));
+    });
+
+    testWidgets('위젯으로 넘긴 값(금액 노드 · 화살표)은 줄지 않고 본문이 양보한다', (tester) async {
+      Future<(Size, Size)> sizes(double width) async {
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            const PList(
+              semanticLabel: '자산',
+              children: [
+                PListItem(
+                  title: '입출금 통장',
+                  suffix: PListSuffix(
+                    children: [
+                      Text('-1,234,567,890원'),
+                      Icon(LucideIcons.chevronRight),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            width: width,
+          ),
+        );
+        return (tester.getSize(_suffixes), tester.getSize(_bodies));
+      }
+
+      final (wideSuffix, wideBody) = await sizes(800);
+      for (final width in const [360.0, 320.0]) {
+        final (suffix, body) = await sizes(width);
+        expect(suffix, wideSuffix, reason: '위젯 값은 줄지 않는다');
+        expect(body.width, lessThan(wideBody.width), reason: '본문이 양보한다');
+        expect(tester.takeException(), isNull);
+      }
+    });
+
+    testWidgets('아주 긴 제목 · 설명은 낱말보다 좁아질 때만 글자 사이에서 끊는다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          const SingleChildScrollView(
+            child: PList(
+              semanticLabel: '긴 낱말',
+              children: [
+                PListItem(
+                  title: '입출금 통장 이름이 아주 긴 경우',
+                  detail:
+                      'porest-desk-front-design-system-list-component-with-a-very-long-name',
+                  suffix: Text('desk@example.kr'),
+                ),
+              ],
+            ),
+          ),
+          width: 320,
+        ),
+      );
       expect(tester.takeException(), isNull);
+      // 제목 · 설명의 긴 낱말은 칸 끝에서 끊긴다(본문 밖으로 넘치지 않는다)
+      expect(
+        tester.getRect(_titles).right,
+        lessThanOrEqualTo(tester.getRect(_bodies).right),
+      );
+      expect(
+        tester.getRect(_details).right,
+        lessThanOrEqualTo(tester.getRect(_bodies).right),
+      );
     });
 
     testWidgets('접힌 하위 줄이 많은 부모는 줄 하나 — 펼치면 48 줄', (tester) async {
