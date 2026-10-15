@@ -1,0 +1,862 @@
+part of 'p_attachment_input.dart';
+
+// attachment-input.yaml 의 값 — 토큰이 있는 값은 토큰으로 적는다.
+const double _tile = 80; // trigger.size · item.height · 사진 폭
+const double _fileWidth = 160; // 파일 카드 폭(kind.file item.width)
+const double _itemRadius = PRounded.r3; // item.radius 12
+const double _thumb = 48; // thumbnail.size
+const double _thumbRadius = PRounded.r2; // thumbnail.radius 8
+const double _filePaddingX = PSpacing.x4; // 파일 카드 paddingX 16
+const double _fileGap = 10; // item.gap — 썸네일 칸 ↔ 이름
+const double _metaWidth = 70; // meta.width
+const double _nameClear = PSpacing.x1; // name.maskClear — 첫 줄 오른쪽 4
+const int _nameMaxLines = 4; // name.maxLines
+const double _removeSize = 20; // removeButton.size
+const double _removeIcon = 10; // removeButton.iconSize
+const double _removeTouch = 44; // removeButton.touchTarget
+const double _maskSize = 24; // removeMask.size — × 둘레 구멍 지름
+const double _maskOffset = 6; // removeMask.offset — 모서리에서 구멍 가운데까지
+const double _badgeHeight = PSpacing.x6; // badge.height 24
+const double _actionIcon = 24; // actionButton.iconSize
+const double _ringWidth = 2; // focusRing.width(안쪽)
+
+/// × 의 누르는 자리가 보이는 원 밖으로 나가는 만큼 — 위 · 오른쪽 12 + 걸침 4. 항목 자리가 이만큼을 레이아웃에 든다.
+const double _touchBleed = PSpacing.x4;
+
+/// 누르는 부품 하나 — 바탕 · 누름 축소(2px 거리) · 키보드 초점 링(안쪽 2px) · 이름 있는 버튼 읽기.
+///
+/// [blocked] 는 웹의 aria-disabled — 막힌 모습이지만 초점은 남고 눌러도 아무 일이 없다. [disabled] 는 초점에서도 빠진다.
+class _PressBox extends StatefulWidget {
+  const _PressBox({
+    super.key,
+    required this.radius,
+    required this.child,
+    required this.label,
+    this.onTap,
+    this.focusNode,
+    this.restColor = const Color(0x00000000),
+    this.pressedColor,
+    this.border,
+    this.basis = _tile,
+    this.shrink = true,
+    this.blocked = false,
+    this.disabled = false,
+    this.customActions,
+    this.touch,
+  });
+
+  final double radius;
+  final Widget child;
+  final String label;
+  final VoidCallback? onTap;
+  final FocusNode? focusNode;
+  final Color restColor;
+
+  /// 누른 바탕 — 없으면 바탕이 바뀌지 않는다(항목).
+  final Color? pressedColor;
+  final BoxBorder? border;
+
+  /// 누름 축소의 기준 길이(80 · 24).
+  final double basis;
+  final bool shrink;
+  final bool blocked;
+  final bool disabled;
+  final Map<CustomSemanticsAction, VoidCallback>? customActions;
+
+  /// 누르는 자리 한 변 — 보이는 상자보다 클 때(×: 20 → 44). 상자 가운데에 놓고 부모 안에서만 받는다.
+  final double? touch;
+
+  @override
+  State<_PressBox> createState() => _PressBoxState();
+}
+
+class _PressBoxState extends State<_PressBox> {
+  bool _pressed = false;
+  bool _focused = false;
+
+  bool get _inert => widget.disabled || widget.blocked || widget.onTap == null;
+
+  void _activate() {
+    if (_inert) return;
+    widget.onTap!();
+  }
+
+  void _setPressed(bool v) {
+    if (_pressed != v) setState(() => _pressed = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final active = _pressed && !_inert;
+    final fill = active && widget.pressedColor != null
+        ? widget.pressedColor!
+        : widget.restColor;
+    final ring =
+        _focused &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+
+    final face = TweenAnimationBuilder<Color?>(
+      tween: ColorTween(end: fill),
+      duration: PDuration.colorTransition,
+      curve: PEasing.easing,
+      builder: (context, bg, child) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(widget.radius),
+          border: widget.border,
+        ),
+        position: DecorationPosition.background,
+        child: child,
+      ),
+      child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          widget.child,
+          if (ring)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: const ValueKey('attachment-focus-ring'),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(widget.radius),
+                    border: Border.all(
+                      color: c.strokeFocusRing,
+                      width: _ringWidth,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    final scaled = AnimatedScale(
+      scale: active && widget.shrink && !reduce
+          ? (widget.basis - 2) / widget.basis
+          : 1,
+      duration: PDuration.pressedScale,
+      curve: PEasing.pressedScale,
+      child: face,
+    );
+
+    return Semantics(
+      container: true,
+      button: true,
+      enabled: !widget.disabled && !widget.blocked && widget.onTap != null,
+      focusable: !widget.disabled,
+      label: widget.label,
+      customSemanticsActions: widget.customActions,
+      onTap: _inert ? null : _activate,
+      excludeSemantics: true,
+      child: Focus(
+        focusNode: widget.focusNode,
+        canRequestFocus: !widget.disabled,
+        onFocusChange: (v) => setState(() => _focused = v),
+        onKeyEvent: (node, event) {
+          final key = event.logicalKey;
+          if (key != LogicalKeyboardKey.enter &&
+              key != LogicalKeyboardKey.numpadEnter &&
+              key != LogicalKeyboardKey.space) {
+            return KeyEventResult.ignored;
+          }
+          if (widget.disabled) return KeyEventResult.ignored;
+          if (event is KeyDownEvent) _activate();
+          return KeyEventResult.handled;
+        },
+        child: MouseRegion(
+          cursor: _inert
+              ? SystemMouseCursors.forbidden
+              : SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            excludeFromSemantics: true,
+            onTapDown: (_) => _setPressed(true),
+            onTapUp: (_) => _setPressed(false),
+            onTapCancel: () => _setPressed(false),
+            onTap: _activate,
+            child: widget.touch == null
+                ? scaled
+                : SizedBox(
+                    width: widget.touch,
+                    height: widget.touch,
+                    child: Center(child: scaled),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 첨부 타일 — 80 · 모서리 12 · 안쪽 1px stroke-neutral-weak · 투명. 아이콘 24 + 개수(12 / 16).
+class _TriggerTile extends StatelessWidget {
+  const _TriggerTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.max,
+    required this.blocked,
+    required this.disabled,
+    required this.onTap,
+    this.focusNode,
+  });
+
+  final IconData icon;
+  final String label;
+
+  /// 지금 개수 · 최대 — 최대가 없으면 개수를 그리지 않는다.
+  final int count;
+  final int? max;
+  final bool blocked;
+  final bool disabled;
+  final VoidCallback onTap;
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final dim = blocked || disabled;
+    final iconColor = dim ? c.fgDisabled : c.fgNeutralSubtle;
+    return _PressBox(
+      focusNode: focusNode,
+      radius: _itemRadius,
+      label: label,
+      blocked: blocked,
+      disabled: disabled,
+      pressedColor: c.bgLayerDefaultPressed,
+      border: Border.all(color: c.strokeNeutralWeak, width: 1),
+      onTap: onTap,
+      child: SizedBox(
+        width: _tile,
+        height: _tile,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: PSpacing.x1,
+          children: [
+            ExcludeSemantics(child: Icon(icon, size: 24, color: iconColor)),
+            if (max != null)
+              ExcludeSemantics(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '$count',
+                        style: PTypography.t2.copyWith(
+                          color: dim ? c.fgDisabled : c.fgNeutral,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '/$max',
+                        style: PTypography.t2.copyWith(
+                          color: dim ? c.fgDisabled : c.fgNeutralSubtle,
+                        ),
+                      ),
+                    ],
+                  ),
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// × 둘레 구멍 — 지름 24, 가운데가 오른쪽 위 모서리에서 안쪽 6(× 의 가운데와 같다). 사진 · 덮개 · 윤곽이 × 에 닿지 않게 파낸다.
+class _HoleClipper extends CustomClipper<Path> {
+  const _HoleClipper({required this.radius});
+
+  final double radius;
+
+  @override
+  Path getClip(Size size) {
+    final box = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)),
+      );
+    final hole = Path()
+      ..addOval(
+        Rect.fromCircle(
+          center: Offset(size.width - _maskOffset, _maskOffset),
+          radius: _maskSize / 2,
+        ),
+      );
+    return Path.combine(PathOperation.difference, box, hole);
+  }
+
+  @override
+  bool shouldReclip(_HoleClipper old) => old.radius != radius;
+}
+
+/// 항목 자리 — 항목(80 · 160) · × · 다시 시도를 한 상자에 담는다. 위 16 · 오른쪽 [rightBleed] 는 × 의 누르는 자리 44 가 들어가는 여백이고,
+/// 상자 밖에서 누른 것도 × 가 받는다(Flutter 는 부모 밖 누르기를 자식에게 묻지 않아 이 상자가 직접 받는다).
+class _OverflowStack extends Stack {
+  const _OverflowStack({super.children});
+
+  @override
+  RenderStack createRenderObject(BuildContext context) => _RenderOverflowStack(
+    alignment: alignment,
+    textDirection: textDirection ?? Directionality.maybeOf(context),
+    fit: fit,
+    clipBehavior: clipBehavior,
+  );
+}
+
+class _RenderOverflowStack extends RenderStack {
+  _RenderOverflowStack({
+    super.alignment,
+    super.textDirection,
+    super.fit,
+    super.clipBehavior,
+  });
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (hitTestChildren(result, position: position)) {
+      result.add(BoxHitTestEntry(this, position));
+      return true;
+    }
+    return false;
+  }
+}
+
+/// 위 [pull] 만큼 레이아웃에서 뺀다 — 웹의 `-mt-x4 pt-x4`. × 의 누르는 자리가 위로 나가도 줄이 앞 칸과 같은 간격을 둔다.
+/// 자식이 그린 위 [pull] 은 앞 칸 위에 겹치고, 그 자리에서 자식이 받지 않는 누르기는 앞 칸으로 넘어간다.
+class _PullUp extends SingleChildRenderObjectWidget {
+  const _PullUp({required this.pull, required super.child});
+
+  final double pull;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderPullUp(pull);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderPullUp renderObject) {
+    renderObject.pull = pull;
+  }
+}
+
+class _RenderPullUp extends RenderShiftedBox {
+  _RenderPullUp(this._pull) : super(null);
+
+  double _pull;
+  set pull(double v) {
+    if (_pull == v) return;
+    _pull = v;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final c = child;
+    if (c == null) {
+      size = constraints.smallest;
+      return;
+    }
+    c.layout(constraints, parentUsesSize: true);
+    size = Size(c.size.width, (c.size.height - _pull).clamp(0, c.size.height));
+    (c.parentData! as BoxParentData).offset = Offset(0, -_pull);
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (hitTestChildren(result, position: position)) {
+      result.add(BoxHitTestEntry(this, position));
+      return true;
+    }
+    return false;
+  }
+}
+
+/// 줄 수를 재는 도우미 — 글자 단위로 줄을 바꾼 줄들. 첫 줄은 오른쪽 4 를 비운다(66), 나머지는 70.
+@visibleForTesting
+List<String> attachmentNameLines(
+  String name, {
+  required TextStyle style,
+  TextScaler textScaler = TextScaler.noScaling,
+  TextDirection textDirection = TextDirection.ltr,
+}) {
+  double measure(String s) {
+    final p = TextPainter(
+      text: TextSpan(text: s.trimRight(), style: style),
+      textDirection: textDirection,
+      textScaler: textScaler,
+      maxLines: 1,
+    )..layout();
+    final w = p.width;
+    p.dispose();
+    return w;
+  }
+
+  double widthOf(int line) => line == 0 ? _metaWidth - _nameClear : _metaWidth;
+
+  List<String> wrap(String text) {
+    final chars = text.characters.toList();
+    final lines = <String>[];
+    var pos = 0;
+    while (pos < chars.length) {
+      // 줄 머리의 빈칸은 버린다(break-all 은 줄바꿈 자리의 빈칸을 접는다)
+      if (lines.isNotEmpty && chars[pos] == ' ') {
+        pos++;
+        continue;
+      }
+      final room = widthOf(lines.length);
+      var lo = 1;
+      var hi = chars.length - pos;
+      while (lo < hi) {
+        final mid = (lo + hi + 1) ~/ 2;
+        if (measure(chars.sublist(pos, pos + mid).join()) <= room) {
+          lo = mid;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      lines.add(chars.sublist(pos, pos + lo).join());
+      pos += lo;
+    }
+    return lines;
+  }
+
+  final all = wrap(name);
+  if (all.length <= _nameMaxLines) return all;
+
+  // 넘친다 — 확장자가 있으면 세 줄 + 확장자 줄, 없으면 네 줄 끝을 줄인다
+  final dot = name.lastIndexOf('.');
+  final ext = dot > 0 && name.length - dot <= 10 ? name.substring(dot) : '';
+  final base = ext.isEmpty ? name : name.substring(0, dot);
+  final room = ext.isEmpty ? _nameMaxLines : _nameMaxLines - 1;
+  final chars = base.characters.toList();
+  var lo = 0;
+  var hi = chars.length;
+  while (lo < hi) {
+    final mid = (lo + hi + 1) ~/ 2;
+    if (wrap('${chars.sublist(0, mid).join()}…').length <= room) {
+      lo = mid;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  final head = '${chars.sublist(0, lo).join().trimRight()}…';
+  return [...wrap(head), if (ext.isNotEmpty) ext];
+}
+
+/// 파일 이름 — 글자 단위로 줄을 바꾸고 네 줄까지, 넘치면 셋째 줄 끝을 "…" 로 줄이고 넷째 줄에 확장자를 남긴다.
+/// 보조 기술은 항목의 이름(전체 파일 이름)이 읽으므로 여기는 읽지 않는다.
+class _FileNameText extends StatelessWidget {
+  const _FileNameText({required this.name, required this.color});
+
+  final String name;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = PTypography.t2.copyWith(
+      fontWeight: FontWeight.w500,
+      color: color,
+    );
+    final lines = attachmentNameLines(
+      name,
+      style: style,
+      textScaler: MediaQuery.textScalerOf(context),
+      textDirection: Directionality.of(context),
+    );
+    return ExcludeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < lines.length; i++)
+            Padding(
+              key: ValueKey('attachment-name-line-$i'),
+              padding: EdgeInsets.only(right: i == 0 ? _nameClear : 0),
+              child: Text(
+                lines[i],
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.clip,
+                style: style,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+IconData _fileIcon(PAttachmentEntry e) {
+  if (attachmentIsPdf(e.type, e.name)) return LucideIcons.fileText;
+  if (attachmentIsSheet(e.type, e.name)) return LucideIcons.fileSpreadsheet;
+  return LucideIcons.file;
+}
+
+/// 항목의 안 — 사진 · 파일 카드 · 덮개 · 원 · 대표 띠. 단추를 담지 않는다(다시 시도 · × 는 형제).
+class _ItemFace extends StatelessWidget {
+  const _ItemFace({
+    required this.entry,
+    required this.status,
+    required this.readOnly,
+    required this.badgeLabel,
+  });
+
+  final PAttachmentEntry entry;
+  final PAttachmentStatus status;
+  final bool readOnly;
+  final String? badgeLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final percent = entry.progress == null
+        ? null
+        : entry.progress!.clamp(0.0, 1.0) * 100;
+    Widget circle(PProgressCircleTone tone) => ExcludeSemantics(
+      child: PProgressCircle(
+        size: PProgressCircleSize.s24,
+        tone: tone,
+        value: percent,
+      ),
+    );
+
+    if (!entry.isImage) {
+      final dim = readOnly;
+      final iconColor = dim ? c.fgDisabled : c.fgNeutralSubtle;
+      if (status == PAttachmentStatus.error) return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: _filePaddingX),
+        child: Row(
+          spacing: _fileGap,
+          children: [
+            Container(
+              key: const ValueKey('attachment-thumbnail'),
+              width: _thumb,
+              height: _thumb,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.bgNeutralWeak,
+                borderRadius: BorderRadius.circular(_thumbRadius),
+              ),
+              child: status == PAttachmentStatus.uploading
+                  ? circle(PProgressCircleTone.neutral)
+                  : ExcludeSemantics(
+                      child: Icon(_fileIcon(entry), size: 24, color: iconColor),
+                    ),
+            ),
+            SizedBox(
+              width: _metaWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _FileNameText(
+                    name: entry.name,
+                    color: dim ? c.fgDisabled : c.fgNeutral,
+                  ),
+                  ExcludeSemantics(
+                    child: Text(
+                      formatFileSize(entry.size),
+                      key: const ValueKey('attachment-size'),
+                      maxLines: 1,
+                      softWrap: false,
+                      style: PTypography.t1.copyWith(
+                        color: dim ? c.fgDisabled : c.fgNeutralSubtle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final fallback = ColoredBox(
+      color: c.bgNeutralWeak,
+      child: Center(
+        child: Icon(LucideIcons.image, size: 24, color: c.fgNeutralSubtle),
+      ),
+    );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        entry.preview == null
+            ? fallback
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  ColoredBox(color: c.bgNeutralWeak),
+                  Image(
+                    image: entry.preview!,
+                    fit: BoxFit.cover,
+                    excludeFromSemantics: true,
+                    gaplessPlayback: true,
+                    errorBuilder: (_, _, _) => fallback,
+                  ),
+                ],
+              ),
+        if (badgeLabel != null)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: _badgeHeight,
+            child: ExcludeSemantics(
+              child: DecoratedBox(
+                key: const ValueKey('attachment-badge'),
+                decoration: BoxDecoration(
+                  color: PColors.dark.overlayDim,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(_itemRadius),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
+                  child: Center(
+                    child: Text(
+                      badgeLabel!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypography.t2.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: c.staticWhite,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (status == PAttachmentStatus.uploading)
+          Positioned.fill(
+            child: ColoredBox(
+              key: const ValueKey('attachment-backdrop'),
+              color: c.overlayDim,
+              child: Center(child: circle(PProgressCircleTone.staticWhite)),
+            ),
+          ),
+        if (status == PAttachmentStatus.error)
+          Positioned.fill(
+            child: ColoredBox(
+              key: const ValueKey('attachment-backdrop'),
+              color: PColors.dark.overlayDim,
+            ),
+          ),
+        // 윤곽 — 사진 위 안쪽 1px 투명 선(v118)
+        const PImageStroke(radius: _itemRadius),
+      ],
+    );
+  }
+}
+
+/// × — 20 원이 항목 모서리 밖으로 위 4 · 오른쪽 4 걸친다. 누르는 자리 44.
+class _RemoveButton extends StatelessWidget {
+  const _RemoveButton({
+    super.key,
+    required this.label,
+    required this.blocked,
+    required this.disabled,
+    required this.onTap,
+    this.focusNode,
+  });
+
+  final String label;
+  final bool blocked;
+  final bool disabled;
+  final VoidCallback onTap;
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return _PressBox(
+      focusNode: focusNode,
+      radius: _removeSize / 2,
+      label: label,
+      basis: 24,
+      touch: _removeTouch,
+      blocked: blocked,
+      disabled: disabled,
+      restColor: c.bgLayerDefault,
+      pressedColor: c.bgLayerDefaultPressed,
+      border: Border.all(color: c.strokeNeutralWeak, width: 1),
+      onTap: onTap,
+      child: SizedBox(
+        width: _removeSize,
+        height: _removeSize,
+        child: Center(
+          child: ExcludeSemantics(
+            child: Icon(
+              LucideIcons.x,
+              size: _removeIcon,
+              color: blocked || disabled ? c.fgDisabled : c.fgNeutral,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 항목 한 칸 — 보이는 항목 · 다시 시도 · ×. 위 16 · 오른쪽 [rightBleed] 를 레이아웃에 두어 × 의 누르는 자리가 안에 든다.
+class _ItemSlot extends StatelessWidget {
+  const _ItemSlot({
+    super.key,
+    required this.entry,
+    required this.status,
+    required this.description,
+    required this.readOnly,
+    required this.disabled,
+    required this.rightBleed,
+    required this.badgeLabel,
+    required this.onRemove,
+    this.onRetry,
+    this.onPress,
+    this.customActions,
+    this.itemNode,
+    this.removeNode,
+  });
+
+  final PAttachmentEntry entry;
+  final PAttachmentStatus status;
+  final String description;
+  final bool readOnly;
+  final bool disabled;
+  final double rightBleed;
+  final String? badgeLabel;
+  final VoidCallback onRemove;
+  final VoidCallback? onRetry;
+
+  /// 항목을 눌렀을 때(메뉴 · 읽기 전용의 크게 보기) — 없으면 눌리지 않는 항목.
+  final VoidCallback? onPress;
+  final Map<CustomSemanticsAction, VoidCallback>? customActions;
+  final FocusNode? itemNode;
+  final FocusNode? removeNode;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final image = entry.isImage;
+    final width = image ? _tile : _fileWidth;
+    final error = status == PAttachmentStatus.error;
+    final dim = readOnly && image;
+
+    Widget body = SizedBox(
+      key: const ValueKey('attachment-item-body'),
+      width: width,
+      height: _tile,
+      child: ClipPath(
+        clipper: const _HoleClipper(radius: _itemRadius),
+        child: DecoratedBox(
+          // 파일 카드의 안쪽 1px 테두리 — 사진은 윤곽을 _ItemFace 가 그린다
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(_itemRadius),
+            border: image
+                ? null
+                : Border.all(color: c.strokeNeutralWeak, width: 1),
+          ),
+          child: _ItemFace(
+            entry: entry,
+            status: status,
+            readOnly: readOnly,
+            badgeLabel: badgeLabel,
+          ),
+        ),
+      ),
+    );
+    if (dim) {
+      body = AnimatedOpacity(
+        opacity: 0.5,
+        duration: PDuration.d4,
+        curve: PEasing.easing,
+        child: body,
+      );
+    }
+
+    // 누를 수 있는 항목 — 이름은 전체 파일 이름 + 크기 + 상태. 누르지 못하면 읽기만
+    final Widget item = onPress != null && !error
+        ? _PressBox(
+            focusNode: itemNode,
+            radius: _itemRadius,
+            label: description,
+            shrink: false,
+            disabled: disabled,
+            customActions: customActions,
+            onTap: onPress,
+            child: body,
+          )
+        : Semantics(
+            container: true,
+            label: description,
+            child: ExcludeSemantics(child: body),
+          );
+
+    return _OverflowStack(
+      children: [
+        SizedBox(width: width + rightBleed, height: _tile + _touchBleed),
+        Positioned(top: _touchBleed, left: 0, child: item),
+        if (error)
+          Positioned(
+            top: _touchBleed,
+            left: 0,
+            width: width,
+            height: _tile,
+            child: ClipPath(
+              clipper: const _HoleClipper(radius: _itemRadius),
+              child: _PressBox(
+                key: const ValueKey('attachment-retry'),
+                radius: _itemRadius,
+                label: '${entry.name} 다시 시도',
+                disabled: disabled,
+                shrink: true,
+                onTap: onRetry ?? () {},
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: PSpacing.x1,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(
+                        LucideIcons.rotateCw,
+                        size: _actionIcon,
+                        color: image ? c.staticWhite : c.fgNeutralSubtle,
+                      ),
+                    ),
+                    ExcludeSemantics(
+                      child: Text(
+                        '다시 시도',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: PTypography.t2.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: image ? c.staticWhite : c.fgNeutralSubtle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        // × — 가운데가 오른쪽 위 모서리에서 안쪽 6. 누르는 44 는 보이는 원 둘레로 12 씩
+        Positioned(
+          top: _touchBleed + _maskOffset - _removeTouch / 2,
+          left: width - _maskOffset - _removeTouch / 2,
+          child: _RemoveButton(
+            key: const ValueKey('attachment-remove'),
+            focusNode: removeNode,
+            label: '${entry.name} 지우기',
+            blocked: readOnly,
+            disabled: disabled,
+            onTap: onRemove,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -9,21 +9,21 @@ import 'package:porest_desk_app/shared/ds/catalog/ds_catalog_screen.dart';
 import 'package:porest_desk_app/shared/ds/catalog/ds_registry.dart';
 
 void main() {
-  testWidgets('앱 카탈로그는 55개를 싣고 라이트 · 다크 판을 그린다', (tester) async {
+  testWidgets('앱 카탈로그는 57개를 싣고 라이트 · 다크 판을 그린다', (tester) async {
     await tester.pumpWidget(
       MaterialApp(theme: PorestTheme.light(), home: const DsCatalogScreen()),
     );
 
     final entries = dsFamilies.expand((f) => f.entries).toList();
-    // 웹에서 Dialog · Menu · Popover(1280 이상 전용)와 Table · Table Pagination · Pagination · Side Navigation(768 이상 전용)을 뺀 47개 + 입력 묶음 4개 + 펼치고 접기 · 나누기 묶음 4개(Tree View · Resizable 은 HR 전용) = 55개
-    expect(entries, hasLength(55));
+    // 웹에서 Dialog · Menu · Popover(1280 이상 전용)와 Table · Table Pagination · Pagination · Side Navigation(768 이상 전용)을 뺀 47개 + 입력 묶음 6개 + 펼치고 접기 · 나누기 묶음 4개(Tree View · Resizable 은 HR 전용) = 57개
+    expect(entries, hasLength(57));
     expect(
       entries.map((e) => e.spec),
       isNot(anyOf(contains('dialog'), contains('menu'), contains('popover'))),
     );
 
     final built = entries.where((e) => e.demo != null).length;
-    expect(find.textContaining('확정 스펙 55개 중 $built개'), findsOneWidget);
+    expect(find.textContaining('확정 스펙 57개 중 $built개'), findsOneWidget);
     expect(find.textContaining(PDesignSource.sha256), findsOneWidget);
     // 역할 색 판 — 라이트 · 다크 하나씩
     expect(find.text('라이트'), findsWidgets);
