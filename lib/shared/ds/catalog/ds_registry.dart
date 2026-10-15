@@ -18,6 +18,7 @@ import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.d
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
+import 'package:porest_desk_app/shared/ds/segmented_control/segmented_control_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
@@ -97,7 +98,7 @@ const List<DsFamily> dsFamilies = [
   DsFamily('chips-tabs', '7 칩 · 탭', [
     DsEntry('Chip', 'chip'),
     DsEntry('Tabs', 'tabs'),
-    DsEntry('Segmented Control', 'segmented-control'),
+    DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
   ]),
   DsFamily('overlays', '8 겹침', [
     DsEntry('Alert Dialog', 'alert-dialog'),
@@ -151,6 +152,7 @@ Widget _callout(BuildContext context) => const CalloutDemo();
 Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
+Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
