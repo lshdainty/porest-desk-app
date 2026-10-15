@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
@@ -119,7 +120,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Result Section', 'result-section', demo: _resultSection),
   ]),
   DsFamily('image', '12 이미지', [
-    DsEntry('Aspect Ratio', 'aspect-ratio'),
+    DsEntry('Aspect Ratio', 'aspect-ratio', demo: _aspectRatio),
     DsEntry('Image Frame', 'image-frame'),
     DsEntry('Logo Tile', 'logo-tile'),
   ]),
@@ -149,6 +150,7 @@ Widget _snackbar(BuildContext context) => const SnackbarDemo();
 Widget _callout(BuildContext context) => const CalloutDemo();
 Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
+Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
