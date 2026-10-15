@@ -9,6 +9,7 @@ import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
+import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
@@ -31,8 +32,10 @@ import 'package:porest_desk_app/shared/ds/select_box/select_box_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
+import 'package:porest_desk_app/shared/ds/tabs/tabs_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
 import 'package:porest_desk_app/shared/ds/tooltip/tooltip_demo.dart';
 import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 
@@ -42,7 +45,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 39개다 — Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
+/// 앱은 41개다 — Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
 /// Menu Sheet 가 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -108,9 +111,10 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Select Box', 'select-box', demo: _selectBox),
   ]),
   DsFamily('chips-tabs', '7 칩 · 탭', [
-    DsEntry('Chip', 'chip'),
-    DsEntry('Tabs', 'tabs'),
+    DsEntry('Chip', 'chip', demo: _chip),
+    DsEntry('Tabs', 'tabs', demo: _tabs),
     DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
+    DsEntry('Toggle', 'toggle', demo: _toggle),
   ]),
   DsFamily('overlays', '8 겹침', [
     DsEntry('Alert Dialog', 'alert-dialog', demo: _alertDialog),
@@ -168,7 +172,10 @@ Widget _callout(BuildContext context) => const CalloutDemo();
 Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
+Widget _chip(BuildContext context) => const ChipDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
+Widget _tabs(BuildContext context) => const TabsDemo();
+Widget _toggle(BuildContext context) => const ToggleDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
 Widget _select(BuildContext context) => const SelectDemo();
