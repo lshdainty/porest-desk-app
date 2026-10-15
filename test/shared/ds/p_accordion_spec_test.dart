@@ -278,8 +278,9 @@ void main() {
             final wantTurns = '${want['chevron.rotate']}' == '180deg'
                 ? 0.5
                 : 0.0;
-            if (turns != wantTurns)
+            if (turns != wantTurns) {
               failures.add('$where — 꺾쇠 회전: 스펙 $wantTurns · 실제 $turns');
+            }
             _near(
               failures,
               '$where — 꺾쇠 오른쪽 여백',
@@ -292,8 +293,12 @@ void main() {
                         .widget<DecoratedBox>(_key('pdisc-background').first)
                         .decoration
                     as BoxDecoration;
-            if (!sameColor(specColor(want['background.background']), bg.color!))
+            if (!sameColor(
+              specColor(want['background.background']),
+              bg.color!,
+            )) {
               failures.add('$where — 바탕 색');
+            }
           } else {
             expect(
               find.byKey(const ValueKey('pdisc-chevron')),
@@ -396,8 +401,9 @@ void main() {
             if (!sameColor(
               specColor(pickMode(want['divider.background'], mode)),
               fill,
-            ))
+            )) {
               failures.add('$where — 선 색');
+            }
             expect(_key('paccordion-item-face'), findsNothing, reason: where);
           } else {
             expect(_keyed('paccordion-divider'), findsNothing, reason: where);
@@ -416,8 +422,9 @@ void main() {
             if (!sameColor(
               specColor(pickMode(want['item.borderColor'], mode)),
               border.top.color,
-            ))
+            )) {
               failures.add('$where — 항목 테두리 색');
+            }
             _near(
               failures,
               '$where — item.radius',
@@ -508,8 +515,9 @@ void main() {
         final scale = tester
             .widget<AnimatedScale>(_key('pdisc-content').first)
             .scale;
-        if ((scale - (basis - 2) / basis).abs() > 1e-6)
+        if ((scale - (basis - 2) / basis).abs() > 1e-6) {
           failures.add('$where — 축소: 스펙 ${(basis - 2) / basis} · 실제 $scale');
+        }
         await gesture.up();
         await tester.pumpAndSettle();
       }
@@ -550,8 +558,9 @@ void main() {
             if (!sameColor(
               specColor(pickMode(want['$k.foreground'], mode)),
               style.color!,
-            ))
+            )) {
               failures.add('$where — $k 색');
+            }
           }
           final icon = tester.widget<Icon>(
             find.descendant(
@@ -562,8 +571,9 @@ void main() {
           if (!sameColor(
             specColor(pickMode(want['chevron.color'], mode)),
             icon.color!,
-          ))
+          )) {
             failures.add('$where — 꺾쇠 색');
+          }
           final prefix = tester.widget<Icon>(
             find.descendant(
               of: _key('pdisc-prefix').first,
@@ -573,8 +583,9 @@ void main() {
           if (!sameColor(
             specColor(pickMode(want['prefixIcon.color'], mode)),
             prefix.color!,
-          ))
+          )) {
             failures.add('$where — 앞 아이콘 색');
+          }
           // 흐리게 하지 않는다 — 불투명도 층이 없다
           expect(
             find.descendant(

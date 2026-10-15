@@ -5,7 +5,6 @@ import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
@@ -183,8 +182,9 @@ void main() {
         if (!sameColor(
           specColor(pickMode(want['chevron.color'], mode)),
           icon.color!,
-        ))
+        )) {
           failures.add('$where — 꺾쇠 색');
+        }
         _near(
           failures,
           '$where — 꺾쇠 오른쪽 여백',
@@ -192,13 +192,15 @@ void main() {
           trigger.right - tester.getRect(chevron).right,
         );
         final turns = tester.widget<AnimatedRotation>(chevron).turns;
-        if (turns != ('${want['chevron.rotate']}' == '180deg' ? 0.5 : 0.0))
+        if (turns != ('${want['chevron.rotate']}' == '180deg' ? 0.5 : 0.0)) {
           failures.add('$where — 꺾쇠 회전 $turns');
+        }
         final bg =
             tester.widget<DecoratedBox>(_key('pdisc-background')).decoration
                 as BoxDecoration;
-        if (!sameColor(specColor(want['background.background']), bg.color!))
+        if (!sameColor(specColor(want['background.background']), bg.color!)) {
           failures.add('$where — 바탕 색');
+        }
 
         // 펼친 내용 — 좌우는 트리거와 같고 아래는 글 16 · 줄 8 · 카드 24
         final panel = _key('pcollapsible-panel');
@@ -246,8 +248,9 @@ void main() {
           if (!sameColor(
             specColor(pickMode(want['root.background'], mode)),
             deco.color!,
-          ))
+          )) {
             failures.add('$where — 카드 바탕');
+          }
           final border = deco.border! as Border;
           _near(
             failures,
@@ -258,8 +261,9 @@ void main() {
           if (!sameColor(
             specColor(pickMode(want['root.borderColor'], mode)),
             border.top.color,
-          ))
+          )) {
             failures.add('$where — 카드 테두리 색');
+          }
           _near(
             failures,
             '$where — root.radius',
@@ -285,8 +289,9 @@ void main() {
           if (!sameColor(
             specColor(pickMode(want['divider.background'], mode)),
             fill,
-          ))
+          )) {
             failures.add('$where — 선 색');
+          }
           // 트리거 위 — 상자 폭 끝까지
           _near(
             failures,
@@ -355,8 +360,9 @@ void main() {
           24.0,
         ].reduce((a, b) => a > b ? a : b);
         final scale = tester.widget<AnimatedScale>(_key('pdisc-content')).scale;
-        if ((scale - (basis - 2) / basis).abs() > 1e-6)
+        if ((scale - (basis - 2) / basis).abs() > 1e-6) {
           failures.add('$where — 축소 $scale');
+        }
         await g.up();
         await tester.pumpAndSettle();
       }
@@ -393,8 +399,9 @@ void main() {
             if (!sameColor(
               specColor(pickMode(want['$k.foreground'], mode)),
               style.color!,
-            ))
+            )) {
               failures.add('$where — $k 색');
+            }
           }
           final icon = tester.widget<Icon>(
             find.descendant(
@@ -405,8 +412,9 @@ void main() {
           if (!sameColor(
             specColor(pickMode(want['chevron.color'], mode)),
             icon.color!,
-          ))
+          )) {
             failures.add('$where — 꺾쇠 색');
+          }
           expect(
             find.descendant(
               of: _key('pdisc-trigger'),

@@ -3,9 +3,7 @@
 // 키보드 포커스 링 · tabindex 는 웹 전용이라 건너뛴다(앱은 상자가 이름을 받는다).
 import 'dart:ui' show Tristate;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
