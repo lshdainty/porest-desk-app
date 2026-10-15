@@ -15,9 +15,11 @@ import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
+import 'package:porest_desk_app/shared/ds/image_frame/image_frame_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
 import 'package:porest_desk_app/shared/ds/list/list_demo.dart';
+import 'package:porest_desk_app/shared/ds/logo_tile/logo_tile_demo.dart';
 import 'package:porest_desk_app/shared/ds/menu_sheet/menu_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
@@ -140,8 +142,8 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('image', '12 이미지', [
     DsEntry('Aspect Ratio', 'aspect-ratio', demo: _aspectRatio),
-    DsEntry('Image Frame', 'image-frame'),
-    DsEntry('Logo Tile', 'logo-tile'),
+    DsEntry('Image Frame', 'image-frame', demo: _imageFrame),
+    DsEntry('Logo Tile', 'logo-tile', demo: _logoTile),
   ]),
   DsFamily('list', '13 목록', [DsEntry('List', 'list', demo: _list)]),
 ];
@@ -174,6 +176,8 @@ Widget _callout(BuildContext context) => const CalloutDemo();
 Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
+Widget _imageFrame(BuildContext context) => const ImageFrameDemo();
+Widget _logoTile(BuildContext context) => const LogoTileDemo();
 Widget _chip(BuildContext context) => const ChipDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 Widget _tabs(BuildContext context) => const TabsDemo();
