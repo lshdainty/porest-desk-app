@@ -11,6 +11,7 @@ import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
+import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
@@ -35,6 +36,7 @@ import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tabs/tabs_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:porest_desk_app/shared/ds/time_picker/time_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
 import 'package:porest_desk_app/shared/ds/tooltip/tooltip_demo.dart';
 import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
@@ -127,8 +129,8 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('date-time', '10 날짜 · 시각', [
     DsEntry('Wheel Picker', 'wheel-picker', demo: _wheelPicker),
-    DsEntry('Time Picker', 'time-picker'),
-    DsEntry('Date Picker', 'date-picker'),
+    DsEntry('Time Picker', 'time-picker', demo: _timePicker),
+    DsEntry('Date Picker', 'date-picker', demo: _datePicker),
   ]),
   DsFamily('feedback', '11 피드백', [
     DsEntry('Snackbar', 'snackbar', demo: _snackbar),
@@ -178,6 +180,8 @@ Widget _tabs(BuildContext context) => const TabsDemo();
 Widget _toggle(BuildContext context) => const ToggleDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
+Widget _timePicker(BuildContext context) => const TimePickerDemo();
+Widget _datePicker(BuildContext context) => const DatePickerDemo();
 Widget _select(BuildContext context) => const SelectDemo();
 Widget _selectBox(BuildContext context) => const SelectBoxDemo();
 Widget _list(BuildContext context) => const ListDemo();
