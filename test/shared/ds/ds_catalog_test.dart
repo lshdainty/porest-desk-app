@@ -9,21 +9,21 @@ import 'package:porest_desk_app/shared/ds/catalog/ds_catalog_screen.dart';
 import 'package:porest_desk_app/shared/ds/catalog/ds_registry.dart';
 
 void main() {
-  testWidgets('앱 카탈로그는 39개를 싣고 라이트 · 다크 판을 그린다', (tester) async {
+  testWidgets('앱 카탈로그는 40개를 싣고 라이트 · 다크 판을 그린다', (tester) async {
     await tester.pumpWidget(
       MaterialApp(theme: PorestTheme.light(), home: const DsCatalogScreen()),
     );
 
     final entries = dsFamilies.expand((f) => f.entries).toList();
-    // 웹 42개 중 Dialog · Menu · Popover(1280 이상 전용)를 뺀 39개
-    expect(entries, hasLength(39));
+    // 웹 43개 중 Dialog · Menu · Popover(1280 이상 전용)를 뺀 40개
+    expect(entries, hasLength(40));
     expect(
       entries.map((e) => e.spec),
       isNot(anyOf(contains('dialog'), contains('menu'), contains('popover'))),
     );
 
     final built = entries.where((e) => e.demo != null).length;
-    expect(find.textContaining('확정 스펙 39개 중 $built개'), findsOneWidget);
+    expect(find.textContaining('확정 스펙 40개 중 $built개'), findsOneWidget);
     expect(find.textContaining(PDesignSource.sha256), findsOneWidget);
     // 역할 색 판 — 라이트 · 다크 하나씩
     expect(find.text('라이트'), findsWidgets);
