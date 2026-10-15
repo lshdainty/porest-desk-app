@@ -34,6 +34,7 @@ import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
 import 'package:porest_desk_app/shared/ds/tooltip/tooltip_demo.dart';
 import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 
@@ -43,7 +44,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 39개다 — Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
+/// 앱은 41개다 — Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
 /// Menu Sheet 가 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -112,6 +113,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Chip', 'chip', demo: _chip),
     DsEntry('Tabs', 'tabs'),
     DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
+    DsEntry('Toggle', 'toggle', demo: _toggle),
   ]),
   DsFamily('overlays', '8 겹침', [
     DsEntry('Alert Dialog', 'alert-dialog', demo: _alertDialog),
@@ -171,6 +173,7 @@ Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 Widget _chip(BuildContext context) => const ChipDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
+Widget _toggle(BuildContext context) => const ToggleDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
 Widget _select(BuildContext context) => const SelectDemo();
