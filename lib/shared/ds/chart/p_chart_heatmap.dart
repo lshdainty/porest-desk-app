@@ -81,9 +81,96 @@ class PHeatmap extends StatefulWidget {
 class _PHeatmapState extends State<PHeatmap> {
   ({int row, int col})? _active;
 
+  // 툴팁은 Overlay 에 띄운다 — 위로 뜰지 아래로 뒤집을지를 차트 상자가 아니라 화면 기준으로 정한다(chart.yaml
+  // heatmap tooltip placement 칸 위 · offset 8 · viewportMargin 8 — Q-012-6). 칸 위 자리는 눌렀을 때 화면 좌표로 적어 둔다.
+  final GlobalKey _stackKey = GlobalKey();
+  OverlayEntry? _entry;
+  Offset _anchorGlobal = Offset.zero;
+  double _max = 0;
+  ScrollPosition? _scroll;
+
+  void _open(int row, int col, Offset anchorLocal) {
+    final box = _stackKey.currentContext?.findRenderObject();
+    if (box is RenderBox && box.attached) {
+      _anchorGlobal = box.localToGlobal(anchorLocal);
+    }
+    setState(() => _active = (row: row, col: col));
+    if (_entry == null) {
+      final overlay = Overlay.of(context);
+      _entry = OverlayEntry(builder: _buildTip);
+      overlay.insert(_entry!);
+      // 화면이 밀리면 띄운 자리가 어긋난다 — 닫는다
+      _scroll = Scrollable.maybeOf(context)?.position?..addListener(_close);
+    } else {
+      _entry!.markNeedsBuild();
+    }
+  }
+
   void _close() {
-    if (_active == null) return;
+    _removeEntry();
+    if (_active == null || !mounted) return;
     setState(() => _active = null);
+  }
+
+  void _removeEntry() {
+    _scroll?.removeListener(_close);
+    _scroll = null;
+    _entry?.remove();
+    _entry?.dispose();
+    _entry = null;
+  }
+
+  @override
+  void didUpdateWidget(PHeatmap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 값이 바뀌면 떠 있는 툴팁도 다시 만든다(빌드 중에는 건드릴 수 없다)
+    if (_entry != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _entry?.markNeedsBuild(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _removeEntry();
+    super.dispose();
+  }
+
+  Widget _buildTip(BuildContext overlayContext) {
+    final active = _active;
+    if (!mounted || active == null) return const SizedBox.shrink();
+    if (active.row >= widget.rows.length ||
+        active.col >= widget.columns.length) {
+      return const SizedBox.shrink();
+    }
+    final overlayBox = Overlay.of(context).context.findRenderObject();
+    final anchor = overlayBox is RenderBox && overlayBox.attached
+        ? overlayBox.globalToLocal(_anchorGlobal)
+        : _anchorGlobal;
+    final c = context.colors;
+    final fmt = widget.formatValue ?? formatWon;
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: DefaultTextStyle(
+          style: const TextStyle(decoration: TextDecoration.none),
+          child: CustomSingleChildLayout(
+            delegate: PChartTipLayout(
+              anchor: anchor,
+              side: PChartTipSide.above,
+            ),
+            child: _tip(
+              c,
+              fmt,
+              widget.rows[active.row],
+              widget.columns[active.col],
+              _max,
+              active,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   double? _value(int r, int c) {
@@ -102,6 +189,7 @@ class _PHeatmapState extends State<PHeatmap> {
         if (v != null && v > 0) max = math.max(max, v);
       }
     }
+    _max = max;
     final texts = heatTextColors(c);
     final cols = widget.columns.length;
     final hasSub = widget.rows.any((r) => r.sub != null);
@@ -123,17 +211,10 @@ class _PHeatmapState extends State<PHeatmap> {
           double cellLeft(int col) =>
               kHeatLabelColumn + kHeatGap + col * (cell + kHeatGap);
           double cellTop(int row) => headH + kHeatGap + row * (rowH + kHeatGap);
-          final active = _active;
-          final activeRow = active == null || active.row >= widget.rows.length
-              ? null
-              : widget.rows[active.row];
-          final activeCol = active == null || active.col >= cols
-              ? null
-              : widget.columns[active.col];
-
           return TapRegion(
             onTapOutside: (_) => _close(),
             child: Stack(
+              key: _stackKey,
               clipBehavior: Clip.none,
               children: [
                 Column(
@@ -212,8 +293,10 @@ class _PHeatmapState extends State<PHeatmap> {
                                     : null,
                                 colors: c,
                                 textColors: texts,
-                                onTap: () => setState(
-                                  () => _active = (row: r, col: col),
+                                onTap: () => _open(
+                                  r,
+                                  col,
+                                  Offset(cellLeft(col) + cell / 2, cellTop(r)),
                                 ),
                               ),
                               if (col < cols - 1)
@@ -224,15 +307,6 @@ class _PHeatmapState extends State<PHeatmap> {
                       ),
                   ],
                 ),
-                if (active != null && activeRow != null && activeCol != null)
-                  PChartTipLayer(
-                    anchor: Offset(
-                      cellLeft(active.col) + cell / 2,
-                      cellTop(active.row),
-                    ),
-                    side: PChartTipSide.above,
-                    child: _tip(c, fmt, activeRow, activeCol, max, active),
-                  ),
               ],
             ),
           );

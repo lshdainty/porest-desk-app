@@ -145,6 +145,20 @@ void main() {
   });
 
   group('값 · 숫자', () {
+    test(
+      '도넛 두께 — 지름 ÷ 10 + 6 을 정수로(Q-012-5): 160 → 22 · 120 → 18 · 112 → 17 · 176 → 24 · 180 → 24',
+      () {
+        for (final (d, t) in [
+          (160.0, 22.0),
+          (120.0, 18.0),
+          (112.0, 17.0),
+          (176.0, 24.0),
+          (180.0, 24.0),
+        ]) {
+          expect(chartDonutThickness(d), t, reason: '지름 $d');
+        }
+      },
+    );
     test('formatWon — 돈은 줄이지 않고 원까지, 빼기는 U+2212', () {
       expect(formatWon(0), '0원');
       expect(formatWon(1240000), '1,240,000원');
@@ -797,7 +811,14 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
       final pie = tester.widget<PieChart>(find.byType(PieChart)).data;
-      expect(pie.sections.first.radius, want['series.thickness']);
+      // 두께는 지름 ÷ 10 + 6(정수) — 지름 160 에서 22(스펙 값이 문장이라 비율 · 더함 두 값으로 잰다)
+      expect(
+        pie.sections.first.radius,
+        ((want['series.diameter'] as num) *
+                    (want['series.thicknessPerDiameter'] as num) +
+                (want['series.thicknessOffset'] as num))
+            .round(),
+      );
       expect(pie.sectionsSpace, 0);
       expect(pie.startDegreeOffset, -90, reason: '12시에서 시계 방향');
       expect(pie.centerSpaceRadius, 80 - 22);
@@ -1400,6 +1421,56 @@ void main() {
       await tester.pump();
       expect(find.byKey(const ValueKey('chart-tooltip')), findsNothing);
     });
+
+    testWidgets(
+      '열지도 툴팁은 화면 기준으로 뒤집힌다 — 차트 위에 화면 자리가 있으면 첫 줄도 위, 화면 맨 위면 아래(Q-012-6)',
+      (tester) async {
+        _viewport(tester);
+        Widget heat({double above = 0}) => _host(
+          Brightness.light,
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: above),
+                const PHeatmap(
+                  label: '요일 · 시간대별 지출',
+                  rows: [PHeatmapRow(key: 'r0', label: '새벽', sub: '0~6시')],
+                  columns: [
+                    PHeatmapColumn(key: 'a', label: '수'),
+                    PHeatmapColumn(key: 'b', label: '목'),
+                  ],
+                  values: [
+                    [35000, 340000],
+                  ],
+                ),
+              ],
+            ),
+          ),
+          width: 330,
+        );
+        final cellFinder = find.byKey(const ValueKey('chart-heatmap-cell-0-0'));
+        final tipFinder = find.byKey(const ValueKey('chart-tooltip'));
+        // 차트 위에 화면 자리가 120 — 첫 줄이어도 칸 위에 뜬다
+        await tester.pumpWidget(heat(above: 120));
+        await tester.tap(cellFinder);
+        await tester.pump();
+        var tip = tester.getRect(tipFinder);
+        var cell = tester.getRect(cellFinder);
+        expect(tip.bottom, cell.top - 8, reason: '칸 위 8');
+        expect(tip.top, greaterThanOrEqualTo(8), reason: '화면 가장자리 8');
+        await tester.tapAt(const Offset(1, 1));
+        await tester.pump();
+        expect(tipFinder, findsNothing);
+        // 화면 맨 위 — 위에 8 이 안 남아 아래로 뒤집힌다
+        await tester.pumpWidget(heat());
+        await tester.tap(cellFinder);
+        await tester.pump();
+        tip = tester.getRect(tipFinder);
+        cell = tester.getRect(cellFinder);
+        expect(tip.top, greaterThan(cell.top), reason: '아래로 뒤집힘');
+        expect(tip.top, cell.top + 8);
+      },
+    );
 
     testWidgets('값 없는 열지도 칸의 툴팁은 "없음"', (tester) async {
       await tester.pumpWidget(

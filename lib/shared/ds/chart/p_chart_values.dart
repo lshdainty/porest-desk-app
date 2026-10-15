@@ -217,8 +217,10 @@ PChartAxis niceChartAxis(double lo, double hi, {int intervals = 4}) {
 
 // ── 도넛 ─────────────────────────────────────────────────────
 
-/// 도넛 두께 — 지름 160 에서 22, 폰 120 에서 18. 160 미만은 18 이다(조각 사이는 0).
-double chartDonutThickness(double diameter) => diameter >= 160 ? 22 : 18;
+/// 도넛 두께 — 지름 ÷ 10 + 6 을 정수로 반올림한다(chart.yaml series.thicknessPerDiameter 0.1 · thicknessOffset 6px — Q-012-5).
+/// 160 → 22 · 120 → 18 · 대시보드 112 → 17 · 통계 176 → 24 · 자산 180 → 24.
+double chartDonutThickness(double diameter) =>
+    (diameter * 0.1 + 6).round().toDouble();
 
 /// 가운데 글 묶음의 모서리와 구멍 가장자리 사이 — 조각에 붙지 않게.
 const double kChartHoleInset = PSpacing.x1;
