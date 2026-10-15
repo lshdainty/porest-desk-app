@@ -5,6 +5,7 @@ import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
 import 'package:porest_desk_app/shared/ds/alert_dialog/alert_dialog_demo.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
+import 'package:porest_desk_app/shared/ds/bottom_navigation/bottom_navigation_demo.dart';
 import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
@@ -17,6 +18,7 @@ import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
+import 'package:porest_desk_app/shared/ds/floating_action_button/floating_action_button_demo.dart';
 import 'package:porest_desk_app/shared/ds/image_frame/image_frame_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
@@ -43,6 +45,7 @@ import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
 import 'package:porest_desk_app/shared/ds/time_picker/time_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
+import 'package:porest_desk_app/shared/ds/top_navigation/top_navigation_demo.dart';
 import 'package:porest_desk_app/shared/ds/tooltip/tooltip_demo.dart';
 import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 
@@ -52,7 +55,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 44개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination 은 1280 · 768 이상 전용이라 앱에서는
+/// 앱은 47개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
 /// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -155,6 +158,16 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Chart', 'chart', demo: _chart),
     DsEntry('Swipe Actions', 'swipe-actions', demo: _swipeActions),
   ]),
+  // Side Navigation 은 768 이상 전용이라 폰은 Bottom Navigation 이 맡는다(HR 의 Side Panel 은 HR 전용)
+  DsFamily('frame-nav', '15 화면 틀 · 이동', [
+    DsEntry('Top Navigation', 'top-navigation', demo: _topNavigation),
+    DsEntry('Bottom Navigation', 'bottom-navigation', demo: _bottomNavigation),
+    DsEntry(
+      'Floating Action Button',
+      'floating-action-button',
+      demo: _floatingActionButton,
+    ),
+  ]),
 ];
 
 Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
@@ -201,6 +214,10 @@ Widget _list(BuildContext context) => const ListDemo();
 Widget _card(BuildContext context) => const CardDemo();
 Widget _chart(BuildContext context) => const ChartDemo();
 Widget _swipeActions(BuildContext context) => const SwipeActionsDemo();
+Widget _topNavigation(BuildContext context) => const TopNavigationDemo();
+Widget _bottomNavigation(BuildContext context) => const BottomNavigationDemo();
+Widget _floatingActionButton(BuildContext context) =>
+    const FloatingActionButtonDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 
