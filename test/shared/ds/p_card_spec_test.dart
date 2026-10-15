@@ -732,6 +732,7 @@ void main() {
                         key: ValueKey('star'),
                         width: 40,
                         height: 40,
+                        child: ColoredBox(color: Color(0x00000000)),
                       ),
                     ),
                   ),
@@ -749,6 +750,113 @@ void main() {
       expect((card, star), (1, 1));
       handle.dispose();
     });
+
+    testWidgets(
+      'peers — 안의 버튼을 누르는 동안 카드 면은 바뀌지 않고, 카드 링크 자리를 누르면 면 색만 바뀐다(Q-011-9)',
+      (tester) async {
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PCard(
+              press: PCardPress.peers,
+              onTap: () {},
+              semanticLabel: '장보기 메모',
+              children: [
+                Row(
+                  children: [
+                    const Expanded(child: Text('장보기 메모')),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {},
+                      child: const SizedBox(
+                        key: ValueKey('star'),
+                        width: 40,
+                        height: 40,
+                        child: ColoredBox(color: Color(0x00000000)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+        Color? face() =>
+            ((tester
+                        .widget<Container>(
+                          find.descendant(
+                            of: find.byKey(const ValueKey('card-surface')),
+                            matching: find.byType(Container),
+                          ),
+                        )
+                        .decoration)
+                    as BoxDecoration)
+                .color;
+        final rest = face();
+        // 안의 버튼 위에 오래 댄다 — 카드 면은 그대로
+        final onButton = await tester.startGesture(
+          tester.getCenter(find.byKey(const ValueKey('star'))),
+        );
+        await tester.pump(const Duration(milliseconds: 150));
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(face(), rest);
+        await onButton.cancel();
+        await tester.pump(const Duration(milliseconds: 300));
+        // 카드 링크 자리(글 · 빈 곳) — 면 색이 바뀐다(축소는 없다)
+        final onLink = await tester.startGesture(
+          tester.getCenter(find.text('장보기 메모')),
+        );
+        await tester.pump(const Duration(milliseconds: 150));
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(face(), isNot(rest));
+        expect(
+          tester
+              .widget<Container>(
+                find.descendant(
+                  of: find.byKey(const ValueKey('card-surface')),
+                  matching: find.byType(Container),
+                ),
+              )
+              .decoration,
+          isNotNull,
+        );
+        await onLink.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      '머리 동작의 누르는 영역은 44 — 보이는 상자(32) 위아래 6 에서도 눌린다, 7 에서는 눌리지 않는다(Q-011-8)',
+      (tester) async {
+        var taps = 0;
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PCard(
+              children: [
+                PCardHeader(
+                  title: '예산',
+                  actionLabel: '관리',
+                  onAction: () => taps++,
+                ),
+                const PCardContent(children: [SizedBox(height: 40)]),
+              ],
+            ),
+          ),
+        );
+        final box = tester.getRect(
+          find.byKey(const ValueKey('card-action-box')),
+        );
+        expect(box.height, 32, reason: '보이는 상자는 그대로');
+        final x = box.center.dx;
+        await tester.tapAt(Offset(x, box.top - 5.5));
+        await tester.tapAt(Offset(x, box.bottom + 5.5));
+        expect(taps, 2, reason: '위 · 아래 6 안');
+        await tester.tapAt(Offset(x, box.top - 7));
+        await tester.tapAt(Offset(x, box.bottom + 7));
+        expect(taps, 2, reason: '44 밖');
+      },
+    );
 
     testWidgets('순자산은 body 를 list 로 줘도 글 카드 여백 24 이다', (tester) async {
       await tester.pumpWidget(
