@@ -9,6 +9,7 @@ import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
+import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
@@ -108,7 +109,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Select Box', 'select-box', demo: _selectBox),
   ]),
   DsFamily('chips-tabs', '7 칩 · 탭', [
-    DsEntry('Chip', 'chip'),
+    DsEntry('Chip', 'chip', demo: _chip),
     DsEntry('Tabs', 'tabs'),
     DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
   ]),
@@ -168,6 +169,7 @@ Widget _callout(BuildContext context) => const CalloutDemo();
 Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
+Widget _chip(BuildContext context) => const ChipDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
