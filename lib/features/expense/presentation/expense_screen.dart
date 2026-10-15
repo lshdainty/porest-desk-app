@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -37,7 +38,6 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/transfer_ro
 import 'package:groo_damda_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
@@ -727,7 +727,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     PSpace.x24,
                     0,
                     PSpace.x24,
-                    pTabBarBottomInset(context),
+                    bottomNavigationInset(context),
                   ),
                   children: listChildren,
                 ),

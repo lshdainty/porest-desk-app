@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +25,6 @@ import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
@@ -108,7 +108,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Expanded(
             child: Padding(
               // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
+              padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
               child: _CalendarGridSkeleton(tokens: t),
             ),
           )
@@ -116,7 +116,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Expanded(
             child: Padding(
               // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
+              padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
               child: TableCalendar<CalendarEvent>(
                 firstDay: DateTime(2020),
                 lastDay: DateTime(2030),
@@ -1081,7 +1081,7 @@ class _DayEventsSheetBody extends StatelessWidget {
         PSpace.xl,
         PSpace.x24,
         PSpace.xl,
-        pTabBarBottomInset(context),
+        bottomNavigationInset(context),
       ),
       children: [
         Row(

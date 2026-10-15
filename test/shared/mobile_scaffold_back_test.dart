@@ -144,11 +144,6 @@ void main() {
       (_) {},
     );
     await tester.pumpAndSettle();
-    // 탭바 모드 전환(가계부 ↔ 기본)은 Future.delayed 스태거로 그린다. 프레임을
-    // 예약하지 않아 pumpAndSettle 이 그냥 지나치고, 남겨 두면 테스트가
-    // "A Timer is still pending" 으로 깨진다 — 여기서 흘려보낸다(130+420+슬롯).
-    await tester.pump(const Duration(milliseconds: 800));
-    await tester.pumpAndSettle();
   }
 
   bool appExited() =>

@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -34,7 +35,6 @@ import 'package:groo_damda_app/features/stats/domain/fixed_split.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/stats/presentation/fixed_variable_tab.dart';
 import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 통계·분석 화면 (front `StatsPage` 미러).
 ///
@@ -487,7 +487,7 @@ class _CategoryTab extends ConsumerWidget {
           PSpace.x16,
           PSpace.x24,
           // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+          bottomNavigationInset(context),
         ),
         children: [
           _DonutCard(
@@ -548,7 +548,7 @@ class _TrendTab extends ConsumerWidget {
           PSpace.x16,
           PSpace.x24,
           // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+          bottomNavigationInset(context),
         ),
         children: [
           _TrendBigCard(
@@ -612,7 +612,7 @@ class _CompareTab extends ConsumerWidget {
           PSpace.x16,
           PSpace.x24,
           // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+          bottomNavigationInset(context),
         ),
         children: [
           _CompareSummaryGrid(

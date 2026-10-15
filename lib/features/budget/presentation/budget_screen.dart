@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,6 @@ import 'package:groo_damda_app/features/budget/application/budget_providers.dart
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 const double _warnThreshold = 85;
 
@@ -91,7 +91,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             PSpace.x16,
             PSpace.x24,
             // 플로팅 탭바 보상
-            pTabBarBottomInset(context),
+            bottomNavigationInset(context),
           ),
           children: [
             _MonthBar(

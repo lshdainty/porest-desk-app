@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,6 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/sms/data/sms_android.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 class _NavItem {
   const _NavItem({
@@ -246,7 +246,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
               PSpace.x24,
               0,
               PSpace.x24,
-              pTabBarBottomInset(context),
+              bottomNavigationInset(context),
             ),
             children: [
               if (isSearching && visible.isEmpty)

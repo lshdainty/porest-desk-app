@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -29,7 +30,6 @@ import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.da
 import 'package:groo_damda_app/features/asset/presentation/widgets/net_worth_chart.dart';
 import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH'};
 const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
@@ -329,7 +329,7 @@ class _AssetBody extends StatelessWidget {
         PSpace.x16,
         PSpace.x24,
         // 플로팅 탭바 보상
-        pTabBarBottomInset(context),
+        bottomNavigationInset(context),
       ),
       children: [
         _SummaryCard(
@@ -1254,7 +1254,7 @@ class _AssetPageSkeleton extends StatelessWidget {
         PSpace.x24,
         PSpace.x16,
         PSpace.x24,
-        pTabBarBottomInset(context),
+        bottomNavigationInset(context),
       ),
       children: [
         const _AssetSummaryCardSkeleton(),
