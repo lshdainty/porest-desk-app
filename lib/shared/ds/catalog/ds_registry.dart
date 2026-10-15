@@ -15,6 +15,7 @@ import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.d
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
+import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
@@ -109,7 +110,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Date Picker', 'date-picker'),
   ]),
   DsFamily('feedback', '11 피드백', [
-    DsEntry('Snackbar', 'snackbar'),
+    DsEntry('Snackbar', 'snackbar', demo: _snackbar),
     DsEntry('Callout', 'callout'),
     DsEntry('Page Banner', 'page-banner'),
     DsEntry('Result Section', 'result-section'),
@@ -141,6 +142,7 @@ Widget _textarea(BuildContext context) => const TextareaDemo();
 Widget _checkbox(BuildContext context) => const CheckboxDemo();
 Widget _radio(BuildContext context) => const RadioDemo();
 Widget _switch(BuildContext context) => const SwitchDemo();
+Widget _snackbar(BuildContext context) => const SnackbarDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
