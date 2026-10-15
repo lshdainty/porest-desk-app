@@ -14,8 +14,8 @@ const _tabular = [FontFeature.tabularFigures()];
 /// 면 — standard(기본, 바닥 위 흰 면 + 1px 테두리) · hero(순자산 — 브랜드 채움 · 흰 글자, 한 화면에 하나).
 enum PCardVariant { standard, hero }
 
-/// 본문 — content(기본, 여백 24) · list(List 를 담는다 — 좌우 0, 카드 아래 12) · accordion(Accordion 을 담는다 —
-/// 좌우 0, 카드 아래 8. 앱에는 Accordion 이 아직 없어 여백 규칙만 둔다).
+/// 본문 — content(기본, 여백 24) · list(List 를 담는다 — 좌우 0, 카드 아래 12) · accordion([PAccordion] 을 담는다 —
+/// 좌우 0, 카드 아래 8).
 enum PCardBody { content, list, accordion }
 
 /// 누름 — none(기본, 보기만) · whole(카드 전체가 한 곳 — 누름 색 + 2px 축소) · peers(카드를 누르면 열리고 안에 대등한
@@ -47,9 +47,9 @@ double cardPressBasis(Size size) =>
     math.max(size.height, math.max(size.width / 4, 24));
 
 /// 누르는 영역을 보이는 크기와 따로 [minSize] 까지 넓힌다 — 놓인 자리(레이아웃)는 그대로다(Button 의 것과 같은 방법). 부모
-/// 상자 밖은 받을 수 없어 세로는 머리 줄 안에서만 넓어진다.
-class _TouchTarget extends SingleChildRenderObjectWidget {
-  const _TouchTarget({required this.minSize, required super.child});
+/// 상자 밖은 받을 수 없어 세로는 머리 줄 안에서만 넓어진다. Card 머리 동작 · Accordion 모두 펼치기가 같이 쓴다.
+class PTouchTarget extends SingleChildRenderObjectWidget {
+  const PTouchTarget({super.key, required this.minSize, required super.child});
 
   final double minSize;
 
@@ -60,9 +60,9 @@ class _TouchTarget extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderTouchTarget renderObject,
+    covariant RenderProxyBox renderObject,
   ) {
-    renderObject.minSize = minSize;
+    (renderObject as _RenderTouchTarget).minSize = minSize;
   }
 }
 
@@ -234,7 +234,7 @@ class _CardActionState extends State<_CardAction> {
         ],
       ),
     );
-    return _TouchTarget(
+    return PTouchTarget(
       minSize: PTouch.min,
       child: Semantics(
         container: true,
