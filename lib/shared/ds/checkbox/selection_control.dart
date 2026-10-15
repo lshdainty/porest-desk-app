@@ -17,10 +17,10 @@ typedef SelectionColors = ({Color background, Color border, Color foreground});
 /// [SelectionColors] 사이 — 미리 곱한 알파로 섞는다(CSS 전환과 같다). 투명에서 나타나는 색이 투명한 검정을 거쳐
 /// 어두워졌다 밝아지지 않는다(다크의 밝은 채움 · 흰 점).
 ///
-/// 목표 색([end])은 8비트로 맞춰 둔다. MaterialApp 은 ThemeData 가 바뀌면 200ms 동안 두 테마를 섞는데(AnimatedTheme),
-/// 값이 같은 테마를 새로 만들어도 섞는다(`PorestTheme.light()` 는 부를 때마다 다른 ThemeData 다). 섞인 역할 색에는
-/// 부동소수 찌꺼기가 끼어 목표가 프레임마다 "바뀌고", 전환이 매 프레임 처음부터 다시 시작돼 멈춰 보인다. 스펙 색은
-/// 모두 8비트라 맞춰도 값은 그대로다.
+/// 목표 색([end])은 8비트로 맞춰 둔다. MaterialApp 은 ThemeData 가 바뀌면 200ms 동안 두 테마를 섞는데(AnimatedTheme —
+/// 라이트 ↔ 다크를 바꿀 때), 섞인 역할 색에는 부동소수 찌꺼기가 끼어 목표가 프레임마다 "바뀌고" 전환이 매 프레임
+/// 처음부터 다시 시작돼 멈춰 보인다. 스펙 색은 모두 8비트라 맞춰도 값은 그대로다. (`PorestTheme.light()` 는 늘 같은
+/// 테마를 돌려주므로 같은 테마끼리 섞는 일은 없다.)
 class SelectionColorsTween extends Tween<SelectionColors> {
   SelectionColorsTween({SelectionColors? end})
     : super(

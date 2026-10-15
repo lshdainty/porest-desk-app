@@ -16,7 +16,15 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 /// porest-design 이 만든 역할 색 · 그림자 · 그라디언트([PColors] · [PShadows] · [PGradients], `porest_tokens.g.dart`)도 같이
 /// 얹는다 — 새 컴포넌트 라이브러리(`lib/shared/ds`)는 `context.colors.fgNeutral` 처럼 이것만 쓴다.
 abstract final class PorestTheme {
-  static ThemeData light() => _build(
+  /// 늘 같은 ThemeData 를 돌려준다(처음 부를 때 한 번 만든다). 부를 때마다 새로 만들면 값이 같아도 다른 테마로 보여,
+  /// MaterialApp 이 다시 그려질 때마다(설정 · 언어 바꿈 등) 같은 테마끼리 200ms 섞고(AnimatedTheme) 그동안 테마를
+  /// 읽는 위젯이 매 프레임 다시 그려진다 — 목표 색을 견주는 색 전환은 멈춘 듯 보였다. 테마를 고쳤으면 hot reload 가
+  /// 아니라 hot restart 로 본다.
+  static ThemeData light() => _light;
+
+  static ThemeData dark() => _dark;
+
+  static final ThemeData _light = _build(
     brightness: Brightness.light,
     tokens: PorestTokens.light,
     colors: PColors.light,
@@ -25,7 +33,7 @@ abstract final class PorestTheme {
     seed: PorestPalette.cobalt500,
   );
 
-  static ThemeData dark() => _build(
+  static final ThemeData _dark = _build(
     brightness: Brightness.dark,
     tokens: PorestTokens.dark,
     colors: PColors.dark,
