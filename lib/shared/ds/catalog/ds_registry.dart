@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/ds/floating_action_button/floating_action
 import 'package:porest_desk_app/shared/ds/image_frame/image_frame_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
+import 'package:porest_desk_app/shared/ds/input_otp/input_otp_demo.dart';
 import 'package:porest_desk_app/shared/ds/list/list_demo.dart';
 import 'package:porest_desk_app/shared/ds/logo_tile/logo_tile_demo.dart';
 import 'package:porest_desk_app/shared/ds/menu_sheet/menu_sheet_demo.dart';
@@ -171,7 +172,7 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('input', '16 입력', [
     DsEntry('Slider', 'slider', demo: _slider),
-    DsEntry('Input OTP', 'input-otp'),
+    DsEntry('Input OTP', 'input-otp', demo: _inputOtp),
     DsEntry('Color Swatch', 'color-swatch'),
     DsEntry('Icon Picker', 'icon-picker'),
   ]),
@@ -226,6 +227,7 @@ Widget _bottomNavigation(BuildContext context) => const BottomNavigationDemo();
 Widget _floatingActionButton(BuildContext context) =>
     const FloatingActionButtonDemo();
 Widget _slider(BuildContext context) => const SliderDemo();
+Widget _inputOtp(BuildContext context) => const InputOtpDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 

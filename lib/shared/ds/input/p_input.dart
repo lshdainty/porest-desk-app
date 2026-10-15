@@ -8,6 +8,8 @@ import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/ds/input/text_control.dart';
 
+const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
+
 /// 모양 — 상자(기본) · 밑줄(화면에 입력이 하나뿐일 때 — 금액을 먼저 받는 화면 · 목록 위 검색 · 초대 코드 · 잠금 해제).
 enum PInputVariant { outline, underline }
 
@@ -89,6 +91,7 @@ class PInput extends PTextControl {
     this.onSubmitted,
     this.obscureText = false,
     this.autofillHints,
+    this.tabularFigures = false,
   });
 
   final PInputVariant variant;
@@ -114,6 +117,9 @@ class PInput extends PTextControl {
   /// 가린 칸(비밀번호) — 키보드 사전 · 추천 · 학습에 남기지 않는다.
   final bool obscureText;
   final Iterable<String>? autofillHints;
+
+  /// 고정폭 숫자 — 자리마다 폭이 같은 숫자(인증 코드 칸 · input-otp.yaml value.numerals). 글자 · 예시 글에 건다.
+  final bool tabularFigures;
 
   @override
   State<PInput> createState() => _PInputState();
@@ -184,10 +190,12 @@ class _PInputState extends PTextControlState<PInput> {
             style: s.text.copyWith(
               color: valueColor,
               fontWeight: FontWeight.w400,
+              fontFeatures: widget.tabularFigures ? _tabular : null,
             ),
             placeholderStyle: s.text.copyWith(
               color: placeholderColor,
               fontWeight: FontWeight.w400,
+              fontFeatures: widget.tabularFigures ? _tabular : null,
             ),
             multiline: false,
             keyboardType: widget.keyboardType,
