@@ -5,6 +5,7 @@ import 'package:porest_desk_app/shared/ds/accordion/accordion_demo.dart';
 import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
 import 'package:porest_desk_app/shared/ds/alert_dialog/alert_dialog_demo.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
+import 'package:porest_desk_app/shared/ds/attachment_input/attachment_input_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/bottom_navigation/bottom_navigation_demo.dart';
 import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
@@ -34,6 +35,7 @@ import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_
 import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
+import 'package:porest_desk_app/shared/ds/quantity_picker/quantity_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_area/scroll_area_demo.dart';
@@ -63,7 +65,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 55개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
+/// 앱은 57개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
 /// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -181,6 +183,8 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Input OTP', 'input-otp', demo: _inputOtp),
     DsEntry('Color Swatch', 'color-swatch', demo: _colorSwatch),
     DsEntry('Icon Picker', 'icon-picker', demo: _iconPicker),
+    DsEntry('Quantity Picker', 'quantity-picker', demo: _quantityPicker),
+    DsEntry('Attachment Input', 'attachment-input', demo: _attachmentInput),
   ]),
   // Tree View · Resizable 은 HR 전용이라 앱에 없다
   DsFamily('collapse', '17 펼치고 접기 · 나누기', [
@@ -300,3 +304,5 @@ final List<({String group, List<DsSwatch> swatches})> dsRoleSwatches = [
     ],
   ),
 ];
+Widget _quantityPicker(BuildContext context) => const QuantityPickerDemo();
+Widget _attachmentInput(BuildContext context) => const AttachmentInputDemo();
