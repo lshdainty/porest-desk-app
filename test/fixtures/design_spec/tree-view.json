@@ -3,7 +3,7 @@
   "source": "specs/components/tree-view.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "나무(role=tree) — 이름 필수. Tab 정지점 하나",
@@ -128,7 +128,7 @@
           "typography": {
             "fontSize": 18,
             "lineHeight": 24,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,

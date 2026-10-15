@@ -3,7 +3,7 @@
   "source": "specs/components/chip.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "알약 — 모서리 full. 글만큼 넓어지고 줄바꿈 · 말줄임하지 않는다",
@@ -66,7 +66,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500

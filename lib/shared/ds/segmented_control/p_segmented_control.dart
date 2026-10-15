@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
 import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
 
@@ -13,11 +14,7 @@ class PSegmentedItem<T> {
     required this.label,
     this.enabled = true,
     this.notification = false,
-    this.notificationLabel,
-  }) : assert(
-         !notification || notificationLabel != null,
-         '알림 점이 있으면 보조 기술에 덧붙일 글(notificationLabel — 예: "새 내용")을 준다 — 점만으로 알리지 않는다',
-       );
+  });
 
   /// 이 칸의 값 — 트랙의 값과 같으면 고른 칸이다.
   final T value;
@@ -28,11 +25,8 @@ class PSegmentedItem<T> {
   /// false 면 이 칸만 막힌다 — 누를 수 없고 화살표 이동에서 건너뛴다.
   final bool enabled;
 
-  /// 새 내용이 있는 칸의 알림 점 — 안 고른 칸에만 그린다(고르면 사라진다).
+  /// 새 소식이 있는 칸의 알림 점 — 안 고른 칸에만 그린다(고르면 사라진다).
   final bool notification;
-
-  /// 알림 점이 있을 때 보조 기술에 이 칸의 이름 뒤로 덧붙일 글(웹 sr-only "새 내용").
-  final String? notificationLabel;
 }
 
 /// 칸 하나의 색 — 고름 · 상태에서 정해진다(segmented-control.yaml 의 고름 규칙). 바탕 · 안쪽 1px 선은 칸에 칠해 알약을
@@ -105,7 +99,7 @@ const double _dotGap = 2;
 /// 막힌다.
 ///
 /// 읽기 — 트랙은 라디오 묶음이고 [semanticLabel] 이 이름이다(웹 aria-label — 없으면 이름 없는 묶음이 된다). 칸은
-/// 라디오(checked) 로 읽고, 알림 점이 있는 칸은 이름 뒤에 [PSegmentedItem.notificationLabel] 을 덧붙인다.
+/// 라디오(checked) 로 읽고, 알림 점이 있는 칸은 이름 뒤에 "새 소식"([notificationBadgeName] — 호출부가 넘기지 않는다)을 덧붙인다.
 ///
 /// 칸은 2 ~ 4개다 — 5개 이상이면 Chip 의 하나 고르기 줄 · Select. 한 화면에 하나, 바꾸는 내용 바로 위에 둔다. 다른
 /// 구역으로 옮기면 Tabs, 저장할 폼 값은 Chip · Select 다. 칸 높이 34 는 스펙이 정한 값이다(누르는 영역 AAA 44 에는
@@ -309,16 +303,14 @@ class _SegmentedItemState<T> extends State<_SegmentedItem<T>>
       enabled: enabled,
       pressed: pressed,
     );
-    // 알림 점은 안 고른 칸에만 — 고르면 점도 "새 내용" 도 사라진다
+    // 알림 점은 안 고른 칸에만 — 고르면 점도 "새 소식" 도 사라진다
     final showDot = item.notification && !selected;
     // iOS 의 VoiceOver 는 선택을 selected 로 읽는다 — 고르지 않은 칸은 "선택되지 않음" 을 덧붙인다(PRadio 와 같다)
     final apple = switch (defaultTargetPlatform) {
       TargetPlatform.iOS || TargetPlatform.macOS => true,
       _ => false,
     };
-    final name = showDot
-        ? '${item.label} ${item.notificationLabel}'
-        : item.label;
+    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
     final round = BorderRadius.circular(PRounded.full);
 
     // 글 — 색은 칸의 색과 함께 150ms 로 바뀐다

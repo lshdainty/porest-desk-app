@@ -3,7 +3,7 @@
   "source": "specs/components/image-frame.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "틀 — 비율 상자. 폭은 부르는 쪽, 높이는 폭 ÷ 비율. 모서리로 자르고(overflow hidden) 안의 층을 따로 쌓는다(isolation)",
@@ -78,7 +78,7 @@
           "typography": {
             "fontSize": 11,
             "lineHeight": 15,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,

@@ -20,6 +20,11 @@ const double _badgeHeight = PSpacing.x6; // badge.height 24
 const double _actionIcon = 24; // actionButton.iconSize
 const double _ringWidth = 2; // focusRing.width(안쪽)
 
+/// 앱의 길게 눌러 끌기 문턱 — 웹 터치와 같은 250ms(Flutter 기본 길게 누름 500ms 가 아니다).
+const Duration kAttachmentDragDelay = Duration(
+  milliseconds: 250,
+); // item.dragDelayApp
+
 /// × 의 누르는 자리가 보이는 원 밖으로 나가는 만큼 — 위 · 오른쪽 12 + 걸침 4. 항목 자리가 이만큼을 레이아웃에 든다.
 const double _touchBleed = PSpacing.x4;
 
@@ -323,6 +328,79 @@ class _RenderOverflowStack extends RenderStack {
       return true;
     }
     return false;
+  }
+}
+
+/// × 의 누르는 자리(44 × 44) 표지 — [_RemoveFirstScope] 가 이 상자를 먼저 묻는다. [enabled] 가 아니면(막힘 · 읽기 전용) 먼저 받지
+/// 않는다.
+class _RemoveTouch extends SingleChildRenderObjectWidget {
+  const _RemoveTouch({required this.enabled, required super.child});
+
+  final bool enabled;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderRemoveTouch(enabled);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderRemoveTouch renderObject,
+  ) {
+    renderObject.enabled = enabled;
+  }
+}
+
+class _RenderRemoveTouch extends RenderProxyBox {
+  _RenderRemoveTouch(this.enabled);
+
+  bool enabled;
+}
+
+/// × 를 이웃 항목보다 먼저 묻는다 — 줄(Row)은 뒤 항목부터 묻는데, 항목 사이 8 에서 × 의 누르는 44 가 이웃 사진 위로 8 × 28 만큼
+/// 겹친다. 웹은 × 가 z 1 로 위지만 Flutter 는 형제 순서가 곧 묻는 순서라 여기서 × 의 44 안의 점을 먼저 이어 준다(Q-016-3).
+class _RemoveFirstScope extends SingleChildRenderObjectWidget {
+  const _RemoveFirstScope({required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderRemoveFirstScope();
+}
+
+class _RenderRemoveFirstScope extends RenderProxyBox {
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (size.contains(position)) {
+      var hit = false;
+      void visit(RenderObject node) {
+        if (hit) return;
+        if (node is _RenderRemoveTouch) {
+          if (!node.enabled || !node.attached || !node.hasSize) return;
+          final transform = node.getTransformTo(this);
+          final det = transform.determinant();
+          if (det == 0 || det.isNaN) return;
+          final local = MatrixUtils.transformPoint(
+            Matrix4.inverted(transform),
+            position,
+          );
+          if (!node.size.contains(local)) return;
+          hit = result.addWithPaintTransform(
+            transform: transform,
+            position: position,
+            hitTest: (r, p) => node.hitTest(r, position: p),
+          );
+          return;
+        }
+        node.visitChildren(visit);
+      }
+
+      visit(this);
+      if (hit) {
+        result.add(BoxHitTestEntry(this, position));
+        return true;
+      }
+    }
+    return super.hitTest(result, position: position);
   }
 }
 
@@ -703,6 +781,84 @@ class _RemoveButton extends StatelessWidget {
   }
 }
 
+/// 항목 몸 — 사진 · 파일 카드 + 덮개 · 원 · 대표 띠. [hole] 이면 × 둘레 구멍을 판다(끄는 중에는 × 와 구멍이 없다 — 13B).
+Widget _itemBody(
+  BuildContext context, {
+  required PAttachmentEntry entry,
+  required PAttachmentStatus status,
+  required bool readOnly,
+  required String? badgeLabel,
+  required bool hole,
+  Key? key,
+}) {
+  final c = context.colors;
+  final image = entry.isImage;
+  final face = DecoratedBox(
+    // 파일 카드의 안쪽 1px 테두리 — 사진은 윤곽을 _ItemFace 가 그린다
+    position: DecorationPosition.foreground,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(_itemRadius),
+      border: image ? null : Border.all(color: c.strokeNeutralWeak, width: 1),
+    ),
+    child: _ItemFace(
+      entry: entry,
+      status: status,
+      readOnly: readOnly,
+      badgeLabel: badgeLabel,
+    ),
+  );
+  return SizedBox(
+    key: key,
+    width: image ? _tile : _fileWidth,
+    height: _tile,
+    child: hole
+        ? ClipPath(
+            clipper: const _HoleClipper(radius: _itemRadius),
+            child: face,
+          )
+        : ClipRRect(
+            borderRadius: BorderRadius.circular(_itemRadius),
+            child: face,
+          ),
+  );
+}
+
+/// 끄는 중인 항목의 모습(13B) — 2px 줄어든 채 손가락을 따라가고 × 와 구멍이 없다. 사진은 불투명도 0.5, 파일 카드는 글 · 아이콘이
+/// `fg-disabled` 다(읽기 전용과 같은 모습).
+class _DragGhost extends StatelessWidget {
+  const _DragGhost({
+    required this.entry,
+    required this.status,
+    required this.badgeLabel,
+  });
+
+  final PAttachmentEntry entry;
+  final PAttachmentStatus status;
+  final String? badgeLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = entry.isImage;
+    Widget body = _itemBody(
+      context,
+      entry: entry,
+      status: status,
+      readOnly: true,
+      badgeLabel: badgeLabel,
+      hole: false,
+    );
+    if (image) body = Opacity(opacity: 0.5, child: body);
+    return DefaultTextStyle(
+      style: const TextStyle(decoration: TextDecoration.none),
+      child: Transform.scale(
+        key: const ValueKey('attachment-drag-ghost'),
+        scale: (_tile - 2) / _tile,
+        child: body,
+      ),
+    );
+  }
+}
+
 /// 항목 한 칸 — 보이는 항목 · 다시 시도 · ×. 위 16 · 오른쪽 [rightBleed] 를 레이아웃에 두어 × 의 누르는 자리가 안에 든다.
 class _ItemSlot extends StatelessWidget {
   const _ItemSlot({
@@ -720,6 +876,12 @@ class _ItemSlot extends StatelessWidget {
     this.customActions,
     this.itemNode,
     this.removeNode,
+    this.canDrag = false,
+    this.dragging = false,
+    this.onDragStart,
+    this.onDragMove,
+    this.onDragEnd,
+    this.onDragCancel,
   });
 
   final PAttachmentEntry entry;
@@ -738,6 +900,17 @@ class _ItemSlot extends StatelessWidget {
   final FocusNode? itemNode;
   final FocusNode? removeNode;
 
+  /// 길게 눌러 끌 수 있나 — 250ms 누른 채 움직이면 끌기다(앱 문턱 attachment-input.yaml item.dragDelayApp). 그 전에 움직이면 줄이
+  /// 스크롤하고, 그냥 떼면 누르기(메뉴)다.
+  final bool canDrag;
+
+  /// 끌고 있는 항목 — 이 자리는 빈 자리(놓을 곳)로 남고 모습은 [_DragGhost] 가 손가락을 따라간다.
+  final bool dragging;
+  final ValueChanged<Offset>? onDragStart;
+  final ValueChanged<Offset>? onDragMove;
+  final VoidCallback? onDragEnd;
+  final VoidCallback? onDragCancel;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -746,29 +919,14 @@ class _ItemSlot extends StatelessWidget {
     final error = status == PAttachmentStatus.error;
     final dim = readOnly && image;
 
-    Widget body = SizedBox(
+    Widget body = _itemBody(
+      context,
+      entry: entry,
+      status: status,
+      readOnly: readOnly,
+      badgeLabel: badgeLabel,
+      hole: true,
       key: const ValueKey('attachment-item-body'),
-      width: width,
-      height: _tile,
-      child: ClipPath(
-        clipper: const _HoleClipper(radius: _itemRadius),
-        child: DecoratedBox(
-          // 파일 카드의 안쪽 1px 테두리 — 사진은 윤곽을 _ItemFace 가 그린다
-          position: DecorationPosition.foreground,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(_itemRadius),
-            border: image
-                ? null
-                : Border.all(color: c.strokeNeutralWeak, width: 1),
-          ),
-          child: _ItemFace(
-            entry: entry,
-            status: status,
-            readOnly: readOnly,
-            badgeLabel: badgeLabel,
-          ),
-        ),
-      ),
     );
     if (dim) {
       body = AnimatedOpacity(
@@ -797,10 +955,35 @@ class _ItemSlot extends StatelessWidget {
             child: ExcludeSemantics(child: body),
           );
 
-    return _OverflowStack(
+    final Widget draggable = canDrag && !error
+        ? RawGestureDetector(
+            behavior: HitTestBehavior.translucent,
+            gestures: {
+              LongPressGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                    LongPressGestureRecognizer
+                  >(
+                    () => LongPressGestureRecognizer(
+                      duration: kAttachmentDragDelay,
+                    ),
+                    (r) {
+                      r.onLongPressStart = (d) =>
+                          onDragStart?.call(d.globalPosition);
+                      r.onLongPressMoveUpdate = (d) =>
+                          onDragMove?.call(d.globalPosition);
+                      r.onLongPressEnd = (_) => onDragEnd?.call();
+                      r.onLongPressCancel = () => onDragCancel?.call();
+                    },
+                  ),
+            },
+            child: item,
+          )
+        : item;
+
+    final stack = _OverflowStack(
       children: [
         SizedBox(width: width + rightBleed, height: _tile + _touchBleed),
-        Positioned(top: _touchBleed, left: 0, child: item),
+        Positioned(top: _touchBleed, left: 0, child: draggable),
         if (error)
           Positioned(
             top: _touchBleed,
@@ -847,16 +1030,24 @@ class _ItemSlot extends StatelessWidget {
         Positioned(
           top: _touchBleed + _maskOffset - _removeTouch / 2,
           left: width - _maskOffset - _removeTouch / 2,
-          child: _RemoveButton(
-            key: const ValueKey('attachment-remove'),
-            focusNode: removeNode,
-            label: '${entry.name} 지우기',
-            blocked: readOnly,
-            disabled: disabled,
-            onTap: onRemove,
+          child: _RemoveTouch(
+            enabled: !readOnly && !disabled,
+            child: _RemoveButton(
+              key: const ValueKey('attachment-remove'),
+              focusNode: removeNode,
+              label: '${entry.name} 지우기',
+              blocked: readOnly,
+              disabled: disabled,
+              onTap: onRemove,
+            ),
           ),
         ),
       ],
+    );
+    // 끄는 동안은 빈 자리 — 모습은 손가락을 따라가는 것이 대신한다(자리 · 제스처는 그대로 둔다)
+    return Opacity(
+      opacity: dragging ? 0 : 1,
+      child: IgnorePointer(ignoring: dragging, child: stack),
     );
   }
 }

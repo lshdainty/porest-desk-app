@@ -3,7 +3,7 @@
   "source": "specs/components/alert-dialog.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "overlay": "딤 — 확인창 뒤 화면 전체",
@@ -54,7 +54,7 @@
           "typography": {
             "fontSize": 20,
             "lineHeight": 27,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,

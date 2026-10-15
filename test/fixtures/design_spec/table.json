@@ -3,7 +3,7 @@
   "source": "specs/components/table.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "표 상자 — 카드 안에 가장자리까지 붙는다. 표와 넘김 줄(Table Pagination)을 담고, 넘치면 함께 가로로 민다",
@@ -89,8 +89,8 @@
           "paddingX": 16,
           "typography": {
             "fontSize": 14,
-            "lineHeight": 19,
-            "fontWeight": 400,
+            "lineHeight": 20,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "lineHeight": 20,
@@ -119,7 +119,7 @@
           "paddingX": 16,
           "typography": {
             "fontSize": 14,
-            "lineHeight": 19,
+            "lineHeight": 20,
             "fontWeight": 400,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
@@ -219,6 +219,9 @@
       "enabled": {
         "row": {
           "minHeight": 72
+        },
+        "cell": {
+          "paddingY": 0
         }
       }
     },
@@ -422,7 +425,7 @@
       "state": "enabled",
       "slot": "headerCell",
       "prop": "lineHeight",
-      "note": "SEED 문서 표 14 / 20 — t4(14 / 19)보다 1 높여 머리 41 · 줄 45 를 SEED 와 맞춘다"
+      "note": "SEED 문서 표 14 / 20 — t4(14 / 19)보다 1 높여 머리 41 · 줄 45 를 SEED 와 맞춘다(사용자 결정 1A). 같은 부위의 lineHeight · fontWeight 가 typography 의 값을 덮는다 — 스펙 JSON 은 typography 에 접어 14 / 20 · 500 하나로 싣는다(Q-011-2)"
     },
     {
       "rule": 0,
@@ -450,7 +453,7 @@
       "state": "enabled",
       "slot": "cell",
       "prop": "lineHeight",
-      "note": "머리와 같은 14 / 20"
+      "note": "머리와 같은 14 / 20 — typography 의 19 를 덮는다(Q-011-2)"
     },
     {
       "rule": 0,
@@ -577,6 +580,13 @@
       "slot": "row",
       "prop": "minHeight",
       "note": "선 1 포함(SEED 그림) — 썸네일 48 이 세로 가운데. 칸 여백 12 보다 높이가 먼저다"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "cell",
+      "prop": "paddingY",
+      "note": "72 안 세로 가운데 — 48 + 위아래 12 + 선 1 = 73 이라 위아래 여백을 두지 않는다(높이가 먼저, 사용자 결정 1A 의 72 — Q-011-1). 좌우 16 은 그대로"
     },
     {
       "rule": 2,

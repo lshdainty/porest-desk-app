@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' show Theme;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
@@ -111,6 +112,10 @@ class _PCardState extends State<PCard> {
   bool _pressed = false;
   double _basis = 24;
 
+  // peers — 손가락이 안의 버튼 위에 닿았는지(눌림 색은 카드 링크 자리에서만 받는다, Q-011-9)
+  final GlobalKey _contentKey = GlobalKey();
+  bool _downOnInner = false;
+
   void _setPressed(bool value) {
     if (_pressed == value) return;
     if (value) {
@@ -118,6 +123,16 @@ class _PCardState extends State<PCard> {
       if (size != null) _basis = cardPressBasis(size);
     }
     setState(() => _pressed = value);
+  }
+
+  /// 손가락이 닿은 점 아래에 안의 눌리는 것(버튼 · 줄)이 있나 — 카드 안쪽만 훑는다(바깥 GestureDetector 는 빼고). 글 ·
+  /// 여백은 눌리는 것이 아니다. 카드 링크 자리(안의 버튼이 없는 곳)에서만 눌림 색이 난다.
+  bool _innerTappableAt(Offset globalPosition) {
+    final box = _contentKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached || !box.hasSize) return false;
+    final result = BoxHitTestResult();
+    box.hitTest(result, position: box.globalToLocal(globalPosition));
+    return result.path.any((e) => e.target is RenderPointerListener);
   }
 
   EdgeInsets _padding(PCardBody body) {
@@ -159,6 +174,9 @@ class _PCardState extends State<PCard> {
         child: Padding(padding: _padding(body), child: content),
       ),
     );
+
+    // 머리 동작의 누르는 영역 44 — 머리 줄(32) 밖 위아래 6 도 받는다(Q-011-8)
+    content = PTouchTargetScope(child: content);
 
     final peers = press == PCardPress.peers;
     if (hero || peers) {
@@ -231,7 +249,7 @@ class _PCardState extends State<PCard> {
           Container(decoration: decoration, child: child),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(clipRadius),
-        child: content,
+        child: KeyedSubtree(key: _contentKey, child: content),
       ),
     );
 
@@ -239,12 +257,21 @@ class _PCardState extends State<PCard> {
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _setPressed(true),
+      // peers — 안의 버튼 위에 닿았으면 카드 면은 바뀌지 않는다(그 버튼이 제 눌림을 가진다)
+      onTapDown: (_) {
+        if (!(press == PCardPress.peers && _downOnInner)) _setPressed(true);
+      },
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
       onTap: widget.onTap,
       excludeFromSemantics: true,
-      child: surface,
+      child: press == PCardPress.peers
+          ? Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (e) => _downOnInner = _innerTappableAt(e.position),
+              child: surface,
+            )
+          : surface,
     );
     if (press == PCardPress.peers) {
       return Semantics(

@@ -2,7 +2,8 @@
 // × 라이트 · 다크의 말풍선 · 화살표 · 제목 · 설명 · 닫기 버튼, 놓는 자리(뒤집기 · 밀기 · 화살표), 여닫는 법 · 움직임 ·
 // 키보드 · 읽는 말. 웹은 같은 JSON 을 크로미움에서 잰다(말풍선 자리 계산은 Radix 라 웹 테스트가 값만 맞춘다).
 //
-// 앱에 없는 것 — 마우스를 올려 여는 Tooltip(opens: hover — 터치로는 열리지 않는다, 같은 스펙 파일의 다른 변형)과 웹의
+// 이 파일이 안 그리는 것 — 마우스를 올려 여는 Tooltip(opens: hover — 터치로는 열리지 않는다, 같은 스펙 파일의 다른 변형, 앱에도 둔다 —
+// 마우스 · 키보드만, Q-009)과 웹의
 // 포커스 링(focused). 문장으로 된 값은 그린 결과나 동작으로 본다 — 누르는 영역("44 × 44")은 누른 자리로, 쌓임(z-tooltip
 // 210)은 오버레이가 늘 위라는 것으로, 자리 값(offset · margin · arrow.margin)은 놓은 결과로 잰다.
 import 'dart:math' as math;
@@ -217,7 +218,10 @@ const _webOnly = {
 const _behavior = {
   'root.zIndex',
   'root.margin',
+  'root.marginMin',
+  'root.announce',
   'arrow.margin',
+  'arrow.position',
   'closeButton.touchTarget',
 };
 
@@ -521,16 +525,26 @@ void main() {
       expect(wide.body.left, helpBubbleMargin);
     });
 
-    test('화살표는 몸통 모서리와 14 를 남긴다 — 트리거가 화면 가장자리에 더 붙으면 거기서 멈추고, 작은 몸통은 그 반까지', () {
-      // 트리거 가운데 x = 22: 몸통은 16 에서 시작 → 화살표를 가운데에 두면 모서리에서 0 → 14 에서 멈춘다(가운데 x < 36 은
-      // 가장자리 16 + 모서리 14 + 화살표 반 6 에 못 닿는다 — 화살표가 트리거 가운데에서 14 비켜 선다)
+    test('화살표는 늘 트리거 가운데 — 몸통이 끝으로 밀리고 16 은 0 까지 진다(Q-004), 끝에서 20 안쪽이 남는다', () {
+      // 트리거 가운데 x = 22: 가장자리 여백은 22 − 20 = 2 로 줄어 몸통이 2 에서 시작하고, 화살표는 가운데를 가리킨다
       final p = place(const Rect.fromLTWH(2, 300, 40, 40));
-      expect(p.body.left, 16);
+      expect(p.body.left, 2);
+      expect(p.tip.dx, 22);
       expect(p.arrowOffset, helpBubbleArrowMargin);
-      expect(p.tip.dx, 16 + 14 + 6);
-      // 오른쪽 끝도 14
+      // 왼쪽 끝 0 에 붙은 ⓘ 40 — 가운데 20 → 몸통도 0, 화살표는 모서리에서 14
+      final zero = place(const Rect.fromLTWH(0, 300, 40, 40));
+      expect(zero.body.left, 0);
+      expect(zero.tip.dx, 20);
+      expect(zero.arrowOffset, helpBubbleArrowMargin);
+      // 오른쪽 끝도 같다
       final q = place(const Rect.fromLTWH(358, 300, 40, 40));
+      expect(q.body.right, 400 - 2);
+      expect(q.tip.dx, 378);
       expect(q.body.right - q.arrow.right, helpBubbleArrowMargin);
+      // 상단 바 끝 금액 가리기(가운데가 끝에서 28) → 끝 8(스펙 예)
+      final bar = place(const Rect.fromLTWH(352, 300, 40, 40));
+      expect(bar.body.right, 400 - 8);
+      expect(bar.tip.dx, 372);
       // 옆에 붙는 한 줄 말풍선(높이 38) — 14 를 남기면 화살표(12)가 들어갈 틈이 모자라 12 · 14 안으로
       final side = place(
         const Rect.fromLTWH(20, 300, 40, 40),

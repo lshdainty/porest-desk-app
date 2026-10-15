@@ -8,6 +8,10 @@ enum PNotificationBadgeSize { small, large }
 /// 붙는 자리 — icon(상단 바 · 탭 바의 아이콘, 기본) · text(탭 · Segmented 의 글 오른쪽 위).
 enum PNotificationBadgeAttach { icon, text }
 
+/// 알림 점이 있는 탭 · 칸 · 탭 바 칸의 이름 뒤에 덧붙는 글 — Tabs · Chip Tabs · Segmented Control · Bottom Navigation 이 하나로
+/// 쓴다(Q-010-4 — 호출부가 넘기지 않고 컴포넌트가 갖는다). 점은 보조 기술에 숨긴다.
+const String notificationBadgeName = '새 소식';
+
 /// 숫자 글 — 100 이상이면 "99+". 0 이하면 배지가 없다(null).
 @visibleForTesting
 String? notificationBadgeLabel(int count) =>

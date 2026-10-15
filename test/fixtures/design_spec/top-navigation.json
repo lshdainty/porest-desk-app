@@ -3,7 +3,7 @@
   "source": "specs/components/top-navigation.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "바 — 화면 폭 · 높이 56(위 안전 영역은 더한다). 맨 위에 붙어 스크롤해도 그 자리에 있다",
@@ -91,7 +91,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,

@@ -3,7 +3,7 @@
   "source": "specs/components/wheel-picker.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "휠 — 칼럼 묶음을 가운데에 모은다",
@@ -145,8 +145,9 @@
       ],
       "note": "마지막 휠 입력 120ms 뒤 가까운 칸으로"
     },
-    "항목 누르기": {
-      "duration": "부드러운 스크롤",
+    "항목 누르기 · ↑ ↓": {
+      "duration": "200ms",
+      "easing": "ease-out cubic",
       "properties": [
         "scroll"
       ],

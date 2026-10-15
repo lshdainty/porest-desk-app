@@ -47,7 +47,8 @@ double cardPressBasis(Size size) =>
     math.max(size.height, math.max(size.width / 4, 24));
 
 /// 누르는 영역을 보이는 크기와 따로 [minSize] 까지 넓힌다 — 놓인 자리(레이아웃)는 그대로다(Button 의 것과 같은 방법). 부모
-/// 상자 밖은 받을 수 없어 세로는 머리 줄 안에서만 넓어진다. Card 머리 동작 · Accordion 모두 펼치기가 같이 쓴다.
+/// 상자 밖의 점은 부모가 먼저 거절하므로 이것만으로는 부모 줄 안에서만 넓어진다 — 부모 밖(머리 줄 위아래 6)까지 받으려면 더
+/// 위에서 [PTouchTargetScope] 가 감싸야 한다. Card 머리 동작 · Accordion 모두 펼치기가 같이 쓴다.
 class PTouchTarget extends SingleChildRenderObjectWidget {
   const PTouchTarget({super.key, required this.minSize, required super.child});
 
@@ -71,11 +72,15 @@ class _RenderTouchTarget extends RenderProxyBox {
 
   double minSize;
 
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+  /// 넓힌 누르는 영역 — 보이는 상자에서 모자란 만큼 사방으로.
+  Rect get area {
     final dx = math.max(0.0, (minSize - size.width) / 2);
     final dy = math.max(0.0, (minSize - size.height) / 2);
-    final area = Rect.fromLTRB(-dx, -dy, size.width + dx, size.height + dy);
+    return Rect.fromLTRB(-dx, -dy, size.width + dx, size.height + dy);
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
     if (!area.contains(position)) return false;
     final inside = size.contains(position)
         ? position
@@ -85,6 +90,51 @@ class _RenderTouchTarget extends RenderProxyBox {
       return true;
     }
     return false;
+  }
+}
+
+/// [PTouchTarget] 이 넓힌 누르는 영역을 부모 상자 밖에서도 받게 한다 — 안쪽 [PTouchTarget] 들을 찾아, 보이는 상자 밖 · 넓힌
+/// 영역 안의 점을 그 대상으로 이어 준다(보이는 자리 · 레이아웃은 그대로). Card 가 머리 동작의 44 를 지킨다 — 머리 줄은 32 라
+/// 위아래 6 은 줄 밖이다(Q-011-8, 6B 44 × 44).
+class PTouchTargetScope extends SingleChildRenderObjectWidget {
+  const PTouchTargetScope({super.key, required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderTouchTargetScope();
+}
+
+class _RenderTouchTargetScope extends RenderProxyBox {
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    var extended = false;
+    if (size.contains(position)) {
+      void visit(RenderObject node) {
+        if (node is _RenderTouchTarget) {
+          if (!node.attached || !node.hasSize) return;
+          final transform = node.getTransformTo(this);
+          final det = transform.determinant();
+          if (det == 0 || det.isNaN) return;
+          final local = MatrixUtils.transformPoint(
+            Matrix4.inverted(transform),
+            position,
+          );
+          // 보이는 상자 안은 보통 길로 받는다 — 밖 · 넓힌 영역 안만 여기서 잇는다
+          if (node.size.contains(local) || !node.area.contains(local)) return;
+          extended |= result.addWithPaintTransform(
+            transform: transform,
+            position: position,
+            hitTest: (r, p) => node.hitTest(r, position: p),
+          );
+          return;
+        }
+        node.visitChildren(visit);
+      }
+
+      visit(this);
+    }
+    // 대상이 먼저 — 가장 깊은 것이 앞에 와야 제스처 경쟁에서 이긴다
+    return super.hitTest(result, position: position) || extended;
   }
 }
 

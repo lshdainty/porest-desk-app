@@ -150,7 +150,7 @@ class _Sample extends StatelessWidget {
   }
 }
 
-/// Field 머리 오른쪽에 머리 값을 얹는다 — PField 의 headerAction 은 버튼 하나만 받아서 겹쳐 놓는다.
+/// Field 머리 오른쪽에 머리 값을 둔다 — PField 의 headerTrailing 자리(머리 값 글은 줄 높이 22 라 머리를 넘치지 않는다).
 class _ValueField extends StatelessWidget {
   const _ValueField({
     required this.label,
@@ -168,20 +168,12 @@ class _ValueField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        PField(
-          label: label,
-          description: description,
-          disabled: disabled,
-          child: child,
-        ),
-        PositionedDirectional(
-          top: 0,
-          end: 0,
-          child: PSliderValue(value, disabled: disabled),
-        ),
-      ],
+    return PField(
+      label: label,
+      description: description,
+      disabled: disabled,
+      headerTrailing: PSliderValue(value, disabled: disabled),
+      child: child,
     );
   }
 }

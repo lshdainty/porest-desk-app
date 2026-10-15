@@ -24,9 +24,10 @@ enum PSearchableListSkeletonPrefix { none, logo, cardArt, avatar }
 
 // searchable-list.yaml — 줄 · 검색칸의 나머지 값은 list.yaml · input.yaml 이다.
 const double _gap = PSpacing.x2; // root.gap — 검색칸 ↔ 결과 목록
-const double _highlightInsetX = PSpacing.x1_5; // highlight.insetX — 좌우 6 들어온 바탕
+const double _highlightInsetX =
+    PSpacing.x1_5; // highlight.insetX — 강조 · 누름 때 좌우 6 들어온 바탕(평소 0)
 const double _highlightRadius =
-    PRounded.r2_5; // highlight.radius — List 누름 바탕과 같다
+    PRounded.r2_5; // highlight.radius — 강조 · 누름 때 10(평소 0). List 누름 바탕과 같다
 const double _prefixGap = PSpacing.x3; // 앞 붙이개 ↔ 글 12
 const double _bodyEndGap = PSpacing.x2_5; // 글 ↔ 오른쪽 라디오
 const double _logoSize = 40; // prefix.logo
@@ -69,8 +70,14 @@ class PSearchableList extends StatefulWidget {
     this.onSearch,
     this.searchDelay = const Duration(milliseconds: 300),
     this.placement = PSearchableListPlacement.sheet,
+    this.focusNode,
     required this.children,
   });
+
+  /// 검색칸의 초점 노드 — 시트가 첫 초점을 이리로 넘겨줄 때(`PBottomSheet.show(initialFocus: …)`) 같은 노드를 둘에 준다.
+  /// 주면 검색칸은 열릴 때 스스로 초점을 잡지 않는다(시트가 정한다 — 웹 `focusSearchableList(event)` 와 같다). 노드의 주인은
+  /// 쓰는 쪽이다(묶음이 지우지 않는다). 안 주면 묶음이 만들고, 시트 자리에서는 열릴 때 한 번 스스로 잡는다.
+  final FocusNode? focusNode;
 
   /// 지금 고른 값 — 오른쪽 라디오가 켜진 줄. 주면 제어(없음은 '').
   final String? value;
@@ -118,7 +125,8 @@ class _PSearchableListState extends State<PSearchableList> {
     super.initState();
     _valueInner = widget.defaultValue;
     _controller = TextEditingController(text: _query);
-    _focusNode = FocusNode(onKeyEvent: _onKey);
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.onKeyEvent = _onKey;
     if (widget.placement == PSearchableListPlacement.sheet) {
       // 열면 지금 값이 가운데 오게 — 줄이 그려진 뒤에
       WidgetsBinding.instance.addPostFrameCallback((_) => _revealCurrent());
@@ -141,7 +149,11 @@ class _PSearchableListState extends State<PSearchableList> {
   @override
   void dispose() {
     _timer?.cancel();
-    _focusNode.dispose();
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    } else if (_focusNode.onKeyEvent == _onKey) {
+      _focusNode.onKeyEvent = null;
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -170,6 +182,13 @@ class _PSearchableListState extends State<PSearchableList> {
       _highlighted = id;
       _source = source;
     });
+  }
+
+  /// 마우스가 목록을 떠났다 — 마우스 강조만 지운다(화살표로 짚은 강조는 남긴다. Q-007-2).
+  void _clearPointerHighlight() {
+    if (_highlighted != null && _source == _HighlightSource.pointer) {
+      setState(() => _highlighted = null);
+    }
   }
 
   void _register(String value, BuildContext context) =>
@@ -381,15 +400,14 @@ class _PSearchableListInputState extends State<PSearchableListInput> {
     final focusOnOpen =
         widget.autofocus ?? scope?.placement == PSearchableListPlacement.sheet;
     final node = scope?.state._focusNode;
-    if (!focusOnOpen || node == null) return;
-    // 시트는 열 때 초점을 시트(컨테이너)로 옮긴다 — 그 뒤에 검색칸으로 다시 둔다(웹도 한 프레임 더 기다린다)
+    // 노드를 밖에서 받았으면 첫 초점은 시트가 넘겨준다(Q-007-3) — 여기서 한 프레임 뒤에 다시 잡지 않는다
+    if (!focusOnOpen || node == null || scope!.state.widget.focusNode != null) {
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.scheduleFrame();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && node.canRequestFocus && !node.hasPrimaryFocus) {
-          node.requestFocus();
-        }
-      });
+      if (mounted && node.canRequestFocus && !node.hasPrimaryFocus) {
+        node.requestFocus();
+      }
     });
   }
 
@@ -435,25 +453,28 @@ class PSearchableListResults extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    _PSearchableListScope.of(context, 'PSearchableListResults');
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      role: SemanticsRole.list,
-      label: semanticLabel,
-      // 줄을 눌러도 초점은 검색칸에 남는다(같은 탭 영역)
-      child: TextFieldTapRegion(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final list = Column(
-              key: const ValueKey('searchable-list-results'),
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
-            );
-            return constraints.hasBoundedHeight
-                ? SingleChildScrollView(child: list)
-                : list;
-          },
+    final scope = _PSearchableListScope.of(context, 'PSearchableListResults');
+    return MouseRegion(
+      onExit: (_) => scope.state._clearPointerHighlight(),
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        role: SemanticsRole.list,
+        label: semanticLabel,
+        // 줄을 눌러도 초점은 검색칸에 남는다(같은 탭 영역)
+        child: TextFieldTapRegion(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final list = Column(
+                key: const ValueKey('searchable-list-results'),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children,
+              );
+              return constraints.hasBoundedHeight
+                  ? SingleChildScrollView(child: list)
+                  : list;
+            },
+          ),
         ),
       ),
     );
@@ -651,23 +672,24 @@ class _PSearchableListItemState extends State<PSearchableListItem> {
       child: row,
     );
 
-    // 바탕 층 — 줄지 않는다. 마우스로 올린 바탕만 150ms 로 바뀐다
+    // 바탕 층 — 줄지 않는다. 평소는 좌우 0 · 모서리 0 인 투명 바탕이고, 강조 · 누름이면 좌우 6 들어오며 모서리 10 으로 둥글어진다
+    // (Menu 알약과 같은 움직임 — 색 · 들임 · 모서리 150ms). 마우스로 올린 때만 전환하고 화살표 · 누름은 바로 바뀐다
     final background = Positioned.fill(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: _highlightInsetX),
-        child: TweenAnimationBuilder<Color>(
-          tween: _PremultipliedColorTween(
-            end: on ? c.bgLayerDefaultPressed : const Color(0x00000000),
-          ),
-          duration: fromPointer && !reduceMotion
-              ? PDuration.colorTransition
-              : Duration.zero,
-          curve: PEasing.easing,
-          builder: (context, color, _) => DecoratedBox(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: on ? 1 : 0),
+        duration: fromPointer && !reduceMotion
+            ? PDuration.colorTransition
+            : Duration.zero,
+        curve: PEasing.easing,
+        builder: (context, t, _) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: _highlightInsetX * t),
+          child: DecoratedBox(
             key: const ValueKey('searchable-list-highlight'),
             decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(_highlightRadius),
+              color: _PremultipliedColorTween(
+                end: c.bgLayerDefaultPressed,
+              ).transform(t),
+              borderRadius: BorderRadius.circular(_highlightRadius * t),
             ),
           ),
         ),
@@ -705,7 +727,7 @@ class _PSearchableListItemState extends State<PSearchableListItem> {
 
 /// 색 사이 — 투명에서 나타날 때 그 색 그대로 진해진다(미리 곱한 알파로 섞는다 — 투명한 검정을 거치지 않는다).
 class _PremultipliedColorTween extends Tween<Color> {
-  _PremultipliedColorTween({super.end});
+  _PremultipliedColorTween({super.end}) : super(begin: const Color(0x00000000));
 
   @override
   Color lerp(double t) {

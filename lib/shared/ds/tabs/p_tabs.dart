@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
 import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
 import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
@@ -32,11 +33,7 @@ class PTab<T> {
     required this.label,
     this.enabled = true,
     this.notification = false,
-    this.notificationLabel,
-  }) : assert(
-         !notification || notificationLabel != null,
-         '알림 점이 있으면 보조 기술에 덧붙일 글(notificationLabel — 예: "새 소식")을 준다 — 점만으로 알리지 않는다',
-       );
+  });
 
   /// 이 탭의 값 — 목록의 값과 같으면 고른 탭이다. 글이 아니라 바뀌지 않는 id 를 쓴다.
   final T value;
@@ -49,9 +46,6 @@ class PTab<T> {
 
   /// 새 소식이 있는 탭의 알림 점 — 안 고른 탭에만 그린다(내용을 보면 사라진다). 한 목록에 하나만 단다.
   final bool notification;
-
-  /// 알림 점이 있을 때 보조 기술에 이 탭의 이름 뒤로 덧붙일 글(웹 sr-only "새 소식").
-  final String? notificationLabel;
 }
 
 /// 알림 점 — 6px 원, 브랜드 글자색(fg-brand — 다크에서 밝은 짝).
@@ -231,7 +225,7 @@ void revealInScroll(
 ///
 /// 키보드 — Tab 은 목록에서 고른 탭 하나에만 선다. ← → 로 옮기면 바로 고르고(끝에서 처음으로 돈다, 막힌 탭은 건너뛴다),
 /// Home · End 는 첫 · 마지막 탭이다. 읽기 — 목록은 이름 있는 탭 목록([semanticLabel]), 탭은 선택(selected)을 가진 탭이고,
-/// 알림 점이 있는 탭은 이름 뒤에 [PTab.notificationLabel] 을 덧붙인다. [onChanged] 가 없으면 탭이 모두 막힌다.
+/// 알림 점이 있는 탭은 이름 뒤에 "새 소식"([notificationBadgeName] — 호출부가 넘기지 않는다)을 덧붙인다. [onChanged] 가 없으면 탭이 모두 막힌다.
 class PTabs<T> extends StatefulWidget {
   const PTabs({
     super.key,
@@ -473,9 +467,7 @@ class _LineTab<T> extends StatelessWidget {
     final m = tabsMetrics(size);
     // 알림 점은 안 고른 탭에만 — 고르면 점도 "새 소식" 도 사라진다
     final showDot = item.notification && !selected;
-    final name = showDot
-        ? '${item.label} ${item.notificationLabel}'
-        : item.label;
+    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
     final color = !enabled
         ? c.fgDisabled
         : selected
@@ -740,9 +732,7 @@ class _ChipTab<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showDot = item.notification && !selected;
-    final name = showDot
-        ? '${item.label} ${item.notificationLabel}'
-        : item.label;
+    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
     return PressArea(
       enabled: enabled,
       focusNode: focusNode,

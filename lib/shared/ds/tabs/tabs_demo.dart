@@ -14,7 +14,6 @@ PTab<String> _tab(
   label: label,
   enabled: enabled,
   notification: notification,
-  notificationLabel: notification ? '새 소식' : null,
 );
 
 /// 값을 쥐고 [builder] 에 주는 견본 — 눌러서 고른다.

@@ -542,10 +542,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
       expect(_highlighted(tester), [2]);
-      final box = tester.widget<TweenAnimationBuilder<Color>>(
+      final box = tester.widget<TweenAnimationBuilder<double>>(
         find.descendant(
           of: _options.at(2),
-          matching: find.byType(TweenAnimationBuilder<Color>),
+          matching: find.byType(TweenAnimationBuilder<double>),
         ),
       );
       final motion = (_spec.json['motion'] as Map)['강조 · 누름 — 바탕'] as Map;
@@ -561,10 +561,10 @@ void main() {
       // 화살표로 옮길 때는 전환 없이 바로
       await _focusInput(tester);
       await _key(tester, LogicalKeyboardKey.arrowDown);
-      final keyed = tester.widget<TweenAnimationBuilder<Color>>(
+      final keyed = tester.widget<TweenAnimationBuilder<double>>(
         find.descendant(
           of: _options.at(1),
-          matching: find.byType(TweenAnimationBuilder<Color>),
+          matching: find.byType(TweenAnimationBuilder<double>),
         ),
       );
       expect(keyed.duration, Duration.zero);
@@ -582,6 +582,76 @@ void main() {
       expect(_highlighted(tester), isEmpty);
       await touch.removePointer();
     });
+
+    testWidgets('마우스가 목록을 떠나면 마우스 강조를 지운다 — 화살표 강조는 남긴다(Q-007-2)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_host(Brightness.light, filtered()));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: const Offset(1, 599));
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(
+        tester.getCenter(_options.at(1)) - const Offset(10, 0),
+      );
+      await mouse.moveTo(tester.getCenter(_options.at(1)));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_highlighted(tester), [1]);
+      // 목록 밖(아래 빈 자리)으로 — 강조가 사라진다
+      await mouse.moveTo(const Offset(1, 599));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_highlighted(tester), isEmpty);
+      // 화살표로 짚은 강조는 마우스가 떠나도 남는다
+      await _focusInput(tester);
+      await _key(tester, LogicalKeyboardKey.arrowDown);
+      expect(_highlighted(tester), [0]);
+      await mouse.moveTo(tester.getCenter(_options.at(0)));
+      await mouse.moveTo(const Offset(1, 599));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_highlighted(tester), [0]);
+    });
+
+    testWidgets(
+      '강조 바탕은 좌우 0 → 6 들어오며 모서리 0 → 10 으로 둥글어진다 — 마우스는 150ms, 화살표는 바로',
+      (tester) async {
+        await tester.pumpWidget(_host(Brightness.light, filtered()));
+        Rect rowOf(int i) => tester.getRect(_options.at(i));
+        double insetOf(int i) =>
+            tester.getRect(_highlights.at(i)).left - rowOf(i).left;
+        double radiusOf(int i) =>
+            ((tester.widget<DecoratedBox>(_highlights.at(i)).decoration)
+                    as BoxDecoration)
+                .borderRadius!
+                .resolve(TextDirection.ltr)
+                .topLeft
+                .x;
+        // 평소 — 들임 0 · 모서리 0
+        expect(insetOf(0), 0);
+        expect(radiusOf(0), 0);
+        // 화살표 — 전환 없이 바로 6 · 10
+        await _focusInput(tester);
+        await _key(tester, LogicalKeyboardKey.arrowDown);
+        expect(insetOf(0), 6);
+        expect(radiusOf(0), 10);
+        // 마우스 — 150ms 동안 사이 값을 지난다
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: const Offset(1, 1));
+        addTearDown(mouse.removePointer);
+        await mouse.moveTo(
+          tester.getCenter(_options.at(2)) - const Offset(10, 0),
+        );
+        await mouse.moveTo(tester.getCenter(_options.at(2)));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 75));
+        expect(insetOf(2), inExclusiveRange(0, 6));
+        expect(radiusOf(2), inExclusiveRange(0, 10));
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(insetOf(2), 6);
+        expect(radiusOf(2), 10);
+      },
+    );
 
     testWidgets('강조한 줄이 걸러져 사라지면 강조도 지운다', (tester) async {
       await tester.pumpWidget(_host(Brightness.light, filtered()));
@@ -1249,8 +1319,7 @@ void main() {
     await tester.tap(trigger);
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pump(const Duration(milliseconds: 600));
-    // 시트가 초점을 시트로 옮긴 뒤 검색칸이 다시 가져간다 — 한 프레임 더
-    await tester.pump();
+    // 시트가 첫 초점을 검색칸으로 넘겨준다 — 열린 첫 프레임 뒤 한 번(다시 잡지 않는다)
     await tester.pump();
     // 시트 안 검색칸에 초점
     final sheetInput = find.descendant(
@@ -1282,6 +1351,51 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.byType(PBottomSheetContent), findsNothing);
     expect(tester.widget<PInputButton>(trigger).value, '토스뱅크');
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('견본 은행 시트 — 별칭으로 찾고, 낱자로 쪼개진 한글(NFD)도 같은 글자로 본다', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      _host(
+        Brightness.light,
+        const SingleChildScrollView(child: SearchableListDemo()),
+        width: 390,
+        height: 844,
+      ),
+    );
+    final trigger = find.byWidgetPredicate(
+      (w) => w is PInputButton && w.placeholder == '은행 선택',
+    );
+    await tester.ensureVisible(trigger);
+    await tester.pump();
+    await tester.tap(trigger);
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
+    final sheetInput = find.descendant(
+      of: find.byType(PBottomSheetContent),
+      matching: find.byType(TextField),
+    );
+    final sheetRows = find.descendant(
+      of: find.byType(PBottomSheetContent),
+      matching: find.byType(PSearchableListItem),
+    );
+    // 별칭 — 이름에 없는 "카뱅"
+    await tester.enterText(sheetInput, '카뱅');
+    await tester.pump();
+    expect(sheetRows, findsOneWidget);
+    expect(tester.widget<PSearchableListItem>(sheetRows).value, '카카오뱅크');
+    // 공백 · 대소문자 무시 — "K B 국민" = 별칭 "KB국민은행"
+    await tester.enterText(sheetInput, 'k b 국민');
+    await tester.pump();
+    expect(tester.widget<PSearchableListItem>(sheetRows).value, '국민은행');
+    // NFD — 토(ㅌ ㅗ) 스(ㅅ ㅡ) 를 자모로 쪼갠 글도 "토스뱅크" 를 찾는다
+    await tester.enterText(sheetInput, '\u1110\u1169\u1109\u1173');
+    await tester.pump();
+    expect(tester.widget<PSearchableListItem>(sheetRows).value, '토스뱅크');
     await tester.pumpWidget(const SizedBox());
   });
 

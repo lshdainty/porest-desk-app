@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 
 // 말풍선을 트리거 옆에 놓는 계산과 그리기 — Help Bubble(p_help_bubble.dart)이 쓴다. 웹은 Radix Popper(floating-ui)가
 // 같은 일을 한다: 기본 자리에 놓고, 화면 가장자리 16 을 넘으면 반대편으로 뒤집고, 옆으로 밀고, 화살표는 늘 트리거 가운데를
-// 가리키되 말풍선 모서리와 14 를 남긴다. 값은 help-bubble.yaml(root.offset · root.margin · root.maxWidth · arrow.*)이다.
+// 가리키고(비키지 않는다) 말풍선 모서리와 14 를 남긴다. 값은 help-bubble.yaml(root.offset · root.margin · root.maxWidth · arrow.*)이다.
 
 /// 말풍선이 트리거의 어느 쪽에 뜨나 — 기본은 [top]. 웹 Radix 의 side 와 같다.
 enum PHelpBubbleSide { top, bottom, left, right }
@@ -25,6 +25,9 @@ const double helpBubbleArrowHeight = 8;
 
 /// 화살표와 말풍선 모서리 사이의 최소 간격(arrow.margin).
 const double helpBubbleArrowMargin = 14;
+
+/// 화살표 가운데 ↔ 몸통 끝 — 화살표 모서리 14 + 화살표 반 폭 6.
+const double arrowEdge = helpBubbleArrowMargin + helpBubbleArrowWidth / 2;
 
 PHelpBubbleSide _opposite(PHelpBubbleSide side) => switch (side) {
   PHelpBubbleSide.top => PHelpBubbleSide.bottom,
@@ -68,9 +71,9 @@ class HelpBubblePlacement {
 /// 1. 몸통은 트리거에서 화살표 높이 + 4 = 12 떨어진 곳에 놓는다(화살표 끝이 트리거와 4).
 /// 2. 그 쪽에 가장자리 16 을 남기고 들어가지 않으면 반대편으로 뒤집는다. 양쪽 다 안 들어가면 넘침이 적은 쪽(floating-ui
 ///    bestFit).
-/// 3. 트리거 가운데에 맞춰 놓고 가장자리 16 안으로 옆으로 민다(말풍선이 화면보다 넓으면 왼쪽 가장자리에 맞춘다).
-/// 4. 화살표는 트리거 가운데를 가리키게 두되 몸통 모서리와 14 를 남긴다(몸통이 작아 못 남기면 그 반까지 — 화살표가 몸통 밖으로
-///    나가지 않게).
+/// 3. 화살표는 늘 트리거 가운데를 가리키고 몸통 모서리와 14 를 남긴다(화살표 가운데가 몸통 끝에서 20 안쪽).
+/// 4. 트리거 가운데에 맞춰 놓고 가장자리 16 안으로 옆으로 민다. 16 은 지는 값이다 — 트리거 가운데가 끝에서 20 안쪽이면 그만큼
+///    남기고 0 까지 붙는다(root.marginMin 0). 말풍선이 화면보다 넓으면 왼쪽 가장자리에 맞춘다.
 HelpBubblePlacement placeHelpBubble({
   required Rect target,
   required Size bubble,
@@ -99,11 +102,19 @@ HelpBubblePlacement placeHelpBubble({
       ? other
       : (overflow(other) < overflow(preferred) ? other : preferred);
 
-  // 옆으로 미는 쪽(가로 말풍선은 x, 세로 말풍선은 y)의 시작 — 트리거 가운데에 맞춰 놓고 16 안으로 민다
+  // 옆으로 미는 쪽(가로 말풍선은 x, 세로 말풍선은 y)의 시작 — 트리거 가운데에 맞춰 놓고 가장자리 안으로 민다. 가장자리 16 은
+  // 지는 값이다(root.marginMin 0): 트리거 가운데가 끝에서 20 안쪽이면 그만큼만 남기고 0 까지 붙는다. 화살표는 그대로 트리거
+  // 가운데를 가리키고, 말풍선만 밀린다(Q-004).
   double slide(double center, double length, double extent) {
-    final lo = helpBubbleMargin;
-    final hi = extent - helpBubbleMargin - length;
-    return hi < lo ? lo : (center - length / 2).clamp(lo, hi);
+    final lo = math.max(0.0, math.min(helpBubbleMargin, center - arrowEdge));
+    final hi =
+        extent -
+        math.max(0.0, math.min(helpBubbleMargin, extent - center - arrowEdge)) -
+        length;
+    final start = hi < lo ? lo : (center - length / 2).clamp(lo, hi);
+    // 화살표 가운데가 몸통 끝에서 20 안쪽에 남게(작은 몸통이면 그 반까지)
+    final m = math.min(arrowEdge, length / 2);
+    return start.clamp(center - length + m, center - m).toDouble();
   }
 
   final vertical = _vertical(side);
@@ -119,19 +130,11 @@ HelpBubblePlacement placeHelpBubble({
       : slide(target.center.dy, bubble.height, viewport.height);
   final body = Rect.fromLTWH(x, y, bubble.width, bubble.height);
 
-  // 화살표 — 트리거 가운데를 가리키되 몸통 모서리에서 14(작은 몸통이면 그 반까지) 안으로
-  final length = vertical ? bubble.width : bubble.height;
-  final pad = math.min(
-    helpBubbleArrowMargin,
-    length / 2 - helpBubbleArrowWidth / 2 - 1,
-  );
+  // 화살표 — 늘 트리거 가운데를 가리킨다(비키지도 지우지도 않는다). 말풍선이 밀려 몸통 끝에서 20 안쪽을 지키므로 clamp 가 없다
   final center = vertical
       ? target.center.dx - body.left
       : target.center.dy - body.top;
-  final arrowOffset = (center - helpBubbleArrowWidth / 2).clamp(
-    pad,
-    length - helpBubbleArrowWidth - pad,
-  );
+  final arrowOffset = center - helpBubbleArrowWidth / 2;
   final arrow = switch (side) {
     PHelpBubbleSide.top => Rect.fromLTWH(
       body.left + arrowOffset,

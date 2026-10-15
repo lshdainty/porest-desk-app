@@ -79,7 +79,6 @@ PBottomNavigation _bar({
         label: labels[i],
         current: i == current,
         notification: badges.contains(i),
-        notificationLabel: '새 소식',
         onTap: () => onTap?.call(i),
         onReselect: () => onReselect?.call(i),
       ),
@@ -454,7 +453,6 @@ void main() {
             label: '칸$i',
             onTap: () {},
             notification: badge,
-            notificationLabel: '새 소식',
           );
       PBottomNavigation make(List<PBottomNavigationItem> items) =>
           PBottomNavigation(
@@ -490,16 +488,6 @@ void main() {
           item(2, badge: true),
           item(3),
         ]),
-        throwsAssertionError,
-      );
-      expect(
-        () => PBottomNavigationItem(
-          icon: LucideIcons.house,
-          selectedIcon: LucideIcons.house500,
-          label: '홈',
-          onTap: () {},
-          notification: true,
-        ),
         throwsAssertionError,
       );
     });

@@ -13,10 +13,66 @@ import 'package:porest_desk_app/shared/ds/field/p_field.dart';
 import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
 import 'package:porest_desk_app/shared/ds/searchable_list/p_searchable_list.dart';
 
-// 거르는 것은 쓰는 쪽이다 — 공백 · 대소문자를 무시하고 글자 그대로 포함하는지 본다(견본의 규칙. 한글 초성 검색은 스펙에 없다)
-String _normalize(String s) => s.toLowerCase().replaceAll(RegExp(r'\s+'), '');
-bool _matches(String name, String query) =>
-    _normalize(name).contains(_normalize(query));
+// 거르는 것은 쓰는 쪽이다 — 공용 규칙(searchable-list.yaml results.filter): NFC · 대소문자 무시 · 공백 무시 · 포함, 이름 + 별칭.
+// 초성 검색은 보류(사용자가 나중에 정한다)라 하지 않는다.
+String _normalize(String s) =>
+    _nfc(s).toLowerCase().replaceAll(RegExp(r'\s+'), '');
+
+bool _matches(String name, String query, {List<String> aliases = const []}) {
+  final q = _normalize(query);
+  return _normalize(name).contains(q) ||
+      aliases.any((a) => _normalize(a).contains(q));
+}
+
+/// 한글 NFC — 낱자(초 · 중 · 종성 자모)로 쪼개져 들어온 글을 음절로 모은다(맥 · 일부 키보드의 입력). 한글 밖은 그대로 둔다.
+String _nfc(String s) {
+  if (!s.runes.any((r) => r >= 0x1100 && r <= 0x11FF)) return s;
+  const sBase = 0xAC00, lBase = 0x1100, vBase = 0x1161, tBase = 0x11A7;
+  const lCount = 19, vCount = 21, tCount = 28;
+  final out = <int>[];
+  for (final r in s.runes) {
+    if (out.isNotEmpty) {
+      final last = out.last;
+      // 초성 + 중성 → 음절
+      if (last >= lBase &&
+          last < lBase + lCount &&
+          r >= vBase &&
+          r < vBase + vCount) {
+        out[out.length - 1] =
+            sBase + ((last - lBase) * vCount + (r - vBase)) * tCount;
+        continue;
+      }
+      // 음절(받침 없음) + 종성 → 받침을 얹는다
+      if (last >= sBase &&
+          last < sBase + lCount * vCount * tCount &&
+          (last - sBase) % tCount == 0 &&
+          r > tBase &&
+          r < tBase + tCount) {
+        out[out.length - 1] = last + (r - tBase);
+        continue;
+      }
+    }
+    out.add(r);
+  }
+  return String.fromCharCodes(out);
+}
+
+// 별칭 — 사람들이 부르는 줄임말 · 영문 표기. 이름에 없어도 찾아진다
+const Map<String, List<String>> _bankAliases = {
+  '국민은행': ['KB', 'KB국민은행'],
+  '카카오뱅크': ['카뱅', 'kakaobank'],
+  '토스뱅크': ['토뱅'],
+  '케이뱅크': ['kbank'],
+  '신협': ['신용협동조합'],
+  '우체국': ['우정사업본부'],
+};
+const Map<String, List<String>> _cardAliases = {
+  'T-Pay 신한카드': ['티페이'],
+  '삼성 iD ON 카드': ['아이디온'],
+  '현대카드 ZERO Edition2': ['제로'],
+  'KB국민 노리2 체크카드': ['노리', '국민카드'],
+  'NH농협 올바른 FLEX 카드': ['올바른', '농협'],
+};
 
 typedef _Group = ({String label, List<String> banks});
 const List<_Group> _bankGroups = [
@@ -340,11 +396,21 @@ class _BankPickerState extends State<_BankPicker> {
   String? _bank;
   bool _open = false;
 
+  // 검색칸의 초점 노드 — 시트(첫 초점)와 묶음(검색칸)이 같은 노드를 쓴다
+  final FocusNode _searchFocus = FocusNode(debugLabel: 'bank search');
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    super.dispose();
+  }
+
   Future<void> _openSheet() async {
     setState(() => _open = true);
     final result = await PBottomSheet.show<String>(
       context,
-      builder: (_) => _BankSheet(initial: _bank),
+      initialFocus: _searchFocus,
+      builder: (_) => _BankSheet(initial: _bank, searchFocus: _searchFocus),
     );
     if (!mounted) return;
     setState(() {
@@ -369,9 +435,10 @@ class _BankPickerState extends State<_BankPicker> {
 }
 
 class _BankSheet extends StatefulWidget {
-  const _BankSheet({required this.initial});
+  const _BankSheet({required this.initial, required this.searchFocus});
 
   final String? initial;
+  final FocusNode searchFocus;
 
   @override
   State<_BankSheet> createState() => _BankSheetState();
@@ -388,7 +455,7 @@ class _BankSheetState extends State<_BankSheet> {
           label: g.label,
           banks: [
             for (final b in g.banks)
-              if (_matches(b, _query)) b,
+              if (_matches(b, _query, aliases: _bankAliases[b] ?? const [])) b,
           ],
         ),
     ].where((g) => g.banks.isNotEmpty).toList();
@@ -401,6 +468,7 @@ class _BankSheetState extends State<_BankSheet> {
       body: SizedBox(
         height: height,
         child: PSearchableList(
+          focusNode: widget.searchFocus,
           defaultValue: widget.initial,
           // 고르면 닫는다 — "완료" 없음
           onValueChanged: (v) => PBottomSheet.of(context).close(v),
@@ -499,7 +567,12 @@ class _ServerSearchState extends State<_ServerSearch> {
         if (!_failed) {
           _data = [
             for (final c in _cards)
-              if (_matches(c.name, query) || _matches(c.issuer, query)) c,
+              if (_matches(
+                c.name,
+                query,
+                aliases: [c.issuer, ...?_cardAliases[c.name]],
+              ))
+                c,
           ];
         }
       });

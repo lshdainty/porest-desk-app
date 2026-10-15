@@ -205,7 +205,7 @@ class PChartTooltip extends StatelessWidget {
 }
 
 /// 툴팁을 앵커 곁에 둔다 — [side] 가 [PChartTipSide.beside] 면 앵커 오른쪽 12(모자라면 왼쪽), [above] 면 앵커 위 8(모자라면
-/// 아래). 가장자리와 8 을 지킨다. 크기는 툴팁이 정하므로 배치는 크기를 안 뒤에 한다.
+/// 아래). 가장자리와 8 을 지킨다. 크기는 툴팁이 정하므로 배치는 크기를 안 뒤에 한다. [above] 는 Overlay(화면 기준)에서 쓴다.
 enum PChartTipSide { beside, above }
 
 class PChartTipLayout extends SingleChildLayoutDelegate {
@@ -236,8 +236,14 @@ class PChartTipLayout extends SingleChildLayoutDelegate {
             : anchor.dx - PSpacing.x3 - childSize.width;
         return Offset(clampX(x), clampY(anchor.dy - childSize.height / 2));
       case PChartTipSide.above:
+        // 칸 위 8 — 화면 가장자리 8 안에 못 들어가면 아래로 뒤집고, 아래도 가장자리를 넘지 않게 민다
         final above = anchor.dy - PSpacing.x2 - childSize.height;
-        final y = above >= 0 ? above : anchor.dy + PSpacing.x2;
+        final y = above >= _edge
+            ? above
+            : math.min(
+                anchor.dy + PSpacing.x2,
+                math.max(_edge, size.height - _edge - childSize.height),
+              );
         return Offset(clampX(anchor.dx - childSize.width / 2), y);
     }
   }

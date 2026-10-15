@@ -3,7 +3,7 @@
   "source": "specs/components/chart.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "차트 상자 — 카드 본문 안, 폭 100%. 높이는 쓰는 자리가 정한다",
@@ -62,7 +62,8 @@
     "enabled",
     "hovered",
     "pressed",
-    "focused"
+    "focused",
+    "disabled"
   ],
   "rules": [
     {
@@ -188,7 +189,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,
@@ -208,7 +209,7 @@
           "typography": {
             "fontSize": 11,
             "lineHeight": 15,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,
@@ -217,12 +218,6 @@
         }
       },
       "hovered": {
-        "legendTile": {
-          "background": {
-            "light": "#F7F8FD",
-            "dark": "#353B4D"
-          }
-        },
         "legendList": {
           "background": {
             "light": "#F7F8FD",
@@ -282,7 +277,11 @@
       },
       "enabled": {
         "series": {
-          "thickness": 22
+          "diameter": 160,
+          "diameterPhone": 120,
+          "thickness": "지름 ÷ 10 + 6",
+          "thicknessPerDiameter": 0.1,
+          "thicknessOffset": 6
         }
       }
     },
@@ -293,6 +292,11 @@
       "enabled": {
         "heatmapCell": {
           "gap": 6
+        },
+        "tooltip": {
+          "placement": "칸 위",
+          "offset": 8,
+          "viewportMargin": 8
         }
       }
     },
@@ -314,6 +318,12 @@
         "legendTile": {
           "background": "chart-{색}-subtle"
         }
+      },
+      "disabled": {
+        "legendTile": {
+          "cursor": "not-allowed",
+          "scale": "없음"
+        }
       }
     },
     {
@@ -330,6 +340,14 @@
           "borderColor": {
             "light": "#E5E8EF",
             "dark": "#404757"
+          }
+        }
+      },
+      "hovered": {
+        "legendTile": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
           }
         }
       }
@@ -663,17 +681,10 @@
     },
     {
       "rule": 0,
-      "state": "hovered",
-      "slot": "legendTile",
-      "prop": "background",
-      "note": "끈 타일만 — 켠 타일은 바탕 그대로"
-    },
-    {
-      "rule": 0,
       "state": "pressed",
       "slot": "legendTile",
       "prop": "scale",
-      "note": "모션 줄이기면 하지 않는다"
+      "note": "색 없이 축소만 — 바탕이 이미 켬 · 끔을 말해 누름에 색을 쓰지 않는다(SEED Feedback Color). 마우스로 누르면 끈 타일의 호버 바탕은 그대로 남는다(Q-012-2). 모션 줄이기면 하지 않는다"
     },
     {
       "rule": 0,
@@ -707,8 +718,36 @@
       "rule": 3,
       "state": "enabled",
       "slot": "series",
+      "prop": "diameter",
+      "note": "데스크톱 대시보드 — 지름은 쓰는 자리가 정한다. 두께는 지름에서 식으로 나온다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "series",
+      "prop": "diameterPhone",
+      "note": "폰 대시보드 — 구멍 84 에 가운데 합계가 들어가지 않아 목록 위로 옮긴다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "series",
       "prop": "thickness",
-      "note": "지름 160 기준 — 폰 120 은 18. 조각 사이 0"
+      "note": "정수로 반올림 — 지름 112 → 17 · 120 → 18 · 140 → 20 · 160 → 22 · 176 → 24 · 180 → 24. 문턱 없이 지름을 따라 고르게 굵어진다(2026-10-15 사용자 결정 — 구현 세션 질문 Q-012-5, 안 C). 조각 사이 0"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "series",
+      "prop": "thicknessPerDiameter",
+      "note": "두께 식의 기울기 — 지름 ÷ 10"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "series",
+      "prop": "thicknessOffset",
+      "note": "두께 식의 더하는 값 — + 6"
     },
     {
       "rule": 4,
@@ -716,6 +755,27 @@
       "slot": "heatmapCell",
       "prop": "gap",
       "note": "칸 사이 6 — 가로 · 세로 같다. 왼쪽 시간대 라벨 열 56(이름 13 · 700 + 시간 11 · fg-neutral-subtle), 위 요일 머리 12 · fg-neutral-subtle"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "tooltip",
+      "prop": "placement",
+      "note": "화면에 자리가 모자랄 때만 칸 아래로 뒤집는다 — 떠 있는 층(z-floating)이라 카드 · 열지도 상자에 갇히지 않고, 첫 줄 칸도 카드 머리 위로 뜬다(Q-012-6). 가운데는 칸 가운데"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "tooltip",
+      "prop": "offset",
+      "note": "칸 ↔ 툴팁 — 위 · 아래 같다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "tooltip",
+      "prop": "viewportMargin",
+      "note": "화면 가장자리와 최소 8 — 좌우로 밀어 넣고, 위에 8 이 남지 않으면 아래로"
     },
     {
       "rule": 5,
@@ -729,7 +789,21 @@
       "state": "enabled",
       "slot": "legendTile",
       "prop": "background",
-      "note": "그 계열 색의 넓은 면 옅은 바탕(v111) — 테두리 없음. aria-pressed=\"true\""
+      "note": "그 계열 색의 넓은 면 옅은 바탕(v111) — 테두리 없음. aria-pressed=\"true\". 호버 바탕 없음"
+    },
+    {
+      "rule": 6,
+      "state": "disabled",
+      "slot": "legendTile",
+      "prop": "cursor",
+      "note": "켠 계열이 하나만 남은 타일 — 끌 수 없다를 커서가 알린다. v106 비활성 커서와 같다(2026-10-15 사용자 결정 — 구현 세션 질문 Q-012-3, 안 C). 포인터 이벤트는 끄지 않는다(끄면 커서가 안 보인다)"
+    },
+    {
+      "rule": 6,
+      "state": "disabled",
+      "slot": "legendTile",
+      "prop": "scale",
+      "note": "눌러도 아무 일이 없다 — 축소도 하지 않는다. 바탕 · 글자색은 켠 타일 그대로(회색으로 바꾸지 않는다), aria-disabled=\"true\""
     },
     {
       "rule": 7,
@@ -737,6 +811,13 @@
       "slot": "legendTile",
       "prop": "background",
       "note": "흰 면 + 안쪽 1px stroke-neutral-weak — 계열이 숨었다. aria-pressed=\"false\""
+    },
+    {
+      "rule": 7,
+      "state": "hovered",
+      "slot": "legendTile",
+      "prop": "background",
+      "note": "끈 타일만 — 켠 타일은 바탕이 계열 색이라 호버 바탕을 두지 않는다(Q-012-2)"
     },
     {
       "rule": 17,

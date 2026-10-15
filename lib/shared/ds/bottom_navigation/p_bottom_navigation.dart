@@ -142,11 +142,7 @@ class PBottomNavigationItem {
     this.current = false,
     this.onReselect,
     this.notification = false,
-    this.notificationLabel,
-  }) : assert(
-         !notification || notificationLabel != null,
-         '알림 점이 있으면 칸 이름 뒤에 덧붙일 글(notificationLabel — 예: "새 소식")을 준다 — 점만으로 알리지 않는다',
-       );
+  });
 
   /// 기본 굵기(선 2) lucide 아이콘.
   final IconData icon;
@@ -166,9 +162,6 @@ class PBottomNavigationItem {
 
   /// 알림 점 — 2칸까지.
   final bool notification;
-
-  /// 알림 점이 있을 때 칸 이름 뒤에 덧붙일 글(웹 sr-only "새 소식").
-  final String? notificationLabel;
 }
 
 /// 가운데 + — 탭이 아니라 그 화면의 추가 동작이다. 브랜드 원 44(줄어듦 36) + 흰 + 24(20), 라벨 없음, 누르는 영역은 칸 전체.
@@ -393,7 +386,7 @@ class _ItemCell extends StatelessWidget {
     final current = item.current;
     final color = current ? c.fgNeutral : c.fgNeutralSubtle;
     final name = item.notification
-        ? '${item.label} ${item.notificationLabel}'
+        ? '${item.label} $notificationBadgeName'
         : item.label;
     final void Function()? tap = current ? item.onReselect : item.onTap;
 

@@ -3,11 +3,12 @@
   "source": "specs/components/card-art.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "카드 그림 — Image Frame ratio card(1.586). 그림이 있으면 그림, 없으면 카드 면 또는 대체 그림",
-    "face": "카드 면 — 그림이 없는 아는 카드사의 카드. 기관 색 한 색, 글은 왼쪽 아래",
+    "face": "카드 면 — 그림이 없는 아는 카드사의 카드. 기관 색 한 색",
+    "label": "글 묶음 — 회사 · 카드 이름. 면 왼쪽 아래에 붙는다(레시피 data-slot=\"card-art-label\" — 2026-10-15 구현 세션 질문 Q-013 정리)",
     "issuer": "회사 이름 — 카드 이름 위 한 줄",
     "name": "카드 이름 — 회사 이름 아래, medium 한 줄 · large 두 줄까지",
     "initial": "회사 첫 글자 — 작은 면(폭 96 미만) 가운데. 회사 · 카드 이름 대신"
@@ -66,7 +67,7 @@
         "size": "medium"
       },
       "enabled": {
-        "face": {
+        "label": {
           "paddingX": 10,
           "paddingBottom": 8
         },
@@ -93,7 +94,7 @@
         "size": "large"
       },
       "enabled": {
-        "face": {
+        "label": {
           "paddingX": 16,
           "paddingBottom": 14
         },

@@ -3,7 +3,7 @@
   "source": "specs/components/institution-colors.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "data": {
     "name": "InstitutionColors",

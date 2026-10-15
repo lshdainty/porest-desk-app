@@ -148,7 +148,6 @@ class _ScreenState extends State<_Screen> {
                                 label: widget.labels[i],
                                 current: i == _current,
                                 notification: widget.badges.contains(i),
-                                notificationLabel: '새 소식',
                                 onTap: () => setState(() => _current = i),
                                 onReselect: () {},
                               ),

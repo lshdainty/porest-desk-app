@@ -187,10 +187,14 @@ void main() {
     final placement = _layout(tester).placement;
     // 위가 모자라 아래로
     expect(placement.side, PHelpBubbleSide.bottom);
-    expect(
-      placement.body.left,
-      greaterThanOrEqualTo(want['root.margin'] as num),
+    // 가장자리 16 은 지는 값이다(root.marginMin 0 — Q-004): 트리거 가운데가 끝에서 20 안쪽이면 그만큼만 남기고 0 까지 붙는다
+    final trigger = tester.getRect(find.byKey(const ValueKey('a')));
+    final gap = (trigger.center.dx - 20).clamp(
+      want['root.marginMin'] as num,
+      want['root.margin'] as num,
     );
+    expect(placement.body.left, gap);
+    expect(placement.tip.dx, trigger.center.dx, reason: '화살표는 늘 트리거 가운데');
     expect(placement.body.width, 300 - 2 * (want['root.margin'] as num));
   });
 

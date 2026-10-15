@@ -3,7 +3,7 @@
   "source": "specs/components/card.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "카드 면 — 바닥(bg-layer-basement) 위 흰 면 + 1px 테두리, 그림자 없음",
@@ -92,7 +92,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,
@@ -109,7 +109,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -131,7 +131,7 @@
           "typography": {
             "fontSize": 13,
             "lineHeight": 18,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -153,7 +153,7 @@
           "typography": {
             "fontSize": 13,
             "lineHeight": 18,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -402,7 +402,8 @@
             "dark": "#1F3A69"
           },
           "borderWidth": 0,
-          "padding": 24
+          "padding": 24,
+          "paddingBottom": 24
         },
         "heroGlow": {
           "size": 240,
@@ -412,7 +413,7 @@
           "typography": {
             "fontSize": 13,
             "lineHeight": 18,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -422,7 +423,7 @@
           "typography": {
             "fontSize": 32,
             "lineHeight": 42,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,
@@ -440,6 +441,13 @@
           "fontWeight": 400,
           "foreground": "#FFFFFF",
           "marginTop": 4
+        },
+        "delta": {
+          "foreground": "#FFFFFF",
+          "marginTop": 0
+        },
+        "deltaText": {
+          "foreground": "#FFFFFF"
         }
       }
     }
@@ -538,7 +546,7 @@
       "state": "enabled",
       "slot": "headerAction",
       "prop": "touchTarget",
-      "note": "보이는 32 위아래로 6 씩 · 옆은 글 폭 + 여백(44 보다 좁으면 44). AA ✓ · AAA ✓"
+      "note": "보이는 32 위아래로 6 씩 · 옆은 글 폭 + 여백(44 보다 좁으면 44). AA ✓ · AAA ✓. 앱 — 보이는 자리를 바꾸지 않고 누르는 영역만 위아래 6 넓힌다(부모 상자 밖도 받는다 — 머리 줄 높이 · 여백은 그대로). 6B 44 × 44 의 앱 풀이 — Q-011-8"
     },
     {
       "rule": 0,
@@ -573,7 +581,7 @@
       "state": "enabled",
       "slot": "delta",
       "prop": "marginTop",
-      "note": "숫자 ↔ 증감 줄"
+      "note": "지표 카드의 숫자 ↔ 증감 줄(지표 묶음 CardStat 이 준다). 순자산 카드 안에서는 0 — 위 4 는 heroDetail 이 준다"
     },
     {
       "rule": 0,
@@ -753,6 +761,13 @@
     {
       "rule": 11,
       "state": "enabled",
+      "slot": "root",
+      "prop": "paddingBottom",
+      "note": "24 — 본문이 늘 content 라 목록 카드의 아래 12 를 받지 않는다(Q-011-7)"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
       "slot": "heroGlow",
       "prop": "size",
       "note": "오른쪽 위 장식 빛 — 원의 오른쪽 −40 · 위 −80(카드 밖으로 나간 부분은 모서리가 자른다)"
@@ -791,6 +806,27 @@
       "slot": "heroDetail",
       "prop": "foreground",
       "note": "증감도 흰 글자 + ▲ · ▼ — 빨강 · 파랑은 브랜드 채움 위 1.66 · 1.65(라이트)라 읽히지 않는다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "delta",
+      "prop": "foreground",
+      "note": "방향과 상관없이 흰 ▲ · ▼ + 값(16A) — 증감 방향 색의 하나뿐인 예외. 빨강 · 파랑은 브랜드 채움 위 1.66 · 1.65 라 읽히지 않는다(Q-011-3)"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "delta",
+      "prop": "marginTop",
+      "note": "위 4 는 heroDetail 이 준다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "deltaText",
+      "prop": "foreground",
+      "note": "기준 글도 흰 글자 — 흐리게(불투명도) 두지 않는다(v106)"
     }
   ]
 }

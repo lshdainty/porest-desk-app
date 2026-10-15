@@ -64,7 +64,6 @@ PSegmentedItem<String> _item(
   label: label,
   enabled: enabled,
   notification: notification,
-  notificationLabel: notification ? '새 내용' : null,
 );
 
 /// 견본 — 오늘 · 이번 주 · 전체. 재는 칸은 가운데(이번 주)다.
@@ -734,14 +733,6 @@ void main() {
         );
       }
     });
-
-    test('알림 점이 있으면 읽는 글을 함께 준다', () {
-      expect(
-        () =>
-            PSegmentedItem<String>(value: 'a', label: '완료', notification: true),
-        throwsAssertionError,
-      );
-    });
   });
 
   group('누르기 · 고르기', () {
@@ -846,11 +837,11 @@ void main() {
       expect(_dot, findsOneWidget);
       final width = tester.getSize(_plate(1)).width;
       // 점이 있는 칸 이름 뒤에 읽는 글을 덧붙인다 — 점만으로 알리지 않는다
-      expect(find.bySemanticsLabel('완료 새 내용'), findsOneWidget);
+      expect(find.bySemanticsLabel('완료 새 소식'), findsOneWidget);
       await tester.tap(find.text(keepAll('완료')));
       await tester.pump(const Duration(milliseconds: 400));
       expect(_dot, findsNothing);
-      expect(find.bySemanticsLabel('완료 새 내용'), findsNothing);
+      expect(find.bySemanticsLabel('완료 새 소식'), findsNothing);
       expect(find.bySemanticsLabel('완료'), findsOneWidget);
       expect(tester.getSize(_plate(1)).width, width);
       semantics.dispose();

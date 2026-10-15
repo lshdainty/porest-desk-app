@@ -38,6 +38,9 @@ export 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_route.dart'
 /// );
 /// ```
 ///
+/// 첫 초점 — 처음 초점은 시트에 가지만 내용이 첫 자리를 정하면([initialFocus] — 검색 시트의 검색칸) 시트가 그리로 넘겨준다.
+/// 내용이 스스로 한 프레임 뒤에 다시 잡지 않는다(시트를 읽던 낭독기가 끊기지 않게). 노드의 주인은 부르는 쪽이다.
+///
 /// 닫는 길 — 닫기 버튼 · 뒤로 가기 · `Esc` 는 늘 닫고 [isDirty] 가 참이면 먼저 "작성한 내용이 사라져요" 를 묻는다.
 /// 바깥(딤) 누르기 · 아래로 끌기는 조회 · 고르기 시트만 닫는다(입력 폼 [form] 은 무시, 손잡이도 없다). 끌기는 놓을 때
 /// 0.4px/ms 보다 빠르거나 높이의 25% 이상 내려왔으면 닫고 아니면 200ms exit 로 제자리 — 열린 뒤 0.5초와 본문이 스크롤된
@@ -58,6 +61,7 @@ abstract final class PBottomSheet {
     bool Function()? isDirty,
     PLeaveConfirmCopy? leaveCopy,
     List<double>? snapPoints,
+    FocusNode? initialFocus,
     bool useRootNavigator = true,
   }) {
     assert(
@@ -82,6 +86,7 @@ abstract final class PBottomSheet {
         isDirty: isDirty,
         leaveCopy: leaveCopy,
         snapPoints: form ? null : snapPoints,
+        initialFocus: initialFocus,
       ),
     );
   }

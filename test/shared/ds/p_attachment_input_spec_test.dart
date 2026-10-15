@@ -1,7 +1,7 @@
 // Attachment Input 이 스펙 값대로인지 — 첨부 타일(열림 · 가득) · 항목(사진 · 파일 × 고른 직후 · 올리는 중 · 올림 · 실패) · × · 대표 띠 ·
 // 읽기 전용 · 막힘 · 파일 선택 버튼 × 라이트 · 다크. 값은 test/fixtures/design_spec/attachment-input.json, 웹은 같은 JSON 을
 // 크로미움에서 잰다. 아래 동작 묶음은 웹 attachment-input.test.tsx 가 잡는 것(고르기 · 다시 검사 · 거절 · 올리는 중 멈춤 · 실패 ·
-// 지우기 초점 · 항목 메뉴 · 접근성)을 앱 위젯으로 같이 잡는다(앱은 끌기가 없다 — 항목 메뉴가 순서 바꾸기의 길이다).
+// 지우기 초점 · 항목 메뉴 · 접근성)을 앱 위젯으로 같이 잡는다(앱의 끌기는 250ms 길게 눌러 끈다 — 항목 메뉴 · 접근성 동작이 같은 일을 한다).
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -1460,11 +1460,252 @@ void main() {
         };
       }
 
-      expect(actions('b'), {'앞으로 옮기기', '뒤로 옮기기'});
-      expect(actions('a'), {'뒤로 옮기기'});
-      expect(actions('c'), {'앞으로 옮기기'});
+      expect(actions('b'), {'앞으로 옮기기', '뒤로 옮기기', '지우기'});
+      expect(actions('a'), {'뒤로 옮기기', '지우기'});
+      expect(actions('c'), {'앞으로 옮기기', '지우기'});
       handle.dispose();
     });
+  });
+
+  group('길게 눌러 끌기 · × 먼저 · 위 16(Q-016)', () {
+    Widget reorderable(
+      List<PAttachmentEntry> entries,
+      ValueChanged<List<PAttachmentEntry>> onReorder, {
+      ValueChanged<String>? onRemove,
+      ValueChanged<String>? onPreview,
+      bool? readOnly,
+      String? badge,
+    }) => _host(
+      Brightness.light,
+      _input(
+        entries: entries,
+        onReorder: onReorder,
+        onRemove: onRemove,
+        onPreview: onPreview,
+        readOnly: readOnly,
+        badge: badge,
+      ),
+    );
+
+    final ghost = find.byKey(const ValueKey('attachment-drag-ghost'));
+
+    testWidgets(
+      '250ms 길게 누르면 끌기 — 2px 줄어든 채 손가락을 따라가고(사진 불투명도 0.5 · × 와 구멍 없음), 놓은 자리로 옮긴다',
+      (tester) async {
+        final calls = <List<String>>[];
+        await tester.pumpWidget(
+          reorderable(
+            [_entry('a'), _entry('b'), _entry('c')],
+            (next) => calls.add([for (final e in next) e.id]),
+            badge: '대표',
+          ),
+        );
+        final a = tester.getRect(
+          find.descendant(
+            of: find.byKey(const ValueKey('attachment-item-a')),
+            matching: _body,
+          ),
+        );
+        final c = tester.getRect(
+          find.descendant(
+            of: find.byKey(const ValueKey('attachment-item-c')),
+            matching: _body,
+          ),
+        );
+        final finger = await tester.startGesture(a.center);
+        // 문턱 전에는 끌기가 아니다
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(ghost, findsNothing);
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(ghost, findsOneWidget, reason: '250ms 지나면 끌기');
+        // 모습 — 2px 줄어듦(78 / 80) · 사진 불투명도 0.5 · × 없음
+        final scale = tester.widget<Transform>(ghost);
+        expect(scale.transform.storage[0], closeTo(78 / 80, 1e-6));
+        expect(
+          find.descendant(of: ghost, matching: find.byType(Opacity)),
+          findsOneWidget,
+        );
+        expect(
+          tester
+              .widget<Opacity>(
+                find.descendant(of: ghost, matching: find.byType(Opacity)),
+              )
+              .opacity,
+          0.5,
+        );
+        expect(find.descendant(of: ghost, matching: _remove), findsNothing);
+        // 손가락을 따라간다
+        await finger.moveTo(a.center + const Offset(60, 0));
+        await tester.pump();
+        expect(
+          tester.getRect(ghost).center.dx,
+          closeTo(a.center.dx + 60, 1),
+          reason: '손가락 가로를 따라간다',
+        );
+        await finger.moveTo(c.center);
+        await tester.pump();
+        // 이웃이 비켜서 있다 — 끄는 항목의 자리가 마지막으로
+        await finger.up();
+        await tester.pump();
+        expect(ghost, findsNothing);
+        expect(calls, [
+          ['b', 'c', 'a'],
+        ]);
+      },
+    );
+
+    testWidgets('문턱 전에 움직이면 끌기가 아니다 — 그냥 떼면 누르기(메뉴)', (tester) async {
+      final calls = <List<String>>[];
+      await tester.pumpWidget(
+        reorderable([_entry('a'), _entry('b')], (next) => calls.add([])),
+      );
+      final a = tester.getCenter(
+        find.descendant(
+          of: find.byKey(const ValueKey('attachment-item-a')),
+          matching: _body,
+        ),
+      );
+      final quick = await tester.startGesture(a);
+      await tester.pump(const Duration(milliseconds: 100));
+      await quick.up();
+      await tester.pumpAndSettle();
+      expect(ghost, findsNothing);
+      expect(calls, isEmpty);
+      expect(_label('뒤로 옮기기'), findsOneWidget, reason: '메뉴 시트가 열렸다');
+      // 같은 자리에 두면 순서는 그대로
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      final held = await tester.startGesture(a);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(ghost, findsOneWidget);
+      await held.up();
+      await tester.pump();
+      expect(calls, isEmpty, reason: '제자리에 놓으면 바뀌지 않는다');
+    });
+
+    testWidgets('읽기 전용 · onReorder 없음이면 끌리지 않는다', (tester) async {
+      await tester.pumpWidget(
+        reorderable([_entry('a'), _entry('b')], (_) {}, readOnly: true),
+      );
+      final a = tester.getCenter(
+        find.descendant(
+          of: find.byKey(const ValueKey('attachment-item-a')),
+          matching: _body,
+        ),
+      );
+      final g = await tester.startGesture(a);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(ghost, findsNothing);
+      await g.up();
+      await tester.pumpWidget(
+        _host(Brightness.light, _input(entries: [_entry('a'), _entry('b')])),
+      );
+      final h = await tester.startGesture(a);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(ghost, findsNothing);
+      await h.up();
+    });
+
+    testWidgets('이웃과 겹친 8 × 28 에서는 × 가 먼저 받는다 — 옆 사진 메뉴가 열리지 않는다', (
+      tester,
+    ) async {
+      final removed = <String>[];
+      await tester.pumpWidget(
+        reorderable([_entry('a'), _entry('b')], (_) {}, onRemove: removed.add),
+      );
+      final a = tester.getRect(
+        find.descendant(
+          of: find.byKey(const ValueKey('attachment-item-a')),
+          matching: _body,
+        ),
+      );
+      final b = tester.getRect(
+        find.descendant(
+          of: find.byKey(const ValueKey('attachment-item-b')),
+          matching: _body,
+        ),
+      );
+      expect(b.left - a.right, 8, reason: '항목 사이 8');
+      // a 의 × 가운데는 a 오른쪽 위 모서리 안쪽 6 — 누르는 44 는 오른쪽으로 16 나가 b 의 왼쪽 8 위로 겹친다
+      final overlap = Offset(b.left + 4, b.top + 14);
+      expect(b.contains(overlap), isTrue, reason: 'b 사진 위의 점');
+      await tester.tapAt(overlap);
+      await tester.pumpAndSettle();
+      expect(removed, ['a'], reason: '× 가 먼저 받는다');
+      expect(_label('뒤로 옮기기'), findsNothing, reason: 'b 의 메뉴는 열리지 않는다');
+      // 겹침 밖(b 의 안쪽)은 b 가 받는다
+      await tester.tapAt(Offset(b.left + 30, b.top + 40));
+      await tester.pumpAndSettle();
+      expect(removed, ['a']);
+      expect(_label('앞으로 옮기기'), findsOneWidget, reason: 'b 의 메뉴');
+    });
+
+    testWidgets('칸이 맨 위여도(라벨 없음) × 의 위 16 이 잘리지 않는다', (tester) async {
+      final removed = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: PorestTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ko'),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 342,
+                child: _input(entries: [_entry('a')], onRemove: removed.add),
+              ),
+            ),
+          ),
+        ),
+      );
+      final body = tester.getRect(_body);
+      // × 가운데(오른쪽 위 모서리 안쪽 6)에서 위로 11 — 보이는 원 밖 · 누르는 44 안
+      final point = Offset(body.right - 6, body.top + 6 - 11);
+      expect(point.dy, greaterThan(0), reason: '화면 안에 남는다');
+      await tester.tapAt(point);
+      await tester.pump();
+      expect(removed, ['a']);
+    });
+
+    testWidgets(
+      'Field(edgeInset 24) 안 — 입력은 화면 폭 그대로, 머리 · 꼬리만 24 들어오고 줄 안쪽 여백이 24 다(bleed)',
+      (tester) async {
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PField(
+              label: '영수증',
+              description: '사진 · PDF 를 10MB 까지 올려요.',
+              edgeInset: 24,
+              child: _input(entries: [_entry('a')]),
+            ),
+            width: 360,
+          ),
+        );
+        final field = tester.getRect(find.byType(PField));
+        // 입력(줄)은 Field 폭 전체
+        expect(
+          tester.getSize(find.byType(SingleChildScrollView)).width,
+          field.width,
+        );
+        // 첫 타일은 다른 칸과 같은 자리(24)에서 시작한다
+        expect(tester.getRect(_trigger).left - field.left, 24);
+        // 머리 · 꼬리는 24 들어온 자리(2 + 24)
+        final label = tester.getRect(
+          find
+              .byWidgetPredicate(
+                (w) => w is RichText && w.text.toPlainText().startsWith('영수증'),
+              )
+              .first,
+        );
+        expect(label.left - field.left, 26);
+        final description = tester.getRect(
+          find.text('사진 · PDF 를 10MB 까지 올려요.'),
+        );
+        expect(description.left - field.left, 26);
+      },
+    );
   });
 
   group('접근성', () {
