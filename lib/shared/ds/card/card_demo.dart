@@ -4,15 +4,17 @@ import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/accordion/p_accordion.dart';
 import 'package:porest_desk_app/shared/ds/card/p_card.dart';
 import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
 import 'package:porest_desk_app/shared/ds/list/p_list.dart';
 import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
 
 /// 카탈로그(/dev/ds) — 글 카드(머리 + 본문) · 목록 카드 · 아코디언 카드 · 누름 셋(none · whole · peers) · 지표(large · small ·
 /// 증감 셋 · 가장 나쁜 값) · 순자산(hero) · 기다림 · 실패. 웹 견본과 같은 구성이다. 카드는 늘 회색 바닥 위에 둔다 — 폰은 카드 사이 8.
-/// 앱에는 Accordion 이 아직 없어 아코디언 카드는 같은 모양의 줄로 자리만 잡는다. 눌러 보는 견본은 손가락으로 누른다(멈춘 누름은
+/// 아코디언 카드는 진짜 [PAccordion] 을 담는다. 눌러 보는 견본은 손가락으로 누른다(멈춘 누름은
 /// previewPressed).
 class CardDemo extends StatelessWidget {
   const CardDemo({super.key});
@@ -203,13 +205,21 @@ class _ListCardDemo extends StatelessWidget {
                   body: PCardBody.accordion,
                   children: [
                     const PCardHeader(title: '혜택 · 12건'),
-                    // Accordion 은 아직 없다 — 트리거가 제 좌우 24 · 위아래 16 을 갖는 자리를 같은 모양의 줄로 둔다
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PSpacing.x6,
-                        vertical: PSpacing.x4,
-                      ),
-                      child: Text('주유 할인 — 리터당 60원', style: PTypography.t5),
+                    // 트리거가 카드 가장자리까지 간다 — 제 좌우 24 · 위아래 16 을 가진다
+                    PAccordion(
+                      children: [
+                        PAccordionItem(
+                          value: 'fuel',
+                          title: '주유 할인',
+                          description: '리터당 60원 청구 할인',
+                          child: Text(keepAll('주유소 · 충전소에서 월 2회까지 받아요.')),
+                        ),
+                        PAccordionItem(
+                          value: 'coffee',
+                          title: '커피 할인',
+                          child: Text(keepAll('월 3회 · 건당 최대 3,000원까지 받아요.')),
+                        ),
+                      ],
                     ),
                   ],
                 ),

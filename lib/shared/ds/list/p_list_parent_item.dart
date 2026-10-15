@@ -1,10 +1,9 @@
-import 'dart:math' as math;
-
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/accordion/p_expand_motion.dart';
 import 'package:porest_desk_app/shared/ds/list/list_row.dart';
 
 /// 하위 줄을 접는 부모 줄 — 카테고리처럼 부모 · 하위 두 단계로 된 목록에서 줄 자체는 편집을 열고 하위 줄만 접을 때. 구조는
@@ -313,10 +312,9 @@ Color _lerpPremultiplied(Color a, Color b, double t) {
   );
 }
 
-/// 하위 줄 묶음 — 부모 줄 바로 아래에서 펼치고 접힌다. 높이 300ms(`motion-ease-easing`) — 지금 높이에서 목표까지 이어
-/// 가고(움직이는 도중에 다시 누르면 지금 높이에서 되돌아간다), 모션 줄이기면 높이를 움직이지 않고 150ms 서서히 나타나고
-/// 사라진다. 처음 그릴 때는 움직이지 않는다. 접힘이 끝나면 하위 줄을 트리에서 뺀다.
-class _PListSubList extends StatefulWidget {
+/// 하위 줄 묶음 — 부모 줄 바로 아래에서 펼치고 접힌다. 움직임은 Accordion 과 같은 [PExpandMotion] 이다 — 높이 300ms
+/// (`motion-ease-easing`), 모션 줄이기면 높이 없이 150ms 서서히. 접힘이 끝나면 하위 줄은 트리에서 빠진다.
+class _PListSubList extends StatelessWidget {
   const _PListSubList({
     required this.id,
     required this.open,
@@ -328,84 +326,26 @@ class _PListSubList extends StatefulWidget {
   final List<Widget> children;
 
   @override
-  State<_PListSubList> createState() => _PListSubListState();
-}
-
-class _PListSubListState extends State<_PListSubList>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    value: widget.open ? 1 : 0,
-  )..addStatusListener(_onStatus);
-
-  /// 이번 움직임이 모션 줄이기인지 — 움직이기 시작할 때 정한다.
-  bool _fadeOnly = false;
-
-  void _onStatus(AnimationStatus status) {
-    // 접힘이 끝나면 하위 줄을 트리에서 뺀다
-    // (animateTo 는 방향이 늘 forward 라 0 에 닿아도 completed 로 끝난다 — 값으로 본다)
-    final done =
-        status == AnimationStatus.completed ||
-        status == AnimationStatus.dismissed;
-    if (done && _controller.value == 0 && mounted) setState(() {});
-  }
-
-  @override
-  void didUpdateWidget(_PListSubList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.open == widget.open) return;
-    _fadeOnly = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    _controller.animateTo(
-      widget.open ? 1 : 0,
-      duration: _fadeOnly ? PDuration.d3 : PDuration.d6,
-      curve: PEasing.easing,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final scope = PListScope.of(context);
-    if (!widget.open && _controller.value == 0) {
-      return const SizedBox.shrink(key: ValueKey('plist-sub-list-hidden'));
-    }
-    final list = PListScope(
-      itemRadius: scope.itemRadius,
-      nest: PListNest.child,
-      child: Semantics(
-        container: true,
-        explicitChildNodes: true,
-        identifier: widget.id,
-        child: Column(
-          key: const ValueKey('plist-sub-list'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: widget.children,
+    return PExpandMotion(
+      open: open,
+      keyPrefix: 'plist-sub-list',
+      child: PListScope(
+        itemRadius: scope.itemRadius,
+        nest: PListNest.child,
+        child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          identifier: id,
+          child: Column(
+            key: const ValueKey('plist-sub-list'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          ),
         ),
       ),
-    );
-    return AnimatedBuilder(
-      animation: _controller,
-      child: list,
-      builder: (context, child) => _fadeOnly
-          ? Opacity(
-              key: const ValueKey('plist-sub-list-fade'),
-              opacity: _controller.value,
-              child: child,
-            )
-          : ClipRect(
-              key: const ValueKey('plist-sub-list-clip'),
-              child: Align(
-                alignment: AlignmentDirectional.topStart,
-                heightFactor: math.max(_controller.value, 0),
-                child: child,
-              ),
-            ),
     );
   }
 }
