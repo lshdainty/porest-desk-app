@@ -230,8 +230,9 @@ void main() {
           final label = find.descendant(of: item, matching: _label);
           k.m(['label.display']);
           if (compact) {
-            if (label.evaluate().isNotEmpty)
+            if (label.evaluate().isNotEmpty) {
               k.fail('label.display: 줄어든 바는 라벨을 보이지 않게 한다');
+            }
             if (tester.widgetList(_label).isNotEmpty) {
               k.fail('label.display: 어느 칸에도 라벨이 보이면 안 된다');
             }
@@ -246,8 +247,9 @@ void main() {
               k.fail('label.typography: 글자 크기 설정을 따른다');
             }
             k.px('item.gap', labelRect.top - iconRect.bottom);
-            if (iconRect.bottom > labelRect.top)
+            if (iconRect.bottom > labelRect.top) {
               k.fail('item.direction: 아이콘이 라벨 아래다');
+            }
             // 칸 안 가운데 — 아이콘 + 라벨 묶음
             if ((iconRect.center.dx - itemRect.center.dx).abs() > 0.5) {
               k.fail('item: 아이콘이 칸 가운데가 아니다');
@@ -283,16 +285,19 @@ void main() {
           k.px('addButton.size', circle.width);
           k.px('addButton.size', circle.height);
           k.m(['addButton.radius', 'addButton.shadow']);
-          if (addDeco.shape != BoxShape.circle)
+          if (addDeco.shape != BoxShape.circle) {
             k.fail('addButton.radius: 원이 아니다');
+          }
           if (addDeco.boxShadow != null) k.fail('addButton.shadow: 그림자가 있다');
           k.px('addIcon.size', plus.size!);
           k.color('addIcon.color', plus.color!);
           k.m(['addIcon.strokeWidth']);
-          if (plus.icon!.fontFamily != 'Lucide500')
+          if (plus.icon!.fontFamily != 'Lucide500') {
             k.fail('addIcon.strokeWidth: 선 2.5 가 아니다');
-          if ((circle.center - add.center).distance > 0.5)
+          }
+          if ((circle.center - add.center).distance > 0.5) {
             k.fail('addButton: 칸 가운데가 아니다');
+          }
 
           // 누름 — 칸은 색 그대로 + 2px 거리 축소, +는 누름 색 + 축소
           if (state == 'pressed') {

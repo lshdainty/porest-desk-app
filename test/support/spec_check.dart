@@ -1,7 +1,5 @@
 // 스펙 값 한 줄과 그려진 값을 견주고 실패를 모으는 도우미 — 화면 틀 · 이동 묶음 테스트가 쓴다(p_tabs_spec_test 의 `_Check` 와 같다).
 import 'package:flutter/widgets.dart';
-import 'package:flutter/services.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 
 import 'design_spec.dart';
 
