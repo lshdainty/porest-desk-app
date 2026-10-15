@@ -13,15 +13,18 @@ import 'package:porest_desk_app/shared/ds/card/card_demo.dart';
 import 'package:porest_desk_app/shared/ds/chart/chart_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
+import 'package:porest_desk_app/shared/ds/color_swatch/color_swatch_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
 import 'package:porest_desk_app/shared/ds/floating_action_button/floating_action_button_demo.dart';
+import 'package:porest_desk_app/shared/ds/icon_picker/icon_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/image_frame/image_frame_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
+import 'package:porest_desk_app/shared/ds/input_otp/input_otp_demo.dart';
 import 'package:porest_desk_app/shared/ds/list/list_demo.dart';
 import 'package:porest_desk_app/shared/ds/logo_tile/logo_tile_demo.dart';
 import 'package:porest_desk_app/shared/ds/menu_sheet/menu_sheet_demo.dart';
@@ -37,6 +40,7 @@ import 'package:porest_desk_app/shared/ds/segmented_control/segmented_control_de
 import 'package:porest_desk_app/shared/ds/select/select_demo.dart';
 import 'package:porest_desk_app/shared/ds/select_box/select_box_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
+import 'package:porest_desk_app/shared/ds/slider/slider_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/swipe_actions/swipe_actions_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
@@ -55,7 +59,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 47개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
+/// 앱은 51개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
 /// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -168,6 +172,12 @@ const List<DsFamily> dsFamilies = [
       demo: _floatingActionButton,
     ),
   ]),
+  DsFamily('input', '16 입력', [
+    DsEntry('Slider', 'slider', demo: _slider),
+    DsEntry('Input OTP', 'input-otp', demo: _inputOtp),
+    DsEntry('Color Swatch', 'color-swatch', demo: _colorSwatch),
+    DsEntry('Icon Picker', 'icon-picker', demo: _iconPicker),
+  ]),
 ];
 
 Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
@@ -218,6 +228,10 @@ Widget _topNavigation(BuildContext context) => const TopNavigationDemo();
 Widget _bottomNavigation(BuildContext context) => const BottomNavigationDemo();
 Widget _floatingActionButton(BuildContext context) =>
     const FloatingActionButtonDemo();
+Widget _slider(BuildContext context) => const SliderDemo();
+Widget _inputOtp(BuildContext context) => const InputOtpDemo();
+Widget _colorSwatch(BuildContext context) => const ColorSwatchDemo();
+Widget _iconPicker(BuildContext context) => const IconPickerDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 
