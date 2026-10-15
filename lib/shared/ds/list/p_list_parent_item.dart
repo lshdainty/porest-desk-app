@@ -20,8 +20,10 @@ import 'package:porest_desk_app/shared/ds/list/list_row.dart';
 ///   하위 줄 — 부모의 제목 자리 104 에서 시작한다(누름 바탕은 줄 폭 그대로). 펼침 · 접힘은 높이 300ms, 모션 줄이기면 높이
 ///     없이 150ms 서서히 나타나고 사라진다. 접힘이 끝나면 하위 줄은 트리에서 빠진다(그리지 않고 · 읽지 않고 · 포커스도
 ///     받지 않는다).
-///   하위가 없는 부모 줄 · 늘 펼쳐 두는 화면([expandLabel] 이 없는 편집 모드)도 꺾쇠 자리를 같은 폭으로 비운다 — 부모
-///     타일이 모두 52 에 선다.
+///   하위가 없는 부모 줄 · 늘 펼쳐 두는 화면([collapsible] 이 false 인 편집 모드)도 꺾쇠 자리를 같은 폭으로 비운다 —
+///     부모 타일이 모두 52 에 선다. 빈 자리는 읽는 말에서 숨는다.
+///   늘 펼침 — `collapsible: false`(porest-design Q-002, Tree View 의 collapsible 과 같은 이름 · 같은 뜻). 꺾쇠 자리는 비우고
+///     하위 줄은 늘 보이며 expanded 로 읽히지 않는다. 접는 줄(기본)은 하위가 없어도 [expandLabel] 이 필수다(생성자 assert).
 /// 이 줄은 편집을 여는 줄이라 오른쪽 화살표를 달지 않는다(화살표는 화면을 옮기는 줄에만). 한 목록에 [PListParentItem] 이
 /// 있으면 그 목록의 맨 위 단계 줄은 모두 [PListParentItem] 이다(타일 자리를 맞춘다).
 ///
@@ -39,15 +41,28 @@ class PListParentItem extends StatefulWidget {
     this.align = PListAlign.center,
     this.prefix,
     this.suffix,
+    this.collapsible = true,
     this.expandLabel,
     this.open,
-    this.defaultOpen = false,
+    this.defaultOpen,
     this.onOpenChange,
     this.children = const [],
     this.focusNode,
   }) : assert(
          detail == null || detailChild == null,
          '설명은 글(detail)이나 위젯(detailChild) 하나만 준다',
+       ),
+       assert(
+         !collapsible || (expandLabel != null && expandLabel != ''),
+         '접는 줄은 하위가 없어도 expandLabel(꺾쇠 단추의 이름)이 필수다',
+       ),
+       assert(
+         collapsible ||
+             (expandLabel == null &&
+                 open == null &&
+                 defaultOpen == null &&
+                 onOpenChange == null),
+         'collapsible 이 false 면(늘 펼침) expandLabel · open · defaultOpen · onOpenChange 를 주지 않는다',
        );
 
   final String title;
@@ -62,15 +77,18 @@ class PListParentItem extends StatefulWidget {
   /// 줄을 누르면 하는 일(편집) — 없으면 줄이 막힌다.
   final VoidCallback? onTap;
 
-  /// 꺾쇠 단추의 고정 이름 — "{카테고리} 하위 카테고리". 하위가 있으면 준다. 없으면 꺾쇠 없이 하위 줄을 늘 펼친다
-  /// (편집 모드).
+  /// 접는 줄(기본 true) — 꺾쇠 단추로 하위 줄을 접고 편다. false 면 늘 펼친 화면(편집 모드): 꺾쇠 자리는 같은 폭으로
+  /// 비우고(읽지 않는다) 하위 줄은 늘 보이며 펼침 상태가 없다.
+  final bool collapsible;
+
+  /// 꺾쇠 단추의 고정 이름 — "{카테고리} 하위 카테고리". 접는 줄은 하위가 없어도 필수, 늘 펼친 줄은 주지 않는다.
   final String? expandLabel;
 
   /// 하위 줄 펼침 — 쥐고 다룰 때. 주면 이 값을 따르고 [onOpenChange] 로 바꾸려는 값을 알린다(안 바꿔 주면 그대로).
   final bool? open;
 
-  /// 처음 펼침 — 화면이 정한다(카테고리는 모두 펼친 채 연다). [open] 이 없을 때만.
-  final bool defaultOpen;
+  /// 처음 펼침 — 화면이 정한다(카테고리는 모두 펼친 채 연다). [open] 이 없을 때만. 없으면 접힘.
+  final bool? defaultOpen;
   final ValueChanged<bool>? onOpenChange;
 
   /// 하위 줄([PListButtonItem] …). 비면 꺾쇠 자리만 비운다.
@@ -82,13 +100,12 @@ class PListParentItem extends StatefulWidget {
 }
 
 class _PListParentItemState extends State<PListParentItem> {
-  late bool _inner = widget.defaultOpen;
+  late bool _inner = widget.defaultOpen ?? false;
   final String _subId = 'plist-sub-${UniqueKey()}';
 
-  bool get _foldable =>
-      widget.children.isNotEmpty && widget.expandLabel != null;
+  bool get _foldable => widget.children.isNotEmpty && widget.collapsible;
 
-  // 꺾쇠 단추가 없으면(늘 펼쳐 두는 화면) 하위 줄은 늘 보인다
+  // collapsible 이 false 면(늘 펼쳐 두는 화면) 하위 줄은 늘 보인다
   bool get _open =>
       _foldable ? (widget.open ?? _inner) : widget.children.isNotEmpty;
 
