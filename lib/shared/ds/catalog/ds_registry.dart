@@ -8,6 +8,7 @@ import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
+import 'package:porest_desk_app/shared/ds/card/card_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
@@ -49,8 +50,8 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 41개다 — Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
-/// Menu Sheet 가 맡는다.
+/// 앱은 42개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination 은 1280 · 768 이상 전용이라 앱에서는
+/// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
 /// spec 은 porest-design `specs/components/<이름>.md` 의 이름이고, 값은
@@ -146,6 +147,8 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Logo Tile', 'logo-tile', demo: _logoTile),
   ]),
   DsFamily('list', '13 목록', [DsEntry('List', 'list', demo: _list)]),
+  // 앱은 Card 만 — Table · Table Pagination · Pagination 은 768 이상 전용이라 폰은 List 줄 · 끝없이 불러오기가 맡는다
+  DsFamily('data', '14 데이터', [DsEntry('Card', 'card', demo: _card)]),
 ];
 
 Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
@@ -189,6 +192,7 @@ Widget _datePicker(BuildContext context) => const DatePickerDemo();
 Widget _select(BuildContext context) => const SelectDemo();
 Widget _selectBox(BuildContext context) => const SelectBoxDemo();
 Widget _list(BuildContext context) => const ListDemo();
+Widget _card(BuildContext context) => const CardDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 
