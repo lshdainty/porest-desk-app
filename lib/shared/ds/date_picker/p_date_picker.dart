@@ -1,0 +1,886 @@
+import 'dart:math' as math;
+
+import 'package:flutter/widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/button/p_button.dart';
+import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
+import 'package:porest_desk_app/shared/ds/date_picker/date_picker_dates.dart';
+import 'package:porest_desk_app/shared/ds/date_picker/p_date_picker_day.dart';
+import 'package:porest_desk_app/shared/ds/wheel_picker/p_wheel_picker.dart';
+
+export 'package:porest_desk_app/shared/ds/date_picker/date_picker_dates.dart';
+export 'package:porest_desk_app/shared/ds/date_picker/p_date_picker_day.dart';
+
+/// 고르기 — 하루 · 기간 · 여러 날.
+enum PDateSelection { single, range, multiple }
+
+/// 보이는 범위 — 한 달(`month` — 하루 · 여러 날) · 달이 위아래로 이어진다(`continuous` — 시트의 기간).
+/// 1280 이상 팝오버의 두 달 나란히(`twoMonths`)는 앱에 없다 — 앱은 시트로만 연다(팝오버 없음).
+enum PDateVisibleRange { month, continuous }
+
+// date-picker.yaml — 머리 · 요일 줄 · 날짜 줄 48, 이어지는 달: 달 이름 48 + 주 × 48 + 아래 16, 아래 안개 96, 연 · 월 휠 자리 336.
+const double _rowHeight = 48;
+const double _monthGap = PSpacing.x4;
+const double _fogHeight = 96;
+const double _wheelAreaHeight = 336; // 요일 줄 48 + 6주 288
+const double _titleIcon = 20;
+const int _weeks = 6;
+
+/// Date Picker — 날짜 · 기간 · 여러 날을 고르는 달력. 구조는 SEED Date Picker(2026-10-03), 수치 원본은 porest-design
+/// `specs/components/date-picker.yaml`(값은 `test/fixtures/design_spec/date-picker.json` — 테스트가 위젯이 그 값과 같은지
+/// 본다). 웹(desk-front `src/shared/ds/date-picker`)과 같은 값 · 규칙이다.
+///
+///   [PDatePicker.single] — 하루(`DateTime`) · [PDatePicker.range] — 기간([PDateRange]) · [PDatePicker.multiple] — 여러 날
+///
+/// 값은 쓰는 쪽이 가진다(제어) — 달력은 고르던 값(draft)을 보이고 고르면 `onChanged` 로 알린다. "완료" 로 칸에 넣는 것은 쓰는
+/// 쪽이다(input-button.md — 고르는 동안 칸 값은 그대로, 닫으면 버림). 날짜를 치는 칸은 두지 않는다. 날짜는 로컬 시간대의 그
+/// 날 0시로 다룬다(시간은 보지 않는다).
+///
+/// 모양 — 날짜 칸은 높이 48 · 폭 = 달력 폭 ÷ 7, 칸 전체가 누르는 자리, 원 42(칸이 44 보다 좁으면 칸 폭 − 2) · 숫자 16 / 22 ·
+/// 500. 달력 폭은 놓인 자리 폭에서 좌우 [inset](시트 24)을 뺀 폭이다 — 시트에서는 본문 좌우 여백을 빼고([PBottomSheetContent]
+/// 의 `flushBody`) 이 부품이 둔다(빠른 기간 칩 줄이 화면 끝까지 가야 해서).
+///
+/// 보이는 범위
+///   month       머리 48(왼쪽 연 · 월 제목 + 셰브론 20, 오른쪽 이전 · 다음 Button ghost 40) · 요일 줄 48 · 늘 6주(앞뒤 달 날짜를
+///               흐리게 — 누르지 못한다). 제목을 누르면 요일 줄 · 날짜 자리에 연 | 월 휠(Wheel Picker medium 7칸, 연 120 오른쪽 ·
+///               월 96 왼쪽 반복)이 뜨고 셰브론이 위로 돈다. 휠이 열린 동안 이전 · 다음은 막힌다. 다시 누르면 고른 달로 옮긴다
+///   continuous  머리 · 휠이 없고 달이 위아래로 이어진다 — 요일 줄이 위에 붙고 달마다 왼쪽 달 이름 · 그 달의 주 수(앞뒤 달 날짜는
+///               비운다) · 아래 16. 아래 끝 안개 96. 놓인 자리가 정한 높이를 채운다(높이가 있어야 한다 — 시트는 [sheetBodyHeight])
+///
+/// 빠른 기간(range) — 달력 위 칩 한 줄(Chip outlineStrong medium, 하나 고르기). 누르면 그 기간을 칠하고 시작이 든 달로 옮긴다.
+/// 달력에서 날을 누르면 칩 고름이 풀린다. 고를 수 있는 범위 밖에 걸친 칩은 막는다(잘라서 넣지 않는다).
+///
+/// 읽기 — 달력은 이름 있는 묶음, 날짜는 이름 있는 버튼("2026년 10월 15일 목요일", 고른 날 · 기간 사이는 선택됨, 막힌 날 ·
+/// 읽기 전용은 비활성, 읽기 전용 시작일은 이름 끝에 말이 붙는다), 앞뒤 달 숫자는 숨긴다. 보이는 달이 바뀌면 "2026년 11월" 을
+/// 읽는다. 방향키로 날짜를 옮기는 격자 키보드(웹 WAI-ARIA Grid)는 앱에 없다 — 손가락 입력이 기본이고 날짜마다 읽는 말이 있다.
+class PDatePicker extends StatefulWidget {
+  const PDatePicker.single({
+    super.key,
+    required this.labels,
+    DateTime? value,
+    ValueChanged<DateTime>? onChanged,
+    this.visibleRange = PDateVisibleRange.month,
+    this.min,
+    this.max,
+    this.isDateDisabled,
+    this.yearRange,
+    this.today,
+    this.inset = PSpacing.globalGutter,
+    this.semanticLabel,
+    this.defaultWheelOpen = false,
+  }) : selection = PDateSelection.single,
+       singleValue = value,
+       onSingle = onChanged,
+       rangeValue = null,
+       onRange = null,
+       multipleValue = const [],
+       onMultiple = null,
+       presets = const [],
+       readOnlyStart = false,
+       maxSelectionCount = null;
+
+  /// 기간 — 첫 탭이 시작, 시작 뒤의 날은 끝(같은 날이면 하루짜리), 시작 앞의 날은 새 시작(둘을 바꾸지 않는다), 완성된 뒤 누르면
+  /// 새로 시작. [onChanged] 는 `{start}` 다음 `{start, end}`. [readOnlyStart] 면 시작은 그대로이고 시작 뒤의 날만 끝이 된다.
+  const PDatePicker.range({
+    super.key,
+    required this.labels,
+    PDateRange? value,
+    ValueChanged<PDateRange>? onChanged,
+    this.presets = const [],
+    this.readOnlyStart = false,
+    this.visibleRange = PDateVisibleRange.month,
+    this.min,
+    this.max,
+    this.isDateDisabled,
+    this.yearRange,
+    this.today,
+    this.inset = PSpacing.globalGutter,
+    this.semanticLabel,
+    this.defaultWheelOpen = false,
+  }) : selection = PDateSelection.range,
+       singleValue = null,
+       onSingle = null,
+       rangeValue = value,
+       onRange = onChanged,
+       multipleValue = const [],
+       onMultiple = null,
+       maxSelectionCount = null;
+
+  /// 여러 날 — 누를 때마다 고르고 풀린다(늘 날짜 순 · 겹침 없음). [maxSelectionCount] 에 닿으면 고르지 않은 날이 막힌 날이 된다.
+  const PDatePicker.multiple({
+    super.key,
+    required this.labels,
+    List<DateTime> value = const [],
+    ValueChanged<List<DateTime>>? onChanged,
+    this.maxSelectionCount,
+    this.visibleRange = PDateVisibleRange.month,
+    this.min,
+    this.max,
+    this.isDateDisabled,
+    this.yearRange,
+    this.today,
+    this.inset = PSpacing.globalGutter,
+    this.semanticLabel,
+    this.defaultWheelOpen = false,
+  }) : selection = PDateSelection.multiple,
+       singleValue = null,
+       onSingle = null,
+       rangeValue = null,
+       onRange = null,
+       multipleValue = value,
+       onMultiple = onChanged,
+       presets = const [],
+       readOnlyStart = false;
+
+  final PDateSelection selection;
+  final DateTime? singleValue;
+  final ValueChanged<DateTime>? onSingle;
+  final PDateRange? rangeValue;
+  final ValueChanged<PDateRange>? onRange;
+  final List<DateTime> multipleValue;
+  final ValueChanged<List<DateTime>>? onMultiple;
+
+  /// 빠른 기간 칩 — 기간 달력 위. date-picker.md 의 한 벌에서 고른다.
+  final List<PDatePreset> presets;
+
+  /// 확정된 시작일 — 시작은 그대로, 시작 뒤의 날만 끝이 된다(진행 중인 기간 늘리기).
+  final bool readOnlyStart;
+  final int? maxSelectionCount;
+  final PDateVisibleRange visibleRange;
+
+  /// 고를 수 있는 첫날 · 마지막 날 — 그 밖은 막힌 날. 그 날 단위로 비교한다(시각은 보지 않는다).
+  final DateTime? min;
+  final DateTime? max;
+
+  /// 그 밖의 막힌 날.
+  final bool Function(DateTime date)? isDateDisabled;
+
+  /// 옮기고 고를 수 있는 연도(양끝 포함) — 기본 오늘 ± 100년.
+  final ({int start, int end})? yearRange;
+
+  /// 오늘 — 기본 지금(테스트 · 견본에서 맞출 때).
+  final DateTime? today;
+
+  /// 달력 좌우 여백 — 시트 24. 놓인 자리 폭에서 이만큼씩 빼고 달력을 그린다(칩 줄만 화면 끝까지).
+  final double inset;
+  final PDatePickerLabels labels;
+
+  /// 달력의 이름(웹 aria-label) — 칸 라벨. 없으면 [PDatePickerLabels.root].
+  final String? semanticLabel;
+
+  /// 연 · 월 휠이 열린 채 시작한다(견본 · 테스트 전용 — 스펙의 모양이 아니라 처음 상태만 정한다).
+  final bool defaultWheelOpen;
+
+  /// 시트 본문의 높이 — 이어지는 달을 [PBottomSheet] 에 넣을 때 본문 높이로 준다. 시트는 화면 높이의 90% 이고, 머리(위 24 ·
+  /// 제목 30 · 아래 16)와 바닥(위 12 · 버튼 48 · 아래 16)과 안전 영역을 뺀 자리다.
+  static double sheetBodyHeight(BuildContext context) {
+    final media = MediaQuery.of(context);
+    const header = PSpacing.x6 + 30 + PSpacing.x4;
+    const footer = PSpacing.x3 + 48 + PSpacing.x4;
+    final safeBottom = math.max(
+      0.0,
+      media.viewPadding.bottom - media.viewInsets.bottom,
+    );
+    return math.max(0, media.size.height * 0.9 - header - footer - safeBottom);
+  }
+
+  @override
+  State<PDatePicker> createState() => _PDatePickerState();
+}
+
+class _PDatePickerState extends State<PDatePicker> {
+  late final DateTime _autoToday = startOfDay(DateTime.now());
+  late DateTime _view;
+  bool _wheelOpen = false;
+  late int _wheelYear;
+  late int _wheelMonth;
+  PDatePreset? _presetPick;
+
+  // 이어지는 달 — 달마다 높이 · 위치(달이 몇 주인지로 정해져 있다)
+  ScrollController? _scroll;
+  List<double> _heights = const [];
+  List<double> _offsets = const [];
+  ({int start, int end})? _layoutYears;
+
+  DateTime get _today =>
+      widget.today == null ? _autoToday : startOfDay(widget.today!);
+  int get _yearStart => widget.yearRange?.start ?? _today.year - 100;
+  int get _yearEnd => widget.yearRange?.end ?? _today.year + 100;
+  DateTime get _firstDay => DateTime(_yearStart);
+  DateTime get _lastDay => DateTime(_yearEnd, 12, 31);
+  int get _firstMonth => _yearStart * 12;
+  int get _lastViewMonth => _yearEnd * 12 + 11;
+  bool get _continuous => widget.visibleRange == PDateVisibleRange.continuous;
+
+  DateTime _clampView(DateTime d) =>
+      fromMonthNumber(monthNumber(d).clamp(_firstMonth, _lastViewMonth));
+
+  // ── 값 — 안에서는 한 꼴로 ──
+  DateTime? get _single =>
+      widget.singleValue == null ? null : startOfDay(widget.singleValue!);
+  DateTime? get _rangeStart => widget.rangeValue?.start == null
+      ? null
+      : startOfDay(widget.rangeValue!.start!);
+  DateTime? get _rangeEnd =>
+      widget.rangeValue?.end == null || _rangeStart == null
+      ? null
+      : startOfDay(widget.rangeValue!.end!);
+  List<DateTime> get _multiple {
+    final list = widget.multipleValue.map(startOfDay).toList()
+      ..sort(compareDay);
+    final out = <DateTime>[];
+    for (final d in list) {
+      if (out.isEmpty || !sameDay(out.last, d)) out.add(d);
+    }
+    return out;
+  }
+
+  bool get _readOnlyStartActive =>
+      widget.selection == PDateSelection.range &&
+      widget.readOnlyStart &&
+      _rangeStart != null;
+  bool get _maxReached =>
+      widget.selection == PDateSelection.multiple &&
+      widget.maxSelectionCount != null &&
+      _multiple.length >= widget.maxSelectionCount!;
+
+  DateTime? get _anchor => switch (widget.selection) {
+    PDateSelection.single => _single,
+    PDateSelection.range => _rangeStart,
+    PDateSelection.multiple => _multiple.isEmpty ? null : _multiple.first,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _view = _clampView(monthStart(_anchor ?? _today));
+    _wheelYear = _view.year;
+    _wheelMonth = _view.month;
+    _wheelOpen = widget.defaultWheelOpen && !_continuous;
+    _presetPick = _presetMatching();
+    if (_continuous) {
+      _ensureLayout();
+      _scroll = ScrollController(initialScrollOffset: _offsetOf(_view))
+        ..addListener(_onScroll);
+    }
+  }
+
+  @override
+  void didUpdateWidget(PDatePicker old) {
+    super.didUpdateWidget(old);
+    if (_continuous) {
+      _ensureLayout();
+      _scroll ??= ScrollController(initialScrollOffset: _offsetOf(_view))
+        ..addListener(_onScroll);
+    } else if (_scroll != null) {
+      _scroll!.dispose();
+      _scroll = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll?.dispose();
+    super.dispose();
+  }
+
+  // ── 이어지는 달: 달 위치 ──
+  void _ensureLayout() {
+    final years = (start: _yearStart, end: _yearEnd);
+    if (_layoutYears == years) return;
+    _layoutYears = years;
+    final count = (years.end - years.start + 1) * 12;
+    final heights = <double>[];
+    final offsets = <double>[];
+    var total = 0.0;
+    for (var i = 0; i < count; i++) {
+      final d = fromMonthNumber(_firstMonth + i);
+      final h =
+          _rowHeight + weeksInMonth(d.year, d.month) * _rowHeight + _monthGap;
+      offsets.add(total);
+      heights.add(h);
+      total += h;
+    }
+    _heights = heights;
+    _offsets = offsets;
+  }
+
+  double _offsetOf(DateTime d) {
+    final i = monthNumber(d) - _firstMonth;
+    return i >= 0 && i < _offsets.length ? _offsets[i] : 0;
+  }
+
+  void _onScroll() {
+    final c = _scroll;
+    if (c == null || !c.hasClients) return;
+    final index = monthAt(_offsets, _heights, c.offset);
+    final month = fromMonthNumber(_firstMonth + index);
+    if (monthNumber(month) != monthNumber(_view)) {
+      setState(() => _view = month);
+    }
+  }
+
+  // 보이는 달을 바꾼다 — 이어지는 달이면 그 달을 맨 위로
+  void _showMonth(DateTime month) {
+    final next = _clampView(month);
+    setState(() => _view = next);
+    final c = _scroll;
+    if (_continuous && c != null && c.hasClients) {
+      c.jumpTo(math.min(_offsetOf(next), c.position.maxScrollExtent));
+    }
+  }
+
+  // ── 고를 수 없는 날 ──
+  bool _isDisabled(DateTime d) =>
+      compareDay(d, _firstDay) < 0 ||
+      compareDay(d, _lastDay) > 0 ||
+      (widget.min != null && compareDay(d, startOfDay(widget.min!)) < 0) ||
+      (widget.max != null && compareDay(d, startOfDay(widget.max!)) > 0) ||
+      (widget.isDateDisabled?.call(d) ?? false) ||
+      (_readOnlyStartActive && compareDay(d, _rangeStart!) < 0) ||
+      (_maxReached && !_multiple.any((x) => sameDay(x, d)));
+
+  PDatePickerDayState _cellState(DateTime d) {
+    final complete = _rangeStart != null && _rangeEnd != null;
+    var selected = false;
+    var isStart = false;
+    var isEnd = false;
+    var inRange = false;
+    switch (widget.selection) {
+      case PDateSelection.single:
+        selected = sameDay(d, _single);
+      case PDateSelection.multiple:
+        selected = _multiple.any((x) => sameDay(x, d));
+      case PDateSelection.range:
+        final start = _rangeStart;
+        if (start != null) {
+          isStart = sameDay(d, start);
+          isEnd = sameDay(d, _rangeEnd);
+          inRange =
+              complete &&
+              compareDay(d, start) > 0 &&
+              compareDay(d, _rangeEnd!) < 0;
+          selected = isStart || isEnd;
+        }
+    }
+    return PDatePickerDayState(
+      today: sameDay(d, _today),
+      selected: selected,
+      rangeStart: isStart,
+      rangeEnd: isEnd,
+      inRange: inRange,
+      complete: complete,
+      singleDayRange: complete && sameDay(_rangeStart, _rangeEnd),
+      disabled: _isDisabled(d),
+      readOnly: _readOnlyStartActive && isStart,
+    );
+  }
+
+  void _selectDate(DateTime d) {
+    final state = _cellState(d);
+    if (state.disabled || state.readOnly) return;
+    setState(() => _presetPick = null);
+    switch (widget.selection) {
+      case PDateSelection.single:
+        if (!sameDay(d, _single)) widget.onSingle?.call(d);
+      case PDateSelection.multiple:
+        final list = _multiple;
+        final exists = list.any((x) => sameDay(x, d));
+        widget.onMultiple?.call(
+          exists
+              ? [
+                  for (final x in list)
+                    if (!sameDay(x, d)) x,
+                ]
+              : ([...list, d]..sort(compareDay)),
+        );
+      case PDateSelection.range:
+        final start = _rangeStart;
+        final end = _rangeEnd;
+        if (_readOnlyStartActive && start != null) {
+          if (compareDay(d, start) <= 0 || sameDay(d, end)) return;
+          widget.onRange?.call(PDateRange(start: start, end: d));
+        } else if (start == null || end != null) {
+          widget.onRange?.call(PDateRange(start: d));
+        } else if (compareDay(d, start) < 0) {
+          widget.onRange?.call(PDateRange(start: d));
+        } else {
+          widget.onRange?.call(PDateRange(start: start, end: d));
+        }
+    }
+  }
+
+  // ── 빠른 기간 ──
+  bool _presetAvailable(PDatePreset name) {
+    final r = getPresetRange(name, _today);
+    if (compareDay(r.start, _firstDay) < 0 || compareDay(r.end, _lastDay) > 0) {
+      return false;
+    }
+    if ((widget.min != null &&
+            compareDay(r.start, startOfDay(widget.min!)) < 0) ||
+        (widget.max != null &&
+            compareDay(r.end, startOfDay(widget.max!)) > 0)) {
+      return false;
+    }
+    if ((widget.isDateDisabled?.call(r.start) ?? false) ||
+        (widget.isDateDisabled?.call(r.end) ?? false)) {
+      return false;
+    }
+    if (_readOnlyStartActive && !sameDay(r.start, _rangeStart)) return false;
+    return true;
+  }
+
+  bool _presetMatches(PDatePreset name) {
+    final r = getPresetRange(name, _today);
+    return sameDay(r.start, _rangeStart) && sameDay(r.end, _rangeEnd);
+  }
+
+  PDatePreset? _presetMatching() {
+    for (final p in widget.presets) {
+      if (_presetMatches(p)) return p;
+    }
+    return null;
+  }
+
+  // 고른 칩은 값이 그 범위일 때만 — 초기화 등으로 값이 바뀌면 풀린다
+  PDatePreset? get _activePreset {
+    final pick = _presetPick;
+    return pick != null && _presetMatches(pick) ? pick : null;
+  }
+
+  void _choosePreset(PDatePreset name) {
+    if (!widget.presets.contains(name)) return;
+    final r = getPresetRange(name, _today);
+    setState(() => _presetPick = name);
+    widget.onRange?.call(PDateRange(start: r.start, end: r.end));
+    // 시작이 든 달로
+    _showMonth(monthStart(r.start));
+  }
+
+  // ── 연 · 월 휠 — 열 때 지금 달에서, 닫을 때 고른 달로 옮긴다 ──
+  void _toggleWheel() {
+    if (!_wheelOpen) {
+      setState(() {
+        _wheelYear = _view.year;
+        _wheelMonth = _view.month;
+        _wheelOpen = true;
+      });
+      return;
+    }
+    final picked = _clampView(DateTime(_wheelYear, _wheelMonth));
+    setState(() {
+      _wheelOpen = false;
+      _view = picked;
+    });
+  }
+
+  void _step(int dir) {
+    setState(
+      () => _view = _clampView(fromMonthNumber(monthNumber(_view) + dir)),
+    );
+  }
+
+  // ── 그리기 ──
+  Widget _weekdayRow(double cellW) {
+    final c = context.colors;
+    final l = widget.labels;
+    return SizedBox(
+      key: const ValueKey('date-weekdays'),
+      height: _rowHeight,
+      child: Row(
+        children: [
+          for (var i = 0; i < 7; i++)
+            Semantics(
+              label: l.weekdaysLong[i],
+              excludeSemantics: true,
+              child: SizedBox(
+                width: cellW,
+                child: Center(
+                  child: Text(
+                    l.weekdays[i],
+                    style: PTypography.t4.copyWith(
+                      color: c.fgNeutralSubtle,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // 한 달 — fixed 는 늘 6주(앞뒤 달은 흐리게), natural 은 그 달의 주 수(앞뒤 달은 비운다)
+  Widget _grid(DateTime month, double cellW, {required bool fixed}) {
+    final y = month.year;
+    final m = month.month;
+    final first = weekStart(DateTime(y, m));
+    final weeks = fixed ? _weeks : weeksInMonth(y, m);
+    final label = widget.labels.month(y, m);
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: label,
+      child: Column(
+        key: ValueKey('date-grid-$y-${pad2(m)}'),
+        children: [
+          for (var w = 0; w < weeks; w++)
+            Row(
+              children: [
+                for (var i = 0; i < 7; i++)
+                  Builder(
+                    builder: (context) {
+                      final d = addDays(first, w * 7 + i);
+                      if (d.month != m) {
+                        return PDatePickerOutsideCell(
+                          key: ValueKey('date-outside-${dayKey(d)}'),
+                          date: d,
+                          width: cellW,
+                          show: fixed,
+                        );
+                      }
+                      final s = _cellState(d);
+                      final name = s.readOnly
+                          ? '${widget.labels.day(d)}, '
+                                '${widget.labels.readOnlyRangeStart}'
+                          : widget.labels.day(d);
+                      return PDatePickerDayCell(
+                        key: ValueKey('date-${dayKey(d)}'),
+                        date: d,
+                        state: s,
+                        label: name,
+                        width: cellW,
+                        onTap: () => _selectDate(d),
+                      );
+                    },
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget? _presetRow() {
+    if (widget.presets.isEmpty || widget.selection != PDateSelection.range) {
+      return null;
+    }
+    final l = widget.labels;
+    final active = _activePreset;
+    return PChipRadioGroup<PDatePreset>(
+      semanticLabel: l.presets,
+      layout: _continuous ? PChipGroupLayout.scroll : PChipGroupLayout.wrap,
+      value: active,
+      onChanged: _choosePreset,
+      children: [
+        for (final name in widget.presets)
+          PChipRadio<PDatePreset>(
+            value: name,
+            label: l.presetNames[name]!,
+            variant: PChipVariant.outlineStrong,
+            size: PChipSize.medium,
+            enabled: _presetAvailable(name),
+          ),
+      ],
+    );
+  }
+
+  Widget _monthBody() {
+    final c = context.colors;
+    final l = widget.labels;
+    final viewNumber = monthNumber(_view);
+    final canPrev = !_wheelOpen && viewNumber > _firstMonth;
+    final canNext = !_wheelOpen && viewNumber < _lastViewMonth;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final title = l.month(_view.year, _view.month);
+
+    final header = SizedBox(
+      key: const ValueKey('date-header'),
+      height: _rowHeight,
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Semantics(
+                button: true,
+                expanded: _wheelOpen,
+                liveRegion: true,
+                label: title,
+                onTap: _toggleWheel,
+                excludeSemantics: true,
+                child: GestureDetector(
+                  key: const ValueKey('date-title'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _toggleWheel,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(width: PSpacing.x1),
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypography.t5.copyWith(
+                            color: c.fgNeutral,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: PSpacing.x1),
+                      AnimatedRotation(
+                        key: const ValueKey('date-title-icon'),
+                        turns: _wheelOpen ? 0.5 : 0,
+                        duration: reduceMotion ? Duration.zero : PDuration.d3,
+                        curve: PEasing.easing,
+                        child: Icon(
+                          LucideIcons.chevronDown,
+                          size: _titleIcon,
+                          color: c.fgNeutral,
+                        ),
+                      ),
+                      const SizedBox(width: PSpacing.x1),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          PButton.icon(
+            icon: LucideIcons.chevronLeft,
+            semanticLabel: l.previousMonth,
+            variant: PButtonVariant.ghost,
+            size: PButtonSize.medium,
+            onPressed: canPrev ? () => _step(-1) : null,
+          ),
+          PButton.icon(
+            icon: LucideIcons.chevronRight,
+            semanticLabel: l.nextMonth,
+            variant: PButtonVariant.ghost,
+            size: PButtonSize.medium,
+            onPressed: canNext ? () => _step(1) : null,
+          ),
+        ],
+      ),
+    );
+
+    Widget area;
+    if (_wheelOpen) {
+      final years = [
+        for (var y = _yearStart; y <= _yearEnd; y++)
+          PWheelPickerOption<int>(value: y, label: l.yearOption(y)),
+      ];
+      final months = [
+        for (var m = 1; m <= 12; m++)
+          PWheelPickerOption<int>(value: m, label: l.monthOption(m)),
+      ];
+      area = SizedBox(
+        key: const ValueKey('date-wheel'),
+        height: _wheelAreaHeight,
+        child: Center(
+          child: PWheelPicker(
+            semanticLabel: l.month(_wheelYear, _wheelMonth),
+            visibleItems: 7,
+            children: [
+              PWheelPickerColumn<int>(
+                semanticLabel: l.yearWheel,
+                options: years,
+                value: _wheelYear,
+                align: PWheelPickerAlign.right,
+                width: 120,
+                onChanged: (value, _) => setState(() => _wheelYear = value),
+              ),
+              PWheelPickerColumn<int>(
+                semanticLabel: l.monthWheel,
+                options: months,
+                value: _wheelMonth,
+                align: PWheelPickerAlign.left,
+                width: 96,
+                loop: true,
+                onChanged: (value, _) => setState(() => _wheelMonth = value),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      area = LayoutBuilder(
+        builder: (context, constraints) {
+          final cellW = constraints.maxWidth / 7;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [_weekdayRow(cellW), _grid(_view, cellW, fixed: true)],
+          );
+        },
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widget.inset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [header, area],
+      ),
+    );
+  }
+
+  Widget _continuousBody() {
+    final c = context.colors;
+    final l = widget.labels;
+    final fade = context.gradients.fadeMask;
+    final fog = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        for (final color in fade.colors)
+          c.bgLayerFloating.withValues(alpha: c.bgLayerFloating.a * color.a),
+      ],
+      stops: fade.stops,
+    );
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cellW = (constraints.maxWidth - 2 * widget.inset) / 7;
+          return Stack(
+            children: [
+              Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: widget.inset),
+                    child: _weekdayRow(cellW),
+                  ),
+                  Expanded(
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(
+                        context,
+                      ).copyWith(scrollbars: false),
+                      child: ListView.builder(
+                        key: const ValueKey('date-scroll'),
+                        controller: _scroll,
+                        padding: EdgeInsets.zero,
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: _heights.length,
+                        itemExtentBuilder: (index, _) => _heights[index],
+                        itemBuilder: (context, index) {
+                          final month = fromMonthNumber(_firstMonth + index);
+                          return _ContinuousMonth(
+                            key: ValueKey('date-month-${monthNumber(month)}'),
+                            inset: widget.inset,
+                            title: l.month(month.year, month.month),
+                            grid: _grid(month, cellW, fixed: false),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: _fogHeight,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    key: const ValueKey('date-fog'),
+                    decoration: BoxDecoration(gradient: fog),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final presets = _presetRow();
+    final presetBox = presets == null
+        ? null
+        : Padding(
+            padding: EdgeInsets.only(
+              bottom: PSpacing.x3,
+              left: _continuous ? 0 : widget.inset,
+              right: _continuous ? 0 : widget.inset,
+            ),
+            child: presets,
+          );
+    final live = _continuous
+        ? Semantics(
+            liveRegion: true,
+            label: widget.labels.month(_view.year, _view.month),
+            child: const SizedBox.shrink(),
+          )
+        : null;
+
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: widget.semanticLabel ?? widget.labels.root,
+      child: ColoredBox(
+        key: const ValueKey('date-root'),
+        color: c.bgLayerFloating,
+        child: Column(
+          mainAxisSize: _continuous ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ?live,
+            ?presetBox,
+            if (_continuous) _continuousBody() else _monthBody(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 이어지는 달의 한 달 — 왼쪽 달 이름 48(좌우 4) · 그 달의 주 · 아래 16.
+class _ContinuousMonth extends StatelessWidget {
+  const _ContinuousMonth({
+    super.key,
+    required this.inset,
+    required this.title,
+    required this.grid,
+  });
+
+  final double inset;
+  final String title;
+  final Widget grid;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(inset, 0, inset, _monthGap),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            key: const ValueKey('date-month-label'),
+            height: _rowHeight,
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              title,
+              maxLines: 1,
+              softWrap: false,
+              style: PTypography.t5.copyWith(
+                color: c.fgNeutral,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          grid,
+        ],
+      ),
+    );
+  }
+}
