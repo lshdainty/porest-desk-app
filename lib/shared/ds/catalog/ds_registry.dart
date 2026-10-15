@@ -11,6 +11,7 @@ import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
+import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
@@ -113,7 +114,7 @@ const List<DsFamily> dsFamilies = [
   DsFamily('feedback', '11 피드백', [
     DsEntry('Snackbar', 'snackbar', demo: _snackbar),
     DsEntry('Callout', 'callout', demo: _callout),
-    DsEntry('Page Banner', 'page-banner'),
+    DsEntry('Page Banner', 'page-banner', demo: _pageBanner),
     DsEntry('Result Section', 'result-section'),
   ]),
   DsFamily('image', '12 이미지', [
@@ -145,6 +146,7 @@ Widget _radio(BuildContext context) => const RadioDemo();
 Widget _switch(BuildContext context) => const SwitchDemo();
 Widget _snackbar(BuildContext context) => const SnackbarDemo();
 Widget _callout(BuildContext context) => const CalloutDemo();
+Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});

@@ -17,6 +17,7 @@ import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/ds/callout/p_callout.dart';
+import 'package:porest_desk_app/shared/ds/page_banner/p_page_banner.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
 
@@ -24,6 +25,7 @@ import '../../support/design_spec.dart';
 
 final _snackbar = DesignSpec.load('snackbar');
 final _callout = DesignSpec.load('callout');
+final _pageBanner = DesignSpec.load('page-banner');
 
 /// 앱의 상태 — 웹의 hovered(올림) · focused(키보드 포커스 링)는 앱에 없다.
 List<String> _appStates(DesignSpec spec) =>
@@ -1807,6 +1809,562 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(count, 2);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Page Banner
+  // ══════════════════════════════════════════════════════════════
+  group('Page Banner 모양', () {
+    const box = ValueKey('page-banner-box');
+    const text = ValueKey('page-banner-text');
+
+    PPageBanner banner(
+      PPageBannerTone tone,
+      PPageBannerVariant variant,
+      PPageBannerInteraction interaction,
+    ) => PPageBanner(
+      key: UniqueKey(),
+      tone: tone,
+      variant: variant,
+      interaction: interaction,
+      title: '새 버전',
+      description: '더 빨라졌어요.',
+      button: interaction == PPageBannerInteraction.display
+          ? PPageBannerButton(label: '업데이트', onPressed: () {})
+          : null,
+      onPressed: interaction == PPageBannerInteraction.actionable
+          ? () {}
+          : null,
+      dismissLabel: interaction == PPageBannerInteraction.dismissible
+          ? _closeLabel
+          : null,
+    );
+
+    for (final mode in Brightness.values) {
+      testWidgets('${mode.name} — 바탕 × 톤 × 상호작용 × 상태가 스펙 값이다', (tester) async {
+        final failures = <String>[];
+        for (final combo in _pageBanner.combos([
+          'variant',
+          'tone',
+          'interaction',
+        ])) {
+          final tone = PPageBannerTone.values.byName(combo['tone']!);
+          final variant = PPageBannerVariant.values.byName(combo['variant']!);
+          final interaction = PPageBannerInteraction.values.byName(
+            combo['interaction']!,
+          );
+          for (final state in _appStates(_pageBanner)) {
+            await tester.pumpWidget(
+              _placed(mode, banner(tone, variant, interaction), width: 390),
+            );
+            // 누르는 것 — 전체 누르기는 띠, 보이기는 글 버튼, 닫기는 닫기 버튼
+            final target = switch (interaction) {
+              PPageBannerInteraction.actionable => find.byKey(box),
+              PPageBannerInteraction.display => find.byKey(
+                const ValueKey('page-banner-button'),
+              ),
+              PPageBannerInteraction.dismissible => find.byKey(
+                const ValueKey('page-banner-close'),
+              ),
+            };
+            final gesture = await _settle(tester, state, target);
+            final k = _Check(
+              mode,
+              _pageBanner.resolve(combo, state),
+              '${mode.name} $combo $state',
+            );
+
+            final boxFinder = find.byKey(box);
+            final rect = tester.getRect(boxFinder);
+            final deco =
+                tester.widget<DecoratedBox>(boxFinder).decoration
+                    as BoxDecoration;
+            // ── 띠 ── 화면 폭 전체 · 모서리 없음. 누름은 안의 내용만 줄고 바탕은 그대로다
+            if (rect.width != 390) {
+              k.fail('root.width: 100%(390) · 실제 ${rect.width}');
+            }
+            k.px('root.minHeight', rect.height);
+            k.px('root.radius', deco.borderRadius == null ? 0 : 1);
+            k.color('root.background', deco.color!);
+
+            // ── 아이콘 ──
+            final icon = find.byKey(const ValueKey('page-banner-icon'));
+            final iconWidget = tester.widget<Icon>(icon);
+            k.px('icon.size', iconWidget.size!);
+            k.color('root.foreground', iconWidget.color!);
+            expect(iconWidget.icon, pPageBannerToneIcon(tone));
+
+            // ── 제목 · 본문 ──
+            final root = _rootSpan(tester, find.byKey(text));
+            final title = _spanStyle(root, keepAll('새 버전'));
+            k.typo('title.typography', title);
+            k.weight('title.fontWeight', title);
+            k.color('root.foreground', title.color!);
+            final description = _spanStyle(root, keepAll('더 빨라졌어요.'));
+            k.typo('description.typography', description);
+            k.weight('description.fontWeight', description);
+            k.color('root.foreground', description.color!);
+
+            // ── 버튼 · 화살표 · 닫기 ──
+            final button = find.byKey(const ValueKey('page-banner-button'));
+            final chevron = find.byKey(const ValueKey('page-banner-chevron'));
+            final close = find.byKey(const ValueKey('page-banner-close'));
+            expect(
+              button,
+              interaction == PPageBannerInteraction.display
+                  ? findsOneWidget
+                  : findsNothing,
+            );
+            expect(
+              chevron,
+              interaction == PPageBannerInteraction.actionable
+                  ? findsOneWidget
+                  : findsNothing,
+            );
+            expect(
+              close,
+              interaction == PPageBannerInteraction.dismissible
+                  ? findsOneWidget
+                  : findsNothing,
+            );
+            if (interaction == PPageBannerInteraction.display) {
+              final label = tester.widget<Text>(button).style!;
+              k.typo('button.typography', label);
+              k.weight('button.fontWeight', label);
+              k.color('root.foreground', label.color!);
+            }
+            if (interaction == PPageBannerInteraction.actionable) {
+              final w = tester.widget<Icon>(chevron);
+              k.px('suffixIcon.size', w.size!);
+              k.color('root.foreground', w.color!);
+              expect(w.icon, LucideIcons.chevronRight);
+            }
+            if (interaction == PPageBannerInteraction.dismissible) {
+              final w = tester.widget<Icon>(
+                find.descendant(of: close, matching: find.byType(Icon)),
+              );
+              k.px('closeButton.iconSize', w.size!);
+              k.color('root.foreground', w.color!);
+              expect(w.icon, LucideIcons.x);
+            }
+
+            // ── 놓인 자리 — 누르지 않은 때만(누르면 안의 내용이 줄어 보인다) ──
+            if (state == 'enabled') {
+              final iconRect = tester.getRect(icon);
+              final textRect = tester.getRect(find.byKey(text));
+              k.px('root.paddingX', iconRect.left - rect.left);
+              k.px('icon.size', iconRect.width);
+              // 아이콘은 첫 줄 가운데 — 위 여백 + 2
+              final iconTop = k.want['root.paddingY']! as num;
+              k.px('icon.marginTop', iconRect.top - rect.top - iconTop);
+              k.px('root.paddingY', textRect.top - rect.top);
+              k.px('root.gap', textRect.left - iconRect.right);
+              if (interaction == PPageBannerInteraction.display) {
+                // 한 줄에 들어가면 버튼은 오른쪽 끝 · 글과 같은 줄 가운데
+                final b = tester.getRect(button);
+                k.px('root.paddingX', rect.right - b.right);
+                if ((b.center.dy - textRect.center.dy).abs() > 1) {
+                  k.fail(
+                    'content.justifyContent: 한 줄 가운데 · 버튼 ${b.center.dy} · 글 ${textRect.center.dy}',
+                  );
+                }
+              }
+              if (interaction == PPageBannerInteraction.actionable) {
+                final r = tester.getRect(chevron);
+                k.px('suffixIcon.size', r.width);
+                k.px('root.paddingX', rect.right - r.right);
+                if ((r.center.dy - rect.center.dy).abs() > 0.5) {
+                  k.fail('화살표는 띠 가운데: ${r.center.dy} · ${rect.center.dy}');
+                }
+              }
+              if (interaction == PPageBannerInteraction.dismissible) {
+                final c = tester.getRect(close);
+                k.px('closeButton.size', c.width);
+                k.px('closeButton.size', c.height);
+                // 아이콘은 오른쪽 끝에서 24
+                final r = tester.getRect(
+                  find.descendant(of: close, matching: find.byType(Icon)),
+                );
+                k.px('root.paddingX', rect.right - r.right);
+                if ((c.center.dy - rect.center.dy).abs() > 0.5) {
+                  k.fail('닫기는 띠 가운데: ${c.center.dy} · ${rect.center.dy}');
+                }
+              }
+            }
+
+            // ── 누름 ──
+            if (state == 'pressed') {
+              // 전체 누르기는 띠 안쪽(화살표가 있는 층)이 줄고, 나머지는 누른 것이 준다
+              final scaled = interaction == PPageBannerInteraction.actionable
+                  ? find.byKey(const ValueKey('page-banner-chevron'))
+                  : target;
+              final scale = tester.widget<AnimatedScale>(
+                find.ancestor(of: scaled, matching: find.byType(AnimatedScale)),
+              );
+              switch (interaction) {
+                case PPageBannerInteraction.actionable:
+                  // 안의 내용만 줄고 바탕은 그대로다 — 기준 max(높이, 폭 ÷ 4, 24) = 390 ÷ 4
+                  final basis = math.max(40, math.max(390 / 4, 24));
+                  if ((scale.scale - _pressScale(basis)).abs() > 1e-6) {
+                    k.fail(
+                      'content.scale: 기준 $basis 의 ${_pressScale(basis)} · 실제 ${scale.scale}',
+                    );
+                  }
+                  _checkScaleMotion(
+                    k,
+                    scale,
+                    'content',
+                    durationKey: 'scaleDuration',
+                    easingKey: 'scaleEasing',
+                  );
+                  if (rect.height != 40) {
+                    k.fail('바탕은 그대로여야 한다: ${rect.height}');
+                  }
+                case PPageBannerInteraction.display:
+                  // 글 버튼 — 글 + 사방 11 의 높이 40 이 기준(폭 ÷ 4 가 더 크면 그쪽)
+                  final size = tester.getSize(button);
+                  final basis = math.max(
+                    size.height + 22,
+                    math.max((size.width + 22) / 4, 24),
+                  );
+                  if ((scale.scale - _pressScale(basis)).abs() > 0.002) {
+                    k.fail(
+                      'button.scale: 기준 $basis 의 ${_pressScale(basis)} · 실제 ${scale.scale}',
+                    );
+                  }
+                  _checkScaleMotion(
+                    k,
+                    scale,
+                    'button',
+                    durationKey: 'scaleDuration',
+                    easingKey: 'scaleEasing',
+                  );
+                case PPageBannerInteraction.dismissible:
+                  if ((scale.scale - _pressScale(40)).abs() > 1e-6) {
+                    k.fail(
+                      'closeButton.scale: 기준 40 의 ${_pressScale(40)} · 실제 ${scale.scale}',
+                    );
+                  }
+                  _checkScaleMotion(
+                    k,
+                    scale,
+                    'closeButton',
+                    durationKey: 'scaleDuration',
+                    easingKey: 'scaleEasing',
+                  );
+              }
+            }
+            await gesture?.up();
+            await tester.pump(const Duration(milliseconds: 400));
+            failures.addAll(k.failures);
+          }
+        }
+        _expectClean(failures);
+      });
+    }
+  });
+
+  group('Page Banner 동작', () {
+    const box = ValueKey('page-banner-box');
+    const text = ValueKey('page-banner-text');
+    const button = ValueKey('page-banner-button');
+
+    Future<void> pumpBanner(
+      WidgetTester tester,
+      PPageBanner banner, {
+      double width = 390,
+      bool reduceMotion = false,
+    }) => tester.pumpWidget(
+      _placed(
+        Brightness.light,
+        banner,
+        width: width,
+        reduceMotion: reduceMotion,
+      ),
+    );
+
+    PPageBanner display({
+      String description = '더 빨라졌어요.',
+      VoidCallback? onPressed,
+    }) => PPageBanner(
+      key: UniqueKey(),
+      title: '새 버전',
+      description: description,
+      button: PPageBannerButton(label: '업데이트', onPressed: onPressed ?? () {}),
+    );
+
+    testWidgets('본문과 버튼이 한 줄에 들어가면 버튼은 오른쪽 끝, 안 들어가면 다음 줄 본문 시작선이다', (
+      tester,
+    ) async {
+      await pumpBanner(tester, display());
+      var rect = tester.getRect(find.byKey(box));
+      var body = tester.getRect(find.byKey(text));
+      var b = tester.getRect(find.byKey(button));
+      expect(b.right, rect.right - 24);
+      expect(b.center.dy, closeTo(body.center.dy, 1));
+      expect(rect.height, 40);
+
+      // 좁은 폭 + 긴 글 — 버튼이 다음 줄로(줄 사이 6)
+      await pumpBanner(
+        tester,
+        display(description: '토스증권 키가 만료돼 시세를 받지 못해요. 새 키를 발급받아 다시 연결해 주세요.'),
+        width: 300,
+      );
+      rect = tester.getRect(find.byKey(box));
+      body = tester.getRect(find.byKey(text));
+      b = tester.getRect(find.byKey(button));
+      expect(b.left, body.left);
+      expect(b.top - body.bottom, 6);
+      // 위 10 + 글 + 6 + 버튼 줄 18 + 아래 10
+      expect(rect.height, 10 + body.height + 6 + 18 + 10);
+    });
+
+    testWidgets('한 줄에 안 들어가는 긴 글은 본문이 줄을 바꾸고 아이콘은 첫 줄에 붙는다', (tester) async {
+      await pumpBanner(
+        tester,
+        PPageBanner(
+          description:
+              '토스증권 키가 만료돼 시세를 받지 못해요. 새 키를 발급받아 다시 연결해 주세요. 그동안은 지난 값을 보여 드려요.',
+        ),
+        width: 300,
+      );
+      final rect = tester.getRect(find.byKey(box));
+      final body = tester.getRect(find.byKey(text));
+      expect(body.height, greaterThan(19 * 2));
+      expect(rect.height, 10 + body.height + 10);
+      // 아이콘은 첫 줄 가운데 — 위 여백 10 + 2
+      final icon = tester.getRect(
+        find.byKey(const ValueKey('page-banner-icon')),
+      );
+      expect(icon.top - rect.top, 12);
+    });
+
+    testWidgets('버튼을 누르면 그 일을 한다 — 누르는 영역은 글 + 사방 11 이다', (tester) async {
+      var count = 0;
+      await pumpBanner(tester, display(onPressed: () => count++));
+      final b = tester.getRect(find.byKey(button));
+      await tester.tapAt(b.center);
+      await tester.tapAt(b.centerLeft - const Offset(10, 0));
+      await tester.tapAt(b.centerRight + const Offset(10, 0));
+      expect(count, 3);
+      // 11 을 넘으면 받지 않는다
+      await tester.tapAt(b.centerLeft - const Offset(14, 0));
+      expect(count, 3);
+    });
+
+    testWidgets('글 버튼 — 이름은 글이고 버튼으로 읽는다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpBanner(tester, display());
+      final node = tester.getSemantics(find.byKey(button));
+      expect(node.getSemanticsData().flagsCollection.isButton, isTrue);
+      expect(node.label, '업데이트');
+      semantics.dispose();
+    });
+
+    testWidgets('Actionable — 띠 전체가 버튼이고 이름은 글 전체다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      var count = 0;
+      await pumpBanner(
+        tester,
+        PPageBanner(
+          interaction: PPageBannerInteraction.actionable,
+          title: '곧 만료',
+          description: 'Pro 이용이 10월 31일에 끝나요.',
+          onPressed: () => count++,
+        ),
+      );
+      final node = tester.getSemantics(find.byKey(text));
+      expect(node.getSemanticsData().flagsCollection.isButton, isTrue);
+      expect(node.label, contains('곧 만료'));
+      expect(node.label, contains('Pro 이용이 10월 31일에 끝나요.'));
+      final rect = tester.getRect(find.byKey(box));
+      await tester.tapAt(rect.topLeft + const Offset(2, 2));
+      await tester.tapAt(rect.bottomRight - const Offset(2, 2));
+      await tester.tap(find.byKey(const ValueKey('page-banner-chevron')));
+      expect(count, 3);
+      semantics.dispose();
+    });
+
+    testWidgets('Actionable 누름 — 모션 줄이기면 줄지 않고 바탕 색만 바뀐다', (tester) async {
+      await pumpBanner(
+        tester,
+        PPageBanner(
+          interaction: PPageBannerInteraction.actionable,
+          description: 'Pro 이용이 10월 31일에 끝나요.',
+          onPressed: () {},
+        ),
+        reduceMotion: true,
+      );
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(box)),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        tester
+            .widget<AnimatedScale>(
+              find.ancestor(
+                of: find.byKey(const ValueKey('page-banner-chevron')),
+                matching: find.byType(AnimatedScale),
+              ),
+            )
+            .scale,
+        1,
+      );
+      final deco =
+          tester.widget<DecoratedBox>(find.byKey(box)).decoration
+              as BoxDecoration;
+      expect(deco.color, PColors.light.bgNeutralWeakPressed);
+      await gesture.up();
+    });
+
+    testWidgets('alert 는 라이브 영역으로 읽힌다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      for (final alert in [true, false]) {
+        await pumpBanner(
+          tester,
+          PPageBanner(
+            key: UniqueKey(),
+            tone: PPageBannerTone.critical,
+            title: '연결 끊김',
+            description: '시세를 받지 못해요.',
+            alert: alert,
+          ),
+        );
+        expect(
+          tester
+              .getSemantics(find.byKey(text))
+              .getSemanticsData()
+              .flagsCollection
+              .isLiveRegion,
+          alert,
+        );
+      }
+      semantics.dispose();
+    });
+
+    testWidgets('규칙에 어긋난 조합은 만들 수 없다', (tester) async {
+      expect(
+        () => PPageBanner(
+          description: '본문',
+          interaction: PPageBannerInteraction.actionable,
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => PPageBanner(
+          description: '본문',
+          interaction: PPageBannerInteraction.actionable,
+          onPressed: () {},
+          button: PPageBannerButton(label: '업데이트', onPressed: () {}),
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => PPageBanner(
+          description: '본문',
+          interaction: PPageBannerInteraction.dismissible,
+          dismissLabel: _closeLabel,
+          button: PPageBannerButton(label: '업데이트', onPressed: () {}),
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => PPageBanner(
+          description: '본문',
+          interaction: PPageBannerInteraction.dismissible,
+        ),
+        throwsAssertionError,
+      );
+    });
+
+    testWidgets('Dismissible — 닫기는 이름 있는 버튼, 누르면 바로 걷히고 초점은 다음 요소로 간다', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final after = FocusNode();
+      addTearDown(after.dispose);
+      var dismissed = 0;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          Column(
+            children: [
+              PPageBanner(
+                interaction: PPageBannerInteraction.dismissible,
+                title: '새 기능',
+                description: '반복 거래를 기록해요.',
+                dismissLabel: _closeLabel,
+                onDismiss: () => dismissed++,
+              ),
+              Focus(focusNode: after, child: const SizedBox(height: 20)),
+            ],
+          ),
+          width: 390,
+        ),
+      );
+      final node = tester.getSemantics(find.bySemanticsLabel(_closeLabel));
+      expect(node.getSemanticsData().flagsCollection.isButton, isTrue);
+      Focus.of(
+        tester.element(find.byKey(const ValueKey('page-banner-close'))),
+      ).requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(box), findsNothing);
+      expect(dismissed, 1);
+      expect(after.hasPrimaryFocus, isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('Dismissible — open 을 주면 부르는 쪽이 정하고 닫기 누르는 영역은 40 × 40 이다', (
+      tester,
+    ) async {
+      var open = true;
+      var dismissed = 0;
+      late StateSetter setOuter;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          StatefulBuilder(
+            builder: (context, setState) {
+              setOuter = setState;
+              return PPageBanner(
+                interaction: PPageBannerInteraction.dismissible,
+                description: '반복 거래를 기록해요.',
+                dismissLabel: _closeLabel,
+                open: open,
+                onDismiss: () => dismissed++,
+              );
+            },
+          ),
+          width: 390,
+        ),
+      );
+      final center = tester.getCenter(
+        find.byKey(const ValueKey('page-banner-close')),
+      );
+      await tester.tapAt(center + const Offset(18, 0));
+      await tester.tapAt(center + const Offset(0, -18));
+      expect(dismissed, 2);
+      // 부르는 쪽이 open 을 그대로 두면 그대로 있다
+      expect(find.byKey(box), findsOneWidget);
+      await tester.tapAt(center + const Offset(22, 0));
+      expect(dismissed, 2);
+      setOuter(() => open = false);
+      await tester.pump();
+      expect(find.byKey(box), findsNothing);
+    });
+
+    testWidgets('글은 낱말 단위로 줄을 바꾸고 제목과 본문은 두 칸 띄운다', (tester) async {
+      await pumpBanner(tester, display());
+      final plain = _rootSpan(
+        tester,
+        find.byKey(text),
+      ).toPlainText(includeSemanticsLabels: false);
+      expect(plain, '${keepAll('새 버전')}  ${keepAll('더 빨라졌어요.')}');
     });
   });
 }

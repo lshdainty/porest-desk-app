@@ -52,19 +52,8 @@ class _RenderHitSlop extends RenderProxyBox {
   double minWidth;
   double minHeight;
 
-  /// 누를 수 있는 자리 — 보이는 상자 + [slop], 그래도 [minWidth] × [minHeight] 에 못 미치면 가운데 기준으로 더 넓힌다.
-  Rect get area {
-    var rect = slop.inflateRect(Offset.zero & size);
-    final extraW = math.max(0.0, minWidth - rect.width);
-    final extraH = math.max(0.0, minHeight - rect.height);
-    rect = Rect.fromLTRB(
-      rect.left - extraW / 2,
-      rect.top - extraH / 2,
-      rect.right + extraW / 2,
-      rect.bottom + extraH / 2,
-    );
-    return rect;
-  }
+  Rect get area =>
+      feedbackSlopArea(Offset.zero & size, slop, minWidth, minHeight);
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
@@ -77,6 +66,115 @@ class _RenderHitSlop extends RenderProxyBox {
       return true;
     }
     return false;
+  }
+}
+
+/// 누를 수 있는 자리 — 보이는 상자 [box] + [slop], 그래도 [minWidth] × [minHeight] 에 못 미치면 가운데 기준으로 더
+/// 넓힌다.
+@visibleForTesting
+Rect feedbackSlopArea(
+  Rect box,
+  EdgeInsets slop,
+  double minWidth,
+  double minHeight,
+) {
+  final rect = slop.inflateRect(box);
+  final extraW = math.max(0.0, minWidth - rect.width);
+  final extraH = math.max(0.0, minHeight - rect.height);
+  return Rect.fromLTRB(
+    rect.left - extraW / 2,
+    rect.top - extraH / 2,
+    rect.right + extraW / 2,
+    rect.bottom + extraH / 2,
+  );
+}
+
+/// 누르는 자리를 **부모 상자 밖까지** 넓히는 뿌리 — [FeedbackHitSlop] 은 부모 상자 안에서만 받지만, 이 뿌리 안의
+/// [FeedbackPress] 는 뿌리 상자 안이면 어디서든 받는다(글 + 사방 11 처럼 줄 밖으로 번진 버튼). 뿌리 상자(띠 · 상자
+/// 전체)를 쓰는 쪽이 감싼다. 눌린 자리가 두 버튼의 넓힌 자리에 걸치면 먼저 등록된 쪽이 받는다.
+class FeedbackSlopRoot extends StatefulWidget {
+  const FeedbackSlopRoot({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<FeedbackSlopRoot> createState() => _FeedbackSlopRootState();
+}
+
+class _SlopRegistry {
+  final Set<_FeedbackPressState> targets = {};
+}
+
+class _FeedbackSlopRootState extends State<FeedbackSlopRoot> {
+  final _SlopRegistry _registry = _SlopRegistry();
+
+  @override
+  Widget build(BuildContext context) {
+    return _SlopScope(
+      registry: _registry,
+      child: _SlopArea(registry: _registry, child: widget.child),
+    );
+  }
+}
+
+class _SlopScope extends InheritedWidget {
+  const _SlopScope({required this.registry, required super.child});
+
+  final _SlopRegistry registry;
+
+  @override
+  bool updateShouldNotify(_SlopScope oldWidget) => false;
+}
+
+class _SlopArea extends SingleChildRenderObjectWidget {
+  const _SlopArea({required this.registry, required super.child});
+
+  final _SlopRegistry registry;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSlopArea(registry);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderSlopArea).registry = registry;
+  }
+}
+
+class _RenderSlopArea extends RenderProxyBox {
+  _RenderSlopArea(this.registry);
+
+  _SlopRegistry registry;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (!size.contains(position)) return false;
+    // 눌리는 것의 넓힌 자리가 먼저다 — 띠 바탕은 어디서든 닿으므로 나중에 보면 늘 바탕이 받는다
+    for (final target in registry.targets) {
+      if (target.widget.onPressed == null) continue;
+      final box = target.context.findRenderObject();
+      if (box is! RenderBox || !box.attached || !box.hasSize) continue;
+      final toRoot = box.getTransformTo(this);
+      final area = feedbackSlopArea(
+        MatrixUtils.transformRect(toRoot, Offset.zero & box.size),
+        target.widget.slop,
+        target.widget.minWidth,
+        target.widget.minHeight,
+      );
+      if (!area.contains(position)) continue;
+      final inverse = Matrix4.tryInvert(toRoot);
+      if (inverse == null) continue;
+      final local = MatrixUtils.transformPoint(inverse, position);
+      // 넓힌 자리에서 누르면 상자 가운데를 누른 것으로 친다
+      final inside = (Offset.zero & box.size).contains(local)
+          ? local
+          : box.size.center(Offset.zero);
+      if (box.hitTest(result, position: inside)) {
+        result.add(BoxHitTestEntry(this, position));
+        return true;
+      }
+    }
+    return super.hitTest(result, position: position);
   }
 }
 
@@ -145,6 +243,22 @@ class _FeedbackPressState extends State<FeedbackPress> {
   bool _pressed = false;
   double _basis = 24;
 
+  /// 뿌리([FeedbackSlopRoot]) 안이면 넓힌 자리를 뿌리가 받는다 — 부모 상자 밖까지.
+  _SlopRegistry? _root;
+
+  @override
+  void initState() {
+    super.initState();
+    _root = context.getInheritedWidgetOfExactType<_SlopScope>()?.registry;
+    _root?.targets.add(this);
+  }
+
+  @override
+  void dispose() {
+    _root?.targets.remove(this);
+    super.dispose();
+  }
+
   bool get _enabled => widget.onPressed != null;
 
   void _setPressed(bool value) {
@@ -170,45 +284,48 @@ class _FeedbackPressState extends State<FeedbackPress> {
       content = ExcludeSemantics(child: content);
     }
 
+    final pressable = Semantics(
+      container: true,
+      button: !widget.link,
+      link: widget.link,
+      enabled: _enabled,
+      label: widget.semanticLabel,
+      onTap: _enabled ? _activate : null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: _enabled ? (_) => _setPressed(true) : null,
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        onTap: _enabled ? _activate : null,
+        excludeFromSemantics: true,
+        child: MouseRegion(
+          cursor: _enabled
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          child: FocusableActionDetector(
+            enabled: _enabled,
+            focusNode: widget.focusNode,
+            includeFocusSemantics: false,
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (_) {
+                  _activate();
+                  return null;
+                },
+              ),
+            },
+            child: content,
+          ),
+        ),
+      ),
+    );
+    // 뿌리 안이면 넓힌 자리를 뿌리가 받고, 아니면 이 상자의 부모 안에서만 받는다
+    if (_root != null) return pressable;
     return FeedbackHitSlop(
       slop: widget.slop,
       minWidth: widget.minWidth,
       minHeight: widget.minHeight,
-      child: Semantics(
-        container: true,
-        button: !widget.link,
-        link: widget.link,
-        enabled: _enabled,
-        label: widget.semanticLabel,
-        onTap: _enabled ? _activate : null,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: _enabled ? (_) => _setPressed(true) : null,
-          onTapUp: (_) => _setPressed(false),
-          onTapCancel: () => _setPressed(false),
-          onTap: _enabled ? _activate : null,
-          excludeFromSemantics: true,
-          child: MouseRegion(
-            cursor: _enabled
-                ? SystemMouseCursors.click
-                : SystemMouseCursors.basic,
-            child: FocusableActionDetector(
-              enabled: _enabled,
-              focusNode: widget.focusNode,
-              includeFocusSemantics: false,
-              actions: {
-                ActivateIntent: CallbackAction<ActivateIntent>(
-                  onInvoke: (_) {
-                    _activate();
-                    return null;
-                  },
-                ),
-              },
-              child: content,
-            ),
-          ),
-        ),
-      ),
+      child: pressable,
     );
   }
 }
