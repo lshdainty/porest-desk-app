@@ -56,6 +56,7 @@ class PFieldControlData {
     this.disabled = false,
     this.readOnly = false,
     this.maxGraphemeCount,
+    this.edgeInset = 0,
   });
 
   /// 칸 이름 — 라벨(+ "선택"). 입력의 이름이 된다(웹 `<label for>`).
@@ -75,6 +76,9 @@ class PFieldControlData {
   /// 최대 글자 수(자소) — 입력은 최대에서 멈춘다(한글은 조합이 끝난 뒤 자른다).
   final int? maxGraphemeCount;
 
+  /// 머리 · 꼬리가 입력 양옆에서 들어온 만큼 — 입력이 화면 폭을 다 쓰는 칸(첨부)이 줄 안쪽 여백으로 읽는다.
+  final double edgeInset;
+
   @override
   bool operator ==(Object other) =>
       other is PFieldControlData &&
@@ -84,7 +88,8 @@ class PFieldControlData {
       other.required == required &&
       other.disabled == disabled &&
       other.readOnly == readOnly &&
-      other.maxGraphemeCount == maxGraphemeCount;
+      other.maxGraphemeCount == maxGraphemeCount &&
+      other.edgeInset == edgeInset;
 
   @override
   int get hashCode => Object.hash(
@@ -95,6 +100,7 @@ class PFieldControlData {
     disabled,
     readOnly,
     maxGraphemeCount,
+    edgeInset,
   );
 }
 
@@ -184,6 +190,7 @@ class PField extends StatefulWidget {
     this.disabled = false,
     this.readOnly = false,
     this.maxGraphemeCount,
+    this.edgeInset = 0,
     required this.child,
   }) : assert(
          maxGraphemeCount == null || maxGraphemeCount > 0,
@@ -225,6 +232,11 @@ class PField extends StatefulWidget {
 
   /// 최대 글자 수(자소) — 있으면 꼬리 오른쪽에 "쓴 수/최대" 를 보이고 입력은 최대에서 멈춘다.
   final int? maxGraphemeCount;
+
+  /// 머리 · 꼬리의 좌우 안쪽 여백(기본 0) — 입력이 Field 폭을 다 쓰는 자리에서 쓴다. 입력은 화면 폭 그대로이고 라벨 · 설명 ·
+  /// 오류 · 글자 수만 이만큼 들어와 다른 칸과 같은 자리에 선다(첨부 칸의 줄이 화면 끝까지 가는 길 — attachment-input.yaml
+  /// bleedX, Q-016-2). 보통 `PSpacing.globalGutter`(24) 를 주고, 입력은 [PFieldControlData.edgeInset] 으로 이 값을 읽는다.
+  final double edgeInset;
 
   /// 입력 — PInput · PTextarea.
   final Widget child;
@@ -320,6 +332,7 @@ class _PFieldState extends State<PField> implements PFieldLink {
       disabled: widget.disabled,
       readOnly: widget.readOnly,
       maxGraphemeCount: max,
+      edgeInset: widget.edgeInset,
     );
 
     Widget? footer;
@@ -357,6 +370,7 @@ class _PFieldState extends State<PField> implements PFieldLink {
       data: data,
       link: this,
       child: _FieldLayout(
+        edgeInset: widget.edgeInset,
         label: label == null
             ? null
             : _FieldLabel(
@@ -629,6 +643,7 @@ class _FieldLayout
     required this.label,
     required this.action,
     required this.actionIsButton,
+    required this.edgeInset,
     required this.control,
     required this.footer,
   });
@@ -638,6 +653,9 @@ class _FieldLayout
 
   /// 머리 오른쪽이 버튼인가 — 버튼이면 위아래 5 넘치고 누르는 영역이 44 다. 머리 값 글이면 둘 다 아니다.
   final bool actionIsButton;
+
+  /// 머리 · 꼬리를 입력 양옆에서 들이는 만큼(기본 0).
+  final double edgeInset;
   final Widget control;
   final Widget? footer;
 
@@ -658,6 +676,7 @@ class _FieldLayout
       _RenderFieldLayout(
         textDirection: Directionality.of(context),
         actionIsButton: actionIsButton,
+        edgeInset: edgeInset,
       );
 
   @override
@@ -667,7 +686,8 @@ class _FieldLayout
   ) {
     renderObject
       ..textDirection = Directionality.of(context)
-      ..actionIsButton = actionIsButton;
+      ..actionIsButton = actionIsButton
+      ..edgeInset = edgeInset;
   }
 }
 
@@ -686,8 +706,10 @@ class _RenderFieldLayout extends RenderBox
   _RenderFieldLayout({
     required TextDirection textDirection,
     required bool actionIsButton,
+    required double edgeInset,
   }) : _textDirection = textDirection,
-       _actionIsButton = actionIsButton;
+       _actionIsButton = actionIsButton,
+       _edgeInset = edgeInset;
 
   bool get actionIsButton => _actionIsButton;
   bool _actionIsButton;
@@ -696,6 +718,18 @@ class _RenderFieldLayout extends RenderBox
     _actionIsButton = value;
     markNeedsLayout();
   }
+
+  double get edgeInset => _edgeInset;
+  double _edgeInset;
+  set edgeInset(double value) {
+    if (_edgeInset == value) return;
+    _edgeInset = value;
+    markNeedsLayout();
+  }
+
+  /// 머리 · 꼬리의 좌우 안쪽 여백 — 기본 2 에 [edgeInset] 을 더한다(입력은 [edgeInset] 만큼 넓은 폭 그대로).
+  double get _hx => _headerPaddingX + _edgeInset;
+  double get _fx => _footerPaddingX + _edgeInset;
 
   /// 머리 오른쪽의 위아래 넘침 — 버튼 −5, 머리 값 글 0.
   double get _marginY => _actionIsButton ? _actionMarginY : 0;
@@ -733,7 +767,7 @@ class _RenderFieldLayout extends RenderBox
     Offset? actionOffset;
     BoxConstraints? labelConstraints;
     if (label != null || action != null) {
-      final inner = math.max(0.0, width - 2 * _headerPaddingX);
+      final inner = math.max(0.0, width - 2 * _hx);
       final actionSize = action == null
           ? Size.zero
           : layoutChild(action, BoxConstraints(maxWidth: inner));
@@ -754,13 +788,13 @@ class _RenderFieldLayout extends RenderBox
       final header = math.max(labelSize.height, actionSlot);
       if (label != null) {
         labelOffset = Offset(
-          ltr ? _headerPaddingX : width - _headerPaddingX - labelSize.width,
+          ltr ? _hx : width - _hx - labelSize.width,
           (header - labelSize.height) / 2,
         );
       }
       if (action != null) {
         actionOffset = Offset(
-          ltr ? width - _headerPaddingX - actionSize.width : _headerPaddingX,
+          ltr ? width - _hx - actionSize.width : _hx,
           (header - actionSlot) / 2 + _marginY,
         );
       }
@@ -776,11 +810,9 @@ class _RenderFieldLayout extends RenderBox
       y += _gap;
       final footerSize = layoutChild(
         footer,
-        BoxConstraints.tightFor(
-          width: math.max(0.0, width - 2 * _footerPaddingX),
-        ),
+        BoxConstraints.tightFor(width: math.max(0.0, width - 2 * _fx)),
       );
-      footerOffset = Offset(_footerPaddingX, y);
+      footerOffset = Offset(_fx, y);
       y += footerSize.height;
     }
 
@@ -867,7 +899,7 @@ class _RenderFieldLayout extends RenderBox
     var header = 0.0;
     if (label != null || action != null) {
       header =
-          2 * _headerPaddingX +
+          2 * _hx +
           (label == null ? 0 : of(label)) +
           (action == null ? 0 : of(action)) +
           (label != null && action != null ? _headerGap : 0);
@@ -875,7 +907,7 @@ class _RenderFieldLayout extends RenderBox
     return [
       header,
       control == null ? 0.0 : of(control),
-      footer == null ? 0.0 : 2 * _footerPaddingX + of(footer),
+      footer == null ? 0.0 : 2 * _fx + of(footer),
     ].reduce(math.max);
   }
 
@@ -889,7 +921,7 @@ class _RenderFieldLayout extends RenderBox
     final footer = _footer;
     var height = 0.0;
     if (label != null || action != null) {
-      final inner = math.max(0.0, width - 2 * _headerPaddingX);
+      final inner = math.max(0.0, width - 2 * _hx);
       final actionWidth = action == null
           ? 0.0
           : math.min(inner, action.getMaxIntrinsicWidth(double.infinity));
@@ -909,7 +941,7 @@ class _RenderFieldLayout extends RenderBox
     }
     if (control != null) height += of(control, width);
     if (footer != null) {
-      height += _gap + of(footer, math.max(0.0, width - 2 * _footerPaddingX));
+      height += _gap + of(footer, math.max(0.0, width - 2 * _fx));
     }
     return height;
   }

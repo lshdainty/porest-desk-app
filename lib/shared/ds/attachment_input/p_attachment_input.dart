@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -55,10 +56,11 @@ enum PAttachmentLayout { tile, dropzone }
 ///   지우기", 다시 시도 "{파일 이름} 다시 시도". 붙음 · 올림 · 실패는 한 번씩 읽는다("사진 2장을 붙였어요.").
 ///
 /// 앱의 한계 — × 의 누르는 자리 44 는 위 · 오른쪽으로 보이는 원 밖 12 인데 Flutter 는 부모 밖 누르기를 자식에게 묻지 않는다.
-///   항목 자리가 위 16 · (끝 항목은) 오른쪽 16 을 레이아웃에 두고 다른 항목 위로 겹쳐 받으므로 44 가 모두 선다. 다만 이웃 항목과 겹친
-///   8px 는 이웃 항목이 먼저 받는다. 웹의 항목 줄은 부모 여백 밖(좌우 −24)까지 넓어지지만 Flutter 는 부모 밖
+///   항목 자리가 위 16 · (끝 항목은) 오른쪽 16 을 레이아웃에 두고 다른 항목 위로 겹쳐 받으므로 44 가 모두 선다. 이웃 항목과 겹친
+///   8 × 28 도 × 가 먼저 받는다(줄이 × 의 44 를 이웃보다 먼저 묻는다). 위 16 은 라벨이 있는 Field 안이면 머리 쪽으로 당겨 받고, 라벨이 없으면
+///   (맨 위 칸) 받아 줄 부모 자리가 없어 16 을 레이아웃에 남긴다. 웹의 항목 줄은 부모 여백 밖(좌우 −24)까지 넓어지지만 Flutter 는 부모 밖
 ///   누르기 · 스크롤을 받지 못하고 OverflowBox 가 접근성 트리와 충돌해 앱은 넓히지 않는다 — 칸 폭 안에서 스크롤하고(기본), 화면 폭
-///   전체에 놓는 화면은 [bleed] 에 24 를 준다.
+///   전체에 놓는 화면은 칸을 화면 폭에 두고 `PField(edgeInset: 24)` 로 감싼다(머리 · 꼬리만 24 들어오고 줄 안쪽 여백이 24 가 된다) — 또는 [bleed] 에 24.
 class PAttachmentInput extends StatefulWidget {
   const PAttachmentInput({
     super.key,
@@ -78,7 +80,7 @@ class PAttachmentInput extends StatefulWidget {
     this.readOnly,
     this.semanticLabel,
     this.pickFiles = pickSystemAttachments,
-    this.bleed = 0,
+    this.bleed,
   });
 
   /// maxFiles 에 주면 개수를 그리지 않는다(웹 Infinity).
@@ -110,8 +112,9 @@ class PAttachmentInput extends StatefulWidget {
   final PAttachmentPickFiles pickFiles;
 
   /// 항목 줄 좌우의 안쪽 여백 — 화면 폭 전체에 놓을 때 화면 여백(24)을 준다(첫 항목이 다른 칸과 같은 자리에서 시작하고 끝 흐림이
-  /// 화면 가장자리에 닿는다). 여백 안에 놓으면 0(기본) — 줄이 칸 폭 안에서 스크롤한다.
-  final double bleed;
+  /// 화면 가장자리에 닿는다). 안 주면 Field 의 `edgeInset`(입력은 화면 폭 · 머리 · 꼬리만 24 들이는 길 — Q-016-2)을 따르고, Field 밖이면
+  /// 0 — 줄이 칸 폭 안에서 스크롤한다(여백 안에 둔 채 쓰지 않는다 — 끝 흐림 20 이 첫 타일을 깎는다).
+  final double? bleed;
 
   @override
   State<PAttachmentInput> createState() => _PAttachmentInputState();
@@ -125,6 +128,20 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
   final Map<String, FocusNode> _itemNodes = {};
   final Map<String, FocusNode> _removeNodes = {};
   final FocusNode _triggerNode = FocusNode(debugLabel: 'attachment-trigger');
+
+  // ── 길게 눌러 끌기(앱 — 250ms) ─────────────────────────────
+  final ScrollController _scroll = ScrollController();
+  final GlobalKey _scrollKey = GlobalKey();
+  final Map<String, GlobalKey> _slotKeys = {};
+  String? _dragId;
+
+  /// 끄는 항목이 놓일 자리(entries 의 번호) — 손가락이 가장 가까운 항목 자리로 바로 따라 옮겨 보인다.
+  int _dragTarget = -1;
+  Offset _dragStartFinger = Offset.zero;
+  Offset _dragStartTopLeft = Offset.zero;
+  Offset _dragFinger = Offset.zero;
+  OverlayEntry? _ghost;
+  Timer? _edgeScroll;
 
   String _message = '';
   String? _movedId;
@@ -145,6 +162,8 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     _announceChanges();
     _restoreFocus();
     final ids = {for (final e in widget.entries) e.id};
+    if (_dragId != null && !ids.contains(_dragId)) _endDrag(commit: false);
+    _slotKeys.removeWhere((id, _) => !ids.contains(id));
     for (final map in [_itemNodes, _removeNodes]) {
       map.keys.where((id) => !ids.contains(id)).toList().forEach((id) {
         map.remove(id)?.dispose();
@@ -154,6 +173,10 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
 
   @override
   void dispose() {
+    _edgeScroll?.cancel();
+    _ghost?.remove();
+    _ghost?.dispose();
+    _scroll.dispose();
     for (final w in _watch.values) {
       w.timer.cancel();
     }
@@ -168,6 +191,143 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
       _itemNodes.putIfAbsent(id, () => FocusNode(debugLabel: 'item-$id'));
   FocusNode _removeNode(String id) =>
       _removeNodes.putIfAbsent(id, () => FocusNode(debugLabel: 'remove-$id'));
+
+  // ── 길게 눌러 끌기 ───────────────────────────────────────────
+  // 250ms 누른 채 움직이면 끌기다 — 그 전에 움직이면 줄이 가로로 스크롤하고(제스처 경쟁에서 스크롤이 이긴다), 그냥 떼면 누르기(메뉴).
+  // 끄는 항목은 2px 줄어든 채 손가락을 따라가고(사진 불투명도 0.5 · 파일 글 fg-disabled · × 와 구멍 없음 — 13B), 원래 자리는 놓을
+  // 곳으로 비어 이웃이 비켜선다. 놓으면 onReorder, 그 자리의 항목에 초점이 간다.
+  GlobalKey _slotKey(String id) => _slotKeys.putIfAbsent(id, GlobalKey.new);
+
+  /// 지금 그리는 차례 — 끄는 중이면 끄는 항목을 놓일 자리에 두어 이웃이 비켜선 모습으로.
+  List<PAttachmentEntry> get _displayEntries {
+    final list = widget.entries;
+    final id = _dragId;
+    if (id == null) return list;
+    final from = list.indexWhere((e) => e.id == id);
+    if (from < 0) return list;
+    final next = [...list];
+    final moved = next.removeAt(from);
+    next.insert(_dragTarget.clamp(0, next.length), moved);
+    return next;
+  }
+
+  void _startDrag(PAttachmentEntry entry, Offset finger) {
+    if (_dragId != null) return;
+    final box = _slotKeys[entry.id]?.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached) return;
+    HapticFeedback.selectionClick();
+    _dragStartFinger = finger;
+    _dragFinger = finger;
+    // 항목 몸의 왼쪽 위 — 자리 상자의 위 16(× 의 누르는 자리)을 뺀다
+    _dragStartTopLeft = box.localToGlobal(const Offset(0, _touchBleed));
+    _dragTarget = widget.entries.indexWhere((e) => e.id == entry.id);
+    _say('${_dragTarget + 1}번째 항목을 들었어요.');
+    final overlay = Overlay.of(context);
+    final overlayBox = overlay.context.findRenderObject()! as RenderBox;
+    final badge =
+        entry.isImage &&
+        widget.badgeLabel != null &&
+        widget.entries.where((e) => e.isImage).firstOrNull?.id == entry.id;
+    _ghost = OverlayEntry(
+      builder: (_) {
+        final at = overlayBox.globalToLocal(
+          _dragStartTopLeft + Offset(_dragFinger.dx - _dragStartFinger.dx, 0),
+        );
+        return Positioned(
+          left: at.dx,
+          top: at.dy,
+          child: IgnorePointer(
+            child: _DragGhost(
+              entry: entry,
+              status: _statusOf(entry),
+              badgeLabel: badge ? widget.badgeLabel : null,
+            ),
+          ),
+        );
+      },
+    );
+    overlay.insert(_ghost!);
+    setState(() => _dragId = entry.id);
+    _edgeScroll = Timer.periodic(const Duration(milliseconds: 16), (_) {
+      _scrollAtEdge();
+    });
+  }
+
+  void _moveDrag(Offset finger) {
+    if (_dragId == null) return;
+    _dragFinger = finger;
+    _ghost?.markNeedsBuild();
+    _retarget();
+  }
+
+  /// 손가락과 가장 가까운 항목 자리로 놓일 곳을 옮긴다(가운데 가로 거리).
+  void _retarget() {
+    final id = _dragId;
+    if (id == null) return;
+    final shown = _displayEntries;
+    var best = _dragTarget;
+    var bestDistance = double.infinity;
+    for (var i = 0; i < shown.length; i++) {
+      final box = _slotKeys[shown[i].id]?.currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.attached || !box.hasSize) continue;
+      final center = box.localToGlobal(box.size.center(Offset.zero)).dx;
+      final distance = (center - _dragFinger.dx).abs();
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = i;
+      }
+    }
+    if (best != _dragTarget) setState(() => _dragTarget = best);
+  }
+
+  /// 손가락이 줄의 왼쪽 · 오른쪽 가장자리 가까이면 줄을 스크롤한다.
+  void _scrollAtEdge() {
+    if (_dragId == null || !_scroll.hasClients) return;
+    final box = _scrollKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached) return;
+    final left = box.localToGlobal(Offset.zero).dx;
+    final right = left + box.size.width;
+    const zone = 48.0;
+    const step = 6.0;
+    var delta = 0.0;
+    if (_dragFinger.dx < left + zone) {
+      delta = -step;
+    } else if (_dragFinger.dx > right - zone) {
+      delta = step;
+    }
+    if (delta == 0) return;
+    final next = (_scroll.offset + delta).clamp(
+      _scroll.position.minScrollExtent,
+      _scroll.position.maxScrollExtent,
+    );
+    if (next == _scroll.offset) return;
+    _scroll.jumpTo(next);
+    // 줄이 밀리면 항목 자리가 바뀐다 — 다음 프레임에 다시 잰다
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _retarget();
+    });
+  }
+
+  void _endDrag({required bool commit}) {
+    final id = _dragId;
+    if (id == null) return;
+    final target = _dragTarget;
+    _edgeScroll?.cancel();
+    _edgeScroll = null;
+    _ghost?.remove();
+    _ghost?.dispose();
+    _ghost = null;
+    final from = widget.entries.indexWhere((e) => e.id == id);
+    if (mounted) {
+      setState(() {
+        _dragId = null;
+        _dragTarget = -1;
+      });
+    } else {
+      _dragId = null;
+    }
+    if (commit && from >= 0 && target != from) _moveTo(id, target);
+  }
 
   // ── 올리기가 멈췄나 ──────────────────────────────────────────
   void _syncStalls() {
@@ -422,6 +582,26 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     );
   }
 
+  /// 항목의 접근성 동작 — 앞으로 · 뒤로 옮기기(끌기 대신 — 순서를 바꿀 때) · 지우기. 끝에서는 그 방향이 없다.
+  Map<CustomSemanticsAction, VoidCallback>? _itemActions(
+    PAttachmentEntry entry,
+    int index, {
+    required bool menu,
+  }) {
+    if (!menu) return null;
+    final last = widget.entries.length - 1;
+    final reorder = widget.onReorder != null;
+    return {
+      if (reorder && index > 0)
+        const CustomSemanticsAction(label: '앞으로 옮기기'): () =>
+            _moveTo(entry.id, index - 1),
+      if (reorder && index < last)
+        const CustomSemanticsAction(label: '뒤로 옮기기'): () =>
+            _moveTo(entry.id, index + 1),
+      const CustomSemanticsAction(label: '지우기'): () => _remove(entry.id),
+    };
+  }
+
   String _describe(
     PAttachmentEntry e,
     PAttachmentStatus status,
@@ -455,8 +635,10 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
         : entries.where((e) => e.isImage).firstOrNull?.id;
 
     final slots = <Widget>[];
-    for (var i = 0; i < entries.length; i++) {
-      final entry = entries[i];
+    final shown = _displayEntries;
+    for (var position = 0; position < shown.length; position++) {
+      final entry = shown[position];
+      final i = entries.indexWhere((e) => e.id == entry.id);
       final status = _statusOf(entry);
       final badge = entry.id == firstImageId ? widget.badgeLabel : null;
       final menu = _menuAvailable && status != PAttachmentStatus.error;
@@ -465,35 +647,41 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
           : readOnly && !disabled && widget.onPreview != null
           ? () => widget.onPreview!(entry.id)
           : null;
-      final last = i == entries.length - 1;
+      final last = position == shown.length - 1;
       final index = i;
+      final canDrag =
+          widget.onReorder != null &&
+          !disabled &&
+          !readOnly &&
+          status != PAttachmentStatus.error &&
+          widget.layout == PAttachmentLayout.tile;
       slots.add(
-        _ItemSlot(
-          key: ValueKey('attachment-item-${entry.id}'),
-          entry: entry,
-          status: status,
-          description: _describe(entry, status, badge),
-          readOnly: readOnly,
-          disabled: disabled,
-          badgeLabel: entry.isImage ? badge : null,
-          rightBleed: last ? _touchBleed : 0,
-          onRemove: () => _remove(entry.id),
-          onRetry: widget.onRetry == null
-              ? null
-              : () => widget.onRetry!(entry.id),
-          onPress: press,
-          itemNode: _itemNode(entry.id),
-          removeNode: _removeNode(entry.id),
-          customActions: menu && widget.onReorder != null
-              ? {
-                  if (index > 0)
-                    const CustomSemanticsAction(label: '앞으로 옮기기'): () =>
-                        _moveTo(entry.id, index - 1),
-                  if (index < entries.length - 1)
-                    const CustomSemanticsAction(label: '뒤로 옮기기'): () =>
-                        _moveTo(entry.id, index + 1),
-                }
-              : null,
+        KeyedSubtree(
+          key: _slotKey(entry.id),
+          child: _ItemSlot(
+            key: ValueKey('attachment-item-${entry.id}'),
+            entry: entry,
+            status: status,
+            description: _describe(entry, status, badge),
+            readOnly: readOnly,
+            disabled: disabled,
+            badgeLabel: entry.isImage ? badge : null,
+            rightBleed: last ? _touchBleed : 0,
+            onRemove: () => _remove(entry.id),
+            onRetry: widget.onRetry == null
+                ? null
+                : () => widget.onRetry!(entry.id),
+            onPress: press,
+            itemNode: _itemNode(entry.id),
+            removeNode: _removeNode(entry.id),
+            canDrag: canDrag,
+            dragging: _dragId == entry.id,
+            onDragStart: (finger) => _startDrag(entry, finger),
+            onDragMove: _moveDrag,
+            onDragEnd: () => _endDrag(commit: true),
+            onDragCancel: () => _endDrag(commit: false),
+            customActions: _itemActions(entry, index, menu: menu),
+          ),
         ),
       );
     }
@@ -522,10 +710,12 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
               pull: _touchBleed,
               child: Padding(
                 padding: const EdgeInsets.only(top: 0),
-                child: Wrap(
-                  spacing: PSpacing.x2,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  children: slots,
+                child: _RemoveFirstScope(
+                  child: Wrap(
+                    spacing: PSpacing.x2,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: slots,
+                  ),
                 ),
               ),
             ),
@@ -548,19 +738,23 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
           onTap: _openPicker,
         ),
       );
-      final bleed = widget.bleed;
+      final bleed = widget.bleed ?? field?.edgeInset ?? 0;
       Widget row = PScrollFogMask(
         axis: Axis.horizontal,
         child: SingleChildScrollView(
+          key: _scrollKey,
+          controller: _scroll,
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.only(
             left: bleed,
             right: (bleed - _touchBleed).clamp(0, bleed),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: PSpacing.x2,
-            children: [trigger, ...slots],
+          child: _RemoveFirstScope(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: PSpacing.x2,
+              children: [trigger, ...slots],
+            ),
           ),
         ),
       );
@@ -590,9 +784,11 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
         ],
       ),
     );
-    // 항목 줄 위 16 은 × 의 누르는 자리 — 레이아웃에서는 빼고(웹 -mt-x4) 그 자리의 누르기는 이 칸이 받는다
+    // 항목 줄 위 16 은 × 의 누르는 자리 — 위에 라벨(머리)이 있으면 레이아웃에서 빼고(웹 -mt-x4) 그 자리의 누르기는 이 칸이 받는다.
+    // 라벨이 없으면(라벨 없는 Field · 칸이 맨 위) 그 위에는 받아 줄 부모 자리가 없어 누르기가 잘린다 — 16 을 레이아웃에 남겨 둔다
+    final pull = field?.label != null ? _touchBleed : 0.0;
     return widget.layout == PAttachmentLayout.tile
-        ? _PullUp(pull: _touchBleed, child: root)
+        ? _PullUp(pull: pull, child: root)
         : root;
   }
 }
