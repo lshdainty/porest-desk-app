@@ -23,6 +23,7 @@ import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.d
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
+import 'package:porest_desk_app/shared/ds/searchable_list/searchable_list_demo.dart';
 import 'package:porest_desk_app/shared/ds/segmented_control/segmented_control_demo.dart';
 import 'package:porest_desk_app/shared/ds/select/select_demo.dart';
 import 'package:porest_desk_app/shared/ds/select_box/select_box_demo.dart';
@@ -100,6 +101,7 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('pickers', '6 고르는 칸', [
     DsEntry('Input Button', 'input-button', demo: _inputButton),
+    DsEntry('Searchable List', 'searchable-list', demo: _searchableList),
     DsEntry('Select', 'select', demo: _select),
     DsEntry('Select Box', 'select-box', demo: _selectBox),
   ]),
@@ -153,6 +155,8 @@ Widget _field(BuildContext context) => const FieldDemo();
 Widget _input(BuildContext context) => const InputDemo();
 
 Widget _inputButton(BuildContext context) => const InputButtonDemo();
+
+Widget _searchableList(BuildContext context) => const SearchableListDemo();
 Widget _textarea(BuildContext context) => const TextareaDemo();
 Widget _checkbox(BuildContext context) => const CheckboxDemo();
 Widget _radio(BuildContext context) => const RadioDemo();
