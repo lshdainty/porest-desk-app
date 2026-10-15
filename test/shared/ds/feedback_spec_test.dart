@@ -16,8 +16,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/ds/button/p_button.dart';
+import 'package:porest_desk_app/shared/ds/callout/feedback_parts.dart';
 import 'package:porest_desk_app/shared/ds/callout/p_callout.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/p_page_banner.dart';
+import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
 
@@ -26,6 +29,7 @@ import '../../support/design_spec.dart';
 final _snackbar = DesignSpec.load('snackbar');
 final _callout = DesignSpec.load('callout');
 final _pageBanner = DesignSpec.load('page-banner');
+final _result = DesignSpec.load('result-section');
 
 /// 앱의 상태 — 웹의 hovered(올림) · focused(키보드 포커스 링)는 앱에 없다.
 List<String> _appStates(DesignSpec spec) =>
@@ -2365,6 +2369,449 @@ void main() {
         find.byKey(text),
       ).toPlainText(includeSemanticsLabels: false);
       expect(plain, '${keepAll('새 버전')}  ${keepAll('더 빨라졌어요.')}');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Result Section
+  // ══════════════════════════════════════════════════════════════
+  group('Result Section 모양', () {
+    const content = ValueKey('result-section-content');
+    const asset = ValueKey('result-section-asset');
+    const title = ValueKey('result-section-title');
+    const description = ValueKey('result-section-description');
+    const primary = ValueKey('result-section-primary');
+    const secondary = ValueKey('result-section-secondary');
+
+    Widget placedIn(Brightness mode, Widget child, {double height = 700}) =>
+        _app(
+          mode,
+          home: Scaffold(
+            body: SizedBox(width: 390, height: height, child: child),
+          ),
+        );
+
+    PResultSection section(
+      PResultKind kind,
+      PResultSize size, {
+      PResultPlacement placement = PResultPlacement.screen,
+      bool withDescription = true,
+      bool withPrimary = true,
+      bool withSecondary = true,
+    }) => PResultSection(
+      kind: kind,
+      size: size,
+      placement: placement,
+      icon: kind == PResultKind.empty ? LucideIcons.receiptText300 : null,
+      title: '이번 달 거래가 없어요',
+      description: withDescription ? '거래를 기록하면 여기에 모여요.' : null,
+      primaryAction: withPrimary
+          ? PResultAction(label: '거래 추가', onPressed: () {})
+          : null,
+      secondaryAction: withSecondary
+          ? PResultAction(label: '홈으로', onPressed: () {})
+          : null,
+    );
+
+    for (final mode in Brightness.values) {
+      testWidgets('${mode.name} — 크기 × 결과가 스펙 값이다', (tester) async {
+        _viewport(tester, const Size(390, 700));
+        final failures = <String>[];
+        for (final combo in _result.combos(['size', 'kind'])) {
+          final size = PResultSize.values.byName(combo['size']!);
+          final kind = PResultKind.values.byName(combo['kind']!);
+          await tester.pumpWidget(placedIn(mode, section(kind, size)));
+          await tester.pump(const Duration(milliseconds: 400));
+          final k = _Check(
+            mode,
+            _result.resolve(combo, 'enabled'),
+            '${mode.name} $combo',
+          );
+
+          // ── 묶음 ── 좌우 48 · 위아래 16, 가운데
+          final pad = tester.widget<Padding>(find.byKey(content)).padding;
+          k.px('root.paddingX', pad.horizontal / 2);
+          k.px('root.paddingY', pad.vertical / 2);
+          final group = tester.getRect(find.byKey(content));
+          // 놓인 자리(390 × 700)의 가로 · 세로 가운데
+          if ((group.center.dx - 195).abs() > 0.5 ||
+              (group.center.dy - 350).abs() > 0.5) {
+            k.fail('root.alignItems: 가운데 (195, 350) · 실제 ${group.center}');
+          }
+
+          // ── 아이콘 ── 40 · 아래 16
+          final icon = tester.widget<Icon>(find.byKey(asset));
+          k.px('asset.size', icon.size!);
+          k.color('asset.color', icon.color!);
+          final iconRect = tester.getRect(find.byKey(asset));
+          final titleRect = tester.getRect(find.byKey(title));
+          k.px('asset.marginBottom', titleRect.top - iconRect.bottom);
+          // 가운데 정렬
+          for (final r in [iconRect, titleRect]) {
+            if ((r.center.dx - 195).abs() > 0.5) {
+              k.fail('textAlign center: 가운데 195 · 실제 ${r.center.dx}');
+            }
+          }
+          if (kind == PResultKind.failure) {
+            expect(icon.icon, LucideIcons.circleAlert300);
+          } else if (kind == PResultKind.done) {
+            expect(icon.icon, LucideIcons.circleCheck300);
+          }
+          // 선 1.5 — lucide 300 굵기
+          expect(icon.icon!.fontFamily, 'Lucide300');
+
+          // ── 제목 · 설명 ──
+          final titleText = tester.widget<Text>(find.byKey(title));
+          k.typo('title.typography', titleText.style!);
+          k.weight('title.fontWeight', titleText.style!);
+          k.color('title.foreground', titleText.style!.color!);
+          expect(titleText.textAlign, TextAlign.center);
+          final descText = tester.widget<Text>(find.byKey(description));
+          k.typo('description.typography', descText.style!);
+          k.weight('description.fontWeight', descText.style!);
+          k.color('description.foreground', descText.style!.color!);
+          expect(descText.textAlign, TextAlign.center);
+          final descRect = tester.getRect(find.byKey(description));
+          k.px('description.marginTop', descRect.top - titleRect.bottom);
+
+          // ── 버튼 ── 위 28 · 24, 첫 버튼 medium 40 neutralWeak, 둘째 small 36 ghost
+          final primaryButton = tester.widget<PButton>(
+            find.descendant(
+              of: find.byKey(primary),
+              matching: find.byType(PButton),
+            ),
+          );
+          final secondaryButton = tester.widget<PButton>(
+            find.descendant(
+              of: find.byKey(secondary),
+              matching: find.byType(PButton),
+            ),
+          );
+          final primaryRect = tester.getRect(
+            find.descendant(
+              of: find.byKey(primary),
+              matching: find.byType(PButton),
+            ),
+          );
+          final secondaryRect = tester.getRect(
+            find.descendant(
+              of: find.byKey(secondary),
+              matching: find.byType(PButton),
+            ),
+          );
+          k.px('actions.marginTop', primaryRect.top - descRect.bottom);
+          final primarySpec = '${k.want['primaryButton.buttonSize']}'.split(
+            ' ',
+          );
+          final secondarySpec = '${k.want['secondaryButton.buttonSize']}'.split(
+            ' ',
+          );
+          if (primaryButton.size.name != primarySpec[0] ||
+              primaryRect.height != double.parse(primarySpec[1]) ||
+              primaryButton.variant != PButtonVariant.neutralWeak) {
+            k.fail(
+              'primaryButton: 스펙 ${primarySpec.join(' ')} neutralWeak · 실제 ${primaryButton.size.name} ${primaryRect.height} ${primaryButton.variant}',
+            );
+          }
+          if (secondaryButton.size.name != secondarySpec[0] ||
+              secondaryRect.height != double.parse(secondarySpec[1]) ||
+              secondaryButton.variant != PButtonVariant.ghost) {
+            k.fail(
+              'secondaryButton: 스펙 ${secondarySpec.join(' ')} ghost · 실제 ${secondaryButton.size.name} ${secondaryRect.height} ${secondaryButton.variant}',
+            );
+          }
+          // 사이 20 — 둘째 버튼이 위아래로 8 블리드해 보이는 상자 사이는 12
+          k.pxMinus('actions.gap', 8, secondaryRect.top - primaryRect.bottom);
+          // 둘째 버튼은 레이아웃에서 위 8 · 아래 8 을 뺀다 — 묶음 높이 40 + 20 + 20
+          final actionsHeight =
+              tester.getRect(find.byKey(secondary)).bottom - primaryRect.top;
+          final want = 40 + (k.want['actions.gap']! as num) + 20 - 8 - 8 + 8;
+          if ((actionsHeight - (40 + 12 + 28)).abs() > 0.5) {
+            k.fail('버튼 묶음 높이: 40 + 12 + 28 · 실제 $actionsHeight ($want)');
+          }
+          failures.addAll(k.failures);
+        }
+        _expectClean(failures);
+      });
+    }
+  });
+
+  group('Result Section 동작', () {
+    const content = ValueKey('result-section-content');
+    const title = ValueKey('result-section-title');
+    const primary = ValueKey('result-section-primary');
+    const secondary = ValueKey('result-section-secondary');
+
+    Future<void> pumpIn(
+      WidgetTester tester,
+      Widget child, {
+      double height = 700,
+      bool reduceMotion = false,
+    }) async {
+      Widget app = _app(
+        Brightness.light,
+        home: Scaffold(
+          body: SizedBox(width: 390, height: height, child: child),
+        ),
+      );
+      if (reduceMotion) {
+        app = MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: app,
+        );
+      }
+      await tester.pumpWidget(app);
+    }
+
+    testWidgets('놓인 자리에 따라 좌우 여백이 갈린다 — 화면 48 · 카드 0 · 목록 카드 24', (
+      tester,
+    ) async {
+      for (final (placement, want) in [
+        (PResultPlacement.screen, 48.0),
+        (PResultPlacement.card, 0.0),
+        (PResultPlacement.listCard, 24.0),
+      ]) {
+        await pumpIn(
+          tester,
+          PResultSection(
+            key: UniqueKey(),
+            kind: PResultKind.failure,
+            size: PResultSize.medium,
+            placement: placement,
+            title: '거래를 불러오지 못했어요',
+          ),
+        );
+        final pad = tester.widget<Padding>(find.byKey(content)).padding;
+        expect(pad.horizontal / 2, want, reason: '$placement');
+        expect(resultSectionPaddingX(placement), want);
+      }
+    });
+
+    testWidgets('카드 안에서는 좁은 카드에서도 제목이 한 줄에 들어간다(좌우 72 를 만들지 않는다)', (
+      tester,
+    ) async {
+      Future<double> titleHeight(PResultPlacement placement) async {
+        await tester.pumpWidget(
+          _app(
+            Brightness.light,
+            home: Scaffold(
+              body: Align(
+                alignment: Alignment.topLeft,
+                child: SizedBox(
+                  width: 300,
+                  height: 300,
+                  child: PResultSection(
+                    key: UniqueKey(),
+                    kind: PResultKind.failure,
+                    size: PResultSize.medium,
+                    placement: placement,
+                    title: '거래를 불러오지 못했어요',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        return tester.getSize(find.byKey(title)).height;
+      }
+
+      // 폭 300 − 96 = 204 에서는 두 줄 · 카드(0)에서는 한 줄
+      expect(await titleHeight(PResultPlacement.screen), 44);
+      expect(await titleHeight(PResultPlacement.card), 22);
+    });
+
+    testWidgets('empty 는 아이콘을 꼭 준다 · failure · done 은 기본 아이콘이 있다', (
+      tester,
+    ) async {
+      expect(() => PResultSection(title: '이번 달 거래가 없어요'), throwsAssertionError);
+      expect(
+        () => PResultSection(title: '제목', icon: LucideIcons.bell300),
+        returnsNormally,
+      );
+      await pumpIn(
+        tester,
+        const PResultSection(kind: PResultKind.failure, title: '문제가 생겼어요'),
+      );
+      expect(
+        tester
+            .widget<Icon>(find.byKey(const ValueKey('result-section-asset')))
+            .icon,
+        LucideIcons.circleAlert300,
+      );
+      await pumpIn(
+        tester,
+        const PResultSection(kind: PResultKind.done, title: '끝났어요'),
+      );
+      expect(
+        tester
+            .widget<Icon>(find.byKey(const ValueKey('result-section-asset')))
+            .icon,
+        LucideIcons.circleCheck300,
+      );
+    });
+
+    testWidgets('설명 · 버튼은 없어도 된다 — 제목만 있는 404', (tester) async {
+      await pumpIn(
+        tester,
+        const PResultSection(
+          icon: LucideIcons.searchX300,
+          title: '페이지를 찾을 수 없어요',
+        ),
+      );
+      expect(
+        find.byKey(const ValueKey('result-section-description')),
+        findsNothing,
+      );
+      expect(find.byKey(primary), findsNothing);
+      expect(find.byKey(secondary), findsNothing);
+      expect(find.text(keepAll('페이지를 찾을 수 없어요')), findsOneWidget);
+    });
+
+    testWidgets('버튼을 누르면 그 일을 하고, 로딩 중인 첫 버튼은 누르기를 삼킨다', (tester) async {
+      var retry = 0;
+      var home = 0;
+      await pumpIn(
+        tester,
+        PResultSection(
+          kind: PResultKind.failure,
+          title: '문제가 생겼어요',
+          primaryAction: PResultAction(
+            label: '다시 시도',
+            onPressed: () => retry++,
+          ),
+          secondaryAction: PResultAction(label: '홈으로', onPressed: () => home++),
+        ),
+      );
+      await tester.tap(find.text('다시 시도'));
+      await tester.tap(find.text('홈으로'));
+      expect(retry, 1);
+      expect(home, 1);
+
+      await pumpIn(
+        tester,
+        PResultSection(
+          key: UniqueKey(),
+          kind: PResultKind.failure,
+          title: '문제가 생겼어요',
+          primaryAction: PResultAction(
+            label: '다시 시도',
+            loading: true,
+            onPressed: () => retry++,
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(primary));
+      expect(retry, 1);
+      expect(tester.widget<PButton>(find.byType(PButton)).loading, isTrue);
+    });
+
+    testWidgets('둘째 버튼만 있어도 글 자리만 차지한다(위아래 8 블리드)', (tester) async {
+      await pumpIn(
+        tester,
+        PResultSection(
+          kind: PResultKind.failure,
+          title: '문제가 생겼어요',
+          secondaryAction: PResultAction(label: '홈으로', onPressed: () {}),
+        ),
+      );
+      expect(tester.getSize(find.byKey(secondary)).height, 36 - 16);
+    });
+
+    testWidgets('제목은 제목으로, 묶음은 라이브 영역으로 읽고 아이콘은 읽지 않는다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpIn(
+        tester,
+        const PResultSection(
+          kind: PResultKind.failure,
+          title: '거래를 불러오지 못했어요',
+          description: '잠시 뒤 다시 시도해 주세요.',
+          headingLevel: 1,
+        ),
+      );
+      // 처음 한 프레임은 투명도 0 이라 읽히지 않는다 — 나타나는 때 라이브 영역이 읽는다(웹의 첫 프레임 감춤과 같다)
+      expect(find.semantics.byLabel(RegExp('거래를 불러오지 못했어요')), findsNothing);
+      await tester.pump(const Duration(milliseconds: 20));
+      final heading = tester.getSemantics(find.byKey(title));
+      final flags = heading.getSemanticsData().flagsCollection;
+      expect(flags.isHeader, isTrue);
+      expect(heading.getSemanticsData().headingLevel, 1);
+      // 제목 · 설명이 한 묶음으로 읽히고 이음 문자는 읽지 않는다 — 아이콘은 읽지 않는다
+      expect(heading.label, contains('거래를 불러오지 못했어요'));
+      expect(heading.label, contains('잠시 뒤 다시 시도해 주세요.'));
+      expect(heading.label, isNot(contains('\u2060')));
+      expect(flags.isLiveRegion, isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('결과로 바뀌면 150ms enter 로 투명도가 올라온다 — 모션 줄이기면 바로', (tester) async {
+      await pumpIn(
+        tester,
+        const PResultSection(kind: PResultKind.done, title: '끝났어요'),
+      );
+      Opacity opacity() => tester.widget<Opacity>(
+        find.ancestor(of: find.byKey(content), matching: find.byType(Opacity)),
+      );
+      expect(opacity().opacity, 0);
+      await tester.pump(const Duration(milliseconds: 75));
+      expect(opacity().opacity, closeTo(PEasing.enter.transform(0.5), 1e-3));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(opacity().opacity, 1);
+
+      await pumpIn(
+        tester,
+        PResultSection(key: UniqueKey(), kind: PResultKind.done, title: '끝났어요'),
+        reduceMotion: true,
+      );
+      expect(
+        find.ancestor(of: find.byKey(content), matching: find.byType(Opacity)),
+        findsNothing,
+      );
+    });
+
+    testWidgets('높이를 정해 주지 않아도(목록 안) 내용만큼 차지한다', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          Brightness.light,
+          home: Scaffold(
+            body: ListView(
+              children: const [
+                PResultSection(
+                  kind: PResultKind.failure,
+                  size: PResultSize.medium,
+                  title: '거래를 불러오지 못했어요',
+                  description: '잠시 뒤 다시 시도해 주세요.',
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+      // 위 16 + 아이콘 40 + 16 + 제목 22 + 8 + 설명 19 + 아래 16
+      expect(
+        tester.getSize(find.byKey(content)).height,
+        16 + 40 + 16 + 22 + 8 + 19 + 16,
+      );
+    });
+  });
+
+  group('피드백 부품', () {
+    test('누르는 자리 — 보이는 상자 + 넓힘, 그래도 모자라면 가운데 기준으로 더 넓힌다', () {
+      const box = Rect.fromLTWH(100, 100, 60, 19);
+      expect(
+        feedbackSlopArea(box, const EdgeInsets.symmetric(horizontal: 8), 0, 44),
+        const Rect.fromLTRB(92, 87.5, 168, 131.5),
+      );
+      expect(
+        feedbackSlopArea(box, const EdgeInsets.all(11), 0, 0),
+        const Rect.fromLTRB(89, 89, 171, 130),
+      );
+      // 이미 충분하면 더 넓히지 않는다
+      expect(
+        feedbackSlopArea(box, const EdgeInsets.all(30), 44, 44),
+        const Rect.fromLTRB(70, 70, 190, 149),
+      );
     });
   });
 }
