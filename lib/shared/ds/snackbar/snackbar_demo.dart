@@ -110,7 +110,7 @@ class _LiveFrameState extends State<_LiveFrame> {
       height: _frameHeight,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        color: c.bgLayerBasement,
+        color: c.bgLayerDefault,
         border: Border.all(color: c.strokeNeutralWeak),
         borderRadius: BorderRadius.circular(PRounded.r3),
       ),

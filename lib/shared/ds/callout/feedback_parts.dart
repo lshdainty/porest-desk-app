@@ -151,7 +151,7 @@ class _RenderSlopArea extends RenderProxyBox {
     if (!size.contains(position)) return false;
     // 눌리는 것의 넓힌 자리가 먼저다 — 띠 바탕은 어디서든 닿으므로 나중에 보면 늘 바탕이 받는다
     for (final target in registry.targets) {
-      if (target.widget.onPressed == null) continue;
+      if (!target.mounted || target.widget.onPressed == null) continue;
       final box = target.context.findRenderObject();
       if (box is! RenderBox || !box.attached || !box.hasSize) continue;
       final toRoot = box.getTransformTo(this);

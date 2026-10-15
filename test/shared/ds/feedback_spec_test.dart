@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/ds/callout/p_callout.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/p_page_banner.dart';
 import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
@@ -957,6 +958,51 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('카탈로그 견본 — 틀 안에서 띄우고, 탭 바를 켜면 그 위 8 에 선다', (tester) async {
+      _viewport(tester, const Size(390, 1600));
+      await tester.pumpWidget(
+        _app(
+          Brightness.light,
+          home: const Scaffold(
+            body: SingleChildScrollView(child: SnackbarDemo()),
+          ),
+        ),
+      );
+      await tester.ensureVisible(find.text('결과 — 4초'));
+      await tester.pump();
+      await tester.tap(find.text('결과 — 4초'));
+      await tester.pump();
+      await advance(tester, 300);
+      final frame = tester.getRect(
+        find
+            .ancestor(
+              of: find.byType(PSnackbarHost),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final live = find.descendant(
+        of: find.byType(PSnackbarHost),
+        matching: bandFinder,
+      );
+      expect(live, findsOneWidget);
+      // 틀 아래 8 — 틀의 안전 영역은 0 이다
+      expect(frame.bottom - tester.getRect(live).bottom, 8 + 1);
+      await tester.tap(find.text('탭 바 켜기'));
+      await tester.pump();
+      await tester.pump();
+      await advance(tester, 300);
+      // 탭 바 66 위 8
+      expect(frame.bottom - tester.getRect(live).bottom, 66 + 8 + 1);
+      await tester.tap(find.text('홈 표시줄 켜기'));
+      await tester.pump();
+      await tester.pump();
+      await advance(tester, 300);
+      // 홈 표시줄 34 를 품은 탭 바(66 + 34) 위 8 — 더하지 않는다
+      expect(frame.bottom - tester.getRect(live).bottom, 66 + 34 + 8 + 1);
+      await unmount(tester);
+    });
+
     testWidgets('띠 안 글은 낱말 단위로 줄을 바꾼다(v114)', (tester) async {
       final api = await mount(tester);
       await show(tester, api, message: '거래를 저장했어요.');
@@ -1115,6 +1161,25 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(await bottomGap(tester, api, screenHeight: 800), 8);
+      await unmount(tester);
+    });
+
+    testWidgets('호스트가 다시 그려져도 시간을 처음부터 세지 않는다', (tester) async {
+      _viewport(tester, const Size(390, 800));
+      final api = await mount(tester, body: screenWith(66));
+      await tester.pump();
+      await show(tester, api);
+      await advance(tester, 3000);
+      // 피할 자리가 바뀌어 호스트가 다시 그려진다
+      await mount(tester, body: screenWith(90));
+      await tester.pump();
+      await tester.pump();
+      expect(bandFinder, findsOneWidget);
+      await advance(tester, 999);
+      expect(bandFinder, findsOneWidget);
+      await advance(tester, 1);
+      await advance(tester, 150);
+      expect(bandFinder, findsNothing);
       await unmount(tester);
     });
 

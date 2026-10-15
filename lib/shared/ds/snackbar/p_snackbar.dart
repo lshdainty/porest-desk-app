@@ -461,7 +461,8 @@ class _PSnackbarItemState extends State<_PSnackbarItem>
   void didUpdateWidget(_PSnackbarItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.entry.open && !_open) _startExit();
-    _syncTimer();
+    // 호스트가 다시 그려질 때마다(피할 자리 · 안전 영역이 바뀔 때) 시간을 처음부터 세지 않는다 — 열림 · 닫힘이 바뀐 때만
+    if (oldWidget.entry.open != _open) _syncTimer();
   }
 
   @override
