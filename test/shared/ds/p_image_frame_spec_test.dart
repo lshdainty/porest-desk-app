@@ -789,10 +789,10 @@ void main() {
         expect(
           pad.padding,
           EdgeInsets.fromLTRB(
-            (want['face.paddingX'] as num).toDouble(),
+            (want['label.paddingX'] as num).toDouble(),
             0,
-            (want['face.paddingX'] as num).toDouble(),
-            (want['face.paddingBottom'] as num).toDouble(),
+            (want['label.paddingX'] as num).toDouble(),
+            (want['label.paddingBottom'] as num).toDouble(),
           ),
           reason: '$size',
         );

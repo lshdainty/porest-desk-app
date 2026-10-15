@@ -89,7 +89,7 @@ class _OpenBubble extends StatelessWidget {
 }
 
 /// 카탈로그(/dev/ds) — 열린 말풍선(제목만 · 제목 + 설명 · 닫기 버튼), 자리(뒤집기 · 밀기 · 아래 · 옆), 직접 열어 보기.
-/// 툴팁(opens: hover)은 마우스를 올려 여는 것이라 앱에 없다.
+/// 툴팁(opens: hover)은 마우스를 올려 여는 것이다 — 앱에도 두되(마우스 · 키보드만) 이 견본은 눌러 여는 쪽만 그린다.
 class HelpBubbleDemo extends StatelessWidget {
   const HelpBubbleDemo({super.key});
 
