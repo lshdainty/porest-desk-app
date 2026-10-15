@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
@@ -9,6 +10,7 @@ import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
+import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
@@ -17,11 +19,13 @@ import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.d
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
+import 'package:porest_desk_app/shared/ds/segmented_control/segmented_control_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
@@ -96,7 +100,7 @@ const List<DsFamily> dsFamilies = [
   DsFamily('chips-tabs', '7 칩 · 탭', [
     DsEntry('Chip', 'chip'),
     DsEntry('Tabs', 'tabs'),
-    DsEntry('Segmented Control', 'segmented-control'),
+    DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
   ]),
   DsFamily('overlays', '8 겹침', [
     DsEntry('Alert Dialog', 'alert-dialog'),
@@ -104,11 +108,11 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('menus', '9 메뉴', [
     DsEntry('Menu Sheet', 'menu-sheet'),
-    DsEntry('Help Bubble', 'help-bubble'),
+    DsEntry('Help Bubble', 'help-bubble', demo: _helpBubble),
     DsEntry('Tooltip', 'tooltip'),
   ]),
   DsFamily('date-time', '10 날짜 · 시각', [
-    DsEntry('Wheel Picker', 'wheel-picker'),
+    DsEntry('Wheel Picker', 'wheel-picker', demo: _wheelPicker),
     DsEntry('Time Picker', 'time-picker'),
     DsEntry('Date Picker', 'date-picker'),
   ]),
@@ -119,7 +123,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Result Section', 'result-section', demo: _resultSection),
   ]),
   DsFamily('image', '12 이미지', [
-    DsEntry('Aspect Ratio', 'aspect-ratio'),
+    DsEntry('Aspect Ratio', 'aspect-ratio', demo: _aspectRatio),
     DsEntry('Image Frame', 'image-frame'),
     DsEntry('Logo Tile', 'logo-tile'),
   ]),
@@ -149,6 +153,10 @@ Widget _snackbar(BuildContext context) => const SnackbarDemo();
 Widget _callout(BuildContext context) => const CalloutDemo();
 Widget _pageBanner(BuildContext context) => const PageBannerDemo();
 Widget _resultSection(BuildContext context) => const ResultSectionDemo();
+Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
+Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
+Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
+Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
