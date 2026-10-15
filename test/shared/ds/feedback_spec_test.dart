@@ -16,12 +16,14 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/ds/callout/p_callout.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
 
 final _snackbar = DesignSpec.load('snackbar');
+final _callout = DesignSpec.load('callout');
 
 /// 앱의 상태 — 웹의 hovered(올림) · focused(키보드 포커스 링)는 앱에 없다.
 List<String> _appStates(DesignSpec spec) =>
@@ -184,6 +186,32 @@ void _checkScaleMotion(
     k.fail('$slot.$easingKey: 스펙 $cubic · 실제 $curve');
   }
 }
+
+/// 글 조각의 실제 스타일 — 뿌리 스타일 위에 그 조각의 스타일을 덮는다.
+TextStyle _spanStyle(TextSpan root, String text) {
+  TextStyle? found;
+  void visit(TextSpan span, TextStyle inherited) {
+    final style = inherited.merge(span.style);
+    if (span.text != null && span.text!.contains(text)) found = style;
+    for (final child in span.children ?? const <InlineSpan>[]) {
+      if (child is TextSpan) visit(child, style);
+    }
+  }
+
+  visit(root, const TextStyle());
+  if (found == null) throw StateError('글 조각이 없다: $text');
+  return found!;
+}
+
+/// [Text.rich] 의 뿌리 조각.
+TextSpan _rootSpan(WidgetTester tester, Finder text) =>
+    tester
+            .widget<RichText>(
+              // 링크(WidgetSpan)가 안에 또 RichText 를 품으므로 바깥 것이 첫째다
+              find.descendant(of: text, matching: find.byType(RichText)).first,
+            )
+            .text
+        as TextSpan;
 
 const _closeLabel = '닫기';
 
@@ -1144,6 +1172,641 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('시트 내용'), findsNothing);
       await unmount(tester);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Callout
+  // ══════════════════════════════════════════════════════════════
+  group('Callout 모양', () {
+    const box = ValueKey('callout-box');
+    const text = ValueKey('callout-text');
+
+    PCallout callout(
+      PCalloutTone tone,
+      PCalloutInteraction interaction, {
+      String? title = '안내',
+      String description = '저장했어요.',
+      bool open = true,
+    }) => PCallout(
+      key: UniqueKey(),
+      tone: tone,
+      interaction: interaction,
+      title: title,
+      description: description,
+      link: interaction == PCalloutInteraction.actionable
+          ? null
+          : PCalloutLink(label: '자세히', onPressed: () {}),
+      onPressed: interaction == PCalloutInteraction.actionable ? () {} : null,
+      dismissLabel: interaction == PCalloutInteraction.dismissible
+          ? _closeLabel
+          : null,
+    );
+
+    for (final mode in Brightness.values) {
+      testWidgets('${mode.name} — 톤 × 상호작용 × 상태가 스펙 값이다', (tester) async {
+        final failures = <String>[];
+        for (final combo in _callout.combos(['tone', 'interaction'])) {
+          final tone = PCalloutTone.values.byName(combo['tone']!);
+          final interaction = PCalloutInteraction.values.byName(
+            combo['interaction']!,
+          );
+          // 누름이 있는 것은 전체 누르기(상자) · 닫기(닫기 버튼)뿐 — 보이기는 누를 것이 없다
+          final states = interaction == PCalloutInteraction.display
+              ? ['enabled']
+              : _appStates(_callout);
+          for (final state in states) {
+            await tester.pumpWidget(
+              _placed(mode, callout(tone, interaction), width: 320),
+            );
+            final target = interaction == PCalloutInteraction.dismissible
+                ? find.byKey(const ValueKey('callout-close'))
+                : find.byKey(box);
+            final gesture = await _settle(tester, state, target);
+            final k = _Check(
+              mode,
+              _callout.resolve(combo, state),
+              '${mode.name} $combo $state',
+            );
+
+            final boxFinder = find.byKey(box);
+            final rect = tester.getRect(boxFinder);
+            // ── 상자 ── 누르면 상자 전체가 줄어 보이므로 놓인 자리는 누르지 않은 때만 잰다
+            final deco =
+                tester.widget<DecoratedBox>(boxFinder).decoration
+                    as BoxDecoration;
+            k.px('root.radius', (deco.borderRadius! as BorderRadius).topLeft.x);
+            // 누름 바탕은 색 전환(150ms)이 끝난 뒤의 색이다
+            k.color('root.background', deco.color!);
+            final icon = find.byKey(const ValueKey('callout-icon'));
+            final iconWidget = tester.widget<Icon>(icon);
+            k.px('icon.size', iconWidget.size!);
+            k.color('root.foreground', iconWidget.color!);
+            expect(iconWidget.icon, pCalloutToneIcon(tone));
+            final textRect = tester.getRect(find.byKey(text));
+            if (state == 'enabled') {
+              if (rect.width != 320) {
+                k.fail('root.width: 100%(320) · 실제 ${rect.width}');
+              }
+              k.px('root.minHeight', rect.height);
+              // 안쪽 14 · 아이콘 ↔ 글 12
+              final iconRect = tester.getRect(icon);
+              k.px('icon.size', iconRect.width);
+              k.px('root.padding', iconRect.left - rect.left);
+              k.px('root.gap', textRect.left - iconRect.right);
+              // 한 줄 — 위 · 아래 안쪽 14 + 줄 19 = 47 → 최소 50 안에서 가운데(alignItems center)
+              if ((textRect.center.dy - rect.center.dy).abs() > 0.5) {
+                k.fail(
+                  'root.alignItems: center · 글 가운데 ${textRect.center.dy} · 상자 ${rect.center.dy}',
+                );
+              }
+            }
+
+            // ── 제목 · 본문 · 링크 — 한 문단 ──
+            final root = _rootSpan(tester, find.byKey(text));
+            final title = _spanStyle(root, keepAll('안내'));
+            k.typo('title.typography', title);
+            k.weight('title.fontWeight', title);
+            k.color('root.foreground', title.color!);
+            final description = _spanStyle(root, keepAll('저장했어요.'));
+            k.typo('description.typography', description);
+            k.weight('description.fontWeight', description);
+            k.color('root.foreground', description.color!);
+            if (interaction != PCalloutInteraction.actionable) {
+              final link = tester.widget<Text>(find.text('자세히')).style!;
+              k.typo('link.typography', link);
+              k.weight('link.fontWeight', link);
+              k.color('root.foreground', link.color!);
+              if (link.decoration != TextDecoration.underline) {
+                k.fail(
+                  'link.textDecoration: underline · 실제 ${link.decoration}',
+                );
+              }
+            }
+
+            // ── 뒤 화살표 · 닫기 ──
+            final chevron = find.byKey(const ValueKey('callout-chevron'));
+            final close = find.byKey(const ValueKey('callout-close'));
+            expect(
+              chevron,
+              interaction == PCalloutInteraction.actionable
+                  ? findsOneWidget
+                  : findsNothing,
+            );
+            expect(
+              close,
+              interaction == PCalloutInteraction.dismissible
+                  ? findsOneWidget
+                  : findsNothing,
+            );
+            if (interaction == PCalloutInteraction.actionable) {
+              k.px('suffixIcon.size', tester.widget<Icon>(chevron).size!);
+              if (state == 'enabled') {
+                final r = tester.getRect(chevron);
+                k.px('suffixIcon.size', r.width);
+                k.px('root.padding', rect.right - r.right);
+              }
+              k.color('root.foreground', tester.widget<Icon>(chevron).color!);
+              expect(
+                tester.widget<Icon>(chevron).icon,
+                LucideIcons.chevronRight,
+              );
+            }
+            if (interaction == PCalloutInteraction.dismissible) {
+              final closeRect = tester.getRect(close);
+              k.px(
+                'closeButton.iconSize',
+                tester
+                    .widget<Icon>(
+                      find.descendant(of: close, matching: find.byType(Icon)),
+                    )
+                    .size!,
+              );
+              final closeDeco =
+                  tester.widget<Container>(close).decoration as BoxDecoration;
+              k.px(
+                'closeButton.radius',
+                (closeDeco.borderRadius! as BorderRadius).topLeft.x,
+              );
+              if (state == 'enabled') {
+                k.px('closeButton.size', closeRect.width);
+                k.px('closeButton.size', closeRect.height);
+                // 닫기 아이콘은 오른쪽 끝에서 14
+                k.px(
+                  'root.padding',
+                  rect.right -
+                      tester
+                          .getRect(
+                            find.descendant(
+                              of: close,
+                              matching: find.byType(Icon),
+                            ),
+                          )
+                          .right,
+                );
+              } else {
+                // 눌린 닫기 — 톤의 누름 바탕
+                k.color('closeButton.background', closeDeco.color!);
+              }
+              k.color(
+                'root.foreground',
+                tester
+                    .widget<Icon>(
+                      find.descendant(of: close, matching: find.byType(Icon)),
+                    )
+                    .color!,
+              );
+            }
+
+            // ── 누름 축소 ──
+            if (state == 'pressed') {
+              if (interaction == PCalloutInteraction.actionable) {
+                final scale = tester.widget<AnimatedScale>(
+                  find.ancestor(
+                    of: boxFinder,
+                    matching: find.byType(AnimatedScale),
+                  ),
+                );
+                // 기준 max(높이, 폭 ÷ 4, 24) — 50 × 320
+                final basis = math.max(50, math.max(320 / 4, 24));
+                if ((scale.scale - _pressScale(basis)).abs() > 1e-6) {
+                  k.fail(
+                    'root.scale: 기준 $basis 의 ${_pressScale(basis)} · 실제 ${scale.scale}',
+                  );
+                }
+                _checkScaleMotion(
+                  k,
+                  scale,
+                  'root',
+                  durationKey: 'scaleDuration',
+                  easingKey: 'scaleEasing',
+                );
+              } else {
+                final scale = tester.widget<AnimatedScale>(
+                  find.ancestor(
+                    of: close,
+                    matching: find.byType(AnimatedScale),
+                  ),
+                );
+                if ((scale.scale - _pressScale(40)).abs() > 1e-6) {
+                  k.fail(
+                    'closeButton.scale: 기준 40 의 ${_pressScale(40)} · 실제 ${scale.scale}',
+                  );
+                }
+                _checkScaleMotion(
+                  k,
+                  scale,
+                  'closeButton',
+                  durationKey: 'scaleDuration',
+                  easingKey: 'scaleEasing',
+                );
+              }
+            }
+            await gesture?.up();
+            await tester.pump(const Duration(milliseconds: 400));
+            failures.addAll(k.failures);
+          }
+        }
+        _expectClean(failures);
+      });
+    }
+  });
+
+  group('Callout 동작', () {
+    const box = ValueKey('callout-box');
+
+    testWidgets('톤마다 기본 앞 아이콘이 있고 바꾸거나 뺄 수 있다', (tester) async {
+      const want = {
+        PCalloutTone.neutral: LucideIcons.info,
+        PCalloutTone.informative: LucideIcons.info,
+        PCalloutTone.positive: LucideIcons.circleCheck,
+        PCalloutTone.warning: LucideIcons.triangleAlert,
+        PCalloutTone.critical: LucideIcons.circleAlert,
+      };
+      for (final tone in PCalloutTone.values) {
+        await tester.pumpWidget(
+          _placed(
+            Brightness.light,
+            PCallout(key: UniqueKey(), tone: tone, description: '본문'),
+          ),
+        );
+        expect(
+          tester.widget<Icon>(find.byKey(const ValueKey('callout-icon'))).icon,
+          want[tone],
+        );
+      }
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          const PCallout(description: '본문', icon: LucideIcons.bell),
+        ),
+      );
+      expect(
+        tester.widget<Icon>(find.byKey(const ValueKey('callout-icon'))).icon,
+        LucideIcons.bell,
+      );
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          const PCallout(description: '본문', hideIcon: true),
+        ),
+      );
+      expect(find.byKey(const ValueKey('callout-icon')), findsNothing);
+    });
+
+    testWidgets('여러 줄이면 아이콘 · 화살표 · 닫기가 상자 가운데에 선다', (tester) async {
+      const long =
+          '가져온 데이터는 기존 거래에 더해지고 덮어쓰지 않아요. 같은 거래가 두 번 들어오면 한 번만 남겨요. 마음 놓고 가져와요.';
+      for (final interaction in PCalloutInteraction.values) {
+        await tester.pumpWidget(
+          _placed(
+            Brightness.light,
+            PCallout(
+              key: UniqueKey(),
+              interaction: interaction,
+              title: '안내',
+              description: long,
+              onPressed: interaction == PCalloutInteraction.actionable
+                  ? () {}
+                  : null,
+              dismissLabel: interaction == PCalloutInteraction.dismissible
+                  ? _closeLabel
+                  : null,
+            ),
+          ),
+        );
+        final rect = tester.getRect(find.byKey(box));
+        expect(rect.height, greaterThan(50));
+        // 글 높이 + 위아래 14
+        final text = tester.getRect(find.byKey(const ValueKey('callout-text')));
+        expect(rect.height, text.height + 28);
+        for (final key in [
+          'callout-icon',
+          'callout-chevron',
+          'callout-close',
+        ]) {
+          final finder = find.byKey(ValueKey(key));
+          if (finder.evaluate().isEmpty) continue;
+          expect(
+            tester.getRect(finder).center.dy,
+            closeTo(rect.center.dy, 0.5),
+            reason: '$interaction $key',
+          );
+        }
+      }
+    });
+
+    testWidgets('글은 낱말 단위로 줄을 바꾸고 제목 · 본문 · 링크는 두 칸 띄운다', (tester) async {
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            title: '안내',
+            description: '저장했어요.',
+            link: PCalloutLink(label: '자세히', onPressed: () {}),
+          ),
+        ),
+      );
+      final root = _rootSpan(
+        tester,
+        find.byKey(const ValueKey('callout-text')),
+      );
+      final plain = root.toPlainText(includeSemanticsLabels: false);
+      expect(plain, contains('${keepAll('안내')}  ${keepAll('저장했어요.')}  '));
+    });
+
+    testWidgets('Display 는 문단으로 읽고 이음 문자는 읽지 않는다 — 링크는 링크다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            title: '안내',
+            description: '저장했어요.',
+            link: PCalloutLink(label: '자세히', onPressed: () {}),
+          ),
+        ),
+      );
+      final node = tester.getSemantics(
+        find.byKey(const ValueKey('callout-text')),
+      );
+      expect(node.label, contains('안내'));
+      expect(node.label, contains('저장했어요.'));
+      expect(node.label, isNot(contains('⁠')));
+      expect(node.getSemanticsData().flagsCollection.isButton, isFalse);
+      final link = tester.getSemantics(find.text('자세히'));
+      expect(link.getSemanticsData().flagsCollection.isLink, isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('링크를 누르면 그 일을 한다', (tester) async {
+      var count = 0;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            description: '저장했어요.',
+            link: PCalloutLink(label: '자세히', onPressed: () => count++),
+          ),
+        ),
+      );
+      await tester.tap(find.text('자세히'));
+      expect(count, 1);
+    });
+
+    testWidgets('alert 는 라이브 영역으로 읽힌다 — 처음부터 있는 안내는 아니다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      for (final alert in [true, false]) {
+        await tester.pumpWidget(
+          _placed(
+            Brightness.light,
+            PCallout(
+              key: UniqueKey(),
+              tone: PCalloutTone.critical,
+              description: '저장하지 못했어요.',
+              alert: alert,
+            ),
+          ),
+        );
+        final node = tester.getSemantics(
+          find.byKey(const ValueKey('callout-text')),
+        );
+        expect(node.getSemanticsData().flagsCollection.isLiveRegion, alert);
+      }
+      semantics.dispose();
+    });
+
+    testWidgets('Actionable — 상자 전체가 버튼이고 이름은 글 전체다', (tester) async {
+      final semantics = tester.ensureSemantics();
+      var count = 0;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            interaction: PCalloutInteraction.actionable,
+            title: '증권',
+            description: '토스증권을 연결해요.',
+            onPressed: () => count++,
+          ),
+        ),
+      );
+      final node = tester.getSemantics(
+        find.byKey(const ValueKey('callout-text')),
+      );
+      expect(node.getSemanticsData().flagsCollection.isButton, isTrue);
+      expect(node.label, contains('증권'));
+      expect(node.label, contains('토스증권을 연결해요.'));
+      // 상자 어디를 눌러도 — 가장자리 · 화살표 · 글
+      final rect = tester.getRect(find.byKey(box));
+      await tester.tapAt(rect.topLeft + const Offset(2, 2));
+      await tester.tapAt(rect.bottomRight - const Offset(2, 2));
+      await tester.tap(find.byKey(const ValueKey('callout-chevron')));
+      await tester.tap(find.byKey(const ValueKey('callout-text')));
+      expect(count, 4);
+      semantics.dispose();
+    });
+
+    testWidgets('Actionable 누름 — 모션 줄이기면 줄지 않고 색만 바뀐다', (tester) async {
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            interaction: PCalloutInteraction.actionable,
+            description: '토스증권을 연결해요.',
+            onPressed: () {},
+          ),
+          reduceMotion: true,
+        ),
+      );
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(box)),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        tester
+            .widget<AnimatedScale>(
+              find.ancestor(
+                of: find.byKey(box),
+                matching: find.byType(AnimatedScale),
+              ),
+            )
+            .scale,
+        1,
+      );
+      final deco =
+          tester.widget<DecoratedBox>(find.byKey(box)).decoration
+              as BoxDecoration;
+      expect(deco.color, PColors.light.bgNeutralWeakPressed);
+      await gesture.up();
+    });
+
+    testWidgets('Actionable 은 링크를, 그 밖은 닫기 · open 을 받지 않는다', (tester) async {
+      expect(
+        () => PCallout(
+          description: '본문',
+          interaction: PCalloutInteraction.actionable,
+          onPressed: () {},
+          link: PCalloutLink(label: '자세히', onPressed: () {}),
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => PCallout(
+          description: '본문',
+          interaction: PCalloutInteraction.actionable,
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => PCallout(
+          description: '본문',
+          interaction: PCalloutInteraction.dismissible,
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => PCallout(description: '본문', open: true),
+        throwsAssertionError,
+      );
+    });
+
+    testWidgets('Dismissible — 닫기는 이름 있는 버튼이고, 누르면 바로 걷힌다(스스로 닫힘)', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      var dismissed = 0;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            interaction: PCalloutInteraction.dismissible,
+            title: '새 기능',
+            description: '반복 거래를 기록해요.',
+            dismissLabel: _closeLabel,
+            onDismiss: () => dismissed++,
+          ),
+        ),
+      );
+      final close = tester.getSemantics(find.bySemanticsLabel(_closeLabel));
+      expect(close.getSemanticsData().flagsCollection.isButton, isTrue);
+      await tester.tap(find.byKey(const ValueKey('callout-close')));
+      // 모션 없이 바로 — 프레임 하나
+      await tester.pump();
+      expect(find.byKey(box), findsNothing);
+      expect(dismissed, 1);
+      semantics.dispose();
+    });
+
+    testWidgets('Dismissible — open 을 주면 부르는 쪽이 정한다(닫은 것을 기억한다)', (
+      tester,
+    ) async {
+      var open = true;
+      late StateSetter setOuter;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          StatefulBuilder(
+            builder: (context, setState) {
+              setOuter = setState;
+              return PCallout(
+                interaction: PCalloutInteraction.dismissible,
+                description: '반복 거래를 기록해요.',
+                dismissLabel: _closeLabel,
+                open: open,
+                onDismiss: () {},
+              );
+            },
+          ),
+        ),
+      );
+      // 닫기를 눌러도 부르는 쪽이 open 을 그대로 두면 그대로 있다
+      await tester.tap(find.byKey(const ValueKey('callout-close')));
+      await tester.pump();
+      expect(find.byKey(box), findsOneWidget);
+      setOuter(() => open = false);
+      await tester.pump();
+      expect(find.byKey(box), findsNothing);
+      setOuter(() => open = true);
+      await tester.pump();
+      expect(find.byKey(box), findsOneWidget);
+    });
+
+    testWidgets('닫기 누르는 영역은 40 × 40 이다', (tester) async {
+      var dismissed = 0;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            key: UniqueKey(),
+            interaction: PCalloutInteraction.dismissible,
+            description: '반복 거래를 기록해요.',
+            dismissLabel: _closeLabel,
+            onDismiss: () => dismissed++,
+            open: true,
+          ),
+        ),
+      );
+      final close = tester.getCenter(
+        find.byKey(const ValueKey('callout-close')),
+      );
+      // 아이콘(16) 밖 · 상자(40) 안
+      await tester.tapAt(close + const Offset(18, 0));
+      await tester.tapAt(close + const Offset(0, -18));
+      expect(dismissed, 2);
+      // 상자 밖
+      await tester.tapAt(close + const Offset(22, 0));
+      expect(dismissed, 2);
+    });
+
+    testWidgets('키보드로 닫으면 초점이 다음 요소로 간다', (tester) async {
+      final after = FocusNode();
+      addTearDown(after.dispose);
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          Column(
+            children: [
+              const PCallout(
+                interaction: PCalloutInteraction.dismissible,
+                description: '반복 거래를 기록해요.',
+                dismissLabel: _closeLabel,
+              ),
+              Focus(focusNode: after, child: const SizedBox(height: 20)),
+            ],
+          ),
+        ),
+      );
+      Focus.of(
+        tester.element(find.byKey(const ValueKey('callout-close'))),
+      ).requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(box), findsNothing);
+      expect(after.hasPrimaryFocus, isTrue);
+    });
+
+    testWidgets('키보드 — Enter · Space 로 전체 누르기를 한다', (tester) async {
+      var count = 0;
+      await tester.pumpWidget(
+        _placed(
+          Brightness.light,
+          PCallout(
+            interaction: PCalloutInteraction.actionable,
+            description: '토스증권을 연결해요.',
+            onPressed: () => count++,
+          ),
+        ),
+      );
+      Focus.of(
+        tester.element(find.byKey(const ValueKey('callout-text'))),
+      ).requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(count, 2);
     });
   });
 }

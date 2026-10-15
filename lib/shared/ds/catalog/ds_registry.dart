@@ -4,6 +4,7 @@ import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
+import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
@@ -111,7 +112,7 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('feedback', '11 피드백', [
     DsEntry('Snackbar', 'snackbar', demo: _snackbar),
-    DsEntry('Callout', 'callout'),
+    DsEntry('Callout', 'callout', demo: _callout),
     DsEntry('Page Banner', 'page-banner'),
     DsEntry('Result Section', 'result-section'),
   ]),
@@ -143,6 +144,7 @@ Widget _checkbox(BuildContext context) => const CheckboxDemo();
 Widget _radio(BuildContext context) => const RadioDemo();
 Widget _switch(BuildContext context) => const SwitchDemo();
 Widget _snackbar(BuildContext context) => const SnackbarDemo();
+Widget _callout(BuildContext context) => const CalloutDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
