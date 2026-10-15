@@ -66,11 +66,15 @@ class PBottomSheetSurface extends StatelessWidget {
     this.onHandleTap,
     this.maxHeightFactor = 1,
     this.fixedHeight = false,
+    this.topRadius = PRounded.r6,
   });
 
   final Widget child;
   final bool showHandle;
   final VoidCallback? onHandleTap;
+
+  /// 위 두 모서리 — 기본 24(Bottom Sheet). Menu Sheet 는 20(r5).
+  final double topRadius;
   final double maxHeightFactor;
   final bool fixedHeight;
 
@@ -98,8 +102,8 @@ class PBottomSheetSurface extends StatelessWidget {
             key: const ValueKey('p-bottom-sheet-root'),
             decoration: BoxDecoration(
               color: c.bgLayerFloating,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(PRounded.r6),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(topRadius),
               ),
             ),
             child: Stack(
