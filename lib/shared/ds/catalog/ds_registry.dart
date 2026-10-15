@@ -23,6 +23,7 @@ import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
 import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
 import 'package:porest_desk_app/shared/ds/segmented_control/segmented_control_demo.dart';
+import 'package:porest_desk_app/shared/ds/select/select_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
@@ -97,7 +98,7 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('pickers', '6 고르는 칸', [
     DsEntry('Input Button', 'input-button'),
-    DsEntry('Select', 'select'),
+    DsEntry('Select', 'select', demo: _select),
     DsEntry('Select Box', 'select-box'),
   ]),
   DsFamily('chips-tabs', '7 칩 · 탭', [
@@ -160,6 +161,7 @@ Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
+Widget _select(BuildContext context) => const SelectDemo();
 Widget _list(BuildContext context) => const ListDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
