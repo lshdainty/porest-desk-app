@@ -26,6 +26,8 @@ class PBottomSheetRoute<T> extends PopupRoute<T> {
     required this.isDirty,
     required this.leaveCopy,
     required this.snapPoints,
+    this.alwaysHandle = false,
+    this.topRadius = PRounded.r6,
   });
 
   final CapturedThemes themes;
@@ -41,6 +43,12 @@ class PBottomSheetRoute<T> extends PopupRoute<T> {
 
   /// 스냅 높이 — 화면 높이 비율(0 ~ 1, 낮은 것부터). 있으면 손잡이를 단다(입력 폼은 쓰지 않는다).
   final List<double>? snapPoints;
+
+  /// 손잡이를 늘 단다 — 스냅 높이가 없어도(Menu Sheet). 누르면 닫는다.
+  final bool alwaysHandle;
+
+  /// 시트 위 두 모서리 — 기본 24, Menu Sheet 는 20.
+  final double topRadius;
 
   // 바깥 누르기는 시트가 직접 받는다(입력 폼은 무시) — 라우트 장벽은 막기만 한다
   @override
@@ -421,7 +429,8 @@ class _SheetHostState extends State<_SheetHost>
     Widget sheet = PBottomSheetScope(
       controller: this,
       child: PBottomSheetSurface(
-        showHandle: _hasSnaps,
+        showHandle: _hasSnaps || _route.alwaysHandle,
+        topRadius: _route.topRadius,
         onHandleTap: _handleTap,
         fixedHeight: _hasSnaps,
         child: Builder(builder: _route.builder),
