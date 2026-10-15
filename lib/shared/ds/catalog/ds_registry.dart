@@ -13,6 +13,7 @@ import 'package:porest_desk_app/shared/ds/card/card_demo.dart';
 import 'package:porest_desk_app/shared/ds/chart/chart_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
+import 'package:porest_desk_app/shared/ds/color_swatch/color_swatch_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
@@ -173,7 +174,7 @@ const List<DsFamily> dsFamilies = [
   DsFamily('input', '16 입력', [
     DsEntry('Slider', 'slider', demo: _slider),
     DsEntry('Input OTP', 'input-otp', demo: _inputOtp),
-    DsEntry('Color Swatch', 'color-swatch'),
+    DsEntry('Color Swatch', 'color-swatch', demo: _colorSwatch),
     DsEntry('Icon Picker', 'icon-picker'),
   ]),
 ];
@@ -228,6 +229,7 @@ Widget _floatingActionButton(BuildContext context) =>
     const FloatingActionButtonDemo();
 Widget _slider(BuildContext context) => const SliderDemo();
 Widget _inputOtp(BuildContext context) => const InputOtpDemo();
+Widget _colorSwatch(BuildContext context) => const ColorSwatchDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 
