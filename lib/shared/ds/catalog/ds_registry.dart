@@ -32,6 +32,7 @@ import 'package:porest_desk_app/shared/ds/select_box/select_box_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
+import 'package:porest_desk_app/shared/ds/tabs/tabs_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
 import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
@@ -111,7 +112,7 @@ const List<DsFamily> dsFamilies = [
   ]),
   DsFamily('chips-tabs', '7 칩 · 탭', [
     DsEntry('Chip', 'chip', demo: _chip),
-    DsEntry('Tabs', 'tabs'),
+    DsEntry('Tabs', 'tabs', demo: _tabs),
     DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
     DsEntry('Toggle', 'toggle', demo: _toggle),
   ]),
@@ -173,6 +174,7 @@ Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 Widget _chip(BuildContext context) => const ChipDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
+Widget _tabs(BuildContext context) => const TabsDemo();
 Widget _toggle(BuildContext context) => const ToggleDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();

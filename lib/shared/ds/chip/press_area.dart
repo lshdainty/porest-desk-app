@@ -27,6 +27,7 @@ class PressArea extends StatefulWidget {
     this.activateOnEnter = true,
     this.touchMin = PTouch.min,
     this.focusNode,
+    this.skipTraversal = false,
     this.keyboard = true,
   });
 
@@ -44,6 +45,9 @@ class PressArea extends StatefulWidget {
   final bool activateOnEnter;
   final double touchMin;
   final FocusNode? focusNode;
+
+  /// Tab 순서에서 빠진다 — 탭 목록의 고르지 않은 탭(화살표로만 닿는다).
+  final bool skipTraversal;
 
   /// false 면 Space · Enter 를 받지 않는다 — 라디오 묶음이 키를 맡는 칩.
   final bool keyboard;
@@ -78,6 +82,7 @@ class _PressAreaState extends State<PressArea> {
     Widget body = Focus(
       focusNode: widget.focusNode,
       canRequestFocus: enabled,
+      skipTraversal: widget.skipTraversal,
       child: MouseRegion(
         // 웹 cursor pointer · not-allowed
         cursor: enabled
