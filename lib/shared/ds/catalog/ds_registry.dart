@@ -9,6 +9,7 @@ import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/card/card_demo.dart';
+import 'package:porest_desk_app/shared/ds/chart/chart_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
@@ -151,7 +152,7 @@ const List<DsFamily> dsFamilies = [
   // Table · Table Pagination · Pagination 은 768 이상 전용이라 폰은 List 줄 · 끝없이 불러오기가 맡는다
   DsFamily('data', '14 데이터', [
     DsEntry('Card', 'card', demo: _card),
-    DsEntry('Chart', 'chart'),
+    DsEntry('Chart', 'chart', demo: _chart),
     DsEntry('Swipe Actions', 'swipe-actions', demo: _swipeActions),
   ]),
 ];
@@ -198,6 +199,7 @@ Widget _select(BuildContext context) => const SelectDemo();
 Widget _selectBox(BuildContext context) => const SelectBoxDemo();
 Widget _list(BuildContext context) => const ListDemo();
 Widget _card(BuildContext context) => const CardDemo();
+Widget _chart(BuildContext context) => const ChartDemo();
 Widget _swipeActions(BuildContext context) => const SwipeActionsDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
