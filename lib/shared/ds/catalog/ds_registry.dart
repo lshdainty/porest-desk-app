@@ -9,6 +9,7 @@ import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/card/card_demo.dart';
+import 'package:porest_desk_app/shared/ds/chart/chart_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
@@ -35,6 +36,7 @@ import 'package:porest_desk_app/shared/ds/select/select_demo.dart';
 import 'package:porest_desk_app/shared/ds/select_box/select_box_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
 import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
+import 'package:porest_desk_app/shared/ds/swipe_actions/swipe_actions_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tabs/tabs_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
@@ -50,7 +52,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 42개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination 은 1280 · 768 이상 전용이라 앱에서는
+/// 앱은 44개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination 은 1280 · 768 이상 전용이라 앱에서는
 /// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -147,8 +149,12 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Logo Tile', 'logo-tile', demo: _logoTile),
   ]),
   DsFamily('list', '13 목록', [DsEntry('List', 'list', demo: _list)]),
-  // 앱은 Card 만 — Table · Table Pagination · Pagination 은 768 이상 전용이라 폰은 List 줄 · 끝없이 불러오기가 맡는다
-  DsFamily('data', '14 데이터', [DsEntry('Card', 'card', demo: _card)]),
+  // Table · Table Pagination · Pagination 은 768 이상 전용이라 폰은 List 줄 · 끝없이 불러오기가 맡는다
+  DsFamily('data', '14 데이터', [
+    DsEntry('Card', 'card', demo: _card),
+    DsEntry('Chart', 'chart', demo: _chart),
+    DsEntry('Swipe Actions', 'swipe-actions', demo: _swipeActions),
+  ]),
 ];
 
 Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
@@ -193,6 +199,8 @@ Widget _select(BuildContext context) => const SelectDemo();
 Widget _selectBox(BuildContext context) => const SelectBoxDemo();
 Widget _list(BuildContext context) => const ListDemo();
 Widget _card(BuildContext context) => const CardDemo();
+Widget _chart(BuildContext context) => const ChartDemo();
+Widget _swipeActions(BuildContext context) => const SwipeActionsDemo();
 Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
 Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 
