@@ -227,12 +227,12 @@ class PTopNavigationIconButton extends StatelessWidget {
       // 상자 44 가 곧 누르는 영역이다 — 보이지 않는 여백을 더하지 않는다
       touchMin: 0,
       semantics: (child, enabled, onTap) => Semantics(
+        container: true,
         button: true,
         enabled: enabled,
         toggled: selected,
         label: label,
         onTap: onTap,
-        excludeSemantics: true,
         child: child,
       ),
       builder: (context, pressed, size) => PressScale(
@@ -287,11 +287,11 @@ class PTopNavigationTextButton extends StatelessWidget {
       onTap: onPressed,
       touchMin: 0,
       semantics: (child, enabled, onTap) => Semantics(
+        container: true,
         button: true,
         enabled: enabled,
         label: label,
         onTap: onTap,
-        excludeSemantics: true,
         child: child,
       ),
       builder: (context, pressed, size) => PressScale(
@@ -308,14 +308,17 @@ class PTopNavigationTextButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(PRounded.r2),
           ),
           alignment: Alignment.center,
-          child: Text(
-            label,
-            maxLines: 1,
-            softWrap: false,
-            textScaler: _scaler(context),
-            style: PTypography.t5.copyWith(
-              color: color,
-              fontWeight: FontWeight.w500,
+          // 이름은 버튼이 단다 — 글을 한 번 더 읽지 않는다
+          child: ExcludeSemantics(
+            child: Text(
+              label,
+              maxLines: 1,
+              softWrap: false,
+              textScaler: _scaler(context),
+              style: PTypography.t5.copyWith(
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
