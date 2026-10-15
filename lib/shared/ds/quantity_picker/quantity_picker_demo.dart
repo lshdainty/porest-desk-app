@@ -18,7 +18,7 @@ class QuantityPickerDemo extends StatefulWidget {
 
 class _QuantityPickerDemoState extends State<QuantityPickerDemo> {
   int _approvals = 2;
-  int _big = 1234567890123;
+  int _big = 123456789;
   int _lunch = 2;
   bool _lunchRemoved = false;
   int _loadingValue = 1;
