@@ -2,8 +2,10 @@ import 'package:flutter/widgets.dart';
 
 import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
+import 'package:porest_desk_app/shared/ds/alert_dialog/alert_dialog_demo.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
+import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
 import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
@@ -104,8 +106,8 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Segmented Control', 'segmented-control', demo: _segmentedControl),
   ]),
   DsFamily('overlays', '8 겹침', [
-    DsEntry('Alert Dialog', 'alert-dialog'),
-    DsEntry('Bottom Sheet', 'bottom-sheet'),
+    DsEntry('Alert Dialog', 'alert-dialog', demo: _alertDialog),
+    DsEntry('Bottom Sheet', 'bottom-sheet', demo: _bottomSheet),
   ]),
   DsFamily('menus', '9 메뉴', [
     DsEntry('Menu Sheet', 'menu-sheet'),
@@ -159,6 +161,8 @@ Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
 Widget _list(BuildContext context) => const ListDemo();
+Widget _alertDialog(BuildContext context) => const AlertDialogDemo();
+Widget _bottomSheet(BuildContext context) => const BottomSheetDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
