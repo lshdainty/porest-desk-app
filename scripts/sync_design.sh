@@ -46,7 +46,22 @@ rm -rf "${SPEC_DIR}"
 mkdir -p "${SPEC_DIR}"
 (cd "${DESIGN_DIR}" && node scripts/build-spec-json.mjs --source "${SOURCE}" --out "${SPEC_DIR}")
 
+# 기관 색 표(institution-colors.json)는 Dart 가 컴파일 때 JSON 을 읽지 못해 Dart 상수로 내보낸다 — 손으로 옮겨 적지 않는다
+INSTITUTION_COLORS="${ROOT}/lib/shared/ds/institution_colors/institution_colors.g.dart"
+node -e '
+const fs = require("fs");
+const spec = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+const lit = JSON.stringify({ data: { entries: spec.data.entries } }, null, 2).replace(/\$/g, "\\$");
+process.stdout.write(
+  "// GENERATED — scripts/sync_design.sh 가 institution-colors.json 에서 만든다. 손으로 고치지 않는다.\n" +
+  "// source: " + spec.design.file + " · sha256 " + spec.design.sha256 + "\n\n" +
+  "/// 기관 색 표(스펙 JSON 의 data.entries) — `PInstitutionTable.fromSpecJson` 이 읽는다.\n" +
+  "const Map<String, dynamic> kInstitutionColorsSpec = " + lit + ";\n"
+);
+' "${SPEC_DIR}/institution-colors.json" > "${INSTITUTION_COLORS}"
+(cd "${ROOT}" && "${DART[@]}" format "${INSTITUTION_COLORS}" >/dev/null)
+
 # CI(verify)가 dart format --set-exit-if-changed 로 lib 를 본다
 (cd "${ROOT}" && "${DART[@]}" format "${TOKENS}" >/dev/null)
 
-echo "porest-design(${SOURCE}) → lib/app/theme/porest_tokens.g.dart · test/fixtures/design_spec"
+echo "porest-design(${SOURCE}) → lib/app/theme/porest_tokens.g.dart · test/fixtures/design_spec · institution_colors.g.dart"
