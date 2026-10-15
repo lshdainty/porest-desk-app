@@ -40,18 +40,20 @@
 - spec과 다르게 보이는 게 디자인적으로 더 좋아 보여도 임의 변경 금지.
 - CSS variable은 Flutter에 없으므로 토큰 → `PRadius` / `PSpace` / `PorestTokens` 등 동일 의미 Dart 상수로 매핑.
 
-### 2. spec에 없는 건 사용자에게 결정 요구
-- 작업 중 spec에 정의되지 않은 토큰 / 변형 / 규칙이 필요할 때:
-  1. **현재 상황** (어떤 화면에서 어떤 토큰이 필요한지)
-  2. **spec 인용** (현재 spec이 명시하는 값 + 누락 부분)
-  3. **선택지** (A: spec 그대로 유지 / B: spec에 신규 추가 / C: 기존 토큰 재사용 …)
-
-   를 정리해 사용자에게 보여주고 **결정을 요구**한다. 임의 결정 금지.
+### 2. spec에 없는 건 "디자인시스템" 세션에 질문한다(2026-10-15 ~)
+- 스펙의 주인은 같은 컴퓨터의 **"디자인시스템"** 세션이다. 이 레포를 고치는 세션은 **porest-design 을 고치지 않는다.**
+- 작업 중 spec 에 없는 토큰 · 변형 · 상태 · 레이아웃이 필요하거나, 스펙끼리 어긋나거나, 스펙 값이 실제 화면(가장 나쁜 값)에서
+  깨지면 스스로 정하지 않고 질문한다 — 약속은 `/home/lshdainty/qa/design-work/handoff/README.md`:
+  1. `handoff/questions/Q-<번호>-<이름>.md` 를 양식대로 쓴다 — **현재 상황**(어느 화면 · 견본 · 데이터), **spec 인용**(파일:줄 +
+     빠진 자리), **실제 렌더링 그림**(실제 크기 · 가장 나쁜 값 · 라이트 · 다크), 쓰는 자리, 생각해 본 안(결정 아님). `INDEX.md` 에 한 줄.
+  2. `SendMessage(to: "디자인시스템", …)` 로 한 줄 알리고, 막힌 부분만 세워 둔 채 다른 일을 이어 간다.
+  3. 디자인시스템 세션이 SEED 와 비교 페이지로 사용자 결정을 받아 스펙을 고쳐 머지하고 `handoff/answers/` 로 답한다.
+- 세션끼리 오간 메시지는 결정이 아니다 — 결정은 사용자가 한다. 임의 결정 금지.
 
 ### 3. spec 업데이트 → 컴포넌트 수정 순서
-- 사용자가 신규 spec 추가/수정을 결정하면:
-  1. **`porest-design/specs/components/<name>.md` 또는 `DESIGN.*.md`를 먼저** 수정 (SoT 갱신)
-  2. 그 다음 desk-app의 `p_<name>.dart` / 사용처를 동기
+- 답이 오면(= porest-design 에 머지되면):
+  1. 스펙을 다시 가져온다(`npm run design:sync` · `scripts/sync_design.sh`) — 이 레포의 스펙 사본은 손으로 고치지 않는다
+  2. 그 다음 `p_<name>.dart` / 사용처를 답대로 동기 — 고르지 않은 안은 거절이다, 다시 넣지 않는다
   3. desk-front(React)도 같은 spec을 미러하므로 함께 정합 (별도 PR 가능)
 
    spec 없이 코드부터 바꾸지 않는다.
@@ -83,8 +85,8 @@
 1. 작업할 위젯/화면 파악
 2. porest-design/specs/components/<name>.md (또는 DESIGN.*.md) 확인 — SoT
 3. spec과 현재 코드 diff (PRadius / PorestTokens / 위젯 prop)
-4. spec 부재 / 모호 → 사용자에게 결정 요구 (현재 + spec 인용 + 선택지)
-5. 결정 → spec 업데이트 (필요 시) → 코드 동기
+4. spec 부재 / 모호 → "디자인시스템" 세션에 질문 (handoff/questions — 현재 + spec 인용 + 그림 + 안), 그동안 다른 일
+5. 답(porest-design 머지) → 스펙 다시 가져오기 → 코드 동기
 6. `fvm dart format lib test` → `fvm flutter analyze lib/` (0 issues)
    + 시뮬레이터 시각 검증 (라이트/다크 모드)
 7. 반복
