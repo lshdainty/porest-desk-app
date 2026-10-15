@@ -105,6 +105,7 @@ class PRadiomark extends StatelessWidget {
     this.tone = PRadioTone.neutral,
     this.enabled = true,
     this.pressed = false,
+    this.scaleOnPress = true,
   });
 
   final bool checked;
@@ -114,6 +115,10 @@ class PRadiomark extends StatelessWidget {
 
   /// 감싸는 줄이 눌린 동안 — 비활성이면 무시한다.
   final bool pressed;
+
+  /// 눌렀을 때 동그라미가 따로 줄어드는지. 줄 전체가 이미 줄어드는 자리(List 의 라디오 줄)에서는 false — 누름 색만
+  /// 바뀐다(이미 줄어드는 요소 안의 요소는 따로 줄지 않는다, Feedback v104).
+  final bool scaleOnPress;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +133,7 @@ class PRadiomark extends StatelessWidget {
     );
     final round = BorderRadius.circular(PRounded.full);
     return SelectionPressScale(
-      pressed: pressedNow,
+      pressed: pressedNow && scaleOnPress,
       size: Size.square(s.mark),
       child: TweenAnimationBuilder<SelectionColors>(
         tween: SelectionColorsTween(end: look.colors),
