@@ -6,6 +6,8 @@ import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
 import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
 
+void _noop() {}
+
 /// 카탈로그(/dev/ds) — 크기 10단계, 이름 색 10, 사진(흰 사진의 테두리 · 실패하면 이니셜), 묶음(앞 4명 + "+N").
 class AvatarDemo extends StatelessWidget {
   const AvatarDemo({super.key});
@@ -94,6 +96,64 @@ class AvatarDemo extends StatelessWidget {
                 PAvatar(name: '김민수', image: _white),
                 PAvatar(name: '이서연', image: _photo),
                 PAvatar(name: '박지훈', image: _broken),
+              ],
+            ),
+          ],
+        ),
+        DemoBlock(
+          title:
+              '사진 바꾸기(edit photo) — 아바타 108 아래 16 에 버튼 둘이 늘 보인다(사이 8 · 가운데 · 좁으면 줄 바꿈). 올리는 중이면 원 위 딤 + 값 있는 원 24, 두 버튼 막힘',
+          children: [
+            DemoRow(
+              label: '사진 있음 · 이니셜(사진 지우기 없음) · 올리는 중 40% · 좁은 폭',
+              children: [
+                PAvatarPhotoEdit(
+                  name: '김민수',
+                  image: _photo,
+                  changeLabel: '사진 바꾸기',
+                  removeLabel: '사진 지우기',
+                  onChange: _noop,
+                  onRemove: _noop,
+                ),
+                PAvatarPhotoEdit(
+                  name: '이서연',
+                  changeLabel: '사진 바꾸기',
+                  removeLabel: '사진 지우기',
+                  onChange: _noop,
+                  onRemove: _noop,
+                ),
+                PAvatarPhotoEdit(
+                  name: '박지훈',
+                  image: _photo,
+                  uploadProgress: 0.4,
+                  changeLabel: '사진 바꾸기',
+                  removeLabel: '사진 지우기',
+                  onChange: _noop,
+                  onRemove: _noop,
+                ),
+                SizedBox(
+                  width: 140,
+                  child: PAvatarPhotoEdit(
+                    name: '최유진',
+                    image: _photo,
+                    changeLabel: '사진 바꾸기',
+                    removeLabel: '사진 지우기',
+                    onChange: _noop,
+                    onRemove: _noop,
+                  ),
+                ),
+              ],
+            ),
+            DemoRow(
+              label: '올리는 중 — 0% · 40% · 100% (이니셜 바탕)',
+              children: [
+                for (final v in const [0.0, 0.4, 1.0])
+                  PAvatar(
+                    name: '정다은',
+                    size: PAvatarSize.s80,
+                    decorative: false,
+                    uploadProgress: v,
+                  ),
               ],
             ),
           ],
