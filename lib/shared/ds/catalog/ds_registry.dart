@@ -4,17 +4,21 @@ import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
 import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
 import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
+import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
 import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
 import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
 import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
+import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
 import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
+import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
 import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
 import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
+import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
 import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
 import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
 import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
@@ -109,10 +113,10 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Date Picker', 'date-picker'),
   ]),
   DsFamily('feedback', '11 피드백', [
-    DsEntry('Snackbar', 'snackbar'),
-    DsEntry('Callout', 'callout'),
-    DsEntry('Page Banner', 'page-banner'),
-    DsEntry('Result Section', 'result-section'),
+    DsEntry('Snackbar', 'snackbar', demo: _snackbar),
+    DsEntry('Callout', 'callout', demo: _callout),
+    DsEntry('Page Banner', 'page-banner', demo: _pageBanner),
+    DsEntry('Result Section', 'result-section', demo: _resultSection),
   ]),
   DsFamily('image', '12 이미지', [
     DsEntry('Aspect Ratio', 'aspect-ratio'),
@@ -141,6 +145,10 @@ Widget _textarea(BuildContext context) => const TextareaDemo();
 Widget _checkbox(BuildContext context) => const CheckboxDemo();
 Widget _radio(BuildContext context) => const RadioDemo();
 Widget _switch(BuildContext context) => const SwitchDemo();
+Widget _snackbar(BuildContext context) => const SnackbarDemo();
+Widget _callout(BuildContext context) => const CalloutDemo();
+Widget _pageBanner(BuildContext context) => const PageBannerDemo();
+Widget _resultSection(BuildContext context) => const ResultSectionDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});
