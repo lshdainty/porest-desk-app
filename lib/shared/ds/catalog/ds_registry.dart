@@ -12,6 +12,7 @@ import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
 import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
 import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
 import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
+import 'package:porest_desk_app/shared/ds/list/list_demo.dart';
 import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
 import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
 import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
@@ -127,7 +128,7 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Image Frame', 'image-frame'),
     DsEntry('Logo Tile', 'logo-tile'),
   ]),
-  DsFamily('list', '13 목록', [DsEntry('List', 'list')]),
+  DsFamily('list', '13 목록', [DsEntry('List', 'list', demo: _list)]),
 ];
 
 Widget _progressCircle(BuildContext context) => const ProgressCircleDemo();
@@ -157,6 +158,7 @@ Widget _aspectRatio(BuildContext context) => const AspectRatioDemo();
 Widget _segmentedControl(BuildContext context) => const SegmentedControlDemo();
 Widget _helpBubble(BuildContext context) => const HelpBubbleDemo();
 Widget _wheelPicker(BuildContext context) => const WheelPickerDemo();
+Widget _list(BuildContext context) => const ListDemo();
 
 /// 역할 색 한 칸 — 이름과 [PColors] 에서 그 값을 꺼내는 법.
 typedef DsSwatch = ({String name, Color Function(PColors c) of});

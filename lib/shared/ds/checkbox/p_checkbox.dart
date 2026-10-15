@@ -143,6 +143,7 @@ class PCheckmark extends StatelessWidget {
     this.tone = PCheckboxTone.neutral,
     this.enabled = true,
     this.pressed = false,
+    this.scaleOnPress = true,
   });
 
   /// true 선택 · false 선택 안 됨 · null 일부 선택.
@@ -154,6 +155,10 @@ class PCheckmark extends StatelessWidget {
 
   /// 감싸는 줄이 눌린 동안 — 비활성이면 무시한다.
   final bool pressed;
+
+  /// 눌렀을 때 칸이 따로 줄어드는지. 줄 전체가 이미 줄어드는 자리(List 의 체크 줄)에서는 false — 누름 색만 바뀐다
+  /// (이미 줄어드는 요소 안의 요소는 따로 줄지 않는다, Feedback v104).
+  final bool scaleOnPress;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +174,7 @@ class PCheckmark extends StatelessWidget {
     );
     final icon = shape == PCheckboxShape.ghost ? s.ghostIcon : s.squareIcon;
     return SelectionPressScale(
-      pressed: pressedNow,
+      pressed: pressedNow && scaleOnPress,
       size: Size.square(s.mark),
       child: TweenAnimationBuilder<SelectionColors>(
         tween: SelectionColorsTween(end: look.colors),
