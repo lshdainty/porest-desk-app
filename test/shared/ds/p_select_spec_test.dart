@@ -522,6 +522,12 @@ void main() {
         k.px('indicator.size', tester.getSize(indicator).width);
         k.color('indicator.color', _iconColor(tester, indicator));
         k.measured.add('indicator.opacity');
+        // 굵기 — 앱은 선 2.5 짝(check500)이다(Q-008-2)
+        expect(
+          tester.widget<Icon>(indicator).icon,
+          LucideIcons.check500,
+          reason: 'indicator 선 2.5',
+        );
         if (find
             .descendant(of: _row('현금'), matching: indicator)
             .evaluate()

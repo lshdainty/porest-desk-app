@@ -919,7 +919,7 @@ class _ItemRowState<T> extends State<_ItemRow<T>> {
           if (widget.selected)
             ExcludeSemantics(
               child: Icon(
-                LucideIcons.check,
+                LucideIcons.check500,
                 key: const ValueKey('select-item-indicator'),
                 size: _indicatorSize,
                 color: enabled ? c.fgNeutral : c.fgDisabled,

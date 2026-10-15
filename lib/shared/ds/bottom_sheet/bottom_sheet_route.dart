@@ -28,6 +28,7 @@ class PBottomSheetRoute<T> extends PopupRoute<T> {
     required this.snapPoints,
     this.alwaysHandle = false,
     this.topRadius = PRounded.r6,
+    this.initialFocus,
   });
 
   final CapturedThemes themes;
@@ -49,6 +50,10 @@ class PBottomSheetRoute<T> extends PopupRoute<T> {
 
   /// 시트 위 두 모서리 — 기본 24, Menu Sheet 는 20.
   final double topRadius;
+
+  /// 첫 초점 노드 — 내용이 첫 자리를 정할 때(검색 시트의 검색칸). 있으면 열린 첫 프레임 뒤에 시트(컨테이너) 대신 이리로 초점이
+  /// 가고, 열린 뒤 다시 옮기지 않는다(Q-007-3 — 웹 `onOpenAutoFocus`). 없으면 초점은 시트에 간다.
+  final FocusNode? initialFocus;
 
   // 바깥 누르기는 시트가 직접 받는다(입력 폼은 무시) — 라우트 장벽은 막기만 한다
   @override
@@ -196,6 +201,14 @@ class _SheetHostState extends State<_SheetHost>
       reverseCurve: PEasing.exit.flipped,
     );
     _move = AnimationController(vsync: this)..addListener(_onMove);
+    final first = _route.initialFocus;
+    if (first != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && first.context != null && first.canRequestFocus) {
+          first.requestFocus();
+        }
+      });
+    }
     _layoutSignal = Listenable.merge([_slide, _repaint]);
     // 열린 뒤 0.5초는 끌리지 않는다
     _readyTimer = Timer(kSheetDragDelay, () => _dragReady = true);
@@ -468,9 +481,9 @@ class _SheetHostState extends State<_SheetHost>
         ),
       ],
     );
-    // 처음 초점은 시트(컨테이너)
+    // 처음 초점은 시트(컨테이너) — 내용이 첫 초점 노드를 넘겼으면 그리로(initState)
     out = Focus(
-      autofocus: true,
+      autofocus: _route.initialFocus == null,
       debugLabel: 'PBottomSheet',
       skipTraversal: true,
       child: out,
