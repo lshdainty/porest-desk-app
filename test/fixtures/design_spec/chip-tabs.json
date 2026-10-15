@@ -3,7 +3,7 @@
   "source": "specs/components/chip-tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "list": "목록 — 한 줄 가로 스크롤. 바탕 · 바닥 선이 없다",
@@ -79,7 +79,7 @@
       },
       "enabled": {
         "trigger": {
-          "height": 36
+          "chipSize": "Chip medium"
         }
       }
     },
@@ -89,7 +89,7 @@
       },
       "enabled": {
         "trigger": {
-          "height": 40
+          "chipSize": "Chip large"
         }
       }
     }
@@ -169,15 +169,15 @@
       "rule": 3,
       "state": "enabled",
       "slot": "trigger",
-      "prop": "height",
-      "note": "Chip medium — 좌우 14, 글 t4 14 · 500, 최소 폭 48"
+      "prop": "chipSize",
+      "note": "chip.yaml size=medium — 높이 · 좌우 · 글 · 최소 폭은 그 파일이 원본(36 · 14 · t4 500 · 48)"
     },
     {
       "rule": 4,
       "state": "enabled",
       "slot": "trigger",
-      "prop": "height",
-      "note": "Chip large — 좌우 16, 글 t4 14 · 500, 최소 폭 52"
+      "prop": "chipSize",
+      "note": "chip.yaml size=large — 높이 · 좌우 · 글 · 최소 폭은 그 파일이 원본(40 · 16 · t4 500 · 52)"
     }
   ]
 }

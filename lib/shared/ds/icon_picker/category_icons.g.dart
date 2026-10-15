@@ -1,5 +1,5 @@
 // GENERATED — scripts/sync_design.sh 가 category-icons.json 에서 만든다. 손으로 고치지 않는다.
-// source: DESIGN.desk.md · sha256 6ec6e05f538e
+// source: DESIGN.desk.md · sha256 97d2f704108f
 
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';

@@ -3,7 +3,7 @@
   "source": "specs/components/callout.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "상자 — 콘텐츠 폭 전체",
@@ -59,7 +59,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700

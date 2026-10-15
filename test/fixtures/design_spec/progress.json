@@ -3,7 +3,7 @@
   "source": "specs/components/progress.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "묶음 — 이름 줄 · 막대 · 금액 줄",
@@ -42,7 +42,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,

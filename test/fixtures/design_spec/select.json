@@ -3,7 +3,7 @@
   "source": "specs/components/select.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "trigger": "트리거 — Input Button 과 같은 상자. 누르면 목록이 열린다",
@@ -340,7 +340,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -544,7 +544,7 @@
       "state": "enabled",
       "slot": "content",
       "prop": "maxHeight",
-      "note": "남은 화면이 200 보다 좁아도 200 은 둔다 — 넘치면 목록 안에서 스크롤. 열면 고른 선택지가 보이게 스크롤된다"
+      "note": "남은 화면 = 목록이 놓이는 쪽(아래에 다 들어가면 아래, 아니면 아래 · 위 중 넓은 쪽)의 트리거 ~ 화면 가장자리 8. 화면 키보드는 세지 않는다 — 열면 초점이 목록으로 가 키보드가 내려간다(Q-008-1). 남은 화면이 200 보다 좁아도 200 은 둔다 — 넘치면 목록 안에서 스크롤. 열면 고른 선택지가 보이게 스크롤된다"
     },
     {
       "rule": 0,
@@ -565,7 +565,7 @@
       "state": "enabled",
       "slot": "indicator",
       "prop": "color",
-      "note": "lucide check · 선 2.5"
+      "note": "lucide check · 선 2.5 — 앱은 2.5 굵기 글꼴 LucideIcons.check500(Q-008-2)"
     },
     {
       "rule": 0,

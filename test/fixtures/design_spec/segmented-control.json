@@ -3,14 +3,14 @@
   "source": "specs/components/segmented-control.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "트랙 — 알약. 놓인 자리 폭을 채우고 칸이 그 폭을 똑같이 나눈다",
     "item": "칸 — 누르는 자리. 모든 칸이 같은 폭 · 같은 높이",
     "label": "글 — 짧게. 길면 단어 단위로 줄을 바꾼다",
     "indicator": "고른 알약 — 고른 칸 뒤에 깔리고, 다른 칸을 고르면 미끄러져 옮긴다",
-    "notification": "알림 점 — 새 내용이 있는 칸에만, 글 오른쪽 위",
+    "notification": "알림 점 — 새 소식이 있는 칸에만, 글 오른쪽 위",
     "focusRing": "키보드 포커스 링(웹) — 칸 바깥"
   },
   "axes": {
@@ -58,7 +58,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,

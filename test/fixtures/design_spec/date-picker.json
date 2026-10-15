@@ -3,7 +3,7 @@
   "source": "specs/components/date-picker.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "달력 — 시트 · 팝오버의 본문",
@@ -74,7 +74,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,
@@ -106,7 +106,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -132,7 +132,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -153,7 +153,7 @@
           "typography": {
             "fontSize": 16,
             "lineHeight": 22,
-            "fontWeight": 400,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 700,

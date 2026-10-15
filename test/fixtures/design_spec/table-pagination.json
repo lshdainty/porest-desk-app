@@ -3,7 +3,7 @@
   "source": "specs/components/table-pagination.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "줄 — 표 아래, 한 줄. 왼쪽 줄 수 · 오른쪽 범위 · 이전 · 다음",
@@ -17,7 +17,8 @@
   "axes": {
     "total": [
       "known",
-      "unknown"
+      "unknown",
+      "empty"
     ]
   },
   "defaults": {
@@ -89,7 +90,7 @@
           "background": "transparent",
           "touchTarget": "40 × 44",
           "cursor": "pointer",
-          "transitionProperty": "background-color",
+          "transitionProperty": "background-color, scale",
           "transitionDuration": "150ms",
           "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
         }
@@ -130,12 +131,6 @@
             "dark": "#838997"
           },
           "cursor": "not-allowed"
-        },
-        "pageRange": {
-          "foreground": {
-            "light": "#8A91A0",
-            "dark": "#838997"
-          }
         }
       }
     },
@@ -149,6 +144,33 @@
         },
         "total": {
           "display": "none"
+        }
+      }
+    },
+    {
+      "when": {
+        "total": "empty"
+      },
+      "enabled": {
+        "pageRange": {
+          "disabled": "막힘",
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "total": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "arrow": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          },
+          "cursor": "not-allowed"
         }
       }
     }
@@ -263,6 +285,13 @@
     },
     {
       "rule": 0,
+      "state": "enabled",
+      "slot": "arrow",
+      "prop": "transitionProperty",
+      "note": "바탕 색과 누름 축소 둘 다 — Pagination 화살표 칸과 같다(Q-011-6). 시간은 motion 절"
+    },
+    {
+      "rule": 0,
       "state": "pressed",
       "slot": "arrow",
       "prop": "background",
@@ -287,14 +316,7 @@
       "state": "disabled",
       "slot": "arrow",
       "prop": "color",
-      "note": "첫 쪽의 이전 · 마지막 쪽의 다음 — 숨기지 않고 막는다(Pagination 과 다르다). 빈 표면 둘 다"
-    },
-    {
-      "rule": 0,
-      "state": "disabled",
-      "slot": "pageRange",
-      "prop": "foreground",
-      "note": "빈 표 \"0-0\" — 줄 수는 그대로 바꿀 수 있다"
+      "note": "첫 범위의 이전 · 마지막 범위의 다음 — 숨기지 않고 막는다(Pagination 과 다르다). 범위 · 줄 수는 그대로(Q-011-5)"
     },
     {
       "rule": 1,
@@ -302,6 +324,34 @@
       "slot": "pageRange",
       "prop": "display",
       "note": "\"11-20\" — 범위 고르기 · \"/ 총 N개\" 가 없다. 다음이 있는지만 안다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "pageRange",
+      "prop": "disabled",
+      "note": "범위 고르기(Select disabled)를 막는다 — 고를 범위가 없다. 보이는 값 \"0-0\""
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "pageRange",
+      "prop": "foreground",
+      "note": "막힌 범위 \"0-0\" — 글자 대비 예외(비활성)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "total",
+      "prop": "foreground",
+      "note": "\"/ 총 0개\" — 흐리게 하지 않는다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "arrow",
+      "prop": "color",
+      "note": "이전 · 다음 둘 다 막힌다(aria-disabled). 줄 수 고르기는 그대로 바꿀 수 있다(Q-011-5)"
     }
   ]
 }

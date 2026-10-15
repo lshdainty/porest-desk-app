@@ -3,7 +3,7 @@
   "source": "specs/components/menu.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "content": "메뉴 — 트리거 아래(모자라면 위 · 옆) 8",
@@ -61,7 +61,7 @@
           "gap": 8,
           "height": 39,
           "cursor": "pointer",
-          "transitionProperty": "background-color",
+          "transitionProperty": "background-color, inset, border-radius",
           "transitionDuration": "150ms",
           "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
         },
@@ -108,8 +108,8 @@
         },
         "highlight": {
           "background": "transparent",
-          "insetX": 8,
-          "radius": 12
+          "insetX": 0,
+          "radius": 0
         },
         "groupLabel": {
           "typography": {
@@ -141,7 +141,9 @@
           "background": {
             "light": "#F7F8FD",
             "dark": "#353B4D"
-          }
+          },
+          "insetX": 8,
+          "radius": 12
         }
       },
       "pressed": {
@@ -149,7 +151,9 @@
           "background": {
             "light": "#F7F8FD",
             "dark": "#353B4D"
-          }
+          },
+          "insetX": 8,
+          "radius": 12
         },
         "item": {
           "scale": "콘텐츠 2px 거리 축소",
@@ -161,6 +165,8 @@
         "focusRing": {
           "width": 2,
           "offset": -2,
+          "insetX": 8,
+          "radius": 12,
           "color": {
             "light": "#0147AD",
             "dark": "#7AA9F6"
@@ -248,8 +254,11 @@
       "duration": "150ms",
       "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
       "properties": [
-        "background-color"
-      ]
+        "background-color",
+        "inset",
+        "border-radius"
+      ],
+      "note": "알약이 줄 폭 전체에서 좌우 0 → 8 들어오며 모서리 0 → 12 로 둥글어진다(SEED menu-item — 2026-10-15 사용자 결정 Q-009-3 안 B). 떠날 때는 거꾸로 펴지며 투명해진다"
     },
     "누름": {
       "duration": "150ms",
@@ -307,7 +316,7 @@
       "state": "enabled",
       "slot": "item",
       "prop": "transitionProperty",
-      "note": "알약 바탕과 들임(inset) · 모서리가 함께"
+      "note": "알약 바탕 · 들임(0 → 8) · 모서리(0 → 12)가 함께 150ms 에 — SEED menu-item 은 들임 · 모서리 d3, 색 color-transition(둘 다 150ms) 이라 하나로 적었다(2026-10-15 사용자 결정 — 구현 세션 질문 Q-009-3, 안 B)"
     },
     {
       "rule": 0,
@@ -342,7 +351,14 @@
       "state": "enabled",
       "slot": "highlight",
       "prop": "insetX",
-      "note": "좌우 8 들어온 알약 — 글은 알약 안쪽 8 지점에서 시작한다"
+      "note": "줄 폭 전체 — 마우스를 올리거나 누르면 8 로 들어온다(SEED menu-item enabled 에는 marginX 가 없다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "highlight",
+      "prop": "radius",
+      "note": "모서리 없음 — 들어오며 12 로 둥글어진다"
     },
     {
       "rule": 0,
@@ -367,6 +383,20 @@
     },
     {
       "rule": 0,
+      "state": "hovered",
+      "slot": "highlight",
+      "prop": "insetX",
+      "note": "좌우 8 들어온 알약 — 글은 알약 안쪽 8 지점에서 시작한다(SEED pressed marginX x2)"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "highlight",
+      "prop": "radius",
+      "note": "12(SEED pressed cornerRadius r3)"
+    },
+    {
+      "rule": 0,
       "state": "pressed",
       "slot": "item",
       "prop": "scale",
@@ -377,7 +407,14 @@
       "state": "focused",
       "slot": "focusRing",
       "prop": "offset",
-      "note": "알약 자리(좌우 8 들임 · 모서리 12) 안쪽에 — 바탕은 칠하지 않는다"
+      "note": "알약 자리(좌우 8 들임 · 모서리 12) 안쪽에 — 바탕은 칠하지 않는다. 링은 그 자리에 고정이라 움직이지 않는다 — 들어오는 중인 호버 알약과 잠깐 폭이 다를 수 있다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "insetX",
+      "note": "알약이 다 들어온 자리"
     },
     {
       "rule": 0,

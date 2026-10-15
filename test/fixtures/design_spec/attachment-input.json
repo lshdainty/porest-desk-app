@@ -3,7 +3,7 @@
   "source": "specs/components/attachment-input.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "첨부 칸 전체 — 드롭존(있으면)과 항목 줄을 세로로 담는다. 라벨 · 설명 · 오류는 Field 가 둘레에서 그린다",
@@ -150,6 +150,7 @@
           "name": "파일 이름 · 크기 · 상태",
           "press": "메뉴를 연다",
           "dragStart": "마우스 8px · 터치 250ms",
+          "dragDelayApp": "250ms",
           "keys": "Enter 메뉴 · Space 들기"
         },
         "thumbnail": {
@@ -175,7 +176,7 @@
           "typography": {
             "fontSize": 12,
             "lineHeight": 16,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -217,7 +218,7 @@
           "typography": {
             "fontSize": 12,
             "lineHeight": 16,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -232,7 +233,7 @@
           "typography": {
             "fontSize": 12,
             "lineHeight": 16,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -258,6 +259,7 @@
             "dark": "#F5F6FA"
           },
           "touchTarget": "44 × 44",
+          "hitOrder": "× 먼저",
           "touchExtend": 12,
           "name": "{파일 이름} 지우기",
           "transitionProperty": "background-color",
@@ -657,7 +659,7 @@
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 400,
+            "fontWeight": 500,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "fontWeight": 500,
@@ -854,7 +856,7 @@
       "state": "enabled",
       "slot": "items",
       "prop": "bleedX",
-      "note": "줄을 화면(시트 · 대화상자 본문) 가장자리까지 넓히고 같은 만큼 안쪽 여백 — 첫 항목은 다른 칸과 같은 자리에서 시작한다"
+      "note": "줄을 화면(시트 · 대화상자 본문) 가장자리까지 넓히고 같은 만큼 안쪽 여백 — 첫 항목은 다른 칸과 같은 자리에서 시작한다. 앱 — 칸이 제 상자 밖을 받지 못한다(Flutter). 놓는 화면이 칸을 화면 폭에 두고 안쪽 여백 24 를 준다(SEED --seed-attachment-input-extend-x · Chip scroll 줄과 같은 방법). Field 안이면 Field 의 머리 · 꼬리를 24 들여 라벨이 다른 칸과 같은 자리에 선다. 여백 안에 둔 채 쓰지 않는다 — 흐림 20 이 첨부 타일을 깎는다(Q-016-2)"
     },
     {
       "rule": 0,
@@ -973,14 +975,21 @@
       "state": "enabled",
       "slot": "item",
       "prop": "dragStart",
-      "note": "누르기(메뉴)와 끌기를 가른다 — 마우스는 누른 채 8px 넘게 움직이면, 터치는 250ms 누른 채 움직이면 끌기. 그 전에 움직이면 줄이 가로로 스크롤한다(porest — SEED 는 끌기만 있다)"
+      "note": "누르기(메뉴)와 끌기를 가른다 — 마우스는 누른 채 8px 넘게 움직이면, 터치는 250ms 누른 채 움직이면 끌기. 그 전에 움직이면 줄이 가로로 스크롤한다(porest — SEED 는 끌기만 있다). 앱도 터치 250ms 길게 누름(SEED Lynx long-press — Q-016-1)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "dragDelayApp",
+      "note": "앱의 길게 눌러 끌기 문턱 — 웹 터치와 같다(Flutter 기본 길게 누름 500ms 가 아니다)"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "item",
       "prop": "keys",
-      "note": "초점이 온 항목에서 Enter 는 메뉴, Space 는 들기 → ← → 로 옮기고 Space · Enter 로 놓기 · Esc 그만두기(dnd-kit 키보드 — 순서 바꾸기를 줄 때만)"
+      "note": "웹 — 초점이 온 항목에서 Enter 는 메뉴, Space 는 들기 → ← → 로 옮기고 Space · Enter 로 놓기 · Esc 그만두기(dnd-kit 키보드 — 순서 바꾸기를 줄 때만). 앱은 들기 대신 customSemanticsActions(앞으로 옮기기 · 뒤로 옮기기)와 메뉴"
     },
     {
       "rule": 0,
@@ -1232,7 +1241,14 @@
       "state": "enabled",
       "slot": "removeButton",
       "prop": "touchTarget",
-      "note": "보이는 20 둘레로 12 씩 보이지 않는 여백 — 이웃 항목과는 8 띄어 있어 사진 위로 겹친다(×가 위). AA ✓ · AAA ✓"
+      "note": "보이는 20 둘레로 12 씩 보이지 않는 여백 — 이웃 항목과는 8 띄어 있어 사진 위로 겹친다(×가 위). AA ✓ · AAA ✓. 앱 — 보이는 자리는 그대로, 누르는 44 는 항목 자리의 위 16 · 끝 항목 오른쪽 16 을 레이아웃에 두어 받는다(부모 상자 밖도 받는다). 칸 위에 라벨이 없어도 위 16 이 잘리지 않는다(Q-016-3)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "hitOrder",
+      "note": "이웃 항목과 겹친 8 × 28 도 × 가 받는다 — 웹 z 1, 앱은 줄이 × 를 이웃 항목보다 먼저 묻는다(Q-016-3)"
     },
     {
       "rule": 0,

@@ -3,7 +3,7 @@
   "source": "specs/components/searchable-list.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "6ec6e05f538e"
+    "sha256": "97d2f704108f"
   },
   "slots": {
     "root": "묶음 — 위 검색칸 + 아래 결과. 검색 시트 · 팝오버 안 또는 화면 · 단계 안",
@@ -66,6 +66,8 @@
         "results": {
           "role": "listbox",
           "debounce": "300ms",
+          "filter": "NFC · 대소문자 무시 · 공백 무시 · 포함",
+          "pointerLeave": "마우스 강조를 지운다",
           "maxHeight": "놓인 자리"
         },
         "groupHeader": {
@@ -80,8 +82,8 @@
         },
         "highlight": {
           "background": "transparent",
-          "insetX": 6,
-          "radius": 10
+          "insetX": 0,
+          "radius": 0
         },
         "title": {
           "typography": {
@@ -123,7 +125,9 @@
           "background": {
             "light": "#F7F8FD",
             "dark": "#353B4D"
-          }
+          },
+          "insetX": 6,
+          "radius": 10
         }
       },
       "pressed": {
@@ -131,7 +135,9 @@
           "background": {
             "light": "#F7F8FD",
             "dark": "#353B4D"
-          }
+          },
+          "insetX": 6,
+          "radius": 10
         },
         "option": {
           "scale": "2px 거리 축소"
@@ -214,9 +220,11 @@
       "duration": "150ms",
       "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
       "properties": [
-        "background-color"
+        "background-color",
+        "inset",
+        "border-radius"
       ],
-      "note": "화살표로 옮길 때는 바로(전환 없이) — 빠르게 누르면 바탕이 따라오지 못한다"
+      "note": "마우스 · 누름은 바탕이 좌우 0 → 6 들어오며 모서리 0 → 10 으로 둥글어진다(Menu 알약과 같은 움직임 — 2026-10-15 사용자 결정 Q-009-3 안 B, SEED 는 들임 · 모서리 d3 · 색 color-transition — 둘 다 150ms). 화살표로 옮길 때는 바로(전환 없이) — 빠르게 누르면 바탕이 따라오지 못한다"
     },
     "누름 — 콘텐츠": {
       "duration": "150ms",
@@ -281,6 +289,20 @@
       "rule": 0,
       "state": "enabled",
       "slot": "results",
+      "prop": "filter",
+      "note": "검색어와 이름 · 별칭을 NFC 로 맞추고 소문자로 바꾸고 공백을 모두 지운 뒤, 이름이나 별칭 하나에 검색어가 들어 있으면 남긴다(\"kx 은행\" → KX은행). 들고 있는 목록 · 서버 검색이 같은 규칙이다(2026-10-15 사용자 결정 — 구현 세션 질문 Q-007-1, 안 C). 초성 검색은 아직 정하지 않았다(따로 정한다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "results",
+      "prop": "pointerLeave",
+      "note": "마우스로 짚은 강조는 포인터가 목록을 떠나면 지운다 — 키보드(↓ · ↑)로 짚은 강조는 남는다(2026-10-15 사용자 결정 — 구현 세션 질문 Q-007-2, 안 B). Menu · Select · List 의 호버와 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "results",
       "prop": "maxHeight",
       "note": "시트는 시트 높이를 채우고, 팝오버는 Popover 최대 높이(600) 안에서 스크롤한다. 강조한 줄은 늘 보이게 스크롤한다"
     },
@@ -296,28 +318,21 @@
       "state": "enabled",
       "slot": "option",
       "prop": "paddingY",
-      "note": "List 줄 그대로 — 좌우 24. 높이 46(한 줄) · 66(두 줄) · 64(앞 40)"
+      "note": "List 줄 그대로 — 좌우 24. 높이는 내용 + 위아래 24: 한 줄 48(라디오 24) · 두 줄 66 · 앞 40 64"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "option",
       "prop": "touchTarget",
-      "note": "46 이상 — AA ✓ · AAA ✓"
+      "note": "48 이상 — AA ✓ · AAA ✓"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "highlight",
       "prop": "insetX",
-      "note": "좌우 6 들어온 바탕(List 의 누름 바탕)"
-    },
-    {
-      "rule": 0,
-      "state": "enabled",
-      "slot": "highlight",
-      "prop": "radius",
-      "note": "10 — List 의 누름 바탕과 같다"
+      "note": "강조가 없을 때는 줄 폭 전체 — 짚으면 6 으로 들어온다(List · Menu 와 같다)"
     },
     {
       "rule": 0,
@@ -356,6 +371,20 @@
     },
     {
       "rule": 0,
+      "state": "highlighted",
+      "slot": "highlight",
+      "prop": "insetX",
+      "note": "좌우 6 들어온 바탕(List 의 누름 바탕)"
+    },
+    {
+      "rule": 0,
+      "state": "highlighted",
+      "slot": "highlight",
+      "prop": "radius",
+      "note": "10 — List 의 누름 바탕과 같다"
+    },
+    {
+      "rule": 0,
       "state": "pressed",
       "slot": "option",
       "prop": "scale",
@@ -373,7 +402,7 @@
       "state": "enabled",
       "slot": "option",
       "prop": "press",
-      "note": "하나 고르기 — \"완료\" 를 두지 않는다(Input Button 의 \"목록은 누르면 바로\"). 열면 검색칸에 초점, 지금 값이 보이게 스크롤"
+      "note": "하나 고르기 — \"완료\" 를 두지 않는다(Input Button 의 \"목록은 누르면 바로\"). 열면 검색칸에 초점 — 시트 · 팝오버의 첫 초점으로 받는다(onOpenAutoFocus, 열린 뒤 다시 옮기지 않는다). 지금 값이 보이게 스크롤"
     },
     {
       "rule": 3,
