@@ -3,7 +3,7 @@
   "source": "specs/components/card.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
     "root": "카드 면 — 바닥(bg-layer-basement) 위 흰 면 + 1px 테두리, 그림자 없음",
@@ -34,7 +34,8 @@
     ],
     "body": [
       "content",
-      "list"
+      "list",
+      "accordion"
     ],
     "stat": [
       "none",
@@ -210,6 +211,22 @@
         "root": {
           "padding": 0,
           "paddingBottom": 12
+        },
+        "header": {
+          "paddingX": 24,
+          "paddingTop": 24,
+          "paddingBottom": 4
+        }
+      }
+    },
+    {
+      "when": {
+        "body": "accordion"
+      },
+      "enabled": {
+        "root": {
+          "padding": 0,
+          "paddingBottom": 8
         },
         "header": {
           "paddingX": 24,
@@ -609,139 +626,167 @@
     },
     {
       "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "padding",
+      "note": "좌우 0 — Accordion 트리거가 제 좌우 24 · 위아래 16 을 가진다(accordion.yaml). 카드 상세의 혜택 · 유의사항(2026-10-10 사용자 결정 6A)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "paddingBottom",
+      "note": "8 — 마지막 트리거의 아래 16 과 합쳐 보이는 24, 위(머리 24)와 같다(목록 카드는 12 + 줄 12)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "paddingX",
+      "note": "트리거의 제목과 머리 제목이 한 줄에 선다 — 목록 카드와 같다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "paddingBottom",
+      "note": "머리 ↔ 첫 트리거 4 — 트리거가 제 위 여백 16 을 가진다"
+    },
+    {
+      "rule": 3,
       "state": "hovered",
       "slot": "root",
       "prop": "background",
       "note": "면만 바뀐다 — 테두리 · 글자색 그대로, 그림자 · 위로 뜨기 없음"
     },
     {
-      "rule": 2,
+      "rule": 3,
       "state": "pressed",
       "slot": "root",
       "prop": "scale",
       "note": "카드 전체(Root Scale) — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(v104). 모션 줄이기면 하지 않는다"
     },
     {
-      "rule": 3,
+      "rule": 4,
       "state": "pressed",
       "slot": "root",
       "prop": "background",
       "note": "바뀌지 않는다 — 채움 그라디언트에는 누름 색 짝이 없어 2px 축소만(SEED Feedback: 색은 -pressed 짝이 있는 표면에서만)"
     },
     {
-      "rule": 3,
+      "rule": 4,
       "state": "hovered",
       "slot": "root",
       "prop": "background",
       "note": "바뀌지 않는다"
     },
     {
-      "rule": 4,
+      "rule": 5,
       "state": "pressed",
       "slot": "root",
       "prop": "background",
       "note": "축소하지 않는다 — 안의 버튼이 각자 제 누름을 가진다(SEED Feedback)"
     },
     {
-      "rule": 5,
+      "rule": 6,
       "state": "enabled",
       "slot": "statValue",
       "prop": "typography",
       "note": "24 / 32"
     },
     {
-      "rule": 6,
+      "rule": 7,
       "state": "enabled",
       "slot": "statValue",
       "prop": "typography",
       "note": "20 / 27 — 데스크톱 격자에 셋 · 넷씩 둘 때. 여백은 그대로 24. 폰은 지표 카드를 한 줄에 하나(large) — 둘씩이면 \"1,240,000원\" 20 / 700(120)이 칸 101 에 들어가지 않는다(360 폭 실측)"
     },
     {
-      "rule": 7,
+      "rule": 8,
       "state": "enabled",
       "slot": "delta",
       "prop": "foreground",
       "note": "▲ + 값(\"▲ 12%\") — 어디서나 오르면 빨강(증권과 같은 관례). 좋고 나쁨은 글이 말한다"
     },
     {
-      "rule": 8,
+      "rule": 9,
       "state": "enabled",
       "slot": "delta",
       "prop": "foreground",
       "note": "▼ + 값(\"▼ 3%\") — 부호는 화살표가 말한다(+ · − 를 같이 쓰지 않는다)"
     },
     {
-      "rule": 9,
+      "rule": 10,
       "state": "enabled",
       "slot": "delta",
       "prop": "foreground",
       "note": "화살표 없이 \"변화 없음\""
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "root",
       "prop": "background",
       "note": "135° 그라디언트의 시작(왼쪽 위) — 라이트 #0147AD(brand-600) · 다크 #1049A4(brand-500-dark). HR 에는 이 카드가 없다"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "root",
       "prop": "gradientEnd",
       "note": "그라디언트의 끝(오른쪽 아래) — 라이트 brand-900 #002460(지금 #012B68 에 가장 가까운 팔레트 단계, ΔE00 2.4) · 다크 brand-300-dark #1F3A69. 다크도 짙은 채움이다"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "root",
       "prop": "borderWidth",
       "note": "테두리 없음 — 채움이 경계다"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "root",
       "prop": "padding",
       "note": "24 — 다른 카드와 같다"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "heroGlow",
       "prop": "size",
       "note": "오른쪽 위 장식 빛 — 원의 오른쪽 −40 · 위 −80(카드 밖으로 나간 부분은 모서리가 자른다)"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "heroGlow",
       "prop": "background",
       "note": "가운데 흰 22% → 지름의 70% 에서 투명. 장식이라 보조 기술에 숨긴다 — 흰 글자 대비는 이 빛 위에서도 4.5 이상(가장 낮은 자리 4.88)"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "heroLabel",
       "prop": "foreground",
       "note": "흐리게(불투명도) 두지 않는다 — 흰 글자 그대로(v106)"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "heroAmount",
       "prop": "typography",
       "note": "32 / 42"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "heroAmount",
       "prop": "fontWeight",
       "note": "v100 — 지금 800"
     },
     {
-      "rule": 10,
+      "rule": 11,
       "state": "enabled",
       "slot": "heroDetail",
       "prop": "foreground",

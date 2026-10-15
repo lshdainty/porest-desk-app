@@ -3,171 +3,866 @@
   "source": "specs/components/accordion.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
-    "item": "AccordionItem — 항목 하나. 외곽 container 없이 아래 테두리로만 나뉜다",
-    "trigger": "AccordionTrigger — 펼침 버튼(글자 + chevron)",
-    "chevron": "ChevronDown 아이콘",
-    "content": "AccordionContent — 펼친 내용",
-    "focusRing": "키보드 포커스 링(trigger)"
+    "root": "아코디언 — 항목을 세로로 잇는다. 항목은 2개 이상(하나면 Collapsible)",
+    "item": "항목 하나 — 트리거 + 펼친 내용. separated 는 Card 면",
+    "heading": "머리말 — 트리거를 감싼다(heading > button). 모양은 없다",
+    "trigger": "트리거 — 줄 전체가 누르는 자리(button)",
+    "background": "트리거 바탕 층 — 누름 · 호버 바탕. 줄지 않는다",
+    "content": "트리거 콘텐츠 층 — 앞 아이콘 · 본문 · 꺾쇠. 누르면 이 층만 준다",
+    "prefixIcon": "앞 아이콘 — 있을 때만",
+    "body": "본문 — 제목 + 설명",
+    "title": "제목 — 무엇의 상세인지(이름)",
+    "description": "설명 — 있을 때만, 제목 아래 한 줄 요약",
+    "chevron": "꺾쇠 — 오른쪽 끝. 펼치면 위를 가리킨다",
+    "panel": "펼친 내용 — 높이로 펼치고 접는다. 안에서 스크롤하지 않는다",
+    "panelText": "펼친 내용의 글 — 표 · 목록 · 칸을 넣으면 그쪽 규칙",
+    "divider": "항목 사이 선 — inline 만",
+    "header": "목록 머리 — 시트 · 대화상자에서 아코디언 위 한 줄(제목 + 모두 펼치기). 카드 안이면 카드 머리가 이 자리다",
+    "headerTitle": "목록 머리 제목 — \"혜택 상세 · 12건\"",
+    "expandAll": "모두 펼치기 — 목록 머리 오른쪽 글 단추(porest 확장). 펼치면 \"모두 접기\"",
+    "focusRing": "키보드 포커스 링(웹) — 트리거 안쪽"
   },
-  "axes": {},
-  "defaults": {},
+  "axes": {
+    "variant": [
+      "inline",
+      "separated"
+    ],
+    "open": [
+      "collapsed",
+      "expanded"
+    ],
+    "description": [
+      "none",
+      "shown"
+    ],
+    "detail": [
+      "expandable",
+      "none"
+    ]
+  },
+  "defaults": {
+    "variant": "inline",
+    "open": "collapsed",
+    "description": "none",
+    "detail": "expandable"
+  },
   "states": [
-    "closed",
-    "hover",
-    "focus-visible",
-    "open",
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
     "disabled"
   ],
   "rules": [
     {
       "when": {},
-      "closed": {
+      "enabled": {
+        "root": {
+          "gap": 0,
+          "items": "2개 이상"
+        },
         "item": {
-          "borderBottomWidth": 1,
-          "borderBottomColor": {
-            "light": "#E5E8EF",
-            "dark": "#404757"
-          }
+          "background": "transparent"
+        },
+        "heading": {
+          "level": "h3"
         },
         "trigger": {
+          "minHeight": 54,
           "paddingY": 16,
+          "paddingX": 24,
+          "textAlign": "left",
+          "cursor": "pointer",
+          "touchTarget": "트리거 전체"
+        },
+        "background": {
+          "background": "transparent",
+          "insetX": 0,
+          "radius": 0,
+          "transitionProperty": "background-color, inset, border-radius",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "content": {
+          "gap": 12,
+          "alignItems": "center",
+          "transitionProperty": "scale",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "prefixIcon": {
+          "size": 22,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "body": {
+          "gap": 2
+        },
+        "title": {
           "typography": {
             "fontSize": 16,
-            "fontWeight": 500,
+            "lineHeight": 22,
+            "fontWeight": 400,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
+          "fontWeight": 500,
           "foreground": {
             "light": "#1A1F2E",
             "dark": "#F5F6FA"
           },
-          "gap": "flex justify-between"
+          "lineClamp": "none"
         },
-        "chevron": {
-          "size": 16,
-          "color": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
-          },
-          "rotate": "0°"
-        },
-        "content": {
-          "paddingBottom": 16,
-          "paddingTop": 0,
+        "description": {
           "typography": {
-            "fontSize": 15,
+            "fontSize": 13,
+            "lineHeight": 18,
             "fontWeight": 400,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "lineClamp": "none"
+        },
+        "chevron": {
+          "size": 20,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "rotate": "0deg",
+          "transitionProperty": "rotate",
+          "transitionDuration": "300ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "panel": {
+          "display": "숨김",
+          "paddingTop": 0,
+          "paddingX": 24,
+          "paddingBottom": 16,
+          "maxHeight": "none"
+        },
+        "panelText": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
           "foreground": {
             "light": "#535866",
             "dark": "#B7BDCC"
           }
+        },
+        "header": {
+          "minHeight": 32,
+          "alignItems": "center",
+          "justifyContent": "space-between",
+          "gap": 8,
+          "marginBottom": 8
+        },
+        "headerTitle": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "expandAll": {
+          "height": 32,
+          "paddingLeft": 8,
+          "paddingRight": 4,
+          "radius": 8,
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "iconSize": 16,
+          "gap": 2,
+          "touchTarget": "44 × 44",
+          "label": "모두 펼치기 · 모두 접기",
+          "position": "목록 머리 오른쪽",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
         }
       },
-      "hover": {
-        "trigger": {
-          "foreground": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
+      "hovered": {
+        "background": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "insetX": 6,
+          "radius": 10
+        },
+        "expandAll": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
           }
         }
       },
-      "focus-visible": {
+      "pressed": {
+        "background": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "insetX": 6,
+          "radius": 10
+        },
+        "content": {
+          "scale": "2px 거리 축소"
+        },
+        "expandAll": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
         "focusRing": {
           "width": 2,
-          "offset": 2,
+          "offset": -2,
           "color": {
             "light": "#0147AD",
             "dark": "#7AA9F6"
           },
-          "radius": 2
-        }
-      },
-      "open": {
-        "chevron": {
-          "rotate": "180°"
+          "radius": 0
+        },
+        "expandAll": {
+          "outlineWidth": 2,
+          "outlineOffset": 2,
+          "outlineColor": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
         }
       },
       "disabled": {
         "trigger": {
-          "opacity": 0.5,
-          "cursor": "not-allowed",
-          "pointerEvents": "none"
+          "cursor": "not-allowed"
+        },
+        "prefixIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "title": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "description": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "chevron": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "inline"
+      },
+      "enabled": {
+        "divider": {
+          "height": 1,
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          },
+          "marginX": 24,
+          "display": "항목 사이"
+        }
+      }
+    },
+    {
+      "when": {
+        "variant": "separated"
+      },
+      "enabled": {
+        "root": {
+          "gap": 8
+        },
+        "item": {
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "radius": 16,
+          "shadow": "none",
+          "overflow": "hidden"
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "radius": 14
+        }
+      }
+    },
+    {
+      "when": {
+        "open": "expanded"
+      },
+      "enabled": {
+        "chevron": {
+          "rotate": "180deg"
+        },
+        "panel": {
+          "display": "보임"
+        }
+      }
+    },
+    {
+      "when": {
+        "description": "shown"
+      },
+      "enabled": {
+        "trigger": {
+          "minHeight": 74
+        }
+      }
+    },
+    {
+      "when": {
+        "detail": "none"
+      },
+      "enabled": {
+        "heading": {
+          "level": "없음"
+        },
+        "trigger": {
+          "cursor": "default",
+          "touchTarget": "없음"
+        },
+        "chevron": {
+          "display": "none"
+        }
+      },
+      "hovered": {
+        "background": {
+          "background": "transparent",
+          "insetX": 0,
+          "radius": 0
+        }
+      },
+      "pressed": {
+        "background": {
+          "background": "transparent",
+          "insetX": 0,
+          "radius": 0
+        },
+        "content": {
+          "scale": "없음"
         }
       }
     }
   ],
   "motion": {
-    "trigger": {
+    "펼침 · 접힘 — 높이": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "height"
+      ],
+      "note": "SEED expandHeight · collapseHeight d6 · easing(사용자 결정 3A). 펼칠 때 저절로 스크롤하지 않는다"
+    },
+    "꺾쇠 — 회전": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "rotate"
+      ],
+      "note": "0 → 180° — 높이와 같은 시간. 모션 줄이기면 바로 뒤집힌다"
+    },
+    "모션 줄이기 — 펼침 · 접힘": {
       "duration": "150ms",
-      "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
       "properties": [
-        "color"
-      ]
+        "opacity"
+      ],
+      "note": "높이를 움직이지 않고 내용이 150ms 서서히 나타나고 사라진다(v104 — 200ms 넘는 움직임은 150ms 서서히)"
     },
-    "chevron": {
-      "duration": "200ms",
+    "누름 · 호버 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
       "properties": [
-        "transform"
-      ]
+        "background-color",
+        "inset",
+        "border-radius"
+      ],
+      "note": "바탕이 좌우 6 들어오며 모서리 10 으로 둥글어진다 — 모두 펼치기 단추의 바탕도 같은 시간"
     },
-    "content": {
-      "duration": "200ms",
-      "note": "accordion-down/up — keyframes from DESIGN.md `--motion-duration-base`"
+    "누름 — 콘텐츠": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "콘텐츠 층만 2px 거리 축소 — 모션 줄이기면 하지 않는다"
     }
   },
   "notes": [
     {
       "rule": 0,
-      "state": "closed",
-      "slot": "trigger",
+      "state": "enabled",
+      "slot": "root",
       "prop": "gap",
-      "note": "text ↔ chevron — text-left + chevron-right"
+      "note": "inline — 항목 사이는 선이 가른다(separated 는 8)"
     },
     {
       "rule": 0,
-      "state": "closed",
-      "slot": "chevron",
-      "prop": "rotate",
-      "note": "down"
+      "state": "enabled",
+      "slot": "root",
+      "prop": "items",
+      "note": "항목이 하나면 Collapsible 이다(SEED Don't — 단일 Item)"
     },
     {
       "rule": 0,
-      "state": "hover",
+      "state": "enabled",
+      "slot": "item",
+      "prop": "background",
+      "note": "놓인 면 그대로 — 화면 · 시트 · 대화상자 · 카드"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "heading",
+      "prop": "level",
+      "note": "SEED headingLevel 기본 3 — 놓인 자리의 머리말 차례에 맞춘다. 대화상자 · 시트 · 카드 제목(h2) 아래면 h3, 그 위 머리말이 h3 이면 h4"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "trigger",
-      "prop": "foreground",
-      "note": "또는 underline · `transition-[color]`"
+      "prop": "minHeight",
+      "note": "위아래 16 + 제목 22. 제목이 줄을 바꾸면 늘어난다"
     },
     {
       "rule": 0,
-      "state": "focus-visible",
-      "slot": "focusRing",
-      "prop": "color",
-      "note": "`ring-2 ring-ring ring-offset-2` — ring = border-focus(shadcn bridge)"
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "paddingY",
+      "note": "SEED medium paddingY x4"
     },
     {
       "rule": 0,
-      "state": "open",
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "paddingX",
+      "note": "화면 가장자리 규칙 24(SEED global-gutter 16)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "touchTarget",
+      "note": "줄 폭 × 54 이상 — 꺾쇠만이 아니라 줄 전체가 누르는 자리(SEED). AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "background",
+      "prop": "transitionProperty",
+      "note": "누르면 바탕이 안쪽으로 들어오며 둥글어진다(List 와 같다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "앞 아이콘 ↔ 본문 ↔ 꺾쇠 12 — SEED prefix paddingRight · suffixIcon paddingLeft x3"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "alignItems",
+      "note": "제목이 여러 줄이어도 앞 아이콘 · 꺾쇠는 트리거 가운데"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "prefixIcon",
+      "prop": "size",
+      "note": "있을 때만 — SEED medium prefixIcon 22"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "body",
+      "prop": "gap",
+      "note": "제목 ↔ 설명 2"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "fontWeight",
+      "note": "SEED medium"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "lineClamp",
+      "note": "늘 줄을 바꾼다 — 말줄임 · 줄 수 제한 없음(사용자 결정 10A, 단어 단위 v114)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "lineClamp",
+      "note": "늘 줄을 바꾼다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "chevron",
-      "prop": "rotate",
-      "note": "up — `data-[state=open]:rotate-180`"
+      "prop": "size",
+      "note": "lucide chevron-down — 접혀 있으면 아래"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "chevron",
+      "prop": "color",
+      "note": "흰 면 5.50 · 다크 6.09(시트 5.27)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "display",
+      "note": "접혀 있으면 내용을 그리지 않는다 — 보조 기술도 읽지 않는다(앱도)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "paddingX",
+      "note": "트리거와 같은 24 — 앞 아이콘이 있어도 같다. 펼친 내용은 줄 폭을 쓴다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "paddingBottom",
+      "note": "트리거 위아래와 같은 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "maxHeight",
+      "note": "패널 안에서 스크롤하지 않는다 — 길면 페이지 · 시트 본문이 스크롤한다(SEED Don't)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panelText",
+      "prop": "typography",
+      "note": "14 / 22 — 긴 글 보조. 비교 페이지가 그린 14 / 22 가 이 토큰 그대로다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "panelText",
+      "prop": "foreground",
+      "note": "흰 면 7.11 · 다크 7.70(시트 6.67)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "minHeight",
+      "note": "모두 펼치기의 보이는 상자와 같은 높이 — 제목과 한 줄"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "header",
+      "prop": "marginBottom",
+      "note": "머리 ↔ 첫 항목 8 — separated 의 카드 사이와 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerTitle",
+      "prop": "typography",
+      "note": "Card 머리 제목과 같다 — 건수를 붙인다(\"혜택 상세 · 12건\")"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "expandAll",
+      "prop": "height",
+      "note": "보이는 상자 — Card 머리 동작과 같은 모양(card.yaml headerAction)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "expandAll",
+      "prop": "iconSize",
+      "note": "글 뒤 — 펼치기는 lucide chevrons-up-down, 접기는 chevrons-down-up"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "expandAll",
+      "prop": "gap",
+      "note": "글 ↔ 아이콘 — Card 머리 동작과 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "expandAll",
+      "prop": "touchTarget",
+      "note": "보이는 32 위아래로 6 씩 · 옆은 글 폭 + 여백. AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "expandAll",
+      "prop": "label",
+      "note": "상세가 있는 항목이 모두 펼쳐져 있으면 \"모두 접기\" — 하나라도 접혀 있으면 \"모두 펼치기\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "expandAll",
+      "prop": "position",
+      "note": "시트 · 대화상자 목록 머리, 카드 머리의 오른쪽 동작 자리"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝 — 시트 · 대화상자 위에서도 같은 값(bg-layer-floating-pressed 와 같다)"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "insetX",
+      "note": "바탕이 좌우 6 들어온다(SEED marginX x1_5)"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "radius",
+      "note": "SEED cornerRadius x2_5 — separated 면(16) 안에서도 16 − 6 = 10 으로 동심"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "content",
+      "prop": "scale",
+      "note": "콘텐츠 층만(SEED scaleScope content) — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(v104)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "expandAll",
+      "prop": "scale",
+      "note": "글 단추만 — Card 머리 동작과 같다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "트리거 안쪽 — 카드 · 시트가 바깥 링을 자르지 않게(지금 웹 카드 혜택은 카드 셸에 잘려 안 보인다)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "radius",
+      "note": "inline — 줄과 같은 각진 링(List 와 같다)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "expandAll",
+      "prop": "outlineWidth",
+      "note": "모두 펼치기 단추의 키보드 링 — Card 머리 동작과 같다(card.yaml focused)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "expandAll",
+      "prop": "outlineOffset",
+      "note": "단추 바깥"
     },
     {
       "rule": 0,
       "state": "disabled",
       "slot": "trigger",
       "prop": "cursor",
-      "note": "`cursor-not-allowed`"
+      "note": "누르기 · 펼치기 불가 — 상세가 없는 항목은 막힌 트리거가 아니라 그냥 줄(detail none)"
     },
     {
-      "rule": 0,
-      "state": "disabled",
+      "rule": 1,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "background",
+      "note": "SEED dividerColor 와 같은 역할"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "marginX",
+      "note": "들인 선 24 — List 의 들인 선과 같다(SEED dividerPaddingX 12 의 porest 짝)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "display",
+      "note": "첫 항목 위 · 마지막 항목 아래에는 긋지 않는다(Divider — 마지막 선 금지)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "Card 사이 8(사용자 결정 1B) — SEED separated medium 12 는 카드에서 거절됐다(데이터 표시 5A)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "borderColor",
+      "note": "Card 테두리 — SEED separated strokeColor 와 같은 역할"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "radius",
+      "note": "Card 면 16(SEED r3 12) — 안의 누름 바탕은 16 − 6 = 10 으로 동심"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "shadow",
+      "note": "그림자 없음 — Card 면"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "overflow",
+      "note": "누름 바탕 · 펼친 내용을 모서리에서 자른다 — 포커스 링은 안쪽이라 잘리지 않는다"
+    },
+    {
+      "rule": 2,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "radius",
+      "note": "항목 모서리 16 − 링 들임 2 = 14 — 트리거가 항목 맨 위라 모서리를 따른다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "chevron",
+      "prop": "rotate",
+      "note": "위로 — SEED Expanded"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "panel",
+      "prop": "display",
+      "note": "펼쳐도 저절로 스크롤 · 초점 이동하지 않는다 — 초점은 트리거에 그대로(SEED)"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
       "slot": "trigger",
-      "prop": "pointerEvents",
-      "note": "`pointer-events-none`"
+      "prop": "minHeight",
+      "note": "위아래 16 + 제목 22 + 2 + 설명 18"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "heading",
+      "prop": "level",
+      "note": "머리말 · 단추로 감싸지 않는다 — 글만 읽힌다(Tab 이 건너뛴다)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "cursor",
+      "note": "트리거가 아니다 — 같은 위아래 16 · 좌우 24 로 높이 · 글 시작이 다른 항목과 같다(사용자 결정 5A)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "touchTarget",
+      "note": "누르는 줄이 아니다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "chevron",
+      "prop": "display",
+      "note": "꺾쇠를 두지 않는다 — 막힌 트리거 · 꺾쇠만 뒤집히는 줄은 고르지 않았다(5B · 5C)"
+    },
+    {
+      "rule": 5,
+      "state": "hovered",
+      "slot": "background",
+      "prop": "background",
+      "note": "바탕이 생기지 않는다 — 누를 것이 아니다"
+    },
+    {
+      "rule": 5,
+      "state": "pressed",
+      "slot": "content",
+      "prop": "scale",
+      "note": "줄지 않는다"
     }
   ]
 }

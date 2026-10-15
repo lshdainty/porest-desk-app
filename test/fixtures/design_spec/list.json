@@ -3,7 +3,7 @@
   "source": "specs/components/list.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
     "root": "목록(List) — 줄을 세로로 잇는다. 배경 · 줄 사이 간격 없음",
@@ -20,6 +20,8 @@
     "suffixText": "뒤 값 글자",
     "suffixIcon": "뒤 아이콘 — 오른쪽 화살표",
     "divider": "줄 사이 선(ListDivider) — 필요할 때만",
+    "expandButton": "줄 앞 꺾쇠 단추 — 부모 줄의 하위 줄을 펼치고 접는다(누르는 44). 줄을 누르면 하는 일(편집)과 따로 눌린다",
+    "subList": "하위 줄 묶음 — 부모 줄 바로 아래에서 펼치고 접힌다",
     "focusRing": "키보드 포커스 링(웹) — 줄 안쪽"
   },
   "axes": {
@@ -30,11 +32,22 @@
     "highlight": [
       "none",
       "highlighted"
+    ],
+    "nest": [
+      "none",
+      "parent",
+      "child"
+    ],
+    "expanded": [
+      "collapsed",
+      "expanded"
     ]
   },
   "defaults": {
     "align": "center",
-    "highlight": "none"
+    "highlight": "none",
+    "nest": "none",
+    "expanded": "collapsed"
   },
   "states": [
     "enabled",
@@ -287,6 +300,85 @@
           }
         }
       }
+    },
+    {
+      "when": {
+        "nest": "parent"
+      },
+      "enabled": {
+        "item": {
+          "paddingLeft": 4
+        },
+        "expandButton": {
+          "size": 44,
+          "radius": 10,
+          "iconSize": 20,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "rotate": "0deg",
+          "marginRight": 4,
+          "background": "transparent",
+          "cursor": "pointer",
+          "touchTarget": "44 × 44",
+          "name": "{카테고리} 하위 카테고리",
+          "transitionProperty": "rotate, background-color"
+        },
+        "subList": {
+          "display": "숨김"
+        }
+      },
+      "hovered": {
+        "expandButton": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "expandButton": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소"
+        }
+      },
+      "focused": {
+        "expandButton": {
+          "outlineWidth": 2,
+          "outlineOffset": -2,
+          "outlineColor": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "nest": "child"
+      },
+      "enabled": {
+        "item": {
+          "paddingLeft": 104
+        }
+      }
+    },
+    {
+      "when": {
+        "expanded": "expanded"
+      },
+      "enabled": {
+        "expandButton": {
+          "rotate": "90deg"
+        },
+        "subList": {
+          "display": "보임"
+        }
+      }
     }
   ],
   "motion": {
@@ -307,6 +399,30 @@
         "scale"
       ],
       "note": "콘텐츠 층만 2px 거리 축소(줄은 세로로 1px 남짓) — 모션 줄이기면 하지 않는다"
+    },
+    "하위 줄 — 펼침 · 접힘": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "height"
+      ],
+      "note": "Accordion 과 같은 300ms(2026-10-10 사용자 결정 3A)"
+    },
+    "하위 줄 — 모션 줄이기": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity"
+      ],
+      "note": "높이를 움직이지 않고 하위 줄이 150ms 서서히 나타나고 사라진다(v104 · Accordion 과 같다)"
+    },
+    "꺾쇠 단추 — 회전": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "rotate"
+      ],
+      "note": "0 → 90°(오른쪽 → 아래) — 모션 줄이기면 바로"
     }
   },
   "notes": [
@@ -435,6 +551,111 @@
       "slot": "detail",
       "prop": "foreground",
       "note": "짙은 강조 바탕 위에서도 4.5:1 — fg-neutral-subtle 은 4.32:1 로 모자란다(사용자 결정 2026-10-01). 화살표는 그대로"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "paddingLeft",
+      "note": "줄 앞 4 — 꺾쇠 단추 44 와 그 뒤 4 를 지나 앞 붙이개가 52 에서 시작한다. 하위가 없는 부모 줄도 같은 자리를 비워 부모 타일이 모두 52 에 선다(사용자 결정 17B — 7C 그림의 24 는 고르지 않았다)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "size",
+      "note": "보이는 상자 = 누르는 영역. 하위가 없는 줄 · 늘 펼쳐 두는 화면(편집 모드)은 같은 폭의 빈 자리"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "radius",
+      "note": "누를 때 바탕 — 줄의 누름 바탕과 같은 모서리 10"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "iconSize",
+      "note": "lucide chevron-right — 접혀 있으면 오른쪽, 펼치면 아래(90°)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "color",
+      "note": "흰 면 5.50 · 다크 6.09"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "marginRight",
+      "note": "꺾쇠 단추 ↔ 앞 붙이개 4"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "touchTarget",
+      "note": "AA ✓ · AAA ✓ — 지금 웹 18 · 앱 24"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "name",
+      "note": "고정 이름 + aria-expanded · aria-controls(하위 줄 묶음) — 상태마다 \"접기 · 펼치기\" 로 바꾸지 않는다(사용자 결정 7C)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "transitionProperty",
+      "note": "회전은 하위 줄 펼침과 같은 300ms, 바탕은 150ms(motion)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "subList",
+      "prop": "display",
+      "note": "접혀 있으면 하위 줄을 그리지 않는다 — 처음 상태는 화면이 정한다(카테고리는 모두 펼친 채 연다)"
+    },
+    {
+      "rule": 3,
+      "state": "hovered",
+      "slot": "expandButton",
+      "prop": "background",
+      "note": "꺾쇠 단추만 — 줄의 누름 바탕과 따로"
+    },
+    {
+      "rule": 3,
+      "state": "pressed",
+      "slot": "expandButton",
+      "prop": "scale",
+      "note": "기준 44 → 0.955(v104) — 줄은 줄지 않는다"
+    },
+    {
+      "rule": 3,
+      "state": "focused",
+      "slot": "expandButton",
+      "prop": "outlineOffset",
+      "note": "단추 안쪽 — 줄 앞 4 안에서 잘리지 않는다. 모서리는 단추와 같은 10"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "paddingLeft",
+      "note": "부모의 제목 자리 = 4 + 꺾쇠 44 + 4 + 타일 40 + 12 — 하위 타일이 부모 제목 아래에서 시작한다(사용자 결정 17B — 7C 그림의 100 은 고르지 않았다). 누름 바탕은 줄 폭 그대로(좌우 6 들임)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "expandButton",
+      "prop": "rotate",
+      "note": "아래로 — 하위 줄이 펼쳐졌다"
     }
   ]
 }

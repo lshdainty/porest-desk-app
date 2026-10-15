@@ -1,7 +1,7 @@
 {
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "components": [
     {
@@ -88,6 +88,11 @@
       "file": "chip.json",
       "name": "Chip",
       "source": "specs/components/chip.yaml"
+    },
+    {
+      "file": "collapsible.json",
+      "name": "Collapsible",
+      "source": "specs/components/collapsible.yaml"
     },
     {
       "file": "color-swatch.json",
@@ -246,8 +251,13 @@
     },
     {
       "file": "scroll-area.json",
-      "name": "Scroll Area",
+      "name": "ScrollArea",
       "source": "specs/components/scroll-area.yaml"
+    },
+    {
+      "file": "scroll-auto-hide.json",
+      "name": "ScrollAutoHide",
+      "source": "specs/components/scroll-auto-hide.yaml"
     },
     {
       "file": "scroll-fog.json",
@@ -348,6 +358,11 @@
       "file": "top-navigation.json",
       "name": "TopNavigation",
       "source": "specs/components/top-navigation.yaml"
+    },
+    {
+      "file": "tree-view.json",
+      "name": "TreeView",
+      "source": "specs/components/tree-view.yaml"
     },
     {
       "file": "wheel-picker.json",

@@ -3,7 +3,7 @@
   "source": "specs/components/side-navigation.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
     "root": "사이드바 — 화면 왼쪽, 높이 전체. 흰 면 + 오른쪽 1px 선. 본문과 따로 스크롤된다",
@@ -178,7 +178,7 @@
             "dark": "#A2A8B7"
           },
           "transitionProperty": "rotate",
-          "transitionDuration": "200ms",
+          "transitionDuration": "300ms",
           "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
         },
         "subItem": {
@@ -443,13 +443,21 @@
       "note": "이름은 접히기 시작할 때 사라지고 다 펴진 뒤 나타난다. 모션 줄이기면 바로 바뀐다"
     },
     "하위 펼침": {
-      "duration": "200ms",
+      "duration": "300ms",
       "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
       "properties": [
         "height",
         "opacity"
       ],
-      "note": "꺾쇠도 같은 시간에 돈다"
+      "note": "꺾쇠도 같은 시간에 돈다 — 300ms, Accordion 과 같다(2026-10-10 사용자 결정 3A — 그전의 d4 200 은 스펙 초안의 값이었다). 꺾쇠는 모션 줄이기면 바로"
+    },
+    "하위 펼침 — 모션 줄이기": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity"
+      ],
+      "note": "높이를 움직이지 않고 하위 목록이 150ms 서서히 나타나고 사라진다(v104 · Accordion 과 같다)"
     },
     "펼침 메뉴 — 열림": {
       "duration": "150ms",
@@ -672,6 +680,13 @@
       "slot": "chevron",
       "prop": "size",
       "note": "lucide chevron-down — 접혀 있으면 아래, 펼치면 위"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "chevron",
+      "prop": "transitionDuration",
+      "note": "하위 펼침과 같은 300ms — Accordion 과 같다(2026-10-10 사용자 결정 3A)"
     },
     {
       "rule": 0,

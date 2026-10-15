@@ -3,7 +3,7 @@
   "source": "specs/components/command.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "7b4422ff0b45"
+    "sha256": "1691cc5c2f1f"
   },
   "slots": {
     "input": "CommandInput — wrapper(border-b) + input",
