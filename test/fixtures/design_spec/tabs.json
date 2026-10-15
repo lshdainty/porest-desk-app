@@ -3,7 +3,7 @@
   "source": "specs/components/tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "1691cc5c2f1f"
+    "sha256": "6ec6e05f538e"
   },
   "slots": {
     "list": "목록 — 탭을 담는 줄. 놓인 화면 · 구역 폭을 채우고 바닥에 구획 선",

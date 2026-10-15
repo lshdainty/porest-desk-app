@@ -1,0 +1,844 @@
+{
+  "name": "QuantityPicker",
+  "source": "specs/components/quantity-picker.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "6ec6e05f538e"
+  },
+  "slots": {
+    "root": "테두리 상자 — 줄이기 · 선 · 값 · 선 · 늘리기를 한 줄로 담는다. role=\"group\" + 이름(Field 라벨 · aria-label) 필수",
+    "button": "줄이기 · 늘리기 버튼 공통 — 정사각, 상자 높이와 같다. 올림 · 누름 · 포커스 · 로딩은 그 버튼 하나에만 걸린다",
+    "decrement": "줄이기 버튼(−) — 최소에서 막힘. removable 이면 최소에서 지우기(휴지통) 버튼이 된다",
+    "increment": "늘리기 버튼(+) — 최대에서 막힘",
+    "icon": "버튼 아이콘 — lucide minus · plus · trash-2",
+    "divider": "버튼 ↔ 값 사이 세로 선",
+    "value": "값 칸(Value Display) — 지금 값과 단위(\"3회\"). 보기만 한다 — 누르지도 치지도 못한다",
+    "progressCircle": "로딩 원 — 서버 응답을 기다리는 버튼의 아이콘 자리",
+    "focusRing": "키보드 포커스 링(웹) — 버튼 바깥"
+  },
+  "axes": {
+    "size": [
+      "small",
+      "medium",
+      "large",
+      "responsive"
+    ],
+    "layout": [
+      "hug",
+      "fill"
+    ],
+    "edge": [
+      "none",
+      "min",
+      "max"
+    ],
+    "removable": [
+      "off",
+      "on"
+    ]
+  },
+  "defaults": {
+    "size": "responsive",
+    "layout": "hug",
+    "edge": "none",
+    "removable": "off"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "loading",
+    "invalid",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "display": "inline-flex",
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "role": "group"
+        },
+        "button": {
+          "background": "transparent",
+          "cursor": "pointer",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)",
+          "repeat": "없음"
+        },
+        "decrement": {
+          "name": "줄이기"
+        },
+        "increment": {
+          "name": "늘리기"
+        },
+        "icon": {
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "divider": {
+          "width": 1,
+          "height": 16,
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#353B4D"
+          }
+        },
+        "value": {
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "fontWeight": 500,
+          "fontVariantNumeric": "tabular-nums",
+          "textAlign": "center",
+          "paddingX": 8,
+          "minWidth": "가장 긴 값의 폭",
+          "pointerEvents": "없음",
+          "ariaLive": "polite"
+        },
+        "progressCircle": {
+          "display": "none",
+          "thickness": 2,
+          "track": {
+            "light": "#8A91A0",
+            "dark": "#656B78"
+          },
+          "range": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "button": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "focused": {
+        "focusRing": {
+          "width": 2,
+          "offset": 2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "pressed": {
+        "button": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        }
+      },
+      "loading": {
+        "button": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "cursor": "progress",
+          "press": "막음"
+        },
+        "icon": {
+          "display": "none"
+        },
+        "progressCircle": {
+          "display": "보임"
+        }
+      },
+      "invalid": {
+        "root": {
+          "borderWidth": 2,
+          "borderColor": {
+            "light": "#D72323",
+            "dark": "#FF8477"
+          }
+        }
+      },
+      "disabled": {
+        "button": {
+          "cursor": "not-allowed"
+        },
+        "icon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "value": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "small"
+      },
+      "enabled": {
+        "root": {
+          "height": 36,
+          "radius": 8
+        },
+        "button": {
+          "size": 36,
+          "radius": 8,
+          "touchTarget": "44 × 44",
+          "touchExtend": 4
+        },
+        "icon": {
+          "size": 16
+        },
+        "value": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "progressCircle": {
+          "size": 16
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "medium"
+      },
+      "enabled": {
+        "root": {
+          "height": 40,
+          "radius": 8
+        },
+        "button": {
+          "size": 40,
+          "radius": 8,
+          "touchTarget": "44 × 44",
+          "touchExtend": 2
+        },
+        "icon": {
+          "size": 18
+        },
+        "value": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "progressCircle": {
+          "size": 18
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "large"
+      },
+      "enabled": {
+        "root": {
+          "height": 52,
+          "radius": 12
+        },
+        "button": {
+          "size": 52,
+          "radius": 12,
+          "touchTarget": "52 × 52",
+          "touchExtend": 0
+        },
+        "icon": {
+          "size": 22
+        },
+        "value": {
+          "typography": {
+            "fontSize": 18,
+            "lineHeight": 24,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          }
+        },
+        "progressCircle": {
+          "size": 22
+        }
+      }
+    },
+    {
+      "when": {
+        "size": "responsive"
+      },
+      "enabled": {
+        "root": {
+          "breakpoint": 1280
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "fill"
+      },
+      "enabled": {
+        "root": {
+          "width": "남은 폭"
+        },
+        "value": {
+          "flexGrow": 1
+        }
+      }
+    },
+    {
+      "when": {
+        "edge": "min"
+      },
+      "enabled": {
+        "decrement": {
+          "ariaDisabled": "true",
+          "cursor": "not-allowed",
+          "iconColor": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "hovered": {
+        "decrement": {
+          "background": "transparent"
+        }
+      },
+      "pressed": {
+        "decrement": {
+          "background": "transparent",
+          "scale": "없음"
+        }
+      }
+    },
+    {
+      "when": {
+        "edge": "max"
+      },
+      "enabled": {
+        "increment": {
+          "ariaDisabled": "true",
+          "cursor": "not-allowed",
+          "iconColor": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "hovered": {
+        "increment": {
+          "background": "transparent"
+        }
+      },
+      "pressed": {
+        "increment": {
+          "background": "transparent",
+          "scale": "없음"
+        }
+      }
+    },
+    {
+      "when": {
+        "removable": "on",
+        "edge": "min"
+      },
+      "enabled": {
+        "decrement": {
+          "icon": "trash-2",
+          "name": "removeAriaLabel",
+          "ariaDisabled": "false",
+          "cursor": "pointer",
+          "iconColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        }
+      },
+      "hovered": {
+        "decrement": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "decrement": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소"
+        }
+      },
+      "disabled": {
+        "decrement": {
+          "cursor": "not-allowed",
+          "iconColor": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름 · 올림 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ],
+      "note": "SEED colorDuration · colorTimingFunction — 누른 버튼만"
+    },
+    "누름 — 버튼 축소": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "누른 버튼만 2px 거리 축소(v104) — 모션 줄이기면 하지 않는다"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "display",
+      "note": "− · 선 · 값 · 선 · + 를 한 줄 가운데 정렬 — 줄을 바꾸지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "background",
+      "note": "SEED 와 같다 — 시트 · 대화상자(bg-layer-floating) 위에서도 이 색이다(다크 시트 위 상자가 한 단계 어둡다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "상자 안쪽에 그린다(inset) — 오류의 2px 도 안쪽이라 내용이 밀리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "Input 의 테두리와 같다 — 흰 면 1.23 · 다크 1.56, 칸을 알리는 유일한 표시가 아니다(두 버튼 아이콘이 알린다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "role",
+      "note": "이름 필수 — Field 안이면 라벨이 이름(aria-labelledby), 아니면 aria-label(\"승인 필요 횟수\")"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "background",
+      "note": "SEED bg.transparent"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "repeat",
+      "note": "한 번 누르면 한 단계 — 누르고 있어도 반복하지 않는다(사용자 결정 2A, 길게 누르기 2C 는 고르지 않았다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "decrement",
+      "prop": "name",
+      "note": "아이콘만 있는 버튼 — 이름 \"줄이기\"(decrementAriaLabel 로 바꿀 수 있다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "increment",
+      "prop": "name",
+      "note": "이름 \"늘리기\"(incrementAriaLabel)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "icon",
+      "prop": "color",
+      "note": "lucide minus · plus — 흰 면 16.41 · 다크 13.42, 누름 바탕 위 15.48 · 10.32"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "height",
+      "note": "SEED x4 16 — 크기와 관계없이 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "divider",
+      "prop": "background",
+      "note": "장식 — 버튼과 값을 가른다(흰 면 1.15 · 다크 1.30)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "fontWeight",
+      "note": "SEED medium"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "fontVariantNumeric",
+      "note": "숫자 폭이 같아 값이 바뀌어도 글이 흔들리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "paddingX",
+      "note": "SEED x2 8 — 세 크기 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "minWidth",
+      "note": "가장 긴 표시 글(getValueText(min) 과 getValueText(max) — \"99회\" · \"24h\")을 숨겨 둔 자리 글로 폭을 잡는다(SEED valueDisplayPlaceholder) — 값이 바뀌어도 상자 폭이 그대로다. max 를 주지 않으면(기본 Number.MAX_SAFE_INTEGER — 열여섯 자리) max 글은 빼고 min 과 지금 값으로 잡는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "pointerEvents",
+      "note": "보기만 — 누르지도 치지도 못한다(SEED \"Value Display는 터치에 반응하지 않습니다\", 사용자 결정 2A). 치는 값 칸(2B)은 고르지 않았다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "ariaLive",
+      "note": "aria-atomic=true — 바뀐 값(단위 글 그대로 \"4회\")을 한 번 읽는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "display",
+      "note": "로딩일 때만 — 아이콘 자리에"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "thickness",
+      "note": "SEED quantity-picker-button progressCircle thickness 2"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "track",
+      "note": "SEED palette.gray-500 그대로 — Button ghost 의 로딩 원과 같다(button.yaml ghost). 누름 바탕 위 2.98 · 다크 2.08 — 트랙은 장식"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "range",
+      "note": "누름 바탕 위 15.48 · 다크 10.32 — 트랙과 5.19 · 4.95"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "button",
+      "prop": "background",
+      "note": "웹 — 누름과 같은 바탕(v106). SEED bg.transparent-pressed 의 불투명 짝"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "width",
+      "note": "키보드로 옮길 때만 — 손가락 · 마우스로 누를 때는 없다"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "버튼 바깥 — 상자 테두리 · 선 위에 겹쳐 그린다(잘리지 않게 상자는 overflow 를 자르지 않는다)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "button",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝(button.yaml 25-26)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "button",
+      "prop": "scale",
+      "note": "누른 버튼만(SEED scaleScope self) — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(v104). 36 은 34/36"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "button",
+      "prop": "background",
+      "note": "SEED loading = bg.transparent-pressed"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "button",
+      "prop": "press",
+      "note": "기다리는 버튼의 누르기를 버린다 — aria-busy=true. 다른 쪽 버튼은 loading 을 그쪽에 주지 않았으면 그대로 눌린다(loading: { decrement, increment })"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "icon",
+      "prop": "display",
+      "note": "아이콘 자리에 로딩 원"
+    },
+    {
+      "rule": 0,
+      "state": "loading",
+      "slot": "progressCircle",
+      "prop": "display",
+      "note": "값 없는 원(도는 원) — 모션 줄이기면 고정된 3/4 호(Progress Circle)"
+    },
+    {
+      "rule": 0,
+      "state": "invalid",
+      "slot": "root",
+      "prop": "borderWidth",
+      "note": "안쪽에 덧그린다 — 값이 허용 범위를 벗어났다(SEED Error). 오류 글은 Field 가 칸 아래에"
+    },
+    {
+      "rule": 0,
+      "state": "invalid",
+      "slot": "root",
+      "prop": "borderColor",
+      "note": "흰 면 5.06 · 다크 6.08"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "button",
+      "prop": "cursor",
+      "note": "두 버튼 모두 disabled 속성 — 초점을 받지 않는다(끝에 닿은 버튼의 aria-disabled 와 다르다)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "icon",
+      "prop": "color",
+      "note": "SEED quantity-picker-button disabled"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "value",
+      "prop": "foreground",
+      "note": "불투명도로 흐리지 않는다(v106)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "SEED x9"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "size",
+      "note": "정사각"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "touchTarget",
+      "note": "보이는 36 둘레로 4 씩 보이지 않는 여백 — 상자 밖으로도 나간다. 표 칸 위아래 여백(16) 안이라 이웃 줄과 겹치지 않는다. AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "typography",
+      "note": "16 / 22 — SEED small t5"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "SEED x10"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "touchTarget",
+      "note": "보이는 40 둘레로 2 씩 — DESIGN Iconography \"40px 버튼은 보이지 않는 여백을 2px 씩 더한다\". AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "typography",
+      "note": "16 / 22 — SEED medium t5"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "SEED x13 — 옆 Input · Select large 와 같은 높이"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "button",
+      "prop": "touchTarget",
+      "note": "보이는 크기 그대로 — AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "typography",
+      "note": "18 / 24 — SEED large t6"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "breakpoint",
+      "note": "미만은 large, 이상은 medium 의 값을 쓴다 — Input 과 같은 경계(SEED lg). 앱은 늘 large. 한 폼 안에서 옆 칸과 같은 크기다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "width",
+      "note": "flex-grow 1 — 부모가 Flex 일 때(SEED layout fill)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "value",
+      "prop": "flexGrow",
+      "note": "늘어나는 것은 값 칸뿐 — 두 버튼은 정사각 그대로"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "decrement",
+      "prop": "ariaDisabled",
+      "note": "disabled 속성이 아니다 — 초점이 남아 같은 자리에서 + 로 돌아갈 수 있다(따라오는 것). 누르면 아무 일도 없다"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "decrement",
+      "prop": "iconColor",
+      "note": "막힌 모습 — SEED quantity-picker-button disabled 의 아이콘 색"
+    },
+    {
+      "rule": 6,
+      "state": "hovered",
+      "slot": "decrement",
+      "prop": "background",
+      "note": "막힌 버튼은 올려도 바탕이 생기지 않는다"
+    },
+    {
+      "rule": 6,
+      "state": "pressed",
+      "slot": "decrement",
+      "prop": "scale",
+      "note": "눌러도 줄지 않는다 — 값도 그대로"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "increment",
+      "prop": "ariaDisabled",
+      "note": "최대에서 + 가 막힌다 — 초점은 남는다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "decrement",
+      "prop": "icon",
+      "note": "최소에서 − 자리가 지우기 — 누르면 onRemove(항목을 지운다), 값은 바꾸지 않는다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "decrement",
+      "prop": "name",
+      "note": "이름 필수 — 무엇을 지우는지(\"{항목 이름} 지우기\"). 아이콘이 바뀌면 이름도 바뀐다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "decrement",
+      "prop": "ariaDisabled",
+      "note": "막히지 않는다 — 누를 수 있다"
+    },
+    {
+      "rule": 8,
+      "state": "hovered",
+      "slot": "decrement",
+      "prop": "background",
+      "note": "지우기는 누를 수 있다 — 다른 버튼과 같은 바탕"
+    },
+    {
+      "rule": 8,
+      "state": "disabled",
+      "slot": "decrement",
+      "prop": "cursor",
+      "note": "컨트롤 전체가 막히면 지우기도 막힌다 — 휴지통 아이콘은 그대로 두고 막힘 색"
+    }
+  ]
+}

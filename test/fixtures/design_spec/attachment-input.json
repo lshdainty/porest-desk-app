@@ -1,0 +1,1805 @@
+{
+  "name": "AttachmentInput",
+  "source": "specs/components/attachment-input.yaml",
+  "design": {
+    "file": "DESIGN.desk.md",
+    "sha256": "6ec6e05f538e"
+  },
+  "slots": {
+    "root": "첨부 칸 전체 — 드롭존(있으면)과 항목 줄을 세로로 담는다. 라벨 · 설명 · 오류는 Field 가 둘레에서 그린다",
+    "items": "항목 줄 — 첨부 타일 + 항목을 가로로. 넘치면 가로 스크롤(스크롤바 숨김 · 끝 흐림)",
+    "trigger": "첨부 타일 — 누르면 고르기 창(앱은 Menu Sheet). 다 차면 막힌다",
+    "triggerIcon": "첨부 타일 아이콘 — 사진을 받으면 lucide image, 파일만 받으면 paperclip",
+    "count": "지금 개수 — \"3/10\" 의 3",
+    "countMax": "최대 개수 — \"3/10\" 의 /10. 최대가 없으면 개수를 두지 않는다",
+    "item": "항목 상자 — 사진 80 × 80 · 파일 160 × 80. 모양은 파일 종류가 정한다",
+    "image": "사진 — 항목을 채운다(cover)",
+    "thumbnail": "파일 카드의 썸네일 칸 — 파일 아이콘 · 올리는 중 원",
+    "thumbnailIcon": "파일 아이콘 — PDF file-text · 표 file-spreadsheet · 그 밖 file",
+    "meta": "파일 카드의 이름 · 크기 묶음",
+    "name": "파일 이름 — 네 줄까지, 넘치면 확장자를 남기고 줄인다",
+    "size": "파일 크기 — \"9.8MB\"",
+    "backdrop": "사진 위 덮개 — 올리는 중 · 실패",
+    "progressCircle": "올리는 중 원 — 값 있는 Progress Circle 24",
+    "actionButton": "다시 시도 — 실패한 항목 가운데(아이콘 + 글)",
+    "badge": "대표 띠 — 첫 사진 아래(쓰는 자리만)",
+    "removeButton": "지우기 × — 항목 오른쪽 위에 걸친 원",
+    "removeMask": "× 둘레 구멍 — 항목 모서리를 × 보다 2 크게 파낸다",
+    "dropzone": "드롭존 — 끌어다 놓는 자리(1280 이상 웹)",
+    "dropzoneLabel": "드롭존 안내 글",
+    "pickButton": "파일 선택 버튼 — 드롭존 안(웹 1280 이상) 또는 드롭존 대신(1280 미만 · 앱)",
+    "itemMenu": "항목 메뉴 — 항목을 누르면 열린다(1280 미만 · 앱 Menu Sheet · 이상 Menu). 크게 보기 · 대표로 정하기 · 앞으로 옮기기 · 뒤로 옮기기 | 지우기",
+    "focusRing": "키보드 포커스 링 — 모두 부품 안쪽"
+  },
+  "axes": {
+    "layout": [
+      "tile",
+      "dropzone"
+    ],
+    "kind": [
+      "image",
+      "file"
+    ],
+    "status": [
+      "pending",
+      "uploading",
+      "success",
+      "error"
+    ],
+    "capacity": [
+      "open",
+      "full"
+    ],
+    "screen": [
+      "wide",
+      "narrow"
+    ],
+    "position": [
+      "middle",
+      "first",
+      "last"
+    ]
+  },
+  "defaults": {
+    "layout": "tile",
+    "kind": "image",
+    "status": "pending",
+    "capacity": "open",
+    "screen": "wide",
+    "position": "middle"
+  },
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "dragOver",
+    "dragging",
+    "readonly",
+    "disabled"
+  ],
+  "rules": [
+    {
+      "when": {},
+      "enabled": {
+        "root": {
+          "gap": 8
+        },
+        "items": {
+          "gap": 8,
+          "overflowX": "auto",
+          "paddingTop": 16,
+          "bleedX": 24,
+          "fog": "좌우 20"
+        },
+        "trigger": {
+          "size": 80,
+          "radius": 12,
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "background": "transparent",
+          "gap": 4,
+          "cursor": "pointer",
+          "name": "{칸 이름} 첨부, n/최대",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "triggerIcon": {
+          "size": 24,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "count": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          }
+        },
+        "countMax": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "item": {
+          "height": 80,
+          "radius": 12,
+          "borderWidth": 1,
+          "background": "transparent",
+          "gap": 10,
+          "name": "파일 이름 · 크기 · 상태",
+          "press": "메뉴를 연다",
+          "dragStart": "마우스 8px · 터치 250ms",
+          "keys": "Enter 메뉴 · Space 들기"
+        },
+        "thumbnail": {
+          "size": 48,
+          "radius": 8,
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        },
+        "thumbnailIcon": {
+          "size": 24,
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          }
+        },
+        "meta": {
+          "gap": 0,
+          "width": 70
+        },
+        "name": {
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "wordBreak": "break-all",
+          "maxLines": 4,
+          "maskClear": 4,
+          "overflow": "확장자를 남기고 줄인다"
+        },
+        "size": {
+          "typography": {
+            "fontSize": 11,
+            "lineHeight": 15,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "format": "9.8MB"
+        },
+        "backdrop": {
+          "display": "none"
+        },
+        "progressCircle": {
+          "display": "none",
+          "size": 24,
+          "mode": "determinate"
+        },
+        "actionButton": {
+          "display": "none",
+          "gap": 4,
+          "iconSize": 24,
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "label": "다시 시도"
+        },
+        "badge": {
+          "display": "첫 사진만",
+          "height": 24,
+          "paddingX": 4,
+          "radius": "0 0 12px 12px",
+          "background": "rgba(0, 0, 0, 0.65)",
+          "typography": {
+            "fontSize": 12,
+            "lineHeight": 16,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": "#FFFFFF",
+          "label": "대표"
+        },
+        "removeButton": {
+          "size": 20,
+          "radius": 9999,
+          "background": {
+            "light": "#FFFFFF",
+            "dark": "#242938"
+          },
+          "borderWidth": 1,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "offset": 4,
+          "iconSize": 10,
+          "iconColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "touchTarget": "44 × 44",
+          "touchExtend": 12,
+          "name": "{파일 이름} 지우기",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "removeMask": {
+          "size": 24,
+          "offset": 6
+        },
+        "dropzone": {
+          "display": "none"
+        },
+        "pickButton": {
+          "display": "none"
+        },
+        "itemMenu": {
+          "surface": "1280 미만 · 앱 Menu Sheet · 1280 이상 Menu",
+          "title": "파일 이름",
+          "groups": "옮기기 묶음 | 지우기 묶음",
+          "preview": "크게 보기",
+          "makeCover": "대표로 정하기",
+          "moveEarlier": "앞으로 옮기기",
+          "moveLater": "뒤로 옮기기",
+          "remove": "지우기",
+          "afterAction": "초점은 그 항목으로"
+        },
+        "focusRing": {
+          "width": 2,
+          "offset": -2,
+          "color": {
+            "light": "#0147AD",
+            "dark": "#7AA9F6"
+          }
+        }
+      },
+      "hovered": {
+        "trigger": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        },
+        "removeButton": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        }
+      },
+      "pressed": {
+        "trigger": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소",
+          "scaleDuration": "150ms",
+          "scaleEasing": "cubic-bezier(0, 0, 0.15, 1)"
+        },
+        "removeButton": {
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          },
+          "scale": "2px 거리 축소"
+        },
+        "actionButton": {
+          "scale": "2px 거리 축소"
+        }
+      },
+      "dragging": {
+        "item": {
+          "scale": "2px 거리 축소",
+          "cursor": "grabbing"
+        },
+        "removeButton": {
+          "display": "none"
+        },
+        "removeMask": {
+          "size": 0
+        }
+      },
+      "readonly": {
+        "trigger": {
+          "cursor": "not-allowed"
+        },
+        "triggerIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "count": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "countMax": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "removeButton": {
+          "cursor": "not-allowed",
+          "iconColor": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "item": {
+          "cursor": "default",
+          "press": "크게 보기"
+        }
+      },
+      "disabled": {
+        "trigger": {
+          "cursor": "not-allowed"
+        },
+        "triggerIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "count": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "countMax": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "removeButton": {
+          "cursor": "not-allowed",
+          "iconColor": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "pickButton": {
+          "disabled": "true"
+        },
+        "item": {
+          "press": "없음"
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "image"
+      },
+      "enabled": {
+        "image": {
+          "objectFit": "cover",
+          "radius": 12,
+          "alt": "\"\""
+        },
+        "item": {
+          "width": 80,
+          "borderColor": {
+            "light": "#0000000C",
+            "dark": "#FFFFFF0D"
+          },
+          "transitionProperty": "opacity, scale",
+          "transitionDuration": "200ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        }
+      },
+      "readonly": {
+        "item": {
+          "opacity": 0.5
+        }
+      },
+      "dragging": {
+        "item": {
+          "opacity": 0.5
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "file"
+      },
+      "enabled": {
+        "item": {
+          "width": 160,
+          "paddingX": 16,
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          }
+        },
+        "itemMenu": {
+          "preview": "열기",
+          "makeCover": "없음"
+        }
+      },
+      "readonly": {
+        "thumbnailIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "name": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "size": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "dragging": {
+        "thumbnailIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "name": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "size": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "image",
+        "status": "uploading"
+      },
+      "enabled": {
+        "backdrop": {
+          "display": "보임",
+          "background": {
+            "light": "rgba(0, 0, 0, 0.50)",
+            "dark": "rgba(0, 0, 0, 0.65)"
+          }
+        },
+        "progressCircle": {
+          "display": "보임",
+          "tone": "staticWhite"
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "file",
+        "status": "uploading"
+      },
+      "enabled": {
+        "thumbnailIcon": {
+          "display": "none"
+        },
+        "progressCircle": {
+          "display": "보임",
+          "tone": "neutral"
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "image",
+        "status": "error"
+      },
+      "enabled": {
+        "backdrop": {
+          "display": "보임",
+          "background": "rgba(0, 0, 0, 0.65)"
+        },
+        "actionButton": {
+          "display": "보임",
+          "color": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "when": {
+        "kind": "file",
+        "status": "error"
+      },
+      "enabled": {
+        "thumbnail": {
+          "display": "none"
+        },
+        "meta": {
+          "display": "none"
+        },
+        "actionButton": {
+          "display": "보임",
+          "color": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "width": "카드 폭"
+        }
+      }
+    },
+    {
+      "when": {
+        "capacity": "full"
+      },
+      "enabled": {
+        "trigger": {
+          "ariaDisabled": "true",
+          "cursor": "not-allowed"
+        },
+        "triggerIcon": {
+          "color": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "count": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "countMax": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "pickButton": {
+          "disabled": "true"
+        }
+      },
+      "hovered": {
+        "trigger": {
+          "background": "transparent"
+        }
+      },
+      "pressed": {
+        "trigger": {
+          "background": "transparent",
+          "scale": "없음"
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "dropzone"
+      },
+      "enabled": {
+        "items": {
+          "bleedX": 0,
+          "fog": "없음"
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "dropzone",
+        "screen": "wide"
+      },
+      "enabled": {
+        "dropzone": {
+          "display": "보임",
+          "height": 120,
+          "gap": 8,
+          "paddingX": 16,
+          "radius": 12,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": {
+            "light": "#767C8B",
+            "dark": "#838997"
+          },
+          "background": "transparent",
+          "alignItems": "center",
+          "transitionProperty": "border-color, background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "dropzoneLabel": {
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 500,
+          "foreground": {
+            "light": "#62697A",
+            "dark": "#A2A8B7"
+          },
+          "text": "파일을 여기로 끌어다 놓으세요"
+        },
+        "pickButton": {
+          "display": "보임",
+          "variant": "neutralWeak",
+          "size": "small",
+          "label": "파일 선택"
+        }
+      },
+      "disabled": {
+        "dropzone": {
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "dropTarget": "받지 않음"
+        },
+        "dropzoneLabel": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "dragOver": {
+        "dropzone": {
+          "borderColor": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "background": {
+            "light": "#F7F8FD",
+            "dark": "#353B4D"
+          }
+        },
+        "pickButton": {
+          "background": {
+            "light": "#F5F6FA",
+            "dark": "#353B4D"
+          }
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "dropzone",
+        "screen": "wide",
+        "capacity": "full"
+      },
+      "enabled": {
+        "dropzone": {
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "dropTarget": "받지 않음"
+        },
+        "dropzoneLabel": {
+          "foreground": {
+            "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        }
+      },
+      "dragOver": {
+        "dropzone": {
+          "borderColor": {
+            "light": "#E5E8EF",
+            "dark": "#404757"
+          },
+          "background": "transparent"
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "dropzone",
+        "screen": "narrow"
+      },
+      "enabled": {
+        "pickButton": {
+          "display": "보임",
+          "variant": "neutralWeak",
+          "size": "large",
+          "width": "칸 폭",
+          "prefixIcon": "upload",
+          "label": "파일 선택"
+        }
+      }
+    },
+    {
+      "when": {
+        "position": "first"
+      },
+      "enabled": {
+        "itemMenu": {
+          "moveEarlier": "막힘",
+          "makeCover": "막힘"
+        }
+      }
+    },
+    {
+      "when": {
+        "position": "last"
+      },
+      "enabled": {
+        "itemMenu": {
+          "moveLater": "막힘"
+        }
+      }
+    }
+  ],
+  "motion": {
+    "누름 · 올림 — 바탕": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "background-color"
+      ],
+      "note": "첨부 타일 · ×"
+    },
+    "누름 — 부품 축소": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "scale"
+      ],
+      "note": "누른 부품만 2px 거리 축소 — 모션 줄이기면 하지 않는다"
+    },
+    "끌어 들어옴 — 드롭존": {
+      "duration": "150ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "border-color",
+        "background-color"
+      ],
+      "note": "테두리 · 바탕이 함께 바뀐다"
+    },
+    "읽기 전용 · 끄는 중 — 사진 흐림": {
+      "duration": "200ms",
+      "easing": "cubic-bezier(0.35, 0, 0.35, 1)",
+      "properties": [
+        "opacity"
+      ],
+      "note": "사진 1 → 0.5(SEED opacity 0.2s, 사용자 결정 13B) — 모션 줄이기면 바로"
+    },
+    "올리는 중 — 채움": {
+      "duration": "300ms",
+      "easing": "cubic-bezier(0, 0, 0.15, 1)",
+      "properties": [
+        "stroke-dashoffset"
+      ],
+      "note": "Progress Circle 의 채움 그대로 — 모션 줄이기면 바로"
+    }
+  },
+  "notes": [
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "gap",
+      "note": "드롭존 ↔ 항목 줄 8 — SEED attachment-input root gap"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "gap",
+      "note": "항목 사이 8 — SEED items gap"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "overflowX",
+      "note": "넘치면 가로 스크롤 — 스크롤바는 숨긴다(가로 줄만 — Scroll Fog)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "paddingTop",
+      "note": "× 의 누르는 자리 44 가 위로 16(걸침 4 + 보이지 않는 여백 12) 나가도 가로 스크롤 줄(overflow)에 잘리지 않게 — 같은 만큼 위로 당긴다(marginTop −16). SEED container 는 4(× 만 걸치는 만큼)라 누르는 자리 위 12 가 잘려 44 × 32 가 된다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "bleedX",
+      "note": "줄을 화면(시트 · 대화상자 본문) 가장자리까지 넓히고 같은 만큼 안쪽 여백 — 첫 항목은 다른 칸과 같은 자리에서 시작한다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "fog",
+      "note": "Scroll Fog row — 늘 켜 둔다(스크롤 위치와 상관없이). 끝 흐림이 화면 여백 24 안에 든다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "size",
+      "note": "정사각 — SEED trigger"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "borderWidth",
+      "note": "안쪽에 그린다(inset)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "background",
+      "note": "SEED bg.transparent"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "gap",
+      "note": "아이콘 ↔ 개수 4"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "name",
+      "note": "\"영수증 첨부, 3/10\" — 아이콘 · 개수는 이름에 함께 읽힌다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "triggerIcon",
+      "prop": "size",
+      "note": "SEED x6"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "triggerIcon",
+      "prop": "color",
+      "note": "흰 면 5.50 · 다크 6.09"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "count",
+      "prop": "typography",
+      "note": "12 / 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "count",
+      "prop": "foreground",
+      "note": "지금 개수 — 0 이어도 같은 색"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "countMax",
+      "prop": "foreground",
+      "note": "\"/10\" — 최대가 없으면(서버 한도 없음) 개수를 통째로 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "height",
+      "note": "사진 · 파일 같은 높이 — 줄이 한 높이다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "borderWidth",
+      "note": "안쪽에 그린다 — 사진은 그림 위에 겹쳐 그린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "gap",
+      "note": "파일 카드의 썸네일 ↔ 이름 10 — SEED x2_5"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "name",
+      "note": "보조 기술에는 늘 전체 이름 — 줄인 이름이 아니다(\"2026-10-15_카드영수증_….pdf, 9.8MB, 올리는 중 40%\")"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "press",
+      "note": "순서 바꾸기(onReorder) · 크게 보기(onPreview)를 줄 때만 — 누르는 자리는 항목 전체(× 는 따로). 사진을 누르면 바로 크게 보던 자리는 메뉴 첫 줄 \"크게 보기\" 로 옮긴다(사용자 결정 14A)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "dragStart",
+      "note": "누르기(메뉴)와 끌기를 가른다 — 마우스는 누른 채 8px 넘게 움직이면, 터치는 250ms 누른 채 움직이면 끌기. 그 전에 움직이면 줄이 가로로 스크롤한다(porest — SEED 는 끌기만 있다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "keys",
+      "note": "초점이 온 항목에서 Enter 는 메뉴, Space 는 들기 → ← → 로 옮기고 Space · Enter 로 놓기 · Esc 그만두기(dnd-kit 키보드 — 순서 바꾸기를 줄 때만)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumbnail",
+      "prop": "size",
+      "note": "SEED x12"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumbnail",
+      "prop": "background",
+      "note": "썸네일 칸 — 파일 아이콘 · 올리는 중 원이 이 위에 놓인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "thumbnailIcon",
+      "prop": "color",
+      "note": "썸네일 칸 위 5.09 · 다크 4.68"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "meta",
+      "prop": "gap",
+      "note": "이름 바로 아래 크기"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "meta",
+      "prop": "width",
+      "note": "카드 160 − 좌우 16 × 2 − 썸네일 48 − 사이 10"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "typography",
+      "note": "12 / 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "foreground",
+      "note": "흰 면 16.41 · 다크 13.42"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "wordBreak",
+      "note": "글자 단위 — 파일 이름은 문장이 아니라 이름표라 Typography v114(단어 단위)의 예외다(사용자 결정 2026-10-15 마무리 11D). 같은 칸에 이름이 가장 많이 든다 — SEED 레시피와 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "maxLines",
+      "note": "네 줄(64) + 크기 한 줄(15) = 79 — 80 상자에 든다(따라오는 것). SEED 는 줄을 자르지 않아 다섯 줄부터 상자를 넘는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "maskClear",
+      "note": "첫 줄만 오른쪽 4 를 비운다(오른쪽 float 4 × 16) — 네 줄이면 이름이 카드 위 0.5 에 붙어, × 구멍(가운데 모서리 안쪽 6 · 반지름 12 → 카드 오른쪽 18 안까지)이 첫 줄 끝 글자를 2 파먹는다(\"사\" 가 \"시\" 처럼). 둘째 줄부터는 70 그대로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "name",
+      "prop": "overflow",
+      "note": "네 줄에 다 들면 그대로. 넘치면 셋째 줄 끝을 \"…\" 로 줄이고 넷째 줄에 확장자(\".xlsx\")를 둔다 — 끝을 자르면(11B) 확장자가 사라진다. 전체 이름은 항목 이름(보조 기술)에 늘 있다(사용자 결정 11D)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "size",
+      "prop": "typography",
+      "note": "11 / 15"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "size",
+      "prop": "foreground",
+      "note": "흰 면 5.50 · 다크 6.09"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "size",
+      "prop": "format",
+      "note": "B · KB · MB, MB 는 소수 한 자리 · 띄어 쓰지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "backdrop",
+      "prop": "display",
+      "note": "사진의 올리는 중 · 실패에만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "display",
+      "note": "올리는 중에만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "size",
+      "note": "Progress Circle size 24(두께 3) · determinate — progress-circle.md \"올리기 · 받기\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "mode",
+      "note": "값 있는 원 — 12시부터 올린 만큼. 진행이 10초 동안 멈추면 실패다(Skeleton 의 요청 제한)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "display",
+      "note": "실패에만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "gap",
+      "note": "아이콘 ↔ 글 4 — SEED item-action-button"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "iconSize",
+      "note": "lucide rotate-cw"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "typography",
+      "note": "12 / 16"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "label",
+      "note": "이름은 \"{파일 이름} 다시 시도\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "display",
+      "note": "badge 를 줄 때만 — 지금 쓰는 자리는 없다(3A — SEED 그대로 둔다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "height",
+      "note": "24 — 사진 아래 띠"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "paddingX",
+      "note": "4"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "radius",
+      "note": "아래 두 모서리만 — 사진 모서리(r3 12)를 따른다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "background",
+      "note": "검정 65% — 두 모드 같다. overlay-dim-light(50%)면 흰 사진 위 흰 글이 3.95 로 모자란다(Image Frame Indicator 와 같은 까닭). SEED bg.overlay 는 들이지 않았다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "typography",
+      "note": "12 / 16 · 한 줄"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "foreground",
+      "note": "흰 사진 위 7.00 · 검은 사진 위 21"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "badge",
+      "prop": "label",
+      "note": "바꿀 수 있다(badgeLabel) — SEED 예제는 \"대표사진\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "size",
+      "note": "원 — SEED x5"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "borderWidth",
+      "note": "안쪽에 그린다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "offset",
+      "note": "항목 모서리 밖으로 위 4 · 오른쪽 4 걸친다 — 원의 가운데가 모서리에서 안쪽 6"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "iconSize",
+      "note": "lucide x · 선 2.5 — SEED x2_5"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "touchTarget",
+      "note": "보이는 20 둘레로 12 씩 보이지 않는 여백 — 이웃 항목과는 8 띄어 있어 사진 위로 겹친다(×가 위). AA ✓ · AAA ✓"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeButton",
+      "prop": "name",
+      "note": "아이콘만 있는 버튼 — 이름 필수. 누르면 묻지 않고 지운다(되돌리기는 다시 고르기)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeMask",
+      "prop": "size",
+      "note": "지름 24 — × 20 둘레로 2 띄운 구멍. 사진 · 덮개 · 띠 · 윤곽을 모두 파낸다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "removeMask",
+      "prop": "offset",
+      "note": "구멍의 가운데가 모서리에서 안쪽 6 — × 의 가운데와 같다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "display",
+      "note": "layout dropzone · screen wide 에만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "pickButton",
+      "prop": "display",
+      "note": "layout dropzone 에만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "surface",
+      "note": "Menu Sheet · Menu 의 값 그대로(menu-sheet.yaml · menu.yaml) — 아이콘 없이 이름만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "title",
+      "note": "메뉴 시트 머리에 전체 파일 이름(\"IMG_20261015_084212.jpg\"). 메뉴(1280 이상)는 머리 없이 같은 이름을 aria-label 로"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "groups",
+      "note": "위 묶음 — 크게 보기 · 대표로 정하기 · 앞으로 옮기기 · 뒤로 옮기기, 아래 위험 묶음 — 지우기(critical, 하나여도 된다 — Menu Sheet 묶음 규칙)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "preview",
+      "note": "첫 줄 — onPreview 를 줄 때만. 파일 카드는 \"열기\""
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "makeCover",
+      "note": "대표 띠(badgeLabel)를 쓰는 칸의 사진만 — 그 사진을 맨 앞으로 옮긴다. 띠를 안 쓰면 이 줄을 빼고 넷"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "moveEarlier",
+      "note": "한 칸 앞으로 — onReorder"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "moveLater",
+      "note": "한 칸 뒤로 — onReorder"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "remove",
+      "note": "위험 묶음 — × 와 같은 동작, 묻지 않고 지운다. × 는 지름길로 남는다(메뉴에 동작을 다 둔다 — menu-sheet.md \"스와이프의 대신 길\" 과 같은 원칙)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "afterAction",
+      "note": "옮긴 뒤 초점은 옮긴 항목에(새 자리), 지운 뒤에는 × 와 같은 규칙(다음 항목 → 앞 항목 → 첨부 타일)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "focusRing",
+      "prop": "width",
+      "note": "키보드로 옮길 때만"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "focusRing",
+      "prop": "offset",
+      "note": "부품 안쪽 — 가로 스크롤 줄(overflow)이 바깥 링을 자른다. 트리거 · 항목 · × · 다시 시도 모두"
+    },
+    {
+      "rule": 0,
+      "state": "hovered",
+      "slot": "trigger",
+      "prop": "background",
+      "note": "웹 — 누름과 같은 바탕(v106)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "trigger",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed 의 불투명 짝(button.yaml 25-26)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "trigger",
+      "prop": "scale",
+      "note": "타일만(SEED scaleScope self) — 80 은 78/80(v104)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "removeButton",
+      "prop": "scale",
+      "note": "×만 — 기준 길이 24(v104 — 가장 작은 기준)"
+    },
+    {
+      "rule": 0,
+      "state": "pressed",
+      "slot": "actionButton",
+      "prop": "scale",
+      "note": "다시 시도만 — SEED scaleScope self"
+    },
+    {
+      "rule": 0,
+      "state": "dragging",
+      "slot": "item",
+      "prop": "scale",
+      "note": "끄는 항목이 2px 줄어든 채 손가락을 따라간다(SEED aria-grabbed). 사진은 불투명도 0.5 · 파일 카드는 글 · 아이콘 fg-disabled(아래 kind — SEED 그대로, 사용자 결정 13B)"
+    },
+    {
+      "rule": 0,
+      "state": "dragging",
+      "slot": "removeButton",
+      "prop": "display",
+      "note": "끄는 동안 × 와 구멍이 사라진다(SEED)"
+    },
+    {
+      "rule": 0,
+      "state": "readonly",
+      "slot": "removeButton",
+      "prop": "iconColor",
+      "note": "SEED 처럼 × 는 막힌 모습으로 남는다 — 지울 수 없다는 것을 보인다"
+    },
+    {
+      "rule": 0,
+      "state": "readonly",
+      "slot": "item",
+      "prop": "cursor",
+      "note": "순서를 바꾸지 못한다 · 메뉴를 열지 않는다 — 누르면 바로 크게 보기(onPreview 를 줄 때만). 사진은 불투명도 0.5 · 파일 카드는 글 · 아이콘 fg-disabled(아래 kind — SEED 그대로, 13B)"
+    },
+    {
+      "rule": 0,
+      "state": "readonly",
+      "slot": "item",
+      "prop": "press",
+      "note": "메뉴 대신 — 고칠 수 있는 동작이 없다"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "triggerIcon",
+      "prop": "color",
+      "note": "SEED trigger disabled"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "pickButton",
+      "prop": "disabled",
+      "note": "Button 의 막힘 — bg-disabled · fg-disabled"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "item",
+      "prop": "press",
+      "note": "막히면 누르지 않는다 — 메뉴 · 끌기 없음"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "image",
+      "prop": "radius",
+      "note": "항목 모서리 그대로"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "image",
+      "prop": "alt",
+      "note": "항목 이름이 파일 이름을 읽는다 — 그림은 장식"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "width",
+      "note": "정사각 썸네일"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "borderColor",
+      "note": "사진 위 투명 윤곽 1px(v118) — 검정 4.7% · 다크 흰 5%. 흰 사진이 바탕에 묻히지 않고 어두운 사진 둘레에 테가 생기지 않는다. SEED stroke.neutral-subtle(투명)과 같은 값"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "transitionProperty",
+      "note": "읽기 전용 · 끄는 중의 흐림이 서서히 — SEED opacity 0.2s"
+    },
+    {
+      "rule": 1,
+      "state": "readonly",
+      "slot": "item",
+      "prop": "opacity",
+      "note": "SEED rootage attachment-input-item image readonly — v106(불투명도로 흐리지 않는다)의 예외, 사용자 결정 2026-10-15 마무리 13B. 사진 · 대표 띠 · 윤곽이 함께 흐려진다"
+    },
+    {
+      "rule": 1,
+      "state": "dragging",
+      "slot": "item",
+      "prop": "opacity",
+      "note": "SEED rootage attachment-input-item image dragging — 끄는 사진(13B). 놓으면 1 로 돌아간다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "width",
+      "note": "SEED item file"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "paddingX",
+      "note": "16"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "borderColor",
+      "note": "카드 테두리 — 흰 면 1.23 · 다크 1.56, 이름 · 아이콘이 카드를 알린다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "preview",
+      "note": "파일 카드의 첫 줄 — \"크게 보기\" 대신(onPreview 같은 콜백)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "makeCover",
+      "note": "대표는 사진만 — 파일 카드 메뉴는 열기 · 앞으로 옮기기 · 뒤로 옮기기 | 지우기"
+    },
+    {
+      "rule": 2,
+      "state": "readonly",
+      "slot": "thumbnailIcon",
+      "prop": "color",
+      "note": "SEED item file readonly — 글 · 아이콘 색만 바뀐다(불투명도 아님, 사용자 결정 13B)"
+    },
+    {
+      "rule": 2,
+      "state": "dragging",
+      "slot": "thumbnailIcon",
+      "prop": "color",
+      "note": "SEED item file dragging — 끄는 카드의 글 · 아이콘. 색만 바뀐다(불투명도 아님)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "backdrop",
+      "prop": "background",
+      "note": "Progress Circle 의 \"사진 위 딤\" — 라이트 50% · 다크 65%(이미 정한 것 2026-10-03)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "tone",
+      "note": "흰 호 + 흰 30% 트랙 — 딤 위 3.95 · 다크 19.27(3:1 이상)"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "thumbnailIcon",
+      "prop": "display",
+      "note": "파일 아이콘 자리에 원"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "progressCircle",
+      "prop": "tone",
+      "note": "썸네일 칸(bg-neutral-weak) 위 호 stroke-neutral-solid 3.87 · 다크 3.18 — 이름 옆 회색 원(progress-circle.md)"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "backdrop",
+      "prop": "background",
+      "note": "검정 65% — 두 모드 같다. \"다시 시도\" 글(12)이 흰 사진 위 7.00 — 50% 면 3.95 로 모자란다"
+    },
+    {
+      "rule": 5,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "color",
+      "note": "SEED item-action-button image — 아이콘 · 글"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "thumbnail",
+      "prop": "display",
+      "note": "썸네일 · 이름 · 크기 자리를 다시 시도 하나가 채운다(SEED) — 어느 파일인지는 이름(보조 기술)이 읽는다"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "color",
+      "note": "SEED item-action-button file — 흰 면 5.50 · 다크 6.09"
+    },
+    {
+      "rule": 6,
+      "state": "enabled",
+      "slot": "actionButton",
+      "prop": "width",
+      "note": "카드 안을 채운다(가운데 정렬)"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "trigger",
+      "prop": "ariaDisabled",
+      "note": "다 차면 막힌다(SEED maxFiles) — aria-disabled 라 초점은 남아 \"10/10, 사용할 수 없음\" 을 읽는다. 넘친 파일은 고르기 창에서 골라도 하나씩 거절한다"
+    },
+    {
+      "rule": 7,
+      "state": "enabled",
+      "slot": "pickButton",
+      "prop": "disabled",
+      "note": "다 차면 파일 선택도 막힌다(최대 1 이면 하나를 고른 뒤) — 바꾸려면 × 로 지우고 다시 고른다"
+    },
+    {
+      "rule": 7,
+      "state": "hovered",
+      "slot": "trigger",
+      "prop": "background",
+      "note": "막힌 타일은 바탕이 생기지 않는다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "bleedX",
+      "note": "고른 파일 카드는 칸 안에 — 하나라 넘치지 않는다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "items",
+      "prop": "fog",
+      "note": "한 장이라 가로로 넘치지 않는다"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "height",
+      "note": "SEED dropzone"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "gap",
+      "note": "안내 ↔ 버튼 8"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "paddingX",
+      "note": "16"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "borderWidth",
+      "note": "늘 실선(사용자 결정 5A · 12A) — SEED rootage 설명은 평소 점선 · 끄는 동안 실선이지만 고르지 않았다(12B)"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "borderColor",
+      "note": "흰 면 4.18 · 다크 4.13(떠 있는 면 4.18 · 3.58) — 3:1 이상. SEED palette.gray-500 은 다크 표면 위 2.71"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "alignItems",
+      "note": "안내 · 버튼을 가운데 세로로"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzoneLabel",
+      "prop": "typography",
+      "note": "14 / 19"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzoneLabel",
+      "prop": "foreground",
+      "note": "흰 면 5.50 · 다크 6.09"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "dropzoneLabel",
+      "prop": "text",
+      "note": "해요체 · 마침표 없는 안내 글(버튼 옆 한 줄)"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "pickButton",
+      "prop": "variant",
+      "note": "Button neutralWeak — CTA 가 아닌 보조 동작(고르기 창 열기). 드롭존의 키보드 길이 이 버튼이다"
+    },
+    {
+      "rule": 9,
+      "state": "enabled",
+      "slot": "pickButton",
+      "prop": "size",
+      "note": "Button small 36 — 화면 안 범용 크기, 높이 120 안에 안내와 함께 든다"
+    },
+    {
+      "rule": 9,
+      "state": "disabled",
+      "slot": "dropzone",
+      "prop": "borderColor",
+      "note": "막히면 테두리도 옅게 — 짙은 테두리는 받을 수 있는 자리로 읽힌다(porest — SEED 는 테두리를 바꾸지 않는다)"
+    },
+    {
+      "rule": 9,
+      "state": "disabled",
+      "slot": "dropzone",
+      "prop": "dropTarget",
+      "note": "끌어 와도 모습이 바뀌지 않고 놓아도 붙지 않는다"
+    },
+    {
+      "rule": 9,
+      "state": "disabled",
+      "slot": "dropzoneLabel",
+      "prop": "foreground",
+      "note": "SEED dropzone disabled"
+    },
+    {
+      "rule": 9,
+      "state": "dragOver",
+      "slot": "dropzone",
+      "prop": "borderColor",
+      "note": "흰 면 16.41 · 다크 13.42 — 기본 테두리와 3.93 · 3.25 로 또렷이 갈린다(SEED stroke.neutral-solid 는 gray-500 과 1.32 · 1.53)"
+    },
+    {
+      "rule": 9,
+      "state": "dragOver",
+      "slot": "dropzone",
+      "prop": "background",
+      "note": "SEED 문서 \"드래그 진입 시 영역 테두리와 배경색이 변경\" — 안내 글은 이 바탕 위 5.18 · 4.68"
+    },
+    {
+      "rule": 9,
+      "state": "dragOver",
+      "slot": "pickButton",
+      "prop": "background",
+      "note": "그대로 — 끄는 동안 버튼 면이 끌기 바탕과 1.02 · 1.00:1 로 섞여 글만 남는다. 끄는 중엔 누를 일이 없어 그대로 둔다(사용자 결정 2026-10-15 마무리 12A — 늘 실선, 평소 점선(12B)은 고르지 않았다)"
+    },
+    {
+      "rule": 10,
+      "state": "enabled",
+      "slot": "dropzone",
+      "prop": "borderColor",
+      "note": "다 찬 드롭존은 막힌 모습 — 끌어 와도 받지 않는다(SEED maxFiles)"
+    },
+    {
+      "rule": 10,
+      "state": "dragOver",
+      "slot": "dropzone",
+      "prop": "background",
+      "note": "다 찼으면 끌어 와도 바뀌지 않는다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "pickButton",
+      "prop": "size",
+      "note": "Button large 48 · 칸 폭 전체 · 앞 아이콘 upload — 1280 미만 · 앱은 끌어 놓기가 없어 드롭존을 그리지 않는다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "pickButton",
+      "prop": "width",
+      "note": "full"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "moveEarlier",
+      "note": "맨 앞이라 앞으로 갈 수 없다 — 줄은 보이고 누를 수 없다(Menu Sheet · Menu 의 막힌 줄)"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "makeCover",
+      "note": "이미 대표다(대표 띠를 쓸 때)"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "itemMenu",
+      "prop": "moveLater",
+      "note": "맨 끝이라 뒤로 갈 수 없다"
+    }
+  ]
+}

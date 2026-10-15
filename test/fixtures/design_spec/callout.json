@@ -3,7 +3,7 @@
   "source": "specs/components/callout.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "1691cc5c2f1f"
+    "sha256": "6ec6e05f538e"
   },
   "slots": {
     "root": "상자 — 콘텐츠 폭 전체",

@@ -1,7 +1,7 @@
 {
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "1691cc5c2f1f"
+    "sha256": "6ec6e05f538e"
   },
   "components": [
     {
@@ -18,6 +18,11 @@
       "file": "aspect-ratio.json",
       "name": "AspectRatio",
       "source": "specs/components/aspect-ratio.yaml"
+    },
+    {
+      "file": "attachment-input.json",
+      "name": "AttachmentInput",
+      "source": "specs/components/attachment-input.yaml"
     },
     {
       "file": "avatar-stack.json",
@@ -100,11 +105,6 @@
       "source": "specs/components/color-swatch.yaml"
     },
     {
-      "file": "command.json",
-      "name": "Command",
-      "source": "specs/components/command.yaml"
-    },
-    {
       "file": "content-placeholder.json",
       "name": "ContentPlaceholder",
       "source": "specs/components/content-placeholder.yaml"
@@ -133,6 +133,11 @@
       "file": "floating-action-button.json",
       "name": "FloatingActionButton",
       "source": "specs/components/floating-action-button.yaml"
+    },
+    {
+      "file": "footer.json",
+      "name": "Footer",
+      "source": "specs/components/footer.yaml"
     },
     {
       "file": "help-bubble.json",
@@ -233,6 +238,11 @@
       "file": "pull-to-refresh.json",
       "name": "PullToRefresh",
       "source": "specs/components/pull-to-refresh.yaml"
+    },
+    {
+      "file": "quantity-picker.json",
+      "name": "QuantityPicker",
+      "source": "specs/components/quantity-picker.yaml"
     },
     {
       "file": "radio-group.json",
