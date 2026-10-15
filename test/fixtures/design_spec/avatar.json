@@ -3,13 +3,15 @@
   "source": "specs/components/avatar.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "1691cc5c2f1f"
+    "sha256": "6ec6e05f538e"
   },
   "slots": {
     "root": "원 — 폭 = 높이. 사진 또는 이니셜을 원으로 자른다",
     "image": "사진 — 원을 채운다. 불러오는 동안 · 실패하면 이니셜이 보인다",
     "initial": "이니셜 — 사진이 없을 때. 이름의 첫 글자 + 이름 색 바탕",
-    "border": "1px 안쪽 테두리 — 모든 크기, 사진 · 이니셜 위에 겹친다(흰 사진이 바탕에 묻히지 않게)"
+    "border": "1px 안쪽 테두리 — 모든 크기, 사진 · 이니셜 위에 겹친다(흰 사진이 바탕에 묻히지 않게)",
+    "uploadOverlay": "올리는 중 덮개 — 원 위 딤 + 값 있는 원 24. 사진 바꾸기 자리(edit photo)에만",
+    "editActions": "사진 바꾸기 버튼 줄 — 아바타 아래 늘 보이는 \"사진 바꾸기\" · \"사진 지우기\". 사진 바꾸기 자리(edit photo)에만"
   },
   "axes": {
     "size": [
@@ -23,13 +25,19 @@
       "80",
       "96",
       "108"
+    ],
+    "edit": [
+      "none",
+      "photo"
     ]
   },
   "defaults": {
-    "size": "48"
+    "size": "48",
+    "edit": "none"
   },
   "states": [
-    "enabled"
+    "enabled",
+    "uploading"
   ],
   "rules": [
     {
@@ -189,6 +197,36 @@
           "fontSize": 43
         }
       }
+    },
+    {
+      "when": {
+        "edit": "photo"
+      },
+      "enabled": {
+        "editActions": {
+          "marginTop": 16,
+          "gap": 8,
+          "change": "Button neutralWeak · small — \"사진 바꾸기\"",
+          "remove": "Button ghost · small — \"사진 지우기\""
+        },
+        "uploadOverlay": {
+          "display": "none"
+        }
+      },
+      "uploading": {
+        "uploadOverlay": {
+          "display": "보임",
+          "background": {
+            "light": "rgba(0, 0, 0, 0.50)",
+            "dark": "rgba(0, 0, 0, 0.65)"
+          },
+          "radius": 9999,
+          "progress": "Progress Circle 24 · staticWhite · determinate"
+        },
+        "editActions": {
+          "disabled": "true"
+        }
+      }
     }
   ],
   "notes": [
@@ -247,6 +285,62 @@
       "slot": "initial",
       "prop": "fontSize",
       "note": "지름의 42% — 10 아래로 내리지 않는다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "editActions",
+      "prop": "marginTop",
+      "note": "아바타 ↔ 버튼 줄 16"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "editActions",
+      "prop": "gap",
+      "note": "버튼 사이 8 · 가운데 정렬 · 좁으면 줄을 바꾼다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "editActions",
+      "prop": "change",
+      "note": "누르면 고르기 창(앱은 Menu Sheet — 사진 찍기 · 앨범에서 고르기). 사진이 없어도 같은 이름"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "editActions",
+      "prop": "remove",
+      "note": "사진이 있을 때만 — 지우면 이니셜로 돌아간다"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "uploadOverlay",
+      "prop": "display",
+      "note": "올리는 중에만"
+    },
+    {
+      "rule": 11,
+      "state": "uploading",
+      "slot": "uploadOverlay",
+      "prop": "background",
+      "note": "원 위 딤 — Progress Circle 의 \"사진 위 딤\"(라이트 50% · 다크 65%)"
+    },
+    {
+      "rule": 11,
+      "state": "uploading",
+      "slot": "uploadOverlay",
+      "prop": "progress",
+      "note": "값 있는 원 — 흰 호 + 흰 30% 트랙(딤 위 3.95 · 19.27). 이름 \"프로필 사진 올리는 중\""
+    },
+    {
+      "rule": 11,
+      "state": "uploading",
+      "slot": "editActions",
+      "prop": "disabled",
+      "note": "올리는 동안 두 버튼 막힘(Button 막힘 색) — 끝나면 풀린다. 실패는 Field 오류 글(\"5MB 넘는 사진은 올릴 수 없어요.\")"
     }
   ]
 }

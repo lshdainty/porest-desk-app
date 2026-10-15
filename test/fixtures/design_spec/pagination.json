@@ -3,7 +3,7 @@
   "source": "specs/components/pagination.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "1691cc5c2f1f"
+    "sha256": "6ec6e05f538e"
   },
   "slots": {
     "root": "넘김 줄 — 목록 아래 가운데. 칸을 사이 없이 잇는다",

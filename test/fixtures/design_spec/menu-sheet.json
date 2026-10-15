@@ -3,7 +3,7 @@
   "source": "specs/components/menu-sheet.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "1691cc5c2f1f"
+    "sha256": "6ec6e05f538e"
   },
   "slots": {
     "overlay": "딤 — 시트 뒤 화면 전체. 누르면 닫힌다",
