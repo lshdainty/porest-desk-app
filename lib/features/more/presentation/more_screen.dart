@@ -1,5 +1,6 @@
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -225,92 +226,104 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
 
     return Column(
       children: [
-        // 검색 인풋 — 리스트 스크롤과 무관하게 상단 고정.
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            PSpace.x24,
-            PSpace.x4,
-            PSpace.x24,
-            PSpace.x8,
-          ),
-          child: PSearchField(
-            hint: l.moreSearchHint,
-            controller: _ctrl,
-            focusNode: _searchFocus,
-            onChanged: (v) => setState(() => _query = v),
-          ),
-        ),
         Expanded(
           child: ListView(
-            // 하단 — 플로팅 탭바 보상.
-            padding: EdgeInsets.fromLTRB(
-              PSpace.x24,
-              0,
-              PSpace.x24,
-              bottomNavigationInset(context),
-            ),
-            children: [
+            // 하단 — 플로팅 탭바 보상. 좌우 여백 24 는 띠 안에서 준다(띠는 화면 폭).
+            padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
+            children: PScreenBands.children([
+              // 검색 인풋
+              PScreenBand(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    PSpace.x24,
+                    PSpace.x4,
+                    PSpace.x24,
+                    PSpace.x4,
+                  ),
+                  child: PSearchField(
+                    hint: l.moreSearchHint,
+                    controller: _ctrl,
+                    focusNode: _searchFocus,
+                    onChanged: (v) => setState(() => _query = v),
+                  ),
+                ),
+              ),
               if (isSearching && visible.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 60),
-                    child: Text(
-                      l.moreSearchEmpty,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.body,
-                        color: t.fgTertiary,
+                PScreenBand(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 60),
+                      child: Text(
+                        l.moreSearchEmpty,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: PFontSize.body,
+                          color: t.fgTertiary,
+                        ),
                       ),
                     ),
                   ),
                 )
               else
-                for (int gi = 0; gi < visible.length; gi++) ...[
-                  // 그룹 사이 헤어라인 — design .flat-div (margin 14px 20px)
-                  if (gi > 0)
-                    Container(
-                      height: 1,
-                      margin: const EdgeInsets.symmetric(vertical: 14),
-                      color: t.borderSubtle,
-                    ),
-                  // 그룹 라벨 — design 16/700, padding '14px 20px 2px'
-                  Padding(
-                    padding: const EdgeInsets.only(top: 14, bottom: 2),
-                    child: Text(
-                      visible[gi].label,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: 16,
-                        fontWeight: PFontWeight.bold,
-                        letterSpacing: -0.16,
-                        color: t.fgPrimary,
+                // 그룹마다 화면 폭 흰 띠 하나
+                for (int gi = 0; gi < visible.length; gi++)
+                  PScreenBand(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: PSpace.x24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 그룹 라벨 — design 16/700
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 2),
+                            child: Text(
+                              visible[gi].label,
+                              style: TextStyle(
+                                fontFamily: PTypo.sans,
+                                fontSize: 16,
+                                fontWeight: PFontWeight.bold,
+                                letterSpacing: -0.16,
+                                color: t.fgPrimary,
+                              ),
+                            ),
+                          ),
+                          // 2열 텍스트 링크 그리드 — columnGap 16
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6, bottom: 4),
+                            child: Column(
+                              children: [
+                                for (
+                                  int r = 0;
+                                  r < visible[gi].items.length;
+                                  r += 2
+                                )
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _TextLink(
+                                          item: visible[gi].items[r],
+                                        ),
+                                      ),
+                                      const SizedBox(width: PSpace.x16),
+                                      Expanded(
+                                        child: r + 1 < visible[gi].items.length
+                                            ? _TextLink(
+                                                item: visible[gi].items[r + 1],
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  // 2열 텍스트 링크 그리드 — design padding '6px 20px 4px', columnGap 16
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6, bottom: 4),
-                    child: Column(
-                      children: [
-                        for (int r = 0; r < visible[gi].items.length; r += 2)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _TextLink(item: visible[gi].items[r]),
-                              ),
-                              const SizedBox(width: PSpace.x16),
-                              Expanded(
-                                child: r + 1 < visible[gi].items.length
-                                    ? _TextLink(item: visible[gi].items[r + 1])
-                                    : const SizedBox.shrink(),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-            ],
+            ]),
           ),
         ),
       ],

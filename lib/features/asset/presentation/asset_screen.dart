@@ -9,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -117,7 +118,8 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final valMap = {for (final e in invMap.entries) e.key: e.value.value};
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      // 카드 화면 — 회색 바닥(basement) 위 카드(02-005 / Q-019-3)
+      backgroundColor: context.colors.bgLayerBasement,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='자산' +
       // actions(theme/eye/bell/search) 일관 표시.
       // bottomNavigationBar 는 shell MobileScaffold 가 path-aware MoneyTabBar 표시.

@@ -9,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_axis.dart';
@@ -378,7 +379,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      // 카드 화면 — 회색 바닥(basement) 위 카드(02-005 / Q-019-3)
+      backgroundColor: context.colors.bgLayerBasement,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='통계·분석' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: Column(

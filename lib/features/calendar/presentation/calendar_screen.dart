@@ -7,6 +7,8 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -88,114 +90,130 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         (eventsAsync.isLoading && !eventsAsync.hasValue) ||
         (calendarsAsync.isLoading && !calendarsAsync.hasValue);
 
-    return Column(
-      children: [
-        _MonthHeader(
-          focused: _focused,
-          onPrev: () => setState(
-            () => _focused = DateTime(_focused.year, _focused.month - 1),
-          ),
-          onNext: () => setState(
-            () => _focused = DateTime(_focused.year, _focused.month + 1),
-          ),
-          onDateTap: _showMonthYearPicker,
-          calendarCount: visibleCount,
-          dotColors: dotColors,
-          onFilterTap: _showFilterSheet,
-          tokens: t,
-        ),
-        if (firstLoading)
-          Expanded(
-            child: Padding(
-              // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
-              child: _CalendarGridSkeleton(tokens: t),
+    // 띠 화면 — 맨 위 8 은 회색 바닥, 그 아래 달력 한 장이 화면 폭 흰 띠다(02-005 / Q-019-3)
+    return Padding(
+      padding: const EdgeInsets.only(top: kScreenBandGap),
+      child: ColoredBox(
+        key: const ValueKey('calendar-band'),
+        color: context.colors.bgLayerDefault,
+        child: Column(
+          children: [
+            _MonthHeader(
+              focused: _focused,
+              onPrev: () => setState(
+                () => _focused = DateTime(_focused.year, _focused.month - 1),
+              ),
+              onNext: () => setState(
+                () => _focused = DateTime(_focused.year, _focused.month + 1),
+              ),
+              onDateTap: _showMonthYearPicker,
+              calendarCount: visibleCount,
+              dotColors: dotColors,
+              onFilterTap: _showFilterSheet,
+              tokens: t,
             ),
-          )
-        else
-          Expanded(
-            child: Padding(
-              // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
-              child: TableCalendar<CalendarEvent>(
-                firstDay: DateTime(2020),
-                lastDay: DateTime(2030),
-                focusedDay: _focused,
-                selectedDayPredicate: (d) => isSameDay(_selected, d),
-                onDaySelected: (sel, foc) {
-                  setState(() {
-                    _selected = sel;
-                    _focused = foc;
-                  });
-                  _openDayEventsSheet(sel);
-                },
-                onPageChanged: (foc) => setState(() => _focused = foc),
-                calendarFormat: CalendarFormat.month,
-                eventLoader: (d) => _eventsOnDay(events, d),
-                locale: 'ko_KR',
-                shouldFillViewport: true,
-                headerVisible: false,
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekendStyle: PTypo.caption.copyWith(color: t.fgSecondary),
-                  weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
+            if (firstLoading)
+              Expanded(
+                child: Padding(
+                  // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+                  padding: EdgeInsets.only(
+                    bottom: bottomNavigationInset(context),
+                  ),
+                  child: _CalendarGridSkeleton(tokens: t),
                 ),
-                calendarStyle: const CalendarStyle(
-                  outsideDaysVisible: true,
-                  cellMargin: EdgeInsets.zero,
-                  cellPadding: EdgeInsets.zero,
-                ),
-                calendarBuilders: CalendarBuilders<CalendarEvent>(
-                  dowBuilder: (ctx, day) {
-                    final Color color;
-                    if (day.weekday == DateTime.sunday) {
-                      color = t.fgExpense;
-                    } else if (day.weekday == DateTime.saturday) {
-                      color = t.fgBrand;
-                    } else {
-                      // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
-                      color = t.fgPrimary;
-                    }
-                    return Center(
-                      child: Text(
-                        formatDay(day).dow,
-                        style: PTypo.caption.copyWith(color: color),
+              )
+            else
+              Expanded(
+                child: Padding(
+                  // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+                  padding: EdgeInsets.only(
+                    bottom: bottomNavigationInset(context),
+                  ),
+                  child: TableCalendar<CalendarEvent>(
+                    firstDay: DateTime(2020),
+                    lastDay: DateTime(2030),
+                    focusedDay: _focused,
+                    selectedDayPredicate: (d) => isSameDay(_selected, d),
+                    onDaySelected: (sel, foc) {
+                      setState(() {
+                        _selected = sel;
+                        _focused = foc;
+                      });
+                      _openDayEventsSheet(sel);
+                    },
+                    onPageChanged: (foc) => setState(() => _focused = foc),
+                    calendarFormat: CalendarFormat.month,
+                    eventLoader: (d) => _eventsOnDay(events, d),
+                    locale: 'ko_KR',
+                    shouldFillViewport: true,
+                    headerVisible: false,
+                    daysOfWeekStyle: DaysOfWeekStyle(
+                      weekendStyle: PTypo.caption.copyWith(
+                        color: t.fgSecondary,
                       ),
-                    );
-                  },
-                  defaultBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: false,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
+                      weekdayStyle: PTypo.caption.copyWith(
+                        color: t.fgSecondary,
+                      ),
+                    ),
+                    calendarStyle: const CalendarStyle(
+                      outsideDaysVisible: true,
+                      cellMargin: EdgeInsets.zero,
+                      cellPadding: EdgeInsets.zero,
+                    ),
+                    calendarBuilders: CalendarBuilders<CalendarEvent>(
+                      dowBuilder: (ctx, day) {
+                        final Color color;
+                        if (day.weekday == DateTime.sunday) {
+                          color = t.fgExpense;
+                        } else if (day.weekday == DateTime.saturday) {
+                          color = t.fgBrand;
+                        } else {
+                          // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
+                          color = t.fgPrimary;
+                        }
+                        return Center(
+                          child: Text(
+                            formatDay(day).dow,
+                            style: PTypo.caption.copyWith(color: color),
+                          ),
+                        );
+                      },
+                      defaultBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: false,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      todayBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: false,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      selectedBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: false,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      outsideBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: true,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      markerBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
                   ),
-                  todayBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: false,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
-                  ),
-                  selectedBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: false,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
-                  ),
-                  outsideBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: true,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
-                  ),
-                  markerBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
               ),
-            ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 

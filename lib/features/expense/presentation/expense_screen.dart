@@ -10,6 +10,7 @@ import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
@@ -250,8 +251,15 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     });
   }
 
+  /// 흰 화면 — 가계부 거래 목록만 바닥(basement) 없이 흰 면 하나다(02-005 / Q-019-3).
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ColoredBox(
+    key: const ValueKey('expense-white-screen'),
+    color: context.colors.bgLayerDefault,
+    child: _buildBody(context),
+  );
+
+  Widget _buildBody(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final categoriesAsync = ref.watch(categoriesProvider);
