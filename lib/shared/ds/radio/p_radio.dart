@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 동그라미 · 점 · 라벨 · 줄 높이가 함께 정해진다(Checkbox 와 같은 크기 — 한 폼에 함께 서도 줄이 맞는다).
@@ -377,6 +378,7 @@ class _PRadioState<T> extends State<PRadio<T>> with RadioClient<T> {
       minHeight: s.minHeight,
       onActivate: enabled ? _select : null,
       focusNode: focusNode,
+      ringStyle: const PFocusRingStyle(circle: true),
       semantics: SelectionSemantics(
         checked: selected,
         inMutuallyExclusiveGroup: true,

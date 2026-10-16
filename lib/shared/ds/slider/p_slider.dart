@@ -633,6 +633,11 @@ class _SliderCoreState extends State<_SliderCore> {
                           onFocusChange: (f) {
                             if (!f && _keyboard == i) {
                               setState(() => _keyboard = null);
+                            } else if (f &&
+                                FocusManager.instance.highlightMode ==
+                                    FocusHighlightMode.traditional) {
+                              // Tab 으로 닿으면 바로 링 + 말풍선(키를 누르기 전에도)
+                              setState(() => _keyboard = i);
                             }
                           },
                           onIncrease: () => _step(i, values[i] + widget.step),
@@ -1018,6 +1023,9 @@ class _Thumb extends StatelessWidget {
             onDecrease: disabled ? null : onDecrease,
             child: Focus(
               focusNode: node,
+              // Focus 자신의 읽기 노드를 만들지 않는다 — 위 Semantics 가 이름 · 값 · 동작을 다 가진 단 하나의 노드다
+              // (03A-008: 이름 없는 초점 노드가 슬라이더 안에 하나 더 있었다)
+              includeSemantics: false,
               canRequestFocus: !disabled,
               skipTraversal: disabled,
               onKeyEvent: (_, e) => onKey(e),

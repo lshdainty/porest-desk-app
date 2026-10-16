@@ -67,10 +67,19 @@ class PTouchTarget extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderTouchTarget extends RenderProxyBox {
+/// 보이는 상자 밖까지 누르는 영역을 넓힌 렌더 객체 — [PTouchTargetScope] 가 찾아 부모 상자 밖의 점을 이어 준다.
+abstract interface class PTouchExtendable implements RenderBox {
+  /// 넓힌 누르는 영역(이 객체의 지역 좌표 — 보이는 상자 밖은 음수 · 큰 값).
+  Rect get touchArea;
+}
+
+class _RenderTouchTarget extends RenderProxyBox implements PTouchExtendable {
   _RenderTouchTarget(this.minSize);
 
   double minSize;
+
+  @override
+  Rect get touchArea => area;
 
   /// 넓힌 누르는 영역 — 보이는 상자에서 모자란 만큼 사방으로.
   Rect get area {
@@ -107,10 +116,14 @@ class PTouchTargetScope extends SingleChildRenderObjectWidget {
 class _RenderTouchTargetScope extends RenderProxyBox {
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // 이 상자 밖의 점 — 자식이 스스로 넘친 자리를 받는 경우(Field 머리 동작)가 있어 자식에게 그대로 넘긴다
+    if (!size.contains(position)) {
+      return child?.hitTest(result, position: position) ?? false;
+    }
     var extended = false;
     if (size.contains(position)) {
       void visit(RenderObject node) {
-        if (node is _RenderTouchTarget) {
+        if (node is PTouchExtendable) {
           if (!node.attached || !node.hasSize) return;
           final transform = node.getTransformTo(this);
           final det = transform.determinant();
@@ -120,7 +133,9 @@ class _RenderTouchTargetScope extends RenderProxyBox {
             position,
           );
           // 보이는 상자 안은 보통 길로 받는다 — 밖 · 넓힌 영역 안만 여기서 잇는다
-          if (node.size.contains(local) || !node.area.contains(local)) return;
+          if (node.size.contains(local) || !node.touchArea.contains(local)) {
+            return;
+          }
           extended |= result.addWithPaintTransform(
             transform: transform,
             position: position,

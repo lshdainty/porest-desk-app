@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 
 // 칩 · 탭 · 토글이 함께 쓰는 부품 — 누르는 자리(누름 상태 · 키보드 · 누르는 영역 44)와 누름 축소. 화면에서 직접 쓰지
 // 않는다 — PChip · PTabs · PToggle 이 쓴다.
@@ -15,7 +16,7 @@ import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
 ///   누르기 — 손을 떼면 [onTap]. 누르는 동안 [builder] 의 pressed 가 true 다(비활성이면 늘 false).
 ///   누르는 영역 — 보이는 상자와 따로 [touchMin] 까지 넓힌다(웹 ::before — Button 과 같다). 놓인 자리는 그대로이고,
 ///     부모 상자 안에서만 받는다(Flutter 는 부모 안에서만 자식에게 묻는다). 0 이면 넓히지 않는다(탭은 탭 전체가 영역).
-///   읽기 — [semantics] 가 역할 · 이름 · 상태를 단다. 포커스 링은 웹 상태라 그리지 않는다(포커스는 받는다).
+///   읽기 — [semantics] 가 역할 · 이름 · 상태를 단다. 포커스 링은 [focusRing] 을 주면 키보드로 초점이 올 때만 그린다.
 ///   [enabled] 가 false 면 누르기 · 키보드 · 포커스에서 빠진다(웹 진짜 disabled).
 class PressArea extends StatefulWidget {
   const PressArea({
@@ -29,6 +30,7 @@ class PressArea extends StatefulWidget {
     this.focusNode,
     this.skipTraversal = false,
     this.keyboard = true,
+    this.focusRing,
   });
 
   final bool enabled;
@@ -52,12 +54,16 @@ class PressArea extends StatefulWidget {
   /// false 면 Space · Enter 를 받지 않는다 — 라디오 묶음이 키를 맡는 칩.
   final bool keyboard;
 
+  /// 키보드로 초점이 올 때 그릴 링(두께 2 · 띄움 2) — 없으면 그리지 않는다.
+  final PFocusRingStyle? focusRing;
+
   @override
   State<PressArea> createState() => _PressAreaState();
 }
 
 class _PressAreaState extends State<PressArea> {
   bool _pressed = false;
+  bool _ringVisible = false;
 
   /// 누르는 순간 잰 크기 — 눌린 동안 폭이 바뀌어도 배율은 그대로다(웹 --press-basis).
   Size _size = const Size(0, 24);
@@ -83,6 +89,12 @@ class _PressAreaState extends State<PressArea> {
       focusNode: widget.focusNode,
       canRequestFocus: enabled,
       skipTraversal: widget.skipTraversal,
+      onFocusChange: widget.focusRing == null
+          ? null
+          : (focused) {
+              final next = focused && keyboardHighlight();
+              if (next != _ringVisible) setState(() => _ringVisible = next);
+            },
       child: MouseRegion(
         // 웹 cursor pointer · not-allowed
         cursor: enabled
@@ -100,7 +112,11 @@ class _PressAreaState extends State<PressArea> {
           onTapUp: enabled ? (_) => _setPressed(false) : null,
           onTapCancel: enabled ? () => _setPressed(false) : null,
           onTap: enabled ? _activate : null,
-          child: widget.builder(context, enabled && _pressed, _size),
+          child: PFocusRing(
+            visible: _ringVisible && enabled && widget.focusRing != null,
+            style: widget.focusRing ?? const PFocusRingStyle(),
+            child: widget.builder(context, enabled && _pressed, _size),
+          ),
         ),
       ),
     );

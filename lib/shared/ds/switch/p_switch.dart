@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 
 /// 크기 — 이름은 트랙 높이다(SEED). s16(트랙 26 × 16 · 라벨 13 — 촘촘한 자리) · s24(38 × 24 · 라벨 14, 기본) ·
 /// s32(52 × 32 · 라벨 16 — 제목이 큰 줄, 모바일에서 홀로 서는 스위치).
@@ -269,6 +270,7 @@ class PSwitch extends StatelessWidget {
       onActivate: enabled ? () => onChanged(!checked) : null,
       activateOnEnter: true,
       focusNode: focusNode,
+      ringStyle: const PFocusRingStyle(radius: PRounded.full),
       semantics: SelectionSemantics(toggled: checked),
       markBuilder: (pressed) => PSwitchmark(
         checked: checked,

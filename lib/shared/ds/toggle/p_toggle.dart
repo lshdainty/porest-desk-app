@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 
 /// 톤 — defaultTone(흰 표면 · 카드 · 시트 위, 기본) · inverted(브랜드 채움 위 — 순자산 카드. 켬 · 끔 모두 흰 아이콘).
 enum PToggleTone { defaultTone, inverted }
@@ -85,6 +86,11 @@ class PToggle extends StatelessWidget {
     final glyph = pressed ? pressedIcon : icon;
     return PressArea(
       enabled: enabled,
+      // 키보드 링 — 모서리 8, inverted(브랜드 채움 위)는 흰색(toggle.yaml focusRing)
+      focusRing: PFocusRingStyle(
+        radius: PRounded.r2,
+        color: inverted ? c.staticWhite : null,
+      ),
       onTap: enabled ? () => onChanged!(!pressed) : null,
       semantics: (child, enabled, onTap) => Semantics(
         container: true,

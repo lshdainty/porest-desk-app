@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 변형 — 한 화면의 강조 버튼(Solid)은 하나.
@@ -323,6 +325,9 @@ PButtonColors resolvePButtonColors(
 class _PButtonState extends State<PButton> {
   bool _pressed = false;
 
+  /// 키보드로 초점이 와 링을 그리는 중.
+  bool _ringVisible = false;
+
   /// 누른 동작이 끝나기 전 — [PButton.onPressed] 가 돌려준 Future 가 끝날 때까지 다음 누름을 버린다.
   bool _inFlight = false;
 
@@ -470,22 +475,44 @@ class _PButtonState extends State<PButton> {
         value: widget.loading ? l10n.dsProgressCircleLabel : null,
         onTap: _enabled && !widget.loading ? _activate : null,
         excludeSemantics: iconOnly,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: _enabled && !widget.loading
-              ? (_) => _setPressed(true)
-              : null,
-          onTapUp: (_) => _setPressed(false),
-          onTapCancel: () => _setPressed(false),
-          onTap: _enabled ? _activate : null,
-          excludeFromSemantics: true,
-          child: MouseRegion(
-            cursor: !_enabled
-                ? SystemMouseCursors.forbidden
-                : widget.loading
-                ? SystemMouseCursors.progress
-                : SystemMouseCursors.click,
-            child: pressedBox,
+        // 앱 버튼도 포커스를 받는다 — Tab 순서에 들고 Space · Enter 로 누른다(button.yaml Behavior, 사용자 결정 2026-10-08)
+        child: CallbackShortcuts(
+          bindings: _enabled && !widget.loading
+              ? {
+                  const SingleActivator(LogicalKeyboardKey.space): _activate,
+                  const SingleActivator(LogicalKeyboardKey.enter): _activate,
+                  const SingleActivator(LogicalKeyboardKey.numpadEnter):
+                      _activate,
+                }
+              : const {},
+          child: Focus(
+            canRequestFocus: _enabled && !widget.loading,
+            onFocusChange: (focused) {
+              final next = focused && keyboardHighlight();
+              if (next != _ringVisible) setState(() => _ringVisible = next);
+            },
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: _enabled && !widget.loading
+                  ? (_) => _setPressed(true)
+                  : null,
+              onTapUp: (_) => _setPressed(false),
+              onTapCancel: () => _setPressed(false),
+              onTap: _enabled ? _activate : null,
+              excludeFromSemantics: true,
+              child: MouseRegion(
+                cursor: !_enabled
+                    ? SystemMouseCursors.forbidden
+                    : widget.loading
+                    ? SystemMouseCursors.progress
+                    : SystemMouseCursors.click,
+                child: PFocusRing(
+                  visible: _ringVisible && _enabled && !widget.loading,
+                  style: PFocusRingStyle(radius: s.radius),
+                  child: pressedBox,
+                ),
+              ),
+            ),
           ),
         ),
       ),

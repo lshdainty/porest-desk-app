@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 칸 · 라벨 · 줄 높이가 함께 정해진다. medium 20(라벨 14 · 줄 32, 기본) · large 24(라벨 16 · 줄 36 — 한 화면의
@@ -310,6 +311,7 @@ class PCheckbox extends StatelessWidget {
       minHeight: s.minHeight,
       onActivate: enabled ? () => onChanged(checked != true) : null,
       focusNode: focusNode,
+      ringStyle: const PFocusRingStyle(radius: PRounded.r1),
       semantics: SelectionSemantics(
         checked: checked ?? false,
         mixed: checked == null,
