@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+
+import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
@@ -40,6 +43,7 @@ class NightSkyHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final c = context.colors;
     final lit = today.points < today.goal ? today.points : today.goal;
     final done = today.collected;
     final name = constellationName(today.constellation);
@@ -59,12 +63,7 @@ class NightSkyHero extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: PRadius.brLg,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D1430), Color(0xFF17224A), Color(0xFF1F2C5E)],
-          stops: [0, 0.55, 1],
-        ),
+        gradient: skyGradient(context.colors, three: true),
       ),
       child: LayoutBuilder(
         builder: (context, box) {
@@ -77,23 +76,19 @@ class NightSkyHero extends StatelessWidget {
                 child: Container(
                   width: 180,
                   height: 180,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [Color(0x299AB0FF), Colors.transparent],
+                      colors: [skyInk(c, 0x29), Colors.transparent],
                       stops: [0, 0.65],
                     ),
                   ),
                 ),
               ),
-              const Positioned(
+              Positioned(
                 top: 14,
                 right: 16,
-                child: Icon(
-                  LucideIcons.moon,
-                  size: 15,
-                  color: Color(0x8CD2DCFF),
-                ),
+                child: Icon(LucideIcons.moon, size: 15, color: skyInk(c, 0x8C)),
               ),
               // 배경 잔별
               for (var i = 0; i < _dimStars.length; i++)
@@ -103,9 +98,9 @@ class NightSkyHero extends StatelessWidget {
                   child: Container(
                     width: i % 3 == 0 ? 2.5 : 1.5,
                     height: i % 3 == 0 ? 2.5 : 1.5,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0x52C8D4FF),
+                      color: skyInk(c, 0x52),
                     ),
                   ),
                 ),
@@ -120,6 +115,7 @@ class NightSkyHero extends StatelessWidget {
                     aspectRatio: 1.45,
                     child: CustomPaint(
                       painter: _HeroFigurePainter(
+                        colors: c,
                         map: today.constellation.starMap,
                         lit: lit,
                         done: done,
@@ -142,7 +138,7 @@ class NightSkyHero extends StatelessWidget {
                         fontSize: 11,
                         fontWeight: PFontWeight.semi,
                         letterSpacing: 0.33,
-                        color: const Color(0x9ECDD8FF),
+                        color: skyInk(c, 0x9E),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -157,7 +153,7 @@ class NightSkyHero extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.32,
-                            color: const Color(0xFFF2F5FF),
+                            color: skyInk(c, 0xFF),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -167,7 +163,7 @@ class NightSkyHero extends StatelessWidget {
                             fontFamily: PTypo.mono,
                             fontSize: 12.5,
                             fontWeight: PFontWeight.bold,
-                            color: const Color(0xD9BECDFF),
+                            color: skyInk(c, 0xD9),
                           ),
                         ),
                       ],
@@ -184,7 +180,7 @@ class NightSkyHero extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: 11,
-                    color: const Color(0x8CC6D1FA),
+                    color: skyInk(c, 0x8C),
                   ),
                 ),
               ),
@@ -201,16 +197,16 @@ class NightSkyHero extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0x17FFFFFF),
+                        color: skyInk(c, 0x17),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             LucideIcons.sparkles,
                             size: 12,
-                            color: Color(0xFFE6ECFF),
+                            color: skyInk(c, 0xFF),
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -219,7 +215,7 @@ class NightSkyHero extends StatelessWidget {
                               fontFamily: PTypo.sans,
                               fontSize: 11.5,
                               fontWeight: PFontWeight.bold,
-                              color: const Color(0xFFE6ECFF),
+                              color: skyInk(c, 0xFF),
                             ),
                           ),
                         ],
@@ -229,10 +225,10 @@ class NightSkyHero extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           LucideIcons.cloud,
                           size: 11,
-                          color: Color(0xB2BECDFF),
+                          color: skyInk(c, 0xB2),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -241,7 +237,7 @@ class NightSkyHero extends StatelessWidget {
                             fontFamily: PTypo.sans,
                             fontSize: 10.5,
                             fontWeight: PFontWeight.semi,
-                            color: const Color(0xB2BECDFF),
+                            color: skyInk(c, 0xB2),
                           ),
                         ),
                       ],
@@ -263,7 +259,10 @@ class _HeroFigurePainter extends CustomPainter {
     required this.map,
     required this.lit,
     required this.done,
+    required this.colors,
   });
+
+  final PColors colors;
 
   final StarMapData map;
   final int lit;
@@ -275,7 +274,7 @@ class _HeroFigurePainter extends CustomPainter {
     final sy = size.height / 100;
     Offset at(List<double> p) => Offset(p[0] * sx, p[1] * sy);
 
-    final lineColor = done ? const Color(0xD9B2C5FF) : const Color(0x8094A8EB);
+    final lineColor = done ? skyInk(colors, 0xD9) : skyInk(colors, 0x80);
     final linePaint = Paint()
       ..color = lineColor
       ..strokeWidth = 1
@@ -296,11 +295,11 @@ class _HeroFigurePainter extends CustomPainter {
     }
 
     final glowPaint = Paint()
-      ..color = Color.fromRGBO(176, 196, 255, done ? 0.8 : 0.55)
+      ..color = skyInk(colors, done ? 0xCC : 0x8C)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, done ? 7 : 4.5);
-    final onPaint = Paint()..color = const Color(0xFFE8EEFF);
+    final onPaint = Paint()..color = skyInk(colors, 0xFF);
     final offPaint = Paint()
-      ..color = const Color(0x73BECDFF)
+      ..color = skyInk(colors, 0x73)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
@@ -335,5 +334,8 @@ class _HeroFigurePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_HeroFigurePainter old) =>
-      old.map != map || old.lit != lit || old.done != done;
+      old.map != map ||
+      old.lit != lit ||
+      old.done != done ||
+      old.colors != colors;
 }

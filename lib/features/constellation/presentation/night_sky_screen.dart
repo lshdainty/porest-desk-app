@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+
+import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -138,18 +141,14 @@ class _ForestWeekEntry extends StatelessWidget {
             Container(
               width: 46,
               height: 46,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(14)),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF0D1430), Color(0xFF1F2C5E)],
-                ),
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(14)),
+                gradient: skyGradient(context.colors),
               ),
               alignment: Alignment.center,
               child: ConstellationIcon(
                 info: today.constellation,
-                color: const Color(0xFFDFE7FF),
+                color: skyInk(context.colors, 0xFF),
                 size: 30,
               ),
             ),

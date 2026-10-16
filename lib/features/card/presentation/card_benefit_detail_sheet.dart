@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -388,12 +389,15 @@ class _HeroFallback extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // 135deg 광택 — 그라데이션 위 부드러운 하이라이트.
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
+                colors: [
+                  PColors.light.staticWhite.withValues(alpha: 0.15),
+                  PColors.light.staticWhite.withValues(alpha: 0),
+                ],
               ),
             ),
           ),

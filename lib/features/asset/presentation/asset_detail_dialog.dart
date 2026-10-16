@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -1491,8 +1492,8 @@ class _DayGroupHeader extends StatelessWidget {
 /// chart green 시멘틱(실적 달성) — 다크 light variant 스왑(웹 --color-cat-green 미러).
 Color _chartGreenOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-    ? const Color(0xFF6BCB86) // chart-green-light
-    : const Color(0xFF2D8060); // chart-green
+    ? PColors.dark.chartGreen
+    : PColors.light.chartGreen;
 
 /// 결제 회차(청구월) 항목 — 예정 1건 + 과거 결제 완료(COMPLETED) 이력.
 class _CardStatement {
@@ -1588,12 +1589,11 @@ class _CardPerfBadge extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
       decoration: BoxDecoration(
-        // 웹 color-mix(in oklab, cat-green 10%, surface) 결과값 고정
-        // (sRGB alphaBlend 10% 는 녹색기가 죽어 웹과 어긋남 — oklab 혼합 미러)
+        // 달성은 옅은 초록 바탕(chart-green-weak, 불투명) — 옛 이끼 팔레트 고정값을 걷었다(01A-009)
         color: done
             ? (Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2B3840)
-                  : const Color(0xFFEAF2EE))
+                  ? PColors.dark.chartGreenWeak
+                  : PColors.light.chartGreenWeak)
             : t.bgSunken,
         borderRadius: PRadius.brLg,
       ),

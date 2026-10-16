@@ -4,6 +4,7 @@ import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/colors.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 
@@ -327,13 +328,7 @@ class _GroupItem<T> extends StatelessWidget {
         ? DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: PRadius.brSm,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x26000000),
-                  offset: Offset(0, 1),
-                  blurRadius: 3,
-                ),
-              ],
+              boxShadow: context.shadows.s1,
             ),
             child: tile,
           )

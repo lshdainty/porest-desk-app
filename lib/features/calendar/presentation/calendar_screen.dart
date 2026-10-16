@@ -595,8 +595,8 @@ class _FilterRow extends StatelessWidget {
     // light fill(다크모드 light variant) 위에서도 체크가 보이도록 fill 명도 기준 대비 색.
     final checkColor =
         ThemeData.estimateBrightnessForColor(color) == Brightness.dark
-        ? Colors.white
-        : const Color(0xFF1A1F2E);
+        ? PColors.light.staticWhite
+        : PColors.light.fgNeutral;
     final locked = onToggle == null;
     final row = Padding(
       padding: const EdgeInsets.symmetric(vertical: PSpace.x12),

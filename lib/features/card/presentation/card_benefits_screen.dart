@@ -551,12 +551,15 @@ class _CardVisual extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // 135deg 광택 — 기존 그라데이션 위 부드러운 하이라이트.
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
+                colors: [
+                  PColors.light.staticWhite.withValues(alpha: 0.15),
+                  PColors.light.staticWhite.withValues(alpha: 0),
+                ],
               ),
             ),
           ),
