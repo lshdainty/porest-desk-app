@@ -131,39 +131,44 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     // (OnBackInvokedCallback)에서는 앱이 그대로 꺼졌다.** 이유와 근거는 그 위젯의
     // 주석에 있다. 두 겹으로 두면 어느 쪽이 진짜인지 헷갈려 여기서는 걷었다.
     return Scaffold(
-      backgroundColor: c.bgLayerDefault,
+      backgroundColor: c.bgLayerBasement,
       body: Stack(
         children: [
-          Column(
-            children: [
-              // 오른쪽 — 홈은 검색 + 알림, 그 외는 검색(임시 선택, Q-017).
-              PTopNavigation(
-                type: PTopNavigationType.root,
-                title: titles[idx],
-                actions: [
-                  PTopNavigationIconButton(
-                    icon: LucideIcons.search,
-                    label: l.actionSearch,
-                    onPressed: () => context.push('/search'),
-                  ),
-                  if (idx == 0)
-                    PTopNavigationIconButton(
-                      icon: LucideIcons.bell,
-                      label: unread > 0
-                          ? '${l.navNotifications} $notificationBadgeName'
-                          : l.navNotifications,
-                      notification: unread > 0,
-                      onPressed: () => context.push('/notifications'),
-                    ),
-                ],
-              ),
-              Expanded(
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: _onScroll,
-                  child: navigationShell,
+          // 본문 — 상단 바 아래. 읽는 순서상 상단 바보다 **먼저** 그린다: 안쪽 Navigator 의
+          // 경로가 앞서 그려진 형제를 가리는(BlockSemantics) 탓에, 상단 바를 본문 앞에 두면
+          // 제목 · 검색 · 알림이 낭독 트리에서 통째로 사라진다.
+          Positioned.fill(
+            top: PTopNavigation.heightOf(context),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: navigationShell,
+            ),
+          ),
+          // 오른쪽 — 홈은 검색 + 알림, 그 외는 검색(임시 선택, Q-017).
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: PTopNavigation(
+              type: PTopNavigationType.root,
+              title: titles[idx],
+              actions: [
+                PTopNavigationIconButton(
+                  icon: LucideIcons.search,
+                  label: l.actionSearch,
+                  onPressed: () => context.push('/search'),
                 ),
-              ),
-            ],
+                if (idx == 0)
+                  PTopNavigationIconButton(
+                    icon: LucideIcons.bell,
+                    label: unread > 0
+                        ? '${l.navNotifications} $notificationBadgeName'
+                        : l.navNotifications,
+                    notification: unread > 0,
+                    onPressed: () => context.push('/notifications'),
+                  ),
+              ],
+            ),
           ),
           // 떠 있는 알약 — 본문 위에 얹는다. 여백은 바가 가진다.
           Positioned(
