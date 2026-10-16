@@ -3,7 +3,7 @@
   "source": "specs/components/chip.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "알약 — 모서리 full. 글만큼 넓어지고 줄바꿈 · 말줄임하지 않는다",
@@ -276,8 +276,8 @@
       "enabled": {
         "root": {
           "background": {
-            "light": "#F5F6FA",
-            "dark": "#353B4D"
+            "light": "#0000000C",
+            "dark": "#FFFFFF20"
           },
           "foreground": {
             "light": "#1A1F2E",
@@ -288,16 +288,16 @@
       "hovered": {
         "root": {
           "background": {
-            "light": "#EDEFF3",
-            "dark": "#404757"
+            "light": "#00000010",
+            "dark": "#FFFFFF2E"
           }
         }
       },
       "pressed": {
         "root": {
           "background": {
-            "light": "#EDEFF3",
-            "dark": "#404757"
+            "light": "#00000010",
+            "dark": "#FFFFFF2E"
           }
         }
       }
@@ -705,7 +705,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "background",
-      "note": "SEED bg.neutral-weak-alpha 의 불투명 짝 — 회색 바탕(bg-layer-basement) 위에서는 사라져 흰 표면 위에서만 쓴다"
+      "note": "SEED 그대로 투명(검정 4.7% · 다크 흰 12.5%) — 놓인 바탕에 섞여 회색 바닥 위 1.11 · 흰 위 1.11 · 다크 1.47:1(v120)"
     },
     {
       "rule": 11,

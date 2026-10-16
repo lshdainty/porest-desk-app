@@ -3,7 +3,7 @@
   "source": "specs/components/notification-badge.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "점(small) · 숫자 알약(large) — 붙는 대상의 상자 위에 겹쳐 놓인다(자리를 차지하지 않는다)",

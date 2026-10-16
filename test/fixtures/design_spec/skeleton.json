@@ -3,7 +3,7 @@
   "source": "specs/components/skeleton.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "면 — 곧 나타날 내용 하나의 자리(글 한 줄 · 숫자 · 카드 · 아바타 · 사진)",
@@ -228,6 +228,13 @@
       "slot": "region",
       "prop": "retry",
       "note": "읽기(불러오기)만 · 1초 · 2초 뒤 · 10초 안에서만. 다시 해도 같은 오류(4xx — 권한 · 없음 · 잘못된 요청)와 쓰기(저장 · 삭제)는 다시 보내지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "slowText",
+      "prop": "foreground",
+      "note": "문장으로 된 상태 문구라 muted(2026-10-16 사용자 결정 글자 역할 D5 — 그대로 둔다)"
     },
     {
       "rule": 0,

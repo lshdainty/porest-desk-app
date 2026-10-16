@@ -3,14 +3,14 @@
   "source": "specs/components/checkbox.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "Checkbox 한 줄 — 칸 + 라벨, 누르는 영역",
     "checkmark": "칸(Checkmark) — 배경 · 테두리 · 모양. 목록 행에는 이것만 넣어 쓴다",
     "icon": "체크 · 가로줄(lucide `Check` · `Minus`)",
     "label": "글자(Label)",
-    "focusRing": "키보드 포커스 링(웹)",
+    "focusRing": "키보드 포커스 링(웹 · 앱 — 키보드로 옮길 때만)",
     "group": "묶음(Checkbox Group) — 세로로 쌓는다"
   },
   "axes": {
@@ -468,8 +468,8 @@
         },
         "icon": {
           "color": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
+            "light": "#767C8B",
+            "dark": "#838997"
           }
         }
       },
@@ -721,6 +721,13 @@
       "slot": "checkmark",
       "prop": "scale",
       "note": "칸만 준다 — 기준 길이 max(높이, 폭 ÷ 4, 24) 에서 2px(Feedback 의 눌림 피드백, v104)"
+    },
+    {
+      "rule": 0,
+      "state": "focused",
+      "slot": "focusRing",
+      "prop": "width",
+      "note": "웹 · 앱 같다 — 앱은 하드웨어 키보드로 옮길 때만 그린다(Flutter FocusHighlightMode.traditional), 손가락으로 누를 때는 없다(2026-10-08 — DESIGN.md State · Button 과 같다)"
     },
     {
       "rule": 0,

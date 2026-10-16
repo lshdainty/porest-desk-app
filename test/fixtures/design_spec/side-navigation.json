@@ -3,7 +3,7 @@
   "source": "specs/components/side-navigation.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "사이드바 — 화면 왼쪽, 높이 전체. 흰 면 + 오른쪽 1px 선. 본문과 따로 스크롤된다",
@@ -20,7 +20,7 @@
     "itemLabel": "항목 이름 — 짧게, 길면 줄을 바꾼다(말줄임 없음)",
     "chevron": "꺾쇠 — 하위가 있는 항목만. 펼치면 위로",
     "subItem": "하위 항목 — 아이콘 없이 이름만, 부모 이름과 줄을 맞춘다",
-    "footer": "바닥 — 계정 · 보조 링크. 고정, 비면 없다",
+    "footer": "바닥 — 보조 링크(설명서 · 문의). 고정, 비면 없다. 계정은 두지 않는다(2026-10-16 Q-018-1 C)",
     "flyout": "펼침 메뉴 — 접혔을 때 하위가 있는 항목의 하위 목록. Menu 와 같은 표면이고 1280 미만에서도 Menu Sheet 로 바꾸지 않는다(사용자 결정 2026-10-08)",
     "flyoutLabel": "펼침 메뉴의 묶음 이름 — 부모 항목의 이름",
     "flyoutItem": "펼침 메뉴의 줄 — 하위 항목 하나. Menu 의 줄과 같고 높이만 44",
@@ -183,11 +183,13 @@
         },
         "subItem": {
           "minHeight": 44,
+          "parentFrom": "하위 2개 이상",
           "paddingLeft": 40,
           "display": "하위가 펼쳐졌을 때만"
         },
         "footer": {
-          "padding": 8
+          "padding": 8,
+          "content": "보조 링크만"
         },
         "flyout": {
           "width": 200,
@@ -692,6 +694,13 @@
       "rule": 0,
       "state": "enabled",
       "slot": "subItem",
+      "prop": "parentFrom",
+      "note": "하위가 하나 · 없으면 부모를 만들지 않는다 — 단독 항목(꺾쇠 없이 그 화면 링크). 하위가 사용자마다 다른 항목(Desk 증권 — 연결한 증권사)도 같다(2026-10-16 Q-017-4 정리 — SEED Standalone Menu)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "subItem",
       "prop": "paddingLeft",
       "note": "부모 이름과 같은 자리 = 8 + 아이콘 20 + 12. 아이콘 없이 이름만(t4 · 500)"
     },
@@ -708,6 +717,13 @@
       "slot": "footer",
       "prop": "padding",
       "note": "고정 — 비면 그리지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "footer",
+      "prop": "content",
+      "note": "설명서 · 문의(SEED Footer). 계정(아바타 · 이름)은 두지 않는다 — Desk 는 설정 · 로그아웃이 머리 ⚙ 에 있다(2026-10-16 사용자 결정 Q-018-1 C). 지금 Desk 웹은 보조 링크가 없어 바닥이 없다"
     },
     {
       "rule": 0,

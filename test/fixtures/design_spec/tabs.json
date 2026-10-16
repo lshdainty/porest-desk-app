@@ -3,7 +3,7 @@
   "source": "specs/components/tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "list": "목록 — 탭을 담는 줄. 놓인 화면 · 구역 폭을 채우고 바닥에 구획 선",
@@ -12,7 +12,7 @@
     "indicator": "막대 — 고른 탭 아래 2px. 다른 탭을 고르면 미끄러져 옮긴다",
     "notification": "알림 점 — 새 소식이 있는 탭 하나에만, 글 오른쪽 위. 내용을 보면 사라진다",
     "focusRing": "키보드 포커스 링(웹) — 탭 안쪽",
-    "content": "내용 칸(tabpanel) — 고른 탭의 내용. 바로 바뀌고 다른 탭의 상태(스크롤 · 입력)를 남긴다"
+    "content": "내용 칸(tabpanel) — 고른 탭의 내용. 바로 바뀌고 다른 탭의 상태(스크롤 · 입력)를 남긴다. 탭이 경로인 웹(가계부 묶음)은 경로마다 스크롤을 기억한다"
   },
   "axes": {
     "layout": [
@@ -52,7 +52,8 @@
             "light": "#EDEFF3",
             "dark": "#353B4D"
           },
-          "borderBottomWidth": 1
+          "borderBottomWidth": 1,
+          "position": "화면 맨 위 1차 — 상단 바 아래 고정"
         },
         "trigger": {
           "paddingX": 10,
@@ -249,6 +250,13 @@
       "slot": "list",
       "prop": "borderBottomColor",
       "note": "안쪽 1px(inset) — 선이 탭 높이를 밀지 않는다. SEED stroke.neutral-muted 의 불투명 구획 선(v102)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "position",
+      "note": "화면 맨 위 1차 Line 은 어디서나 Top Navigation 바로 아래에 붙어 함께 고정된다(SEED Tabs stickyList — Desk 가계부 묶음 · 카테고리 지출 · 수입). 숨지 않는다 — 숨는 것은 그 아래 스크롤 상자의 Scroll Auto Hide 뿐(2026-10-16 구현 세션 질문 Q-017-5 정리)"
     },
     {
       "rule": 0,

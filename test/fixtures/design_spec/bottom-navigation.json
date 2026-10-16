@@ -3,7 +3,7 @@
   "source": "specs/components/bottom-navigation.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "바 — 화면 아래에 떠 있는 알약. 칸 다섯을 똑같이 나눈다",
@@ -66,7 +66,8 @@
           "direction": "세로",
           "gap": 2,
           "cursor": "pointer",
-          "touchTarget": "칸 전체"
+          "touchTarget": "칸 전체",
+          "tabMemory": "마지막 화면 · 스크롤"
         },
         "icon": {
           "size": 24,
@@ -292,6 +293,13 @@
       "slot": "item",
       "prop": "touchTarget",
       "note": "펼침 약 61 × 54 · 줄어듦 약 53 × 48(360 폭) — AA ✓ · AAA ✓(줄어든 바는 칸이 바 높이를 다 채운다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "item",
+      "prop": "tabMemory",
+      "note": "다른 탭을 다녀오면 그 탭의 마지막 화면 · 스크롤로(가계부 칸은 마지막에 보던 통계로) — 웹 · 앱 같다. 웹은 목록이 그려진 뒤 돌려놓고 못 하면 맨 위(2026-10-16 사용자 결정 Q-018-4 A). 지금 탭을 다시 누르면 첫 화면 · 맨 위"
     },
     {
       "rule": 0,

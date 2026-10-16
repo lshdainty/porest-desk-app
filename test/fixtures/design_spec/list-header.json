@@ -3,7 +3,7 @@
   "source": "specs/components/list-header.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "목록 제목 — 글자 + 오른쪽 작은 버튼 자리",
@@ -35,6 +35,24 @@
             "fontWeight": 400,
             "fontFamily": "Pretendard, Inter, sans-serif"
           }
+        },
+        "action": {
+          "height": 36,
+          "paddingX": 14,
+          "marginY": -8,
+          "radius": 8,
+          "typography": {
+            "fontSize": 14,
+            "lineHeight": 19,
+            "fontWeight": 700,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          },
+          "touchTarget": "44 × 44"
         }
       }
     },
@@ -81,6 +99,34 @@
       "slot": "root",
       "prop": "gap",
       "note": "제목과 오른쪽 버튼 사이"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "height",
+      "note": "글 버튼(SEED Text Button minHeight x9) — 누름 바탕 bg-layer-default-pressed · 모서리 8. 2026-10-16 사용자 결정 글자 역할 D2. 아이콘만인 버튼(도움말)은 Button ghost small iconOnly"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "paddingX",
+      "note": "좌우 14 — 오른쪽 14 만큼 바깥으로 내어(margin-right −14) 글자 끝이 줄의 오른쪽 24 에 선다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "marginY",
+      "note": "위아래로 블리드 — 목록 제목 줄 높이(위아래 8 + 19)를 바꾸지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "action",
+      "prop": "touchTarget",
+      "note": "보이는 36 위아래로 4 씩. AA ✓ · AAA ✓"
     }
   ]
 }
