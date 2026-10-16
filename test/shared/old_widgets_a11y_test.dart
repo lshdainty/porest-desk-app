@@ -11,7 +11,9 @@ import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
 import 'package:groo_damda_app/shared/widgets/p_chip.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_accordion.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_tile.dart';
 
 Widget _host(Widget child, {Brightness mode = Brightness.light}) => MaterialApp(
   theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
@@ -128,4 +130,78 @@ void main() {
     );
     handle.dispose();
   });
+
+  testWidgets('PTile · PAccordion 막힘은 불투명도 대신 전용 글자색', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const PTile(
+              swatch: SizedBox(),
+              label: '라이트',
+              selected: false,
+              onTap: null,
+            ),
+            PAccordion(
+              items: const [
+                PAccordionItem(
+                  value: 'a',
+                  title: '막힌 항목',
+                  content: Text('내용'),
+                  disabled: true,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    final t = GrooTokens.light;
+    expect(find.byType(Opacity), findsNothing);
+    expect(tester.widget<Text>(find.text('라이트')).style!.color, t.fgDisabled);
+    expect(tester.widget<Text>(find.text('막힌 항목')).style!.color, t.fgDisabled);
+  });
+
+  for (final reduce in [false, true]) {
+    testWidgets(
+      '누름 축소(01A-063) — 옛 PButton · PChip 은 누르는 동안 줄고, 동작 줄이기면 줄지 않는다 ($reduce)',
+      (tester) async {
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(disableAnimations: reduce),
+            child: _host(
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  PButton(label: '저장', onPressed: () {}),
+                  PChip(label: '식비', selected: false, onTap: () {}),
+                ],
+              ),
+            ),
+          ),
+        );
+        double scaleOf(Finder f) => tester
+            .widget<AnimatedScale>(
+              find.ancestor(of: f, matching: find.byType(AnimatedScale)).first,
+            )
+            .scale;
+        for (final label in ['저장', '식비']) {
+          final f = find.text(label);
+          expect(scaleOf(f), 1);
+          final g = await tester.startGesture(tester.getCenter(f));
+          await tester.pump();
+          if (reduce) {
+            expect(scaleOf(f), 1);
+          } else {
+            expect(scaleOf(f), lessThan(1));
+            expect(scaleOf(f), greaterThan(0.9));
+          }
+          await g.up();
+          await tester.pump();
+          expect(scaleOf(f), 1);
+        }
+      },
+    );
+  }
 }

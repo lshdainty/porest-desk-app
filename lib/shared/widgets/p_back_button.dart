@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart'
+    show TouchTarget;
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
@@ -43,7 +46,11 @@ class PBackButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: tooltip ?? l.actionBack,
-      child: tooltip != null ? Tooltip(message: tooltip!, child: btn) : btn,
+      // 보이는 34 는 그대로 두고 누르는 영역만 44 까지(01A-090)
+      child: TouchTarget(
+        minSize: PTouch.min,
+        child: tooltip != null ? Tooltip(message: tooltip!, child: btn) : btn,
+      ),
     );
   }
 }

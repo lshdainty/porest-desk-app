@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -77,15 +78,17 @@ class PChip extends StatelessWidget {
       child: Semantics(
         button: true,
         selected: selected,
-        child: _chip(
-          context,
-          t,
-          radius,
-          padding,
-          bg,
-          fg,
-          borderColor,
-          borderWidth,
+        child: PPressFeedback(
+          child: _chip(
+            context,
+            t,
+            radius,
+            padding,
+            bg,
+            fg,
+            borderColor,
+            borderWidth,
+          ),
         ),
       ),
     );

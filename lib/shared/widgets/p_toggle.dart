@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/colors.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
@@ -62,38 +63,41 @@ class PToggle extends StatelessWidget {
       label: semanticLabel ?? label,
       toggled: pressed,
       enabled: !disabled,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: disabled ? null : () => onChanged!(!pressed),
-          borderRadius: PRadius.brMd,
-          child: AnimatedContainer(
-            duration: PMotion.fast,
-            curve: PMotion.standard,
-            constraints: BoxConstraints(minHeight: minH),
-            padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: PRadius.brMd,
-              border: border,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (icon != null) Icon(icon, size: 16, color: fg),
-                if (icon != null && label != null) const SizedBox(width: 4),
-                if (label != null)
-                  Text(
-                    label!,
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: PFontSize.caption,
-                      fontWeight: PFontWeight.semi,
-                      color: fg,
+      child: PPressFeedback(
+        enabled: !disabled,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: disabled ? null : () => onChanged!(!pressed),
+            borderRadius: PRadius.brMd,
+            child: AnimatedContainer(
+              duration: PMotion.fast,
+              curve: PMotion.standard,
+              constraints: BoxConstraints(minHeight: minH),
+              padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.brMd,
+                border: border,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null) Icon(icon, size: 16, color: fg),
+                  if (icon != null && label != null) const SizedBox(width: 4),
+                  if (label != null)
+                    Text(
+                      label!,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: PFontSize.caption,
+                        fontWeight: PFontWeight.semi,
+                        color: fg,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

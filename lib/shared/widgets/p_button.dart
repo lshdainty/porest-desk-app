@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -302,7 +303,11 @@ class PButton extends StatelessWidget {
             ),
     );
     // 읽기 — 버튼 역할 + 막힘. 이름은 글(label) 또는 tooltip(아이콘만)이 준다.
-    final named = Semantics(button: true, enabled: !disabled, child: btn);
+    final named = Semantics(
+      button: true,
+      enabled: !disabled,
+      child: PPressFeedback(enabled: !disabled, child: btn),
+    );
     // 보이는 크기는 그대로 두고 누르는 영역만 44 까지 넓힌다(v106 터치 영역, 01A-090)
     final reachable = TouchTarget(minSize: PTouch.min, child: named);
     final tipped = tooltip != null

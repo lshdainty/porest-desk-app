@@ -169,65 +169,65 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
       color: selected ? t.bgBrandSubtle : Colors.transparent,
       child: InkWell(
         onTap: item.disabled ? null : () => widget.onChanged(item.value),
-        child: Opacity(
-          opacity: item.disabled ? 0.7 : 1,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (item.thumbnail != null) ...[
-                  SizedBox(
-                    width: thumbW,
-                    height: thumbH,
-                    child: ClipRRect(
-                      borderRadius: PRadius.brSm,
-                      child: item.thumbnail,
-                    ),
+        // 막힘은 불투명도가 아니라 글자 전용 색(STA-01, 01A-071)
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (item.thumbnail != null) ...[
+                SizedBox(
+                  width: thumbW,
+                  height: thumbH,
+                  child: ClipRRect(
+                    borderRadius: PRadius.brSm,
+                    child: item.thumbnail,
                   ),
-                  SizedBox(width: gap),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                ),
+                SizedBox(width: gap),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      item.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: PFontSize.bodySm,
+                        fontWeight: selected
+                            ? PFontWeight.semi
+                            : PFontWeight.medium,
+                        color: item.disabled
+                            ? t.fgDisabled
+                            : (selected ? t.fgBrandStrong : t.fgPrimary),
+                      ),
+                    ),
+                    if (item.subtitle != null) ...[
+                      const SizedBox(height: 2),
                       Text(
-                        item.title,
+                        item.subtitle!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: PTypo.sans,
-                          fontSize: PFontSize.bodySm,
-                          fontWeight: selected
-                              ? PFontWeight.semi
-                              : PFontWeight.medium,
-                          color: selected ? t.fgBrandStrong : t.fgPrimary,
+                          fontSize: PFontSize.micro,
+                          fontWeight: PFontWeight.regular,
+                          color: item.disabled ? t.fgDisabled : t.fgTertiary,
                         ),
                       ),
-                      if (item.subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          item.subtitle!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.micro,
-                            fontWeight: PFontWeight.regular,
-                            color: t.fgTertiary,
-                          ),
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
-                if (item.trailing != null) ...[
-                  const SizedBox(width: 8),
-                  item.trailing!,
-                ],
+              ),
+              if (item.trailing != null) ...[
+                const SizedBox(width: 8),
+                item.trailing!,
               ],
-            ),
+            ],
           ),
         ),
       ),

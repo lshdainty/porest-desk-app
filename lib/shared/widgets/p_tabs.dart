@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
@@ -222,17 +223,20 @@ class PTabs<T> extends StatelessWidget {
         button: true,
         selected: active,
         enabled: !disabled,
-        child: AnimatedContainer(
-          duration: PMotion.fast,
-          curve: PMotion.standard,
-          height: height,
-          decoration: decoration,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: disabled || active ? null : () => onChanged(item.value),
-              borderRadius: radius == BorderRadius.zero ? null : radius,
-              child: inner,
+        child: PPressFeedback(
+          enabled: !disabled && !active,
+          child: AnimatedContainer(
+            duration: PMotion.fast,
+            curve: PMotion.standard,
+            height: height,
+            decoration: decoration,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: disabled || active ? null : () => onChanged(item.value),
+                borderRadius: radius == BorderRadius.zero ? null : radius,
+                child: inner,
+              ),
             ),
           ),
         ),
