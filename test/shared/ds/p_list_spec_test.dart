@@ -839,12 +839,16 @@ void _headerTests() {
         await tester.pumpWidget(
           _host(
             mode,
-            PListHeader(
-              title: '카테고리별 예산',
-              variant: strong
-                  ? PListHeaderVariant.boldSolid
-                  : PListHeaderVariant.mediumWeak,
-              action: PTextButton(label: '전체 보기', onPressed: () => taps++),
+            // 위 · 아래에 이웃이 있어야 줄 밖 4 가 받아진다
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: PListHeader(
+                title: '카테고리별 예산',
+                variant: strong
+                    ? PListHeaderVariant.boldSolid
+                    : PListHeaderVariant.mediumWeak,
+                action: PTextButton(label: '전체 보기', onPressed: () => taps++),
+              ),
             ),
           ),
         );
@@ -875,11 +879,15 @@ void _headerTests() {
             0.5) {
           k.fail('action.marginY: 머리 높이 ${header2.height}');
         }
-        // 누르는 영역 — 보이는 36 은 눌린다. 위아래 4 를 더한 44 는 머리 줄(36)이 부모라 줄 밖은 받지 못한다(질문 후보)
+        // 누르는 영역 44 — 보이는 36 위 · 아래 4 까지 눌리고 5 에서는 눌리지 않는다(PTouchTargetScope slack 4)
         k.measured.add('action.touchTarget');
-        await tester.tapAt(box.topCenter + const Offset(0, 1));
+        await tester.tapAt(box.topCenter - const Offset(0, 3.5));
+        await tester.tapAt(box.bottomCenter + const Offset(0, 3.5));
         await tester.pump();
-        if (taps != 1) k.fail('action.touchTarget: 보이는 상자 위쪽이 안 눌린다');
+        if (taps != 2) k.fail('action.touchTarget: 위 · 아래 4 안이 안 눌린다 ($taps)');
+        await tester.tapAt(box.topCenter - const Offset(0, 6));
+        await tester.pump();
+        if (taps != 2) k.fail('action.touchTarget: 44 밖이 눌린다 ($taps)');
         k.coverage({});
         if (k.failures.isNotEmpty) fail(k.failures.join('\n'));
       });

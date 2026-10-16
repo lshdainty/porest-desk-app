@@ -41,6 +41,8 @@ class PListHeader extends StatelessWidget {
       fontWeight: strong ? FontWeight.w700 : FontWeight.w500,
     );
     return PTouchTargetScope(
+      // 글 버튼은 보이는 36 + 위 · 아래 4 = 44 — 줄 밖(이웃)까지 받는다
+      slack: 4,
       child: Padding(
         key: const ValueKey('plist-header'),
         padding: EdgeInsets.symmetric(

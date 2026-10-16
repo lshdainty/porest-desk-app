@@ -191,4 +191,48 @@ void main() {
     await tester.tapAt(Offset(row.left + 4, row.top - reach + 0.5));
     expect(taps, 1, reason: '줄 위 ${reach}px 안');
   });
+
+  testWidgets('Field 밖 단독 체크 · 라디오 묶음의 첫 · 끝 줄도 위 · 아래 6 까지 눌린다(44)', (
+    tester,
+  ) async {
+    var checks = 0;
+    var radios = 0;
+    await tester.pumpWidget(
+      _host(
+        Brightness.light,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
+            PCheckboxGroup(
+              children: [
+                PCheckbox(
+                  label: '동의',
+                  checked: false,
+                  onChanged: (_) => checks++,
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
+            PRadioGroup<int>(
+              value: 1,
+              onChanged: (_) => radios++,
+              children: const [PRadio<int>(value: 2, label: '둘')],
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+    final c = tester.getRect(find.byType(PCheckbox));
+    final reach = (44 - c.height) / 2;
+    await tester.tapAt(Offset(c.left + 4, c.top - reach + 0.5));
+    await tester.tapAt(Offset(c.left + 4, c.bottom + reach - 0.5));
+    expect(checks, 2, reason: '체크 묶음 첫 · 끝 줄 밖 ${reach}px');
+    final r = tester.getRect(find.byType(PRadio<int>));
+    final reachR = (44 - r.height) / 2;
+    await tester.tapAt(Offset(r.left + 4, r.top - reachR + 0.5));
+    await tester.tapAt(Offset(r.left + 4, r.bottom + reachR - 0.5));
+    expect(radios, 2, reason: '라디오 묶음 첫 · 끝 줄 밖 ${reachR}px');
+  });
 }

@@ -105,24 +105,44 @@ class _RenderTouchTarget extends RenderProxyBox implements PTouchExtendable {
 /// [PTouchTarget] 이 넓힌 누르는 영역을 부모 상자 밖에서도 받게 한다 — 안쪽 [PTouchTarget] 들을 찾아, 보이는 상자 밖 · 넓힌
 /// 영역 안의 점을 그 대상으로 이어 준다(보이는 자리 · 레이아웃은 그대로). Card 가 머리 동작의 44 를 지킨다 — 머리 줄은 32 라
 /// 위아래 6 은 줄 밖이다(Q-011-8, 6B 44 × 44).
+///
+/// [slack] 을 주면 이 상자의 위 · 아래 · 옆으로 그만큼 바깥의 점도 받는다 — 놓인 자리는 그대로이고, 부모가 그 점을 이
+/// 상자에 넘겨 주는 곳(이웃 요소가 있는 부모 안)에서만 쓸모가 있다. 목록 제목 글 버튼(36 → 44 = 4)과 Field 밖 단독 체크 ·
+/// 라디오 묶음(줄 32 → 44 = 6)이 쓴다.
 class PTouchTargetScope extends SingleChildRenderObjectWidget {
-  const PTouchTargetScope({super.key, required super.child});
+  const PTouchTargetScope({super.key, this.slack = 0, required super.child});
+
+  final double slack;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderTouchTargetScope();
+      _RenderTouchTargetScope(slack);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderProxyBox renderObject,
+  ) {
+    (renderObject as _RenderTouchTargetScope).slack = slack;
+  }
 }
 
 class _RenderTouchTargetScope extends RenderProxyBox {
+  _RenderTouchTargetScope(this.slack);
+
+  double slack;
+
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     // 이 상자 밖의 점 — 자식이 스스로 넘친 자리를 받는 경우(Field 머리 동작)가 있어 자식에게 그대로 넘긴다
-    if (!size.contains(position)) {
+    if (!(Offset.zero & size).inflate(slack).contains(position)) {
       return child?.hitTest(result, position: position) ?? false;
     }
     var extended = false;
-    if (size.contains(position)) {
+    {
       void visit(RenderObject node) {
+        // 가장 먼저 닿은 하나만 — 이웃 줄의 넓힌 영역이 맞닿아도 한 점은 한 줄만 받는다
+        if (extended) return;
         if (node is PTouchExtendable) {
           if (!node.attached || !node.hasSize) return;
           final transform = node.getTransformTo(this);
@@ -149,7 +169,14 @@ class _RenderTouchTargetScope extends RenderProxyBox {
       visit(this);
     }
     // 대상이 먼저 — 가장 깊은 것이 앞에 와야 제스처 경쟁에서 이긴다
-    return super.hitTest(result, position: position) || extended;
+    // 넓힌 영역으로 이미 받았으면 보통 길은 다시 타지 않는다 — 같은 대상이 두 번 등록되면 제스처가 깨진다
+    if (extended) {
+      result.add(BoxHitTestEntry(this, position));
+      return true;
+    }
+    return size.contains(position)
+        ? super.hitTest(result, position: position)
+        : (child?.hitTest(result, position: position) ?? false);
   }
 }
 
