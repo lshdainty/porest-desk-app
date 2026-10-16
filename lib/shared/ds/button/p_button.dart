@@ -109,6 +109,26 @@ class PButton extends StatefulWidget {
 
   bool get _iconOnly => icon != null;
 
+  /// 이 버튼이 라벨 한 줄을 다 보이려면 필요한 폭 — 좌우 여백 + 글 + 아이콘. 짝 버튼([PResponsivePair])이 반 폭에
+  /// 들어가는지 재는 데 쓴다.
+  double naturalWidth(BuildContext context) {
+    final s = _sizes[size]!;
+    if (_iconOnly) return s.height;
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: s.text.copyWith(fontWeight: FontWeight.w700),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final iconWidth = (prefixIcon != null || suffixIcon != null)
+        ? s.textIcon + s.gap
+        : 0;
+    return painter.width + iconWidth + 2 * s.paddingX;
+  }
+
   @override
   State<PButton> createState() => _PButtonState();
 }

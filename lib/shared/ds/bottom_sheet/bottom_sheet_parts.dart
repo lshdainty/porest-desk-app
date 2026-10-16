@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_responsive_pair.dart';
 import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
@@ -343,10 +344,18 @@ class PBottomSheetContent extends StatelessWidget {
                     PSpacing.globalGutter,
                     PSpacing.x4,
                   ),
-                  child: Row(
-                    spacing: PSpacing.x2,
-                    children: [for (final b in footer) Expanded(child: b)],
-                  ),
+                  // 둘이면 짝 버튼 — 라벨이 반 폭을 넘으면 세로로 쌓는다(주 버튼이 위, 03A-013)
+                  child: footer.length == 2
+                      ? PResponsivePair(
+                          secondary: footer.first,
+                          primary: footer.last,
+                        )
+                      : Row(
+                          spacing: PSpacing.x2,
+                          children: [
+                            for (final b in footer) Expanded(child: b),
+                          ],
+                        ),
                 ),
             ],
           );
