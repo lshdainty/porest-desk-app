@@ -10721,7 +10721,7 @@ abstract class AppLocalizations {
   /// No description provided for @dateJustNow.
   ///
   /// In ko, this message translates to:
-  /// **'방금'**
+  /// **'방금 전'**
   String get dateJustNow;
 
   /// No description provided for @dateMinutesAgo.
@@ -12913,6 +12913,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'최대'**
   String get dsSliderMax;
+
+  /// No description provided for @actionPrev.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get actionPrev;
+
+  /// No description provided for @actionNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get actionNext;
 }
 
 class _AppLocalizationsDelegate

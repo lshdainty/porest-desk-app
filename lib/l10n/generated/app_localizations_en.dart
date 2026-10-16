@@ -7183,4 +7183,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dsSliderMax => 'Maximum';
+
+  @override
+  String get actionPrev => 'Previous';
+
+  @override
+  String get actionNext => 'Next';
 }

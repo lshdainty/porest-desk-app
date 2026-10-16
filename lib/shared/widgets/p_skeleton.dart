@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 
 /// specs/components/skeleton.md 미러.
@@ -89,14 +90,9 @@ class _PSkeletonState extends State<PSkeleton>
                 child: FractionalTranslation(
                   translation: Offset(-1 + _controller.value * 2, 0),
                   child: DecoratedBox(
+                    // 반짝임은 흰 띠(gradient-shimmer-neutral) — 브랜드 색 띠가 아니다(01A-011)
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          t.bgBrand.withValues(alpha: 0.25),
-                          Colors.transparent,
-                        ],
-                      ),
+                      gradient: context.gradients.shimmerNeutral,
                     ),
                   ),
                 ),

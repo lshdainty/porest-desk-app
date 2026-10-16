@@ -361,7 +361,11 @@ class _MonthHeader extends StatelessWidget {
       child: Row(
         children: [
           // 이전 달 버튼
-          PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
+          PButton.icon(
+            icon: LucideIcons.chevronLeft,
+            onPressed: onPrev,
+            tooltip: AppLocalizations.of(context).actionPrev,
+          ),
           // 년월 텍스트 → 월/년 picker sheet
           GestureDetector(
             onTap: onDateTap,
@@ -381,7 +385,11 @@ class _MonthHeader extends StatelessWidget {
             ),
           ),
           // 다음 달 버튼
-          PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
+          PButton.icon(
+            icon: LucideIcons.chevronRight,
+            onPressed: onNext,
+            tooltip: AppLocalizations.of(context).actionNext,
+          ),
           const Spacer(),
           // 캘린더 필터 칩
           GestureDetector(
@@ -1333,6 +1341,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
           Row(
             children: [
               PButton.icon(
+                tooltip: AppLocalizations.of(context).actionPrev,
                 icon: LucideIcons.chevronLeft,
                 onPressed: () => setState(() => _year--),
               ),
@@ -1343,6 +1352,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
               ),
               const Spacer(),
               PButton.icon(
+                tooltip: AppLocalizations.of(context).actionNext,
                 icon: LucideIcons.chevronRight,
                 onPressed: () => setState(() => _year++),
               ),

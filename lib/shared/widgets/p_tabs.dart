@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart'
+    show TouchTarget;
 import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// specs/components/tabs.md 미러.
@@ -184,6 +187,8 @@ class PTabs<T> extends StatelessWidget {
         break;
     }
 
+    // 막힌 탭은 불투명도로 흐리게 하지 않고 전용 글자색을 쓴다(STA-01, 01A-071)
+    if (disabled) textColor = t.fgDisabled;
     final inner = Padding(
       padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
       child: Row(
@@ -210,19 +215,25 @@ class PTabs<T> extends StatelessWidget {
       ),
     );
 
-    return AnimatedContainer(
-      duration: PMotion.fast,
-      curve: PMotion.standard,
-      height: height,
-      decoration: decoration,
-      child: Opacity(
-        opacity: disabled ? 0.5 : 1,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: disabled || active ? null : () => onChanged(item.value),
-            borderRadius: radius == BorderRadius.zero ? null : radius,
-            child: inner,
+    // 읽기 — 고른 탭을 알린다(01A-091). 누르는 영역은 44 까지(01A-090).
+    return TouchTarget(
+      minSize: PTouch.min,
+      child: Semantics(
+        button: true,
+        selected: active,
+        enabled: !disabled,
+        child: AnimatedContainer(
+          duration: PMotion.fast,
+          curve: PMotion.standard,
+          height: height,
+          decoration: decoration,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: disabled || active ? null : () => onChanged(item.value),
+              borderRadius: radius == BorderRadius.zero ? null : radius,
+              child: inner,
+            ),
           ),
         ),
       ),

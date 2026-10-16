@@ -205,7 +205,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async => _reset(),
         child: ListView(
           controller: _scroll,
@@ -338,7 +338,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           child: PCircularProgressIndicator(
             size: 24,
             strokeWidth: 2.5,
-            color: t.bgBrand,
+            color: t.fgBrand,
           ),
         ),
       ],

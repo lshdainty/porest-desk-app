@@ -1113,6 +1113,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
               ),
             ),
           PButton.icon(
+            tooltip: AppLocalizations.of(context).actionDelete,
             icon: LucideIcons.trash2,
             size: PButtonSize.sm,
             onPressed: widget.onRemove,

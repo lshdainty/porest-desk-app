@@ -199,14 +199,14 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                   spots: spots,
                   isCurved: true,
                   curveSmoothness: 0.25,
-                  color: t.bgBrand,
+                  color: t.fgBrand,
                   barWidth: 2,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                       radius: 3,
-                      color: t.bgBrand,
+                      color: t.fgBrand,
                       strokeColor: t.bgSurface,
                       strokeWidth: 2,
                     ),
@@ -217,8 +217,8 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        t.bgBrand.withValues(alpha: 0.25),
-                        t.bgBrand.withValues(alpha: 0.0),
+                        t.fgBrand.withValues(alpha: 0.25),
+                        t.fgBrand.withValues(alpha: 0.0),
                       ],
                     ),
                   ),
@@ -242,7 +242,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                     labelWidth: 40,
                     rows: [
                       PChartTooltipRowData(
-                        color: t.bgBrand,
+                        color: t.fgBrand,
                         label: l.assetNetWorth,
                         amount: masked
                             ? '••••••'

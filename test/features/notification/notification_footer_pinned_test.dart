@@ -168,14 +168,15 @@ void main() {
             .firstWhere((f) => tester.getSize(f) == const Size(40, 40)),
       );
       expect(tile, const Size(40, 40));
-      // 역할 — 안 읽은 줄(1)은 버튼, 읽은 줄(4)은 버튼이 아니다
-      bool isButton(String label) => tester
-          .getSemantics(find.textContaining(label).first)
-          .getSemanticsData()
-          .flagsCollection
-          .isButton;
-      expect(isButton('알림 1'), isTrue);
-      expect(isButton('알림 4'), isFalse);
+      // 역할 — 안 읽은 줄(1)만 눌리는 줄(버튼)이다. 읽은 줄(4)은 누르는 곳이 없다
+      Finder tappableRow(String t) => find.ancestor(
+        of: find.text(t),
+        matching: find.byWidgetPredicate(
+          (w) => w is InkWell && w.onTap != null,
+        ),
+      );
+      expect(tappableRow('알림 1'), findsOneWidget);
+      expect(tappableRow('알림 4'), findsNothing);
       handle.dispose();
     },
   );

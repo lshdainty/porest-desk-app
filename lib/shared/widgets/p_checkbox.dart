@@ -83,10 +83,8 @@ class PCheckbox extends StatelessWidget {
     final filled = checked || indeterminate;
 
     final (Color bg, Color border) = switch ((disabled, error, filled)) {
-      (true, _, true) => (
-        t.bgBrandSolid.withValues(alpha: 0.5),
-        t.bgBrandSolid.withValues(alpha: 0.5),
-      ),
+      // 막힘은 불투명도가 아니라 전용 색(STA-01, 01A-071)
+      (true, _, true) => (t.bgDisabled, t.borderDefault),
       (true, _, false) => (t.bgMuted, t.borderDefault),
       (_, true, _) => (t.bgSurface, t.statusDangerBorder),
       // 채움·테두리는 다크에서도 primary 고정(bgBrandSolid) — web checkbox bg-primary 정합.
@@ -109,14 +107,14 @@ class PCheckbox extends StatelessWidget {
             ? Container(
                 width: _dashWidth,
                 height: _dashHeight,
-                color: t.fgOnBrand.withValues(alpha: disabled ? 0.5 : 1),
+                color: disabled ? t.fgDisabled : t.fgOnBrand,
               )
             : (checked
                   ? Icon(
                       Icons.check_rounded,
                       size: _iconSize,
                       weight: 700,
-                      color: t.fgOnBrand.withValues(alpha: disabled ? 0.5 : 1),
+                      color: disabled ? t.fgDisabled : t.fgOnBrand,
                     )
                   : const SizedBox.shrink()),
       ),
@@ -155,33 +153,40 @@ class PCheckbox extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: disabled
-                ? null
-                : () => onChanged!(indeterminate ? false : !checked),
-            borderRadius: PRadius.brSm,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  control,
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      label!,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.medium,
-                        color: disabled ? t.fgDisabled : t.fgPrimary,
+        Semantics(
+          // 읽기 — 체크 상태 · 막힘(01A-091). 라벨 글이 이름이 된다.
+          checked: checked,
+          mixed: indeterminate,
+          enabled: !disabled,
+          container: true,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: disabled
+                  ? null
+                  : () => onChanged!(indeterminate ? false : !checked),
+              borderRadius: PRadius.brSm,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    control,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label!,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: PFontSize.body,
+                          fontWeight: PFontWeight.medium,
+                          color: disabled ? t.fgDisabled : t.fgPrimary,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

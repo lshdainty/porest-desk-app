@@ -128,7 +128,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
       // FAB 미사용 — 각 그룹(계좌·예금/투자/카드/대출) 헤더의 '+ 추가'
       // 버튼이 종류별 적절한 다이얼로그를 띄움.
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(assetsProvider);
           ref.invalidate(assetSummaryProvider);

@@ -53,7 +53,7 @@ abstract final class GrooTheme {
     final scheme = ColorScheme.fromSeed(
       seedColor: seed,
       brightness: brightness,
-      primary: tokens.bgBrand,
+      primary: tokens.fgBrand,
       onPrimary: tokens.fgOnBrand,
       surface: tokens.bgSurface,
       onSurface: tokens.fgPrimary,
@@ -262,7 +262,7 @@ abstract final class GrooTheme {
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return tokens.fgDisabled;
-          if (states.contains(WidgetState.selected)) return tokens.bgBrand;
+          if (states.contains(WidgetState.selected)) return tokens.fgBrand;
           return tokens.borderStrong;
         }),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

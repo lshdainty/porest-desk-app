@@ -72,7 +72,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
         ],
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(userCalendarListProvider);
           await ref.read(userCalendarListProvider.future);

@@ -4368,5 +4368,7 @@
   "dsSliderMax": "최대",
   "@dsSliderMax": {
     "description": "Slider 범위 — 큰 손잡이의 기본 이름"
-  }
+  },
+  "actionPrev": "이전",
+  "actionNext": "다음"
 }

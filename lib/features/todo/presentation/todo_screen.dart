@@ -583,7 +583,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         pin,
         Expanded(
           child: RefreshIndicator(
-            color: t.bgBrand,
+            color: t.fgBrand,
             onRefresh: () async {
               ref.invalidate(todoListProvider(_allFilter));
               invalidateConstellation(ref);

@@ -63,7 +63,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         onPressed: () => showDutchPayCreateDialog(context),
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(dutchPayListProvider);
           await ref.read(dutchPayListProvider.future);

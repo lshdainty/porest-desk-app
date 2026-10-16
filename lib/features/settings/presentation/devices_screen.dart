@@ -113,7 +113,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(deviceSessionListProvider);
           await ref.read(deviceSessionListProvider.future);

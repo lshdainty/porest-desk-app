@@ -4136,5 +4136,7 @@
   "dsQuantityDecrease": "Decrease",
   "dsQuantityIncrease": "Increase",
   "dsSliderMin": "Minimum",
-  "dsSliderMax": "Maximum"
+  "dsSliderMax": "Maximum",
+  "actionPrev": "Previous",
+  "actionNext": "Next"
 }

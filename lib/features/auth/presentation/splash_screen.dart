@@ -20,7 +20,7 @@ class SplashScreen extends StatelessWidget {
           children: [
             Text('그루 담다', style: PTypo.displayMd.copyWith(color: t.fgPrimary)),
             const SizedBox(height: PSpace.x24),
-            PCircularProgressIndicator(color: t.bgBrand),
+            PCircularProgressIndicator(color: t.fgBrand),
           ],
         ),
       ),

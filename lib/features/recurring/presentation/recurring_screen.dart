@@ -112,7 +112,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         scrolledUnderElevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(recurringListProvider);
           await ref.read(recurringListProvider.future);

@@ -222,7 +222,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(monthBudgetsProvider(_key));
           ref.invalidate(
@@ -383,6 +383,7 @@ class _MonthBar extends StatelessWidget {
     return Row(
       children: [
         PButton.icon(
+          tooltip: AppLocalizations.of(context).actionPrev,
           icon: LucideIcons.chevronLeft,
           size: PButtonSize.sm,
           onPressed: onPrev,
@@ -415,6 +416,7 @@ class _MonthBar extends StatelessWidget {
           ),
         ),
         PButton.icon(
+          tooltip: AppLocalizations.of(context).actionNext,
           icon: LucideIcons.chevronRight,
           size: PButtonSize.sm,
           onPressed: onNext,

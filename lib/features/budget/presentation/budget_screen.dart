@@ -74,7 +74,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='예산' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(monthBudgetsProvider(_key));
           ref.invalidate(
@@ -304,6 +304,7 @@ class _MonthBar extends StatelessWidget {
     return Row(
       children: [
         PButton.icon(
+          tooltip: AppLocalizations.of(context).actionPrev,
           icon: LucideIcons.chevronLeft,
           size: PButtonSize.sm,
           onPressed: onPrev,
@@ -336,6 +337,7 @@ class _MonthBar extends StatelessWidget {
           ),
         ),
         PButton.icon(
+          tooltip: AppLocalizations.of(context).actionNext,
           icon: LucideIcons.chevronRight,
           size: PButtonSize.sm,
           onPressed: onNext,
@@ -383,6 +385,7 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
                 Row(
                   children: [
                     PButton.icon(
+                      tooltip: AppLocalizations.of(context).actionPrev,
                       icon: LucideIcons.chevronLeft,
                       onPressed: () => setSheet(() => viewYear -= 1),
                     ),
@@ -398,6 +401,7 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
                       ),
                     ),
                     PButton.icon(
+                      tooltip: AppLocalizations.of(context).actionNext,
                       icon: LucideIcons.chevronRight,
                       onPressed: () => setSheet(() => viewYear += 1),
                     ),
@@ -872,7 +876,7 @@ class _PaceCard extends StatelessWidget {
                         backgroundColor: tokens.bgTrack,
                         color: pct > 100
                             ? tokens.statusDangerFg
-                            : tokens.bgBrand,
+                            : tokens.fgBrand,
                       ),
                     ),
                     Positioned(
@@ -1579,7 +1583,7 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                       ? tokens.statusDangerFg
                       : (rows[i].year == currentYear &&
                             rows[i].month == currentMonth)
-                      ? tokens.bgBrand
+                      ? tokens.fgBrand
                       : tokens.borderStrong,
                   // web bar round([6,6,0,0] 리터럴) 정합 — 두께는 모바일 시각 보정 28
                   width: 28,
@@ -1613,7 +1617,7 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                   labelWidth: 56,
                   rows: [
                     PChartTooltipRowData(
-                      color: over ? tokens.statusDangerFg : tokens.bgBrand,
+                      color: over ? tokens.statusDangerFg : tokens.fgBrand,
                       label: l.budgetVsLimit,
                       amount: '${r.compliancePercent.toStringAsFixed(1)}%',
                       amountColor: over

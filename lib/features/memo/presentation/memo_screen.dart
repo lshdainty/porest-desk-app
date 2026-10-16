@@ -69,7 +69,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       ),
       // FAB 제거 — 칩 행 우측 + 추가 버튼이 새 메모 진입점 (web 정합).
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async => ref.invalidate(memoListProvider),
         child: listAsync.when(
           // 검색바·칩 행·추가 버튼은 정적 UI 틀 → 항상 실제 렌더(스켈레톤화 금지).
@@ -126,6 +126,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           hint: l.memoSearchHint,
           trailing: _query.trim().isNotEmpty
               ? PButton.icon(
+                  tooltip: AppLocalizations.of(context).actionClose,
                   icon: LucideIcons.x,
                   size: PButtonSize.sm,
                   iconColor: t.fgTertiary,

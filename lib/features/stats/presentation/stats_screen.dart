@@ -467,7 +467,7 @@ class _CategoryTab extends ConsumerWidget {
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
 
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(
@@ -535,7 +535,7 @@ class _TrendTab extends ConsumerWidget {
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final monthExpAsync = ref.watch(rangeExpensesProvider(state._range));
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._range));
@@ -597,7 +597,7 @@ class _CompareTab extends ConsumerWidget {
     final nowExpAsync = ref.watch(rangeExpensesProvider(state._range));
     final prevExpAsync = ref.watch(rangeExpensesProvider(state._prevRangeKey));
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
@@ -3852,7 +3852,7 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(LucideIcons.sparkles, size: 12, color: t.bgBrand),
+                Icon(LucideIcons.sparkles, size: 12, color: t.fgBrand),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(

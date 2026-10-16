@@ -127,7 +127,7 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         ],
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: _load,
         child: ListView(
           padding: EdgeInsets.fromLTRB(

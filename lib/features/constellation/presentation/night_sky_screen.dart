@@ -60,7 +60,7 @@ class NightSkyScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(constellationTodayProvider);
           ref.invalidate(constellationSkyProvider);

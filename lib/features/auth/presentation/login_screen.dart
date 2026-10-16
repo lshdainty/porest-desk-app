@@ -207,7 +207,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ColoredBox(
                 color: t.bgCanvas.withValues(alpha: 0.6),
                 child: Center(
-                  child: PCircularProgressIndicator(color: t.bgBrand),
+                  child: PCircularProgressIndicator(color: t.fgBrand),
                 ),
               ),
           ],

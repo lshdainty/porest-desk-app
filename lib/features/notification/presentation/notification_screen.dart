@@ -64,7 +64,7 @@ class NotificationScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(notificationListProvider);
           ref.invalidate(unreadCountProvider);
@@ -406,7 +406,7 @@ class _NotiRowState extends State<_NotiRow> {
                         child: PCircularProgressIndicator(
                           size: 8,
                           strokeWidth: 1.5,
-                          color: tokens.bgBrand,
+                          color: tokens.fgBrand,
                         ),
                       ),
                     ] else if (unread) ...[

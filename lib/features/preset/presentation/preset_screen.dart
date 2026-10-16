@@ -98,7 +98,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(presetListProvider);
           await ref.read(presetListProvider.future);

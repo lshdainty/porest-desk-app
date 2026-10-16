@@ -96,7 +96,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final budgetsAsync = ref.watch(monthBudgetsProvider(monthKey));
 
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(
           assetSummaryProvider((year: _month.year, month: _month.month)),

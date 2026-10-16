@@ -44,7 +44,7 @@ class PSwitch extends StatelessWidget {
       height: _trackH,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: disabled ? trackBg.withValues(alpha: 0.5) : trackBg,
+        color: disabled ? t.bgDisabled : trackBg,
         borderRadius: BorderRadius.circular(999),
       ),
       child: AnimatedAlign(

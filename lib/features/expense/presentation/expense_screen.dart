@@ -722,7 +722,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             pin,
             Expanded(
               child: RefreshIndicator(
-                color: t.bgBrand,
+                color: t.fgBrand,
                 onRefresh: () async {
                   ref.invalidate(monthExpensesProvider(_key));
                   await ref.read(monthExpensesProvider(_key).future);

@@ -64,7 +64,7 @@ class SavingGoalScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(savingGoalListProvider);
           await ref.read(savingGoalListProvider.future);

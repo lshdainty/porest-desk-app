@@ -200,7 +200,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         ),
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(cardCatalogPageProvider(_searchKey));
           await ref.read(cardCatalogPageProvider(_searchKey).future);
@@ -318,7 +318,11 @@ class _Paginator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
+        PButton.icon(
+          icon: LucideIcons.chevronLeft,
+          onPressed: onPrev,
+          tooltip: AppLocalizations.of(context).actionPrev,
+        ),
         const SizedBox(width: 8),
         Text(
           '${(page.number as int) + 1} / ${page.totalPages == 0 ? 1 : page.totalPages}',
@@ -328,7 +332,11 @@ class _Paginator extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
+        PButton.icon(
+          icon: LucideIcons.chevronRight,
+          onPressed: onNext,
+          tooltip: AppLocalizations.of(context).actionNext,
+        ),
       ],
     );
   }

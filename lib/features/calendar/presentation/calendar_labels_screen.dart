@@ -65,7 +65,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
         elevation: 0,
       ),
       body: RefreshIndicator(
-        color: t.bgBrand,
+        color: t.fgBrand,
         onRefresh: () async {
           ref.invalidate(eventLabelsProvider);
           await ref.read(eventLabelsProvider.future);

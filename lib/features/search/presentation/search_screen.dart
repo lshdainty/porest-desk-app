@@ -274,6 +274,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           trailing: _ctrl.text.isEmpty
               ? null
               : PButton.icon(
+                  tooltip: AppLocalizations.of(context).actionClose,
                   icon: LucideIcons.x,
                   size: PButtonSize.sm,
                   iconColor: t.fgTertiary,

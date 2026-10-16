@@ -922,6 +922,7 @@ class _ParticipantRow extends StatelessWidget {
           ],
           if (onRemove != null)
             PButton.icon(
+              tooltip: AppLocalizations.of(context).actionClose,
               icon: LucideIcons.x,
               size: PButtonSize.sm,
               iconColor: tokens.fgTertiary,

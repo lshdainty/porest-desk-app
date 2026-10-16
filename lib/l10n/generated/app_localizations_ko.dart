@@ -5774,7 +5774,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get dateJustNow => '방금';
+  String get dateJustNow => '방금 전';
 
   @override
   String dateMinutesAgo(int n) {
@@ -7063,4 +7063,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dsSliderMax => '최대';
+
+  @override
+  String get actionPrev => '이전';
+
+  @override
+  String get actionNext => '다음';
 }

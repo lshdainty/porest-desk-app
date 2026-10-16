@@ -49,51 +49,51 @@ class PToggle extends StatelessWidget {
     final (padX, padY, minH) = _metrics;
 
     final bg = pressed ? t.bgMuted : Colors.transparent;
-    final fg = pressed ? t.fgPrimary : t.fgSecondary;
+    final fg = disabled
+        ? t.fgDisabled
+        : (pressed ? t.fgPrimary : t.fgSecondary);
     Border? border;
     if (variant == PToggleVariant.outline) {
       border = Border.all(color: pressed ? t.borderStrong : t.borderDefault);
     }
 
-    return Opacity(
-      opacity: disabled ? 0.5 : 1,
-      child: Semantics(
-        label: semanticLabel ?? label,
-        toggled: pressed,
-        enabled: !disabled,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: disabled ? null : () => onChanged!(!pressed),
-            borderRadius: PRadius.brMd,
-            child: AnimatedContainer(
-              duration: PMotion.fast,
-              curve: PMotion.standard,
-              constraints: BoxConstraints(minHeight: minH),
-              padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: PRadius.brMd,
-                border: border,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) Icon(icon, size: 16, color: fg),
-                  if (icon != null && label != null) const SizedBox(width: 4),
-                  if (label != null)
-                    Text(
-                      label!,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.caption,
-                        fontWeight: PFontWeight.semi,
-                        color: fg,
-                      ),
+    // 막힘은 불투명도가 아니라 글자 · 테두리 전용 색(STA-01, 01A-071)
+    return Semantics(
+      label: semanticLabel ?? label,
+      toggled: pressed,
+      enabled: !disabled,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: disabled ? null : () => onChanged!(!pressed),
+          borderRadius: PRadius.brMd,
+          child: AnimatedContainer(
+            duration: PMotion.fast,
+            curve: PMotion.standard,
+            constraints: BoxConstraints(minHeight: minH),
+            padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: PRadius.brMd,
+              border: border,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) Icon(icon, size: 16, color: fg),
+                if (icon != null && label != null) const SizedBox(width: 4),
+                if (label != null)
+                  Text(
+                    label!,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.caption,
+                      fontWeight: PFontWeight.semi,
+                      color: fg,
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -334,6 +334,6 @@ class _GroupItem<T> extends StatelessWidget {
             child: tile,
           )
         : tile;
-    return Opacity(opacity: disabled ? 0.5 : 1, child: decorated);
+    return decorated;
   }
 }
