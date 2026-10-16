@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 
 /// 단일 primary FAB — brand 색 채움 + onBrand 아이콘.
@@ -26,17 +27,24 @@ class PFloatingActionButton extends StatelessWidget {
     final t = context.tokens;
     // 웹 Fab 미러 — 52px 완전 원형, brand 채움(다크에서도 primary 고정),
     // shadow-lg 상당 elevation, 아이콘 22 (M3 기본 FAB 56/라운드사각 대체).
-    Widget fab = Material(
-      color: t.bgBrandSolid,
-      shape: const CircleBorder(),
-      elevation: 6,
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onPressed,
-        child: SizedBox(
-          width: 52,
-          height: 52,
-          child: Icon(icon, size: 22, color: t.fgOnBrand),
+    // 떠 있는 버튼 = elevation 0 + shadow-s3(01A-052) — Material 그림자는 다크에서 검은 고리로 번진다
+    Widget fab = DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: context.shadows.s3,
+      ),
+      child: Material(
+        color: t.bgBrandSolid,
+        shape: const CircleBorder(),
+        elevation: 0,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onPressed,
+          child: SizedBox(
+            width: 52,
+            height: 52,
+            child: Icon(icon, size: 22, color: t.fgOnBrand),
+          ),
         ),
       ),
     );

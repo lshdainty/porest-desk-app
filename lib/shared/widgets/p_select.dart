@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -284,64 +285,70 @@ class _SelectMenuState<T> extends State<_SelectMenu<T>> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Material(
-      color: t.bgSurface,
-      borderRadius: PRadius.brSm,
-      elevation: 8,
-      shadowColor: const Color(0x33000000),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: PRadius.brSm,
-          border: Border.all(color: t.borderDefault),
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: widget.maxHeight),
-          child: Stack(
-            children: [
-              // viewport — ListView. shadcn SelectContent Viewport `p-1` 정합:
-              // vertical x4 + 스크롤 버튼이 노출되면 그쪽에 _btnH 만큼 inset.
-              ListView(
-                controller: _ctrl,
-                shrinkWrap: true,
-                // viewport padding (웹 SelectContent Viewport `p-1` 정합) —
-                // 좌우 x4 로 selected bg 가 메뉴 가장자리에 딱 붙지 않게.
-                padding: EdgeInsets.only(
-                  left: PSpace.x4,
-                  right: PSpace.x4,
-                  top: _canUp ? _btnH : PSpace.x4,
-                  bottom: _canDown ? _btnH : PSpace.x4,
+    // 떠 있는 목록 = elevation 0 + shadow-s3(01A-052)
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: PRadius.brSm,
+        boxShadow: context.shadows.s3,
+      ),
+      child: Material(
+        color: t.bgSurface,
+        borderRadius: PRadius.brSm,
+        elevation: 0,
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: PRadius.brSm,
+            border: Border.all(color: t.borderDefault),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: widget.maxHeight),
+            child: Stack(
+              children: [
+                // viewport — ListView. shadcn SelectContent Viewport `p-1` 정합:
+                // vertical x4 + 스크롤 버튼이 노출되면 그쪽에 _btnH 만큼 inset.
+                ListView(
+                  controller: _ctrl,
+                  shrinkWrap: true,
+                  // viewport padding (웹 SelectContent Viewport `p-1` 정합) —
+                  // 좌우 x4 로 selected bg 가 메뉴 가장자리에 딱 붙지 않게.
+                  padding: EdgeInsets.only(
+                    left: PSpace.x4,
+                    right: PSpace.x4,
+                    top: _canUp ? _btnH : PSpace.x4,
+                    bottom: _canDown ? _btnH : PSpace.x4,
+                  ),
+                  children: [
+                    for (final it in widget.items)
+                      _MenuItem<T>(
+                        item: it,
+                        selected: it.value == widget.value,
+                        onTap: () => widget.onSelect(it.value),
+                      ),
+                  ],
                 ),
-                children: [
-                  for (final it in widget.items)
-                    _MenuItem<T>(
-                      item: it,
-                      selected: it.value == widget.value,
-                      onTap: () => widget.onSelect(it.value),
+                if (_canUp)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: _ScrollBtn(
+                      icon: LucideIcons.chevronUp,
+                      onTap: () => _scrollBy(-120),
                     ),
-                ],
-              ),
-              if (_canUp)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: _ScrollBtn(
-                    icon: LucideIcons.chevronUp,
-                    onTap: () => _scrollBy(-120),
                   ),
-                ),
-              if (_canDown)
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: _ScrollBtn(
-                    icon: LucideIcons.chevronDown,
-                    onTap: () => _scrollBy(120),
+                if (_canDown)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: _ScrollBtn(
+                      icon: LucideIcons.chevronDown,
+                      onTap: () => _scrollBy(120),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

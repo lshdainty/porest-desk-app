@@ -144,8 +144,9 @@ Color softBg(BuildContext context, Color base) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final pair = _kArgbToPair[base.toARGB32()];
   // 팔레트 색은 역할 색 chart-*-weak(라이트 200 · 다크 300, 불투명) — 투명 혼합이 아니다(01A-002)
-  if (pair != null)
+  if (pair != null) {
     return chartWeakOf(isDark ? PColors.dark : PColors.light, pair.key);
+  }
   if (isDark) {
     final c = pair?.light ?? base;
     return c.withValues(alpha: 0.22);

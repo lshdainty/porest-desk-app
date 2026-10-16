@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -59,20 +60,18 @@ class PCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 카드는 그림자 없이 1px stroke-neutral-weak + 바닥(basement)으로 가른다(Elevation v104 · card.yaml, 01A-051)
+    final edge = Border.all(color: context.colors.strokeNeutralWeak);
     final (defaultBg, defaultBorder, shadow) = switch (variant) {
-      PCardVariant.shadow => (t.bgSurface, null, t.shadowSm),
-      PCardVariant.bordered => (
-        t.bgSurface,
-        Border.all(color: t.borderSubtle),
-        null,
-      ),
+      PCardVariant.shadow => (t.bgSurface, edge, null),
+      PCardVariant.bordered => (t.bgSurface, edge, null),
       PCardVariant.muted => (t.bgMuted, null, null),
       PCardVariant.brand => (
         t.bgBrandSubtle,
         Border.all(color: t.borderBrand),
         null,
       ),
-      PCardVariant.raised => (t.bgSurfaceRaised, null, t.shadowLg),
+      PCardVariant.raised => (t.bgSurface, edge, null),
     };
     final effectivePadding =
         padding ??
