@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -57,7 +59,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     final listAsync = ref.watch(memoListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -68,34 +70,36 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         elevation: 0,
       ),
       // FAB 제거 — 칩 행 우측 + 추가 버튼이 새 메모 진입점 (web 정합).
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: () async => ref.invalidate(memoListProvider),
-        child: listAsync.when(
-          // 검색바·칩 행·추가 버튼은 정적 UI 틀 → 항상 실제 렌더(스켈레톤화 금지).
-          // 데이터 영역(칩 카운트·카드 그리드)만 스켈레톤.
-          loading: () => _buildShell(
-            context,
-            t,
-            // 칩 카운트는 데이터 의존 → 로딩 중 칩 행은 스켈레톤 pill.
-            chips: const _ChipRowSkeleton(),
-            body: const _MemoGridSkeleton(),
-          ),
-          error: (e, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x16,
-              PSpace.x24,
-              PSpace.x16,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async => ref.invalidate(memoListProvider),
+          child: listAsync.when(
+            // 검색바·칩 행·추가 버튼은 정적 UI 틀 → 항상 실제 렌더(스켈레톤화 금지).
+            // 데이터 영역(칩 카운트·카드 그리드)만 스켈레톤.
+            loading: () => _buildShell(
+              context,
+              t,
+              // 칩 카운트는 데이터 의존 → 로딩 중 칩 행은 스켈레톤 pill.
+              chips: const _ChipRowSkeleton(),
+              body: const _MemoGridSkeleton(),
             ),
-            children: [
-              Text(
-                '${l.memoLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+            error: (e, _) => ListView(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x16,
+                PSpace.x24,
+                PSpace.x16,
               ),
-            ],
+              children: [
+                Text(
+                  '${l.memoLoadError}\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                ),
+              ],
+            ),
+            data: (all) => _buildBody(context, t, all),
           ),
-          data: (all) => _buildBody(context, t, all),
         ),
       ),
     );

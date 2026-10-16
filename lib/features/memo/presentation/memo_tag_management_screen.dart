@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -53,7 +55,7 @@ class _MemoTagManagementScreenState extends State<MemoTagManagementScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -63,7 +65,7 @@ class _MemoTagManagementScreenState extends State<MemoTagManagementScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: _Body(scrollController: _scrollCtrl),
+      body: PScreenBandBody(child: _Body(scrollController: _scrollCtrl)),
     );
   }
 }

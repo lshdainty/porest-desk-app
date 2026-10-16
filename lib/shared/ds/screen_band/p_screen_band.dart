@@ -50,3 +50,53 @@ class PScreenBands {
     ],
   ];
 }
+
+/// 카드 화면의 카드 하나 — 회색 바닥(`bg-layer-basement`) 위 `bg-layer-default` 면 + 1px `stroke-neutral-weak` + 모서리 12 +
+/// 안쪽 24. 그림자는 없다(Elevation v104 — 카드는 선과 바닥으로 가른다). 카드 사이는 [kScreenBandGap](8).
+/// 카드 화면(홈 · 자산 · 통계 · 예산 · 상세)이 쓴다. 띠 화면의 띠는 [PScreenBand] 다.
+class PScreenCard extends StatelessWidget {
+  const PScreenCard({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(PSpacing.x6),
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      key: const ValueKey('screen-card'),
+      width: double.infinity,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: c.bgLayerDefault,
+        borderRadius: BorderRadius.circular(PRounded.r3),
+        border: Border.all(color: c.strokeNeutralWeak),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// 띠 화면의 본문 전체를 **하나의 흰 띠**로 감싼다 — 맨 위 8 은 회색 바닥, 그 아래는 화면 폭 흰 띠가 남은 높이를 채운다.
+/// 묶음마다 띠를 나누지 않은 화면(목록 · 폼)이 쓰는 한 장 띠다. 묶음이 나뉘는 화면은 [PScreenBands] 로 띠를 직접 쌓는다.
+class PScreenBandBody extends StatelessWidget {
+  const PScreenBandBody({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: kScreenBandGap),
+      child: ColoredBox(
+        key: const ValueKey('screen-band-body'),
+        color: context.colors.bgLayerDefault,
+        child: SizedBox(width: double.infinity, child: child),
+      ),
+    );
+  }
+}

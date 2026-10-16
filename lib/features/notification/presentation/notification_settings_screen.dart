@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -38,7 +40,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final email = ref.watch(authProvider).value?.userEmail ?? '';
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -48,16 +50,18 @@ class NotificationSettingsScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: prefsAsync.when(
-        loading: () => const _PrefsSkeleton(),
-        error: (e, _) => Padding(
-          padding: const EdgeInsets.all(PSpace.x16),
-          child: Text(
-            '${l.notiSettingsLoadError}\n$e',
-            style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+      body: PScreenBandBody(
+        child: prefsAsync.when(
+          loading: () => const _PrefsSkeleton(),
+          error: (e, _) => Padding(
+            padding: const EdgeInsets.all(PSpace.x16),
+            child: Text(
+              '${l.notiSettingsLoadError}\n$e',
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+            ),
           ),
+          data: (prefs) => _Content(prefs: prefs, email: email),
         ),
-        data: (prefs) => _Content(prefs: prefs, email: email),
       ),
     );
   }

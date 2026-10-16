@@ -16,6 +16,7 @@ import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -204,52 +205,62 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       tokens: t,
                     ),
                     if (hasNoData) ...[
-                      const SizedBox(height: PSpace.x32),
-                      _EmptyState(
-                        tokens: t,
-                        onAdd: () => context.push('/budget/settings'),
+                      const SizedBox(height: PSpacing.x2),
+                      PScreenCard(
+                        child: _EmptyState(
+                          tokens: t,
+                          onAdd: () => context.push('/budget/settings'),
+                        ),
                       ),
                     ] else ...[
-                      const SizedBox(height: PSpace.x32),
-                      _PaceCard(
-                        pct: pct,
-                        daysElapsedPct: daysElapsedPct,
-                        dailyActual: dailyActual,
-                        dailyTarget: dailyTarget,
-                        onTrack: onTrack,
-                        masked: ref.watch(hideCardProvider('budget.pace')),
-                        tokens: t,
-                      ),
-                      const SizedBox(height: PSpace.x32),
-                      _StatusTiles(
-                        overCount: overList.length,
-                        healthyCount: healthyList.length,
-                        tokens: t,
-                      ),
-                      const SizedBox(height: PSpace.x32),
-                      _CategoryListCard(
-                        budgets: categoryBudgets,
-                        categories: categories,
-                        spentByCategory: spentByCategory,
-                        warnThreshold: warnThreshold,
-                        masked: ref.watch(
-                          hideCardProvider('budget.categories'),
+                      const SizedBox(height: PSpacing.x2),
+                      PScreenCard(
+                        child: _PaceCard(
+                          pct: pct,
+                          daysElapsedPct: daysElapsedPct,
+                          dailyActual: dailyActual,
+                          dailyTarget: dailyTarget,
+                          onTrack: onTrack,
+                          masked: ref.watch(hideCardProvider('budget.pace')),
+                          tokens: t,
                         ),
-                        // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
-                        // 스켈레톤은 첫 로딩만.
-                        firstLoading:
-                            summaryAsync.isLoading && !summaryAsync.hasValue,
-                        tokens: t,
-                        onGoSettings: () => context.push('/budget/settings'),
                       ),
-                      const SizedBox(height: PSpace.x32),
-                      _ComplianceCard(
-                        async: complianceAsync,
-                        currentYear: _month.year,
-                        currentMonth: _month.month,
-                        tokens: t,
-                        masked: ref.watch(
-                          hideCardProvider('budget.compliance'),
+                      const SizedBox(height: PSpacing.x2),
+                      PScreenCard(
+                        child: _StatusTiles(
+                          overCount: overList.length,
+                          healthyCount: healthyList.length,
+                          tokens: t,
+                        ),
+                      ),
+                      const SizedBox(height: PSpacing.x2),
+                      PScreenCard(
+                        child: _CategoryListCard(
+                          budgets: categoryBudgets,
+                          categories: categories,
+                          spentByCategory: spentByCategory,
+                          warnThreshold: warnThreshold,
+                          masked: ref.watch(
+                            hideCardProvider('budget.categories'),
+                          ),
+                          // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
+                          // 스켈레톤은 첫 로딩만.
+                          firstLoading:
+                              summaryAsync.isLoading && !summaryAsync.hasValue,
+                          tokens: t,
+                          onGoSettings: () => context.push('/budget/settings'),
+                        ),
+                      ),
+                      const SizedBox(height: PSpacing.x2),
+                      PScreenCard(
+                        child: _ComplianceCard(
+                          async: complianceAsync,
+                          currentYear: _month.year,
+                          currentMonth: _month.month,
+                          tokens: t,
+                          masked: ref.watch(
+                            hideCardProvider('budget.compliance'),
+                          ),
                         ),
                       ),
                     ],
@@ -1754,7 +1765,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         // _PaceCard — 실렌더와 같은 PFlatSection SoT. 제목은 정적이라 진짜를 쓴다.
         PFlatSection(
           title: l.budgetSpendingPace,
@@ -1799,7 +1810,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         // _StatusTiles — 실렌더와 같은 PFlatSection SoT.
         PFlatSection(
           title: l.budgetStatusTitle,
@@ -1829,7 +1840,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         // _CategoryListCard — 실렌더와 같은 PFlatSection SoT.
         // headGap 은 실렌더(28)를 그대로 — 16 으로 두면 데이터가 오는 순간 목록이 내려앉는다.
         PFlatSection(
@@ -1873,7 +1884,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         // _ComplianceCard — 실렌더와 같은 PFlatSection SoT(headGap 16).
         PFlatSection(
           title: l.budgetComplianceTitle,

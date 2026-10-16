@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -288,7 +290,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -298,56 +300,58 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x16,
-              PSpace.x24,
-              0,
+      body: PScreenBandBody(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x16,
+                PSpace.x24,
+                0,
+              ),
+              // 언어 설정과 동일한 container 세그먼트(풀폭 균등, 웹 정합·사용자 결정) —
+              // 트랙(bgMuted) + active = surface pill + shadow.
+              child: PTabs<String>(
+                value: _mode,
+                onChanged: (v) => setState(() => _mode = v),
+                variant: PTabsVariant.container,
+                size: PTabsSize.sm,
+                expand: true,
+                items: [
+                  PTabItem(value: 'export', label: l.exportTab),
+                  PTabItem(value: 'import', label: l.importTab),
+                ],
+              ),
             ),
-            // 언어 설정과 동일한 container 세그먼트(풀폭 균등, 웹 정합·사용자 결정) —
-            // 트랙(bgMuted) + active = surface pill + shadow.
-            child: PTabs<String>(
-              value: _mode,
-              onChanged: (v) => setState(() => _mode = v),
-              variant: PTabsVariant.container,
-              size: PTabsSize.sm,
-              expand: true,
-              items: [
-                PTabItem(value: 'export', label: l.exportTab),
-                PTabItem(value: 'import', label: l.importTab),
-              ],
-            ),
-          ),
-          Expanded(
-            child: _mode == 'import'
-                ? const ImportView()
-                : ListView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x24,
-                      vertical: PSpace.x24,
-                    ),
-                    children: [
-                      _periodCard(t),
-                      const SizedBox(height: PSpace.x32),
-                      _typesCard(t),
-                      const SizedBox(height: PSpace.x32),
-                      _formatCard(t),
-                      const SizedBox(height: PSpace.x32),
-                      _maskRow(t),
-                      const SizedBox(height: PSpace.x12),
-                      _actions(),
-                      if (_preview != null) ...[
+            Expanded(
+              child: _mode == 'import'
+                  ? const ImportView()
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: PSpace.x24,
+                        vertical: PSpace.x24,
+                      ),
+                      children: [
+                        _periodCard(t),
                         const SizedBox(height: PSpace.x32),
-                        _previewCard(t),
+                        _typesCard(t),
+                        const SizedBox(height: PSpace.x32),
+                        _formatCard(t),
+                        const SizedBox(height: PSpace.x32),
+                        _maskRow(t),
+                        const SizedBox(height: PSpace.x12),
+                        _actions(),
+                        if (_preview != null) ...[
+                          const SizedBox(height: PSpace.x32),
+                          _previewCard(t),
+                        ],
+                        const SizedBox(height: PSpace.x32),
                       ],
-                      const SizedBox(height: PSpace.x32),
-                    ],
-                  ),
-          ),
-        ],
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

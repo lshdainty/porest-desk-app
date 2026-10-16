@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -97,7 +99,7 @@ class _AccountCardManageScreenState
     final assetsAsync = ref.watch(assetsProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -108,167 +110,175 @@ class _AccountCardManageScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: assetsAsync.when(
-        loading: () => _AccountCardManageSkeleton(tokens: t),
-        error: (e, _) => Center(
-          child: Text(
-            '${l.assetLoadError}\n$e',
-            textAlign: TextAlign.center,
-            style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+      body: PScreenBandBody(
+        child: assetsAsync.when(
+          loading: () => _AccountCardManageSkeleton(tokens: t),
+          error: (e, _) => Center(
+            child: Text(
+              '${l.assetLoadError}\n$e',
+              textAlign: TextAlign.center,
+              style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+            ),
           ),
-        ),
-        data: (assets) {
-          _openRequestedEdit(assets);
-          int countOf(_Group g) =>
-              assets.where((a) => _groupTypes[g]!.contains(a.assetType)).length;
-          final filtered = assets
-              .where((a) => _groupTypes[_tab]!.contains(a.assetType))
-              .toList();
-          // '총액 제외'(isIncludedInTotal == 'N') 자산은 탭 합계에서 제외 (web 정합).
-          final total = filtered
-              .where((a) => a.isIncludedInTotal != 'N')
-              .fold<int>(0, (s, a) => s + (a.balance ?? 0));
-          final isCard = _tab == _Group.card;
+          data: (assets) {
+            _openRequestedEdit(assets);
+            int countOf(_Group g) => assets
+                .where((a) => _groupTypes[g]!.contains(a.assetType))
+                .length;
+            final filtered = assets
+                .where((a) => _groupTypes[_tab]!.contains(a.assetType))
+                .toList();
+            // '총액 제외'(isIncludedInTotal == 'N') 자산은 탭 합계에서 제외 (web 정합).
+            final total = filtered
+                .where((a) => a.isIncludedInTotal != 'N')
+                .fold<int>(0, (s, a) => s + (a.balance ?? 0));
+            final isCard = _tab == _Group.card;
 
-          return Column(
-            children: [
-              // 탭 — AppBar 바로 아래 흰띠, full width underline (stats_screen 미러)
-              Container(
-                color: t.bgSurface,
-                child: PTabs<_Group>(
-                  value: _tab,
-                  onChanged: (v) => setState(() => _tab = v),
-                  variant: PTabsVariant.underline,
-                  expand: true,
-                  items: [
-                    PTabItem(
-                      value: _Group.account,
-                      label: l.assetTabAccountsSavings(countOf(_Group.account)),
-                    ),
-                    PTabItem(
-                      value: _Group.card,
-                      label: l.assetTabCards(countOf(_Group.card)),
-                    ),
-                    PTabItem(
-                      value: _Group.invest,
-                      label: l.assetTabInvest(countOf(_Group.invest)),
-                    ),
-                  ],
-                ),
-              ),
-              // 콘텐츠 (총액 + 리스트, page-edge padding)
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x24,
-                    vertical: PSpace.x20,
+            return Column(
+              children: [
+                // 탭 — AppBar 바로 아래 흰띠, full width underline (stats_screen 미러)
+                Container(
+                  color: t.bgSurface,
+                  child: PTabs<_Group>(
+                    value: _tab,
+                    onChanged: (v) => setState(() => _tab = v),
+                    variant: PTabsVariant.underline,
+                    expand: true,
+                    items: [
+                      PTabItem(
+                        value: _Group.account,
+                        label: l.assetTabAccountsSavings(
+                          countOf(_Group.account),
+                        ),
+                      ),
+                      PTabItem(
+                        value: _Group.card,
+                        label: l.assetTabCards(countOf(_Group.card)),
+                      ),
+                      PTabItem(
+                        value: _Group.invest,
+                        label: l.assetTabInvest(countOf(_Group.invest)),
+                      ),
+                    ],
                   ),
-                  children: [
-                    // 총액 (좌) + 추가 (우, ghost+accent)
-                    Row(
-                      children: [
-                        Text(
-                          masked
-                              ? '${l.assetTotalPrefix} ••••••'
-                              : '${l.assetTotalPrefix} ${krwSigned(total, false, unit: true)}',
-                          style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        ),
-                        const Spacer(),
-                        PButton(
-                          label: l.assetAddCategory(_groupLabel(l, _tab)),
-                          icon: LucideIcons.plus,
-                          variant: PButtonVariant.accent,
-                          size: PButtonSize.sm,
-                          onPressed: _onAdd,
-                        ),
-                      ],
+                ),
+                // 콘텐츠 (총액 + 리스트, page-edge padding)
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.x24,
+                      vertical: PSpace.x20,
                     ),
-                    // 리스트 — 총액 label 과 gap 0(사용자 결정, label·list 는 한 묶음).
-                    // margin-top -8(web 정합) — Flutter 음수 margin 없어 Transform.translate
-                    // (paint-only, label↔list 시각 간격 -8 당김).
-                    Transform.translate(
-                      offset: const Offset(0, -8),
-                      child: filtered.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: PSpace.x32,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  l.assetCategoryEmpty(_groupLabel(l, _tab)),
-                                  style: PTypo.bodySm.copyWith(
-                                    color: t.fgTertiary,
-                                  ),
+                    children: [
+                      // 총액 (좌) + 추가 (우, ghost+accent)
+                      Row(
+                        children: [
+                          Text(
+                            masked
+                                ? '${l.assetTotalPrefix} ••••••'
+                                : '${l.assetTotalPrefix} ${krwSigned(total, false, unit: true)}',
+                            style: PTypo.caption.copyWith(color: t.fgTertiary),
+                          ),
+                          const Spacer(),
+                          PButton(
+                            label: l.assetAddCategory(_groupLabel(l, _tab)),
+                            icon: LucideIcons.plus,
+                            variant: PButtonVariant.accent,
+                            size: PButtonSize.sm,
+                            onPressed: _onAdd,
+                          ),
+                        ],
+                      ),
+                      // 리스트 — 총액 label 과 gap 0(사용자 결정, label·list 는 한 묶음).
+                      // margin-top -8(web 정합) — Flutter 음수 margin 없어 Transform.translate
+                      // (paint-only, label↔list 시각 간격 -8 당김).
+                      Transform.translate(
+                        offset: const Offset(0, -8),
+                        child: filtered.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: PSpace.x32,
                                 ),
-                              ),
-                            )
-                          // 카드 다이어트 — 카드 없이 플랫 행 리스트.
-                          : Column(
-                              children: [
-                                for (final a in filtered)
-                                  // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 상세로 —
-                                  // 스와이프는 지름길이지 유일한 경로가 아니다
-                                  // (spec swipe-actions.md · WCAG 2.1.1).
-                                  // 삭제는 assetActions 가 한다(상세 시트와 같은 것).
-                                  PSwipeActions(
-                                    key: ValueKey('asset-${a.rowId}'),
-                                    // 탭마다 갈라 둔다 — 탭을 바꿔도 이전 탭에서 열어
-                                    // 둔 행이 남아 있으면 엉뚱한 자산이 열린 것처럼 보인다.
-                                    groupTag: 'asset-${_tab.name}-list',
-                                    actions: [
-                                      if (assetActions.canEdit(a))
-                                        PSwipeAction(
-                                          // 슬롯이 72px 이라 '수정'(actionEdit) 대신
-                                          // 두 글자 '수정' 을 쓴다.
-                                          label: l.actionEdit,
-                                          icon: LucideIcons.pencil,
-                                          kind: PSwipeKind.primary,
-                                          onSelect: () => assetActions.edit(
-                                            context,
-                                            ref,
-                                            a,
-                                          ),
-                                        ),
-                                      if (assetActions.canDelete(a))
-                                        PSwipeAction(
-                                          label: l.actionDelete,
-                                          icon: LucideIcons.trash2,
-                                          kind: PSwipeKind.destructive,
-                                          confirmTitle: assetActions
-                                              .deleteConfirmTitle(context, a),
-                                          confirmMessage: assetActions
-                                              .deleteConfirmMessage(context, a),
-                                          onSelect: () => assetActions.delete(
-                                            context,
-                                            ref,
-                                            a,
-                                          ),
-                                        ),
-                                    ],
-                                    child: _ManageRow(
-                                      asset: a,
-                                      masked: masked,
-                                      negative: isCard,
-                                      tokens: t,
-                                      onTap: () => showAssetDetailRich(
-                                        context,
-                                        a,
-                                        onEdit: () =>
-                                            showAssetEditForm(context, a),
-                                        // 관리 화면이라 상세에서 지울 수 있다.
-                                        allowDelete: true,
-                                      ),
+                                child: Center(
+                                  child: Text(
+                                    l.assetCategoryEmpty(_groupLabel(l, _tab)),
+                                    style: PTypo.bodySm.copyWith(
+                                      color: t.fgTertiary,
                                     ),
                                   ),
-                              ],
-                            ),
-                    ),
-                  ],
+                                ),
+                              )
+                            // 카드 다이어트 — 카드 없이 플랫 행 리스트.
+                            : Column(
+                                children: [
+                                  for (final a in filtered)
+                                    // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 상세로 —
+                                    // 스와이프는 지름길이지 유일한 경로가 아니다
+                                    // (spec swipe-actions.md · WCAG 2.1.1).
+                                    // 삭제는 assetActions 가 한다(상세 시트와 같은 것).
+                                    PSwipeActions(
+                                      key: ValueKey('asset-${a.rowId}'),
+                                      // 탭마다 갈라 둔다 — 탭을 바꿔도 이전 탭에서 열어
+                                      // 둔 행이 남아 있으면 엉뚱한 자산이 열린 것처럼 보인다.
+                                      groupTag: 'asset-${_tab.name}-list',
+                                      actions: [
+                                        if (assetActions.canEdit(a))
+                                          PSwipeAction(
+                                            // 슬롯이 72px 이라 '수정'(actionEdit) 대신
+                                            // 두 글자 '수정' 을 쓴다.
+                                            label: l.actionEdit,
+                                            icon: LucideIcons.pencil,
+                                            kind: PSwipeKind.primary,
+                                            onSelect: () => assetActions.edit(
+                                              context,
+                                              ref,
+                                              a,
+                                            ),
+                                          ),
+                                        if (assetActions.canDelete(a))
+                                          PSwipeAction(
+                                            label: l.actionDelete,
+                                            icon: LucideIcons.trash2,
+                                            kind: PSwipeKind.destructive,
+                                            confirmTitle: assetActions
+                                                .deleteConfirmTitle(context, a),
+                                            confirmMessage: assetActions
+                                                .deleteConfirmMessage(
+                                                  context,
+                                                  a,
+                                                ),
+                                            onSelect: () => assetActions.delete(
+                                              context,
+                                              ref,
+                                              a,
+                                            ),
+                                          ),
+                                      ],
+                                      child: _ManageRow(
+                                        asset: a,
+                                        masked: masked,
+                                        negative: isCard,
+                                        tokens: t,
+                                        onTap: () => showAssetDetailRich(
+                                          context,
+                                          a,
+                                          onEdit: () =>
+                                              showAssetEditForm(context, a),
+                                          // 관리 화면이라 상세에서 지울 수 있다.
+                                          allowDelete: true,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

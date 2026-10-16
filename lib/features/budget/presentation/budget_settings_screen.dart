@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -211,7 +213,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     final copyEnabled = prevBudgets.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -221,119 +223,121 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: () async {
-          ref.invalidate(monthBudgetsProvider(_key));
-          ref.invalidate(
-            rangeSummaryProvider((
-              startDate: _monthStartStr,
-              endDate: _monthEndStr,
-            )),
-          );
-          await ref.read(monthBudgetsProvider(_key).future);
-        },
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24,
-            vertical: PSpace.x24,
-          ),
-          children: [
-            // 월 선택 + 지난달 복사 (웹 BudgetManager 모바일 헤더 정합).
-            _MonthBar(
-              month: _month,
-              onPrev: () => setState(
-                () => _month = DateTime(_month.year, _month.month - 1, 1),
-              ),
-              onNext: () => setState(
-                () => _month = DateTime(_month.year, _month.month + 1, 1),
-              ),
-              onPickMonth: (m) => setState(() => _month = m),
-              copyEnabled: copyEnabled,
-              onCopyPrev: () =>
-                  _confirmCopyFromPreviousMonth(prevBudgets, curBudgets),
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(monthBudgetsProvider(_key));
+            ref.invalidate(
+              rangeSummaryProvider((
+                startDate: _monthStartStr,
+                endDate: _monthEndStr,
+              )),
+            );
+            await ref.read(monthBudgetsProvider(_key).future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
             ),
-            const SizedBox(height: PSpace.x12),
-            budgetsAsync.when(
-              loading: () => const _LoadingSkeleton(),
-              error: (e, _) => _ErrorBox(
-                message: '${l.budgetLoadError}\n$e',
-                onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
+            children: [
+              // 월 선택 + 지난달 복사 (웹 BudgetManager 모바일 헤더 정합).
+              _MonthBar(
+                month: _month,
+                onPrev: () => setState(
+                  () => _month = DateTime(_month.year, _month.month - 1, 1),
+                ),
+                onNext: () => setState(
+                  () => _month = DateTime(_month.year, _month.month + 1, 1),
+                ),
+                onPickMonth: (m) => setState(() => _month = m),
+                copyEnabled: copyEnabled,
+                onCopyPrev: () =>
+                    _confirmCopyFromPreviousMonth(prevBudgets, curBudgets),
               ),
-              data: (budgets) {
-                final categories = categoriesAsync.value ?? const [];
-                final summary = summaryAsync.value;
-                final spentByCategory = _spentByCategoryFromSummary(summary);
-                final totalSpent = summary?.totalExpense ?? 0;
+              const SizedBox(height: PSpace.x12),
+              budgetsAsync.when(
+                loading: () => const _LoadingSkeleton(),
+                error: (e, _) => _ErrorBox(
+                  message: '${l.budgetLoadError}\n$e',
+                  onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
+                ),
+                data: (budgets) {
+                  final categories = categoriesAsync.value ?? const [];
+                  final summary = summaryAsync.value;
+                  final spentByCategory = _spentByCategoryFromSummary(summary);
+                  final totalSpent = summary?.totalExpense ?? 0;
 
-                Budget? overallBudget;
-                final categoryBudgets = <Budget>[];
-                for (final b in budgets) {
-                  if (b.categoryRowId == null) {
-                    overallBudget = b;
-                  } else {
-                    categoryBudgets.add(b);
+                  Budget? overallBudget;
+                  final categoryBudgets = <Budget>[];
+                  for (final b in budgets) {
+                    if (b.categoryRowId == null) {
+                      overallBudget = b;
+                    } else {
+                      categoryBudgets.add(b);
+                    }
                   }
-                }
 
-                final monthlyLimit = overallBudget?.budgetAmount ?? 0;
-                final categoryLimitSum = categoryBudgets.fold<int>(
-                  0,
-                  (s, b) => s + b.budgetAmount,
-                );
-                // 할당 가능 = 월 전체 상한 − 카테고리 한도 합 (음수면 초과 할당).
-                final remaining = monthlyLimit - categoryLimitSum;
+                  final monthlyLimit = overallBudget?.budgetAmount ?? 0;
+                  final categoryLimitSum = categoryBudgets.fold<int>(
+                    0,
+                    (s, b) => s + b.budgetAmount,
+                  );
+                  // 할당 가능 = 월 전체 상한 − 카테고리 한도 합 (음수면 초과 할당).
+                  final remaining = monthlyLimit - categoryLimitSum;
 
-                // 예산 추가 가능 카테고리 = EXPENSE 최상위(부모)만 — 전부 보유 시 비활성화.
-                final usedIds = categoryBudgets
-                    .map((b) => b.categoryRowId)
-                    .whereType<int>()
-                    .toSet();
-                final selectable = categories
-                    .where(
-                      (c) =>
-                          c.expenseType == 'EXPENSE' && c.parentRowId == null,
-                    )
-                    .toList();
-                final allBudgeted =
-                    selectable.isNotEmpty &&
-                    selectable.every((c) => usedIds.contains(c.rowId));
+                  // 예산 추가 가능 카테고리 = EXPENSE 최상위(부모)만 — 전부 보유 시 비활성화.
+                  final usedIds = categoryBudgets
+                      .map((b) => b.categoryRowId)
+                      .whereType<int>()
+                      .toSet();
+                  final selectable = categories
+                      .where(
+                        (c) =>
+                            c.expenseType == 'EXPENSE' && c.parentRowId == null,
+                      )
+                      .toList();
+                  final allBudgeted =
+                      selectable.isNotEmpty &&
+                      selectable.every((c) => usedIds.contains(c.rowId));
 
-                return Column(
-                  children: [
-                    _TotalBudgetCard(
-                      month: _month.month,
-                      overallBudget: overallBudget,
-                      monthlyLimit: monthlyLimit,
-                      totalSpent: totalSpent,
-                      categoryLimitSum: categoryLimitSum,
-                      remaining: remaining,
-                      masked: ref.watch(hideCardProvider('budget.manage')),
-                      tokens: t,
-                      onEdit: () => _editOverall(overallBudget),
-                    ),
-                    const SizedBox(height: PSpace.x16),
-                    _CategoryListCard(
-                      budgets: categoryBudgets,
-                      categories: categories,
-                      spentByCategory: spentByCategory,
-                      masked: ref.watch(hideCardProvider('budget.manage')),
-                      // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
-                      // 스켈레톤은 첫 로딩만.
-                      firstLoading:
-                          summaryAsync.isLoading && !summaryAsync.hasValue,
-                      // 웹 정합: 카테고리 로딩 중에도 추가 비활성(빈 칩 다이얼로그 방지).
-                      addDisabled: allBudgeted || categoriesAsync.isLoading,
-                      tokens: t,
-                      onAdd: () => _addCategory(budgets),
-                      onTap: (b) => _editCategory(b, budgets),
-                      onDelete: _deleteCategory,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+                  return Column(
+                    children: [
+                      _TotalBudgetCard(
+                        month: _month.month,
+                        overallBudget: overallBudget,
+                        monthlyLimit: monthlyLimit,
+                        totalSpent: totalSpent,
+                        categoryLimitSum: categoryLimitSum,
+                        remaining: remaining,
+                        masked: ref.watch(hideCardProvider('budget.manage')),
+                        tokens: t,
+                        onEdit: () => _editOverall(overallBudget),
+                      ),
+                      const SizedBox(height: PSpace.x16),
+                      _CategoryListCard(
+                        budgets: categoryBudgets,
+                        categories: categories,
+                        spentByCategory: spentByCategory,
+                        masked: ref.watch(hideCardProvider('budget.manage')),
+                        // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
+                        // 스켈레톤은 첫 로딩만.
+                        firstLoading:
+                            summaryAsync.isLoading && !summaryAsync.hasValue,
+                        // 웹 정합: 카테고리 로딩 중에도 추가 비활성(빈 칩 다이얼로그 방지).
+                        addDisabled: allBudgeted || categoriesAsync.isLoading,
+                        tokens: t,
+                        onAdd: () => _addCategory(budgets),
+                        onTap: (b) => _editCategory(b, budgets),
+                        onDelete: _deleteCategory,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

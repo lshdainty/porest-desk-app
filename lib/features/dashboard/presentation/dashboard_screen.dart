@@ -20,6 +20,7 @@ import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
@@ -143,41 +144,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
             onToggleMask: () => context.push('/settings/hide-amounts'),
           ),
-          const SizedBox(height: PSpace.x32),
-          _MonthExpenseCard(
-            month: _month,
-            expensesAsync: expensesAsync,
-            currentSummary: summaryRangeAsync.value,
-            prevSummary: prevSummaryAsync.value,
-            flags: ref.watch(maskFlagsProvider('home.monthExpense')),
+          const SizedBox(height: PSpacing.x2),
+          PScreenCard(
+            child: _MonthExpenseCard(
+              month: _month,
+              expensesAsync: expensesAsync,
+              currentSummary: summaryRangeAsync.value,
+              prevSummary: prevSummaryAsync.value,
+              flags: ref.watch(maskFlagsProvider('home.monthExpense')),
+            ),
           ),
-          const SizedBox(height: PSpace.x32),
-          _CategoryDonutCard(
-            summary: summaryRangeAsync.value,
-            categoriesAsync: categoriesAsync,
-            // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 탭을 오갈 때마다
-            // 스켈레톤이 끼어들면 화면이 껌뻑인다. 스켈레톤은 첫 로딩만.
-            firstLoading:
-                summaryRangeAsync.isLoading && !summaryRangeAsync.hasValue,
-            masked: ref.watch(hideCardProvider('home.categoryDonut')),
+          const SizedBox(height: PSpacing.x2),
+          PScreenCard(
+            child: _CategoryDonutCard(
+              summary: summaryRangeAsync.value,
+              categoriesAsync: categoriesAsync,
+              // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 탭을 오갈 때마다
+              // 스켈레톤이 끼어들면 화면이 껌뻑인다. 스켈레톤은 첫 로딩만.
+              firstLoading:
+                  summaryRangeAsync.isLoading && !summaryRangeAsync.hasValue,
+              masked: ref.watch(hideCardProvider('home.categoryDonut')),
+            ),
           ),
-          const SizedBox(height: PSpace.x32),
-          _BudgetCard(
-            budgetsAsync: budgetsAsync,
-            categoriesAsync: categoriesAsync,
-            summary: summaryRangeAsync.value,
-            masked: ref.watch(hideCardProvider('home.budget')),
-            warnThreshold:
-                ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
+          const SizedBox(height: PSpacing.x2),
+          PScreenCard(
+            child: _BudgetCard(
+              budgetsAsync: budgetsAsync,
+              categoriesAsync: categoriesAsync,
+              summary: summaryRangeAsync.value,
+              masked: ref.watch(hideCardProvider('home.budget')),
+              warnThreshold:
+                  ref.watch(budgetAlertThresholdProvider).value?.toDouble() ??
+                  85,
+            ),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           // 각 위젯이 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
           _HomeUpcomingWidget(async: dashboardAsync),
           _HomeTodosWidget(async: dashboardAsync),
-          _TodaySpendCard(
-            expensesAsync: expensesAsync,
-            categoriesAsync: categoriesAsync,
-            masked: ref.watch(hideCardProvider('home.todaySpend')),
+          PScreenCard(
+            child: _TodaySpendCard(
+              expensesAsync: expensesAsync,
+              categoriesAsync: categoriesAsync,
+              masked: ref.watch(hideCardProvider('home.todaySpend')),
+            ),
           ),
         ],
       ),

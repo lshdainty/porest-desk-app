@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
@@ -33,7 +34,7 @@ class NotificationScreen extends ConsumerWidget {
     final now = ref.watch(nowTickProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -63,101 +64,103 @@ class NotificationScreen extends ConsumerWidget {
           const SizedBox(width: PSpace.x8),
         ],
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: () async {
-          ref.invalidate(notificationListProvider);
-          ref.invalidate(unreadCountProvider);
-          await ref.read(notificationListProvider.future);
-        },
-        child: listAsync.when(
-          loading: () => _NotiSkeleton(tokens: t),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x16,
-              PSpace.x24,
-              PSpace.x16,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(notificationListProvider);
+            ref.invalidate(unreadCountProvider);
+            await ref.read(notificationListProvider.future);
+          },
+          child: listAsync.when(
+            loading: () => _NotiSkeleton(tokens: t),
+            error: (e, _) => Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x16,
+                PSpace.x24,
+                PSpace.x16,
+              ),
+              child: Text(
+                '${l.stateError}\n$e',
+                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+              ),
             ),
-            child: Text(
-              '${l.stateError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-            ),
-          ),
-          data: (items) {
-            if (items.isEmpty) {
+            data: (items) {
+              if (items.isEmpty) {
+                return Column(
+                  // 기본 정렬은 center 라 헤더·footer 가 제 폭을 못 갖는다 — 늘려서 채운다.
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          PEmptyState(
+                            icon: LucideIcons.bell,
+                            message: l.notiEmpty,
+                          ),
+                        ],
+                      ),
+                    ),
+                    _NotiSettingsFooter(tokens: t),
+                  ],
+                );
+              }
+              final unread = items.where((n) => !n.isRead).length;
+              // SoT(NotificationsPopover) 정합 구조:
+              //   [헤더 서브 '읽지 않은 알림 N개'] / [행 목록(구분선 없음)] / [footer '알림 설정 ›']
+              // 행 사이 divider 미사용(SoT) — 위계는 unread 배경/좌측 엣지바로만.
+              //
+              // 셋을 한 ListView 에 넣으면 footer 가 목록 끝에 붙어 **같이 흘러간다**
+              // (사용자 신고 2026-09-14 — 알림 다섯 개 바로 아래에 붙어 있었다).
+              // 헤더와 footer 는 Column 에 두고 가운데 행 목록만 스크롤시킨다.
               return Column(
                 // 기본 정렬은 center 라 헤더·footer 가 제 폭을 못 갖는다 — 늘려서 채운다.
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (unread > 0) _UnreadSubHeader(count: unread, tokens: t),
                   Expanded(
                     child: ListView(
+                      padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
                       children: [
-                        PEmptyState(
-                          icon: LucideIcons.bell,
-                          message: l.notiEmpty,
-                        ),
+                        for (final n in items)
+                          _NotiRow(
+                            noti: n,
+                            tokens: t,
+                            now: now,
+                            onTap: () async {
+                              if (!n.isRead) {
+                                try {
+                                  final repo = await ref.read(
+                                    notificationRepositoryProvider.future,
+                                  );
+                                  await repo.markRead(n.rowId);
+                                  ref.invalidate(notificationListProvider);
+                                  ref.invalidate(unreadCountProvider);
+                                } catch (_) {}
+                              }
+                            },
+                            onDelete: () async {
+                              try {
+                                final repo = await ref.read(
+                                  notificationRepositoryProvider.future,
+                                );
+                                await repo.delete(n.rowId);
+                                ref.invalidate(notificationListProvider);
+                                ref.invalidate(unreadCountProvider);
+                              } on ApiException {
+                                if (!context.mounted) return;
+                              }
+                            },
+                          ),
                       ],
                     ),
                   ),
                   _NotiSettingsFooter(tokens: t),
                 ],
               );
-            }
-            final unread = items.where((n) => !n.isRead).length;
-            // SoT(NotificationsPopover) 정합 구조:
-            //   [헤더 서브 '읽지 않은 알림 N개'] / [행 목록(구분선 없음)] / [footer '알림 설정 ›']
-            // 행 사이 divider 미사용(SoT) — 위계는 unread 배경/좌측 엣지바로만.
-            //
-            // 셋을 한 ListView 에 넣으면 footer 가 목록 끝에 붙어 **같이 흘러간다**
-            // (사용자 신고 2026-09-14 — 알림 다섯 개 바로 아래에 붙어 있었다).
-            // 헤더와 footer 는 Column 에 두고 가운데 행 목록만 스크롤시킨다.
-            return Column(
-              // 기본 정렬은 center 라 헤더·footer 가 제 폭을 못 갖는다 — 늘려서 채운다.
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (unread > 0) _UnreadSubHeader(count: unread, tokens: t),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
-                    children: [
-                      for (final n in items)
-                        _NotiRow(
-                          noti: n,
-                          tokens: t,
-                          now: now,
-                          onTap: () async {
-                            if (!n.isRead) {
-                              try {
-                                final repo = await ref.read(
-                                  notificationRepositoryProvider.future,
-                                );
-                                await repo.markRead(n.rowId);
-                                ref.invalidate(notificationListProvider);
-                                ref.invalidate(unreadCountProvider);
-                              } catch (_) {}
-                            }
-                          },
-                          onDelete: () async {
-                            try {
-                              final repo = await ref.read(
-                                notificationRepositoryProvider.future,
-                              );
-                              await repo.delete(n.rowId);
-                              ref.invalidate(notificationListProvider);
-                              ref.invalidate(unreadCountProvider);
-                            } on ApiException {
-                              if (!context.mounted) return;
-                            }
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-                _NotiSettingsFooter(tokens: t),
-              ],
-            );
-          },
+            },
+          ),
         ),
       ),
     );

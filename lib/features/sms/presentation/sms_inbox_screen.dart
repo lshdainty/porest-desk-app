@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -107,7 +109,7 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
     final hasEntries = entries != null && entries.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -126,63 +128,65 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
             ),
         ],
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: _load,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            PSpace.x24,
-            PSpace.x16,
-            PSpace.x24,
-            PSpace.x24,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: _load,
+          child: ListView(
+            padding: EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x24,
+            ),
+            children: [
+              // 알림 접근이 이 기능의 유일한 스위치다 — 카드사·은행 앱 푸시도,
+              // 결제 문자도 전부 이 경로로 읽는다. 꺼져 있으면 아무것도 안 들어온다.
+              if (!_notiAccess) ...[
+                PAlert(
+                  title: l.smsNotiAccessOffTitle,
+                  description: l.smsNotiAccessOffDesc,
+                  variant: PAlertVariant.warning,
+                  action: PButton(
+                    label: l.smsPermissionEnable,
+                    size: PButtonSize.sm,
+                    variant: PButtonVariant.secondary,
+                    onPressed: SmsAndroid.openNotificationAccessSettings,
+                  ),
+                ),
+                const SizedBox(height: PSpace.x16),
+              ],
+              // 알림 권한은 없어도 감지는 된다(수신함에 쌓인다) — 알림으로 바로
+              // 기록하러 가는 동선만 빠지므로 경고가 아니라 안내로 둔다.
+              if (_notiAccess && !_granted) ...[
+                PAlert(
+                  title: l.smsPermissionOffTitle,
+                  description: l.smsPermissionOffDesc,
+                  variant: PAlertVariant.info,
+                  action: PButton(
+                    label: l.smsPermissionEnable,
+                    size: PButtonSize.sm,
+                    variant: PButtonVariant.secondary,
+                    onPressed: _requestPermission,
+                  ),
+                ),
+                const SizedBox(height: PSpace.x16),
+              ],
+              if (entries == null)
+                const SizedBox.shrink()
+              else if (entries.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: PSpace.x32),
+                  child: PEmptyState(
+                    icon: LucideIcons.creditCard,
+                    message: l.smsInboxEmpty,
+                    subMessage: l.smsInboxEmptyDesc,
+                  ),
+                )
+              else
+                ..._buildGrouped(context, entries),
+            ],
           ),
-          children: [
-            // 알림 접근이 이 기능의 유일한 스위치다 — 카드사·은행 앱 푸시도,
-            // 결제 문자도 전부 이 경로로 읽는다. 꺼져 있으면 아무것도 안 들어온다.
-            if (!_notiAccess) ...[
-              PAlert(
-                title: l.smsNotiAccessOffTitle,
-                description: l.smsNotiAccessOffDesc,
-                variant: PAlertVariant.warning,
-                action: PButton(
-                  label: l.smsPermissionEnable,
-                  size: PButtonSize.sm,
-                  variant: PButtonVariant.secondary,
-                  onPressed: SmsAndroid.openNotificationAccessSettings,
-                ),
-              ),
-              const SizedBox(height: PSpace.x16),
-            ],
-            // 알림 권한은 없어도 감지는 된다(수신함에 쌓인다) — 알림으로 바로
-            // 기록하러 가는 동선만 빠지므로 경고가 아니라 안내로 둔다.
-            if (_notiAccess && !_granted) ...[
-              PAlert(
-                title: l.smsPermissionOffTitle,
-                description: l.smsPermissionOffDesc,
-                variant: PAlertVariant.info,
-                action: PButton(
-                  label: l.smsPermissionEnable,
-                  size: PButtonSize.sm,
-                  variant: PButtonVariant.secondary,
-                  onPressed: _requestPermission,
-                ),
-              ),
-              const SizedBox(height: PSpace.x16),
-            ],
-            if (entries == null)
-              const SizedBox.shrink()
-            else if (entries.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: PSpace.x32),
-                child: PEmptyState(
-                  icon: LucideIcons.creditCard,
-                  message: l.smsInboxEmpty,
-                  subMessage: l.smsInboxEmptyDesc,
-                ),
-              )
-            else
-              ..._buildGrouped(context, entries),
-          ],
         ),
       ),
     );

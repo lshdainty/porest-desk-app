@@ -500,25 +500,27 @@ class _CategoryTab extends ConsumerWidget {
             categoriesAsync: categoriesAsync,
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _TopMerchantsCard(
             async: merchantAsync,
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _HeatmapCard(
             async: heatmapAsync,
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
-          const SizedBox(height: PSpace.x32),
-          _HighlightsGrid(
-            state: state,
-            rangeAsync: rangeAsync,
-            categoriesAsync: categoriesAsync,
-            merchantAsync: merchantAsync,
-            expensesAsync: expensesAsync,
-            prevRangeAsync: prevRangeAsync,
-            masked: ref.watch(hideCardProvider('stats.category')),
+          const SizedBox(height: PSpacing.x2),
+          _Card(
+            child: _HighlightsGrid(
+              state: state,
+              rangeAsync: rangeAsync,
+              categoriesAsync: categoriesAsync,
+              merchantAsync: merchantAsync,
+              expensesAsync: expensesAsync,
+              prevRangeAsync: prevRangeAsync,
+              masked: ref.watch(hideCardProvider('stats.category')),
+            ),
           ),
         ],
       ),
@@ -560,13 +562,13 @@ class _TrendTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _SavingsRateCard(
             state: state,
             rangeAsync: rangeAsync,
             masked: ref.watch(hideCardProvider('stats.trend')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _SavingsBarsCard(
             state: state,
             rangeAsync: rangeAsync,
@@ -575,7 +577,7 @@ class _TrendTab extends ConsumerWidget {
           // 카테고리 월별 추이는 여러 달(2+)일 때만 노출 — 단일 월은 카테고리 탭 도넛이
           // 담당(web showCatTrend: monthlyBuckets >= 2 정합).
           if (((rangeAsync.value?.monthlyBuckets.length) ?? 0) >= 2) ...[
-            const SizedBox(height: PSpace.x32),
+            const SizedBox(height: PSpacing.x2),
             _CatTrendCard(state: state, rangeAsync: rangeAsync),
           ],
         ],
@@ -625,7 +627,7 @@ class _CompareTab extends ConsumerWidget {
             prevRangeAsync: prevRangeAsync,
             masked: ref.watch(hideCardProvider('stats.compare')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _CompareMetricsCard(
             state: state,
             rangeAsync: rangeAsync,
@@ -634,14 +636,14 @@ class _CompareTab extends ConsumerWidget {
             prevExpAsync: prevExpAsync,
             masked: ref.watch(hideCardProvider('stats.compare')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _CompareCategoryCard(
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
             categoriesAsync: categoriesAsync,
             masked: ref.watch(hideCardProvider('stats.compare')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _CompareWeekdayCard(
             state: state,
             nowExpAsync: nowExpAsync,
@@ -656,16 +658,25 @@ class _CompareTab extends ConsumerWidget {
 
 // ─── 공용 위젯 ─────────────────────────────────────────────
 
-/// 섹션 컨테이너 — 카드 다이어트(design app.css `.m-scroll .p-card` 플랫):
-/// 카드 배경/그림자/radius 없이 통과만 한다. 섹션 내부 헤더는 각 섹션이 자체
-/// 렌더 — 섹션 사이 여백(32)이 구분을 담당한다.
+/// 섹션 카드 — 카드 화면(회색 바닥 위 카드, 02-005 / Q-019-3): bg-layer-default 면 + 1px stroke-neutral-weak + 모서리 12,
+/// 안쪽 24. 그림자는 없다(Elevation v104 — 카드는 선과 바닥으로 가른다). 카드 사이는 8.
 class _Card extends StatelessWidget {
-  // 좌우 여백은 탭 ListView 가 한 번만 쥔다(24). 제목도 행도 여기서 시작하므로
-  // 섹션이 따로 inset 을 얹지 않는다 — 얹으면 제목만 밖으로 튀어나온다.
   const _Card({required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => child;
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(PSpacing.x6),
+      decoration: BoxDecoration(
+        color: c.bgLayerDefault,
+        borderRadius: BorderRadius.circular(PRounded.r3),
+        border: Border.all(color: c.strokeNeutralWeak),
+      ),
+      child: child,
+    );
+  }
 }
 
 /// 카테고리 카드 우측 trigger — 가계부 FilterDialog 패턴 정합.

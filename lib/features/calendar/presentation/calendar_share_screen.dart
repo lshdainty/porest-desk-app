@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -54,7 +56,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
     final listAsync = ref.watch(userCalendarListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -71,39 +73,41 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: () async {
-          ref.invalidate(userCalendarListProvider);
-          await ref.read(userCalendarListProvider.future);
-        },
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24,
-            vertical: PSpace.x24,
-          ),
-          children: [
-            _IntroCard(tokens: t),
-            const SizedBox(height: PSpace.x32),
-            listAsync.when(
-              loading: () => const PListSkeleton(rows: 4, showAvatar: true),
-              error: (e, _) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text(
-                  '${l.calCalendarLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(userCalendarListProvider);
+            await ref.read(userCalendarListProvider.future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
+            ),
+            children: [
+              _IntroCard(tokens: t),
+              const SizedBox(height: PSpace.x32),
+              listAsync.when(
+                loading: () => const PListSkeleton(rows: 4, showAvatar: true),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                  child: Text(
+                    '${l.calCalendarLoadError}\n$e',
+                    style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                  ),
+                ),
+                data: (calendars) => _CalendarSections(
+                  calendars: calendars,
+                  tokens: t,
+                  onCreate: () => _showCreateDialog(context, ref),
                 ),
               ),
-              data: (calendars) => _CalendarSections(
-                calendars: calendars,
-                tokens: t,
-                onCreate: () => _showCreateDialog(context, ref),
-              ),
-            ),
-            const SizedBox(height: PSpace.x32),
-            _JoinCard(tokens: t, onJoin: () => _showJoinDialog(context, ref)),
-            const SizedBox(height: PSpace.x32),
-          ],
+              const SizedBox(height: PSpace.x32),
+              _JoinCard(tokens: t, onJoin: () => _showJoinDialog(context, ref)),
+              const SizedBox(height: PSpace.x32),
+            ],
+          ),
         ),
       ),
     );

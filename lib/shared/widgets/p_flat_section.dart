@@ -52,14 +52,19 @@ class PFlatSection extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 15,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.15,
-                  color: t.fgPrimary,
+              // 카드 안에서는 폭이 좁다 — 제목이 말줄임으로 양보해 오른쪽 링크 · 꼬리가 밀려나지 않게
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: 15,
+                    fontWeight: PFontWeight.bold,
+                    letterSpacing: -0.15,
+                    color: t.fgPrimary,
+                  ),
                 ),
               ),
               if (titleSuffix != null) ...[

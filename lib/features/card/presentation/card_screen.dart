@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -87,7 +89,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
     final pageAsync = ref.watch(cardCatalogPageProvider(_searchKey));
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -199,52 +201,15 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           ),
         ),
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: () async {
-          ref.invalidate(cardCatalogPageProvider(_searchKey));
-          await ref.read(cardCatalogPageProvider(_searchKey).future);
-        },
-        child: pageAsync.when(
-          loading: () => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x12,
-              PSpace.x24,
-              PSpace.x40,
-            ),
-            children: [
-              // '총 N건' 카운트 자리
-              Padding(
-                padding: const EdgeInsets.only(bottom: PSpace.x8),
-                child: PSkeleton.line(width: 56, height: 12),
-              ),
-              for (int i = 0; i < 6; i++) ...[
-                if (i > 0) const SizedBox(height: PSpace.x8),
-                _CardRowSkeleton(tokens: t),
-              ],
-            ],
-          ),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.all(PSpace.x16),
-            child: Text(
-              '${l.cardLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-            ),
-          ),
-          data: (page) {
-            final cards = page.content;
-            if (cards.isEmpty) {
-              return ListView(
-                children: [
-                  PEmptyState(
-                    icon: LucideIcons.creditCard,
-                    message: l.cardEmpty,
-                  ),
-                ],
-              );
-            }
-            return ListView(
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(cardCatalogPageProvider(_searchKey));
+            await ref.read(cardCatalogPageProvider(_searchKey).future);
+          },
+          child: pageAsync.when(
+            loading: () => ListView(
               padding: const EdgeInsets.fromLTRB(
                 PSpace.x24,
                 PSpace.x12,
@@ -252,49 +217,90 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                 PSpace.x40,
               ),
               children: [
+                // '총 N건' 카운트 자리
                 Padding(
                   padding: const EdgeInsets.only(bottom: PSpace.x8),
-                  child: Text(
-                    l.cardTotalCount(page.totalElements),
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  ),
+                  child: PSkeleton.line(width: 56, height: 12),
                 ),
-                for (int i = 0; i < cards.length; i++) ...[
+                for (int i = 0; i < 6; i++) ...[
                   if (i > 0) const SizedBox(height: PSpace.x8),
-                  _CardRow(card: cards[i], tokens: t),
+                  _CardRowSkeleton(tokens: t),
                 ],
-                const SizedBox(height: PSpace.x16),
-                _Paginator(
-                  page: page,
-                  onPrev: page.first
-                      ? null
-                      : () => setState(() {
-                          _searchKey = (
-                            keyword: _searchKey.keyword,
-                            cardType: _searchKey.cardType,
-                            benefitType: _searchKey.benefitType,
-                            includeDiscontinued: _searchKey.includeDiscontinued,
-                            page: _searchKey.page - 1,
-                            size: _searchKey.size,
-                          );
-                        }),
-                  onNext: page.last
-                      ? null
-                      : () => setState(() {
-                          _searchKey = (
-                            keyword: _searchKey.keyword,
-                            cardType: _searchKey.cardType,
-                            benefitType: _searchKey.benefitType,
-                            includeDiscontinued: _searchKey.includeDiscontinued,
-                            page: _searchKey.page + 1,
-                            size: _searchKey.size,
-                          );
-                        }),
-                  tokens: t,
-                ),
               ],
-            );
-          },
+            ),
+            error: (e, _) => Padding(
+              padding: const EdgeInsets.all(PSpace.x16),
+              child: Text(
+                '${l.cardLoadError}\n$e',
+                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+              ),
+            ),
+            data: (page) {
+              final cards = page.content;
+              if (cards.isEmpty) {
+                return ListView(
+                  children: [
+                    PEmptyState(
+                      icon: LucideIcons.creditCard,
+                      message: l.cardEmpty,
+                    ),
+                  ],
+                );
+              }
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  PSpace.x24,
+                  PSpace.x12,
+                  PSpace.x24,
+                  PSpace.x40,
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: PSpace.x8),
+                    child: Text(
+                      l.cardTotalCount(page.totalElements),
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                  ),
+                  for (int i = 0; i < cards.length; i++) ...[
+                    if (i > 0) const SizedBox(height: PSpace.x8),
+                    _CardRow(card: cards[i], tokens: t),
+                  ],
+                  const SizedBox(height: PSpace.x16),
+                  _Paginator(
+                    page: page,
+                    onPrev: page.first
+                        ? null
+                        : () => setState(() {
+                            _searchKey = (
+                              keyword: _searchKey.keyword,
+                              cardType: _searchKey.cardType,
+                              benefitType: _searchKey.benefitType,
+                              includeDiscontinued:
+                                  _searchKey.includeDiscontinued,
+                              page: _searchKey.page - 1,
+                              size: _searchKey.size,
+                            );
+                          }),
+                    onNext: page.last
+                        ? null
+                        : () => setState(() {
+                            _searchKey = (
+                              keyword: _searchKey.keyword,
+                              cardType: _searchKey.cardType,
+                              benefitType: _searchKey.benefitType,
+                              includeDiscontinued:
+                                  _searchKey.includeDiscontinued,
+                              page: _searchKey.page + 1,
+                              size: _searchKey.size,
+                            );
+                          }),
+                    tokens: t,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

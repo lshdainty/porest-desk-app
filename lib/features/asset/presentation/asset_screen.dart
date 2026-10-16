@@ -20,6 +20,7 @@ import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
     show PDelta, PDeltaDirection;
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -259,7 +260,7 @@ class _AssetBody extends StatelessWidget {
           vertical: PSpace.x20,
         ),
         children: [
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           // 카드 다이어트 — 빈 상태도 카드 없이 플랫.
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
@@ -347,56 +348,66 @@ class _AssetBody extends StatelessWidget {
           onToggleMask: onToggleMask,
           tokens: tokens,
         ),
-        const SizedBox(height: PSpace.x32),
-        _TypeGroup(
-          title: l.assetGroupAccount,
-          assets: accounts,
-          total: accountsTotal,
-          masked: masks.accounts,
-          tokens: tokens,
-          kind: _GroupKind.account,
+        const SizedBox(height: PSpacing.x2),
+        PScreenCard(
+          child: _TypeGroup(
+            title: l.assetGroupAccount,
+            assets: accounts,
+            total: accountsTotal,
+            masked: masks.accounts,
+            tokens: tokens,
+            kind: _GroupKind.account,
+          ),
         ),
         if (investments.isNotEmpty) ...[
-          const SizedBox(height: PSpace.x32),
-          _TypeGroup(
-            title: l.assetGroupInvestment,
-            assets: investments,
-            total: investmentsTotal,
-            masked: masks.investments,
-            tokens: tokens,
-            kind: _GroupKind.investment,
-            valuations: valuations,
+          const SizedBox(height: PSpacing.x2),
+          PScreenCard(
+            child: _TypeGroup(
+              title: l.assetGroupInvestment,
+              assets: investments,
+              total: investmentsTotal,
+              masked: masks.investments,
+              tokens: tokens,
+              kind: _GroupKind.investment,
+              valuations: valuations,
+            ),
           ),
         ],
-        const SizedBox(height: PSpace.x32),
-        _TypeGroup(
-          title: l.assetGroupCard,
-          assets: cards,
-          total: cardsTotal,
-          totalColor: tokens.fgExpense,
-          negativeTotal: true,
-          masked: masks.cards,
-          tokens: tokens,
-          kind: _GroupKind.card,
-        ),
-        if (loans.isNotEmpty) ...[
-          const SizedBox(height: PSpace.x32),
-          _TypeGroup(
-            title: l.assetGroupDebt,
-            assets: loans,
-            total: loansTotal,
+        const SizedBox(height: PSpacing.x2),
+        PScreenCard(
+          child: _TypeGroup(
+            title: l.assetGroupCard,
+            assets: cards,
+            total: cardsTotal,
             totalColor: tokens.fgExpense,
             negativeTotal: true,
-            masked: masks.loans,
+            masked: masks.cards,
             tokens: tokens,
-            kind: _GroupKind.loan,
+            kind: _GroupKind.card,
+          ),
+        ),
+        if (loans.isNotEmpty) ...[
+          const SizedBox(height: PSpacing.x2),
+          PScreenCard(
+            child: _TypeGroup(
+              title: l.assetGroupDebt,
+              assets: loans,
+              total: loansTotal,
+              totalColor: tokens.fgExpense,
+              negativeTotal: true,
+              masked: masks.loans,
+              tokens: tokens,
+              kind: _GroupKind.loan,
+            ),
           ),
         ],
-        const SizedBox(height: PSpace.x32),
-        _SavingGoalsSection(
-          goals: goals,
-          masked: masks.savingGoals,
-          tokens: tokens,
+        const SizedBox(height: PSpacing.x2),
+        PScreenCard(
+          child: _SavingGoalsSection(
+            goals: goals,
+            masked: masks.savingGoals,
+            tokens: tokens,
+          ),
         ),
       ],
     );
@@ -1234,13 +1245,13 @@ class _AssetPageSkeleton extends StatelessWidget {
       ),
       children: [
         const _AssetSummaryCardSkeleton(),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         // 섹션 제목은 정적 텍스트라 로딩에도 진짜를 쓴다 — 금액만 데이터 자리.
         // 조건부 그룹(투자·대출)은 데이터를 봐야 알 수 있어 늘 뜨는 둘만 세운다.
         _AssetTypeGroupSkeleton(title: l.assetGroupAccount, rows: 3),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         _AssetTypeGroupSkeleton(title: l.assetGroupCard, rows: 2),
-        const SizedBox(height: PSpace.x32),
+        const SizedBox(height: PSpacing.x2),
         _AssetSavingGoalsSkeleton(title: l.navSavingGoals),
       ],
     );

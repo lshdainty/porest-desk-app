@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
@@ -100,7 +101,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -111,253 +112,256 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
-        onRefresh: () async {
-          ref.invalidate(recurringListProvider);
-          await ref.read(recurringListProvider.future);
-        },
-        child: listAsync.when(
-          loading: () => const _RecurringSkeleton(),
-          error: (e, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x16,
-              PSpace.x24,
-              PSpace.x16,
-            ),
-            children: [
-              _ErrorBox(
-                message: '${l.recurringLoadError}\n$e',
-                onRetry: () => ref.invalidate(recurringListProvider),
-              ),
-            ],
-          ),
-          data: (items) {
-            final categories =
-                categoriesAsync.value ?? const <ExpenseCategory>[];
-            final stats = _computeStats(items);
-            final filtered = _applyFilter(items, _filter);
-
-            return ListView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x24,
-                vertical: PSpace.x24,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(recurringListProvider);
+            await ref.read(recurringListProvider.future);
+          },
+          child: listAsync.when(
+            loading: () => const _RecurringSkeleton(),
+            error: (e, _) => ListView(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x16,
+                PSpace.x24,
+                PSpace.x16,
               ),
               children: [
-                _SummaryCard(
-                  active: stats.active,
-                  paused: stats.paused,
-                  monthlyExpense: stats.monthlyExpense,
-                  monthlyIncome: stats.monthlyIncome,
-                  masked: ref.watch(hideCardProvider('etc.recurring')),
-                  tokens: t,
+                _ErrorBox(
+                  message: '${l.recurringLoadError}\n$e',
+                  onRetry: () => ref.invalidate(recurringListProvider),
                 ),
-                if (stats.next7.isNotEmpty) ...[
-                  const SizedBox(height: PSpace.x24),
-                  _UpcomingCard(
-                    items: stats.next7,
-                    categories: categories,
+              ],
+            ),
+            data: (items) {
+              final categories =
+                  categoriesAsync.value ?? const <ExpenseCategory>[];
+              final stats = _computeStats(items);
+              final filtered = _applyFilter(items, _filter);
+
+              return ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PSpace.x24,
+                  vertical: PSpace.x24,
+                ),
+                children: [
+                  _SummaryCard(
+                    active: stats.active,
+                    paused: stats.paused,
+                    monthlyExpense: stats.monthlyExpense,
+                    monthlyIncome: stats.monthlyIncome,
                     masked: ref.watch(hideCardProvider('etc.recurring')),
                     tokens: t,
                   ),
-                ],
-                const SizedBox(height: PSpace.x24),
-                // 카드 다이어트 — 리스트 셸 카드 제거, 플랫.
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
-                    Padding(
-                      // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
-                      padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 1행: 라벨만
-                          Text(
-                            l.recurringAllList,
-                            // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
-                            style: PTypo.body.copyWith(
-                              color: t.fgPrimary,
-                              fontWeight: PFontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: PSpace.x4,
-                          ), // 라벨↔toggle 4(사용자 결정)
-                          // 2행: 필터 토글(좌, 넘치면 가로 스크롤·스크롤바 없음) + 추가 버튼(우)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  // Flutter SingleChildScrollView 는 기본적으로 스크롤바를 그리지 않음
-                                  // (Scrollbar 위젯 미적용) — 웹 scrollbar-hide 와 동일 효과.
-                                  child: PTabs<_Filter>(
-                                    value: _filter,
-                                    onChanged: (v) =>
-                                        setState(() => _filter = v),
-                                    variant: PTabsVariant.pills,
-                                    size: PTabsSize.sm,
-                                    items: [
-                                      PTabItem(
-                                        value: _Filter.all,
-                                        label: l.recurringFilterAll(
-                                          items.length,
-                                        ),
-                                      ),
-                                      PTabItem(
-                                        value: _Filter.expense,
-                                        label: l.recurringFilterExpense(
-                                          items
-                                              .where(
-                                                (i) =>
-                                                    i.expenseType ==
-                                                        'EXPENSE' &&
-                                                    i.isActive == 'Y',
-                                              )
-                                              .length,
-                                        ),
-                                      ),
-                                      PTabItem(
-                                        value: _Filter.income,
-                                        label: l.recurringFilterIncome(
-                                          items
-                                              .where(
-                                                (i) =>
-                                                    i.expenseType == 'INCOME' &&
-                                                    i.isActive == 'Y',
-                                              )
-                                              .length,
-                                        ),
-                                      ),
-                                      PTabItem(
-                                        value: _Filter.transfer,
-                                        label: l.recurringFilterTransfer(
-                                          items
-                                              .where(
-                                                (i) =>
-                                                    i.expenseType ==
-                                                        'TRANSFER' &&
-                                                    i.isActive == 'Y',
-                                              )
-                                              .length,
-                                        ),
-                                      ),
-                                      PTabItem(
-                                        value: _Filter.paused,
-                                        label: l.recurringFilterPaused(
-                                          items
-                                              .where((i) => i.isActive != 'Y')
-                                              .length,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: PSpace.x8),
-                              PButton(
-                                label: l.recurringAdd,
-                                icon: LucideIcons.plus,
-                                variant: PButtonVariant.accent,
-                                size: PButtonSize.sm,
-                                onPressed: () =>
-                                    showRecurringSettingsDialog(context),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                  if (stats.next7.isNotEmpty) ...[
+                    const SizedBox(height: PSpace.x24),
+                    _UpcomingCard(
+                      items: stats.next7,
+                      categories: categories,
+                      masked: ref.watch(hideCardProvider('etc.recurring')),
+                      tokens: t,
                     ),
-                    if (filtered.isEmpty)
-                      _EmptyState(tokens: t)
-                    else
-                      Column(
-                        children: [
-                          for (int i = 0; i < filtered.length; i++) ...[
-                            // 밀면 정지·수정·삭제가 바로 나온다. 행 탭은 상세
-                            // 시트로 — 스와이프는 지름길이지 유일한 경로가
-                            // 아니다(spec swipe-actions.md · WCAG 2.1.1).
-                            PSwipeActions(
-                              key: ValueKey('recurring-${filtered[i].rowId}'),
-                              groupTag: 'recurring-list',
-                              enabled:
-                                  _busyToggleId == null &&
-                                  _busyDeleteId == null,
-                              actions: [
-                                PSwipeAction(
-                                  // 라벨은 두 글자여야 한다 — '일시정지' 는 슬롯
-                                  // 안에서 줄바꿈돼 트레이가 세로로 넘쳤다
-                                  // (BOTTOM OVERFLOWED, 실측). 상세 시트 footer
-                                  // 는 폭이 넉넉해 거기선 '일시정지' 그대로 쓴다.
-                                  label: filtered[i].isActive == 'Y'
-                                      ? l.recurringPauseAction
-                                      : l.recurringStart,
-                                  icon: filtered[i].isActive == 'Y'
-                                      ? LucideIcons.pause
-                                      : LucideIcons.play,
-                                  kind: PSwipeKind.neutral,
-                                  onSelect: () => _toggle(filtered[i]),
-                                ),
-                                PSwipeAction(
-                                  label: l.actionEdit,
-                                  icon: LucideIcons.pencil,
-                                  kind: PSwipeKind.primary,
-                                  onSelect: () => showRecurringSettingsDialog(
-                                    context,
-                                    recurring: filtered[i],
+                  ],
+                  const SizedBox(height: PSpace.x24),
+                  // 카드 다이어트 — 리스트 셸 카드 제거, 플랫.
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
+                      Padding(
+                        // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
+                        padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1행: 라벨만
+                            Text(
+                              l.recurringAllList,
+                              // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
+                              style: PTypo.body.copyWith(
+                                color: t.fgPrimary,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: PSpace.x4,
+                            ), // 라벨↔toggle 4(사용자 결정)
+                            // 2행: 필터 토글(좌, 넘치면 가로 스크롤·스크롤바 없음) + 추가 버튼(우)
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    // Flutter SingleChildScrollView 는 기본적으로 스크롤바를 그리지 않음
+                                    // (Scrollbar 위젯 미적용) — 웹 scrollbar-hide 와 동일 효과.
+                                    child: PTabs<_Filter>(
+                                      value: _filter,
+                                      onChanged: (v) =>
+                                          setState(() => _filter = v),
+                                      variant: PTabsVariant.pills,
+                                      size: PTabsSize.sm,
+                                      items: [
+                                        PTabItem(
+                                          value: _Filter.all,
+                                          label: l.recurringFilterAll(
+                                            items.length,
+                                          ),
+                                        ),
+                                        PTabItem(
+                                          value: _Filter.expense,
+                                          label: l.recurringFilterExpense(
+                                            items
+                                                .where(
+                                                  (i) =>
+                                                      i.expenseType ==
+                                                          'EXPENSE' &&
+                                                      i.isActive == 'Y',
+                                                )
+                                                .length,
+                                          ),
+                                        ),
+                                        PTabItem(
+                                          value: _Filter.income,
+                                          label: l.recurringFilterIncome(
+                                            items
+                                                .where(
+                                                  (i) =>
+                                                      i.expenseType ==
+                                                          'INCOME' &&
+                                                      i.isActive == 'Y',
+                                                )
+                                                .length,
+                                          ),
+                                        ),
+                                        PTabItem(
+                                          value: _Filter.transfer,
+                                          label: l.recurringFilterTransfer(
+                                            items
+                                                .where(
+                                                  (i) =>
+                                                      i.expenseType ==
+                                                          'TRANSFER' &&
+                                                      i.isActive == 'Y',
+                                                )
+                                                .length,
+                                          ),
+                                        ),
+                                        PTabItem(
+                                          value: _Filter.paused,
+                                          label: l.recurringFilterPaused(
+                                            items
+                                                .where((i) => i.isActive != 'Y')
+                                                .length,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                PSwipeAction(
-                                  label: l.actionDelete,
-                                  icon: LucideIcons.trash2,
-                                  kind: PSwipeKind.destructive,
-                                  // _delete 가 자체 확인 다이얼로그를 띄우므로
-                                  // 여기서 confirmMessage 를 또 주지 않는다 —
-                                  // 같은 삭제에 확인이 두 번 뜨면 안 된다.
-                                  onSelect: () => _delete(filtered[i]),
+                                const SizedBox(width: PSpace.x8),
+                                PButton(
+                                  label: l.recurringAdd,
+                                  icon: LucideIcons.plus,
+                                  variant: PButtonVariant.accent,
+                                  size: PButtonSize.sm,
+                                  onPressed: () =>
+                                      showRecurringSettingsDialog(context),
                                 ),
                               ],
-                              child: _RecurringRow(
-                                item: filtered[i],
-                                category: categories.byRowId(
-                                  filtered[i].categoryRowId,
-                                ),
-                                masked: ref.watch(
-                                  hideCardProvider('etc.recurring'),
-                                ),
-                                tokens: t,
-                                anyBusy:
-                                    _busyToggleId != null ||
-                                    _busyDeleteId != null,
-                                onToggle: () => _toggle(filtered[i]),
-                                onEdit: () => showRecurringSettingsDialog(
-                                  context,
-                                  recurring: filtered[i],
-                                ),
-                                onDelete: () => _delete(filtered[i]),
-                                onOpenDetail: () => showRecurringDetailSheet(
-                                  context,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (filtered.isEmpty)
+                        _EmptyState(tokens: t)
+                      else
+                        Column(
+                          children: [
+                            for (int i = 0; i < filtered.length; i++) ...[
+                              // 밀면 정지·수정·삭제가 바로 나온다. 행 탭은 상세
+                              // 시트로 — 스와이프는 지름길이지 유일한 경로가
+                              // 아니다(spec swipe-actions.md · WCAG 2.1.1).
+                              PSwipeActions(
+                                key: ValueKey('recurring-${filtered[i].rowId}'),
+                                groupTag: 'recurring-list',
+                                enabled:
+                                    _busyToggleId == null &&
+                                    _busyDeleteId == null,
+                                actions: [
+                                  PSwipeAction(
+                                    // 라벨은 두 글자여야 한다 — '일시정지' 는 슬롯
+                                    // 안에서 줄바꿈돼 트레이가 세로로 넘쳤다
+                                    // (BOTTOM OVERFLOWED, 실측). 상세 시트 footer
+                                    // 는 폭이 넉넉해 거기선 '일시정지' 그대로 쓴다.
+                                    label: filtered[i].isActive == 'Y'
+                                        ? l.recurringPauseAction
+                                        : l.recurringStart,
+                                    icon: filtered[i].isActive == 'Y'
+                                        ? LucideIcons.pause
+                                        : LucideIcons.play,
+                                    kind: PSwipeKind.neutral,
+                                    onSelect: () => _toggle(filtered[i]),
+                                  ),
+                                  PSwipeAction(
+                                    label: l.actionEdit,
+                                    icon: LucideIcons.pencil,
+                                    kind: PSwipeKind.primary,
+                                    onSelect: () => showRecurringSettingsDialog(
+                                      context,
+                                      recurring: filtered[i],
+                                    ),
+                                  ),
+                                  PSwipeAction(
+                                    label: l.actionDelete,
+                                    icon: LucideIcons.trash2,
+                                    kind: PSwipeKind.destructive,
+                                    // _delete 가 자체 확인 다이얼로그를 띄우므로
+                                    // 여기서 confirmMessage 를 또 주지 않는다 —
+                                    // 같은 삭제에 확인이 두 번 뜨면 안 된다.
+                                    onSelect: () => _delete(filtered[i]),
+                                  ),
+                                ],
+                                child: _RecurringRow(
                                   item: filtered[i],
+                                  category: categories.byRowId(
+                                    filtered[i].categoryRowId,
+                                  ),
+                                  masked: ref.watch(
+                                    hideCardProvider('etc.recurring'),
+                                  ),
+                                  tokens: t,
+                                  anyBusy:
+                                      _busyToggleId != null ||
+                                      _busyDeleteId != null,
+                                  onToggle: () => _toggle(filtered[i]),
                                   onEdit: () => showRecurringSettingsDialog(
                                     context,
                                     recurring: filtered[i],
                                   ),
                                   onDelete: () => _delete(filtered[i]),
+                                  onOpenDetail: () => showRecurringDetailSheet(
+                                    context,
+                                    item: filtered[i],
+                                    onEdit: () => showRecurringSettingsDialog(
+                                      context,
+                                      recurring: filtered[i],
+                                    ),
+                                    onDelete: () => _delete(filtered[i]),
+                                  ),
                                 ),
                               ),
-                            ),
-                            if (i < filtered.length - 1) const PDivider(),
+                              if (i < filtered.length - 1) const PDivider(),
+                            ],
                           ],
-                        ],
-                      ),
-                  ],
-                ),
-              ],
-            );
-          },
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
