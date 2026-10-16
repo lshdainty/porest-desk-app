@@ -416,7 +416,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                         : krwSigned(
                             _cashDelta!.abs(),
                             false,
-                            sign: _cashDelta! >= 0 ? '+' : '-',
+                            sign: _cashDelta! >= 0 ? '+' : kMinus,
                             unit: true,
                           ),
                     style: PTypo.money.copyWith(
@@ -441,7 +441,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                       krwSigned(
                         realized.abs(),
                         false,
-                        sign: realized >= 0 ? '+' : '-',
+                        sign: realized >= 0 ? '+' : kMinus,
                         unit: true,
                       ),
                       style: PTypo.money.copyWith(

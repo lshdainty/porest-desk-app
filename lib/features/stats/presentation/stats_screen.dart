@@ -1596,13 +1596,27 @@ class _HeatmapRow {
 }
 
 const _heatRows = [
-  _HeatmapRow('06–10시', [6, 7, 8, 9]),
-  _HeatmapRow('10–14시', [10, 11, 12, 13]),
-  _HeatmapRow('14–18시', [14, 15, 16, 17]),
-  _HeatmapRow('18–22시', [18, 19, 20, 21]),
-  _HeatmapRow('22–02시', [22, 23, 0, 1]),
-  _HeatmapRow('02–06시', [2, 3, 4, 5]),
+  _HeatmapRow('', [6, 7, 8, 9]),
+  _HeatmapRow('', [10, 11, 12, 13]),
+  _HeatmapRow('', [14, 15, 16, 17]),
+  _HeatmapRow('', [18, 19, 20, 21]),
+  _HeatmapRow('', [22, 23, 0, 1]),
+  _HeatmapRow('', [2, 3, 4, 5]),
 ];
+
+/// 시간대 구간 — 한국어 `06~10시`, 영어 `6–10 AM`(구간은 ko 물결표 · en en dash, 시각은 12시간 — International v106).
+String _heatSub(int i) {
+  const en = [
+    '6–10 AM',
+    '10 AM–2 PM',
+    '2–6 PM',
+    '6–10 PM',
+    '10 PM–2 AM',
+    '2–6 AM',
+  ];
+  const ko = ['06~10시', '10~14시', '14~18시', '18~22시', '22~02시', '02~06시'];
+  return localeIsEn() ? en[i] : ko[i];
+}
 
 /// 히트맵 행(시간대) 라벨 — const 데이터라 렌더 시점에 인덱스로 로컬라이즈.
 String _heatRowLabel(AppLocalizations l, int i) => switch (i) {
@@ -1749,7 +1763,7 @@ class _HeatmapCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _heatRows[r].sub,
+                          _heatSub(r),
                           // 웹 서브 caption(12) 정합
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),

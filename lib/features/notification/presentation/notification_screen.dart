@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
@@ -359,125 +360,109 @@ class _NotiRowState extends State<_NotiRow> {
     final l = AppLocalizations.of(context);
     final unread = !noti.isRead;
     final (toneBg, toneFg) = _typeTone(tokens);
-    return InkWell(
-      onTap: _busy ? null : _tap,
-      child: Container(
-        // 클로드 디자인 원본 정합 — 플랫 틴트(그라데이션 아님):
-        // 라이트 = bgBrandSubtle, 다크 = primary-light 15%(rgba(95,160,229,.15)).
-        // fgBrand 가 다크에서 primary-light(cobalt400) 로 swap 되므로 alpha 만 분기.
-        decoration: BoxDecoration(
-          color: unread
-              ? (Theme.of(context).brightness == Brightness.dark
-                    ? tokens.fgBrand.withValues(alpha: 0.15)
-                    : tokens.bgBrandSubtle)
-              : null,
-          border: Border(
-            left: BorderSide(
-              color: unread ? tokens.borderBrand : Colors.transparent,
-              width: 3,
+    final c = context.colors;
+    // SEED List 줄(9-1 · 9-2) — 타일 40 · 제목 16/400 · 설명 13 muted · 시각 13 subtle, 안 읽음은 bg-brand-weak + 점.
+    // 역할은 목록이고 **안 읽은 줄만 버튼**이다(누르면 읽음). 읽은 줄은 눌리지 않는다.
+    final row = Container(
+      color: unread ? c.bgBrandWeak : null,
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x24,
+        vertical: PSpace.x12,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: toneBg,
+              borderRadius: BorderRadius.circular(PRounded.r2_5),
             ),
+            alignment: Alignment.center,
+            child: Icon(_typeIcon(), size: 20, color: toneFg),
           ),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x24,
-          vertical: PSpace.x12,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: toneBg,
-                borderRadius: PRadius.brMd,
-              ),
-              alignment: Alignment.center,
-              child: Icon(_typeIcon(), size: 16, color: toneFg),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 제목 행: [제목 ... unread dot] + 우측 상단 상대시간.
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          noti.title,
-                          style: PTypo.bodySm.copyWith(
-                            color: tokens.fgPrimary,
-                            // SoT: read/unread 굵기 분기 없음 — 항상 semi(600).
-                            fontWeight: PFontWeight.semi,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 제목 행: [제목 ... 안 읽음 점] + 우측 상단 상대시간.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        noti.title,
+                        style: PTypography.t5.copyWith(color: c.fgNeutral),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (_busy) ...[
+                      const SizedBox(width: 6),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 7),
+                        child: PCircularProgressIndicator(
+                          size: 8,
+                          strokeWidth: 1.5,
+                          color: tokens.bgBrand,
                         ),
                       ),
-                      // SoT: unread dot 은 제목 '뒤'(우측), bg-brand 색, 6px.
-                      if (_busy) ...[
-                        const SizedBox(width: 6),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: PCircularProgressIndicator(
-                            size: 8,
-                            strokeWidth: 1.5,
-                            color: tokens.bgBrand,
-                          ),
+                    ] else if (unread) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        key: const ValueKey('noti-unread-dot'),
+                        margin: const EdgeInsets.only(top: 8),
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: c.bgBrandSolid,
+                          shape: BoxShape.circle,
                         ),
-                      ] else if (unread) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          margin: const EdgeInsets.only(top: 6),
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: tokens.bgBrand,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ],
+                      ),
                     ],
-                  ),
-                  if ((noti.message ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 3),
-                    Text(
-                      noti.message!,
-                      style: PTypo.caption.copyWith(color: tokens.fgSecondary),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   ],
-                ],
-              ),
-            ),
-            // 날짜는 우측 상단(웹 정합 — 좌측=내용, 우측=날짜+X).
-            if ((noti.createAt ?? '').isNotEmpty) ...[
-              const SizedBox(width: PSpace.x8),
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  _relativeTime(l, noti.createAt!, now),
-                  style: PTypo.micro.copyWith(
-                    color: tokens.fgTertiary,
-                    letterSpacing: 0,
-                  ),
                 ),
+                if ((noti.message ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    noti.message!,
+                    style: PTypography.t3.copyWith(color: c.fgNeutralMuted),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // 시각은 우측 상단(웹 정합 — 좌측=내용, 우측=시각+X).
+          if ((noti.createAt ?? '').isNotEmpty) ...[
+            const SizedBox(width: PSpace.x8),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                _relativeTime(l, noti.createAt!, now),
+                style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
               ),
-            ],
-            const SizedBox(width: PSpace.x4),
-            PButton.icon(
-              icon: LucideIcons.x,
-              size: PButtonSize.sm,
-              iconColor: tokens.fgTertiary,
-              tooltip: l.actionDelete,
-              onPressed: onDelete,
             ),
           ],
-        ),
+          const SizedBox(width: PSpace.x4),
+          PButton.icon(
+            icon: LucideIcons.x,
+            size: PButtonSize.sm,
+            iconColor: tokens.fgTertiary,
+            tooltip: l.actionDelete,
+            onPressed: onDelete,
+          ),
+        ],
       ),
+    );
+    if (!unread) return row;
+    return Semantics(
+      button: true,
+      enabled: !_busy,
+      child: InkWell(onTap: _busy ? null : _tap, child: row),
     );
   }
 
@@ -502,9 +487,8 @@ class _NotiRowState extends State<_NotiRow> {
     final d = diff.inDays;
     if (d == 1) return l.dateYesterday;
     if (d < 7) return l.dateDaysAgo(d);
-    // 1주 이상 — yyyy-MM-dd (SoT createAt.slice(0,10) 정합).
-    final mm = dt.month.toString().padLeft(2, '0');
-    final dd = dt.day.toString().padLeft(2, '0');
-    return '${dt.year}-$mm-$dd';
+    // 7일 이상 — 날짜 규칙: 올해는 줄임("9월 30일" · "Sep 30"), 다른 해는 표준(International v106).
+    final day = formatDay(dt);
+    return day.md;
   }
 }

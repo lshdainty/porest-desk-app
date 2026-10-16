@@ -8,6 +8,7 @@ import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_alert.dart';
@@ -278,7 +279,7 @@ class _InboxRow extends StatelessWidget {
     final title = preview.merchant ?? _firstLine(entry.text);
     final sub = [
       preview.issuer,
-      DateFormat('HH:mm').format(entry.receivedAt),
+      timeOfDay12(entry.receivedAt),
     ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
 
     return InkWell(

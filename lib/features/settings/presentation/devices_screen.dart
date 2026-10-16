@@ -298,7 +298,5 @@ String? _relativeTime(AppLocalizations l, String? iso, DateTime now) {
   final d = diff.inDays;
   if (d == 1) return l.dateYesterday;
   if (d < 7) return l.dateDaysAgo(d);
-  final mm = dt.month.toString().padLeft(2, '0');
-  final dd = dt.day.toString().padLeft(2, '0');
-  return '${dt.year}-$mm-$dd';
+  return formatDay(dt).md;
 }

@@ -100,7 +100,7 @@ class _Body extends ConsumerWidget {
                   ? krwSigned(
                       template.amount!.abs(),
                       false,
-                      sign: isTransfer ? '' : (isExpense ? '-' : '+'),
+                      sign: isTransfer ? '' : (isExpense ? kMinus : '+'),
                       unit: true,
                     )
                   : l.presetAmountEmpty,

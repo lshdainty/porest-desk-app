@@ -647,7 +647,7 @@ class _TradeHistory extends ConsumerWidget {
                     krwSigned(
                       tr.realizedPl!.abs(),
                       false,
-                      sign: tr.realizedPl! > 0 ? '+' : '-',
+                      sign: tr.realizedPl! > 0 ? '+' : kMinus,
                     ),
                     style: PTypo.micro.copyWith(
                       color: tr.realizedPl! > 0
@@ -724,7 +724,7 @@ class _HoldingRow extends ConsumerWidget {
   /// 통화를 하나로 가정하지 않는다 — 나무를 붙이며 JPY·HKD·CNY 가 들어왔다.
   String _fmtRawPrice(BrokerQuote p) {
     final cur = p.currency.toUpperCase();
-    if (cur == 'KRW') return '${krw(p.price.round())}원';
+    if (cur == 'KRW') return krwSigned(p.price.round(), false, unit: true);
     if (cur == 'USD') return '\$${p.price.toStringAsFixed(2)}';
     return '${p.price.toStringAsFixed(2)} $cur';
   }
@@ -808,7 +808,7 @@ class _HoldingRow extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  value != null ? '${krw(value)}원' : '—',
+                  value != null ? krwSigned(value, false, unit: true) : '—',
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,

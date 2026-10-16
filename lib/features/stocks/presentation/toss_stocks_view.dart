@@ -10,6 +10,7 @@ import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
@@ -651,8 +652,6 @@ String _fmtIndexPoint(double v) {
       : '${krw(whole)}.${frac.toString().padLeft(2, '0')}';
 }
 
-String _two(int v) => v.toString().padLeft(2, '0');
-
 // ---- 매수 유의사항 라벨 (토스 warningType → 한글) ----------------------------
 
 /// 토스 warningType → 로케일 라벨 (웹 `warning.*` 키 미러). 모르는 타입은 원문 노출.
@@ -700,13 +699,13 @@ bool _isUsEasternDst(DateTime utc) {
   return utc.isAfter(start) && utc.isBefore(end);
 }
 
-/// 시장 현지 시각 'HH:MM' (KR=UTC+9, US 동부=DST 반영). 웹 `nowInTz` 미러.
+/// 시장 현지 시각(오전/오후 12시간) (KR=UTC+9, US 동부=DST 반영). 웹 `nowInTz` 미러.
 String _nowInTz(_Tz tz) {
   final utc = DateTime.now().toUtc();
   final local = tz == _Tz.kr
       ? utc.add(const Duration(hours: 9))
       : utc.subtract(Duration(hours: _isUsEasternDst(utc) ? 4 : 5));
-  return '${_two(local.hour)}:${_two(local.minute)}';
+  return timeOfDay12(local);
 }
 
 ({bool open, String detail}) _marketState(

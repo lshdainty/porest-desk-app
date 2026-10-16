@@ -1210,8 +1210,7 @@ class _DaySheetEventRow extends StatelessWidget {
   final GrooTokens tokens;
   final VoidCallback onTap;
 
-  String _hhmm(DateTime d) =>
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+  String _hhmm(DateTime d) => timeOfDay12(d);
 
   @override
   Widget build(BuildContext context) {
@@ -1339,7 +1338,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
               ),
               const Spacer(),
               Text(
-                '$_year년',
+                yearOnly(DateTime(_year)),
                 style: PTypo.body.copyWith(fontWeight: PFontWeight.bold),
               ),
               const Spacer(),
@@ -1372,7 +1371,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
                     borderRadius: PRadius.brSm,
                   ),
                   child: Text(
-                    '$month월',
+                    monthOnly(DateTime(_year, month)),
                     style: PTypo.bodySm.copyWith(
                       color: isSelected ? t.fgOnBrand : t.fgPrimary,
                       fontWeight: isSelected
