@@ -12,7 +12,10 @@ import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
 import 'package:groo_damda_app/shared/widgets/p_chip.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_accordion.dart';
+import 'package:groo_damda_app/shared/widgets/p_radio_list.dart';
+import 'package:groo_damda_app/shared/widgets/p_segmented.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_type_chip.dart';
 import 'package:groo_damda_app/shared/widgets/p_tile.dart';
 
 Widget _host(Widget child, {Brightness mode = Brightness.light}) => MaterialApp(
@@ -204,4 +207,57 @@ void main() {
       },
     );
   }
+
+  testWidgets('옛 PSegmented · PRadioList · PTypeChip — 고른 상태를 읽고 44 로 눌린다', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    var picked = '';
+    await tester.pumpWidget(
+      _host(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PSegmented<int>(
+              value: 1,
+              onChanged: (_) {},
+              options: const [
+                PSegmentOption(value: 1, label: '지출'),
+                PSegmentOption(value: 2, label: '수입'),
+              ],
+            ),
+            PRadioList<int>(
+              value: 1,
+              onChanged: (_) {},
+              items: const [
+                PRadioListItem(value: 1, label: '하나'),
+                PRadioListItem(value: 2, label: '둘'),
+              ],
+            ),
+            PTypeChip(label: '반복', active: true, onTap: () => picked = 'chip'),
+          ],
+        ),
+      ),
+    );
+    final nodes = _nodes(tester).toList();
+    bool sel(String label, Tristate want) => nodes.any(
+      (n) => n.label.contains(label) && n.flagsCollection.isSelected == want,
+    );
+    expect(sel('지출', Tristate.isTrue), isTrue);
+    expect(sel('수입', Tristate.isFalse), isTrue);
+    expect(sel('반복', Tristate.isTrue), isTrue);
+    expect(
+      nodes.any(
+        (n) =>
+            n.label.contains('하나') &&
+            n.flagsCollection.isChecked == CheckedState.isTrue,
+      ),
+      isTrue,
+    );
+    // 칩(높이 약 40) 위 · 아래로도 눌린다 — 보이는 상자 위 2
+    final chip = tester.getRect(find.byType(PTypeChip));
+    await tester.tapAt(Offset(chip.center.dx, chip.top - 1));
+    expect(picked, 'chip');
+    handle.dispose();
+  });
 }
