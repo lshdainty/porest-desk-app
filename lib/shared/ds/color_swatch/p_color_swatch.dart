@@ -332,7 +332,7 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
                     key: const ValueKey('swatch-current-label'),
                     maxLines: 1,
                     softWrap: false,
-                    style: PTypography.t2.copyWith(color: c.fgNeutralMuted),
+                    style: PTypography.t2.copyWith(color: c.fgNeutralSubtle),
                   ),
                 ),
               ),

@@ -137,7 +137,7 @@ class PChartTooltipRow extends StatelessWidget {
         Text(
           name,
           key: const ValueKey('chart-tooltip-label'),
-          style: PTypography.t3.copyWith(color: c.fgNeutralMuted),
+          style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
         ),
         const SizedBox(width: PSpacing.x3),
         Expanded(
@@ -455,7 +455,7 @@ class _LegendTile extends StatelessWidget {
                       key: const ValueKey('chart-legend-name'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: PTypography.t3.copyWith(color: c.fgNeutralMuted),
+                      style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
                     ),
                   ),
                 ],
