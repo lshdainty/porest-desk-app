@@ -11,12 +11,8 @@ import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
-import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-
-/// 바 이름 — l10n 키가 아직 없다(질문 후보). 웹 · 데모와 같은 글.
-const String _kMainMenuLabel = '주 메뉴';
 
 /// 홈 · 가계부 · 캘린더 · 전체 — 탭 칸 순서 = branch index(캘린더 2 · 전체 3).
 const int _kBranchCalendar = 2;
@@ -162,7 +158,7 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
                   PTopNavigationIconButton(
                     icon: LucideIcons.bell,
                     label: unread > 0
-                        ? '${l.navNotifications} $notificationBadgeName'
+                        ? l.navNotificationsNew
                         : l.navNotifications,
                     notification: unread > 0,
                     onPressed: () => context.push('/notifications'),
@@ -176,7 +172,7 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
             right: 0,
             bottom: 0,
             child: PBottomNavigation(
-              semanticLabel: _kMainMenuLabel,
+              semanticLabel: l.navMainMenu,
               controller: _tabBarCompact,
               items: [
                 item(0, LucideIcons.house, LucideIcons.house500, l.navHome),

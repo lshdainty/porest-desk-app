@@ -4340,5 +4340,33 @@
   "statsFixedBulkDoneFixed": "{count}건을 고정으로 바꿨어요",
   "@statsFixedBulkDoneFixed": {"placeholders": {"count": {"type": "int"}}},
   "statsFixedBulkDoneVariable": "{count}건을 변동으로 되돌렸어요",
-  "@statsFixedBulkDoneVariable": {"placeholders": {"count": {"type": "int"}}}
+  "@statsFixedBulkDoneVariable": {"placeholders": {"count": {"type": "int"}}},
+  "navMainMenu": "주 메뉴",
+  "@navMainMenu": {
+    "description": "하단 탭 바의 이름(낭독) — Bottom Navigation"
+  },
+  "navNotificationsNew": "알림, 새 알림 있음",
+  "@navNotificationsNew": {
+    "description": "안 읽은 알림이 있을 때 벨 버튼의 이름"
+  },
+  "dsNotificationBadge": "새 소식",
+  "@dsNotificationBadge": {
+    "description": "알림 점이 있는 탭 · 칸의 이름 뒤에 붙는 글"
+  },
+  "dsQuantityDecrease": "줄이기",
+  "@dsQuantityDecrease": {
+    "description": "Quantity Picker — 줄이는 버튼의 기본 이름"
+  },
+  "dsQuantityIncrease": "늘리기",
+  "@dsQuantityIncrease": {
+    "description": "Quantity Picker — 늘리는 버튼의 기본 이름"
+  },
+  "dsSliderMin": "최소",
+  "@dsSliderMin": {
+    "description": "Slider 범위 — 작은 손잡이의 기본 이름"
+  },
+  "dsSliderMax": "최대",
+  "@dsSliderMax": {
+    "description": "Slider 범위 — 큰 손잡이의 기본 이름"
+  }
 }

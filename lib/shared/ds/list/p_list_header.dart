@@ -56,6 +56,7 @@ class PListHeader extends StatelessWidget {
             Flexible(
               child: Semantics(
                 header: true,
+                headingLevel: 2,
                 container: true,
                 label: title,
                 child: ExcludeSemantics(

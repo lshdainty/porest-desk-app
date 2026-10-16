@@ -386,7 +386,7 @@ class _ItemCell extends StatelessWidget {
     final current = item.current;
     final color = current ? c.fgNeutral : c.fgNeutralSubtle;
     final name = item.notification
-        ? '${item.label} $notificationBadgeName'
+        ? '${item.label} ${notificationBadgeNameOf(context)}'
         : item.label;
     final void Function()? tap = current ? item.onReselect : item.onTap;
 

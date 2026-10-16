@@ -7162,4 +7162,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String statsFixedBulkDoneVariable(int count) {
     return 'Changed $count back to variable';
   }
+
+  @override
+  String get navMainMenu => 'Main menu';
+
+  @override
+  String get navNotificationsNew => 'Notifications, new notifications';
+
+  @override
+  String get dsNotificationBadge => 'New updates';
+
+  @override
+  String get dsQuantityDecrease => 'Decrease';
+
+  @override
+  String get dsQuantityIncrease => 'Increase';
+
+  @override
+  String get dsSliderMin => 'Minimum';
+
+  @override
+  String get dsSliderMax => 'Maximum';
 }

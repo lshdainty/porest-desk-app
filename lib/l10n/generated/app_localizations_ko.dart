@@ -7042,4 +7042,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String statsFixedBulkDoneVariable(int count) {
     return '$count건을 변동으로 되돌렸어요';
   }
+
+  @override
+  String get navMainMenu => '주 메뉴';
+
+  @override
+  String get navNotificationsNew => '알림, 새 알림 있음';
+
+  @override
+  String get dsNotificationBadge => '새 소식';
+
+  @override
+  String get dsQuantityDecrease => '줄이기';
+
+  @override
+  String get dsQuantityIncrease => '늘리기';
+
+  @override
+  String get dsSliderMin => '최소';
+
+  @override
+  String get dsSliderMax => '최대';
 }

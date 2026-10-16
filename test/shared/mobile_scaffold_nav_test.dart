@@ -145,7 +145,7 @@ void main() {
         )
         .last;
     expect(bell.notification, isTrue);
-    expect(bell.label, '알림 새 소식');
+    expect(bell.label, '알림, 새 알림 있음');
   });
 
   testWidgets('캘린더 — 검색만, + 는 일정 추가', (tester) async {

@@ -318,7 +318,9 @@ class _SegmentedItemState<T> extends State<_SegmentedItem<T>>
       TargetPlatform.iOS || TargetPlatform.macOS => true,
       _ => false,
     };
-    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
+    final name = showDot
+        ? '${item.label} ${notificationBadgeNameOf(context)}'
+        : item.label;
     final round = BorderRadius.circular(PRounded.full);
 
     // 글 — 색은 칸의 색과 함께 150ms 로 바뀐다

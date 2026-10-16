@@ -495,8 +495,8 @@ void main() {
         await tester.pump();
         _check(
           where,
-          '벨 이름 "알림 새 소식"',
-          _nodes(tester).any((n) => n.label.contains('알림 새 소식')),
+          '벨 이름 "알림, 새 알림 있음"',
+          _nodes(tester).any((n) => n.label.contains('알림, 새 알림 있음')),
           true,
         );
         h.dispose();

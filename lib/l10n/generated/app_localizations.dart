@@ -12871,6 +12871,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{count}건을 변동으로 되돌렸어요'**
   String statsFixedBulkDoneVariable(int count);
+
+  /// 하단 탭 바의 이름(낭독) — Bottom Navigation
+  ///
+  /// In ko, this message translates to:
+  /// **'주 메뉴'**
+  String get navMainMenu;
+
+  /// 안 읽은 알림이 있을 때 벨 버튼의 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'알림, 새 알림 있음'**
+  String get navNotificationsNew;
+
+  /// 알림 점이 있는 탭 · 칸의 이름 뒤에 붙는 글
+  ///
+  /// In ko, this message translates to:
+  /// **'새 소식'**
+  String get dsNotificationBadge;
+
+  /// Quantity Picker — 줄이는 버튼의 기본 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'줄이기'**
+  String get dsQuantityDecrease;
+
+  /// Quantity Picker — 늘리는 버튼의 기본 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'늘리기'**
+  String get dsQuantityIncrease;
+
+  /// Slider 범위 — 작은 손잡이의 기본 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'최소'**
+  String get dsSliderMin;
+
+  /// Slider 범위 — 큰 손잡이의 기본 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'최대'**
+  String get dsSliderMax;
 }
 
 class _AppLocalizationsDelegate
