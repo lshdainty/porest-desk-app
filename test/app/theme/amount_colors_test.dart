@@ -19,4 +19,14 @@ void main() {
       expect(t.statusInfoFg, c.fgInformative, reason: '감소');
     });
   }
+
+  for (final dark in [false, true]) {
+    test('모달 딤 ${dark ? "다크 0.65" : "라이트 0.50"}', () {
+      final theme = dark ? GrooTheme.dark() : GrooTheme.light();
+      final dim = theme.extension<PColors>()!.overlayDim;
+      expect(theme.bottomSheetTheme.modalBarrierColor, dim);
+      expect(theme.dialogTheme.barrierColor, dim);
+      expect((dim.a * 100).round(), dark ? 65 : 50);
+    });
+  }
 }

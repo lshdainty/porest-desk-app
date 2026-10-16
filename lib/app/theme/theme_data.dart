@@ -118,9 +118,11 @@ abstract final class GrooTheme {
           ),
         ),
         modalBackgroundColor: tokens.bgSurface,
-        modalBarrierColor: Colors.black54,
+        // 딤 — 라이트 0.50 · 다크 0.65(v43 overlay-dim). Colors.black54 는 두 모드 0.54 라 쓰지 않는다(01A-053)
+        modalBarrierColor: colors.overlayDim,
       ),
       dialogTheme: DialogThemeData(
+        barrierColor: colors.overlayDim,
         backgroundColor: tokens.bgSurface,
         surfaceTintColor: Colors.transparent,
         // specs/components/dialog.md: popup 은 세 사이즈 모두 radius-lg(12).
