@@ -445,7 +445,9 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                         unit: true,
                       ),
                       style: PTypo.money.copyWith(
-                        color: realized >= 0 ? t.fgIncome : t.fgExpense,
+                        color: realized >= 0
+                            ? t.statusInfoFg
+                            : t.statusDangerFg,
                         fontWeight: PFontWeight.bold,
                       ),
                     ),

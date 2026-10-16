@@ -79,7 +79,7 @@ class PCategoryTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: PTypo.micro.copyWith(
                 color: excluded
-                    ? t.fgExpense
+                    ? t.statusDangerFg
                     : active
                     ? t.fgBrandStrong
                     : t.fgSecondary,
@@ -87,7 +87,7 @@ class PCategoryTile extends StatelessWidget {
                     ? PFontWeight.bold
                     : PFontWeight.medium,
                 decoration: excluded ? TextDecoration.lineThrough : null,
-                decorationColor: excluded ? t.fgExpense : null,
+                decorationColor: excluded ? t.statusDangerFg : null,
               ),
             ),
           ],

@@ -823,7 +823,7 @@ class _LedgerCalendar extends StatelessWidget {
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
       // 일요일 — 캘린더 화면 정합(fgExpense, 사용자 결정)
-      if (dow == 0) return t.fgExpense;
+      if (dow == 0) return t.statusDangerFg;
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -956,7 +956,7 @@ class _LedgerCalendar extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? t.statusDangerFg
                             : i == 6
                             ? t.fgBrand
                             : t.fgPrimary,
@@ -1538,7 +1538,7 @@ class _LedgerSkeleton extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? t.statusDangerFg
                             : i == 6
                             ? t.fgBrand
                             : t.fgPrimary,

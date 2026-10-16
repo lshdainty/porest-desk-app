@@ -266,10 +266,11 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
     statusInfo: c.bgInformativeSolid,
     statusInfoSubtle: c.bgInformativeWeak,
     statusInfoFg: c.fgInformative,
-    // Tx semantic — 지출=critical / 수입=brand / 이체=informative(웹 fg-expense · fg-income · fg-transfer)
-    fgExpense: c.fgCritical,
+    // 금액 색(D1, 글자 역할) — 수입만 brand, 지출 · 이체는 neutral. 빨강 · 파랑은 증감에만 쓴다 — 오류 · 초과 · 증감은
+    // statusDangerFg · statusInfoFg(fg-critical · fg-informative)를 직접 쓴다.
+    fgExpense: c.fgNeutral,
     fgIncome: c.fgBrand,
-    fgTransfer: c.fgInformative,
+    fgTransfer: c.fgNeutral,
     bgExpenseSubtle: c.bgCriticalWeak,
     bgIncomeSubtle: c.bgBrandWeak,
     bgTransferSubtle: c.bgInformativeWeak,

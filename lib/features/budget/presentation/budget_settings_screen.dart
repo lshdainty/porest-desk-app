@@ -577,7 +577,9 @@ class _TotalBudgetCard extends StatelessWidget {
                       sign: remaining >= 0 ? '+' : '−',
                       mask: '••••',
                     ),
-                    color: remaining < 0 ? tokens.fgExpense : tokens.fgIncome,
+                    color: remaining < 0
+                        ? tokens.statusDangerFg
+                        : tokens.fgIncome,
                     tokens: tokens,
                   ),
                 ),
@@ -911,7 +913,7 @@ class _CategoryRow extends StatelessWidget {
                                     ),
                             ),
                       style: PTypo.caption.copyWith(
-                        color: over ? tokens.fgExpense : tokens.fgTertiary,
+                        color: over ? tokens.statusDangerFg : tokens.fgTertiary,
                       ),
                     ),
                   ],
@@ -924,7 +926,7 @@ class _CategoryRow extends StatelessWidget {
                   Text(
                     krwMasked(spent, masked, mask: '••••'),
                     style: PTypo.body.copyWith(
-                      color: over ? tokens.fgExpense : tokens.fgPrimary,
+                      color: over ? tokens.statusDangerFg : tokens.fgPrimary,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),

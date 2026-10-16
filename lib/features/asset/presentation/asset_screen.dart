@@ -18,6 +18,8 @@ import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PDelta, PDeltaDirection;
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -619,8 +621,6 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isUp = changeAmount >= 0;
-    final trendColor = isUp ? tokens.fgIncome : tokens.fgExpense;
     final t = tokens;
     final l = AppLocalizations.of(context);
     // 총순자산 요약 — design `p-card--keep` (raised + shadow-lg, padding mobile 18).
@@ -683,43 +683,17 @@ class _SummaryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(
-                isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                size: 14,
-                color: trendColor,
-              ),
-              const SizedBox(width: 2),
-              Text(
-                '${isUp ? '+' : ''}${changePercent.toStringAsFixed(1)}%',
-                style: TextStyle(
-                  color: trendColor,
-                  fontSize: PFontSize.bodySm,
-                  fontWeight: PFontWeight.semi,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              if (!masked && changeAmount != 0) ...[
-                const SizedBox(width: 4),
-                Text(
-                  '(${krwSigned(changeAmount.abs(), false, sign: isUp ? '+' : '−', unit: true)})',
-                  style: TextStyle(
-                    color: t.fgTertiary,
-                    fontSize: PFontSize.bodySm,
-                    fontWeight: PFontWeight.medium,
-                  ),
-                ),
-              ],
-              const SizedBox(width: 10),
-              Text(
-                l.assetVsLastMonth,
-                style: TextStyle(
-                  color: t.fgTertiary,
-                  fontSize: PFontSize.bodySm,
-                ),
-              ),
-            ],
+          // 증감 — 오르면 ▲ 빨강(fg-critical), 내리면 ▼ 파랑(fg-informative). 부호는 화살표가 말한다(01A-004 · 006)
+          PDelta(
+            direction: changeAmount > 0
+                ? PDeltaDirection.up
+                : (changeAmount < 0
+                      ? PDeltaDirection.down
+                      : PDeltaDirection.flat),
+            value: !masked && changeAmount != 0
+                ? '${changePercent.abs().toStringAsFixed(1)}% (${krwSigned(changeAmount.abs(), false, sign: '', unit: true)})'
+                : '${changePercent.abs().toStringAsFixed(1)}%',
+            text: l.assetVsLastMonth,
           ),
           const SizedBox(height: 14),
           const NetWorthChart(height: 140),

@@ -650,7 +650,9 @@ class _TradeHistory extends ConsumerWidget {
                       sign: tr.realizedPl! > 0 ? '+' : '-',
                     ),
                     style: PTypo.micro.copyWith(
-                      color: tr.realizedPl! > 0 ? t.fgIncome : t.fgExpense,
+                      color: tr.realizedPl! > 0
+                          ? t.statusInfoFg
+                          : t.statusDangerFg,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),

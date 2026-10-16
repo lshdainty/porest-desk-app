@@ -670,7 +670,9 @@ class _HeaderCard extends StatelessWidget {
                           : krwSigned(-remaining, false, unit: true),
                     ),
               style: PTypo.caption.copyWith(
-                color: remaining >= 0 ? tokens.fgSecondary : tokens.fgExpense,
+                color: remaining >= 0
+                    ? tokens.fgSecondary
+                    : tokens.statusDangerFg,
               ),
             ),
           ],
@@ -719,7 +721,9 @@ class _HeaderCard extends StatelessWidget {
                     unit: true,
                     mask: '••••',
                   ),
-                  color: overAllocated ? tokens.fgExpense : tokens.fgIncome,
+                  color: overAllocated
+                      ? tokens.statusDangerFg
+                      : tokens.fgIncome,
                   tokens: tokens,
                 ),
               ),
@@ -737,7 +741,7 @@ class _HeaderCard extends StatelessWidget {
               color: tokens.statusDangerSubtle,
               borderRadius: PRadius.brMd,
               border: Border.all(
-                color: tokens.fgExpense.withValues(alpha: 0.3),
+                color: tokens.statusDangerFg.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -866,7 +870,9 @@ class _PaceCard extends StatelessWidget {
                         value: (pct / 100).clamp(0, 1).toDouble(),
                         minHeight: 12,
                         backgroundColor: tokens.bgTrack,
-                        color: pct > 100 ? tokens.fgExpense : tokens.bgBrand,
+                        color: pct > 100
+                            ? tokens.statusDangerFg
+                            : tokens.bgBrand,
                       ),
                     ),
                     Positioned(
@@ -1321,7 +1327,7 @@ class _CategoryRow extends StatelessWidget {
                                   ),
                           ),
                     style: PTypo.caption.copyWith(
-                      color: over ? tokens.fgExpense : tokens.fgTertiary,
+                      color: over ? tokens.statusDangerFg : tokens.fgTertiary,
                     ),
                   ),
                 ],
@@ -1334,7 +1340,7 @@ class _CategoryRow extends StatelessWidget {
                 Text(
                   krwMasked(spent, masked, mask: '••••'),
                   style: PTypo.body.copyWith(
-                    color: over ? tokens.fgExpense : tokens.fgPrimary,
+                    color: over ? tokens.statusDangerFg : tokens.fgPrimary,
                     fontWeight: PFontWeight.bold,
                   ),
                 ),
@@ -1570,7 +1576,7 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                   toY: rows[i].compliancePercent,
                   // web Cell 정합 — 초과 fg-expense / 이번 달 bg-brand / 과거 border-strong
                   color: rows[i].compliancePercent > 100
-                      ? tokens.fgExpense
+                      ? tokens.statusDangerFg
                       : (rows[i].year == currentYear &&
                             rows[i].month == currentMonth)
                       ? tokens.bgBrand
@@ -1607,10 +1613,12 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                   labelWidth: 56,
                   rows: [
                     PChartTooltipRowData(
-                      color: over ? tokens.fgExpense : tokens.bgBrand,
+                      color: over ? tokens.statusDangerFg : tokens.bgBrand,
                       label: l.budgetVsLimit,
                       amount: '${r.compliancePercent.toStringAsFixed(1)}%',
-                      amountColor: over ? tokens.fgExpense : tokens.fgPrimary,
+                      amountColor: over
+                          ? tokens.statusDangerFg
+                          : tokens.fgPrimary,
                     ),
                   ],
                   footer: [

@@ -454,7 +454,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           child: Text(
             err ?? '${_nameTrim.length}/12',
             style: PTypo.micro.copyWith(
-              color: err != null ? t.fgExpense : t.fgTertiary,
+              color: err != null ? t.statusDangerFg : t.fgTertiary,
             ),
           ),
         ),

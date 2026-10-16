@@ -329,7 +329,7 @@ class _BodyState extends ConsumerState<_Body> {
           child: Text(
             _nameError ?? '${_nameTrim.length}/$_kNameMax',
             style: PTypo.micro.copyWith(
-              color: _nameError != null ? t.fgExpense : t.fgTertiary,
+              color: _nameError != null ? t.statusDangerFg : t.fgTertiary,
             ),
           ),
         ),

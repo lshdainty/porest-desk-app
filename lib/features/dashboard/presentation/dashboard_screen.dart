@@ -9,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/env.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -18,6 +19,7 @@ import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
@@ -387,7 +389,7 @@ class _HomeUpcomingWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: PFontWeight.bold,
-                  color: e.daysUntil <= 3 ? t.fgExpense : t.fgTertiary,
+                  color: e.daysUntil <= 3 ? t.statusDangerFg : t.fgTertiary,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
@@ -459,7 +461,7 @@ class _HomeTodosWidget extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isOver ? t.fgExpense : t.borderStrong,
+                            color: isOver ? t.statusDangerFg : t.borderStrong,
                             width: 2,
                           ),
                         ),
@@ -471,7 +473,7 @@ class _HomeTodosWidget extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: PFontWeight.semi,
-                          color: isOver ? t.fgExpense : t.fgTertiary,
+                          color: isOver ? t.statusDangerFg : t.fgTertiary,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       )
@@ -506,17 +508,15 @@ class _BalanceHero extends StatelessWidget {
     final totalAssets = (s?.totalAssets as int?) ?? 0;
     final totalDebt = (s?.totalDebt as int?) ?? 0;
     final changePct = (s?.changePercent as double?) ?? 0.0;
-    final isUp = changePct >= 0;
-
     return Stack(
       children: [
         Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [t.bgHeroGradientStart, t.bgHeroGradientEnd],
+            // 면 색에서 brand-900(다크 brand-300)로 — #012B68 리터럴을 걷었다(01A-008)
+            gradient: PCardHeroGradient.of(
+              context.colors,
+              Theme.brightnessOf(context),
             ),
             borderRadius: PRadius.brXl2,
           ),
@@ -612,32 +612,19 @@ class _BalanceHero extends StatelessWidget {
                   child: _heroSkelBar(t, width: 120, height: 14),
                 )
               else
-                Row(
-                  children: [
-                    Text(
-                      l.dashVsLastMonth,
-                      style: TextStyle(
-                        color: t.fgOnBrand.withValues(alpha: 0.78),
-                        fontSize: PFontSize.bodySm,
-                        fontWeight: PFontWeight.regular,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(
-                      isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                      size: 14,
-                      color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
-                      style: TextStyle(
-                        color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
-                        fontSize: PFontSize.bodySm,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                  ],
+                // 브랜드 채움 위 증감 — 흰 ▲ · ▼ + 흰 기준 글(하나뿐인 예외, 01A-005)
+                PCardScope(
+                  variant: PCardVariant.hero,
+                  body: PCardBody.content,
+                  child: PDelta(
+                    direction: changePct > 0
+                        ? PDeltaDirection.up
+                        : (changePct < 0
+                              ? PDeltaDirection.down
+                              : PDeltaDirection.flat),
+                    value: '${changePct.abs().toStringAsFixed(1)}%',
+                    text: l.dashVsLastMonth,
+                  ),
                 ),
               const SizedBox(height: 20),
               Container(
@@ -882,7 +869,7 @@ class _MonthExpenseCard extends StatelessWidget {
                   TextSpan(
                     text: '${savingsPct.abs().toStringAsFixed(0)}%',
                     style: TextStyle(
-                      color: saving ? t.fgBrandStrong : t.fgExpense,
+                      color: saving ? t.fgBrandStrong : t.statusDangerFg,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),
@@ -1381,7 +1368,7 @@ class _BudgetRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: PFontSize.bodyLg,
                     fontWeight: PFontWeight.bold,
-                    color: over ? tokens.fgExpense : tokens.fgPrimary,
+                    color: over ? tokens.statusDangerFg : tokens.fgPrimary,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                   children: [

@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
@@ -674,7 +675,7 @@ class _UpcomingRow extends StatelessWidget {
             width: 44,
             padding: const EdgeInsets.symmetric(vertical: 4),
             decoration: BoxDecoration(
-              color: isToday ? tokens.bgBrand : tokens.bgSurface,
+              color: isToday ? context.colors.bgBrandSolid : tokens.bgSurface,
               borderRadius: PRadius.brXs,
             ),
             alignment: Alignment.center,

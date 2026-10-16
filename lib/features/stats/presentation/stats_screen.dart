@@ -1975,7 +1975,7 @@ class _HighlightsGrid extends StatelessWidget {
               TextSpan(
                 text: '${up ? '↑' : '↓'}$pct%',
                 style: TextStyle(
-                  color: up ? t.fgExpense : t.fgIncome,
+                  color: up ? t.statusDangerFg : t.statusInfoFg,
                   fontWeight: PFontWeight.semi,
                 ),
               ),
@@ -3273,7 +3273,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                                 toY: data[i].savings.toDouble(),
                                 color: data[i].savings >= 0
                                     ? t.statusInfoFg
-                                    : t.fgExpense,
+                                    : t.statusDangerFg,
                                 // 월별 바 두께 24 로 통일(카테고리 월별 추이 _CatTrendBar width 24 기준). 일별(>20)만 얇게 4.
                                 width: data.length > 20 ? 4 : 18,
                                 // 위·아래 모두 둥글게(상하 대칭 round) — brSm(4) 전 모서리 적용.
@@ -3300,7 +3300,9 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                             rows: [
                               // 금액 텍스트는 기본색(fgPrimary) — web 툴팁은 색점만 증감색, 금액은 흰색.
                               PChartTooltipRowData(
-                                color: v >= 0 ? t.statusInfoFg : t.fgExpense,
+                                color: v >= 0
+                                    ? t.statusInfoFg
+                                    : t.statusDangerFg,
                                 label: l.statsNetSavings,
                                 amount: krwSigned(
                                   v.abs(),
@@ -3346,7 +3348,7 @@ class _CompareSummaryGrid extends StatelessWidget {
     final prev = prevRangeAsync.value?.totalExpense ?? 0;
     final diff = now - prev;
     final less = diff <= 0; // 지출 감소 = 좋음(파랑)
-    final good = less ? t.fgIncome : t.fgExpense;
+    final good = less ? t.statusInfoFg : t.statusDangerFg;
     final pct = prev > 0
         ? '${((diff.abs() / prev) * 100).toStringAsFixed(1)}%'
         : '—';
@@ -3553,7 +3555,7 @@ class _CompareMetricsCard extends StatelessWidget {
               builder: (_) {
                 final d = m.now - m.prev;
                 final up = d > 0;
-                final c = up ? t.fgExpense : t.fgIncome;
+                final c = up ? t.statusDangerFg : t.statusInfoFg;
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -3781,7 +3783,7 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
                                     style: PTypo.micro.copyWith(
                                       // web CompareWeekday: 토(i==5)=fg-brand(파랑), 일(i==6)=fg-expense(빨강), 평일=fg-tertiary.
                                       color: i == 6
-                                          ? t.fgExpense
+                                          ? t.statusDangerFg
                                           : (i == 5 ? t.fgBrand : t.fgTertiary),
                                       fontWeight: PFontWeight.semi,
                                     ),
@@ -4034,7 +4036,7 @@ class _CompareDeltaRow extends StatelessWidget {
     // Metrics 및 웹과 톤 통일) / 무변동=tertiary.
     final deltaColor = diff == 0
         ? t.fgTertiary
-        : (up ? t.fgExpense : t.fgIncome);
+        : (up ? t.statusDangerFg : t.statusInfoFg);
     // U+2212(−) minus — formatChartAxis 부호 표기 정합.
     final sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
 

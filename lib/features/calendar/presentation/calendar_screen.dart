@@ -164,7 +164,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       dowBuilder: (ctx, day) {
                         final Color color;
                         if (day.weekday == DateTime.sunday) {
-                          color = t.fgExpense;
+                          color = t.statusDangerFg;
                         } else if (day.weekday == DateTime.saturday) {
                           color = t.fgBrand;
                         } else {
@@ -664,7 +664,7 @@ class _CalendarGridSkeleton extends StatelessWidget {
     // 월~일 — TableCalendar daysOfWeekStyle/dowBuilder 정합(주말 색 포함, 실제 텍스트).
     final dow = weekdayLabels(mondayFirst: true);
     Color dowColor(int i) {
-      if (i == 6) return t.fgExpense; // 일
+      if (i == 6) return t.statusDangerFg; // 일
       if (i == 5) return t.fgBrand; // 토
       return t.fgSecondary;
     }
@@ -775,7 +775,7 @@ class _DayCell extends StatelessWidget {
       // 오늘 — web 정합: 항상 오늘에만 solid 원 (선택 날짜 표시는 하지 않음)
       dayColor = t.fgOnBrand;
     } else if (isHoliday || day.weekday == DateTime.sunday) {
-      dayColor = t.fgExpense;
+      dayColor = t.statusDangerFg;
     } else if (day.weekday == DateTime.saturday) {
       dayColor = t.fgBrand;
     } else {
@@ -1176,7 +1176,7 @@ class _DaySheetHolidayRow extends StatelessWidget {
             width: PSpace.x4,
             height: PSpace.x24,
             decoration: BoxDecoration(
-              color: t.fgExpense,
+              color: t.statusDangerFg,
               borderRadius: PRadius.brXs,
             ),
           ),
