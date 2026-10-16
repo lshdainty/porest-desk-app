@@ -21,6 +21,8 @@ import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/app/theme/chart_palette.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PDelta, PDeltaDirection;
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:groo_damda_app/shared/widgets/p_chip.dart';
@@ -1979,24 +1981,13 @@ class _HighlightsGrid extends StatelessWidget {
       final prevTotal = prevRangeAsync.value?.totalExpense ?? 0;
       if (prevTotal > 0) {
         final diff = periodTotal - prevTotal;
-        final up = diff >= 0;
         final pct = ((diff.abs() / prevTotal) * 100).toStringAsFixed(0);
-        avgSubWidget = Text.rich(
-          TextSpan(
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-            children: [
-              TextSpan(text: '${l.statsMomMonth} '),
-              TextSpan(
-                text: '${up ? '↑' : '↓'}$pct%',
-                style: TextStyle(
-                  color: up ? t.statusDangerFg : t.statusInfoFg,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-            ],
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        avgSubWidget = PDelta(
+          direction: diff > 0
+              ? PDeltaDirection.up
+              : (diff < 0 ? PDeltaDirection.down : PDeltaDirection.flat),
+          value: '$pct%',
+          text: l.statsMomMonth,
         );
       } else {
         avgSub = prevRangeAsync.isLoading && !prevRangeAsync.hasValue
@@ -3458,12 +3449,10 @@ class _CompareSummaryGrid extends StatelessWidget {
                     color: good.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(
-                    '${less ? '▼' : '▲'} $pct',
-                    style: PTypo.micro.copyWith(
-                      color: good,
-                      fontWeight: PFontWeight.bold,
-                    ),
+                  // ▲ · ▼ + 값 — 부호는 화살표가 말하고 읽기는 문장이다(01A-006 · 007)
+                  child: PDelta(
+                    direction: less ? PDeltaDirection.down : PDeltaDirection.up,
+                    value: pct,
                   ),
                 ),
               ],
@@ -3569,7 +3558,6 @@ class _CompareMetricsCard extends StatelessWidget {
               builder: (_) {
                 final d = m.now - m.prev;
                 final up = d > 0;
-                final c = up ? t.statusDangerFg : t.statusInfoFg;
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -3597,14 +3585,13 @@ class _CompareMetricsCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          d == 0
-                              ? '—'
-                              : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
-                          style: PTypo.caption.copyWith(
-                            color: d == 0 ? t.fgTertiary : c,
-                            fontWeight: PFontWeight.bold,
-                          ),
+                        PDelta(
+                          direction: d == 0
+                              ? PDeltaDirection.flat
+                              : (up
+                                    ? PDeltaDirection.up
+                                    : PDeltaDirection.down),
+                          value: fmt(d.abs(), m.count),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -4112,10 +4099,13 @@ class _CompareDeltaRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                row.prev > 0 ? '${up ? '▲' : '▼'} ${pct.abs()}%' : '—',
-                style: PTypo.micro.copyWith(color: t.fgTertiary),
-              ),
+              if (row.prev > 0)
+                PDelta(
+                  direction: up ? PDeltaDirection.up : PDeltaDirection.down,
+                  value: '${pct.abs()}%',
+                )
+              else
+                Text('—', style: PTypo.micro.copyWith(color: t.fgTertiary)),
             ],
           ),
         ],
