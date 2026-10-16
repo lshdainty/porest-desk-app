@@ -282,4 +282,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(router.state.matchedLocation, '/more');
   });
+
+  testWidgets('탭을 옮겼다 돌아오면 그 탭의 스크롤 자리가 남는다(탭 기억)', (tester) async {
+    await pump(tester, '/calendar');
+    await tester.drag(find.byType(ListView).first, const Offset(0, -500));
+    await tester.pumpAndSettle();
+    double offset() => tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position
+        .pixels;
+    final before = offset();
+    expect(before, greaterThan(0));
+    await tester.tap(
+      find.byKey(const ValueKey('bottom-navigation-item')).at(0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('bottom-navigation-item')).at(2),
+    );
+    await tester.pumpAndSettle();
+    expect(offset(), before);
+  });
 }

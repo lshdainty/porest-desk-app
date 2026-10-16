@@ -351,6 +351,7 @@ void main() {
             'root.maxWidth', // 넓은 화면 테스트
             'root.zIndex',
             'bodyInset.paddingBottom', // 본문 여백 테스트
+            'item.tabMemory', // 셸의 몫(IndexedStack 이 탭마다 화면 · 스크롤을 쥔다) — mobile_scaffold_nav_test 가 잰다
             'focusRing.width',
             'focusRing.offset',
             'focusRing.radius',

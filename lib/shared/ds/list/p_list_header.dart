@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
 /// 목록 제목의 모양 — mediumWeak(기본: 14 · 500 · 옅은 색 — 줄보다 앞서지 않는다) · boldSolid(14 · 700 · 짙은 색 — 화면을
 /// 크게 나누는 묶음에만).
@@ -27,7 +29,7 @@ class PListHeader extends StatelessWidget {
   final String title;
   final PListHeaderVariant variant;
 
-  /// 오른쪽 작은 버튼 — 있을 때만(도움말 · 전체 보기).
+  /// 오른쪽 글 버튼([PTextButton]) — 있을 때만(전체 보기).
   final Widget? action;
 
   @override
@@ -38,33 +40,40 @@ class PListHeader extends StatelessWidget {
       color: strong ? c.fgNeutral : c.fgNeutralSubtle,
       fontWeight: strong ? FontWeight.w700 : FontWeight.w500,
     );
-    return Padding(
-      key: const ValueKey('plist-header'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpacing.globalGutter,
-        vertical: PSpacing.x2,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: PSpacing.x2_5,
-        children: [
-          Flexible(
-            child: Semantics(
-              header: true,
-              container: true,
-              label: title,
-              child: ExcludeSemantics(
-                child: Text(
-                  keepAll(title),
-                  key: const ValueKey('plist-header-title'),
-                  style: style,
+    return PTouchTargetScope(
+      child: Padding(
+        key: const ValueKey('plist-header'),
+        padding: EdgeInsets.symmetric(
+          horizontal: PSpacing.globalGutter,
+          // 글 버튼(36)이 있으면 그 36 이 줄 높이다 — 위아래 8 + 20 과 같다(스펙 marginY −8)
+          vertical: action == null ? PSpacing.x2 : 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: PSpacing.x2_5,
+          children: [
+            Flexible(
+              child: Semantics(
+                header: true,
+                container: true,
+                label: title,
+                child: ExcludeSemantics(
+                  child: Text(
+                    keepAll(title),
+                    key: const ValueKey('plist-header-title'),
+                    style: style,
+                  ),
                 ),
               ),
             ),
-          ),
-          ?action,
-        ],
+            if (action != null)
+              Transform.translate(
+                offset: const Offset(kTextButtonPaddingX, 0),
+                child: action,
+              ),
+          ],
+        ),
       ),
     );
   }

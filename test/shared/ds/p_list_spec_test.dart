@@ -17,6 +17,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/list/list_demo.dart';
 import 'package:groo_damda_app/shared/ds/list/list_row.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
@@ -800,6 +801,7 @@ void _headerTests() {
       final title = '${mode.name} 목록 제목 $variant';
       testWidgets('$title — 스펙 값이다', (tester) async {
         final strong = variant == 'boldSolid';
+        var taps = 0;
         await tester.pumpWidget(
           _host(
             mode,
@@ -834,6 +836,50 @@ void _headerTests() {
         if (row.spacing != 10) {
           k.fail('root.gap: 스펙 10 · 실제 ${row.spacing}');
         }
+        await tester.pumpWidget(
+          _host(
+            mode,
+            PListHeader(
+              title: '카테고리별 예산',
+              variant: strong
+                  ? PListHeaderVariant.boldSolid
+                  : PListHeaderVariant.mediumWeak,
+              action: PTextButton(label: '전체 보기', onPressed: () => taps++),
+            ),
+          ),
+        );
+        final header2 = tester.getRect(_key('plist-header'));
+        // 오른쪽 글 버튼(SEED Text Button, D2) — 보이는 36 · 좌우 14 · 700 · muted, 누르는 44, 머리 높이는 그대로
+        final box = tester.getRect(_key('text-button-box'));
+        k.px('action.height', box.height);
+        final label = tester.getRect(_key('text-button-label'));
+        k.px('action.paddingX', label.left - box.left);
+        k.px('action.paddingX', box.right - label.right);
+        k.px(
+          'action.radius',
+          ((tester.widget<Container>(_key('text-button-box')).decoration!
+                          as BoxDecoration)
+                      .borderRadius!
+                  as BorderRadius)
+              .topLeft
+              .x,
+        );
+        final astyle = tester.widget<Text>(_key('text-button-label')).style!;
+        k.typo('action.typography', astyle);
+        k.weight('action.fontWeight', astyle);
+        k.color('action.foreground', astyle.color!);
+        // 머리 줄 높이 — 글 버튼이 늘리지 않는다(marginY −8): 위아래 8 + 제목 한 줄과 20 중 큰 것
+        k.measured.add('action.marginY');
+        final titleLine = tester.getSize(_key('plist-header-title')).height;
+        if ((header2.height - (16 + (titleLine > 20 ? titleLine : 20))).abs() >
+            0.5) {
+          k.fail('action.marginY: 머리 높이 ${header2.height}');
+        }
+        // 누르는 영역 — 보이는 36 은 눌린다. 위아래 4 를 더한 44 는 머리 줄(36)이 부모라 줄 밖은 받지 못한다(질문 후보)
+        k.measured.add('action.touchTarget');
+        await tester.tapAt(box.topCenter + const Offset(0, 1));
+        await tester.pump();
+        if (taps != 1) k.fail('action.touchTarget: 보이는 상자 위쪽이 안 눌린다');
         k.coverage({});
         if (k.failures.isNotEmpty) fail(k.failures.join('\n'));
       });
@@ -849,12 +895,7 @@ void _headerTests() {
           children: [
             PListHeader(
               title: '카테고리별 예산',
-              action: PButton(
-                label: '전체 보기',
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.xsmall,
-                onPressed: _noop,
-              ),
+              action: PTextButton(label: '전체 보기', onPressed: _noop),
             ),
             const PList(
               semanticLabel: '카테고리별 예산',
@@ -866,10 +907,14 @@ void _headerTests() {
     );
     final header = tester.getRect(_key('plist-header'));
     final title = tester.getRect(_key('plist-header-title'));
-    final action = tester.getRect(find.byType(PButton));
+    final action = tester.getRect(_key('text-button-box'));
     final row = tester.getRect(_rows);
     expect(title.left, row.left, reason: '제목의 왼쪽이 줄의 왼쪽과 맞는다');
-    expect(action.right, header.right - PSpacing.globalGutter);
+    // 글 버튼은 오른쪽 14 만큼 바깥으로 내어 글자 끝이 24 에 선다
+    expect(
+      tester.getRect(_key('text-button-label')).right,
+      header.right - PSpacing.globalGutter,
+    );
     expect(title.right, lessThanOrEqualTo(action.left - 10));
   });
 
@@ -883,12 +928,7 @@ void _headerTests() {
           children: [
             PListHeader(
               title: '카테고리별 예산',
-              action: PButton(
-                label: '전체 보기',
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.xsmall,
-                onPressed: _noop,
-              ),
+              action: PTextButton(label: '전체 보기', onPressed: _noop),
             ),
             const PList(
               semanticLabel: '카테고리별 예산',

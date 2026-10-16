@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
 /// Card 의 부품 — 머리 · 본문 · 지표 · 증감 · 순자산 글. 규칙은 [PCard] 머리 설명이다.
 
@@ -142,7 +142,7 @@ class _RenderTouchTargetScope extends RenderProxyBox {
 
 /// 머리 — 제목과 오른쪽 동작 한 줄. 글 카드는 카드 여백 안 · 아래 8, 목록 · 아코디언 카드는 위 24 · 좌우 24 · 아래 4.
 ///
-/// [actionLabel] · [onAction] 을 주면 오른쪽에 "전체 보기" 같은 동작이 선다 — 보이는 상자 32 · 누르는 영역 44, 읽는 이름은
+/// [actionLabel] · [onAction] 을 주면 오른쪽에 "전체 보기" 같은 동작이 선다 — 글 버튼(SEED Text Button — 보이는 36 · 누르는 44), 읽는 이름은
 /// "{제목} {글}"(무엇의 동작인지 넣는다 — 글은 부르는 쪽이 넘긴다).
 class PCardHeader extends StatelessWidget {
   const PCardHeader({
@@ -198,117 +198,13 @@ class PCardHeader extends StatelessWidget {
             ),
           ),
           if (actionLabel != null)
-            _CardAction(
+            PTextButton(
               label: actionLabel!,
               semanticLabel: '$title $actionLabel',
-              onTap: onAction!,
+              onPressed: onAction,
+              bleedEnd: true,
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _CardAction extends StatefulWidget {
-  const _CardAction({
-    required this.label,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final String label;
-  final String semanticLabel;
-  final VoidCallback onTap;
-
-  @override
-  State<_CardAction> createState() => _CardActionState();
-}
-
-class _CardActionState extends State<_CardAction> {
-  bool _pressed = false;
-  double _basis = 24;
-
-  void _setPressed(bool value) {
-    if (_pressed == value) return;
-    if (value) {
-      final size = context.size;
-      if (size != null) _basis = cardPressBasis(size);
-    }
-    setState(() => _pressed = value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final shrink = _pressed && !reduceMotion;
-    // 보이는 상자 32 — 누르면 바탕 bg-layer-default-pressed + 2px 거리 축소(글 버튼만, 카드는 그대로)
-    final box = TweenAnimationBuilder<Color?>(
-      tween: ColorTween(
-        end: _pressed
-            ? c.bgLayerDefaultPressed
-            : c.bgLayerDefaultPressed.withValues(alpha: 0),
-      ),
-      duration: PDuration.colorTransition,
-      curve: PEasing.easing,
-      builder: (context, background, child) => Container(
-        key: const ValueKey('card-action-box'),
-        height: 32,
-        padding: const EdgeInsets.only(left: PSpacing.x2, right: PSpacing.x1),
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(PRounded.r2),
-        ),
-        child: child,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: PSpacing.x0_5,
-        children: [
-          Text(
-            widget.label,
-            maxLines: 1,
-            softWrap: false,
-            style: PTypography.t4.copyWith(
-              color: c.fgNeutralSubtle,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          ExcludeSemantics(
-            child: Icon(
-              LucideIcons.chevronRight,
-              size: 16,
-              color: c.fgNeutralSubtle,
-            ),
-          ),
-        ],
-      ),
-    );
-    return PTouchTarget(
-      minSize: PTouch.min,
-      child: Semantics(
-        container: true,
-        button: true,
-        label: widget.semanticLabel,
-        excludeSemantics: true,
-        onTap: widget.onTap,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (_) => _setPressed(true),
-          onTapUp: (_) => _setPressed(false),
-          onTapCancel: () => _setPressed(false),
-          onTap: widget.onTap,
-          excludeFromSemantics: true,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: AnimatedScale(
-              scale: shrink ? (_basis - 2) / _basis : 1,
-              duration: PDuration.pressedScale,
-              curve: PEasing.pressedScale,
-              child: box,
-            ),
-          ),
-        ),
       ),
     );
   }

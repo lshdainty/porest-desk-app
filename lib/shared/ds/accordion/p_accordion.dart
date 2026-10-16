@@ -1,14 +1,12 @@
-import 'dart:math' as math;
-
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/accordion/p_disclosure_trigger.dart';
 import 'package:groo_damda_app/shared/ds/accordion/p_expand_motion.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
 /// 변형 — inline(기본, 연속 목록 + 들인 사이 선 24) · separated(항목마다 Card 면 — 1px · 모서리 16 · 사이 8).
 enum PAccordionVariant { inline, separated }
@@ -468,12 +466,12 @@ class PAccordionHeader extends StatelessWidget {
   }
 }
 
-/// 모두 펼치기 — 목록 머리 오른쪽 글 단추(groo 확장). 보이는 상자 32 · 왼쪽 8 · 오른쪽 4 · 모서리 8, 글 14 / 19 · 500
-/// `fg-neutral-subtle` + 아이콘 16(글 뒤 2), 누르는 영역 44. 누르면 바탕 + 2px 거리 축소(기준 max(높이, 폭 ÷ 4, 24)).
+/// 모두 펼치기 — 목록 머리 오른쪽 글 버튼([PTextButton] — SEED Text Button: 보이는 36 · 14 · 700 · `fg-neutral-muted`, 아이콘 없음,
+/// 누르는 영역 44).
 ///
 /// 상세가 있는 항목([expandable])만 열고 닫는다. 하나라도 접혀 있으면 [expandLabel] 로 모두 열고, 모두 열려 있으면
 /// [collapseLabel] 로 모두 접는다. 이름은 보이는 글 그대로, 펼침 상태를 따로 읽지 않는다.
-class PAccordionExpandAll extends StatefulWidget {
+class PAccordionExpandAll extends StatelessWidget {
   const PAccordionExpandAll({
     super.key,
     required this.values,
@@ -492,33 +490,11 @@ class PAccordionExpandAll extends StatefulWidget {
   final String expandLabel;
   final String collapseLabel;
 
-  @override
-  State<PAccordionExpandAll> createState() => _PAccordionExpandAllState();
-}
-
-class _PAccordionExpandAllState extends State<PAccordionExpandAll> {
-  bool _pressed = false;
-  double _basis = 24;
-
   bool get _allOpen =>
-      widget.expandable.isNotEmpty &&
-      widget.expandable.every(widget.values.contains);
-
-  void _setPressed(bool value) {
-    if (_pressed == value) return;
-    if (value) {
-      final size = context.size;
-      if (size != null) {
-        _basis = math.max(size.height, math.max(size.width / 4, 24));
-      }
-    }
-    setState(() => _pressed = value);
-  }
+      expandable.isNotEmpty && expandable.every(values.contains);
 
   void _activate() {
-    final values = widget.values;
-    final expandable = widget.expandable;
-    widget.onValuesChange(
+    onValuesChange(
       _allOpen
           ? [
               for (final v in values)
@@ -529,76 +505,8 @@ class _PAccordionExpandAllState extends State<PAccordionExpandAll> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final label = _allOpen ? widget.collapseLabel : widget.expandLabel;
-    final box = TweenAnimationBuilder<Color?>(
-      tween: ColorTween(
-        end: _pressed
-            ? c.bgLayerDefaultPressed
-            : c.bgLayerDefaultPressed.withValues(alpha: 0),
-      ),
-      duration: PDuration.colorTransition,
-      curve: PEasing.easing,
-      builder: (context, background, child) => Container(
-        key: const ValueKey('paccordion-expand-all-box'),
-        height: PSpacing.x8,
-        padding: const EdgeInsets.only(left: PSpacing.x2, right: PSpacing.x1),
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(PRounded.r2),
-        ),
-        child: child,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: PSpacing.x0_5,
-        children: [
-          Text(
-            label,
-            maxLines: 1,
-            softWrap: false,
-            style: PTypography.t4.copyWith(
-              color: c.fgNeutralSubtle,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Icon(
-            _allOpen ? LucideIcons.chevronsDownUp : LucideIcons.chevronsUpDown,
-            size: PSpacing.x4,
-            color: c.fgNeutralSubtle,
-          ),
-        ],
-      ),
-    );
-    return PTouchTarget(
-      minSize: PTouch.min,
-      child: Semantics(
-        container: true,
-        button: true,
-        label: label,
-        excludeSemantics: true,
-        onTap: _activate,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          excludeFromSemantics: true,
-          onTapDown: (_) => _setPressed(true),
-          onTapUp: (_) => _setPressed(false),
-          onTapCancel: () => _setPressed(false),
-          onTap: _activate,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: AnimatedScale(
-              key: const ValueKey('paccordion-expand-all-scale'),
-              scale: _pressed && !reduceMotion ? (_basis - 2) / _basis : 1,
-              duration: PDuration.pressedScale,
-              curve: PEasing.pressedScale,
-              child: box,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => PTextButton(
+    label: _allOpen ? collapseLabel : expandLabel,
+    onPressed: _activate,
+  );
 }

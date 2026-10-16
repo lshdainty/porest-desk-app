@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
@@ -991,13 +992,7 @@ class _HeaderDividerDemo extends StatelessWidget {
                     children: [
                       PListHeader(
                         title: '카테고리별 예산',
-                        action: PButton(
-                          label: '전체 보기',
-                          variant: PButtonVariant.ghost,
-                          ghostColor: PButtonGhostColor.neutralSubtle,
-                          size: PButtonSize.xsmall,
-                          onPressed: _noop,
-                        ),
+                        action: PTextButton(label: '전체 보기', onPressed: _noop),
                       ),
                       const PList(
                         semanticLabel: '카테고리별 예산',
