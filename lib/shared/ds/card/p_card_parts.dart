@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
@@ -282,16 +284,26 @@ String unsignedDelta(String value) =>
 
 /// 보조 기술이 읽는 기본 문장 — "{text} {value} 늘었어요 · 줄었어요"(flat 은 "{text} 변화가 없어요").
 @visibleForTesting
-String deltaSentence(PDeltaDirection direction, String? value, String? text) {
+String deltaSentence(
+  PDeltaDirection direction,
+  String? value,
+  String? text, {
+  AppLocalizations? l10n,
+}) {
   final base = (text ?? '').trim();
   if (direction == PDeltaDirection.flat) {
-    return [base, '변화가 없어요'].where((s) => s.isNotEmpty).join(' ');
+    return [
+      base,
+      l10n?.dsDeltaNoChangeSentence ?? '변화가 없어요',
+    ].where((s) => s.isNotEmpty).join(' ');
   }
   final amount = unsignedDelta(value ?? '').trim();
   return [
     base,
     amount,
-    direction == PDeltaDirection.up ? '늘었어요' : '줄었어요',
+    direction == PDeltaDirection.up
+        ? (l10n?.dsDeltaIncreased ?? '늘었어요')
+        : (l10n?.dsDeltaDecreased ?? '줄었어요'),
   ].where((s) => s.isNotEmpty).join(' ');
 }
 
@@ -337,11 +349,12 @@ class PDelta extends StatelessWidget {
       PDeltaDirection.flat => null,
     };
     final shown = arrow == null
-        ? '변화 없음'
+        ? (dsL(context)?.dsDeltaNone ?? '변화 없음')
         : '$arrow ${unsignedDelta(value ?? '')}'.trimRight();
     return Semantics(
       container: true,
-      label: srText ?? deltaSentence(direction, value, text),
+      label:
+          srText ?? deltaSentence(direction, value, text, l10n: dsL(context)),
       excludeSemantics: true,
       child: Wrap(
         spacing: PSpacing.x1,

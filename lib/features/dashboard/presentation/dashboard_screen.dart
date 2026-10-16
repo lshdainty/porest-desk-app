@@ -310,31 +310,33 @@ class _WidgetSkeleton extends StatelessWidget {
     return Padding(
       // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 헤드(아이콘·제목·전체보기)는 정적 틀이라 로딩에도 진짜를 쓴다 —
-          // 회색 박스로 덮으면 바로 보여줄 수 있는 걸 가리고, 교체 순간 튄다.
-          _WidgetHead(icon: icon, title: title, onAll: onAll),
-          for (int i = 0; i < 2; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  PSkeleton(
-                    width: 18,
-                    height: 18,
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  const SizedBox(width: 12),
-                  PSkeleton.line(width: i == 0 ? 120 : 96),
-                  const Spacer(),
-                  const PSkeleton.line(width: 40, height: 12),
-                ],
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: PScreenCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 헤드(아이콘·제목·전체보기)는 정적 틀이라 로딩에도 진짜를 쓴다 —
+            // 회색 박스로 덮으면 바로 보여줄 수 있는 걸 가리고, 교체 순간 튄다.
+            _WidgetHead(icon: icon, title: title, onAll: onAll),
+            for (int i = 0; i < 2; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    PSkeleton(
+                      width: 18,
+                      height: 18,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    const SizedBox(width: 12),
+                    PSkeleton.line(width: i == 0 ? 120 : 96),
+                    const Spacer(),
+                    const PSkeleton.line(width: 40, height: 12),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -365,46 +367,48 @@ class _HomeUpcomingWidget extends StatelessWidget {
     return Padding(
       // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _WidgetHead(
-            icon: LucideIcons.calendarClock,
-            title: l.dashUpcoming,
-            onAll: () => context.go('/calendar'),
-          ),
-          for (final e in events)
-            _WidgetRow(
-              onTap: () => context.go('/calendar'),
-              leading: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: resolveChartColor(
-                    context,
-                    e.color,
-                    fallback: t.fgBrand,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              title: e.title,
-              trailing: Text(
-                e.daysUntil == 0
-                    ? l.dashTodayLabel
-                    : (e.daysUntil == 1
-                          ? l.dashTomorrowLabel
-                          : l.dashDaysLeft(e.daysUntil)),
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: PFontWeight.bold,
-                  color: e.daysUntil <= 3 ? t.statusDangerFg : t.fgTertiary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: PScreenCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _WidgetHead(
+              icon: LucideIcons.calendarClock,
+              title: l.dashUpcoming,
+              onAll: () => context.go('/calendar'),
             ),
-        ],
+            for (final e in events)
+              _WidgetRow(
+                onTap: () => context.go('/calendar'),
+                leading: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: resolveChartColor(
+                      context,
+                      e.color,
+                      fallback: t.fgBrand,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                title: e.title,
+                trailing: Text(
+                  e.daysUntil == 0
+                      ? l.dashTodayLabel
+                      : (e.daysUntil == 1
+                            ? l.dashTomorrowLabel
+                            : l.dashDaysLeft(e.daysUntil)),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: PFontWeight.bold,
+                    color: e.daysUntil <= 3 ? t.statusDangerFg : t.fgTertiary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -433,64 +437,66 @@ class _HomeTodosWidget extends StatelessWidget {
     return Padding(
       // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _WidgetHead(
-            icon: LucideIcons.squareCheckBig,
-            title: l.dashRecentTodos,
-            onAll: () => context.go('/todos'),
-            // badge SoT = pill(brFull) + softError(subtle 배경 + statusDangerFg). square 는 spec 외.
-            badge: overdue > 0
-                ? PBadge(
-                    label: l.dashOverdue(overdue),
-                    variant: PBadgeVariant.softError,
-                  )
-                : null,
-          ),
-          for (final tdo in todos)
-            () {
-              final done = tdo.status == 'COMPLETED';
-              final isOver =
-                  !done &&
-                  tdo.dueDate != null &&
-                  tdo.dueDate!.substring(0, 10).compareTo(todayStr) < 0;
-              return _WidgetRow(
-                onTap: () => context.go('/todos'),
-                strike: done,
-                leading: done
-                    ? Icon(
-                        LucideIcons.checkCircle,
-                        size: 18,
-                        color: t.statusSuccessFg,
-                      )
-                    : Container(
-                        width: 18,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isOver ? t.statusDangerFg : t.borderStrong,
-                            width: 2,
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: PScreenCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _WidgetHead(
+              icon: LucideIcons.squareCheckBig,
+              title: l.dashRecentTodos,
+              onAll: () => context.go('/todos'),
+              // badge SoT = pill(brFull) + softError(subtle 배경 + statusDangerFg). square 는 spec 외.
+              badge: overdue > 0
+                  ? PBadge(
+                      label: l.dashOverdue(overdue),
+                      variant: PBadgeVariant.softError,
+                    )
+                  : null,
+            ),
+            for (final tdo in todos)
+              () {
+                final done = tdo.status == 'COMPLETED';
+                final isOver =
+                    !done &&
+                    tdo.dueDate != null &&
+                    tdo.dueDate!.substring(0, 10).compareTo(todayStr) < 0;
+                return _WidgetRow(
+                  onTap: () => context.go('/todos'),
+                  strike: done,
+                  leading: done
+                      ? Icon(
+                          LucideIcons.checkCircle,
+                          size: 18,
+                          color: t.statusSuccessFg,
+                        )
+                      : Container(
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isOver ? t.statusDangerFg : t.borderStrong,
+                              width: 2,
+                            ),
                           ),
                         ),
-                      ),
-                title: tdo.title,
-                trailing: tdo.dueDate != null
-                    ? Text(
-                        tdo.dueDate!.substring(5, 10),
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: PFontWeight.semi,
-                          color: isOver ? t.statusDangerFg : t.fgTertiary,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              );
-            }(),
-        ],
+                  title: tdo.title,
+                  trailing: tdo.dueDate != null
+                      ? Text(
+                          tdo.dueDate!.substring(5, 10),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: PFontWeight.semi,
+                            color: isOver ? t.statusDangerFg : t.fgTertiary,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                );
+              }(),
+          ],
+        ),
       ),
     );
   }

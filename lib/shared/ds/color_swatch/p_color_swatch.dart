@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
@@ -62,6 +63,24 @@ const Map<PChartColor, String> pColorSwatchNames = {
   PChartColor.brown: '갈색',
   PChartColor.gray: '회색',
 };
+
+/// 로케일의 색 이름 — 로케일이 없는 호스트에서는 한국어([pColorSwatchNames]).
+Map<PChartColor, String> pColorSwatchNamesOf(BuildContext context) {
+  final l = dsL(context);
+  if (l == null) return pColorSwatchNames;
+  return {
+    PChartColor.red: l.dsColorRed,
+    PChartColor.orange: l.dsColorOrange,
+    PChartColor.yellow: l.dsColorYellow,
+    PChartColor.green: l.dsColorGreen,
+    PChartColor.blue: l.dsColorBlue,
+    PChartColor.indigo: l.dsColorIndigo,
+    PChartColor.violet: l.dsColorViolet,
+    PChartColor.pink: l.dsColorPink,
+    PChartColor.brown: l.dsColorBrown,
+    PChartColor.gray: l.dsColorGray,
+  };
+}
 
 /// 같은 목록이 아직 쓰지 않은 첫 색(v110 배정 순서 — 파랑 → 초록 → 주황 → 보라 → 분홍 → 남색 → 빨강 → 노랑 → 갈색).
 /// 아홉 색을 다 쓰면 파랑, 회색은 주지 않는다("기타" 전용). 새 항목은 늘 빨강으로 시작하지 않는다.
@@ -138,9 +157,9 @@ class PColorSwatchGroup extends StatefulWidget {
     this.autoColor,
     this.disabled,
     this.semanticLabel,
-    this.names = pColorSwatchNames,
-    this.currentName = '지금 색',
-    this.autoName = '자동',
+    this.names,
+    this.currentName,
+    this.autoName,
   });
 
   /// 고른 칸 — null 이면 고른 칸 없음.
@@ -162,15 +181,21 @@ class PColorSwatchGroup extends StatefulWidget {
   final String? semanticLabel;
 
   /// 색 이름 — 칸의 이름. 부르는 쪽 말로 바꿀 때.
-  final Map<PChartColor, String> names;
-  final String currentName;
-  final String autoName;
+  /// 색 이름 · 지금 색 · 자동 — 없으면 로케일 문구(한국어 기본값은 [pColorSwatchNames]).
+  final Map<PChartColor, String>? names;
+  final String? currentName;
+  final String? autoName;
 
   @override
   State<PColorSwatchGroup> createState() => _PColorSwatchGroupState();
 }
 
 class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
+  String _currentName(BuildContext context) =>
+      widget.currentName ?? dsL(context)?.dsColorCurrent ?? '지금 색';
+  String _autoName(BuildContext context) =>
+      widget.autoName ?? dsL(context)?.dsColorAuto ?? '자동';
+
   List<FocusNode> _nodes = [];
 
   bool get _hasCurrent =>
@@ -266,8 +291,8 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
       final isCurrent = v.isCurrent;
       final custom = widget.currentColor != null;
       final name = isCurrent
-          ? (custom ? widget.currentName : widget.autoName)
-          : widget.names[v.color!]!;
+          ? (custom ? _currentName(context) : _autoName(context))
+          : (widget.names ?? pColorSwatchNamesOf(context))[v.color!]!;
       final fill = isCurrent
           ? (custom ? widget.currentColor! : widget.autoColor!.of(c))
           : v.color!.of(c);
@@ -327,8 +352,8 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
                   maxWidth: double.infinity,
                   child: Text(
                     widget.currentColor != null
-                        ? widget.currentName
-                        : widget.autoName,
+                        ? _currentName(context)
+                        : _autoName(context),
                     key: const ValueKey('swatch-current-label'),
                     maxLines: 1,
                     softWrap: false,

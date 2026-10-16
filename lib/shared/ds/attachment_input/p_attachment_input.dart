@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_model.dart';
 import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_system_picker.dart';
@@ -221,7 +222,10 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     // 항목 몸의 왼쪽 위 — 자리 상자의 위 16(× 의 누르는 자리)을 뺀다
     _dragStartTopLeft = box.localToGlobal(const Offset(0, _touchBleed));
     _dragTarget = widget.entries.indexWhere((e) => e.id == entry.id);
-    _say('${_dragTarget + 1}번째 항목을 들었어요.');
+    _say(
+      dsL(context)?.dsAttachLifted(_dragTarget + 1) ??
+          '${_dragTarget + 1}번째 항목을 들었어요.',
+    );
     final overlay = Overlay.of(context);
     final overlayBox = overlay.context.findRenderObject()! as RenderBox;
     final badge =
@@ -393,15 +397,31 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     if (added.isNotEmpty) {
       final images = added.where((e) => e.isImage).length;
       if (images == added.length) {
-        parts.add('사진 $images장을 붙였어요.');
+        parts.add(
+          dsL(context)?.dsAttachAddedPhotos(images) ?? '사진 $images장을 붙였어요.',
+        );
       } else if (images == 0) {
-        parts.add('파일 ${added.length}개를 붙였어요.');
+        parts.add(
+          dsL(context)?.dsAttachAddedFiles(added.length) ??
+              '파일 ${added.length}개를 붙였어요.',
+        );
       } else {
-        parts.add('${added.length}개를 붙였어요.');
+        parts.add(
+          dsL(context)?.dsAttachAddedItems(added.length) ??
+              '${added.length}개를 붙였어요.',
+        );
       }
     }
-    if (succeeded > 0) parts.add('$succeeded개를 올렸어요.');
-    if (failed > 0) parts.add('$failed개는 올리지 못했어요.');
+    if (succeeded > 0) {
+      parts.add(
+        dsL(context)?.dsAttachUploaded(succeeded) ?? '$succeeded개를 올렸어요.',
+      );
+    }
+    if (failed > 0) {
+      parts.add(
+        dsL(context)?.dsAttachFailedCount(failed) ?? '$failed개는 올리지 못했어요.',
+      );
+    }
     if (parts.isNotEmpty) _say(parts.join(' '));
   }
 
@@ -456,16 +476,25 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
         PMenuSheetItem(label: label, onSelect: () => chosen = source);
     await PMenuSheet.show(
       context,
-      title: '첨부',
+      title: dsL(context)?.dsAttachTitle ?? '첨부',
       layout: PMenuSheetLayout.textOnly,
       groups: [
         PMenuSheetGroup([
           if (sources.contains(PAttachmentSource.camera))
-            line('사진 찍기', PAttachmentSource.camera),
+            line(
+              dsL(context)?.dsAttachCamera ?? '사진 찍기',
+              PAttachmentSource.camera,
+            ),
           if (sources.contains(PAttachmentSource.gallery))
-            line('앨범에서 고르기', PAttachmentSource.gallery),
+            line(
+              dsL(context)?.dsAttachGallery ?? '앨범에서 고르기',
+              PAttachmentSource.gallery,
+            ),
           if (sources.contains(PAttachmentSource.files))
-            line('파일 고르기', PAttachmentSource.files),
+            line(
+              dsL(context)?.dsAttachFiles ?? '파일 고르기',
+              PAttachmentSource.files,
+            ),
         ]),
       ],
     );
@@ -522,7 +551,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     final next = [...list];
     next.insert(to, next.removeAt(from));
     _movedId = id;
-    _say('${to + 1}번째 자리로 옮겼어요.');
+    _say(dsL(context)?.dsAttachMoved(to + 1) ?? '${to + 1}번째 자리로 옮겼어요.');
     widget.onReorder!(next);
   }
 
@@ -553,17 +582,26 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     );
     final top = [
       if (widget.onPreview != null)
-        line(image ? '크게 보기' : '열기', () => widget.onPreview!(entry.id)),
+        line(
+          image
+              ? (dsL(context)?.dsAttachPreviewImage ?? '크게 보기')
+              : (dsL(context)?.dsAttachOpen ?? '열기'),
+          () => widget.onPreview!(entry.id),
+        ),
       if (reorder && image && widget.badgeLabel != null)
-        line('대표로 정하기', () => _moveTo(entry.id, 0), enabled: index != 0),
+        line(
+          dsL(context)?.dsAttachMakeCover ?? '대표로 정하기',
+          () => _moveTo(entry.id, 0),
+          enabled: index != 0,
+        ),
       if (reorder) ...[
         line(
-          '앞으로 옮기기',
+          dsL(context)?.dsAttachMoveForward ?? '앞으로 옮기기',
           () => _moveTo(entry.id, index - 1),
           enabled: index != 0,
         ),
         line(
-          '뒤로 옮기기',
+          dsL(context)?.dsAttachMoveBack ?? '뒤로 옮기기',
           () => _moveTo(entry.id, index + 1),
           enabled: index != last,
         ),
@@ -576,7 +614,11 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
       groups: [
         if (top.isNotEmpty) PMenuSheetGroup(top),
         PMenuSheetGroup([
-          line('지우기', () => _remove(entry.id), tone: PMenuSheetTone.critical),
+          line(
+            dsL(context)?.dsInputClear ?? '지우기',
+            () => _remove(entry.id),
+            tone: PMenuSheetTone.critical,
+          ),
         ]),
       ],
     );
@@ -593,16 +635,22 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     final reorder = widget.onReorder != null;
     return {
       if (reorder && index > 0)
-        const CustomSemanticsAction(label: '앞으로 옮기기'): () =>
+        CustomSemanticsAction(
+          label: dsL(context)?.dsAttachMoveForward ?? '앞으로 옮기기',
+        ): () =>
             _moveTo(entry.id, index - 1),
       if (reorder && index < last)
-        const CustomSemanticsAction(label: '뒤로 옮기기'): () =>
+        CustomSemanticsAction(
+          label: dsL(context)?.dsAttachMoveBack ?? '뒤로 옮기기',
+        ): () =>
             _moveTo(entry.id, index + 1),
-      const CustomSemanticsAction(label: '지우기'): () => _remove(entry.id),
+      CustomSemanticsAction(label: dsL(context)?.dsInputClear ?? '지우기'): () =>
+          _remove(entry.id),
     };
   }
 
   String _describe(
+    BuildContext context,
     PAttachmentEntry e,
     PAttachmentStatus status,
     String? badge,
@@ -612,11 +660,16 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     if (status == PAttachmentStatus.uploading) {
       parts.add(
         e.progress == null
-            ? '올리는 중'
-            : '올리는 중 ${(e.progress!.clamp(0.0, 1.0) * 100).round()}%',
+            ? (dsL(context)?.dsAttachUploading ?? '올리는 중')
+            : (dsL(context)?.dsAttachUploadingPercent(
+                    (e.progress!.clamp(0.0, 1.0) * 100).round(),
+                  ) ??
+                  '올리는 중 ${(e.progress!.clamp(0.0, 1.0) * 100).round()}%'),
       );
     }
-    if (status == PAttachmentStatus.error) parts.add('올리지 못했어요');
+    if (status == PAttachmentStatus.error) {
+      parts.add(dsL(context)?.dsAttachUploadFailed ?? '올리지 못했어요');
+    }
     return parts.join(', ');
   }
 
@@ -662,7 +715,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
             key: ValueKey('attachment-item-${entry.id}'),
             entry: entry,
             status: status,
-            description: _describe(entry, status, badge),
+            description: _describe(context, entry, status, badge),
             readOnly: readOnly,
             disabled: disabled,
             badgeLabel: entry.isImage ? badge : null,
@@ -686,9 +739,14 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
       );
     }
 
-    final label = widget.semanticLabel ?? field?.label ?? '파일';
+    final label =
+        widget.semanticLabel ??
+        field?.label ??
+        (dsL(context)?.dsAttachDefaultLabel ?? '파일');
     final count = limited ? '${entries.length}/${widget.maxFiles}' : null;
-    final suffix = count == null ? '첨부' : '첨부, $count';
+    final suffix = count == null
+        ? (dsL(context)?.dsAttachSuffix ?? '첨부')
+        : (dsL(context)?.dsAttachSuffixCount(count) ?? '첨부, $count');
 
     Widget body;
     if (widget.layout == PAttachmentLayout.dropzone) {
@@ -699,7 +757,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
         children: [
           PButton(
             key: const ValueKey('attachment-pick'),
-            label: '파일 선택',
+            label: dsL(context)?.dsAttachPickFiles ?? '파일 선택',
             variant: PButtonVariant.neutralWeak,
             size: PButtonSize.large,
             prefixIcon: LucideIcons.upload,
@@ -766,7 +824,9 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
       label: widget.semanticLabel ?? field?.label,
       hint: [
         if (field?.message != null) field!.message!,
-        if (failures > 0) '$failures개는 올리지 못했어요',
+        if (failures > 0)
+          (dsL(context)?.dsAttachFailedCount(failures) ??
+              '$failures개는 올리지 못했어요'),
       ].join(' ').nullIfEmpty,
       enabled: !disabled,
       child: Column(

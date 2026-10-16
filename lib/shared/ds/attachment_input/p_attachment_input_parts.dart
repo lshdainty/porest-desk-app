@@ -995,7 +995,9 @@ class _ItemSlot extends StatelessWidget {
               child: _PressBox(
                 key: const ValueKey('attachment-retry'),
                 radius: _itemRadius,
-                label: '${entry.name} 다시 시도',
+                label:
+                    dsL(context)?.dsAttachRetryNamed(entry.name) ??
+                    '${entry.name} 다시 시도',
                 disabled: disabled,
                 shrink: true,
                 onTap: onRetry ?? () {},
@@ -1012,7 +1014,7 @@ class _ItemSlot extends StatelessWidget {
                     ),
                     ExcludeSemantics(
                       child: Text(
-                        '다시 시도',
+                        dsL(context)?.dsAttachRetry ?? '다시 시도',
                         maxLines: 1,
                         softWrap: false,
                         style: PTypography.t2.copyWith(
@@ -1035,7 +1037,9 @@ class _ItemSlot extends StatelessWidget {
             child: _RemoveButton(
               key: const ValueKey('attachment-remove'),
               focusNode: removeNode,
-              label: '${entry.name} 지우기',
+              label:
+                  dsL(context)?.dsAttachRemoveNamed(entry.name) ??
+                  '${entry.name} 지우기',
               blocked: readOnly,
               disabled: disabled,
               onTap: onRemove,

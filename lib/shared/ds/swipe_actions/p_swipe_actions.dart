@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
@@ -653,7 +654,8 @@ class PSwipeActionsMore extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PButton.icon(
     icon: LucideIcons.ellipsisVertical,
-    semanticLabel: moreLabel ?? '$rowLabel 더보기',
+    semanticLabel:
+        moreLabel ?? dsL(context)?.dsSwipeMore(rowLabel) ?? '$rowLabel 더보기',
     variant: PButtonVariant.ghost,
     size: PButtonSize.medium,
     onPressed: () => PMenuSheet.show(

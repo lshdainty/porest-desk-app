@@ -12925,6 +12925,468 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다음'**
   String get actionNext;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}번째 항목을 들었어요.'**
+  String dsAttachLifted(int n);
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 {n}장을 붙였어요.'**
+  String dsAttachAddedPhotos(int n);
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 {n}개를 붙였어요.'**
+  String dsAttachAddedFiles(int n);
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}개를 붙였어요.'**
+  String dsAttachAddedItems(int n);
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}개를 올렸어요.'**
+  String dsAttachUploaded(int n);
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}개는 올리지 못했어요.'**
+  String dsAttachFailedCount(int n);
+
+  /// No description provided for @dsAttachTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부'**
+  String get dsAttachTitle;
+
+  /// No description provided for @dsAttachCamera.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 찍기'**
+  String get dsAttachCamera;
+
+  /// No description provided for @dsAttachGallery.
+  ///
+  /// In ko, this message translates to:
+  /// **'앨범에서 고르기'**
+  String get dsAttachGallery;
+
+  /// No description provided for @dsAttachFiles.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 고르기'**
+  String get dsAttachFiles;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}번째 자리로 옮겼어요.'**
+  String dsAttachMoved(int n);
+
+  /// No description provided for @dsAttachPreviewImage.
+  ///
+  /// In ko, this message translates to:
+  /// **'크게 보기'**
+  String get dsAttachPreviewImage;
+
+  /// No description provided for @dsAttachOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'열기'**
+  String get dsAttachOpen;
+
+  /// No description provided for @dsAttachMakeCover.
+  ///
+  /// In ko, this message translates to:
+  /// **'대표로 정하기'**
+  String get dsAttachMakeCover;
+
+  /// No description provided for @dsAttachMoveForward.
+  ///
+  /// In ko, this message translates to:
+  /// **'앞으로 옮기기'**
+  String get dsAttachMoveForward;
+
+  /// No description provided for @dsAttachMoveBack.
+  ///
+  /// In ko, this message translates to:
+  /// **'뒤로 옮기기'**
+  String get dsAttachMoveBack;
+
+  /// No description provided for @dsAttachUploading.
+  ///
+  /// In ko, this message translates to:
+  /// **'올리는 중'**
+  String get dsAttachUploading;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'올리는 중 {percent}%'**
+  String dsAttachUploadingPercent(int percent);
+
+  /// No description provided for @dsAttachUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'올리지 못했어요'**
+  String get dsAttachUploadFailed;
+
+  /// No description provided for @dsAttachDefaultLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일'**
+  String get dsAttachDefaultLabel;
+
+  /// No description provided for @dsAttachSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부'**
+  String get dsAttachSuffix;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부, {count}'**
+  String dsAttachSuffixCount(String count);
+
+  /// No description provided for @dsAttachPickFiles.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 선택'**
+  String get dsAttachPickFiles;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 다시 시도'**
+  String dsAttachRetryNamed(String name);
+
+  /// No description provided for @dsAttachRetry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get dsAttachRetry;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 지우기'**
+  String dsAttachRemoveNamed(String name);
+
+  /// No description provided for @dsAvatarUploading.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 사진 올리는 중'**
+  String get dsAvatarUploading;
+
+  /// No description provided for @dsDeltaNoChangeSentence.
+  ///
+  /// In ko, this message translates to:
+  /// **'변화가 없어요'**
+  String get dsDeltaNoChangeSentence;
+
+  /// No description provided for @dsDeltaIncreased.
+  ///
+  /// In ko, this message translates to:
+  /// **'늘었어요'**
+  String get dsDeltaIncreased;
+
+  /// No description provided for @dsDeltaDecreased.
+  ///
+  /// In ko, this message translates to:
+  /// **'줄었어요'**
+  String get dsDeltaDecreased;
+
+  /// No description provided for @dsDeltaNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'변화 없음'**
+  String get dsDeltaNone;
+
+  /// No description provided for @dsChartHeatValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출'**
+  String get dsChartHeatValue;
+
+  /// No description provided for @dsChartHeatNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get dsChartHeatNone;
+
+  /// No description provided for @dsChartLegend.
+  ///
+  /// In ko, this message translates to:
+  /// **'범례'**
+  String get dsChartLegend;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'{row} 더보기'**
+  String dsSwipeMore(String row);
+
+  /// No description provided for @dsColorRed.
+  ///
+  /// In ko, this message translates to:
+  /// **'빨강'**
+  String get dsColorRed;
+
+  /// No description provided for @dsColorOrange.
+  ///
+  /// In ko, this message translates to:
+  /// **'주황'**
+  String get dsColorOrange;
+
+  /// No description provided for @dsColorYellow.
+  ///
+  /// In ko, this message translates to:
+  /// **'노랑'**
+  String get dsColorYellow;
+
+  /// No description provided for @dsColorGreen.
+  ///
+  /// In ko, this message translates to:
+  /// **'초록'**
+  String get dsColorGreen;
+
+  /// No description provided for @dsColorBlue.
+  ///
+  /// In ko, this message translates to:
+  /// **'파랑'**
+  String get dsColorBlue;
+
+  /// No description provided for @dsColorIndigo.
+  ///
+  /// In ko, this message translates to:
+  /// **'남색'**
+  String get dsColorIndigo;
+
+  /// No description provided for @dsColorViolet.
+  ///
+  /// In ko, this message translates to:
+  /// **'보라'**
+  String get dsColorViolet;
+
+  /// No description provided for @dsColorPink.
+  ///
+  /// In ko, this message translates to:
+  /// **'분홍'**
+  String get dsColorPink;
+
+  /// No description provided for @dsColorBrown.
+  ///
+  /// In ko, this message translates to:
+  /// **'갈색'**
+  String get dsColorBrown;
+
+  /// No description provided for @dsColorGray.
+  ///
+  /// In ko, this message translates to:
+  /// **'회색'**
+  String get dsColorGray;
+
+  /// No description provided for @dsColorCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 색'**
+  String get dsColorCurrent;
+
+  /// No description provided for @dsColorAuto.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동'**
+  String get dsColorAuto;
+
+  /// No description provided for @dsIconTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘'**
+  String get dsIconTitle;
+
+  /// No description provided for @dsIconSearch.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘 검색'**
+  String get dsIconSearch;
+
+  /// No description provided for @dsIconSearchPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘 이름 검색'**
+  String get dsIconSearchPlaceholder;
+
+  /// No description provided for @dsIconCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 아이콘'**
+  String get dsIconCurrent;
+
+  /// No description provided for @dsIconEmptyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 말로 찾거나 묶음에서 골라주세요.'**
+  String get dsIconEmptyDescription;
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{query}\'에 대한 아이콘이 없어요'**
+  String dsIconEmptyTitle(String query);
+
+  /// ds 컴포넌트 문구
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과 {count}개'**
+  String dsIconCount(int count);
+
+  /// No description provided for @dsIconTagFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그'**
+  String get dsIconTagFallback;
+
+  /// No description provided for @dsTimeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'시간 선택'**
+  String get dsTimeTitle;
+
+  /// No description provided for @dsTimePeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'오전/오후'**
+  String get dsTimePeriod;
+
+  /// No description provided for @dsTimeHour.
+  ///
+  /// In ko, this message translates to:
+  /// **'시'**
+  String get dsTimeHour;
+
+  /// No description provided for @dsTimeMinute.
+  ///
+  /// In ko, this message translates to:
+  /// **'분'**
+  String get dsTimeMinute;
+
+  /// No description provided for @dsTimeAm.
+  ///
+  /// In ko, this message translates to:
+  /// **'오전'**
+  String get dsTimeAm;
+
+  /// No description provided for @dsTimePm.
+  ///
+  /// In ko, this message translates to:
+  /// **'오후'**
+  String get dsTimePm;
+
+  /// No description provided for @dsDateRoot.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜 선택'**
+  String get dsDateRoot;
+
+  /// No description provided for @dsDatePrevMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 달'**
+  String get dsDatePrevMonth;
+
+  /// No description provided for @dsDateNextMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 달'**
+  String get dsDateNextMonth;
+
+  /// No description provided for @dsDateYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'연도'**
+  String get dsDateYear;
+
+  /// No description provided for @dsDateMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get dsDateMonth;
+
+  /// No description provided for @dsDateReadOnlyStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'읽기 전용 시작일'**
+  String get dsDateReadOnlyStart;
+
+  /// No description provided for @dsDatePresets.
+  ///
+  /// In ko, this message translates to:
+  /// **'빠른 기간'**
+  String get dsDatePresets;
+
+  /// No description provided for @dsDatePresetThisWeek.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 주'**
+  String get dsDatePresetThisWeek;
+
+  /// No description provided for @dsDatePresetThisMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달'**
+  String get dsDatePresetThisMonth;
+
+  /// No description provided for @dsDatePresetLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 달'**
+  String get dsDatePresetLastMonth;
+
+  /// No description provided for @dsDatePresetLast7.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 7일'**
+  String get dsDatePresetLast7;
+
+  /// No description provided for @dsDatePresetLast30.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 30일'**
+  String get dsDatePresetLast30;
+
+  /// No description provided for @dsDatePresetLast3M.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 3개월'**
+  String get dsDatePresetLast3M;
+
+  /// No description provided for @dsDatePresetLast6M.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 6개월'**
+  String get dsDatePresetLast6M;
+
+  /// No description provided for @dsDatePresetLast1Y.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 1년'**
+  String get dsDatePresetLast1Y;
+
+  /// No description provided for @dsDatePresetThisYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'올해'**
+  String get dsDatePresetThisYear;
 }
 
 class _AppLocalizationsDelegate

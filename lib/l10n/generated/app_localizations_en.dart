@@ -7189,4 +7189,299 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionNext => 'Next';
+
+  @override
+  String dsAttachLifted(int n) {
+    return 'Picked up item $n.';
+  }
+
+  @override
+  String dsAttachAddedPhotos(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n photos',
+      one: '1 photo',
+    );
+    return 'Attached $_temp0.';
+  }
+
+  @override
+  String dsAttachAddedFiles(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n files',
+      one: '1 file',
+    );
+    return 'Attached $_temp0.';
+  }
+
+  @override
+  String dsAttachAddedItems(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n items',
+      one: '1 item',
+    );
+    return 'Attached $_temp0.';
+  }
+
+  @override
+  String dsAttachUploaded(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n items',
+      one: '1 item',
+    );
+    return 'Uploaded $_temp0.';
+  }
+
+  @override
+  String dsAttachFailedCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n items',
+      one: '1 item',
+    );
+    return '$_temp0 could not be uploaded.';
+  }
+
+  @override
+  String get dsAttachTitle => 'Attachments';
+
+  @override
+  String get dsAttachCamera => 'Take a photo';
+
+  @override
+  String get dsAttachGallery => 'Choose from album';
+
+  @override
+  String get dsAttachFiles => 'Choose files';
+
+  @override
+  String dsAttachMoved(int n) {
+    return 'Moved to position $n.';
+  }
+
+  @override
+  String get dsAttachPreviewImage => 'View larger';
+
+  @override
+  String get dsAttachOpen => 'Open';
+
+  @override
+  String get dsAttachMakeCover => 'Set as cover';
+
+  @override
+  String get dsAttachMoveForward => 'Move earlier';
+
+  @override
+  String get dsAttachMoveBack => 'Move later';
+
+  @override
+  String get dsAttachUploading => 'Uploading';
+
+  @override
+  String dsAttachUploadingPercent(int percent) {
+    return 'Uploading $percent%';
+  }
+
+  @override
+  String get dsAttachUploadFailed => 'Upload failed';
+
+  @override
+  String get dsAttachDefaultLabel => 'Files';
+
+  @override
+  String get dsAttachSuffix => 'attachments';
+
+  @override
+  String dsAttachSuffixCount(String count) {
+    return 'attachments, $count';
+  }
+
+  @override
+  String get dsAttachPickFiles => 'Choose files';
+
+  @override
+  String dsAttachRetryNamed(String name) {
+    return 'Retry $name';
+  }
+
+  @override
+  String get dsAttachRetry => 'Retry';
+
+  @override
+  String dsAttachRemoveNamed(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String get dsAvatarUploading => 'Uploading profile photo';
+
+  @override
+  String get dsDeltaNoChangeSentence => 'No change';
+
+  @override
+  String get dsDeltaIncreased => 'increased';
+
+  @override
+  String get dsDeltaDecreased => 'decreased';
+
+  @override
+  String get dsDeltaNone => 'No change';
+
+  @override
+  String get dsChartHeatValue => 'Spending';
+
+  @override
+  String get dsChartHeatNone => 'None';
+
+  @override
+  String get dsChartLegend => 'Legend';
+
+  @override
+  String dsSwipeMore(String row) {
+    return 'More for $row';
+  }
+
+  @override
+  String get dsColorRed => 'Red';
+
+  @override
+  String get dsColorOrange => 'Orange';
+
+  @override
+  String get dsColorYellow => 'Yellow';
+
+  @override
+  String get dsColorGreen => 'Green';
+
+  @override
+  String get dsColorBlue => 'Blue';
+
+  @override
+  String get dsColorIndigo => 'Indigo';
+
+  @override
+  String get dsColorViolet => 'Violet';
+
+  @override
+  String get dsColorPink => 'Pink';
+
+  @override
+  String get dsColorBrown => 'Brown';
+
+  @override
+  String get dsColorGray => 'Gray';
+
+  @override
+  String get dsColorCurrent => 'Current color';
+
+  @override
+  String get dsColorAuto => 'Auto';
+
+  @override
+  String get dsIconTitle => 'Icon';
+
+  @override
+  String get dsIconSearch => 'Search icons';
+
+  @override
+  String get dsIconSearchPlaceholder => 'Search icon names';
+
+  @override
+  String get dsIconCurrent => 'Current icon';
+
+  @override
+  String get dsIconEmptyDescription => 'Try another word or pick from a group.';
+
+  @override
+  String dsIconEmptyTitle(String query) {
+    return 'No icons for \'$query\'';
+  }
+
+  @override
+  String dsIconCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dsIconTagFallback => 'Tag';
+
+  @override
+  String get dsTimeTitle => 'Select time';
+
+  @override
+  String get dsTimePeriod => 'AM/PM';
+
+  @override
+  String get dsTimeHour => 'Hour';
+
+  @override
+  String get dsTimeMinute => 'Minute';
+
+  @override
+  String get dsTimeAm => 'AM';
+
+  @override
+  String get dsTimePm => 'PM';
+
+  @override
+  String get dsDateRoot => 'Select date';
+
+  @override
+  String get dsDatePrevMonth => 'Previous month';
+
+  @override
+  String get dsDateNextMonth => 'Next month';
+
+  @override
+  String get dsDateYear => 'Year';
+
+  @override
+  String get dsDateMonth => 'Month';
+
+  @override
+  String get dsDateReadOnlyStart => 'Read-only start date';
+
+  @override
+  String get dsDatePresets => 'Quick ranges';
+
+  @override
+  String get dsDatePresetThisWeek => 'This week';
+
+  @override
+  String get dsDatePresetThisMonth => 'This month';
+
+  @override
+  String get dsDatePresetLastMonth => 'Last month';
+
+  @override
+  String get dsDatePresetLast7 => 'Last 7 days';
+
+  @override
+  String get dsDatePresetLast30 => 'Last 30 days';
+
+  @override
+  String get dsDatePresetLast3M => 'Last 3 months';
+
+  @override
+  String get dsDatePresetLast6M => 'Last 6 months';
+
+  @override
+  String get dsDatePresetLast1Y => 'Last year';
+
+  @override
+  String get dsDatePresetThisYear => 'This year';
 }

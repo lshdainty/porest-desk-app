@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
@@ -112,7 +113,7 @@ class PAvatar extends StatelessWidget {
     this.size = PAvatarSize.s48,
     this.decorative = true,
     this.uploadProgress,
-    this.uploadLabel = '프로필 사진 올리는 중',
+    this.uploadLabel,
   });
 
   /// 표시 이름 — 이니셜 · 이름 색 · 읽는 이름.
@@ -125,7 +126,8 @@ class PAvatar extends StatelessWidget {
   final double? uploadProgress;
 
   /// 올리는 중 진행 원의 이름 — 기본은 웹과 같은 "프로필 사진 올리는 중"(문구는 부르는 쪽이 바꿔 넘긴다).
-  final String uploadLabel;
+  /// 올리는 중 이름 — 없으면 로케일 문구("프로필 사진 올리는 중").
+  final String? uploadLabel;
 
   bool get _uploading => uploadProgress != null && uploadProgress!.isFinite;
 
@@ -186,7 +188,10 @@ class PAvatar extends StatelessWidget {
                   size: PProgressCircleSize.s24,
                   tone: PProgressCircleTone.staticWhite,
                   value: uploadProgress!.clamp(0.0, 1.0) * 100,
-                  semanticsLabel: uploadLabel,
+                  semanticsLabel:
+                      uploadLabel ??
+                      dsL(context)?.dsAvatarUploading ??
+                      '프로필 사진 올리는 중',
                 ),
               ),
             ),
@@ -233,7 +238,7 @@ class PAvatarPhotoEdit extends StatelessWidget {
     this.image,
     this.size = PAvatarSize.s108,
     this.uploadProgress,
-    this.uploadLabel = '프로필 사진 올리는 중',
+    this.uploadLabel,
   });
 
   /// 표시 이름 — 이니셜 · 이름 색 · 아바타를 읽는 이름.
@@ -247,7 +252,9 @@ class PAvatarPhotoEdit extends StatelessWidget {
   final double? uploadProgress;
   final String changeLabel;
   final String removeLabel;
-  final String uploadLabel;
+
+  /// 올리는 중 이름 — 없으면 로케일 문구("프로필 사진 올리는 중").
+  final String? uploadLabel;
   final VoidCallback onChange;
   final VoidCallback onRemove;
 

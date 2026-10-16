@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
@@ -312,7 +313,7 @@ class PChartLegendTiles extends StatelessWidget {
     required this.items,
     this.hidden = const {},
     this.onHiddenChanged,
-    this.semanticLabel = '범례',
+    this.semanticLabel,
   });
 
   final List<PChartLegendItem> items;
@@ -322,14 +323,14 @@ class PChartLegendTiles extends StatelessWidget {
   final ValueChanged<Set<String>>? onHiddenChanged;
 
   /// 묶음의 이름.
-  final String semanticLabel;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     final shown = items.where((i) => !hidden.contains(i.key)).length;
     return Semantics(
       container: true,
-      label: semanticLabel,
+      label: semanticLabel ?? dsL(context)?.dsChartLegend ?? '범례',
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;

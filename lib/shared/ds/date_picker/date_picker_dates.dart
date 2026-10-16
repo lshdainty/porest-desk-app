@@ -6,6 +6,12 @@
 // `toUtc` · `toIso8601String` 을 쓰지 않는다 — 로컬 연 · 월 · 일 숫자로 만들고 [dayKey] 로 키를 만든다). 달 · 일 더하기는
 // 시 · 분이 아니라 날짜 칸을 움직여(`DateTime(y, m, d + n)`) 서머타임 · 윤년에도 같은 날 0시에 닿는다.
 
+import 'package:flutter/widgets.dart' show BuildContext, Localizations;
+import 'package:intl/intl.dart';
+
+import 'package:groo_damda_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
+
 String pad2(int n) => n.toString().padLeft(2, '0');
 
 DateTime startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -189,6 +195,58 @@ class PDatePickerLabels {
     '토요일',
   ];
 
+  /// 지금 로케일의 한 벌(arb `dsDate…` + 로케일 포맷터) — 로케일이 없는 호스트에서는 한국어([ko]).
+  /// 요일 · 달 · 날짜 표기는 International v106 표를 따른다(ko "2026년 10월 15일 목요일" · en "Thursday, Oct 15, 2026").
+  factory PDatePickerLabels.of(BuildContext context) {
+    final l = dsL(context);
+    if (l == null) return ko;
+    final en = Localizations.localeOf(context).languageCode == 'en';
+    final base = DateTime(2023, 12, 31); // 일요일
+    final short = [
+      for (var i = 0; i < 7; i++)
+        en
+            ? DateFormat.E('en').format(base.add(Duration(days: i)))
+            : _weekdays[i],
+    ];
+    final long = [
+      for (var i = 0; i < 7; i++)
+        en
+            ? DateFormat.EEEE('en').format(base.add(Duration(days: i)))
+            : _weekdaysLong[i],
+    ];
+    return PDatePickerLabels(
+      root: l.dsDateRoot,
+      previousMonth: l.dsDatePrevMonth,
+      nextMonth: l.dsDateNextMonth,
+      yearWheel: l.dsDateYear,
+      monthWheel: l.dsDateMonth,
+      readOnlyRangeStart: l.dsDateReadOnlyStart,
+      presets: l.dsDatePresets,
+      weekdays: short,
+      weekdaysLong: long,
+      month: (year, month) => en
+          ? DateFormat.yMMM('en').format(DateTime(year, month))
+          : '$year년 $month월',
+      day: (d) => en
+          ? DateFormat('EEEE, MMM d, y', 'en').format(d)
+          : '${d.year}년 ${d.month}월 ${d.day}일 ${_weekdaysLong[weekdayIndex(d)]}',
+      yearOption: (year) => en ? '$year' : '$year년',
+      monthOption: (month) =>
+          en ? DateFormat.MMM('en').format(DateTime(2000, month)) : '$month월',
+      presetNames: {
+        PDatePreset.thisWeek: l.dsDatePresetThisWeek,
+        PDatePreset.thisMonth: l.dsDatePresetThisMonth,
+        PDatePreset.lastMonth: l.dsDatePresetLastMonth,
+        PDatePreset.last7Days: l.dsDatePresetLast7,
+        PDatePreset.last30Days: l.dsDatePresetLast30,
+        PDatePreset.last3Months: l.dsDatePresetLast3M,
+        PDatePreset.last6Months: l.dsDatePresetLast6M,
+        PDatePreset.last1Year: l.dsDatePresetLast1Y,
+        PDatePreset.thisYear: l.dsDatePresetThisYear,
+      },
+    );
+  }
+
   static final PDatePickerLabels ko = PDatePickerLabels(
     root: '날짜 선택',
     previousMonth: '이전 달',
@@ -221,6 +279,14 @@ class PDatePickerLabels {
 /// 칸에 넣는 하루 — 올해 "10월 15일 (목)", 다른 해 "2027년 1월 3일 (일)". 비었으면 "". [today] 는 올해를 가르는 오늘.
 String formatDateValue(DateTime? date, DateTime today) {
   if (date == null) return '';
+  if (localeIsEn()) {
+    // en: "Oct 15 (Thu)" · 다른 해 "Jan 3, 2027 (Sun)"
+    final md = DateFormat.MMMd('en').format(date);
+    final dow = DateFormat.E('en').format(date);
+    return date.year == today.year
+        ? '$md ($dow)'
+        : '${DateFormat.yMMMd('en').format(date)} ($dow)';
+  }
   final text =
       '${date.month}월 ${date.day}일 (${PDatePickerLabels._weekdays[weekdayIndex(date)]})';
   return date.year == today.year ? text : '${date.year}년 $text';
@@ -233,6 +299,13 @@ String formatRangeValue(PDateRange? range, DateTime today) {
   final end = range?.end;
   if (start == null || end == null) return '';
   final withYear = start.year != today.year || end.year != today.year;
+  if (localeIsEn()) {
+    // en: 구간은 en dash — "Oct 1–Oct 31"
+    String en(DateTime d) => withYear
+        ? DateFormat.yMMMd('en').format(d)
+        : DateFormat.MMMd('en').format(d);
+    return '${en(start)}–${en(end)}';
+  }
   String text(DateTime d) =>
       '${withYear ? '${d.year}년 ' : ''}${d.month}월 ${d.day}일';
   return '${text(start)}~${text(end)}';

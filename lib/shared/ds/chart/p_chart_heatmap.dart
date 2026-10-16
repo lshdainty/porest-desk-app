@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
@@ -43,8 +44,8 @@ class PHeatmap extends StatefulWidget {
     required this.columns,
     required this.values,
     this.formatValue,
-    this.valueLabel = '지출',
-    this.noValueText = '없음',
+    this.valueLabel,
+    this.noValueText,
     this.textMinCellWidth = kHeatTextMinCellWidth,
     this.tooltipLabel,
     this.description,
@@ -63,10 +64,10 @@ class PHeatmap extends StatefulWidget {
   final String Function(double value)? formatValue;
 
   /// 툴팁 줄의 이름 — 기본 "지출"("■ 지출 35,000원").
-  final String valueLabel;
+  final String? valueLabel;
 
   /// 값이 없는 칸의 툴팁 값.
-  final String noValueText;
+  final String? noValueText;
 
   /// 칸 폭이 이보다 좁으면 칸에 글을 두지 않는다 — 기본 112.
   final double textMinCellWidth;
@@ -333,8 +334,10 @@ class _PHeatmapState extends State<PHeatmap> {
       rows: [
         PChartTooltipRow(
           swatch: step < 0 ? c.bgNeutralWeak : heatStepColor(c, step),
-          name: widget.valueLabel,
-          value: step < 0 ? widget.noValueText : fmt(v!),
+          name: widget.valueLabel ?? dsL(context)?.dsChartHeatValue ?? '지출',
+          value: step < 0
+              ? (widget.noValueText ?? dsL(context)?.dsChartHeatNone ?? '없음')
+              : fmt(v!),
         ),
       ],
     );
