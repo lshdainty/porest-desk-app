@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -615,6 +618,9 @@ Future<bool> showPConfirmDialog(
 }) async {
   final ok = await showDialog<bool>(
     context: context,
+    // 바깥(딤)을 눌러도 닫히지 않는다 — 뒤로 가기 · 취소는 그대로(alert-dialog.md, 03F-013a). 딤은 overlay-dim 토큰.
+    barrierDismissible: false,
+    barrierColor: context.colors.overlayDim,
     builder: (ctx) => _PConfirmDialog(
       title: title,
       message: message,
@@ -674,47 +680,72 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final cancel = widget.acknowledge
+        ? null
+        : PButton(
+            label: widget.cancelLabel,
+            // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
+            // 없는 회색 채움(spec alert-dialog.md · button.md 2026-08).
+            variant: PButtonVariant.secondary,
+            size: PButtonSize.lg,
+            fullWidth: true,
+            // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인 버튼 스피너로만 표시.
+            onPressed: () => Navigator.pop(context, false),
+          );
+    final confirm = PButton(
+      label: widget.confirmLabel,
+      variant: widget.destructive
+          ? PButtonVariant.danger
+          : PButtonVariant.primary,
+      size: PButtonSize.lg,
+      fullWidth: true,
+      loading: _busy,
+      onPressed: _busy ? null : _confirm,
+    );
+    // 화면보다 커지면 버튼까지 확인창 전체가 스크롤된다(SEED max-height 100% · overflow-y auto, 03-F 1A) —
+    // 그래서 버튼을 actions 가 아니라 본문 아래에 둔다. 짝 버튼은 라벨이 반 폭을 넘으면 세로로 쌓는다(03A-013).
     return AlertDialog(
       backgroundColor: t.bgSurface,
+      scrollable: true,
       title: Text(widget.title),
-      content: Text(widget.message),
-      // AlertDialog 기본 actions 는 OverflowBar 라 버튼이 내용 폭으로 우측에 몰린다.
-      // Row + Expanded 로 직접 깔아 화면 폭을 반씩 나눈다(spec dialog.md 모바일 규칙).
-      actions: [
-        Row(
-          children: [
-            // acknowledge 는 고를 것이 없는 통지라 취소를 두지 않는다 — 나란히 두면
-            // 두 버튼이 같은 일(닫기)을 한다(spec alert-dialog.md Variants).
-            if (!widget.acknowledge) ...[
-              // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인 버튼 스피너로만 표시.
-              Expanded(
-                child: PButton(
-                  label: widget.cancelLabel,
-                  // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
-                  // 없는 회색 채움(spec alert-dialog.md · button.md 2026-08).
-                  variant: PButtonVariant.secondary,
-                  size: PButtonSize.lg,
-                  fullWidth: true,
-                  onPressed: () => Navigator.pop(context, false),
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-            ],
-            Expanded(
-              child: PButton(
-                label: widget.confirmLabel,
-                variant: widget.destructive
-                    ? PButtonVariant.danger
-                    : PButtonVariant.primary,
-                size: PButtonSize.lg,
-                fullWidth: true,
-                loading: _busy,
-                onPressed: _busy ? null : _confirm,
-              ),
-            ),
-          ],
-        ),
-      ],
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.message),
+          const SizedBox(height: PSpace.x24),
+          Builder(
+            builder: (context) {
+              if (cancel == null) return confirm;
+              // AlertDialog 는 IntrinsicWidth 라 LayoutBuilder 를 못 쓴다 — 확인창 안쪽 폭을 화면에서 어림한다
+              // (바깥 여백 40 · 최대 폭 560 · 안쪽 여백 24).
+              final inner =
+                  math.min(MediaQuery.sizeOf(context).width - 80, 560) - 48;
+              final half = (inner - PSpace.x8) / 2;
+              final fits =
+                  confirm.naturalWidth(context) <= half &&
+                  cancel.naturalWidth(context) <= half;
+              return fits
+                  ? Row(
+                      children: [
+                        Expanded(child: cancel),
+                        const SizedBox(width: PSpace.x8),
+                        Expanded(child: confirm),
+                      ],
+                    )
+                  : Column(
+                      key: const ValueKey('confirm-stacked'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        confirm,
+                        const SizedBox(height: PSpace.x8),
+                        cancel,
+                      ],
+                    );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

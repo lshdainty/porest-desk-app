@@ -7328,4 +7328,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dsDatePresetThisYear => '올해';
+
+  @override
+  String calMemberMore(String name) {
+    return '$name 더보기';
+  }
+
+  @override
+  String get apiErrorServer => '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+
+  @override
+  String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.';
 }

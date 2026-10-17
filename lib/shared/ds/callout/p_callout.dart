@@ -214,6 +214,8 @@ class _PCalloutState extends State<PCallout> {
                 onPressed: link.onPressed,
                 builder: (context, pressed, scale) => Text(
                   link.label,
+                  // WidgetSpan 은 자리째 글자 배율을 받는다 — 안의 글이 또 받으면 두 번 커진다(03F-018)
+                  textScaler: TextScaler.noScaling,
                   style: PTypography.t4.copyWith(
                     color: color,
                     fontWeight: FontWeight.w400,

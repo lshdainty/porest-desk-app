@@ -4461,5 +4461,9 @@
   "dsDatePresetLast3M": "최근 3개월",
   "dsDatePresetLast6M": "최근 6개월",
   "dsDatePresetLast1Y": "최근 1년",
-  "dsDatePresetThisYear": "올해"
+  "dsDatePresetThisYear": "올해",
+  "calMemberMore": "{name} 더보기",
+  "@calMemberMore": {"description": "캘린더 공유 멤버 줄 ⋮ 버튼의 이름", "placeholders": {"name": {"type": "String"}}},
+  "apiErrorServer": "요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+  "apiErrorNetwork": "네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요."
 }

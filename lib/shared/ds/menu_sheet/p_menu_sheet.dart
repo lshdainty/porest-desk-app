@@ -222,7 +222,8 @@ class PMenuSheetContent extends StatelessWidget {
           PSpacing.globalGutter,
           kMenuSheetPaddingTop,
           PSpacing.globalGutter,
-          kMenuSheetPaddingBottom,
+          // 안 보이는 닫기 노드가 1px 를 차지하니 그만큼 줄여 아래 16 을 지킨다(03F-020)
+          kMenuSheetPaddingBottom - 1,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -601,10 +602,11 @@ class _AssistiveCloseState extends State<_AssistiveClose> {
               ),
             ),
           )
+        // 안 보여도 크기 있는 노드로 — 보조 기술이 "닫기, 버튼" 을 읽는다(03F-020)
         : const SizedBox(
             key: ValueKey('p-menu-sheet-close'),
-            width: 0,
-            height: 0,
+            width: 1,
+            height: 1,
           );
     return Semantics(
       container: true,

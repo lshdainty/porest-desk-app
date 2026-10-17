@@ -7484,4 +7484,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dsDatePresetThisYear => 'This year';
+
+  @override
+  String calMemberMore(String name) {
+    return 'More for $name';
+  }
+
+  @override
+  String get apiErrorServer =>
+      'We couldn\'t complete the request. Please try again in a moment.';
+
+  @override
+  String get apiErrorNetwork =>
+      'The network connection is unstable. Please try again in a moment.';
 }

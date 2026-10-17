@@ -1,4 +1,9 @@
+import 'dart:ui' show Locale;
+
 import 'package:dio/dio.dart';
+
+import 'package:groo_damda_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 백엔드/네트워크 에러를 사용자 메시지로 변환할 수 있는 단일 형태.
 class ApiException implements Exception {
@@ -37,26 +42,26 @@ class ApiException implements Exception {
       final body = res.data;
       if (body is Map<String, dynamic>) {
         // 정상 에러는 서버가 로케일(ko/en) 메시지를 body.message 로 내려주므로 그대로 사용.
-        // 아래 fallback 은 서버가 message 를 안 준 예외적 경우만 → 기본값 영어 하드코딩.
+        // 아래 fallback 은 서버가 message 를 안 준 예외적 경우만 → 로케일 문구(코드는 code 에만, 03F-011a).
         return ApiException(
           code: body['code']?.toString() ?? 'HTTP_${res.statusCode}',
-          message: body['message']?.toString() ?? 'Server error',
+          message: body['message']?.toString() ?? _l().apiErrorServer,
           statusCode: res.statusCode,
           cause: e,
         );
       }
-      // non-JSON 응답(게이트웨이 502 등) — 서버 메시지 없음, 영어 기본값.
+      // non-JSON 응답(게이트웨이 502 등) — 서버 메시지 없음. 코드 값은 message 에 섞지 않는다.
       return ApiException(
         code: 'HTTP_${res.statusCode}',
-        message: 'Server error (${res.statusCode})',
+        message: _l().apiErrorServer,
         statusCode: res.statusCode,
         cause: e,
       );
     }
-    // 네트워크 무응답 — 서버 응답 자체가 없어 서버 메시지 불가, 영어 기본값.
+    // 네트워크 무응답 — 서버 응답 자체가 없어 서버 메시지 불가, 로케일 문구.
     return ApiException(
       code: 'NETWORK',
-      message: 'Network connection failed. Please try again.',
+      message: _l().apiErrorNetwork,
       cause: e,
     );
   }
@@ -64,3 +69,7 @@ class ApiException implements Exception {
   @override
   String toString() => 'ApiException($code, $statusCode): $message';
 }
+
+/// 지금 로케일의 문구 — 컨텍스트가 없는 곳이라 앱 로케일 설정으로 고른다(영어를 고른 경우만 en, 아니면 ko).
+AppLocalizations _l() =>
+    lookupAppLocalizations(Locale(localeIsEn() ? 'en' : 'ko'));

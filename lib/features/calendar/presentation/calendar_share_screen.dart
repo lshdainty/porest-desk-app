@@ -19,7 +19,7 @@ import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
-import 'package:groo_damda_app/shared/widgets/p_dropdown_menu.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -937,25 +937,37 @@ class _MemberRow extends StatelessWidget {
             ),
           ),
           if (canManage)
-            PDropdownMenu(
+            // ⋮ — 폰에서는 떠 있는 메뉴가 아니라 Menu Sheet 다(03-F 4A). 이름은 "{이름} 더보기"
+            PButton.icon(
+              icon: LucideIcons.ellipsisVertical,
               iconColor: t.fgTertiary,
-              entries: [
-                if (member.permission != 'EDIT')
-                  PDropdownItem(
-                    label: l.calChangeToEditor,
-                    onTap: () => onChangeRole('EDIT'),
-                  ),
-                if (member.permission != 'READ')
-                  PDropdownItem(
-                    label: l.calChangeToViewer,
-                    onTap: () => onChangeRole('READ'),
-                  ),
-                PDropdownItem(
-                  label: l.calRemove,
-                  onTap: onRemove,
-                  destructive: true,
-                ),
-              ],
+              tooltip: l.calMemberMore(member.userName),
+              onPressed: () => PMenuSheet.show(
+                context,
+                title: member.userName,
+                layout: PMenuSheetLayout.textOnly,
+                groups: [
+                  PMenuSheetGroup([
+                    if (member.permission != 'EDIT')
+                      PMenuSheetItem(
+                        label: l.calChangeToEditor,
+                        onSelect: () => onChangeRole('EDIT'),
+                      ),
+                    if (member.permission != 'READ')
+                      PMenuSheetItem(
+                        label: l.calChangeToViewer,
+                        onSelect: () => onChangeRole('READ'),
+                      ),
+                  ]),
+                  PMenuSheetGroup([
+                    PMenuSheetItem(
+                      label: l.calRemove,
+                      tone: PMenuSheetTone.critical,
+                      onSelect: onRemove,
+                    ),
+                  ]),
+                ],
+              ),
             )
           else
             Padding(

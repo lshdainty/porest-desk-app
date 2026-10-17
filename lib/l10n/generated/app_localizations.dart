@@ -13387,6 +13387,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'올해'**
   String get dsDatePresetThisYear;
+
+  /// 캘린더 공유 멤버 줄 ⋮ 버튼의 이름
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 더보기'**
+  String calMemberMore(String name);
+
+  /// No description provided for @apiErrorServer.
+  ///
+  /// In ko, this message translates to:
+  /// **'요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.'**
+  String get apiErrorServer;
+
+  /// No description provided for @apiErrorNetwork.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.'**
+  String get apiErrorNetwork;
 }
 
 class _AppLocalizationsDelegate

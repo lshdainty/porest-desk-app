@@ -4215,5 +4215,8 @@
   "dsDatePresetLast3M": "Last 3 months",
   "dsDatePresetLast6M": "Last 6 months",
   "dsDatePresetLast1Y": "Last year",
-  "dsDatePresetThisYear": "This year"
+  "dsDatePresetThisYear": "This year",
+  "calMemberMore": "More for {name}",
+  "apiErrorServer": "We couldn't complete the request. Please try again in a moment.",
+  "apiErrorNetwork": "The network connection is unstable. Please try again in a moment."
 }

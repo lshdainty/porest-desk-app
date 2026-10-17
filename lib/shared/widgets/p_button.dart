@@ -102,6 +102,23 @@ class PButton extends StatelessWidget {
   /// label 모드에만 의미 있음 (icon-only/iconLg 는 padding 0 이라 무관).
   final PButtonFlush? flush;
 
+  /// 라벨 한 줄이 다 보이는 데 필요한 폭 — 좌우 여백 + 글 + 아이콘(짝 버튼이 반 폭에 드는지 재는 데 쓴다).
+  double naturalWidth(BuildContext context) {
+    final t = context.tokens;
+    if (label == null) return _height();
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: _textStyle(t)),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final pad = _padding().horizontal;
+    final icons =
+        (icon != null ? _iconSize() + PSpace.sm : 0) +
+        (trailingIcon != null ? _iconSize() + PSpace.sm : 0);
+    return painter.width + pad + icons;
+  }
+
   // DESIGN.desk.md / specs/components/button.md spec:
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
   // md: h=40, padY=8 padX=12, font=body-md(15), radius=sm(4), icon=16
