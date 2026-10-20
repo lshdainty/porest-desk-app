@@ -30,7 +30,10 @@ import 'package:groo_damda_app/features/expense/application/expense_providers.da
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/fixed_split.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/stats/presentation/fixed_variable_tab.dart';
+import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
 import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 통계·분석 화면 (front `StatsPage` 미러).
@@ -399,13 +402,14 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                     (0, l.expCategory),
                     (1, l.statsTabTrend),
                     (2, l.statsTabCompare),
+                    (3, l.statsTabFixed),
                   ]) ...[
                     _StatsChipTab(
                       label: e.$2,
                       active: _tabIndex == e.$1,
                       onTap: () => _goTab(e.$1),
                     ),
-                    if (e.$1 < 2) const SizedBox(width: 4),
+                    if (e.$1 < 3) const SizedBox(width: 4),
                   ],
                 ],
               ),
@@ -423,6 +427,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                 _CategoryTab(state: this),
                 _TrendTab(state: this),
                 _CompareTab(state: this),
+                // 고정·변동 — 기간 고르기 버튼은 다른 탭과 같은 자리(첫 섹션 오른쪽)에 둔다.
+                FixedVariableTab(
+                  range: _range,
+                  periodTrigger: _PeriodTrigger(state: this),
+                ),
               ],
             ),
           ),
@@ -1131,6 +1140,9 @@ class _DonutCard extends ConsumerStatefulWidget {
 class _DonutCardState extends ConsumerState<_DonutCard> {
   int? _activeParentId;
 
+  /// 도넛의 보기 — 전체 / 고정 제외 / 고정만. 고정·변동 탭은 이 값과 무관하게 셋을 다 보여 준다.
+  FixedView _fixedView = FixedView.all;
+
   @override
   void didUpdateWidget(covariant _DonutCard old) {
     super.didUpdateWidget(old);
@@ -1177,11 +1189,19 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
         );
         map[groupId] = row;
       }
-      row.amount += c.totalAmount;
+      row.amount += amountFor(
+        splitFixed(c.totalAmount, c.fixedAmount),
+        _fixedView,
+      );
       if (c.parentCategoryRowId != null) row.hasChildren = true;
     }
-    final list = map.values.toList()
-      ..sort((a, b) => b.amount.compareTo(a.amount));
+    // 고정 제외·고정만 보기에서는 몫이 0 인 카테고리를 뺀다 — 0원 조각이 범례에 남으면 헷갈린다.
+    // 전체 보기는 종전 그대로 둔다.
+    final list =
+        map.values
+            .where((r) => _fixedView == FixedView.all || r.amount > 0)
+            .toList()
+          ..sort((a, b) => b.amount.compareTo(a.amount));
     return list;
   }
 
@@ -1209,9 +1229,15 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
         );
         map[id] = row;
       }
-      row.amount += c.totalAmount;
+      row.amount += amountFor(
+        splitFixed(c.totalAmount, c.fixedAmount),
+        _fixedView,
+      );
     }
-    return map.values.toList()..sort((a, b) => b.amount.compareTo(a.amount));
+    return map.values
+        .where((r) => _fixedView == FixedView.all || r.amount > 0)
+        .toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
   }
 
   @override
@@ -1240,7 +1266,11 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
         : s._periodLabel;
     final centerLbl = isDrilled && activeParent != null
         ? l.statsCategoryDetail(activeParent.name)
-        : l.statsPeriodSpending(centerPeriodLbl);
+        : switch (_fixedView) {
+            FixedView.variable => l.statsDonutCenterVariable,
+            FixedView.fixed => l.statsDonutCenterFixed,
+            FixedView.all => l.statsPeriodSpending(centerPeriodLbl),
+          };
 
     return _Card(
       child: Column(
@@ -1273,7 +1303,27 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                 : _CardTitle(l.statsSpendingByCategory),
             trailing: _PeriodTrigger(state: s),
           ),
-          const SizedBox(height: PSpace.x12),
+          // 같은 내용을 거르는 자리라 그 내용 바로 위에 둔다(Segmented Control 스펙).
+          PSegmentedControl<FixedView>(
+            value: _fixedView,
+            semanticLabel: l.statsFixedViewAria,
+            onChanged: (v) => setState(() {
+              _fixedView = v;
+              _activeParentId = null;
+            }),
+            items: [
+              PSegmentedItem(value: FixedView.all, label: l.statsFixedViewAll),
+              PSegmentedItem(
+                value: FixedView.variable,
+                label: l.statsFixedViewVariable,
+              ),
+              PSegmentedItem(
+                value: FixedView.fixed,
+                label: l.statsFixedViewFixed,
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x16),
           if (firstLoading)
             const _DonutCardSkeleton()
           else if (view.isEmpty)

@@ -73,6 +73,7 @@ class _FakeRepo extends ExpenseRepository {
     double? originalAmount,
     String? originalCurrency,
     double? exchangeRate,
+    bool? isFixed,
   }) async {
     created++;
     return Expense(

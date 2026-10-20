@@ -32,6 +32,8 @@ abstract class ExpenseTemplate with _$ExpenseTemplate {
     int? useCount,
     int? sortOrder,
     String? lockAmount, // 'Y' | 'N'
+    /// 고정 수입·지출 기본값 — 이 프리셋으로 만든 거래가 물려받는다. 이체는 늘 false. 옛 서버면 false.
+    @Default(false) bool isFixed,
     String? lastUsedAt,
     String? createAt,
     String? modifyAt,

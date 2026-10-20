@@ -56,6 +56,9 @@ class RecurringRepository {
     String? paymentMethod,
     bool autoLog = false,
     bool notifyDayBefore = false,
+
+    /// 고정 수입·지출 — 이체에는 싣지 않는다(서버도 무시한다).
+    bool isFixed = false,
   }) async {
     try {
       await _dio.post<dynamic>(
@@ -82,6 +85,7 @@ class RecurringRepository {
           'paymentMethod': ?paymentMethod,
           'autoLog': autoLog,
           'notifyDayBefore': notifyDayBefore,
+          'isFixed': isFixed,
         },
       );
     } on DioException catch (e) {
@@ -112,6 +116,9 @@ class RecurringRepository {
     String? paymentMethod,
     bool autoLog = false,
     bool notifyDayBefore = false,
+
+    /// 고정 수입·지출 — 이체에는 싣지 않는다(서버도 무시한다).
+    bool isFixed = false,
   }) async {
     try {
       await _dio.put<dynamic>(
@@ -137,6 +144,7 @@ class RecurringRepository {
           'paymentMethod': ?paymentMethod,
           'autoLog': autoLog,
           'notifyDayBefore': notifyDayBefore,
+          'isFixed': isFixed,
         },
       );
     } on DioException catch (e) {

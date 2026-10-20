@@ -90,6 +90,10 @@ abstract class Expense with _$Expense {
     int? todoRowId,
     // 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.
     @Default(<int>[]) List<int> splitCategoryRowIds,
+
+    /// 고정 수입·지출 — 월세·월급처럼 매달 정해진 거래. 통계가 전체 · 고정 · 변동으로 나눠 보는
+    /// **분류 표식**이다(돈·잔액·카드 청구에는 영향 없음). 이체는 대상이 아니다. 옛 서버면 false.
+    @Default(false) bool isFixed,
     String? createAt,
     String? modifyAt,
   }) = _Expense;

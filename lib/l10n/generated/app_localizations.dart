@@ -12535,6 +12535,342 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지우기'**
   String get dsInputClear;
+
+  /// No description provided for @fixedSwitchExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 지출'**
+  String get fixedSwitchExpense;
+
+  /// No description provided for @fixedSwitchIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 수입'**
+  String get fixedSwitchIncome;
+
+  /// No description provided for @fixedHintExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'월세·통신비처럼 매달 나가는 돈이에요. 통계에서 따로 나눠 볼 수 있어요'**
+  String get fixedHintExpense;
+
+  /// No description provided for @fixedHintIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'월급처럼 매달 들어오는 돈이에요. 통계에서 따로 나눠 볼 수 있어요'**
+  String get fixedHintIncome;
+
+  /// No description provided for @fixedBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정'**
+  String get fixedBadge;
+
+  /// No description provided for @recurringFixedSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 반복이 앞으로 만드는 거래가 고정으로 기록돼요'**
+  String get recurringFixedSub;
+
+  /// No description provided for @presetFixedTitleExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 지출로 기록'**
+  String get presetFixedTitleExpense;
+
+  /// No description provided for @presetFixedTitleIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 수입으로 기록'**
+  String get presetFixedTitleIncome;
+
+  /// No description provided for @presetFixedDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 프리셋으로 만든 거래가 통계의 고정 항목으로 잡혀요. 위의 고정 금액과는 별개예요.'**
+  String get presetFixedDesc;
+
+  /// No description provided for @hideCardStatsFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정·변동 탭'**
+  String get hideCardStatsFixed;
+
+  /// No description provided for @statsTabFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정·변동'**
+  String get statsTabFixed;
+
+  /// No description provided for @statsFixedViewAria.
+  ///
+  /// In ko, this message translates to:
+  /// **'보기 방식'**
+  String get statsFixedViewAria;
+
+  /// No description provided for @statsFixedViewAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get statsFixedViewAll;
+
+  /// No description provided for @statsFixedViewVariable.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 제외'**
+  String get statsFixedViewVariable;
+
+  /// No description provided for @statsFixedViewFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정만'**
+  String get statsFixedViewFixed;
+
+  /// No description provided for @statsDonutCenterVariable.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 제외 지출'**
+  String get statsDonutCenterVariable;
+
+  /// No description provided for @statsDonutCenterFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 지출'**
+  String get statsDonutCenterFixed;
+
+  /// No description provided for @statsFixedExpenseTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 — 고정과 변동'**
+  String get statsFixedExpenseTitle;
+
+  /// No description provided for @statsFixedIncomeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 — 고정과 변동'**
+  String get statsFixedIncomeTitle;
+
+  /// No description provided for @statsFixedExpenseNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기간에는 지출이 없어요'**
+  String get statsFixedExpenseNone;
+
+  /// No description provided for @statsFixedIncomeNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기간에는 수입이 없어요'**
+  String get statsFixedIncomeNone;
+
+  /// No description provided for @statsFixedTotalExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 지출'**
+  String get statsFixedTotalExpense;
+
+  /// No description provided for @statsFixedTotalIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 수입'**
+  String get statsFixedTotalIncome;
+
+  /// No description provided for @statsFixedFixedExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 지출'**
+  String get statsFixedFixedExpense;
+
+  /// No description provided for @statsFixedFixedIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 수입'**
+  String get statsFixedFixedIncome;
+
+  /// No description provided for @statsFixedVariableExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 제외 지출'**
+  String get statsFixedVariableExpense;
+
+  /// No description provided for @statsFixedVariableIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 제외 수입'**
+  String get statsFixedVariableIncome;
+
+  /// No description provided for @statsFixedBarSemantics.
+  ///
+  /// In ko, this message translates to:
+  /// **'{kind} 중 고정 {fixed}%, 변동 {variable}%'**
+  String statsFixedBarSemantics(String kind, int fixed, int variable);
+
+  /// No description provided for @statsFixedInsightExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출의 {pct}%가 고정이에요. 고정을 뺀 지출은'**
+  String statsFixedInsightExpense(int pct);
+
+  /// No description provided for @statsFixedInsightIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입의 {pct}%가 고정이에요. 고정을 뺀 수입은'**
+  String statsFixedInsightIncome(int pct);
+
+  /// No description provided for @statsFixedInsightTail.
+  ///
+  /// In ko, this message translates to:
+  /// **'이에요.'**
+  String get statsFixedInsightTail;
+
+  /// No description provided for @statsFixedEmptyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요'**
+  String get statsFixedEmptyDesc;
+
+  /// No description provided for @statsFixedManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래를 고정으로 정리하기'**
+  String get statsFixedManage;
+
+  /// No description provided for @statsFixedManageHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'매달 같은 이름으로 나가는 돈은 한 번에 정리할 수 있어요'**
+  String get statsFixedManageHint;
+
+  /// No description provided for @statsFixedTrendTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'월별 고정·변동 추이'**
+  String get statsFixedTrendTitle;
+
+  /// No description provided for @statsFixedTrendKindAria.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 또는 수입'**
+  String get statsFixedTrendKindAria;
+
+  /// No description provided for @statsFixedTrendRecent.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 6개월'**
+  String get statsFixedTrendRecent;
+
+  /// No description provided for @statsFixedKindExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출'**
+  String get statsFixedKindExpense;
+
+  /// No description provided for @statsFixedKindIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입'**
+  String get statsFixedKindIncome;
+
+  /// No description provided for @statsFixedLegendFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정'**
+  String get statsFixedLegendFixed;
+
+  /// No description provided for @statsFixedLegendVariable.
+  ///
+  /// In ko, this message translates to:
+  /// **'변동'**
+  String get statsFixedLegendVariable;
+
+  /// No description provided for @statsFixedCategoryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 고정·변동'**
+  String get statsFixedCategoryTitle;
+
+  /// No description provided for @statsFixedCategoryFixedPart.
+  ///
+  /// In ko, this message translates to:
+  /// **'그중 고정 {pct}%'**
+  String statsFixedCategoryFixedPart(int pct);
+
+  /// No description provided for @statsFixedBulkTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래를 고정으로 정리하기'**
+  String get statsFixedBulkTitle;
+
+  /// No description provided for @statsFixedBulkDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'{start} ~ {end} 기간의 거래예요. 매달 같은 이름으로 나가는 돈은 한 줄로 묶여 있어요. 돈이나 잔액은 달라지지 않고 통계의 분류만 바뀌어요.'**
+  String statsFixedBulkDesc(String start, String end);
+
+  /// No description provided for @statsFixedBulkUntitled.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름 없는 거래'**
+  String get statsFixedBulkUntitled;
+
+  /// No description provided for @statsFixedBulkTargetAria.
+  ///
+  /// In ko, this message translates to:
+  /// **'바꿀 방향'**
+  String get statsFixedBulkTargetAria;
+
+  /// No description provided for @statsFixedBulkToFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정으로 표시'**
+  String get statsFixedBulkToFixed;
+
+  /// No description provided for @statsFixedBulkToVariable.
+  ///
+  /// In ko, this message translates to:
+  /// **'변동으로 되돌리기'**
+  String get statsFixedBulkToVariable;
+
+  /// No description provided for @statsFixedBulkGroupSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String statsFixedBulkGroupSub(int count);
+
+  /// No description provided for @statsFixedBulkBadgeAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정'**
+  String get statsFixedBulkBadgeAll;
+
+  /// No description provided for @statsFixedBulkBadgeSome.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 {fixed}/{count}'**
+  String statsFixedBulkBadgeSome(int fixed, int count);
+
+  /// No description provided for @statsFixedBulkEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기간에는 정리할 거래가 없어요'**
+  String get statsFixedBulkEmpty;
+
+  /// No description provided for @statsFixedBulkApply.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건 적용'**
+  String statsFixedBulkApply(int count);
+
+  /// No description provided for @statsFixedBulkDoneFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건을 고정으로 바꿨어요'**
+  String statsFixedBulkDoneFixed(int count);
+
+  /// No description provided for @statsFixedBulkDoneVariable.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건을 변동으로 되돌렸어요'**
+  String statsFixedBulkDoneVariable(int count);
 }
 
 class _AppLocalizationsDelegate

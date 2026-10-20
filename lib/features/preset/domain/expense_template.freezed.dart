@@ -19,7 +19,8 @@ mixin _$ExpenseTemplate {
  int? get toAssetRowId; String? get toAssetName; int? get fee;/// 이체 이자 — 받는 자산이 대출일 때만 값이 있다.
  int? get interestAmount;/// 'EXPENSE' | 'INCOME' | 'TRANSFER'
  String get expenseType; int? get amount; String? get description; String? get merchant; String? get paymentMethod; int? get useCount; int? get sortOrder; String? get lockAmount;// 'Y' | 'N'
- String? get lastUsedAt; String? get createAt; String? get modifyAt;
+/// 고정 수입·지출 기본값 — 이 프리셋으로 만든 거래가 물려받는다. 이체는 늘 false. 옛 서버면 false.
+ bool get isFixed; String? get lastUsedAt; String? get createAt; String? get modifyAt;
 /// Create a copy of ExpenseTemplate
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +33,16 @@ $ExpenseTemplateCopyWith<ExpenseTemplate> get copyWith => _$ExpenseTemplateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExpenseTemplate&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.templateName, templateName) || other.templateName == templateName)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.toAssetRowId, toAssetRowId) || other.toAssetRowId == toAssetRowId)&&(identical(other.toAssetName, toAssetName) || other.toAssetName == toAssetName)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.interestAmount, interestAmount) || other.interestAmount == interestAmount)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.useCount, useCount) || other.useCount == useCount)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.lockAmount, lockAmount) || other.lockAmount == lockAmount)&&(identical(other.lastUsedAt, lastUsedAt) || other.lastUsedAt == lastUsedAt)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExpenseTemplate&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.templateName, templateName) || other.templateName == templateName)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.toAssetRowId, toAssetRowId) || other.toAssetRowId == toAssetRowId)&&(identical(other.toAssetName, toAssetName) || other.toAssetName == toAssetName)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.interestAmount, interestAmount) || other.interestAmount == interestAmount)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.useCount, useCount) || other.useCount == useCount)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.lockAmount, lockAmount) || other.lockAmount == lockAmount)&&(identical(other.isFixed, isFixed) || other.isFixed == isFixed)&&(identical(other.lastUsedAt, lastUsedAt) || other.lastUsedAt == lastUsedAt)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,templateName,categoryRowId,categoryName,assetRowId,assetName,toAssetRowId,toAssetName,fee,interestAmount,expenseType,amount,description,merchant,paymentMethod,useCount,sortOrder,lockAmount,lastUsedAt,createAt,modifyAt]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,templateName,categoryRowId,categoryName,assetRowId,assetName,toAssetRowId,toAssetName,fee,interestAmount,expenseType,amount,description,merchant,paymentMethod,useCount,sortOrder,lockAmount,isFixed,lastUsedAt,createAt,modifyAt]);
 
 @override
 String toString() {
-  return 'ExpenseTemplate(rowId: $rowId, userRowId: $userRowId, templateName: $templateName, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, toAssetRowId: $toAssetRowId, toAssetName: $toAssetName, fee: $fee, interestAmount: $interestAmount, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, useCount: $useCount, sortOrder: $sortOrder, lockAmount: $lockAmount, lastUsedAt: $lastUsedAt, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'ExpenseTemplate(rowId: $rowId, userRowId: $userRowId, templateName: $templateName, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, toAssetRowId: $toAssetRowId, toAssetName: $toAssetName, fee: $fee, interestAmount: $interestAmount, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, useCount: $useCount, sortOrder: $sortOrder, lockAmount: $lockAmount, isFixed: $isFixed, lastUsedAt: $lastUsedAt, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -52,7 +53,7 @@ abstract mixin class $ExpenseTemplateCopyWith<$Res>  {
   factory $ExpenseTemplateCopyWith(ExpenseTemplate value, $Res Function(ExpenseTemplate) _then) = _$ExpenseTemplateCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String templateName, int? categoryRowId, String? categoryName, int? assetRowId, String? assetName, int? toAssetRowId, String? toAssetName, int? fee, int? interestAmount, String expenseType, int? amount, String? description, String? merchant, String? paymentMethod, int? useCount, int? sortOrder, String? lockAmount, String? lastUsedAt, String? createAt, String? modifyAt
+ int rowId, int? userRowId, String templateName, int? categoryRowId, String? categoryName, int? assetRowId, String? assetName, int? toAssetRowId, String? toAssetName, int? fee, int? interestAmount, String expenseType, int? amount, String? description, String? merchant, String? paymentMethod, int? useCount, int? sortOrder, String? lockAmount, bool isFixed, String? lastUsedAt, String? createAt, String? modifyAt
 });
 
 
@@ -69,7 +70,7 @@ class _$ExpenseTemplateCopyWithImpl<$Res>
 
 /// Create a copy of ExpenseTemplate
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? templateName = null,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? toAssetRowId = freezed,Object? toAssetName = freezed,Object? fee = freezed,Object? interestAmount = freezed,Object? expenseType = null,Object? amount = freezed,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? useCount = freezed,Object? sortOrder = freezed,Object? lockAmount = freezed,Object? lastUsedAt = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? templateName = null,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? toAssetRowId = freezed,Object? toAssetName = freezed,Object? fee = freezed,Object? interestAmount = freezed,Object? expenseType = null,Object? amount = freezed,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? useCount = freezed,Object? sortOrder = freezed,Object? lockAmount = freezed,Object? isFixed = null,Object? lastUsedAt = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -90,7 +91,8 @@ as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : payme
 as String?,useCount: freezed == useCount ? _self.useCount : useCount // ignore: cast_nullable_to_non_nullable
 as int?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,lockAmount: freezed == lockAmount ? _self.lockAmount : lockAmount // ignore: cast_nullable_to_non_nullable
-as String?,lastUsedAt: freezed == lastUsedAt ? _self.lastUsedAt : lastUsedAt // ignore: cast_nullable_to_non_nullable
+as String?,isFixed: null == isFixed ? _self.isFixed : isFixed // ignore: cast_nullable_to_non_nullable
+as bool,lastUsedAt: freezed == lastUsedAt ? _self.lastUsedAt : lastUsedAt // ignore: cast_nullable_to_non_nullable
 as String?,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
 as String?,modifyAt: freezed == modifyAt ? _self.modifyAt : modifyAt // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -178,10 +180,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String templateName,  int? categoryRowId,  String? categoryName,  int? assetRowId,  String? assetName,  int? toAssetRowId,  String? toAssetName,  int? fee,  int? interestAmount,  String expenseType,  int? amount,  String? description,  String? merchant,  String? paymentMethod,  int? useCount,  int? sortOrder,  String? lockAmount,  String? lastUsedAt,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String templateName,  int? categoryRowId,  String? categoryName,  int? assetRowId,  String? assetName,  int? toAssetRowId,  String? toAssetName,  int? fee,  int? interestAmount,  String expenseType,  int? amount,  String? description,  String? merchant,  String? paymentMethod,  int? useCount,  int? sortOrder,  String? lockAmount,  bool isFixed,  String? lastUsedAt,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ExpenseTemplate() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.toAssetRowId,_that.toAssetName,_that.fee,_that.interestAmount,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.useCount,_that.sortOrder,_that.lockAmount,_that.lastUsedAt,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.toAssetRowId,_that.toAssetName,_that.fee,_that.interestAmount,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.useCount,_that.sortOrder,_that.lockAmount,_that.isFixed,_that.lastUsedAt,_that.createAt,_that.modifyAt);case _:
   return orElse();
 
 }
@@ -199,10 +201,10 @@ return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRow
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String templateName,  int? categoryRowId,  String? categoryName,  int? assetRowId,  String? assetName,  int? toAssetRowId,  String? toAssetName,  int? fee,  int? interestAmount,  String expenseType,  int? amount,  String? description,  String? merchant,  String? paymentMethod,  int? useCount,  int? sortOrder,  String? lockAmount,  String? lastUsedAt,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String templateName,  int? categoryRowId,  String? categoryName,  int? assetRowId,  String? assetName,  int? toAssetRowId,  String? toAssetName,  int? fee,  int? interestAmount,  String expenseType,  int? amount,  String? description,  String? merchant,  String? paymentMethod,  int? useCount,  int? sortOrder,  String? lockAmount,  bool isFixed,  String? lastUsedAt,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
 switch (_that) {
 case _ExpenseTemplate():
-return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.toAssetRowId,_that.toAssetName,_that.fee,_that.interestAmount,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.useCount,_that.sortOrder,_that.lockAmount,_that.lastUsedAt,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.toAssetRowId,_that.toAssetName,_that.fee,_that.interestAmount,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.useCount,_that.sortOrder,_that.lockAmount,_that.isFixed,_that.lastUsedAt,_that.createAt,_that.modifyAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -219,10 +221,10 @@ return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRow
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String templateName,  int? categoryRowId,  String? categoryName,  int? assetRowId,  String? assetName,  int? toAssetRowId,  String? toAssetName,  int? fee,  int? interestAmount,  String expenseType,  int? amount,  String? description,  String? merchant,  String? paymentMethod,  int? useCount,  int? sortOrder,  String? lockAmount,  String? lastUsedAt,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String templateName,  int? categoryRowId,  String? categoryName,  int? assetRowId,  String? assetName,  int? toAssetRowId,  String? toAssetName,  int? fee,  int? interestAmount,  String expenseType,  int? amount,  String? description,  String? merchant,  String? paymentMethod,  int? useCount,  int? sortOrder,  String? lockAmount,  bool isFixed,  String? lastUsedAt,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
 switch (_that) {
 case _ExpenseTemplate() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.toAssetRowId,_that.toAssetName,_that.fee,_that.interestAmount,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.useCount,_that.sortOrder,_that.lockAmount,_that.lastUsedAt,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.toAssetRowId,_that.toAssetName,_that.fee,_that.interestAmount,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.useCount,_that.sortOrder,_that.lockAmount,_that.isFixed,_that.lastUsedAt,_that.createAt,_that.modifyAt);case _:
   return null;
 
 }
@@ -234,7 +236,7 @@ return $default(_that.rowId,_that.userRowId,_that.templateName,_that.categoryRow
 @JsonSerializable()
 
 class _ExpenseTemplate implements ExpenseTemplate {
-  const _ExpenseTemplate({required this.rowId, this.userRowId, required this.templateName, this.categoryRowId, this.categoryName, this.assetRowId, this.assetName, this.toAssetRowId, this.toAssetName, this.fee, this.interestAmount, required this.expenseType, this.amount, this.description, this.merchant, this.paymentMethod, this.useCount, this.sortOrder, this.lockAmount, this.lastUsedAt, this.createAt, this.modifyAt});
+  const _ExpenseTemplate({required this.rowId, this.userRowId, required this.templateName, this.categoryRowId, this.categoryName, this.assetRowId, this.assetName, this.toAssetRowId, this.toAssetName, this.fee, this.interestAmount, required this.expenseType, this.amount, this.description, this.merchant, this.paymentMethod, this.useCount, this.sortOrder, this.lockAmount, this.isFixed = false, this.lastUsedAt, this.createAt, this.modifyAt});
   factory _ExpenseTemplate.fromJson(Map<String, dynamic> json) => _$ExpenseTemplateFromJson(json);
 
 @override final  int rowId;
@@ -260,6 +262,8 @@ class _ExpenseTemplate implements ExpenseTemplate {
 @override final  int? sortOrder;
 @override final  String? lockAmount;
 // 'Y' | 'N'
+/// 고정 수입·지출 기본값 — 이 프리셋으로 만든 거래가 물려받는다. 이체는 늘 false. 옛 서버면 false.
+@override@JsonKey() final  bool isFixed;
 @override final  String? lastUsedAt;
 @override final  String? createAt;
 @override final  String? modifyAt;
@@ -277,16 +281,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExpenseTemplate&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.templateName, templateName) || other.templateName == templateName)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.toAssetRowId, toAssetRowId) || other.toAssetRowId == toAssetRowId)&&(identical(other.toAssetName, toAssetName) || other.toAssetName == toAssetName)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.interestAmount, interestAmount) || other.interestAmount == interestAmount)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.useCount, useCount) || other.useCount == useCount)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.lockAmount, lockAmount) || other.lockAmount == lockAmount)&&(identical(other.lastUsedAt, lastUsedAt) || other.lastUsedAt == lastUsedAt)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExpenseTemplate&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.templateName, templateName) || other.templateName == templateName)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.toAssetRowId, toAssetRowId) || other.toAssetRowId == toAssetRowId)&&(identical(other.toAssetName, toAssetName) || other.toAssetName == toAssetName)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.interestAmount, interestAmount) || other.interestAmount == interestAmount)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.useCount, useCount) || other.useCount == useCount)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.lockAmount, lockAmount) || other.lockAmount == lockAmount)&&(identical(other.isFixed, isFixed) || other.isFixed == isFixed)&&(identical(other.lastUsedAt, lastUsedAt) || other.lastUsedAt == lastUsedAt)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,templateName,categoryRowId,categoryName,assetRowId,assetName,toAssetRowId,toAssetName,fee,interestAmount,expenseType,amount,description,merchant,paymentMethod,useCount,sortOrder,lockAmount,lastUsedAt,createAt,modifyAt]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,templateName,categoryRowId,categoryName,assetRowId,assetName,toAssetRowId,toAssetName,fee,interestAmount,expenseType,amount,description,merchant,paymentMethod,useCount,sortOrder,lockAmount,isFixed,lastUsedAt,createAt,modifyAt]);
 
 @override
 String toString() {
-  return 'ExpenseTemplate(rowId: $rowId, userRowId: $userRowId, templateName: $templateName, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, toAssetRowId: $toAssetRowId, toAssetName: $toAssetName, fee: $fee, interestAmount: $interestAmount, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, useCount: $useCount, sortOrder: $sortOrder, lockAmount: $lockAmount, lastUsedAt: $lastUsedAt, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'ExpenseTemplate(rowId: $rowId, userRowId: $userRowId, templateName: $templateName, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, toAssetRowId: $toAssetRowId, toAssetName: $toAssetName, fee: $fee, interestAmount: $interestAmount, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, useCount: $useCount, sortOrder: $sortOrder, lockAmount: $lockAmount, isFixed: $isFixed, lastUsedAt: $lastUsedAt, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -297,7 +301,7 @@ abstract mixin class _$ExpenseTemplateCopyWith<$Res> implements $ExpenseTemplate
   factory _$ExpenseTemplateCopyWith(_ExpenseTemplate value, $Res Function(_ExpenseTemplate) _then) = __$ExpenseTemplateCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String templateName, int? categoryRowId, String? categoryName, int? assetRowId, String? assetName, int? toAssetRowId, String? toAssetName, int? fee, int? interestAmount, String expenseType, int? amount, String? description, String? merchant, String? paymentMethod, int? useCount, int? sortOrder, String? lockAmount, String? lastUsedAt, String? createAt, String? modifyAt
+ int rowId, int? userRowId, String templateName, int? categoryRowId, String? categoryName, int? assetRowId, String? assetName, int? toAssetRowId, String? toAssetName, int? fee, int? interestAmount, String expenseType, int? amount, String? description, String? merchant, String? paymentMethod, int? useCount, int? sortOrder, String? lockAmount, bool isFixed, String? lastUsedAt, String? createAt, String? modifyAt
 });
 
 
@@ -314,7 +318,7 @@ class __$ExpenseTemplateCopyWithImpl<$Res>
 
 /// Create a copy of ExpenseTemplate
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? templateName = null,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? toAssetRowId = freezed,Object? toAssetName = freezed,Object? fee = freezed,Object? interestAmount = freezed,Object? expenseType = null,Object? amount = freezed,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? useCount = freezed,Object? sortOrder = freezed,Object? lockAmount = freezed,Object? lastUsedAt = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? templateName = null,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? toAssetRowId = freezed,Object? toAssetName = freezed,Object? fee = freezed,Object? interestAmount = freezed,Object? expenseType = null,Object? amount = freezed,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? useCount = freezed,Object? sortOrder = freezed,Object? lockAmount = freezed,Object? isFixed = null,Object? lastUsedAt = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_ExpenseTemplate(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -335,7 +339,8 @@ as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : payme
 as String?,useCount: freezed == useCount ? _self.useCount : useCount // ignore: cast_nullable_to_non_nullable
 as int?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,lockAmount: freezed == lockAmount ? _self.lockAmount : lockAmount // ignore: cast_nullable_to_non_nullable
-as String?,lastUsedAt: freezed == lastUsedAt ? _self.lastUsedAt : lastUsedAt // ignore: cast_nullable_to_non_nullable
+as String?,isFixed: null == isFixed ? _self.isFixed : isFixed // ignore: cast_nullable_to_non_nullable
+as bool,lastUsedAt: freezed == lastUsedAt ? _self.lastUsedAt : lastUsedAt // ignore: cast_nullable_to_non_nullable
 as String?,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
 as String?,modifyAt: freezed == modifyAt ? _self.modifyAt : modifyAt // ignore: cast_nullable_to_non_nullable
 as String?,

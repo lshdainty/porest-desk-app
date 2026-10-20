@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MonthlyTrend {
 
- int get year; int get month; int get totalIncome; int get totalExpense;
+ int get year; int get month; int get totalIncome; int get totalExpense;/// 그 달 합계 중 고정인 몫 — 변동 = 합계 − 고정. 옛 서버면 0(전부 변동).
+ int get fixedIncome; int get fixedExpense;
 /// Create a copy of MonthlyTrend
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $MonthlyTrendCopyWith<MonthlyTrend> get copyWith => _$MonthlyTrendCopyWithImpl<M
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthlyTrend&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthlyTrend&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.fixedIncome, fixedIncome) || other.fixedIncome == fixedIncome)&&(identical(other.fixedExpense, fixedExpense) || other.fixedExpense == fixedExpense));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense);
+int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,fixedIncome,fixedExpense);
 
 @override
 String toString() {
-  return 'MonthlyTrend(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense)';
+  return 'MonthlyTrend(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, fixedIncome: $fixedIncome, fixedExpense: $fixedExpense)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $MonthlyTrendCopyWith<$Res>  {
   factory $MonthlyTrendCopyWith(MonthlyTrend value, $Res Function(MonthlyTrend) _then) = _$MonthlyTrendCopyWithImpl;
 @useResult
 $Res call({
- int year, int month, int totalIncome, int totalExpense
+ int year, int month, int totalIncome, int totalExpense, int fixedIncome, int fixedExpense
 });
 
 
@@ -65,12 +66,14 @@ class _$MonthlyTrendCopyWithImpl<$Res>
 
 /// Create a copy of MonthlyTrend
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? fixedIncome = null,Object? fixedExpense = null,}) {
   return _then(_self.copyWith(
 year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
+as int,fixedIncome: null == fixedIncome ? _self.fixedIncome : fixedIncome // ignore: cast_nullable_to_non_nullable
+as int,fixedExpense: null == fixedExpense ? _self.fixedExpense : fixedExpense // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -156,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MonthlyTrend() when $default != null:
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense);case _:
   return orElse();
 
 }
@@ -177,10 +180,10 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense)  $default,) {final _that = this;
 switch (_that) {
 case _MonthlyTrend():
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +200,10 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int totalIncome,  int totalExpense)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense)?  $default,) {final _that = this;
 switch (_that) {
 case _MonthlyTrend() when $default != null:
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense);case _:
   return null;
 
 }
@@ -212,13 +215,16 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);cas
 @JsonSerializable()
 
 class _MonthlyTrend implements MonthlyTrend {
-  const _MonthlyTrend({required this.year, required this.month, this.totalIncome = 0, this.totalExpense = 0});
+  const _MonthlyTrend({required this.year, required this.month, this.totalIncome = 0, this.totalExpense = 0, this.fixedIncome = 0, this.fixedExpense = 0});
   factory _MonthlyTrend.fromJson(Map<String, dynamic> json) => _$MonthlyTrendFromJson(json);
 
 @override final  int year;
 @override final  int month;
 @override@JsonKey() final  int totalIncome;
 @override@JsonKey() final  int totalExpense;
+/// 그 달 합계 중 고정인 몫 — 변동 = 합계 − 고정. 옛 서버면 0(전부 변동).
+@override@JsonKey() final  int fixedIncome;
+@override@JsonKey() final  int fixedExpense;
 
 /// Create a copy of MonthlyTrend
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthlyTrend&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthlyTrend&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.fixedIncome, fixedIncome) || other.fixedIncome == fixedIncome)&&(identical(other.fixedExpense, fixedExpense) || other.fixedExpense == fixedExpense));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense);
+int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,fixedIncome,fixedExpense);
 
 @override
 String toString() {
-  return 'MonthlyTrend(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense)';
+  return 'MonthlyTrend(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, fixedIncome: $fixedIncome, fixedExpense: $fixedExpense)';
 }
 
 
@@ -253,7 +259,7 @@ abstract mixin class _$MonthlyTrendCopyWith<$Res> implements $MonthlyTrendCopyWi
   factory _$MonthlyTrendCopyWith(_MonthlyTrend value, $Res Function(_MonthlyTrend) _then) = __$MonthlyTrendCopyWithImpl;
 @override @useResult
 $Res call({
- int year, int month, int totalIncome, int totalExpense
+ int year, int month, int totalIncome, int totalExpense, int fixedIncome, int fixedExpense
 });
 
 
@@ -270,12 +276,14 @@ class __$MonthlyTrendCopyWithImpl<$Res>
 
 /// Create a copy of MonthlyTrend
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? fixedIncome = null,Object? fixedExpense = null,}) {
   return _then(_MonthlyTrend(
 year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
+as int,fixedIncome: null == fixedIncome ? _self.fixedIncome : fixedIncome // ignore: cast_nullable_to_non_nullable
+as int,fixedExpense: null == fixedExpense ? _self.fixedExpense : fixedExpense // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -287,7 +295,8 @@ as int,
 /// @nodoc
 mixin _$CategoryBreakdown {
 
- int? get categoryRowId; String? get categoryName; int? get parentCategoryRowId; String? get parentCategoryName; String? get expenseType; int get totalAmount;
+ int? get categoryRowId; String? get categoryName; int? get parentCategoryRowId; String? get parentCategoryName; String? get expenseType; int get totalAmount;/// 그 금액 중 고정인 몫. 같은 카테고리에 고정과 변동이 섞일 수 있다. 옛 서버면 0.
+ int get fixedAmount;
 /// Create a copy of CategoryBreakdown
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -300,16 +309,16 @@ $CategoryBreakdownCopyWith<CategoryBreakdown> get copyWith => _$CategoryBreakdow
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryBreakdown&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.parentCategoryRowId, parentCategoryRowId) || other.parentCategoryRowId == parentCategoryRowId)&&(identical(other.parentCategoryName, parentCategoryName) || other.parentCategoryName == parentCategoryName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryBreakdown&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.parentCategoryRowId, parentCategoryRowId) || other.parentCategoryRowId == parentCategoryRowId)&&(identical(other.parentCategoryName, parentCategoryName) || other.parentCategoryName == parentCategoryName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount)&&(identical(other.fixedAmount, fixedAmount) || other.fixedAmount == fixedAmount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,categoryRowId,categoryName,parentCategoryRowId,parentCategoryName,expenseType,totalAmount);
+int get hashCode => Object.hash(runtimeType,categoryRowId,categoryName,parentCategoryRowId,parentCategoryName,expenseType,totalAmount,fixedAmount);
 
 @override
 String toString() {
-  return 'CategoryBreakdown(categoryRowId: $categoryRowId, categoryName: $categoryName, parentCategoryRowId: $parentCategoryRowId, parentCategoryName: $parentCategoryName, expenseType: $expenseType, totalAmount: $totalAmount)';
+  return 'CategoryBreakdown(categoryRowId: $categoryRowId, categoryName: $categoryName, parentCategoryRowId: $parentCategoryRowId, parentCategoryName: $parentCategoryName, expenseType: $expenseType, totalAmount: $totalAmount, fixedAmount: $fixedAmount)';
 }
 
 
@@ -320,7 +329,7 @@ abstract mixin class $CategoryBreakdownCopyWith<$Res>  {
   factory $CategoryBreakdownCopyWith(CategoryBreakdown value, $Res Function(CategoryBreakdown) _then) = _$CategoryBreakdownCopyWithImpl;
 @useResult
 $Res call({
- int? categoryRowId, String? categoryName, int? parentCategoryRowId, String? parentCategoryName, String? expenseType, int totalAmount
+ int? categoryRowId, String? categoryName, int? parentCategoryRowId, String? parentCategoryName, String? expenseType, int totalAmount, int fixedAmount
 });
 
 
@@ -337,7 +346,7 @@ class _$CategoryBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of CategoryBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? categoryRowId = freezed,Object? categoryName = freezed,Object? parentCategoryRowId = freezed,Object? parentCategoryName = freezed,Object? expenseType = freezed,Object? totalAmount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? categoryRowId = freezed,Object? categoryName = freezed,Object? parentCategoryRowId = freezed,Object? parentCategoryName = freezed,Object? expenseType = freezed,Object? totalAmount = null,Object? fixedAmount = null,}) {
   return _then(_self.copyWith(
 categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
 as int?,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
@@ -345,6 +354,7 @@ as String?,parentCategoryRowId: freezed == parentCategoryRowId ? _self.parentCat
 as int?,parentCategoryName: freezed == parentCategoryName ? _self.parentCategoryName : parentCategoryName // ignore: cast_nullable_to_non_nullable
 as String?,expenseType: freezed == expenseType ? _self.expenseType : expenseType // ignore: cast_nullable_to_non_nullable
 as String?,totalAmount: null == totalAmount ? _self.totalAmount : totalAmount // ignore: cast_nullable_to_non_nullable
+as int,fixedAmount: null == fixedAmount ? _self.fixedAmount : fixedAmount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -430,10 +440,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? categoryRowId,  String? categoryName,  int? parentCategoryRowId,  String? parentCategoryName,  String? expenseType,  int totalAmount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? categoryRowId,  String? categoryName,  int? parentCategoryRowId,  String? parentCategoryName,  String? expenseType,  int totalAmount,  int fixedAmount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CategoryBreakdown() when $default != null:
-return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId,_that.parentCategoryName,_that.expenseType,_that.totalAmount);case _:
+return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId,_that.parentCategoryName,_that.expenseType,_that.totalAmount,_that.fixedAmount);case _:
   return orElse();
 
 }
@@ -451,10 +461,10 @@ return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? categoryRowId,  String? categoryName,  int? parentCategoryRowId,  String? parentCategoryName,  String? expenseType,  int totalAmount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? categoryRowId,  String? categoryName,  int? parentCategoryRowId,  String? parentCategoryName,  String? expenseType,  int totalAmount,  int fixedAmount)  $default,) {final _that = this;
 switch (_that) {
 case _CategoryBreakdown():
-return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId,_that.parentCategoryName,_that.expenseType,_that.totalAmount);case _:
+return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId,_that.parentCategoryName,_that.expenseType,_that.totalAmount,_that.fixedAmount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -471,10 +481,10 @@ return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? categoryRowId,  String? categoryName,  int? parentCategoryRowId,  String? parentCategoryName,  String? expenseType,  int totalAmount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? categoryRowId,  String? categoryName,  int? parentCategoryRowId,  String? parentCategoryName,  String? expenseType,  int totalAmount,  int fixedAmount)?  $default,) {final _that = this;
 switch (_that) {
 case _CategoryBreakdown() when $default != null:
-return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId,_that.parentCategoryName,_that.expenseType,_that.totalAmount);case _:
+return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId,_that.parentCategoryName,_that.expenseType,_that.totalAmount,_that.fixedAmount);case _:
   return null;
 
 }
@@ -486,7 +496,7 @@ return $default(_that.categoryRowId,_that.categoryName,_that.parentCategoryRowId
 @JsonSerializable()
 
 class _CategoryBreakdown implements CategoryBreakdown {
-  const _CategoryBreakdown({this.categoryRowId, this.categoryName, this.parentCategoryRowId, this.parentCategoryName, this.expenseType, this.totalAmount = 0});
+  const _CategoryBreakdown({this.categoryRowId, this.categoryName, this.parentCategoryRowId, this.parentCategoryName, this.expenseType, this.totalAmount = 0, this.fixedAmount = 0});
   factory _CategoryBreakdown.fromJson(Map<String, dynamic> json) => _$CategoryBreakdownFromJson(json);
 
 @override final  int? categoryRowId;
@@ -495,6 +505,8 @@ class _CategoryBreakdown implements CategoryBreakdown {
 @override final  String? parentCategoryName;
 @override final  String? expenseType;
 @override@JsonKey() final  int totalAmount;
+/// 그 금액 중 고정인 몫. 같은 카테고리에 고정과 변동이 섞일 수 있다. 옛 서버면 0.
+@override@JsonKey() final  int fixedAmount;
 
 /// Create a copy of CategoryBreakdown
 /// with the given fields replaced by the non-null parameter values.
@@ -509,16 +521,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryBreakdown&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.parentCategoryRowId, parentCategoryRowId) || other.parentCategoryRowId == parentCategoryRowId)&&(identical(other.parentCategoryName, parentCategoryName) || other.parentCategoryName == parentCategoryName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryBreakdown&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.parentCategoryRowId, parentCategoryRowId) || other.parentCategoryRowId == parentCategoryRowId)&&(identical(other.parentCategoryName, parentCategoryName) || other.parentCategoryName == parentCategoryName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount)&&(identical(other.fixedAmount, fixedAmount) || other.fixedAmount == fixedAmount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,categoryRowId,categoryName,parentCategoryRowId,parentCategoryName,expenseType,totalAmount);
+int get hashCode => Object.hash(runtimeType,categoryRowId,categoryName,parentCategoryRowId,parentCategoryName,expenseType,totalAmount,fixedAmount);
 
 @override
 String toString() {
-  return 'CategoryBreakdown(categoryRowId: $categoryRowId, categoryName: $categoryName, parentCategoryRowId: $parentCategoryRowId, parentCategoryName: $parentCategoryName, expenseType: $expenseType, totalAmount: $totalAmount)';
+  return 'CategoryBreakdown(categoryRowId: $categoryRowId, categoryName: $categoryName, parentCategoryRowId: $parentCategoryRowId, parentCategoryName: $parentCategoryName, expenseType: $expenseType, totalAmount: $totalAmount, fixedAmount: $fixedAmount)';
 }
 
 
@@ -529,7 +541,7 @@ abstract mixin class _$CategoryBreakdownCopyWith<$Res> implements $CategoryBreak
   factory _$CategoryBreakdownCopyWith(_CategoryBreakdown value, $Res Function(_CategoryBreakdown) _then) = __$CategoryBreakdownCopyWithImpl;
 @override @useResult
 $Res call({
- int? categoryRowId, String? categoryName, int? parentCategoryRowId, String? parentCategoryName, String? expenseType, int totalAmount
+ int? categoryRowId, String? categoryName, int? parentCategoryRowId, String? parentCategoryName, String? expenseType, int totalAmount, int fixedAmount
 });
 
 
@@ -546,7 +558,7 @@ class __$CategoryBreakdownCopyWithImpl<$Res>
 
 /// Create a copy of CategoryBreakdown
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? categoryRowId = freezed,Object? categoryName = freezed,Object? parentCategoryRowId = freezed,Object? parentCategoryName = freezed,Object? expenseType = freezed,Object? totalAmount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? categoryRowId = freezed,Object? categoryName = freezed,Object? parentCategoryRowId = freezed,Object? parentCategoryName = freezed,Object? expenseType = freezed,Object? totalAmount = null,Object? fixedAmount = null,}) {
   return _then(_CategoryBreakdown(
 categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
 as int?,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
@@ -554,6 +566,7 @@ as String?,parentCategoryRowId: freezed == parentCategoryRowId ? _self.parentCat
 as int?,parentCategoryName: freezed == parentCategoryName ? _self.parentCategoryName : parentCategoryName // ignore: cast_nullable_to_non_nullable
 as String?,expenseType: freezed == expenseType ? _self.expenseType : expenseType // ignore: cast_nullable_to_non_nullable
 as String?,totalAmount: null == totalAmount ? _self.totalAmount : totalAmount // ignore: cast_nullable_to_non_nullable
+as int,fixedAmount: null == fixedAmount ? _self.fixedAmount : fixedAmount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -565,7 +578,9 @@ as int,
 /// @nodoc
 mixin _$RangeSummary {
 
- String get startDate; String get endDate; int get totalIncome; int get totalExpense; List<CategoryBreakdown> get categoryBreakdown; List<RangeMonthlyBucket> get monthlyBuckets;
+ String get startDate; String get endDate; int get totalIncome; int get totalExpense;/// 합계 중 **고정**인 몫 — 변동 = 합계 − 고정. 고정은 전체의 부분집합이다(환불·미래분 규칙을
+/// 서버가 한 곳에서 같이 적용한다). 옛 서버면 0 — 전부 변동으로 본다.
+ int get fixedIncome; int get fixedExpense; List<CategoryBreakdown> get categoryBreakdown; List<RangeMonthlyBucket> get monthlyBuckets;
 /// Create a copy of RangeSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -578,16 +593,16 @@ $RangeSummaryCopyWith<RangeSummary> get copyWith => _$RangeSummaryCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RangeSummary&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&const DeepCollectionEquality().equals(other.categoryBreakdown, categoryBreakdown)&&const DeepCollectionEquality().equals(other.monthlyBuckets, monthlyBuckets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RangeSummary&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.fixedIncome, fixedIncome) || other.fixedIncome == fixedIncome)&&(identical(other.fixedExpense, fixedExpense) || other.fixedExpense == fixedExpense)&&const DeepCollectionEquality().equals(other.categoryBreakdown, categoryBreakdown)&&const DeepCollectionEquality().equals(other.monthlyBuckets, monthlyBuckets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,startDate,endDate,totalIncome,totalExpense,const DeepCollectionEquality().hash(categoryBreakdown),const DeepCollectionEquality().hash(monthlyBuckets));
+int get hashCode => Object.hash(runtimeType,startDate,endDate,totalIncome,totalExpense,fixedIncome,fixedExpense,const DeepCollectionEquality().hash(categoryBreakdown),const DeepCollectionEquality().hash(monthlyBuckets));
 
 @override
 String toString() {
-  return 'RangeSummary(startDate: $startDate, endDate: $endDate, totalIncome: $totalIncome, totalExpense: $totalExpense, categoryBreakdown: $categoryBreakdown, monthlyBuckets: $monthlyBuckets)';
+  return 'RangeSummary(startDate: $startDate, endDate: $endDate, totalIncome: $totalIncome, totalExpense: $totalExpense, fixedIncome: $fixedIncome, fixedExpense: $fixedExpense, categoryBreakdown: $categoryBreakdown, monthlyBuckets: $monthlyBuckets)';
 }
 
 
@@ -598,7 +613,7 @@ abstract mixin class $RangeSummaryCopyWith<$Res>  {
   factory $RangeSummaryCopyWith(RangeSummary value, $Res Function(RangeSummary) _then) = _$RangeSummaryCopyWithImpl;
 @useResult
 $Res call({
- String startDate, String endDate, int totalIncome, int totalExpense, List<CategoryBreakdown> categoryBreakdown, List<RangeMonthlyBucket> monthlyBuckets
+ String startDate, String endDate, int totalIncome, int totalExpense, int fixedIncome, int fixedExpense, List<CategoryBreakdown> categoryBreakdown, List<RangeMonthlyBucket> monthlyBuckets
 });
 
 
@@ -615,12 +630,14 @@ class _$RangeSummaryCopyWithImpl<$Res>
 
 /// Create a copy of RangeSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? startDate = null,Object? endDate = null,Object? totalIncome = null,Object? totalExpense = null,Object? categoryBreakdown = null,Object? monthlyBuckets = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? startDate = null,Object? endDate = null,Object? totalIncome = null,Object? totalExpense = null,Object? fixedIncome = null,Object? fixedExpense = null,Object? categoryBreakdown = null,Object? monthlyBuckets = null,}) {
   return _then(_self.copyWith(
 startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as String,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as String,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
+as int,fixedIncome: null == fixedIncome ? _self.fixedIncome : fixedIncome // ignore: cast_nullable_to_non_nullable
+as int,fixedExpense: null == fixedExpense ? _self.fixedExpense : fixedExpense // ignore: cast_nullable_to_non_nullable
 as int,categoryBreakdown: null == categoryBreakdown ? _self.categoryBreakdown : categoryBreakdown // ignore: cast_nullable_to_non_nullable
 as List<CategoryBreakdown>,monthlyBuckets: null == monthlyBuckets ? _self.monthlyBuckets : monthlyBuckets // ignore: cast_nullable_to_non_nullable
 as List<RangeMonthlyBucket>,
@@ -708,10 +725,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String startDate,  String endDate,  int totalIncome,  int totalExpense,  List<CategoryBreakdown> categoryBreakdown,  List<RangeMonthlyBucket> monthlyBuckets)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String startDate,  String endDate,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense,  List<CategoryBreakdown> categoryBreakdown,  List<RangeMonthlyBucket> monthlyBuckets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RangeSummary() when $default != null:
-return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpense,_that.categoryBreakdown,_that.monthlyBuckets);case _:
+return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense,_that.categoryBreakdown,_that.monthlyBuckets);case _:
   return orElse();
 
 }
@@ -729,10 +746,10 @@ return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpen
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String startDate,  String endDate,  int totalIncome,  int totalExpense,  List<CategoryBreakdown> categoryBreakdown,  List<RangeMonthlyBucket> monthlyBuckets)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String startDate,  String endDate,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense,  List<CategoryBreakdown> categoryBreakdown,  List<RangeMonthlyBucket> monthlyBuckets)  $default,) {final _that = this;
 switch (_that) {
 case _RangeSummary():
-return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpense,_that.categoryBreakdown,_that.monthlyBuckets);case _:
+return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense,_that.categoryBreakdown,_that.monthlyBuckets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -749,10 +766,10 @@ return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpen
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String startDate,  String endDate,  int totalIncome,  int totalExpense,  List<CategoryBreakdown> categoryBreakdown,  List<RangeMonthlyBucket> monthlyBuckets)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String startDate,  String endDate,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense,  List<CategoryBreakdown> categoryBreakdown,  List<RangeMonthlyBucket> monthlyBuckets)?  $default,) {final _that = this;
 switch (_that) {
 case _RangeSummary() when $default != null:
-return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpense,_that.categoryBreakdown,_that.monthlyBuckets);case _:
+return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense,_that.categoryBreakdown,_that.monthlyBuckets);case _:
   return null;
 
 }
@@ -764,13 +781,17 @@ return $default(_that.startDate,_that.endDate,_that.totalIncome,_that.totalExpen
 @JsonSerializable()
 
 class _RangeSummary implements RangeSummary {
-  const _RangeSummary({required this.startDate, required this.endDate, this.totalIncome = 0, this.totalExpense = 0, final  List<CategoryBreakdown> categoryBreakdown = const <CategoryBreakdown>[], final  List<RangeMonthlyBucket> monthlyBuckets = const <RangeMonthlyBucket>[]}): _categoryBreakdown = categoryBreakdown,_monthlyBuckets = monthlyBuckets;
+  const _RangeSummary({required this.startDate, required this.endDate, this.totalIncome = 0, this.totalExpense = 0, this.fixedIncome = 0, this.fixedExpense = 0, final  List<CategoryBreakdown> categoryBreakdown = const <CategoryBreakdown>[], final  List<RangeMonthlyBucket> monthlyBuckets = const <RangeMonthlyBucket>[]}): _categoryBreakdown = categoryBreakdown,_monthlyBuckets = monthlyBuckets;
   factory _RangeSummary.fromJson(Map<String, dynamic> json) => _$RangeSummaryFromJson(json);
 
 @override final  String startDate;
 @override final  String endDate;
 @override@JsonKey() final  int totalIncome;
 @override@JsonKey() final  int totalExpense;
+/// 합계 중 **고정**인 몫 — 변동 = 합계 − 고정. 고정은 전체의 부분집합이다(환불·미래분 규칙을
+/// 서버가 한 곳에서 같이 적용한다). 옛 서버면 0 — 전부 변동으로 본다.
+@override@JsonKey() final  int fixedIncome;
+@override@JsonKey() final  int fixedExpense;
  final  List<CategoryBreakdown> _categoryBreakdown;
 @override@JsonKey() List<CategoryBreakdown> get categoryBreakdown {
   if (_categoryBreakdown is EqualUnmodifiableListView) return _categoryBreakdown;
@@ -799,16 +820,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RangeSummary&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&const DeepCollectionEquality().equals(other._categoryBreakdown, _categoryBreakdown)&&const DeepCollectionEquality().equals(other._monthlyBuckets, _monthlyBuckets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RangeSummary&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.fixedIncome, fixedIncome) || other.fixedIncome == fixedIncome)&&(identical(other.fixedExpense, fixedExpense) || other.fixedExpense == fixedExpense)&&const DeepCollectionEquality().equals(other._categoryBreakdown, _categoryBreakdown)&&const DeepCollectionEquality().equals(other._monthlyBuckets, _monthlyBuckets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,startDate,endDate,totalIncome,totalExpense,const DeepCollectionEquality().hash(_categoryBreakdown),const DeepCollectionEquality().hash(_monthlyBuckets));
+int get hashCode => Object.hash(runtimeType,startDate,endDate,totalIncome,totalExpense,fixedIncome,fixedExpense,const DeepCollectionEquality().hash(_categoryBreakdown),const DeepCollectionEquality().hash(_monthlyBuckets));
 
 @override
 String toString() {
-  return 'RangeSummary(startDate: $startDate, endDate: $endDate, totalIncome: $totalIncome, totalExpense: $totalExpense, categoryBreakdown: $categoryBreakdown, monthlyBuckets: $monthlyBuckets)';
+  return 'RangeSummary(startDate: $startDate, endDate: $endDate, totalIncome: $totalIncome, totalExpense: $totalExpense, fixedIncome: $fixedIncome, fixedExpense: $fixedExpense, categoryBreakdown: $categoryBreakdown, monthlyBuckets: $monthlyBuckets)';
 }
 
 
@@ -819,7 +840,7 @@ abstract mixin class _$RangeSummaryCopyWith<$Res> implements $RangeSummaryCopyWi
   factory _$RangeSummaryCopyWith(_RangeSummary value, $Res Function(_RangeSummary) _then) = __$RangeSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String startDate, String endDate, int totalIncome, int totalExpense, List<CategoryBreakdown> categoryBreakdown, List<RangeMonthlyBucket> monthlyBuckets
+ String startDate, String endDate, int totalIncome, int totalExpense, int fixedIncome, int fixedExpense, List<CategoryBreakdown> categoryBreakdown, List<RangeMonthlyBucket> monthlyBuckets
 });
 
 
@@ -836,12 +857,14 @@ class __$RangeSummaryCopyWithImpl<$Res>
 
 /// Create a copy of RangeSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? startDate = null,Object? endDate = null,Object? totalIncome = null,Object? totalExpense = null,Object? categoryBreakdown = null,Object? monthlyBuckets = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? startDate = null,Object? endDate = null,Object? totalIncome = null,Object? totalExpense = null,Object? fixedIncome = null,Object? fixedExpense = null,Object? categoryBreakdown = null,Object? monthlyBuckets = null,}) {
   return _then(_RangeSummary(
 startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as String,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as String,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
+as int,fixedIncome: null == fixedIncome ? _self.fixedIncome : fixedIncome // ignore: cast_nullable_to_non_nullable
+as int,fixedExpense: null == fixedExpense ? _self.fixedExpense : fixedExpense // ignore: cast_nullable_to_non_nullable
 as int,categoryBreakdown: null == categoryBreakdown ? _self._categoryBreakdown : categoryBreakdown // ignore: cast_nullable_to_non_nullable
 as List<CategoryBreakdown>,monthlyBuckets: null == monthlyBuckets ? _self._monthlyBuckets : monthlyBuckets // ignore: cast_nullable_to_non_nullable
 as List<RangeMonthlyBucket>,
@@ -855,7 +878,8 @@ as List<RangeMonthlyBucket>,
 /// @nodoc
 mixin _$CategoryAmount {
 
- int? get categoryRowId; int get amount;
+ int? get categoryRowId; int get amount;/// 그 금액 중 고정인 몫. 옛 서버면 0.
+ int get fixedAmount;
 /// Create a copy of CategoryAmount
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -868,16 +892,16 @@ $CategoryAmountCopyWith<CategoryAmount> get copyWith => _$CategoryAmountCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryAmount&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.amount, amount) || other.amount == amount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryAmount&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.fixedAmount, fixedAmount) || other.fixedAmount == fixedAmount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,categoryRowId,amount);
+int get hashCode => Object.hash(runtimeType,categoryRowId,amount,fixedAmount);
 
 @override
 String toString() {
-  return 'CategoryAmount(categoryRowId: $categoryRowId, amount: $amount)';
+  return 'CategoryAmount(categoryRowId: $categoryRowId, amount: $amount, fixedAmount: $fixedAmount)';
 }
 
 
@@ -888,7 +912,7 @@ abstract mixin class $CategoryAmountCopyWith<$Res>  {
   factory $CategoryAmountCopyWith(CategoryAmount value, $Res Function(CategoryAmount) _then) = _$CategoryAmountCopyWithImpl;
 @useResult
 $Res call({
- int? categoryRowId, int amount
+ int? categoryRowId, int amount, int fixedAmount
 });
 
 
@@ -905,10 +929,11 @@ class _$CategoryAmountCopyWithImpl<$Res>
 
 /// Create a copy of CategoryAmount
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? categoryRowId = freezed,Object? amount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? categoryRowId = freezed,Object? amount = null,Object? fixedAmount = null,}) {
   return _then(_self.copyWith(
 categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
 as int?,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,fixedAmount: null == fixedAmount ? _self.fixedAmount : fixedAmount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -994,10 +1019,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? categoryRowId,  int amount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? categoryRowId,  int amount,  int fixedAmount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CategoryAmount() when $default != null:
-return $default(_that.categoryRowId,_that.amount);case _:
+return $default(_that.categoryRowId,_that.amount,_that.fixedAmount);case _:
   return orElse();
 
 }
@@ -1015,10 +1040,10 @@ return $default(_that.categoryRowId,_that.amount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? categoryRowId,  int amount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? categoryRowId,  int amount,  int fixedAmount)  $default,) {final _that = this;
 switch (_that) {
 case _CategoryAmount():
-return $default(_that.categoryRowId,_that.amount);case _:
+return $default(_that.categoryRowId,_that.amount,_that.fixedAmount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1035,10 +1060,10 @@ return $default(_that.categoryRowId,_that.amount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? categoryRowId,  int amount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? categoryRowId,  int amount,  int fixedAmount)?  $default,) {final _that = this;
 switch (_that) {
 case _CategoryAmount() when $default != null:
-return $default(_that.categoryRowId,_that.amount);case _:
+return $default(_that.categoryRowId,_that.amount,_that.fixedAmount);case _:
   return null;
 
 }
@@ -1050,11 +1075,13 @@ return $default(_that.categoryRowId,_that.amount);case _:
 @JsonSerializable()
 
 class _CategoryAmount implements CategoryAmount {
-  const _CategoryAmount({this.categoryRowId, this.amount = 0});
+  const _CategoryAmount({this.categoryRowId, this.amount = 0, this.fixedAmount = 0});
   factory _CategoryAmount.fromJson(Map<String, dynamic> json) => _$CategoryAmountFromJson(json);
 
 @override final  int? categoryRowId;
 @override@JsonKey() final  int amount;
+/// 그 금액 중 고정인 몫. 옛 서버면 0.
+@override@JsonKey() final  int fixedAmount;
 
 /// Create a copy of CategoryAmount
 /// with the given fields replaced by the non-null parameter values.
@@ -1069,16 +1096,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryAmount&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.amount, amount) || other.amount == amount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryAmount&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.fixedAmount, fixedAmount) || other.fixedAmount == fixedAmount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,categoryRowId,amount);
+int get hashCode => Object.hash(runtimeType,categoryRowId,amount,fixedAmount);
 
 @override
 String toString() {
-  return 'CategoryAmount(categoryRowId: $categoryRowId, amount: $amount)';
+  return 'CategoryAmount(categoryRowId: $categoryRowId, amount: $amount, fixedAmount: $fixedAmount)';
 }
 
 
@@ -1089,7 +1116,7 @@ abstract mixin class _$CategoryAmountCopyWith<$Res> implements $CategoryAmountCo
   factory _$CategoryAmountCopyWith(_CategoryAmount value, $Res Function(_CategoryAmount) _then) = __$CategoryAmountCopyWithImpl;
 @override @useResult
 $Res call({
- int? categoryRowId, int amount
+ int? categoryRowId, int amount, int fixedAmount
 });
 
 
@@ -1106,10 +1133,11 @@ class __$CategoryAmountCopyWithImpl<$Res>
 
 /// Create a copy of CategoryAmount
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? categoryRowId = freezed,Object? amount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? categoryRowId = freezed,Object? amount = null,Object? fixedAmount = null,}) {
   return _then(_CategoryAmount(
 categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
 as int?,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,fixedAmount: null == fixedAmount ? _self.fixedAmount : fixedAmount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -1121,7 +1149,8 @@ as int,
 /// @nodoc
 mixin _$RangeMonthlyBucket {
 
- int get year; int get month; int get totalIncome; int get totalExpense;// 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
+ int get year; int get month; int get totalIncome; int get totalExpense;// 그 달 합계 중 고정인 몫. 옛 서버면 0.
+ int get fixedIncome; int get fixedExpense;// 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
  List<CategoryAmount> get categoryExpenses;
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
@@ -1135,16 +1164,16 @@ $RangeMonthlyBucketCopyWith<RangeMonthlyBucket> get copyWith => _$RangeMonthlyBu
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&const DeepCollectionEquality().equals(other.categoryExpenses, categoryExpenses));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.fixedIncome, fixedIncome) || other.fixedIncome == fixedIncome)&&(identical(other.fixedExpense, fixedExpense) || other.fixedExpense == fixedExpense)&&const DeepCollectionEquality().equals(other.categoryExpenses, categoryExpenses));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,const DeepCollectionEquality().hash(categoryExpenses));
+int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,fixedIncome,fixedExpense,const DeepCollectionEquality().hash(categoryExpenses));
 
 @override
 String toString() {
-  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, categoryExpenses: $categoryExpenses)';
+  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, fixedIncome: $fixedIncome, fixedExpense: $fixedExpense, categoryExpenses: $categoryExpenses)';
 }
 
 
@@ -1155,7 +1184,7 @@ abstract mixin class $RangeMonthlyBucketCopyWith<$Res>  {
   factory $RangeMonthlyBucketCopyWith(RangeMonthlyBucket value, $Res Function(RangeMonthlyBucket) _then) = _$RangeMonthlyBucketCopyWithImpl;
 @useResult
 $Res call({
- int year, int month, int totalIncome, int totalExpense, List<CategoryAmount> categoryExpenses
+ int year, int month, int totalIncome, int totalExpense, int fixedIncome, int fixedExpense, List<CategoryAmount> categoryExpenses
 });
 
 
@@ -1172,12 +1201,14 @@ class _$RangeMonthlyBucketCopyWithImpl<$Res>
 
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? categoryExpenses = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? fixedIncome = null,Object? fixedExpense = null,Object? categoryExpenses = null,}) {
   return _then(_self.copyWith(
 year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
+as int,fixedIncome: null == fixedIncome ? _self.fixedIncome : fixedIncome // ignore: cast_nullable_to_non_nullable
+as int,fixedExpense: null == fixedExpense ? _self.fixedExpense : fixedExpense // ignore: cast_nullable_to_non_nullable
 as int,categoryExpenses: null == categoryExpenses ? _self.categoryExpenses : categoryExpenses // ignore: cast_nullable_to_non_nullable
 as List<CategoryAmount>,
   ));
@@ -1264,10 +1295,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  List<CategoryAmount> categoryExpenses)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense,  List<CategoryAmount> categoryExpenses)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RangeMonthlyBucket() when $default != null:
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.categoryExpenses);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense,_that.categoryExpenses);case _:
   return orElse();
 
 }
@@ -1285,10 +1316,10 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  List<CategoryAmount> categoryExpenses)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense,  List<CategoryAmount> categoryExpenses)  $default,) {final _that = this;
 switch (_that) {
 case _RangeMonthlyBucket():
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.categoryExpenses);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense,_that.categoryExpenses);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1305,10 +1336,10 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int totalIncome,  int totalExpense,  List<CategoryAmount> categoryExpenses)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int totalIncome,  int totalExpense,  int fixedIncome,  int fixedExpense,  List<CategoryAmount> categoryExpenses)?  $default,) {final _that = this;
 switch (_that) {
 case _RangeMonthlyBucket() when $default != null:
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.categoryExpenses);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.fixedIncome,_that.fixedExpense,_that.categoryExpenses);case _:
   return null;
 
 }
@@ -1320,13 +1351,16 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_tha
 @JsonSerializable()
 
 class _RangeMonthlyBucket implements RangeMonthlyBucket {
-  const _RangeMonthlyBucket({required this.year, required this.month, this.totalIncome = 0, this.totalExpense = 0, final  List<CategoryAmount> categoryExpenses = const <CategoryAmount>[]}): _categoryExpenses = categoryExpenses;
+  const _RangeMonthlyBucket({required this.year, required this.month, this.totalIncome = 0, this.totalExpense = 0, this.fixedIncome = 0, this.fixedExpense = 0, final  List<CategoryAmount> categoryExpenses = const <CategoryAmount>[]}): _categoryExpenses = categoryExpenses;
   factory _RangeMonthlyBucket.fromJson(Map<String, dynamic> json) => _$RangeMonthlyBucketFromJson(json);
 
 @override final  int year;
 @override final  int month;
 @override@JsonKey() final  int totalIncome;
 @override@JsonKey() final  int totalExpense;
+// 그 달 합계 중 고정인 몫. 옛 서버면 0.
+@override@JsonKey() final  int fixedIncome;
+@override@JsonKey() final  int fixedExpense;
 // 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
  final  List<CategoryAmount> _categoryExpenses;
 // 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
@@ -1350,16 +1384,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&const DeepCollectionEquality().equals(other._categoryExpenses, _categoryExpenses));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&(identical(other.fixedIncome, fixedIncome) || other.fixedIncome == fixedIncome)&&(identical(other.fixedExpense, fixedExpense) || other.fixedExpense == fixedExpense)&&const DeepCollectionEquality().equals(other._categoryExpenses, _categoryExpenses));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,const DeepCollectionEquality().hash(_categoryExpenses));
+int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,fixedIncome,fixedExpense,const DeepCollectionEquality().hash(_categoryExpenses));
 
 @override
 String toString() {
-  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, categoryExpenses: $categoryExpenses)';
+  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, fixedIncome: $fixedIncome, fixedExpense: $fixedExpense, categoryExpenses: $categoryExpenses)';
 }
 
 
@@ -1370,7 +1404,7 @@ abstract mixin class _$RangeMonthlyBucketCopyWith<$Res> implements $RangeMonthly
   factory _$RangeMonthlyBucketCopyWith(_RangeMonthlyBucket value, $Res Function(_RangeMonthlyBucket) _then) = __$RangeMonthlyBucketCopyWithImpl;
 @override @useResult
 $Res call({
- int year, int month, int totalIncome, int totalExpense, List<CategoryAmount> categoryExpenses
+ int year, int month, int totalIncome, int totalExpense, int fixedIncome, int fixedExpense, List<CategoryAmount> categoryExpenses
 });
 
 
@@ -1387,12 +1421,14 @@ class __$RangeMonthlyBucketCopyWithImpl<$Res>
 
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? categoryExpenses = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? fixedIncome = null,Object? fixedExpense = null,Object? categoryExpenses = null,}) {
   return _then(_RangeMonthlyBucket(
 year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
+as int,fixedIncome: null == fixedIncome ? _self.fixedIncome : fixedIncome // ignore: cast_nullable_to_non_nullable
+as int,fixedExpense: null == fixedExpense ? _self.fixedExpense : fixedExpense // ignore: cast_nullable_to_non_nullable
 as int,categoryExpenses: null == categoryExpenses ? _self._categoryExpenses : categoryExpenses // ignore: cast_nullable_to_non_nullable
 as List<CategoryAmount>,
   ));

@@ -11,6 +11,10 @@ abstract class MonthlyTrend with _$MonthlyTrend {
     required int month,
     @Default(0) int totalIncome,
     @Default(0) int totalExpense,
+
+    /// 그 달 합계 중 고정인 몫 — 변동 = 합계 − 고정. 옛 서버면 0(전부 변동).
+    @Default(0) int fixedIncome,
+    @Default(0) int fixedExpense,
   }) = _MonthlyTrend;
 
   factory MonthlyTrend.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +31,9 @@ abstract class CategoryBreakdown with _$CategoryBreakdown {
     String? parentCategoryName,
     String? expenseType,
     @Default(0) int totalAmount,
+
+    /// 그 금액 중 고정인 몫. 같은 카테고리에 고정과 변동이 섞일 수 있다. 옛 서버면 0.
+    @Default(0) int fixedAmount,
   }) = _CategoryBreakdown;
 
   factory CategoryBreakdown.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +49,11 @@ abstract class RangeSummary with _$RangeSummary {
     required String endDate,
     @Default(0) int totalIncome,
     @Default(0) int totalExpense,
+
+    /// 합계 중 **고정**인 몫 — 변동 = 합계 − 고정. 고정은 전체의 부분집합이다(환불·미래분 규칙을
+    /// 서버가 한 곳에서 같이 적용한다). 옛 서버면 0 — 전부 변동으로 본다.
+    @Default(0) int fixedIncome,
+    @Default(0) int fixedExpense,
     @Default(<CategoryBreakdown>[]) List<CategoryBreakdown> categoryBreakdown,
     @Default(<RangeMonthlyBucket>[]) List<RangeMonthlyBucket> monthlyBuckets,
   }) = _RangeSummary;
@@ -54,8 +66,13 @@ abstract class RangeSummary with _$RangeSummary {
 /// 카테고리 단위 금액 — 월별 지출 분해(카테고리 추이 차트)용.
 @freezed
 abstract class CategoryAmount with _$CategoryAmount {
-  const factory CategoryAmount({int? categoryRowId, @Default(0) int amount}) =
-      _CategoryAmount;
+  const factory CategoryAmount({
+    int? categoryRowId,
+    @Default(0) int amount,
+
+    /// 그 금액 중 고정인 몫. 옛 서버면 0.
+    @Default(0) int fixedAmount,
+  }) = _CategoryAmount;
 
   factory CategoryAmount.fromJson(Map<String, dynamic> json) =>
       _$CategoryAmountFromJson(json);
@@ -68,6 +85,9 @@ abstract class RangeMonthlyBucket with _$RangeMonthlyBucket {
     required int month,
     @Default(0) int totalIncome,
     @Default(0) int totalExpense,
+    // 그 달 합계 중 고정인 몫. 옛 서버면 0.
+    @Default(0) int fixedIncome,
+    @Default(0) int fixedExpense,
     // 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
     @Default(<CategoryAmount>[]) List<CategoryAmount> categoryExpenses,
   }) = _RangeMonthlyBucket;

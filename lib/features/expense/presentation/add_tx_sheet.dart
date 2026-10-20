@@ -24,6 +24,7 @@ import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
+import 'package:groo_damda_app/shared/widgets/p_switch.dart';
 import 'package:groo_damda_app/shared/widgets/p_select.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
@@ -263,6 +264,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 카드를 알아봤는데 아직 안 외운 경우에만 "이 카드로 기억" 을 물어본다.
     _input.smsRememberAsk = widget.smsDraft?.canRememberCard ?? false;
     _input.autoSource = e?.autoSource;
+    _input.isFixed = e?.isFixed ?? false;
     widget.controller.onSubmit = _submit;
     WidgetsBinding.instance.addPostFrameCallback((_) => _syncController());
   }
@@ -303,6 +305,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           ? '${p.interestAmount}'
           : '';
       _input.amountLocked = locked;
+      // 프리셋의 고정 표식이 기본값이 된다 — 월세 프리셋을 불러오면 고정으로 켜져 있다. 이체는 해당 없음.
+      _input.isFixed = p.expenseType == 'TRANSFER' ? false : p.isFixed;
     });
   }
 
@@ -350,6 +354,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         seedMerchant: isTransfer ? '' : _input.merchantCtrl.text.trim(),
         seedDescription: _input.memoCtrl.text.trim(),
         seedPaymentMethod: isTransfer ? '' : _input.paymentMethod,
+        seedIsFixed: !isTransfer && _input.isFixed,
       ),
     );
   }
@@ -492,6 +497,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
               ? const Patch.keep()
               : Patch.set(origCurrency),
           exchangeRate: locked ? const Patch.keep() : Patch.set(fxRate),
+          // 고정 표식은 돈이 아니라 분류라서 잠긴 거래도 고칠 수 있다 — 늘 싣는다.
+          isFixed: Patch.set(_input.isFixed),
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           // 잠긴 거래는 금액이 안 바뀌니 맞출 분할도 없다.
           splits: locked ? null : _reconciledSplits,
@@ -552,6 +559,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           originalAmount: origAmount,
           originalCurrency: origCurrency,
           exchangeRate: fxRate,
+          isFixed: _input.isFixed,
         );
         _notifyCreated(refundedAmount: created.refundedAmount);
       }
@@ -653,6 +661,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         originalAmount: origAmount,
         originalCurrency: origCurrency,
         exchangeRate: fxRate,
+        isFixed: _input.isFixed,
         splits: splits,
       );
       // 옛 거래의 달·새 거래의 달이 함께 바뀐다. 분할도 옛 거래에서 새 거래로 옮겨졌다.
@@ -819,6 +828,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           // 조용히 빠진다 — 그 경로에만 있는 가드다. 고쳐 쓰기도 같다 — replace
           // 본문은 지출·수입 생성 본문이다.
           allowTransfer: !_isSmsDraft && !_isReplace,
+          // 문자 초안은 전용 저장 경로(`/import/sms/commit`)라 고정 표식을 못 싣는다 — 스위치를
+          // 두면 켜도 조용히 무시된다. 저장한 뒤 거래를 열어 켜거나 통계의 정리 화면에서 바꾼다.
+          showFixed: !_isSmsDraft,
           // [고쳐 쓰기] 는 서버가 교체를 받는 거래에만 — 중도 정리한 할부는 잠겼어도 못
           // 고쳐 쓴다(EXP_047). 판정이 없는 옛 서버면 잠금으로 본다(QA 26 3).
           onRewrite:
@@ -1240,6 +1252,7 @@ class _SavePresetDialog extends ConsumerStatefulWidget {
     required this.seedMerchant,
     required this.seedDescription,
     required this.seedPaymentMethod,
+    required this.seedIsFixed,
   });
 
   final String seedExpenseType;
@@ -1256,6 +1269,9 @@ class _SavePresetDialog extends ConsumerStatefulWidget {
   final String seedMerchant;
   final String seedDescription;
   final String seedPaymentMethod;
+
+  /// 고정 수입·지출 기본값 — 프리셋으로 거래를 만들 때 스위치의 초기값이 된다.
+  final bool seedIsFixed;
 
   @override
   ConsumerState<_SavePresetDialog> createState() => _SavePresetDialogState();
@@ -1311,6 +1327,7 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
             ? null
             : widget.seedPaymentMethod,
         lockAmount: _lockAmount,
+        isFixed: widget.seedIsFixed,
       );
       ref.invalidate(presetListProvider);
       if (!mounted) return;
@@ -1557,6 +1574,10 @@ class _TxInputController {
   TimeOfDay time;
   bool amountLocked = false; // 프리셋 금액 잠금 (applyPreset 에서 set)
 
+  /// 고정 수입·지출 — 월세·월급처럼 매달 정해진 거래. 통계가 따로 나눠 본다(돈에는 영향 없음).
+  /// 이체에는 없다.
+  bool isFixed = false;
+
   /// 금액칸에 걸 상한 — 거래 상한(100억) 하나다.
   int get amountMaxForInput => kAmountMax;
 
@@ -1622,7 +1643,11 @@ class _TxInputForm extends ConsumerWidget {
     this.allowTransfer = true,
     this.presetSlot,
     this.onRewrite,
+    this.showFixed = true,
   });
+
+  /// 고정 스위치를 내놓는가 — 저장 경로가 고정 표식을 못 받는 화면(결제 문자 초안)은 false 다.
+  final bool showFixed;
 
   final _TxInputController controller;
   final VoidCallback onChanged;
@@ -2197,6 +2222,43 @@ class _TxInputForm extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: PSpace.x16),
+
+        // 고정 수입·지출 — 이체에는 없다(내 통장끼리 옮기는 돈이라 합계가 안 달라진다).
+        if (showFixed && c.type != 'TRANSFER') ...[
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      c.type == 'INCOME'
+                          ? l.fixedSwitchIncome
+                          : l.fixedSwitchExpense,
+                      style: PTypo.body.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      c.type == 'INCOME'
+                          ? l.fixedHintIncome
+                          : l.fixedHintExpense,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              PSwitch(
+                value: c.isFixed,
+                onChanged: (v) => _set(() => c.isFixed = v),
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x16),
+        ],
 
         PSectionLabel(l.expDescription),
         const SizedBox(height: PSpace.x4),

@@ -60,6 +60,7 @@ class _Presets extends PresetRepository {
     String? paymentMethod,
     int? sortOrder,
     bool lockAmount = false,
+    bool isFixed = false,
   }) async {
     created = {'templateName': templateName, 'assetRowId': assetRowId};
     return ExpenseTemplate(

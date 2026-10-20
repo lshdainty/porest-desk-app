@@ -39,6 +39,7 @@ class _FakeRepo extends ExpenseRepository {
     int? maxAmount,
     String? startDate,
     String? endDate,
+    bool? fixed,
   }) async => rows;
 }
 

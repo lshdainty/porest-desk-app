@@ -55,6 +55,7 @@ const Map<String, HidePage> kHideCards = {
   'stats.category': HidePage.stats,
   'stats.trend': HidePage.stats,
   'stats.compare': HidePage.stats,
+  'stats.fixed': HidePage.stats,
   // 예산
   'budget.header': HidePage.budget,
   'budget.pace': HidePage.budget,

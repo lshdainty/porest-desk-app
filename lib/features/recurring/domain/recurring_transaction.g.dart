@@ -39,6 +39,7 @@ _RecurringTransaction _$RecurringTransactionFromJson(
   isActive: json['isActive'] as String?,
   autoLog: json['autoLog'] as bool? ?? false,
   notifyDayBefore: json['notifyDayBefore'] as bool? ?? false,
+  isFixed: json['isFixed'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$RecurringTransactionToJson(
@@ -74,4 +75,5 @@ Map<String, dynamic> _$RecurringTransactionToJson(
   'isActive': instance.isActive,
   'autoLog': instance.autoLog,
   'notifyDayBefore': instance.notifyDayBefore,
+  'isFixed': instance.isFixed,
 };

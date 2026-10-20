@@ -6967,4 +6967,199 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dsInputClear => 'Clear';
+
+  @override
+  String get fixedSwitchExpense => 'Fixed expense';
+
+  @override
+  String get fixedSwitchIncome => 'Fixed income';
+
+  @override
+  String get fixedHintExpense =>
+      'Money that goes out every month like rent or phone bills. You can view it separately in statistics';
+
+  @override
+  String get fixedHintIncome =>
+      'Money that comes in every month like a salary. You can view it separately in statistics';
+
+  @override
+  String get fixedBadge => 'Fixed';
+
+  @override
+  String get recurringFixedSub =>
+      'Transactions this schedule creates from now on are recorded as fixed';
+
+  @override
+  String get presetFixedTitleExpense => 'Record as fixed expense';
+
+  @override
+  String get presetFixedTitleIncome => 'Record as fixed income';
+
+  @override
+  String get presetFixedDesc =>
+      'Transactions made from this preset count as fixed in statistics. This is separate from the fixed amount above.';
+
+  @override
+  String get hideCardStatsFixed => 'Fixed vs. variable tab';
+
+  @override
+  String get statsTabFixed => 'Fixed vs. variable';
+
+  @override
+  String get statsFixedViewAria => 'View';
+
+  @override
+  String get statsFixedViewAll => 'All';
+
+  @override
+  String get statsFixedViewVariable => 'Excl. fixed';
+
+  @override
+  String get statsFixedViewFixed => 'Fixed only';
+
+  @override
+  String get statsDonutCenterVariable => 'Excl. fixed';
+
+  @override
+  String get statsDonutCenterFixed => 'Fixed';
+
+  @override
+  String get statsFixedExpenseTitle => 'Spending: fixed vs. variable';
+
+  @override
+  String get statsFixedIncomeTitle => 'Income: fixed vs. variable';
+
+  @override
+  String get statsFixedExpenseNone => 'No spending in this period';
+
+  @override
+  String get statsFixedIncomeNone => 'No income in this period';
+
+  @override
+  String get statsFixedTotalExpense => 'Total spending';
+
+  @override
+  String get statsFixedTotalIncome => 'Total income';
+
+  @override
+  String get statsFixedFixedExpense => 'Fixed spending';
+
+  @override
+  String get statsFixedFixedIncome => 'Fixed income';
+
+  @override
+  String get statsFixedVariableExpense => 'Spending excl. fixed';
+
+  @override
+  String get statsFixedVariableIncome => 'Income excl. fixed';
+
+  @override
+  String statsFixedBarSemantics(String kind, int fixed, int variable) {
+    return '$fixed% fixed, $variable% variable of $kind';
+  }
+
+  @override
+  String statsFixedInsightExpense(int pct) {
+    return '$pct% of spending is fixed. Spending excluding fixed is';
+  }
+
+  @override
+  String statsFixedInsightIncome(int pct) {
+    return '$pct% of income is fixed. Income excluding fixed is';
+  }
+
+  @override
+  String get statsFixedInsightTail => '.';
+
+  @override
+  String get statsFixedEmptyDesc =>
+      'Mark monthly items like rent or salary as fixed to see them separately here';
+
+  @override
+  String get statsFixedManage => 'Organize fixed items';
+
+  @override
+  String get statsFixedManageHint =>
+      'Items with the same name every month can be set in one go';
+
+  @override
+  String get statsFixedTrendTitle => 'Monthly fixed vs. variable';
+
+  @override
+  String get statsFixedTrendKindAria => 'Spending or income';
+
+  @override
+  String get statsFixedTrendRecent => 'Last 6 months';
+
+  @override
+  String get statsFixedKindExpense => 'Spending';
+
+  @override
+  String get statsFixedKindIncome => 'Income';
+
+  @override
+  String get statsFixedLegendFixed => 'Fixed';
+
+  @override
+  String get statsFixedLegendVariable => 'Variable';
+
+  @override
+  String get statsFixedCategoryTitle => 'Fixed vs. variable by category';
+
+  @override
+  String statsFixedCategoryFixedPart(int pct) {
+    return 'Fixed $pct%';
+  }
+
+  @override
+  String get statsFixedBulkTitle => 'Organize fixed items';
+
+  @override
+  String statsFixedBulkDesc(String start, String end) {
+    return 'Transactions from $start to $end. Items with the same name are grouped. Balances don\'t change, only how statistics classify them.';
+  }
+
+  @override
+  String get statsFixedBulkUntitled => 'Untitled';
+
+  @override
+  String get statsFixedBulkTargetAria => 'Change to';
+
+  @override
+  String get statsFixedBulkToFixed => 'Mark as fixed';
+
+  @override
+  String get statsFixedBulkToVariable => 'Back to variable';
+
+  @override
+  String statsFixedBulkGroupSub(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get statsFixedBulkBadgeAll => 'Fixed';
+
+  @override
+  String statsFixedBulkBadgeSome(int fixed, int count) {
+    return 'Fixed $fixed/$count';
+  }
+
+  @override
+  String get statsFixedBulkEmpty =>
+      'No transactions to organize in this period';
+
+  @override
+  String statsFixedBulkApply(int count) {
+    return 'Apply to $count';
+  }
+
+  @override
+  String statsFixedBulkDoneFixed(int count) {
+    return 'Marked $count as fixed';
+  }
+
+  @override
+  String statsFixedBulkDoneVariable(int count) {
+    return 'Changed $count back to variable';
+  }
 }

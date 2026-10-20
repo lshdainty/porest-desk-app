@@ -53,6 +53,9 @@ class ExpenseRepository {
     double? originalAmount,
     String? originalCurrency,
     double? exchangeRate,
+
+    /// 고정 수입·지출 — 안 실으면 서버가 변동으로 만든다. 이체에는 쓰지 않는다.
+    bool? isFixed,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -70,6 +73,7 @@ class ExpenseRepository {
           'originalAmount': ?originalAmount,
           'originalCurrency': ?originalCurrency,
           'exchangeRate': ?exchangeRate,
+          'isFixed': ?isFixed,
         },
       );
       return _unwrap(res, Expense.fromJson);
@@ -105,6 +109,8 @@ class ExpenseRepository {
     Patch<double> originalAmount = const Patch.keep(),
     Patch<String> originalCurrency = const Patch.keep(),
     Patch<double> exchangeRate = const Patch.keep(),
+    // 고정 수입·지출 — 안 실으면 서버가 지금 표식을 지킨다(옛 앱의 수정이 표식을 지우지 않는다).
+    Patch<bool> isFixed = const Patch.keep(),
     List<SplitInput>? splits,
   }) async {
     try {
@@ -125,6 +131,7 @@ class ExpenseRepository {
           if (originalCurrency.present)
             'originalCurrency': originalCurrency.value,
           if (exchangeRate.present) 'exchangeRate': exchangeRate.value,
+          if (isFixed.present) 'isFixed': isFixed.value,
           if (splits != null)
             'splits': [
               for (final s in splits)
@@ -166,6 +173,9 @@ class ExpenseRepository {
     double? originalAmount,
     String? originalCurrency,
     double? exchangeRate,
+
+    /// 고정 수입·지출 — 안 실으면 서버가 옛 거래의 표식을 잇는다.
+    bool? isFixed,
     List<SplitInput>? splits,
   }) async {
     try {
@@ -184,6 +194,7 @@ class ExpenseRepository {
           'originalAmount': ?originalAmount,
           'originalCurrency': ?originalCurrency,
           'exchangeRate': ?exchangeRate,
+          'isFixed': ?isFixed,
           if (splits != null)
             'splits': [
               for (final s in splits)
@@ -266,6 +277,9 @@ class ExpenseRepository {
     int? maxAmount,
     String? startDate,
     String? endDate,
+
+    /// true = 고정만, false = 변동만, null = 전부.
+    bool? fixed,
   }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
@@ -280,9 +294,32 @@ class ExpenseRepository {
           'maxAmount': ?maxAmount,
           'startDate': ?startDate,
           'endDate': ?endDate,
+          'fixed': ?fixed,
         },
       );
       return _unwrapList(res, 'expenses', Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 고정 표식 일괄 변경(`PUT /expenses/fixed`) — 고른 거래를 한꺼번에 고정/변동으로.
+  ///
+  /// 돈·잔액은 안 움직인다. 남의 거래가 섞이면 서버가 전체를 거절한다. 한 번에 500건까지.
+  /// 실제로 바뀐 건수를 돌려준다(이미 그 값이던 거래는 세지 않는다).
+  Future<int> bulkMarkFixed(
+    List<int> expenseIds, {
+    required bool isFixed,
+  }) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/expenses/fixed',
+        data: {'expenseIds': expenseIds, 'isFixed': isFixed},
+      );
+      final data = res.data?['data'];
+      return data is Map<String, dynamic>
+          ? (data['updatedCount'] as num?)?.toInt() ?? 0
+          : 0;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

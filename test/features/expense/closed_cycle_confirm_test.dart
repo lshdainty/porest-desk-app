@@ -111,6 +111,7 @@ class _FakeRepo extends ExpenseRepository {
     double? originalAmount,
     String? originalCurrency,
     double? exchangeRate,
+    bool? isFixed,
   }) async {
     created.add({
       'assetRowId': assetRowId,
@@ -136,6 +137,7 @@ class _FakeRepo extends ExpenseRepository {
     Patch<String> originalCurrency = const Patch.keep(),
     Patch<double> exchangeRate = const Patch.keep(),
     List<SplitInput>? splits,
+    Patch<bool> isFixed = const Patch.keep(),
   }) async => _open.copyWith(refundedAmount: 30000);
 }
 

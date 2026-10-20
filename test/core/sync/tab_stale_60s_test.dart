@@ -538,6 +538,7 @@ class _CountingExpenseRepo extends ExpenseRepository {
     int? maxAmount,
     String? startDate,
     String? endDate,
+    bool? fixed,
   }) async {
     _bump('merchantMonthExpenses');
     // provider 가 결과를 그 자리에서 정렬한다 — const 목록을 주면 sort 가 던진다.
