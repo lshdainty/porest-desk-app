@@ -49,6 +49,9 @@ abstract class RecurringTransaction with _$RecurringTransaction {
     String? isActive, // 'Y' | 'N'
     @Default(false) bool autoLog,
     @Default(false) bool notifyDayBefore,
+
+    /// 고정 수입·지출 — 이 반복이 만든 거래가 표식을 물려받는다. 이체는 늘 false. 옛 서버면 false.
+    @Default(false) bool isFixed,
   }) = _RecurringTransaction;
 
   factory RecurringTransaction.fromJson(Map<String, dynamic> json) =>

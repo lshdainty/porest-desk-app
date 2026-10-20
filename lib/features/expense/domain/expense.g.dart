@@ -40,6 +40,7 @@ _Expense _$ExpenseFromJson(Map<String, dynamic> json) => _Expense(
           ?.map((e) => (e as num).toInt())
           .toList() ??
       const <int>[],
+  isFixed: json['isFixed'] as bool? ?? false,
   createAt: json['createAt'] as String?,
   modifyAt: json['modifyAt'] as String?,
 );
@@ -74,6 +75,7 @@ Map<String, dynamic> _$ExpenseToJson(_Expense instance) => <String, dynamic>{
   'calendarEventRowId': instance.calendarEventRowId,
   'todoRowId': instance.todoRowId,
   'splitCategoryRowIds': instance.splitCategoryRowIds,
+  'isFixed': instance.isFixed,
   'createAt': instance.createAt,
   'modifyAt': instance.modifyAt,
 };

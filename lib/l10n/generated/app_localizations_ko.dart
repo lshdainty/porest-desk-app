@@ -6852,4 +6852,194 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dsInputClear => '지우기';
+
+  @override
+  String get fixedSwitchExpense => '고정 지출';
+
+  @override
+  String get fixedSwitchIncome => '고정 수입';
+
+  @override
+  String get fixedHintExpense => '월세·통신비처럼 매달 나가는 돈이에요. 통계에서 따로 나눠 볼 수 있어요';
+
+  @override
+  String get fixedHintIncome => '월급처럼 매달 들어오는 돈이에요. 통계에서 따로 나눠 볼 수 있어요';
+
+  @override
+  String get fixedBadge => '고정';
+
+  @override
+  String get recurringFixedSub => '이 반복이 앞으로 만드는 거래가 고정으로 기록돼요';
+
+  @override
+  String get presetFixedTitleExpense => '고정 지출로 기록';
+
+  @override
+  String get presetFixedTitleIncome => '고정 수입으로 기록';
+
+  @override
+  String get presetFixedDesc =>
+      '이 프리셋으로 만든 거래가 통계의 고정 항목으로 잡혀요. 위의 고정 금액과는 별개예요.';
+
+  @override
+  String get hideCardStatsFixed => '고정·변동 탭';
+
+  @override
+  String get statsTabFixed => '고정·변동';
+
+  @override
+  String get statsFixedViewAria => '보기 방식';
+
+  @override
+  String get statsFixedViewAll => '전체';
+
+  @override
+  String get statsFixedViewVariable => '고정 제외';
+
+  @override
+  String get statsFixedViewFixed => '고정만';
+
+  @override
+  String get statsDonutCenterVariable => '고정 제외 지출';
+
+  @override
+  String get statsDonutCenterFixed => '고정 지출';
+
+  @override
+  String get statsFixedExpenseTitle => '지출 — 고정과 변동';
+
+  @override
+  String get statsFixedIncomeTitle => '수입 — 고정과 변동';
+
+  @override
+  String get statsFixedExpenseNone => '이 기간에는 지출이 없어요';
+
+  @override
+  String get statsFixedIncomeNone => '이 기간에는 수입이 없어요';
+
+  @override
+  String get statsFixedTotalExpense => '전체 지출';
+
+  @override
+  String get statsFixedTotalIncome => '전체 수입';
+
+  @override
+  String get statsFixedFixedExpense => '고정 지출';
+
+  @override
+  String get statsFixedFixedIncome => '고정 수입';
+
+  @override
+  String get statsFixedVariableExpense => '고정 제외 지출';
+
+  @override
+  String get statsFixedVariableIncome => '고정 제외 수입';
+
+  @override
+  String statsFixedBarSemantics(String kind, int fixed, int variable) {
+    return '$kind 중 고정 $fixed%, 변동 $variable%';
+  }
+
+  @override
+  String statsFixedInsightExpense(int pct) {
+    return '지출의 $pct%가 고정이에요. 고정을 뺀 지출은';
+  }
+
+  @override
+  String statsFixedInsightIncome(int pct) {
+    return '수입의 $pct%가 고정이에요. 고정을 뺀 수입은';
+  }
+
+  @override
+  String get statsFixedInsightTail => '이에요.';
+
+  @override
+  String get statsFixedEmptyDesc =>
+      '월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요';
+
+  @override
+  String get statsFixedManage => '거래를 고정으로 정리하기';
+
+  @override
+  String get statsFixedManageHint => '매달 같은 이름으로 나가는 돈은 한 번에 정리할 수 있어요';
+
+  @override
+  String get statsFixedTrendTitle => '월별 고정·변동 추이';
+
+  @override
+  String get statsFixedTrendKindAria => '지출 또는 수입';
+
+  @override
+  String get statsFixedTrendRecent => '최근 6개월';
+
+  @override
+  String get statsFixedKindExpense => '지출';
+
+  @override
+  String get statsFixedKindIncome => '수입';
+
+  @override
+  String get statsFixedLegendFixed => '고정';
+
+  @override
+  String get statsFixedLegendVariable => '변동';
+
+  @override
+  String get statsFixedCategoryTitle => '카테고리별 고정·변동';
+
+  @override
+  String statsFixedCategoryFixedPart(int pct) {
+    return '그중 고정 $pct%';
+  }
+
+  @override
+  String get statsFixedBulkTitle => '거래를 고정으로 정리하기';
+
+  @override
+  String statsFixedBulkDesc(String start, String end) {
+    return '$start ~ $end 기간의 거래예요. 매달 같은 이름으로 나가는 돈은 한 줄로 묶여 있어요. 돈이나 잔액은 달라지지 않고 통계의 분류만 바뀌어요.';
+  }
+
+  @override
+  String get statsFixedBulkUntitled => '이름 없는 거래';
+
+  @override
+  String get statsFixedBulkTargetAria => '바꿀 방향';
+
+  @override
+  String get statsFixedBulkToFixed => '고정으로 표시';
+
+  @override
+  String get statsFixedBulkToVariable => '변동으로 되돌리기';
+
+  @override
+  String statsFixedBulkGroupSub(int count) {
+    return '$count건';
+  }
+
+  @override
+  String get statsFixedBulkBadgeAll => '고정';
+
+  @override
+  String statsFixedBulkBadgeSome(int fixed, int count) {
+    return '고정 $fixed/$count';
+  }
+
+  @override
+  String get statsFixedBulkEmpty => '이 기간에는 정리할 거래가 없어요';
+
+  @override
+  String statsFixedBulkApply(int count) {
+    return '$count건 적용';
+  }
+
+  @override
+  String statsFixedBulkDoneFixed(int count) {
+    return '$count건을 고정으로 바꿨어요';
+  }
+
+  @override
+  String statsFixedBulkDoneVariable(int count) {
+    return '$count건을 변동으로 되돌렸어요';
+  }
 }

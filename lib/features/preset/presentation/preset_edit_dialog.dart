@@ -80,6 +80,9 @@ class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _interestCtrl;
   late String _paymentMethod;
   late bool _lockAmount;
+
+  /// 고정 수입·지출 기본값 — "고정 금액"(금액을 저장해 둘지)과는 별개다. 통계의 분류 표식이다.
+  late bool _isFixed;
   bool _submitting = false;
   bool _touched = false;
 
@@ -125,6 +128,7 @@ class _BodyState extends ConsumerState<_Body> {
       text: t?.interestAmount != null ? '${t!.interestAmount}' : '',
     );
     _lockAmount = (t?.lockAmount ?? 'N') == 'Y';
+    _isFixed = t?.isFixed ?? false;
     _amountCtrl = TextEditingController(
       text: t?.amount != null ? '${t!.amount}' : '',
     );
@@ -244,6 +248,8 @@ class _BodyState extends ConsumerState<_Body> {
             _isTransfer || _paymentMethod.isEmpty ? null : _paymentMethod,
           ),
           lockAmount: _lockAmount,
+          // 이체는 고정이 없다 — 켜 둔 채 이체로 바꿔도 싣지 않는다(서버도 꺼 버린다).
+          isFixed: !_isTransfer && _isFixed,
         );
       } else {
         await repo.create(
@@ -263,6 +269,7 @@ class _BodyState extends ConsumerState<_Body> {
               ? null
               : _paymentMethod,
           lockAmount: _lockAmount,
+          isFixed: !_isTransfer && _isFixed,
         );
       }
       ref.invalidate(presetListProvider);
@@ -445,6 +452,16 @@ class _BodyState extends ConsumerState<_Body> {
             if (!v) _interestCtrl.clear();
           }),
         ),
+        if (!_isTransfer) ...[
+          const SizedBox(height: 10),
+          _FixedCard(
+            title: _type == 'INCOME'
+                ? l.presetFixedTitleIncome
+                : l.presetFixedTitleExpense,
+            isFixed: _isFixed,
+            onToggle: (v) => setState(() => _isFixed = v),
+          ),
+        ],
       ],
     );
   }
@@ -624,6 +641,68 @@ class _CategoryGrid extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// '고정 지출/수입으로 기록' 체크 카드 — 이 프리셋으로 만든 거래가 통계의 고정 항목으로 잡힌다.
+class _FixedCard extends StatelessWidget {
+  const _FixedCard({
+    required this.title,
+    required this.isFixed,
+    required this.onToggle,
+  });
+  final String title;
+  final bool isFixed;
+  final ValueChanged<bool> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.all(PSpace.md),
+      decoration: BoxDecoration(
+        color: t.bgSunken,
+        borderRadius: PRadius.brLg, // --radius-tile = 12
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          PCheckbox(
+            size: PCheckboxSize.sm,
+            value: isFixed,
+            semanticLabel: title,
+            onChanged: (v) => onToggle(v == true),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onToggle(!isFixed),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.bodySm, // --text-label-sm
+                      fontWeight: PFontWeight.bold,
+                      color: t.fgPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l.presetFixedDesc,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

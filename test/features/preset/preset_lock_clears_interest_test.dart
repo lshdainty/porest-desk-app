@@ -76,6 +76,7 @@ class _CapturingRepo extends PresetRepository {
     Patch<String> merchant = const Patch.keep(),
     Patch<String> paymentMethod = const Patch.keep(),
     bool lockAmount = false,
+    bool isFixed = false,
   }) async {
     this.interestAmount = interestAmount;
     return _preset;

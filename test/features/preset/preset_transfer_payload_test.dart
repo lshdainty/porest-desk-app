@@ -94,6 +94,7 @@ class _CapturingRepo extends PresetRepository {
     String? paymentMethod,
     int? sortOrder,
     bool lockAmount = false,
+    bool isFixed = false,
   }) async {
     called = true;
     created = {
@@ -123,6 +124,7 @@ class _CapturingRepo extends PresetRepository {
     Patch<String> merchant = const Patch.keep(),
     Patch<String> paymentMethod = const Patch.keep(),
     bool lockAmount = false,
+    bool isFixed = false,
   }) async {
     called = true;
     this.toAssetRowId = toAssetRowId;

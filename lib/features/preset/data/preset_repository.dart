@@ -37,6 +37,9 @@ class PresetRepository {
     String? paymentMethod,
     int? sortOrder,
     bool lockAmount = false,
+
+    /// 고정 수입·지출 기본값 — 이체에는 싣지 않는다(서버도 무시한다).
+    bool isFixed = false,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -55,6 +58,7 @@ class PresetRepository {
           'paymentMethod': ?paymentMethod,
           'sortOrder': ?sortOrder,
           'lockAmount': lockAmount ? 'Y' : 'N',
+          'isFixed': isFixed,
         },
       );
       return _unwrap(res, ExpenseTemplate.fromJson);
@@ -95,6 +99,9 @@ class PresetRepository {
     Patch<String> merchant = const Patch.keep(),
     Patch<String> paymentMethod = const Patch.keep(),
     bool lockAmount = false,
+
+    /// 고정 수입·지출 기본값 — 이 시트가 그리는 칸이라 늘 싣는다. 이체는 호출처가 false 를 준다.
+    bool isFixed = false,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -112,6 +119,7 @@ class PresetRepository {
           if (merchant.present) 'merchant': merchant.value,
           if (paymentMethod.present) 'paymentMethod': paymentMethod.value,
           'lockAmount': lockAmount ? 'Y' : 'N',
+          'isFixed': isFixed,
         },
       );
       return _unwrap(res, ExpenseTemplate.fromJson);

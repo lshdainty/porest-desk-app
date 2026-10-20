@@ -84,6 +84,7 @@ class _CapturingRepo extends RecurringRepository {
     String? paymentMethod,
     bool autoLog = false,
     bool notifyDayBefore = false,
+    bool isFixed = false,
   }) async {
     called = true;
     created = {

@@ -125,6 +125,13 @@ class _RecurringSettingsBodyState
 
   bool _autoLog = true;
   bool _notifyDayBefore = true;
+
+  /// 고정 수입·지출 — 이 반복이 만드는 거래가 표식을 물려받는다(이체는 해당 없음).
+  bool _isFixed = false;
+
+  /// 지금 폼의 거래 종류 — 직접 추가·수정은 폼이, 거래에서 만들기는 원 거래가 정한다.
+  String get _kind =>
+      _txInput?.type ?? widget.expense?.expenseType ?? 'EXPENSE';
   bool _submitting = false;
 
   /// 실행 시각 'HH:mm' — 이 시각으로 실행분이 만들어진다. 서버 기본값은 09:00.
@@ -213,6 +220,9 @@ class _RecurringSettingsBodyState
 
     _autoLog = r?.autoLog ?? true;
     _notifyDayBefore = r?.notifyDayBefore ?? true;
+    // 수정은 저장된 표식을, 거래에서 만들기는 원 거래의 표식을 이어받는다 — 월세를 반복으로 걸면
+    // 매달 고정 월세가 된다.
+    _isFixed = r?.isFixed ?? widget.expense?.isFixed ?? false;
 
     widget.controller.onSubmit = _save;
   }
@@ -292,6 +302,8 @@ class _RecurringSettingsBodyState
           paymentMethod: i.isTransfer ? null : i.paymentMethodOrNull,
           autoLog: _autoLog,
           notifyDayBefore: _notifyDayBefore,
+          // 이체는 고정이 없다 — 켜 둔 채 이체로 바꿔도 싣지 않는다(서버도 꺼 버린다).
+          isFixed: !i.isTransfer && _isFixed,
         );
       } else if (_isAdd) {
         final i = _txInput!;
@@ -317,6 +329,7 @@ class _RecurringSettingsBodyState
           paymentMethod: i.isTransfer ? null : i.paymentMethodOrNull,
           autoLog: _autoLog,
           notifyDayBefore: _notifyDayBefore,
+          isFixed: !i.isTransfer && _isFixed,
         );
       } else {
         final e = widget.expense!;
@@ -343,6 +356,7 @@ class _RecurringSettingsBodyState
           paymentMethod: e.paymentMethod,
           autoLog: _autoLog,
           notifyDayBefore: _notifyDayBefore,
+          isFixed: _isFixed,
         );
       }
       ref.invalidate(recurringListProvider);
@@ -648,6 +662,19 @@ class _RecurringSettingsBodyState
                 onChanged: (v) => setState(() => _notifyDayBefore = v),
                 tokens: t,
               ),
+              if (_kind != 'TRANSFER') ...[
+                const SizedBox(height: 8),
+                _ToggleRow(
+                  icon: LucideIcons.pin,
+                  title: _kind == 'INCOME'
+                      ? l.fixedSwitchIncome
+                      : l.fixedSwitchExpense,
+                  subtitle: l.recurringFixedSub,
+                  value: _isFixed,
+                  onChanged: (v) => setState(() => _isFixed = v),
+                  tokens: t,
+                ),
+              ],
             ],
           ),
         ),

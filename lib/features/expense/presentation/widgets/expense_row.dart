@@ -185,6 +185,27 @@ class ExpenseRow extends StatelessWidget {
                             ),
                           ),
                         ],
+                        // 고정 수입·지출 — 환불된 거래는 합계에서 빠져 있어 표시할 이유가 없다.
+                        if (expense.isFixed && !refunded) ...[
+                          const SizedBox(width: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.bgMuted,
+                              borderRadius: PRadius.brXs,
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context).fixedBadge,
+                              style: PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                         // 분할 거래 표시 — 분할 아이콘 + 개수(쉬운 식별).
                         if (expense.splitCategoryRowIds.isNotEmpty) ...[
                           const SizedBox(width: 5),

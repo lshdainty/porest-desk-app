@@ -12,6 +12,8 @@ _MonthlyTrend _$MonthlyTrendFromJson(Map<String, dynamic> json) =>
       month: (json['month'] as num).toInt(),
       totalIncome: (json['totalIncome'] as num?)?.toInt() ?? 0,
       totalExpense: (json['totalExpense'] as num?)?.toInt() ?? 0,
+      fixedIncome: (json['fixedIncome'] as num?)?.toInt() ?? 0,
+      fixedExpense: (json['fixedExpense'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$MonthlyTrendToJson(_MonthlyTrend instance) =>
@@ -20,6 +22,8 @@ Map<String, dynamic> _$MonthlyTrendToJson(_MonthlyTrend instance) =>
       'month': instance.month,
       'totalIncome': instance.totalIncome,
       'totalExpense': instance.totalExpense,
+      'fixedIncome': instance.fixedIncome,
+      'fixedExpense': instance.fixedExpense,
     };
 
 _CategoryBreakdown _$CategoryBreakdownFromJson(Map<String, dynamic> json) =>
@@ -30,6 +34,7 @@ _CategoryBreakdown _$CategoryBreakdownFromJson(Map<String, dynamic> json) =>
       parentCategoryName: json['parentCategoryName'] as String?,
       expenseType: json['expenseType'] as String?,
       totalAmount: (json['totalAmount'] as num?)?.toInt() ?? 0,
+      fixedAmount: (json['fixedAmount'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$CategoryBreakdownToJson(_CategoryBreakdown instance) =>
@@ -40,6 +45,7 @@ Map<String, dynamic> _$CategoryBreakdownToJson(_CategoryBreakdown instance) =>
       'parentCategoryName': instance.parentCategoryName,
       'expenseType': instance.expenseType,
       'totalAmount': instance.totalAmount,
+      'fixedAmount': instance.fixedAmount,
     };
 
 _RangeSummary _$RangeSummaryFromJson(
@@ -49,6 +55,8 @@ _RangeSummary _$RangeSummaryFromJson(
   endDate: json['endDate'] as String,
   totalIncome: (json['totalIncome'] as num?)?.toInt() ?? 0,
   totalExpense: (json['totalExpense'] as num?)?.toInt() ?? 0,
+  fixedIncome: (json['fixedIncome'] as num?)?.toInt() ?? 0,
+  fixedExpense: (json['fixedExpense'] as num?)?.toInt() ?? 0,
   categoryBreakdown:
       (json['categoryBreakdown'] as List<dynamic>?)
           ?.map((e) => CategoryBreakdown.fromJson(e as Map<String, dynamic>))
@@ -67,6 +75,8 @@ Map<String, dynamic> _$RangeSummaryToJson(_RangeSummary instance) =>
       'endDate': instance.endDate,
       'totalIncome': instance.totalIncome,
       'totalExpense': instance.totalExpense,
+      'fixedIncome': instance.fixedIncome,
+      'fixedExpense': instance.fixedExpense,
       'categoryBreakdown': instance.categoryBreakdown,
       'monthlyBuckets': instance.monthlyBuckets,
     };
@@ -75,12 +85,14 @@ _CategoryAmount _$CategoryAmountFromJson(Map<String, dynamic> json) =>
     _CategoryAmount(
       categoryRowId: (json['categoryRowId'] as num?)?.toInt(),
       amount: (json['amount'] as num?)?.toInt() ?? 0,
+      fixedAmount: (json['fixedAmount'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$CategoryAmountToJson(_CategoryAmount instance) =>
     <String, dynamic>{
       'categoryRowId': instance.categoryRowId,
       'amount': instance.amount,
+      'fixedAmount': instance.fixedAmount,
     };
 
 _RangeMonthlyBucket _$RangeMonthlyBucketFromJson(Map<String, dynamic> json) =>
@@ -89,6 +101,8 @@ _RangeMonthlyBucket _$RangeMonthlyBucketFromJson(Map<String, dynamic> json) =>
       month: (json['month'] as num).toInt(),
       totalIncome: (json['totalIncome'] as num?)?.toInt() ?? 0,
       totalExpense: (json['totalExpense'] as num?)?.toInt() ?? 0,
+      fixedIncome: (json['fixedIncome'] as num?)?.toInt() ?? 0,
+      fixedExpense: (json['fixedExpense'] as num?)?.toInt() ?? 0,
       categoryExpenses:
           (json['categoryExpenses'] as List<dynamic>?)
               ?.map((e) => CategoryAmount.fromJson(e as Map<String, dynamic>))
@@ -102,6 +116,8 @@ Map<String, dynamic> _$RangeMonthlyBucketToJson(_RangeMonthlyBucket instance) =>
       'month': instance.month,
       'totalIncome': instance.totalIncome,
       'totalExpense': instance.totalExpense,
+      'fixedIncome': instance.fixedIncome,
+      'fixedExpense': instance.fixedExpense,
       'categoryExpenses': instance.categoryExpenses,
     };
 

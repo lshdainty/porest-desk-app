@@ -377,6 +377,7 @@ String _cardLabel(AppLocalizations l, String card) => switch (card) {
   'stats.category' => l.hideCardStatsCategory,
   'stats.trend' => l.hideCardStatsTrend,
   'stats.compare' => l.hideCardStatsCompare,
+  'stats.fixed' => l.hideCardStatsFixed,
   'budget.header' => l.hideCardBudgetHeader,
   'budget.pace' => l.hideCardBudgetPace,
   'budget.status' => l.hideCardBudgetStatus,

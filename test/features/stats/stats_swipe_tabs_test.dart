@@ -1,4 +1,4 @@
-// 통계·분석 3탭(카테고리/추이/비교)을 좌우 스와이프로 넘길 수 있는지.
+// 통계·분석 4탭(카테고리/추이/비교/고정·변동)을 좌우 스와이프로 넘길 수 있는지.
 //
 // 칩 탭으로만 넘어가던 걸 PageView 로 바꿨다. 칩과 스와이프가 같은 인덱스를 공유해야
 // 하므로 양방향(칩→본문 / 스와이프→칩)을 모두 확인한다.
@@ -34,6 +34,10 @@ Future<void> _pumpStats(WidgetTester tester) async {
         ),
         merchantSummaryProvider.overrideWith(
           (ref, range) async => const <MerchantSummary>[],
+        ),
+        // 고정·변동 탭이 한 달만 고른 기간에 쓰는 최근 6개월 추이.
+        monthlyTrendProvider.overrideWith(
+          (ref, months) async => const <MonthlyTrend>[],
         ),
       ],
       child: MaterialApp(
@@ -71,17 +75,21 @@ void main() {
 
     await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 2, reason: '비교 탭까지');
+    expect(_pageIndex(tester), 2, reason: '비교 탭');
+
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
+    await tester.pumpAndSettle();
+    expect(_pageIndex(tester), 3, reason: '고정·변동 탭까지');
 
     // 마지막에서 더 밀어도 넘어가지 않는다(순환 없음)
     await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 2);
+    expect(_pageIndex(tester), 3);
 
     // 오른쪽으로 밀기 → 이전 탭
     await tester.fling(find.byType(PageView), const Offset(400, 0), 1200);
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 1);
+    expect(_pageIndex(tester), 2);
   });
 
   testWidgets('스와이프로 넘어가면 칩 선택 상태도 따라온다', (tester) async {
@@ -113,6 +121,10 @@ void main() {
     await tester.tap(find.text(l.statsTabCompare));
     await tester.pumpAndSettle();
     expect(_pageIndex(tester), 2);
+
+    await tester.tap(find.text(l.statsTabFixed));
+    await tester.pumpAndSettle();
+    expect(_pageIndex(tester), 3);
 
     await tester.tap(find.text(l.expCategory).first);
     await tester.pumpAndSettle();

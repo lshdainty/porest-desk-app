@@ -26,6 +26,15 @@ final rangeSummaryProvider = FutureProvider.family<RangeSummary, DateRange>((
   return summary;
 });
 
+/// 최근 N개월 수입·지출(과 그중 고정 몫) — 고정·변동 탭이 한 달만 고른 기간에 쓴다.
+final monthlyTrendProvider = FutureProvider.family<List<MonthlyTrend>, int>((
+  ref,
+  months,
+) async {
+  final repo = await ref.watch(statsRepositoryProvider.future);
+  return repo.trend(months: months);
+});
+
 typedef OptionalDateRange = ({String? startDate, String? endDate});
 
 final merchantSummaryProvider =
