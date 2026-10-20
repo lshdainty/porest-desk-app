@@ -282,7 +282,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
           const SizedBox(height: PSpace.x32),
 
-          // ── 구독·결제 — 그루 담다 Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
+          // ── 구독·결제 — 담다 Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
           _SectionLabel(label: l.accountBilling, tokens: t),
           const SizedBox(height: PSpace.x8),
           // 구독·결제 — 디자인대로 제목/부제 세로 스택 + 우측 가격/배지 커스텀 행.
@@ -314,7 +314,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '그루 담다 Pro',
+                          '담다 Pro',
                           style: TextStyle(
                             fontFamily: PTypo.sans,
                             fontSize: PFontSize.body,

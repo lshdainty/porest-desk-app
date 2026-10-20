@@ -5510,7 +5510,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subManageTitle => '구독 관리';
 
   @override
-  String get subUsingPro => '그루 담다 Pro 이용 중';
+  String get subUsingPro => '담다 Pro 이용 중';
 
   @override
   String get subUsingFree => 'Free 플랜 이용 중';
@@ -5579,7 +5579,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subFeatSecurities => '증권사 연동 · 실시간 시세 · 자산 실시간 금액';
 
   @override
-  String get subStarted => '그루 담다 Pro 구독이 시작되었어요';
+  String get subStarted => '담다 Pro 구독이 시작되었어요';
 
   @override
   String get subFailed => '구독에 실패했어요';
@@ -5951,7 +5951,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importSourceDesc => '기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요';
 
   @override
-  String get importSourceGroo => '그루 백업';
+  String get importSourceGroo => '담다 백업';
 
   @override
   String get importSourceGrooDesc => '내보내기 파일 다시 가져오기';

@@ -5591,7 +5591,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subManageTitle => 'Manage subscription';
 
   @override
-  String get subUsingPro => 'On 그루 담다 Pro';
+  String get subUsingPro => 'On 담다 Pro';
 
   @override
   String get subUsingFree => 'On the Free plan';
@@ -5662,7 +5662,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Securities link · real-time quotes · real-time asset value';
 
   @override
-  String get subStarted => 'Your 그루 담다 Pro subscription is active';
+  String get subStarted => 'Your 담다 Pro subscription is active';
 
   @override
   String get subFailed => 'Couldn\'t start the subscription';
@@ -6039,7 +6039,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick your previous app and we\'ll auto-map the columns';
 
   @override
-  String get importSourceGroo => '그루 백업';
+  String get importSourceGroo => '담다 백업';
 
   @override
   String get importSourceGrooDesc => 'Re-import an export file';
