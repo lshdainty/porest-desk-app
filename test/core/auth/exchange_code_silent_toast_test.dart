@@ -15,11 +15,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/auth/auth_repository.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/auth/auth_repository.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _withdrawnMessage = '이용을 해지한 계정이에요';
 
@@ -60,7 +60,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         scaffoldMessengerKey: key,
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

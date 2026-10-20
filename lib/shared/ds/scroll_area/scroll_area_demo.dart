@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/scroll_area/p_scroll_area.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/scroll_area/p_scroll_area.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 카탈로그(/dev/ds) — 놓인 자리(page · overlay · row) × 초점 가는 것(이름 있는 상자 · 안에 누르는 것이 있는 상자) · 가장 나쁜 값
 /// (시트 안 상자 안의 상자). 웹 `scroll-area.demo.tsx` 와 같은 구성이다. 막대는 앱에서 스크롤할 때만 보이는 플랫폼 스크롤바라

@@ -3,19 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/core/format/currency.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
-import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_tile.dart';
-import 'package:porest_desk_app/core/settings/regions.dart';
-import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_radio_list.dart';
+import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_tile.dart';
+import 'package:groo_damda_app/core/settings/regions.dart';
+import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
 
 /// 표시 설정 화면 — AppBar + AppearanceSection (설정 메뉴 '표시 설정' 진입).
 class AppearanceScreen extends StatelessWidget {
@@ -252,7 +252,7 @@ class AppearanceSection extends ConsumerWidget {
 class _ThemeSwatch extends StatelessWidget {
   const _ThemeSwatch({required this.icon, required this.tokens});
   final IconData icon;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

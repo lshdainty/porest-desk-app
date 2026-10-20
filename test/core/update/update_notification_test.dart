@@ -5,8 +5,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/core/update/app_update.dart';
-import 'package:porest_desk_app/core/update/update_notification.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
+import 'package:groo_damda_app/core/update/update_notification.dart';
 
 const _newer = AppRelease(
   version: '1.20.0',

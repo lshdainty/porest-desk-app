@@ -2,9 +2,9 @@
 // 라이트 · 다크의 글 · 막대 · 채움, 채움이 따라 차는 움직임, 읽는 말. 웹은 같은 JSON 을 크로미움에서 잰다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/progress/p_progress.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 
 import '../../support/design_spec.dart';
 
@@ -12,7 +12,7 @@ final _spec = DesignSpec.load('progress');
 
 Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) =>
     MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+      theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ko'),

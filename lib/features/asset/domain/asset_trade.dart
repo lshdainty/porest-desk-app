@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:porest_desk_app/core/format/decimal_string.dart';
+import 'package:groo_damda_app/core/format/decimal_string.dart';
 
 part 'asset_trade.freezed.dart';
 part 'asset_trade.g.dart';

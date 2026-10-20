@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_switch.dart';
 
 /// 자산 추가/수정 다이얼로그(계좌/투자/카드) 공용 "전체 자산 합계에 포함" 토글 행 카드.
 ///

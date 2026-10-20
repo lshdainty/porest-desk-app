@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// specs/components/badge.md 미러 — pill shape, font micro/11/bold.
 ///
@@ -119,7 +119,7 @@ class PBadge extends StatelessWidget {
     );
   }
 
-  (Color, Color, Color?) _resolve(PorestTokens t) {
+  (Color, Color, Color?) _resolve(GrooTokens t) {
     // custom override 우선
     if (_customFg != null) {
       // softColor: bg = custom 16% alpha, fg = custom

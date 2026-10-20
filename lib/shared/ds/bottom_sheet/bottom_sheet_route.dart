@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/alert_dialog/p_alert_dialog.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
-import 'package:porest_desk_app/shared/ds/overlay/p_overlay.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
+import 'package:groo_damda_app/shared/ds/overlay/p_overlay.dart';
 
 /// 끌어서 닫는 기준 — 놓을 때 0.4px/ms 보다 빠르거나 높이의 25% 이상 내려왔으면 닫는다(bottom-sheet.md Behavior).
 const double kSheetCloseVelocity = 0.4;

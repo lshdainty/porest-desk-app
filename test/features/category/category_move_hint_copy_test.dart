@@ -12,7 +12,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _ko = '다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨 주세요.';
 const _en =

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
 
 /// 표준 1px 가로 구분선 — `borderSubtle` 토큰 사용.
 ///

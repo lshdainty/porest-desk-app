@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 
 import '../../support/design_spec.dart';
 
@@ -21,7 +21,7 @@ Widget _host(
   bool reduceMotion = false,
   bool supportsAnnounce = true,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),

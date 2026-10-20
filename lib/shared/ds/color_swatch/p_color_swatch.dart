@@ -4,11 +4,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/tooltip/p_tooltip.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/tooltip/p_tooltip.dart';
 
 // color-swatch.yaml 의 값 — 토큰이 있는 값은 토큰으로 적는다.
 const double _swatch = PSpacing.x10; // swatch.size 40
@@ -112,7 +112,7 @@ Color pColorSwatchCheckOn(PColors c, Color background) {
 }
 
 /// Color Swatch — 카테고리 · 태그 · 라벨 · 저축 목표 · 캘린더에 붙일 색을 고르는 묶음. SEED 에는 색 고르기 부품이 없다 —
-/// 칸의 칠 · 크기 · 고른 표시 · 키보드 · 새 항목의 첫 색은 porest 가 정했다(2026-10-09). 수치 원본은 porest-design
+/// 칸의 칠 · 크기 · 고른 표시 · 키보드 · 새 항목의 첫 색은 groo 가 정했다(2026-10-09). 수치 원본은 groo-design
 /// `specs/components/color-swatch.yaml`(값은 `test/fixtures/design_spec/color-swatch.json`). 웹(desk-front
 /// `src/shared/ds/color-swatch`)과 같은 값이다. 옛 PColorPicker 를 대신한다.
 ///

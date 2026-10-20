@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 보유 종목 유형·수량 표기 공용 헬퍼 — 편집(투자 다이얼로그)·읽기(자산 상세) 양쪽에서 쓴다.
 /// front `HOLDING_UNIT_KEY` / `HOLDING_TYPES` / `sanitizeQty` / `qtyNumber` 미러.

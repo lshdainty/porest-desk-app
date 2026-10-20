@@ -4,17 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/features/file/application/file_providers.dart';
-import 'package:porest_desk_app/features/file/domain/file_attachment.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/features/file/application/file_providers.dart';
+import 'package:groo_damda_app/features/file/domain/file_attachment.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 첨부 파일 섹션 — 거래/할일/메모/이벤트 상세에 embed.
 ///

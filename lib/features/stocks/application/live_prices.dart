@@ -11,11 +11,11 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/features/stocks/application/securities_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/securities_retry.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/stocks/application/securities_providers.dart';
+import 'package:groo_damda_app/features/stocks/application/securities_retry.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 
 /// 환산이 끝난 시세 묶음. 화면은 여기서만 값을 꺼낸다.
 class LivePrices {

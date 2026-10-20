@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 칸 · 라벨 · 줄 높이가 함께 정해진다. medium 20(라벨 14 · 줄 32, 기본) · large 24(라벨 16 · 줄 36 — 한 화면의
 /// 중심 선택, 모바일에서 홀로 서는 선택).
@@ -248,7 +248,7 @@ class _GlyphPainter extends CustomPainter {
 }
 
 /// Checkbox — 하나 이상의 옵션을 고르게 한다(칸 + 라벨). 구조는 SEED Checkbox(2026-09-30), 수치 원본은
-/// porest-design `specs/components/checkbox.yaml`(값은 `test/fixtures/design_spec/checkbox.json` — 테스트가 위젯이
+/// groo-design `specs/components/checkbox.yaml`(값은 `test/fixtures/design_spec/checkbox.json` — 테스트가 위젯이
 /// 그 값과 같은지 본다). 웹(desk-front `src/shared/ds/checkbox`)과 같은 값이다. 옛 위젯
 /// (lib/shared/widgets/p_checkbox.dart)과 이름이 같다 — 자리로 가른다.
 ///

@@ -1,4 +1,4 @@
-import 'package:porest_desk_app/features/sms/data/sms_repository.dart';
+import 'package:groo_damda_app/features/sms/data/sms_repository.dart';
 
 /// 결제 문자에서 만든 거래 초안 — 원문 + 서버 해석 결과.
 ///

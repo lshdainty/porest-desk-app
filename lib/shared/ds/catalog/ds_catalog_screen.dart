@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/catalog/ds_registry.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/catalog/ds_registry.dart';
 
 /// 컴포넌트 라이브러리 카탈로그 — debug 빌드 전용(/dev/ds). 운영 빌드에는 들어가지 않는다
 /// (`app/router.dart` 가 kDebugMode 일 때만 길을 둔다).
@@ -142,9 +142,9 @@ class _ModePanels extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ModePanel(label: '라이트', theme: PorestTheme.light(), child: child),
+        _ModePanel(label: '라이트', theme: GrooTheme.light(), child: child),
         const SizedBox(height: PSpacing.x3),
-        _ModePanel(label: '다크', theme: PorestTheme.dark(), child: child),
+        _ModePanel(label: '다크', theme: GrooTheme.dark(), child: child),
       ],
     );
   }

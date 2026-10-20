@@ -26,15 +26,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
-import 'package:porest_desk_app/features/todo/data/todo_tag_repository.dart';
-import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
+import 'package:groo_damda_app/features/todo/data/todo_tag_repository.dart';
+import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_tag.dart';
+import 'package:groo_damda_app/features/todo/presentation/todo_tag_management_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 할 일 화면이 실제로 보는 필터 — `TodoScreen._allFilter` 와 같은 값.
 const TodoFilter _allFilter = (status: null, priority: null);
@@ -112,7 +112,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

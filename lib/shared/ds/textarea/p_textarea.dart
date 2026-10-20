@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
 
 /// 여백 — 입력(value)이 가진다(textarea.yaml large: 위아래 14 · 좌우 16).
 const EdgeInsets _padding = EdgeInsets.symmetric(
@@ -18,7 +18,7 @@ const int _autoLines = 3;
 /// 고정 높이의 최소 줄 수 — 2줄(72 = 22 × 2 + 14 × 2).
 const int _fixedLines = 2;
 
-/// Textarea — 여러 줄 글을 받는 입력칸. 구조는 SEED Textarea(2026-10-01), 수치 원본은 porest-design
+/// Textarea — 여러 줄 글을 받는 입력칸. 구조는 SEED Textarea(2026-10-01), 수치 원본은 groo-design
 /// `specs/components/textarea.yaml`(값은 `test/fixtures/design_spec/textarea.json`). 웹(desk-front
 /// `src/shared/ds/textarea`)과 같은 값이다.
 ///

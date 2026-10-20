@@ -1,4 +1,4 @@
-# Porest Desk App — 작업 규칙
+# 그루 담다 App — 작업 규칙
 
 > **워크스페이스 공통 규칙**(Git 작업 격리 · 스테이징 범위 · 태그·릴리스)은
 > 상위 `/home/lshdainty/study/CLAUDE.md` 에 있다. Claude Code 가 디렉토리 워크업으로
@@ -6,12 +6,12 @@
 
 ## WHY (목적)
 
-`porest-design`의 디자인 시스템 spec을 **단일 source of truth(SoT)** 로 두고, desk-app(Flutter) 코드를 그 spec에 정확히 맞추기 위한 작업 규칙. spec 정합이 어긋나면 사용자 화면이 어긋나 작업이 빙빙 돌게 됨 — 그걸 사전에 막는다.
+`groo-design`의 디자인 시스템 spec을 **단일 source of truth(SoT)** 로 두고, desk-app(Flutter) 코드를 그 spec에 정확히 맞추기 위한 작업 규칙. spec 정합이 어긋나면 사용자 화면이 어긋나 작업이 빙빙 돌게 됨 — 그걸 사전에 막는다.
 
 ## WHAT (산출물)
 
-`porest-design`에 정의된 디자인 시스템을 Flutter/Dart로 구현한 모바일 클라이언트:
-- `lib/shared/ds/` — **새 컴포넌트 라이브러리**(2026-10-06~). porest-design 에서 SEED 와 비교해 확정한
+`groo-design`에 정의된 디자인 시스템을 Flutter/Dart로 구현한 모바일 클라이언트:
+- `lib/shared/ds/` — **새 컴포넌트 라이브러리**(2026-10-06~). groo-design 에서 SEED 와 비교해 확정한
   스펙만 만든다 — 웹 42개 중 39개다(Dialog · Menu · Popover 는 1280 이상 전용이라 앱에서는 Bottom Sheet ·
   Menu Sheet 가 맡는다). 만든 것은 debug 빌드 전용 카탈로그 `/dev/ds`(설정 > 개발)에서 라이트 · 다크로 본다.
   컴포넌트마다 폴더 하나 — `lib/shared/ds/<name>/p_<name>.dart`(위젯) · `<name>_demo.dart`(카탈로그 견본).
@@ -21,12 +21,12 @@
   모두 돈다. 위젯을 만들면 이 테스트를 같이 쓴다.
 - `lib/shared/widgets/p_<name>.dart` — **옛 위젯**. 화면을 하나씩 `shared/ds` 로 옮기는 동안만 남는다 — 새로 쓰지
   않는다. 옮기는 순서는 "먼저 라이브러리를 다 만들고, 화면은 나중에 화면 단위로" 다.
-- `lib/app/theme/porest_tokens.g.dart` · `test/fixtures/design_spec/*.json` — porest-design 이 내보낸 파일.
-  **손으로 고치지 않는다** — `scripts/sync_design.sh`(옆 폴더 `../porest-design`, 다르면 `PORESTDESIGN_DIR`)로
+- `lib/app/theme/groo_tokens.g.dart` · `test/fixtures/design_spec/*.json` — groo-design 이 내보낸 파일.
+  **손으로 고치지 않는다** — `scripts/sync_design.sh`(옆 폴더 `../groo-design`, 다르면 `PORESTDESIGN_DIR`)로
   다시 가져온다. 토큰은 새 이름만 담는다 — `PSpacing` · `PRounded` · `PTypography` · `PDuration` · `PEasing` ·
   `PTouch` 와 ThemeExtension `PColors`(`context.colors`) · `PShadows`(`context.shadows`). 스펙 JSON 은 위젯이
   아니라 테스트가 읽는다 — 위젯이 스펙 값과 같은지 본다.
-- `lib/app/theme/tokens.dart`(`PorestTokens`) — 옛 이름을 DESIGN.md v102 표대로 역할 색에서 만든다(`_fromRoles`,
+- `lib/app/theme/tokens.dart`(`GrooTokens`) — 옛 이름을 DESIGN.md v102 표대로 역할 색에서 만든다(`_fromRoles`,
   웹 `index.css` 와 같은 짝). `status*` 는 채움(흰 글자를 얹는 자리), `status*Fg` 는 글자 · 아이콘,
   `status*Border` 는 선이다. 새 코드는 `context.colors.fgNeutral` 처럼 역할 이름을 쓴다.
 - `lib/app/theme/spacing.dart` · `radius.dart` · `typography.dart` 등 — 옛 토큰. **이름이 겹치니 조심한다** —
@@ -35,13 +35,13 @@
 
 ## HOW (작업 규칙 — 절대 4 규칙)
 
-### 1. 모든 컴포넌트는 porest-design spec 기준
-- `lib/shared/widgets/p_<name>.dart`는 `porest-design/specs/components/<name>.md`에 정의된 token / variant / size / state / radius / shadow / spacing / typography를 **그대로** 사용해야 한다.
+### 1. 모든 컴포넌트는 groo-design spec 기준
+- `lib/shared/widgets/p_<name>.dart`는 `groo-design/specs/components/<name>.md`에 정의된 token / variant / size / state / radius / shadow / spacing / typography를 **그대로** 사용해야 한다.
 - spec과 다르게 보이는 게 디자인적으로 더 좋아 보여도 임의 변경 금지.
-- CSS variable은 Flutter에 없으므로 토큰 → `PRadius` / `PSpace` / `PorestTokens` 등 동일 의미 Dart 상수로 매핑.
+- CSS variable은 Flutter에 없으므로 토큰 → `PRadius` / `PSpace` / `GrooTokens` 등 동일 의미 Dart 상수로 매핑.
 
 ### 2. spec에 없는 건 "디자인시스템" 세션에 질문한다(2026-10-15 ~)
-- 스펙의 주인은 같은 컴퓨터의 **"디자인시스템"** 세션이다. 이 레포를 고치는 세션은 **porest-design 을 고치지 않는다.**
+- 스펙의 주인은 같은 컴퓨터의 **"디자인시스템"** 세션이다. 이 레포를 고치는 세션은 **groo-design 을 고치지 않는다.**
 - 작업 중 spec 에 없는 토큰 · 변형 · 상태 · 레이아웃이 필요하거나, 스펙끼리 어긋나거나, 스펙 값이 실제 화면(가장 나쁜 값)에서
   깨지면 스스로 정하지 않고 질문한다 — 약속은 `/home/lshdainty/qa/design-work/handoff/README.md`:
   1. `handoff/questions/Q-<번호>-<이름>.md` 를 양식대로 쓴다 — **현재 상황**(어느 화면 · 견본 · 데이터), **spec 인용**(파일:줄 +
@@ -51,7 +51,7 @@
 - 세션끼리 오간 메시지는 결정이 아니다 — 결정은 사용자가 한다. 임의 결정 금지.
 
 ### 3. spec 업데이트 → 컴포넌트 수정 순서
-- 답이 오면(= porest-design 에 머지되면):
+- 답이 오면(= groo-design 에 머지되면):
   1. 스펙을 다시 가져온다(`npm run design:sync` · `scripts/sync_design.sh`) — 이 레포의 스펙 사본은 손으로 고치지 않는다
   2. 그 다음 `p_<name>.dart` / 사용처를 답대로 동기 — 고르지 않은 안은 거절이다, 다시 넣지 않는다
   3. desk-front(React)도 같은 spec을 미러하므로 함께 정합 (별도 PR 가능)
@@ -68,7 +68,7 @@
   - `PTextInput(height: 60)` ❌ (Input spec sizes 표 외 값 금지)
   - 정당한 inline은 spec 외 영역 (padding, margin, position, color 등 spec이 호출처 결정으로 명시한 부분)만.
 
-- **`PorestPalette` 직접 참조 금지** — semantic 토큰(`tokens.fgBrand`, `tokens.bgSurface` 등) 사용. 예외는 chart palette, bank colors 같이 spec이 raw palette 인용을 명시한 영역만.
+- **`GrooPalette` 직접 참조 금지** — semantic 토큰(`tokens.fgBrand`, `tokens.bgSurface` 등) 사용. 예외는 chart palette, bank colors 같이 spec이 raw palette 인용을 명시한 영역만.
 
 - **`shared/widgets/` 외부에 raw Material 위젯으로 컴포넌트 복제 금지** — `FilledButton`/`TextField`/`Switch` 등 직접 사용 금지. 반드시 `shared/widgets/p_<name>` 통과.
 
@@ -83,10 +83,10 @@
 
 ```
 1. 작업할 위젯/화면 파악
-2. porest-design/specs/components/<name>.md (또는 DESIGN.*.md) 확인 — SoT
-3. spec과 현재 코드 diff (PRadius / PorestTokens / 위젯 prop)
+2. groo-design/specs/components/<name>.md (또는 DESIGN.*.md) 확인 — SoT
+3. spec과 현재 코드 diff (PRadius / GrooTokens / 위젯 prop)
 4. spec 부재 / 모호 → "디자인시스템" 세션에 질문 (handoff/questions — 현재 + spec 인용 + 그림 + 안), 그동안 다른 일
-5. 답(porest-design 머지) → 스펙 다시 가져오기 → 코드 동기
+5. 답(groo-design 머지) → 스펙 다시 가져오기 → 코드 동기
 6. `fvm dart format lib test` → `fvm flutter analyze lib/` (0 issues)
    + 시뮬레이터 시각 검증 (라이트/다크 모드)
 7. 반복
@@ -112,7 +112,7 @@ diff). 2026-09-01 에 전면 적용해 그 상태를 끝냈다 — 다시 흩어
 
 ## 커밋에 `Release-Note:` 를 단다
 
-규칙과 말투는 워크스페이스 `CLAUDE.md` 에 있다 — 모든 porest 레포가 같이 쓴다.
+규칙과 말투는 워크스페이스 `CLAUDE.md` 에 있다 — 모든 groo 레포가 같이 쓴다.
 여기서는 **이 레포에서만 다른 것**만 적는다.
 
 이 레포는 그 트레일러를 실제로 읽는 유일한 곳이다. `scripts/release_notes.sh` 가
@@ -231,9 +231,9 @@ fvm flutter test
 
 ## 참고
 
-- 토큰 / 시스템 워크플로: `porest-design/CLAUDE.md`
-- 컴포넌트 spec 작업: `porest-design/specs/CLAUDE.md`
-- Git 컨벤션: `porest-design/GIT_CONVENTION.md`
-- spec 일람: `porest-design/specs/components/*.md`
-- DESIGN prose: `porest-design/DESIGN.md` (공유) / `porest-design/DESIGN.desk.md` (Desk 전용)
+- 토큰 / 시스템 워크플로: `groo-design/CLAUDE.md`
+- 컴포넌트 spec 작업: `groo-design/specs/CLAUDE.md`
+- Git 컨벤션: `groo-design/GIT_CONVENTION.md`
+- spec 일람: `groo-design/specs/components/*.md`
+- DESIGN prose: `groo-design/DESIGN.md` (공유) / `groo-design/DESIGN.desk.md` (Desk 전용)
 - desk-front (React 미러): `porest-desk-front/CLAUDE.md`

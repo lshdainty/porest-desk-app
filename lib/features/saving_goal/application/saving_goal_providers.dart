@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
-import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/saving_goal/data/saving_goal_repository.dart';
+import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
 
 final savingGoalRepositoryProvider = FutureProvider<SavingGoalRepository>((
   ref,

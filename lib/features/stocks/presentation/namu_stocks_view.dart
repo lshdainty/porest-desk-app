@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/stocks/application/namu_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/namu_repository.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 /// 나무증권 본문.
 ///

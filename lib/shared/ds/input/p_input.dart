@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
 
 const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
@@ -49,7 +49,7 @@ const _InputSize _underlineLarge = (
 );
 
 /// Input(Text Input) — 한 줄 글 · 숫자를 직접 치는 입력칸. 구조는 SEED Text Input(2026-10-01), 수치 원본은
-/// porest-design `specs/components/input.yaml`(값은 `test/fixtures/design_spec/input.json`). 웹(desk-front
+/// groo-design `specs/components/input.yaml`(값은 `test/fixtures/design_spec/input.json`). 웹(desk-front
 /// `src/shared/ds/input`)과 같은 값이다. 옛 위젯(lib/shared/widgets/p_text_input.dart)과는 따로다.
 ///
 /// 라벨 · 설명 · 오류 · 글자 수는 [PField] 가 둘레에서 그린다 — Field 안에 두면 이름 · 설명 · 상태를 받는다.

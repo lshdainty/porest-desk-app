@@ -5,16 +5,16 @@ import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/scroll_area/p_scroll_area.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/scroll_area/p_scroll_area.dart';
 
 import '../../support/design_spec.dart';
 
 final _spec = DesignSpec.load('scroll-area');
 
 Widget _host(Brightness mode, Widget child) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Scaffold(
     body: Align(
       alignment: Alignment.topLeft,
@@ -39,7 +39,7 @@ void main() {
 
     test('${mode.name} — 전역 ScrollbarTheme 이 스펙 값이다(막대 색 · 6 · 알약 · 투명 바탕)', () {
       final theme =
-          (mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light())
+          (mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light())
               .scrollbarTheme;
       final c = mode == Brightness.dark ? PColors.dark : PColors.light;
       final thumb = theme.thumbColor!.resolve(<WidgetState>{});
@@ -274,7 +274,7 @@ void main() {
       final inner = ScrollController();
       await tester.pumpWidget(
         MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           home: Scaffold(
             body: SizedBox(
               height: 300,

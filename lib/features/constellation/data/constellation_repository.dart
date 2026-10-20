@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 
 /// 별자리 게이미피케이션 조회 — 적립은 할일 완료/메모 작성의 부수효과라 별도 API 없음.
 class ConstellationRepository {

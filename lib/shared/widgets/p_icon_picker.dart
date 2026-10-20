@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_names.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_names.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
 /// 전체 Lucide 아이콘(1,100+)에서 하나를 검색·선택하는 필드 트리거 —
-/// porest-design `icon-picker.md` / 웹 `shared/ui/icon-picker.tsx` 미러.
+/// groo-design `icon-picker.md` / 웹 `shared/ui/icon-picker.tsx` 미러.
 ///
 /// 웹은 popover, 모바일은 검색 키보드가 올라오므로 표준 시트(showPSheet)로 연다.
 /// 웹과 달리 매칭 limit·점진 로드가 없는 이유: 아이콘은 내장 폰트 글리프라 로딩이

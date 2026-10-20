@@ -3,16 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/features/stocks/presentation/namu_stocks_view.dart';
-import 'package:porest_desk_app/features/stocks/presentation/toss_stocks_view.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
+import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
 
 /// 증권 화면 셸 — 헤더와 증권사 선택을 소유하고 본문만 갈아 끼운다.
 ///

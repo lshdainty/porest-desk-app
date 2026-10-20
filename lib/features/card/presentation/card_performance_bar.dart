@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 /// 카드(자산) 월 실적 진척 바 — front `CardPerformanceBar` 미러.
 ///

@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
-import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
-import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
-import 'package:porest_desk_app/features/stocks/application/live_prices.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_trade.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/asset/domain/card_billing.dart';
+import 'package:groo_damda_app/features/asset/domain/net_worth_point.dart';
+import 'package:groo_damda_app/features/stocks/application/live_prices.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/mask_flags.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/mask_flags.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense/presentation/tx_detail_dialog.dart';
 
 /// 아직 오지 않은 거래인가 — 서버가 합계에서 빼는 기준과 같다.
 bool _isScheduled(String? expenseDate) {

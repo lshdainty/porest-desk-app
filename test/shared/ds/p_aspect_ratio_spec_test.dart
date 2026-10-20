@@ -2,9 +2,9 @@
 // 크기(폭 ÷ 비율) · 모서리 0 · 바탕 없음 · 넘침 자르기 · 자식이 상자를 채움. 웹은 같은 JSON 을 크로미움에서 잰다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
 
 import '../../support/design_spec.dart';
 
@@ -12,7 +12,7 @@ final _spec = DesignSpec.load('aspect-ratio');
 
 Widget _host(Brightness mode, Widget child, {double width = 300}) =>
     MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+      theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
       home: Scaffold(
         body: Align(
           alignment: Alignment.topLeft,
@@ -252,9 +252,7 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         MaterialApp(
-          theme: mode == Brightness.dark
-              ? PorestTheme.dark()
-              : PorestTheme.light(),
+          theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
           home: const Scaffold(
             body: SingleChildScrollView(
               padding: EdgeInsets.all(20),

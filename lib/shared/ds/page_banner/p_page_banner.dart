@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/callout/feedback_parts.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/callout/feedback_parts.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 톤 — neutral(상태가 따로 없는 안내, 기본) · informative(새 버전 · 베타 · 권한 제한) · positive(승인됨 · 완료) ·
 /// warning(만료 임박 · 누락) · critical(연결 끊김 · 거절 · 편집 불가).
@@ -107,7 +107,7 @@ const double _buttonGap = PSpacing.x1_5;
 typedef _Look = ({Color background, Color pressedBackground, Color foreground});
 
 /// Page Banner — 페이지 맨 위(머리 바로 아래)에 화면 폭 전체로 놓이는 띠. 그 페이지 전체의 상태를 알린다(증권 연결
-/// 끊김 · Pro 만료 예정 · 새 버전). 한 화면에 하나. 구조는 SEED Page Banner(2026-10-02), 수치 원본은 porest-design
+/// 끊김 · Pro 만료 예정 · 새 버전). 한 화면에 하나. 구조는 SEED Page Banner(2026-10-02), 수치 원본은 groo-design
 /// `specs/components/page-banner.yaml`(값은 `test/fixtures/design_spec/page-banner.json`). 웹(desk-front
 /// `src/shared/ds/page-banner`)과 같은 값이다.
 ///

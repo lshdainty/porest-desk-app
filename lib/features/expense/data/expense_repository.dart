@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense_split/data/expense_split_repository.dart';
 
 /// `/expenses`, `/expense/categories`, `/expense` 호출.
 class ExpenseRepository {

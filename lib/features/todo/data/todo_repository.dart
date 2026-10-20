@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_stats.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_stats.dart';
 
 class TodoRepository {
   TodoRepository(this._dio);

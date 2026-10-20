@@ -3,34 +3,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
-import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
-import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
-import 'package:porest_desk_app/features/recurring/presentation/recurring_detail_sheet.dart';
-import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/asset/domain/transfer_rules.dart';
+import 'package:groo_damda_app/features/recurring/application/recurring_providers.dart';
+import 'package:groo_damda_app/features/recurring/domain/recurring_transaction.dart';
+import 'package:groo_damda_app/features/recurring/presentation/recurring_detail_sheet.dart';
+import 'package:groo_damda_app/features/recurring/presentation/recurring_settings_drawer.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 enum _Filter { all, expense, income, transfer, paused }
 
@@ -449,7 +449,7 @@ class _SummaryCard extends StatelessWidget {
   final int monthlyExpense;
   final int monthlyIncome;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -533,7 +533,7 @@ class _Stat extends StatelessWidget {
   final IconData icon;
   final String value;
   final Color color;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -573,7 +573,7 @@ class _UpcomingCard extends StatelessWidget {
   final List<RecurringTransaction> items;
   final List<ExpenseCategory> categories;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -634,7 +634,7 @@ class _UpcomingRow extends StatelessWidget {
   final ExpenseCategory? category;
   final DateTime todayStart;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -757,7 +757,7 @@ class _RecurringRow extends StatelessWidget {
   final RecurringTransaction item;
   final ExpenseCategory? category;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final bool anyBusy;
   final VoidCallback onToggle;
   final VoidCallback onEdit;
@@ -1076,7 +1076,7 @@ class _StatSkeleton extends StatelessWidget {
 /// 빈 상태 — 웹 RecurringManager 정합: 아이콘·서브문구 없이 중앙 단문(필터 공통).
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);

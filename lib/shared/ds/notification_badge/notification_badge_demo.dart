@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
 
 /// 카탈로그(/dev/ds) — 점 · 숫자 × 아이콘 · 글, 숫자 1 · 12 · 99+(128), 0 이면 없다. 개수를 바꿔 본다.
 class NotificationBadgeDemo extends StatefulWidget {

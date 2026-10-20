@@ -6,11 +6,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/floating_action_button/floating_action_button_demo.dart';
-import 'package:porest_desk_app/shared/ds/floating_action_button/p_floating_action_button.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/floating_action_button/floating_action_button_demo.dart';
+import 'package:groo_damda_app/shared/ds/floating_action_button/p_floating_action_button.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/spec_check.dart';
@@ -38,7 +38,7 @@ Widget _app(
   bool snackbar = false,
   bool reduceMotion = false,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   builder: (context, child) {
     Widget app = child!;
     if (snackbar) app = PSnackbarHost(closeLabel: '닫기', child: app);
@@ -342,9 +342,7 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         MaterialApp(
-          theme: mode == Brightness.dark
-              ? PorestTheme.dark()
-              : PorestTheme.light(),
+          theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
           home: const Scaffold(
             body: SingleChildScrollView(
               padding: EdgeInsets.all(PSpacing.x4 + PSpacing.x5),

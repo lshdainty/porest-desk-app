@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_tooltip.dart';
 
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
 ///
@@ -127,7 +127,7 @@ class PButton extends StatelessWidget {
     );
   }
 
-  TextStyle _textStyle(PorestTokens t) => switch (size) {
+  TextStyle _textStyle(GrooTokens t) => switch (size) {
     PButtonSize.sm => TextStyle(
       fontFamily: PTypo.sans,
       fontSize: PFontSize.caption,

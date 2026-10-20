@@ -7,15 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/presentation/account_add_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/presentation/account_add_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 const _existing = Asset(
   rowId: 8,
@@ -151,7 +151,7 @@ Future<_CapturingRepo> _open(
         assetRepositoryProvider.overrideWith((ref) async => repo),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

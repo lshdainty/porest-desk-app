@@ -17,11 +17,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/branch_back_to_home.dart';
-import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/branch_back_to_home.dart';
+import 'package:groo_damda_app/shared/widgets/mobile_scaffold.dart';
 
 class _Screen extends StatelessWidget {
   const _Screen(this.name);
@@ -116,7 +116,7 @@ void main() {
         overrides: [unreadCountProvider.overrideWith((ref) async => 0)],
         child: MaterialApp.router(
           routerConfig: router,
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

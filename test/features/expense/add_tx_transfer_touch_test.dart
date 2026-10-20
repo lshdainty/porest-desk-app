@@ -8,17 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
-import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
-import 'package:porest_desk_app/features/preset/data/preset_repository.dart';
-import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
+import 'package:groo_damda_app/features/preset/data/preset_repository.dart';
+import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _category = ExpenseCategory(
   rowId: 5,
@@ -98,7 +98,7 @@ Future<(_FakeAssetRepo, _CapturingPresetRepo)> _open(
         presetRepositoryProvider.overrideWith((ref) async => presetRepo),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

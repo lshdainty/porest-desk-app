@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/now_tick.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/settings/application/session_providers.dart';
-import 'package:porest_desk_app/features/settings/domain/device_session.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/now_tick.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/settings/application/session_providers.dart';
+import 'package:groo_damda_app/features/settings/domain/device_session.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 /// "로그인된 기기" — 계정 > 보안에서 들어온다.
 ///
@@ -187,7 +187,7 @@ class _DeviceRow extends StatelessWidget {
   });
 
   final DeviceSession device;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   /// 상대시각의 기준점 — 호출부에서 `nowTickProvider` 로 받아 내린다.
   /// 기본값을 두지 않는 이유는 [_relativeTime] 주석 참고.

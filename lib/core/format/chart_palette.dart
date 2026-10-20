@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/core/format/color_parse.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/core/format/color_parse.dart';
 
-/// porest-design chart palette base ↔ light variant 매핑.
+/// groo-design chart palette base ↔ light variant 매핑.
 ///
 /// DB (expense_category.color) 는 base hex 만 저장하는 single-source.
 /// 다크모드에서는 light variant 로 swap 한다 — Theme.of(context).brightness
 /// 분기로 결정.
 ///
-/// porest-tokens.css `--color-chart-*` 값 미러.
+/// groo-tokens.css `--color-chart-*` 값 미러.
 class ChartPair {
   const ChartPair({
     required this.key,

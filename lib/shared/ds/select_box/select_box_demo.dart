@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
-import 'package:porest_desk_app/shared/ds/select_box/p_select_box.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/select_box/p_select_box.dart';
 
 enum _End { none, count, date }
 

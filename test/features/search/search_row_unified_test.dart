@@ -12,16 +12,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/search/presentation/search_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/data/expense_repository.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/search/presentation/search_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
 
 /// 검색만 답하는 대역 — 나머지 메서드는 이 화면이 안 부른다.
 class _FakeRepo extends ExpenseRepository {
@@ -77,7 +77,7 @@ Future<void> _pump(WidgetTester tester, List<Expense> rows) async {
       ],
       child: MaterialApp.router(
         routerConfig: router,
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

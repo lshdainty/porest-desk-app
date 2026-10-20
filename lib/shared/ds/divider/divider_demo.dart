@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/divider/p_divider.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
 
 /// 카탈로그(/dev/ds) — 가로(끝까지 · 들임 16) · 세로(줄 높이를 따른다, 들임은 위아래 16).
 class DividerDemo extends StatelessWidget {

@@ -5,10 +5,10 @@ library;
 
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 
 class StocksRepository {
   StocksRepository(this._dio);

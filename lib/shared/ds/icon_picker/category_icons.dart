@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/icon_picker/category_icons.g.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.g.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 
 /// 카테고리 아이콘 한 줄(category-icons.yaml 의 entries). 이름은 한국어 하나 — 칸의 이름(보조 기술 · 툴팁)과 트리거의 값
 /// 글이다. 영어 lucide 이름([id])은 저장 값일 뿐 화면에 내지 않는다.

@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show SemanticsValidationResult;
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 동그라미 · 점 · 라벨 · 줄 높이가 함께 정해진다(Checkbox 와 같은 크기 — 한 폼에 함께 서도 줄이 맞는다).
 /// medium 20(점 8 · 라벨 14 · 줄 32, 기본) · large 24(점 10 · 라벨 16 · 줄 36).
@@ -169,7 +169,7 @@ class PRadiomark extends StatelessWidget {
   }
 }
 
-/// Radio Group — 여러 옵션 가운데 하나만 고르게 한다. 구조는 SEED Radio(2026-09-30), 수치 원본은 porest-design
+/// Radio Group — 여러 옵션 가운데 하나만 고르게 한다. 구조는 SEED Radio(2026-09-30), 수치 원본은 groo-design
 /// `specs/components/radio-group.yaml`(값은 `test/fixtures/design_spec/radio-group.json` — 테스트가 위젯이 그 값과
 /// 같은지 본다). 웹(desk-front `src/shared/ds/radio-group`)과 같은 값이다. 옛 위젯(lib/shared/widgets/p_radio.dart ·
 /// p_radio_list.dart)과는 이름이 다르다.

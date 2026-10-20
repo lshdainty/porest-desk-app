@@ -1,5 +1,5 @@
-import 'package:porest_desk_app/features/calendar/domain/calendar_visibility.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_visibility.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 
 /// 일정 만들기·수정에서 **고를 수 있는** 캘린더.
 ///

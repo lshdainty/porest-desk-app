@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:porest_desk_app/shared/ds/attachment_input/p_attachment_model.dart';
+import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_model.dart';
 
 /// 시스템 고르기 — 사진 찍기(카메라) · 앨범에서 고르기(갤러리) · 파일 고르기. [PAttachmentPickFiles] 의 기본 구현이다.
 ///

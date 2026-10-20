@@ -3,9 +3,9 @@
 // sticky · ScrollTimeline · 키보드 즉시 스냅은 웹 전용이라 건너뛴다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
 
 import '../../support/design_spec.dart';
 
@@ -23,7 +23,7 @@ Widget _host(
   double headerHeight = _headerHeight,
   int count = 40,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: MediaQuery(
     data: MediaQueryData(disableAnimations: reduceMotion),
     child: Scaffold(
@@ -289,7 +289,7 @@ void main() {
     late StateSetter set;
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         home: Scaffold(
           body: SizedBox(
             height: _boxHeight,
@@ -330,7 +330,7 @@ void main() {
     final controller = ScrollController();
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.dark(),
+        theme: GrooTheme.dark(),
         home: Scaffold(
           body: SizedBox(
             height: 300,

@@ -17,7 +17,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
+import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
 
 /// 요청 경로를 잡아 두고 빈 목록을 돌려주는 Dio.
 (Dio, List<String> paths) _capturingDio() {

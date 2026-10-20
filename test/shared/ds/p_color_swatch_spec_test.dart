@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
-import 'package:porest_desk_app/shared/ds/color_swatch/p_color_swatch.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/tooltip/p_tooltip.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/shared/ds/color_swatch/p_color_swatch.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/tooltip/p_tooltip.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/spec_check.dart';
@@ -26,7 +26,7 @@ Widget _host(
   double width = 360,
   TextDirection direction = TextDirection.ltr,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),

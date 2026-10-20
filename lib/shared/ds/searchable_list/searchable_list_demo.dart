@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/badge/p_badge.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
-import 'package:porest_desk_app/shared/ds/searchable_list/p_searchable_list.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/shared/ds/searchable_list/p_searchable_list.dart';
 
 // 거르는 것은 쓰는 쪽이다 — 공용 규칙(searchable-list.yaml results.filter): NFC · 대소문자 무시 · 공백 무시 · 포함, 이름 + 별칭.
 // 초성 검색은 보류(사용자가 나중에 정한다)라 하지 않는다.

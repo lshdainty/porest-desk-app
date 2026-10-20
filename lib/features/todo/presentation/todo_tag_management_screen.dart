@@ -3,24 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_tag.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
 /// 할일 태그 관리 — design settings-todo-tags.jsx TodoTagManager 미러.
 ///
@@ -306,7 +306,7 @@ class _BodyState extends ConsumerState<_Body> {
 /// 안내 카드 — 캘린더 라벨 _IntroCard 미러(제목·설명).
 class _TagIntroCard extends StatelessWidget {
   const _TagIntroCard({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +368,7 @@ class _TagRow extends StatelessWidget {
   final bool first;
   final bool busy;
   final VoidCallback onTap;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {

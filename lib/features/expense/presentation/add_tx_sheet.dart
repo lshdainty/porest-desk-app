@@ -1,51 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:porest_desk_app/core/format/amount_limits.dart';
-import 'package:porest_desk_app/core/format/currency.dart';
+import 'package:groo_damda_app/core/format/amount_limits.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
-import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
-import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
-import 'package:porest_desk_app/features/asset/presentation/transfer_account_fields.dart';
-import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
-import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
-import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
-import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
-import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
-import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
-import 'package:porest_desk_app/features/sms/data/sms_android.dart';
-import 'package:porest_desk_app/features/sms/data/sms_repository.dart';
-import 'package:porest_desk_app/features/sms/domain/sms_draft.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_category_tile.dart';
+import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
+import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/transfer_rules.dart';
+import 'package:groo_damda_app/features/asset/presentation/transfer_account_fields.dart';
+import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
+import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/card_cycle.dart';
+import 'package:groo_damda_app/features/expense/presentation/closed_cycle_notice.dart';
+import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:groo_damda_app/features/expense_split/data/expense_split_repository.dart';
+import 'package:groo_damda_app/features/expense_split/presentation/split_tx_dialog.dart';
+import 'package:groo_damda_app/features/sms/data/sms_android.dart';
+import 'package:groo_damda_app/features/sms/data/sms_repository.dart';
+import 'package:groo_damda_app/features/sms/domain/sms_draft.dart';
 
 String _formatTime(TimeOfDay t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -849,7 +849,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   }
 
   /// 분할 합 불일치 경고 — 금액을 바꿔 기존 분할 합과 어긋날 때. '분할 내역 맞추기'로 일치화 진입.
-  Widget _splitMismatchBanner(PorestTokens t) {
+  Widget _splitMismatchBanner(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final amount = _input.amountInt;
     final diff = amount - _splitSum;
@@ -948,7 +948,7 @@ class _PresetSection extends StatelessWidget {
   final ValueChanged<ExpenseTemplate> onTap;
   final VoidCallback onSave;
   final VoidCallback onClear;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1124,7 +1124,7 @@ class _PresetChip extends StatelessWidget {
   final bool active;
   final bool showAmount;
   final VoidCallback onTap;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   /// 칩에 붙는 금액 — 사용자가 프리셋을 만들 때 자유입력한 값이라 임의값이다.
   /// 그래서 축약도 차트 축·도넛 중앙과 같은 함수 하나([formatChartAxis])를 쓴다.
@@ -1195,7 +1195,7 @@ class _PresetChip extends StatelessWidget {
 
 class _MorePresetsHint extends StatelessWidget {
   const _MorePresetsHint({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);

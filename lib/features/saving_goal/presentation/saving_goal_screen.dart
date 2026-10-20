@@ -3,26 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
-import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
-import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
+import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
 
 /// 저축 목표 관리 (설정 > 저축 목표) — design GoalManager 미러 (웹 SavingGoalManager 정합).
 ///
@@ -341,7 +341,7 @@ class _GoalCard extends StatelessWidget {
   });
   final SavingGoal goal;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onEdit;
 
   String? _deadlineLabel() {

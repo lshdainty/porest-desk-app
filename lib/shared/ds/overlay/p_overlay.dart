@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 겹침(Alert Dialog · Bottom Sheet)이 함께 쓰는 도구 — 딤과 라우트를 띄울 때 테마를 잇는 법.
 ///

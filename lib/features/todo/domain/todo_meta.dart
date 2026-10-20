@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 할일 화면/다이얼로그 공유 메타 — 태그 묶음 키, 우선순위 색/라벨, 상대시간·overdue.
 ///

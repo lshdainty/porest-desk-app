@@ -10,9 +10,9 @@
     "topLine": "바닥 위 선 — 페이지 본문과 가른다. 화면 폭 전체",
     "navigation": "탐색 영역 — 브랜드 · 국가 선택 · 사이트맵을 한 줄에, 넘치면 줄을 바꾼다",
     "brand": "브랜드 묶음 — 이름 + 소개 한 줄",
-    "brandName": "브랜드 이름 — 글자 로고 \"POREST\"",
+    "brandName": "브랜드 이름 — 글자 로고 \"그루\"",
     "brandIntro": "브랜드 소개 — 한 줄(넘치면 줄을 바꾼다)",
-    "country": "국가 선택 — 나라 링크 목록. 지금 쓰는 자리 없음(porest 는 한국어 사이트 하나)",
+    "country": "국가 선택 — 나라 링크 목록. 지금 쓰는 자리 없음(groo 는 한국어 사이트 하나)",
     "sitemap": "사이트맵 — <nav aria-label=\"사이트 지도\">. 열을 가로로, 넘치면 줄을 바꾼다",
     "column": "사이트맵 열 — 열 제목 + 링크 목록",
     "columnTitle": "열 제목 — \"서비스\" · \"계정\"",
@@ -22,7 +22,7 @@
     "policy": "정책 링크 줄 — 처리방침 · 약관. 넘치면 줄을 바꾼다",
     "infoText": "안내 글 — 사업자 정보 · 연락처 · 안내 문구. \" | \" 로 잇고, 묶음이 바뀌면 줄을 바꾼다",
     "bottom": "저작권 줄 — 저작권(앞) + 소셜 링크(끝)",
-    "copyright": "저작권 — \"© 2026 POREST\"",
+    "copyright": "저작권 — \"© 2026 그루\"",
     "social": "소셜 링크 묶음 — 아이콘만 있는 ghost 버튼. 값이 생기면",
     "link": "링크(Footer Link Text) — 밑줄 없이 색으로 올림 · 누름을 알린다",
     "linkIcon": "링크 뒤 아이콘 — 새 탭 · 사이트 밖으로 나가는 링크만 ↗(lucide arrow-up-right)",
@@ -179,7 +179,7 @@
             "light": "#535866",
             "dark": "#B7BDCC"
           },
-          "text": "© {해} POREST",
+          "text": "© {해} 그루",
           "position": "안내 영역의 마지막"
         },
         "social": {
@@ -417,7 +417,7 @@
       "state": "enabled",
       "slot": "brandName",
       "prop": "typography",
-      "note": "20 / 27 — 글자 로고(porest 는 로고 그림이 없다)"
+      "note": "20 / 27 — 글자 로고(groo 는 로고 그림이 없다)"
     },
     {
       "rule": 0,
@@ -431,7 +431,7 @@
       "state": "enabled",
       "slot": "brandName",
       "prop": "foreground",
-      "note": "흰 면 16.41 · 다크 13.42. porest-home 은 제 파랑(--blue)을 쓴다(8A)"
+      "note": "흰 면 16.41 · 다크 13.42. groo-home 은 제 파랑(--blue)을 쓴다(8A)"
     },
     {
       "rule": 0,
@@ -627,7 +627,7 @@
       "state": "enabled",
       "slot": "social",
       "prop": "button",
-      "note": "48(porest large) · 아이콘 24 · 이름 필수(\"POREST 인스타그램\") · 바깥 여백만큼 끝을 맞춘다(SEED bleedX asPadding). 지금 값이 없다 — 생기면 이 자리"
+      "note": "48(groo large) · 아이콘 24 · 이름 필수(\"그루 인스타그램\") · 바깥 여백만큼 끝을 맞춘다(SEED bleedX asPadding). 지금 값이 없다 — 생기면 이 자리"
     },
     {
       "rule": 0,
@@ -704,7 +704,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "paddingX",
-      "note": "좌우 24 — porest 화면 가장자리 규칙(SEED 블록은 늘 32)"
+      "note": "좌우 24 — groo 화면 가장자리 규칙(SEED 블록은 늘 32)"
     },
     {
       "rule": 2,

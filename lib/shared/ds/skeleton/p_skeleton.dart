@@ -5,9 +5,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 모서리 — 화면 폭 사진 0 · 그림 자리 4 · 6 · 8(Image Frame — 폭으로) · 글 8 · 타일 12 · 카드 면 16 · 원 full.
 enum PSkeletonRadius {
@@ -52,7 +52,7 @@ abstract final class PLoadingTiming {
 }
 
 /// Skeleton — 불러오는 동안 곧 나타날 내용 하나의 자리를 그리는 회색 면 + 그 위를 지나는 흰 띠. 구조는 SEED
-/// Skeleton(2026-10-03), 수치 원본은 porest-design `specs/components/skeleton.yaml`(값은
+/// Skeleton(2026-10-03), 수치 원본은 groo-design `specs/components/skeleton.yaml`(값은
 /// `test/fixtures/design_spec/skeleton.json`). 웹(desk-front `src/shared/ds/skeleton`)과 같은 모양 · 박자다.
 ///
 /// 면 — bg-neutral-weak. 흰 면(bg-layer-default · bg-layer-floating) 위에만 둔다 — 페이지 바탕과 같은 색이라

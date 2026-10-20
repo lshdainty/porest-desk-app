@@ -73,7 +73,7 @@ elif [ "$CHANNEL" = prod ]; then
   log "최신 운영 릴리스: ${VERSION}"
 else
   # dev 는 태그가 'dev' 로 고정이라 버전을 밖에서 알 수 없다. 그런데 산출물 이름은
-  # porest-desk-<version>.apk 라 버전이 반드시 필요하다 — 릴리스에 붙은 version.json 이
+  # groo-desk-<version>.apk 라 버전이 반드시 필요하다 — 릴리스에 붙은 version.json 이
   # 유일한 출처다. (git describe 로도 같은 값이 나오지만, 그건 CI 의 계산을 두 번째로
   # 구현하는 셈이라 CI 가 바뀌면 조용히 어긋난다.)
   fetch_version_json dev "${WORK}/dev.json" \

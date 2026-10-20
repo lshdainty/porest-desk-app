@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:porest_desk_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/date.dart';
 
 part 'user.freezed.dart';
 part 'user.g.dart';

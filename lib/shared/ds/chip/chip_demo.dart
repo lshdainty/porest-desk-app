@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 견본의 칩 하나 — 눌러도 아무 일도 없다(누름 모습을 보이려고 활성으로 둔다). 막힌 견본은 onPressed 가 없다.
 Widget _chip(

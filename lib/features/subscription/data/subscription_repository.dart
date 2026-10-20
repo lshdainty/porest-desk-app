@@ -5,8 +5,8 @@ library;
 
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 
 class MyFeatures {
   const MyFeatures({

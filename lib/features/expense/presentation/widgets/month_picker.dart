@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 /// "← YYYY년 M월 →" 좌우 화살표로 월 이동.
 class MonthPicker extends StatelessWidget {

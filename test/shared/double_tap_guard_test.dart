@@ -3,12 +3,12 @@
 // 뒤라, 같은 프레임 안에 들어온 두 번째 탭은 공용 진입점이 동기적으로 버려야 한다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 Widget _app(Widget home) => MaterialApp(
-  theme: PorestTheme.light(),
+  theme: GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),

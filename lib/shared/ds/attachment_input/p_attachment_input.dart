@@ -6,17 +6,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/attachment_input/p_attachment_model.dart';
-import 'package:porest_desk_app/shared/ds/attachment_input/p_attachment_system_picker.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_image_frame.dart';
-import 'package:porest_desk_app/shared/ds/menu_sheet/p_menu_sheet.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_model.dart';
+import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_system_picker.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
-export 'package:porest_desk_app/shared/ds/attachment_input/p_attachment_model.dart';
+export 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_model.dart';
 
 part 'p_attachment_input_parts.dart';
 
@@ -24,7 +24,7 @@ part 'p_attachment_input_parts.dart';
 /// 앱은 끌어 놓기가 없어 드롭존 없이 "파일 선택" 버튼 large · 칸 폭 · 앞 아이콘 upload + 고른 파일 카드).
 enum PAttachmentLayout { tile, dropzone }
 
-/// Attachment Input — 사진 · 파일을 골라 붙이는 칸. 구조는 SEED Attachment Input(2026-10-15), 수치 원본은 porest-design
+/// Attachment Input — 사진 · 파일을 골라 붙이는 칸. 구조는 SEED Attachment Input(2026-10-15), 수치 원본은 groo-design
 /// `specs/components/attachment-input.yaml`(값은 `test/fixtures/design_spec/attachment-input.json` — 테스트가 위젯이 그 값과
 /// 같은지 본다). 웹(desk-front `src/shared/ds/attachment-input`)과 같은 값이다. 사람의 프로필 사진은 Avatar 의 "사진 바꾸기",
 /// 붙은 사진을 보이기만 하는 자리는 Image Frame 이다.

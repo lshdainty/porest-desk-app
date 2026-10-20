@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 칸 하나 — 고르는 값 · 글 · 막힘 · 알림 점. 칸은 [PSegmentedControl.items] 에 차례대로 놓는다.
 @immutable
@@ -76,7 +76,7 @@ const double _dotSize = 6;
 const double _dotGap = 2;
 
 /// Segmented Control — 같은 내용을 2 ~ 4가지로 바로 거르거나 · 정렬하거나 · 다르게 보는 컨트롤. 구조는 SEED Segmented
-/// Control(2026-10-02), 수치 원본은 porest-design `specs/components/segmented-control.yaml`(값은
+/// Control(2026-10-02), 수치 원본은 groo-design `specs/components/segmented-control.yaml`(값은
 /// `test/fixtures/design_spec/segmented-control.json` — 테스트가 위젯이 그 값과 같은지 본다). 웹(desk-front
 /// `src/shared/ds/segmented-control`)과 같은 값이다.
 ///

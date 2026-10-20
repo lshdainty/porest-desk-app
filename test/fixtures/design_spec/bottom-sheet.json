@@ -223,7 +223,7 @@
       "state": "enabled",
       "slot": "overlay",
       "prop": "background",
-      "note": "porest 딤(v102 — SEED 0.455 는 들이지 않았다)"
+      "note": "groo 딤(v102 — SEED 0.455 는 들이지 않았다)"
     },
     {
       "rule": 0,
@@ -356,7 +356,7 @@
       "state": "enabled",
       "slot": "handle",
       "prop": "background",
-      "note": "SEED palette.gray-400 의 짝(porest gray-400). 누름 색은 두지 않는다"
+      "note": "SEED palette.gray-400 의 짝(groo gray-400). 누름 색은 두지 않는다"
     },
     {
       "rule": 1,

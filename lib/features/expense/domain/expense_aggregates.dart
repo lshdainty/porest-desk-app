@@ -15,7 +15,7 @@
 /// 캘린더 셀이 각각 다른 시점에 발견됐다. 거래를 합산하는 코드는 여기를 거칠 것.
 library;
 
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
 
 /// 아직 오지 않은 거래인가 — 서버도 이 기준으로 오늘까지만 센다.
 bool isScheduledTx(String? date) {

@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/actions/item_actions.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/actions/item_actions.dart';
 
 /// 자산 하나에 할 수 있는 일 — 상세 시트와 목록 행이 같은 것을 부른다.
 ///

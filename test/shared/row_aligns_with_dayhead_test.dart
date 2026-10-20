@@ -13,12 +13,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/settings/mask_flags.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_day_group.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/settings/mask_flags.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 
 const _pagePad = 24.0;
 
@@ -44,7 +44,7 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
-      theme: PorestTheme.dark(),
+      theme: GrooTheme.dark(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ko'),

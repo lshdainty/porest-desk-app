@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/motion.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 
-/// Porest Detail — 상세 다이얼로그/드로어 공통 레이아웃.
-/// 웹 shared/ui/porest/detail.tsx 미러 — design dialogs.jsx TxDetailDialog
-/// 신판(토스 톤 플랫). 값은 porest 토큰 스냅(31/29→displayMd, 14.5→body, 15→14,
+/// Groo Detail — 상세 다이얼로그/드로어 공통 레이아웃.
+/// 웹 shared/ui/groo/detail.tsx 미러 — design dialogs.jsx TxDetailDialog
+/// 신판(토스 톤 플랫). 값은 groo 토큰 스냅(31/29→displayMd, 14.5→body, 15→14,
 /// 12.5→caption, 46→44). 카드 박스 없는 플랫 구성 — 구획은 border-top 만.
 ///
 ///   PDetailHero(icon: …, title: '가맹점', meta: '2026-07-18 · 12:30',

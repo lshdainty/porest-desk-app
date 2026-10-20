@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 
 /// 사용자 다중 캘린더 — front `userCalendarApi` 미러.
 class UserCalendarRepository {

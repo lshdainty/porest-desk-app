@@ -5,33 +5,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/shared/scroll/scroll_to_keyed.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
-import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
-import 'package:porest_desk_app/features/constellation/presentation/night_sky_hero.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
-import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_detail_dialog.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
+import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
+import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
+import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/features/todo/presentation/todo_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_meta.dart';
+import 'package:groo_damda_app/features/todo/presentation/todo_detail_dialog.dart';
+import 'package:groo_damda_app/features/todo/presentation/todo_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_floating_action_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 할일 — 모바일 원장 (design todo-mobile.jsx TodoMobileLedger 미러).
 ///
@@ -297,7 +297,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
 
   Widget _buildBody(
     BuildContext context,
-    PorestTokens t,
+    GrooTokens t,
     AppLocalizations l,
     List<Todo> all,
   ) {
@@ -608,7 +608,7 @@ const _kNoDueGroup = '__no_due__';
 class _StarlightHint extends StatelessWidget {
   const _StarlightHint({required this.today, required this.t});
   final ConstellationToday today;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -640,7 +640,7 @@ class _MonthNav extends StatelessWidget {
   final bool filterActive;
   final int filterCount;
   final VoidCallback onOpenFilter;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   Widget _btn(
     IconData icon,
@@ -721,7 +721,7 @@ class _SkyToggleBtn extends StatelessWidget {
   final bool on;
   final String label;
   final VoidCallback onTap;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -783,7 +783,7 @@ class _LedgerCalendar extends StatelessWidget {
   final ConstellationToday? constToday;
   final ValueChanged<String> onSelect;
   final VoidCallback onToggleExpand;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1265,7 +1265,7 @@ class _TodoRow extends StatelessWidget {
 /// 메타 구분 dot (2px).
 class _MetaDot extends StatelessWidget {
   const _MetaDot({required this.t});
-  final PorestTokens t;
+  final GrooTokens t;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -1438,7 +1438,7 @@ class _FilterChip extends StatelessWidget {
   final String label;
   final bool on;
   final VoidCallback onTap;
-  final PorestTokens t;
+  final GrooTokens t;
   final Color? dotColor;
   final IconData? icon;
 

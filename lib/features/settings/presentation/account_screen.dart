@@ -3,31 +3,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/lock/app_lock.dart';
-import 'package:porest_desk_app/core/lock/app_lock_toggle.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/features/settings/presentation/withdrawal_sheet.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_switch.dart';
-import 'package:porest_desk_app/features/settings/presentation/password_change_dialog.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/lock/app_lock.dart';
+import 'package:groo_damda_app/core/lock/app_lock_toggle.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/features/settings/presentation/withdrawal_sheet.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/subscription/presentation/subscription_sheet.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_switch.dart';
+import 'package:groo_damda_app/features/settings/presentation/password_change_dialog.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 /// 계정 상세 화면 — web AccountSection 1:1 미러.
 ///
@@ -282,7 +282,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
           const SizedBox(height: PSpace.x32),
 
-          // ── 구독·결제 — Porest Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
+          // ── 구독·결제 — 그루 담다 Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
           _SectionLabel(label: l.accountBilling, tokens: t),
           const SizedBox(height: PSpace.x8),
           // 구독·결제 — 디자인대로 제목/부제 세로 스택 + 우측 가격/배지 커스텀 행.
@@ -314,7 +314,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Porest Pro',
+                          '그루 담다 Pro',
                           style: TextStyle(
                             fontFamily: PTypo.sans,
                             fontSize: PFontSize.body,
@@ -470,7 +470,7 @@ class _AccountRow extends StatelessWidget {
   final bool chevron;
   final Color? iconColor;
   final Color? labelColor;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback? onTap;
 
   @override
@@ -598,7 +598,7 @@ class _AppVersionLine extends ConsumerWidget {
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.label, required this.tokens});
   final String label;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

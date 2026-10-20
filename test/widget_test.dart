@@ -3,17 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
 
-import 'package:porest_desk_app/app/app.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/app/app.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 
 void main() {
   // 라벨을 한글로 검증하므로 로케일을 못 박는다. 안 그러면 테스트 환경(en)을 따라가
@@ -39,7 +39,7 @@ void main() {
             (_, _) => Future.value(<Expense>[]),
           ),
         ],
-        child: const PorestDeskApp(),
+        child: const GrooDamdaApp(),
       ),
     );
     // pumpAndSettle 은 못 쓴다 — 로딩 중 스켈레톤이 `..repeat()` 무한 애니메이션이라

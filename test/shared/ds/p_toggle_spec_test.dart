@@ -8,11 +8,11 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/toggle/p_toggle.dart';
-import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/toggle/p_toggle.dart';
+import 'package:groo_damda_app/shared/ds/toggle/toggle_demo.dart';
 
 import '../../support/design_spec.dart';
 
@@ -30,7 +30,7 @@ Widget _host(
   Alignment alignment = Alignment.topLeft,
 }) {
   final app = MaterialApp(
-    theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+    theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
@@ -388,7 +388,7 @@ void main() {
       await tester.pumpWidget(
         _host(Brightness.light, _toggle(onChanged: (_) {})),
       );
-      final c = PorestTheme.light().extension<PColors>()!;
+      final c = GrooTheme.light().extension<PColors>()!;
       expect(tester.widget<Icon>(_icon).color, c.fgNeutralMuted);
       await tester.pumpWidget(
         _host(Brightness.light, _toggle(pressed: true, onChanged: (_) {})),
@@ -401,7 +401,7 @@ void main() {
     testWidgets('누름 바탕은 150ms 에 나타나고 손을 떼면 사라진다 — 브랜드 채움 위에는 없다', (
       tester,
     ) async {
-      final c = PorestTheme.light().extension<PColors>()!;
+      final c = GrooTheme.light().extension<PColors>()!;
       for (final tone in PToggleTone.values) {
         await tester.pumpWidget(
           _host(Brightness.light, _toggle(onChanged: (_) {}, tone: tone)),

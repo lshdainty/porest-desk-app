@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/format/amount_limits.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/format/amount_limits.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
 Future<TextEditingController> _pump(
   WidgetTester tester, {
@@ -19,7 +19,7 @@ Future<TextEditingController> _pump(
   final ctrl = TextEditingController();
   await tester.pumpWidget(
     MaterialApp(
-      theme: PorestTheme.light(),
+      theme: GrooTheme.light(),
       home: Scaffold(
         body: PTextInput(
           controller: ctrl,

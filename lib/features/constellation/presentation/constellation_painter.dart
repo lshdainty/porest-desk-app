@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/colors.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/app/theme/colors.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 
 /// colorKey(blue/violet/...) → 차트 팔레트 색. 다크모드는 light variant
 /// (웹 --color-cat-* 별칭 = resolveChartColor 정합, chart palette 는 raw 인용 허용 영역).
 Color constellationColor(BuildContext context, String colorKey) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   return switch (colorKey) {
-    'red' => isDark ? PorestPalette.chartRedLight : PorestPalette.chartRed,
-    'orange' =>
-      isDark ? PorestPalette.chartOrangeLight : PorestPalette.chartOrange,
-    'yellow' =>
-      isDark ? PorestPalette.chartYellowLight : PorestPalette.chartYellow,
-    'green' =>
-      isDark ? PorestPalette.chartGreenLight : PorestPalette.chartGreen,
-    'blue' => isDark ? PorestPalette.chartBlueLight : PorestPalette.chartBlue,
-    'indigo' =>
-      isDark ? PorestPalette.chartIndigoLight : PorestPalette.chartIndigo,
-    'violet' =>
-      isDark ? PorestPalette.chartVioletLight : PorestPalette.chartViolet,
-    'pink' => isDark ? PorestPalette.chartPinkLight : PorestPalette.chartPink,
-    'brown' =>
-      isDark ? PorestPalette.chartBrownLight : PorestPalette.chartBrown,
-    _ => isDark ? PorestPalette.chartGrayLight : PorestPalette.chartGray,
+    'red' => isDark ? GrooPalette.chartRedLight : GrooPalette.chartRed,
+    'orange' => isDark ? GrooPalette.chartOrangeLight : GrooPalette.chartOrange,
+    'yellow' => isDark ? GrooPalette.chartYellowLight : GrooPalette.chartYellow,
+    'green' => isDark ? GrooPalette.chartGreenLight : GrooPalette.chartGreen,
+    'blue' => isDark ? GrooPalette.chartBlueLight : GrooPalette.chartBlue,
+    'indigo' => isDark ? GrooPalette.chartIndigoLight : GrooPalette.chartIndigo,
+    'violet' => isDark ? GrooPalette.chartVioletLight : GrooPalette.chartViolet,
+    'pink' => isDark ? GrooPalette.chartPinkLight : GrooPalette.chartPink,
+    'brown' => isDark ? GrooPalette.chartBrownLight : GrooPalette.chartBrown,
+    _ => isDark ? GrooPalette.chartGrayLight : GrooPalette.chartGray,
   };
 }
 

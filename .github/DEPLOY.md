@@ -3,7 +3,7 @@
 스토어를 쓰지 않고 **서버에서 직접 받아 설치**한다. 안드로이드가 주 경로이고, iOS 는
 서명 없이 빌드한 IPA 를 올려 두되 설치는 받는 사람이 직접 서명해야 한다.
 
-**빌드는 GitHub Actions, 배포는 Jenkins.** 다른 porest 레포와 같다 — 운영에 무엇이
+**빌드는 GitHub Actions, 배포는 Jenkins.** 다른 groo 레포와 같다 — 운영에 무엇이
 언제 올라가는지는 Jenkins 한 곳에서만 통제한다.
 
 ## 흐름
@@ -72,8 +72,8 @@ SDK 를 올릴 때는 두 곳을 함께 바꾼다.
 안 되고, 지우고 새로 깔아야 한다(데이터도 사라진다).
 
 ```bash
-keytool -genkey -v -keystore porest-desk.jks -keyalg RSA \
-  -keysize 2048 -validity 10000 -alias porest-desk
+keytool -genkey -v -keystore groo-desk.jks -keyalg RSA \
+  -keysize 2048 -validity 10000 -alias groo-desk
 ```
 
 **jks 파일은 안전한 곳에 백업할 것.**
@@ -84,10 +84,10 @@ Secrets 에 4개 등록. 값을 셸 히스토리에 남기지 않으려면 `gh s
 ```bash
 R=lshdainty/porest-desk-app
 # 줄바꿈이 섞이면 base64 디코드가 깨진다 — -w0 로 한 줄로 만든다
-base64 -w0 porest-desk.jks | gh secret set ANDROID_KEYSTORE_BASE64 -R "$R"
+base64 -w0 groo-desk.jks | gh secret set ANDROID_KEYSTORE_BASE64 -R "$R"
 gh secret set ANDROID_KEYSTORE_PASSWORD -R "$R"   # keystore 비밀번호
 gh secret set ANDROID_KEY_PASSWORD      -R "$R"   # key 비밀번호
-echo -n porest-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
+echo -n groo-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
 ```
 
 키가 없어도 빌드는 된다 — 디버그 키로 서명될 뿐이다. 채우는 순간부터 릴리스 키로 바뀐다.
@@ -96,16 +96,16 @@ echo -n porest-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
 
 | 이름 | 값 |
 |---|---|
-| `JENKINS_URL` | 다른 porest 레포에 등록해 둔 값과 같다 |
+| `JENKINS_URL` | 다른 groo 레포에 등록해 둔 값과 같다 |
 
 비어 있으면 릴리스까지만 하고 호출은 건너뛴다 — CI 가 빨간불이 되지는 않는다.
 
 ### 3. Jenkins job
 
-**job 은 하나다.** dev/prod 를 job 으로 가르지 않고 파라미터로 가른다 — 다른 porest
+**job 은 하나다.** dev/prod 를 job 으로 가르지 않고 파라미터로 가른다 — 다른 groo
 레포와 같은 방식이고, 배포 절차가 한 벌만 있어야 두 곳이 어긋나지 않는다.
 
-**파이프라인은 레포의 [Jenkinsfile](../Jenkinsfile) 이 SoT 다.** 다른 porest 레포와 같다 —
+**파이프라인은 레포의 [Jenkinsfile](../Jenkinsfile) 이 SoT 다.** 다른 groo 레포와 같다 —
 job 설정에서 **Pipeline script from SCM** 을 고르고 이 레포를 가리키면 된다. Jenkins 화면에
 groovy 를 붙여넣으면 고칠 때마다 두 곳을 맞춰야 하고, 한쪽만 고쳐진 채로 흘러간다.
 
@@ -131,12 +131,12 @@ job 설정에서 **"필요한 경우 동시 빌드 실행"** 을 켜 둔다. 안
 배포 절차 자체는 [.github/jenkins/deploy.sh](jenkins/deploy.sh) 한 벌뿐이다. dev·prod 가
 같은 길을 걸어야 한쪽만 고쳐져 어긋나지 않는다.
 
-경로를 바꾸려면 job 환경변수 `APK_BASE_PATH` 를 준다 (기본 `/home/porest/porest/apk`).
+경로를 바꾸려면 job 환경변수 `APK_BASE_PATH` 를 준다 (기본 `/home/groo/groo/apk`).
 
 서버에 디렉토리를 만들어 둔다.
 
 ```bash
-mkdir -p /home/porest/porest/apk/{dev,prod}
+mkdir -p /home/groo/groo/apk/{dev,prod}
 ```
 
 ### 4. nginx
@@ -162,7 +162,7 @@ location /download/ { return 404; }
 
 ```yaml
     volumes:
-      - /home/porest/porest/apk:/srv/apk:ro   # 앱이 받아 가기만 하면 되니 읽기 전용
+      - /home/groo/groo/apk:/srv/apk:ro   # 앱이 받아 가기만 하면 되니 읽기 전용
 ```
 
 볼륨 추가는 컨테이너를 다시 만들어야 붙는다(`docker compose up -d nginx-prod`).
@@ -194,7 +194,7 @@ docker logs nginx-prod --since 5m 2>&1 | grep /srv/apk
 
 ## iOS
 
-`porest-desk-X.Y.Z.ipa` 는 **서명이 없다.** 받는 사람이 자기 Apple ID 로 서명해 넣어야
+`groo-desk-X.Y.Z.ipa` 는 **서명이 없다.** 받는 사람이 자기 Apple ID 로 서명해 넣어야
 하고, 무료 Apple ID 로 서명하면 **7일마다 다시 서명**해야 한다. 개발자 계정은 필요 없지만
 각자 PC 가 필요하다 — 일반 사용자에게 권할 경로는 아니고, 웹으로 안내하는 편이 낫다.
 

@@ -1,17 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/p_checkbox.dart';
-import 'package:porest_desk_app/shared/ds/list/list_row.dart';
-import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
-import 'package:porest_desk_app/shared/ds/switch/p_switch.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/shared/ds/list/list_row.dart';
+import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
+import 'package:groo_damda_app/shared/ds/switch/p_switch.dart';
 
-export 'package:porest_desk_app/shared/ds/list/list_row.dart'
+export 'package:groo_damda_app/shared/ds/list/list_row.dart'
     show PListAction, PListAlign, PListNest;
 
 /// List — 가로 줄로 된 내용을 세로로 잇는다(설정 · 메뉴 · 선택 · 키-값 줄과 거래 · 할 일 · 알림 같은 내용 줄). 구조는 SEED
-/// List(2026-10-01), 수치 원본은 porest-design `specs/components/list.yaml` · `list-header.yaml`(값은
+/// List(2026-10-01), 수치 원본은 groo-design `specs/components/list.yaml` · `list-header.yaml`(값은
 /// `test/fixtures/design_spec/list.json` · `list-header.json` — 테스트가 위젯이 그 값과 같은지 본다). 웹(desk-front
 /// `src/shared/ds/list`)과 같은 값이다.
 ///

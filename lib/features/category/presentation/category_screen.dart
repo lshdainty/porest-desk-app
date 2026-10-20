@@ -3,22 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/category/presentation/category_edit_dialog.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/category/presentation/category_edit_dialog.dart';
 
 /// 구분 필터 라벨 — index 0=지출/1=수입 → 로케일 문자열.
 String _kindLabel(AppLocalizations l, int i) =>
@@ -281,7 +281,7 @@ class _CategoryList extends StatelessWidget {
     List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
   )
   onReorderSiblings;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -447,7 +447,7 @@ class _CategoryList extends StatelessWidget {
 /// 부모 2쌍(자식 각 2행) + 부모 1개 = 총 7행.
 class _CategorySkeleton extends StatelessWidget {
   const _CategorySkeleton({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -511,7 +511,7 @@ class _CatRowSkel extends StatelessWidget {
   final bool isParent;
   final bool showMeta;
   final bool isLast;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -581,7 +581,7 @@ class _CategoryRow extends StatelessWidget {
   final bool isCollapsed;
   final VoidCallback? onToggle;
   final bool isLast;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

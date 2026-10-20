@@ -7,8 +7,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
 
 /// 요청 바디를 잡아 두고 빈 자산 응답을 돌려주는 Dio.
 (Dio, List<Map<String, dynamic>> captured) _capturingDio() {

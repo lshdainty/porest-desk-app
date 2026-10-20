@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/wheel_picker/p_wheel_picker.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
 /// 시각 — 24시간 시(0 ~ 23) · 분(0 ~ 59). 화면은 12시간이고 값은 24시간이다.
 @immutable
@@ -85,7 +85,7 @@ String formatTimeValue(
 }
 
 /// Time Picker — 시각을 고르는 12시간 휠(오전·오후 → 시 → 분). 구조는 SEED Time Picker(2026-10-03), 수치 원본은
-/// porest-design `specs/components/time-picker.yaml`(값은 `test/fixtures/design_spec/time-picker.json` — 휠의 크기 · 색 ·
+/// groo-design `specs/components/time-picker.yaml`(값은 `test/fixtures/design_spec/time-picker.json` — 휠의 크기 · 색 ·
 /// 띠 · 안개는 wheel-picker.yaml medium · 5칸). 웹(desk-front `src/shared/ds/time-picker`)과 같은 값 · 규칙이다.
 ///
 /// 값은 쓰는 쪽이 가진다(제어) — [value] 는 24시간 [PTimeValue]. 휠이 멈춘 뒤 [onChanged] 가 불린다(굴리는 동안 칸 값은 그대로

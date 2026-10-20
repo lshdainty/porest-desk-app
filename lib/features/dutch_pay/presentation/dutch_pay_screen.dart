@@ -3,25 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
-import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_detail_sheet.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_floating_action_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/features/dutch_pay/application/dutch_pay_providers.dart';
+import 'package:groo_damda_app/features/dutch_pay/domain/dutch_pay.dart';
+import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
+import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_detail_sheet.dart';
 
 /// 더치페이 — 토스 톤 요약 2카드 + 진행/완료/친구 탭 (web `DutchScreen` mobile 미러).
 ///
@@ -101,7 +101,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
 
   Widget _buildBody(
     BuildContext context,
-    PorestTokens t,
+    GrooTokens t,
     List<DutchPay> items,
     bool masked,
   ) {
@@ -196,7 +196,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
 
   List<Widget> _buildTab(
     BuildContext context,
-    PorestTokens t,
+    GrooTokens t,
     List<DutchPay> active,
     List<DutchPay> past,
     List<_FriendAgg> friends,
@@ -429,7 +429,7 @@ class _SummaryCard extends StatelessWidget {
   final int amount;
   final int count;
   final bool masked;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -937,7 +937,7 @@ class _DutchPaySkeleton extends StatelessWidget {
     required this.tab,
     required this.onTabChanged,
   });
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final _DutchTab tab;
   final ValueChanged<_DutchTab> onTabChanged;
 

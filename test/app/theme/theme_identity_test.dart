@@ -1,21 +1,21 @@
-// PorestTheme 은 늘 같은 ThemeData 를 돌려준다 — 부를 때마다 새로 만들면 MaterialApp 이 다시 그려질 때마다 같은 테마끼리
+// GrooTheme 은 늘 같은 ThemeData 를 돌려준다 — 부를 때마다 새로 만들면 MaterialApp 이 다시 그려질 때마다 같은 테마끼리
 // 200ms 섞고(AnimatedTheme), 그동안 테마를 읽는 위젯이 매 프레임 다시 그려진다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
 
 void main() {
   test('light · dark 는 부를 때마다 같은 ThemeData 다', () {
-    expect(identical(PorestTheme.light(), PorestTheme.light()), isTrue);
-    expect(identical(PorestTheme.dark(), PorestTheme.dark()), isTrue);
-    expect(identical(PorestTheme.light(), PorestTheme.dark()), isFalse);
+    expect(identical(GrooTheme.light(), GrooTheme.light()), isTrue);
+    expect(identical(GrooTheme.dark(), GrooTheme.dark()), isTrue);
+    expect(identical(GrooTheme.light(), GrooTheme.dark()), isFalse);
   });
 
   testWidgets('MaterialApp 을 다시 그려도 테마를 섞지 않는다', (tester) async {
     var builds = 0;
     Widget app() => MaterialApp(
-      theme: PorestTheme.light(),
-      darkTheme: PorestTheme.dark(),
+      theme: GrooTheme.light(),
+      darkTheme: GrooTheme.dark(),
       home: Builder(
         builder: (context) {
           Theme.of(context);

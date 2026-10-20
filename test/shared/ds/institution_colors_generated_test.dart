@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.g.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.g.dart';
 
 void main() {
   test('생성된 기관 색 표는 스펙 JSON 의 data.entries 와 같다', () {

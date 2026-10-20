@@ -20,15 +20,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
-import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
-import 'package:porest_desk_app/features/notification/presentation/notification_settings_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_slider.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/features/notification/data/user_preferences_repository.dart';
+import 'package:groo_damda_app/features/notification/presentation/notification_settings_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_slider.dart';
 
 /// 로그인 조회를 네트워크로 내보내지 않는다 — 설정 화면이 이메일을 본다.
 class _NoAuth extends AuthNotifier {
@@ -105,7 +105,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

@@ -8,7 +8,7 @@
 /// 화면에서 못 고르게 하는 것과 서버가 거절하는 것은 별개다: 옛 앱·API 직접 호출이 남아 있다.
 library;
 
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
 
 /// 이체 상대가 될 수 있는 자산.
 ///

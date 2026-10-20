@@ -6,11 +6,11 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 선택지 하나 — 값 · 글 · 설명(한 줄) · 앞 아이콘. 글은 명사형으로 짧게, 코드값(`Y` · `ANNUAL`)을 글로 내지 않는다.
 /// 앞 아이콘은 묶음 안에서 모두 두거나 모두 뺀다(아이콘만으로 뜻을 알리지 않는다).
@@ -68,7 +68,7 @@ const double _indicatorSize = 14;
 const double _highlightInset = PSpacing.x2; // 알약 좌우 들임
 const double _groupLabelPaddingY = PSpacing.x2_5;
 
-/// Select — 짧은 선택지 5개 이상에서 폼에 넣을 값을 고르는 칸. 구조는 SEED Select(2026-10-01), 수치 원본은 porest-design
+/// Select — 짧은 선택지 5개 이상에서 폼에 넣을 값을 고르는 칸. 구조는 SEED Select(2026-10-01), 수치 원본은 groo-design
 /// `specs/components/select.yaml`(값은 `test/fixtures/design_spec/select.json` — 테스트가 위젯이 그 값과 같은지 본다).
 /// 웹(desk-front `src/shared/ds/select`)과 같은 칸이다.
 ///

@@ -5,18 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_switch.dart';
-import 'package:porest_desk_app/features/import/data/import_repository.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/shared/widgets/p_switch.dart';
+import 'package:groo_damda_app/features/import/data/import_repository.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 
 typedef _FieldMeta = ({
   String key,
@@ -25,7 +25,7 @@ typedef _FieldMeta = ({
 });
 
 const List<String> _sources = [
-  'POREST',
+  '그루',
   'EASYBUDGET',
   'BANKSALAD',
   'TOSS',
@@ -33,7 +33,7 @@ const List<String> _sources = [
 ];
 
 String _sourceLabel(AppLocalizations l, String v) => switch (v) {
-  'POREST' => '${l.importSourcePorest} · ${l.importSourcePorestDesc}',
+  '그루' => '${l.importSourceGroo} · ${l.importSourceGrooDesc}',
   'EASYBUDGET' =>
     '${l.importSourceEasybudget} · ${l.importSourceEasybudgetDesc}',
   'BANKSALAD' => '${l.importSourceBanksalad} · ${l.importSourceBanksaladDesc}',
@@ -79,7 +79,7 @@ class ImportView extends ConsumerStatefulWidget {
 
 class _ImportViewState extends ConsumerState<ImportView> {
   _Step _step = _Step.upload;
-  String _source = 'POREST';
+  String _source = '그루';
   File? _file;
   bool _analyzing = false;
   ImportAnalyzeResult? _analysis;
@@ -185,7 +185,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   // ── 스텝 인디케이터 ──────────────────────────────────────
 
-  Widget _stepper(PorestTokens t) {
+  Widget _stepper(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final steps = [
       (k: _Step.upload, label: l.importStepUpload),
@@ -236,7 +236,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   // ── 1. 업로드 ────────────────────────────────────────────
 
-  List<Widget> _uploadStep(PorestTokens t) {
+  List<Widget> _uploadStep(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return [
       _cardShell(
@@ -245,7 +245,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
         desc: l.importSourceDesc,
         child: PSelect<String>(
           value: _source,
-          onChanged: (v) => setState(() => _source = v ?? 'POREST'),
+          onChanged: (v) => setState(() => _source = v ?? '그루'),
           items: _sources
               .map((s) => PSelectItem(value: s, label: _sourceLabel(l, s)))
               .toList(),
@@ -341,7 +341,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   // ── 2. 매핑 ──────────────────────────────────────────────
 
-  List<Widget> _mappingStep(PorestTokens t, ImportAnalyzeResult a) {
+  List<Widget> _mappingStep(GrooTokens t, ImportAnalyzeResult a) {
     final l = AppLocalizations.of(context);
     return [
       // 실행하면 반드시 실패할 행을 미리 알린다 — 넣고 나서 실패 숫자만 보면 원인을 알 수 없다.
@@ -665,7 +665,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
   }
 
   Widget _optionRow(
-    PorestTokens t,
+    GrooTokens t,
     String title,
     String desc,
     bool value,
@@ -697,7 +697,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   // ── 3. 완료 ──────────────────────────────────────────────
 
-  Widget _doneStep(PorestTokens t, ImportExecuteResult r) {
+  Widget _doneStep(GrooTokens t, ImportExecuteResult r) {
     final l = AppLocalizations.of(context);
     return _cardShell(
       t,
@@ -747,7 +747,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
   // ── 공통 ─────────────────────────────────────────────────
 
   Widget _cardShell(
-    PorestTokens t, {
+    GrooTokens t, {
     required String title,
     String? desc,
     required Widget child,

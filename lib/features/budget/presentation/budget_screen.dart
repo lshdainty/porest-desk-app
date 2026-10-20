@@ -4,32 +4,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
-import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/budget/domain/budget.dart';
-import 'package:porest_desk_app/features/budget/domain/budget_compliance.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
+import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 const double _warnThreshold = 85;
 
@@ -518,7 +518,7 @@ class _HeaderCard extends StatelessWidget {
   final int allocable;
   final bool overAllocated;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final double warnThreshold;
 
   @override
@@ -786,7 +786,7 @@ class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -830,7 +830,7 @@ class _PaceCard extends StatelessWidget {
   final int dailyTarget;
   final bool onTrack;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -945,7 +945,7 @@ class _PaceStat extends StatelessWidget {
   final int amount;
   final Color color;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1001,7 +1001,7 @@ class _StatusTiles extends StatelessWidget {
   });
   final int overCount;
   final int healthyCount;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1061,7 +1061,7 @@ class _StatusBox extends StatelessWidget {
   final bool active;
   final Color activeColor;
   final Color bg;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1147,7 +1147,7 @@ class _CategoryListCard extends StatelessWidget {
 
   /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
   final bool firstLoading;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onGoSettings;
 
   @override
@@ -1242,7 +1242,7 @@ class _CategoryRow extends StatelessWidget {
   final ExpenseCategory? category;
   final int spent;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final double warnThreshold;
 
   @override
@@ -1371,7 +1371,7 @@ class _ComplianceCard extends StatelessWidget {
   final AsyncValue<List<BudgetComplianceMonth>> async;
   final int currentYear;
   final int currentMonth;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final bool masked;
 
   @override
@@ -1430,7 +1430,7 @@ class _ComplianceBarChart extends StatefulWidget {
   final List<BudgetComplianceMonth> rows;
   final int currentYear;
   final int currentMonth;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final bool masked;
 
   @override
@@ -1636,7 +1636,7 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
 
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.tokens, required this.onAdd});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onAdd;
   @override
   Widget build(BuildContext context) {

@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
-import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
-import 'package:porest_desk_app/features/memo/domain/memo_meta.dart';
-import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
-import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/features/memo/domain/memo_colors.dart';
+import 'package:groo_damda_app/features/memo/domain/memo_meta.dart';
+import 'package:groo_damda_app/features/memo/presentation/memo_actions.dart';
+import 'package:groo_damda_app/features/memo/presentation/memo_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 /// 메모 상세 시트 — 카드 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
 /// tx_detail_dialog(웹 MemoDetailDialog) 패턴 미러: 톤 hero + 본문 전문 + 뷰 footer.

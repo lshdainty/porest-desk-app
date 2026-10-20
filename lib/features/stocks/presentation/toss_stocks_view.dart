@@ -5,32 +5,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/colors.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/format_locale.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/presentation/chart_web_view.dart';
-import 'package:porest_desk_app/features/stocks/presentation/stock_market_label.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/watch_dto.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/app/theme/colors.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/presentation/chart_web_view.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
+import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 실연동).
 /// 웹 `pages/stocks/ui/StocksPage.tsx` 미러 (디자인 리뉴얼 반영).
@@ -607,7 +607,7 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
 // ---- 색 헬퍼 ---------------------------------------------------------------
 
 /// 상승/하락 색 — 국내 증권 통념: 상승=빨강(error), 하락=파랑(primary).
-Color _trendColor(PorestTokens t, double pct) =>
+Color _trendColor(GrooTokens t, double pct) =>
     pct >= 0 ? t.statusDangerFg : t.fgBrand;
 
 /// 종목 심볼 배지 tone — 국가별 chart palette (다크 light swap). 웹 COUNTRY_TONE 미러.
@@ -615,12 +615,12 @@ Color _trendColor(PorestTokens t, double pct) =>
 Color _countryTone(BuildContext context, String countryCode) {
   final dark = Theme.of(context).brightness == Brightness.dark;
   return switch (countryCode) {
-    'US' => dark ? PorestPalette.chartVioletLight : PorestPalette.chartViolet,
-    'CN' => dark ? PorestPalette.chartOrangeLight : PorestPalette.chartOrange,
-    'JP' => dark ? PorestPalette.chartPinkLight : PorestPalette.chartPink,
-    'HK' => dark ? PorestPalette.chartGreenLight : PorestPalette.chartGreen,
-    'VN' => dark ? PorestPalette.chartIndigoLight : PorestPalette.chartIndigo,
-    _ => dark ? PorestPalette.chartBlueLight : PorestPalette.chartBlue,
+    'US' => dark ? GrooPalette.chartVioletLight : GrooPalette.chartViolet,
+    'CN' => dark ? GrooPalette.chartOrangeLight : GrooPalette.chartOrange,
+    'JP' => dark ? GrooPalette.chartPinkLight : GrooPalette.chartPink,
+    'HK' => dark ? GrooPalette.chartGreenLight : GrooPalette.chartGreen,
+    'VN' => dark ? GrooPalette.chartIndigoLight : GrooPalette.chartIndigo,
+    _ => dark ? GrooPalette.chartBlueLight : GrooPalette.chartBlue,
   };
 }
 
@@ -1296,8 +1296,8 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
     final symbol = widget.ticker;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final starTone = dark
-        ? PorestPalette.chartYellowLight
-        : PorestPalette.chartYellow;
+        ? GrooPalette.chartYellowLight
+        : GrooPalette.chartYellow;
 
     // 종목 정체성: 마스터(이름·시장·통화) + 토스 종목정보 병행. 마스터에 없는
     // 심볼(보유 이관 등)은 토스 정보 → 보유 → 심볼 순 폴백. 웹 StockDetailBody 미러.
@@ -1697,7 +1697,7 @@ class _HoldingDetailCard extends StatelessWidget {
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.label, {required this.tokens});
   final String label;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) => Text(
@@ -1714,7 +1714,7 @@ class _SectionLabel extends StatelessWidget {
 class _KvCell extends StatelessWidget {
   const _KvCell(this.row, {required this.tokens});
   final (String, String, Color) row;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) => Column(

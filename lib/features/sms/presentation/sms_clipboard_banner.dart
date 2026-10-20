@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_alert.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/features/sms/data/clipboard_hint.dart';
-import 'package:porest_desk_app/features/sms/domain/sms_prefilter.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_alert.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/features/sms/data/clipboard_hint.dart';
+import 'package:groo_damda_app/features/sms/domain/sms_prefilter.dart';
 
 /// 홈 상단 — 복사한 결제 문자를 기록하도록 권하는 배너.
 ///

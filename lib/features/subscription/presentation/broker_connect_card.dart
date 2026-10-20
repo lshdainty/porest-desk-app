@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
 /// 증권사 한 곳의 연결 카드 — 키 등록 / 해제 / 기본 시세 소스 지정.
 ///
@@ -106,7 +106,7 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
     );
   }
 
-  Widget _header(PorestTokens t, BrokerConnection c) {
+  Widget _header(GrooTokens t, BrokerConnection c) {
     final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -166,7 +166,7 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
     );
   }
 
-  Widget _connectedBody(PorestTokens t, BrokerConnection c) {
+  Widget _connectedBody(GrooTokens t, BrokerConnection c) {
     final l = AppLocalizations.of(context);
     final verifiedAt = c.verifiedAt;
     // verifiedAt 은 서버 `[UTC]`(UserSecuritiesCredential.verified_at) — 자르면 UTC
@@ -250,7 +250,7 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
     );
   }
 
-  Widget _formBody(PorestTokens t, BrokerConnection c) {
+  Widget _formBody(GrooTokens t, BrokerConnection c) {
     final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +311,7 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
     );
   }
 
-  TextStyle _fieldLabel(PorestTokens t) => TextStyle(
+  TextStyle _fieldLabel(GrooTokens t) => TextStyle(
     fontFamily: PTypo.sans,
     fontSize: PFontSize.caption,
     fontWeight: PFontWeight.semi,

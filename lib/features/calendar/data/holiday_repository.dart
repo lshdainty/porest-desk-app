@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 
 /// 공휴일 — front `holidayApi` 미러.
 ///

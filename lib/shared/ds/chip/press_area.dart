@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
 
 // 칩 · 탭 · 토글이 함께 쓰는 부품 — 누르는 자리(누름 상태 · 키보드 · 누르는 영역 44)와 누름 축소. 화면에서 직접 쓰지
 // 않는다 — PChip · PTabs · PToggle 이 쓴다.

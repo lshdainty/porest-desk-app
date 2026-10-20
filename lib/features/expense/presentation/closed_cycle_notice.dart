@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
-import 'package:porest_desk_app/features/expense/domain/card_cycle.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_edit_route.dart';
+import 'package:groo_damda_app/features/expense/domain/card_cycle.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 결제가 끝난 회차에 걸린 거래를 바꿀 때 하는 말 — 확인창 **한 문구**와 결과 토스트.
 ///

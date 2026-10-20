@@ -16,11 +16,11 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/stocks/application/securities_retry.dart';
-import 'package:porest_desk_app/features/stocks/data/namu_repository.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/stocks/application/securities_retry.dart';
+import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 
 /// 나무 현재가를 다시 받는 주기.
 ///

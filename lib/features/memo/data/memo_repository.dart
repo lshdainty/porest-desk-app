@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
 
 class MemoRepository {
   MemoRepository(this._dio);

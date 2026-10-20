@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
-import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 나의 밤하늘 — 최근 2주 관측 그리드 (GROWN=별자리 미니 아이콘 · 흐린 밤 · 쉼 · 오늘 단계).
 /// 웹 MySkyCard 미러 (디자인 SoT: forest.jsx MyForest).
@@ -116,7 +116,7 @@ class _DayCell extends StatelessWidget {
   final int todayPoints;
   final CollectionEntry? entry;
   final IconData stageIcon;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {

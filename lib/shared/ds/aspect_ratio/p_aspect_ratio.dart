@@ -43,7 +43,7 @@ enum PAspectRatioValue {
 }
 
 /// Aspect Ratio — 폭이 정해지면 비율로 높이가 정해지는 상자 하나. 구조는 SEED Aspect Ratio(2026-10-04), 수치 원본은
-/// porest-design `specs/components/aspect-ratio.yaml`(값은 `test/fixtures/design_spec/aspect-ratio.json` — 테스트가
+/// groo-design `specs/components/aspect-ratio.yaml`(값은 `test/fixtures/design_spec/aspect-ratio.json` — 테스트가
 /// 위젯이 그 값과 같은지 본다). 웹(desk-front `src/shared/ds/aspect-ratio`)과 같은 값이다.
 ///
 /// 폭은 부모가 정하고(부모 폭이 0 이면 상자도 0) 높이는 폭 ÷ [ratio] 다 — 내용이 오기 전에 자리를 잡으므로 내용이 와도

@@ -7,9 +7,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 
 /// 라벨 굵기 — 한 폼 안에서 섞지 않는다.
 enum PFieldLabelWeight {
@@ -158,7 +158,7 @@ const double _optionalPaddingStart = 4; // 0.25rem
 const double _optionalLineHeight = 22;
 
 /// Field — 입력 하나를 감싸는 둘레. 머리(라벨 · 필수 점 또는 "선택" · 보조 액션) · 입력 · 꼬리(설명 또는 오류 · 글자 수)를
-/// 사이 8 로 쌓는다. 구조는 SEED Field(2026-10-01), 수치 원본은 porest-design `specs/components/field.yaml`(값은
+/// 사이 8 로 쌓는다. 구조는 SEED Field(2026-10-01), 수치 원본은 groo-design `specs/components/field.yaml`(값은
 /// `test/fixtures/design_spec/field.json`). 웹(desk-front `src/shared/ds/field`)과 같은 값 · 동작이다.
 ///
 /// 입력([child] — PInput · PTextarea)은 [PFieldScope] 로 이름 · 설명 · 오류 · 필수 · 막힘 · 최대 글자 수를 받는다.

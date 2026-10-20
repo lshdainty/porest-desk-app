@@ -11,12 +11,12 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
-import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/chip/chip_demo.dart';
+import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 import '../../support/design_spec.dart';
 
@@ -35,7 +35,7 @@ Widget _host(
   Alignment alignment = Alignment.topLeft,
 }) {
   final app = MaterialApp(
-    theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+    theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
@@ -1210,7 +1210,7 @@ void main() {
         PChip(label: '기간', selected: on, onPressed: () {}),
       );
       await tester.pumpWidget(chip(false));
-      final c = PorestTheme.light().extension<PColors>()!;
+      final c = GrooTheme.light().extension<PColors>()!;
       // 안 고른 Outline Weak 는 투명
       expect(_decoration(tester, _box).color!.a, 0);
       await tester.pumpWidget(chip(true));

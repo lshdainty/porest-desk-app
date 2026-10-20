@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_layout.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/help_bubble/help_bubble_layout.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
-export 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_layout.dart'
+export 'package:groo_damda_app/shared/ds/help_bubble/help_bubble_layout.dart'
     show PHelpBubbleSide;
 
 /// 트리거를 만드는 함수 — [toggle] 이 말풍선을 열고 닫는다(열려 있으면 닫는다). [open] 은 지금 열려 있는지.
@@ -22,7 +22,7 @@ const double _closeIcon = 14;
 const double _closeTouch = 44;
 
 /// Help Bubble — 트리거를 누르면 옆에 뜨는 짙은 도움말 말풍선. 구조는 SEED Help Bubble(2026-10-02), 수치 원본은
-/// porest-design `specs/components/help-bubble.yaml`(값은 `test/fixtures/design_spec/help-bubble.json` — Tooltip 과 한
+/// groo-design `specs/components/help-bubble.yaml`(값은 `test/fixtures/design_spec/help-bubble.json` — Tooltip 과 한
 /// 파일). 웹(desk-front `src/shared/ds/help-bubble`)과 같은 값이다.
 ///
 /// 화면에 늘 두기에는 길고 몰라도 일은 할 수 있는 설명(규정 · 계산 방법 · 기능 안내)을 ⓘ 를 눌러 보인다. 터치에서도 닿는

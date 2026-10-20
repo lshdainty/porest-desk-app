@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/toggle/p_toggle.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/toggle/p_toggle.dart';
 
 /// 눌러서 켜고 끄는 단추 — 값을 이 위젯이 쥐고 [PToggle] 에 준다. [disabled] 면 onChanged 가 없다(막힘).
 class _Live extends StatefulWidget {

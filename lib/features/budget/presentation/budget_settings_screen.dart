@@ -3,33 +3,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/format_locale.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/budget/domain/budget.dart';
-import 'package:porest_desk_app/features/budget/presentation/budget_edit_dialog.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/features/budget/presentation/budget_screen.dart'
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_edit_dialog.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_screen.dart'
     show showMonthPickerSheet;
 
 /// 카테고리별 예산 상태 경고 임계값 — 웹 `BudgetManager.tsx` 정합 (관리 화면은 고정 85%).
@@ -452,7 +452,7 @@ class _TotalBudgetCard extends StatelessWidget {
   final int categoryLimitSum;
   final int remaining;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onEdit;
 
   @override
@@ -641,7 +641,7 @@ class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -703,7 +703,7 @@ class _CategoryListCard extends StatelessWidget {
   /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
   final bool firstLoading;
   final bool addDisabled;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onAdd;
   final void Function(Budget) onTap;
   final Future<void> Function(Budget) onDelete;
@@ -828,7 +828,7 @@ class _CategoryRow extends StatelessWidget {
   final ExpenseCategory? category;
   final int spent;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onTap;
 
   @override

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_names.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_names.dart';
 
 /// 생성물(tool/gen_lucide_icons.py) 정합 — 피커가 보여주는 모든 이름이 실제로
 /// 렌더 가능해야 한다(fallback(tag)로 새면 웹에서 고른 아이콘이 앱에서 안 보임).

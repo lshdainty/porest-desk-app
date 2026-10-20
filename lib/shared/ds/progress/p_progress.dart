@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 한도 · 목표.
 enum PProgressMeaning {
@@ -35,8 +35,8 @@ enum PProgressState { enabled, over, reached }
 
 String _won(double n) => krwSigned(n.round(), false, unit: true);
 
-/// Progress — "얼마나 찼나" 를 보이는 미터. porest 만의 막대(SEED 에는 선형 막대가 없다 — 2026-10-03), 수치 원본은
-/// porest-design `specs/components/progress.yaml`(값은 `test/fixtures/design_spec/progress.json`). 웹(desk-front
+/// Progress — "얼마나 찼나" 를 보이는 미터. groo 만의 막대(SEED 에는 선형 막대가 없다 — 2026-10-03), 수치 원본은
+/// groo-design `specs/components/progress.yaml`(값은 `test/fixtures/design_spec/progress.json`). 웹(desk-front
 /// `src/shared/ds/progress`)과 같은 값이다. 불러오기 · 올리기의 진행에는 쓰지 않는다 — 그건 Progress Circle 이다.
 ///
 /// 모양 — 이름 줄 · 막대 · 금액 줄을 세로로, 사이 6. 이름 줄은 이름(t4 · 500 · fg-neutral)과 오른쪽 글(t3 ·

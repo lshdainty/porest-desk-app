@@ -18,34 +18,34 @@ import 'package:flutter_riverpod/misc.dart' show Override, ProviderOrFamily;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_screen.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/budget/domain/budget.dart';
-import 'package:porest_desk_app/features/budget/domain/budget_compliance.dart';
-import 'package:porest_desk_app/features/budget/presentation/budget_screen.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_screen.dart';
-import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
-import 'package:porest_desk_app/features/dashboard/presentation/dashboard_screen.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/presentation/expense_screen.dart';
-import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
-import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
-import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_screen.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_screen.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
+import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:groo_damda_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
+import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
+import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
 
 /// 첫 조회만 값을 주고 **그 뒤 재조회는 끝나지 않는다** — 화면을
 /// "다시 받는 중(이전 값 보유)" 상태로 굳혀 놓고 무엇을 그리는지 본다.
@@ -105,7 +105,7 @@ void _tallView(WidgetTester tester, {double height = 3600}) {
 Widget _app(Widget home, List<Override> overrides) => ProviderScope(
   overrides: overrides,
   child: MaterialApp(
-    theme: PorestTheme.light(),
+    theme: GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),

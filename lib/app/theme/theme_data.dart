@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/colors.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/colors.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
-/// POREST Desk 모바일 앱의 light/dark ThemeData 빌더.
+/// 그루 담다 모바일 앱의 light/dark ThemeData 빌더.
 ///
-/// Material 3 베이스 위에 [PorestTokens] 를 [ThemeExtension] 으로 얹어 두 채널 사용:
+/// Material 3 베이스 위에 [GrooTokens] 를 [ThemeExtension] 으로 얹어 두 채널 사용:
 /// - 표준 Material 위젯 (Buttons, AppBar 등) → ColorScheme + Material 톤
-/// - POREST 커스텀 위젯 → `context.tokens.bgCanvas` 류
+/// - 그루 커스텀 위젯 → `context.tokens.bgCanvas` 류
 ///
-/// porest-design 이 만든 역할 색 · 그림자 · 그라디언트([PColors] · [PShadows] · [PGradients], `porest_tokens.g.dart`)도 같이
+/// groo-design 이 만든 역할 색 · 그림자 · 그라디언트([PColors] · [PShadows] · [PGradients], `groo_tokens.g.dart`)도 같이
 /// 얹는다 — 새 컴포넌트 라이브러리(`lib/shared/ds`)는 `context.colors.fgNeutral` 처럼 이것만 쓴다.
-abstract final class PorestTheme {
+abstract final class GrooTheme {
   /// 늘 같은 ThemeData 를 돌려준다(처음 부를 때 한 번 만든다). 부를 때마다 새로 만들면 값이 같아도 다른 테마로 보여,
   /// MaterialApp 이 다시 그려질 때마다(설정 · 언어 바꿈 등) 같은 테마끼리 200ms 섞고(AnimatedTheme) 그동안 테마를
   /// 읽는 위젯이 매 프레임 다시 그려진다 — 목표 색을 견주는 색 전환은 멈춘 듯 보였다. 테마를 고쳤으면 hot reload 가
@@ -26,25 +26,25 @@ abstract final class PorestTheme {
 
   static final ThemeData _light = _build(
     brightness: Brightness.light,
-    tokens: PorestTokens.light,
+    tokens: GrooTokens.light,
     colors: PColors.light,
     shadows: PShadows.light,
     gradients: PGradients.light,
-    seed: PorestPalette.cobalt500,
+    seed: GrooPalette.cobalt500,
   );
 
   static final ThemeData _dark = _build(
     brightness: Brightness.dark,
-    tokens: PorestTokens.dark,
+    tokens: GrooTokens.dark,
     colors: PColors.dark,
     shadows: PShadows.dark,
     gradients: PGradients.dark,
-    seed: PorestPalette.cobalt400,
+    seed: GrooPalette.cobalt400,
   );
 
   static ThemeData _build({
     required Brightness brightness,
-    required PorestTokens tokens,
+    required GrooTokens tokens,
     required PColors colors,
     required PShadows shadows,
     required PGradients gradients,
@@ -81,7 +81,7 @@ abstract final class PorestTheme {
 
     return base.copyWith(
       extensions: [tokens, colors, shadows, gradients],
-      // 스크롤바 — 전역 한 벌(porest-design scroll-area.yaml). 막대는 `stroke-neutral-solid` 6px 알약, 바탕은 투명이고
+      // 스크롤바 — 전역 한 벌(groo-design scroll-area.yaml). 막대는 `stroke-neutral-solid` 6px 알약, 바탕은 투명이고
       // 올리거나 끌어도 모양이 바뀌지 않는다. 앱은 스크롤할 때만 보이는 플랫폼 스크롤바를 둔다(웹은 넘치면 늘 보인다).
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: WidgetStatePropertyAll(colors.strokeNeutralSolid),

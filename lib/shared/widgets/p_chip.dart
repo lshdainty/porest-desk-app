@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// Chip — pill 형태 단일선택 토글. 필터/카테고리/태그/타입 선택 등에 사용.
 ///
-/// porest-design에는 chip 전용 spec이 없어(toggle-group spec은 2~5 segmented 한정),
+/// groo-design에는 chip 전용 spec이 없어(toggle-group spec은 2~5 segmented 한정),
 /// desk-app inline `_Chip` 13변종에서 추출한 공통 인터페이스로 정의.
 ///
 /// - [variant]: solid = active 시 brand 채움(fgOnBrand 텍스트) /
@@ -152,7 +152,7 @@ class PChip extends StatelessWidget {
     }
   }
 
-  (Color, Color, Color?, double) _colors(PorestTokens t) {
+  (Color, Color, Color?, double) _colors(GrooTokens t) {
     if (!selected) {
       // neutral(=front subtle): off 는 transparent ghost(테두리 없음).
       if (variant == PChipVariant.neutral) {

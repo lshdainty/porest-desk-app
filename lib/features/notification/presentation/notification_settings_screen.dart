@@ -3,25 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_slider.dart';
-import 'package:porest_desk_app/shared/widgets/p_switch.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
-import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_slider.dart';
+import 'package:groo_damda_app/shared/widgets/p_switch.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/features/notification/data/user_preferences_repository.dart';
 
 /// 알림 "설정" 화면 — 6개 섹션 (푸시 마스터 / 알림 종류 / 예산 임계값 /
 /// 방해 금지 / 소리·진동 / 이메일). 각 컨트롤 변경 시 즉시 부분 PATCH(낙관적).
@@ -279,7 +279,7 @@ class _Content extends ConsumerWidget {
 /// (brand 는 brand-subtle + brandStrong — 별도 purple 토큰 없음, 브랜드 톤 사용.)
 enum _Tone { expense, warning, info, brand, success }
 
-(Color bg, Color fg) _toneColors(_Tone tone, PorestTokens t) => switch (tone) {
+(Color bg, Color fg) _toneColors(_Tone tone, GrooTokens t) => switch (tone) {
   _Tone.expense => (t.bgExpenseSubtle, t.fgExpense),
   _Tone.warning => (t.statusWarningSubtle, t.statusWarningFg),
   _Tone.info => (t.statusInfoSubtle, t.statusInfoFg),

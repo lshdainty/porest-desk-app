@@ -8,19 +8,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/time_picker/p_time_picker.dart';
-import 'package:porest_desk_app/shared/ds/time_picker/time_picker_demo.dart';
-import 'package:porest_desk_app/shared/ds/wheel_picker/p_wheel_picker.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
+import 'package:groo_damda_app/shared/ds/time_picker/time_picker_demo.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
 import '../../support/design_spec.dart';
 
 final _spec = DesignSpec.load('time-picker');
 
 Widget _host(Brightness mode, Widget child) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Scaffold(
     body: Align(
       alignment: Alignment.topLeft,
@@ -612,7 +612,7 @@ void main() {
 
   group('시트 — 고르는 동안 칸은 그대로, "완료" 로 넣는다', () {
     Widget opener(Future<void> Function(BuildContext) open) => MaterialApp(
-      theme: PorestTheme.light(),
+      theme: GrooTheme.light(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ko'),
@@ -701,8 +701,8 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             theme: mode == Brightness.dark
-                ? PorestTheme.dark()
-                : PorestTheme.light(),
+                ? GrooTheme.dark()
+                : GrooTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('ko'),

@@ -9,10 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/expense/presentation/closed_cycle_notice.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 void main() {
   final farNextYear = DateTime(2100, 1, 25);

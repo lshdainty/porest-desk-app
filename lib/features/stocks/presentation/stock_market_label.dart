@@ -1,7 +1,7 @@
 /// 종목 마스터 시장 코드 → 로케일 라벨 (웹 stocks:market.* 미러).
 library;
 
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 String stockMarketLabel(AppLocalizations l, String marketCode) =>
     switch (marketCode) {

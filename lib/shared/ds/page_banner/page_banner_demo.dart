@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/page_banner/p_page_banner.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/page_banner/p_page_banner.dart';
 
 /// 카탈로그(/dev/ds) — 바탕 둘 × 톤 다섯 × 상호작용 셋(보이기 · 전체 누르기 · 닫기), 버튼이 다음 줄로 내려가는 긴 글.
 class PageBannerDemo extends StatelessWidget {

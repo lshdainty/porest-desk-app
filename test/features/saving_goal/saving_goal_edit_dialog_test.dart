@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
-import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
-import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
+import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 const _existing = SavingGoal(rowId: 1, title: '비상금', targetAmount: 1000000);
 
@@ -29,7 +29,7 @@ Future<void> _open(WidgetTester tester, {SavingGoal? edit}) async {
         savingGoalListProvider.overrideWith((ref) async => [_existing]),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

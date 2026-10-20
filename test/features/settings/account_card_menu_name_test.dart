@@ -8,8 +8,8 @@
 // 고치면 나머지도 같이 움직여야 한다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/l10n/generated/app_localizations_en.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_en.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 
 void main() {
   test('ko — 메뉴 이름이 한 가지다', () {

@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_parts.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 
 /// 열지도 줄 — 시간대 하나. [label] 은 이름("저녁" · 13 · 700), [sub] 는 시간("18~22시" · 11 · fg-neutral-subtle).
 class PHeatmapRow {

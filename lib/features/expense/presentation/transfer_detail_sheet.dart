@@ -2,24 +2,24 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/shared/widgets/p_detail.dart';
-import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
-import 'package:porest_desk_app/core/settings/mask_flags.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_detail.dart';
+import 'package:groo_damda_app/features/recurring/presentation/recurring_settings_drawer.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
+import 'package:groo_damda_app/core/settings/mask_flags.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 /// 이체 상세 — 보기 + 수정 + 삭제 (web `TransferDetailDialog` 미러).
 ///

@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/menu_sheet/p_menu_sheet.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 
 /// 동작의 종류 — 곁 동작(고정 · 보관 · 공유) · 주 동작(수정) · 되돌리기 어려운 동작(삭제). 색은 배지만 갖는다.
 enum PSwipeActionKind { neutral, primary, destructive }
@@ -422,8 +422,8 @@ class _SwipeRecognizer extends OneSequenceGestureRecognizer {
 
 // ── 줄 감싸기 ─────────────────────────────────────────────────
 
-/// Swipe Actions — 폰 목록 줄을 왼쪽으로 밀면 오른쪽에서 동작 칸이 드러나는 지름길. porest 에만 있는 패턴이다(SEED 에는
-/// 줄 밀기가 없다). 수치 원본은 porest-design `specs/components/swipe-actions.yaml`(값은
+/// Swipe Actions — 폰 목록 줄을 왼쪽으로 밀면 오른쪽에서 동작 칸이 드러나는 지름길. groo 에만 있는 패턴이다(SEED 에는
+/// 줄 밀기가 없다). 수치 원본은 groo-design `specs/components/swipe-actions.yaml`(값은
 /// `test/fixtures/design_spec/swipe-actions.json`). 웹(desk-front `src/shared/ds/swipe-actions`)과 같은 값이다.
 ///
 ///   [PSwipeActions]          줄을 감싼다 — [actions](1 ~ 3개, 뜻의 차례로), [enabled](768 이상은 통과 — 앱은 쓸 일이 없지만

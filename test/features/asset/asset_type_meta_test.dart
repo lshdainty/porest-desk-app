@@ -2,9 +2,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_type_meta.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 Asset _asset(String type, int balance) =>
     Asset(rowId: 1, assetName: 'x', assetType: type, balance: balance);

@@ -12,14 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/subscription/presentation/subscription_sheet.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 
 /// 서버가 주는 모양 — `LocalDateTime` 직렬화라 **시간대 표시가 없다**(UTC 벽시계).
 /// 여기서 `Z` 를 붙여 두면 정작 고쳐야 할 경로(무표시 → UTC 로 읽기)를 안 지난다.
@@ -34,7 +34,7 @@ SubscriptionInfo _sub({
   bool autoRenew = true,
 }) => SubscriptionInfo(
   planCode: 'SECURITIES',
-  planName: 'Porest Pro',
+  planName: '그루 담다 Pro',
   status: status,
   currentPeriodEnd: currentPeriodEnd,
   autoRenew: autoRenew,
@@ -43,7 +43,7 @@ SubscriptionInfo _sub({
 Widget _app(SubscriptionInfo? sub) => ProviderScope(
   overrides: [mySubscriptionProvider.overrideWith((ref) async => sub)],
   child: MaterialApp(
-    theme: PorestTheme.light(),
+    theme: GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),

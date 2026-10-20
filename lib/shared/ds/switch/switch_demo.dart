@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/switch/p_switch.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/switch/p_switch.dart';
 
 /// 카탈로그(/dev/ds) — 톤 × 크기 × 끔 · 켬, 상태, 막힌 줄(위 설정을 끄면 아래 줄은 값을 지닌 채 막힌다), 스위치만
 /// (상태를 멈춰 그렸다). 눌러서 켜고 꺼 본다 — 누름(색은 그대로, 스위치만 축소)은 직접 눌러 본다.

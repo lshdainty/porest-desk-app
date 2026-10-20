@@ -1,17 +1,17 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/alert_dialog/p_alert_dialog.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_route.dart';
-import 'package:porest_desk_app/shared/ds/overlay/p_overlay.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_route.dart';
+import 'package:groo_damda_app/shared/ds/overlay/p_overlay.dart';
 
-export 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
-export 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_route.dart'
+export 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
+export 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_route.dart'
     show kSheetCloseFraction, kSheetCloseVelocity, kSheetDragDelay;
 
 /// Bottom Sheet — 화면 아래에서 올라오는 모달. `PBottomSheet.show(context, builder: …)`.
 ///
-/// 구조는 SEED Bottom Sheet(2026-10-02), 수치 원본은 porest-design `specs/components/bottom-sheet.yaml`(값은
+/// 구조는 SEED Bottom Sheet(2026-10-02), 수치 원본은 groo-design `specs/components/bottom-sheet.yaml`(값은
 /// `test/fixtures/design_spec/bottom-sheet.json`). 웹(desk-front `src/shared/ds/bottom-sheet`)과 같은 값이다.
 ///
 /// ```dart

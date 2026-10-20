@@ -9,7 +9,7 @@
 //   ③ 포함 조건은 켜진 것만 보고, all 이면 전부 / any 면 하나라도
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/expense/domain/expense_filter.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
 
 /// 식비(1)·카페(2) 카테고리, S통장(10)·S카드(11) 계좌를 쓴다.
 FilterRow row({

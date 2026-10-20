@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:porest_desk_app/app/app.dart';
-import 'package:porest_desk_app/app/session_scope.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
-import 'package:porest_desk_app/core/update/update_notification.dart';
+import 'package:groo_damda_app/app/app.dart';
+import 'package:groo_damda_app/app/session_scope.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/core/update/update_notification.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,5 +21,5 @@ Future<void> main() async {
   registerErrorToastMessenger(appMessengerKey);
   // 로그인한 사람마다 컨테이너를 새로 만든다 — 앞사람 몫으로 받아 둔 값이 다음
   // 사람에게 넘어가지 않게(SessionScope).
-  runApp(const SessionScope(child: PorestDeskApp()));
+  runApp(const SessionScope(child: GrooDamdaApp()));
 }

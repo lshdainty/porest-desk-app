@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
 
 /// 바의 타입 — root(탭 첫 화면 — 큰 제목 22, 왼쪽 버튼 없음) · standard(그 아래 화면 — 왼쪽 버튼 + 제목 18, 기본).
 /// 스펙의 desktop(768 이상 Desk 의 머리)은 앱에 없다.
@@ -48,7 +48,7 @@ TextStyle topNavigationTitleStyle(PTopNavigationType type, Color color) =>
         .copyWith(color: color, fontWeight: FontWeight.w700);
 
 /// 상단 바 — 화면 맨 위에서 지금 화면의 이름과 이동(뒤로 · 닫기 · 주 메뉴), 화면의 동작 두셋을 둔다. 구조는 SEED Top
-/// Navigation(Root · Standard, 2026-10-04), 수치 원본은 porest-design `specs/components/top-navigation.yaml`
+/// Navigation(Root · Standard, 2026-10-04), 수치 원본은 groo-design `specs/components/top-navigation.yaml`
 /// (값은 `test/fixtures/design_spec/top-navigation.json`). 웹(desk-front `src/shared/ds/top-navigation`)과 같은 값이다.
 ///
 /// 높이 56 + 위 안전 영역 — 바탕(불투명 bg-layer-default)은 화면 끝까지, 버튼 · 제목은 안전 영역 안이다. 스크롤해도 선 ·

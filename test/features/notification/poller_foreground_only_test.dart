@@ -8,7 +8,7 @@
 // 여기서 세는 건 "조건문이 있다" 가 아니라 **알림 조회가 실제로 몇 번 나갔는가** 다.
 // 시간은 위젯 테스트의 가짜 시계로 민다 — 진짜 30초를 기다리지 않는다.
 //
-// 앱은 **진짜 `PorestDeskApp`** 을 띄운다. 폴러를 켜고 끄는 배선이 거기 있으므로,
+// 앱은 **진짜 `GrooDamdaApp`** 을 띄운다. 폴러를 켜고 끄는 배선이 거기 있으므로,
 // 배선을 흉내 내면 정작 그게 끊겨도 테스트는 통과한다.
 // lifecycle 도 엔진이 보내는 것과 같은 플랫폼 메시지로 넣는다(#350 과 같은 방식).
 import 'package:dio/dio.dart';
@@ -18,20 +18,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/app/app.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
-import 'package:porest_desk_app/features/notification/application/notification_stream_service.dart';
-import 'package:porest_desk_app/features/notification/data/notification_repository.dart';
-import 'package:porest_desk_app/features/notification/domain/notification.dart';
+import 'package:groo_damda_app/app/app.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
+import 'package:groo_damda_app/features/notification/application/notification_stream_service.dart';
+import 'package:groo_damda_app/features/notification/data/notification_repository.dart';
+import 'package:groo_damda_app/features/notification/domain/notification.dart';
 
 /// 폴링 주기 — `NotificationStreamService.start` 의 기본값과 같아야 한다.
 const _tick = Duration(seconds: 30);
@@ -79,7 +79,7 @@ void main() {
   // ─── 로그아웃 ───────────────────────────────────────────────
   testWidgets('로그아웃하면 앞에 있어도 안 묻는다 — 조건은 둘 다 성립해야 한다', (tester) async {
     // 로그아웃하면 라우터가 로그인 화면으로 되돌린다. 테스트 폰트는 글자마다 정사각형이라
-    // 'Porest Desk' 한 줄이 진짜 폰트보다 두 배 넘게 재어져 390 폭에서 넘친다(테스트
+    // '그루 담다' 한 줄이 진짜 폰트보다 두 배 넘게 재어져 390 폭에서 넘친다(테스트
     // 환경 산물이지 실기기 문제가 아니다) — 넘칠 자리를 주고 폴러 횟수만 본다.
     final h = await _pumpApp(tester, width: 520);
 
@@ -301,7 +301,7 @@ Future<_Harness> _pumpApp(
         ),
         monthExpensesProvider.overrideWith((_, _) => Future.value(<Expense>[])),
       ],
-      child: const PorestDeskApp(),
+      child: const GrooDamdaApp(),
     ),
   );
   // pumpAndSettle 은 못 쓴다(무한 스켈레톤 애니메이션) — 인증 확인이 끝나 폴러가
@@ -313,7 +313,7 @@ Future<_Harness> _pumpApp(
   }
 
   final container = ProviderScope.containerOf(
-    tester.element(find.byType(PorestDeskApp)),
+    tester.element(find.byType(GrooDamdaApp)),
     listen: false,
   );
   final emitted = <AppNotification>[];

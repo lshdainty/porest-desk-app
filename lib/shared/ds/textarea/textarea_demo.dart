@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/textarea/p_textarea.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/textarea/p_textarea.dart';
 
 /// 카탈로그(/dev/ds) — 높이 둘(자동 · 고정) × 상태(기본 · 오류 · 비활성 · 읽기 전용 — 포커스는 직접 눌러 본다),
 /// 최대 높이, Field 안(글자 수). 앱은 늘 large 다. 예는 textarea.md 의 것이다.

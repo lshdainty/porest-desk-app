@@ -3,23 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/format/amount_limits.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart'
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/format/amount_limits.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart'
     show Expense;
-import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart'
+import 'package:groo_damda_app/features/dutch_pay/application/dutch_pay_providers.dart';
+import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_screen.dart'
     show DutchAvatar;
 
 /// 더치페이 만들기 — 2단계 마법사 (web `DutchCreateDialog` 미러).
@@ -566,7 +566,7 @@ class _StepHeader extends StatelessWidget {
   const _StepHeader({required this.label, required this.step, required this.t});
   final String label;
   final int step;
-  final PorestTokens t;
+  final GrooTokens t;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -602,7 +602,7 @@ class _StepHeader extends StatelessWidget {
 class _Label extends StatelessWidget {
   const _Label(this.text, this.t);
   final String text;
-  final PorestTokens t;
+  final GrooTokens t;
   @override
   Widget build(BuildContext context) {
     return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));

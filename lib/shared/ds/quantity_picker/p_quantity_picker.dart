@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 // quantity-picker.yaml 의 large 값 — 앱은 늘 large(small 36 · medium 40 · responsive 는 웹 몫이다).
 const double _height = 52; // root.height · button.size
@@ -31,7 +31,7 @@ enum PQuantityLayout { hug, fill }
 String _defaultValueText(int value) => '$value';
 
 /// Quantity Picker — 작은 정수를 한 단계씩 늘리고 줄이는 컨트롤. 구조는 SEED Quantity Picker(2026-10-15),
-/// 수치 원본은 porest-design `specs/components/quantity-picker.yaml`(값은 `test/fixtures/design_spec/quantity-picker.json`
+/// 수치 원본은 groo-design `specs/components/quantity-picker.yaml`(값은 `test/fixtures/design_spec/quantity-picker.json`
 /// — 테스트가 위젯이 그 값과 같은지 본다). 웹(desk-front `src/shared/ds/quantity-picker`)과 같은 값이다.
 /// 흔한 값이 열 단계 안쪽인 수(승인 필요 횟수 0 ~ 3 · 부여 시간 0 ~ 7시간)에 쓴다 — 더 멀거나 돈 · 소수면 Input 의 숫자 칸,
 /// 띄엄띄엄 이름 붙은 값은 Select, 범위 안의 자리는 Slider 다.

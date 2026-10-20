@@ -9,10 +9,10 @@ enum PScrollAreaOrientation { vertical, horizontal, both }
 /// 알린다).
 enum PScrollAreaUse { page, overlay, row }
 
-/// Scroll Area — 기본 스크롤 + 전역 스크롤바 한 벌. 수치 원본은 porest-design `specs/components/scroll-area.yaml`(값은
+/// Scroll Area — 기본 스크롤 + 전역 스크롤바 한 벌. 수치 원본은 groo-design `specs/components/scroll-area.yaml`(값은
 /// `test/fixtures/design_spec/scroll-area.json`), 웹은 desk-front `src/shared/ds/scroll-area` 다.
 ///
-/// 스크롤은 플랫폼 그대로(끌기 · 관성)이고 막대의 모양은 이 위젯이 아니라 전역 [ScrollbarTheme](`PorestTheme` — 막대
+/// 스크롤은 플랫폼 그대로(끌기 · 관성)이고 막대의 모양은 이 위젯이 아니라 전역 [ScrollbarTheme](`GrooTheme` — 막대
 /// `stroke-neutral-solid` · 6 · 알약, 바탕 투명, 눌러도 모양이 같다)다. 웹은 넘치면 막대가 늘 보이지만 앱은 스크롤할 때만 보이는
 /// 플랫폼 스크롤바다(웹과 달라진 점). 세로 막대는 숨기지 않는다 — 숨기는 것은 가로 줄([PScrollAreaUse.row])뿐이다.
 ///

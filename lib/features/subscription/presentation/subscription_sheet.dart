@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_segmented.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 
-/// 구독 관리 바텀시트 — porest-design `SubscriptionDialog` 미러.
+/// 구독 관리 바텀시트 — groo-design `SubscriptionDialog` 미러.
 ///
 /// 현재 플랜 배너(Free/Pro) · 증권 스포트라이트 · 월간/연간 세그(가격 cosmetic)
 /// · Free/Pro 비교 카드 · 기능 비교표. 결제(PG) 없음 — 'Pro 시작하기'=self-grant,
@@ -293,7 +293,7 @@ class _SubscriptionSheetBodyState
   }
 
   Widget _planCard(
-    PorestTokens t, {
+    GrooTokens t, {
     required bool isPro,
     required bool current,
     int priceWon = 0,
@@ -384,7 +384,7 @@ class _SubscriptionSheetBodyState
     );
   }
 
-  Widget _featureHeader(PorestTokens t) {
+  Widget _featureHeader(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return Container(
       color: t.bgSunken,
@@ -433,7 +433,7 @@ class _SubscriptionSheetBodyState
     );
   }
 
-  Widget _featureRow(PorestTokens t, _PlanFeature f) {
+  Widget _featureRow(GrooTokens t, _PlanFeature f) {
     return Container(
       decoration: BoxDecoration(
         color: f.star ? t.bgBrandSubtle : t.bgSurface,
@@ -485,7 +485,7 @@ class _SubscriptionSheetBodyState
     );
   }
 
-  Widget _featureCell(PorestTokens t, bool val, {required bool accent}) {
+  Widget _featureCell(GrooTokens t, bool val, {required bool accent}) {
     if (val) {
       return Icon(
         LucideIcons.check,

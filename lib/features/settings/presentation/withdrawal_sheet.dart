@@ -4,21 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/settings/application/withdrawal_providers.dart';
-import 'package:porest_desk_app/features/settings/domain/withdrawal_check.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/settings/application/withdrawal_providers.dart';
+import 'package:groo_damda_app/features/settings/domain/withdrawal_check.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
 /// desk 이용 해지 — web `WithdrawDialog` 미러.
 ///
@@ -250,7 +250,7 @@ class _BodyState extends ConsumerState<_Body> {
     );
   }
 
-  Widget _blockedBody(PorestTokens t, AppLocalizations l) {
+  Widget _blockedBody(GrooTokens t, AppLocalizations l) {
     final check = _check!;
     // 서버가 시간대 없이 주는 `[UTC]` — 그냥 자르면 KST 에서 하루 이르게 보인다.
     // 구독 시트와 같은 값이라 같은 방식으로 읽어야 두 화면이 다른 날짜를 말하지 않는다.
@@ -289,7 +289,7 @@ class _BodyState extends ConsumerState<_Body> {
     );
   }
 
-  Widget _impactBody(PorestTokens t, AppLocalizations l) {
+  Widget _impactBody(GrooTokens t, AppLocalizations l) {
     final c = _check!;
     // 0 인 항목은 줄을 안 만든다 — 없는 손실을 세어 겁줄 이유가 없다.
     final impacts = <String>[
@@ -388,7 +388,7 @@ class _BodyState extends ConsumerState<_Body> {
     );
   }
 
-  Widget _reauthBody(PorestTokens t, AppLocalizations l) {
+  Widget _reauthBody(GrooTokens t, AppLocalizations l) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,

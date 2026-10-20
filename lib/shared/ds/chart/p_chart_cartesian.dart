@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_parts.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 
 /// 계열 하나 — 선 · 막대 차트의 줄 하나. [values] 는 [categories] 와 같은 순서(없는 날은 null — 오늘 뒤 날짜는 0 으로 채우지
 /// 않고 아예 넘기지 않는다).

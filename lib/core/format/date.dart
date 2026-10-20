@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
 
 /// porest-desk-front `formatDay(dStr)` 포팅 — "M월 D일" + "요일".
 class DayLabel {

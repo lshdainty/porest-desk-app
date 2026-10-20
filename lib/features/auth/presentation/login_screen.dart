@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
-import 'package:porest_desk_app/core/auth/pkce.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/oauth_link_listener.dart';
+import 'package:groo_damda_app/core/auth/pkce.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 
 /// SSO 로그인 화면 (OAuth 2.0 Authorization Code + PKCE, 시스템 브라우저 — RFC 8252).
 ///
@@ -160,7 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         const _BrandMark(size: 56),
                         Text(
-                          'Porest Desk',
+                          '그루 담다',
                           style: PTypo.displayMd.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
@@ -217,7 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-/// 브랜드 마크 — web `porest-desk-mark.svg`(rect 4단 나무) 미러.
+/// 브랜드 마크 — web `groo-desk-mark.svg`(rect 4단 나무) 미러.
 /// 색은 web 로그인 마크(fg-brand: 라이트 primary / 다크 primary-light) 정합 — 다크에서 밝게.
 class _BrandMark extends StatelessWidget {
   const _BrandMark({this.size = 64});

@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/alert_dialog/p_alert_dialog.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/overlay/overlay_stage.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/overlay/overlay_stage.dart';
 
 /// 카탈로그(/dev/ds) — 배치(나란히 · 세로 · 하나)를 딤 위에 정지시켜 그리고, 실제로 띄워 본다(바깥 누르기는 무시 ·
 /// 뒤로 가기는 취소 · 확정 기다리기 · 작성 중 나가기).

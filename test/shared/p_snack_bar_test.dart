@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 스낵바는 화면을 띄워 봐야 깨지는 게 보인다 — Material 은 behavior/padding/margin
 /// 조합에 assert 가 걸려 있어 analyze 로는 안 잡힌다.
@@ -12,9 +12,7 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 /// 화면 하단이 통째로 초록 막대가 됐다.
 Widget _host(void Function(BuildContext) onTap, {Brightness? brightness}) {
   return MaterialApp(
-    theme: brightness == Brightness.dark
-        ? PorestTheme.dark()
-        : PorestTheme.light(),
+    theme: brightness == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     home: Scaffold(
       body: Builder(
         builder: (context) => Center(
@@ -95,7 +93,7 @@ void main() {
     testWidgets('$brightness — 면이 불투명한 surface-raised 이고 그림자가 잘리지 않는다', (
       tester,
     ) async {
-      late PorestTokens t;
+      late GrooTokens t;
       await tester.pumpWidget(
         _host((c) {
           t = c.tokens;

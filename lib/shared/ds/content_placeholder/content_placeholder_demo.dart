@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/content_placeholder/p_content_placeholder.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/content_placeholder/p_content_placeholder.dart';
 
 /// 카탈로그(/dev/ds) — 틀 크기에 따라 그림이 높이의 50%(16 ~ 160). 모서리는 담는 틀이 자른다.
 class ContentPlaceholderDemo extends StatelessWidget {

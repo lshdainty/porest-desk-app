@@ -3,14 +3,14 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/accordion/p_accordion.dart';
-import 'package:porest_desk_app/shared/ds/card/p_card.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/list/p_list.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/accordion/p_accordion.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 카탈로그(/dev/ds) — 글 카드(머리 + 본문) · 목록 카드 · 아코디언 카드 · 누름 셋(none · whole · peers) · 지표(large · small ·
 /// 증감 셋 · 가장 나쁜 값) · 순자산(hero) · 기다림 · 실패. 웹 견본과 같은 구성이다. 카드는 늘 회색 바닥 위에 둔다 — 폰은 카드 사이 8.

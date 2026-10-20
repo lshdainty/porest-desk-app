@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 // 피드백 묶음(카탈로그 "11 피드백" — Snackbar · Callout · Page Banner · Result Section)이 함께 쓰는 부품. 눌리는 것이
 // 모두 같은 규칙이다 — 누르면 세로 2px 거리 축소(기준 max(높이, 폭 ÷ 4, 24)), 누르는 영역은 보이는 것보다 넓다.

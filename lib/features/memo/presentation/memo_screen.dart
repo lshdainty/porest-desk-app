@@ -3,28 +3,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
-import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
-import 'package:porest_desk_app/features/memo/domain/memo_meta.dart';
-import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
-import 'package:porest_desk_app/features/memo/presentation/memo_detail_dialog.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/features/memo/application/memo_providers.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/features/memo/presentation/memo_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/features/memo/domain/memo_colors.dart';
+import 'package:groo_damda_app/features/memo/domain/memo_meta.dart';
+import 'package:groo_damda_app/features/memo/presentation/memo_edit_dialog.dart';
+import 'package:groo_damda_app/features/memo/presentation/memo_detail_dialog.dart';
 
 /// 메모 — 토스 톤 색틴트 카드 그리드 (web `MemoScreen` mobile 미러).
 ///
@@ -106,7 +106,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
   /// [body] 는 칩 행 아래 콘텐츠(섹션+그리드 / 그리드 스켈레톤).
   Widget _buildShell(
     BuildContext context,
-    PorestTokens t, {
+    GrooTokens t, {
     required Widget chips,
     required Widget body,
   }) {
@@ -160,7 +160,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, PorestTokens t, List<Memo> all) {
+  Widget _buildBody(BuildContext context, GrooTokens t, List<Memo> all) {
     final l = AppLocalizations.of(context);
     final hasQuery = _query.trim().isNotEmpty;
 
@@ -316,7 +316,7 @@ class _SectionHeader extends StatelessWidget {
   });
   final IconData icon;
   final String label;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {

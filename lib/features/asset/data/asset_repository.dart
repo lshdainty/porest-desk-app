@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
-import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
-import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_trade.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/asset/domain/card_billing.dart';
+import 'package:groo_damda_app/features/asset/domain/net_worth_point.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 
 class AssetRepository {
   AssetRepository(this._dio);

@@ -7,11 +7,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
 Widget _app(Widget child) => MaterialApp(
-  theme: PorestTheme.dark(),
+  theme: GrooTheme.dark(),
   home: Scaffold(body: Center(child: child)),
 );
 

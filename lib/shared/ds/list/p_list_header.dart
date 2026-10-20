@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 목록 제목의 모양 — mediumWeak(기본: 14 · 500 · 옅은 색 — 줄보다 앞서지 않는다) · boldSolid(14 · 700 · 짙은 색 — 화면을
 /// 크게 나누는 묶음에만).
 enum PListHeaderVariant { mediumWeak, boldSolid }
 
-/// List Header(목록 제목) — 목록 밖, 바로 위에 두는 제목. 수치 원본은 porest-design `specs/components/list-header.yaml`
+/// List Header(목록 제목) — 목록 밖, 바로 위에 두는 제목. 수치 원본은 groo-design `specs/components/list-header.yaml`
 /// (값은 `test/fixtures/design_spec/list-header.json`). 웹(desk-front `src/shared/ds/list`)과 같은 값이다.
 ///
 /// 좌우 24(줄과 같다 — 제목과 줄의 왼쪽이 맞는다) · 위아래 8 · 제목과 오른쪽 작은 버튼(도움말 · 전체 보기) 사이 10.

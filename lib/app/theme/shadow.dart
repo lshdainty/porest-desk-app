@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 
-/// porest-design `--shadow-*` SoT 정합 — DESIGN.desk.md "Elevation & Depth"
-/// / `porest-tokens.css` L132-139.
+/// groo-design `--shadow-*` SoT 정합 — DESIGN.desk.md "Elevation & Depth"
+/// / `groo-tokens.css` L132-139.
 ///
 /// Light: base color cool-neutral `rgb(15,18,28)` (= #0F121C). 깊이감을 위해
 /// 대부분 두 레이어 — wider blur/larger offset + sharper/closer.

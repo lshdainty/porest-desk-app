@@ -4,10 +4,10 @@ import 'package:flutter/rendering.dart' show SemanticsRole;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 시트 최대 폭 — 그보다 좁은 화면은 화면 폭 전체, 넓으면 가운데(bottom-sheet.yaml root.maxWidth).
 const double kBottomSheetMaxWidth = 480;

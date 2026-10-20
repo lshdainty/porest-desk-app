@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/POREST_DESK-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="POREST Desk" />
+  <img src="https://img.shields.io/badge/%EA%B7%B8%EB%A3%A8_%EB%8B%B4%EB%8B%A4-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="그루 담다" />
 </p>
 
-<h1 align="center">POREST Desk App</h1>
+<h1 align="center">그루 담다 App</h1>
 
 <p align="center">
   <strong>개인 생산성/라이프 로그 관리를 위한 Desk 모바일 앱 (iOS + Android)</strong>
@@ -19,7 +19,7 @@
 
 ## 소개
 
-**POREST Desk App**은 [POREST](https://github.com/lshdainty/POREST) 서비스의 Desk 모바일 앱입니다.
+**그루 담다 App**은 [그루](https://github.com/lshdainty/groo) 서비스의 Desk 모바일 앱입니다.
 
 가계부(지출/수입), 할 일, 캘린더, 메모, 자산, 통계 등 생산성 기능을 Flutter 기반 iOS/Android 앱으로 제공합니다.
 
@@ -140,10 +140,10 @@ fvm flutter build apk --release --dart-define-from-file=config/prod.json    # pr
 
 | Repository | Description |
 |------------|-------------|
-| [POREST](https://github.com/lshdainty/POREST) | 통합 레포지토리 (서비스 소개) |
+| [그루](https://github.com/lshdainty/groo) | 통합 레포지토리 (서비스 소개) |
 | [porest-desk-back](https://github.com/lshdainty/porest-desk-back) | Desk 백엔드 (REST API) |
 | [porest-desk-front](https://github.com/lshdainty/porest-desk-front) | Desk 웹 프론트엔드 |
-| [porest-core](https://github.com/lshdainty/porest-core) | 공통 라이브러리 |
+| [groo-core](https://github.com/lshdainty/groo-core) | 공통 라이브러리 |
 | [porest-sso-back](https://github.com/lshdainty/porest-sso-back) | SSO 백엔드 |
 | [porest-sso-front](https://github.com/lshdainty/porest-sso-front) | SSO 프론트엔드 |
 

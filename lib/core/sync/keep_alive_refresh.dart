@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
-import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/memo/application/memo_providers.dart';
+import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
+import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
 
 /// 거래(expense) 변경 후 파급되는 provider 일괄 무효화.
 ///

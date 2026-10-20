@@ -5,8 +5,8 @@
 // 안에서 숫자가 어긋난다 — 이월이 등록한 날 추이 그래프에 솟았다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
 
 const _base = Expense(
   rowId: 1,

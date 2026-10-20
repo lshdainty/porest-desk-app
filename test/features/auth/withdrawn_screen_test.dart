@@ -17,19 +17,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/app/router.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
-import 'package:porest_desk_app/features/auth/presentation/withdrawn_screen.dart';
-import 'package:porest_desk_app/features/settings/application/withdrawal_providers.dart';
-import 'package:porest_desk_app/features/settings/data/withdrawal_repository.dart';
-import 'package:porest_desk_app/features/settings/domain/withdrawal_check.dart';
-import 'package:porest_desk_app/features/settings/presentation/withdrawal_sheet.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/router.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
+import 'package:groo_damda_app/features/auth/presentation/withdrawn_screen.dart';
+import 'package:groo_damda_app/features/settings/application/withdrawal_providers.dart';
+import 'package:groo_damda_app/features/settings/data/withdrawal_repository.dart';
+import 'package:groo_damda_app/features/settings/domain/withdrawal_check.dart';
+import 'package:groo_damda_app/features/settings/presentation/withdrawal_sheet.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _user = User(
   rowId: 1,
@@ -81,7 +81,7 @@ class _FakeRepo extends WithdrawalRepository {
 final _l = lookupAppLocalizations(const Locale('ko'));
 
 MaterialApp _app(GoRouter router) => MaterialApp.router(
-  theme: PorestTheme.light(),
+  theme: GrooTheme.light(),
   locale: const Locale('ko'),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,

@@ -5,9 +5,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/callout/feedback_parts.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/callout/feedback_parts.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 톤 — neutral(기본, 아이콘 없음) · positive(체크 — 성공을 눈에 띄게 알릴 때) · critical(느낌표 — 다시 하면 되는 가벼운
 /// 실패). 아이콘 색만 바뀐다(짙은 띠 위에서 보이는 반전 짝 fg-*-inverted).
@@ -113,7 +113,7 @@ class _PSnackbarScope extends InheritedWidget {
 
 /// Snackbar 호스트(웹 `SnackbarProvider`) — 앱 맨 위에 한 번 둔다. 화면 아래 가운데 자리를 **화면 위**에 그린다.
 ///
-/// 구조는 SEED Snackbar(2026-10-02), 수치 원본은 porest-design `specs/components/snackbar.yaml`(값은
+/// 구조는 SEED Snackbar(2026-10-02), 수치 원본은 groo-design `specs/components/snackbar.yaml`(값은
 /// `test/fixtures/design_spec/snackbar.json`). 웹(desk-front `src/shared/ds/snackbar`)과 같은 값이다.
 ///
 /// ```dart

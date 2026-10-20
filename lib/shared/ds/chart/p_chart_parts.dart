@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 
 /// Chart 의 부품 — 차트 상자 · 툴팁 · 지표 타일 · 도넛 범례 · 표로 보기. 규칙은 p_chart.dart 머리 설명이다.
 

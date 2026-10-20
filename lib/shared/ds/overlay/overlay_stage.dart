@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 카탈로그 무대 — 겹침을 뜨기 전 화면 위에 딤 + 표면으로 정지시켜 그린다(웹 `OverlayStage` 의 앱 판).
 /// debug 카탈로그 전용 — 실제로 띄우는 것은 라우트다(`PAlertDialog.show` · `PBottomSheet.show`).

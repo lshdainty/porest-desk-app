@@ -10,10 +10,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/menu_sheet/p_menu_sheet.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 
 import '../../support/design_spec.dart';
 
@@ -23,7 +23,7 @@ PColors _colors(Brightness mode) =>
     mode == Brightness.dark ? PColors.dark : PColors.light;
 
 ThemeData _theme(Brightness mode) =>
-    mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light();
+    mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light();
 
 void _viewport(WidgetTester tester, Size size, {double safeBottom = 0}) {
   tester.view.physicalSize = size;

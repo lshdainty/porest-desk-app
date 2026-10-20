@@ -3,11 +3,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
 /// 변형 — solid(옅은 회색 채움 — 제안 · 필터 바, 흰 표면 위에서만) · outlineStrong(고르면 짙은 채움) · outlineWeak(기본 —
 /// 고르면 옅은 바탕 + 짙은 1px, 글자 그대로).
@@ -268,7 +268,7 @@ class ChipVisual extends StatelessWidget {
 }
 
 /// Chip(버튼) — 제안(누르면 칸에 값을 넣는다 · 고른 모습 없음) · 필터 바의 여는 칩(뒤 아래 화살표, 걸린 조건이면
-/// [selected]) · 아이콘만 있는 필터 지우기([PChip.icon]). 구조는 SEED Chip(2026-10-02), 수치 원본은 porest-design
+/// [selected]) · 아이콘만 있는 필터 지우기([PChip.icon]). 구조는 SEED Chip(2026-10-02), 수치 원본은 groo-design
 /// `specs/components/chip.yaml`(값은 `test/fixtures/design_spec/chip.json` — 테스트가 위젯이 그 값과 같은지 본다).
 /// 웹(desk-front `src/shared/ds/chip`)과 같은 값이다.
 ///

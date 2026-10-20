@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
 
 /// 카탈로그(/dev/ds) — 변형 × 크기 × 배치, ghost 글자색, 상태, 가장자리 맞춤. 누름은 직접 눌러 본다.
 class ButtonDemo extends StatelessWidget {

@@ -21,15 +21,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
-import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
-import 'package:porest_desk_app/features/memo/data/memo_repository.dart';
-import 'package:porest_desk_app/features/preset/data/preset_repository.dart';
-import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
-import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
+import 'package:groo_damda_app/features/expense/data/expense_repository.dart';
+import 'package:groo_damda_app/features/memo/data/memo_repository.dart';
+import 'package:groo_damda_app/features/preset/data/preset_repository.dart';
+import 'package:groo_damda_app/features/saving_goal/data/saving_goal_repository.dart';
+import 'package:groo_damda_app/features/todo/data/todo_repository.dart';
 
 /// 요청 바디를 잡아 두고 최소 응답을 돌려주는 Dio (holding_sort_order_payload_test 패턴).
 (Dio, List<Map<String, dynamic>> captured) _capturingDio(

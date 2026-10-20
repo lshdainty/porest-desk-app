@@ -4,7 +4,7 @@
 // `LengthLimitingTextInputFormatter(11)` 로는 999억이 그대로 통과한다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/format/amount_limits.dart';
+import 'package:groo_damda_app/core/format/amount_limits.dart';
 
 /// 사용자가 [next] 를 친 결과 입력칸에 남는 문자열.
 String _type(AmountLimitFormatter f, String prev, String next) => f

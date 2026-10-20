@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/constellation/data/constellation_repository.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/constellation/data/constellation_repository.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 
 final constellationRepositoryProvider = FutureProvider<ConstellationRepository>(
   (ref) async {

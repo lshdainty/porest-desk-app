@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.g.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.g.dart';
 
 /// 기관 색 한 줄의 글자색 — white 는 static-white, dark 는 라이트 fg-neutral · 다크 fg-neutral-inverted.
 enum PInstitutionText { white, dark }
@@ -108,7 +108,7 @@ class PInstitutionTable {
   }
 }
 
-/// 앱이 쓰는 기관 색 표 하나. 표의 원본은 porest-design 의 YAML → 스펙 JSON 이다 — 표를 Dart 로 손으로 옮겨 적지 않는다.
+/// 앱이 쓰는 기관 색 표 하나. 표의 원본은 groo-design 의 YAML → 스펙 JSON 이다 — 표를 Dart 로 손으로 옮겨 적지 않는다.
 ///
 /// 표는 `scripts/sync_design.sh` 가 스펙 JSON 에서 만든 `institution_colors.g.dart`(`kInstitutionColorsSpec`)에서 읽는다.
 /// 테스트는 스펙 JSON 을 읽어 [table] 에 꽂아 생성 파일과 같은지도 본다.

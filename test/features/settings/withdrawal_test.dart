@@ -10,11 +10,11 @@
 // - 사용자에게 보이는 문구에 예외 원문(`ApiException(...)`)이 새지 않는다
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
-import 'package:porest_desk_app/features/settings/domain/withdrawal_check.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations_en.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations_ko.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/auth/presentation/login_screen.dart';
+import 'package:groo_damda_app/features/settings/domain/withdrawal_check.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_en.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 
 void main() {
   group('WithdrawalCheck', () {

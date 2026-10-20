@@ -1,4 +1,4 @@
-// porest-design 스펙 값(test/fixtures/design_spec/<이름>.json)을 읽고 푼다 — scripts/sync_design.sh 가 가져온다.
+// groo-design 스펙 값(test/fixtures/design_spec/<이름>.json)을 읽고 푼다 — scripts/sync_design.sh 가 가져온다.
 //
 // 새 컴포넌트(lib/shared/ds)는 생성 토큰으로 값을 적고, 테스트가 이 값과 같은지 본다.
 // 푸는 법은 웹 검사기(desk-front scripts/check-ds-spec.mjs) · 사이트와 같다 — when 이 맞는 규칙의

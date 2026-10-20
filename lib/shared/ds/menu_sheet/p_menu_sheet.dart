@@ -4,12 +4,12 @@ import 'package:flutter/rendering.dart' show SemanticsRole;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_route.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
-import 'package:porest_desk_app/shared/ds/overlay/p_overlay.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_route.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/overlay/p_overlay.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 줄의 정렬 — `textWithIcon`(기본) 아이콘 + 글, 글은 왼쪽. `textOnly` 글만, 가운데(줄 설명 · 아이콘을 두지 않는다).
 /// 한 시트에서 섞지 않는다.
@@ -63,7 +63,7 @@ const double kMenuSheetPaddingBottom = PSpacing.x4;
 
 /// Menu Sheet — 화면 아래에서 올라오는 동작 목록. `PMenuSheet.show(context, title: …, groups: […])`.
 ///
-/// 구조는 SEED Swipeable Menu Sheet(2026-10-02), 수치 원본은 porest-design `specs/components/menu-sheet.yaml`(값은
+/// 구조는 SEED Swipeable Menu Sheet(2026-10-02), 수치 원본은 groo-design `specs/components/menu-sheet.yaml`(값은
 /// `test/fixtures/design_spec/menu-sheet.json`). 웹(desk-front `src/shared/ds/menu-sheet`)과 같은 값이다.
 ///
 /// 1280 미만의 줄 · 화면 동작 목록이다(앱은 Menu 를 만들지 않는다 — 늘 이 시트). 줄 끝 ⋮ · 머리의 더보기 버튼이 열고,

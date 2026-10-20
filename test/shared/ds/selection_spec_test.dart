@@ -11,18 +11,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/p_checkbox.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
-import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
-import 'package:porest_desk_app/shared/ds/switch/p_switch.dart';
-import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/checkbox_demo.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
+import 'package:groo_damda_app/shared/ds/radio/radio_demo.dart';
+import 'package:groo_damda_app/shared/ds/switch/p_switch.dart';
+import 'package:groo_damda_app/shared/ds/switch/switch_demo.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
 
@@ -36,7 +36,7 @@ List<String> _appStates(DesignSpec spec) =>
 
 Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) {
   final app = MaterialApp(
-    theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+    theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
@@ -1939,7 +1939,7 @@ void main() {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      for (final theme in [PorestTheme.light(), PorestTheme.dark()]) {
+      for (final theme in [GrooTheme.light(), GrooTheme.dark()]) {
         await tester.pumpWidget(
           MaterialApp(
             theme: theme,
@@ -1965,7 +1965,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         home: const Scaffold(
           body: SingleChildScrollView(child: CheckboxDemo()),
         ),

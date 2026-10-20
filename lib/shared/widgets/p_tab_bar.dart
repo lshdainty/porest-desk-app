@@ -4,11 +4,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/motion.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
-/// iOS 26+ Liquid Glass 플로팅 하단 네비 — 웹 shared/ui/porest/tabbar.tsx 미러.
+/// iOS 26+ Liquid Glass 플로팅 하단 네비 — 웹 shared/ui/groo/tabbar.tsx 미러.
 /// design chrome.jsx MTabBar / app.css .m-tabbar SoT.
 ///
 /// 규칙:

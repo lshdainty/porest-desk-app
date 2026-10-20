@@ -1,4 +1,4 @@
-/// porest-design `--z-*` SoT 정합 — DESIGN.desk.md / porest-tokens.css L168-174.
+/// groo-design `--z-*` SoT 정합 — DESIGN.desk.md / groo-tokens.css L168-174.
 ///
 /// Flutter 는 widget tree 로 stacking 을 자동 처리하지만,
 /// [Overlay.of].insert, [Navigator.overlay], custom [Stack] ordering 등을 직접

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/colors.dart';
-import 'package:porest_desk_app/app/theme/motion.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/colors.dart';
+import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// specs/components/toggle.md 미러.
 ///
@@ -281,7 +281,7 @@ class _GroupItem<T> extends StatelessWidget {
     final bg = selected
         // solid active = primary 고정(cobalt500) — web --bg-brand(=--color-primary
         // 양모드 고정) 정합. bgBrand 는 다크에서 cobalt400(light)이라 더 밝아 어긋났음.
-        ? (isSolid ? PorestPalette.cobalt500 : t.bgMuted)
+        ? (isSolid ? GrooPalette.cobalt500 : t.bgMuted)
         : Colors.transparent;
     final selectedWeight = isSolid ? PFontWeight.bold : PFontWeight.semi;
     final (padX, padY, minH) = _metrics;

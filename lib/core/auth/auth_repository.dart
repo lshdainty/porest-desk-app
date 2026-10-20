@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
 
 /// 인증 관련 Desk 백엔드 호출을 모은 얇은 어댑터.
 ///

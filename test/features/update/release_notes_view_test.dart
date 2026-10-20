@@ -5,9 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/features/update/presentation/release_notes_view.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/features/update/presentation/release_notes_view.dart';
 
 const _notes = '''
 새 기능
@@ -20,7 +20,7 @@ const _notes = '''
 Future<void> _pump(WidgetTester tester, String notes) async {
   await tester.pumpWidget(
     MaterialApp(
-      theme: PorestTheme.light(),
+      theme: GrooTheme.light(),
       home: Scaffold(body: PReleaseNotes(notes: notes)),
     ),
   );

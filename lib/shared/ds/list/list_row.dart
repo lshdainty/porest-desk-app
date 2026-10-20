@@ -3,12 +3,12 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 // List 의 줄 틀 — 줄의 종류(보기만 · 누르는 · 링크 · 컨트롤 · 부모)가 함께 쓰는 짜임. 화면에서 직접 쓰지 않는다 —
 // PListItem · PListButtonItem · PListLinkItem · PListSwitchItem · PListCheckItem · PListRadioItem · PListParentItem
-// (p_list.dart · p_list_parent_item.dart)이 이 틀에 줄의 종류만 얹는다. 수치 원본은 porest-design
+// (p_list.dart · p_list_parent_item.dart)이 이 틀에 줄의 종류만 얹는다. 수치 원본은 groo-design
 // `specs/components/list.yaml`(값은 `test/fixtures/design_spec/list.json`), 웹은 desk-front `src/shared/ds/list`.
 
 /// 맞춤 — center(기본: 앞 · 뒤가 본문의 세로 가운데) · top(제목이 두 줄을 넘거나 설명이 길 때 — 위에 맞춘다). 한 목록
@@ -310,7 +310,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
     if (_disabled) _pressed = false;
   }
 
-  /// 본문 + 뒤 붙이개(porest-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
+  /// 본문 + 뒤 붙이개(groo-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
   ///   글([Text]로 넘긴 값) — 본문이 최소 폭(1em + 뒤 여백 10)이 된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다.
   ///   위젯(금액 노드 · 화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다. 큰 금액을 줄이는 건 화면 몫이다.
   Widget _bodyAndSuffix(Widget bodyNode, Color detailColor, Color arrowColor) {

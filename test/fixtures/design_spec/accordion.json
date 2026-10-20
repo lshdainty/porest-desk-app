@@ -22,7 +22,7 @@
     "divider": "항목 사이 선 — inline 만",
     "header": "목록 머리 — 시트 · 대화상자에서 아코디언 위 한 줄(제목 + 모두 펼치기). 카드 안이면 카드 머리가 이 자리다",
     "headerTitle": "목록 머리 제목 — \"혜택 상세 · 12건\"",
-    "expandAll": "모두 펼치기 — 목록 머리 오른쪽 글 단추(porest 확장). 펼치면 \"모두 접기\"",
+    "expandAll": "모두 펼치기 — 목록 머리 오른쪽 글 단추(groo 확장). 펼치면 \"모두 접기\"",
     "focusRing": "키보드 포커스 링(웹) — 트리거 안쪽"
   },
   "axes": {
@@ -750,7 +750,7 @@
       "state": "enabled",
       "slot": "divider",
       "prop": "marginX",
-      "note": "들인 선 24 — List 의 들인 선과 같다(SEED dividerPaddingX 12 의 porest 짝)"
+      "note": "들인 선 24 — List 의 들인 선과 같다(SEED dividerPaddingX 12 의 groo 짝)"
     },
     {
       "rule": 1,

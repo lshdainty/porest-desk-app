@@ -11,14 +11,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
-import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
-import 'package:porest_desk_app/shared/ds/date_picker/p_date_picker.dart';
-import 'package:porest_desk_app/shared/ds/wheel_picker/p_wheel_picker.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/date_picker_demo.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
 import '../../support/design_spec.dart';
 
@@ -27,7 +27,7 @@ final _labels = PDatePickerLabels.ko;
 final _today = DateTime(2026, 10, 15);
 
 Widget _app(Brightness mode, Widget home) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),

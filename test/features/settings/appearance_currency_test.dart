@@ -18,12 +18,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
-import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
-import 'package:porest_desk_app/features/settings/presentation/appearance_section.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/features/notification/data/user_preferences_repository.dart';
+import 'package:groo_damda_app/features/settings/presentation/appearance_section.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_radio_list.dart';
 
 /// 서버 대신 값을 들고 있는 가짜 — 무엇이 나갔는지까지 잡는다.
 class _FakePrefsRepo extends UserPreferencesRepository {
@@ -91,7 +91,7 @@ Future<_FakePrefsRepo> _pump(
         userPreferencesRepositoryProvider.overrideWith((ref) async => repo),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

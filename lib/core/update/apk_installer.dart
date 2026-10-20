@@ -6,7 +6,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
 
 /// 안드로이드에서 새 APK 를 받아 설치 화면까지 데려다준다.
 ///

@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
 
 /// 새 버전 확인 — 스토어를 쓰지 않아 자동 업데이트가 없다.
 ///

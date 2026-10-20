@@ -398,7 +398,7 @@
       "state": "enabled",
       "slot": "swatch",
       "prop": "tooltip",
-      "note": "마우스를 올리면 porest Tooltip 으로 같은 이름(네이티브 title 은 쓰지 않는다) — 색으로 가리기 어려운 사람도 이름을 본다. Icon Picker 의 칸 툴팁과 같다"
+      "note": "마우스를 올리면 groo Tooltip 으로 같은 이름(네이티브 title 은 쓰지 않는다) — 색으로 가리기 어려운 사람도 이름을 본다. Icon Picker 의 칸 툴팁과 같다"
     },
     {
       "rule": 0,

@@ -339,7 +339,7 @@
       "state": "loaded",
       "slot": "indicator",
       "prop": "background",
-      "note": "검정 65% — 두 모드 같다(그림은 모드를 따르지 않는다). SEED static-black-alpha-800(63.5%)의 가장 가까운 porest 값. overlay-dim-light(50%)면 흰 그림 위 흰 글자가 3.95 로 모자란다"
+      "note": "검정 65% — 두 모드 같다(그림은 모드를 따르지 않는다). SEED static-black-alpha-800(63.5%)의 가장 가까운 groo 값. overlay-dim-light(50%)면 흰 그림 위 흰 글자가 3.95 로 모자란다"
     },
     {
       "rule": 0,

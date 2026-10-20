@@ -9,10 +9,10 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
-import 'package:porest_desk_app/features/update/presentation/update_gate_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
+import 'package:groo_damda_app/features/update/presentation/update_gate_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 AppRelease _release({required int build, int minBuild = 0}) => AppRelease(
   version: '9.9.9',
@@ -53,7 +53,7 @@ Future<ProviderContainer> _pumpGate(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp.router(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

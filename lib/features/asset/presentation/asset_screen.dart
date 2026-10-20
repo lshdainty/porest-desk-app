@@ -1,35 +1,35 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:porest_desk_app/core/format/currency.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
-import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
-import 'package:porest_desk_app/features/asset/presentation/widgets/net_worth_chart.dart';
-import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
-import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
-import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dart';
+import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.dart';
+import 'package:groo_damda_app/features/asset/presentation/widgets/net_worth_chart.dart';
+import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
+import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH'};
 const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
@@ -243,7 +243,7 @@ class _AssetBody extends StatelessWidget {
   final AsyncValue<List<SavingGoal>> goals;
   final _AssetMasks masks;
   final VoidCallback onToggleMask;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -410,7 +410,7 @@ class _SavingGoalsSection extends StatelessWidget {
 
   final AsyncValue<List<SavingGoal>> goals;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   String? _deadlineLabel(SavingGoal g) {
     final raw = g.deadlineDate;
@@ -492,7 +492,7 @@ class _SavingGoalRow extends StatelessWidget {
 
   final SavingGoal goal;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final String? deadlineLabel;
 
   @override
@@ -613,7 +613,7 @@ class _SummaryCard extends StatelessWidget {
 
   /// 눈 아이콘 탭 — 금액 가리기 토글 (헤더 눈 버튼 제거 후 유일한 자산 진입점).
   final VoidCallback onToggleMask;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -776,7 +776,7 @@ class _SummaryCol extends StatelessWidget {
   final String label;
   final int amount;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final Color? valueColor;
   final bool negative;
 
@@ -833,7 +833,7 @@ class _TypeGroup extends StatelessWidget {
   final List<Asset> assets;
   final int total;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final _GroupKind kind;
   final Color? totalColor;
   final bool negativeTotal;
@@ -913,7 +913,7 @@ class _AssetCard extends StatelessWidget {
   /// 두 축은 서로를 덮지 않는다(하나는 화면 설정, 하나는 자산의 속성).
   bool get masked => _cardMasked || asset.isAmountHidden == 'Y';
   final bool negativeAmount;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   // 투자 자산 라이브 평가(등락 표시용) — 투자 외엔 null.
   final InvestmentValuation? valuation;
 

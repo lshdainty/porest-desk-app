@@ -1,4 +1,4 @@
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
 
 /// 카드 회차 — 거래 날짜가 속한 회차(그 달 1일~말일)의 결제일.
 ///

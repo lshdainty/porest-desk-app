@@ -7,11 +7,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
-import 'package:porest_desk_app/shared/ds/top_navigation/p_top_navigation.dart';
-import 'package:porest_desk_app/shared/ds/top_navigation/top_navigation_demo.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/top_navigation_demo.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/spec_check.dart';
@@ -35,7 +35,7 @@ Widget _host(
   double width = 360,
 }) {
   return MaterialApp(
-    theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+    theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     builder: (context, app) => MediaQuery(
       data: MediaQuery.of(context).copyWith(
         padding: padding,

@@ -1,38 +1,38 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:porest_desk_app/core/format/currency.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/mask_flags.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_detail.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
-import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
-import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
-import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
-import 'package:porest_desk_app/features/expense/presentation/closed_cycle_notice.dart';
-import 'package:porest_desk_app/features/expense/presentation/refund_confirm_dialog.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
-import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
-import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/mask_flags.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_detail.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_edit_route.dart';
+import 'package:groo_damda_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
+import 'package:groo_damda_app/features/expense_split/presentation/split_tx_dialog.dart';
+import 'package:groo_damda_app/features/recurring/presentation/recurring_settings_drawer.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/presentation/expense_actions.dart';
+import 'package:groo_damda_app/features/expense/presentation/closed_cycle_notice.dart';
+import 'package:groo_damda_app/features/expense/presentation/refund_confirm_dialog.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense_split/domain/expense_split.dart';
+import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
 ///
@@ -690,7 +690,7 @@ class _MerchantHistorySection extends ConsumerWidget {
   final int month;
   final int excludeRowId;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -814,7 +814,7 @@ class _SplitSummaryCard extends StatelessWidget {
 
   /// 히어로 금액과 **같은 값**이라 같이 가려야 한다 — 안 그러면 위를 가려도 여기서 보인다.
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   Color _colorFor(BuildContext context, int categoryRowId) => resolveChartColor(
     context,

@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
-import 'package:porest_desk_app/shared/ds/color_swatch/p_color_swatch.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/shared/ds/color_swatch/p_color_swatch.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 카탈로그(/dev/ds) — 색 10(눌러 고른다 · 고르면 고리 + 체크), 안 고름 · 고름 × 막힘, 지금 색 · 자동(옆 · 위), 새 항목의 첫 색,
 /// Field 안(막힘 · 오류). 누름(2px 축소) · 키보드 포커스 링은 직접 눌러 본다.

@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/slider/p_slider.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/slider/p_slider.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/spec_check.dart';
@@ -19,7 +19,7 @@ Widget _host(
   double width = 320,
   TextDirection direction = TextDirection.ltr,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Directionality(
     textDirection: direction,
     child: Scaffold(

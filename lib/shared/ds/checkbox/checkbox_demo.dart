@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 
 /// 카탈로그(/dev/ds) — 크기 × 모양 × 톤 × 체크 여부, 굵기, 상태, 묶음(부모 · 일부 선택), 칸만(상태를 멈춰 그렸다).
 /// 줄은 눌러서 바꿔 본다 — 누름(누름 색 + 칸 축소)은 직접 눌러 본다.
@@ -11,7 +11,7 @@ class CheckboxDemo extends StatelessWidget {
   // 체크 여부 — 선택 안 됨 · 선택 · 일부 선택(묶음의 부모)
   static const List<bool?> _checks = [false, true, null];
 
-  // 스펙의 porest 예(checkbox.md — 코드 · 그림)
+  // 스펙의 groo 예(checkbox.md — 코드 · 그림)
   static const Map<bool?, String> _labels = {
     false: '단종된 카드도 보기',
     true: '이 카드 기억하기',

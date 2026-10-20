@@ -9,7 +9,7 @@ porest-desk-front 모바일 화면의 모달/다이얼로그/시트 캡쳐.
 import sys, time, pathlib, argparse
 from playwright.sync_api import sync_playwright
 
-OUT = pathlib.Path("/tmp/porest-screens")
+OUT = pathlib.Path("/tmp/groo-screens")
 OUT.mkdir(parents=True, exist_ok=True)
 AUTH = OUT / "auth.json"
 BASE = "http://localhost:3002"

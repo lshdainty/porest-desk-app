@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 
 /// 응답 파싱 — 서버가 앞서 나가거나 뒤처져도 앱이 조용히 틀리지 않아야 한다.
 void main() {

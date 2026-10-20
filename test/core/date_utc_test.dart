@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/date.dart';
 
 /// 서버 `[UTC]` 시각을 로컬로 옮기는 규칙.
 ///

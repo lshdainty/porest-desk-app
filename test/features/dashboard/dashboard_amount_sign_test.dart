@@ -1,6 +1,6 @@
 // 홈 금액 부호 — QA #1(음수 0) · QA #22(하이픈 ↔ U+2212 혼용) 의 앱판.
 //
-// 웹 `shared/lib/porest/format.ts` 의 `minusOf` 와 **같은 규칙**이어야 한다.
+// 웹 `shared/lib/groo/format.ts` 의 `minusOf` 와 **같은 규칙**이어야 한다.
 //   0   → 부호 없음  (빈 계정에서 `−0원` 이 뜨던 자리)
 //   양수 → U+2212 `−`
 //   음수 → `+`       (선결제 카드가 부채를 깎아 `totalDebt < 0` 이 되는 경우)
@@ -10,18 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
-import 'package:porest_desk_app/features/dashboard/presentation/dashboard_screen.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:groo_damda_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 
 /// 이번 달 1일 (`_DashboardScreenState._ymdStart` 와 같은 규칙).
 String _monthStart() {
@@ -69,7 +69,7 @@ Future<void> _pumpHome(
         ),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

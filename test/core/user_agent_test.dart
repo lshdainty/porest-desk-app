@@ -3,12 +3,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import 'package:porest_desk_app/core/network/user_agent.dart';
+import 'package:groo_damda_app/core/network/user_agent.dart';
 
 void main() {
   setUp(() {
     PackageInfo.setMockInitialValues(
-      appName: 'Porest',
+      appName: 'Groo',
       packageName: 'com.porest.desk',
       version: '1.2.3',
       buildNumber: '45',
@@ -16,7 +16,7 @@ void main() {
     );
   });
 
-  test('Porest/<버전> 으로 시작한다 — 서버가 이 접두로 앱을 가른다', () async {
+  test('Groo/<버전> 으로 시작한다 — 서버가 이 접두로 앱을 가른다', () async {
     expect(await buildUserAgent(), startsWith('Porest/1.2.3'));
   });
 

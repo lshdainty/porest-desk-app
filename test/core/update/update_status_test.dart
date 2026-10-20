@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
 
 /// 강제 업데이트는 잘못 걸리면 앱을 통째로 못 쓰게 만든다. 판정 조건을 못 박아 둔다.
 void main() {

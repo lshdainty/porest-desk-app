@@ -8,15 +8,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
-import 'package:porest_desk_app/shared/ds/badge/p_badge.dart';
-import 'package:porest_desk_app/shared/ds/content_placeholder/p_content_placeholder.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_card_art.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_image_frame.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/content_placeholder/p_content_placeholder.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_card_art.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/fake_image.dart';
@@ -26,7 +26,7 @@ final _card = DesignSpec.load('card-art');
 
 Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) =>
     MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+      theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
       home: MediaQuery(
         data: MediaQueryData(
           size: const Size(800, 600),
@@ -339,7 +339,7 @@ void main() {
       final controller = ScrollController();
       await tester.pumpWidget(
         MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           home: MediaQuery(
             data: const MediaQueryData(size: Size(800, 600)),
             child: Scaffold(

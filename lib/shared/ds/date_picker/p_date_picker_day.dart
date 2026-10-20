@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 // 날짜 칸 하나 — 달력(p_date_picker.dart)이 그리고, 카탈로그 견본이 상태별로 한 칸씩 그린다. 웹
 // `date-picker-day.tsx` 와 같은 값 · 같은 겹침 규칙이다.

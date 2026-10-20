@@ -7,13 +7,13 @@
 // 결제가 끝난 회차 안내가 390 폭에서 3줄로 접힌 원인 중 하나였다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 void main() {
   for (final (name, theme) in [
-    ('light', PorestTheme.light()),
-    ('dark', PorestTheme.dark()),
+    ('light', GrooTheme.light()),
+    ('dark', GrooTheme.dark()),
   ]) {
     test('$name — 테마 글꼴 15개의 자간이 토큰과 같다', () {
       final tt = theme.textTheme;
@@ -59,7 +59,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         home: const Scaffold(
           body: Column(children: [Text('기본 글자'), TextField()]),
         ),

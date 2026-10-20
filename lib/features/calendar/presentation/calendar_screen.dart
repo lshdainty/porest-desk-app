@@ -4,29 +4,29 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/format_locale.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_visibility.dart';
-import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
-import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_visibility.dart';
+import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
+import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -327,7 +327,7 @@ class _MonthHeader extends StatelessWidget {
   final int calendarCount;
   final List<Color> dotColors;
   final VoidCallback onFilterTap;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -560,7 +560,7 @@ class _FilterRow extends StatelessWidget {
 
   /// 이름 오른쪽 표식(기본 캘린더의 '기본' 배지). 없으면 안 그린다.
   final Widget? trailing;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -638,7 +638,7 @@ class _FilterRow extends StatelessWidget {
 /// micro 높이, brSm)만 데이터 placeholder 로 그려 로딩-후 _DayCell 과 1:1 정합.
 class _CalendarGridSkeleton extends StatelessWidget {
   const _CalendarGridSkeleton({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -737,7 +737,7 @@ class _DayCell extends StatelessWidget {
   final DateTime day;
   final List<CalendarEvent> events;
   final bool isOutside;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final String? holidayName;
 
   @override
@@ -891,7 +891,7 @@ class _CellEventLabel extends StatelessWidget {
   final DateTime day;
   final _SegPos position;
   final bool dimmed;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1019,7 +1019,7 @@ class _CellHolidayLabel extends StatelessWidget {
   });
   final String name;
   final bool dimmed;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1135,7 +1135,7 @@ class _DayEventsSheetBody extends StatelessWidget {
 class _DaySheetHolidayRow extends StatelessWidget {
   const _DaySheetHolidayRow({required this.holiday, required this.tokens});
   final Holiday holiday;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1189,7 +1189,7 @@ class _DaySheetEventRow extends StatelessWidget {
   });
   final CalendarEvent event;
   final DateTime day;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onTap;
 
   String _hhmm(DateTime d) =>

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 
 /// 카탈로그(/dev/ds) — 모서리, 글 자리, 목록 한 줄, 기다리는 영역(1초 · 5초를 다시 볼 수 있게).
 class SkeletonDemo extends StatefulWidget {

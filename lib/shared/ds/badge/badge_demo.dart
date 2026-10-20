@@ -1,15 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/badge/p_badge.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
 
 /// 카탈로그(/dev/ds) — 변형 셋 × 톤 여섯 × 크기 둘, 앞 아이콘, 줄 옆에 붙는 자리, 둘 묶음(좁으면 각자 말줄임).
 class BadgeDemo extends StatelessWidget {
   const BadgeDemo({super.key});
 
-  // 톤마다 스펙의 porest 예(badge.md — Tone)
+  // 톤마다 스펙의 groo 예(badge.md — Tone)
   static const _labels = {
     PBadgeTone.neutral: '예정',
     PBadgeTone.brand: '나',

@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart'
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/features/card/domain/card_catalog.dart'
     hide CardPerformance;
-import 'package:porest_desk_app/features/card/domain/card_catalog_page.dart';
-import 'package:porest_desk_app/features/card/domain/card_performance.dart';
+import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
+import 'package:groo_damda_app/features/card/domain/card_performance.dart';
 
 class CardRepository {
   CardRepository(this._dio);

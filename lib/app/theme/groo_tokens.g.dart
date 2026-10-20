@@ -1,5 +1,5 @@
-// GENERATED — porest-design scripts/build-dart-tokens.mjs 가 DESIGN.desk.md 에서 만든다. 손으로 고치지 않는다.
-// 바꾸려면 porest-design 의 DESIGN.desk.md 를 고치고 다시 만든다.
+// GENERATED — groo-design scripts/build-dart-tokens.mjs 가 DESIGN.desk.md 에서 만든다. 손으로 고치지 않는다.
+// 바꾸려면 groo-design 의 DESIGN.desk.md 를 고치고 다시 만든다.
 // source: DESIGN.desk.md · sha256 97d2f704108f
 //
 // 새 이름(SEED 구조)만 담는다 — 옛 이름(primary · text-secondary · xs ~ 3xl · shadow-sm …)은 새 이름의 별칭이라 뺐다.

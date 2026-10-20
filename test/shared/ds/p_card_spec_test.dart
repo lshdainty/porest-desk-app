@@ -3,11 +3,11 @@
 // transition 이름)은 건너뛰고, 누름(pressed)은 손가락으로 눌러 잰다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/card/p_card.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 
 import '../../support/design_spec.dart';
 
@@ -15,7 +15,7 @@ final _spec = DesignSpec.load('card');
 
 Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) =>
     MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+      theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ko'),

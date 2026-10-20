@@ -9,29 +9,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
-import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_detail_dialog.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/features/card/domain/card_performance.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
-import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
-import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
-import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
-import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
-import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_detail.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/asset/domain/card_billing.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_detail_dialog.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/features/card/domain/card_performance.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/data/expense_repository.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:groo_damda_app/features/expense/presentation/expense_actions.dart';
+import 'package:groo_damda_app/features/expense/presentation/tx_detail_dialog.dart';
+import 'package:groo_damda_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_detail.dart';
 
 const _account = Asset(
   rowId: 3,
@@ -91,7 +91,7 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
         defaultCurrencyProvider.overrideWith((ref) => 'KRW'),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),
@@ -291,7 +291,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            theme: PorestTheme.light(),
+            theme: GrooTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('ko'),

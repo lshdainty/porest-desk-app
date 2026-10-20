@@ -16,7 +16,7 @@ CHANNEL="${1:?channel(dev|prod) 이 필요합니다}"
 VERSION="${2:?version(X.Y.Z) 이 필요합니다}"
 
 REPO="${APK_REPO:-lshdainty/porest-desk-app}"
-BASE="${APK_BASE_PATH:-/home/porest/porest/apk}"
+BASE="${APK_BASE_PATH:-/home/groo/groo/apk}"
 
 case "$CHANNEL" in
   # dev 는 태그를 재사용해서 항상 최신 하나만 있다. prod 는 버전마다 태그가 따로 있다.
@@ -39,8 +39,8 @@ fetch() {
 }
 
 echo "릴리스 ${TAG} 에서 받는 중 (${REPO})"
-fetch "porest-desk-${VERSION}.apk"
-fetch "porest-desk-${VERSION}.ipa"
+fetch "groo-desk-${VERSION}.apk"
+fetch "groo-desk-${VERSION}.ipa"
 fetch "version.json"
 
 # AltStore 소스 — iOS 는 이 파일이 있어야 앱을 갱신할 수 있다.
@@ -57,8 +57,8 @@ else
 fi
 
 # 항상 같은 이름으로도 하나 둔다 — 링크를 버전마다 바꾸지 않아도 되게.
-cp "${WORK}/porest-desk-${VERSION}.apk" "${WORK}/porest-desk-latest.apk"
-cp "${WORK}/porest-desk-${VERSION}.ipa" "${WORK}/porest-desk-latest.ipa"
+cp "${WORK}/groo-desk-${VERSION}.apk" "${WORK}/groo-desk-latest.apk"
+cp "${WORK}/groo-desk-${VERSION}.ipa" "${WORK}/groo-desk-latest.ipa"
 
 # Jenkins 컨테이너가 root 로 돌아서 그냥 두면 파일이 root 소유로 남는다. 배포 디렉토리의
 # 소유자를 그대로 물려받게 한다 — 계정을 여기 박아 두지 않아도 서버 설정을 따라간다.

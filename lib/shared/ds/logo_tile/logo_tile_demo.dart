@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/image_frame_samples.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
-import 'package:porest_desk_app/shared/ds/logo_tile/p_logo_tile.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/image_frame_samples.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/shared/ds/logo_tile/p_logo_tile.dart';
 
 const _cardWide = PSampleImage(PSampleKind.cardWide);
 const _cardTall = PSampleImage(PSampleKind.cardTall);

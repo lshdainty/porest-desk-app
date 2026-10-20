@@ -4,11 +4,11 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/stocks_repository.dart';
-import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 
 final stocksRepositoryProvider = FutureProvider<StocksRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

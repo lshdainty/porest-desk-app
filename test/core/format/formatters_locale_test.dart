@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
 
 /// intl 로케일 포맷팅 회귀 게이트.
 ///
@@ -38,7 +38,7 @@ void main() {
       expect(krwSigned(10000, true, unit: true), kHideMask);
     });
 
-    // QA #73·#70 확정 표 — 웹 `shared/lib/porest/format.ts` 의 `formatChartAxis`
+    // QA #73·#70 확정 표 — 웹 `shared/lib/groo/format.ts` 의 `formatChartAxis`
     // 테스트에 **글자 그대로 같은 표**가 들어 있다. 같은 화면을 두 플랫폼이 그리므로
     // 여기서 한 줄이라도 갈리면 사용자 눈에 바로 보인다.
     //

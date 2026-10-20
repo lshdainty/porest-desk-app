@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 변형 — weak(옅은 바탕 + 진한 글자, 기본) · solid(채움 + 흰 글자) · outline(테두리 + 의미 색 글자).
 enum PBadgeVariant { weak, solid, outline }
@@ -113,7 +113,7 @@ enum PBadgeSize { medium, large }
   };
 }
 
-/// Badge — 대상의 상태 · 분류를 보이는 작은 라벨. 구조는 SEED Badge(2026-10-03), 수치 원본은 porest-design
+/// Badge — 대상의 상태 · 분류를 보이는 작은 라벨. 구조는 SEED Badge(2026-10-03), 수치 원본은 groo-design
 /// `specs/components/badge.yaml`(값은 `test/fixtures/design_spec/badge.json`). 웹(desk-front `src/shared/ds/badge`)과
 /// 같은 값이다. 옛 위젯(lib/shared/widgets/p_badge.dart)과 이름이 같다 — 자리로 가른다.
 ///

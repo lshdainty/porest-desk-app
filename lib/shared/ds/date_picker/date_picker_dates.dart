@@ -1,4 +1,4 @@
-// Date Picker 의 날짜 도구 · 글 · 값 — 수치 원본은 porest-design `specs/components/date-picker.yaml`(값은
+// Date Picker 의 날짜 도구 · 글 · 값 — 수치 원본은 groo-design `specs/components/date-picker.yaml`(값은
 // `test/fixtures/design_spec/date-picker.json`). 위젯은 `p_date_picker.dart` 다. 웹(desk-front
 // `src/shared/ds/date-picker/date-picker-dates.ts`)과 같은 규칙이다.
 //

@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/settings/user_locale.dart';
+import 'package:groo_damda_app/core/settings/user_locale.dart';
 
 /// 숫자·통화·날짜 포맷터가 참조하는 "현재 유효 로케일이 영어인지" 판정.
 ///

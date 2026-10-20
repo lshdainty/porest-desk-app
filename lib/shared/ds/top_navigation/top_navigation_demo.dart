@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 /// 바를 화면 위에 놓은 모양 — 위 안전 영역([top])을 흉내 낸다. 가장자리가 보이게 1px 틀을 두른다(틀은 견본 것).
 class _Frame extends StatelessWidget {

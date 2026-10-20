@@ -1,11 +1,11 @@
 import 'package:flutter/painting.dart';
 
-/// POREST 디자인 시스템의 원시 컬러 팔레트.
+/// 그루 디자인 시스템의 원시 컬러 팔레트.
 ///
 /// porest-desk-front `index.css`의 OKLCH 정의를 sRGB로 빌드 타임에 변환한 결과.
-/// 의미론적 사용은 [`PorestTokens`](tokens.dart) 를 통해서만 — 컴포넌트는 이 raw 토큰을
+/// 의미론적 사용은 [`GrooTokens`](tokens.dart) 를 통해서만 — 컴포넌트는 이 raw 토큰을
 /// 직접 참조하지 말 것 (다크 모드 분기가 깨짐).
-abstract final class PorestPalette {
+abstract final class GrooPalette {
   // Cobalt — primary brand (porest-desk-front `--color-primary: #0147ad` 미러)
   // primary-light: #5fa0e5 — 다크 모드 brand 표현용.
   static const Color cobalt50 = Color(0xFFF0F6FC);

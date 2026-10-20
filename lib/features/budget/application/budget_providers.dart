@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/budget/data/budget_repository.dart';
-import 'package:porest_desk_app/features/budget/domain/budget.dart';
-import 'package:porest_desk_app/features/budget/domain/budget_compliance.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/budget/data/budget_repository.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
 
 final budgetRepositoryProvider = FutureProvider<BudgetRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

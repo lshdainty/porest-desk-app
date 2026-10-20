@@ -14,7 +14,7 @@
 // 행을 만나 조용히 건너뛴다(QA 22차 추정).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/shared/scroll/scroll_to_keyed.dart';
+import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
 
 const _rows = 40;
 const _rowHeight = 120.0;

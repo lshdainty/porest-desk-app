@@ -4,22 +4,22 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
-import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_switch.dart';
-import 'package:porest_desk_app/features/export/data/export_repository.dart';
-import 'package:porest_desk_app/features/import/presentation/import_view.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
+import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_switch.dart';
+import 'package:groo_damda_app/features/export/data/export_repository.dart';
+import 'package:groo_damda_app/features/import/presentation/import_view.dart';
 
 typedef _TypeMeta = ({String name, String slug, IconData icon});
 typedef _FormatMeta = ({String value, String label, String ext, IconData icon});
@@ -356,7 +356,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   // 카드 다이어트 — design .m-subpage 플랫: 카드 없이 섹션 타이틀 + 콘텐츠만.
   Widget _cardShell(
-    PorestTokens t, {
+    GrooTokens t, {
     required String title,
     String? desc,
     required Widget child,
@@ -383,7 +383,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
   }
 
-  Widget _periodCard(PorestTokens t) {
+  Widget _periodCard(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return _cardShell(
       t,
@@ -459,7 +459,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
   }
 
-  Widget _typesCard(PorestTokens t) {
+  Widget _typesCard(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return _cardShell(
       t,
@@ -524,7 +524,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
   }
 
-  Widget _formatCard(PorestTokens t) {
+  Widget _formatCard(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return _cardShell(
       t,
@@ -568,7 +568,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
   }
 
-  Widget _maskRow(PorestTokens t) {
+  Widget _maskRow(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return Row(
       children: [
@@ -611,7 +611,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
   }
 
-  Widget _previewCard(PorestTokens t) {
+  Widget _previewCard(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final tables = _preview!;
     final active = tables.firstWhere(
@@ -739,7 +739,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _tile(
-    PorestTokens t, {
+    GrooTokens t, {
     required bool active,
     required VoidCallback onTap,
     required List<Widget> children,

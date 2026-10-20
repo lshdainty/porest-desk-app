@@ -4,9 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 
 /// 글에서 숫자만 — 전각 숫자(０-９)는 보통 숫자로 바꿔 센다(웹 NFKC 와 같은 셈, 전각 숫자만 푼다).
 @visibleForTesting
@@ -88,7 +88,7 @@ class PInputOtpFormatter extends TextInputFormatter {
 }
 
 /// Input OTP — 메일 · 문자로 받은 일회용 인증 코드(지금은 숫자 6자리)를 넣는 칸. [PInput](상자형 large 52) 한 칸이다 —
-/// 칸을 자릿수만큼 나누지 않는다(SEED Text Input 의 "Input을 나누지 말고"). 수치 원본은 porest-design
+/// 칸을 자릿수만큼 나누지 않는다(SEED Text Input 의 "Input을 나누지 말고"). 수치 원본은 groo-design
 /// `specs/components/input-otp.yaml`(값은 `test/fixtures/design_spec/input-otp.json`), 칸의 상자 · 글자 · 상태는
 /// input.yaml(Input), 라벨 · 설명 · 오류는 field.yaml(Field)이 원본이다. 웹(desk-front `src/shared/ds/input-otp`)과 같은 값이다.
 /// 앱은 늘 large(52) — medium(40) · responsive 는 1280 이상 데스크톱 웹 몫이다(Input 과 같다).
