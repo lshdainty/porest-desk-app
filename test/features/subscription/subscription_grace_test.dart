@@ -34,7 +34,7 @@ SubscriptionInfo _sub({
   bool autoRenew = true,
 }) => SubscriptionInfo(
   planCode: 'SECURITIES',
-  planName: '그루 담다 Pro',
+  planName: '담다 Pro',
   status: status,
   currentPeriodEnd: currentPeriodEnd,
   autoRenew: autoRenew,

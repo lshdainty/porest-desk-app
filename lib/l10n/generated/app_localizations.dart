@@ -10259,7 +10259,7 @@ abstract class AppLocalizations {
   /// No description provided for @subUsingPro.
   ///
   /// In ko, this message translates to:
-  /// **'그루 담다 Pro 이용 중'**
+  /// **'담다 Pro 이용 중'**
   String get subUsingPro;
 
   /// No description provided for @subUsingFree.
@@ -10379,7 +10379,7 @@ abstract class AppLocalizations {
   /// No description provided for @subStarted.
   ///
   /// In ko, this message translates to:
-  /// **'그루 담다 Pro 구독이 시작되었어요'**
+  /// **'담다 Pro 구독이 시작되었어요'**
   String get subStarted;
 
   /// No description provided for @subFailed.
@@ -11003,7 +11003,7 @@ abstract class AppLocalizations {
   /// No description provided for @importSourceGroo.
   ///
   /// In ko, this message translates to:
-  /// **'그루 백업'**
+  /// **'담다 백업'**
   String get importSourceGroo;
 
   /// No description provided for @importSourceGrooDesc.
