@@ -22,7 +22,7 @@
 - `lib/shared/widgets/p_<name>.dart` — **옛 위젯**. 화면을 하나씩 `shared/ds` 로 옮기는 동안만 남는다 — 새로 쓰지
   않는다. 옮기는 순서는 "먼저 라이브러리를 다 만들고, 화면은 나중에 화면 단위로" 다.
 - `lib/app/theme/groo_tokens.g.dart` · `test/fixtures/design_spec/*.json` — groo-design 이 내보낸 파일.
-  **손으로 고치지 않는다** — `scripts/sync_design.sh`(옆 폴더 `../groo-design`, 다르면 `PORESTDESIGN_DIR`)로
+  **손으로 고치지 않는다** — `scripts/sync_design.sh`(옆 폴더 `../groo-design`, 다르면 `GROODESIGN_DIR`)로
   다시 가져온다. 토큰은 새 이름만 담는다 — `PSpacing` · `PRounded` · `PTypography` · `PDuration` · `PEasing` ·
   `PTouch` 와 ThemeExtension `PColors`(`context.colors`) · `PShadows`(`context.shadows`). 스펙 JSON 은 위젯이
   아니라 테스트가 읽는다 — 위젯이 스펙 값과 같은지 본다.

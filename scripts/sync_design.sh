@@ -11,7 +11,7 @@
 # 으로 값을 적고, 테스트가 위젯의 값이 스펙 JSON 과 같은지 본다 — 웹은 같은 JSON 을 코드가
 # 바로 가져다 쓰지만 Dart 는 JSON 을 컴파일 때 읽지 못한다.
 #
-# groo-design 은 옆 폴더(../groo-design)라고 본다. 다르면 PORESTDESIGN_DIR 로 알려 준다.
+# groo-design 은 옆 폴더(../groo-design)라고 본다. 다르면 GROODESIGN_DIR 로 알려 준다.
 #
 # 사용: scripts/sync_design.sh
 set -euo pipefail
@@ -19,7 +19,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE="DESIGN.desk.md"
 
-DESIGN_DIR="${PORESTDESIGN_DIR:-../groo-design}"
+DESIGN_DIR="${GROODESIGN_DIR:-../groo-design}"
 case "${DESIGN_DIR}" in
   /*) ;;
   *) DESIGN_DIR="${ROOT}/${DESIGN_DIR}" ;;
