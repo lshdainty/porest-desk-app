@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 
 /// 카탈로그(/dev/ds) — 톤 셋 × 액션 있음 · 없음(띠를 제자리에 그렸다 — 닫히지 않는다), 실제로 띄우기(화면 아래 가운데 ·
 /// 4초 · 액션 6초 · 한 번에 하나 · 탭 바 위 8 · 안전 영역과 큰 쪽).

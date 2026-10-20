@@ -1,6 +1,6 @@
 import 'package:flutter/animation.dart';
 
-/// porest-design `--motion-*` SoT 정합 — DESIGN.desk.md / porest-tokens.css L142-148.
+/// groo-design `--motion-*` SoT 정합 — DESIGN.desk.md / groo-tokens.css L142-148.
 abstract final class PMotion {
   /// SoT 미정의 — desk-app custom (ripple 즉발용).
   static const Duration instant = Duration(milliseconds: 80);

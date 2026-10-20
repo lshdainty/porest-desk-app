@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
 
 /// 반복 — 캘린더 일정의 반복 선택지(radio-group.md 그림의 예).
 enum _Repeat { none, daily, weekly, monthly, yearly }

@@ -1,5 +1,5 @@
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 메모 태그 표기 — 할 일(`features/todo/domain/todo_meta.dart`)과
 /// **같은 규칙을 같은 모양으로** 둔다.

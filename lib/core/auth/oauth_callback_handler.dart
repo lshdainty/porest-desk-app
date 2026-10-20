@@ -1,5 +1,5 @@
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/core/auth/oauth_flow_store.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/core/auth/oauth_flow_store.dart';
 
 /// OAuth 콜백 딥링크(`porestdesk://oauth/callback?code=&state=`) 처리기.
 ///

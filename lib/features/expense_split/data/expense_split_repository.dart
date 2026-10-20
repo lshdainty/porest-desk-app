@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/features/expense_split/domain/expense_split.dart';
 
 /// `/expense/{id}/splits` GET/PUT/DELETE.
 class ExpenseSplitRepository {

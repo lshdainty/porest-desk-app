@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 
 /// 카탈로그(/dev/ds) — 종류 3 × 상태(동작 칸 하나: 기본 · 누름 · 막힘), 크기(칸 폭 · 트레이 폭, 열린 모습), 직접 밀어 보기
 /// (한 번에 한 줄 · 스크롤하면 닫힘 · 끝까지 밀어도 실행하지 않음 · 줄 끝 ⋮), RTL, 768 이상(enabled=false). 웹 견본과 같은

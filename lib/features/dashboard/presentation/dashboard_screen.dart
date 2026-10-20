@@ -4,37 +4,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
-import 'package:porest_desk_app/core/settings/mask_flags.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
-import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/features/sms/presentation/sms_clipboard_banner.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
-import 'package:porest_desk_app/features/budget/domain/budget.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/app/theme/chart_palette.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
-import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
-import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
+import 'package:groo_damda_app/core/settings/mask_flags.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/features/sms/presentation/sms_clipboard_banner.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/app/theme/chart_palette.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -287,7 +287,7 @@ class _WidgetSkeleton extends StatelessWidget {
     required this.title,
     required this.onAll,
   });
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final IconData icon;
   final String title;
   final VoidCallback onAll;
@@ -712,7 +712,7 @@ class _BalanceHero extends StatelessWidget {
 
 /// hero gradient 위 흰 반투명 skeleton 박스 (PSkeleton bgMuted 색이 gradient 위 부적합).
 Widget _heroSkelBar(
-  PorestTokens t, {
+  GrooTokens t, {
   required double width,
   required double height,
 }) {
@@ -955,7 +955,7 @@ class _CategoryDonutCard extends StatelessWidget {
   final bool firstLoading;
   final bool masked;
 
-  /// 카테고리 자체 색을 1순위로 사용, 없으면 [PorestChartPalette] fallback.
+  /// 카테고리 자체 색을 1순위로 사용, 없으면 [GrooChartPalette] fallback.
   /// chart base hex 면 라이트/다크 variant 자동 swap (resolveChartColor).
   /// desk-front DashboardPage `donutSegs` 정합.
   Color _segmentColor(BuildContext context, int rowId, int fallbackIdx) {
@@ -965,10 +965,10 @@ class _CategoryDonutCard extends StatelessWidget {
       return resolveChartColor(
         context,
         raw,
-        fallback: PorestChartPalette.category(context, fallbackIdx),
+        fallback: GrooChartPalette.category(context, fallbackIdx),
       );
     }
-    return PorestChartPalette.category(context, fallbackIdx);
+    return GrooChartPalette.category(context, fallbackIdx);
   }
 
   @override
@@ -1313,7 +1313,7 @@ class _BudgetRow extends StatelessWidget {
   final ExpenseCategory? category;
   final int spent;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final double warnThreshold;
 
   @override

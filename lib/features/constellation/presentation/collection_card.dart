@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
-import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 /// 별자리 도감 v2 — 실루엣 잠금 + 뱃지 수집 리스트 (design forest-report.jsx
 /// ForestCollectionV2 / .fcol-* 미러). 행 탭 CTA → 상세 감상 시트.
@@ -104,7 +104,7 @@ class _FcolRow extends StatelessWidget {
   final bool isToday;
   final bool isNew;
   final bool first;
-  final PorestTokens t;
+  final GrooTokens t;
   final VoidCallback onOpen;
 
   @override

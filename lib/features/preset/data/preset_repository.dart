@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 
 class PresetRepository {
   PresetRepository(this._dio);

@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 크기 — 24(요소 안, 두께 3) · 40(콘텐츠 영역 가운데, 두께 5). 부품 안의 원은 [PProgressCircle.inherit].
 enum PProgressCircleSize { s24, s40 }
@@ -12,7 +12,7 @@ enum PProgressCircleSize { s24, s40 }
 enum PProgressCircleTone { neutral, brand, staticWhite }
 
 /// Progress Circle — 작업이 진행 중임을 알리는 원. 구조는 SEED Progress Circle(2026-10-03), 수치 원본은
-/// porest-design `specs/components/progress-circle.yaml`(값은 `test/fixtures/design_spec/progress-circle.json`
+/// groo-design `specs/components/progress-circle.yaml`(값은 `test/fixtures/design_spec/progress-circle.json`
 /// — 테스트가 위젯이 그 값과 같은지 본다). 웹(desk-front `src/shared/ds/progress-circle`)과 같은 모양 · 움직임이다.
 ///
 ///   size   s24(요소 안 — 섹션 제목 옆 · 목록 끝 · 올리는 항목 위) · s40(기본 — 콘텐츠 영역 가운데)

@@ -10,14 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
-import 'package:porest_desk_app/shared/ds/tabs/p_tabs.dart';
-import 'package:porest_desk_app/shared/ds/tabs/tabs_demo.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/tabs/tabs_demo.dart';
 
 import '../../support/design_spec.dart';
 
@@ -35,7 +35,7 @@ Widget _host(
   double width = 360,
 }) {
   final app = MaterialApp(
-    theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+    theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
@@ -647,7 +647,7 @@ void main() {
         ),
       );
       await tester.pumpWidget(build('category'));
-      final c = PorestTheme.light().extension<PColors>()!;
+      final c = GrooTheme.light().extension<PColors>()!;
       final width = tester.getSize(_tabOf('추이')).width;
       expect(
         tester.widget<Text>(find.text('추이')).style!.color,
@@ -695,7 +695,7 @@ void main() {
       }
       expect(calls, isEmpty);
       // 목록 전체가 막혀 고른 탭이 막히면 막대도 전용 색
-      final c = PorestTheme.light().extension<PColors>()!;
+      final c = GrooTheme.light().extension<PColors>()!;
       expect(
         _decoration(
           tester,
@@ -827,7 +827,7 @@ void main() {
     testWidgets('누르면 탭만 2px 거리 준다 — 색 · 막대는 그대로, 모션 줄이기면 줄지 않는다', (
       tester,
     ) async {
-      final c = PorestTheme.light().extension<PColors>()!;
+      final c = GrooTheme.light().extension<PColors>()!;
       for (final reduce in [false, true]) {
         await tester.pumpWidget(
           _host(

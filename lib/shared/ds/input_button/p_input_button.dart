@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart'
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart'
     show PTextFrame;
 
 // input-button.yaml large — 앱은 늘 large 다(medium 40 · responsive 는 1280 이상 데스크톱 웹 몫).
@@ -22,7 +22,7 @@ const double _focusRingWidth = 2; // focusRing.width
 const double _focusRingOffset = 2; // focusRing.offset
 
 /// Input Button — 입력칸 모양의 버튼. 누르면 고르는 자리(달력 · 시각 휠 · 아이콘 격자 · 검색 시트)를 연다. 구조는 SEED
-/// Input Button(Field Button, 2026-10-01), 수치 원본은 porest-design `specs/components/input-button.yaml`(값은
+/// Input Button(Field Button, 2026-10-01), 수치 원본은 groo-design `specs/components/input-button.yaml`(값은
 /// `test/fixtures/design_spec/input-button.json`). 웹(desk-front `src/shared/ds/input-button`)과 같은 값 · 동작이다.
 ///
 /// 이 위젯은 무엇을 여는지 모른다 — 값은 쓰는 쪽이 가지고([value]), 누르면 [onPressed] 를 부를 뿐이다. 시트(Bottom

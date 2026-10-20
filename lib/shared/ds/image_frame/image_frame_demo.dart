@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
-import 'package:porest_desk_app/shared/ds/badge/p_badge.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/image_frame_samples.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_card_art.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_image_frame.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/image_frame_samples.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_card_art.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
 
 const _photo = PSampleImage(PSampleKind.photo);
 const _photoTall = PSampleImage(PSampleKind.photoTall);

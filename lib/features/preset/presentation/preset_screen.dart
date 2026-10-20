@@ -3,30 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
-import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
-import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
-import 'package:porest_desk_app/features/preset/presentation/preset_detail_sheet.dart';
-import 'package:porest_desk_app/features/preset/presentation/preset_edit_dialog.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/asset/domain/transfer_rules.dart';
+import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
+import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
+import 'package:groo_damda_app/features/preset/presentation/preset_detail_sheet.dart';
+import 'package:groo_damda_app/features/preset/presentation/preset_edit_dialog.dart';
 
 enum _SortKey { used, recent, name }
 
@@ -138,7 +138,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
   }
 
   Widget _content({
-    required PorestTokens t,
+    required GrooTokens t,
     required List<ExpenseTemplate> items,
     required List<ExpenseCategory> categories,
     required bool masked,
@@ -492,7 +492,7 @@ class _PresetRow extends StatelessWidget {
   final ExpenseTemplate template;
   final ExpenseCategory? category;
   final bool masked;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final bool divider;
 
   /// 행 탭 → 상세 시트. ✎·🗑 를 걷어낸 자리를 대신하는 비제스처 경로다.
@@ -692,7 +692,7 @@ class _MetaLine extends StatelessWidget {
   });
   final String? categoryName;
   final String? merchant;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

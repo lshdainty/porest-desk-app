@@ -3,19 +3,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/badge/p_badge.dart';
-import 'package:porest_desk_app/shared/ds/divider/p_divider.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
-import 'package:porest_desk_app/shared/ds/tag_group/p_tag_group.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
 
 Widget _host(Brightness mode, Widget child) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Scaffold(
     body: Center(
       child: SizedBox(width: 320, child: Center(child: child)),

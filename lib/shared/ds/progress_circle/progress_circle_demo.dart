@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 카탈로그(/dev/ds) — 크기 × 톤 × 값 없음 · 있음. staticWhite 는 사진 위 딤(overlay-dim) 위에 놓는다.
 class ProgressCircleDemo extends StatelessWidget {

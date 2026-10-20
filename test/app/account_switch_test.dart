@@ -5,7 +5,7 @@
 // 컨테이너에 그대로 남아 다음 사람 화면에 나왔다 — A 의 기능권한이 B 에게 어느 증권사
 // 화면을 보여줄지를 정했고, 그 화면에는 A 의 보유 종목이 떴다.
 //
-// 앱은 **진짜 `PorestDeskApp`** 을 `SessionScope` 아래에 띄운다(`main` 과 같은 모양).
+// 앱은 **진짜 `GrooDamdaApp`** 을 `SessionScope` 아래에 띄운다(`main` 과 같은 모양).
 // 사람이 바뀐 걸 알아채는 리스너도, 컨테이너를 새로 만드는 자리도 거기 있으므로 배선을
 // 흉내 내면 정작 그게 끊겨도 테스트는 통과한다.
 //
@@ -27,28 +27,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/app/app.dart';
-import 'package:porest_desk_app/app/router.dart';
-import 'package:porest_desk_app/app/session_scope.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/oauth_flow_store.dart';
-import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/core/lock/app_lock.dart';
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/stocks/application/namu_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/features/stocks/presentation/namu_stocks_view.dart';
-import 'package:porest_desk_app/features/stocks/presentation/toss_stocks_view.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
+import 'package:groo_damda_app/app/app.dart';
+import 'package:groo_damda_app/app/router.dart';
+import 'package:groo_damda_app/app/session_scope.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/oauth_flow_store.dart';
+import 'package:groo_damda_app/core/auth/oauth_link_listener.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/lock/app_lock.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
+import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 
 const _alice = User(
   rowId: 1,
@@ -746,7 +746,7 @@ class _Harness {
 
   /// **지금** 앱이 쓰는 컨테이너 — 사람이 바뀌면 다른 것이 된다.
   ProviderContainer get container => ProviderScope.containerOf(
-    tester.element(find.byType(PorestDeskApp)),
+    tester.element(find.byType(GrooDamdaApp)),
     listen: false,
   );
 
@@ -817,7 +817,7 @@ Future<_Harness> _pumpApp(
   bool realAuth = false,
   AppLockAuth? appLock,
 }) async {
-  // 로그인 화면을 거친다 — 테스트 폰트는 글자마다 정사각형이라 'Porest Desk' 한 줄이
+  // 로그인 화면을 거친다 — 테스트 폰트는 글자마다 정사각형이라 '그루 담다' 한 줄이
   // 390 폭에서 넘친다(테스트 환경 산물). 넘칠 자리를 준다.
   tester.view.physicalSize = const Size(520 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3.0;
@@ -871,7 +871,7 @@ Future<_Harness> _pumpApp(
         assetsProvider.overrideWith((_) => Future.value(<Asset>[])),
         monthExpensesProvider.overrideWith((_, _) => Future.value(<Expense>[])),
       ],
-      child: const PorestDeskApp(),
+      child: const GrooDamdaApp(),
     ),
   );
   final h = _Harness(tester, server, device);

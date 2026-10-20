@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 
 /// 원 지름 — 아이콘만(SEED extended=false). 누르는 영역도 56.
 const double kFabSize = PSpacing.x14;
@@ -17,7 +17,7 @@ const double kFabMargin = PSpacing.x5;
 const double kFabKeyboardGap = 150;
 
 /// 떠 있는 버튼 — 화면 위에 떠 있는 그 화면의 주 동작 하나. 오른쪽 아래의 브랜드 원 56 에 흰 아이콘 24. 구조는 SEED Floating
-/// Action Button(아이콘만 · extended=false, 2026-10-04), 수치 원본은 porest-design
+/// Action Button(아이콘만 · extended=false, 2026-10-04), 수치 원본은 groo-design
 /// `specs/components/floating-action-button.yaml`(값은 `test/fixtures/design_spec/floating-action-button.json`).
 /// 웹(desk-front `src/shared/ds/floating-action-button`)과 같은 값이다.
 ///

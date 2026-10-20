@@ -6,46 +6,46 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/chart_axis.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
-import 'package:porest_desk_app/core/settings/mask_flags.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
-import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
-import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_actions.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_edit_route.dart';
-import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
-import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_trade_sheet.dart';
-import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
-import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
-import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
-import 'package:porest_desk_app/features/stocks/application/live_prices.dart';
-import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/chart_axis.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
+import 'package:groo_damda_app/core/settings/mask_flags.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/asset/domain/card_billing.dart';
+import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_type_meta.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_actions.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_edit_route.dart';
+import 'package:groo_damda_app/features/asset/presentation/holding_format.dart';
+import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_trade_sheet.dart';
+import 'package:groo_damda_app/features/expense/presentation/transfer_detail_sheet.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/transfer_row.dart';
+import 'package:groo_damda_app/features/stocks/application/live_prices.dart';
+import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
@@ -1006,7 +1006,7 @@ class _BalanceTrendChart extends StatefulWidget {
     required this.masked,
   });
   final AsyncValue<List<AssetBalancePoint>> async;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final Color brandFg;
   final String seriesLabel;
   final bool masked;
@@ -1261,7 +1261,7 @@ String _fmtWeekStart(String iso) => iso.length >= 10 ? iso.substring(5) : iso;
 class _ChartPlaceholder extends StatelessWidget {
   const _ChartPlaceholder({required this.text, required this.tokens});
   final String text;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1288,7 +1288,7 @@ class _RecentExpenses extends StatelessWidget {
 
   /// 화면 카드 + 종류 카드 — 행·일합계마다 자기 종류로 판정한다.
   final MaskFlags flags;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   /// 이 자산에 걸린 이체. 지출/수입 일 합계에는 넣지 않고 그날 행 뒤에만 붙인다.
   final List<AssetTransfer> transfers;
@@ -1424,7 +1424,7 @@ class _DayGroupHeader extends StatelessWidget {
 
   /// 지출합·수입합이 각자 종류를 갖는다.
   final MaskFlags flags;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

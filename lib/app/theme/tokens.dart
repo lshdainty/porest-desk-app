@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/colors.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/colors.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
-/// POREST 의미론적 토큰 (light/dark 분기 적용된 의미 단위).
+/// 그루 의미론적 토큰 (light/dark 분기 적용된 의미 단위).
 ///
 /// porest-desk-front 의 `--bg-canvas`, `--fg-primary` 같은 semantic 토큰을 이식한 것.
-/// 모든 위젯은 raw 팔레트([PorestPalette]) 대신 이 토큰만 참조해야 다크 모드가 자동 동작한다.
+/// 모든 위젯은 raw 팔레트([GrooPalette]) 대신 이 토큰만 참조해야 다크 모드가 자동 동작한다.
 ///
 /// 사용 예:
 /// ```dart
-/// final t = Theme.of(context).extension<PorestTokens>()!;
+/// final t = Theme.of(context).extension<GrooTokens>()!;
 /// Container(color: t.bgCanvas, child: Text('hi', style: TextStyle(color: t.fgPrimary)));
 /// ```
 @immutable
-class PorestTokens extends ThemeExtension<PorestTokens> {
-  const PorestTokens({
+class GrooTokens extends ThemeExtension<GrooTokens> {
+  const GrooTokens({
     required this.bgCanvas,
     required this.bgSurface,
     required this.bgSurfaceRaised,
@@ -193,13 +193,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
 
   /// 역할 색에서 옛 이름을 만든다 — 라이트 · 다크가 같은 식이다.
   ///
-  /// 옛 이름은 porest-design 역할 색([PColors] · [PShadows], `porest_tokens.g.dart`)의 값을
+  /// 옛 이름은 groo-design 역할 색([PColors] · [PShadows], `groo_tokens.g.dart`)의 값을
   /// 따른다. 짝은 DESIGN.md v102 표의 "Desk 웹 이름" 칸이고, 웹 `index.css` 가 같은 짝으로
   /// 옛 로컬 이름을 잇는다 — 두 제품이 같은 값을 쓴다(앱 적용 5A, 2026-10-06).
   /// 역할 색에 짝이 없는 이름(호버 오버레이 · 틴트 · 히어로)만 호출하는 쪽이 값을 넘긴다.
   ///
   /// 새 코드는 이 이름 말고 `context.colors.fgNeutral` 처럼 역할 이름을 쓴다. 화면을 옮기면 걷는다.
-  factory PorestTokens._fromRoles(
+  factory GrooTokens._fromRoles(
     PColors c,
     PShadows s, {
     required Color bgHoverSubtle,
@@ -213,7 +213,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required Color fgOnHeroChgUp,
     required Color fgOnHeroChgDown,
     required Color fgOnHeroSpot,
-  }) => PorestTokens(
+  }) => GrooTokens(
     bgCanvas: c.bgLayerBasement,
     bgSurface: c.bgLayerDefault,
     bgSurfaceRaised: c.bgLayerFloating,
@@ -297,28 +297,28 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   );
 
   /// Light 모드 의미론 토큰 — 역할 색([PColors.light])에서 만든다.
-  static final PorestTokens light = PorestTokens._fromRoles(
+  static final GrooTokens light = GrooTokens._fromRoles(
     PColors.light,
     PShadows.light,
-    bgHoverSubtle: PorestPalette.slate50,
-    bgHoverStrong: PorestPalette.slate100,
+    bgHoverSubtle: GrooPalette.slate50,
+    bgHoverStrong: GrooPalette.slate100,
     // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
     bgBrandTint: const Color(0xFFEAF2FB),
-    bgBrandTintStrong: PorestPalette.cobalt100,
-    borderBrandMid: PorestPalette.cobalt300,
-    surfaceHero: PorestPalette.cobalt50,
+    bgBrandTintStrong: GrooPalette.cobalt100,
+    borderBrandMid: GrooPalette.cobalt300,
+    surfaceHero: GrooPalette.cobalt50,
     // desk-front .balance-hero: linear-gradient(135deg, bg-brand 0%, color-mix(srgb, bg-brand 60%, #000) 100%)
     // bg-brand = bg-brand-solid(#0147AD), end ≈ #012B68 (60% × bg-brand on black)
     bgHeroGradientStart: PColors.light.bgBrandSolid,
     bgHeroGradientEnd: const Color(0xFF012B68),
-    fgOnHeroChgUp: PorestPalette.heroChgUp,
-    fgOnHeroChgDown: PorestPalette.heroChgDown,
+    fgOnHeroChgUp: GrooPalette.heroChgUp,
+    fgOnHeroChgDown: GrooPalette.heroChgDown,
     // desk-front .balance-hero::after: radial gradient(fg-on-brand 22%, transparent 70%) — 흰색 광원
-    fgOnHeroSpot: PorestPalette.slate0,
+    fgOnHeroSpot: GrooPalette.slate0,
   );
 
   /// Dark 모드 의미론 토큰 — 역할 색([PColors.dark])에서 만든다.
-  static final PorestTokens dark = PorestTokens._fromRoles(
+  static final GrooTokens dark = GrooTokens._fromRoles(
     PColors.dark,
     PShadows.dark,
     bgHoverSubtle: const Color(0x0AFFFFFF),
@@ -333,13 +333,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgHeroGradientStart: PColors.dark.fgBrand,
     bgHeroGradientEnd: PColors.dark.bgBrandSolid,
     // 다크 = 더 밝은 코발트 그라데이션 → 50% 혼합으로 더 옅게(웹 .dark .chg 정합)
-    fgOnHeroChgUp: PorestPalette.heroChgUpDark,
-    fgOnHeroChgDown: PorestPalette.heroChgDownDark,
-    fgOnHeroSpot: PorestPalette.slate0,
+    fgOnHeroChgUp: GrooPalette.heroChgUpDark,
+    fgOnHeroChgDown: GrooPalette.heroChgDownDark,
+    fgOnHeroSpot: GrooPalette.slate0,
   );
 
   @override
-  PorestTokens copyWith({
+  GrooTokens copyWith({
     Color? bgCanvas,
     Color? bgSurface,
     Color? bgSurfaceRaised,
@@ -413,7 +413,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     List<BoxShadow>? shadowLg,
     List<BoxShadow>? shadowXl,
   }) {
-    return PorestTokens(
+    return GrooTokens(
       bgCanvas: bgCanvas ?? this.bgCanvas,
       bgSurface: bgSurface ?? this.bgSurface,
       bgSurfaceRaised: bgSurfaceRaised ?? this.bgSurfaceRaised,
@@ -490,10 +490,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   }
 
   @override
-  PorestTokens lerp(ThemeExtension<PorestTokens>? other, double t) {
-    if (other is! PorestTokens) return this;
+  GrooTokens lerp(ThemeExtension<GrooTokens>? other, double t) {
+    if (other is! GrooTokens) return this;
     Color l(Color a, Color b) => Color.lerp(a, b, t)!;
-    return PorestTokens(
+    return GrooTokens(
       bgCanvas: l(bgCanvas, other.bgCanvas),
       bgSurface: l(bgSurface, other.bgSurface),
       bgSurfaceRaised: l(bgSurfaceRaised, other.bgSurfaceRaised),
@@ -571,6 +571,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
 }
 
 /// 컨텍스트에서 토큰 꺼내는 짧은 helper.
-extension PorestTokensX on BuildContext {
-  PorestTokens get tokens => Theme.of(this).extension<PorestTokens>()!;
+extension GrooTokensX on BuildContext {
+  GrooTokens get tokens => Theme.of(this).extension<GrooTokens>()!;
 }

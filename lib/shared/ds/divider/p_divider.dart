@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 들임 — full(끝까지, 기본) · inset(양끝 16).
 enum PDividerInset { full, inset }
 
-/// Divider — 1px 선. 구조는 SEED Divider, 수치 원본은 porest-design `specs/components/divider.yaml`(값은
+/// Divider — 1px 선. 구조는 SEED Divider, 수치 원본은 groo-design `specs/components/divider.yaml`(값은
 /// `test/fixtures/design_spec/divider.json`). 웹(desk-front `src/shared/ds/divider`)과 같은 값이다.
 ///
 /// 모든 방향 · 자리 1px, stroke-neutral-subtle(장식). 바깥 여백이 없다 — 선 위아래 · 좌우 간격은 쓰는 자리가 정하고

@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
 
 /// 탭 바가 놓인 폰 화면 — 목록 위에 바가 앉는다. [live] 면 스크롤로 줄고 펴지며 칸을 눌러 탭을 옮긴다. [bottom] 은 홈 표시줄.
 class _Screen extends StatefulWidget {

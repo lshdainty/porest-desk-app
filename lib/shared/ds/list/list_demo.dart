@@ -3,16 +3,16 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/badge/p_badge.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/list/list_row.dart';
-import 'package:porest_desk_app/shared/ds/list/p_list.dart';
-import 'package:porest_desk_app/shared/ds/list/p_list_header.dart';
-import 'package:porest_desk_app/shared/ds/list/p_list_parent_item.dart';
-import 'package:porest_desk_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/list/list_row.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_parent_item.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
 
 /// 카탈로그(/dev/ds) — 줄의 종류 6(보기만 · 누르는 · 링크 · 스위치 · 체크 · 라디오) × 상태(기본 · 누름 · 비활성), 앞 · 뒤
 /// 붙이개, 설명, 맞춤, 강조, 합계에 안 드는 줄, 목록 제목, 줄 사이 선, 하위 줄(꺾쇠 단추 · 들임 104), 가장 나쁜 값(긴 제목 · 1억
@@ -140,7 +140,7 @@ class _KindsDemoState extends State<_KindsDemo> {
                 semanticLabel: '계정 정보',
                 children: const [
                   PListItem(title: '가입일', suffix: Text('2026년 3월 2일')),
-                  PListItem(title: '이메일', suffix: Text('porest@mail.kr')),
+                  PListItem(title: '이메일', suffix: Text('groo@mail.kr')),
                 ],
               ),
             ),
@@ -1061,7 +1061,7 @@ class _HeaderDividerDemo extends StatelessWidget {
                     semanticLabel: '구분선 없음',
                     children: [
                       PListItem(title: '가입일', suffix: Text('2026년 3월 2일')),
-                      PListItem(title: '이메일', suffix: Text('porest@mail.kr')),
+                      PListItem(title: '이메일', suffix: Text('groo@mail.kr')),
                     ],
                   ),
                 ),
@@ -1071,7 +1071,7 @@ class _HeaderDividerDemo extends StatelessWidget {
                     children: [
                       PListItem(title: '가입일', suffix: Text('2026년 3월 2일')),
                       PListDivider(),
-                      PListItem(title: '이메일', suffix: Text('porest@mail.kr')),
+                      PListItem(title: '이메일', suffix: Text('groo@mail.kr')),
                     ],
                   ),
                 ),

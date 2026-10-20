@@ -1,6 +1,6 @@
 import 'package:flutter/painting.dart';
 
-/// porest-design `--overlay-dim-*` SoT 정합 — DESIGN.desk.md / porest-tokens.css L151-152.
+/// groo-design `--overlay-dim-*` SoT 정합 — DESIGN.desk.md / groo-tokens.css L151-152.
 ///
 /// 모달/sheet/dialog barrier 색. Flutter 기본 `Colors.black54` (alpha ≈0.54) 대신
 /// 이 토큰을 `showDialog`/`showModalBottomSheet` 의 `barrierColor` 에 명시 사용.

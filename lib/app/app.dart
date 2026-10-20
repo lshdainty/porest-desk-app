@@ -4,34 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/features/sms/data/sms_android.dart';
-import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/session_owner.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/core/lock/app_lock_gate.dart';
-import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/features/notification/application/notification_stream_service.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
-import 'package:porest_desk_app/app/router.dart';
-import 'package:porest_desk_app/app/session_scope.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/sms/data/sms_android.dart';
+import 'package:groo_damda_app/features/sms/domain/sms_paste_args.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/session_owner.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/lock/app_lock_gate.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/features/notification/application/notification_stream_service.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/auth/oauth_link_listener.dart';
+import 'package:groo_damda_app/app/router.dart';
+import 'package:groo_damda_app/app/session_scope.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
 
 /// 화면 밖(네트워크 인터셉터 등)에서 토스트를 띄우기 위한 전역 키.
 final GlobalKey<ScaffoldMessengerState> appMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-class PorestDeskApp extends ConsumerStatefulWidget {
-  const PorestDeskApp({super.key});
+class GrooDamdaApp extends ConsumerStatefulWidget {
+  const GrooDamdaApp({super.key});
 
   @override
-  ConsumerState<PorestDeskApp> createState() => _PorestDeskAppState();
+  ConsumerState<GrooDamdaApp> createState() => _GrooDamdaAppState();
 }
 
-class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
+class _GrooDamdaAppState extends ConsumerState<GrooDamdaApp>
     with WidgetsBindingObserver {
   ProviderSubscription<AsyncValue<User?>>? _authSub;
 
@@ -168,13 +168,13 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
     final router = ref.watch(routerProvider);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     return MaterialApp.router(
-      title: 'Porest Desk',
+      title: '그루 담다',
       // 인터셉터에는 BuildContext 가 없다 — 이 키로 토스트를 띄운다
       // (ErrorToastInterceptor: 아무도 처리하지 않은 API 에러의 마지막 그물).
       scaffoldMessengerKey: appMessengerKey,
       debugShowCheckedModeBanner: false,
-      theme: PorestTheme.light(),
-      darkTheme: PorestTheme.dark(),
+      theme: GrooTheme.light(),
+      darkTheme: GrooTheme.dark(),
       themeMode: settings.themeMode,
       // i18n: 사용자가 명시적으로 ko/en 선택하지 않았으면 (locale=null)
       // 시스템 로케일을 따르되, 미지원 시 ko 로 폴백.

@@ -4,7 +4,7 @@
 //
 // **웹과 한 글자도 갈리면 안 된다.** 같은 자산을 두 플랫폼이 그리므로, 표기가
 // 갈리면 폰에서는 `잔액 (원)` · 브라우저에서는 `잔액 ($)` 이 된다. 규칙의 원문은
-// desk-front `shared/lib/porest/currency.ts` 의 `currencyUnit` 이고(#369) 이 파일은
+// desk-front `shared/lib/groo/currency.ts` 의 `currencyUnit` 이고(#369) 이 파일은
 // 그 테스트(`currency.test.ts`)의 미러다.
 //
 //   KRW  → ko `원` · en `₩`      (원화만 로케일을 탄다)
@@ -14,7 +14,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/format/currency.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
 
 void main() {
   group('ko — 원화는 `원`', () {

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 그림 크기 — 틀 높이의 50%, 16 이상 160 이하. 틀 폭이 그보다 좁으면 폭에 맞춘다(content-placeholder.yaml glyph).
 @visibleForTesting
@@ -11,7 +11,7 @@ double contentPlaceholderGlyphSize(Size frame) {
 }
 
 /// Content Placeholder — 이미지가 없거나 불러오지 못했을 때 그 자리를 채우는 대체 그림. 구조는 SEED Content
-/// Placeholder(2026-10-03), 수치 원본은 porest-design `specs/components/content-placeholder.yaml`(값은
+/// Placeholder(2026-10-03), 수치 원본은 groo-design `specs/components/content-placeholder.yaml`(값은
 /// `test/fixtures/design_spec/content-placeholder.json`). 웹(desk-front `src/shared/ds/content-placeholder`)과 같은 값이다.
 ///
 /// 옅은 면(bg-neutral-weak — Skeleton 면과 같은 색) + 가운데 선 아이콘(기본 image, 선 1.5 — lucide 300 굵기,

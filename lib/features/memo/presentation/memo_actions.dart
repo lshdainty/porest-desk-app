@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
-import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
-import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/actions/item_actions.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
+import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:groo_damda_app/features/memo/application/memo_providers.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/features/memo/presentation/memo_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/actions/item_actions.dart';
 
 /// 메모 하나에 할 수 있는 일 — 목록 행(스와이프)과 상세 다이얼로그가 같은 것을 부른다.
 const memoActions = MemoActions();

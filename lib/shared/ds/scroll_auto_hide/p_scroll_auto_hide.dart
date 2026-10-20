@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart' show Drag;
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 스냅 기준 — 숨는 영역 높이의 50%(SEED `SNAP_THRESHOLD_RATIO`).
 const double kScrollAutoHideSnapRatio = 0.5;
@@ -19,7 +19,7 @@ typedef PScrollAutoHideBuilder =
     );
 
 /// Scroll Auto Hide — 스크롤 상자 맨 위에 붙은 영역이 아래로 스크롤하면 그 거리만큼 위로 숨고, 위로 스크롤하면 같은 거리만큼
-/// 드러난다. 구조는 SEED Breeze ScrollAutoHide(Apache-2.0), 수치 원본은 porest-design
+/// 드러난다. 구조는 SEED Breeze ScrollAutoHide(Apache-2.0), 수치 원본은 groo-design
 /// `specs/components/scroll-auto-hide.yaml`(값은 `test/fixtures/design_spec/scroll-auto-hide.json`), 웹은 desk-front
 /// `src/shared/ds/scroll-auto-hide` 다 — 같은 규칙이다.
 ///

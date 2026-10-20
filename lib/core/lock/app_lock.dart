@@ -3,7 +3,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:local_auth_darwin/local_auth_darwin.dart';
 
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 
 /// OS 생체인증(Face ID·지문) 결과.
 enum AppLockAuthResult {

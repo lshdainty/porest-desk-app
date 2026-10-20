@@ -3,13 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
-import 'package:porest_desk_app/shared/ds/time_picker/p_time_picker.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
 
 /// 시각 칸이 누르면 여는 시트 — 고르는 동안 칸 값은 그대로이고 "완료" 로 넣는다. 바깥 · 끌어내리기로 닫으면 버린다(null).
 /// 칸이 비었으면 지금을 분 간격에 맞춰 반올림한 자리를 짚어 열기만 한다 — "완료" 는 그 자리를 넣는다.

@@ -1,67 +1,67 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/accordion/accordion_demo.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
-import 'package:porest_desk_app/shared/ds/alert_dialog/alert_dialog_demo.dart';
-import 'package:porest_desk_app/shared/ds/avatar/avatar_demo.dart';
-import 'package:porest_desk_app/shared/ds/attachment_input/attachment_input_demo.dart';
-import 'package:porest_desk_app/shared/ds/badge/badge_demo.dart';
-import 'package:porest_desk_app/shared/ds/bottom_navigation/bottom_navigation_demo.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
-import 'package:porest_desk_app/shared/ds/button/button_demo.dart';
-import 'package:porest_desk_app/shared/ds/callout/callout_demo.dart';
-import 'package:porest_desk_app/shared/ds/card/card_demo.dart';
-import 'package:porest_desk_app/shared/ds/chart/chart_demo.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/checkbox_demo.dart';
-import 'package:porest_desk_app/shared/ds/chip/chip_demo.dart';
-import 'package:porest_desk_app/shared/ds/collapsible/collapsible_demo.dart';
-import 'package:porest_desk_app/shared/ds/color_swatch/color_swatch_demo.dart';
-import 'package:porest_desk_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
-import 'package:porest_desk_app/shared/ds/date_picker/date_picker_demo.dart';
-import 'package:porest_desk_app/shared/ds/divider/divider_demo.dart';
-import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
-import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_demo.dart';
-import 'package:porest_desk_app/shared/ds/floating_action_button/floating_action_button_demo.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/icon_picker_demo.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/image_frame_demo.dart';
-import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
-import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
-import 'package:porest_desk_app/shared/ds/input_otp/input_otp_demo.dart';
-import 'package:porest_desk_app/shared/ds/list/list_demo.dart';
-import 'package:porest_desk_app/shared/ds/logo_tile/logo_tile_demo.dart';
-import 'package:porest_desk_app/shared/ds/menu_sheet/menu_sheet_demo.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/notification_badge_demo.dart';
-import 'package:porest_desk_app/shared/ds/page_banner/page_banner_demo.dart';
-import 'package:porest_desk_app/shared/ds/progress/progress_demo.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/progress_circle_demo.dart';
-import 'package:porest_desk_app/shared/ds/quantity_picker/quantity_picker_demo.dart';
-import 'package:porest_desk_app/shared/ds/radio/radio_demo.dart';
-import 'package:porest_desk_app/shared/ds/result_section/result_section_demo.dart';
-import 'package:porest_desk_app/shared/ds/scroll_area/scroll_area_demo.dart';
-import 'package:porest_desk_app/shared/ds/scroll_auto_hide/scroll_auto_hide_demo.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
-import 'package:porest_desk_app/shared/ds/searchable_list/searchable_list_demo.dart';
-import 'package:porest_desk_app/shared/ds/segmented_control/segmented_control_demo.dart';
-import 'package:porest_desk_app/shared/ds/select/select_demo.dart';
-import 'package:porest_desk_app/shared/ds/select_box/select_box_demo.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/skeleton_demo.dart';
-import 'package:porest_desk_app/shared/ds/slider/slider_demo.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
-import 'package:porest_desk_app/shared/ds/swipe_actions/swipe_actions_demo.dart';
-import 'package:porest_desk_app/shared/ds/switch/switch_demo.dart';
-import 'package:porest_desk_app/shared/ds/tabs/tabs_demo.dart';
-import 'package:porest_desk_app/shared/ds/tag_group/tag_group_demo.dart';
-import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
-import 'package:porest_desk_app/shared/ds/time_picker/time_picker_demo.dart';
-import 'package:porest_desk_app/shared/ds/toggle/toggle_demo.dart';
-import 'package:porest_desk_app/shared/ds/top_navigation/top_navigation_demo.dart';
-import 'package:porest_desk_app/shared/ds/tooltip/tooltip_demo.dart';
-import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/accordion/accordion_demo.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/aspect_ratio_demo.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/alert_dialog_demo.dart';
+import 'package:groo_damda_app/shared/ds/avatar/avatar_demo.dart';
+import 'package:groo_damda_app/shared/ds/attachment_input/attachment_input_demo.dart';
+import 'package:groo_damda_app/shared/ds/badge/badge_demo.dart';
+import 'package:groo_damda_app/shared/ds/bottom_navigation/bottom_navigation_demo.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_demo.dart';
+import 'package:groo_damda_app/shared/ds/button/button_demo.dart';
+import 'package:groo_damda_app/shared/ds/callout/callout_demo.dart';
+import 'package:groo_damda_app/shared/ds/card/card_demo.dart';
+import 'package:groo_damda_app/shared/ds/chart/chart_demo.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/checkbox_demo.dart';
+import 'package:groo_damda_app/shared/ds/chip/chip_demo.dart';
+import 'package:groo_damda_app/shared/ds/collapsible/collapsible_demo.dart';
+import 'package:groo_damda_app/shared/ds/color_swatch/color_swatch_demo.dart';
+import 'package:groo_damda_app/shared/ds/content_placeholder/content_placeholder_demo.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/date_picker_demo.dart';
+import 'package:groo_damda_app/shared/ds/divider/divider_demo.dart';
+import 'package:groo_damda_app/shared/ds/field/field_demo.dart';
+import 'package:groo_damda_app/shared/ds/help_bubble/help_bubble_demo.dart';
+import 'package:groo_damda_app/shared/ds/floating_action_button/floating_action_button_demo.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/icon_picker_demo.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/image_frame_demo.dart';
+import 'package:groo_damda_app/shared/ds/input/input_demo.dart';
+import 'package:groo_damda_app/shared/ds/input_button/input_button_demo.dart';
+import 'package:groo_damda_app/shared/ds/input_otp/input_otp_demo.dart';
+import 'package:groo_damda_app/shared/ds/list/list_demo.dart';
+import 'package:groo_damda_app/shared/ds/logo_tile/logo_tile_demo.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/menu_sheet_demo.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/notification_badge_demo.dart';
+import 'package:groo_damda_app/shared/ds/page_banner/page_banner_demo.dart';
+import 'package:groo_damda_app/shared/ds/progress/progress_demo.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/progress_circle_demo.dart';
+import 'package:groo_damda_app/shared/ds/quantity_picker/quantity_picker_demo.dart';
+import 'package:groo_damda_app/shared/ds/radio/radio_demo.dart';
+import 'package:groo_damda_app/shared/ds/result_section/result_section_demo.dart';
+import 'package:groo_damda_app/shared/ds/scroll_area/scroll_area_demo.dart';
+import 'package:groo_damda_app/shared/ds/scroll_auto_hide/scroll_auto_hide_demo.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/scroll_fog_demo.dart';
+import 'package:groo_damda_app/shared/ds/searchable_list/searchable_list_demo.dart';
+import 'package:groo_damda_app/shared/ds/segmented_control/segmented_control_demo.dart';
+import 'package:groo_damda_app/shared/ds/select/select_demo.dart';
+import 'package:groo_damda_app/shared/ds/select_box/select_box_demo.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/skeleton_demo.dart';
+import 'package:groo_damda_app/shared/ds/slider/slider_demo.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/snackbar_demo.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/swipe_actions_demo.dart';
+import 'package:groo_damda_app/shared/ds/switch/switch_demo.dart';
+import 'package:groo_damda_app/shared/ds/tabs/tabs_demo.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/tag_group_demo.dart';
+import 'package:groo_damda_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:groo_damda_app/shared/ds/time_picker/time_picker_demo.dart';
+import 'package:groo_damda_app/shared/ds/toggle/toggle_demo.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/top_navigation_demo.dart';
+import 'package:groo_damda_app/shared/ds/tooltip/tooltip_demo.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 
 /// 컴포넌트 라이브러리(`lib/shared/ds`) 등록부 — debug 빌드 전용 카탈로그(/dev/ds)가 그린다.
 ///
-/// 묶음 차례는 만드는 순서다. porest-design 레시피끼리 가져다 쓰는 관계로 정했다
+/// 묶음 차례는 만드는 순서다. groo-design 레시피끼리 가져다 쓰는 관계로 정했다
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
@@ -69,7 +69,7 @@ import 'package:porest_desk_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
-/// spec 은 porest-design `specs/components/<이름>.md` 의 이름이고, 값은
+/// spec 은 groo-design `specs/components/<이름>.md` 의 이름이고, 값은
 /// `test/fixtures/design_spec/<이름>.json` 이다(테스트가 위젯이 그 값과 같은지 본다).
 class DsEntry {
   const DsEntry(this.name, this.spec, {this.demo});

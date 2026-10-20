@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 결과 — empty(비어 있음 · 처음, 기본 — 회색 아이콘) · failure(불러오기 실패 · 화면 오류 — 위험 색 느낌표, 첫 버튼은
 /// "다시 시도") · done(완료 — 성공 색 체크).
@@ -94,7 +94,7 @@ double resultSectionPaddingX(PResultPlacement placement) => switch (placement) {
 /// Result Section — 화면이나 그 영역 가운데에 놓는 결과(비어 있음 · 불러오기 실패 · 완료 · 찾을 수 없는 페이지 · 화면
 /// 오류)를 한 틀로 그린다. 불러오기 실패를 "내역이 없어요" 처럼 비어 있음으로 보이지 않는다 — failure 로, 무엇을
 /// 불러오지 못했는지와 "다시 시도" 를 둔다. 이미 불러온 내용이 있으면 지우지 않고 다시 불러오기 실패는 Snackbar 로
-/// 가볍게 알린다. 구조는 SEED Result Section(2026-10-02), 수치 원본은 porest-design
+/// 가볍게 알린다. 구조는 SEED Result Section(2026-10-02), 수치 원본은 groo-design
 /// `specs/components/result-section.yaml`(값은 `test/fixtures/design_spec/result-section.json`). 웹(desk-front
 /// `src/shared/ds/result-section`)과 같은 값이다.
 ///

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// 가벼운 마크다운 라이크 미리보기 — 외부 패키지 없이 line-based 처리.
 ///
@@ -156,7 +156,7 @@ class MarkdownPreview extends StatelessWidget {
 
   Widget _inline(
     String s, {
-    required PorestTokens tokens,
+    required GrooTokens tokens,
     bool italic = false,
     TextDecoration? decoration,
   }) {

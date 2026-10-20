@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/memo/data/memo_repository.dart';
-import 'package:porest_desk_app/features/memo/data/memo_tag_repository.dart';
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
-import 'package:porest_desk_app/features/memo/domain/memo_tag.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/memo/data/memo_repository.dart';
+import 'package:groo_damda_app/features/memo/data/memo_tag_repository.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/features/memo/domain/memo_tag.dart';
 
 final memoRepositoryProvider = FutureProvider<MemoRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

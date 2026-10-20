@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 // 선택 컨트롤 셋(카탈로그 "5 선택 컨트롤" — Checkbox · Radio · Switch)이 함께 쓰는 부품. 셋은 줄 · 누르는 영역 ·
 // 누름 축소 · 색 전환이 같은 규칙이다(radio-group.yaml · switch.yaml 이 "Checkbox 와 같게" 라고 적는다).
@@ -19,7 +19,7 @@ typedef SelectionColors = ({Color background, Color border, Color foreground});
 ///
 /// 목표 색([end])은 8비트로 맞춰 둔다. MaterialApp 은 ThemeData 가 바뀌면 200ms 동안 두 테마를 섞는데(AnimatedTheme —
 /// 라이트 ↔ 다크를 바꿀 때), 섞인 역할 색에는 부동소수 찌꺼기가 끼어 목표가 프레임마다 "바뀌고" 전환이 매 프레임
-/// 처음부터 다시 시작돼 멈춰 보인다. 스펙 색은 모두 8비트라 맞춰도 값은 그대로다. (`PorestTheme.light()` 는 늘 같은
+/// 처음부터 다시 시작돼 멈춰 보인다. 스펙 색은 모두 8비트라 맞춰도 값은 그대로다. (`GrooTheme.light()` 는 늘 같은
 /// 테마를 돌려주므로 같은 테마끼리 섞는 일은 없다.)
 class SelectionColorsTween extends Tween<SelectionColors> {
   SelectionColorsTween({SelectionColors? end})

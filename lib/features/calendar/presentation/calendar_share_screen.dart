@@ -3,27 +3,27 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_dropdown_menu.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 
 /// 설정 진입 — 캘린더 관리·공유 (user_calendar 기반).
 ///
@@ -123,7 +123,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
 
 class _IntroCard extends StatelessWidget {
   const _IntroCard({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +178,7 @@ class _CalendarSections extends StatelessWidget {
     required this.onCreate,
   });
   final List<UserCalendar> calendars;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onCreate;
 
   @override
@@ -225,7 +225,7 @@ class _Section extends StatelessWidget {
     this.action,
   });
   final String title;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final List<UserCalendar> calendars;
   final String emptyText;
 
@@ -291,7 +291,7 @@ class _Section extends StatelessWidget {
 class _CalendarRow extends ConsumerWidget {
   const _CalendarRow({required this.calendar, required this.tokens});
   final UserCalendar calendar;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -379,7 +379,7 @@ class _CalendarRow extends ConsumerWidget {
 
 class _JoinCard extends StatelessWidget {
   const _JoinCard({required this.tokens, required this.onJoin});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onJoin;
 
   @override
@@ -864,7 +864,7 @@ class _MemberRow extends StatelessWidget {
     required this.onRemove,
   });
   final CalendarMember member;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final bool isMe;
   final bool canManage;
   final void Function(String permission) onChangeRole;

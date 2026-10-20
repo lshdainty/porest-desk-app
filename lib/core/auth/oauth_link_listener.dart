@@ -4,10 +4,10 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/oauth_callback_handler.dart';
-import 'package:porest_desk_app/core/auth/oauth_flow_store.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/oauth_callback_handler.dart';
+import 'package:groo_damda_app/core/auth/oauth_flow_store.dart';
 
 /// PKCE 흐름 보관소 — 로그인 화면(저장)과 콜백 리스너(복원)가 같은 인스턴스를 본다.
 final oauthFlowStoreProvider = Provider<OAuthFlowStore>(

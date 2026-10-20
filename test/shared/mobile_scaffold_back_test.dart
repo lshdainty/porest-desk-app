@@ -17,12 +17,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/branch_back_to_home.dart';
-import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/branch_back_to_home.dart';
+import 'package:groo_damda_app/shared/widgets/mobile_scaffold.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 /// branch 화면 대역 — 실제 화면은 네트워크 provider 를 물고 있어 셸 동작만 본다.
 /// 시트·다이얼로그를 여는 버튼은 앱과 같은 헬퍼를 쓴다(showPSheet / showDialog).
@@ -173,7 +173,7 @@ void main() {
         ],
         child: MaterialApp.router(
           routerConfig: router,
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

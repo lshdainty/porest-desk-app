@@ -9,17 +9,17 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/field/field_demo.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/input_demo.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
-import 'package:porest_desk_app/shared/ds/textarea/p_textarea.dart';
-import 'package:porest_desk_app/shared/ds/textarea/textarea_demo.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/field/field_demo.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/input_demo.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/shared/ds/textarea/p_textarea.dart';
+import 'package:groo_damda_app/shared/ds/textarea/textarea_demo.dart';
 
 import '../../support/design_spec.dart';
 
@@ -35,7 +35,7 @@ Widget _host(
   Widget child, {
   MediaQueryData Function(MediaQueryData data)? media,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),
@@ -612,7 +612,7 @@ void main() {
           _light,
           const PInput(
             semanticLabel: '아이디',
-            initialValue: 'porest',
+            initialValue: 'groo',
             readOnly: true,
           ),
         ),
@@ -1238,7 +1238,7 @@ void main() {
               maxGraphemeCount: 20,
               invalid: true,
               errorMessage: error,
-              child: PInput(initialValue: 'porest'),
+              child: PInput(initialValue: 'groo'),
             ),
           ),
         );
@@ -1246,7 +1246,7 @@ void main() {
           tester.getSemantics(find.byType(EditableText)),
           containsSemantics(
             label: '아이디',
-            hint: '$error\n20자 중 6자',
+            hint: '$error\n20자 중 4자',
             validationResult: SemanticsValidationResult.invalid,
           ),
         );
@@ -1602,7 +1602,7 @@ void main() {
           const PField(
             label: '아이디',
             readOnly: true,
-            child: PInput(initialValue: 'porest'),
+            child: PInput(initialValue: 'groo'),
           ),
         ),
       );
@@ -1653,7 +1653,7 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final semantics = tester.ensureSemantics();
-        for (final theme in [PorestTheme.light(), PorestTheme.dark()]) {
+        for (final theme in [GrooTheme.light(), GrooTheme.dark()]) {
           await tester.pumpWidget(
             MaterialApp(
               theme: theme,
@@ -1682,7 +1682,7 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

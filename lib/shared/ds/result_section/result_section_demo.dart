@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 
 /// 카탈로그(/dev/ds) — 결과(비어 있음 · 실패 · 완료) × 크기(large · medium), 다시 시도 로딩, 찾을 수 없는 페이지, 카드 안.
 class ResultSectionDemo extends StatelessWidget {

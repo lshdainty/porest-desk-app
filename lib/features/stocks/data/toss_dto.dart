@@ -301,7 +301,7 @@ class TossCandle {
   DateTime? get time => DateTime.tryParse(timestamp);
 }
 
-/// 백엔드 candle 응답(porest-core `CursorResponse<Candle>`)을 내부 정규화 형태로 받는다.
+/// 백엔드 candle 응답(groo-core `CursorResponse<Candle>`)을 내부 정규화 형태로 받는다.
 /// content→candles, meta.nextCursor→nextBefore.
 class TossCandlePage {
   const TossCandlePage({required this.candles, this.nextBefore});

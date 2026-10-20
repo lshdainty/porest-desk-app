@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 카탈로그(/dev/ds) — 다 드러남(맨 위) · 직접 스크롤(내린 만큼 숨고 올린 만큼 드러나며 멈추면 절반 기준으로 200ms 스냅) · 가장 나쁜
 /// 값(키 큰 머리 + 짧은 목록). 웹 `scroll-auto-hide.demo.tsx` 와 같은 구성이다. 모션 줄이기를 켜면 늘 보인다.

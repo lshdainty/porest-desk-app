@@ -1,5 +1,5 @@
 /// Chart — 숫자의 흐름 · 비율 · 세기를 그림으로 보이는 차트(선 · 막대 · 도넛 · 열지도). 차트는 카드 본문 안에 두고, 같은
-/// 숫자를 범례 · 툴팁의 글로도 읽을 수 있게 한다. 수치 원본은 porest-design `specs/components/chart.yaml`(값은
+/// 숫자를 범례 · 툴팁의 글로도 읽을 수 있게 한다. 수치 원본은 groo-design `specs/components/chart.yaml`(값은
 /// `test/fixtures/design_spec/chart.json`). 웹(desk-front `src/shared/ds/chart`)과 같은 값이다. 차트 라이브러리는 fl_chart.
 ///
 ///   [PLineChart] · [PBarChart]   선(영역) · 막대 — categories × series(이중 축: 계열 하나를 onRight). 위 지표 타일이 범례다
@@ -22,8 +22,8 @@
 /// 앱에는 없다.
 library;
 
-export 'package:porest_desk_app/shared/ds/chart/p_chart_cartesian.dart';
-export 'package:porest_desk_app/shared/ds/chart/p_chart_donut.dart';
-export 'package:porest_desk_app/shared/ds/chart/p_chart_heatmap.dart';
-export 'package:porest_desk_app/shared/ds/chart/p_chart_parts.dart';
-export 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
+export 'package:groo_damda_app/shared/ds/chart/p_chart_cartesian.dart';
+export 'package:groo_damda_app/shared/ds/chart/p_chart_donut.dart';
+export 'package:groo_damda_app/shared/ds/chart/p_chart_heatmap.dart';
+export 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
+export 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';

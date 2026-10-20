@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
-import 'package:porest_desk_app/shared/ds/input_button/input_button_demo.dart';
-import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/shared/ds/input_button/input_button_demo.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
 
 import '../../support/design_spec.dart';
 
@@ -27,7 +27,7 @@ Widget _host(
   double width = 320,
   bool reduceMotion = false,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),
@@ -737,9 +737,7 @@ void main() {
     for (final mode in [Brightness.light, Brightness.dark]) {
       await tester.pumpWidget(
         MaterialApp(
-          theme: mode == Brightness.dark
-              ? PorestTheme.dark()
-              : PorestTheme.light(),
+          theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

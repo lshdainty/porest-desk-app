@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/accordion/p_disclosure_trigger.dart';
-import 'package:porest_desk_app/shared/ds/accordion/p_expand_motion.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/accordion/p_disclosure_trigger.dart';
+import 'package:groo_damda_app/shared/ds/accordion/p_expand_motion.dart';
 
 /// 놓인 면 — standard(스펙 `default`, 기본 — 흰 면 · 시트 · 대화상자의 줄, 좌우 24) · card(Collapsible 이 Card 면을 그린다 —
 /// 1px `stroke-neutral-weak` · 모서리 16 · `bg-layer-default`, 트리거가 카드 머리) · warning(경고 상자의 맨 아래 줄 — 좌우
@@ -15,7 +15,7 @@ enum PCollapsibleLayout { text, rows }
 
 /// Collapsible — 내용 하나를 접고 편다(거래 상세의 분할 내역, 분할의 "빠르게 맞추기"). 트리거는 Accordion 항목 하나의
 /// 모양이다([PDisclosureTrigger] — 54 · 74, 꺾쇠 20, 누름 바탕, 모션 모두 같다). 같은 모양의 상세가 여럿이면 [PAccordion]
-/// 이다. 수치 원본은 porest-design `specs/components/collapsible.yaml`(값은 `test/fixtures/design_spec/collapsible.json`),
+/// 이다. 수치 원본은 groo-design `specs/components/collapsible.yaml`(값은 `test/fixtures/design_spec/collapsible.json`),
 /// 웹은 desk-front `src/shared/ds/collapsible` 이다 — 같은 값이다.
 ///
 /// [title] 은 무엇을 여닫는지 고정한 이름이다 — 상태마다 바꾸지 않는다. 펼침은 expanded 로 읽힌다. 설명([description] —

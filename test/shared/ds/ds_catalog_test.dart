@@ -2,16 +2,16 @@
 // 이 화면을 지나지 않는다. 컴포넌트를 만들 때마다 demo 가 여기 붙으므로, 깨진 demo 도 여기서 걸린다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/catalog/ds_catalog_screen.dart';
-import 'package:porest_desk_app/shared/ds/catalog/ds_registry.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/catalog/ds_catalog_screen.dart';
+import 'package:groo_damda_app/shared/ds/catalog/ds_registry.dart';
 
 void main() {
   testWidgets('앱 카탈로그는 57개를 싣고 라이트 · 다크 판을 그린다', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(theme: PorestTheme.light(), home: const DsCatalogScreen()),
+      MaterialApp(theme: GrooTheme.light(), home: const DsCatalogScreen()),
     );
 
     final entries = dsFamilies.expand((f) => f.entries).toList();
@@ -33,7 +33,7 @@ void main() {
 
   testWidgets('다크 판 안에서는 역할 색이 다크 값이다', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(theme: PorestTheme.light(), home: const DsCatalogScreen()),
+      MaterialApp(theme: GrooTheme.light(), home: const DsCatalogScreen()),
     );
 
     final darkLabel = find.text('다크').first;
@@ -52,7 +52,7 @@ void main() {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      for (final theme in [PorestTheme.light(), PorestTheme.dark()]) {
+      for (final theme in [GrooTheme.light(), GrooTheme.dark()]) {
         await tester.pumpWidget(
           MaterialApp(
             theme: theme,

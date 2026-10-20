@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
 
 /// 지원 통화 — 외화통장·해외 결제에서 쓴다.
 ///
@@ -59,7 +59,7 @@ bool isForeignCurrency(String? code) =>
 /// 통화를 모르면(`null`·빈 문자열) 원화로 본다 — 안 적힌 자산은 원화라는 게
 /// [kDefaultCurrency] 다. 모르는 코드는 코드를 그대로 낸다(빈 괄호보다 낫다).
 ///
-/// **웹도 같은 규칙을 쓴다** — `shared/lib/porest/currency.ts` 의 `currencyUnit`
+/// **웹도 같은 규칙을 쓴다** — `shared/lib/groo/currency.ts` 의 `currencyUnit`
 /// (desk-front #369). 갈리면 같은 자산을 웹과 앱에서 다른 단위로 읽는다.
 String currencyUnit(String? code) =>
     (code == null || code.isEmpty || code == kDefaultCurrency)

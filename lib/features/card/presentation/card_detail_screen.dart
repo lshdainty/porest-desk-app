@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/motion.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_collapsible.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
-import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
+import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_collapsible.dart';
+import 'package:groo_damda_app/shared/widgets/p_divider.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
+import 'package:groo_damda_app/features/card/presentation/card_fee_text.dart';
 
 class CardDetailScreen extends ConsumerWidget {
   const CardDetailScreen({super.key, required this.catalogId});
@@ -247,7 +247,7 @@ class CardDetailScreen extends ConsumerWidget {
 /// 카드 상세 skeleton — 이미지 + 이름/서브텍스트 + 연회비/실적 카드 + 혜택 리스트.
 class _CardDetailSkeleton extends StatelessWidget {
   const _CardDetailSkeleton({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -343,7 +343,7 @@ class _InfoCard extends StatelessWidget {
   });
   final String label;
   final String value;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   @override
   Widget build(BuildContext context) {
     return PCard(
@@ -415,7 +415,7 @@ class _CautionItem extends StatelessWidget {
     );
   }
 
-  Widget _row(PorestTokens t, String label, bool? isOpen) => Row(
+  Widget _row(GrooTokens t, String label, bool? isOpen) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Icon(LucideIcons.alertTriangle, size: 12, color: t.statusWarningFg),

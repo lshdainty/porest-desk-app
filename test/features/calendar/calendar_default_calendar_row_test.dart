@@ -17,16 +17,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/calendar/data/user_calendar_repository.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_visibility.dart';
-import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/data/user_calendar_repository.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_visibility.dart';
+import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _default = UserCalendar(rowId: 1, calendarName: '기본캘린더', isDefault: true);
 const _normal = UserCalendar(rowId: 2, calendarName: '회사캘린더');
@@ -111,7 +111,7 @@ void main() {
           holidayListProvider.overrideWith((ref, key) async => <Holiday>[]),
         ],
         child: MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),
@@ -239,8 +239,8 @@ void main() {
       // 꺼진 행은 이름이 fgTertiary 로 죽는다 — 기본 캘린더는 늘 켜진 색이다.
       final name = tester.widget<Text>(find.text('기본캘린더'));
 
-      expect(name.style?.color, PorestTokens.light.fgPrimary);
-      expect(name.style?.color, isNot(PorestTokens.light.fgTertiary));
+      expect(name.style?.color, GrooTokens.light.fgPrimary);
+      expect(name.style?.color, isNot(GrooTokens.light.fgTertiary));
     });
   });
 }

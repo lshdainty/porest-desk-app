@@ -1,6 +1,6 @@
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 연회비 표기 — **"정보 없음"과 "무료"를 구분한다.**
 ///

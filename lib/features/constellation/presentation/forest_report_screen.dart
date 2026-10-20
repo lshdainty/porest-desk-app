@@ -3,22 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/format_locale.dart';
-import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
-import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
-import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
+import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
+import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_meta.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 /// 관측 리포트 — 주간 스트립 + 일별 관측 결과/별빛/분석/못다 켠 별
 /// (design forest-report.jsx ForestReport / .frp-* 미러).
@@ -136,7 +136,7 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
 
   Widget _body(
     BuildContext context,
-    PorestTokens t,
+    GrooTokens t,
     AppLocalizations l,
     ConstellationToday today,
     List<SkyDay> sky,
@@ -677,7 +677,7 @@ class _WeekNavBtn extends StatelessWidget {
   final IconData icon;
   final bool enabled;
   final VoidCallback onTap;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -715,7 +715,7 @@ class _StripDay extends StatelessWidget {
   final bool selected;
   final bool future;
   final VoidCallback onTap;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -771,7 +771,7 @@ class _StripDay extends StatelessWidget {
 class _CardIco extends StatelessWidget {
   const _CardIco({required this.icon, required this.t});
   final IconData icon;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -800,7 +800,7 @@ class _StatTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -865,7 +865,7 @@ class _AnalysisBar extends StatelessWidget {
   final int weekMax;
   final int Function(String?) weight;
   final List<Todo> Function(List<Todo>, String) doneOn;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
@@ -938,7 +938,7 @@ class _MissedRow extends StatelessWidget {
   const _MissedRow({required this.todo, required this.weight, required this.t});
   final Todo todo;
   final int Function(String?) weight;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {

@@ -16,7 +16,7 @@ from playwright.sync_api import sync_playwright
 CMD_DIR = pathlib.Path("/tmp/pw-cmd")
 OUT_DIR = pathlib.Path("/tmp/pw-out")
 SCR_DIR = pathlib.Path("/tmp/pw-scr")
-AUTH = pathlib.Path("/tmp/porest-screens/auth.json")
+AUTH = pathlib.Path("/tmp/groo-screens/auth.json")
 BASE = "http://localhost:3002"
 
 for d in (CMD_DIR, OUT_DIR, SCR_DIR):

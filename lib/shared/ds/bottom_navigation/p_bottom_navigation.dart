@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 
 /// 바 높이 — 펼침 66 · 줄어듦 48. 토큰에 없는 바 자신의 치수다(bottom-navigation.yaml root.height).
 const double kBottomNavigationHeight = 66;
@@ -175,8 +175,8 @@ class PBottomNavigationAdd {
 }
 
 /// 하단 탭 바 — 폰 화면 아래에 떠 있는 알약. 칸은 다섯이고 어느 화면에서나 같다(홈 · 가계부 · + · 캘린더 · 전체). 규칙은 SEED Bottom
-/// Navigation(5칸 · 라벨 5자 · 최대 480 · 배지 2칸 · 글자 크기 설정을 따르지 않음), 바의 모양은 porest 가 지켜 온 떠 있는
-/// 알약(2026-10-04 사용자 결정). 수치 원본은 porest-design `specs/components/bottom-navigation.yaml`(값은
+/// Navigation(5칸 · 라벨 5자 · 최대 480 · 배지 2칸 · 글자 크기 설정을 따르지 않음), 바의 모양은 groo 가 지켜 온 떠 있는
+/// 알약(2026-10-04 사용자 결정). 수치 원본은 groo-design `specs/components/bottom-navigation.yaml`(값은
 /// `test/fixtures/design_spec/bottom-navigation.json`). 웹(desk-front `src/shared/ds/bottom-navigation`)과 같은 값이다.
 ///
 /// 바 — 펼침 66(좌우 14 · 아래 max(14, 안전 영역 − 6)) · 줄어듦 48(좌우 36 · 아래 max(12, 안전 영역 − 8)), 칸 다섯을 똑같이 나눈다

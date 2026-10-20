@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/colors.dart';
+import 'package:groo_damda_app/app/theme/colors.dart';
 
 /// 카테고리 fallback 차트 팔레트 10색 — desk-front `CATEGORY_PALETTE` 정확 미러.
 ///
 /// 카테고리 자체의 저장된 색(`cat.color`)이 1순위, 그 다음 인덱스 기반 fallback
 /// 이 팔레트 적용. brand(cobalt) 의미 분리 — 의미가 있는 경우(수입/지출/이체)는
-/// [PorestTokens.fgIncome/fgExpense/fgTransfer] 사용.
+/// [GrooTokens.fgIncome/fgExpense/fgTransfer] 사용.
 ///
 /// 순서/색은 `src/pages/dashboard/ui/DashboardPage.tsx` CATEGORY_PALETTE 와 1:1:
 ///   blue → green → orange → violet → pink → indigo → red → yellow → brown → gray
@@ -15,9 +15,9 @@ import 'package:porest_desk_app/app/theme/colors.dart';
 ///
 /// 사용:
 /// ```dart
-/// final color = PorestChartPalette.category(context, idx);
+/// final color = GrooChartPalette.category(context, idx);
 /// ```
-abstract final class PorestChartPalette {
+abstract final class GrooChartPalette {
   /// 카테고리 인덱스로 색 선택 — 자동 wrap, 현재 테마 brightness 기반 분기.
   static Color category(BuildContext context, int i) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -34,29 +34,29 @@ abstract final class PorestChartPalette {
 
   // desk-front CATEGORY_PALETTE 순서: blue/green/orange/violet/pink/indigo/red/yellow/brown/gray
   static const List<Color> _light = <Color>[
-    PorestPalette.chartBlue,
-    PorestPalette.chartGreen,
-    PorestPalette.chartOrange,
-    PorestPalette.chartViolet,
-    PorestPalette.chartPink,
-    PorestPalette.chartIndigo,
-    PorestPalette.chartRed,
-    PorestPalette.chartYellow,
-    PorestPalette.chartBrown,
-    PorestPalette.chartGray,
+    GrooPalette.chartBlue,
+    GrooPalette.chartGreen,
+    GrooPalette.chartOrange,
+    GrooPalette.chartViolet,
+    GrooPalette.chartPink,
+    GrooPalette.chartIndigo,
+    GrooPalette.chartRed,
+    GrooPalette.chartYellow,
+    GrooPalette.chartBrown,
+    GrooPalette.chartGray,
   ];
 
   /// Dark — `--color-chart-*-light` 사용 (어두운 배경에서 채도/명도 확보).
   static const List<Color> _dark = <Color>[
-    PorestPalette.chartBlueLight,
-    PorestPalette.chartGreenLight,
-    PorestPalette.chartOrangeLight,
-    PorestPalette.chartVioletLight,
-    PorestPalette.chartPinkLight,
-    PorestPalette.chartIndigoLight,
-    PorestPalette.chartRedLight,
-    PorestPalette.chartYellowLight,
-    PorestPalette.chartBrownLight,
-    PorestPalette.chartGrayLight,
+    GrooPalette.chartBlueLight,
+    GrooPalette.chartGreenLight,
+    GrooPalette.chartOrangeLight,
+    GrooPalette.chartVioletLight,
+    GrooPalette.chartPinkLight,
+    GrooPalette.chartIndigoLight,
+    GrooPalette.chartRedLight,
+    GrooPalette.chartYellowLight,
+    GrooPalette.chartBrownLight,
+    GrooPalette.chartGrayLight,
   ];
 }

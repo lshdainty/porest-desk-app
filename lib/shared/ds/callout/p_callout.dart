@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/callout/feedback_parts.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/callout/feedback_parts.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 톤 — neutral(일반, 기본) · informative(정보 · 가이드 · 팁) · positive(성공 · 혜택) · warning(주의 · 미리 알릴 문제)
 /// · critical(오류 · 바로 조치할 일). 바탕은 옅은 톤(bg-*-weak), 글 · 아이콘 · 링크 · 화살표 · 닫기는 모두 같은
@@ -72,7 +72,7 @@ const double _iconSize = 16;
 const double _closeBox = 40;
 
 /// Callout — 화면 안, 그 기능 · 내용 가까이에 늘 보이는 안내 상자(팁 · 제약 · 주의, 그 자리에서 난 오류). 구조는
-/// SEED Callout(2026-10-02), 수치 원본은 porest-design `specs/components/callout.yaml`(값은
+/// SEED Callout(2026-10-02), 수치 원본은 groo-design `specs/components/callout.yaml`(값은
 /// `test/fixtures/design_spec/callout.json`). 웹(desk-front `src/shared/ds/callout`)과 같은 값이다.
 ///
 ///   [tone]         다섯 톤 — 바탕 bg-*-weak, 글 · 아이콘 · 링크 · 화살표 · 닫기는 모두 fg-*-contrast

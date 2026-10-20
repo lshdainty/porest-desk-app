@@ -11,7 +11,7 @@ library;
 
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 
 /// 증권사 무관 현재가. 금액은 JSON 숫자로 온다(서버가 BigDecimal 로 계산해 내린다).
 class BrokerQuote {

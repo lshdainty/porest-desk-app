@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 펼치고 접는 모션 — Accordion · Collapsible · List 의 하위 줄([PListParentItem])이 모두 이 위젯 하나를 쓴다
-/// (porest-design `accordion.yaml` motion "펼침 · 접힘 — 높이", list.yaml 은 "Accordion 과 같다"). 웹의 `useExpandMotion`
+/// (groo-design `accordion.yaml` motion "펼침 · 접힘 — 높이", list.yaml 은 "Accordion 과 같다"). 웹의 `useExpandMotion`
 /// (desk-front `src/shared/ds/accordion/use-expand-motion.ts`)과 같은 값이다.
 ///
 /// 높이 300ms([PDuration.d6] · [PEasing.easing]) — 지금 높이에서 목표까지 이어 가고(움직이는 도중에 다시 누르면 지금

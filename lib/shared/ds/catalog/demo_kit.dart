@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 카탈로그 데모를 짜는 부품 — debug 빌드 전용(/dev/ds).
 ///

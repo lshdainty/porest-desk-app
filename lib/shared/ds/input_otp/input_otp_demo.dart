@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input_otp/p_input_otp.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input_otp/p_input_otp.dart';
 
 const _description = '10분 안에 입력해주세요 · 5번 틀리면 다시 받아요.';
 const _error = '코드가 맞지 않거나 시간이 지났어요. 확인하거나 다시 받아주세요.';

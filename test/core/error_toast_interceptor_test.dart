@@ -3,9 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 DioException _err(int status, String message, {String method = 'POST'}) =>
     DioException(
@@ -27,7 +27,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         scaffoldMessengerKey: key,
-        theme: PorestTheme.dark(),
+        theme: GrooTheme.dark(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 크기 — 지름(px). 기본 48. 글 한 줄 안 20 · 줄 안 묶음 24 · 한 줄 목록 36 · 두 줄 목록 42 · 계정 화면 머리 80 …
 enum PAvatarSize { s20, s24, s36, s42, s48, s56, s64, s80, s96, s108 }
@@ -92,7 +92,7 @@ Color avatarHueColor(PColors c, String name) => [
   c.chartGray,
 ][avatarHueIndex(name)];
 
-/// Avatar — 사람을 보이는 원. 구조는 SEED Avatar(2026-10-03), 수치 원본은 porest-design `specs/components/avatar.yaml`
+/// Avatar — 사람을 보이는 원. 구조는 SEED Avatar(2026-10-03), 수치 원본은 groo-design `specs/components/avatar.yaml`
 /// (값은 `test/fixtures/design_spec/avatar.json`). 웹(desk-front `src/shared/ds/avatar`)과 같은 값 · 같은 이니셜 · 같은 색이다.
 ///
 /// 사진이 원을 채우고(cover), 불러오는 동안 · 실패하면 이니셜(이름의 첫 글자 + 이름 색 바탕, 글자 fg-neutral-inverted ·
@@ -298,7 +298,7 @@ class PAvatarPhotoEdit extends StatelessWidget {
 /// 묶음의 한 사람.
 typedef PAvatarPerson = ({String name, ImageProvider? image});
 
-/// Avatar Stack — 아바타를 가로로 겹쳐 놓는다(뒤에 오는 아바타가 위). 수치 원본은 porest-design
+/// Avatar Stack — 아바타를 가로로 겹쳐 놓는다(뒤에 오는 아바타가 위). 수치 원본은 groo-design
 /// `specs/components/avatar-stack.yaml`. 앞 4명까지, 5명 이상이면 앞 4명 + "+N"(N = 전체 − 4, 99 를 넘으면 "+99").
 /// 아바타마다 바깥 링(놓인 바탕색 — 크기를 바꾸지 않는다)이 앞 아바타를 끊는다. 시트 · 대화상자 안이면
 /// [onFloating] — 링이 bg-layer-floating 이다.

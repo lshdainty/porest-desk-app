@@ -2,9 +2,9 @@ import 'dart:ui' show PathMetric;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
 
 const Map<PAspectRatioValue, String> _labels = {
   PAspectRatioValue.r1x1: '정사각',

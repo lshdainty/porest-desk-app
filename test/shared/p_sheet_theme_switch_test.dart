@@ -5,14 +5,14 @@
 // 글자만 밝은색으로 바뀌어 거의 안 보였다. 시트를 닫았다 열어야 풀렸다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 void main() {
-  final light = PorestTheme.light().extension<PorestTokens>()!;
-  final dark = PorestTheme.dark().extension<PorestTokens>()!;
+  final light = GrooTheme.light().extension<GrooTokens>()!;
+  final dark = GrooTheme.dark().extension<GrooTokens>()!;
 
   for (final shrinkWrap in [false, true]) {
     testWidgets('shrinkWrap=$shrinkWrap — 시트를 연 채 다크로 바뀌면 배경도 다크다', (
@@ -24,8 +24,8 @@ void main() {
         ValueListenableBuilder<ThemeMode>(
           valueListenable: mode,
           builder: (_, m, _) => MaterialApp(
-            theme: PorestTheme.light(),
-            darkTheme: PorestTheme.dark(),
+            theme: GrooTheme.light(),
+            darkTheme: GrooTheme.dark(),
             themeMode: m,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,

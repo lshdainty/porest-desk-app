@@ -11,8 +11,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/auth/session_owner.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/auth/session_owner.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
 
 const _alice = User(
   rowId: 1,

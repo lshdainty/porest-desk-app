@@ -1,5 +1,5 @@
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
 
 /// AssetType 코드 → 로컬라이즈된 표시 라벨.
 String assetTypeLabel(AppLocalizations l, String code) => switch (code) {

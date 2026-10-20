@@ -9,17 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
-import 'package:porest_desk_app/features/dutch_pay/data/dutch_pay_repository.dart';
-import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/features/dutch_pay/application/dutch_pay_providers.dart';
+import 'package:groo_damda_app/features/dutch_pay/data/dutch_pay_repository.dart';
+import 'package:groo_damda_app/features/dutch_pay/domain/dutch_pay.dart';
+import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 typedef _Row = ({String? name, int? userRowId, int amount, bool isPayer});
 
@@ -73,7 +73,7 @@ Future<(_Repo, AppLocalizations)> _open(WidgetTester tester) async {
         dutchPayRepositoryProvider.overrideWith((ref) async => repo),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

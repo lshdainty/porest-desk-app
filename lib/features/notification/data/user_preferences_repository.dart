@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/format/currency.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_response.dart';
 
 /// 알림음 옵션 — 백엔드 enum 미러.
 class NotificationSound {

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/rendering.dart' show SemanticsRole;
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/overlay/p_overlay.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/overlay/p_overlay.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 버튼 배치 — 한쪽 글이 반 폭을 넘으면 저절로 세로(확정이 위), 버튼 하나면 single.
 enum PAlertDialogLayout { horizontal, vertical, single }
@@ -71,7 +71,7 @@ class PLeaveConfirmCopy {
 /// Alert Dialog 의 모습 — 라우트 없이 확인창 표면만 그린다(카탈로그의 정지한 견본 · 테스트). 실제로는
 /// [PAlertDialog.show] 가 이것을 라우트에 띄운다.
 ///
-/// 구조는 SEED Alert Dialog(2026-10-02), 수치 원본은 porest-design `specs/components/alert-dialog.yaml`(값은
+/// 구조는 SEED Alert Dialog(2026-10-02), 수치 원본은 groo-design `specs/components/alert-dialog.yaml`(값은
 /// `test/fixtures/design_spec/alert-dialog.json`). 웹(desk-front `src/shared/ds/alert-dialog`)과 같은 값이다.
 ///
 /// 확인창 — 화면 정중앙, 최대 272 에 좌우 32 를 남긴다. 안쪽 20 · 모서리 20 · 그림자 없음(딤과 표면 색으로 뜬다).

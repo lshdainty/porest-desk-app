@@ -10,16 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/category_icons.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/category_icons.g.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/p_icon_picker.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
-import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.g.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/p_icon_picker.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/spec_check.dart';
@@ -31,7 +31,7 @@ Widget _host(
   double height = 560,
   TextDirection direction = TextDirection.ltr,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
 
 /// 이 컨테이너가 **누구 몫의 데이터**를 들고 있는지 기억한다.
 ///

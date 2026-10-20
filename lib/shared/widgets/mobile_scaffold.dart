@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/core/lifecycle/screen_visibility.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
-import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
-import 'package:porest_desk_app/shared/widgets/mobile_header.dart';
-import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:groo_damda_app/shared/widgets/mobile_header.dart';
+import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 모바일 셸 — 헤더 + 본문(navigationShell) + 5칸 탭바.
 /// FAB 는 [MobileTabBar] 안에 인라인.

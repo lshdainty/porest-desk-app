@@ -19,19 +19,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/core/auth/user.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
-import 'package:porest_desk_app/features/calendar/data/user_calendar_repository.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_labels_screen.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_share_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/auth/auth_notifier.dart';
+import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
+import 'package:groo_damda_app/features/calendar/data/user_calendar_repository.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_labels_screen.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_share_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 const _label = EventLabel(rowId: 7, labelName: '옛이름', color: '#2c70bf');
 const _calendar = UserCalendar(rowId: 1, calendarName: '개인', isDefault: true);
@@ -102,7 +102,7 @@ Finder _button(String label) =>
 /// 무효화가 재조회로 이어지려면 듣는 쪽이 있어야 한다 — 실제 앱에서는 셸에
 /// 상주하는 캘린더 화면이 그 역할이다.
 Widget _harness(Widget screen, DateTime month) => MaterialApp(
-  theme: PorestTheme.light(),
+  theme: GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),

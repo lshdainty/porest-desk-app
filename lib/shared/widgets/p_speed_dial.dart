@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// 빠른 액션 SpeedDial — 메인 FAB 탭 시 자식 액션이 펼쳐지는 패턴.
 ///
@@ -32,7 +32,7 @@ class _PSpeedDialChildBuilt extends StatelessWidget {
   });
   final PSpeedDialChild child;
   final VoidCallback onClose;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

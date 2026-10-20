@@ -9,10 +9,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/memo/domain/memo.dart';
-import 'package:porest_desk_app/features/memo/domain/memo_meta.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/memo/domain/memo.dart';
+import 'package:groo_damda_app/features/memo/domain/memo_meta.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_meta.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 void main() {
   late AppLocalizations ko;

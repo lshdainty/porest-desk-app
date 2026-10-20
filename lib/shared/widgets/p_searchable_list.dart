@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 /// specs/components/searchable-list.md 미러.
 ///
@@ -234,7 +234,7 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
     );
   }
 
-  Widget _empty(PorestTokens t, String emptyText) => Padding(
+  Widget _empty(GrooTokens t, String emptyText) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 24),
     child: Center(
       child: Text(

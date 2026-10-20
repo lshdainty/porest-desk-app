@@ -6,7 +6,7 @@
 //
 // 여기 테스트는 축이 `formatChartAxis` 를 **쓰고 있다**는 사실을 화면으로 고정한다.
 // 값별 기대 문자열 표 자체는 `test/core/format/formatters_locale_test.dart` 에 있다
-// (웹 `shared/lib/porest/format.ts` 테스트와 글자 그대로 같은 표).
+// (웹 `shared/lib/groo/format.ts` 테스트와 글자 그대로 같은 표).
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -14,14 +14,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
-import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
 
 /// 오늘(이번 달 안) 지출 한 건. 기본 기간이 이번 달이라 추이 축의 최대값이 된다.
 ///
@@ -71,7 +71,7 @@ Future<void> _pumpTrend(WidgetTester tester, int expenseAmount) async {
         ),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

@@ -5,13 +5,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/p_checkbox.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
-import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 상자 배치 — horizontal(앞 · 본문 · 컨트롤이 한 줄, 세로 가운데) · vertical(앞이 위, 컨트롤은 위 오른쪽). 묶음의 열 수가
 /// 정하고(1열 가로형 · 2 ~ 3열 세로형) 상자마다 바꿀 수 있다.
@@ -344,7 +344,7 @@ class PCheckSelectBoxGroup extends StatelessWidget {
 }
 
 /// Select Box(하나 고르기) — 테두리 상자로 선택지를 보여 주고 하나를 고르게 한다. 구조는 SEED Select Box(2026-10-01), 수치
-/// 원본은 porest-design `specs/components/select-box.yaml`(값은 `test/fixtures/design_spec/select-box.json`). 웹(desk-front
+/// 원본은 groo-design `specs/components/select-box.yaml`(값은 `test/fixtures/design_spec/select-box.json`). 웹(desk-front
 /// `src/shared/ds/select-box`)과 같은 값이다. [PRadioSelectBoxGroup] 안에서만 쓴다.
 ///
 /// 상자 하나 = 선택지 하나. 펼침을 뺀 상자 전체가 누르는 영역이다. 고른 상자는 테두리가 안쪽 2px 짙은 색으로 바뀐다(바탕은

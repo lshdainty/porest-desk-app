@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 
 /// 톤 — defaultTone(흰 표면 · 카드 · 시트 위, 기본) · inverted(브랜드 채움 위 — 순자산 카드. 켬 · 끔 모두 흰 아이콘).
 enum PToggleTone { defaultTone, inverted }
@@ -15,7 +15,7 @@ const Set<String> toggleOffFonts = {'Lucide', 'Lucide400'};
 const String toggleOnFont = 'Lucide500';
 
 /// Toggle — 켜고 끄는 아이콘 단추. 단추 하나가 상태 하나를 켜고 끈다(관심 등록 · 메모 고정 · 금액 가리기 · App Key 보기).
-/// 수치 원본은 porest-design `specs/components/toggle.yaml`(값은 `test/fixtures/design_spec/toggle.json` — 테스트가
+/// 수치 원본은 groo-design `specs/components/toggle.yaml`(값은 `test/fixtures/design_spec/toggle.json` — 테스트가
 /// 위젯이 그 값과 같은지 본다). 웹(desk-front `src/shared/ds/toggle`)과 같은 값이다.
 ///
 /// 이름은 고정이고 켬은 읽는 상태(toggled)가 알린다(웹 aria-pressed) — 상태마다 [semanticLabel] 을 바꾸지 않는다.

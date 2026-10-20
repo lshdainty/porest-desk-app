@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
 
-/// 디자인 시스템 표준 spinner — porest-design `specs/components/spinner.md` 미러.
+/// 디자인 시스템 표준 spinner — groo-design `specs/components/spinner.md` 미러.
 ///
 /// Material 기본 `CircularProgressIndicator`(가변 호) 가 아니라, 웹 `<Spinner>` 와
 /// **동일한 ring 시각**: `border-default` track 풀 링 + 상단 90° arc(`fg-brand`,

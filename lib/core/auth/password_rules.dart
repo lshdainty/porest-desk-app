@@ -1,4 +1,4 @@
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 비밀번호 규칙 — SSO 서버 정책과 1:1.
 ///   @Size(min = 8)                     → 길이

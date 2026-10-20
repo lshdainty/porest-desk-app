@@ -5,7 +5,7 @@
 // 보였다(2026-09-15). 셋이 같은 helper 를 쓰게 하고 그걸 여기서 잠근다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/asset/domain/transfer_rules.dart';
+import 'package:groo_damda_app/features/asset/domain/transfer_rules.dart';
 
 void main() {
   group('transferPartiesLabel', () {

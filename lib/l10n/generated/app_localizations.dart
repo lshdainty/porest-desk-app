@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// 앱 이름
   ///
   /// In ko, this message translates to:
-  /// **'POREST Desk'**
+  /// **'그루 담다'**
   String get appTitle;
 
   /// No description provided for @actionSave.
@@ -10259,7 +10259,7 @@ abstract class AppLocalizations {
   /// No description provided for @subUsingPro.
   ///
   /// In ko, this message translates to:
-  /// **'Porest Pro 이용 중'**
+  /// **'그루 담다 Pro 이용 중'**
   String get subUsingPro;
 
   /// No description provided for @subUsingFree.
@@ -10379,7 +10379,7 @@ abstract class AppLocalizations {
   /// No description provided for @subStarted.
   ///
   /// In ko, this message translates to:
-  /// **'Porest Pro 구독이 시작되었어요'**
+  /// **'그루 담다 Pro 구독이 시작되었어요'**
   String get subStarted;
 
   /// No description provided for @subFailed.
@@ -11000,17 +11000,17 @@ abstract class AppLocalizations {
   /// **'기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요'**
   String get importSourceDesc;
 
-  /// No description provided for @importSourcePorest.
+  /// No description provided for @importSourceGroo.
   ///
   /// In ko, this message translates to:
-  /// **'Porest 백업'**
-  String get importSourcePorest;
+  /// **'그루 백업'**
+  String get importSourceGroo;
 
-  /// No description provided for @importSourcePorestDesc.
+  /// No description provided for @importSourceGrooDesc.
   ///
   /// In ko, this message translates to:
   /// **'내보내기 파일 다시 가져오기'**
-  String get importSourcePorestDesc;
+  String get importSourceGrooDesc;
 
   /// No description provided for @importSourceEasybudget.
   ///

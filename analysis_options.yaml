@@ -28,7 +28,7 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # 내부(lib) import 는 package:porest_desk_app/ 절대경로 강제 — 상대경로 금지.
+    # 내부(lib) import 는 package:groo_damda_app/ 절대경로 강제 — 상대경로 금지.
     # (웹 desk-front 의 @/ alias 와 멘탈모델 정합, 파일 이동 시 import 안 깨짐)
     always_use_package_imports: true
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule

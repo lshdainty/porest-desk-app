@@ -2,12 +2,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/accordion/p_expand_motion.dart';
-import 'package:porest_desk_app/shared/ds/list/list_row.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/accordion/p_expand_motion.dart';
+import 'package:groo_damda_app/shared/ds/list/list_row.dart';
 
 /// 하위 줄을 접는 부모 줄 — 카테고리처럼 부모 · 하위 두 단계로 된 목록에서 줄 자체는 편집을 열고 하위 줄만 접을 때. 구조는
-/// 줄 앞 꺾쇠 단추 + 줄 + 하위 줄 묶음이다(porest-design `specs/components/list.md` "하위 줄", 2026-10-10 사용자 결정 7C ·
+/// 줄 앞 꺾쇠 단추 + 줄 + 하위 줄 묶음이다(groo-design `specs/components/list.md` "하위 줄", 2026-10-10 사용자 결정 7C ·
 /// 17B). 웹(desk-front `src/shared/ds/list`)의 `ListParentItem` 과 같은 값이다.
 ///
 ///   꺾쇠 단추 — 보이는 상자가 곧 누르는 영역 44 · 모서리 10 · lucide `chevron-right` 20(`fg-neutral-subtle`). 접히면 오른쪽,
@@ -21,7 +21,7 @@ import 'package:porest_desk_app/shared/ds/list/list_row.dart';
 ///     받지 않는다).
 ///   하위가 없는 부모 줄 · 늘 펼쳐 두는 화면([collapsible] 이 false 인 편집 모드)도 꺾쇠 자리를 같은 폭으로 비운다 —
 ///     부모 타일이 모두 52 에 선다. 빈 자리는 읽는 말에서 숨는다.
-///   늘 펼침 — `collapsible: false`(porest-design Q-002, Tree View 의 collapsible 과 같은 이름 · 같은 뜻). 꺾쇠 자리는 비우고
+///   늘 펼침 — `collapsible: false`(groo-design Q-002, Tree View 의 collapsible 과 같은 이름 · 같은 뜻). 꺾쇠 자리는 비우고
 ///     하위 줄은 늘 보이며 expanded 로 읽히지 않는다. 접는 줄(기본)은 하위가 없어도 [expandLabel] 이 필수다(생성자 assert).
 /// 이 줄은 편집을 여는 줄이라 오른쪽 화살표를 달지 않는다(화살표는 화면을 옮기는 줄에만). 한 목록에 [PListParentItem] 이
 /// 있으면 그 목록의 맨 위 단계 줄은 모두 [PListParentItem] 이다(타일 자리를 맞춘다).

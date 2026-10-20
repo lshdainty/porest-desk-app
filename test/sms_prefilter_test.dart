@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/features/sms/domain/sms_prefilter.dart';
+import 'package:groo_damda_app/features/sms/domain/sms_prefilter.dart';
 
 /// 로컬 프리필터 — 서버로 보낼지 말지의 게이트.
 ///

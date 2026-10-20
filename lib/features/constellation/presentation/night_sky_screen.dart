@@ -3,22 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
-import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
-import 'package:porest_desk_app/features/constellation/presentation/collection_card.dart';
-import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
-import 'package:porest_desk_app/features/constellation/presentation/my_sky_card.dart';
-import 'package:porest_desk_app/features/constellation/presentation/night_sky_hero.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
-import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/features/constellation/presentation/collection_card.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
+import 'package:groo_damda_app/features/constellation/presentation/my_sky_card.dart';
+import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
+import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
+import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 /// 밤하늘 화면 — 성장·수집 전용 공간 (design forest-report.jsx NightSkyPage 미러).
 ///
@@ -237,7 +237,7 @@ class _WeekDot extends StatelessWidget {
   final SkyDay day;
   final bool isToday;
   final IconData stageIcon;
-  final PorestTokens t;
+  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {

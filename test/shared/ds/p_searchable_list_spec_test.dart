@@ -9,17 +9,17 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
-import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
-import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
-import 'package:porest_desk_app/shared/ds/searchable_list/p_searchable_list.dart';
-import 'package:porest_desk_app/shared/ds/searchable_list/searchable_list_demo.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_parts.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
+import 'package:groo_damda_app/shared/ds/searchable_list/p_searchable_list.dart';
+import 'package:groo_damda_app/shared/ds/searchable_list/searchable_list_demo.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
 
@@ -35,7 +35,7 @@ Widget _host(
   double? height,
   bool reduceMotion = false,
 }) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),
@@ -1406,9 +1406,7 @@ void main() {
     for (final mode in [Brightness.light, Brightness.dark]) {
       await tester.pumpWidget(
         MaterialApp(
-          theme: mode == Brightness.dark
-              ? PorestTheme.dark()
-              : PorestTheme.light(),
+          theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('ko'),

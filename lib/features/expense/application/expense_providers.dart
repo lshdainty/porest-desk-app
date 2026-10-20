@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/expense/data/expense_repository.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 
 /// Repository provider — Dio 가 준비되면 ExpenseRepository 반환.
 final expenseRepositoryProvider = FutureProvider<ExpenseRepository>((

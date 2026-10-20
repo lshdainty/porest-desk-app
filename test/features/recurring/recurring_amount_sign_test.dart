@@ -1,7 +1,7 @@
 // 반복 거래 요약 카드의 금액 부호 — QA #69(홈 밖에 남아 있던 `-0`·ASCII 하이픈).
 //
 // 홈(`dashboard_amount_sign_test.dart`)과 **같은 규칙**이다. 규칙은 이제 한 곳에
-// 있다 — `core/format/krw.dart` 의 `minusOf`(웹 `shared/lib/porest/format.ts` 미러).
+// 있다 — `core/format/krw.dart` 의 `minusOf`(웹 `shared/lib/groo/format.ts` 미러).
 //   0   → 부호 없음  (반복 거래가 하나도 없을 때 `-0` 이 뜨던 자리)
 //   양수 → U+2212 `−`
 //
@@ -13,12 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
-import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
-import 'package:porest_desk_app/features/recurring/presentation/recurring_screen.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/recurring/application/recurring_providers.dart';
+import 'package:groo_damda_app/features/recurring/domain/recurring_transaction.dart';
+import 'package:groo_damda_app/features/recurring/presentation/recurring_screen.dart';
 
 /// 매월 고정 지출로 잡히는 한 건 — 활성 · MONTHLY · EXPENSE.
 RecurringTransaction _monthlyExpense(int amount) => RecurringTransaction(
@@ -53,7 +53,7 @@ Future<void> _pumpRecurring(
         categoriesProvider.overrideWith((ref) async => const []),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

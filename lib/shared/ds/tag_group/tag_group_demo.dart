@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
 
 /// 카탈로그(/dev/ds) — 크기 셋, 앞세울 항목 하나(neutral · bold), 아이콘 앞 · 뒤, 줄바꿈 · 한 줄 말줄임.
 class TagGroupDemo extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_trade.dart';
 
 /// 서버 `BigDecimal` 은 JSON **숫자**로 온다. 앱은 정밀도 때문에 문자열로 들고 다니므로
 /// 컨버터 없이 캐스트하면 그 값이 실제로 채워지는 순간 화면이 통째로 죽는다.

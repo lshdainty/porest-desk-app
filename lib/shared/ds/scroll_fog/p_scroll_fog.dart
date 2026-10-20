@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 자리 — 흐림의 방향 · 깊이와 안쪽 여백을 정한다.
 enum PScrollFogUse {
@@ -35,7 +35,7 @@ scrollFogMetrics(PScrollFogUse use) => switch (use) {
 };
 
 /// Scroll Fog — 스크롤되는 영역의 끝을 흐려 뒤에 더 있다는 것을 알린다. 구조는 SEED Scroll Fog(2026-10-03), 수치
-/// 원본은 porest-design `specs/components/scroll-fog.yaml`(값은 `test/fixtures/design_spec/scroll-fog.json`).
+/// 원본은 groo-design `specs/components/scroll-fog.yaml`(값은 `test/fixtures/design_spec/scroll-fog.json`).
 /// 웹(desk-front `src/shared/ds/scroll-fog`)과 같은 값이다.
 ///
 /// 색을 덮지 않는 마스크(gradient-fade-mask — 투명도만 바꾼다)라 어느 바탕에서도 같고, 흐린 자리도 그대로 눌린다.

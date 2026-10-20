@@ -28,9 +28,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
 
 const _channelId = 'porest_update';
 const _taskName = 'porest-update-check';

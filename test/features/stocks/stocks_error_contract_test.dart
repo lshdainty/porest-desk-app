@@ -10,8 +10,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/stocks/data/stocks_repository.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 
 /// 모든 요청을 DioException 으로 거절하는 Dio — 네트워크 무응답 상황.
 Dio _failingDio() {

@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/card/p_card.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 
 /// 카탈로그(/dev/ds) — 선(이중 축 · 하나) · 막대 · 도넛 · 열지도 · 툴팁 · 지표 타일(켬 · 끔) · 도넛 범례 · 색 10 · 가장 나쁜 값(데이터 1개 ·
 /// 모두 0 · 음수 · 1억 넘는 금액 · 항목 12개) · 빈 · 실패 · 기다림 · 표로 보기. 웹 견본과 같은 구성이다. 차트는 카드 본문 안에 둔다(폰은

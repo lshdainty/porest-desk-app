@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
-import 'package:porest_desk_app/shared/ds/textarea/p_textarea.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/textarea/p_textarea.dart';
 
 /// 카탈로그(/dev/ds) — 라벨 굵기 × 상태(기본 · 오류), 머리(필수 점 또는 "선택" · 보조 액션), 꼬리(설명 · 오류 · 글자 수),
 /// 비활성 · 읽기 전용, 여러 줄, 제출 시 검증(누르면 칸마다 오류 · 첫 오류 칸으로 포커스). 예는 field.md 의 것이다.
@@ -55,7 +55,7 @@ class FieldDemo extends StatelessWidget {
                         maxGraphemeCount: 20,
                         invalid: true,
                         errorMessage: '이미 쓰고 있는 아이디예요.',
-                        child: const PInput(initialValue: 'porest'),
+                        child: const PInput(initialValue: 'groo'),
                       ),
                     ],
                   ),
@@ -115,7 +115,7 @@ class FieldDemo extends StatelessWidget {
                 PField(
                   label: '아이디',
                   readOnly: true,
-                  child: PInput(initialValue: 'porest'),
+                  child: PInput(initialValue: 'groo'),
                 ),
               ],
             ),

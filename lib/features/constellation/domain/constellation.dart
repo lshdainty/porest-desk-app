@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:porest_desk_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
 
 /// 백엔드 `ConstellationApiDto` 매핑 (plain class — dashboard_summary 관례).
 /// 별자리 모양 star_map: {"pts":[[x,y]...],"edges":[[a,b]...]} 0-100 정규 좌표.

@@ -2,15 +2,15 @@
 // 그림 색, 틀에 따른 그림 크기(높이의 50% · 16 ~ 160 · 폭에 맞춤), 선 굵기 1.5. 웹은 같은 JSON 을 크로미움에서 잰다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/content_placeholder/p_content_placeholder.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/content_placeholder/p_content_placeholder.dart';
 
 import '../../support/design_spec.dart';
 
 final _want = DesignSpec.load('content-placeholder').resolve({}, 'enabled');
 
 Widget _host(Brightness mode, Size frame) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Scaffold(
     body: Center(
       child: SizedBox.fromSize(size: frame, child: const PContentPlaceholder()),

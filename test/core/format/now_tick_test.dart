@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/format/now_tick.dart';
+import 'package:groo_damda_app/core/format/now_tick.dart';
 
 /// 상대시각이 화면을 열어 둔 채로도 흐르는지 — 앱만 "방금" 에 얼어붙던 자리.
 void main() {

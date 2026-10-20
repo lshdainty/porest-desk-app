@@ -6,16 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/category_icons.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
-import 'package:porest_desk_app/shared/ds/input_button/p_input_button.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
-import 'package:porest_desk_app/shared/ds/tooltip/p_tooltip.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/tooltip/p_tooltip.dart';
 
 // icon-picker.yaml 의 값 — 토큰이 있는 값은 토큰으로 적는다.
 const double _cell = PSpacing.x12; // cell.size 48
@@ -668,10 +668,10 @@ class _PIconPickerPanelState extends State<PIconPickerPanel> {
   }
 }
 
-/// Icon Picker — 카테고리 · 저축 목표에 붙일 아이콘을 고르는 칸. 세트는 porest-design `specs/components/category-icons.yaml`
+/// Icon Picker — 카테고리 · 저축 목표에 붙일 아이콘을 고르는 칸. 세트는 groo-design `specs/components/category-icons.yaml`
 /// (148개 · 13 묶음 — `category_icons.g.dart` 가 JSON 에서 만든다), 수치 원본은 `icon-picker.yaml`(값은
 /// `test/fixtures/design_spec/icon-picker.json`). SEED 에는 아이콘 고르기 부품이 없다 — 세트 · 칸 · 고른 표시 · 키보드 · 한국어
-/// 찾기는 porest 가 정했다. 웹(desk-front `src/shared/ds/icon-picker`)과 같은 값이다. 옛 PIconPicker 를 대신한다.
+/// 찾기는 groo 가 정했다. 웹(desk-front `src/shared/ds/icon-picker`)과 같은 값이다. 옛 PIconPicker 를 대신한다.
 ///
 /// 트리거 — Input Button large: 앞에 지금 아이콘, 값에 그 한국어 이름("커피"), 뒤 chevron-down. 이름은 "{Field 라벨} 커피".
 ///   아이콘이 없는 항목([value] 이 null · "")은 태그 + "태그", 세트 밖에 저장된 아이콘은 그 아이콘 + "지금 아이콘" — 지우지도

@@ -11,11 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
-import 'package:porest_desk_app/features/notification/domain/notification.dart';
-import 'package:porest_desk_app/features/notification/presentation/notification_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
+import 'package:groo_damda_app/features/notification/domain/notification.dart';
+import 'package:groo_damda_app/features/notification/presentation/notification_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 List<AppNotification> _items(int n) => [
   for (int i = 0; i < n; i++)
@@ -59,7 +59,7 @@ Future<void> _pump(WidgetTester tester, List<AppNotification> items) async {
       ],
       child: MaterialApp.router(
         routerConfig: router,
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

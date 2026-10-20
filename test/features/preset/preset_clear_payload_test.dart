@@ -18,19 +18,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/core/network/patch.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
-import 'package:porest_desk_app/features/preset/data/preset_repository.dart';
-import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
-import 'package:porest_desk_app/features/preset/presentation/preset_edit_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/network/patch.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
+import 'package:groo_damda_app/features/preset/data/preset_repository.dart';
+import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
+import 'package:groo_damda_app/features/preset/presentation/preset_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
 
 /// 자식이 없는 카테고리 하나만 둔다 — 자식이 있으면 세부 카테고리 select 가 하나 더
 /// 생겨 `PSelect<int>` 가 둘이 된다.
@@ -125,7 +125,7 @@ Future<_CapturingRepo> _open(WidgetTester tester, ExpenseTemplate edit) async {
         assetsProvider.overrideWith((ref) async => [_asset]),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

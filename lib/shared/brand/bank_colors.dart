@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 
 /// 한국 은행/증권사/가상자산 거래소 브랜드 색.
-/// porest-desk-front `shared/lib/porest/bank-colors.ts` 1:1 포팅.
+/// porest-desk-front `shared/lib/groo/bank-colors.ts` 1:1 포팅.
 class BrandColor {
   const BrandColor({required this.bg, this.fg = const Color(0xFFFFFFFF)});
   final Color bg;

@@ -7,7 +7,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/memo/data/memo_tag_repository.dart';
+import 'package:groo_damda_app/features/memo/data/memo_tag_repository.dart';
 
 typedef _Call = ({String method, String path, Object? body});
 

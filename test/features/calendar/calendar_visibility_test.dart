@@ -17,14 +17,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/calendar_visibility.dart';
-import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
-import 'package:porest_desk_app/features/calendar/presentation/calendar_screen.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_visibility.dart';
+import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _shown = UserCalendar(rowId: 1, calendarName: '개인', isDefault: true);
 const _hidden = UserCalendar(rowId: 2, calendarName: '회사', isVisible: false);
@@ -130,7 +130,7 @@ void main() {
             holidayListProvider.overrideWith((ref, key) async => <Holiday>[]),
           ],
           child: MaterialApp(
-            theme: PorestTheme.light(),
+            theme: GrooTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('ko'),

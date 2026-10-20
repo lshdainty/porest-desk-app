@@ -2,9 +2,9 @@
 // 마스크(gradient-fade-mask). 웹은 같은 JSON 을 크로미움에서 잰다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
 import '../../support/design_spec.dart';
 
@@ -40,7 +40,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: PorestTheme.light(),
+          theme: GrooTheme.light(),
           home: Scaffold(
             body: SizedBox(
               width: 300,
@@ -167,7 +167,7 @@ void main() {
     var taps = 0;
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         home: Scaffold(
           body: SizedBox(
             width: 300,

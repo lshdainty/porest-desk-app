@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/slider/p_slider.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/slider/p_slider.dart';
 
 /// 카탈로그(/dev/ds) — 값 하나 · 둘 × 눈금 없음 · 있음 × 기본 · 막힘, 그리고 Field 안의 쓰임 넷(예산 알림 임계값 ·
 /// 별점 · 범위 · 막힘). 눌림 · 키보드 포커스는 직접 해 본다(손잡이를 끌면 24 + 말풍선).

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:groo_damda_app/core/update/app_update.dart';
 
 /// 전체 화면 안내를 언제 띄울지 — 예전에 이 판정이 없어 열 때마다 떴고, "받을 생각이
 /// 없는 사람에게는 매번 걷어내야 하는 벽" 이라 걷어냈다. 다시 붙이는 조건이 이 규칙이라

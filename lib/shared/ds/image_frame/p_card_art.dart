@@ -4,11 +4,11 @@ import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_image_frame.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
 
 /// 카드 면의 크기 — 틀의 폭으로 가른다(card-art.yaml size).
 enum PCardArtSize {
@@ -38,7 +38,7 @@ double cardArtInitialSize(double height) =>
 String keepWords(String text) =>
     text.split(' ').map((word) => word.characters.join('⁠')).join(' ');
 
-/// Card Art — 카드 그림. 수치 원본은 porest-design `specs/components/card-art.yaml`(값은
+/// Card Art — 카드 그림. 수치 원본은 groo-design `specs/components/card-art.yaml`(값은
 /// `test/fixtures/design_spec/card-art.json`), 구조는 Image Frame(ratio card 1.586)이다. 웹(desk-front
 /// `src/shared/ds/image-frame/card-art.tsx`)과 같은 규칙이다.
 ///

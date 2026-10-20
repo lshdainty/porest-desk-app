@@ -8,7 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/session_scope.dart';
+import 'package:groo_damda_app/app/session_scope.dart';
 
 /// 컨테이너가 살아 있는 동안 값을 들고 있는 provider — autoDispose 가 아니다.
 /// 앱의 조회 provider 들과 같은 수명이다.

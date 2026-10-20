@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
-import 'package:porest_desk_app/shared/ds/content_placeholder/p_content_placeholder.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/image_loader.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/shared/ds/content_placeholder/p_content_placeholder.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/image_loader.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 
 /// 그림 맞춤 — cover(기본, 사진 · 카드 그림: 가운데를 남겨 자른다) · contain(로고 · 글이 든 그림: 잘리지 않게, 둘레는 흰 판).
 enum PImageFit { cover, contain }
@@ -111,7 +111,7 @@ class PImageFrameIndicator extends StatelessWidget {
   }
 }
 
-/// Image Frame — 그림 한 장을 보이는 틀. 구조는 SEED Image Frame(2026-10-04), 수치 원본은 porest-design
+/// Image Frame — 그림 한 장을 보이는 틀. 구조는 SEED Image Frame(2026-10-04), 수치 원본은 groo-design
 /// `specs/components/image-frame.yaml`(값은 `test/fixtures/design_spec/image-frame.json`). 웹(desk-front
 /// `src/shared/ds/image-frame`)과 같은 값 · 같은 규칙이다.
 ///

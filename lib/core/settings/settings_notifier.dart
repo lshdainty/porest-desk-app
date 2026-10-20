@@ -5,10 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
-import 'package:porest_desk_app/core/settings/hide_cards_repository.dart';
-import 'package:porest_desk_app/core/settings/user_locale.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/core/settings/hide_cards_repository.dart';
+import 'package:groo_damda_app/core/settings/user_locale.dart';
 
 /// 사용자 표시 설정 모음.
 class AppSettings {

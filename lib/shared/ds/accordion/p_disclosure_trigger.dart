@@ -4,15 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 누름 바탕의 색 — layer(기본, `bg-layer-default-pressed`) · warning(경고 상자 안의 Collapsible,
 /// `bg-warning-weak-pressed`).
 enum PDisclosurePressed { layer, warning }
 
 /// 펼치는 줄의 틀 — [PAccordionItem](accordion) 과 [PCollapsible] 이 같이 쓰는 트리거 한 줄. 화면에서 직접 쓰지 않는다.
-/// 수치 원본은 porest-design `accordion.yaml` · `collapsible.yaml`(트리거는 Accordion 항목 하나의 모양), 웹은 desk-front
+/// 수치 원본은 groo-design `accordion.yaml` · `collapsible.yaml`(트리거는 Accordion 항목 하나의 모양), 웹은 desk-front
 /// `src/shared/ds/accordion/accordion-variants.ts`(`accordionTrigger*`)다.
 ///
 /// 줄 전체가 누르는 자리 — 위아래 16 · 좌우 [paddingX](24, 경고 상자 16), 앞 아이콘 22 · 본문 · 꺾쇠 20 사이 12.

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
-import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/expense_split/data/expense_split_repository.dart';
+import 'package:groo_damda_app/features/expense_split/domain/expense_split.dart';
 
 final expenseSplitRepositoryProvider = FutureProvider<ExpenseSplitRepository>((
   ref,

@@ -1,4 +1,4 @@
-// porest-desk-app 배포 — 다른 porest 레포와 같이 Jenkinsfile 을 레포에 둔다.
+// porest-desk-app 배포 — 다른 groo 레포와 같이 Jenkinsfile 을 레포에 둔다.
 //
 // 다른 레포와 다른 점이 하나 있다. 앱은 여기서 빌드하지 않는다.
 // APK 는 안드로이드 SDK, IPA 는 macOS 러너가 필요해서 GitHub Actions 가 빌드하고
@@ -63,7 +63,7 @@ pipeline {
     }
 
     parameters {
-        // 이름 · 값은 다른 porest 레포와 같게 간다(사람이 8개 잡을 오가며 쓰는 자리다).
+        // 이름 · 값은 다른 groo 레포와 같게 간다(사람이 8개 잡을 오가며 쓰는 자리다).
         // 다른 건 첫 항목뿐이다 — 이 잡만 입력 출처가 둘이라 '미지정' 을 표현해야 한다.
         choice(
             name: 'DEPLOY_ENV',

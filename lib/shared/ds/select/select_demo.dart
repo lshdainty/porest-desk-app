@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/select/p_select.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
 
-// 스펙의 porest 예(select.md — 결제 수단 · 통화 · 반복 요일)
+// 스펙의 groo 예(select.md — 결제 수단 · 통화 · 반복 요일)
 const List<PSelectGroup<String>> _pay = [
   PSelectGroup(
     items: [

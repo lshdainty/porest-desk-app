@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 # contents: 릴리스에 APK·IPA 를 붙인다. checks/pull-requests: 테스트 결과를 체크와
-# PR 주석으로 남긴다(다른 porest 백엔드와 같은 구성).
+# PR 주석으로 남긴다(다른 groo 백엔드와 같은 구성).
 # 서버로는 아무것도 밀지 않는다 — Jenkins 가 릴리스에서 가져간다.
 permissions:
   contents: write
@@ -266,7 +266,7 @@ jobs:
   #    개발  git describe 그대로: 태그-이후커밋수-해시 (1.9.2-3-g1a2b3c4)
   #    운영  태그만: 1.9.3
   #
-  #    다른 porest 레포도 Jenkins 가 git describe 를 APP_VERSION 으로 주입한다.
+  #    다른 groo 레포도 Jenkins 가 git describe 를 APP_VERSION 으로 주입한다.
   #    pubspec 의 version 은 더 쓰지 않는다 — 손으로 올려 줘야 해서 늘 뒤처졌다.
   #
   #    아래 네 잡은 PR 만 아니면 돈다(`!= 'pull_request'`). `== 'push'` 로 못 박으면
@@ -352,9 +352,9 @@ jobs:
             echo "::notice::서명 키가 없어 디버그 키로 빌드합니다. 배포용은 Secrets 를 채우세요."
             exit 0
           fi
-          echo "${KEYSTORE_B64}" | base64 -d > android/app/porest-desk.jks
+          echo "${KEYSTORE_B64}" | base64 -d > android/app/groo-desk.jks
           cat > android/key.properties <<EOF
-          storeFile=porest-desk.jks
+          storeFile=groo-desk.jks
           storePassword=${STORE_PASSWORD}
           keyAlias=${KEY_ALIAS}
           keyPassword=${KEY_PASSWORD}
@@ -377,12 +377,12 @@ jobs:
             --build-number "${BUILD}" \
             --dart-define-from-file="config/${CONFIG}.json"
           mv build/app/outputs/flutter-apk/app-release.apk \
-             "porest-desk-${NAME}.apk"
+             "groo-desk-${NAME}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: porest-desk-*.apk
+          path: groo-desk-*.apk
           retention-days: 7
 
   # ── iOS — 서명 없이 빌드해 IPA 로 감싼다.
@@ -415,18 +415,18 @@ jobs:
           # .app 을 Payload/ 로 감싸면 사이드로딩 도구가 읽는 IPA 가 된다.
           mkdir -p Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
-          zip -qry "porest-desk-${NAME}.ipa" Payload
+          zip -qry "groo-desk-${NAME}.ipa" Payload
       - uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: porest-desk-*.ipa
+          path: groo-desk-*.ipa
           retention-days: 7
 
   # ── 릴리스 + Jenkins 호출
   #
   #    빌드 결과를 GitHub Release 에 붙이고 Jenkins 에 알리기만 한다. 서버로 파일을
   #    밀지 않으므로 여기엔 서버 접속 정보가 없다 — 배포는 Jenkins 가 가져가서 한다.
-  #    (다른 porest 레포와 같은 방식. 운영 반영 승인도 Jenkins 한 곳에서 누른다)
+  #    (다른 groo 레포와 같은 방식. 운영 반영 승인도 Jenkins 한 곳에서 누른다)
   #
   #    Actions artifact 는 공개 레포라도 받으려면 토큰이 필요하지만 Release 는 아니다.
   #    그래서 artifact 가 아니라 Release 로 넘긴다. 7일 만료도 없어진다.
@@ -462,8 +462,8 @@ jobs:
           fi
           mkdir -p upload
           # 다운로드 잡이 아티팩트를 이름별 폴더로 풀어 둔다.
-          cp dist/android-apk/*.apk "upload/porest-desk-${VERSION}.apk"
-          cp dist/ios-ipa/*.ipa     "upload/porest-desk-${VERSION}.ipa"
+          cp dist/android-apk/*.apk "upload/groo-desk-${VERSION}.apk"
+          cp dist/ios-ipa/*.ipa     "upload/groo-desk-${VERSION}.ipa"
 
       - name: Write version.json
         run: |
@@ -507,8 +507,8 @@ jobs:
             --argjson buildNumber "${BUILD_NUMBER}" \
             --argjson minBuildNumber "${MIN_BUILD}" \
             --arg releasedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --arg android "porest-desk-${VERSION}.apk" \
-            --arg ios "porest-desk-${VERSION}.ipa" \
+            --arg android "groo-desk-${VERSION}.apk" \
+            --arg ios "groo-desk-${VERSION}.ipa" \
             --arg notes "${NOTES}" \
             '{channel: $channel, version: $version, buildNumber: $buildNumber,
               minBuildNumber: $minBuildNumber, releasedAt: $releasedAt,
@@ -529,7 +529,7 @@ jobs:
       - name: Write altstore.json
         run: |
           set -euo pipefail
-          IPA="upload/porest-desk-${VERSION}.ipa"
+          IPA="upload/groo-desk-${VERSION}.ipa"
           # size 는 필수 필드다. 틀리면 AltStore 가 내려받기 전에 실패한다.
           SIZE=$(stat -c%s "${IPA}")
           WEB_BASE=$(jq -er '.WEB_BASE_URL' "config/${CONFIG}.json")
@@ -543,14 +543,14 @@ jobs:
           # 한 번에 하나만 깔리고 서로 덮어쓴다(그렇게 쓰기로 한 구조다). 여기서 가르는
           # 것은 목록에서 어느 쪽인지 알아보는 용도뿐이다.
           if [ "${CONFIG}" = "dev" ]; then
-            SOURCE_NAME="Porest (dev)"
-            SOURCE_ID="cloud.porest.altstore.dev"
-            APP_NAME="Porest Desk (dev)"
+            SOURCE_NAME="Groo (dev)"
+            SOURCE_ID="cloud.groo.altstore.dev"
+            APP_NAME="그루 담다 (dev)"
             APP_SUBTITLE="개발 서버 — 시험용 빌드"
           else
-            SOURCE_NAME="Porest"
-            SOURCE_ID="cloud.porest.altstore"
-            APP_NAME="Porest Desk"
+            SOURCE_NAME="Groo"
+            SOURCE_ID="cloud.groo.altstore"
+            APP_NAME="그루 담다"
             APP_SUBTITLE="가계부·자산·할일을 한곳에서"
           fi
 
@@ -573,7 +573,7 @@ jobs:
               {
                 "name": "${APP_NAME}",
                 "bundleIdentifier": "com.porest.desk.porestDeskApp",
-                "developerName": "Porest",
+                "developerName": "Groo",
                 "subtitle": "${APP_SUBTITLE}",
                 "localizedDescription": "가계부와 자산, 할일을 한곳에서 관리하는 개인용 앱입니다.",
                 "iconURL": "${WEB_BASE}/app-icon.png",
@@ -585,7 +585,7 @@ jobs:
                     "buildVersion": "${BUILD_NUMBER}",
                     "marketingVersion": "${VERSION}",
                     "date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-                    "downloadURL": "${WEB_BASE}/download/porest-desk-${VERSION}.ipa",
+                    "downloadURL": "${WEB_BASE}/download/groo-desk-${VERSION}.ipa",
                     "size": ${SIZE},
                     "minOSVersion": "13.0"
                   }
@@ -649,7 +649,7 @@ jobs:
             echo "::error::JENKINS_DEPLOY_TOKEN 시크릿이 비어 있습니다. 릴리스 ${TAG} 는 올라갔지만 배포는 걸리지 않았습니다."
             exit 1
           fi
-          # job 은 하나다 — dev/prod 는 본문의 channel 로 갈린다(다른 porest 레포와 같은 방식).
+          # job 은 하나다 — dev/prod 는 본문의 channel 로 갈린다(다른 groo 레포와 같은 방식).
           #
           # -f 가 없으면 404·500 에도 curl 이 0 을 돌려준다. 토큰을 틀리게 적어도 초록불이
           # 뜨고 배포는 안 되는 상태가 되므로, HTTP 오류를 실패로 받는다.

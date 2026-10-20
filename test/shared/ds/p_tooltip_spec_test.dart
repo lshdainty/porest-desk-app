@@ -8,11 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_layout.dart';
-import 'package:porest_desk_app/shared/ds/tooltip/p_tooltip.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/help_bubble/help_bubble_layout.dart';
+import 'package:groo_damda_app/shared/ds/tooltip/p_tooltip.dart';
 
 import '../../support/design_spec.dart';
 
@@ -22,7 +22,7 @@ const _hover = {'opens': 'hover', 'closeButton': 'hidden'};
 
 Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) {
   final app = MaterialApp(
-    theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+    theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),

@@ -1,5 +1,5 @@
-import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 
 /// 캘린더 하나의 표시 여부 — 웹 `calendar-provider.tsx` 의 `isCalendarVisible` 정합.
 ///

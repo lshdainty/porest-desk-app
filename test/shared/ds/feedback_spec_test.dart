@@ -13,17 +13,17 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/callout/feedback_parts.dart';
-import 'package:porest_desk_app/shared/ds/callout/p_callout.dart';
-import 'package:porest_desk_app/shared/ds/page_banner/p_page_banner.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/p_snackbar.dart';
-import 'package:porest_desk_app/shared/ds/snackbar/snackbar_demo.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/callout/feedback_parts.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/page_banner/p_page_banner.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/snackbar_demo.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
 
@@ -37,7 +37,7 @@ List<String> _appStates(DesignSpec spec) =>
     spec.states.where((s) => s != 'hovered' && s != 'focused').toList();
 
 ThemeData _theme(Brightness mode) =>
-    mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light();
+    mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light();
 
 MaterialApp _app(Brightness mode, {Widget? home, TransitionBuilder? builder}) {
   final app = MaterialApp(

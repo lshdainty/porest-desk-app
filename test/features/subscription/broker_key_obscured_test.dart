@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
-import 'package:porest_desk_app/features/subscription/presentation/broker_connect_card.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
+import 'package:groo_damda_app/features/subscription/presentation/broker_connect_card.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 // 라벨은 서버가 준다 — 나무는 App Key/App Secret, 토스는 Client ID/Client Secret.
 const _conn = BrokerConnection(
@@ -23,7 +23,7 @@ const _conn = BrokerConnection(
 
 Widget _app() => ProviderScope(
   child: MaterialApp(
-    theme: PorestTheme.dark(),
+    theme: GrooTheme.dark(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),

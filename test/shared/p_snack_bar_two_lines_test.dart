@@ -18,9 +18,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 Future<void> _loadPretendard() async {
   final bytes = File('assets/fonts/PretendardVariable.ttf').readAsBytesSync();
@@ -41,7 +41,7 @@ Future<void> _show(
   late BuildContext ctx;
   await tester.pumpWidget(
     MaterialApp(
-      theme: PorestTheme.light(),
+      theme: GrooTheme.light(),
       home: Scaffold(
         body: Builder(
           builder: (c) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/motion.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
 
 /// specs/components/skeleton.md 미러.
 ///
@@ -108,7 +108,7 @@ class _PSkeletonState extends State<PSkeleton>
     );
   }
 
-  Widget _box(PorestTokens t) => Container(
+  Widget _box(GrooTokens t) => Container(
     width: widget.width,
     height: widget.height,
     decoration: BoxDecoration(

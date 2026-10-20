@@ -7,12 +7,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_image_frame.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
-import 'package:porest_desk_app/shared/ds/logo_tile/p_logo_tile.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/shared/ds/logo_tile/p_logo_tile.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/fake_image.dart';
@@ -28,7 +28,7 @@ final _table = PInstitutionTable.fromSpecJson(
 );
 
 Widget _host(Brightness mode, Widget child) => MaterialApp(
-  theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Scaffold(
     body: Align(alignment: Alignment.topLeft, child: child),
   ),

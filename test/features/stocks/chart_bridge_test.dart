@@ -9,7 +9,7 @@
 //   회귀가 각각 조용하다 — 전자는 화면이 멀쩡하고, 후자는 차트만 빈 채로 뜬다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/stocks/presentation/chart_bridge.dart';
+import 'package:groo_damda_app/features/stocks/presentation/chart_bridge.dart';
 
 /// 브릿지가 내보낸 JS 를 모으는 가짜 WebView.
 class _JsRecorder {

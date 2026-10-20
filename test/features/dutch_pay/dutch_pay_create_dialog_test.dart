@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
-import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
-import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/dutch_pay/application/dutch_pay_providers.dart';
+import 'package:groo_damda_app/features/dutch_pay/domain/dutch_pay.dart';
+import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 Finder _field(String hint) => find.byWidgetPredicate(
   (w) => w is TextField && w.decoration?.hintText == hint,
@@ -29,7 +29,7 @@ Future<AppLocalizations> _openStep2(WidgetTester tester) async {
         dutchPayListProvider.overrideWith((ref) async => <DutchPay>[]),
       ],
       child: MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:porest_desk_app/core/settings/hide_cards_repository.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/core/storage/prefs_provider.dart';
+import 'package:groo_damda_app/core/settings/hide_cards_repository.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/core/storage/prefs_provider.dart';
 
 /// 서버를 흉내 내는 저장소. `fetch` 가 무엇을 주느냐가 이 테스트의 축이다.
 class _FakeRepo implements HideCardsRepository {

@@ -7,7 +7,7 @@ porest-desk-front 모바일 화면 캡쳐.
   2. /desk 진입 → 미로그인이면 SSO 로그인 페이지로 redirect
   3. 사용자가 로그인 완료
   4. **터미널에서 Enter 한 번** 누르면 자동 캡쳐 시작
-  5. 라우트별 PNG → /tmp/porest-screens/{name}.png
+  5. 라우트별 PNG → /tmp/groo-screens/{name}.png
   6. auth.json (storageState) 저장 — 다음 실행 시 로그인 스킵 (--reuse 옵션)
 
 실행:
@@ -17,7 +17,7 @@ porest-desk-front 모바일 화면 캡쳐.
 import sys, time, pathlib, argparse
 from playwright.sync_api import sync_playwright
 
-OUT = pathlib.Path("/tmp/porest-screens")
+OUT = pathlib.Path("/tmp/groo-screens")
 OUT.mkdir(parents=True, exist_ok=True)
 AUTH = OUT / "auth.json"
 

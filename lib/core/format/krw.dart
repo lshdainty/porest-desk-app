@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/core/format/format_locale.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
 
 /// porest-desk-front `KRW(n, {sign, abs})` 포팅.
 ///
@@ -57,11 +57,11 @@ String wonUnit() => localeIsEn() ? '₩' : '원';
 ///
 /// ASCII 하이픈과 폭이 달라 한 카드 안에서 섞이면 tabular figures 정렬이 어긋난다
 /// (QA #22 — 홈 9월 카드에서 지출은 `−7,560`, 잔액은 `-7,560` 이었다).
-/// web `shared/lib/porest/format.ts` 의 `MINUS` 미러.
+/// web `shared/lib/groo/format.ts` 의 `MINUS` 미러.
 const String kMinus = '−';
 
 /// **크기만** 들고 있는 값(총 부채·지출처럼 절댓값으로 오는 값) 앞에 붙일 부호.
-/// web `shared/lib/porest/format.ts` 의 `minusOf` 미러 — 같은 화면을 두 플랫폼이 그린다.
+/// web `shared/lib/groo/format.ts` 의 `minusOf` 미러 — 같은 화면을 두 플랫폼이 그린다.
 ///
 /// - `0` → 부호 없음. 빈 계정에서 `−0원` 으로 보이던 걸 `0원` 으로 (QA #1 · #69).
 /// - 음수 → `+`. 크기값이 음수로 오는 자리가 있다 — 총 부채는 선결제한 카드 때문에
@@ -85,7 +85,7 @@ String minusOf(int n) => n > 0 ? kMinus : (n < 0 ? '+' : '');
 String plusOf(int n) => minusOf(-n);
 
 /// 차트 Y축·도넛 중앙 라벨 — 한국어 단위 축약(조/억/만).
-/// Web `shared/lib/porest/format.ts` 의 `formatChartAxis` 와 **한 글자도 갈리면
+/// Web `shared/lib/groo/format.ts` 의 `formatChartAxis` 와 **한 글자도 갈리면
 /// 안 된다** — 같은 화면을 두 플랫폼이 그린다.
 ///
 /// 규칙은 구간과 상관없이 하나다(QA #73).

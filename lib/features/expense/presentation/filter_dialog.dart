@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
-import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
-import 'package:porest_desk_app/shared/widgets/p_type_chip.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_filter.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_category_tile.dart';
+import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/shared/widgets/p_toggle.dart';
+import 'package:groo_damda_app/shared/widgets/p_type_chip.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 Future<ExpenseFilter?> showFilterDialog(
   BuildContext context,
@@ -193,7 +193,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
 
   Widget _label(
     String text,
-    PorestTokens t, {
+    GrooTokens t, {
     String? badge,
     String? exclBadge,
     String? hint,
@@ -246,7 +246,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   /// 조건을 어떻게 묶을지 — 기간·'빼고' 는 여기에 안 걸린다(항상 함께 적용).
-  Widget _matchSection(PorestTokens t) {
+  Widget _matchSection(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final locked = _conditionCount <= 1;
     return Column(
@@ -282,7 +282,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     );
   }
 
-  Widget _periodSection(PorestTokens t) {
+  Widget _periodSection(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,7 +405,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     );
   }
 
-  Widget _typeSection(PorestTokens t) {
+  Widget _typeSection(GrooTokens t) {
     void toggle(String code) => setState(() {
       if (_types.contains(code)) {
         _types.remove(code);
@@ -443,7 +443,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     );
   }
 
-  Widget _categorySection(PorestTokens t) {
+  Widget _categorySection(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final parents = categories.where((c) => c.parentRowId == null).toList()
@@ -497,7 +497,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     );
   }
 
-  Widget _assetSection(PorestTokens t) {
+  Widget _assetSection(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final assets = ref.watch(assetsProvider).value ?? const [];
     if (assets.isEmpty) return const SizedBox.shrink();
@@ -561,7 +561,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     );
   }
 
-  Widget _amountSection(PorestTokens t) {
+  Widget _amountSection(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

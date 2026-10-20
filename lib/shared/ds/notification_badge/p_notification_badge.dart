@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 크기 — small(점 6 — 새 것이 있는지만, 기본) · large(숫자 18 — 몇 개인지가 중요할 때).
 enum PNotificationBadgeSize { small, large }
@@ -18,7 +18,7 @@ String? notificationBadgeLabel(int count) =>
     count <= 0 ? null : (count >= 100 ? '99+' : '$count');
 
 /// Notification Badge — 안 읽은 알림이 있다는 점 · 숫자. 구조는 SEED Notification Badge(2026-10-03), 수치 원본은
-/// porest-design `specs/components/notification-badge.yaml`(값은 `test/fixtures/design_spec/notification-badge.json`).
+/// groo-design `specs/components/notification-badge.yaml`(값은 `test/fixtures/design_spec/notification-badge.json`).
 /// 웹(desk-front `src/shared/ds/notification-badge`)과 같은 값이다.
 ///
 /// 붙을 대상([child] — 아이콘 · 글)을 감싸고 그 상자 위에 겹쳐 놓는다 — 자리를 차지하지 않는다(아이콘 크기 · 버튼

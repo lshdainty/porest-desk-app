@@ -6,8 +6,8 @@
 // 반대로 카드 쪽에서는 빼면 안 된다. 그 거래가 곧 카드의 미결제 잔액이고 첫 회차 청구라,
 // 빼는 순간 D4("잔액 = 거래 합")가 풀린다. 그래서 규칙이 둘이고, 같은 목록을 넣어 나란히 본다.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
 
 Expense tx({
   int rowId = 1,

@@ -1,7 +1,7 @@
 // 저장 부호는 종류가 정한다(QA #19) — 사용자는 늘 절대값을 넣는다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/features/asset/domain/asset_sign.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_sign.dart';
 
 void main() {
   test('부채군은 음수 — 대출·신용카드', () {

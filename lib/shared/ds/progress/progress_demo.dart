@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/progress/p_progress.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 
 /// 카탈로그(/dev/ds) — 한도(기본 · 넘침) · 목표(기본 · 달성), 값을 바꿔 채움이 따라 차는 것을 본다.
 class ProgressDemo extends StatefulWidget {

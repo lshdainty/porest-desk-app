@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// specs/components/radio-list.md 미러.
 ///
@@ -31,7 +31,7 @@ class PRadioListItem<T> {
   final String? pillText;
   final IconData? pillIcon;
 
-  /// pill 배경 (지정 없으면 [PorestTokens.bgCanvas]).
+  /// pill 배경 (지정 없으면 [GrooTokens.bgCanvas]).
   final Color? pillColor;
 
   /// 우측 옵션 영역 (badge 등).

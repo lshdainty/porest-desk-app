@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 스와이프는 제스처라 눈으로만 확인하기 어렵다. 특히 <b>안 일어나야 하는 일</b>이
 /// 중요하다 — 끝까지 밀어도 지워지지 않고, 확인을 거치지 않으면 실행되지 않는다.
 /// 이게 무너지면 사용자가 밀다가 데이터를 잃는다.
 Widget _host(List<PSwipeAction> actions, {String label = '행'}) {
   return MaterialApp(
-    theme: PorestTheme.light(),
+    theme: GrooTheme.light(),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
@@ -38,7 +38,7 @@ Future<void> _swipeOpen(WidgetTester tester, String label) async {
 
 /// 실제 반복 거래 행 높이(패딩 12×2 + 내용 ~38).
 Widget _hostTight(List<PSwipeAction> actions) => MaterialApp(
-  theme: PorestTheme.light(),
+  theme: GrooTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   locale: const Locale('ko'),
@@ -213,7 +213,7 @@ void main() {
   testWidgets('enabled=false 면 감싸지 않고 행을 그대로 통과시킨다', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         home: Scaffold(
           body: PSwipeActions(
             enabled: false,
@@ -232,7 +232,7 @@ void main() {
   testWidgets('액션이 없으면 감싸지 않는다', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         home: const Scaffold(
           body: PSwipeActions(actions: [], child: Text('행')),
         ),
@@ -247,7 +247,7 @@ void main() {
     // 없으면 행이 여러 개 열린 채로 남는다(실제로 가계부에서 그렇게 나갔다).
     await tester.pumpWidget(
       MaterialApp(
-        theme: PorestTheme.light(),
+        theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),

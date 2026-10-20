@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_collapsible.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
-import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
-import 'package:porest_desk_app/features/card/presentation/widgets/card_brand.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/shared/widgets/p_badge.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/widgets/p_collapsible.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
+import 'package:groo_damda_app/features/card/presentation/card_fee_text.dart';
+import 'package:groo_damda_app/features/card/presentation/widgets/card_brand.dart';
 
 /// 카드 혜택 상세 — front `CardBenefitDialog` 미러 (모바일 바텀시트).
 ///
@@ -294,7 +294,7 @@ String? _benefitCondition(AppLocalizations l, CardPerformance? perf) {
 class _CardHero extends StatelessWidget {
   const _CardHero({required this.summary, required this.tokens});
   final CardCatalogSummary summary;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +354,7 @@ class _HeroFallback extends StatelessWidget {
   });
   final String? company;
   final String? cardName;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -442,7 +442,7 @@ class _InfoCell extends StatelessWidget {
   });
   final String label;
   final String value;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -491,7 +491,7 @@ class _BenefitAccordion extends StatelessWidget {
   final String? condition;
   final bool open;
   final VoidCallback onToggle;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -608,7 +608,7 @@ class _BenefitAccordion extends StatelessWidget {
 
 class _DetailSkeleton extends StatelessWidget {
   const _DetailSkeleton({required this.tokens, required this.scrollController});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final ScrollController scrollController;
 
   @override

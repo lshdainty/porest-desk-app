@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/category_icons.dart';
-import 'package:porest_desk_app/shared/ds/icon_picker/p_icon_picker.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/p_icon_picker.dart';
 
 /// 카탈로그(/dev/ds) — 트리거(세트 안 · 빈 값 · 세트 밖 · 옛 이름 home · 막힘 · 오류), 칸(안 고름 · 고름), 시트 안(묶음 격자 ·
 /// 찾는 중 · 0건). 트리거를 누르면 시트가 열리고 고르면 바로 닫힌다. 호버 · 누름 · 키보드 포커스는 직접 해 본다.

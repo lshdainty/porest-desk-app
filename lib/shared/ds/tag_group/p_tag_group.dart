@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 크기 — t2 12/16(기본) · t3 13/18 · t4 14/19.
 enum PTagGroupSize { t2, t3, t4 }
@@ -55,7 +55,7 @@ class PTag {
 const String tagGroupSeparator = ' · ';
 
 /// Tag Group — 시간 · 개수 · 길이 같은 메타 정보를 " · " 로 잇는 묶음. 구조는 SEED Tag Group(2026-10-03), 수치 원본은
-/// porest-design `specs/components/tag-group.yaml`(값은 `test/fixtures/design_spec/tag-group.json`). 웹(desk-front
+/// groo-design `specs/components/tag-group.yaml`(값은 `test/fixtures/design_spec/tag-group.json`). 웹(desk-front
 /// `src/shared/ds/tag-group`)과 같은 값이다.
 ///
 /// 누르지 않는다. 구분은 fg-disabled · 400 으로 글보다 한 단계 흐리다(장식). 기본은 낱말 단위 줄바꿈(이음 문자로 낱말

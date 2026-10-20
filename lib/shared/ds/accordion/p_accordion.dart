@@ -4,17 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/accordion/p_disclosure_trigger.dart';
-import 'package:porest_desk_app/shared/ds/accordion/p_expand_motion.dart';
-import 'package:porest_desk_app/shared/ds/card/p_card_parts.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/accordion/p_disclosure_trigger.dart';
+import 'package:groo_damda_app/shared/ds/accordion/p_expand_motion.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 변형 — inline(기본, 연속 목록 + 들인 사이 선 24) · separated(항목마다 Card 면 — 1px · 모서리 16 · 사이 8).
 enum PAccordionVariant { inline, separated }
 
 /// Accordion — 관련 상세를 세로로 묶고 항목마다 머리(트리거)를 눌러 펼친다(카드 혜택 · 유의사항). 구조는 SEED Accordion,
-/// 수치 원본은 porest-design `specs/components/accordion.yaml`(값은 `test/fixtures/design_spec/accordion.json`), 웹은
+/// 수치 원본은 groo-design `specs/components/accordion.yaml`(값은 `test/fixtures/design_spec/accordion.json`), 웹은
 /// desk-front `src/shared/ds/accordion` 이다 — 같은 값이다. 하나만 접고 펴는 자리는 [PCollapsible], 하위 줄을 접는 목록은
 /// [PListParentItem] 이다(Tree View 는 HR 전용이라 앱에 없다).
 ///
@@ -468,7 +468,7 @@ class PAccordionHeader extends StatelessWidget {
   }
 }
 
-/// 모두 펼치기 — 목록 머리 오른쪽 글 단추(porest 확장). 보이는 상자 32 · 왼쪽 8 · 오른쪽 4 · 모서리 8, 글 14 / 19 · 500
+/// 모두 펼치기 — 목록 머리 오른쪽 글 단추(groo 확장). 보이는 상자 32 · 왼쪽 8 · 오른쪽 4 · 모서리 8, 글 14 / 19 · 500
 /// `fg-neutral-subtle` + 아이콘 16(글 뒤 2), 누르는 영역 44. 누르면 바탕 + 2px 거리 축소(기준 max(높이, 폭 ÷ 4, 24)).
 ///
 /// 상세가 있는 항목([expandable])만 열고 닫는다. 하나라도 접혀 있으면 [expandLabel] 로 모두 열고, 모두 열려 있으면

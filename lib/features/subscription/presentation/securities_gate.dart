@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 
 /// 증권 라우트 가드 — 구독(SECURITIES) 미보유 시 홈으로 리다이렉트(딥링크 직접 접근 차단).
 /// 메뉴 숨김은 UX, 이 가드는 클라이언트 차단(서버는 별도 403 게이트).

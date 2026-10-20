@@ -975,7 +975,7 @@
       "state": "enabled",
       "slot": "item",
       "prop": "dragStart",
-      "note": "누르기(메뉴)와 끌기를 가른다 — 마우스는 누른 채 8px 넘게 움직이면, 터치는 250ms 누른 채 움직이면 끌기. 그 전에 움직이면 줄이 가로로 스크롤한다(porest — SEED 는 끌기만 있다). 앱도 터치 250ms 길게 누름(SEED Lynx long-press — Q-016-1)"
+      "note": "누르기(메뉴)와 끌기를 가른다 — 마우스는 누른 채 8px 넘게 움직이면, 터치는 250ms 누른 채 움직이면 끌기. 그 전에 움직이면 줄이 가로로 스크롤한다(groo — SEED 는 끌기만 있다). 앱도 터치 250ms 길게 누름(SEED Lynx long-press — Q-016-1)"
     },
     {
       "rule": 0,
@@ -1731,7 +1731,7 @@
       "state": "disabled",
       "slot": "dropzone",
       "prop": "borderColor",
-      "note": "막히면 테두리도 옅게 — 짙은 테두리는 받을 수 있는 자리로 읽힌다(porest — SEED 는 테두리를 바꾸지 않는다)"
+      "note": "막히면 테두리도 옅게 — 짙은 테두리는 받을 수 있는 자리로 읽힌다(groo — SEED 는 테두리를 바꾸지 않는다)"
     },
     {
       "rule": 9,

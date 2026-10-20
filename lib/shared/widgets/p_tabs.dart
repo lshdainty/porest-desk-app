@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:porest_desk_app/app/theme/motion.dart';
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// specs/components/tabs.md 미러.
 ///
@@ -68,7 +68,7 @@ class PTabs<T> extends StatelessWidget {
     }
   }
 
-  Widget _container(PorestTokens t) {
+  Widget _container(GrooTokens t) {
     // tabs.md Container size variant — default(list 40 / trigger 32 · 4×12 · 14) ·
     //   sm(list 32 / trigger 28 · 4×8 · 13). track=surface-input(bgMuted), active=surface-default+shadow-sm.
     final sm = size == PTabsSize.sm;
@@ -94,7 +94,7 @@ class PTabs<T> extends StatelessWidget {
     );
   }
 
-  Widget _underline(PorestTokens t) {
+  Widget _underline(GrooTokens t) {
     final children = [
       for (final it in items)
         _trigger(t, it, padX: 12, padY: 8, radius: BorderRadius.zero),
@@ -109,7 +109,7 @@ class PTabs<T> extends StatelessWidget {
     );
   }
 
-  Widget _pills(PorestTokens t) {
+  Widget _pills(GrooTokens t) {
     // default: px-md py-sm label-md. sm: px-sm py-xs min-h-7 label-sm (모바일 얇은 pill, toggle-single 톤).
     final sm = size == PTabsSize.sm;
     final children = [
@@ -136,7 +136,7 @@ class PTabs<T> extends StatelessWidget {
   }
 
   Widget _trigger(
-    PorestTokens t,
+    GrooTokens t,
     PTabItem<T> item, {
     required double padX,
     required double padY,

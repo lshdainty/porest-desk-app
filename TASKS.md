@@ -6,7 +6,7 @@
 ## 진행 가이드
 - **참조 자료 (front)**: `git clone https://github.com/lshdainty/porest-desk-front.git` 후 `src/` 참조 — Claude Code on the Web 컨테이너에서도 git clone 가능
 - **참조 자료 (back)**: `git clone https://github.com/lshdainty/porest-desk-back.git` — API/스케줄러 시그니처 확인용
-- **캡쳐 PNG**: `/tmp/porest-screens/` (필요 시 `python3 scripts/capture_screens.py`, porest-desk-front `localhost:3002` 띄운 상태)
+- **캡쳐 PNG**: `/tmp/groo-screens/` (필요 시 `python3 scripts/capture_screens.py`, porest-desk-front `localhost:3002` 띄운 상태)
 - **백엔드 실행/DB 수정은 사용자가 직접** — 코드 수정만 자동
 - **mock·임시 구현 금지** — API 있으면 무조건 연결
 - **N+1 쿼리 사전 점검** — 집계/추이 API 추가 시

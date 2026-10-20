@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
-import 'package:porest_desk_app/shared/ds/avatar/p_avatar.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/image_loader.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_card_art.dart';
-import 'package:porest_desk_app/shared/ds/image_frame/p_image_frame.dart';
-import 'package:porest_desk_app/shared/ds/institution_colors/institution_colors.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/aspect_ratio/p_aspect_ratio.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/image_loader.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_card_art.dart';
+import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
 
 /// 크기 — 32 · 40(기본, 목록 줄 — List 타일과 같다) · 48(상세 머리). 이 밖의 크기를 만들지 않는다.
 enum PLogoTileSize { s32, s40, s48 }
@@ -42,8 +42,8 @@ enum PLogoTileImageType { logo, card }
   ),
 };
 
-/// Logo Tile — 물건 하나(은행 · 증권 · 카드 · 코인 · 금 자산 · 회사)를 보이는 각진 타일. porest 에만 있는 부품(SEED 는 업체를
-/// 원 Avatar 로 그린다), 수치 원본은 porest-design `specs/components/logo-tile.yaml`(값은
+/// Logo Tile — 물건 하나(은행 · 증권 · 카드 · 코인 · 금 자산 · 회사)를 보이는 각진 타일. groo 에만 있는 부품(SEED 는 업체를
+/// 원 Avatar 로 그린다), 수치 원본은 groo-design `specs/components/logo-tile.yaml`(값은
 /// `test/fixtures/design_spec/logo-tile.json`), 기관 색은 `institution-colors.yaml`. 웹(desk-front
 /// `src/shared/ds/logo-tile`)과 같은 값 · 같은 규칙이다.
 ///

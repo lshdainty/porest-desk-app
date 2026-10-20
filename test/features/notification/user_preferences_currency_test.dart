@@ -5,8 +5,8 @@
 // **없으면 원화**가 이 칸의 계약이고, 종전 동작(늘 원화)과 같다.
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/format/currency.dart';
-import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
+import 'package:groo_damda_app/core/format/currency.dart';
+import 'package:groo_damda_app/features/notification/data/user_preferences_repository.dart';
 
 void main() {
   test('서버가 준 값을 그대로 읽는다', () {

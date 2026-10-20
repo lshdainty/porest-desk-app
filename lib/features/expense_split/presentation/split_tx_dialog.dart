@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
-import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
-import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:groo_damda_app/features/expense_split/data/expense_split_repository.dart';
+import 'package:groo_damda_app/features/expense_split/domain/expense_split.dart';
 
 /// 거래 분할 다이얼로그.
 ///
@@ -385,10 +385,10 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   }
 
   /// 상태 패널 — 일치(success) / 불일치(warning). footer 검증 pill 대체.
-  Widget _statusPanel(PorestTokens t) =>
+  Widget _statusPanel(GrooTokens t) =>
       _matched ? _successPanel(t) : _reconcilePanel(t);
 
-  Widget _successPanel(PorestTokens t) {
+  Widget _successPanel(GrooTokens t) {
     final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(PSpace.x12),
@@ -441,7 +441,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     );
   }
 
-  Widget _reconcilePanel(PorestTokens t) {
+  Widget _reconcilePanel(GrooTokens t) {
     final l = AppLocalizations.of(context);
     final shortage = _remainder > 0;
     return Container(
@@ -583,7 +583,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   }
 
   Widget _reconcileBtn(
-    PorestTokens t, {
+    GrooTokens t, {
     required IconData icon,
     required String title,
     required String desc,
@@ -661,7 +661,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     );
   }
 
-  Widget _build(PorestTokens t, List<ExpenseCategory> categories) {
+  Widget _build(GrooTokens t, List<ExpenseCategory> categories) {
     final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
@@ -865,7 +865,7 @@ class _SplitRowCard extends StatefulWidget {
   final List<ExpenseCategory> categories;
   final bool canRemove;
   final bool disabled;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onChange;
   final VoidCallback onRemove;
 
@@ -1042,7 +1042,7 @@ class _CategoryDropdown extends StatelessWidget {
   final int? value;
   final List<ExpenseCategory> categories;
   final ValueChanged<int?>? onChanged;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1072,7 +1072,7 @@ class _RatioBar extends StatelessWidget {
   final List<_Row> rows;
   final int total;
   final List<ExpenseCategory> categories;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -1121,7 +1121,7 @@ class _RatioLegend extends StatelessWidget {
   final List<_Row> rows;
   final int total;
   final List<ExpenseCategory> categories;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

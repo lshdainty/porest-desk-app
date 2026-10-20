@@ -294,7 +294,7 @@
       "state": "enabled",
       "slot": "overlay",
       "prop": "background",
-      "note": "porest 딤(v102) — SEED 0.455 는 들이지 않았다"
+      "note": "groo 딤(v102) — SEED 0.455 는 들이지 않았다"
     },
     {
       "rule": 0,
@@ -455,7 +455,7 @@
       "state": "enabled",
       "slot": "title",
       "prop": "typography",
-      "note": "서비스 이름(\"Porest HR\") — 주 메뉴 서랍의 제목"
+      "note": "서비스 이름(\"그루 이음\") — 주 메뉴 서랍의 제목"
     },
     {
       "rule": 5,

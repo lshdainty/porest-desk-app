@@ -6,8 +6,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 // slider.yaml 의 값 — 토큰이 있는 값은 토큰으로 적는다.
 const double _controlHeight = PTouch.min; // control.height 44 — 줄 전체가 누르는 자리
@@ -96,7 +96,7 @@ double? sliderKeyTarget({
 }
 
 /// Slider — 정해진 범위에서 값을 끌어 고르는 컨트롤(예산 알림 임계값 · 별점). 구조는 SEED Slider(2026-10-09),
-/// 수치 원본은 porest-design `specs/components/slider.yaml`(값은 `test/fixtures/design_spec/slider.json`). 웹(desk-front
+/// 수치 원본은 groo-design `specs/components/slider.yaml`(값은 `test/fixtures/design_spec/slider.json`). 웹(desk-front
 /// `src/shared/ds/slider`)과 같은 값이다. 정확한 숫자 · 금액은 Input 이다.
 ///
 /// 모양 — 손잡이 줄 44(줄 전체가 누르는 자리) 가운데에 트랙 4 `stroke-neutral-weak` · 채움 `fg-neutral` · 손잡이 20

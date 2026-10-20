@@ -4,9 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 변형 — 한 화면의 강조 버튼(Solid)은 하나.
 enum PButtonVariant {
@@ -41,7 +41,7 @@ enum PButtonGhostColor { neutral, neutralSubtle, brand, critical }
 /// 가장자리 맞춤(SEED bleed) — 그 방향 가로 여백만 0. ghost 는 텍스트 버튼이 되어 배경 없이 글자색으로만 반응한다.
 enum PButtonFlush { left, right }
 
-/// Button — 구조는 SEED Action Button(2026-09-30). 수치 원본은 porest-design `specs/components/button.yaml`
+/// Button — 구조는 SEED Action Button(2026-09-30). 수치 원본은 groo-design `specs/components/button.yaml`
 /// (값은 `test/fixtures/design_spec/button.json` — 테스트가 위젯이 그 값과 같은지 본다). 웹(desk-front
 /// `src/shared/ds/button`)과 같은 값이다.
 ///
@@ -175,7 +175,7 @@ const Map<PButtonSize, _SizeSpec> _sizes = {
     iconOnlyPadding: PSpacing.x2_5,
     iconOnlyIcon: 18,
   ),
-  // SEED large 는 52 — porest 는 48(사용자 결정)
+  // SEED large 는 52 — groo 는 48(사용자 결정)
   PButtonSize.large: _SizeSpec(
     height: 48,
     radius: PRounded.r3,

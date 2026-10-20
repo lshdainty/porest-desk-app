@@ -5,11 +5,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/notification_badge/p_notification_badge.dart';
-import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
-import 'package:porest_desk_app/shared/ds/chip/press_area.dart';
-import 'package:porest_desk_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
+import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
 /// Line 의 폭 — fill(기본 — 칸을 똑같이 나눈다, 5개 이하 · 짧은 글) · hug(글만큼 — 6개 이상이거나 글이 길 때, 넘치면 가로
 /// 스크롤).
@@ -204,7 +204,7 @@ void revealInScroll(
 // ── Line ──────────────────────────────────────────────────────────────────────
 
 /// Tabs(Line) — 화면 · 구역 맨 위의 1차 탭. 다른 구역으로 옮긴다. 구조는 SEED Tabs 의 Line 타입(2026-10-02), 수치 원본은
-/// porest-design `specs/components/tabs.yaml`(값은 `test/fixtures/design_spec/tabs.json` — 테스트가 위젯이 그 값과 같은지
+/// groo-design `specs/components/tabs.yaml`(값은 `test/fixtures/design_spec/tabs.json` — 테스트가 위젯이 그 값과 같은지
 /// 본다). 웹(desk-front `src/shared/ds/tabs`)과 같은 값이다. 2차 탭은 [PChipTabs], 내용 칸은 [PTabPanels] 다.
 ///
 /// 목록은 놓인 폭을 채우고 바탕이 불투명하다(bg-layer-default). 바닥 구획 선은 안쪽 1px 라 높이를 밀지 않는다. 탭은 위아래 ·
@@ -554,7 +554,7 @@ class _LineTab<T> extends StatelessWidget {
 // ── Chip Tabs ─────────────────────────────────────────────────────────────────
 
 /// Chip Tabs — 1차 Line 탭 안의 2차 탭. 칩 하나는 [PChip] 그대로(Solid 는 Chip Solid, Outline 은 Chip Outline Strong,
-/// medium 36 · large 40)이고, 고르면 짙은 채움이다. 구조는 SEED Tabs 의 Chip 타입, 수치 원본은 porest-design
+/// medium 36 · large 40)이고, 고르면 짙은 채움이다. 구조는 SEED Tabs 의 Chip 타입, 수치 원본은 groo-design
 /// `specs/components/chip-tabs.yaml`(값은 `test/fixtures/design_spec/chip-tabs.json`). 웹과 같은 값이다.
 ///
 /// 목록은 바탕 · 바닥 선 없이 한 줄 가로 스크롤이다 — 좌우 화면 여백 24 · 위아래 8 · 칩 사이 8, 스크롤바는 숨긴다. 양 끝은

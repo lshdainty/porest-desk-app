@@ -3,12 +3,12 @@
 // 아래 동작 묶음은 웹 input-otp.test.tsx 가 잡는 것(숫자만 · 붙여넣기 · 다시 받기 · 초점 · 접근성)을 앱 위젯으로 같이 잡는다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/text_control.dart';
-import 'package:porest_desk_app/shared/ds/input_otp/p_input_otp.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/text_control.dart';
+import 'package:groo_damda_app/shared/ds/input_otp/p_input_otp.dart';
 
 import '../../support/design_spec.dart';
 import '../../support/spec_check.dart';
@@ -18,7 +18,7 @@ const _error = '코드가 맞지 않거나 시간이 지났어요. 확인하거�
 
 Widget _host(Brightness mode, Widget child, {double width = 320}) =>
     MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+      theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ko'),

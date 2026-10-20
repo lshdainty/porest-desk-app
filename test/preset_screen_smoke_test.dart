@@ -5,15 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
-import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
-import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
-import 'package:porest_desk_app/features/preset/presentation/preset_screen.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
+import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
+import 'package:groo_damda_app/features/preset/presentation/preset_screen.dart';
 
 final _categories = <ExpenseCategory>[
   for (int g = 0; g < 6; g++) ...[
@@ -62,7 +62,7 @@ void main() {
           assetsProvider.overrideWith((ref) async => []),
         ],
         child: MaterialApp(
-          theme: PorestTheme.dark(),
+          theme: GrooTheme.dark(),
           // 화면이 AppLocalizations.of(context) 를 쓴다 — 위임이 없으면 null 이라
           // 첫 build 에서 바로 터진다.
           localizationsDelegates: AppLocalizations.localizationsDelegates,

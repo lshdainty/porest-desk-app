@@ -5,10 +5,10 @@ import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 
-export 'package:porest_desk_app/shared/ds/card/p_card_parts.dart';
+export 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 
 /// 순자산 카드의 135° 그라디언트 — 면 색(`brand-solid`)에서 끝 색으로. 끝은 모드마다 다른 단계다(라이트 brand-900,
 /// 다크 brand-300 — 다크에서 brand-900 은 밝은 #7AA9F6 이라 쓰지 않는다). CSS 의 135deg 는 상자의 모서리에서 모서리까지
@@ -43,8 +43,8 @@ const double kCardHeroGlowRight = -40;
 const double kCardHeroGlowTop = -80;
 
 /// Card — 같은 주제의 정보를 한 면으로 묶는다(머리 · 본문 · 목록 · 지표 · 순자산). SEED 에는 카드 컴포넌트가 없다 —
-/// 바닥 위 흰 면 + 1px 테두리 · 그림자 없음 · 누름은 SEED Feedback 을, 머리 · 여백 · 지표 · 순자산 · 증감은 porest 가
-/// 정했다. 수치 원본은 porest-design `specs/components/card.yaml`(값은 `test/fixtures/design_spec/card.json`). 웹(desk-front
+/// 바닥 위 흰 면 + 1px 테두리 · 그림자 없음 · 누름은 SEED Feedback 을, 머리 · 여백 · 지표 · 순자산 · 증감은 groo 가
+/// 정했다. 수치 원본은 groo-design `specs/components/card.yaml`(값은 `test/fixtures/design_spec/card.json`). 웹(desk-front
 /// `src/shared/ds/card`)과 같은 값이다.
 ///
 ///   [PCard]          카드 면 — [variant] · [body] · [press]. 면은 `bg-layer-default` + 1px `stroke-neutral-weak`,

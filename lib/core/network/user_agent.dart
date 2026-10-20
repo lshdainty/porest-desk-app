@@ -6,7 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 /// 서버가 "로그인된 기기" 목록에 쓸 이름을 뽑아낼 수 있게 보내는 User-Agent.
 ///
 /// <p>안 보내면 dart:io 기본값(`Dart/3.9 (dart:io)`)이 나가는데, 그걸로는 앱이라는
-/// 것만 알 뿐 어떤 기기인지 알 수 없다. 목록에 전부 "Porest 앱" 으로만 보인다.
+/// 것만 알 뿐 어떤 기기인지 알 수 없다. 목록에 전부 "Groo 앱" 으로만 보인다.
 ///
 /// 형태: `Porest/1.2.3 (Android 14)` — 서버 UserAgentParser 가 이 형태를 안다.
 /// iPhone·iPad 는 구분하지 않는다. Platform 이 'ios' 까지만 알려주고, 기종을 알려면

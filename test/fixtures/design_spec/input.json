@@ -471,7 +471,7 @@
       "properties": [
         "border-color"
       ],
-      "note": "안쪽에 덧그린 2px 의 색이 나타나고 사라진다. SEED 는 0.1s — porest d2 = 100ms"
+      "note": "안쪽에 덧그린 2px 의 색이 나타나고 사라진다. SEED 는 0.1s — groo d2 = 100ms"
     }
   },
   "notes": [

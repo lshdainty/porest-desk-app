@@ -6,10 +6,10 @@ import 'dart:ui' show Tristate;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/app/theme/theme_data.dart';
-import 'package:porest_desk_app/shared/ds/collapsible/p_collapsible.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/collapsible/p_collapsible.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
 
@@ -17,7 +17,7 @@ final _spec = DesignSpec.load('collapsible');
 
 Widget _host(Brightness mode, Widget child, {bool reduceMotion = false}) =>
     MaterialApp(
-      theme: mode == Brightness.dark ? PorestTheme.dark() : PorestTheme.light(),
+      theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
       home: MediaQuery(
         data: MediaQueryData(disableAnimations: reduceMotion),
         child: Scaffold(
@@ -603,8 +603,8 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             theme: mode == Brightness.dark
-                ? PorestTheme.dark()
-                : PorestTheme.light(),
+                ? GrooTheme.dark()
+                : GrooTheme.light(),
             home: Scaffold(
               body: SingleChildScrollView(
                 child: PCollapsible(

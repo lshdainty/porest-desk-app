@@ -61,7 +61,7 @@ abstract final class PTracking {
 /// porest-desk-front 의 타이포 토큰 1:1 매핑.
 ///
 /// 폰트 패밀리는 [pubspec.yaml] 에 등록된 `Pretendard` 와 `JetBrainsMono`.
-/// 색상은 [`PorestTokens`] 가 적용 시점에 [`TextStyle.copyWith`] 로 덧씌운다.
+/// 색상은 [`GrooTokens`] 가 적용 시점에 [`TextStyle.copyWith`] 로 덧씌운다.
 ///
 /// 자간 — SoT 토큰(DESIGN.desk.md typography)에서 자간이 있는 건 display-xl/lg/md 와
 /// overline 뿐이다. 나머지는 **0 을 명시**한다. 비워 두면 ThemeData 가 Material 3 기본
@@ -73,7 +73,7 @@ abstract final class PTypo {
   static const String sans = 'Pretendard';
   static const String mono = 'JetBrainsMono';
 
-  // Display — porest-design SoT (DESIGN.desk.md L92-109) 정합
+  // Display — groo-design SoT (DESIGN.desk.md L92-109) 정합
   static const TextStyle displayXl = TextStyle(
     fontFamily: sans,
     fontSize: 56,

@@ -4,11 +4,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_layout.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/help_bubble/help_bubble_layout.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
-export 'package:porest_desk_app/shared/ds/help_bubble/help_bubble_layout.dart'
+export 'package:groo_damda_app/shared/ds/help_bubble/help_bubble_layout.dart'
     show PHelpBubbleSide;
 
 /// 마우스를 올린 뒤 열기까지 · 트리거와 말풍선을 모두 벗어난 뒤 닫기까지 · 닫힌 뒤 옆 트리거로 옮기면 바로 여는 시간
@@ -55,7 +55,7 @@ abstract final class _TooltipGroup {
 void resetTooltipGroup() => _TooltipGroup.reset();
 
 /// Tooltip — 마우스를 올리거나 키보드 초점이 오면 트리거 옆에 뜨는 짧은 설명. 구조는 SEED Help Bubble Tooltip(2026-10-02),
-/// 수치 원본은 porest-design `specs/components/help-bubble.yaml` 의 `opens: hover`(값은
+/// 수치 원본은 groo-design `specs/components/help-bubble.yaml` 의 `opens: hover`(값은
 /// `test/fixtures/design_spec/help-bubble.json` — Help Bubble 과 한 파일, 툴팁 전용 JSON 은 없다).
 ///
 /// 모양은 [PHelpBubble] 과 같다 — 위아래 10 · 좌우 12, 모서리 12, 글 13 / 18 · 굵게(제목 자리, 글 하나), 최대 280, 화살표

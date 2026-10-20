@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
-/// Chart 의 값 · 숫자 · 색 — 수치 원본은 porest-design `specs/components/chart.yaml`(값은
+/// Chart 의 값 · 숫자 · 색 — 수치 원본은 groo-design `specs/components/chart.yaml`(값은
 /// `test/fixtures/design_spec/chart.json`), 색은 DESIGN.md v110(차트 10색 — 라이트 팔레트 700 · 다크 800-dark) ·
 /// v111(옅은 바탕). 웹(desk-front `src/shared/ds/chart/chart-variants.ts` · `chart-heatmap-variants.ts`)과 같은 값이다.
 ///

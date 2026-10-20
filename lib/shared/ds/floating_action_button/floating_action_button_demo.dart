@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/floating_action_button/p_floating_action_button.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/floating_action_button/p_floating_action_button.dart';
 
 /// 폰 화면 하나 — 목록이 스크롤되고 떠 있는 버튼이 그 위에 앉는다. 안전 영역([bottom])과 바닥 고정 요소([bottomBar])를 흉내 낸다.
 class _Screen extends StatelessWidget {

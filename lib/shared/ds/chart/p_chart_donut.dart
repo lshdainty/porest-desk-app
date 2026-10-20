@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_parts.dart';
-import 'package:porest_desk_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 
 /// 도넛 조각 하나 — 카테고리 하나. 색은 [assignChartColors] 로 정한다.
 class PDonutSlice {

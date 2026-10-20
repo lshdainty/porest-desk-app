@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/callout/p_callout.dart';
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
 
 /// 카탈로그(/dev/ds) — 톤 다섯 × 상호작용 셋(보이기 · 전체 누르기 · 닫기), 나중에 나타나는 경고(alert).
 class CalloutDemo extends StatelessWidget {

@@ -7,7 +7,7 @@ library;
 
 import 'package:dio/dio.dart';
 
-import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 
 /// 증권사 무관 현재가. 백엔드가 증권사별 필드명 차이를 흡수해 이 모양으로 준다
 /// (나무 국내 `stck_prpr` / 나무 해외 `trdprc`).

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
 
 /// 크기 — 이름은 트랙 높이다(SEED). s16(트랙 26 × 16 · 라벨 13 — 촘촘한 자리) · s24(38 × 24 · 라벨 14, 기본) ·
 /// s32(52 × 32 · 라벨 16 — 제목이 큰 줄, 모바일에서 홀로 서는 스위치).
@@ -213,7 +213,7 @@ class PSwitchmark extends StatelessWidget {
   }
 }
 
-/// Switch — 설정 · 상태를 바로 켜고 끈다(스위치 + 라벨). 구조는 SEED Switch(2026-09-30), 수치 원본은 porest-design
+/// Switch — 설정 · 상태를 바로 켜고 끈다(스위치 + 라벨). 구조는 SEED Switch(2026-09-30), 수치 원본은 groo-design
 /// `specs/components/switch.yaml`(값은 `test/fixtures/design_spec/switch.json` — 테스트가 위젯이 그 값과 같은지
 /// 본다). 웹(desk-front `src/shared/ds/switch`)과 같은 값이다. 옛 위젯(lib/shared/widgets/p_switch.dart)과 이름이
 /// 같다 — 자리로 가른다.

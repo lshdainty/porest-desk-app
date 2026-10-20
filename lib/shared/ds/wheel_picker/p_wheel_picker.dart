@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 크기 — 항목 높이. medium 44(기본 — 시각 · 월 고르기 · 연 · 월 휠) · small 36(좁은 팝오버).
 enum PWheelPickerSize { small, medium }
@@ -89,7 +89,7 @@ class _WheelScope extends InheritedWidget {
 }
 
 /// Wheel Picker — 순서가 있는 값을 세로로 굴려 고르는 휠(한 칼럼 이상). 구조는 SEED Wheel Picker(2026-10-03), 수치 원본은
-/// porest-design `specs/components/wheel-picker.yaml`(값은 `test/fixtures/design_spec/wheel-picker.json` — 테스트가 위젯이
+/// groo-design `specs/components/wheel-picker.yaml`(값은 `test/fixtures/design_spec/wheel-picker.json` — 테스트가 위젯이
 /// 그 값과 같은지 본다). 웹(desk-front `src/shared/ds/wheel-picker`)과 같은 값이다.
 ///
 ///   [PWheelPicker] — 휠. 이름(semanticLabel — 필수)과 크기(small 36 · medium 44, 기본 medium) · 보이는 칸 수(5 · 7, 기본

@@ -5,14 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
-import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/core/auth/auth_events.dart';
-import 'package:porest_desk_app/core/network/interceptors/auth_interceptor.dart';
-import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
-import 'package:porest_desk_app/core/network/interceptors/lang_interceptor.dart';
-import 'package:porest_desk_app/core/network/interceptors/log_interceptor.dart';
-import 'package:porest_desk_app/core/network/secure_cookie_storage.dart';
-import 'package:porest_desk_app/core/network/user_agent.dart';
+import 'package:groo_damda_app/app/env.dart';
+import 'package:groo_damda_app/core/auth/auth_events.dart';
+import 'package:groo_damda_app/core/network/interceptors/auth_interceptor.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
+import 'package:groo_damda_app/core/network/interceptors/lang_interceptor.dart';
+import 'package:groo_damda_app/core/network/interceptors/log_interceptor.dart';
+import 'package:groo_damda_app/core/network/secure_cookie_storage.dart';
+import 'package:groo_damda_app/core/network/user_agent.dart';
 
 /// 영속 cookie_jar (`desk_access_token` 보존) — OS 보안 저장소(Keystore/Keychain)에
 /// 암호화 저장(SecureCookieStorage). 단일 인스턴스를 dio 와 로그아웃 헬퍼가 공유.
@@ -24,7 +24,7 @@ final cookieJarProvider = FutureProvider<PersistCookieJar>((ref) async {
 final dioProvider = FutureProvider<Dio>((ref) async {
   final jar = await ref.watch(cookieJarProvider.future);
   // 안 보내면 dart:io 기본값이 나가고, 서버는 어떤 기기인지 알 수 없다 —
-  // "로그인된 기기" 목록이 전부 "Porest 앱" 으로만 보인다.
+  // "로그인된 기기" 목록이 전부 "Groo 앱" 으로만 보인다.
   final userAgent = await buildUserAgent();
   final dio =
       Dio(

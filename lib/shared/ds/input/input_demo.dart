@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/shared/ds/catalog/demo_kit.dart';
-import 'package:porest_desk_app/shared/ds/field/p_field.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 
 /// 카탈로그(/dev/ds) — 모양 둘(상자 · 밑줄) × 상태(기본 · 오류 · 비활성 · 읽기 전용 — 포커스는 직접 눌러 본다),
 /// 붙이개, 지우기, 밑줄을 쓰는 자리. 앱은 늘 large(52 · 밑줄 40)다. 예는 input.md 의 것이다.

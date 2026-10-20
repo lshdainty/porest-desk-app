@@ -3,21 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/date.dart';
-import 'package:porest_desk_app/core/format/now_tick.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
-import 'package:porest_desk_app/features/notification/domain/notification.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/now_tick.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
+import 'package:groo_damda_app/features/notification/domain/notification.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 class NotificationScreen extends ConsumerWidget {
   const NotificationScreen({super.key});
@@ -168,7 +168,7 @@ class NotificationScreen extends ConsumerWidget {
 class _UnreadSubHeader extends StatelessWidget {
   const _UnreadSubHeader({required this.count, required this.tokens});
   final int count;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +203,7 @@ class _UnreadSubHeader extends StatelessWidget {
 /// SoT footer '알림 설정 ›' — ghost full-width, 탭 시 /settings/notifications push.
 class _NotiSettingsFooter extends StatelessWidget {
   const _NotiSettingsFooter({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +238,7 @@ class _NotiSettingsFooter extends StatelessWidget {
 /// 알림 목록 skeleton — 아이콘(36x36) + 제목/메시지 + 시간 행 × 5 (SoT 5행, 구분선 없음).
 class _NotiSkeleton extends StatelessWidget {
   const _NotiSkeleton({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +295,7 @@ class _NotiRow extends StatefulWidget {
     required this.onDelete,
   });
   final AppNotification noti;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   /// 상대시각의 기준점 — 호출부에서 `nowTickProvider` 로 받아 내린다.
   ///
@@ -328,7 +328,7 @@ class _NotiRowState extends State<_NotiRow> {
   /// EVENT_REMINDER→info(subtle·fg) / SYSTEM·default→muted·secondary.
   /// 웹 notificationVisual 은 default 를 `--bg-sunken`(=surface-input=muted) 로 매핑.
   /// 앱은 bgSunken 이 다크에서 bgCanvas(slate950)와 동일 → 종 박스가 안 보임. bgMuted 사용.
-  (Color, Color) _typeTone(PorestTokens t) => switch (noti.notificationType) {
+  (Color, Color) _typeTone(GrooTokens t) => switch (noti.notificationType) {
     'BUDGET_ALERT' => (t.statusWarningSubtle, t.statusWarningFg),
     'TODO_REMINDER' => (t.bgBrandSubtle, t.fgBrandStrong),
     'EVENT_REMINDER' => (t.statusInfoSubtle, t.statusInfoFg),
@@ -336,7 +336,7 @@ class _NotiRowState extends State<_NotiRow> {
   };
 
   AppNotification get noti => widget.noti;
-  PorestTokens get tokens => widget.tokens;
+  GrooTokens get tokens => widget.tokens;
   DateTime get now => widget.now;
   VoidCallback get onDelete => widget.onDelete;
 

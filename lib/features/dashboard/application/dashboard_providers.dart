@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/core/sync/query_freshness.dart';
-import 'package:porest_desk_app/features/dashboard/data/dashboard_repository.dart';
-import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/dashboard/data/dashboard_repository.dart';
+import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
 
 final dashboardRepositoryProvider = FutureProvider<DashboardRepository>((
   ref,

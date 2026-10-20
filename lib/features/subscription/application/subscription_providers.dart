@@ -3,8 +3,8 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 
 final subscriptionRepositoryProvider = FutureProvider<SubscriptionRepository>((
   ref,

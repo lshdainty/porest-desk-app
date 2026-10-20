@@ -1,8 +1,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:porest_desk_app/core/auth/oauth_callback_handler.dart';
-import 'package:porest_desk_app/core/auth/oauth_flow_store.dart';
+import 'package:groo_damda_app/core/auth/oauth_callback_handler.dart';
+import 'package:groo_damda_app/core/auth/oauth_flow_store.dart';
 
 /// 플러그인 채널 없이 도는 인메모리 secure storage — read/write/delete 만 흉내낸다.
 class _FakeSecureStorage implements FlutterSecureStorage {

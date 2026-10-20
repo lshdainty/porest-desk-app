@@ -3,15 +3,15 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/button/p_button.dart';
-import 'package:porest_desk_app/shared/ds/chip/p_chip.dart';
-import 'package:porest_desk_app/shared/ds/date_picker/date_picker_dates.dart';
-import 'package:porest_desk_app/shared/ds/date_picker/p_date_picker_day.dart';
-import 'package:porest_desk_app/shared/ds/wheel_picker/p_wheel_picker.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/date_picker_dates.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker_day.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
-export 'package:porest_desk_app/shared/ds/date_picker/date_picker_dates.dart';
-export 'package:porest_desk_app/shared/ds/date_picker/p_date_picker_day.dart';
+export 'package:groo_damda_app/shared/ds/date_picker/date_picker_dates.dart';
+export 'package:groo_damda_app/shared/ds/date_picker/p_date_picker_day.dart';
 
 /// 고르기 — 하루 · 기간 · 여러 날.
 enum PDateSelection { single, range, multiple }
@@ -28,7 +28,7 @@ const double _wheelAreaHeight = 336; // 요일 줄 48 + 6주 288
 const double _titleIcon = 20;
 const int _weeks = 6;
 
-/// Date Picker — 날짜 · 기간 · 여러 날을 고르는 달력. 구조는 SEED Date Picker(2026-10-03), 수치 원본은 porest-design
+/// Date Picker — 날짜 · 기간 · 여러 날을 고르는 달력. 구조는 SEED Date Picker(2026-10-03), 수치 원본은 groo-design
 /// `specs/components/date-picker.yaml`(값은 `test/fixtures/design_spec/date-picker.json` — 테스트가 위젯이 그 값과 같은지
 /// 본다). 웹(desk-front `src/shared/ds/date-picker`)과 같은 값 · 규칙이다.
 ///

@@ -7,13 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/porest_tokens.g.dart';
-import 'package:porest_desk_app/shared/ds/input/p_input.dart';
-import 'package:porest_desk_app/shared/ds/list/p_list_header.dart';
-import 'package:porest_desk_app/shared/ds/radio/p_radio.dart';
-import 'package:porest_desk_app/shared/ds/result_section/p_result_section.dart';
-import 'package:porest_desk_app/shared/ds/skeleton/p_skeleton.dart';
-import 'package:porest_desk_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 놓이는 자리 — sheet(기본: Input Button 이 연 검색 시트, 고르면 닫힌다 · 열면 검색칸에 초점) · inline(화면 · 단계 안,
 /// 라디오만 바뀌고 단계의 버튼이 반영한다).
@@ -36,8 +36,8 @@ const double _cardArtRatio = 1.586;
 const double _avatarSize = 42; // 스켈레톤의 아바타 자리(두 줄 줄 — 36 은 한 줄)
 const int _skeletonRows = 5; // skeleton.size — 줄 다섯
 
-/// Searchable List — 위 검색칸에 치는 대로 아래 목록이 걸러지고, 그 목록에서 하나를 고르는 묶음. 구조는 porest 가 둔
-/// 컴포넌트(SEED 에는 Combobox 가 없다 — 부품마다 SEED 를 따랐다), 수치 원본은 porest-design
+/// Searchable List — 위 검색칸에 치는 대로 아래 목록이 걸러지고, 그 목록에서 하나를 고르는 묶음. 구조는 groo 가 둔
+/// 컴포넌트(SEED 에는 Combobox 가 없다 — 부품마다 SEED 를 따랐다), 수치 원본은 groo-design
 /// `specs/components/searchable-list.yaml`(값은 `test/fixtures/design_spec/searchable-list.json`). 웹(desk-front
 /// `src/shared/ds/searchable-list`)과 같은 값 · 동작이다. 앱은 늘 large(검색칸 40)이고 시트만 쓴다(팝오버 없음).
 ///

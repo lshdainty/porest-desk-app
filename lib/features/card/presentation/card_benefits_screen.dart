@@ -5,24 +5,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
-import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/features/card/application/card_providers.dart';
-import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
-import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
-import 'package:porest_desk_app/features/card/presentation/card_benefit_detail_sheet.dart';
-import 'package:porest_desk_app/features/card/presentation/widgets/card_brand.dart';
+import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
+import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
+import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/features/card/application/card_providers.dart';
+import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
+import 'package:groo_damda_app/features/card/presentation/card_fee_text.dart';
+import 'package:groo_damda_app/features/card/presentation/card_benefit_detail_sheet.dart';
+import 'package:groo_damda_app/features/card/presentation/widgets/card_brand.dart';
 
 /// 종류 필터 값 — index 0=전체(null)/1=신용/2=체크. 라벨은 [_typeLabel].
 const _typeValues = <String?>[null, 'CREDIT', 'CHECK'];
@@ -288,7 +288,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   }
 
   /// 결과 영역 — 초기로딩 / 에러 / 빈상태 / 누적 리스트 + 하단 인디케이터.
-  List<Widget> _buildResults(PorestTokens t, AppLocalizations l) {
+  List<Widget> _buildResults(GrooTokens t, AppLocalizations l) {
     // 초기 로딩 (첫 페이지 fetch 중, 누적 없음) — _CardTile 카드 스켈레톤만.
     if (_initialLoading) {
       return [
@@ -403,7 +403,7 @@ class _CardTile extends StatelessWidget {
   });
   final CardCatalogSummary card;
   final VoidCallback onTap;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -514,7 +514,7 @@ class _CardVisual extends StatelessWidget {
   });
   final String? imgUrl;
   final String? company;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
-import 'package:porest_desk_app/features/todo/data/todo_tag_repository.dart';
-import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
+import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/todo/data/todo_repository.dart';
+import 'package:groo_damda_app/features/todo/data/todo_tag_repository.dart';
+import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_tag.dart';
 
 final todoRepositoryProvider = FutureProvider<TodoRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

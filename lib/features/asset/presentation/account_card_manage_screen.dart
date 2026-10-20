@@ -3,23 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/asset/domain/asset.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_actions.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_detail_dialog.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
-import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
+import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_actions.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_detail_dialog.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dart';
+import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.dart';
 
 /// 계좌·카드 관리 — web AccountManager 미러. 설정 단일 진입점에서 자산 추가/편집.
 /// 탭(계좌·예금/카드/투자) + 총액 + 리스트(항목 → 편집) + 그룹별 추가.
@@ -277,7 +277,7 @@ class _AccountCardManageScreenState
 /// 계좌·카드 관리 skeleton — 탭 + 총액행 + PCard 리스트 5행.
 class _AccountCardManageSkeleton extends StatelessWidget {
   const _AccountCardManageSkeleton({required this.tokens});
-  final PorestTokens tokens;
+  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +381,7 @@ class _ManageRow extends StatelessWidget {
   /// 화면 카드 **또는** 이 자산 자체 — 합집합이다.
   bool get masked => _cardMasked || asset.isAmountHidden == 'Y';
   final bool negative;
-  final PorestTokens tokens;
+  final GrooTokens tokens;
   final VoidCallback onTap;
 
   @override
