@@ -7338,5 +7338,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get apiErrorServer => '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
 
   @override
+  String get dsInfiniteListError => '더 불러오지 못했어요.';
+
+  @override
+  String get dsInfiniteListEnd => '모두 봤어요.';
+
+  @override
+  String get dsCommonRetry => '다시 시도';
+
+  @override
   String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.';
 }
