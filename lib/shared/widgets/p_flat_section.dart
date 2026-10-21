@@ -52,26 +52,34 @@ class PFlatSection extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 카드 안에서는 폭이 좁다 — 제목이 말줄임으로 양보해 오른쪽 링크 · 꼬리가 밀려나지 않게
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: 15,
-                    fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.15,
-                    color: t.fgPrimary,
-                  ),
+              // 제목 · 꼬리는 왼쪽 남은 폭을 다 쓰고, 오른쪽 링크는 끝에 붙는다. 폭이 모자라면 제목만 말줄임으로
+              // 양보한다. Flexible(제목) 옆에 Spacer 를 두면 둘이 남은 폭을 반씩 나눠 링크가 가운데로 오고 제목이
+              // 반 폭에서 잘린다(I-01 보정 렌더에서 홈 "자세히" · 예산 "최근 6개월 예산 이…").
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: 15,
+                          fontWeight: PFontWeight.bold,
+                          letterSpacing: -0.15,
+                          color: t.fgPrimary,
+                        ),
+                      ),
+                    ),
+                    if (titleSuffix != null) ...[
+                      const SizedBox(width: 8),
+                      titleSuffix!,
+                    ],
+                  ],
                 ),
               ),
-              if (titleSuffix != null) ...[
-                const SizedBox(width: 8),
-                titleSuffix!,
-              ],
-              if (trailing != null) ...[const Spacer(), trailing!],
+              ?trailing,
             ],
           ),
         ),
