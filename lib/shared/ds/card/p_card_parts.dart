@@ -434,7 +434,7 @@ class PCardStat extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: PSpacing.x1),
             child: Text(
-              keepAll(value),
+              keepAllAmount(value),
               key: const ValueKey('card-stat-value'),
               semanticsLabel: value,
               style: valueStyle.copyWith(
@@ -485,7 +485,7 @@ class PCardHeroAmount extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: PSpacing.x1_5),
     child: Text(
-      keepAll(text),
+      keepAllAmount(text),
       key: const ValueKey('card-hero-amount'),
       semanticsLabel: text,
       style: PTypography.t12.copyWith(

@@ -251,6 +251,8 @@ const _behavior = {
   'expandButton.transitionProperty',
   'expandButton.name',
   'subList.display',
+  // 좁은 줄(03-D 결정 1 B) — 아래 '좁은 줄' 묶음이 문턱과 모양을 잰다
+  'content.stackBelow',
   // 값이 길 때(Q-001) — 가장 나쁜 값 묶음의 '값이 길 때' 테스트가 잰다
   'body.flexGrow',
   'body.minWidth',
@@ -3023,8 +3025,11 @@ void _worstTests() {
         return tester.getSize(_suffixes);
       }
 
-      const value = 'desk@example.kr';
+      // Q-001 은 줄 안 폭이 16em(256)이상일 때의 규칙이다(좁은 줄은 값이 아래로 간다 — p_list_narrow_test) — 그 폭에서
+      // 값이 모자랄 만큼 긴 글을 쓴다
+      const value = 'desk-long-address-name-and-more@example.kr';
       final wide = await suffixSize(800, value);
+      expect(wide.width + kPListBodyMinWidth - 40, greaterThan(256));
       // 본문(이메일)이 눌려도 본문 최소 폭이 남는 폭 — 값은 그대로다
       final mid = await suffixSize(
         wide.width + 48 + kPListBodyMinWidth + 4,

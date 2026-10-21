@@ -32,6 +32,40 @@ const double kPListExpandSlot = PTouch.min + PSpacing.x1;
 /// 본문 최소 폭 — 1em(본문 글자 크기) + 뒤 여백 10(list.yaml body.minWidth `1em`, 뒤 여백은 따로).
 final double kPListBodyMinWidth = PTypography.t5.fontSize! + PSpacing.x2_5;
 
+/// 좁은 줄의 문턱 — 줄 안 폭이 제목 글자 16개(16em)보다 좁으면 값(글 값 · 금액)이 본문 아래로 내려간다
+/// (list.yaml content.stackBelow, 03-D 결정 1 B). em 은 제목 글자(t5)의 **글자 배율을 곱한** 크기다.
+const double kPListStackBelowEm = 16;
+
+/// 금액처럼 위젯으로 만든 값 — 뒤 붙이개 자리에 두면 줄이 "값" 으로 읽는다. 줄 안 폭이 좁으면([kPListStackBelowEm])
+/// 글 값과 함께 본문 아래로 내려가고, 화살표 · 스위치 · 체크 · 작은 버튼 같은 조작 요소는 줄 끝에 남는다.
+/// 금액 글은 [keepAllAmount] 로 만든다(쉼표 뒤에서만 줄을 바꾼다).
+class PListValue extends StatelessWidget {
+  const PListValue({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => child;
+}
+
+/// 뒤 붙이개를 값(글 · [PListValue])과 조작 요소로 가른다 — 좁은 줄에서 값만 내리기 위해서다.
+@visibleForTesting
+({List<Widget> values, List<Widget> controls}) splitListSuffix(Widget? suffix) {
+  bool isValue(Widget w) => w is Text || w is PListValue;
+  if (suffix == null) return (values: const [], controls: const []);
+  final parts = suffix is PListSuffix ? suffix.children : [suffix];
+  return (
+    values: [
+      for (final w in parts)
+        if (isValue(w)) w,
+    ],
+    controls: [
+      for (final w in parts)
+        if (!isValue(w)) w,
+    ],
+  );
+}
+
 /// 부모 줄의 최소 콘텐츠 높이 — 꺾쇠 단추(44)가 위아래 2 를 줄의 여백에 겹쳐 타일 40 줄의 높이(64)를 그대로 둔다.
 const double kPListExpandSlotHeight = PTouch.min - 2 * PSpacing.x0_5;
 
@@ -310,6 +344,17 @@ class _PListRowFrameState extends State<PListRowFrame> {
     if (_disabled) _pressed = false;
   }
 
+  /// 뒤 붙이개를 입힌다 — 글 · 아이콘의 모양(16 · 옅은 색 / 화살표 18). [key] 는 줄 끝에 남는 쪽에만 둔다.
+  Widget _styledSuffix(Widget suffix, Color detailColor, Color arrowColor) =>
+      DefaultTextStyle(
+        key: const ValueKey('plist-suffix'),
+        style: PTypography.t5.copyWith(color: detailColor),
+        child: IconTheme(
+          data: IconThemeData(size: PSpacing.x4_5, color: arrowColor),
+          child: suffix,
+        ),
+      );
+
   /// 본문 + 뒤 붙이개(groo-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
   ///   글([Text]로 넘긴 값) — 본문이 최소 폭(1em + 뒤 여백 10)이 된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다.
   ///   위젯(금액 노드 · 화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다. 큰 금액을 줄이는 건 화면 몫이다.
@@ -317,14 +362,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
     final suffix = widget.suffix;
     if (suffix == null) return bodyNode;
     final isText = suffix is Text;
-    final styled = DefaultTextStyle(
-      key: const ValueKey('plist-suffix'),
-      style: PTypography.t5.copyWith(color: detailColor),
-      child: IconTheme(
-        data: IconThemeData(size: PSpacing.x4_5, color: arrowColor),
-        child: suffix,
-      ),
-    );
+    final styled = _styledSuffix(suffix, detailColor, arrowColor);
     return LayoutBuilder(
       builder: (context, constraints) {
         // 글 값이 쓸 수 있는 가장 넓은 폭 — 본문 최소 폭을 남긴다
@@ -348,6 +386,55 @@ class _PListRowFrameState extends State<PListRowFrame> {
           ],
         );
       },
+    );
+  }
+
+  /// 좁은 줄(03-D 결정 1 B) — 값(글 값 · 금액)은 본문 칸 안 설명 아래 4(본문 사이 2 + 2), 왼쪽 맞춤으로 내려가고 조작
+  /// 요소(화살표 · 스위치 · 체크 · 작은 버튼)는 줄 끝에 그대로 선다. 앞 붙이개 · 꺾쇠 단추 · 조작 요소는 위에 맞춘다.
+  /// 옆에 뒤 붙이개가 없으면 제목이 줄 안 폭을 다 쓴다(본문 뒤 여백 0).
+  Widget _narrowBody(
+    Widget Function({Widget? valueBelow, required bool padEnd}) buildBody,
+    Color detailColor,
+    Color arrowColor,
+  ) {
+    final parts = splitListSuffix(widget.suffix);
+    Widget? valueBelow;
+    if (parts.values.isNotEmpty) {
+      valueBelow = Padding(
+        key: const ValueKey('plist-value-below'),
+        padding: const EdgeInsets.only(top: PSpacing.x0_5),
+        child: DefaultTextStyle(
+          style: PTypography.t5.copyWith(color: detailColor),
+          textAlign: TextAlign.start,
+          child: IconTheme(
+            data: IconThemeData(size: PSpacing.x4_5, color: arrowColor),
+            child: parts.values.length == 1
+                ? parts.values.first
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: parts.values,
+                  ),
+          ),
+        ),
+      );
+    }
+    final hasControls = parts.controls.isNotEmpty;
+    final body = buildBody(valueBelow: valueBelow, padEnd: hasControls);
+    if (!hasControls) return body;
+    final controls = parts.controls.length == 1
+        ? parts.controls.first
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: PSpacing.x1,
+            children: parts.controls,
+          );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: body),
+        _styledSuffix(controls, detailColor, arrowColor),
+      ],
     );
   }
 
@@ -375,46 +462,48 @@ class _PListRowFrameState extends State<PListRowFrame> {
 
     final detailStyle = PTypography.t3.copyWith(color: detailColor);
     final detail = widget.detail;
-    final body = Padding(
-      key: const ValueKey('plist-body'),
-      // 본문과 뒤 붙이개 사이
-      padding: const EdgeInsetsDirectional.only(end: PSpacing.x2_5),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: PSpacing.x0_5,
-        children: [
-          Text(
-            keepAll(widget.title),
-            key: const ValueKey('plist-title'),
-            semanticsLabel: widget.title,
-            style: PTypography.t5.copyWith(
-              color: titleColor,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          if (detail != null)
-            Text(
-              keepAll(detail),
-              key: const ValueKey('plist-detail'),
-              semanticsLabel: detail,
-              style: detailStyle,
-            ),
-          if (widget.detailChild != null)
-            DefaultTextStyle(
-              key: const ValueKey('plist-detail'),
-              style: detailStyle,
-              child: widget.detailChild!,
-            ),
-        ],
-      ),
-    );
-
-    // 본문 — 보기만 하는 줄 · 누르는 줄 · 링크 줄은 본문이 한 노드다. 컨트롤 줄은 줄 전체가 한 노드(아래).
     final sem = widget.semantics;
-    Widget bodyNode = body;
-    if (!sem.wholeRow) {
-      bodyNode = Semantics(
+
+    // 본문 — 제목 + 설명(좁은 줄이면 그 아래 값). 보기만 하는 줄 · 누르는 줄 · 링크 줄은 본문이 한 노드다.
+    // 컨트롤 줄은 줄 전체가 한 노드(아래).
+    Widget buildBody({Widget? valueBelow, bool padEnd = true}) {
+      final body = Padding(
+        key: const ValueKey('plist-body'),
+        // 본문과 뒤 붙이개 사이
+        padding: EdgeInsetsDirectional.only(end: padEnd ? PSpacing.x2_5 : 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: PSpacing.x0_5,
+          children: [
+            Text(
+              keepAll(widget.title),
+              key: const ValueKey('plist-title'),
+              semanticsLabel: widget.title,
+              style: PTypography.t5.copyWith(
+                color: titleColor,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            if (detail != null)
+              Text(
+                keepAll(detail),
+                key: const ValueKey('plist-detail'),
+                semanticsLabel: detail,
+                style: detailStyle,
+              ),
+            if (widget.detailChild != null)
+              DefaultTextStyle(
+                key: const ValueKey('plist-detail'),
+                style: detailStyle,
+                child: widget.detailChild!,
+              ),
+            ?valueBelow,
+          ],
+        ),
+      );
+      if (sem.wholeRow) return body;
+      return Semantics(
         container: true,
         button: sem.button ? true : null,
         link: sem.link ? true : null,
@@ -429,6 +518,10 @@ class _PListRowFrameState extends State<PListRowFrame> {
       PListNest.parent => PSpacing.x1,
       PListNest.child => kPListChildStart,
     };
+    // 줄 안 폭(줄 폭 − 좌우 여백, 앞 붙이개 · 꺾쇠 자리 포함)이 제목 글자 16개보다 좁은가 — em 은 글자 배율을 곱한 크기
+    final stackBelow =
+        kPListStackBelowEm *
+        MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!);
     Widget row = Padding(
       padding: EdgeInsetsDirectional.only(
         start: start,
@@ -436,29 +529,38 @@ class _PListRowFrameState extends State<PListRowFrame> {
         top: PSpacing.x3,
         bottom: PSpacing.x3,
       ),
-      child: Row(
-        key: const ValueKey('plist-row'),
-        crossAxisAlignment: widget.align == PListAlign.top
-            ? CrossAxisAlignment.start
-            : CrossAxisAlignment.center,
-        children: [
-          if (nest == PListNest.parent)
-            const SizedBox(
-              key: ValueKey('plist-expand-slot'),
-              width: kPListExpandSlot,
-              height: kPListExpandSlotHeight,
-            ),
-          if (widget.prefix != null)
-            Padding(
-              key: const ValueKey('plist-prefix'),
-              padding: const EdgeInsetsDirectional.only(end: PSpacing.x3),
-              child: IconTheme(
-                data: IconThemeData(size: kPListIconSize, color: iconColor),
-                child: widget.prefix!,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < stackBelow;
+          return Row(
+            key: const ValueKey('plist-row'),
+            crossAxisAlignment: narrow || widget.align == PListAlign.top
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            children: [
+              if (nest == PListNest.parent)
+                const SizedBox(
+                  key: ValueKey('plist-expand-slot'),
+                  width: kPListExpandSlot,
+                  height: kPListExpandSlotHeight,
+                ),
+              if (widget.prefix != null)
+                Padding(
+                  key: const ValueKey('plist-prefix'),
+                  padding: const EdgeInsetsDirectional.only(end: PSpacing.x3),
+                  child: IconTheme(
+                    data: IconThemeData(size: kPListIconSize, color: iconColor),
+                    child: widget.prefix!,
+                  ),
+                ),
+              Expanded(
+                child: narrow
+                    ? _narrowBody(buildBody, detailColor, arrowColor)
+                    : _bodyAndSuffix(buildBody(), detailColor, arrowColor),
               ),
-            ),
-          Expanded(child: _bodyAndSuffix(bodyNode, detailColor, arrowColor)),
-        ],
+            ],
+          );
+        },
       ),
     );
     if (sem.wholeRow) {
@@ -617,4 +719,18 @@ class PListAction extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// 뒤 붙이개를 여럿 이을 때 — 값 글자 + 화살표처럼. 사이 4. 글은 값 글자(16 · 옅은 색), 아이콘은 화살표(18)의 모습이다.
+class PListSuffix extends StatelessWidget {
+  const PListSuffix({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    spacing: PSpacing.x1,
+    children: children,
+  );
 }
