@@ -68,9 +68,7 @@ void main() {
           mode: mode,
         ),
       );
-      final t = mode == Brightness.dark
-          ? GrooTokens.dark
-          : GrooTokens.light;
+      final t = mode == Brightness.dark ? GrooTokens.dark : GrooTokens.light;
       expect(find.byType(Opacity), findsNothing, reason: '불투명도로 흐리게 하지 않는다');
       final disabledText = tester.widget<Text>(find.text('저장'));
       expect(disabledText.style!.color, t.fgDisabled);

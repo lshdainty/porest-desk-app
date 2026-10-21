@@ -6,8 +6,7 @@ import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
-import 'package:groo_damda_app/shared/ds/chip/press_area.dart'
-    show TouchTarget;
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_tooltip.dart';
 

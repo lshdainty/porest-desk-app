@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/shared/ds/chip/press_area.dart'
-    show TouchTarget;
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';

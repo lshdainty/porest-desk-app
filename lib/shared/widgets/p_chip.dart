@@ -4,8 +4,7 @@ import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/shared/ds/chip/press_area.dart'
-    show TouchTarget;
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
 import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// Chip — pill 형태 단일선택 토글. 필터/카테고리/태그/타입 선택 등에 사용.
