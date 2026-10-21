@@ -743,6 +743,59 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('peers — 카드 이름과 보이는 제목을 한 번만 읽는다(03D-014)', (tester) async {
+      final handle = tester.ensureSemantics();
+      Widget card({String? label, PCardPress press = PCardPress.peers}) =>
+          _host(
+            Brightness.light,
+            PCard(
+              press: press,
+              onTap: () {},
+              semanticLabel: label,
+              children: const [
+                PCardHeader(title: '장보기 메모'),
+                PCardContent(children: [Text('우유 · 달걀 · 빵')]),
+              ],
+            ),
+          );
+      int named(WidgetTester t) => t.semantics
+          .simulatedAccessibilityTraversal()
+          .where((n) => n.label == '장보기 메모')
+          .length;
+      // 이름 있는 peers 카드 — 카드 링크 하나만 그 이름을 읽는다, 제목은 머리말로도 따로 읽지 않는다
+      await tester.pumpWidget(card(label: '장보기 메모'));
+      expect(named(tester), 1);
+      final link = tester.getSemantics(
+        find.byKey(const ValueKey('card-peers-link')),
+      );
+      expect(link.label, '장보기 메모');
+      expect(link.getSemanticsData().flagsCollection.isButton, isTrue);
+      // 본문은 그대로 읽힌다
+      expect(find.bySemanticsLabel('우유 · 달걀 · 빵'), findsOneWidget);
+      // 이름 없는 peers 카드 — 이름을 줄 곳이 제목뿐이라 제목을 머리말로 읽는다
+      await tester.pumpWidget(card());
+      expect(named(tester), 1);
+      expect(
+        tester
+            .getSemantics(find.byKey(const ValueKey('card-title')))
+            .getSemanticsData()
+            .flagsCollection
+            .isHeader,
+        isTrue,
+      );
+      // peers 가 아닌 카드(whole)는 지금처럼 제목이 머리말이다
+      await tester.pumpWidget(card(label: '장보기 메모', press: PCardPress.whole));
+      expect(
+        tester
+            .getSemantics(find.byKey(const ValueKey('card-title')))
+            .getSemanticsData()
+            .flagsCollection
+            .isHeader,
+        isTrue,
+      );
+      handle.dispose();
+    });
+
     testWidgets(
       'peers — 안의 버튼을 누르는 동안 카드 면은 바뀌지 않고, 카드 링크 자리를 누르면 면 색만 바뀐다(Q-011-9)',
       (tester) async {

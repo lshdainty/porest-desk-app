@@ -171,6 +171,10 @@ class _PCardState extends State<PCard> {
       child: PCardScope(
         variant: widget.variant,
         body: body,
+        // peers — 카드 링크의 이름이 보이는 제목이다(같은 이름을 두 번 읽지 않는다)
+        titleNamedByCard:
+            press == PCardPress.peers &&
+            (widget.semanticLabel?.isNotEmpty ?? false),
         child: Padding(padding: _padding(body), child: content),
       ),
     );

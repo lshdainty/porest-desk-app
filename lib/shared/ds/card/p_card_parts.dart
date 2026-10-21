@@ -31,17 +31,24 @@ class PCardScope extends InheritedWidget {
     required this.variant,
     required this.body,
     required super.child,
+    this.titleNamedByCard = false,
   });
 
   final PCardVariant variant;
   final PCardBody body;
+
+  /// 카드가 이름 있는 카드 링크(peers)라서 보이는 제목을 따로 읽지 않는다 — 카드의 이름이 제목이다(03D-014, card.md ARIA
+  /// "peers 는 카드 링크 + 버튼이 형제"). 한 카드를 같은 이름으로 두 번 읽지 않게.
+  final bool titleNamedByCard;
 
   static PCardScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<PCardScope>();
 
   @override
   bool updateShouldNotify(PCardScope oldWidget) =>
-      variant != oldWidget.variant || body != oldWidget.body;
+      variant != oldWidget.variant ||
+      body != oldWidget.body ||
+      titleNamedByCard != oldWidget.titleNamedByCard;
 }
 
 /// 누르는 순간 기준 길이 max(높이, 폭 ÷ 4, 24) — 넓은 카드도 세로 2px 만큼만 준다(Button · List 와 같은 식).
@@ -209,7 +216,8 @@ class PCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final body = PCardScope.maybeOf(context)?.body ?? PCardBody.content;
+    final scope = PCardScope.maybeOf(context);
+    final body = scope?.body ?? PCardBody.content;
     final padding = switch (body) {
       PCardBody.content => const EdgeInsets.only(bottom: PSpacing.x2),
       PCardBody.list || PCardBody.accordion => const EdgeInsets.fromLTRB(
@@ -219,6 +227,15 @@ class PCardHeader extends StatelessWidget {
         PSpacing.x1,
       ),
     };
+    final titleText = Text(
+      keepAll(title),
+      key: const ValueKey('card-title'),
+      semanticsLabel: title,
+      style: PTypography.t5.copyWith(
+        color: context.colors.fgNeutral,
+        fontWeight: FontWeight.w700,
+      ),
+    );
     return Padding(
       key: const ValueKey('card-header'),
       padding: padding,
@@ -227,19 +244,14 @@ class PCardHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Semantics(
-              header: true,
-              headingLevel: headingLevel,
-              child: Text(
-                keepAll(title),
-                key: const ValueKey('card-title'),
-                semanticsLabel: title,
-                style: PTypography.t5.copyWith(
-                  color: context.colors.fgNeutral,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+            child: scope?.titleNamedByCard == true
+                // 카드 링크가 이 제목을 이름으로 갖는다 — 같은 글을 두 번 읽지 않는다
+                ? ExcludeSemantics(child: titleText)
+                : Semantics(
+                    header: true,
+                    headingLevel: headingLevel,
+                    child: titleText,
+                  ),
           ),
           if (actionLabel != null)
             PTextButton(
