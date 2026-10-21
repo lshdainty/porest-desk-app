@@ -3,7 +3,7 @@
   "source": "specs/components/date-picker.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "달력 — 시트 · 팝오버의 본문",
@@ -177,16 +177,16 @@
       "hovered": {
         "dayVisual": {
           "background": {
-            "light": "#F7F8FD",
-            "dark": "#353B4D"
+            "light": "#00000010",
+            "dark": "#FFFFFF2E"
           }
         }
       },
       "pressed": {
         "dayVisual": {
           "background": {
-            "light": "#F7F8FD",
-            "dark": "#353B4D"
+            "light": "#00000010",
+            "dark": "#FFFFFF2E"
           }
         }
       },
@@ -386,6 +386,13 @@
     {
       "rule": 0,
       "state": "enabled",
+      "slot": "header",
+      "prop": "height",
+      "note": "최소 — 글자가 크면 그만큼만 늘어난다. 칸 · 머리 · 요일 줄 · 원 · 이전 · 다음은 px, 글자만 배율(SEED, 03-C 1B)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "title",
       "prop": "paddingX",
       "note": "제목 글자는 머리 왼쪽에서 4 — 누르는 자리는 머리 높이 48 전체"
@@ -416,7 +423,7 @@
       "state": "enabled",
       "slot": "navButton",
       "prop": "size",
-      "note": "Button ghost iconOnly medium — 둘 사이 0, 머리 오른쪽 끝, 누르는 영역 44"
+      "note": "Button ghost iconOnly medium 을 px 로 — 글자 크기를 따르지 않는다(03-C 1B). 둘 사이 0, 머리 오른쪽 끝, 누르는 영역 44"
     },
     {
       "rule": 0,
@@ -428,9 +435,16 @@
     {
       "rule": 0,
       "state": "enabled",
+      "slot": "weekday",
+      "prop": "height",
+      "note": "최소 — 글자가 크면 그만큼만 늘어난다(03-C 1B)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "cell",
       "prop": "height",
-      "note": "폭은 달력 폭 ÷ 7 — 칸 전체가 누르는 자리, 칸 사이 0"
+      "note": "최소(SEED dateCell minHeight) — 글자가 크면 그만큼만 늘어난다(03-C 1B). 폭은 달력 폭 ÷ 7 — 칸 전체가 누르는 자리, 칸 사이 0"
     },
     {
       "rule": 0,
@@ -444,7 +458,7 @@
       "state": "enabled",
       "slot": "dayVisual",
       "prop": "size",
-      "note": "칸 위 3 · 가로 가운데 — 원 · 띠끼리 6 떨어진다. 칸이 44 보다 좁으면(320 화면) 칸 폭 − 2"
+      "note": "px — 글자 크기를 따르지 않는다(03-C 1B, SEED). 칸 위 3 · 가로 가운데 — 원 · 띠끼리 6 떨어진다. 칸이 44 보다 좁으면(320 화면) 칸 폭 − 2"
     },
     {
       "rule": 0,
@@ -459,6 +473,13 @@
       "slot": "rangeBand",
       "prop": "height",
       "note": "칸 위 3 — 원과 같은 높이(칸이 좁아 원이 줄면 띠도 같이). 시작 칸은 원 가운데부터 오른쪽, 끝 칸은 왼쪽부터 원 가운데까지, 사이 칸은 칸 폭 전체 — 줄 끝에서 둥글리지 않고 칸 끝에서 끊는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "monthLabel",
+      "prop": "height",
+      "note": "최소 — 글자가 크면 그만큼만 늘어난다(03-C 1B)"
     },
     {
       "rule": 0,
@@ -486,14 +507,14 @@
       "state": "hovered",
       "slot": "dayVisual",
       "prop": "background",
-      "note": "마우스(고운 포인터)만 — 축소 없음. 오늘(옅은 원) · 기간 사이 날(띠) 위에서는 한 단계 짙은 bg-neutral-weak-pressed(옅은 원 · 띠와 같은 색이 되어 안 보이지 않게). 막힌 날 · 읽기 전용 · 앞뒤 달에는 없다"
+      "note": "SEED 투명 색 — 바탕 1.15 · 다크 1.77(2026-10-21 03-C 2B). 마우스(고운 포인터)만 — 축소 없음. 오늘(옅은 원) · 기간 사이 날(띠) 위에서는 불투명 bg-neutral-weak-pressed(투명 색을 띠에 얹으면 또 다른 색이 된다). 막힌 날 · 읽기 전용 · 앞뒤 달에는 없다"
     },
     {
       "rule": 0,
       "state": "pressed",
       "slot": "dayVisual",
       "prop": "background",
-      "note": "터치는 누르는 동안 — 오늘 · 기간 사이 날 위에서는 bg-neutral-weak-pressed. 날짜는 줄지 않는다(이전 · 다음은 Button 처럼 2px 축소)"
+      "note": "터치는 누르는 동안 — 오늘 · 기간 사이 날 위에서는 불투명 bg-neutral-weak-pressed. 날짜는 줄지 않는다(이전 · 다음은 Button 처럼 2px 축소)"
     },
     {
       "rule": 0,

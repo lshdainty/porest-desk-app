@@ -3,7 +3,7 @@
   "source": "specs/components/table-pagination.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "줄 — 표 아래, 한 줄. 왼쪽 줄 수 · 오른쪽 범위 · 이전 · 다음",
@@ -218,7 +218,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "marginTop",
-      "note": "표 아래 12 — 따로 정한 간격이 없는 컴포넌트 사이(v101 역할 간격)"
+      "note": "표 아래 12 — 따로 정한 간격이 없는 컴포넌트 사이(v101 역할 간격). 이 12 는 넘김 줄이 갖는다 — Table 의 pagination 자리는 좌우 24 만 두고 위 여백을 더하지 않는다. 자리에 넣어도, 표 바로 뒤에 두어도 12 다(2026-10-17 사용자 결정 — 03-D 결정 5 B, Pagination root.marginTop 과 같은 방식)"
     },
     {
       "rule": 0,

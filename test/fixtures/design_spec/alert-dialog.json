@@ -3,7 +3,7 @@
   "source": "specs/components/alert-dialog.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "overlay": "딤 — 확인창 뒤 화면 전체",
@@ -48,7 +48,9 @@
             "dark": "#2D3346"
           },
           "shadow": "none",
-          "zIndex": 301
+          "zIndex": 301,
+          "maxHeight": "화면 높이(안전 영역 안)",
+          "overflowY": "auto"
         },
         "title": {
           "typography": {
@@ -192,6 +194,13 @@
       "slot": "root",
       "prop": "zIndex",
       "note": "z-alert-content — specs/z-index.md L5"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "maxHeight",
+      "note": "dvh 우선 — 넘치면 확인창 전체(제목 · 설명 · 버튼)가 스크롤된다. 끝 흐림 없음(SEED alert-dialog.css content max-height 100%). 2026-10-17 사용자 결정 03-F 1A"
     },
     {
       "rule": 0,

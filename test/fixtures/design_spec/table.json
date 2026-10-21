@@ -3,7 +3,7 @@
   "source": "specs/components/table.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "표 상자 — 카드 안에 가장자리까지 붙는다. 표와 넘김 줄(Table Pagination)을 담고, 넘치면 함께 가로로 민다",
@@ -163,6 +163,7 @@
         "bulkBar": {
           "display": "none",
           "minHeight": 48,
+          "actions": "Button ghost small · neutral",
           "paddingX": 16,
           "radius": 12,
           "background": {
@@ -531,6 +532,13 @@
       "slot": "bulkBar",
       "prop": "minHeight",
       "note": "표 위 — 고른 수 글(t4 14 · 500 \"3개 선택됨\") + 동작 버튼(Button ghost small) + 선택 해제 ✕"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "bulkBar",
+      "prop": "actions",
+      "note": "바 안 동작은 모두 ghost neutral — \"삭제\" 도 회색 글. 빨강은 누른 뒤의 확인창(Alert Dialog criticalSolid)에서. 옅은 브랜드 바탕 위 빨강 글은 라이트 4.44 : 1(2026-10-17 사용자 결정 01T-033 A — SEED ghost 는 fg.neutral 하나)"
     },
     {
       "rule": 0,

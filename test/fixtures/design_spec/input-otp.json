@@ -3,7 +3,7 @@
   "source": "specs/components/input-otp.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "field": "코드 칸 — Input 상자형 한 칸. 이름은 Field 라벨(\"인증 코드\")",
@@ -120,6 +120,12 @@
         "value": {
           "foreground": {
             "light": "#8A91A0",
+            "dark": "#838997"
+          }
+        },
+        "placeholder": {
+          "foreground": {
+            "light": "#767C8B",
             "dark": "#838997"
           }
         }
@@ -362,6 +368,13 @@
       "slot": "field",
       "prop": "background",
       "note": "Input 그대로 — 흐리게 하지 않는다(v106)"
+    },
+    {
+      "rule": 0,
+      "state": "disabled",
+      "slot": "placeholder",
+      "prop": "foreground",
+      "note": "막혀도 자리 글은 그대로 — Input · Textarea · SEED text-input(fg-disabled)과 다른 자리다. 막힌 칸은 바탕(bg-disabled) · 커서로 갈린다(2026-10-17 사용자 결정 01T-013 — 추천 fg-disabled 는 고르지 않았다)"
     },
     {
       "rule": 3,

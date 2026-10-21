@@ -3,7 +3,7 @@
   "source": "specs/components/accordion.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "아코디언 — 항목을 세로로 잇는다. 항목은 2개 이상(하나면 Collapsible)",
@@ -539,6 +539,13 @@
       "slot": "title",
       "prop": "lineClamp",
       "note": "늘 줄을 바꾼다 — 말줄임 · 줄 수 제한 없음(사용자 결정 10A, 단어 단위 v114)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "fontWeight",
+      "note": "SEED accordion-item description medium — 머리 제목 500 과 한 벌. 글자 역할 R9 의 \"여닫는 머리 설명\"(2026-10-17 사용자 결정 01T-005 — 줄 설명 400 에 맞추지 않는다)"
     },
     {
       "rule": 0,

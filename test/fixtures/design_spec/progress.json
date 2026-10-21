@@ -3,7 +3,7 @@
   "source": "specs/components/progress.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "묶음 — 이름 줄 · 막대 · 금액 줄",
@@ -167,6 +167,13 @@
       "slot": "status",
       "prop": "typography",
       "note": "이름 줄 오른쪽 끝, 글자 바탕선 맞춤 — 숫자 폭을 같게(tabular-nums). 비율은 반올림한 정수(\"88%\")"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "track",
+      "prop": "height",
+      "note": "웹은 rem 이라 글자 크기 설정의 배율대로 커진다(200% 에서 16). 앱은 8 그대로 — 글이 없는 상자라 OS 글자 크기를 따르지 않는다. 이름 · 오른쪽 글 · 금액 줄은 두 플랫폼 모두 글자 크기를 따른다(2026-10-17 사용자 결정 — 03-E 결정 1 C)"
     },
     {
       "rule": 0,
