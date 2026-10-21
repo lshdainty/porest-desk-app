@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/app/theme/chart_palette.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
@@ -33,7 +34,6 @@ import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 통계 · 고정/변동 탭 — 한 기간의 수입·지출을 **고정**과 **변동(고정 제외)** 으로 나눠 보여 준다.
 /// 웹 `FixedVariableTab.tsx` 미러.
@@ -76,7 +76,7 @@ class FixedVariableTab extends ConsumerWidget {
     void manage() => showFixedBulkSheet(context, ref, range);
 
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(range));
         ref.invalidate(monthlyTrendProvider(6));
@@ -87,8 +87,8 @@ class FixedVariableTab extends ConsumerWidget {
           PSpace.x24,
           PSpace.x16,
           PSpace.x24,
-          // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+          // 떠 있는 하단 바 보상
+          bottomNavigationInset(context),
         ),
         children: [
           if (rangeAsync.isLoading && !rangeAsync.hasValue) ...[
