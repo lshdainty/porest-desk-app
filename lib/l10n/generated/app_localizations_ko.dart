@@ -7347,5 +7347,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dsCommonRetry => '다시 시도';
 
   @override
+  String get cardListLoadFailed => '카드를 불러오지 못했어요';
+
+  @override
+  String get cardListEnd => '카드를 모두 봤어요.';
+
+  @override
   String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.';
 }

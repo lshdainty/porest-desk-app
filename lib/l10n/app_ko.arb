@@ -4471,5 +4471,9 @@
   "@dsInfiniteListEnd": {"description": "목록 끝(Infinite List)에서 더 받을 쪽이 없을 때 기본 글 — 목록마다 \"카드를 모두 봤어요.\" 처럼 바꿀 수 있다"},
   "dsCommonRetry": "다시 시도",
   "@dsCommonRetry": {"description": "ds 부품이 다시 하기 단추에 쓰는 공용 글 — 웹 ds.common.retry 와 짝"},
+  "cardListLoadFailed": "카드를 불러오지 못했어요",
+  "@cardListLoadFailed": {"description": "카드 혜택 목록 첫 쪽을 못 불러왔을 때 Result Section 제목 — 예외 · 서버 글을 붙이지 않는다"},
+  "cardListEnd": "카드를 모두 봤어요.",
+  "@cardListEnd": {"description": "카드 혜택 목록 끝 자리의 끝 글(Infinite List) — 한 쪽이 넘게 받았을 때만"},
   "apiErrorNetwork": "네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요."
 }

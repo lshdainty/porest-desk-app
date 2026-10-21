@@ -4221,5 +4221,7 @@
   "dsInfiniteListError": "Couldn't load more.",
   "dsInfiniteListEnd": "You've reached the end.",
   "dsCommonRetry": "Try again",
+  "cardListLoadFailed": "Couldn't load cards",
+  "cardListEnd": "You've seen all the cards.",
   "apiErrorNetwork": "The network connection is unstable. Please try again in a moment."
 }

@@ -7504,6 +7504,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dsCommonRetry => 'Try again';
 
   @override
+  String get cardListLoadFailed => 'Couldn\'t load cards';
+
+  @override
+  String get cardListEnd => 'You\'ve seen all the cards.';
+
+  @override
   String get apiErrorNetwork =>
       'The network connection is unstable. Please try again in a moment.';
 }

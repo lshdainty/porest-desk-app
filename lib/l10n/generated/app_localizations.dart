@@ -13418,6 +13418,18 @@ abstract class AppLocalizations {
   /// **'다시 시도'**
   String get dsCommonRetry;
 
+  /// 카드 혜택 목록 첫 쪽을 못 불러왔을 때 Result Section 제목 — 예외 · 서버 글을 붙이지 않는다
+  ///
+  /// In ko, this message translates to:
+  /// **'카드를 불러오지 못했어요'**
+  String get cardListLoadFailed;
+
+  /// 카드 혜택 목록 끝 자리의 끝 글(Infinite List) — 한 쪽이 넘게 받았을 때만
+  ///
+  /// In ko, this message translates to:
+  /// **'카드를 모두 봤어요.'**
+  String get cardListEnd;
+
   /// No description provided for @apiErrorNetwork.
   ///
   /// In ko, this message translates to:
