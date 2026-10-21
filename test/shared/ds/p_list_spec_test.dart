@@ -1116,7 +1116,7 @@ void _kindTests() {
       expect(taps, 2);
     });
 
-    testWidgets('제목 + 설명이 버튼의 이름이고 뒤 붙이개는 따로 읽힌다', (tester) async {
+    testWidgets('제목 + 설명 + 값이 버튼의 이름 하나다(03-D 결정 4 A)', (tester) async {
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(
         _host(
@@ -1138,14 +1138,15 @@ void _kindTests() {
       expect(
         tester.getSemantics(find.bySemanticsLabel(RegExp('기본 통화'))),
         isSemantics(
-          label: '기본 통화\n표시할 통화',
+          label: '기본 통화\n표시할 통화\n대한민국 원',
           isButton: true,
           isEnabled: true,
           hasEnabledState: true,
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('대한민국 원'), findsOneWidget);
+      // 값은 따로 읽히지 않는다 — 줄 하나 = 한 번
+      expect(find.bySemanticsLabel('대한민국 원'), findsNothing);
       expect(
         tester.getSemantics(find.bySemanticsLabel('막힌 줄')),
         isSemantics(
