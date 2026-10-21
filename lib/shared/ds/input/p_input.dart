@@ -92,6 +92,7 @@ class PInput extends PTextControl {
     this.obscureText = false,
     this.autofillHints,
     this.tabularFigures = false,
+    this.placeholderKeepsColorWhenDisabled = false,
   });
 
   final PInputVariant variant;
@@ -120,6 +121,10 @@ class PInput extends PTextControl {
 
   /// 고정폭 숫자 — 자리마다 폭이 같은 숫자(인증 코드 칸 · input-otp.yaml value.numerals). 글자 · 예시 글에 건다.
   final bool tabularFigures;
+
+  /// 막혀도 빈 칸의 글을 fg-placeholder 그대로 둔다 — Input 은 fg-disabled 로 바꾸지만 Input OTP 는
+  /// 그대로다(input-otp.yaml disabled placeholder.foreground, 2026-10-17 사용자 결정 01T-013).
+  final bool placeholderKeepsColorWhenDisabled;
 
   @override
   State<PInput> createState() => _PInputState();
@@ -160,7 +165,8 @@ class _PInputState extends PTextControlState<PInput> {
         : underline && readOnly
         ? c.fgNeutralMuted
         : c.fgNeutral;
-    final placeholderColor = disabled
+    final placeholderColor =
+        disabled && !widget.placeholderKeepsColorWhenDisabled
         ? c.fgDisabled
         : underline && readOnly
         ? c.fgNeutralMuted

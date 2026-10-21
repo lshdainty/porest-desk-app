@@ -148,6 +148,7 @@ class PInputOtp extends StatelessWidget {
     semanticLabel: semanticLabel,
     autofocus: autofocus,
     keyboardType: TextInputType.number,
+    placeholderKeepsColorWhenDisabled: true,
     autofillHints: const [AutofillHints.oneTimeCode],
     inputFormatters: [PInputOtpFormatter(length: length)],
     tabularFigures: true,
