@@ -3,7 +3,10 @@ import 'package:flutter/rendering.dart' show SemanticsValidationResult;
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PTouchTargetScope;
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 동그라미 · 점 · 라벨 · 줄 높이가 함께 정해진다(Checkbox 와 같은 크기 — 한 폼에 함께 서도 줄이 맞는다).
@@ -228,26 +231,30 @@ class PRadioGroup<T> extends StatelessWidget {
     final bad = invalid ?? field?.invalid ?? false;
     final need = required ?? field?.required ?? false;
     final onChanged = off ? null : this.onChanged;
-    return _PRadioGroupScope(
-      enabled: onChanged != null,
-      child: RadioGroup<T>(
-        groupValue: value,
-        onChanged: (next) {
-          if (onChanged == null || next == null || next == value) return;
-          onChanged(next);
-        },
-        // 이름은 RadioGroup 의 묶음 노드에 붙는다(그 안의 선택지는 저마다 노드다)
-        child: Semantics(
-          label: semanticLabel,
-          isRequired: need ? true : null,
-          validationResult: bad
-              ? SemanticsValidationResult.invalid
-              : SemanticsValidationResult.none,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: PSpacing.x3,
-            children: children,
+    // 가장 바깥에서 묶음 밖 6 까지 받는다(첫 · 끝 줄 32 → 44, 03A-010)
+    return PTouchTargetScope(
+      slack: 6,
+      child: _PRadioGroupScope(
+        enabled: onChanged != null,
+        child: RadioGroup<T>(
+          groupValue: value,
+          onChanged: (next) {
+            if (onChanged == null || next == null || next == value) return;
+            onChanged(next);
+          },
+          // 이름은 RadioGroup 의 묶음 노드에 붙는다(그 안의 선택지는 저마다 노드다)
+          child: Semantics(
+            label: semanticLabel,
+            isRequired: need ? true : null,
+            validationResult: bad
+                ? SemanticsValidationResult.invalid
+                : SemanticsValidationResult.none,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: PSpacing.x3,
+              children: children,
+            ),
           ),
         ),
       ),
@@ -377,6 +384,7 @@ class _PRadioState<T> extends State<PRadio<T>> with RadioClient<T> {
       minHeight: s.minHeight,
       onActivate: enabled ? _select : null,
       focusNode: focusNode,
+      ringStyle: const PFocusRingStyle(circle: true),
       semantics: SelectionSemantics(
         checked: selected,
         inMutuallyExclusiveGroup: true,

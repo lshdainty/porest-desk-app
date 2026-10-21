@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
 /// Card 의 부품 — 머리 · 본문 · 지표 · 증감 · 순자산 글. 규칙은 [PCard] 머리 설명이다.
 
@@ -67,10 +69,19 @@ class PTouchTarget extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderTouchTarget extends RenderProxyBox {
+/// 보이는 상자 밖까지 누르는 영역을 넓힌 렌더 객체 — [PTouchTargetScope] 가 찾아 부모 상자 밖의 점을 이어 준다.
+abstract interface class PTouchExtendable implements RenderBox {
+  /// 넓힌 누르는 영역(이 객체의 지역 좌표 — 보이는 상자 밖은 음수 · 큰 값).
+  Rect get touchArea;
+}
+
+class _RenderTouchTarget extends RenderProxyBox implements PTouchExtendable {
   _RenderTouchTarget(this.minSize);
 
   double minSize;
+
+  @override
+  Rect get touchArea => area;
 
   /// 넓힌 누르는 영역 — 보이는 상자에서 모자란 만큼 사방으로.
   Rect get area {
@@ -96,21 +107,45 @@ class _RenderTouchTarget extends RenderProxyBox {
 /// [PTouchTarget] 이 넓힌 누르는 영역을 부모 상자 밖에서도 받게 한다 — 안쪽 [PTouchTarget] 들을 찾아, 보이는 상자 밖 · 넓힌
 /// 영역 안의 점을 그 대상으로 이어 준다(보이는 자리 · 레이아웃은 그대로). Card 가 머리 동작의 44 를 지킨다 — 머리 줄은 32 라
 /// 위아래 6 은 줄 밖이다(Q-011-8, 6B 44 × 44).
+///
+/// [slack] 을 주면 이 상자의 위 · 아래 · 옆으로 그만큼 바깥의 점도 받는다 — 놓인 자리는 그대로이고, 부모가 그 점을 이
+/// 상자에 넘겨 주는 곳(이웃 요소가 있는 부모 안)에서만 쓸모가 있다. 목록 제목 글 버튼(36 → 44 = 4)과 Field 밖 단독 체크 ·
+/// 라디오 묶음(줄 32 → 44 = 6)이 쓴다.
 class PTouchTargetScope extends SingleChildRenderObjectWidget {
-  const PTouchTargetScope({super.key, required super.child});
+  const PTouchTargetScope({super.key, this.slack = 0, required super.child});
+
+  final double slack;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderTouchTargetScope();
+      _RenderTouchTargetScope(slack);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderProxyBox renderObject,
+  ) {
+    (renderObject as _RenderTouchTargetScope).slack = slack;
+  }
 }
 
 class _RenderTouchTargetScope extends RenderProxyBox {
+  _RenderTouchTargetScope(this.slack);
+
+  double slack;
+
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // 이 상자 밖의 점 — 자식이 스스로 넘친 자리를 받는 경우(Field 머리 동작)가 있어 자식에게 그대로 넘긴다
+    if (!(Offset.zero & size).inflate(slack).contains(position)) {
+      return child?.hitTest(result, position: position) ?? false;
+    }
     var extended = false;
-    if (size.contains(position)) {
+    {
       void visit(RenderObject node) {
-        if (node is _RenderTouchTarget) {
+        // 가장 먼저 닿은 하나만 — 이웃 줄의 넓힌 영역이 맞닿아도 한 점은 한 줄만 받는다
+        if (extended) return;
+        if (node is PTouchExtendable) {
           if (!node.attached || !node.hasSize) return;
           final transform = node.getTransformTo(this);
           final det = transform.determinant();
@@ -120,7 +155,9 @@ class _RenderTouchTargetScope extends RenderProxyBox {
             position,
           );
           // 보이는 상자 안은 보통 길로 받는다 — 밖 · 넓힌 영역 안만 여기서 잇는다
-          if (node.size.contains(local) || !node.area.contains(local)) return;
+          if (node.size.contains(local) || !node.touchArea.contains(local)) {
+            return;
+          }
           extended |= result.addWithPaintTransform(
             transform: transform,
             position: position,
@@ -134,7 +171,14 @@ class _RenderTouchTargetScope extends RenderProxyBox {
       visit(this);
     }
     // 대상이 먼저 — 가장 깊은 것이 앞에 와야 제스처 경쟁에서 이긴다
-    return super.hitTest(result, position: position) || extended;
+    // 넓힌 영역으로 이미 받았으면 보통 길은 다시 타지 않는다 — 같은 대상이 두 번 등록되면 제스처가 깨진다
+    if (extended) {
+      result.add(BoxHitTestEntry(this, position));
+      return true;
+    }
+    return size.contains(position)
+        ? super.hitTest(result, position: position)
+        : (child?.hitTest(result, position: position) ?? false);
   }
 }
 
@@ -142,7 +186,7 @@ class _RenderTouchTargetScope extends RenderProxyBox {
 
 /// 머리 — 제목과 오른쪽 동작 한 줄. 글 카드는 카드 여백 안 · 아래 8, 목록 · 아코디언 카드는 위 24 · 좌우 24 · 아래 4.
 ///
-/// [actionLabel] · [onAction] 을 주면 오른쪽에 "전체 보기" 같은 동작이 선다 — 보이는 상자 32 · 누르는 영역 44, 읽는 이름은
+/// [actionLabel] · [onAction] 을 주면 오른쪽에 "전체 보기" 같은 동작이 선다 — 글 버튼(SEED Text Button — 보이는 36 · 누르는 44), 읽는 이름은
 /// "{제목} {글}"(무엇의 동작인지 넣는다 — 글은 부르는 쪽이 넘긴다).
 class PCardHeader extends StatelessWidget {
   const PCardHeader({
@@ -198,117 +242,13 @@ class PCardHeader extends StatelessWidget {
             ),
           ),
           if (actionLabel != null)
-            _CardAction(
+            PTextButton(
               label: actionLabel!,
               semanticLabel: '$title $actionLabel',
-              onTap: onAction!,
+              onPressed: onAction,
+              bleedEnd: true,
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _CardAction extends StatefulWidget {
-  const _CardAction({
-    required this.label,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final String label;
-  final String semanticLabel;
-  final VoidCallback onTap;
-
-  @override
-  State<_CardAction> createState() => _CardActionState();
-}
-
-class _CardActionState extends State<_CardAction> {
-  bool _pressed = false;
-  double _basis = 24;
-
-  void _setPressed(bool value) {
-    if (_pressed == value) return;
-    if (value) {
-      final size = context.size;
-      if (size != null) _basis = cardPressBasis(size);
-    }
-    setState(() => _pressed = value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final shrink = _pressed && !reduceMotion;
-    // 보이는 상자 32 — 누르면 바탕 bg-layer-default-pressed + 2px 거리 축소(글 버튼만, 카드는 그대로)
-    final box = TweenAnimationBuilder<Color?>(
-      tween: ColorTween(
-        end: _pressed
-            ? c.bgLayerDefaultPressed
-            : c.bgLayerDefaultPressed.withValues(alpha: 0),
-      ),
-      duration: PDuration.colorTransition,
-      curve: PEasing.easing,
-      builder: (context, background, child) => Container(
-        key: const ValueKey('card-action-box'),
-        height: 32,
-        padding: const EdgeInsets.only(left: PSpacing.x2, right: PSpacing.x1),
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(PRounded.r2),
-        ),
-        child: child,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: PSpacing.x0_5,
-        children: [
-          Text(
-            widget.label,
-            maxLines: 1,
-            softWrap: false,
-            style: PTypography.t4.copyWith(
-              color: c.fgNeutralSubtle,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          ExcludeSemantics(
-            child: Icon(
-              LucideIcons.chevronRight,
-              size: 16,
-              color: c.fgNeutralSubtle,
-            ),
-          ),
-        ],
-      ),
-    );
-    return PTouchTarget(
-      minSize: PTouch.min,
-      child: Semantics(
-        container: true,
-        button: true,
-        label: widget.semanticLabel,
-        excludeSemantics: true,
-        onTap: widget.onTap,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (_) => _setPressed(true),
-          onTapUp: (_) => _setPressed(false),
-          onTapCancel: () => _setPressed(false),
-          onTap: widget.onTap,
-          excludeFromSemantics: true,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: AnimatedScale(
-              scale: shrink ? (_basis - 2) / _basis : 1,
-              duration: PDuration.pressedScale,
-              curve: PEasing.pressedScale,
-              child: box,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -344,16 +284,26 @@ String unsignedDelta(String value) =>
 
 /// 보조 기술이 읽는 기본 문장 — "{text} {value} 늘었어요 · 줄었어요"(flat 은 "{text} 변화가 없어요").
 @visibleForTesting
-String deltaSentence(PDeltaDirection direction, String? value, String? text) {
+String deltaSentence(
+  PDeltaDirection direction,
+  String? value,
+  String? text, {
+  AppLocalizations? l10n,
+}) {
   final base = (text ?? '').trim();
   if (direction == PDeltaDirection.flat) {
-    return [base, '변화가 없어요'].where((s) => s.isNotEmpty).join(' ');
+    return [
+      base,
+      l10n?.dsDeltaNoChangeSentence ?? '변화가 없어요',
+    ].where((s) => s.isNotEmpty).join(' ');
   }
   final amount = unsignedDelta(value ?? '').trim();
   return [
     base,
     amount,
-    direction == PDeltaDirection.up ? '늘었어요' : '줄었어요',
+    direction == PDeltaDirection.up
+        ? (l10n?.dsDeltaIncreased ?? '늘었어요')
+        : (l10n?.dsDeltaDecreased ?? '줄었어요'),
   ].where((s) => s.isNotEmpty).join(' ');
 }
 
@@ -399,11 +349,12 @@ class PDelta extends StatelessWidget {
       PDeltaDirection.flat => null,
     };
     final shown = arrow == null
-        ? '변화 없음'
+        ? (dsL(context)?.dsDeltaNone ?? '변화 없음')
         : '$arrow ${unsignedDelta(value ?? '')}'.trimRight();
     return Semantics(
       container: true,
-      label: srText ?? deltaSentence(direction, value, text),
+      label:
+          srText ?? deltaSentence(direction, value, text, l10n: dsL(context)),
       excludeSemantics: true,
       child: Wrap(
         spacing: PSpacing.x1,

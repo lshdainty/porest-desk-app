@@ -156,39 +156,37 @@ class _AccordionRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Opacity(
-            opacity: disabled ? 0.5 : 1,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: disabled ? null : onToggle,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.title,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.titleSm,
-                            fontWeight: PFontWeight.medium,
-                            color: t.fgPrimary,
-                          ),
+          // 막힘은 불투명도가 아니라 글자 · 아이콘 전용 색(STA-01, 01A-071)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: disabled ? null : onToggle,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.title,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: PFontSize.titleSm,
+                          fontWeight: PFontWeight.medium,
+                          color: disabled ? t.fgDisabled : t.fgPrimary,
                         ),
                       ),
-                      AnimatedRotation(
-                        duration: PMotion.base,
-                        curve: PMotion.standard,
-                        turns: open ? 0.5 : 0,
-                        child: Icon(
-                          LucideIcons.chevronDown,
-                          size: 16,
-                          color: t.fgSecondary,
-                        ),
+                    ),
+                    AnimatedRotation(
+                      duration: PMotion.base,
+                      curve: PMotion.standard,
+                      turns: open ? 0.5 : 0,
+                      child: Icon(
+                        LucideIcons.chevronDown,
+                        size: 16,
+                        color: disabled ? t.fgDisabled : t.fgSecondary,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

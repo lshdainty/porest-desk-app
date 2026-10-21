@@ -620,7 +620,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           child: Text(
             _nicknameError ?? '${_nicknameTrim.length}/$_kNicknameMax',
             style: PTypo.micro.copyWith(
-              color: _nicknameError != null ? t.fgExpense : t.fgTertiary,
+              color: _nicknameError != null ? t.statusDangerFg : t.fgTertiary,
             ),
           ),
         ),

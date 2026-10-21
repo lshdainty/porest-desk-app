@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/core/format/currency.dart';
@@ -26,7 +28,7 @@ class AppearanceScreen extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -36,12 +38,14 @@ class AppearanceScreen extends StatelessWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x24,
-          vertical: PSpace.x24,
+      body: PScreenBandBody(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x24,
+            vertical: PSpace.x24,
+          ),
+          children: const [AppearanceSection()],
         ),
-        children: const [AppearanceSection()],
       ),
     );
   }

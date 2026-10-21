@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -102,7 +104,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     final now = ref.watch(nowTickProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -112,64 +114,66 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(deviceSessionListProvider);
-          await ref.read(deviceSessionListProvider.future);
-        },
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24,
-            vertical: PSpace.x24,
-          ),
-          children: [
-            Text(
-              l.devicesIntro,
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5),
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(deviceSessionListProvider);
+            await ref.read(deviceSessionListProvider.future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
             ),
-            const SizedBox(height: PSpace.x24),
-            listAsync.when(
-              loading: () => const PListSkeleton(rows: 3, showAvatar: true),
-              error: (e, _) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text(
-                  '${l.devicesLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-                ),
+            children: [
+              Text(
+                l.devicesIntro,
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5),
               ),
-              data: (devices) => devices.isEmpty
-                  ? PEmptyState(
-                      icon: LucideIcons.monitorOff,
-                      message: l.devicesEmpty,
-                    )
-                  : Column(
-                      children: [
-                        for (var i = 0; i < devices.length; i++) ...[
-                          if (i > 0) const PDivider(),
-                          _DeviceRow(
-                            device: devices[i],
-                            tokens: t,
-                            now: now,
-                            busy: _revoking == devices[i].sessionId,
-                            onRevoke: () => _revoke(devices[i]),
+              const SizedBox(height: PSpace.x24),
+              listAsync.when(
+                loading: () => const PListSkeleton(rows: 3, showAvatar: true),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                  child: Text(
+                    '${l.devicesLoadError}\n$e',
+                    style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                  ),
+                ),
+                data: (devices) => devices.isEmpty
+                    ? PEmptyState(
+                        icon: LucideIcons.monitorOff,
+                        message: l.devicesEmpty,
+                      )
+                    : Column(
+                        children: [
+                          for (var i = 0; i < devices.length; i++) ...[
+                            if (i > 0) const PDivider(),
+                            _DeviceRow(
+                              device: devices[i],
+                              tokens: t,
+                              now: now,
+                              busy: _revoking == devices[i].sessionId,
+                              onRevoke: () => _revoke(devices[i]),
+                            ),
+                          ],
+                          const SizedBox(height: PSpace.x32),
+                          // 비상 버튼이라 목록 아래에 둔다 — 위에 두면 기기 하나만
+                          // 끊으려던 손이 먼저 닿는다.
+                          PButton(
+                            label: l.devicesLogoutAll,
+                            variant: PButtonVariant.dangerSoft,
+                            size: PButtonSize.md,
+                            fullWidth: true,
+                            onPressed: _revokeAll,
                           ),
                         ],
-                        const SizedBox(height: PSpace.x32),
-                        // 비상 버튼이라 목록 아래에 둔다 — 위에 두면 기기 하나만
-                        // 끊으려던 손이 먼저 닿는다.
-                        PButton(
-                          label: l.devicesLogoutAll,
-                          variant: PButtonVariant.dangerSoft,
-                          size: PButtonSize.md,
-                          fullWidth: true,
-                          onPressed: _revokeAll,
-                        ),
-                      ],
-                    ),
-            ),
-            const SizedBox(height: PSpace.x32),
-          ],
+                      ),
+              ),
+              const SizedBox(height: PSpace.x32),
+            ],
+          ),
         ),
       ),
     );
@@ -298,7 +302,5 @@ String? _relativeTime(AppLocalizations l, String? iso, DateTime now) {
   final d = diff.inDays;
   if (d == 1) return l.dateYesterday;
   if (d < 7) return l.dateDaysAgo(d);
-  final mm = dt.month.toString().padLeft(2, '0');
-  final dd = dt.day.toString().padLeft(2, '0');
-  return '${dt.year}-$mm-$dd';
+  return formatDay(dt).md;
 }

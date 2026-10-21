@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -33,7 +35,7 @@ class UpdateScreen extends ConsumerWidget {
     final statusAsync = ref.watch(updateStatusProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         backgroundColor: t.bgCanvas,
         elevation: 0,
@@ -46,11 +48,13 @@ class UpdateScreen extends ConsumerWidget {
           ),
         ),
       ),
-      body: statusAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        // 서버를 못 읽어도 화면은 뜬다 — 지금 버전만이라도 보여 준다.
-        error: (_, _) => const _Body(status: null),
-        data: (s) => _Body(status: s),
+      body: PScreenBandBody(
+        child: statusAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          // 서버를 못 읽어도 화면은 뜬다 — 지금 버전만이라도 보여 준다.
+          error: (_, _) => const _Body(status: null),
+          data: (s) => _Body(status: s),
+        ),
       ),
     );
   }

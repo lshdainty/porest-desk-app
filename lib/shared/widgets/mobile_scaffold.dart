@@ -3,17 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
-import 'package:groo_damda_app/shared/widgets/mobile_header.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
+import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
-/// 모바일 셸 — 헤더 + 본문(navigationShell) + 5칸 탭바.
-/// FAB 는 [MobileTabBar] 안에 인라인.
+/// 홈 · 가계부 · 캘린더 · 전체 — 탭 칸 순서 = branch index(캘린더 2 · 전체 3).
+const int _kBranchCalendar = 2;
+
+/// 모바일 셸 — 상단 바 + (가계부면 Line Tabs) + 본문(navigationShell) + 떠 있는 하단 탭 바.
+/// `+` 는 [PBottomNavigation] 가운데 칸이다.
 class MobileScaffold extends ConsumerStatefulWidget {
   const MobileScaffold({required this.navigationShell, super.key});
   final StatefulNavigationShell navigationShell;
@@ -25,7 +30,37 @@ class MobileScaffold extends ConsumerStatefulWidget {
 class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
   String? _lastPath;
   // iOS 27 Liquid Glass tabBarMinimizeBehavior — 스크롤 방향 누적 판정.
-  final PTabBarCompactController _tabBarCompact = PTabBarCompactController();
+  final PBottomNavigationController _tabBarCompact =
+      PBottomNavigationController();
+
+  // branch 마다 마지막으로 스크롤한 세로 위치 — 탭을 다시 누르면 맨 위로 올린다.
+  final Map<int, ScrollPosition> _positions = {};
+
+  @override
+  void dispose() {
+    _tabBarCompact.dispose();
+    super.dispose();
+  }
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.metrics.axis == Axis.vertical && n is! ScrollEndNotification) {
+      final ctx = n.context;
+      final position = ctx == null ? null : Scrollable.maybeOf(ctx)?.position;
+      if (position != null) {
+        _positions[widget.navigationShell.currentIndex] = position;
+      }
+    }
+    return _tabBarCompact.handleScroll(n);
+  }
+
+  /// 지금 탭을 다시 눌렀다 — 첫 화면이 아니면 첫 화면으로, 그리고 맨 위로.
+  void _reselect(int branch) {
+    widget.navigationShell.goBranch(branch, initialLocation: true);
+    final position = _positions[branch];
+    if (position != null && position.hasPixels && position.pixels > 0) {
+      position.animateTo(0, duration: PDuration.d4, curve: PEasing.easing);
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -33,7 +68,9 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     // 셸(IndexedStack) 화면은 계속 mount 되어 initState 진입 갱신이 안 되므로,
     // 라우트가 바뀔 때 진입 경로가 watch 하는 keepAlive provider 를 갱신한다.
     // build 직전 호출이라 provider 변경은 microtask 로 다음 프레임에 미룬다.
-    final path = GoRouterState.of(context).matchedLocation;
+    final router = GoRouterState.of(context);
+    // 가계부 묶음(/expense)은 고른 탭의 경로로 적는다 — 탭이 바뀌어도 이 자리가 다시 돈다.
+    final path = shellActivePath(router.uri, router.matchedLocation);
     if (path != _lastPath) {
       _lastPath = path;
       Future.microtask(() {
@@ -50,39 +87,37 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final navigationShell = widget.navigationShell;
     final idx = navigationShell.currentIndex;
-    // 가계부 branch (idx=1) 는 money sub-nav 표시 — ← / 가계부 / 자산 / 통계 / 예산.
-    // 다른 branch 는 기본 5칸 (홈 / 가계부 / + / 캘린더 / 전체).
-    final isMoneyBranch = idx == 1;
-    // money branch 안 path 별 sub-tab 분기 — shell scaffold 가 한 번 build 되어
-    // 4 sub-tab 전환 시에도 bottom bar 가 안 끊김 (사라졌다 다시 안 나타남).
-    final routePath = GoRouterState.of(context).matchedLocation;
-    // shell appBar title — money branch 의 4 path 별 분기 (각 screen 자체 AppBar
-    // 제거됨 — actions(theme/eye/bell/search) 는 모든 path 에서 MobileHeader 가 일관 표시).
+    final unread = ref.watch(unreadCountProvider).value ?? 0;
+
+    // 제목은 탭 이름 — 가계부 안 네 화면은 Line Tabs 가 가르므로 제목은 늘 "가계부".
     final titles = [l.navHome, l.navExpense, l.navCalendar, l.navMore];
-    final title = isMoneyBranch
-        ? switch (routePath) {
-            '/assets' => l.navAsset,
-            '/stats' => l.moreItemStats,
-            '/budget' => l.navBudget,
-            _ => l.navExpense,
-          }
-        : titles[idx];
-    void goMoney(String target) {
-      if (target != routePath) context.go(target);
-    }
 
     void onAddTx() {
-      if (idx == 2) {
+      if (idx == _kBranchCalendar) {
         // 캘린더 탭 — 일정 등록
         showCalendarEventDialog(context, defaultDate: DateTime.now());
       } else {
         showAddTxSheet(context);
       }
     }
+
+    PBottomNavigationItem item(
+      int branch,
+      IconData icon,
+      IconData selectedIcon,
+      String label,
+    ) => PBottomNavigationItem(
+      icon: icon,
+      selectedIcon: selectedIcon,
+      label: label,
+      current: idx == branch,
+      onTap: () => navigationShell.goBranch(branch),
+      onReselect: () => _reselect(branch),
+    );
 
     // 기기(제스처·하드웨어) 뒤로가기는 여기가 아니라 **branch 안 화면**이 받는다 —
     // lib/shared/widgets/branch_back_to_home.dart 의 BranchBackToHome 이고,
@@ -92,82 +127,76 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     // (OnBackInvokedCallback)에서는 앱이 그대로 꺼졌다.** 이유와 근거는 그 위젯의
     // 주석에 있다. 두 겹으로 두면 어느 쪽이 진짜인지 헷갈려 여기서는 걷었다.
     return Scaffold(
-      backgroundColor: t.bgSurface,
-      // Liquid Glass 플로팅 탭바 — 콘텐츠가 바 뒤로 지나가며 블러에 비친다.
-      extendBody: true,
-      // 헤더 아이콘은 페이지당 1개 — 홈=알림 벨, 그 외=검색 (클로드 디자인 정합).
-      appBar: MobileHeader(
-        title: title,
-        trailingIcon: idx == 0 ? LucideIcons.bell : LucideIcons.search,
-      ),
-      body: NotificationListener<ScrollNotification>(
-        onNotification: _tabBarCompact.onScroll,
-        child: navigationShell,
-      ),
-      // 한 인스턴스로 두 모드를 렌더 — 모드 전환 스태거 안무(공유 탭 = 가계부).
-      bottomNavigationBar: PTabBar(
-        controller: _tabBarCompact,
-        modeKey: isMoneyBranch ? 'money' : 'default',
-        sharedIndexes: const {1},
-        children: isMoneyBranch
-            ? [
-                PTabBarBack(onTap: () => navigationShell.goBranch(0)),
-                PTabBarItem(
-                  icon: LucideIcons.receiptText,
-                  label: l.navExpense,
-                  selected: routePath == '/expense',
-                  onTap: () => goMoney('/expense'),
+      backgroundColor: c.bgLayerBasement,
+      body: Stack(
+        children: [
+          // 본문 — 상단 바 아래. 읽는 순서상 상단 바보다 **먼저** 그린다: 안쪽 Navigator 의
+          // 경로가 앞서 그려진 형제를 가리는(BlockSemantics) 탓에, 상단 바를 본문 앞에 두면
+          // 제목 · 검색 · 알림이 낭독 트리에서 통째로 사라진다.
+          Positioned.fill(
+            top: PTopNavigation.heightOf(context),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: navigationShell,
+            ),
+          ),
+          // 오른쪽 — 홈은 검색 + 알림, 그 외는 검색(임시 선택, Q-017).
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: PTopNavigation(
+              type: PTopNavigationType.root,
+              title: titles[idx],
+              actions: [
+                PTopNavigationIconButton(
+                  icon: LucideIcons.search,
+                  label: l.actionSearch,
+                  onPressed: () => context.push('/search'),
                 ),
-                PTabBarItem(
-                  icon: LucideIcons.wallet,
-                  label: l.navAsset,
-                  selected: routePath == '/assets',
-                  onTap: () => goMoney('/assets'),
-                ),
-                PTabBarItem(
-                  icon: LucideIcons.chartPie,
-                  label: l.moreItemStats,
-                  selected: routePath == '/stats',
-                  onTap: () => goMoney('/stats'),
-                ),
-                PTabBarItem(
-                  icon: LucideIcons.filePen,
-                  label: l.navBudget,
-                  selected: routePath == '/budget',
-                  onTap: () => goMoney('/budget'),
-                ),
-              ]
-            : [
-                PTabBarItem(
-                  icon: LucideIcons.home,
-                  label: l.navHome,
-                  selected: idx == 0,
-                  onTap: () =>
-                      navigationShell.goBranch(0, initialLocation: idx == 0),
-                ),
-                PTabBarItem(
-                  icon: LucideIcons.receiptText,
-                  label: l.navExpense,
-                  selected: idx == 1,
-                  onTap: () =>
-                      navigationShell.goBranch(1, initialLocation: idx == 1),
-                ),
-                PTabBarFab(onTap: onAddTx),
-                PTabBarItem(
-                  icon: LucideIcons.calendar1,
-                  label: l.navCalendar,
-                  selected: idx == 2,
-                  onTap: () =>
-                      navigationShell.goBranch(2, initialLocation: idx == 2),
-                ),
-                PTabBarItem(
-                  icon: LucideIcons.menu,
-                  label: l.navMore,
-                  selected: idx == 3,
-                  onTap: () =>
-                      navigationShell.goBranch(3, initialLocation: idx == 3),
-                ),
+                if (idx == 0)
+                  PTopNavigationIconButton(
+                    icon: LucideIcons.bell,
+                    label: unread > 0
+                        ? l.navNotificationsNew
+                        : l.navNotifications,
+                    notification: unread > 0,
+                    onPressed: () => context.push('/notifications'),
+                  ),
               ],
+            ),
+          ),
+          // 떠 있는 알약 — 본문 위에 얹는다. 여백은 바가 가진다.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: PBottomNavigation(
+              semanticLabel: l.navMainMenu,
+              controller: _tabBarCompact,
+              items: [
+                item(0, LucideIcons.house, LucideIcons.house500, l.navHome),
+                item(
+                  1,
+                  LucideIcons.receiptText,
+                  LucideIcons.receiptText500,
+                  l.navExpense,
+                ),
+                item(
+                  _kBranchCalendar,
+                  LucideIcons.calendar1,
+                  LucideIcons.calendar1500,
+                  l.navCalendar,
+                ),
+                item(3, LucideIcons.menu, LucideIcons.menu500, l.navMore),
+              ],
+              add: PBottomNavigationAdd(
+                label: idx == _kBranchCalendar ? l.calEventAdd : l.expAdd,
+                onPressed: onAddTx,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -47,96 +47,94 @@ class PTile extends StatelessWidget {
     final t = context.tokens;
     final (padX, padY, swatchSize, gap, checkSize) = _metrics;
     final disabled = onTap == null;
-    return Opacity(
-      opacity: disabled ? 0.5 : 1,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: PRadius.brLg,
-          child: AnimatedContainer(
-            duration: PMotion.fast,
-            curve: PMotion.standard,
-            padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-            decoration: BoxDecoration(
-              // 카드 다이어트(사용자 결정) — 미선택은 투명(카드/그림자 없음), 선택만
-              // brand 보더 + subtle 틴트. desk-front TileItem 동일 수정과 세트.
-              color: selected ? t.bgBrandSubtle : Colors.transparent,
-              borderRadius: PRadius.brLg,
-              border: Border.all(
-                color: selected ? t.borderBrand : Colors.transparent,
-                width: selected ? 1.5 : 1,
-              ),
+    // 막힘은 불투명도가 아니라 글자 전용 색(STA-01, 01A-071)
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: PRadius.brLg,
+        child: AnimatedContainer(
+          duration: PMotion.fast,
+          curve: PMotion.standard,
+          padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
+          decoration: BoxDecoration(
+            // 카드 다이어트(사용자 결정) — 미선택은 투명(카드/그림자 없음), 선택만
+            // brand 보더 + subtle 틴트. desk-front TileItem 동일 수정과 세트.
+            color: selected ? t.bgBrandSubtle : Colors.transparent,
+            borderRadius: PRadius.brLg,
+            border: Border.all(
+              color: selected ? t.borderBrand : Colors.transparent,
+              width: selected ? 1.5 : 1,
             ),
-            // 세로 스택 타일(사용자 결정, 클로드 디자인) — swatch 위 중앙 + 라벨/설명 중앙,
-            // 체크는 우상단. desk-front TileItem 동일 수정과 세트.
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: SizedBox(
-                        width: swatchSize,
-                        height: swatchSize,
-                        child: ClipRRect(
-                          borderRadius: PRadius.brLg,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: t.borderSubtle),
-                              borderRadius: PRadius.brLg,
-                            ),
-                            child: swatch,
+          ),
+          // 세로 스택 타일(사용자 결정, 클로드 디자인) — swatch 위 중앙 + 라벨/설명 중앙,
+          // 체크는 우상단. desk-front TileItem 동일 수정과 세트.
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: SizedBox(
+                      width: swatchSize,
+                      height: swatchSize,
+                      child: ClipRRect(
+                        borderRadius: PRadius.brLg,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: t.borderSubtle),
+                            borderRadius: PRadius.brLg,
                           ),
+                          child: swatch,
                         ),
                       ),
                     ),
-                    SizedBox(height: gap),
+                  ),
+                  SizedBox(height: gap),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.body,
+                      fontWeight: PFontWeight.semi,
+                      color: disabled ? t.fgDisabled : t.fgPrimary,
+                    ),
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: 2),
                     Text(
-                      label,
+                      description!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: PTypo.sans,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.semi,
-                        color: t.fgPrimary,
+                        fontSize: PFontSize.caption,
+                        fontWeight: PFontWeight.regular,
+                        color: disabled ? t.fgDisabled : t.fgTertiary,
                       ),
                     ),
-                    if (description != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        description!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: PFontSize.caption,
-                          fontWeight: PFontWeight.regular,
-                          color: t.fgTertiary,
-                        ),
-                      ),
-                    ],
                   ],
-                ),
-                if (selected)
-                  Positioned(
-                    // web(top-2 right-2 = 타일 모서리 기준 8px) 정합 — Stack 이
-                    // padding 안이라 패딩만큼 당겨 모서리 기준으로 배치.
-                    top: 8 - padY,
-                    right: 8 - padX,
-                    child: Icon(
-                      LucideIcons.check,
-                      size: checkSize,
-                      color: t.fgBrand,
-                    ),
+                ],
+              ),
+              if (selected)
+                Positioned(
+                  // web(top-2 right-2 = 타일 모서리 기준 8px) 정합 — Stack 이
+                  // padding 안이라 패딩만큼 당겨 모서리 기준으로 배치.
+                  top: 8 - padY,
+                  right: 8 - padX,
+                  child: Icon(
+                    LucideIcons.check,
+                    size: checkSize,
+                    color: t.fgBrand,
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),

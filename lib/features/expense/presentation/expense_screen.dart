@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
@@ -37,7 +39,6 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/transfer_ro
 import 'package:groo_damda_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
@@ -250,8 +251,15 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     });
   }
 
+  /// 흰 화면 — 가계부 거래 목록만 바닥(basement) 없이 흰 면 하나다(02-005 / Q-019-3).
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ColoredBox(
+    key: const ValueKey('expense-white-screen'),
+    color: context.colors.bgLayerDefault,
+    child: _buildBody(context),
+  );
+
+  Widget _buildBody(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final categoriesAsync = ref.watch(categoriesProvider);
@@ -714,7 +722,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             pin,
             Expanded(
               child: RefreshIndicator(
-                color: t.bgBrand,
+                color: t.fgBrand,
                 onRefresh: () async {
                   ref.invalidate(monthExpensesProvider(_key));
                   await ref.read(monthExpensesProvider(_key).future);
@@ -727,7 +735,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     PSpace.x24,
                     0,
                     PSpace.x24,
-                    pTabBarBottomInset(context),
+                    bottomNavigationInset(context),
                   ),
                   children: listChildren,
                 ),
@@ -806,7 +814,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   : l.txmInsightMoreHl(amount),
               style: TextStyle(
                 fontWeight: PFontWeight.bold,
-                color: less ? t.fgBrand : t.fgExpense,
+                color: less ? t.statusInfoFg : t.statusDangerFg,
               ),
             ),
             TextSpan(text: less ? l.txmInsightLessPost : l.txmInsightMorePost),
@@ -1087,7 +1095,7 @@ class _TxmCalendar extends StatelessWidget {
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
       // 일요일 — 캘린더 화면 정합(fgExpense, 사용자 결정)
-      if (dow == 0) return t.fgExpense;
+      if (dow == 0) return t.statusDangerFg;
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -1233,7 +1241,7 @@ class _TxmCalendar extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? t.statusDangerFg
                             : i == 6
                             ? t.fgBrand
                             : t.fgPrimary,

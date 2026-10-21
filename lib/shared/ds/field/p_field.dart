@@ -10,6 +10,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PTouchTargetScope;
 
 /// 라벨 굵기 — 한 폼 안에서 섞지 않는다.
 enum PFieldLabelWeight {
@@ -366,34 +368,37 @@ class _PFieldState extends State<PField> implements PFieldLink {
       );
     }
 
-    return PFieldScope(
-      data: data,
-      link: this,
-      child: _FieldLayout(
-        edgeInset: widget.edgeInset,
-        label: label == null
-            ? null
-            : _FieldLabel(
-                text: label,
-                weight: widget.labelWeight,
-                indicator: widget.indicator,
-                onTap: _focusControl,
-              ),
-        actionIsButton: widget.headerTrailing == null,
-        action:
-            widget.headerTrailing ??
-            (action == null
-                ? null
-                : PButton(
-                    label: action.label,
-                    onPressed: action.onPressed,
-                    variant: PButtonVariant.ghost,
-                    ghostColor: PButtonGhostColor.neutralSubtle,
-                    size: PButtonSize.xsmall,
-                    flush: PButtonFlush.right,
-                  )),
-        control: widget.child,
-        footer: footer,
+    // 묶음(체크 · 라디오)의 맨 위 · 맨 아래 줄은 Field 안의 여백까지 44 로 눌린다(03A-010)
+    return PTouchTargetScope(
+      child: PFieldScope(
+        data: data,
+        link: this,
+        child: _FieldLayout(
+          edgeInset: widget.edgeInset,
+          label: label == null
+              ? null
+              : _FieldLabel(
+                  text: label,
+                  weight: widget.labelWeight,
+                  indicator: widget.indicator,
+                  onTap: _focusControl,
+                ),
+          actionIsButton: widget.headerTrailing == null,
+          action:
+              widget.headerTrailing ??
+              (action == null
+                  ? null
+                  : PButton(
+                      label: action.label,
+                      onPressed: action.onPressed,
+                      variant: PButtonVariant.ghost,
+                      ghostColor: PButtonGhostColor.neutralSubtle,
+                      size: PButtonSize.xsmall,
+                      flush: PButtonFlush.right,
+                    )),
+          control: widget.child,
+          footer: footer,
+        ),
       ),
     );
   }

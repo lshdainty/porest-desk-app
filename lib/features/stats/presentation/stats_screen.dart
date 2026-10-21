@@ -1,3 +1,5 @@
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -8,6 +10,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_axis.dart';
@@ -19,6 +22,8 @@ import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/app/theme/chart_palette.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PDelta, PDeltaDirection;
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:groo_damda_app/shared/widgets/p_chip.dart';
@@ -34,7 +39,6 @@ import 'package:groo_damda_app/features/stats/domain/fixed_split.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/stats/presentation/fixed_variable_tab.dart';
 import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 통계·분석 화면 (front `StatsPage` 미러).
 ///
@@ -378,7 +382,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      // 카드 화면 — 회색 바닥(basement) 위 카드(02-005 / Q-019-3)
+      backgroundColor: context.colors.bgLayerBasement,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='통계·분석' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: Column(
@@ -465,7 +470,7 @@ class _CategoryTab extends ConsumerWidget {
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
 
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(
@@ -481,13 +486,11 @@ class _CategoryTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-category'),
-        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
-          // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          // 떠 있는 하단 바 보상
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           _DonutCard(
@@ -496,25 +499,27 @@ class _CategoryTab extends ConsumerWidget {
             categoriesAsync: categoriesAsync,
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _TopMerchantsCard(
             async: merchantAsync,
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _HeatmapCard(
             async: heatmapAsync,
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
-          const SizedBox(height: PSpace.x32),
-          _HighlightsGrid(
-            state: state,
-            rangeAsync: rangeAsync,
-            categoriesAsync: categoriesAsync,
-            merchantAsync: merchantAsync,
-            expensesAsync: expensesAsync,
-            prevRangeAsync: prevRangeAsync,
-            masked: ref.watch(hideCardProvider('stats.category')),
+          const SizedBox(height: PSpacing.x2),
+          _Card(
+            child: _HighlightsGrid(
+              state: state,
+              rangeAsync: rangeAsync,
+              categoriesAsync: categoriesAsync,
+              merchantAsync: merchantAsync,
+              expensesAsync: expensesAsync,
+              prevRangeAsync: prevRangeAsync,
+              masked: ref.watch(hideCardProvider('stats.category')),
+            ),
           ),
         ],
       ),
@@ -533,7 +538,7 @@ class _TrendTab extends ConsumerWidget {
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final monthExpAsync = ref.watch(rangeExpensesProvider(state._range));
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._range));
@@ -542,13 +547,11 @@ class _TrendTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-trend'),
-        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
-          // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          // 떠 있는 하단 바 보상
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           _TrendBigCard(
@@ -556,13 +559,13 @@ class _TrendTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _SavingsRateCard(
             state: state,
             rangeAsync: rangeAsync,
             masked: ref.watch(hideCardProvider('stats.trend')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _SavingsBarsCard(
             state: state,
             rangeAsync: rangeAsync,
@@ -571,7 +574,7 @@ class _TrendTab extends ConsumerWidget {
           // 카테고리 월별 추이는 여러 달(2+)일 때만 노출 — 단일 월은 카테고리 탭 도넛이
           // 담당(web showCatTrend: monthlyBuckets >= 2 정합).
           if (((rangeAsync.value?.monthlyBuckets.length) ?? 0) >= 2) ...[
-            const SizedBox(height: PSpace.x32),
+            const SizedBox(height: PSpacing.x2),
             _CatTrendCard(state: state, rangeAsync: rangeAsync),
           ],
         ],
@@ -595,7 +598,7 @@ class _CompareTab extends ConsumerWidget {
     final nowExpAsync = ref.watch(rangeExpensesProvider(state._range));
     final prevExpAsync = ref.watch(rangeExpensesProvider(state._prevRangeKey));
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
@@ -606,13 +609,11 @@ class _CompareTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-compare'),
-        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
-          // 플로팅 탭바 보상
-          pTabBarBottomInset(context),
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          // 떠 있는 하단 바 보상
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           _CompareSummaryGrid(
@@ -621,7 +622,7 @@ class _CompareTab extends ConsumerWidget {
             prevRangeAsync: prevRangeAsync,
             masked: ref.watch(hideCardProvider('stats.compare')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _CompareMetricsCard(
             state: state,
             rangeAsync: rangeAsync,
@@ -630,14 +631,14 @@ class _CompareTab extends ConsumerWidget {
             prevExpAsync: prevExpAsync,
             masked: ref.watch(hideCardProvider('stats.compare')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _CompareCategoryCard(
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
             categoriesAsync: categoriesAsync,
             masked: ref.watch(hideCardProvider('stats.compare')),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           _CompareWeekdayCard(
             state: state,
             nowExpAsync: nowExpAsync,
@@ -652,16 +653,12 @@ class _CompareTab extends ConsumerWidget {
 
 // ─── 공용 위젯 ─────────────────────────────────────────────
 
-/// 섹션 컨테이너 — 카드 다이어트(design app.css `.m-scroll .p-card` 플랫):
-/// 카드 배경/그림자/radius 없이 통과만 한다. 섹션 내부 헤더는 각 섹션이 자체
-/// 렌더 — 섹션 사이 여백(32)이 구분을 담당한다.
+/// 통계 구역 하나 — 폰에는 카드 화면이 없다(I-01 결정 3). 화면 폭 흰 띠 · 안쪽 24 · 띠 사이 8.
 class _Card extends StatelessWidget {
-  // 좌우 여백은 탭 ListView 가 한 번만 쥔다(24). 제목도 행도 여기서 시작하므로
-  // 섹션이 따로 inset 을 얹지 않는다 — 얹으면 제목만 밖으로 튀어나온다.
   const _Card({required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => child;
+  Widget build(BuildContext context) => PScreenSection(child: child);
 }
 
 /// 카테고리 카드 우측 trigger — 가계부 FilterDialog 패턴 정합.
@@ -1384,6 +1381,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                 total: total,
                 masked: widget.masked,
                 clickable: !isDrilled && view[i].hasChildren,
+                reserveChevron: !isDrilled && view.any((r) => r.hasChildren),
                 onTap: !isDrilled && view[i].hasChildren
                     ? () => setState(() => _activeParentId = view[i].rowId)
                     : null,
@@ -1402,6 +1400,7 @@ class _DonutLegendRow extends StatelessWidget {
     required this.total,
     required this.masked,
     required this.clickable,
+    required this.reserveChevron,
     required this.onTap,
   });
   final _DonutRow row;
@@ -1409,6 +1408,10 @@ class _DonutLegendRow extends StatelessWidget {
   final int total;
   final bool masked;
   final bool clickable;
+
+  /// 목록에 화살표가 하나라도 뜨면 모든 줄이 그 자리를 잡는다(금액 끝을 맞춘다). 하나도 없으면 자리를
+  /// 잡지 않아 금액이 줄 끝에 붙는다.
+  final bool reserveChevron;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
@@ -1455,20 +1458,22 @@ class _DonutLegendRow extends StatelessWidget {
                 fontWeight: PFontWeight.bold,
               ),
             ),
-            const SizedBox(width: PSpace.x4),
-            // 화살표는 하위 카테고리가 있을 때만 뜬다. 자리는 늘 잡아 둔다 —
-            // 조건부로 넣으면 금액 오른쪽 끝이 행마다 달라져 목록이 들쭉날쭉해진다.
+            // 화살표는 하위 카테고리가 있을 때만 뜬다. 목록에 하나라도 있으면 모든 줄이 자리를 잡는다 —
+            // 줄마다 넣고 빼면 금액 오른쪽 끝이 들쭉날쭉해진다. 하나도 없으면 금액이 줄 끝(띠 안 24)에 선다.
             // 폭은 아이콘 크기와 같아야 해서 spacing 토큰이 아니라 그 값을 그대로 쓴다.
-            SizedBox(
-              width: 13,
-              child: clickable
-                  ? Icon(
-                      LucideIcons.chevronRight,
-                      size: 13,
-                      color: t.fgTertiary,
-                    )
-                  : null,
-            ),
+            if (reserveChevron) ...[
+              const SizedBox(width: PSpace.x4),
+              SizedBox(
+                width: 13,
+                child: clickable
+                    ? Icon(
+                        LucideIcons.chevronRight,
+                        size: 13,
+                        color: t.fgTertiary,
+                      )
+                    : null,
+              ),
+            ],
           ],
         ),
       ),
@@ -1594,13 +1599,27 @@ class _HeatmapRow {
 }
 
 const _heatRows = [
-  _HeatmapRow('06–10시', [6, 7, 8, 9]),
-  _HeatmapRow('10–14시', [10, 11, 12, 13]),
-  _HeatmapRow('14–18시', [14, 15, 16, 17]),
-  _HeatmapRow('18–22시', [18, 19, 20, 21]),
-  _HeatmapRow('22–02시', [22, 23, 0, 1]),
-  _HeatmapRow('02–06시', [2, 3, 4, 5]),
+  _HeatmapRow('', [6, 7, 8, 9]),
+  _HeatmapRow('', [10, 11, 12, 13]),
+  _HeatmapRow('', [14, 15, 16, 17]),
+  _HeatmapRow('', [18, 19, 20, 21]),
+  _HeatmapRow('', [22, 23, 0, 1]),
+  _HeatmapRow('', [2, 3, 4, 5]),
 ];
+
+/// 시간대 구간 — 한국어 `06~10시`, 영어 `6–10 AM`(구간은 ko 물결표 · en en dash, 시각은 12시간 — International v106).
+String _heatSub(int i) {
+  const en = [
+    '6–10 AM',
+    '10 AM–2 PM',
+    '2–6 PM',
+    '6–10 PM',
+    '10 PM–2 AM',
+    '2–6 AM',
+  ];
+  const ko = ['06~10시', '10~14시', '14~18시', '18~22시', '22~02시', '02~06시'];
+  return localeIsEn() ? en[i] : ko[i];
+}
 
 /// 히트맵 행(시간대) 라벨 — const 데이터라 렌더 시점에 인덱스로 로컬라이즈.
 String _heatRowLabel(AppLocalizations l, int i) => switch (i) {
@@ -1747,7 +1766,7 @@ class _HeatmapCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _heatRows[r].sub,
+                          _heatSub(r),
                           // 웹 서브 caption(12) 정합
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
@@ -1963,24 +1982,13 @@ class _HighlightsGrid extends StatelessWidget {
       final prevTotal = prevRangeAsync.value?.totalExpense ?? 0;
       if (prevTotal > 0) {
         final diff = periodTotal - prevTotal;
-        final up = diff >= 0;
         final pct = ((diff.abs() / prevTotal) * 100).toStringAsFixed(0);
-        avgSubWidget = Text.rich(
-          TextSpan(
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-            children: [
-              TextSpan(text: '${l.statsMomMonth} '),
-              TextSpan(
-                text: '${up ? '↑' : '↓'}$pct%',
-                style: TextStyle(
-                  color: up ? t.fgExpense : t.fgIncome,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-            ],
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        avgSubWidget = PDelta(
+          direction: diff > 0
+              ? PDeltaDirection.up
+              : (diff < 0 ? PDeltaDirection.down : PDeltaDirection.flat),
+          value: '$pct%',
+          text: l.statsMomMonth,
         );
       } else {
         avgSub = prevRangeAsync.isLoading && !prevRangeAsync.hasValue
@@ -2086,7 +2094,10 @@ class _HighlightCard extends StatelessWidget {
                     style: PTypo.h4.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.bold,
-                      fontFamily: valueIsAmount ? 'monospace' : null,
+                      // 금액은 라벨과 같은 Pretendard + 고정폭 숫자(typography.dart) — 'monospace' 는 iOS 에 없는 글꼴이다
+                      fontFeatures: valueIsAmount
+                          ? const [FontFeature.tabularFigures()]
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -3271,7 +3282,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                                 toY: data[i].savings.toDouble(),
                                 color: data[i].savings >= 0
                                     ? t.statusInfoFg
-                                    : t.fgExpense,
+                                    : t.statusDangerFg,
                                 // 월별 바 두께 24 로 통일(카테고리 월별 추이 _CatTrendBar width 24 기준). 일별(>20)만 얇게 4.
                                 width: data.length > 20 ? 4 : 18,
                                 // 위·아래 모두 둥글게(상하 대칭 round) — brSm(4) 전 모서리 적용.
@@ -3298,7 +3309,9 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                             rows: [
                               // 금액 텍스트는 기본색(fgPrimary) — web 툴팁은 색점만 증감색, 금액은 흰색.
                               PChartTooltipRowData(
-                                color: v >= 0 ? t.statusInfoFg : t.fgExpense,
+                                color: v >= 0
+                                    ? t.statusInfoFg
+                                    : t.statusDangerFg,
                                 label: l.statsNetSavings,
                                 amount: krwSigned(
                                   v.abs(),
@@ -3344,7 +3357,7 @@ class _CompareSummaryGrid extends StatelessWidget {
     final prev = prevRangeAsync.value?.totalExpense ?? 0;
     final diff = now - prev;
     final less = diff <= 0; // 지출 감소 = 좋음(파랑)
-    final good = less ? t.fgIncome : t.fgExpense;
+    final good = less ? t.statusInfoFg : t.statusDangerFg;
     final pct = prev > 0
         ? '${((diff.abs() / prev) * 100).toStringAsFixed(1)}%'
         : '—';
@@ -3440,12 +3453,10 @@ class _CompareSummaryGrid extends StatelessWidget {
                     color: good.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(
-                    '${less ? '▼' : '▲'} $pct',
-                    style: PTypo.micro.copyWith(
-                      color: good,
-                      fontWeight: PFontWeight.bold,
-                    ),
+                  // ▲ · ▼ + 값 — 부호는 화살표가 말하고 읽기는 문장이다(01A-006 · 007)
+                  child: PDelta(
+                    direction: less ? PDeltaDirection.down : PDeltaDirection.up,
+                    value: pct,
                   ),
                 ),
               ],
@@ -3551,7 +3562,6 @@ class _CompareMetricsCard extends StatelessWidget {
               builder: (_) {
                 final d = m.now - m.prev;
                 final up = d > 0;
-                final c = up ? t.fgExpense : t.fgIncome;
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -3579,14 +3589,13 @@ class _CompareMetricsCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          d == 0
-                              ? '—'
-                              : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
-                          style: PTypo.caption.copyWith(
-                            color: d == 0 ? t.fgTertiary : c,
-                            fontWeight: PFontWeight.bold,
-                          ),
+                        PDelta(
+                          direction: d == 0
+                              ? PDeltaDirection.flat
+                              : (up
+                                    ? PDeltaDirection.up
+                                    : PDeltaDirection.down),
+                          value: fmt(d.abs(), m.count),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -3779,7 +3788,7 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
                                     style: PTypo.micro.copyWith(
                                       // web CompareWeekday: 토(i==5)=fg-brand(파랑), 일(i==6)=fg-expense(빨강), 평일=fg-tertiary.
                                       color: i == 6
-                                          ? t.fgExpense
+                                          ? t.statusDangerFg
                                           : (i == 5 ? t.fgBrand : t.fgTertiary),
                                       fontWeight: PFontWeight.semi,
                                     ),
@@ -3834,7 +3843,7 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(LucideIcons.sparkles, size: 12, color: t.bgBrand),
+                Icon(LucideIcons.sparkles, size: 12, color: t.fgBrand),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -4032,7 +4041,7 @@ class _CompareDeltaRow extends StatelessWidget {
     // Metrics 및 웹과 톤 통일) / 무변동=tertiary.
     final deltaColor = diff == 0
         ? t.fgTertiary
-        : (up ? t.fgExpense : t.fgIncome);
+        : (up ? t.statusDangerFg : t.statusInfoFg);
     // U+2212(−) minus — formatChartAxis 부호 표기 정합.
     final sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
 
@@ -4094,10 +4103,13 @@ class _CompareDeltaRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                row.prev > 0 ? '${up ? '▲' : '▼'} ${pct.abs()}%' : '—',
-                style: PTypo.micro.copyWith(color: t.fgTertiary),
-              ),
+              if (row.prev > 0)
+                PDelta(
+                  direction: up ? PDeltaDirection.up : PDeltaDirection.down,
+                  value: '${pct.abs()}%',
+                )
+              else
+                Text('—', style: PTypo.micro.copyWith(color: t.fgTertiary)),
             ],
           ),
         ],

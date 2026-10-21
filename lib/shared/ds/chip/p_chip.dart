@@ -110,7 +110,10 @@ SelectionColors chipColors(
               foreground: c.fgNeutralInverted,
             )
           : (
-              background: pressed ? c.bgNeutralWeakPressed : c.bgNeutralWeak,
+              // 회색 바닥 위에서도 보이는 반투명 채움(bg-neutral-weak-alpha, v120)
+              background: pressed
+                  ? c.bgNeutralWeakAlphaPressed
+                  : c.bgNeutralWeakAlpha,
               border: clear,
               foreground: c.fgNeutral,
             );

@@ -185,13 +185,15 @@ void main() {
     });
   });
 
-  group('monthDayTime — 메모 수정시각 MM/DD · HH:MM', () {
+  group('monthDayTime — 메모 수정시각 MM/DD · 오전/오후 h:mm', () {
     // 테스트가 도는 기기 시간대를 모르므로(로컬 CI 는 KST, GitHub 러너는 UTC)
     // 기대값을 문자열로 못 박지 않고 "UTC 로 읽었다면 나와야 할 로컬 시각" 과 맞춘다.
     String expected(DateTime utc) {
       final d = utc.toLocal();
       String p2(int n) => n.toString().padLeft(2, '0');
-      return '${p2(d.month)}/${p2(d.day)} · ${p2(d.hour)}:${p2(d.minute)}';
+      final h12 = d.hour % 12 == 0 ? 12 : d.hour % 12;
+      final ap = d.hour < 12 ? '오전' : '오후';
+      return '${p2(d.month)}/${p2(d.day)} · $ap $h12:${p2(d.minute)}';
     }
 
     test('시간대 표시가 없는 값은 UTC 로 읽어 로컬로 찍는다', () {

@@ -3,7 +3,7 @@
   "source": "specs/components/tree-view.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "나무(role=tree) — 이름 필수. Tab 정지점 하나",
@@ -126,8 +126,8 @@
         },
         "title": {
           "typography": {
-            "fontSize": 18,
-            "lineHeight": 24,
+            "fontSize": 16,
+            "lineHeight": 22,
             "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
@@ -478,6 +478,13 @@
       "slot": "header",
       "prop": "paddingLeft",
       "note": "16 — 나무 줄의 글 시작(8 + 8)과 같은 자리"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "typography",
+      "note": "16 / 22 — 구역 · 카드 머리 제목과 한 벌(2026-10-16 사용자 결정 글자 역할 D3, 전 t6 18 / 24)"
     },
     {
       "rule": 0,

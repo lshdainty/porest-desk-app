@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -78,7 +80,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         : '?';
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -88,333 +90,339 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: ListView(
-        // 최상위 24 통일(사용자 결정, web --spacing-xl 정합).
-        padding: const EdgeInsets.all(PSpace.x24),
-        children: [
-          // ── 프로필 헤더 — web: 중앙 정렬 avatar 72 + 이름 + 이메일 + 편집/Pro + 가입 시기
-          PCard(
-            // 자산 요약과 동일한 keep 카드(raised) — surface 배경 위에서 확실히 띄움.
-            variant: PCardVariant.raised,
-            padding: const EdgeInsets.symmetric(
-              vertical: 28,
-              horizontal: PSpace.x24,
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    // 아바타 채움은 다크에서도 primary 고정(bgBrandSolid, 사용자 결정·web 정합).
-                    color: t.bgBrandSolid,
-                    shape: BoxShape.circle,
+      body: PScreenBandBody(
+        child: ListView(
+          // 최상위 24 통일(사용자 결정, web --spacing-xl 정합).
+          padding: const EdgeInsets.all(PSpace.x24),
+          children: [
+            // ── 프로필 헤더 — web: 중앙 정렬 avatar 72 + 이름 + 이메일 + 편집/Pro + 가입 시기
+            PCard(
+              // 자산 요약과 동일한 keep 카드(raised) — surface 배경 위에서 확실히 띄움.
+              variant: PCardVariant.raised,
+              padding: const EdgeInsets.symmetric(
+                vertical: 28,
+                horizontal: PSpace.x24,
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      // 아바타 채움은 다크에서도 primary 고정(bgBrandSolid, 사용자 결정·web 정합).
+                      color: t.bgBrandSolid,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      nameInitial,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: 24,
+                        fontWeight: PFontWeight.bold,
+                        color: t.fgOnBrand,
+                      ),
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    nameInitial,
+                  const SizedBox(height: PSpace.x12),
+                  Text(
+                    user?.userName ?? l.accountDefaultName,
                     style: TextStyle(
                       fontFamily: PTypo.sans,
-                      fontSize: 24,
+                      fontSize: 17,
                       fontWeight: PFontWeight.bold,
-                      color: t.fgOnBrand,
+                      color: t.fgPrimary,
+                      letterSpacing: -0.34,
                     ),
                   ),
-                ),
-                const SizedBox(height: PSpace.x12),
-                Text(
-                  user?.userName ?? l.accountDefaultName,
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: 17,
-                    fontWeight: PFontWeight.bold,
-                    color: t.fgPrimary,
-                    letterSpacing: -0.34,
-                  ),
-                ),
-                const SizedBox(height: PSpace.x8),
-                Text(
-                  user?.userEmail ?? '',
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: 13,
-                    color: t.fgTertiary,
-                  ),
-                ),
-                const SizedBox(height: PSpace.x12),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    PButton(
-                      label: '✎ ${l.actionEdit}',
-                      variant: PButtonVariant.ghost,
-                      size: PButtonSize.sm,
-                      onPressed: () => showPSnackBar(
-                        context,
-                        l.accountEditComingSoon,
-                        severity: PSnackSeverity.info,
-                      ),
-                    ),
-                    const SizedBox(width: PSpace.x8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.bgBrandSubtle,
-                        borderRadius: PRadius.brSm,
-                      ),
-                      child: Text(
-                        isSubscribed ? 'Pro' : 'Free',
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: 11,
-                          fontWeight: PFontWeight.bold,
-                          color: t.fgBrandStrong,
-                          letterSpacing: 0.22,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (user?.joinedAt != null) ...[
                   const SizedBox(height: PSpace.x8),
                   Text(
-                    l.accountJoined(yearMonth(user!.joinedAt!)),
+                    user?.userEmail ?? '',
                     style: TextStyle(
                       fontFamily: PTypo.sans,
-                      fontSize: 12,
+                      fontSize: 13,
                       color: t.fgTertiary,
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: PSpace.x32),
-
-          // ── 보안 — web: desc 우측 정렬 + chevron/switch
-          _SectionLabel(label: l.accountSecurity, tokens: t),
-          const SizedBox(height: PSpace.x8),
-          Column(
-            children: [
-              _AccountRow(
-                icon: LucideIcons.key,
-                label: l.navChangePassword,
-                desc: l.accountPasswordDesc,
-                chevron: true,
-                tokens: t,
-                onTap: () => showPasswordChangeDialog(context),
-              ),
-              const PDivider(),
-              // 앱 잠금 — 로그인 세션과 별개로 앱 자체를 생체인증으로 잠근다.
-              // 켤 때만 인증을 거친다(setAppLockWithAuth).
-              _AccountRow(
-                icon: LucideIcons.fingerprint,
-                label: l.appLockTitle,
-                desc: appLockOn ? l.accountOn : l.accountOff,
-                tokens: t,
-                trailing: SizedBox(
-                  height: 24,
-                  child: PSwitch(
-                    value: appLockOn,
-                    onChanged: (v) => setAppLockWithAuth(context, ref, v),
-                  ),
-                ),
-              ),
-              const PDivider(),
-              // 금액 가리기 — 화면·카드 37장을 훑는 목록이라 자기 화면으로 보낸다.
-              _AccountRow(
-                icon: hiddenCount == 0 ? LucideIcons.eye : LucideIcons.eyeOff,
-                label: l.hideAmountsTitle,
-                desc: '$hiddenCount / $hiddenTotal',
-                chevron: true,
-                tokens: t,
-                onTap: () => context.push('/settings/hide-amounts'),
-              ),
-              const PDivider(),
-              _AccountRow(
-                icon: LucideIcons.monitor,
-                label: l.accountDevices,
-                desc: l.accountCurrentDevice,
-                chevron: true,
-                tokens: t,
-                onTap: () => context.push('/settings/devices'),
-              ),
-              const PDivider(),
-              _AccountRow(
-                icon: LucideIcons.calendarDays,
-                label: l.accountLoginHistory,
-                desc: l.accountLast30Days,
-                chevron: true,
-                tokens: t,
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x32),
-
-          // ── 연결된 계정 — web: 레터 아이콘 + '연결 안 됨' + 연결 버튼
-          _SectionLabel(label: l.accountConnected, tokens: t),
-          const SizedBox(height: PSpace.x8),
-          Column(
-            children: [
-              for (final social in _socialItems) ...[
-                if (social != _socialItems.first) const PDivider(),
-                _AccountRow(
-                  letter: social.letter,
-                  label: social.name,
-                  desc: l.accountNotConnected,
-                  tokens: t,
-                  trailing: PButton(
-                    label: l.accountConnect,
-                    variant: PButtonVariant.outline,
-                    size: PButtonSize.sm,
-                    onPressed: () => showPSnackBar(
-                      context,
-                      l.accountSocialComingSoon(social.name),
-                      severity: PSnackSeverity.info,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: PSpace.x32),
-
-          // ── 구독·결제 — 담다 Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
-          _SectionLabel(label: l.accountBilling, tokens: t),
-          const SizedBox(height: PSpace.x8),
-          // 구독·결제 — 디자인대로 제목/부제 세로 스택 + 우측 가격/배지 커스텀 행.
-          // (generic _AccountRow 가로 desc 는 긴 부제에서 label 이 글자단위로 깨짐)
-          InkWell(
-            onTap: () => showSubscriptionSheet(context),
-            borderRadius: PRadius.brLg,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: t.bgBrandSubtle,
-                      borderRadius: PRadius.brMd,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      LucideIcons.sparkles,
-                      size: 18,
-                      color: t.fgBrand,
-                    ),
-                  ),
-                  const SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '담다 Pro',
+                  const SizedBox(height: PSpace.x12),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PButton(
+                        label: '✎ ${l.actionEdit}',
+                        variant: PButtonVariant.ghost,
+                        size: PButtonSize.sm,
+                        onPressed: () => showPSnackBar(
+                          context,
+                          l.accountEditComingSoon,
+                          severity: PSnackSeverity.info,
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: t.bgBrandSubtle,
+                          borderRadius: PRadius.brSm,
+                        ),
+                        child: Text(
+                          isSubscribed ? 'Pro' : 'Free',
                           style: TextStyle(
                             fontFamily: PTypo.sans,
-                            fontSize: PFontSize.body,
+                            fontSize: 11,
                             fontWeight: PFontWeight.bold,
-                            color: t.fgPrimary,
+                            color: t.fgBrandStrong,
+                            letterSpacing: 0.22,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          proDesc,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: PSpace.x8),
-                  if (isSubscribed)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          krwSigned(9900, false, unit: true),
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.body,
-                            fontWeight: PFontWeight.bold,
-                            color: t.fgPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l.accountPerMonth,
-                          style: PTypo.micro.copyWith(color: t.fgTertiary),
-                        ),
-                      ],
-                    )
-                  else
-                    PBadge(
-                      label: l.accountProStart,
-                      variant: PBadgeVariant.softBrand,
+                  if (user?.joinedAt != null) ...[
+                    const SizedBox(height: PSpace.x8),
+                    Text(
+                      l.accountJoined(yearMonth(user!.joinedAt!)),
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: 12,
+                        color: t.fgTertiary,
+                      ),
                     ),
-                  const SizedBox(width: PSpace.x8),
-                  Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+                  ],
                 ],
               ),
             ),
-          ),
-
-          // ── 증권 데이터 연동 — 구독(Pro) 시에만. 증권사가 둘 이상이라 화면으로 분리했다.
-          if (hasSecurities) ...[
             const SizedBox(height: PSpace.x32),
-            _SectionLabel(label: l.subBrokerSectionTitle, tokens: t),
-            const SizedBox(height: PSpace.x8),
-            _AccountRow(
-              icon: LucideIcons.link,
-              label: l.settingsSecuritiesLink,
-              desc: l.subBrokerConnectDesc,
-              chevron: true,
-              tokens: t,
-              onTap: () => context.push('/settings/securities'),
-            ),
-          ],
-          const SizedBox(height: PSpace.x32),
 
-          // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)
-          _SectionLabel(label: l.accountManage, tokens: t),
-          const SizedBox(height: PSpace.x8),
-          Column(
-            children: [
+            // ── 보안 — web: desc 우측 정렬 + chevron/switch
+            _SectionLabel(label: l.accountSecurity, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            Column(
+              children: [
+                _AccountRow(
+                  icon: LucideIcons.key,
+                  label: l.navChangePassword,
+                  desc: l.accountPasswordDesc,
+                  chevron: true,
+                  tokens: t,
+                  onTap: () => showPasswordChangeDialog(context),
+                ),
+                const PDivider(),
+                // 앱 잠금 — 로그인 세션과 별개로 앱 자체를 생체인증으로 잠근다.
+                // 켤 때만 인증을 거친다(setAppLockWithAuth).
+                _AccountRow(
+                  icon: LucideIcons.fingerprint,
+                  label: l.appLockTitle,
+                  desc: appLockOn ? l.accountOn : l.accountOff,
+                  tokens: t,
+                  trailing: SizedBox(
+                    height: 24,
+                    child: PSwitch(
+                      value: appLockOn,
+                      onChanged: (v) => setAppLockWithAuth(context, ref, v),
+                    ),
+                  ),
+                ),
+                const PDivider(),
+                // 금액 가리기 — 화면·카드 37장을 훑는 목록이라 자기 화면으로 보낸다.
+                _AccountRow(
+                  icon: hiddenCount == 0 ? LucideIcons.eye : LucideIcons.eyeOff,
+                  label: l.hideAmountsTitle,
+                  desc: '$hiddenCount / $hiddenTotal',
+                  chevron: true,
+                  tokens: t,
+                  onTap: () => context.push('/settings/hide-amounts'),
+                ),
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.monitor,
+                  label: l.accountDevices,
+                  desc: l.accountCurrentDevice,
+                  chevron: true,
+                  tokens: t,
+                  onTap: () => context.push('/settings/devices'),
+                ),
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.calendarDays,
+                  label: l.accountLoginHistory,
+                  desc: l.accountLast30Days,
+                  chevron: true,
+                  tokens: t,
+                ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x32),
+
+            // ── 연결된 계정 — web: 레터 아이콘 + '연결 안 됨' + 연결 버튼
+            _SectionLabel(label: l.accountConnected, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            Column(
+              children: [
+                for (final social in _socialItems) ...[
+                  if (social != _socialItems.first) const PDivider(),
+                  _AccountRow(
+                    letter: social.letter,
+                    label: social.name,
+                    desc: l.accountNotConnected,
+                    tokens: t,
+                    trailing: PButton(
+                      label: l.accountConnect,
+                      variant: PButtonVariant.outline,
+                      size: PButtonSize.sm,
+                      onPressed: () => showPSnackBar(
+                        context,
+                        l.accountSocialComingSoon(social.name),
+                        severity: PSnackSeverity.info,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: PSpace.x32),
+
+            // ── 구독·결제 — 담다 Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
+            _SectionLabel(label: l.accountBilling, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            // 구독·결제 — 디자인대로 제목/부제 세로 스택 + 우측 가격/배지 커스텀 행.
+            // (generic _AccountRow 가로 desc 는 긴 부제에서 label 이 글자단위로 깨짐)
+            InkWell(
+              onTap: () => showSubscriptionSheet(context),
+              borderRadius: PRadius.brLg,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: t.bgBrandSubtle,
+                        borderRadius: PRadius.brMd,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        LucideIcons.sparkles,
+                        size: 18,
+                        color: t.fgBrand,
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '담다 Pro',
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: PFontSize.body,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            proDesc,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: PTypo.caption.copyWith(color: t.fgTertiary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    if (isSubscribed)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            krwSigned(9900, false, unit: true),
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: PFontSize.body,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            l.accountPerMonth,
+                            style: PTypo.micro.copyWith(color: t.fgTertiary),
+                          ),
+                        ],
+                      )
+                    else
+                      PBadge(
+                        label: l.accountProStart,
+                        variant: PBadgeVariant.softBrand,
+                      ),
+                    const SizedBox(width: PSpace.x8),
+                    Icon(
+                      LucideIcons.chevronRight,
+                      size: 16,
+                      color: t.fgTertiary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── 증권 데이터 연동 — 구독(Pro) 시에만. 증권사가 둘 이상이라 화면으로 분리했다.
+            if (hasSecurities) ...[
+              const SizedBox(height: PSpace.x32),
+              _SectionLabel(label: l.subBrokerSectionTitle, tokens: t),
+              const SizedBox(height: PSpace.x8),
               _AccountRow(
-                icon: LucideIcons.logOut,
-                label: l.navLogout,
-                desc: l.accountLogoutDesc,
+                icon: LucideIcons.link,
+                label: l.settingsSecuritiesLink,
+                desc: l.subBrokerConnectDesc,
                 chevron: true,
                 tokens: t,
-                onTap: () => _confirmLogout(context, ref),
-              ),
-              // web 정합 — 로그아웃 아래 구분선 없음.
-              _AccountRow(
-                icon: LucideIcons.trash2,
-                label: l.accountWithdraw,
-                desc: l.accountWithdrawDesc,
-                iconColor: t.statusDangerFg,
-                labelColor: t.statusDangerFg,
-                tokens: t,
-                onTap: () => showWithdrawalSheet(context),
+                onTap: () => context.push('/settings/securities'),
               ),
             ],
-          ),
+            const SizedBox(height: PSpace.x32),
 
-          const SizedBox(height: PSpace.x32),
+            // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)
+            _SectionLabel(label: l.accountManage, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            Column(
+              children: [
+                _AccountRow(
+                  icon: LucideIcons.logOut,
+                  label: l.navLogout,
+                  desc: l.accountLogoutDesc,
+                  chevron: true,
+                  tokens: t,
+                  onTap: () => _confirmLogout(context, ref),
+                ),
+                // web 정합 — 로그아웃 아래 구분선 없음.
+                _AccountRow(
+                  icon: LucideIcons.trash2,
+                  label: l.accountWithdraw,
+                  desc: l.accountWithdrawDesc,
+                  iconColor: t.statusDangerFg,
+                  labelColor: t.statusDangerFg,
+                  tokens: t,
+                  onTap: () => showWithdrawalSheet(context),
+                ),
+              ],
+            ),
 
-          // 앱 버전 — 화면 맨 아래에 조용히 둔다. 스토어를 안 거치니 지금 깔린 게
-          // 어느 빌드인지 알 데가 여기밖에 없다.
-          const _AppVersionLine(),
+            const SizedBox(height: PSpace.x32),
 
-          const SizedBox(height: PSpace.x32),
-        ],
+            // 앱 버전 — 화면 맨 아래에 조용히 둔다. 스토어를 안 거치니 지금 깔린 게
+            // 어느 빌드인지 알 데가 여기밖에 없다.
+            const _AppVersionLine(),
+
+            const SizedBox(height: PSpace.x32),
+          ],
+        ),
       ),
     );
   }

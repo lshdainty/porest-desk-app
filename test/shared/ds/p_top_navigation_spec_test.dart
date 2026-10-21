@@ -432,6 +432,24 @@ void main() {
             'focusRing.width',
             'focusRing.offset',
             'focusRing.color',
+            // 데스크톱 머리(768 이상 Desk 웹) 전용 — 앱은 폰 틀뿐이라 재지 않는다
+            'trailing.bell',
+            'searchField.width',
+            'searchField.height',
+            'searchField.heading',
+            'searchField.textField',
+            'screenTitle.typography',
+            'screenTitle.fontWeight',
+            'screenTitle.foreground',
+            'screenTitle.marginTop',
+            'screenTitle.gap',
+            'screenDescription.typography',
+            'screenDescription.fontWeight',
+            'screenDescription.foreground',
+            'screenDescription.marginTop',
+            'screenActions.buttonSize',
+            'screenActions.gap',
+            'screenActions.align',
           });
           expect(k.failures, isEmpty, reason: k.failures.join('\n'));
           expect(want.isNotEmpty, isTrue);

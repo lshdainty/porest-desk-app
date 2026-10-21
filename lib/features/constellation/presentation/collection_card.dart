@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+
+import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -43,12 +46,12 @@ class CollectionCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final newest = _newestKey();
 
-    // 카드 다이어트(.m-subpage 플랫) — sec-head + 헤어라인 행 리스트.
+    // 밤하늘 띠 안 — 머리 · 줄 모두 띠 안 24 에 선다(옛 플랫 들임 6 은 걷었다, I-01 결정 1B).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
+          padding: const EdgeInsets.only(bottom: 4),
           child: Row(
             children: [
               Text(
@@ -113,7 +116,7 @@ class _FcolRow extends StatelessWidget {
     final owned = entry.collected;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: PSpace.x16),
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
       decoration: BoxDecoration(
         border: first ? null : Border(top: BorderSide(color: t.borderSubtle)),
       ),
@@ -126,13 +129,7 @@ class _FcolRow extends StatelessWidget {
             height: 78,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(14)),
-              gradient: owned
-                  ? const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF0D1430), Color(0xFF1F2C5E)],
-                    )
-                  : null,
+              gradient: owned ? skyGradient(context.colors) : null,
               color: owned ? null : t.bgMuted,
             ),
             alignment: Alignment.center,
@@ -140,7 +137,7 @@ class _FcolRow extends StatelessWidget {
               opacity: owned ? 1 : 0.85,
               child: ConstellationIcon(
                 info: entry.constellation,
-                color: owned ? const Color(0xFFDFE7FF) : t.fgTertiary,
+                color: owned ? skyInk(context.colors, 0xFF) : t.fgTertiary,
                 size: owned ? 56 : 56,
                 dim: !owned,
                 lit: owned ? null : 0,
@@ -318,16 +315,7 @@ Future<void> showConstellationDetailSheet(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 borderRadius: PRadius.brLg,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF0D1430),
-                    Color(0xFF17224A),
-                    Color(0xFF1F2C5E),
-                  ],
-                  stops: [0, 0.6, 1],
-                ),
+                gradient: skyGradient(context.colors, three: true),
               ),
               child: Stack(
                 children: [
@@ -335,8 +323,8 @@ Future<void> showConstellationDetailSheet(
                     child: ConstellationIcon(
                       info: entry.constellation,
                       color: collected
-                          ? const Color(0xFFDFE7FF)
-                          : const Color(0x66BECDFF),
+                          ? skyInk(context.colors, 0xFF)
+                          : skyInk(context.colors, 0x66),
                       size: 180,
                       lit: collected ? null : 0,
                       glow: collected,
@@ -354,7 +342,7 @@ Future<void> showConstellationDetailSheet(
                           fontFamily: PTypo.sans,
                           fontSize: 12,
                           fontWeight: PFontWeight.semi,
-                          color: const Color(0xA6CDD8FF),
+                          color: skyInk(context.colors, 0xA6),
                         ),
                       ),
                     ),

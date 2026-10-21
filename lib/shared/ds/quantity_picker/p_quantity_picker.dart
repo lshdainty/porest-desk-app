@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
@@ -75,8 +76,8 @@ class PQuantityPicker extends StatefulWidget {
     this.readOnly,
     this.invalid,
     this.semanticLabel,
-    this.decrementLabel = '줄이기',
-    this.incrementLabel = '늘리기',
+    this.decrementLabel,
+    this.incrementLabel,
     this.removable = false,
     this.onRemove,
     this.removeSemanticLabel,
@@ -101,8 +102,10 @@ class PQuantityPicker extends StatefulWidget {
   final bool? readOnly;
   final bool? invalid;
   final String? semanticLabel;
-  final String decrementLabel;
-  final String incrementLabel;
+
+  /// 줄이기 · 늘리기 버튼 이름 — 주지 않으면 로케일 문구("줄이기" · "늘리기").
+  final String? decrementLabel;
+  final String? incrementLabel;
   final bool removable;
   final VoidCallback? onRemove;
   final String? removeSemanticLabel;
@@ -202,7 +205,14 @@ class _PQuantityPickerState extends State<PQuantityPicker> {
         _QuantityButton(
           key: const ValueKey('quantity-decrement'),
           icon: isRemove ? LucideIcons.trash2 : LucideIcons.minus,
-          label: isRemove ? widget.removeSemanticLabel! : widget.decrementLabel,
+          label: isRemove
+              ? widget.removeSemanticLabel!
+              : (widget.decrementLabel ??
+                    (Localizations.of<AppLocalizations>(
+                          context,
+                          AppLocalizations,
+                        )?.dsQuantityDecrease ??
+                        '줄이기')),
           blocked: decrementBlocked,
           disabled: disabled,
           busy: _busy(true),
@@ -220,7 +230,13 @@ class _PQuantityPickerState extends State<PQuantityPicker> {
         _QuantityButton(
           key: const ValueKey('quantity-increment'),
           icon: LucideIcons.plus,
-          label: widget.incrementLabel,
+          label:
+              widget.incrementLabel ??
+              (Localizations.of<AppLocalizations>(
+                    context,
+                    AppLocalizations,
+                  )?.dsQuantityIncrease ??
+                  '늘리기'),
           blocked: incrementBlocked,
           disabled: disabled,
           busy: _busy(false),

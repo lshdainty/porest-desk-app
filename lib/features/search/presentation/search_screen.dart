@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -14,6 +15,7 @@ import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
@@ -260,8 +262,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
+    // 띠 화면(I-01 결정 1B) — 결과는 날짜 묶음마다 화면 폭 흰 띠, 묶음 사이 8 은 회색 바닥.
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -274,6 +277,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           trailing: _ctrl.text.isEmpty
               ? null
               : PButton.icon(
+                  tooltip: AppLocalizations.of(context).actionClose,
                   icon: LucideIcons.x,
                   size: PButtonSize.sm,
                   iconColor: t.fgTertiary,
@@ -359,12 +363,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       return const _SearchLoadingSkeleton();
     }
     if (_error != null) {
-      return Padding(
-        padding: const EdgeInsets.all(PSpace.x24),
-        child: Center(
-          child: Text(
-            '${l.searchFailed}: $_error',
-            style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+      return PScreenBandBody(
+        child: Padding(
+          padding: const EdgeInsets.all(PSpace.x24),
+          child: Center(
+            child: Text(
+              '${l.searchFailed}: $_error',
+              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+            ),
           ),
         ),
       );
@@ -389,29 +395,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final flags = ref.watch(maskFlagsProvider('etc.search'));
     final groups = _groupByDay(_results);
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x24,
-        vertical: PSpace.x8,
-      ),
+      padding: const EdgeInsets.only(bottom: PSpace.x24),
       itemCount: groups.length,
       itemBuilder: (_, i) {
         final g = groups[i];
         return Padding(
-          // 날짜 그룹 사이는 넓은 여백으로 구분한다(헤어라인·카드 없음) — 가계부 정합.
-          padding: const EdgeInsets.only(top: PSpace.x16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PDayHeader(date: g.date, items: g.items, flags: flags),
-              const SizedBox(height: 6),
-              for (final e in g.items)
-                // 가계부·홈·거래상세와 **같은 행 위젯**이다(앱에 행 위젯은 이것 하나).
-                ExpenseRow(
-                  expense: e,
-                  category: _findCategory(categories, e.categoryRowId),
-                  flags: flags,
-                ),
-            ],
+          // 날짜 묶음마다 띠 하나 — 맨 위 · 사이 8 은 회색 바닥(I-01 결정 1B).
+          padding: const EdgeInsets.only(top: kScreenBandGap),
+          child: PScreenBand(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PDayHeader(date: g.date, items: g.items, flags: flags),
+                  const SizedBox(height: 6),
+                  for (final e in g.items)
+                    // 가계부·홈·거래상세와 **같은 행 위젯**이다(앱에 행 위젯은 이것 하나).
+                    ExpenseRow(
+                      expense: e,
+                      category: _findCategory(categories, e.categoryRowId),
+                      flags: flags,
+                    ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -445,15 +453,17 @@ class _SearchLoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 실렌더와 같은 날짜 묶음 띠.
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x24,
-        vertical: PSpace.x8,
-      ),
       itemCount: 2,
       itemBuilder: (_, _) => const Padding(
-        padding: EdgeInsets.only(top: PSpace.x16),
-        child: PDayGroupSkeleton(rows: 3),
+        padding: EdgeInsets.only(top: kScreenBandGap),
+        child: PScreenBand(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: PSpace.x24),
+            child: PDayGroupSkeleton(rows: 3),
+          ),
+        ),
       ),
     );
   }
@@ -470,14 +480,17 @@ class _EmptyHint extends StatelessWidget {
   final GrooTokens tokens;
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 48, color: tokens.fgDisabled),
-          const SizedBox(height: PSpace.x12),
-          Text(text, style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
-        ],
+    // 묶음이 없는 안내는 한 장 띠 위에 둔다.
+    return PScreenBandBody(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: tokens.fgDisabled),
+            const SizedBox(height: PSpace.x12),
+            Text(text, style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
+          ],
+        ),
       ),
     );
   }

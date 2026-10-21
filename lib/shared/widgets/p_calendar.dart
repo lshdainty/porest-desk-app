@@ -375,40 +375,39 @@ class _DayCell extends StatelessWidget {
       weight = PFontWeight.semi;
     }
 
-    return Opacity(
-      opacity: disabled ? 0.4 : 1,
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(color: cellBg, borderRadius: cellRadius),
-        child: Center(
-          child: SizedBox(
-            width: 40,
-            height: 40,
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              child: InkWell(
-                onTap: disabled ? null : onTap,
-                customBorder: const CircleBorder(),
-                child: AnimatedContainer(
-                  duration: PMotion.fast,
-                  curve: PMotion.standard,
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: btnBg,
-                    shape: BoxShape.circle,
-                    border: btnBorder,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${date.day}',
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: PFontSize.bodyMd,
-                      fontWeight: weight,
-                      color: textColor,
-                    ),
+    // 막힌 날은 불투명도가 아니라 글자 전용 색(STA-01, 01A-071)
+    if (disabled) textColor = t.fgDisabled;
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(color: cellBg, borderRadius: cellRadius),
+      child: Center(
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Material(
+            color: Colors.transparent,
+            shape: const CircleBorder(),
+            child: InkWell(
+              onTap: disabled ? null : onTap,
+              customBorder: const CircleBorder(),
+              child: AnimatedContainer(
+                duration: PMotion.fast,
+                curve: PMotion.standard,
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: btnBg,
+                  shape: BoxShape.circle,
+                  border: btnBorder,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '${date.day}',
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: PFontSize.bodyMd,
+                    fontWeight: weight,
+                    color: textColor,
                   ),
                 ),
               ),

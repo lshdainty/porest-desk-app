@@ -3,7 +3,7 @@
   "source": "specs/components/input.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "상자(Container) — 테두리 · 바탕 · 모서리. 어디를 눌러도 입력으로 포커스가 간다",
@@ -65,8 +65,8 @@
         },
         "placeholder": {
           "foreground": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
+            "light": "#767C8B",
+            "dark": "#838997"
           },
           "fontWeight": 400
         },

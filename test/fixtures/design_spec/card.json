@@ -3,13 +3,13 @@
   "source": "specs/components/card.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "카드 면 — 바닥(bg-layer-basement) 위 흰 면 + 1px 테두리, 그림자 없음",
     "header": "카드 머리 — 제목 + 오른쪽 동작 한 줄",
     "title": "머리 제목 — 무엇의 카드인지",
-    "headerAction": "머리 동작 — \"전체 보기\" + chevron, 글 버튼",
+    "headerAction": "머리 동작 — \"전체 보기\", 글 버튼(SEED Text Button)",
     "content": "본문 — 글 · 숫자 · 차트 · 표(CardContent). 목록은 list",
     "list": "카드 안 목록 — List 줄이 가장자리까지, 누름 바탕은 동심 모서리",
     "statLabel": "지표 라벨 — \"이번 달 지출\"",
@@ -102,23 +102,21 @@
           }
         },
         "headerAction": {
-          "height": 32,
-          "paddingLeft": 8,
-          "paddingRight": 4,
+          "height": 36,
+          "paddingLeft": 14,
+          "paddingRight": 14,
           "radius": 8,
           "typography": {
             "fontSize": 14,
             "lineHeight": 19,
-            "fontWeight": 500,
+            "fontWeight": 700,
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
-          "fontWeight": 500,
+          "fontWeight": 700,
           "foreground": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
+            "light": "#535866",
+            "dark": "#B7BDCC"
           },
-          "iconSize": 16,
-          "gap": 2,
           "touchTarget": "44 × 44"
         },
         "content": {
@@ -532,21 +530,35 @@
       "state": "enabled",
       "slot": "headerAction",
       "prop": "height",
-      "note": "보이는 상자 — 누를 때 바탕 bg-layer-default-pressed · 모서리 8"
+      "note": "보이는 상자 — SEED Text Button minHeight x9. 누를 때 바탕 bg-layer-default-pressed · 모서리 8. 2026-10-16 사용자 결정 — 글자 역할 D2(6B 의 32 를 바꿨다)"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "headerAction",
-      "prop": "iconSize",
-      "note": "lucide chevron-right — 글 뒤 2"
+      "prop": "paddingRight",
+      "note": "좌우 14(SEED Text Button paddingX). 머리 줄 끝에서는 오른쪽 14 만큼 바깥으로 내어(margin-right −14) 글자 끝이 카드 여백 24 에 선다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerAction",
+      "prop": "fontWeight",
+      "note": "2026-10-16 사용자 결정 — 글자 역할 D2(SEED Text Button t4 · bold, 6B 의 500 을 바꿨다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "headerAction",
+      "prop": "foreground",
+      "note": "2026-10-16 사용자 결정 — 글자 역할 D2(SEED Text Button fg.neutral-muted, 6B 의 subtle 을 바꿨다). 꺾쇠(chevron)는 두지 않는다 — SEED Text Button 에 아이콘이 없다"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "headerAction",
       "prop": "touchTarget",
-      "note": "보이는 32 위아래로 6 씩 · 옆은 글 폭 + 여백(44 보다 좁으면 44). AA ✓ · AAA ✓. 앱 — 보이는 자리를 바꾸지 않고 누르는 영역만 위아래 6 넓힌다(부모 상자 밖도 받는다 — 머리 줄 높이 · 여백은 그대로). 6B 44 × 44 의 앱 풀이 — Q-011-8"
+      "note": "보이는 36 위아래로 4 씩 · 옆은 글 폭 + 여백(44 보다 좁으면 44). AA ✓ · AAA ✓. 앱 — 보이는 자리를 바꾸지 않고 누르는 영역만 위아래 4 넓힌다(부모 상자 밖도 받는다 — 머리 줄 높이 · 여백은 그대로). 6B 44 × 44 의 앱 풀이 — Q-011-8"
     },
     {
       "rule": 0,

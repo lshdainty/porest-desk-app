@@ -794,10 +794,10 @@ void main() {
         _app(Brightness.light, _Host(groups: groups(log: log))),
       );
       await _open(tester);
-      // 평소 — 크기 0
+      // 평소 — 1 × 1 투명(크기 0 이면 의미 트리에서 빠진다, 03F-020)
       expect(
         tester.getSize(find.byKey(const ValueKey('p-menu-sheet-close'))).height,
-        0,
+        1,
       );
       // 읽는다
       expect(find.bySemanticsLabel('닫기'), findsOneWidget);

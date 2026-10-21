@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_tooltip.dart';
 
@@ -65,7 +68,7 @@ class PButton extends StatelessWidget {
     this.variant = PButtonVariant.ghost,
     this.size = PButtonSize.md,
     this.loading = false,
-    this.tooltip,
+    required String this.tooltip,
     this.iconColor,
     this.dangerous = false,
   }) : label = null,
@@ -97,6 +100,23 @@ class PButton extends StatelessWidget {
   /// 컨테이너 edge flush — 해당 방향 좌/우 padding 제거 (ghost 버튼 광학 정렬).
   /// label 모드에만 의미 있음 (icon-only/iconLg 는 padding 0 이라 무관).
   final PButtonFlush? flush;
+
+  /// 라벨 한 줄이 다 보이는 데 필요한 폭 — 좌우 여백 + 글 + 아이콘(짝 버튼이 반 폭에 드는지 재는 데 쓴다).
+  double naturalWidth(BuildContext context) {
+    final t = context.tokens;
+    if (label == null) return _height();
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: _textStyle(t)),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final pad = _padding().horizontal;
+    final icons =
+        (icon != null ? _iconSize() + PSpace.sm : 0) +
+        (trailingIcon != null ? _iconSize() + PSpace.sm : 0);
+    return painter.width + pad + icons;
+  }
 
   // DESIGN.desk.md / specs/components/button.md spec:
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
@@ -235,6 +255,16 @@ class PButton extends StatelessWidget {
     }
 
     final disabled = onPressed == null || loading;
+    // 막힌 버튼 — 불투명도로 흐리게 하지 않고 전용 색(bg-disabled · fg-disabled)을 쓴다(STA-01, 01A-071).
+    // 불러오는 중(loading)은 막혔어도 색을 바꾸지 않는다 — 돌아가는 원이 보여야 한다.
+    final dimmed = onPressed == null && !loading;
+    if (dimmed) {
+      if (bg != Colors.transparent) bg = t.bgDisabled;
+      fg = t.fgDisabled;
+      if (border != BorderSide.none) {
+        border = BorderSide(color: t.borderSubtle);
+      }
+    }
     // icon-only는 radius-md 둥근 박스 (정사각 + 또렷한 hover/splash) — front button.md v96 정합.
     // iconLg는 원형(radius-full) — 모바일 크롬 헤더 (v97).
     final radius = iconOnly
@@ -274,10 +304,6 @@ class PButton extends StatelessWidget {
       ),
     );
     final btn = Material(
-      // disabled 약화는 아래 Opacity(0.5)로 버튼 전체(글자·아이콘 포함)에 적용
-      // — button.md States(disabled = opacity 0.5) + 웹 disabled:opacity-50 정합.
-      // bg.withValues(alpha)는 transparent(ghost/accent/outline)에서 RGB 0,0,0이
-      // 남아 50% 검정으로 깔리고, 글자색은 안 흐려져 disabled 구분이 안 되던 버그.
       color: bg,
       shape: RoundedRectangleBorder(borderRadius: radius, side: border),
       child: flushText
@@ -292,10 +318,17 @@ class PButton extends StatelessWidget {
               child: body(fg),
             ),
     );
-    final dimmed = disabled ? Opacity(opacity: 0.5, child: btn) : btn;
+    // 읽기 — 버튼 역할 + 막힘. 이름은 글(label) 또는 tooltip(아이콘만)이 준다.
+    final named = Semantics(
+      button: true,
+      enabled: !disabled,
+      child: PPressFeedback(enabled: !disabled, child: btn),
+    );
+    // 보이는 크기는 그대로 두고 누르는 영역만 44 까지 넓힌다(v106 터치 영역, 01A-090)
+    final reachable = TouchTarget(minSize: PTouch.min, child: named);
     final tipped = tooltip != null
-        ? PTooltip(message: tooltip!, child: dimmed)
-        : dimmed;
+        ? PTooltip(message: tooltip!, child: reachable)
+        : reachable;
     return fullWidth ? SizedBox(width: double.infinity, child: tipped) : tipped;
   }
 }

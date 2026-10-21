@@ -538,10 +538,10 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                     child: Text(
                       a.assetName,
                       style: PTypo.bodySm.copyWith(
-                        color: t.fgExpense,
+                        color: t.statusDangerFg,
                         fontWeight: PFontWeight.semi,
                         decoration: TextDecoration.lineThrough,
-                        decorationColor: t.fgExpense,
+                        decorationColor: t.statusDangerFg,
                       ),
                     ),
                   ),

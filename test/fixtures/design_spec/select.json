@@ -3,7 +3,7 @@
   "source": "specs/components/select.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "trigger": "트리거 — Input Button 과 같은 상자. 누르면 목록이 열린다",
@@ -67,8 +67,8 @@
         },
         "placeholder": {
           "foreground": {
-            "light": "#62697A",
-            "dark": "#A2A8B7"
+            "light": "#767C8B",
+            "dark": "#838997"
           },
           "fontWeight": 400
         },

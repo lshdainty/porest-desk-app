@@ -230,7 +230,7 @@ void main() {
           mode,
         );
         final box = tester.getSize(
-          find.byKey(const ValueKey('card-action-box')),
+          find.byKey(const ValueKey('text-button-box')),
         );
         if (box.height != want['headerAction.height']) {
           failures.add('$where — 동작 높이 ${box.height}');
@@ -238,7 +238,7 @@ void main() {
         final deco =
             tester
                     .widget<Container>(
-                      find.byKey(const ValueKey('card-action-box')),
+                      find.byKey(const ValueKey('text-button-box')),
                     )
                     .decoration!
                 as BoxDecoration;
@@ -248,44 +248,36 @@ void main() {
         }
         final label = tester.widget<Text>(
           find.descendant(
-            of: find.byKey(const ValueKey('card-action-box')),
+            of: find.byKey(const ValueKey('text-button-box')),
             matching: find.text('전체 보기'),
           ),
         );
         _expectText(failures, where, label.style!, want, 'headerAction', mode);
-        final icon = tester.widget<Icon>(
-          find.descendant(
-            of: find.byKey(const ValueKey('card-action-box')),
-            matching: find.byType(Icon),
-          ),
-        );
-        if (icon.size != want['headerAction.iconSize']) {
-          failures.add('$where — 아이콘 크기 ${icon.size}');
+        // 아이콘 · 꺾쇠는 없다(SEED Text Button)
+        if (find
+            .descendant(
+              of: find.byKey(const ValueKey('text-button-box')),
+              matching: find.byType(Icon),
+            )
+            .evaluate()
+            .isNotEmpty) {
+          failures.add('$where — 글 버튼에 아이콘이 있다');
         }
         final text = tester.getRect(find.text('전체 보기'));
-        final chevron = tester.getRect(find.byType(Icon));
         final boxRect = tester.getRect(
-          find.byKey(const ValueKey('card-action-box')),
+          find.byKey(const ValueKey('text-button-box')),
         );
-        if ((chevron.left -
-                    text.right -
-                    want['headerAction.gap']!.toString().length * 0 -
-                    2)
-                .abs() >
-            0.5) {
-          failures.add('$where — 글 ↔ 아이콘 ${chevron.left - text.right}');
-        }
         if ((text.left -
                         boxRect.left -
                         (want['headerAction.paddingLeft'] as num))
                     .abs() >
                 0.5 ||
             (boxRect.right -
-                        chevron.right -
+                        text.right -
                         (want['headerAction.paddingRight'] as num))
                     .abs() >
                 0.5) {
-          failures.add('$where — 동작 좌우 여백이 8 · 4 가 아니다');
+          failures.add('$where — 동작 좌우 여백이 14 · 14 가 아니다');
         }
         // 머리 여백
         final h = tester.getRect(find.byKey(const ValueKey('card-header')));
@@ -294,7 +286,7 @@ void main() {
         if ((t.left - h.left - wantPadX).abs() > 0.5) {
           failures.add('$where — 머리 좌우 여백 $wantPadX 아님');
         }
-        final wantH = 32 + (body == PCardBody.content ? 8 : 24 + 4);
+        final wantH = 36 + (body == PCardBody.content ? 8 : 24 + 4);
         if ((h.height - wantH).abs() > 0.5) {
           failures.add('$where — 머리 높이 ${h.height} · 기대 $wantH');
         }
@@ -681,7 +673,7 @@ void main() {
       final deco =
           tester
                   .widget<Container>(
-                    find.byKey(const ValueKey('card-action-box')),
+                    find.byKey(const ValueKey('text-button-box')),
                   )
                   .decoration!
               as BoxDecoration;
@@ -692,7 +684,7 @@ void main() {
         ),
       );
       expect(sameColor(want, deco.color!), isTrue);
-      final box = tester.getSize(find.byKey(const ValueKey('card-action-box')));
+      final box = tester.getSize(find.byKey(const ValueKey('text-button-box')));
       final basis = [
         box.height,
         box.width / 4,
@@ -826,7 +818,7 @@ void main() {
     );
 
     testWidgets(
-      '머리 동작의 누르는 영역은 44 — 보이는 상자(32) 위아래 6 에서도 눌린다, 7 에서는 눌리지 않는다(Q-011-8)',
+      '머리 동작의 누르는 영역은 44 — 보이는 상자(36) 위아래 4 에서도 눌린다, 5 에서는 눌리지 않는다(Q-011-8)',
       (tester) async {
         var taps = 0;
         await tester.pumpWidget(
@@ -845,15 +837,15 @@ void main() {
           ),
         );
         final box = tester.getRect(
-          find.byKey(const ValueKey('card-action-box')),
+          find.byKey(const ValueKey('text-button-box')),
         );
-        expect(box.height, 32, reason: '보이는 상자는 그대로');
+        expect(box.height, 36, reason: '보이는 상자 36(SEED Text Button)');
         final x = box.center.dx;
-        await tester.tapAt(Offset(x, box.top - 5.5));
-        await tester.tapAt(Offset(x, box.bottom + 5.5));
-        expect(taps, 2, reason: '위 · 아래 6 안');
-        await tester.tapAt(Offset(x, box.top - 7));
-        await tester.tapAt(Offset(x, box.bottom + 7));
+        await tester.tapAt(Offset(x, box.top - 3.5));
+        await tester.tapAt(Offset(x, box.bottom + 3.5));
+        expect(taps, 2, reason: '위 · 아래 4 안');
+        await tester.tapAt(Offset(x, box.top - 5));
+        await tester.tapAt(Offset(x, box.bottom + 5));
         expect(taps, 2, reason: '44 밖');
       },
     );

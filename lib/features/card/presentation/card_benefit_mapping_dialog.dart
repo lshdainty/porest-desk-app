@@ -269,9 +269,10 @@ class _RowState extends ConsumerState<_Row> {
             )
           else
             PButton.icon(
+              tooltip: AppLocalizations.of(context).actionDelete,
               icon: LucideIcons.trash2,
               size: PButtonSize.sm,
-              iconColor: t.fgExpense,
+              iconColor: t.statusDangerFg,
               onPressed: _busy ? null : _delete,
             ),
         ],

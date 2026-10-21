@@ -5774,7 +5774,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get dateJustNow => '방금';
+  String get dateJustNow => '방금 전';
 
   @override
   String dateMinutesAgo(int n) {
@@ -7042,4 +7042,301 @@ class AppLocalizationsKo extends AppLocalizations {
   String statsFixedBulkDoneVariable(int count) {
     return '$count건을 변동으로 되돌렸어요';
   }
+
+  @override
+  String get navMainMenu => '주 메뉴';
+
+  @override
+  String get navNotificationsNew => '알림, 새 알림 있음';
+
+  @override
+  String get dsNotificationBadge => '새 소식';
+
+  @override
+  String get dsQuantityDecrease => '줄이기';
+
+  @override
+  String get dsQuantityIncrease => '늘리기';
+
+  @override
+  String get dsSliderMin => '최소';
+
+  @override
+  String get dsSliderMax => '최대';
+
+  @override
+  String get actionPrev => '이전';
+
+  @override
+  String get actionNext => '다음';
+
+  @override
+  String dsAttachLifted(int n) {
+    return '$n번째 항목을 들었어요.';
+  }
+
+  @override
+  String dsAttachAddedPhotos(int n) {
+    return '사진 $n장을 붙였어요.';
+  }
+
+  @override
+  String dsAttachAddedFiles(int n) {
+    return '파일 $n개를 붙였어요.';
+  }
+
+  @override
+  String dsAttachAddedItems(int n) {
+    return '$n개를 붙였어요.';
+  }
+
+  @override
+  String dsAttachUploaded(int n) {
+    return '$n개를 올렸어요.';
+  }
+
+  @override
+  String dsAttachFailedCount(int n) {
+    return '$n개는 올리지 못했어요.';
+  }
+
+  @override
+  String get dsAttachTitle => '첨부';
+
+  @override
+  String get dsAttachCamera => '사진 찍기';
+
+  @override
+  String get dsAttachGallery => '앨범에서 고르기';
+
+  @override
+  String get dsAttachFiles => '파일 고르기';
+
+  @override
+  String dsAttachMoved(int n) {
+    return '$n번째 자리로 옮겼어요.';
+  }
+
+  @override
+  String get dsAttachPreviewImage => '크게 보기';
+
+  @override
+  String get dsAttachOpen => '열기';
+
+  @override
+  String get dsAttachMakeCover => '대표로 정하기';
+
+  @override
+  String get dsAttachMoveForward => '앞으로 옮기기';
+
+  @override
+  String get dsAttachMoveBack => '뒤로 옮기기';
+
+  @override
+  String get dsAttachUploading => '올리는 중';
+
+  @override
+  String dsAttachUploadingPercent(int percent) {
+    return '올리는 중 $percent%';
+  }
+
+  @override
+  String get dsAttachUploadFailed => '올리지 못했어요';
+
+  @override
+  String get dsAttachDefaultLabel => '파일';
+
+  @override
+  String get dsAttachSuffix => '첨부';
+
+  @override
+  String dsAttachSuffixCount(String count) {
+    return '첨부, $count';
+  }
+
+  @override
+  String get dsAttachPickFiles => '파일 선택';
+
+  @override
+  String dsAttachRetryNamed(String name) {
+    return '$name 다시 시도';
+  }
+
+  @override
+  String get dsAttachRetry => '다시 시도';
+
+  @override
+  String dsAttachRemoveNamed(String name) {
+    return '$name 지우기';
+  }
+
+  @override
+  String get dsAvatarUploading => '프로필 사진 올리는 중';
+
+  @override
+  String get dsDeltaNoChangeSentence => '변화가 없어요';
+
+  @override
+  String get dsDeltaIncreased => '늘었어요';
+
+  @override
+  String get dsDeltaDecreased => '줄었어요';
+
+  @override
+  String get dsDeltaNone => '변화 없음';
+
+  @override
+  String get dsChartHeatValue => '지출';
+
+  @override
+  String get dsChartHeatNone => '없음';
+
+  @override
+  String get dsChartLegend => '범례';
+
+  @override
+  String dsSwipeMore(String row) {
+    return '$row 더보기';
+  }
+
+  @override
+  String get dsColorRed => '빨강';
+
+  @override
+  String get dsColorOrange => '주황';
+
+  @override
+  String get dsColorYellow => '노랑';
+
+  @override
+  String get dsColorGreen => '초록';
+
+  @override
+  String get dsColorBlue => '파랑';
+
+  @override
+  String get dsColorIndigo => '남색';
+
+  @override
+  String get dsColorViolet => '보라';
+
+  @override
+  String get dsColorPink => '분홍';
+
+  @override
+  String get dsColorBrown => '갈색';
+
+  @override
+  String get dsColorGray => '회색';
+
+  @override
+  String get dsColorCurrent => '지금 색';
+
+  @override
+  String get dsColorAuto => '자동';
+
+  @override
+  String get dsIconTitle => '아이콘';
+
+  @override
+  String get dsIconSearch => '아이콘 검색';
+
+  @override
+  String get dsIconSearchPlaceholder => '아이콘 이름 검색';
+
+  @override
+  String get dsIconCurrent => '지금 아이콘';
+
+  @override
+  String get dsIconEmptyDescription => '다른 말로 찾거나 묶음에서 골라주세요.';
+
+  @override
+  String dsIconEmptyTitle(String query) {
+    return '\'$query\'에 대한 아이콘이 없어요';
+  }
+
+  @override
+  String dsIconCount(int count) {
+    return '검색 결과 $count개';
+  }
+
+  @override
+  String get dsIconTagFallback => '태그';
+
+  @override
+  String get dsTimeTitle => '시간 선택';
+
+  @override
+  String get dsTimePeriod => '오전/오후';
+
+  @override
+  String get dsTimeHour => '시';
+
+  @override
+  String get dsTimeMinute => '분';
+
+  @override
+  String get dsTimeAm => '오전';
+
+  @override
+  String get dsTimePm => '오후';
+
+  @override
+  String get dsDateRoot => '날짜 선택';
+
+  @override
+  String get dsDatePrevMonth => '이전 달';
+
+  @override
+  String get dsDateNextMonth => '다음 달';
+
+  @override
+  String get dsDateYear => '연도';
+
+  @override
+  String get dsDateMonth => '월';
+
+  @override
+  String get dsDateReadOnlyStart => '읽기 전용 시작일';
+
+  @override
+  String get dsDatePresets => '빠른 기간';
+
+  @override
+  String get dsDatePresetThisWeek => '이번 주';
+
+  @override
+  String get dsDatePresetThisMonth => '이번 달';
+
+  @override
+  String get dsDatePresetLastMonth => '지난 달';
+
+  @override
+  String get dsDatePresetLast7 => '최근 7일';
+
+  @override
+  String get dsDatePresetLast30 => '최근 30일';
+
+  @override
+  String get dsDatePresetLast3M => '최근 3개월';
+
+  @override
+  String get dsDatePresetLast6M => '최근 6개월';
+
+  @override
+  String get dsDatePresetLast1Y => '최근 1년';
+
+  @override
+  String get dsDatePresetThisYear => '올해';
+
+  @override
+  String calMemberMore(String name) {
+    return '$name 더보기';
+  }
+
+  @override
+  String get apiErrorServer => '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+
+  @override
+  String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.';
 }

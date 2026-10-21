@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -30,7 +32,7 @@ class SecuritiesLinkScreen extends ConsumerWidget {
     final connectionsAsync = ref.watch(brokerConnectionsProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -40,15 +42,17 @@ class SecuritiesLinkScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: connectionsAsync.when(
-        loading: () => const _LoadingList(),
-        error: (_, _) => Center(
-          child: PEmptyState(
-            icon: LucideIcons.unplug,
-            message: l.securitiesLoadError,
+      body: PScreenBandBody(
+        child: connectionsAsync.when(
+          loading: () => const _LoadingList(),
+          error: (_, _) => Center(
+            child: PEmptyState(
+              icon: LucideIcons.unplug,
+              message: l.securitiesLoadError,
+            ),
           ),
+          data: (connections) => _List(connections: connections),
         ),
-        data: (connections) => _List(connections: connections),
       ),
     );
   }

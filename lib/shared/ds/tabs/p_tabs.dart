@@ -467,7 +467,9 @@ class _LineTab<T> extends StatelessWidget {
     final m = tabsMetrics(size);
     // 알림 점은 안 고른 탭에만 — 고르면 점도 "새 소식" 도 사라진다
     final showDot = item.notification && !selected;
-    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
+    final name = showDot
+        ? '${item.label} ${notificationBadgeNameOf(context)}'
+        : item.label;
     final color = !enabled
         ? c.fgDisabled
         : selected
@@ -732,7 +734,9 @@ class _ChipTab<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showDot = item.notification && !selected;
-    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
+    final name = showDot
+        ? '${item.label} ${notificationBadgeNameOf(context)}'
+        : item.label;
     return PressArea(
       enabled: enabled,
       focusNode: focusNode,

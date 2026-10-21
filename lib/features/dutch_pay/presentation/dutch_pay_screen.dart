@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -47,7 +49,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
     final listAsync = ref.watch(dutchPayListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -62,37 +64,39 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         tooltip: l.dutchCreate,
         onPressed: () => showDutchPayCreateDialog(context),
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(dutchPayListProvider);
-          await ref.read(dutchPayListProvider.future);
-        },
-        child: listAsync.when(
-          loading: () => _DutchPaySkeleton(
-            tokens: t,
-            tab: _tab,
-            onTabChanged: (v) => setState(() => _tab = v),
-          ),
-          error: (e, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x16,
-              PSpace.x24,
-              PSpace.x16,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(dutchPayListProvider);
+            await ref.read(dutchPayListProvider.future);
+          },
+          child: listAsync.when(
+            loading: () => _DutchPaySkeleton(
+              tokens: t,
+              tab: _tab,
+              onTabChanged: (v) => setState(() => _tab = v),
             ),
-            children: [
-              Text(
-                '${l.dutchLoadFailed}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+            error: (e, _) => ListView(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.x16,
+                PSpace.x24,
+                PSpace.x16,
               ),
-            ],
-          ),
-          data: (items) => _buildBody(
-            context,
-            t,
-            items,
-            ref.watch(hideCardProvider('dutchpay.sessions')),
+              children: [
+                Text(
+                  '${l.dutchLoadFailed}\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                ),
+              ],
+            ),
+            data: (items) => _buildBody(
+              context,
+              t,
+              items,
+              ref.watch(hideCardProvider('dutchpay.sessions')),
+            ),
           ),
         ),
       ),

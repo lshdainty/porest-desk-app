@@ -7,10 +7,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:groo_damda_app/app/env.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_avatar.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -204,7 +206,8 @@ class SettingsScreen extends ConsumerWidget {
     final groups = _buildGroups(context);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      // 띠 화면 — 바닥은 basement, 묶음마다 화면 폭 흰 띠(02-005 / Q-019-3)
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -215,94 +218,95 @@ class SettingsScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: ListView(
-        // design m-settings-list: padding '8px 0 32px' — 좌우는 요소별 20.
-        padding: const EdgeInsets.all(PSpace.x24),
-        children: [
+        padding: const EdgeInsets.only(bottom: PSpace.x24),
+        children: PScreenBands.children([
           // 내 정보 — 카드 없이 이름 헤더 행 (design ProfileCard 폐기판).
-          if (user != null) ...[
-            InkWell(
-              onTap: () => context.push('/account'),
+          if (user != null)
+            PScreenBand(
+              child: InkWell(
+                onTap: () => context.push('/account'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x24,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      PAvatar(
+                        size: PAvatarSize.lg,
+                        fill: PAvatarFill.primary,
+                        fallbackText: user.userName.isNotEmpty
+                            ? user.userName[0].toUpperCase()
+                            : '?',
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.userName,
+                              style: TextStyle(
+                                fontFamily: PTypo.sans,
+                                fontSize: 17,
+                                fontWeight: PFontWeight.bold,
+                                letterSpacing: -0.26,
+                                color: t.fgPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              user.userEmail.isNotEmpty
+                                  ? user.userEmail
+                                  : l.settingsMenuAccountMgmt,
+                              style: TextStyle(
+                                fontFamily: PTypo.sans,
+                                fontSize: 12.5,
+                                color: t.fgTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        LucideIcons.chevronRight,
+                        size: 18,
+                        color: t.fgTertiary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // 그룹 — 라벨 + 플랫 행, 그룹마다 화면 폭 흰 띠
+          for (int gi = 0; gi < groups.length; gi++)
+            PScreenBand(
               child: Padding(
-                padding: const EdgeInsets.only(top: 14, bottom: 18),
-                child: Row(
+                padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    PAvatar(
-                      size: PAvatarSize.lg,
-                      fill: PAvatarFill.primary,
-                      fallbackText: user.userName.isNotEmpty
-                          ? user.userName[0].toUpperCase()
-                          : '?',
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.userName,
-                            style: TextStyle(
-                              fontFamily: PTypo.sans,
-                              fontSize: 17,
-                              fontWeight: PFontWeight.bold,
-                              letterSpacing: -0.26,
-                              color: t.fgPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            user.userEmail.isNotEmpty
-                                ? user.userEmail
-                                : l.settingsMenuAccountMgmt,
-                            style: TextStyle(
-                              fontFamily: PTypo.sans,
-                              fontSize: 12.5,
-                              color: t.fgTertiary,
-                            ),
-                          ),
-                        ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, bottom: 4),
+                      child: Text(
+                        groups[gi].label,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: 16,
+                          fontWeight: PFontWeight.bold,
+                          letterSpacing: -0.16,
+                          color: t.fgPrimary,
+                        ),
                       ),
                     ),
-                    Icon(
-                      LucideIcons.chevronRight,
-                      size: 18,
-                      color: t.fgTertiary,
-                    ),
+                    for (final item in groups[gi].items)
+                      _SettingsRow(item: item, tokens: t),
                   ],
                 ),
               ),
             ),
-            Container(
-              height: 1,
-              margin: const EdgeInsets.only(bottom: 4),
-              color: t.borderSubtle,
-            ),
-          ],
-
-          // 그룹 — 라벨 + 플랫 행, 그룹 사이 헤어라인 (design flat-div 12px 20px).
-          for (int gi = 0; gi < groups.length; gi++) ...[
-            if (gi > 0)
-              Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(vertical: PSpace.x12),
-                color: t.borderSubtle,
-              ),
-            Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 4),
-              child: Text(
-                groups[gi].label,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 16,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.16,
-                  color: t.fgPrimary,
-                ),
-              ),
-            ),
-            for (final item in groups[gi].items)
-              _SettingsRow(item: item, tokens: t),
-          ],
-        ],
+        ]),
       ),
     );
   }

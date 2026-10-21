@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
@@ -62,6 +63,24 @@ class PIconPickerTexts {
     this.emptyTitle = _defaultEmptyTitle,
     this.countLabel = _defaultCountLabel,
   });
+
+  /// 지금 로케일의 문구 한 벌 — 로케일이 없는 호스트에서는 한국어 기본값.
+  factory PIconPickerTexts.of(BuildContext context) {
+    final l = dsL(context);
+    if (l == null) return const PIconPickerTexts();
+    return PIconPickerTexts(
+      title: l.dsIconTitle,
+      closeLabel: l.actionClose,
+      listLabel: l.dsIconTitle,
+      searchLabel: l.dsIconSearch,
+      searchPlaceholder: l.dsIconSearchPlaceholder,
+      clearLabel: l.dsInputClear,
+      currentIconName: l.dsIconCurrent,
+      emptyDescription: l.dsIconEmptyDescription,
+      emptyTitle: (q) => l.dsIconEmptyTitle(q),
+      countLabel: (n) => l.dsIconCount(n),
+    );
+  }
 
   /// 시트의 이름 — 트리거 라벨도 "아이콘"(Field).
   final String title;
@@ -289,7 +308,7 @@ class PIconPickerPanel extends StatefulWidget {
     super.key,
     required this.selectedId,
     required this.onSelect,
-    this.texts = const PIconPickerTexts(),
+    this.texts,
     this.autofocus = true,
     this.initialQuery = '',
   });
@@ -299,7 +318,9 @@ class PIconPickerPanel extends StatefulWidget {
 
   /// 칸을 고르면.
   final ValueChanged<String> onSelect;
-  final PIconPickerTexts texts;
+
+  /// 문구 — 없으면 로케일 문구([PIconPickerTexts.of]).
+  final PIconPickerTexts? texts;
 
   /// 열 때 초점을 고른 칸(없으면 첫 칸)에 두고 가운데로 스크롤한다.
   final bool autofocus;
@@ -379,7 +400,7 @@ class _PIconPickerPanelState extends State<PIconPickerPanel> {
       unawaited(
         SemanticsService.sendAnnouncement(
           View.of(context),
-          widget.texts.countLabel(count),
+          (widget.texts ?? PIconPickerTexts.of(context)).countLabel(count),
           Directionality.of(context),
         ),
       );
@@ -564,7 +585,7 @@ class _PIconPickerPanelState extends State<PIconPickerPanel> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final t = widget.texts;
+    final t = widget.texts ?? PIconPickerTexts.of(context);
     final tabbable = _tabbableId;
     final searching = _searching;
     final results = _results;
@@ -682,7 +703,7 @@ class PIconPicker extends StatefulWidget {
     super.key,
     required this.value,
     required this.onChanged,
-    this.texts = const PIconPickerTexts(),
+    this.texts,
     this.disabled,
     this.readOnly,
     this.invalid,
@@ -695,7 +716,9 @@ class PIconPicker extends StatefulWidget {
 
   /// 고르면 — 닫는 것은 스스로 한다. 고르지 않고 닫으면 부르지 않는다.
   final ValueChanged<String>? onChanged;
-  final PIconPickerTexts texts;
+
+  /// 문구 — 없으면 로케일 문구([PIconPickerTexts.of]).
+  final PIconPickerTexts? texts;
   final bool? disabled;
   final bool? readOnly;
   final bool? invalid;
@@ -729,14 +752,14 @@ class _PIconPickerState extends State<PIconPicker> {
     await PBottomSheet.show<void>(
       context,
       builder: (sheetContext) => PBottomSheetContent(
-        title: widget.texts.title,
-        closeLabel: widget.texts.closeLabel,
+        title: (widget.texts ?? PIconPickerTexts.of(context)).title,
+        closeLabel: (widget.texts ?? PIconPickerTexts.of(context)).closeLabel,
         flushBody: true,
         body: SizedBox(
           height: MediaQuery.sizeOf(sheetContext).height * 0.6,
           child: PIconPickerPanel(
             selectedId: selectedId,
-            texts: widget.texts,
+            texts: widget.texts ?? PIconPickerTexts.of(context),
             onSelect: (id) {
               widget.onChanged?.call(id);
               PBottomSheet.of(sheetContext).close();
@@ -761,8 +784,10 @@ class _PIconPickerState extends State<PIconPicker> {
     final shownName = entry != null
         ? entry.name
         : empty
-        ? (findCategoryIcon(kDefaultCategoryIcon)?.name ?? '태그')
-        : widget.texts.currentIconName;
+        ? (findCategoryIcon(kDefaultCategoryIcon)?.name ??
+              dsL(context)?.dsIconTagFallback ??
+              '태그')
+        : (widget.texts ?? PIconPickerTexts.of(context)).currentIconName;
     return PInputButton(
       value: shownName,
       prefixIcon: categoryGlyph(shownId),

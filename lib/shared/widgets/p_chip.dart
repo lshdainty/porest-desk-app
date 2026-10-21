@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
 import 'package:groo_damda_app/app/theme/typography.dart';
 
 /// Chip — pill 형태 단일선택 토글. 필터/카테고리/태그/타입 선택 등에 사용.
@@ -68,6 +71,38 @@ class PChip extends StatelessWidget {
     final padding = _padding();
     final (bg, fg, borderColor, borderWidth) = _colors(t);
 
+    // 읽기 — 버튼이고 고른 상태를 알린다(01A-091). 누르는 영역은 44 까지 넓힌다(01A-090, 보이는 크기는 그대로).
+    return TouchTarget(
+      minSize: PTouch.min,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        child: PPressFeedback(
+          child: _chip(
+            context,
+            t,
+            radius,
+            padding,
+            bg,
+            fg,
+            borderColor,
+            borderWidth,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _chip(
+    BuildContext context,
+    GrooTokens t,
+    BorderRadius radius,
+    EdgeInsetsGeometry padding,
+    Color bg,
+    Color fg,
+    Color? borderColor,
+    double borderWidth,
+  ) {
     return Material(
       color: Colors.transparent,
       borderRadius: radius,

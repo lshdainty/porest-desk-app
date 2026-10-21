@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/colors.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 
@@ -49,17 +51,20 @@ class PToggle extends StatelessWidget {
     final (padX, padY, minH) = _metrics;
 
     final bg = pressed ? t.bgMuted : Colors.transparent;
-    final fg = pressed ? t.fgPrimary : t.fgSecondary;
+    final fg = disabled
+        ? t.fgDisabled
+        : (pressed ? t.fgPrimary : t.fgSecondary);
     Border? border;
     if (variant == PToggleVariant.outline) {
       border = Border.all(color: pressed ? t.borderStrong : t.borderDefault);
     }
 
-    return Opacity(
-      opacity: disabled ? 0.5 : 1,
-      child: Semantics(
-        label: semanticLabel ?? label,
-        toggled: pressed,
+    // 막힘은 불투명도가 아니라 글자 · 테두리 전용 색(STA-01, 01A-071)
+    return Semantics(
+      label: semanticLabel ?? label,
+      toggled: pressed,
+      enabled: !disabled,
+      child: PPressFeedback(
         enabled: !disabled,
         child: Material(
           color: Colors.transparent,
@@ -323,17 +328,11 @@ class _GroupItem<T> extends StatelessWidget {
         ? DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: PRadius.brSm,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x26000000),
-                  offset: Offset(0, 1),
-                  blurRadius: 3,
-                ),
-              ],
+              boxShadow: context.shadows.s1,
             ),
             child: tile,
           )
         : tile;
-    return Opacity(opacity: disabled ? 0.5 : 1, child: decorated);
+    return decorated;
   }
 }

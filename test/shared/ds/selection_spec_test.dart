@@ -1555,10 +1555,11 @@ void main() {
       ];
       expect(rows.first.height, 32);
       expect(rows[1].top - rows[0].bottom, want['group.gap']);
+      // 묶음 맨 위 줄은 묶음 밖 6 까지 눌린다(03A-010 — 이웃이 있는 부모 안)
       await tester.tapAt(Offset(rows[0].center.dx, rows[0].top - 5));
       await tester.tapAt(Offset(rows[0].center.dx, rows[0].bottom + 5));
       await tester.tapAt(Offset(rows[1].center.dx, rows[1].top - 5));
-      expect(calls, ['none', 'daily']);
+      expect(calls, ['none', 'none', 'daily']);
     });
 
     testWidgets('누르면 동그라미만 세로 2px 거리 준다 — 모션 줄이기면 색만', (tester) async {

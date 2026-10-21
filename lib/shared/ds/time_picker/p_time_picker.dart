@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
 /// 시각 — 24시간 시(0 ~ 23) · 분(0 ~ 59). 화면은 12시간이고 값은 24시간이다.
@@ -46,6 +47,20 @@ class PTimePickerLabels {
   final String minute;
   final String am;
   final String pm;
+
+  /// 지금 로케일의 한 벌 — 로케일이 없는 호스트에서는 한국어([ko]).
+  factory PTimePickerLabels.of(BuildContext context) {
+    final l = dsL(context);
+    if (l == null) return ko;
+    return PTimePickerLabels(
+      root: l.dsTimeTitle,
+      period: l.dsTimePeriod,
+      hour: l.dsTimeHour,
+      minute: l.dsTimeMinute,
+      am: l.dsTimeAm,
+      pm: l.dsTimePm,
+    );
+  }
 
   static const PTimePickerLabels ko = PTimePickerLabels(
     root: '시간 선택',
@@ -118,7 +133,7 @@ class PTimePicker extends StatefulWidget {
     this.minuteStep = 5,
     this.disabled = false,
     this.now,
-    this.labels = PTimePickerLabels.ko,
+    this.labels,
     this.semanticLabel,
   });
 
@@ -134,7 +149,9 @@ class PTimePicker extends StatefulWidget {
 
   /// 지금 — 빈 값을 짚을 때 쓴다(처음 한 번만 잰다. 테스트 · 견본에서 맞춘다).
   final DateTime? now;
-  final PTimePickerLabels labels;
+
+  /// 글 한 벌 — 없으면 로케일 문구([PTimePickerLabels.of]).
+  final PTimePickerLabels? labels;
 
   /// 휠의 이름 — 칸 라벨. 없으면 [PTimePickerLabels.root].
   final String? semanticLabel;
@@ -181,7 +198,7 @@ class _PTimePickerState extends State<PTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final l = widget.labels;
+    final l = widget.labels ?? PTimePickerLabels.of(context);
     final value = _resolve();
     _current = value;
     final period = value.hour < 12 ? 'am' : 'pm';

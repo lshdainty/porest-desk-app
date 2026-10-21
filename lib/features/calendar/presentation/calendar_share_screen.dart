@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -17,7 +19,7 @@ import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
-import 'package:groo_damda_app/shared/widgets/p_dropdown_menu.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -54,7 +56,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
     final listAsync = ref.watch(userCalendarListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -71,39 +73,41 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(userCalendarListProvider);
-          await ref.read(userCalendarListProvider.future);
-        },
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24,
-            vertical: PSpace.x24,
-          ),
-          children: [
-            _IntroCard(tokens: t),
-            const SizedBox(height: PSpace.x32),
-            listAsync.when(
-              loading: () => const PListSkeleton(rows: 4, showAvatar: true),
-              error: (e, _) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text(
-                  '${l.calCalendarLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(userCalendarListProvider);
+            await ref.read(userCalendarListProvider.future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
+            ),
+            children: [
+              _IntroCard(tokens: t),
+              const SizedBox(height: PSpace.x32),
+              listAsync.when(
+                loading: () => const PListSkeleton(rows: 4, showAvatar: true),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                  child: Text(
+                    '${l.calCalendarLoadError}\n$e',
+                    style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                  ),
+                ),
+                data: (calendars) => _CalendarSections(
+                  calendars: calendars,
+                  tokens: t,
+                  onCreate: () => _showCreateDialog(context, ref),
                 ),
               ),
-              data: (calendars) => _CalendarSections(
-                calendars: calendars,
-                tokens: t,
-                onCreate: () => _showCreateDialog(context, ref),
-              ),
-            ),
-            const SizedBox(height: PSpace.x32),
-            _JoinCard(tokens: t, onJoin: () => _showJoinDialog(context, ref)),
-            const SizedBox(height: PSpace.x32),
-          ],
+              const SizedBox(height: PSpace.x32),
+              _JoinCard(tokens: t, onJoin: () => _showJoinDialog(context, ref)),
+              const SizedBox(height: PSpace.x32),
+            ],
+          ),
         ),
       ),
     );
@@ -933,25 +937,37 @@ class _MemberRow extends StatelessWidget {
             ),
           ),
           if (canManage)
-            PDropdownMenu(
+            // ⋮ — 폰에서는 떠 있는 메뉴가 아니라 Menu Sheet 다(03-F 4A). 이름은 "{이름} 더보기"
+            PButton.icon(
+              icon: LucideIcons.ellipsisVertical,
               iconColor: t.fgTertiary,
-              entries: [
-                if (member.permission != 'EDIT')
-                  PDropdownItem(
-                    label: l.calChangeToEditor,
-                    onTap: () => onChangeRole('EDIT'),
-                  ),
-                if (member.permission != 'READ')
-                  PDropdownItem(
-                    label: l.calChangeToViewer,
-                    onTap: () => onChangeRole('READ'),
-                  ),
-                PDropdownItem(
-                  label: l.calRemove,
-                  onTap: onRemove,
-                  destructive: true,
-                ),
-              ],
+              tooltip: l.calMemberMore(member.userName),
+              onPressed: () => PMenuSheet.show(
+                context,
+                title: member.userName,
+                layout: PMenuSheetLayout.textOnly,
+                groups: [
+                  PMenuSheetGroup([
+                    if (member.permission != 'EDIT')
+                      PMenuSheetItem(
+                        label: l.calChangeToEditor,
+                        onSelect: () => onChangeRole('EDIT'),
+                      ),
+                    if (member.permission != 'READ')
+                      PMenuSheetItem(
+                        label: l.calChangeToViewer,
+                        onSelect: () => onChangeRole('READ'),
+                      ),
+                  ]),
+                  PMenuSheetGroup([
+                    PMenuSheetItem(
+                      label: l.calRemove,
+                      tone: PMenuSheetTone.critical,
+                      onSelect: onRemove,
+                    ),
+                  ]),
+                ],
+              ),
             )
           else
             Padding(

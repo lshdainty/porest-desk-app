@@ -660,7 +660,7 @@ void main() {
         'headerTitle',
         mode,
       );
-      final box = tester.getRect(_key('paccordion-expand-all-box'));
+      final box = tester.getRect(_key('text-button-box'));
       _near(
         failures,
         '모두 펼치기 높이',
@@ -668,9 +668,7 @@ void main() {
         box.height,
       );
       final deco =
-          tester
-                  .widget<Container>(_key('paccordion-expand-all-box'))
-                  .decoration!
+          tester.widget<Container>(_key('text-button-box')).decoration!
               as BoxDecoration;
       _near(
         failures,
@@ -694,30 +692,20 @@ void main() {
         want['expandAll.paddingLeft']! as num,
         labelRect.left - box.left,
       );
-      final icon = find.descendant(
-        of: _key('paccordion-expand-all-box'),
-        matching: find.byType(Icon),
-      );
-      final iconRect = tester.getRect(icon);
-      _near(
-        failures,
-        '모두 펼치기 아이콘 크기',
-        want['expandAll.iconSize']! as num,
-        iconRect.width,
-      );
-      _near(
-        failures,
-        '글 ↔ 아이콘',
-        want['expandAll.gap']! as num,
-        iconRect.left - labelRect.right,
-      );
       _near(
         failures,
         '모두 펼치기 오른쪽 여백',
         want['expandAll.paddingRight']! as num,
-        box.right - iconRect.right,
+        box.right - labelRect.right,
       );
-      expect(tester.widget<Icon>(icon).icon, LucideIcons.chevronsUpDown);
+      expect(
+        find.descendant(
+          of: _key('text-button-box'),
+          matching: find.byType(Icon),
+        ),
+        findsNothing,
+        reason: '아이콘 없음(SEED Text Button)',
+      );
       expect(failures, isEmpty, reason: failures.join('\n'));
     });
   }
@@ -1102,12 +1090,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(values, ['coffee', 'fuel']);
       expect(find.text('모두 접기'), findsOneWidget);
-      expect(find.byIcon(LucideIcons.chevronsDownUp), findsOneWidget);
+      expect(find.byIcon(LucideIcons.chevronsDownUp), findsNothing);
       await tester.tap(find.text('모두 접기'));
       await tester.pumpAndSettle();
       expect(values, isEmpty);
       expect(find.text('모두 펼치기'), findsOneWidget);
-      expect(find.byIcon(LucideIcons.chevronsUpDown), findsOneWidget);
+      expect(find.byIcon(LucideIcons.chevronsUpDown), findsNothing);
     });
 
     testWidgets('PExpandMotion 은 List 의 하위 줄과 같은 위젯이다', (tester) async {

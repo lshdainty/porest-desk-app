@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/selection_control.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PTouchTargetScope;
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 /// 크기 — 칸 · 라벨 · 줄 높이가 함께 정해진다. medium 20(라벨 14 · 줄 32, 기본) · large 24(라벨 16 · 줄 36 — 한 화면의
@@ -310,6 +313,7 @@ class PCheckbox extends StatelessWidget {
       minHeight: s.minHeight,
       onActivate: enabled ? () => onChanged(checked != true) : null,
       focusNode: focusNode,
+      ringStyle: const PFocusRingStyle(radius: PRounded.r1),
       semantics: SelectionSemantics(
         checked: checked ?? false,
         mixed: checked == null,
@@ -364,20 +368,24 @@ class PCheckboxGroup extends StatelessWidget {
     final field = PFieldScope.maybeOf(context)?.data;
     final off = disabled ?? field?.disabled ?? false;
     final bad = invalid ?? field?.invalid ?? false;
-    return PCheckboxGroupState(
-      disabled: off,
-      invalid: bad,
-      child: Semantics(
-        container: true,
-        explicitChildNodes: true,
-        label: semanticLabel,
-        // 묶음의 막힘 — 웹 aria-disabled
-        enabled: off ? false : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: PSpacing.x3,
-          children: children,
+    // 가장 바깥에서 묶음 밖 6 까지 받는다(첫 · 끝 줄 32 → 44, 03A-010) — 안쪽 Semantics 가 먼저 거르지 않게
+    return PTouchTargetScope(
+      slack: 6,
+      child: PCheckboxGroupState(
+        disabled: off,
+        invalid: bad,
+        child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          label: semanticLabel,
+          // 묶음의 막힘 — 웹 aria-disabled
+          enabled: off ? false : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: PSpacing.x3,
+            children: children,
+          ),
         ),
       ),
     );

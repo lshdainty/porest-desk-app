@@ -41,7 +41,18 @@ class _PCircularProgressIndicatorState extends State<PCircularProgressIndicator>
   late final AnimationController _ctrl = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1500), // motion-duration-loop
-  )..repeat();
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 동작 줄이기를 켠 사람에게는 돌지 않는 원 — 반복 모션은 멈춘다(01A-062)
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _ctrl.stop();
+    } else if (!_ctrl.isAnimating) {
+      _ctrl.repeat();
+    }
+  }
 
   @override
   void dispose() {

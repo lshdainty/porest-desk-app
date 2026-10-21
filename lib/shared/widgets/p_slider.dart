@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:flutter/material.dart';
 
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -102,7 +103,7 @@ class _PrimaryRingThumb extends SliderComponentShape {
   }) {
     final canvas = context.canvas;
     final fillPaint = Paint()
-      ..color = sliderTheme.thumbColor ?? const Color(0xFFFFFFFF)
+      ..color = sliderTheme.thumbColor ?? PColors.light.staticWhite
       ..style = PaintingStyle.fill;
     final ringPaint = Paint()
       ..color = borderColor

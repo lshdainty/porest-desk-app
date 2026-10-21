@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -87,7 +89,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         (categoriesAsync.isLoading && !categoriesAsync.hasValue);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -97,40 +99,42 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(presetListProvider);
-          await ref.read(presetListProvider.future);
-        },
-        child: listAsync.when(
-          loading: () => _content(
-            t: t,
-            items: const [],
-            categories: const [],
-            masked: ref.watch(hideCardProvider('etc.preset')),
-            firstLoading: true,
-          ),
-          error: (e, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.lg,
-              PSpace.x24,
-              PSpace.lg,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(presetListProvider);
+            await ref.read(presetListProvider.future);
+          },
+          child: listAsync.when(
+            loading: () => _content(
+              t: t,
+              items: const [],
+              categories: const [],
+              masked: ref.watch(hideCardProvider('etc.preset')),
+              firstLoading: true,
             ),
-            children: [
-              Text(
-                '${l.presetLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+            error: (e, _) => ListView(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                PSpace.lg,
+                PSpace.x24,
+                PSpace.lg,
               ),
-            ],
-          ),
-          data: (items) => _content(
-            t: t,
-            items: items,
-            categories: categoriesAsync.value ?? const <ExpenseCategory>[],
-            masked: ref.watch(hideCardProvider('etc.preset')),
-            firstLoading: firstLoading,
+              children: [
+                Text(
+                  '${l.presetLoadError}\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                ),
+              ],
+            ),
+            data: (items) => _content(
+              t: t,
+              items: items,
+              categories: categoriesAsync.value ?? const <ExpenseCategory>[],
+              masked: ref.watch(hideCardProvider('etc.preset')),
+              firstLoading: firstLoading,
+            ),
           ),
         ),
       ),

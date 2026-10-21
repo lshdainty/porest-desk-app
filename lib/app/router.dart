@@ -38,6 +38,7 @@ import 'package:groo_damda_app/features/auth/presentation/withdrawn_screen.dart'
 import 'package:groo_damda_app/features/auth/presentation/splash_screen.dart';
 import 'package:groo_damda_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/features/more/presentation/more_screen.dart';
 import 'package:groo_damda_app/features/recurring/presentation/recurring_screen.dart';
 import 'package:groo_damda_app/features/settings/presentation/account_screen.dart';
@@ -241,6 +242,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             CardDetailScreen(catalogId: int.parse(state.pathParameters['id']!)),
       ),
 
+      // 옛 경로 — 가계부 묶음에서 그 탭을 고른 채로 간다(딥링크 · 북마크가 깨지지 않게).
+      for (final tab in [MoneyTab.assets, MoneyTab.stats, MoneyTab.budget])
+        GoRoute(path: tab.legacyPath, redirect: (_, _) => tab.location),
+
       // 모바일 셸 (홈/가계부/캘린더/전체 4개 분기)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -255,8 +260,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // 가계부 branch — 4 페이지 (money group) 모두 같은 branch:
-          //   /expense, /assets, /stats, /budget — MoneyTabBar 로 전환.
+          // 가계부 branch — 한 라우트(/expense) 안 Tabs 로 네 화면(가계부 · 자산 · 통계 ·
+          // 예산)을 담는다. 고른 탭은 ?tab= 이고, 옛 경로(/assets · /stats · /budget)는
+          // 위쪽 redirect 가 이 주소로 보낸다.
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -271,35 +277,27 @@ final routerProvider = Provider<GoRouter>((ref) {
                   );
                   return NoTransitionPage(
                     child: BranchBackToHome(
-                      child: ExpenseScreen(
-                        key: ValueKey(
-                          'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}',
+                      child: MoneyBundleScreen(
+                        tab: MoneyTab.fromQuery(
+                          state.uri.queryParameters['tab'],
                         ),
-                        initialMonth: month,
-                        focusTxId: txId,
-                        initialAssetId: assetId,
+                        pages: [
+                          ExpenseScreen(
+                            key: ValueKey(
+                              'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}',
+                            ),
+                            initialMonth: month,
+                            focusTxId: txId,
+                            initialAssetId: assetId,
+                          ),
+                          const AssetScreen(),
+                          const StatsScreen(),
+                          const BudgetScreen(),
+                        ],
                       ),
                     ),
                   );
                 },
-              ),
-              GoRoute(
-                path: '/assets',
-                pageBuilder: (_, _) => const NoTransitionPage(
-                  child: BranchBackToHome(child: AssetScreen()),
-                ),
-              ),
-              GoRoute(
-                path: '/stats',
-                pageBuilder: (_, _) => const NoTransitionPage(
-                  child: BranchBackToHome(child: StatsScreen()),
-                ),
-              ),
-              GoRoute(
-                path: '/budget',
-                pageBuilder: (_, _) => const NoTransitionPage(
-                  child: BranchBackToHome(child: BudgetScreen()),
-                ),
               ),
             ],
           ),

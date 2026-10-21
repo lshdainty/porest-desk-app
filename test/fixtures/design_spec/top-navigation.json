@@ -3,7 +3,7 @@
   "source": "specs/components/top-navigation.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "바 — 화면 폭 · 높이 56(위 안전 영역은 더한다). 맨 위에 붙어 스크롤해도 그 자리에 있다",
@@ -14,6 +14,10 @@
     "textButton": "글 버튼 — 오른쪽 자리에 하나만(\"완료\" · \"모두 읽음\")",
     "notification": "알림 점 — 벨 아이콘의 오른쪽 위(Notification Badge small). 숫자는 두지 않는다",
     "primaryButton": "주 버튼 — desktop 만. Button brandSolid small 하나(\"내역 추가\")",
+    "searchField": "검색칸 — 거래 검색 화면의 제목 자리(보이지 않는 h1 \"검색\") · desktop 왼쪽. Text Field outline medium",
+    "screenTitle": "화면 제목 — desktop 본문 맨 위 h1(ScreenTitle). 모든 데스크톱 화면에 하나",
+    "screenDescription": "화면 설명 — 제목 아래 한 줄(있을 때만). 길면 줄을 바꾼다",
+    "screenActions": "화면 동작 — 제목 줄 오른쪽 Button small 묶음(있을 때만)",
     "focusRing": "키보드 포커스 링(웹) — 버튼 상자 안쪽"
   },
   "axes": {
@@ -66,7 +70,8 @@
         },
         "trailing": {
           "gap": 0,
-          "items": "아이콘 2개 권장 · 3개까지 · 또는 글 버튼 1개"
+          "items": "아이콘 2개 권장 · 3개까지 · 또는 글 버튼 1개",
+          "bell": "폰 — 알림 화면 · 데스크톱 — 1280 이상 Popover · 768 ~ 1279 Bottom Sheet"
         },
         "iconButton": {
           "size": 44,
@@ -112,6 +117,46 @@
           },
           "top": 1,
           "right": 1
+        },
+        "searchField": {
+          "textField": "outline medium",
+          "height": 40,
+          "width": "남은 폭",
+          "heading": "보이지 않는 h1 \"검색\""
+        },
+        "screenTitle": {
+          "typography": {
+            "fontSize": 26,
+            "lineHeight": 35,
+            "fontWeight": 700,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 700,
+          "foreground": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "marginTop": 20,
+          "gap": 16
+        },
+        "screenDescription": {
+          "typography": {
+            "fontSize": 16,
+            "lineHeight": 22,
+            "fontWeight": 400,
+            "fontFamily": "Pretendard, Inter, sans-serif"
+          },
+          "fontWeight": 400,
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          },
+          "marginTop": 2
+        },
+        "screenActions": {
+          "buttonSize": "small 36",
+          "gap": 8,
+          "align": "아래 끝"
         }
       },
       "hovered": {
@@ -180,6 +225,9 @@
         "type": "root"
       },
       "enabled": {
+        "trailing": {
+          "items": "홈 = 검색 · 알림 / 가계부 · 캘린더 · 전체 = 검색"
+        },
         "title": {
           "typography": {
             "fontSize": 22,
@@ -219,6 +267,12 @@
         },
         "title": {
           "display": "none"
+        },
+        "trailing": {
+          "items": "주 버튼 하나 + 아이콘 버튼 둘(알림 · 설정)"
+        },
+        "searchField": {
+          "width": 360
         },
         "primaryButton": {
           "buttonSize": "small 36",
@@ -355,6 +409,13 @@
     {
       "rule": 0,
       "state": "enabled",
+      "slot": "trailing",
+      "prop": "bell",
+      "note": "알림 목록을 여는 곳(2026-10-16 사용자 결정 Q-017-3b B — Popover 의 1280 미만 Bottom Sheet 그대로). 데스크톱 벨은 aria-haspopup=\"dialog\" · aria-expanded"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
       "slot": "iconButton",
       "prop": "size",
       "note": "보이는 상자 = 누르는 영역(SEED top-navigation-icon-button). 본문 아이콘 버튼(Button medium iconOnly 40 · 18)과 따로"
@@ -385,7 +446,7 @@
       "state": "enabled",
       "slot": "iconButton",
       "prop": "strokeWidthOn",
-      "note": "켜고 끄는 단추(aria-pressed=\"true\" — 금액 가리기)의 켬(v106). 끔은 2"
+      "note": "그 자리에서 켜고 끄는 단추(aria-pressed=\"true\")의 켬(v106). 끔은 2. 다른 화면으로 가는 버튼에는 aria-pressed 를 달지 않는다 — 금액 가리기 눈은 상단 바에 두지 않는다(2026-10-16 Q-017-2b A · 3c B)"
     },
     {
       "rule": 0,
@@ -452,6 +513,83 @@
     },
     {
       "rule": 0,
+      "state": "enabled",
+      "slot": "searchField",
+      "prop": "textField",
+      "note": "Text Field(input.yaml) 상자형 medium 40 · 앞 돋보기 16 · 지우기 18 — 바 56 안이라 폰에서도 medium(Text Field 의 '1280 이상' 규칙의 예외). 2026-10-16 Q-017-3a C · Q-017-5 정리"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "searchField",
+      "prop": "height",
+      "note": "바 56 의 가운데 — 위아래 8"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "searchField",
+      "prop": "width",
+      "note": "검색 화면 — ← 다음 6(화면 끝에서 56)부터 오른쪽 자리 앞 8 까지(제목 자리 — SEED Standard Title Slot)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "searchField",
+      "prop": "heading",
+      "note": "화면 이름 대신 칸이 서므로 머리말은 보조 기술에만 — 화면을 옮기면 초점이 이 h1 로 온다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenTitle",
+      "prop": "typography",
+      "note": "26 / 35 — 데스크톱 본문 맨 위 h1. 모든 데스크톱 화면에 하나(홈 · 캘린더도 — 2026-10-16 Q-018-2 정리)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenTitle",
+      "prop": "marginTop",
+      "note": "머리 아래 20 — 제목 줄 전체의 위"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenTitle",
+      "prop": "gap",
+      "note": "제목 덩어리(제목 + 설명) ↔ 버튼 줄 16 — 한 줄(2026-10-16 사용자 결정 Q-018-2 A)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenDescription",
+      "prop": "typography",
+      "note": "16 / 22 — 제목 아래. 길면 줄을 바꾸고 버튼은 그 자리에 남는다. 2026-10-16 사용자 결정 글자 역할 D6(화면 부제 — 전 13 / 18 · subtle)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenDescription",
+      "prop": "foreground",
+      "note": "떠 있는 표면 설명(R7)과 같은 뜻 — 바닥 위 6.58 · 다크 8.73. 2026-10-16 사용자 결정 글자 역할 D6"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenActions",
+      "prop": "buttonSize",
+      "note": "Button small — 그 화면의 동작(필터 · 내보내기). 본문 바탕 bg-layer-basement 는 bg-neutral-weak 와 같은 gray-200 이라 neutralWeak 는 바탕에 묻힌다 — 테두리가 있는 neutralOutline 이 보인다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "screenActions",
+      "prop": "align",
+      "note": "제목 덩어리의 아래 끝에 맞춘다(flex-end) — 설명이 있으면 설명 줄, 없으면 제목 줄과 같은 높이"
+    },
+    {
+      "rule": 0,
       "state": "hovered",
       "slot": "iconButton",
       "prop": "background",
@@ -488,6 +626,13 @@
     {
       "rule": 1,
       "state": "enabled",
+      "slot": "trailing",
+      "prop": "items",
+      "note": "Desk 탭 첫 화면(2026-10-16 사용자 결정 Q-017-2a A) — 검색은 어느 탭에서나 같은 거래 검색 화면, 벨은 알림 화면. 금액 가리기는 두지 않는다(순자산 카드의 눈 — Q-017-2b A)"
+    },
+    {
+      "rule": 1,
+      "state": "enabled",
       "slot": "title",
       "prop": "typography",
       "note": "22 / 30 — 탭 첫 화면의 큰 제목(SEED Root 그림 약 22). 글자 크기 설정을 1.2배까지"
@@ -518,7 +663,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "paddingLeft",
-      "note": "왼쪽 자리(검색 입구 — 앱 적용 때 정한다)는 본문 여백 32 에서 시작한다"
+      "note": "왼쪽 자리(검색칸)는 본문 여백 32 에서 시작한다"
     },
     {
       "rule": 3,
@@ -540,6 +685,20 @@
       "slot": "title",
       "prop": "display",
       "note": "화면 제목은 본문 맨 위 h1(text-screen-title 26 / 35 700)이 맡는다"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "trailing",
+      "prop": "items",
+      "note": "금액 가리기 눈은 두지 않는다 — 홈 · 자산 순자산 카드의 눈이 맡는다(2026-10-16 사용자 결정 Q-017-3c = Q-018-3 B). 테마는 설정(메뉴 결정 ④)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "searchField",
+      "prop": "width",
+      "note": "머리 왼쪽 — 본문 여백 32 에서. 거래 검색 화면의 입구(Enter 로 그 화면, 그 화면에서는 지금 검색어 — Q-017-3a C)"
     },
     {
       "rule": 3,

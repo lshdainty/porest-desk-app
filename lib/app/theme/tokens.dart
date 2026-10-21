@@ -22,7 +22,6 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
     required this.bgSunken,
     required this.bgMuted,
     required this.bgInverse,
-    required this.bgBrand,
     required this.bgBrandHover,
     required this.bgBrandPress,
     required this.bgBrandSubtle,
@@ -97,14 +96,13 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
   final Color bgSunken;
   final Color bgMuted;
   final Color bgInverse;
-  final Color bgBrand;
   final Color bgBrandHover;
   final Color bgBrandPress;
   final Color bgBrandSubtle;
   final Color bgBrandMuted;
 
   /// 채운 브랜드 버튼용 solid fill — 웹 `--bg-brand` 정합으로 light/dark 모두 primary 고정.
-  /// (bgBrand 는 다크에서 primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 버튼은 이 토큰 사용.)
+  /// (강조색 fgBrand 는 다크에서 밝아져 흰 글씨 채움 버튼엔 부적합 — 버튼은 이 토큰 사용.)
   final Color bgBrandSolid;
   final Color bgHoverSubtle;
   final Color bgHoverStrong;
@@ -220,10 +218,8 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
     bgSunken: c.bgNeutralWeak,
     bgMuted: c.bgNeutralWeak,
     bgInverse: c.bgNeutralInverted,
-    // 앱의 bgBrand 는 강조색이다(새로고침 · 진행 표시 · 차트 선 · 아이콘) — 다크에서 밝은
-    // primary-light 였다. DESIGN 에서 primary · primary-light 는 fg-brand 의 별칭이라 그 값을
-    // 따른다. 흰 글자를 얹는 채움은 bgBrandSolid 다(웹 --bg-brand 는 채움이라 bg-brand-solid).
-    bgBrand: c.fgBrand,
+    // 별칭 bgBrand 는 걷었다(01A-003) — 강조색(새로고침 · 진행 표시 · 차트 선 · 아이콘)은 fgBrand 를,
+    // 흰 글자를 얹는 채움은 bgBrandSolid 를 쓴다(웹 --bg-brand 는 채움이라 bg-brand-solid).
     bgBrandHover: c.bgBrandSolidPressed,
     bgBrandPress: c.bgBrandSolidPressed,
     bgBrandSubtle: c.bgBrandWeak,
@@ -266,10 +262,11 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
     statusInfo: c.bgInformativeSolid,
     statusInfoSubtle: c.bgInformativeWeak,
     statusInfoFg: c.fgInformative,
-    // Tx semantic — 지출=critical / 수입=brand / 이체=informative(웹 fg-expense · fg-income · fg-transfer)
-    fgExpense: c.fgCritical,
+    // 금액 색(D1, 글자 역할) — 수입만 brand, 지출 · 이체는 neutral. 빨강 · 파랑은 증감에만 쓴다 — 오류 · 초과 · 증감은
+    // statusDangerFg · statusInfoFg(fg-critical · fg-informative)를 직접 쓴다.
+    fgExpense: c.fgNeutral,
     fgIncome: c.fgBrand,
-    fgTransfer: c.fgInformative,
+    fgTransfer: c.fgNeutral,
     bgExpenseSubtle: c.bgCriticalWeak,
     bgIncomeSubtle: c.bgBrandWeak,
     bgTransferSubtle: c.bgInformativeWeak,
@@ -346,7 +343,6 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
     Color? bgSunken,
     Color? bgMuted,
     Color? bgInverse,
-    Color? bgBrand,
     Color? bgBrandHover,
     Color? bgBrandPress,
     Color? bgBrandSubtle,
@@ -420,7 +416,6 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
       bgSunken: bgSunken ?? this.bgSunken,
       bgMuted: bgMuted ?? this.bgMuted,
       bgInverse: bgInverse ?? this.bgInverse,
-      bgBrand: bgBrand ?? this.bgBrand,
       bgBrandHover: bgBrandHover ?? this.bgBrandHover,
       bgBrandPress: bgBrandPress ?? this.bgBrandPress,
       bgBrandSubtle: bgBrandSubtle ?? this.bgBrandSubtle,
@@ -500,7 +495,6 @@ class GrooTokens extends ThemeExtension<GrooTokens> {
       bgSunken: l(bgSunken, other.bgSunken),
       bgMuted: l(bgMuted, other.bgMuted),
       bgInverse: l(bgInverse, other.bgInverse),
-      bgBrand: l(bgBrand, other.bgBrand),
       bgBrandHover: l(bgBrandHover, other.bgBrandHover),
       bgBrandPress: l(bgBrandPress, other.bgBrandPress),
       bgBrandSubtle: l(bgBrandSubtle, other.bgBrandSubtle),

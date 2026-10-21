@@ -55,13 +55,13 @@ void main() {
     });
   }
 
-  test('앱의 bgBrand 는 강조색이라 글자 역할(fg-brand)을 따른다 — 다크에서 밝다', () {
-    expect(GrooTokens.light.bgBrand, PColors.light.fgBrand);
-    expect(GrooTokens.dark.bgBrand, PColors.dark.fgBrand);
+  test('앱의 강조색은 fgBrand(글자 역할)이고 채움은 bgBrandSolid — 다크에서 강조색이 더 밝다', () {
+    expect(GrooTokens.light.fgBrand, PColors.light.fgBrand);
+    expect(GrooTokens.dark.fgBrand, PColors.dark.fgBrand);
     // 흰 글자를 얹는 채움은 bgBrandSolid — 다크에서도 어둡다
     expect(
       GrooTokens.dark.bgBrandSolid.computeLuminance(),
-      lessThan(GrooTokens.dark.bgBrand.computeLuminance()),
+      lessThan(GrooTokens.dark.fgBrand.computeLuminance()),
     );
   });
 }

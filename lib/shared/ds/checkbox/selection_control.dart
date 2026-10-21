@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PTouchExtendable;
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 // 선택 컨트롤 셋(카탈로그 "5 선택 컨트롤" — Checkbox · Radio · Switch)이 함께 쓰는 부품. 셋은 줄 · 누르는 영역 ·
@@ -128,8 +131,8 @@ class SelectionSemantics {
 ///   맞춤 — 줄은 표시 + 라벨만큼만 차지한다(웹 align-self: flex-start). 부모가 폭을 정해 줘도 앞에 붙고, 나머지
 ///     자리는 누르지 않는다.
 ///   라벨 — 길면 낱말 단위로 줄을 바꾼다(DESIGN v114). 표시는 줄 가운데에 선다. 라벨이 이 줄의 이름으로 읽힌다.
-///   키보드 — 포커스를 받고 Space 로 누른다(Switch 는 Enter 도 — [activateOnEnter]). 포커스 링은 웹 상태라
-///     그리지 않는다.
+///   키보드 — 포커스를 받고 Space 로 누른다(Switch 는 Enter 도 — [activateOnEnter]). 키보드로 초점이 오면 표시
+///     둘레에 링을 그린다([ringStyle]).
 ///   [onActivate] 가 없으면 비활성 — 누르기 · 키보드 · 포커스에서 빠진다.
 class SelectionControl extends StatefulWidget {
   const SelectionControl({
@@ -143,6 +146,7 @@ class SelectionControl extends StatefulWidget {
     required this.semantics,
     this.activateOnEnter = false,
     this.focusNode,
+    this.ringStyle = const PFocusRingStyle(),
   });
 
   /// 표시 — pressed 는 줄이 눌린 동안 true 다(비활성이면 늘 false).
@@ -163,6 +167,9 @@ class SelectionControl extends StatefulWidget {
   /// Enter 로도 누른다 — Switch. Checkbox · Radio 의 Enter 는 폼 제출에 둔다(누르지 않고 위로 보낸다).
   final bool activateOnEnter;
   final FocusNode? focusNode;
+
+  /// 키보드 링의 모양 — 표시(체크 칸 · 라디오 원 · 스위치 알약) 둘레에 그린다(두께 2 · 띄움 2).
+  final PFocusRingStyle ringStyle;
 
   @override
   State<SelectionControl> createState() => _SelectionControlState();
@@ -192,6 +199,7 @@ class _SelectionControlState extends State<SelectionControl> {
   };
 
   bool _pressed = false;
+  bool _ringVisible = false;
 
   bool get _enabled => widget.onActivate != null;
 
@@ -236,6 +244,10 @@ class _SelectionControlState extends State<SelectionControl> {
             child: Focus(
               focusNode: widget.focusNode,
               canRequestFocus: enabled,
+              onFocusChange: (focused) {
+                final next = focused && keyboardHighlight();
+                if (next != _ringVisible) setState(() => _ringVisible = next);
+              },
               child: MouseRegion(
                 // 웹 cursor pointer · not-allowed
                 cursor: enabled
@@ -254,7 +266,11 @@ class _SelectionControlState extends State<SelectionControl> {
                       mainAxisSize: MainAxisSize.min,
                       spacing: widget.gap,
                       children: [
-                        widget.markBuilder(enabled && _pressed),
+                        PFocusRing(
+                          visible: _ringVisible && enabled,
+                          style: widget.ringStyle,
+                          child: widget.markBuilder(enabled && _pressed),
+                        ),
                         Flexible(
                           child: Text(
                             keepAll(widget.label),
@@ -295,8 +311,24 @@ class _SelectionTarget extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderSelectionTarget extends RenderShiftedBox {
+class _RenderSelectionTarget extends RenderShiftedBox
+    implements PTouchExtendable {
   _RenderSelectionTarget(this._textDirection) : super(null);
+
+  /// 줄을 44 × 44 까지 넓힌 영역 — 묶음 맨 위 · 맨 아래 줄은 묶음(부모) 밖까지 닿는다([PTouchTargetScope]).
+  @override
+  Rect get touchArea {
+    final child = this.child!;
+    final row = (child.parentData! as BoxParentData).offset & child.size;
+    final dx = math.max(0.0, (PTouch.min - row.width) / 2);
+    final dy = math.max(0.0, (PTouch.min - row.height) / 2);
+    return Rect.fromLTRB(
+      row.left - dx,
+      row.top - dy,
+      row.right + dx,
+      row.bottom + dy,
+    );
+  }
 
   TextDirection _textDirection;
   set textDirection(TextDirection value) {

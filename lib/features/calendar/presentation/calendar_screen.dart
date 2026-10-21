@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,8 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -24,7 +27,6 @@ import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
@@ -88,114 +90,130 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         (eventsAsync.isLoading && !eventsAsync.hasValue) ||
         (calendarsAsync.isLoading && !calendarsAsync.hasValue);
 
-    return Column(
-      children: [
-        _MonthHeader(
-          focused: _focused,
-          onPrev: () => setState(
-            () => _focused = DateTime(_focused.year, _focused.month - 1),
-          ),
-          onNext: () => setState(
-            () => _focused = DateTime(_focused.year, _focused.month + 1),
-          ),
-          onDateTap: _showMonthYearPicker,
-          calendarCount: visibleCount,
-          dotColors: dotColors,
-          onFilterTap: _showFilterSheet,
-          tokens: t,
-        ),
-        if (firstLoading)
-          Expanded(
-            child: Padding(
-              // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
-              child: _CalendarGridSkeleton(tokens: t),
+    // 띠 화면 — 맨 위 8 은 회색 바닥, 그 아래 달력 한 장이 화면 폭 흰 띠다(02-005 / Q-019-3)
+    return Padding(
+      padding: const EdgeInsets.only(top: kScreenBandGap),
+      child: ColoredBox(
+        key: const ValueKey('calendar-band'),
+        color: context.colors.bgLayerDefault,
+        child: Column(
+          children: [
+            _MonthHeader(
+              focused: _focused,
+              onPrev: () => setState(
+                () => _focused = DateTime(_focused.year, _focused.month - 1),
+              ),
+              onNext: () => setState(
+                () => _focused = DateTime(_focused.year, _focused.month + 1),
+              ),
+              onDateTap: _showMonthYearPicker,
+              calendarCount: visibleCount,
+              dotColors: dotColors,
+              onFilterTap: _showFilterSheet,
+              tokens: t,
             ),
-          )
-        else
-          Expanded(
-            child: Padding(
-              // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
-              padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
-              child: TableCalendar<CalendarEvent>(
-                firstDay: DateTime(2020),
-                lastDay: DateTime(2030),
-                focusedDay: _focused,
-                selectedDayPredicate: (d) => isSameDay(_selected, d),
-                onDaySelected: (sel, foc) {
-                  setState(() {
-                    _selected = sel;
-                    _focused = foc;
-                  });
-                  _openDayEventsSheet(sel);
-                },
-                onPageChanged: (foc) => setState(() => _focused = foc),
-                calendarFormat: CalendarFormat.month,
-                eventLoader: (d) => _eventsOnDay(events, d),
-                locale: 'ko_KR',
-                shouldFillViewport: true,
-                headerVisible: false,
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekendStyle: PTypo.caption.copyWith(color: t.fgSecondary),
-                  weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
+            if (firstLoading)
+              Expanded(
+                child: Padding(
+                  // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+                  padding: EdgeInsets.only(
+                    bottom: bottomNavigationInset(context),
+                  ),
+                  child: _CalendarGridSkeleton(tokens: t),
                 ),
-                calendarStyle: const CalendarStyle(
-                  outsideDaysVisible: true,
-                  cellMargin: EdgeInsets.zero,
-                  cellPadding: EdgeInsets.zero,
-                ),
-                calendarBuilders: CalendarBuilders<CalendarEvent>(
-                  dowBuilder: (ctx, day) {
-                    final Color color;
-                    if (day.weekday == DateTime.sunday) {
-                      color = t.fgExpense;
-                    } else if (day.weekday == DateTime.saturday) {
-                      color = t.fgBrand;
-                    } else {
-                      // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
-                      color = t.fgPrimary;
-                    }
-                    return Center(
-                      child: Text(
-                        formatDay(day).dow,
-                        style: PTypo.caption.copyWith(color: color),
+              )
+            else
+              Expanded(
+                child: Padding(
+                  // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+                  padding: EdgeInsets.only(
+                    bottom: bottomNavigationInset(context),
+                  ),
+                  child: TableCalendar<CalendarEvent>(
+                    firstDay: DateTime(2020),
+                    lastDay: DateTime(2030),
+                    focusedDay: _focused,
+                    selectedDayPredicate: (d) => isSameDay(_selected, d),
+                    onDaySelected: (sel, foc) {
+                      setState(() {
+                        _selected = sel;
+                        _focused = foc;
+                      });
+                      _openDayEventsSheet(sel);
+                    },
+                    onPageChanged: (foc) => setState(() => _focused = foc),
+                    calendarFormat: CalendarFormat.month,
+                    eventLoader: (d) => _eventsOnDay(events, d),
+                    locale: 'ko_KR',
+                    shouldFillViewport: true,
+                    headerVisible: false,
+                    daysOfWeekStyle: DaysOfWeekStyle(
+                      weekendStyle: PTypo.caption.copyWith(
+                        color: t.fgSecondary,
                       ),
-                    );
-                  },
-                  defaultBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: false,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
+                      weekdayStyle: PTypo.caption.copyWith(
+                        color: t.fgSecondary,
+                      ),
+                    ),
+                    calendarStyle: const CalendarStyle(
+                      outsideDaysVisible: true,
+                      cellMargin: EdgeInsets.zero,
+                      cellPadding: EdgeInsets.zero,
+                    ),
+                    calendarBuilders: CalendarBuilders<CalendarEvent>(
+                      dowBuilder: (ctx, day) {
+                        final Color color;
+                        if (day.weekday == DateTime.sunday) {
+                          color = t.statusDangerFg;
+                        } else if (day.weekday == DateTime.saturday) {
+                          color = t.fgBrand;
+                        } else {
+                          // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
+                          color = t.fgPrimary;
+                        }
+                        return Center(
+                          child: Text(
+                            formatDay(day).dow,
+                            style: PTypo.caption.copyWith(color: color),
+                          ),
+                        );
+                      },
+                      defaultBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: false,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      todayBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: false,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      selectedBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: false,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      outsideBuilder: (ctx, day, _) => _DayCell(
+                        day: day,
+                        events: _eventsOnDay(events, day),
+                        isOutside: true,
+                        holidayName: holidayMap[_dateKey(day)],
+                        tokens: t,
+                      ),
+                      markerBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
                   ),
-                  todayBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: false,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
-                  ),
-                  selectedBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: false,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
-                  ),
-                  outsideBuilder: (ctx, day, _) => _DayCell(
-                    day: day,
-                    events: _eventsOnDay(events, day),
-                    isOutside: true,
-                    holidayName: holidayMap[_dateKey(day)],
-                    tokens: t,
-                  ),
-                  markerBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
               ),
-            ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -343,7 +361,11 @@ class _MonthHeader extends StatelessWidget {
       child: Row(
         children: [
           // 이전 달 버튼
-          PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
+          PButton.icon(
+            icon: LucideIcons.chevronLeft,
+            onPressed: onPrev,
+            tooltip: AppLocalizations.of(context).actionPrev,
+          ),
           // 년월 텍스트 → 월/년 picker sheet
           GestureDetector(
             onTap: onDateTap,
@@ -363,7 +385,11 @@ class _MonthHeader extends StatelessWidget {
             ),
           ),
           // 다음 달 버튼
-          PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
+          PButton.icon(
+            icon: LucideIcons.chevronRight,
+            onPressed: onNext,
+            tooltip: AppLocalizations.of(context).actionNext,
+          ),
           const Spacer(),
           // 캘린더 필터 칩
           GestureDetector(
@@ -569,8 +595,8 @@ class _FilterRow extends StatelessWidget {
     // light fill(다크모드 light variant) 위에서도 체크가 보이도록 fill 명도 기준 대비 색.
     final checkColor =
         ThemeData.estimateBrightnessForColor(color) == Brightness.dark
-        ? Colors.white
-        : const Color(0xFF1A1F2E);
+        ? PColors.light.staticWhite
+        : PColors.light.fgNeutral;
     final locked = onToggle == null;
     final row = Padding(
       padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
@@ -646,7 +672,7 @@ class _CalendarGridSkeleton extends StatelessWidget {
     // 월~일 — TableCalendar daysOfWeekStyle/dowBuilder 정합(주말 색 포함, 실제 텍스트).
     final dow = weekdayLabels(mondayFirst: true);
     Color dowColor(int i) {
-      if (i == 6) return t.fgExpense; // 일
+      if (i == 6) return t.statusDangerFg; // 일
       if (i == 5) return t.fgBrand; // 토
       return t.fgSecondary;
     }
@@ -757,7 +783,7 @@ class _DayCell extends StatelessWidget {
       // 오늘 — web 정합: 항상 오늘에만 solid 원 (선택 날짜 표시는 하지 않음)
       dayColor = t.fgOnBrand;
     } else if (isHoliday || day.weekday == DateTime.sunday) {
-      dayColor = t.fgExpense;
+      dayColor = t.statusDangerFg;
     } else if (day.weekday == DateTime.saturday) {
       dayColor = t.fgBrand;
     } else {
@@ -1081,7 +1107,7 @@ class _DayEventsSheetBody extends StatelessWidget {
         PSpace.xl,
         PSpace.x24,
         PSpace.xl,
-        pTabBarBottomInset(context),
+        bottomNavigationInset(context),
       ),
       children: [
         Row(
@@ -1158,7 +1184,7 @@ class _DaySheetHolidayRow extends StatelessWidget {
             width: PSpace.x4,
             height: PSpace.x24,
             decoration: BoxDecoration(
-              color: t.fgExpense,
+              color: t.statusDangerFg,
               borderRadius: PRadius.brXs,
             ),
           ),
@@ -1192,8 +1218,7 @@ class _DaySheetEventRow extends StatelessWidget {
   final GrooTokens tokens;
   final VoidCallback onTap;
 
-  String _hhmm(DateTime d) =>
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+  String _hhmm(DateTime d) => timeOfDay12(d);
 
   @override
   Widget build(BuildContext context) {
@@ -1316,16 +1341,18 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
           Row(
             children: [
               PButton.icon(
+                tooltip: AppLocalizations.of(context).actionPrev,
                 icon: LucideIcons.chevronLeft,
                 onPressed: () => setState(() => _year--),
               ),
               const Spacer(),
               Text(
-                '$_year년',
+                yearOnly(DateTime(_year)),
                 style: PTypo.body.copyWith(fontWeight: PFontWeight.bold),
               ),
               const Spacer(),
               PButton.icon(
+                tooltip: AppLocalizations.of(context).actionNext,
                 icon: LucideIcons.chevronRight,
                 onPressed: () => setState(() => _year++),
               ),
@@ -1354,7 +1381,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
                     borderRadius: PRadius.brSm,
                   ),
                   child: Text(
-                    '$month월',
+                    monthOnly(DateTime(_year, month)),
                     style: PTypo.bodySm.copyWith(
                       color: isSelected ? t.fgOnBrand : t.fgPrimary,
                       fontWeight: isSelected

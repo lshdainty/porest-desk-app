@@ -1035,7 +1035,11 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
                   Text(
                     widget.unitKrw != null
                         ? l.assetHoldingLinkedSub(
-                            '${krw(widget.unitKrw!.round())}원',
+                            krwSigned(
+                              widget.unitKrw!.round(),
+                              false,
+                              unit: true,
+                            ),
                           )
                         : l.assetHoldingLinkedBadge,
                     maxLines: 1,
@@ -1087,7 +1091,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
             SizedBox(
               width: 84,
               child: Text(
-                value != null ? '${krw(value)}원' : '—',
+                value != null ? krwSigned(value, false, unit: true) : '—',
                 textAlign: TextAlign.right,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1109,6 +1113,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
               ),
             ),
           PButton.icon(
+            tooltip: AppLocalizations.of(context).actionDelete,
             icon: LucideIcons.trash2,
             size: PButtonSize.sm,
             onPressed: widget.onRemove,
@@ -1166,7 +1171,7 @@ class _CostField extends StatelessWidget {
             const SizedBox(width: 6),
             Flexible(
               child: Text(
-                l.holdingAvgPriceInline('${krw(avg)}원'),
+                l.holdingAvgPriceInline(krwSigned(avg, false, unit: true)),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: PTypo.micro.copyWith(color: t.fgTertiary),

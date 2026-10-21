@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -647,10 +648,12 @@ class _TradeHistory extends ConsumerWidget {
                     krwSigned(
                       tr.realizedPl!.abs(),
                       false,
-                      sign: tr.realizedPl! > 0 ? '+' : '-',
+                      sign: tr.realizedPl! > 0 ? '+' : kMinus,
                     ),
                     style: PTypo.micro.copyWith(
-                      color: tr.realizedPl! > 0 ? t.fgIncome : t.fgExpense,
+                      color: tr.realizedPl! > 0
+                          ? t.statusInfoFg
+                          : t.statusDangerFg,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),
@@ -722,7 +725,7 @@ class _HoldingRow extends ConsumerWidget {
   /// 통화를 하나로 가정하지 않는다 — 나무를 붙이며 JPY·HKD·CNY 가 들어왔다.
   String _fmtRawPrice(BrokerQuote p) {
     final cur = p.currency.toUpperCase();
-    if (cur == 'KRW') return '${krw(p.price.round())}원';
+    if (cur == 'KRW') return krwSigned(p.price.round(), false, unit: true);
     if (cur == 'USD') return '\$${p.price.toStringAsFixed(2)}';
     return '${p.price.toStringAsFixed(2)} $cur';
   }
@@ -806,7 +809,7 @@ class _HoldingRow extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  value != null ? '${krw(value)}원' : '—',
+                  value != null ? krwSigned(value, false, unit: true) : '—',
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
@@ -1489,8 +1492,8 @@ class _DayGroupHeader extends StatelessWidget {
 /// chart green 시멘틱(실적 달성) — 다크 light variant 스왑(웹 --color-cat-green 미러).
 Color _chartGreenOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-    ? const Color(0xFF6BCB86) // chart-green-light
-    : const Color(0xFF2D8060); // chart-green
+    ? PColors.dark.chartGreen
+    : PColors.light.chartGreen;
 
 /// 결제 회차(청구월) 항목 — 예정 1건 + 과거 결제 완료(COMPLETED) 이력.
 class _CardStatement {
@@ -1586,12 +1589,11 @@ class _CardPerfBadge extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
       decoration: BoxDecoration(
-        // 웹 color-mix(in oklab, cat-green 10%, surface) 결과값 고정
-        // (sRGB alphaBlend 10% 는 녹색기가 죽어 웹과 어긋남 — oklab 혼합 미러)
+        // 달성은 옅은 초록 바탕(chart-green-weak, 불투명) — 옛 이끼 팔레트 고정값을 걷었다(01A-009)
         color: done
             ? (Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2B3840)
-                  : const Color(0xFFEAF2EE))
+                  ? PColors.dark.chartGreenWeak
+                  : PColors.light.chartGreenWeak)
             : t.bgSunken,
         borderRadius: PRadius.brLg,
       ),

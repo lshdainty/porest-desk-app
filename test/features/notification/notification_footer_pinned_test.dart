@@ -126,16 +126,15 @@ void main() {
 
   testWidgets('행 좌우 여백이 24 다', (tester) async {
     await _pump(tester, _items(3));
-    // 행은 [3px 좌측 엣지바][좌우 24 패딩][아이콘 · 글] 순이다. 그래서 내용이
-    // 시작하는 자리는 목록 왼쪽에서 27 — 엣지바는 읽은 행에서도 폭을 차지한다
-    // (색만 투명해진다). 여기서 벌어지면 좌우 여백이 24 가 아니라는 뜻이다.
+    // 행은 [좌우 24 패딩][아이콘 · 글] 순이다 — SEED List 줄(9-1)로 바꾸면서 3px 좌측 엣지바를
+    // 걷었다(안 읽음은 bg-brand-weak + 점). 여기서 벌어지면 좌우 여백이 24 가 아니라는 뜻이다.
     final list = tester.getRect(find.byType(ListView));
     final content = tester.getRect(
       find
           .descendant(of: find.byType(ListView), matching: find.byType(Row))
           .first,
     );
-    expect(content.left - list.left, closeTo(3 + 24, 1));
+    expect(content.left - list.left, closeTo(24, 1));
     expect(list.right - content.right, closeTo(24, 1));
   });
 
@@ -144,4 +143,41 @@ void main() {
     final header = tester.getRect(find.textContaining('읽지 않은').first);
     expect(header.left, closeTo(24, 1));
   });
+
+  testWidgets(
+    '알림 줄 — SEED List 줄: 타일 40 · 제목 16/400 · 설명 13 · 안 읽음 점, 안 읽은 줄만 버튼',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester, _items(5)); // 앞 셋이 안 읽음
+      // 안 읽음 점은 안 읽은 줄 수만큼
+      expect(find.byKey(const ValueKey('noti-unread-dot')), findsNWidgets(3));
+      final title = tester.widget<Text>(find.text('알림 1'));
+      expect(title.style!.fontSize, 16);
+      expect(title.style!.fontWeight, FontWeight.w400);
+      final desc = tester.widget<Text>(find.text('내용 1'));
+      expect(desc.style!.fontSize, 13);
+      // 타일 40
+      final tile = tester.getSize(
+        find
+            .descendant(
+              of: find.byType(ListView),
+              matching: find.byType(Container),
+            )
+            .evaluate()
+            .map((e) => find.byWidget(e.widget))
+            .firstWhere((f) => tester.getSize(f) == const Size(40, 40)),
+      );
+      expect(tile, const Size(40, 40));
+      // 역할 — 안 읽은 줄(1)만 눌리는 줄(버튼)이다. 읽은 줄(4)은 누르는 곳이 없다
+      Finder tappableRow(String t) => find.ancestor(
+        of: find.text(t),
+        matching: find.byWidgetPredicate(
+          (w) => w is InkWell && w.onTap != null,
+        ),
+      );
+      expect(tappableRow('알림 1'), findsOneWidget);
+      expect(tappableRow('알림 4'), findsNothing);
+      handle.dispose();
+    },
+  );
 }

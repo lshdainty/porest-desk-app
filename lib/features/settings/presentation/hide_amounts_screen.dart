@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -132,7 +134,7 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
         _confirmDiscardAndPop();
       },
       child: Scaffold(
-        backgroundColor: t.bgSurface,
+        backgroundColor: context.colors.bgLayerBasement,
         appBar: AppBar(
           leadingWidth: PBackButton.leadingWidth,
           titleSpacing: 0,
@@ -160,134 +162,137 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
             const SizedBox(width: PSpace.x8),
           ],
         ),
-        body: Column(
-          children: [
-            // 거래 종류 — 화면 축과 다르므로 탭 줄에 끼우지 않고 맨 위 별도 영역에 둔다.
-            // 탭에 넣으면 '화면' 목록에 화면이 아닌 게 섞이고, 어느 화면에서 왔든 늘
-            // 보여야 할 스위치가 탭 하나를 골라야 보이는 자리로 숨는다.
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpace.x24,
-                PSpace.x12,
-                PSpace.x24,
-                0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.hideAmountsKindLabel,
-                    style: PTypo.labelMd.copyWith(
-                      color: t.fgSecondary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const SizedBox(height: PSpace.x8),
-                  Row(
-                    children: [
-                      for (final card in cardsOfPage(HidePage.kind)) ...[
-                        if (card != cardsOfPage(HidePage.kind).first)
-                          const SizedBox(width: PSpace.x8),
-                        Expanded(
-                          child: PChip(
-                            label: _cardLabel(l, card),
-                            selected: draft.contains(card),
-                            shape: PChipShape.rounded,
-                            fullWidth: true,
-                            onTap: () => setState(() {
-                              if (!draft.remove(card)) draft.add(card);
-                            }),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: PSpace.x8),
-                  Text(
-                    l.hideAmountsKindNote,
-                    style: PTypo.caption.copyWith(
-                      color: t.fgTertiary,
-                      height: 1.55,
-                    ),
-                  ),
-                  const SizedBox(height: PSpace.x12),
-                  Divider(height: 1, thickness: 1, color: t.borderSubtle),
-                ],
-              ),
-            ),
-            // 탭 — 전체 + 화면별. 개수는 지금 고른 상태를 그대로 비춘다.
-            //
-            // pill 채움으로 둔다. underline 은 활성 탭 밑줄과 탭바 아래 경계선이
-            // 나란히 겹쳐 선이 두 줄로 보였다(통계 화면도 같은 이유로 pill 이다).
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
-                child: PTabs<_Tab>(
-                  value: _tab,
-                  variant: PTabsVariant.pills,
-                  size: PTabsSize.sm,
-                  items: [
-                    _tabItem(l, null, draft),
-                    for (final page in _tabs.skip(1)) _tabItem(l, page!, draft),
-                  ],
-                  onChanged: _goTab,
-                ),
-              ),
-            ),
-            // 탭 전환은 어느 쪽으로든 — 탭을 눌러도, 좌우로 넘겨도 같은 자리로 간다.
-            // 안내 문구는 탭마다 같으므로 페이지 밖에 고정한다.
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpace.x24,
-                PSpace.x4,
-                PSpace.x24,
-                PSpace.x16,
-              ),
-              child: Text(
-                l.hideAmountsSectionDesc,
-                style: PTypo.caption.copyWith(
-                  color: t.fgTertiary,
-                  height: 1.55,
-                ),
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _pages,
-                itemCount: _tabs.length,
-                onPageChanged: (i) => setState(() => _tab = _tabs[i]),
-                itemBuilder: (_, i) => _CardGrid(
-                  cards: _cardsOf(_tabs[i]),
-                  draft: draft,
-                  onToggle: (card) => setState(() {
-                    if (!draft.remove(card)) draft.add(card);
-                  }),
-                ),
-              ),
-            ),
-            // 저장 — 화면 아래 고정. 고르는 동안에는 아무것도 반영되지 않으므로
-            // 여기까지 와야 끝난다.
-            SafeArea(
-              top: false,
-              child: Padding(
+        body: PScreenBandBody(
+          child: Column(
+            children: [
+              // 거래 종류 — 화면 축과 다르므로 탭 줄에 끼우지 않고 맨 위 별도 영역에 둔다.
+              // 탭에 넣으면 '화면' 목록에 화면이 아닌 게 섞이고, 어느 화면에서 왔든 늘
+              // 보여야 할 스위치가 탭 하나를 골라야 보이는 자리로 숨는다.
+              Padding(
                 padding: const EdgeInsets.fromLTRB(
                   PSpace.x24,
                   PSpace.x12,
                   PSpace.x24,
-                  PSpace.x12,
+                  0,
                 ),
-                child: PButton(
-                  label: l.actionSave,
-                  size: PButtonSize.lg,
-                  fullWidth: true,
-                  loading: _saving,
-                  onPressed: dirty && !_saving ? () => _save(saved) : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.hideAmountsKindLabel,
+                      style: PTypo.labelMd.copyWith(
+                        color: t.fgSecondary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    Row(
+                      children: [
+                        for (final card in cardsOfPage(HidePage.kind)) ...[
+                          if (card != cardsOfPage(HidePage.kind).first)
+                            const SizedBox(width: PSpace.x8),
+                          Expanded(
+                            child: PChip(
+                              label: _cardLabel(l, card),
+                              selected: draft.contains(card),
+                              shape: PChipShape.rounded,
+                              fullWidth: true,
+                              onTap: () => setState(() {
+                                if (!draft.remove(card)) draft.add(card);
+                              }),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    Text(
+                      l.hideAmountsKindNote,
+                      style: PTypo.caption.copyWith(
+                        color: t.fgTertiary,
+                        height: 1.55,
+                      ),
+                    ),
+                    const SizedBox(height: PSpace.x12),
+                    Divider(height: 1, thickness: 1, color: t.borderSubtle),
+                  ],
                 ),
               ),
-            ),
-          ],
+              // 탭 — 전체 + 화면별. 개수는 지금 고른 상태를 그대로 비춘다.
+              //
+              // pill 채움으로 둔다. underline 은 활성 탭 밑줄과 탭바 아래 경계선이
+              // 나란히 겹쳐 선이 두 줄로 보였다(통계 화면도 같은 이유로 pill 이다).
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
+                  child: PTabs<_Tab>(
+                    value: _tab,
+                    variant: PTabsVariant.pills,
+                    size: PTabsSize.sm,
+                    items: [
+                      _tabItem(l, null, draft),
+                      for (final page in _tabs.skip(1))
+                        _tabItem(l, page!, draft),
+                    ],
+                    onChanged: _goTab,
+                  ),
+                ),
+              ),
+              // 탭 전환은 어느 쪽으로든 — 탭을 눌러도, 좌우로 넘겨도 같은 자리로 간다.
+              // 안내 문구는 탭마다 같으므로 페이지 밖에 고정한다.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  PSpace.x24,
+                  PSpace.x4,
+                  PSpace.x24,
+                  PSpace.x16,
+                ),
+                child: Text(
+                  l.hideAmountsSectionDesc,
+                  style: PTypo.caption.copyWith(
+                    color: t.fgTertiary,
+                    height: 1.55,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pages,
+                  itemCount: _tabs.length,
+                  onPageChanged: (i) => setState(() => _tab = _tabs[i]),
+                  itemBuilder: (_, i) => _CardGrid(
+                    cards: _cardsOf(_tabs[i]),
+                    draft: draft,
+                    onToggle: (card) => setState(() {
+                      if (!draft.remove(card)) draft.add(card);
+                    }),
+                  ),
+                ),
+              ),
+              // 저장 — 화면 아래 고정. 고르는 동안에는 아무것도 반영되지 않으므로
+              // 여기까지 와야 끝난다.
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    PSpace.x24,
+                    PSpace.x12,
+                    PSpace.x24,
+                    PSpace.x12,
+                  ),
+                  child: PButton(
+                    label: l.actionSave,
+                    size: PButtonSize.lg,
+                    fullWidth: true,
+                    loading: _saving,
+                    onPressed: dirty && !_saving ? () => _save(saved) : null,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

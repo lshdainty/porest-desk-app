@@ -3,7 +3,7 @@
   "source": "specs/components/color-swatch.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "group": "묶음 — radiogroup, 5 × 2 격자. 이름은 Field 라벨(\"색상\")",
@@ -95,8 +95,8 @@
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "foreground": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
+            "light": "#62697A",
+            "dark": "#A2A8B7"
           },
           "marginTop": 6
         },
@@ -447,7 +447,7 @@
       "state": "enabled",
       "slot": "currentLabel",
       "prop": "foreground",
-      "note": "흰 표면 7.11 · 다크 7.70"
+      "note": "색 이름은 덧붙인 정보라 subtle(2026-10-16 사용자 결정 글자 역할 D5, 전 muted). 흰 표면 5.50 · 다크 6.09(시트 5.27)"
     },
     {
       "rule": 0,

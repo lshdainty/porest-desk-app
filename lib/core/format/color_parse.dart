@@ -7,7 +7,7 @@ import 'package:flutter/painting.dart';
 /// - "#RRGGBB" / "#RRGGBBAA" / "RRGGBB" / "RGB" 지원
 /// - "oklch(L C H)" / "oklch(L C H / A)" 지원 (CSS Color Module Level 4)
 /// - 빈 값/null/잘못된 형식 → fallback
-Color parseColor(String? raw, {Color fallback = const Color(0xFF6B6C43)}) {
+Color parseColor(String? raw, {required Color fallback}) {
   if (raw == null) return fallback;
   final s = raw.trim();
   if (s.isEmpty) return fallback;

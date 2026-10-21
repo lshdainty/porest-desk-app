@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/core/format/color_parse.dart';
 
@@ -9,7 +10,8 @@ import 'package:groo_damda_app/core/format/color_parse.dart';
 /// 다크모드에서는 light variant 로 swap 한다 — Theme.of(context).brightness
 /// 분기로 결정.
 ///
-/// groo-tokens.css `--color-chart-*` 값 미러.
+/// 저장된 hex(`baseHex` · `lightHex`)는 **이름표**일 뿐이고 그릴 색은 역할 색이다 — 라이트 700 · 다크 800-dark
+/// (`PColors.chart*`, v110). 저장 값은 옮기지 않는다(강제 업데이트 없음 — 01A-001).
 class ChartPair {
   const ChartPair({
     required this.key,
@@ -30,76 +32,76 @@ class ChartPair {
   final Color light;
 }
 
-const kChartPairs = <ChartPair>[
+final kChartPairs = <ChartPair>[
   ChartPair(
     key: 'red',
     baseHex: '#c73838',
     lightHex: '#eca0a0',
-    base: Color(0xFFC73838),
-    light: Color(0xFFECA0A0),
+    base: PColors.light.chartRed,
+    light: PColors.dark.chartRed,
   ),
   ChartPair(
     key: 'orange',
     baseHex: '#b36418',
     lightHex: '#e8b266',
-    base: Color(0xFFB36418),
-    light: Color(0xFFE8B266),
+    base: PColors.light.chartOrange,
+    light: PColors.dark.chartOrange,
   ),
   ChartPair(
     key: 'yellow',
     baseHex: '#8c7400',
     lightHex: '#d4b83a',
-    base: Color(0xFF8C7400),
-    light: Color(0xFFD4B83A),
+    base: PColors.light.chartYellow,
+    light: PColors.dark.chartYellow,
   ),
   ChartPair(
     key: 'green',
     baseHex: '#2d8060',
     lightHex: '#6bcb86',
-    base: Color(0xFF2D8060),
-    light: Color(0xFF6BCB86),
+    base: PColors.light.chartGreen,
+    light: PColors.dark.chartGreen,
   ),
   ChartPair(
     key: 'blue',
     baseHex: '#2c70bf',
     lightHex: '#7bbbed',
-    base: Color(0xFF2C70BF),
-    light: Color(0xFF7BBBED),
+    base: PColors.light.chartBlue,
+    light: PColors.dark.chartBlue,
   ),
   ChartPair(
     key: 'indigo',
     baseHex: '#5e60c8',
     lightHex: '#abb0f0',
-    base: Color(0xFF5E60C8),
-    light: Color(0xFFABB0F0),
+    base: PColors.light.chartIndigo,
+    light: PColors.dark.chartIndigo,
   ),
   ChartPair(
     key: 'violet',
     baseHex: '#8b4dba',
     lightHex: '#d2a8ec',
-    base: Color(0xFF8B4DBA),
-    light: Color(0xFFD2A8EC),
+    base: PColors.light.chartViolet,
+    light: PColors.dark.chartViolet,
   ),
   ChartPair(
     key: 'pink',
     baseHex: '#b83b7a',
     lightHex: '#eca0bc',
-    base: Color(0xFFB83B7A),
-    light: Color(0xFFECA0BC),
+    base: PColors.light.chartPink,
+    light: PColors.dark.chartPink,
   ),
   ChartPair(
     key: 'brown',
     baseHex: '#9a6536',
     lightHex: '#dcb088',
-    base: Color(0xFF9A6536),
-    light: Color(0xFFDCB088),
+    base: PColors.light.chartBrown,
+    light: PColors.dark.chartBrown,
   ),
   ChartPair(
     key: 'gray',
     baseHex: '#6b7484',
     lightHex: '#b5bbc5',
-    base: Color(0xFF6B7484),
-    light: Color(0xFFB5BBC5),
+    base: PColors.light.chartGray,
+    light: PColors.dark.chartGray,
   ),
 ];
 
@@ -141,6 +143,10 @@ final Map<int, ChartPair> _kArgbToPair = {
 Color softBg(BuildContext context, Color base) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final pair = _kArgbToPair[base.toARGB32()];
+  // 팔레트 색은 역할 색 chart-*-weak(라이트 200 · 다크 300, 불투명) — 투명 혼합이 아니다(01A-002)
+  if (pair != null) {
+    return chartWeakOf(isDark ? PColors.dark : PColors.light, pair.key);
+  }
   if (isDark) {
     final c = pair?.light ?? base;
     return c.withValues(alpha: 0.22);
@@ -148,6 +154,20 @@ Color softBg(BuildContext context, Color base) {
   final c = pair?.base ?? base;
   return c.withValues(alpha: 0.13);
 }
+
+/// 차트 10색 키 → 옅은 바탕(`chart-*-weak`).
+Color chartWeakOf(PColors c, String key) => switch (key) {
+  'red' => c.chartRedWeak,
+  'orange' => c.chartOrangeWeak,
+  'yellow' => c.chartYellowWeak,
+  'green' => c.chartGreenWeak,
+  'blue' => c.chartBlueWeak,
+  'indigo' => c.chartIndigoWeak,
+  'violet' => c.chartVioletWeak,
+  'pink' => c.chartPinkWeak,
+  'brown' => c.chartBrownWeak,
+  _ => c.chartGrayWeak,
+};
 
 /// 카테고리 fg Color 결정 — 라이트/다크 자동 분기.
 ///
@@ -160,8 +180,8 @@ Color softBg(BuildContext context, Color base) {
 /// 웹 `--color-cat-red`(라이트 chart-red / 다크 chart-red-light) 미러.
 Color chartRedOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-    ? const Color(0xFFECA0A0) // chart-red-light
-    : const Color(0xFFC73838); // chart-red
+    ? PColors.dark.chartRed
+    : PColors.light.chartRed;
 
 Color resolveChartColor(
   BuildContext context,

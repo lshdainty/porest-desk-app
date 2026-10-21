@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -62,30 +64,41 @@ class PSegmented<T> extends StatelessWidget {
         children: [
           for (final o in options)
             Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(o.value),
-                child: Container(
-                  height: 28,
-                  decoration: BoxDecoration(
-                    // active 채움은 bgBrandSolid(다크에서도 primary 고정) — bgBrand 는 다크에서
-                    // primary-light 로 밝아짐. 웹 ToggleGroup segmented(active=primary) 정합.
-                    color: o.value == value
-                        ? (variant == PSegmentedVariant.subtle
-                              ? t.bgMuted
-                              : t.bgBrandSolid)
-                        : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    o.label,
-                    style: PTypo.caption.copyWith(
-                      color: o.value == value
-                          ? (variant == PSegmentedVariant.subtle
-                                ? t.fgPrimary
-                                : t.fgOnBrand)
-                          : t.fgSecondary,
-                      fontWeight: PFontWeight.semi,
+              // 읽기 — 버튼 + 고른 칸(01A-091), 누르는 영역은 44 까지(01A-090)
+              child: TouchTarget(
+                minSize: PTouch.min,
+                child: Semantics(
+                  button: true,
+                  selected: o.value == value,
+                  label: o.label,
+                  excludeSemantics: true,
+                  onTap: () => onChanged(o.value),
+                  child: GestureDetector(
+                    onTap: () => onChanged(o.value),
+                    child: Container(
+                      height: 28,
+                      decoration: BoxDecoration(
+                        // active 채움은 bgBrandSolid(다크에서도 primary 고정) — bgBrand 는 다크에서
+                        // primary-light 로 밝아짐. 웹 ToggleGroup segmented(active=primary) 정합.
+                        color: o.value == value
+                            ? (variant == PSegmentedVariant.subtle
+                                  ? t.bgMuted
+                                  : t.bgBrandSolid)
+                            : Colors.transparent,
+                        borderRadius: PRadius.brSm,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        o.label,
+                        style: PTypo.caption.copyWith(
+                          color: o.value == value
+                              ? (variant == PSegmentedVariant.subtle
+                                    ? t.fgPrimary
+                                    : t.fgOnBrand)
+                              : t.fgSecondary,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
                     ),
                   ),
                 ),

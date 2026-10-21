@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -37,6 +38,7 @@ SelectionColors _look(
   required bool selected,
   required bool enabled,
   required bool pressed,
+  required bool dark,
 }) {
   const clear = Color(0x00000000);
   if (!enabled) {
@@ -65,7 +67,12 @@ SelectionColors _look(
           border: c.strokeNeutralWeak,
           foreground: c.fgNeutralMuted,
         )
-      : (background: clear, border: clear, foreground: c.fgNeutralSubtle);
+      : (
+          background: clear,
+          border: clear,
+          // 다크에서는 subtle 이 트랙 위 4.50 아래라 muted(01-040 B 후속)
+          foreground: dark ? c.fgNeutralMuted : c.fgNeutralSubtle,
+        );
 }
 
 /// 칸 최소 높이 — 트랙 안쪽 4 를 더해 42.
@@ -146,7 +153,7 @@ class PSegmentedControl<T> extends StatelessWidget {
           width: double.infinity,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: c.bgNeutralWeak,
+              color: c.bgNeutralWeakAlpha,
               borderRadius: round,
             ),
             child: Padding(
@@ -298,6 +305,7 @@ class _SegmentedItemState<T> extends State<_SegmentedItem<T>>
     final selected = widget.selected;
     final pressed = enabled && _pressed;
     final look = _look(
+      dark: Theme.brightnessOf(context) == Brightness.dark,
       c,
       selected: selected,
       enabled: enabled,
@@ -310,7 +318,9 @@ class _SegmentedItemState<T> extends State<_SegmentedItem<T>>
       TargetPlatform.iOS || TargetPlatform.macOS => true,
       _ => false,
     };
-    final name = showDot ? '${item.label} $notificationBadgeName' : item.label;
+    final name = showDot
+        ? '${item.label} ${notificationBadgeNameOf(context)}'
+        : item.label;
     final round = BorderRadius.circular(PRounded.full);
 
     // 글 — 색은 칸의 색과 함께 150ms 로 바뀐다

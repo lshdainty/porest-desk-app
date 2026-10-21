@@ -82,83 +82,89 @@ class PRadioList<T> extends StatelessWidget {
     final (padX, padY, pillSize, gap, checkSize) = _metrics;
     final selected = item.value == value;
     final disabled = onChanged == null;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: disabled || selected ? null : () => onChanged!(item.value),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-          child: Row(
-            children: [
-              if (item.pillIcon != null || item.pillText != null)
-                Container(
-                  width: pillSize,
-                  height: pillSize,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: item.pillColor ?? t.bgCanvas,
-                    borderRadius: PRadius.brMd,
-                  ),
-                  child: item.pillIcon != null
-                      ? Icon(
-                          item.pillIcon,
-                          size: pillSize * 0.5,
-                          color: t.fgPrimary,
-                        )
-                      : Text(
-                          item.pillText!,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.bodyLg,
-                            fontWeight: PFontWeight.bold,
-                            color: t.fgPrimary,
-                          ),
-                        ),
-                ),
-              if (item.pillIcon != null || item.pillText != null)
-                SizedBox(width: gap),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      item.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.semi,
-                        color: disabled ? t.fgDisabled : t.fgPrimary,
-                      ),
+    return Semantics(
+      // 읽기 — 하나만 고르는 묶음의 선택지 + 고른 상태(01A-091)
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      enabled: !disabled,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: disabled || selected ? null : () => onChanged!(item.value),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
+            child: Row(
+              children: [
+                if (item.pillIcon != null || item.pillText != null)
+                  Container(
+                    width: pillSize,
+                    height: pillSize,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: item.pillColor ?? t.bgCanvas,
+                      borderRadius: PRadius.brMd,
                     ),
-                    if (item.subLabel != null) ...[
-                      const SizedBox(height: 2),
+                    child: item.pillIcon != null
+                        ? Icon(
+                            item.pillIcon,
+                            size: pillSize * 0.5,
+                            color: t.fgPrimary,
+                          )
+                        : Text(
+                            item.pillText!,
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: PFontSize.bodyLg,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                  ),
+                if (item.pillIcon != null || item.pillText != null)
+                  SizedBox(width: gap),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Text(
-                        item.subLabel!,
+                        item.label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: PTypo.sans,
-                          fontSize: PFontSize.micro,
-                          fontWeight: PFontWeight.regular,
-                          color: t.fgTertiary,
+                          fontSize: PFontSize.body,
+                          fontWeight: PFontWeight.semi,
+                          color: disabled ? t.fgDisabled : t.fgPrimary,
                         ),
                       ),
+                      if (item.subLabel != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.subLabel!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: PTypo.sans,
+                            fontSize: PFontSize.micro,
+                            fontWeight: PFontWeight.regular,
+                            color: t.fgTertiary,
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (item.trailing != null) ...[
-                const SizedBox(width: 8),
-                item.trailing!,
+                if (item.trailing != null) ...[
+                  const SizedBox(width: 8),
+                  item.trailing!,
+                ],
+                if (selected) ...[
+                  SizedBox(width: gap),
+                  Icon(LucideIcons.check, size: checkSize, color: t.fgBrand),
+                ],
               ],
-              if (selected) ...[
-                SizedBox(width: gap),
-                Icon(LucideIcons.check, size: checkSize, color: t.fgBrand),
-              ],
-            ],
+            ),
           ),
         ),
       ),

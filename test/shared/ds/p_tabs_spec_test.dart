@@ -182,7 +182,13 @@ class _Check {
   }
 }
 
-const _webOnly = {'focusRing.width', 'focusRing.offset', 'focusRing.color'};
+const _webOnly = {
+  'focusRing.width',
+  'focusRing.offset',
+  'focusRing.color',
+  // 화면 맨 위 1차 — 상단 바 아래 고정: 셸의 몫이라 test/shared/nav_frame_audit_test.dart 가 잰다
+  'list.position',
+};
 
 /// 동작 테스트가 보는 값 — 누르는 영역("탭 전체") · 막대가 무엇을 바꾸는지의 글 · 가로 스크롤 · 스크롤 여유.
 const _lineBehavior = {

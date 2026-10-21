@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -194,7 +196,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     final l = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -204,84 +206,86 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async => _reset(),
-        child: ListView(
-          controller: _scroll,
-          padding: const EdgeInsets.fromLTRB(
-            PSpace.x24,
-            PSpace.x16,
-            PSpace.x24,
-            PSpace.x40,
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async => _reset(),
+          child: ListView(
+            controller: _scroll,
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x40,
+            ),
+            children: [
+              // 검색
+              PSearchField(
+                hint: l.cardSearchHintFull,
+                controller: _kwCtrl,
+                onChanged: _onSearchChanged,
+              ),
+              const SizedBox(height: PSpace.x12),
+
+              // 종류 필터 (전체/신용/체크) — 1행 (front 정합: 타입·혜택 별도 행)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: PTabs<int>(
+                  value: _typeIndex,
+                  onChanged: _setType,
+                  variant: PTabsVariant.pills,
+                  size: PTabsSize.sm,
+                  items: [
+                    for (int i = 0; i < _typeValues.length; i++)
+                      PTabItem(value: i, label: _typeLabel(l, i)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: PSpace.x8),
+
+              // 혜택 필터 (혜택 전체/할인/적립/캐시백/마일리지) — 2행
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: PTabs<int>(
+                  value: _benefitIndex,
+                  onChanged: _setBenefit,
+                  variant: PTabsVariant.pills,
+                  size: PTabsSize.sm,
+                  items: [
+                    for (int i = 0; i < _benefitValues.length; i++)
+                      PTabItem(value: i, label: _benefitLabel(l, i)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: PSpace.x8),
+
+              // 총 N건(좌) + 단종 카드 포함(우) — 한 줄 (front 정합, 줄 절약)
+              Row(
+                children: [
+                  Expanded(
+                    child: _initialLoading
+                        ? const PSkeleton.line(width: 56, height: 12)
+                        : _cards.isNotEmpty
+                        ? Text(
+                            l.cardTotalCount(_totalElements),
+                            style: PTypo.caption.copyWith(color: t.fgTertiary),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  PCheckbox(
+                    value: _includeDiscontinued,
+                    onChanged: _toggleDiscontinued,
+                    size: PCheckboxSize.sm,
+                    label: l.cardIncludeDiscontinued,
+                  ),
+                ],
+              ),
+              const SizedBox(height: PSpace.x8),
+
+              // 결과 리스트 (누적식 인피니티 스크롤). 총 N건은 위 Row 로 이동.
+              ..._buildResults(t, l),
+            ],
           ),
-          children: [
-            // 검색
-            PSearchField(
-              hint: l.cardSearchHintFull,
-              controller: _kwCtrl,
-              onChanged: _onSearchChanged,
-            ),
-            const SizedBox(height: PSpace.x12),
-
-            // 종류 필터 (전체/신용/체크) — 1행 (front 정합: 타입·혜택 별도 행)
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: PTabs<int>(
-                value: _typeIndex,
-                onChanged: _setType,
-                variant: PTabsVariant.pills,
-                size: PTabsSize.sm,
-                items: [
-                  for (int i = 0; i < _typeValues.length; i++)
-                    PTabItem(value: i, label: _typeLabel(l, i)),
-                ],
-              ),
-            ),
-            const SizedBox(height: PSpace.x8),
-
-            // 혜택 필터 (혜택 전체/할인/적립/캐시백/마일리지) — 2행
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: PTabs<int>(
-                value: _benefitIndex,
-                onChanged: _setBenefit,
-                variant: PTabsVariant.pills,
-                size: PTabsSize.sm,
-                items: [
-                  for (int i = 0; i < _benefitValues.length; i++)
-                    PTabItem(value: i, label: _benefitLabel(l, i)),
-                ],
-              ),
-            ),
-            const SizedBox(height: PSpace.x8),
-
-            // 총 N건(좌) + 단종 카드 포함(우) — 한 줄 (front 정합, 줄 절약)
-            Row(
-              children: [
-                Expanded(
-                  child: _initialLoading
-                      ? const PSkeleton.line(width: 56, height: 12)
-                      : _cards.isNotEmpty
-                      ? Text(
-                          l.cardTotalCount(_totalElements),
-                          style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                PCheckbox(
-                  value: _includeDiscontinued,
-                  onChanged: _toggleDiscontinued,
-                  size: PCheckboxSize.sm,
-                  label: l.cardIncludeDiscontinued,
-                ),
-              ],
-            ),
-            const SizedBox(height: PSpace.x8),
-
-            // 결과 리스트 (누적식 인피니티 스크롤). 총 N건은 위 Row 로 이동.
-            ..._buildResults(t, l),
-          ],
         ),
       ),
     );
@@ -338,7 +342,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           child: PCircularProgressIndicator(
             size: 24,
             strokeWidth: 2.5,
-            color: t.bgBrand,
+            color: t.fgBrand,
           ),
         ),
       ],
@@ -547,12 +551,15 @@ class _CardVisual extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // 135deg 광택 — 기존 그라데이션 위 부드러운 하이라이트.
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
+                colors: [
+                  PColors.light.staticWhite.withValues(alpha: 0.15),
+                  PColors.light.staticWhite.withValues(alpha: 0),
+                ],
               ),
             ),
           ),

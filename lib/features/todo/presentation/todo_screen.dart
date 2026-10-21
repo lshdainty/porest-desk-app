@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
@@ -259,7 +261,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final listAsync = ref.watch(todoListProvider(_allFilter));
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -274,23 +276,25 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         tooltip: l.todoAdd,
         onPressed: () => showTodoEditDialog(context),
       ),
-      body: listAsync.when(
-        loading: () => const _LedgerSkeleton(),
-        error: (e, _) => ListView(
-          padding: const EdgeInsets.fromLTRB(
-            PSpace.x24,
-            PSpace.x16,
-            PSpace.x24,
-            PSpace.x16,
-          ),
-          children: [
-            Text(
-              '${l.todoLoadError}\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+      body: PScreenBandBody(
+        child: listAsync.when(
+          loading: () => const _LedgerSkeleton(),
+          error: (e, _) => ListView(
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x16,
             ),
-          ],
+            children: [
+              Text(
+                '${l.todoLoadError}\n$e',
+                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+              ),
+            ],
+          ),
+          data: (all) => _buildBody(context, t, l, all),
         ),
-        data: (all) => _buildBody(context, t, l, all),
       ),
     );
   }
@@ -583,7 +587,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         pin,
         Expanded(
           child: RefreshIndicator(
-            color: t.bgBrand,
+            color: t.fgBrand,
             onRefresh: () async {
               ref.invalidate(todoListProvider(_allFilter));
               invalidateConstellation(ref);
@@ -823,7 +827,7 @@ class _LedgerCalendar extends StatelessWidget {
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
       // 일요일 — 캘린더 화면 정합(fgExpense, 사용자 결정)
-      if (dow == 0) return t.fgExpense;
+      if (dow == 0) return t.statusDangerFg;
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -956,7 +960,7 @@ class _LedgerCalendar extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? t.statusDangerFg
                             : i == 6
                             ? t.fgBrand
                             : t.fgPrimary,
@@ -1538,7 +1542,7 @@ class _LedgerSkeleton extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? t.statusDangerFg
                             : i == 6
                             ? t.fgBrand
                             : t.fgPrimary,

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 크기 — small(점 6 — 새 것이 있는지만, 기본) · large(숫자 18 — 몇 개인지가 중요할 때).
 enum PNotificationBadgeSize { small, large }
@@ -11,6 +12,14 @@ enum PNotificationBadgeAttach { icon, text }
 /// 알림 점이 있는 탭 · 칸 · 탭 바 칸의 이름 뒤에 덧붙는 글 — Tabs · Chip Tabs · Segmented Control · Bottom Navigation 이 하나로
 /// 쓴다(Q-010-4 — 호출부가 넘기지 않고 컴포넌트가 갖는다). 점은 보조 기술에 숨긴다.
 const String notificationBadgeName = '새 소식';
+
+/// 지금 로케일의 "새 소식"(영어는 "New updates") — 이름 뒤에 덧붙이는 자리는 이것을 쓴다.
+String notificationBadgeNameOf(BuildContext context) =>
+    Localizations.of<AppLocalizations>(
+      context,
+      AppLocalizations,
+    )?.dsNotificationBadge ??
+    notificationBadgeName;
 
 /// 숫자 글 — 100 이상이면 "99+". 0 이하면 배지가 없다(null).
 @visibleForTesting

@@ -228,6 +228,7 @@ class _FileAttachmentSectionState extends ConsumerState<FileAttachmentSection> {
                           ),
                         ),
                         PButton.icon(
+                          tooltip: AppLocalizations.of(context).actionClose,
                           icon: LucideIcons.x,
                           size: PButtonSize.sm,
                           iconColor: t.fgTertiary,

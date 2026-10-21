@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 
 // slider.yaml 의 값 — 토큰이 있는 값은 토큰으로 적는다.
@@ -175,7 +176,7 @@ class PRangeSlider extends StatelessWidget {
     this.formatValue,
     this.label,
     this.disabled,
-    this.thumbLabels = const ['최소', '최대'],
+    this.thumbLabels,
   }) : assert(max > min, '최댓값은 최솟값보다 커야 한다'),
        assert(step > 0, '단계는 0 보다 커야 한다');
 
@@ -189,7 +190,9 @@ class PRangeSlider extends StatelessWidget {
   final String Function(double value)? formatValue;
   final String? label;
   final bool? disabled;
-  final List<String> thumbLabels;
+
+  /// 범위 손잡이 이름 `[작은 쪽, 큰 쪽]` — 주지 않으면 로케일 문구("최소" · "최대").
+  final List<String>? thumbLabels;
 
   @override
   Widget build(BuildContext context) => _SliderCore(
@@ -503,7 +506,17 @@ class _SliderCoreState extends State<_SliderCore> {
     if (!_range) return base ?? '';
     final part = widget.thumbLabels != null && i < widget.thumbLabels!.length
         ? widget.thumbLabels![i]
-        : (i == 0 ? '최소' : '최대');
+        : (i == 0
+              ? (Localizations.of<AppLocalizations>(
+                      context,
+                      AppLocalizations,
+                    )?.dsSliderMin ??
+                    '최소')
+              : (Localizations.of<AppLocalizations>(
+                      context,
+                      AppLocalizations,
+                    )?.dsSliderMax ??
+                    '최대'));
     return base == null ? part : '$base $part';
   }
 
@@ -620,6 +633,11 @@ class _SliderCoreState extends State<_SliderCore> {
                           onFocusChange: (f) {
                             if (!f && _keyboard == i) {
                               setState(() => _keyboard = null);
+                            } else if (f &&
+                                FocusManager.instance.highlightMode ==
+                                    FocusHighlightMode.traditional) {
+                              // Tab 으로 닿으면 바로 링 + 말풍선(키를 누르기 전에도)
+                              setState(() => _keyboard = i);
                             }
                           },
                           onIncrease: () => _step(i, values[i] + widget.step),
@@ -1005,6 +1023,9 @@ class _Thumb extends StatelessWidget {
             onDecrease: disabled ? null : onDecrease,
             child: Focus(
               focusNode: node,
+              // Focus 자신의 읽기 노드를 만들지 않는다 — 위 Semantics 가 이름 · 값 · 동작을 다 가진 단 하나의 노드다
+              // (03A-008: 이름 없는 초점 노드가 슬라이더 안에 하나 더 있었다)
+              includeSemantics: false,
               canRequestFocus: !disabled,
               skipTraversal: disabled,
               onKeyEvent: (_, e) => onKey(e),

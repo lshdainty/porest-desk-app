@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart' show TouchTarget;
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -28,28 +30,37 @@ class PTypeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final ac = activeColor ?? t.fgBrandStrong;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? t.bgBrandSubtle : t.bgMuted,
-          border: Border.all(color: active ? t.borderBrand : t.borderSubtle),
-          borderRadius: PRadius.brSm,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (active) Icon(LucideIcons.check, size: 12, color: ac),
-            if (active) const SizedBox(width: 4),
-            Text(
-              label,
-              style: PTypo.bodySm.copyWith(
-                fontWeight: PFontWeight.bold,
-                color: active ? ac : t.fgTertiary,
+    return TouchTarget(
+      minSize: PTouch.min,
+      child: Semantics(
+        button: true,
+        selected: active,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: active ? t.bgBrandSubtle : t.bgMuted,
+              border: Border.all(
+                color: active ? t.borderBrand : t.borderSubtle,
               ),
+              borderRadius: PRadius.brSm,
             ),
-          ],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (active) Icon(LucideIcons.check, size: 12, color: ac),
+                if (active) const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: PTypo.bodySm.copyWith(
+                    fontWeight: PFontWeight.bold,
+                    color: active ? ac : t.fgTertiary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

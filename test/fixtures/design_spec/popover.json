@@ -3,7 +3,7 @@
   "source": "specs/components/popover.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "표면 — 트리거 아래(모자라면 위)",
@@ -13,7 +13,8 @@
     "description": "설명",
     "body": "본문 — 넘치면 이 안에서 스크롤",
     "footer": "바닥 — 버튼(없어도 된다)",
-    "focusRing": "키보드 포커스 링(웹)"
+    "focusRing": "키보드 포커스 링(웹)",
+    "notificationList": "알림 목록 — Desk 데스크톱 머리 벨이 여는 팝오버(1280 이상). 같은 내용을 1280 미만은 Bottom Sheet"
   },
   "axes": {},
   "defaults": {},
@@ -94,6 +95,13 @@
           "paddingTop": 24,
           "paddingBottom": 24,
           "overflowY": "auto"
+        },
+        "notificationList": {
+          "width": 380,
+          "maxHeight": 600,
+          "align": "오른쪽 끝",
+          "below1280": "Bottom Sheet",
+          "rowPress": "읽음 표시"
         },
         "footer": {
           "paddingTop": 16,
@@ -235,6 +243,41 @@
       "slot": "body",
       "prop": "overflowY",
       "note": "넘칠 수 있는 본문은 끝 흐림(Scroll Fog overlayBody — 늘 켜진 위 20 · 아래 80, 본문 안 여백도 그만큼 · 2026-10-03) · 위로 스크롤하면 머리 아래 1px stroke-neutral-subtle — Dialog 와 같다(dialog.yaml scrollFog)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notificationList",
+      "prop": "width",
+      "note": "벨 아래 — 머리 \"알림\" · 설명 \"읽지 않은 알림 N개\" · 목록 · 바닥 \"알림 설정\" · \"모두 읽음\"(2026-10-16 사용자 결정 Q-017-3b B)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notificationList",
+      "prop": "maxHeight",
+      "note": "이 스펙의 최대 높이 그대로 — 넘치면 목록(본문)만 스크롤 · 끝 흐림. 지금 제품은 min(640, 화면 − 80)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notificationList",
+      "prop": "align",
+      "note": "벨 오른쪽 끝에 맞추고 화면 끝 16 을 남긴다(align end)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notificationList",
+      "prop": "below1280",
+      "note": "768 ~ 1279 는 같은 내용을 Bottom Sheet 로 — 이 스펙의 1280 경계 그대로. 폰(768 미만)의 벨은 알림 화면"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "notificationList",
+      "prop": "rowPress",
+      "note": "줄을 누르면 읽음으로 — 이동하지 않는다(지금 그대로)"
     },
     {
       "rule": 0,

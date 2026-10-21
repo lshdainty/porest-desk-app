@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -103,7 +105,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     }
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -142,121 +144,123 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          // 편집 모드: 검색·추가 대신 드래그 안내문(디자인 editMode) / 평시: 검색 + 추가 row.
-          if (_editMode)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpace.x24,
-                PSpace.x12,
-                PSpace.x24,
-                0,
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  l.categoryReorderHint,
-                  style: PTypo.caption.copyWith(
-                    color: t.fgTertiary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpace.x24,
-                PSpace.x16,
-                PSpace.x24,
-                0,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    // 공용 검색바 — 테두리/모양 통일(PSearchField canonical).
-                    child: PSearchField(
-                      hint: l.categorySearchHint,
-                      onChanged: (v) => setState(() => _query = v),
-                    ),
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  PButton(
-                    label: l.calAdd,
-                    icon: LucideIcons.plus,
-                    variant: PButtonVariant.accent,
-                    size: PButtonSize.sm,
-                    onPressed: () => showCategoryEditDialog(
-                      context,
-                      defaultExpenseType: _kindValues[_tabIndex],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          Expanded(
-            child: categoriesAsync.when(
-              loading: () => ListView(
+      body: PScreenBandBody(
+        child: Column(
+          children: [
+            // 편집 모드: 검색·추가 대신 드래그 안내문(디자인 editMode) / 평시: 검색 + 추가 row.
+            if (_editMode)
+              Padding(
                 padding: const EdgeInsets.fromLTRB(
                   PSpace.x24,
-                  PSpace.x0, // 검색바 label 과 gap 0 (label·list 는 한 묶음, 사용자 결정)
+                  PSpace.x12,
                   PSpace.x24,
-                  PSpace.x24,
+                  0,
                 ),
-                children: [
-                  // 카드 다이어트 — 스켈레톤 플랫.
-                  _CategorySkeleton(tokens: t),
-                ],
-              ),
-              error: (e, _) => Padding(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    l.categoryReorderHint,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              )
+            else
+              Padding(
                 padding: const EdgeInsets.fromLTRB(
                   PSpace.x24,
                   PSpace.x16,
                   PSpace.x24,
-                  PSpace.x16,
+                  0,
                 ),
-                child: Text(
-                  '${l.categoryLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-                ),
-              ),
-              data: (categories) {
-                // 낙관적 오버레이 적용 — 진행 중인 재정렬을 즉시 반영.
-                final effective = _optimistic.isEmpty
-                    ? categories
-                    : categories
-                          .map((c) {
-                            final o = _optimistic[c.rowId];
-                            return o == null
-                                ? c
-                                : c.copyWith(
-                                    sortOrder: o.sortOrder,
-                                    parentRowId: o.parentRowId,
-                                  );
-                          })
-                          .toList(growable: false);
-                return IndexedStack(
-                  index: _tabIndex,
+                child: Row(
                   children: [
-                    for (final k in _kindValues)
-                      _CategoryList(
-                        categories: effective
-                            .where((c) => (c.expenseType ?? 'EXPENSE') == k)
-                            .toList(growable: false),
-                        query: _query,
-                        editMode: _editMode,
-                        collapsed: _collapsed,
-                        onToggleCollapse: _toggleCollapse,
-                        onReorderSiblings: _handleReorder,
-                        tokens: t,
+                    Expanded(
+                      // 공용 검색바 — 테두리/모양 통일(PSearchField canonical).
+                      child: PSearchField(
+                        hint: l.categorySearchHint,
+                        onChanged: (v) => setState(() => _query = v),
                       ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    PButton(
+                      label: l.calAdd,
+                      icon: LucideIcons.plus,
+                      variant: PButtonVariant.accent,
+                      size: PButtonSize.sm,
+                      onPressed: () => showCategoryEditDialog(
+                        context,
+                        defaultExpenseType: _kindValues[_tabIndex],
+                      ),
+                    ),
                   ],
-                );
-              },
+                ),
+              ),
+            Expanded(
+              child: categoriesAsync.when(
+                loading: () => ListView(
+                  padding: const EdgeInsets.fromLTRB(
+                    PSpace.x24,
+                    PSpace.x0, // 검색바 label 과 gap 0 (label·list 는 한 묶음, 사용자 결정)
+                    PSpace.x24,
+                    PSpace.x24,
+                  ),
+                  children: [
+                    // 카드 다이어트 — 스켈레톤 플랫.
+                    _CategorySkeleton(tokens: t),
+                  ],
+                ),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    PSpace.x24,
+                    PSpace.x16,
+                    PSpace.x24,
+                    PSpace.x16,
+                  ),
+                  child: Text(
+                    '${l.categoryLoadError}\n$e',
+                    style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                  ),
+                ),
+                data: (categories) {
+                  // 낙관적 오버레이 적용 — 진행 중인 재정렬을 즉시 반영.
+                  final effective = _optimistic.isEmpty
+                      ? categories
+                      : categories
+                            .map((c) {
+                              final o = _optimistic[c.rowId];
+                              return o == null
+                                  ? c
+                                  : c.copyWith(
+                                      sortOrder: o.sortOrder,
+                                      parentRowId: o.parentRowId,
+                                    );
+                            })
+                            .toList(growable: false);
+                  return IndexedStack(
+                    index: _tabIndex,
+                    children: [
+                      for (final k in _kindValues)
+                        _CategoryList(
+                          categories: effective
+                              .where((c) => (c.expenseType ?? 'EXPENSE') == k)
+                              .toList(growable: false),
+                          query: _query,
+                          editMode: _editMode,
+                          collapsed: _collapsed,
+                          onToggleCollapse: _toggleCollapse,
+                          onReorderSiblings: _handleReorder,
+                          tokens: t,
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

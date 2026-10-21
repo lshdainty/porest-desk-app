@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -54,7 +56,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
     final labelsAsync = ref.watch(eventLabelsProvider);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -64,108 +66,34 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(eventLabelsProvider);
-          await ref.read(eventLabelsProvider.future);
-        },
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24,
-            vertical: PSpace.x24,
-          ),
-          children: [
-            // 안내 카드
-            _IntroCard(tokens: t),
-            const SizedBox(height: PSpace.x32),
+      body: PScreenBandBody(
+        child: RefreshIndicator(
+          color: t.fgBrand,
+          onRefresh: () async {
+            ref.invalidate(eventLabelsProvider);
+            await ref.read(eventLabelsProvider.future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
+            ),
+            children: [
+              // 안내 카드
+              _IntroCard(tokens: t),
+              const SizedBox(height: PSpace.x32),
 
-            labelsAsync.when(
-              // 추가 버튼은 정적 UI라 로딩에도 진짜를 쓴다 — 개수 텍스트와 행만
-              // 데이터 자리. 범용 PListSkeleton(원형 아바타 2줄)은 실제 라벨 행
-              // (사각 타일 32 + 이름/사용 수 + 휴지통 + chevron)과 달라 걷어냈다.
-              loading: () => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const PSkeleton.line(width: 96, height: 14),
-                      PButton(
-                        label: l.calNewLabel,
-                        icon: LucideIcons.plus,
-                        variant: PButtonVariant.accent,
-                        size: PButtonSize.sm,
-                        onPressed: () => _showLabelEditor(context, ref, null),
-                      ),
-                    ],
-                  ),
-                  for (int i = 0; i < 4; i++)
-                    Container(
-                      decoration: i > 0
-                          ? BoxDecoration(
-                              border: Border(
-                                top: BorderSide(color: t.borderSubtle),
-                              ),
-                            )
-                          : null,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x8,
-                        vertical: 14,
-                      ),
-                      child: const Row(
-                        children: [
-                          PSkeleton(
-                            width: 32,
-                            height: 32,
-                            borderRadius: PRadius.brMd,
-                          ),
-                          SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                PSkeleton.line(width: 120, height: 14),
-                                SizedBox(height: 2),
-                                PSkeleton.line(width: 72, height: 12),
-                              ],
-                            ),
-                          ),
-                          PSkeleton(
-                            width: 32,
-                            height: 32,
-                            borderRadius: PRadius.brMd,
-                          ),
-                          SizedBox(width: PSpace.x4),
-                          PSkeleton(width: 15, height: 15),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-              error: (e, _) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text(
-                  '${l.calLabelLoadError}\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-                ),
-              ),
-              data: (labels) {
-                return Column(
+              labelsAsync.when(
+                // 추가 버튼은 정적 UI라 로딩에도 진짜를 쓴다 — 개수 텍스트와 행만
+                // 데이터 자리. 범용 PListSkeleton(원형 아바타 2줄)은 실제 라벨 행
+                // (사각 타일 32 + 이름/사용 수 + 휴지통 + chevron)과 달라 걷어냈다.
+                loading: () => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // label padding 제거(사용자 결정, web 정합) — label·list 한 묶음 gap 0.
-                    // 라벨행 우측 텍스트(accent) 추가 버튼 — 프리셋 정합(filled 안내카드 버튼 폐기)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          l.calAllLabelsCount(labels.length),
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
+                        const PSkeleton.line(width: 96, height: 14),
                         PButton(
                           label: l.calNewLabel,
                           icon: LucideIcons.plus,
@@ -175,58 +103,138 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                         ),
                       ],
                     ),
-                    if (labels.isEmpty)
-                      // 카드 다이어트 — 빈 상태 플랫.
-                      PEmptyState(
-                        icon: LucideIcons.tag,
-                        message: l.calLabelsEmpty,
-                        subMessage: l.calLabelsEmptyHint,
-                      )
-                    else
-                      // 카드 다이어트 — 리스트 플랫.
-                      Column(
-                        children: [
-                          for (int i = 0; i < labels.length; i++)
-                            // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이
-                            // 비제스처 경로다(spec swipe-actions.md · WCAG 2.1.1).
-                            PSwipeActions(
-                              key: ValueKey('cal-label-${labels[i].rowId}'),
-                              groupTag: 'cal-label-list',
-                              actions: [
-                                PSwipeAction(
-                                  label: l.actionEdit,
-                                  icon: LucideIcons.pencil,
-                                  kind: PSwipeKind.primary,
-                                  onSelect: () =>
-                                      _showLabelEditor(context, ref, labels[i]),
+                    for (int i = 0; i < 4; i++)
+                      Container(
+                        decoration: i > 0
+                            ? BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(color: t.borderSubtle),
                                 ),
-                                PSwipeAction(
-                                  label: l.actionDelete,
-                                  icon: LucideIcons.trash2,
-                                  kind: PSwipeKind.destructive,
-                                  // _confirmDelete 가 자체 확인을 띄운다 —
-                                  // 여기서 또 주면 확인이 두 번 뜬다.
-                                  onSelect: () =>
-                                      _confirmDelete(context, ref, labels[i]),
-                                ),
-                              ],
-                              child: _LabelRow(
-                                label: labels[i],
-                                tokens: t,
-                                // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외).
-                                showDivider: i > 0,
-                                onTap: () =>
-                                    _showLabelEditor(context, ref, labels[i]),
+                              )
+                            : null,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: PSpace.x8,
+                          vertical: 14,
+                        ),
+                        child: const Row(
+                          children: [
+                            PSkeleton(
+                              width: 32,
+                              height: 32,
+                              borderRadius: PRadius.brMd,
+                            ),
+                            SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  PSkeleton.line(width: 120, height: 14),
+                                  SizedBox(height: 2),
+                                  PSkeleton.line(width: 72, height: 12),
+                                ],
                               ),
                             ),
-                        ],
+                            PSkeleton(
+                              width: 32,
+                              height: 32,
+                              borderRadius: PRadius.brMd,
+                            ),
+                            SizedBox(width: PSpace.x4),
+                            PSkeleton(width: 15, height: 15),
+                          ],
+                        ),
                       ),
                   ],
-                );
-              },
-            ),
-            const SizedBox(height: PSpace.x32),
-          ],
+                ),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                  child: Text(
+                    '${l.calLabelLoadError}\n$e',
+                    style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+                  ),
+                ),
+                data: (labels) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // label padding 제거(사용자 결정, web 정합) — label·list 한 묶음 gap 0.
+                      // 라벨행 우측 텍스트(accent) 추가 버튼 — 프리셋 정합(filled 안내카드 버튼 폐기)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l.calAllLabelsCount(labels.length),
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
+                          PButton(
+                            label: l.calNewLabel,
+                            icon: LucideIcons.plus,
+                            variant: PButtonVariant.accent,
+                            size: PButtonSize.sm,
+                            onPressed: () =>
+                                _showLabelEditor(context, ref, null),
+                          ),
+                        ],
+                      ),
+                      if (labels.isEmpty)
+                        // 카드 다이어트 — 빈 상태 플랫.
+                        PEmptyState(
+                          icon: LucideIcons.tag,
+                          message: l.calLabelsEmpty,
+                          subMessage: l.calLabelsEmptyHint,
+                        )
+                      else
+                        // 카드 다이어트 — 리스트 플랫.
+                        Column(
+                          children: [
+                            for (int i = 0; i < labels.length; i++)
+                              // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이
+                              // 비제스처 경로다(spec swipe-actions.md · WCAG 2.1.1).
+                              PSwipeActions(
+                                key: ValueKey('cal-label-${labels[i].rowId}'),
+                                groupTag: 'cal-label-list',
+                                actions: [
+                                  PSwipeAction(
+                                    label: l.actionEdit,
+                                    icon: LucideIcons.pencil,
+                                    kind: PSwipeKind.primary,
+                                    onSelect: () => _showLabelEditor(
+                                      context,
+                                      ref,
+                                      labels[i],
+                                    ),
+                                  ),
+                                  PSwipeAction(
+                                    label: l.actionDelete,
+                                    icon: LucideIcons.trash2,
+                                    kind: PSwipeKind.destructive,
+                                    // _confirmDelete 가 자체 확인을 띄운다 —
+                                    // 여기서 또 주면 확인이 두 번 뜬다.
+                                    onSelect: () =>
+                                        _confirmDelete(context, ref, labels[i]),
+                                  ),
+                                ],
+                                child: _LabelRow(
+                                  label: labels[i],
+                                  tokens: t,
+                                  // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외).
+                                  showDivider: i > 0,
+                                  onTap: () =>
+                                      _showLabelEditor(context, ref, labels[i]),
+                                ),
+                              ),
+                          ],
+                        ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: PSpace.x32),
+            ],
+          ),
         ),
       ),
     );

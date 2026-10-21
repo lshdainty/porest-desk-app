@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
@@ -16,6 +16,7 @@ import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
 import 'package:groo_damda_app/features/todo/domain/todo_meta.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
@@ -85,8 +86,9 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
     final collection = ref.watch(constellationCollectionProvider).value;
     final todos = ref.watch(todoListProvider(_allFilter)).value;
 
+    // 띠 화면(I-01 결정 1B) — 회색 바닥 위 구역마다 화면 폭 흰 띠, 띠 안에 카드를 두지 않는다.
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -98,37 +100,17 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
       ),
       body: today == null || todos == null
           ? ListView(
-              padding: const EdgeInsets.fromLTRB(
-                PSpace.x24,
-                PSpace.x20,
-                PSpace.x24,
-                PSpace.x20,
-              ),
-              children: const [
-                PSkeleton(
-                  width: double.infinity,
-                  height: 90,
-                  borderRadius: PRadius.brLg,
-                ),
-                SizedBox(height: 12),
-                PSkeleton(
-                  width: double.infinity,
-                  height: 64,
-                  borderRadius: PRadius.brLg,
-                ),
-                SizedBox(height: 12),
-                PSkeleton(
-                  width: double.infinity,
-                  height: 150,
-                  borderRadius: PRadius.brLg,
-                ),
-                SizedBox(height: 12),
-                PSkeleton(
-                  width: double.infinity,
-                  height: 220,
-                  borderRadius: PRadius.brLg,
-                ),
-              ],
+              padding: const EdgeInsets.only(bottom: 36),
+              children: PScreenBands.children([
+                for (final h in const [90.0, 64.0, 150.0, 220.0])
+                  PScreenSection(
+                    child: PSkeleton(
+                      width: double.infinity,
+                      height: h,
+                      borderRadius: PRadius.brLg,
+                    ),
+                  ),
+              ]),
             )
           : _body(context, t, l, today, sky, collection, todos),
     );
@@ -195,94 +177,111 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
         '${_ymd(days.first).replaceAll('-', '.')} ~ ${_ymd(days.last).replaceAll('-', '.')}';
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 36),
+      padding: const EdgeInsets.only(top: kScreenBandGap, bottom: 36),
       children: [
-        // ── 주간 네비 + 스트립 ──
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _WeekNavBtn(
-                icon: LucideIcons.chevronLeft,
-                enabled: _week == 1,
-                onTap: () => setState(() => _week = 0),
-                t: t,
-              ),
-              Text(
-                rangeLabel,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 13.5,
-                  fontWeight: PFontWeight.bold,
-                  color: t.fgPrimary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              _WeekNavBtn(
-                icon: LucideIcons.chevronRight,
-                enabled: _week == 0,
-                onTap: () => setState(() => _week = 1),
-                t: t,
-              ),
-            ],
+        // ── 주간 네비 + 스트립 + 날짜 헤더 — 띠 하나 ──
+        PScreenSection(
+          padding: const EdgeInsets.fromLTRB(
+            PSpacing.x6,
+            PSpacing.x1,
+            PSpacing.x6,
+            PSpacing.x2,
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 14, top: 6),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (var i = 0; i < 7; i++)
-                Expanded(
-                  child: _StripDay(
-                    ymd: _ymd(days[i]),
-                    day: days[i].day,
-                    dow: dows[i],
-                    isToday: _ymd(days[i]) == todayYmd,
-                    selected: _ymd(days[i]) == _sel,
-                    future: _ymd(days[i]).compareTo(todayYmd) > 0,
-                    onTap: () => setState(() => _sel = _ymd(days[i])),
-                    t: t,
-                  ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _WeekNavBtn(
+                      icon: LucideIcons.chevronLeft,
+                      enabled: _week == 1,
+                      onTap: () => setState(() => _week = 0),
+                      t: t,
+                    ),
+                    Text(
+                      rangeLabel,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: 13.5,
+                        fontWeight: PFontWeight.bold,
+                        color: t.fgPrimary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    _WeekNavBtn(
+                      icon: LucideIcons.chevronRight,
+                      enabled: _week == 0,
+                      onTap: () => setState(() => _week = 1),
+                      t: t,
+                    ),
+                  ],
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14, top: 6),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < 7; i++)
+                      Expanded(
+                        child: _StripDay(
+                          ymd: _ymd(days[i]),
+                          day: days[i].day,
+                          dow: dows[i],
+                          isToday: _ymd(days[i]) == todayYmd,
+                          selected: _ymd(days[i]) == _sel,
+                          future: _ymd(days[i]).compareTo(todayYmd) > 0,
+                          onTap: () => setState(() => _sel = _ymd(days[i])),
+                          t: t,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              // ── 날짜 헤더 ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(2, 2, 2, 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '${selDate.year % 100}.${selDate.month}.${selDate.day} ${formatDay(selDate).dow}',
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.15,
+                        color: t.fgPrimary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    const Spacer(),
+                    if (isToday)
+                      Text(
+                        l.frpAsOf(formatDateTimeMinute(DateTime.now())),
+                        style: PTypo.caption.copyWith(
+                          color: t.fgTertiary,
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
 
-        // ── 날짜 헤더 ──
-        Padding(
-          padding: const EdgeInsets.fromLTRB(2, 2, 2, 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '${selDate.year % 100}.${selDate.month}.${selDate.day} ${formatDay(selDate).dow}',
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.15,
-                  color: t.fgPrimary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              const Spacer(),
-              if (isToday)
-                Text(
-                  l.frpAsOf(formatDateTimeMinute(DateTime.now())),
-                  style: PTypo.caption.copyWith(
-                    color: t.fgTertiary,
-                    fontSize: 11,
-                  ),
-                ),
-            ],
-          ),
-        ),
-
-        if (isFuture)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 48),
+        if (isFuture) ...[
+          const SizedBox(height: kScreenBandGap),
+          PScreenSection(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.x6,
+              vertical: 48,
+            ),
             child: Column(
               children: [
                 Icon(LucideIcons.moon, size: 30, color: t.fgTertiary),
@@ -296,12 +295,11 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                 ),
               ],
             ),
-          )
-        else ...[
+          ),
+        ] else ...[
           // ── 관측 결과 ──
-          PCard(
-            variant: PCardVariant.raised,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          const SizedBox(height: kScreenBandGap),
+          PScreenSection(
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -416,12 +414,10 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: kScreenBandGap),
 
           // ── 별빛 모으기 ──
-          PCard(
-            variant: PCardVariant.raised,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          PScreenSection(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -494,12 +490,10 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: kScreenBandGap),
 
           // ── 별빛 분석 ──
-          PCard(
-            variant: PCardVariant.raised,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          PScreenSection(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -584,13 +578,11 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
 
           // ── 못다 켠 별 ──
-          if (missed.isNotEmpty || isToday)
-            PCard(
-              variant: PCardVariant.raised,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          if (missed.isNotEmpty || isToday) ...[
+            const SizedBox(height: kScreenBandGap),
+            PScreenSection(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -640,6 +632,7 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                 ],
               ),
             ),
+          ],
         ],
       ],
     );

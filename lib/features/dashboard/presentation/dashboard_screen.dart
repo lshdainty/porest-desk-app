@@ -1,3 +1,5 @@
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/env.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -16,6 +19,8 @@ import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
@@ -34,7 +39,6 @@ import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
-import 'package:groo_damda_app/shared/widgets/p_tab_bar.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -93,7 +97,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final budgetsAsync = ref.watch(monthBudgetsProvider(monthKey));
 
     return RefreshIndicator(
-      color: t.bgBrand,
+      color: t.fgBrand,
       onRefresh: () async {
         ref.invalidate(
           assetSummaryProvider((year: _month.year, month: _month.month)),
@@ -105,15 +109,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         );
         ref.invalidate(monthBudgetsProvider(monthKey));
       },
-      // 카드 다이어트 — design HomeMobile: padding 20/20/24 + 섹션 gap 36.
-      // 카드 대신 페이지 padding + 섹션 간 넓은 여백이 콘텐츠를 구분한다.
+      // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+      // 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다 — 띠 안 24 가 글자 자리다.
       child: ListView(
-        // 하단 — 플로팅 탭바 보상(pTabBarBottomInset).
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x20,
-          PSpace.x24,
-          pTabBarBottomInset(context),
+        // 하단 — 떠 있는 하단 바 보상
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           // 개발 서버를 보는 빌드에만 붙인다.
@@ -122,59 +124,74 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           // 이름도 같아서 열기 전에는 어느 쪽인지 알 길이 없다 — 홈 첫 줄에 못을 박아 둔다.
           // 운영 빌드에서는 아무것도 그리지 않는다.
           if (Env.appEnv != 'prod') ...[
-            Align(
-              alignment: Alignment.centerLeft,
-              child: PBadge(
-                label: Env.appEnv.toUpperCase(),
-                variant: PBadgeVariant.softWarning,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: PBadge(
+                  label: Env.appEnv.toUpperCase(),
+                  variant: PBadgeVariant.softWarning,
+                ),
               ),
             ),
             const SizedBox(height: PSpace.x12),
           ],
           // 문자를 복사해 놓고 앱을 연 경우에만 뜬다(iOS). 클립보드 내용은
           // 여기서 읽지 않는다 — 누르기 전까지는 OS 붙여넣기 배너도 뜨지 않는다.
-          const SmsClipboardBanner(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: PSpacing.x6),
+            child: SmsClipboardBanner(),
+          ),
           _BalanceHero(
             summaryAsync: summaryAsync,
             masked: ref.watch(hideCardProvider('home.netWorth')),
             // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
             onToggleMask: () => context.push('/settings/hide-amounts'),
           ),
-          const SizedBox(height: PSpace.x32),
-          _MonthExpenseCard(
-            month: _month,
-            expensesAsync: expensesAsync,
-            currentSummary: summaryRangeAsync.value,
-            prevSummary: prevSummaryAsync.value,
-            flags: ref.watch(maskFlagsProvider('home.monthExpense')),
+          const SizedBox(height: PSpacing.x2),
+          PScreenSection(
+            child: _MonthExpenseCard(
+              month: _month,
+              expensesAsync: expensesAsync,
+              currentSummary: summaryRangeAsync.value,
+              prevSummary: prevSummaryAsync.value,
+              flags: ref.watch(maskFlagsProvider('home.monthExpense')),
+            ),
           ),
-          const SizedBox(height: PSpace.x32),
-          _CategoryDonutCard(
-            summary: summaryRangeAsync.value,
-            categoriesAsync: categoriesAsync,
-            // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 탭을 오갈 때마다
-            // 스켈레톤이 끼어들면 화면이 껌뻑인다. 스켈레톤은 첫 로딩만.
-            firstLoading:
-                summaryRangeAsync.isLoading && !summaryRangeAsync.hasValue,
-            masked: ref.watch(hideCardProvider('home.categoryDonut')),
+          const SizedBox(height: PSpacing.x2),
+          PScreenSection(
+            child: _CategoryDonutCard(
+              summary: summaryRangeAsync.value,
+              categoriesAsync: categoriesAsync,
+              // 다시 받는 중이어도 값이 있으면 그 값을 그린다 — 탭을 오갈 때마다
+              // 스켈레톤이 끼어들면 화면이 껌뻑인다. 스켈레톤은 첫 로딩만.
+              firstLoading:
+                  summaryRangeAsync.isLoading && !summaryRangeAsync.hasValue,
+              masked: ref.watch(hideCardProvider('home.categoryDonut')),
+            ),
           ),
-          const SizedBox(height: PSpace.x32),
-          _BudgetCard(
-            budgetsAsync: budgetsAsync,
-            categoriesAsync: categoriesAsync,
-            summary: summaryRangeAsync.value,
-            masked: ref.watch(hideCardProvider('home.budget')),
-            warnThreshold:
-                ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
+          const SizedBox(height: PSpacing.x2),
+          PScreenSection(
+            child: _BudgetCard(
+              budgetsAsync: budgetsAsync,
+              categoriesAsync: categoriesAsync,
+              summary: summaryRangeAsync.value,
+              masked: ref.watch(hideCardProvider('home.budget')),
+              warnThreshold:
+                  ref.watch(budgetAlertThresholdProvider).value?.toDouble() ??
+                  85,
+            ),
           ),
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x2),
           // 각 위젯이 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
           _HomeUpcomingWidget(async: dashboardAsync),
           _HomeTodosWidget(async: dashboardAsync),
-          _TodaySpendCard(
-            expensesAsync: expensesAsync,
-            categoriesAsync: categoriesAsync,
-            masked: ref.watch(hideCardProvider('home.todaySpend')),
+          PScreenSection(
+            child: _TodaySpendCard(
+              expensesAsync: expensesAsync,
+              categoriesAsync: categoriesAsync,
+              masked: ref.watch(hideCardProvider('home.todaySpend')),
+            ),
           ),
         ],
       ),
@@ -295,33 +312,35 @@ class _WidgetSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 좌우는 구역 띠 안 24 가 쥔다(PScreenSection). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 헤드(아이콘·제목·전체보기)는 정적 틀이라 로딩에도 진짜를 쓴다 —
-          // 회색 박스로 덮으면 바로 보여줄 수 있는 걸 가리고, 교체 순간 튄다.
-          _WidgetHead(icon: icon, title: title, onAll: onAll),
-          for (int i = 0; i < 2; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  PSkeleton(
-                    width: 18,
-                    height: 18,
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  const SizedBox(width: 12),
-                  PSkeleton.line(width: i == 0 ? 120 : 96),
-                  const Spacer(),
-                  const PSkeleton.line(width: 40, height: 12),
-                ],
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: PScreenSection(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 헤드(아이콘·제목·전체보기)는 정적 틀이라 로딩에도 진짜를 쓴다 —
+            // 회색 박스로 덮으면 바로 보여줄 수 있는 걸 가리고, 교체 순간 튄다.
+            _WidgetHead(icon: icon, title: title, onAll: onAll),
+            for (int i = 0; i < 2; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    PSkeleton(
+                      width: 18,
+                      height: 18,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    const SizedBox(width: 12),
+                    PSkeleton.line(width: i == 0 ? 120 : 96),
+                    const Spacer(),
+                    const PSkeleton.line(width: 40, height: 12),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -350,48 +369,50 @@ class _HomeUpcomingWidget extends StatelessWidget {
     if (events.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 좌우는 구역 띠 안 24 가 쥔다(PScreenSection). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _WidgetHead(
-            icon: LucideIcons.calendarClock,
-            title: l.dashUpcoming,
-            onAll: () => context.go('/calendar'),
-          ),
-          for (final e in events)
-            _WidgetRow(
-              onTap: () => context.go('/calendar'),
-              leading: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: resolveChartColor(
-                    context,
-                    e.color,
-                    fallback: t.fgBrand,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              title: e.title,
-              trailing: Text(
-                e.daysUntil == 0
-                    ? l.dashTodayLabel
-                    : (e.daysUntil == 1
-                          ? l.dashTomorrowLabel
-                          : l.dashDaysLeft(e.daysUntil)),
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: PFontWeight.bold,
-                  color: e.daysUntil <= 3 ? t.fgExpense : t.fgTertiary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: PScreenSection(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _WidgetHead(
+              icon: LucideIcons.calendarClock,
+              title: l.dashUpcoming,
+              onAll: () => context.go('/calendar'),
             ),
-        ],
+            for (final e in events)
+              _WidgetRow(
+                onTap: () => context.go('/calendar'),
+                leading: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: resolveChartColor(
+                      context,
+                      e.color,
+                      fallback: t.fgBrand,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                title: e.title,
+                trailing: Text(
+                  e.daysUntil == 0
+                      ? l.dashTodayLabel
+                      : (e.daysUntil == 1
+                            ? l.dashTomorrowLabel
+                            : l.dashDaysLeft(e.daysUntil)),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: PFontWeight.bold,
+                    color: e.daysUntil <= 3 ? t.statusDangerFg : t.fgTertiary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -418,66 +439,68 @@ class _HomeTodosWidget extends StatelessWidget {
     final overdue = s.todoSummary.overDueCount;
 
     return Padding(
-      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 좌우는 구역 띠 안 24 가 쥔다(PScreenSection). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _WidgetHead(
-            icon: LucideIcons.squareCheckBig,
-            title: l.dashRecentTodos,
-            onAll: () => context.go('/todos'),
-            // badge SoT = pill(brFull) + softError(subtle 배경 + statusDangerFg). square 는 spec 외.
-            badge: overdue > 0
-                ? PBadge(
-                    label: l.dashOverdue(overdue),
-                    variant: PBadgeVariant.softError,
-                  )
-                : null,
-          ),
-          for (final tdo in todos)
-            () {
-              final done = tdo.status == 'COMPLETED';
-              final isOver =
-                  !done &&
-                  tdo.dueDate != null &&
-                  tdo.dueDate!.substring(0, 10).compareTo(todayStr) < 0;
-              return _WidgetRow(
-                onTap: () => context.go('/todos'),
-                strike: done,
-                leading: done
-                    ? Icon(
-                        LucideIcons.checkCircle,
-                        size: 18,
-                        color: t.statusSuccessFg,
-                      )
-                    : Container(
-                        width: 18,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isOver ? t.fgExpense : t.borderStrong,
-                            width: 2,
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: PScreenSection(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _WidgetHead(
+              icon: LucideIcons.squareCheckBig,
+              title: l.dashRecentTodos,
+              onAll: () => context.go('/todos'),
+              // badge SoT = pill(brFull) + softError(subtle 배경 + statusDangerFg). square 는 spec 외.
+              badge: overdue > 0
+                  ? PBadge(
+                      label: l.dashOverdue(overdue),
+                      variant: PBadgeVariant.softError,
+                    )
+                  : null,
+            ),
+            for (final tdo in todos)
+              () {
+                final done = tdo.status == 'COMPLETED';
+                final isOver =
+                    !done &&
+                    tdo.dueDate != null &&
+                    tdo.dueDate!.substring(0, 10).compareTo(todayStr) < 0;
+                return _WidgetRow(
+                  onTap: () => context.go('/todos'),
+                  strike: done,
+                  leading: done
+                      ? Icon(
+                          LucideIcons.checkCircle,
+                          size: 18,
+                          color: t.statusSuccessFg,
+                        )
+                      : Container(
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isOver ? t.statusDangerFg : t.borderStrong,
+                              width: 2,
+                            ),
                           ),
                         ),
-                      ),
-                title: tdo.title,
-                trailing: tdo.dueDate != null
-                    ? Text(
-                        tdo.dueDate!.substring(5, 10),
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: PFontWeight.semi,
-                          color: isOver ? t.fgExpense : t.fgTertiary,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              );
-            }(),
-        ],
+                  title: tdo.title,
+                  trailing: tdo.dueDate != null
+                      ? Text(
+                          tdo.dueDate!.substring(5, 10),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: PFontWeight.semi,
+                            color: isOver ? t.statusDangerFg : t.fgTertiary,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                );
+              }(),
+          ],
+        ),
       ),
     );
   }
@@ -505,19 +528,17 @@ class _BalanceHero extends StatelessWidget {
     final totalAssets = (s?.totalAssets as int?) ?? 0;
     final totalDebt = (s?.totalDebt as int?) ?? 0;
     final changePct = (s?.changePercent as double?) ?? 0.0;
-    final isUp = changePct >= 0;
-
     return Stack(
       children: [
         Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [t.bgHeroGradientStart, t.bgHeroGradientEnd],
+            // 면 색에서 brand-900(다크 brand-300)로 — #012B68 리터럴을 걷었다(01A-008)
+            // 폰에서는 순자산도 띠다 — 화면 폭 · 모서리 없음(I-01 결정 3)
+            gradient: PCardHeroGradient.of(
+              context.colors,
+              Theme.brightnessOf(context),
             ),
-            borderRadius: PRadius.brXl2,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -611,32 +632,19 @@ class _BalanceHero extends StatelessWidget {
                   child: _heroSkelBar(t, width: 120, height: 14),
                 )
               else
-                Row(
-                  children: [
-                    Text(
-                      l.dashVsLastMonth,
-                      style: TextStyle(
-                        color: t.fgOnBrand.withValues(alpha: 0.78),
-                        fontSize: PFontSize.bodySm,
-                        fontWeight: PFontWeight.regular,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(
-                      isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                      size: 14,
-                      color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
-                      style: TextStyle(
-                        color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
-                        fontSize: PFontSize.bodySm,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                  ],
+                // 브랜드 채움 위 증감 — 흰 ▲ · ▼ + 흰 기준 글(하나뿐인 예외, 01A-005)
+                PCardScope(
+                  variant: PCardVariant.hero,
+                  body: PCardBody.content,
+                  child: PDelta(
+                    direction: changePct > 0
+                        ? PDeltaDirection.up
+                        : (changePct < 0
+                              ? PDeltaDirection.down
+                              : PDeltaDirection.flat),
+                    value: '${changePct.abs().toStringAsFixed(1)}%',
+                    text: l.dashVsLastMonth,
+                  ),
                 ),
               const SizedBox(height: 20),
               Container(
@@ -881,7 +889,7 @@ class _MonthExpenseCard extends StatelessWidget {
                   TextSpan(
                     text: '${savingsPct.abs().toStringAsFixed(0)}%',
                     style: TextStyle(
-                      color: saving ? t.fgBrandStrong : t.fgExpense,
+                      color: saving ? t.fgBrandStrong : t.statusDangerFg,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),
@@ -1007,7 +1015,7 @@ class _CategoryDonutCard extends StatelessWidget {
       title: l.expCategory,
       trailing: PFlatSectionLink(
         label: l.dashSeeMore,
-        onTap: () => context.go('/stats'),
+        onTap: () => context.go(MoneyTab.stats.location),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1232,7 +1240,7 @@ class _BudgetCard extends StatelessWidget {
       trailing: PFlatSectionLink(
         label: l.expFilterAll,
         // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
-        onTap: () => context.go('/budget'),
+        onTap: () => context.go(MoneyTab.budget.location),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1375,12 +1383,14 @@ class _BudgetRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
+              // RichText 는 앱 글꼴을 물려받지 않는다 — 글꼴을 직접 적는다(없으면 기기 시스템 글꼴로 나온다)
               RichText(
                 text: TextSpan(
                   style: TextStyle(
+                    fontFamily: PTypo.sans,
                     fontSize: PFontSize.bodyLg,
                     fontWeight: PFontWeight.bold,
-                    color: over ? tokens.fgExpense : tokens.fgPrimary,
+                    color: over ? tokens.statusDangerFg : tokens.fgPrimary,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                   children: [

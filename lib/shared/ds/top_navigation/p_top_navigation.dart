@@ -122,6 +122,8 @@ class PTopNavigation extends StatelessWidget {
                 padding: EdgeInsets.only(left: titleLeft),
                 child: Semantics(
                   header: true,
+                  // 안드로이드는 headingLevel > 0 일 때만 머리말로 잡는다(제목 이동) — 화면 제목은 1단계
+                  headingLevel: 1,
                   child: Text(
                     title,
                     key: const ValueKey('top-navigation-title'),

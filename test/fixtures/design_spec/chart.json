@@ -3,7 +3,7 @@
   "source": "specs/components/chart.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "차트 상자 — 카드 본문 안, 폭 100%. 높이는 쓰는 자리가 정한다",
@@ -145,8 +145,8 @@
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "foreground": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
+            "light": "#62697A",
+            "dark": "#A2A8B7"
           },
           "gap": 6
         },
@@ -166,8 +166,8 @@
             "fontFamily": "Pretendard, Inter, sans-serif"
           },
           "foreground": {
-            "light": "#535866",
-            "dark": "#B7BDCC"
+            "light": "#62697A",
+            "dark": "#A2A8B7"
           },
           "cursor": "pointer",
           "touchTarget": "타일 전체",
@@ -586,7 +586,7 @@
       "state": "enabled",
       "slot": "tooltipRow",
       "prop": "foreground",
-      "note": "라벨 — 값은 fg-neutral · 700 · 고정폭 숫자, 오른쪽 맞춤. 돈은 줄이지 않고 원까지"
+      "note": "라벨(계열 이름) — 덧붙인 정보라 축 · 툴팁 머리와 같은 subtle(2026-10-16 사용자 결정 글자 역할 D5, 전 muted). 떠 있는 면 위 5.50 · 다크 5.27. 값은 fg-neutral · 700 · 고정폭 숫자, 오른쪽 맞춤. 돈은 줄이지 않고 원까지"
     },
     {
       "rule": 0,
@@ -621,7 +621,14 @@
       "state": "enabled",
       "slot": "legendTile",
       "prop": "typography",
-      "note": "이름 13 — fg-neutral-muted, 앞 점 8(계열 색) · 점 ↔ 이름 6. 아래 2 에 합계 16 / 22 · 700 · fg-neutral · 고정폭 숫자, 돈은 원까지"
+      "note": "이름 13 — fg-neutral-subtle, 앞 점 8(계열 색) · 점 ↔ 이름 6. 아래 2 에 합계 16 / 22 · 700 · fg-neutral · 고정폭 숫자, 돈은 원까지"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "legendTile",
+      "prop": "foreground",
+      "note": "이름 — 덧붙인 정보라 subtle(2026-10-16 사용자 결정 글자 역할 D5, 전 muted). chart-{색}-subtle 위 4.77 이상 · 다크 4.68 이상(회색 타일이 가장 낮다)"
     },
     {
       "rule": 0,

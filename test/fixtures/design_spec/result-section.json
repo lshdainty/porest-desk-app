@@ -3,7 +3,7 @@
   "source": "specs/components/result-section.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "97d2f704108f"
+    "sha256": "8e7da59ba7f5"
   },
   "slots": {
     "root": "묶음 — 놓인 자리 가운데",
@@ -67,7 +67,11 @@
           "buttonSize": "medium 40"
         },
         "secondaryButton": {
-          "buttonSize": "small 36"
+          "buttonSize": "small 36",
+          "foreground": {
+            "light": "#535866",
+            "dark": "#B7BDCC"
+          }
         }
       }
     },
@@ -223,7 +227,14 @@
       "state": "enabled",
       "slot": "secondaryButton",
       "prop": "buttonSize",
-      "note": "Button ghost — 위아래로 블리드해 글 자리만 차지"
+      "note": "글 버튼(SEED Text Button) — Button ghost small 의 상자(36 · 좌우 14 · 모서리 8 · 누름 bg-layer-default-pressed)가 SEED Text Button 과 같다. 위아래로 블리드해 글 자리만 차지"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "secondaryButton",
+      "prop": "foreground",
+      "note": "SEED Text Button 글자 t4 · 700 · fg.neutral-muted — 2026-10-16 사용자 결정 글자 역할 D2(전 ghost 의 fg-neutral)"
     },
     {
       "rule": 1,

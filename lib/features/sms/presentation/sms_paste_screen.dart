@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -142,7 +144,7 @@ class _SmsPasteScreenState extends ConsumerState<SmsPasteScreen> {
     final l = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -152,55 +154,57 @@ class _SmsPasteScreenState extends ConsumerState<SmsPasteScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            PSpace.x24,
-            PSpace.x16,
-            PSpace.x24,
-            PSpace.x16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l.smsPasteDesc,
-                style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-              ),
-              const SizedBox(height: PSpace.x16),
-              PSectionLabel(l.smsPasteFieldLabel),
-              const SizedBox(height: PSpace.x4),
-              PTextInput(
-                controller: _textCtrl,
-                placeholder: l.smsPastePlaceholder,
-                maxLines: 8,
-                minLines: 5,
-                enabled: !_parsing,
-              ),
-              if (_notice != null) ...[
-                const SizedBox(height: PSpace.x12),
-                PAlert(
-                  title: _notice!,
-                  variant: PAlertVariant.warning,
-                  onDismiss: () => setState(() => _notice = null),
+      body: PScreenBandBody(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x24,
+              PSpace.x16,
+              PSpace.x24,
+              PSpace.x16,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l.smsPasteDesc,
+                  style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                ),
+                const SizedBox(height: PSpace.x16),
+                PSectionLabel(l.smsPasteFieldLabel),
+                const SizedBox(height: PSpace.x4),
+                PTextInput(
+                  controller: _textCtrl,
+                  placeholder: l.smsPastePlaceholder,
+                  maxLines: 8,
+                  minLines: 5,
+                  enabled: !_parsing,
+                ),
+                if (_notice != null) ...[
+                  const SizedBox(height: PSpace.x12),
+                  PAlert(
+                    title: _notice!,
+                    variant: PAlertVariant.warning,
+                    onDismiss: () => setState(() => _notice = null),
+                  ),
+                ],
+                const SizedBox(height: PSpace.x16),
+                PButton(
+                  label: l.smsPasteFromClipboard,
+                  variant: PButtonVariant.outline,
+                  icon: LucideIcons.clipboard,
+                  fullWidth: true,
+                  onPressed: _parsing ? null : _pasteFromClipboard,
+                ),
+                const SizedBox(height: PSpace.x8),
+                PButton(
+                  label: l.smsPasteAction,
+                  loading: _parsing,
+                  fullWidth: true,
+                  onPressed: _parsing ? null : _parse,
                 ),
               ],
-              const SizedBox(height: PSpace.x16),
-              PButton(
-                label: l.smsPasteFromClipboard,
-                variant: PButtonVariant.outline,
-                icon: LucideIcons.clipboard,
-                fullWidth: true,
-                onPressed: _parsing ? null : _pasteFromClipboard,
-              ),
-              const SizedBox(height: PSpace.x8),
-              PButton(
-                label: l.smsPasteAction,
-                loading: _parsing,
-                fullWidth: true,
-                onPressed: _parsing ? null : _parse,
-              ),
-            ],
+            ),
           ),
         ),
       ),

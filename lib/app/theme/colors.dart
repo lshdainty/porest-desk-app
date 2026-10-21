@@ -45,13 +45,9 @@ abstract final class GrooPalette {
 
   // === Status (DESIGN.desk.md semantic functional palette) ===
   // 각 base + light 페어. base는 light mode 텍스트/배경, light는 dark mode fg.
-  static const Color statusSuccessBase = Color(0xFF16803F);
   static const Color statusSuccessLight = Color(0xFF4ADE80);
-  static const Color statusErrorBase = Color(0xFFDC2626);
   static const Color statusErrorLight = Color(0xFFF87171);
-  static const Color statusWarningBase = Color(0xFFC84D0E);
   static const Color statusWarningLight = Color(0xFFFB923C);
-  static const Color statusInfoBase = Color(0xFF1D6FCB);
   static const Color statusInfoLight = Color(0xFF60A5FA);
 
   // Hero(.balance-hero) 내부 등락 보조 색 — cobalt 그라데이션 위에 사용.

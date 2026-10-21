@@ -49,8 +49,24 @@ String monthDay(DateTime d) =>
 /// 올해가 아니면 [formatDay] 가 md 에 연도를 넣어 준다 → "2027년 1월 1일 (금)".
 /// `'${x.md} (${x.dow})'` 인라인이 여러 화면에 흩어져 있어 한자리로 모은다.
 String monthDayDow(DateTime d) {
+  // 영어는 요일이 앞이다 — "Fri, Oct 16"(International v106: `E, MMM d`). 다른 해면 연도를 붙인다.
+  if (localeIsEn()) {
+    final otherYear = d.year != DateTime.now().year;
+    return otherYear
+        ? DateFormat('E, MMM d, y', 'en').format(d)
+        : DateFormat('E, MMM d', 'en').format(d);
+  }
   final x = formatDay(d);
   return '${x.md} (${x.dow})';
+}
+
+/// 시각 — 모든 화면에 오전 · 오후 12시간을 쓰고 초는 쓰지 않는다(International v106 · 01A-101):
+/// ko "오후 3:07"(`a h:mm`), en "3:07 PM"(`h:mm a`). 서버로 보내는 "HH:mm" 값은 이것으로 만들지 않는다.
+String timeOfDay12(DateTime d) {
+  final h12 = d.hour % 12 == 0 ? 12 : d.hour % 12;
+  final mm = d.minute.toString().padLeft(2, '0');
+  if (localeIsEn()) return '$h12:$mm ${d.hour < 12 ? 'AM' : 'PM'}';
+  return '${d.hour < 12 ? '오전' : '오후'} $h12:$mm';
 }
 
 /// 'YYYY-MM-DD' 파싱 헬퍼.
@@ -172,7 +188,7 @@ String? localDateTime(String? iso) {
   return '$yyyy-$mm-$dd $hh:$mi';
 }
 
-/// 서버 `[UTC]` 시각을 로컬 `MM/DD · HH:MM` 으로 찍는다 (메모 수정시각 라벨).
+/// 서버 `[UTC]` 시각을 로컬 `MM/DD · 오후 3:07` 으로 찍는다 (메모 수정시각 라벨).
 ///
 /// 원래는 문자열을 `raw.substring(5, 16)` 으로 잘라 썼다 — 파싱을 안 하니 서버가 준
 /// UTC 벽시계가 그대로 화면에 나왔고, KST(+9)에서는 방금 고친 메모가 9시간 전으로,
@@ -186,7 +202,5 @@ String monthDayTime(String? iso) {
   if (dt == null) return '';
   final mm = dt.month.toString().padLeft(2, '0');
   final dd = dt.day.toString().padLeft(2, '0');
-  final hh = dt.hour.toString().padLeft(2, '0');
-  final mi = dt.minute.toString().padLeft(2, '0');
-  return '$mm/$dd · $hh:$mi';
+  return '$mm/$dd · ${timeOfDay12(dt)}';
 }
