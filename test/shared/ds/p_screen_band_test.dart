@@ -51,9 +51,12 @@ void main() {
   }
 
   for (final dark in [false, true]) {
-    testWidgets('카드 · 한 장 띠 — ${dark ? "다크" : "라이트"}', (tester) async {
+    testWidgets('구역 띠 · 한 장 띠 — ${dark ? "다크" : "라이트"}', (tester) async {
       final theme = dark ? GrooTheme.dark() : GrooTheme.light();
       final c = theme.extension<PColors>()!;
+      tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.reset);
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
@@ -61,32 +64,32 @@ void main() {
             backgroundColor: c.bgLayerBasement,
             body: Column(
               children: const [
-                Padding(
-                  padding: EdgeInsets.all(24),
-                  child: PScreenCard(child: SizedBox(height: 40)),
-                ),
+                SizedBox(height: kScreenBandGap),
+                PScreenSection(child: SizedBox(height: 40)),
                 Expanded(child: PScreenBandBody(child: SizedBox())),
               ],
             ),
           ),
         ),
       );
-      final card = tester.getRect(find.byKey(const ValueKey('screen-card')));
-      expect(card.height, 40 + 48 + 2, reason: '안쪽 24 + 테두리 1');
-      final deco =
-          tester
-                  .widget<Container>(find.byKey(const ValueKey('screen-card')))
-                  .decoration!
-              as BoxDecoration;
-      expect(deco.color, c.bgLayerDefault);
-      expect(deco.boxShadow, isNull, reason: '그림자 없이 선으로');
-      expect((deco.border! as Border).top.color, c.strokeNeutralWeak);
-      expect((deco.borderRadius! as BorderRadius).topLeft.x, 12);
+      // 구역 띠 — 화면 폭 · 안쪽 24 · 모서리 · 테두리 없음(I-01 결정 3)
+      final section = tester.getRect(
+        find.byKey(const ValueKey('screen-section')),
+      );
+      expect(section.width, 390, reason: '화면 폭');
+      expect(section.top, 8, reason: '맨 위 8');
+      expect(section.height, 40 + 48, reason: '안쪽 24');
+      expect(
+        tester
+            .widget<ColoredBox>(find.byKey(const ValueKey('screen-section')))
+            .color,
+        c.bgLayerDefault,
+      );
       // 한 장 띠 — 맨 위 8 은 바닥, 그 아래 화면 폭 흰 면
       final band = tester.getRect(
         find.byKey(const ValueKey('screen-band-body')),
       );
-      expect(band.top - (24 + card.height + 24), 8);
+      expect(band.top - section.bottom, 8);
       expect(
         tester
             .widget<ColoredBox>(find.byKey(const ValueKey('screen-band-body')))

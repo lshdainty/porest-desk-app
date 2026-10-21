@@ -65,9 +65,8 @@ void main() {
   test('카드 안쪽 여백은 실제 카드와 스켈레톤이 서로 같다', () {
     // 페이지 인셋과 달리 여기는 24 가 아니어도 된다 — **둘이 어긋나면** 데이터가
     // 오는 순간 카드가 좌우로 튄다. 그것만 본다.
+    // 예산 화면은 실제 · 스켈레톤 모두 구역 띠(PScreenSection)라 여기서 뺐다(I-01 결정 3).
     const pairs = {
-      'lib/features/budget/presentation/budget_screen.dart':
-          'EdgeInsets.all(18)',
       'lib/features/dutch_pay/presentation/dutch_pay_screen.dart':
           'EdgeInsets.all(18)',
       'lib/features/budget/presentation/budget_settings_screen.dart':

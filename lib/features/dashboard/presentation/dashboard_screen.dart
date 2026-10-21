@@ -109,15 +109,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         );
         ref.invalidate(monthBudgetsProvider(monthKey));
       },
-      // 카드 다이어트 — design HomeMobile: padding 20/20/24 + 섹션 gap 36.
-      // 카드 대신 페이지 padding + 섹션 간 넓은 여백이 콘텐츠를 구분한다.
+      // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+      // 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다 — 띠 안 24 가 글자 자리다.
       child: ListView(
-        // 하단 — 플로팅 탭바 보상(pTabBarBottomInset).
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x20,
-          PSpace.x24,
-          bottomNavigationInset(context),
+        // 하단 — 떠 있는 하단 바 보상
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           // 개발 서버를 보는 빌드에만 붙인다.
@@ -126,18 +124,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           // 이름도 같아서 열기 전에는 어느 쪽인지 알 길이 없다 — 홈 첫 줄에 못을 박아 둔다.
           // 운영 빌드에서는 아무것도 그리지 않는다.
           if (Env.appEnv != 'prod') ...[
-            Align(
-              alignment: Alignment.centerLeft,
-              child: PBadge(
-                label: Env.appEnv.toUpperCase(),
-                variant: PBadgeVariant.softWarning,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: PBadge(
+                  label: Env.appEnv.toUpperCase(),
+                  variant: PBadgeVariant.softWarning,
+                ),
               ),
             ),
             const SizedBox(height: PSpace.x12),
           ],
           // 문자를 복사해 놓고 앱을 연 경우에만 뜬다(iOS). 클립보드 내용은
           // 여기서 읽지 않는다 — 누르기 전까지는 OS 붙여넣기 배너도 뜨지 않는다.
-          const SmsClipboardBanner(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: PSpacing.x6),
+            child: SmsClipboardBanner(),
+          ),
           _BalanceHero(
             summaryAsync: summaryAsync,
             masked: ref.watch(hideCardProvider('home.netWorth')),
@@ -145,7 +149,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             onToggleMask: () => context.push('/settings/hide-amounts'),
           ),
           const SizedBox(height: PSpacing.x2),
-          PScreenCard(
+          PScreenSection(
             child: _MonthExpenseCard(
               month: _month,
               expensesAsync: expensesAsync,
@@ -155,7 +159,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           const SizedBox(height: PSpacing.x2),
-          PScreenCard(
+          PScreenSection(
             child: _CategoryDonutCard(
               summary: summaryRangeAsync.value,
               categoriesAsync: categoriesAsync,
@@ -167,7 +171,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           const SizedBox(height: PSpacing.x2),
-          PScreenCard(
+          PScreenSection(
             child: _BudgetCard(
               budgetsAsync: budgetsAsync,
               categoriesAsync: categoriesAsync,
@@ -182,7 +186,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           // 각 위젯이 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
           _HomeUpcomingWidget(async: dashboardAsync),
           _HomeTodosWidget(async: dashboardAsync),
-          PScreenCard(
+          PScreenSection(
             child: _TodaySpendCard(
               expensesAsync: expensesAsync,
               categoriesAsync: categoriesAsync,
@@ -308,10 +312,10 @@ class _WidgetSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 좌우는 구역 띠 안 24 가 쥔다(PScreenSection). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
-      child: PScreenCard(
+      child: PScreenSection(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -365,10 +369,10 @@ class _HomeUpcomingWidget extends StatelessWidget {
     if (events.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 좌우는 구역 띠 안 24 가 쥔다(PScreenSection). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
-      child: PScreenCard(
+      child: PScreenSection(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -435,10 +439,10 @@ class _HomeTodosWidget extends StatelessWidget {
     final overdue = s.todoSummary.overDueCount;
 
     return Padding(
-      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 좌우는 구역 띠 안 24 가 쥔다(PScreenSection). 섹션이 여기서 더 얹으면
       // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
-      child: PScreenCard(
+      child: PScreenSection(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -530,11 +534,11 @@ class _BalanceHero extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           decoration: BoxDecoration(
             // 면 색에서 brand-900(다크 brand-300)로 — #012B68 리터럴을 걷었다(01A-008)
+            // 폰에서는 순자산도 띠다 — 화면 폭 · 모서리 없음(I-01 결정 3)
             gradient: PCardHeroGradient.of(
               context.colors,
               Theme.brightnessOf(context),
             ),
-            borderRadius: PRadius.brXl2,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

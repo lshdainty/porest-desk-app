@@ -11,7 +11,7 @@ const double kScreenBandPaddingBottom = PSpacing.x2;
 
 /// 화면 폭 흰 띠(`bg-layer-default`) 하나 — 띠 화면(설정 · 전체 · 캘린더 · 알림 · 폼)이 묶음마다 이것을 둔다.
 /// 바닥은 `bg-layer-basement` 이고 띠는 그 위에 8 띄워 쌓인다([PScreenBands]). 띠 안은 위 4 · 아래 8 이며 좌우는
-/// 안의 내용이 정한다(화면 가장자리 24). 카드 화면(홈 · 자산 · 통계 · 예산)은 띠가 아니라 회색 바닥 위 카드이고,
+/// 안의 내용이 정한다(화면 가장자리 24). 숫자 · 그림 구역은 안쪽 24 를 가진 [PScreenSection] 이고,
 /// 흰 화면은 가계부 거래 목록뿐이다.
 class PScreenBand extends StatelessWidget {
   const PScreenBand({super.key, required this.child});
@@ -51,11 +51,13 @@ class PScreenBands {
   ];
 }
 
-/// 카드 화면의 카드 하나 — 회색 바닥(`bg-layer-basement`) 위 `bg-layer-default` 면 + 1px `stroke-neutral-weak` + 모서리 12 +
-/// 안쪽 24. 그림자는 없다(Elevation v104 — 카드는 선과 바닥으로 가른다). 카드 사이는 [kScreenBandGap](8).
-/// 카드 화면(홈 · 자산 · 통계 · 예산 · 상세)이 쓴다. 띠 화면의 띠는 [PScreenBand] 다.
-class PScreenCard extends StatelessWidget {
-  const PScreenCard({
+/// 구역 띠 하나 — Desk 폰 구역 화면(홈 · 자산 · 통계 · 예산 · 카드 상세 · 밤하늘 · 숲 리포트 · 증권)이 구역마다 둔다.
+/// 화면 폭 `bg-layer-default` 면이고 모서리 · 테두리 · 그림자가 없다. 띠 안은 카드 안과 같은 값 — 사방 24(띠 안 위 4 ·
+/// 아래 8 은 이 안에 든다). 띠 사이 · 맨 위는 [kScreenBandGap](8) — 회색 바닥이 보이는 틈이다
+/// (groo-design DESIGN Layout "화면 바탕" — 2026-10-21 사용자 결정 I-01 결정 3: 폰에는 카드 화면이 없다).
+/// 목록 구역은 줄이 제 좌우 24 를 가지므로 [padding] 의 좌우를 0 으로 준다.
+class PScreenSection extends StatelessWidget {
+  const PScreenSection({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(PSpacing.x6),
@@ -66,17 +68,13 @@ class PScreenCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    return Container(
-      key: const ValueKey('screen-card'),
-      width: double.infinity,
-      padding: padding,
-      decoration: BoxDecoration(
-        color: c.bgLayerDefault,
-        borderRadius: BorderRadius.circular(PRounded.r3),
-        border: Border.all(color: c.strokeNeutralWeak),
+    return ColoredBox(
+      key: const ValueKey('screen-section'),
+      color: context.colors.bgLayerDefault,
+      child: SizedBox(
+        width: double.infinity,
+        child: Padding(padding: padding, child: child),
       ),
-      child: child,
     );
   }
 }

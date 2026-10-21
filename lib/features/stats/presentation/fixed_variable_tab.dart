@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/app/theme/chart_palette.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
@@ -83,41 +85,49 @@ class FixedVariableTab extends ConsumerWidget {
       },
       child: ListView(
         key: const PageStorageKey('stats-fixed'),
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠, 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
           // 떠 있는 하단 바 보상
-          bottomNavigationInset(context),
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           if (rangeAsync.isLoading && !rangeAsync.hasValue) ...[
-            const PSkeleton(height: 200),
-            const SizedBox(height: PSpace.x32),
-            const PSkeleton(height: 240),
+            const PScreenSection(child: PSkeleton(height: 200)),
+            const SizedBox(height: PSpacing.x2),
+            const PScreenSection(child: PSkeleton(height: 240)),
           ] else if (rangeAsync.hasValue) ...[
-            _Overview(
-              kind: _Kind.expense,
-              split: splitFixed(
-                rangeAsync.value!.totalExpense,
-                rangeAsync.value!.fixedExpense,
+            PScreenSection(
+              child: _Overview(
+                kind: _Kind.expense,
+                split: splitFixed(
+                  rangeAsync.value!.totalExpense,
+                  rangeAsync.value!.fixedExpense,
+                ),
+                masked: masked,
+                trailing: periodTrigger,
+                onManage: manage,
               ),
-              masked: masked,
-              trailing: periodTrigger,
-              onManage: manage,
             ),
-            const SizedBox(height: PSpace.x32),
-            _Overview(
-              kind: _Kind.income,
-              split: splitFixed(
-                rangeAsync.value!.totalIncome,
-                rangeAsync.value!.fixedIncome,
+            const SizedBox(height: PSpacing.x2),
+            PScreenSection(
+              child: _Overview(
+                kind: _Kind.income,
+                split: splitFixed(
+                  rangeAsync.value!.totalIncome,
+                  rangeAsync.value!.fixedIncome,
+                ),
+                masked: masked,
+                onManage: manage,
               ),
-              masked: masked,
-              onManage: manage,
             ),
-            const SizedBox(height: PSpace.x32),
-            _MonthlyStackCard(summary: rangeAsync.value!, masked: masked),
+            const SizedBox(height: PSpacing.x2),
+            PScreenSection(
+              child: _MonthlyStackCard(
+                summary: rangeAsync.value!,
+                masked: masked,
+              ),
+            ),
             ..._categorySection(
               context,
               rangeAsync.value!,
@@ -147,38 +157,45 @@ class FixedVariableTab extends ConsumerWidget {
     }, l.statsUnassigned);
     if (rows.isEmpty) return const [];
     return [
-      const SizedBox(height: PSpace.x32),
-      _Header(title: l.statsFixedCategoryTitle),
-      _CategoryBars(rows: rows, masked: masked),
-      const SizedBox(height: PSpace.x16),
-      Container(
-        padding: const EdgeInsets.only(top: 14),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: t.borderSubtle)),
-        ),
+      const SizedBox(height: PSpacing.x2),
+      PScreenSection(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Icon(LucideIcons.pin, size: 12, color: t.fgTertiary),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    l.statsFixedManageHint,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+            _Header(title: l.statsFixedCategoryTitle),
+            _CategoryBars(rows: rows, masked: masked),
+            const SizedBox(height: PSpace.x16),
+            Container(
+              padding: const EdgeInsets.only(top: 14),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: t.borderSubtle)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(LucideIcons.pin, size: 12, color: t.fgTertiary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          l.statsFixedManageHint,
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: PSpace.x12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: PButton(
-                label: l.statsFixedManage,
-                variant: PButtonVariant.outline,
-                size: PButtonSize.sm,
-                onPressed: manage,
+                  const SizedBox(height: PSpace.x12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: PButton(
+                      label: l.statsFixedManage,
+                      variant: PButtonVariant.outline,
+                      size: PButtonSize.sm,
+                      onPressed: manage,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

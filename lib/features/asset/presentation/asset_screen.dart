@@ -23,7 +23,6 @@ import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
@@ -255,15 +254,14 @@ class _AssetBody extends StatelessWidget {
     final l = AppLocalizations.of(context);
     if (assets.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x24,
-          vertical: PSpace.x20,
-        ),
+        padding: const EdgeInsets.only(top: kScreenBandGap),
         children: [
-          const SizedBox(height: PSpacing.x2),
-          // 카드 다이어트 — 빈 상태도 카드 없이 플랫.
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+          // 빈 상태도 구역 띠 하나 — 폰 구역 화면은 한 방식만(I-01 결정 3).
+          PScreenSection(
+            padding: const EdgeInsets.symmetric(
+              vertical: 48,
+              horizontal: PSpacing.x6,
+            ),
             child: Column(
               children: [
                 Text(
@@ -326,15 +324,13 @@ class _AssetBody extends StatelessWidget {
         ? (changeAmount / lastMonth.abs() * 1000).round() / 10
         : (summary?.changePercent ?? 0.0);
 
-    // 카드 다이어트 — design AssetsScreen mobile: padding 16/20/24 + 섹션 gap 36.
-    // 총순자산 요약만 keep(raised) 카드, 그룹들은 flat-group(라벨+총액+행).
+    // 폰 구역 화면 — 순자산 요약 · 그룹마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은
+    // 회색 바닥(I-01 결정 3). 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다.
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        PSpace.x24,
-        PSpace.x16,
-        PSpace.x24,
-        // 플로팅 탭바 보상
-        bottomNavigationInset(context),
+      padding: EdgeInsets.only(
+        top: kScreenBandGap,
+        // 떠 있는 하단 바 보상
+        bottom: bottomNavigationInset(context),
       ),
       children: [
         _SummaryCard(
@@ -349,7 +345,7 @@ class _AssetBody extends StatelessWidget {
           tokens: tokens,
         ),
         const SizedBox(height: PSpacing.x2),
-        PScreenCard(
+        PScreenSection(
           child: _TypeGroup(
             title: l.assetGroupAccount,
             assets: accounts,
@@ -361,7 +357,7 @@ class _AssetBody extends StatelessWidget {
         ),
         if (investments.isNotEmpty) ...[
           const SizedBox(height: PSpacing.x2),
-          PScreenCard(
+          PScreenSection(
             child: _TypeGroup(
               title: l.assetGroupInvestment,
               assets: investments,
@@ -374,7 +370,7 @@ class _AssetBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: PSpacing.x2),
-        PScreenCard(
+        PScreenSection(
           child: _TypeGroup(
             title: l.assetGroupCard,
             assets: cards,
@@ -388,7 +384,7 @@ class _AssetBody extends StatelessWidget {
         ),
         if (loans.isNotEmpty) ...[
           const SizedBox(height: PSpacing.x2),
-          PScreenCard(
+          PScreenSection(
             child: _TypeGroup(
               title: l.assetGroupDebt,
               assets: loans,
@@ -402,7 +398,7 @@ class _AssetBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: PSpacing.x2),
-        PScreenCard(
+        PScreenSection(
           child: _SavingGoalsSection(
             goals: goals,
             masked: masks.savingGoals,
@@ -634,10 +630,8 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    // 총순자산 요약 — design `p-card--keep` (raised + shadow-lg, padding mobile 18).
-    return PCard(
-      variant: PCardVariant.raised,
-      padding: const EdgeInsets.all(18),
+    // 총순자산 요약 — 폰에서는 카드가 아니라 구역 띠다(I-01 결정 3).
+    return PScreenSection(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1237,22 +1231,27 @@ class _AssetPageSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        PSpace.x24,
-        PSpace.x16,
-        PSpace.x24,
-        bottomNavigationInset(context),
+      padding: EdgeInsets.only(
+        top: kScreenBandGap,
+        bottom: bottomNavigationInset(context),
       ),
       children: [
         const _AssetSummaryCardSkeleton(),
         const SizedBox(height: PSpacing.x2),
         // 섹션 제목은 정적 텍스트라 로딩에도 진짜를 쓴다 — 금액만 데이터 자리.
         // 조건부 그룹(투자·대출)은 데이터를 봐야 알 수 있어 늘 뜨는 둘만 세운다.
-        _AssetTypeGroupSkeleton(title: l.assetGroupAccount, rows: 3),
+        // 껍데기는 실렌더와 같은 구역 띠 — 다르면 데이터가 오는 순간 좌우 여백이 튄다.
+        PScreenSection(
+          child: _AssetTypeGroupSkeleton(title: l.assetGroupAccount, rows: 3),
+        ),
         const SizedBox(height: PSpacing.x2),
-        _AssetTypeGroupSkeleton(title: l.assetGroupCard, rows: 2),
+        PScreenSection(
+          child: _AssetTypeGroupSkeleton(title: l.assetGroupCard, rows: 2),
+        ),
         const SizedBox(height: PSpacing.x2),
-        _AssetSavingGoalsSkeleton(title: l.navSavingGoals),
+        PScreenSection(
+          child: _AssetSavingGoalsSkeleton(title: l.navSavingGoals),
+        ),
       ],
     );
   }
@@ -1264,10 +1263,8 @@ class _AssetSummaryCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    // keep(raised) 요약 카드 스켈레톤 — 실제 _SummaryCard 와 동일 껍데기.
-    return PCard(
-      variant: PCardVariant.raised,
-      padding: const EdgeInsets.all(18),
+    // 요약 띠 스켈레톤 — 실제 _SummaryCard 와 같은 껍데기(구역 띠).
+    return PScreenSection(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

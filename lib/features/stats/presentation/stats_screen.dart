@@ -1,3 +1,4 @@
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'dart:math' as math;
 
@@ -485,13 +486,11 @@ class _CategoryTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-category'),
-        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
-          // 플로팅 탭바 보상
-          bottomNavigationInset(context),
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          // 떠 있는 하단 바 보상
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           _DonutCard(
@@ -548,13 +547,11 @@ class _TrendTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-trend'),
-        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
-          // 플로팅 탭바 보상
-          bottomNavigationInset(context),
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          // 떠 있는 하단 바 보상
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           _TrendBigCard(
@@ -612,13 +609,11 @@ class _CompareTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-compare'),
-        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: EdgeInsets.fromLTRB(
-          PSpace.x24,
-          PSpace.x16,
-          PSpace.x24,
-          // 플로팅 탭바 보상
-          bottomNavigationInset(context),
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        padding: EdgeInsets.only(
+          top: kScreenBandGap,
+          // 떠 있는 하단 바 보상
+          bottom: bottomNavigationInset(context),
         ),
         children: [
           _CompareSummaryGrid(
@@ -658,25 +653,12 @@ class _CompareTab extends ConsumerWidget {
 
 // ─── 공용 위젯 ─────────────────────────────────────────────
 
-/// 섹션 카드 — 카드 화면(회색 바닥 위 카드, 02-005 / Q-019-3): bg-layer-default 면 + 1px stroke-neutral-weak + 모서리 12,
-/// 안쪽 24. 그림자는 없다(Elevation v104 — 카드는 선과 바닥으로 가른다). 카드 사이는 8.
+/// 통계 구역 하나 — 폰에는 카드 화면이 없다(I-01 결정 3). 화면 폭 흰 띠 · 안쪽 24 · 띠 사이 8.
 class _Card extends StatelessWidget {
   const _Card({required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(PSpacing.x6),
-      decoration: BoxDecoration(
-        color: c.bgLayerDefault,
-        borderRadius: BorderRadius.circular(PRounded.r3),
-        border: Border.all(color: c.strokeNeutralWeak),
-      ),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => PScreenSection(child: child);
 }
 
 /// 카테고리 카드 우측 trigger — 가계부 FilterDialog 패턴 정합.

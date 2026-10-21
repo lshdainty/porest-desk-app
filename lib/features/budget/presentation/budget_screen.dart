@@ -19,7 +19,6 @@ import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
 import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
@@ -87,34 +86,37 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           ref.invalidate(budgetComplianceProvider(6));
           await ref.read(monthBudgetsProvider(_key).future);
         },
-        // 카드 다이어트 — design BudgetScreen mobile: padding 16/20/24 + 섹션 gap 36.
+        // 폰 구역 화면 — 기간 고르기 · 요약 · 구역마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은
+        // 회색 바닥(I-01 결정 3). 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다.
         child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            PSpace.x24,
-            PSpace.x16,
-            PSpace.x24,
-            // 플로팅 탭바 보상
-            bottomNavigationInset(context),
+          padding: EdgeInsets.only(
+            top: kScreenBandGap,
+            // 떠 있는 하단 바 보상
+            bottom: bottomNavigationInset(context),
           ),
           children: [
-            _MonthBar(
-              month: _month,
-              onPrev: () => setState(
-                () => _month = DateTime(_month.year, _month.month - 1, 1),
+            PScreenSection(
+              child: _MonthBar(
+                month: _month,
+                onPrev: () => setState(
+                  () => _month = DateTime(_month.year, _month.month - 1, 1),
+                ),
+                onNext: () => setState(
+                  () => _month = DateTime(_month.year, _month.month + 1, 1),
+                ),
+                onPickMonth: (m) => setState(() => _month = m),
+                // 웹 정합: 설정 버튼 → 예산 설정 페이지 push (drawer 폐기).
+                onSettings: () => context.push('/budget/settings'),
               ),
-              onNext: () => setState(
-                () => _month = DateTime(_month.year, _month.month + 1, 1),
-              ),
-              onPickMonth: (m) => setState(() => _month = m),
-              // 웹 정합: 설정 버튼 → 예산 설정 페이지 push (drawer 폐기).
-              onSettings: () => context.push('/budget/settings'),
             ),
-            const SizedBox(height: PSpace.x12),
+            const SizedBox(height: PSpacing.x2),
             budgetsAsync.when(
               loading: () => const _BudgetLoadingSkeleton(),
-              error: (e, _) => _ErrorBox(
-                message: '${l.budgetLoadError}\n$e',
-                onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
+              error: (e, _) => PScreenSection(
+                child: _ErrorBox(
+                  message: '${l.budgetLoadError}\n$e',
+                  onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
+                ),
               ),
               data: (budgets) {
                 final categories = categoriesAsync.value ?? const [];
@@ -206,7 +208,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                     ),
                     if (hasNoData) ...[
                       const SizedBox(height: PSpacing.x2),
-                      PScreenCard(
+                      PScreenSection(
                         child: _EmptyState(
                           tokens: t,
                           onAdd: () => context.push('/budget/settings'),
@@ -214,7 +216,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       ),
                     ] else ...[
                       const SizedBox(height: PSpacing.x2),
-                      PScreenCard(
+                      PScreenSection(
                         child: _PaceCard(
                           pct: pct,
                           daysElapsedPct: daysElapsedPct,
@@ -226,7 +228,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         ),
                       ),
                       const SizedBox(height: PSpacing.x2),
-                      PScreenCard(
+                      PScreenSection(
                         child: _StatusTiles(
                           overCount: overList.length,
                           healthyCount: healthyList.length,
@@ -234,7 +236,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         ),
                       ),
                       const SizedBox(height: PSpacing.x2),
-                      PScreenCard(
+                      PScreenSection(
                         child: _CategoryListCard(
                           budgets: categoryBudgets,
                           categories: categories,
@@ -252,7 +254,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         ),
                       ),
                       const SizedBox(height: PSpacing.x2),
-                      PScreenCard(
+                      PScreenSection(
                         child: _ComplianceCard(
                           async: complianceAsync,
                           currentYear: _month.year,
@@ -550,10 +552,8 @@ class _HeaderCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
 
     // 조회 전용 (web BudgetPage hero 정합) — 상한 수정은 예산 설정 페이지에서.
-    // 가계부 취합 카드 정합(사용자 결정) — raised(surfaceRaised + shadowLg) 히어로.
-    return PCard(
-      variant: PCardVariant.raised,
-      padding: const EdgeInsets.all(18),
+    // 폰에서는 카드가 아니라 구역 띠다(I-01 결정 3).
+    return PScreenSection(
       child: overallBudget == null
           ? _emptyOverall(context, l)
           : _filledOverall(color, l),
@@ -1698,15 +1698,12 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    // 좌우는 페이지가 쥔다(ListView padding 24). 섹션 스켈레톤이 여기서 더 얹으면
-    // 실렌더(PFlatSection — inset 없음)와 어긋나 데이터가 오는 순간 행이 좌우로 튄다.
-    // 섹션 사이는 gap(SizedBox x32)이 맡는다.
+    // 껍데기는 실렌더와 같은 구역 띠(PScreenSection) — 다르면 데이터가 오는 순간 행이 좌우로 튄다.
+    // 띠 사이는 gap(SizedBox x2 = 8)이 맡는다.
     return Column(
       children: [
-        // _HeaderCard — raised(실제와 동일, 가계부 취합 카드 정합).
-        PCard(
-          variant: PCardVariant.raised,
-          padding: const EdgeInsets.all(18),
+        // _HeaderCard — 실렌더와 같은 구역 띠.
+        PScreenSection(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1767,130 +1764,138 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
         ),
         const SizedBox(height: PSpacing.x2),
         // _PaceCard — 실렌더와 같은 PFlatSection SoT. 제목은 정적이라 진짜를 쓴다.
-        PFlatSection(
-          title: l.budgetSpendingPace,
-          trailing: const PSkeleton.line(width: 64, height: 22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 페이스 게이지 (minHeight 12)
-              PSkeleton(height: 12, borderRadius: PRadius.brFull),
-              const SizedBox(height: PSpace.x8),
-              Row(
-                children: const [
-                  PSkeleton.line(width: 56, height: 12),
-                  Spacer(),
-                  PSkeleton.line(width: 112, height: 12),
-                ],
-              ),
-              const SizedBox(height: PSpace.x12),
-              Container(
-                padding: const EdgeInsets.only(top: PSpace.x12),
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: t.borderSubtle)),
-                ),
-                child: Row(
-                  children: [
-                    for (int i = 0; i < 2; i++) ...[
-                      if (i > 0) const SizedBox(width: PSpace.x8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            PSkeleton.line(width: 72, height: 10),
-                            SizedBox(height: 4),
-                            PSkeleton.line(width: 88, height: 20),
-                          ],
-                        ),
-                      ),
-                    ],
+        PScreenSection(
+          child: PFlatSection(
+            title: l.budgetSpendingPace,
+            trailing: const PSkeleton.line(width: 64, height: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 페이스 게이지 (minHeight 12)
+                PSkeleton(height: 12, borderRadius: PRadius.brFull),
+                const SizedBox(height: PSpace.x8),
+                Row(
+                  children: const [
+                    PSkeleton.line(width: 56, height: 12),
+                    Spacer(),
+                    PSkeleton.line(width: 112, height: 12),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: PSpace.x12),
+                Container(
+                  padding: const EdgeInsets.only(top: PSpace.x12),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: t.borderSubtle)),
+                  ),
+                  child: Row(
+                    children: [
+                      for (int i = 0; i < 2; i++) ...[
+                        if (i > 0) const SizedBox(width: PSpace.x8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              PSkeleton.line(width: 72, height: 10),
+                              SizedBox(height: 4),
+                              PSkeleton.line(width: 88, height: 20),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: PSpacing.x2),
         // _StatusTiles — 실렌더와 같은 PFlatSection SoT.
-        PFlatSection(
-          title: l.budgetStatusTitle,
-          child: Row(
-            children: [
-              for (int i = 0; i < 2; i++) ...[
-                if (i > 0) const SizedBox(width: PSpace.x8),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(PSpace.x12),
-                    decoration: BoxDecoration(
-                      color: t.bgSurface,
-                      borderRadius: PRadius.brLg,
-                      border: Border.all(color: t.borderSubtle),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        PSkeleton.line(width: 48, height: 12),
-                        SizedBox(height: PSpace.x4),
-                        PSkeleton.line(width: 64, height: 24),
-                      ],
+        PScreenSection(
+          child: PFlatSection(
+            title: l.budgetStatusTitle,
+            child: Row(
+              children: [
+                for (int i = 0; i < 2; i++) ...[
+                  if (i > 0) const SizedBox(width: PSpace.x8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(PSpace.x12),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface,
+                        borderRadius: PRadius.brLg,
+                        border: Border.all(color: t.borderSubtle),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          PSkeleton.line(width: 48, height: 12),
+                          SizedBox(height: PSpace.x4),
+                          PSkeleton.line(width: 64, height: 24),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         const SizedBox(height: PSpacing.x2),
         // _CategoryListCard — 실렌더와 같은 PFlatSection SoT.
         // headGap 은 실렌더(28)를 그대로 — 16 으로 두면 데이터가 오는 순간 목록이 내려앉는다.
-        PFlatSection(
-          title: l.budgetByCategory,
-          headGap: 28,
-          trailing: const PSkeleton.line(width: 56, height: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (int i = 0; i < 4; i++) ...[
-                if (i > 0) const SizedBox(height: PSpace.x16),
-                // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
-                Row(
-                  children: [
-                    const PSkeleton(width: 36, height: 36),
-                    const SizedBox(width: PSpace.x12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+        PScreenSection(
+          child: PFlatSection(
+            title: l.budgetByCategory,
+            headGap: 28,
+            trailing: const PSkeleton.line(width: 56, height: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int i = 0; i < 4; i++) ...[
+                  if (i > 0) const SizedBox(height: PSpace.x16),
+                  // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
+                  Row(
+                    children: [
+                      const PSkeleton(width: 36, height: 36),
+                      const SizedBox(width: PSpace.x12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 96, height: 14),
+                            SizedBox(height: 2),
+                            PSkeleton.line(width: 72, height: 12),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: const [
-                          PSkeleton.line(width: 96, height: 14),
+                          PSkeleton.line(width: 56, height: 14),
                           SizedBox(height: 2),
-                          PSkeleton.line(width: 72, height: 12),
+                          PSkeleton.line(width: 40, height: 10),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: PSpace.x8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: const [
-                        PSkeleton.line(width: 56, height: 14),
-                        SizedBox(height: 2),
-                        PSkeleton.line(width: 40, height: 10),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x8),
-                PSkeleton(height: 7, borderRadius: PRadius.brFull),
+                    ],
+                  ),
+                  const SizedBox(height: PSpace.x8),
+                  PSkeleton(height: 7, borderRadius: PRadius.brFull),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         const SizedBox(height: PSpacing.x2),
         // _ComplianceCard — 실렌더와 같은 PFlatSection SoT(headGap 16).
-        PFlatSection(
-          title: l.budgetComplianceTitle,
-          headGap: 16,
-          trailing: const PSkeleton.line(width: 80, height: 12),
-          child: const PSkeleton(width: double.infinity, height: 200),
+        PScreenSection(
+          child: PFlatSection(
+            title: l.budgetComplianceTitle,
+            headGap: 16,
+            trailing: const PSkeleton.line(width: 80, height: 12),
+            child: const PSkeleton(width: double.infinity, height: 200),
+          ),
         ),
       ],
     );
