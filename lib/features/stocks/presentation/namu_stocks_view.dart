@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -15,7 +16,7 @@ import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_card.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
@@ -123,58 +124,57 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
 
+    // 띠 화면(I-01 결정 1B) — 국내/해외 · 보유 · 검색 · 고른 종목 · 결과가 띠 하나씩.
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.x24,
-        PSpace.x16,
-        PSpace.x24,
-        PSpace.x24,
-      ),
-      children: [
-        PTabs<String>(
-          value: _currency,
-          onChanged: (v) {
-            setState(() => _currency = v);
-            _refreshHoldingsIfStale();
-          },
-          variant: PTabsVariant.container,
-          size: PTabsSize.sm,
-          expand: true,
-          items: [
-            PTabItem(value: 'KRW', label: l.namuTabDomestic),
-            PTabItem(value: 'USD', label: l.namuTabOverseas),
-          ],
-        ),
-        const SizedBox(height: PSpace.x16),
-        _HoldingsPanel(currency: _currency),
-        const SizedBox(height: PSpace.x16),
-        PSearchField(
-          controller: _searchCtrl,
-          hint: l.stocksSearch,
-          onChanged: (v) => setState(() => _keyword = v.trim()),
-        ),
-        const SizedBox(height: PSpace.x16),
-        if (_selected != null) ...[
-          _PriceCard(item: _selected!),
-          const SizedBox(height: PSpace.x16),
-        ],
-        if (_keyword.length >= 2)
-          _SearchResults(keyword: _keyword, onPick: _pick)
-        else
-          Padding(
-            padding: const EdgeInsets.only(top: PSpace.x32),
-            child: PEmptyState(
-              icon: LucideIcons.search,
-              message: l.namuSearchPrompt,
-              subMessage: l.namuScopeNotice,
-            ),
+      padding: const EdgeInsets.only(bottom: PSpacing.x6),
+      children: PScreenBands.children([
+        PScreenSection(
+          child: PTabs<String>(
+            value: _currency,
+            onChanged: (v) {
+              setState(() => _currency = v);
+              _refreshHoldingsIfStale();
+            },
+            variant: PTabsVariant.container,
+            size: PTabsSize.sm,
+            expand: true,
+            items: [
+              PTabItem(value: 'KRW', label: l.namuTabDomestic),
+              PTabItem(value: 'USD', label: l.namuTabOverseas),
+            ],
           ),
-        const SizedBox(height: PSpace.x16),
-        Text(
-          l.namuScopeNotice,
-          style: PTypo.micro.copyWith(color: t.fgTertiary, height: 1.5),
         ),
-      ],
+        PScreenSection(child: _HoldingsPanel(currency: _currency)),
+        PScreenSection(
+          child: PSearchField(
+            controller: _searchCtrl,
+            hint: l.stocksSearch,
+            onChanged: (v) => setState(() => _keyword = v.trim()),
+          ),
+        ),
+        if (_selected != null)
+          PScreenSection(child: _PriceCard(item: _selected!)),
+        PScreenSection(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_keyword.length >= 2)
+                _SearchResults(keyword: _keyword, onPick: _pick)
+              else
+                PEmptyState(
+                  icon: LucideIcons.search,
+                  message: l.namuSearchPrompt,
+                  subMessage: l.namuScopeNotice,
+                ),
+              const SizedBox(height: PSpace.x16),
+              Text(
+                l.namuScopeNotice,
+                style: PTypo.micro.copyWith(color: t.fgTertiary, height: 1.5),
+              ),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -198,60 +198,55 @@ class _HoldingsPanel extends ConsumerWidget {
       skipError: true,
       loading: () => const PSkeleton(height: 140),
       // 계좌가 없거나 조회가 막히면 화면을 비우지 않고 이유를 보여준다.
-      error: (_, _) => PCard(
-        variant: PCardVariant.bordered,
-        child: Row(
-          children: [
-            Icon(LucideIcons.unplug, size: 16, color: t.fgTertiary),
-            const SizedBox(width: PSpace.x8),
-            Expanded(
-              child: Text(
-                l.namuHoldingsError,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-              ),
+      // 띠 안이라 카드 껍데기 없이 내용만 — 띠는 부르는 쪽이 씌운다(I-01 결정 1B).
+      error: (_, _) => Row(
+        children: [
+          Icon(LucideIcons.unplug, size: 16, color: t.fgTertiary),
+          const SizedBox(width: PSpace.x8),
+          Expanded(
+            child: Text(
+              l.namuHoldingsError,
+              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      data: (h) => PCard(
-        variant: PCardVariant.bordered,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l.namuHoldingsTitle,
-              style: PTypo.caption.copyWith(color: t.fgTertiary),
+      data: (h) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.namuHoldingsTitle,
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          ),
+          const SizedBox(height: PSpace.x4),
+          Text(
+            '${_fmt(h.totalEvalValue)} ${h.currency}',
+            style: PTypo.h3.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
             ),
-            const SizedBox(height: PSpace.x4),
-            Text(
-              '${_fmt(h.totalEvalValue)} ${h.currency}',
-              style: PTypo.h3.copyWith(
-                color: t.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '${h.totalProfitLossValue >= 0 ? '+' : ''}${_fmt(h.totalProfitLossValue)} '
+            '(${h.profitRateValue.toStringAsFixed(2)}%)',
+            style: PTypo.bodySm.copyWith(
+              color: h.totalProfitLossValue >= 0
+                  ? t.statusSuccessFg
+                  : t.statusDangerFg,
+              fontWeight: PFontWeight.semi,
             ),
-            const SizedBox(height: 2),
+          ),
+          if (h.items.isEmpty) ...[
+            const SizedBox(height: PSpace.x12),
             Text(
-              '${h.totalProfitLossValue >= 0 ? '+' : ''}${_fmt(h.totalProfitLossValue)} '
-              '(${h.profitRateValue.toStringAsFixed(2)}%)',
-              style: PTypo.bodySm.copyWith(
-                color: h.totalProfitLossValue >= 0
-                    ? t.statusSuccessFg
-                    : t.statusDangerFg,
-                fontWeight: PFontWeight.semi,
-              ),
+              l.namuHoldingsEmpty,
+              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
             ),
-            if (h.items.isEmpty) ...[
-              const SizedBox(height: PSpace.x12),
-              Text(
-                l.namuHoldingsEmpty,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-              ),
-            ] else
-              for (final item in h.items)
-                _HoldingRow(item: item, currency: h.currency),
-          ],
-        ),
+          ] else
+            for (final item in h.items)
+              _HoldingRow(item: item, currency: h.currency),
+        ],
       ),
     );
   }
@@ -396,48 +391,46 @@ class _PriceCard extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final priceAsync = ref.watch(namuPriceProvider(item));
 
-    return PCard(
-      variant: PCardVariant.bordered,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            item.nameKr,
-            style: PTypo.body.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
+    // 띠 안이라 카드 껍데기 없이 내용만 — 띠는 부르는 쪽이 씌운다(I-01 결정 1B).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          item.nameKr,
+          style: PTypo.body.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
           ),
-          const SizedBox(height: 2),
-          Text(
-            '${item.marketCode} · ${item.symbol}',
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '${item.marketCode} · ${item.symbol}',
+          style: PTypo.micro.copyWith(color: t.fgTertiary),
+        ),
+        const SizedBox(height: PSpace.x12),
+        priceAsync.when(
+          // 폴링 한 번이 실패해도 방금까지 보던 시세를 그대로 둔다(웹과 같다).
+          // 처음부터 못 받은 경우에만 오류 문구가 나온다.
+          skipError: true,
+          loading: () => const PSkeleton(height: 28, width: 140),
+          error: (_, _) => Text(
+            l.namuPriceError,
+            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
           ),
-          const SizedBox(height: PSpace.x12),
-          priceAsync.when(
-            // 폴링 한 번이 실패해도 방금까지 보던 시세를 그대로 둔다(웹과 같다).
-            // 처음부터 못 받은 경우에만 오류 문구가 나온다.
-            skipError: true,
-            loading: () => const PSkeleton(height: 28, width: 140),
-            error: (_, _) => Text(
-              l.namuPriceError,
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            ),
-            data: (price) => price == null
-                ? Text(
-                    l.namuPriceEmpty,
-                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                  )
-                : Text(
-                    '${price.price} ${price.currency}',
-                    style: PTypo.h3.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
+          data: (price) => price == null
+              ? Text(
+                  l.namuPriceEmpty,
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                )
+              : Text(
+                  '${price.price} ${price.currency}',
+                  style: PTypo.h3.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
                   ),
-          ),
-        ],
-      ),
+                ),
+        ),
+      ],
     );
   }
 }

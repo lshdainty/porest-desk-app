@@ -7,7 +7,6 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
@@ -20,6 +19,7 @@ import 'package:groo_damda_app/features/constellation/presentation/night_sky_her
 import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
@@ -51,8 +51,9 @@ class NightSkyScreen extends ConsumerWidget {
         .where((x) => x.done && localDateKey(x.completedAt) == todayIso)
         .length;
 
+    // 띠 화면(I-01 결정 1B) — 회색 바닥 위 구역마다 화면 폭 흰 띠. 하늘 그림은 띠 안의 그림이다.
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -71,30 +72,40 @@ class NightSkyScreen extends ConsumerWidget {
           await ref.read(constellationTodayProvider.future);
         },
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(PSpace.x24, 4, PSpace.x24, 36),
+          padding: const EdgeInsets.only(bottom: 36),
           children: [
             if (today == null)
               const _NightSkySkeleton()
-            else ...[
-              NightSkyHero(today: today, doneToday: doneToday),
-              const SizedBox(height: 14),
-              _ForestWeekEntry(
-                today: today,
-                sky: sky ?? const [],
-                onOpen: () => context.push('/forest-report'),
-              ),
-              if (sky != null && collection != null) ...[
-                const SizedBox(height: 14),
-                MySkyCard(sky: sky, today: today, entries: collection.entries),
-              ],
-              if (collection != null) ...[
-                const SizedBox(height: 14),
-                CollectionCard(
-                  collection: collection,
-                  todayKey: today.constellation.constellationKey,
+            else
+              ...PScreenBands.children([
+                PScreenSection(
+                  child: NightSkyHero(today: today, doneToday: doneToday),
                 ),
-              ],
-            ],
+                // 관측 리포트로 가는 줄 — 줄이 띠 폭 전체를 누른다
+                PScreenSection(
+                  padding: EdgeInsets.zero,
+                  child: _ForestWeekEntry(
+                    today: today,
+                    sky: sky ?? const [],
+                    onOpen: () => context.push('/forest-report'),
+                  ),
+                ),
+                if (sky != null && collection != null)
+                  PScreenSection(
+                    child: MySkyCard(
+                      sky: sky,
+                      today: today,
+                      entries: collection.entries,
+                    ),
+                  ),
+                if (collection != null)
+                  PScreenSection(
+                    child: CollectionCard(
+                      collection: collection,
+                      todayKey: today.constellation.constellationKey,
+                    ),
+                  ),
+              ]),
           ],
         ),
       ),
@@ -132,10 +143,12 @@ class _ForestWeekEntry extends StatelessWidget {
 
     return InkWell(
       onTap: onOpen,
-      borderRadius: PRadius.brLg,
       child: Padding(
-        // design .frp-entry — 14px 16px, gap 13 (m-subpage 플랫: 카드 셸 없음).
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
+        // 띠 안 줄 — 좌우 24 · 위아래 16(design .frp-entry gap 13).
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpacing.x6,
+          vertical: PSpacing.x4,
+        ),
         child: Row(
           children: [
             Container(
@@ -288,33 +301,19 @@ class _NightSkySkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 실렌더와 같은 띠 넷 — 하늘 · 리포트 줄 · 내 하늘 · 모음.
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        PSkeleton(
-          width: double.infinity,
-          height: 168,
-          borderRadius: PRadius.brLg,
-        ),
-        SizedBox(height: 14),
-        PSkeleton(
-          width: double.infinity,
-          height: 74,
-          borderRadius: PRadius.brLg,
-        ),
-        SizedBox(height: 14),
-        PSkeleton(
-          width: double.infinity,
-          height: 180,
-          borderRadius: PRadius.brLg,
-        ),
-        SizedBox(height: 14),
-        PSkeleton(
-          width: double.infinity,
-          height: 320,
-          borderRadius: PRadius.brLg,
-        ),
-      ],
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: PScreenBands.children([
+        for (final h in const [168.0, 46.0, 180.0, 320.0])
+          PScreenSection(
+            child: PSkeleton(
+              width: double.infinity,
+              height: h,
+              borderRadius: PRadius.brLg,
+            ),
+          ),
+      ]),
     );
   }
 }

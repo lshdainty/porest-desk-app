@@ -46,12 +46,12 @@ class CollectionCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final newest = _newestKey();
 
-    // 카드 다이어트(.m-subpage 플랫) — sec-head + 헤어라인 행 리스트.
+    // 밤하늘 띠 안 — 머리 · 줄 모두 띠 안 24 에 선다(옛 플랫 들임 6 은 걷었다, I-01 결정 1B).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
+          padding: const EdgeInsets.only(bottom: 4),
           child: Row(
             children: [
               Text(
@@ -116,7 +116,7 @@ class _FcolRow extends StatelessWidget {
     final owned = entry.collected;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: PSpace.x16),
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
       decoration: BoxDecoration(
         border: first ? null : Border(top: BorderSide(color: t.borderSubtle)),
       ),

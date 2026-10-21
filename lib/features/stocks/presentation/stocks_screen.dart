@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
@@ -10,6 +11,7 @@ import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dar
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
@@ -54,7 +56,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
               : (connected.isEmpty ? '' : connected.first));
 
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      backgroundColor: context.colors.bgLayerBasement,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -67,24 +69,26 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
       body: Column(
         children: [
           // 연결이 하나뿐이면 고를 게 없다 — 탭을 감춘다.
+          // 띠 화면(I-01 결정 1B) — 증권사 고르기도 띠 하나다.
           if (connected.length > 1)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpace.x24,
-                PSpace.x12,
-                PSpace.x24,
-                0,
-              ),
-              child: PTabs<String>(
-                value: active,
-                onChanged: (v) => setState(() => _broker = v),
-                variant: PTabsVariant.container,
-                size: PTabsSize.sm,
-                expand: true,
-                items: [
-                  for (final b in connected)
-                    PTabItem(value: b, label: _brokerLabel(l, b)),
-                ],
+              padding: const EdgeInsets.only(top: kScreenBandGap),
+              child: PScreenSection(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PSpacing.x6,
+                  vertical: PSpacing.x3,
+                ),
+                child: PTabs<String>(
+                  value: active,
+                  onChanged: (v) => setState(() => _broker = v),
+                  variant: PTabsVariant.container,
+                  size: PTabsSize.sm,
+                  expand: true,
+                  items: [
+                    for (final b in connected)
+                      PTabItem(value: b, label: _brokerLabel(l, b)),
+                  ],
+                ),
               ),
             ),
           Expanded(child: _body(active)),
@@ -119,13 +123,16 @@ class _UnsupportedBroker extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    return Center(
+    return Align(
+      alignment: Alignment.topCenter,
       child: Padding(
-        padding: const EdgeInsets.all(PSpace.x24),
-        child: Text(
-          l.stocksBrokerUnsupported,
-          textAlign: TextAlign.center,
-          style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+        padding: const EdgeInsets.only(top: kScreenBandGap),
+        child: PScreenSection(
+          child: Text(
+            l.stocksBrokerUnsupported,
+            textAlign: TextAlign.center,
+            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+          ),
         ),
       ),
     );
