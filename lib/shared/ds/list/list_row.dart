@@ -42,6 +42,18 @@ const double kPListStackBelowEm = 16;
 class PListValue extends StatelessWidget {
   const PListValue({super.key, required this.child});
 
+  /// 금액 글 — 보이는 글에는 쉼표 뒤에서만 줄이 바뀌는 [keepAllAmount], 읽는 이름은 원래 글이다. 목록 금액은 이 길로 만든다
+  /// (웹 `list.tsx` 가 붙이개 글에 `withCommaBreaks` 를 스스로 거는 것과 같다).
+  PListValue.amount(String amount, {Key? key, TextStyle? style})
+    : this(
+        key: key,
+        child: Text(
+          keepAllAmount(amount),
+          semanticsLabel: amount,
+          style: style,
+        ),
+      );
+
   final Widget child;
 
   @override
@@ -631,10 +643,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
                             buildBody(container: container),
                         detailColor,
                         arrowColor,
-                        mergeValue:
-                            widget.interactive &&
-                            !sem.wholeRow &&
-                            (sem.button || sem.link),
+                        // 줄 하나 = 한 노드 — 보기만 하는 줄도 제목 + 설명 + 값(컨트롤 줄은 줄 전체가 한 노드)
+                        mergeValue: !sem.wholeRow,
                       ),
               ),
             ],
@@ -661,26 +671,36 @@ class _PListRowFrameState extends State<PListRowFrame> {
     final expand = widget.expandButton;
     Widget content = row;
     if (expand != null) {
-      content = Stack(
-        children: [
-          row,
-          if (widget.align == PListAlign.top)
-            PositionedDirectional(
-              top: PSpacing.x3 - PSpacing.x0_5,
-              start: PSpacing.x1,
-              child: expand,
-            )
-          else
-            Positioned.fill(
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: PSpacing.x1),
+      // 좁은 줄이면 꺾쇠 단추도 위에 맞춘다(list.yaml width narrow item.alignItems flex-start) — 줄 안 폭은
+      // 안쪽 LayoutBuilder 와 같은 식(줄 폭 − 좌우 여백)으로 여기서도 잰다
+      content = LayoutBuilder(
+        builder: (context, box) {
+          final narrow =
+              box.maxWidth - start - PSpacing.globalGutter < stackBelow;
+          return Stack(
+            children: [
+              row,
+              if (widget.align == PListAlign.top || narrow)
+                PositionedDirectional(
+                  top: PSpacing.x3 - PSpacing.x0_5,
+                  start: PSpacing.x1,
                   child: expand,
+                )
+              else
+                Positioned.fill(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: PSpacing.x1,
+                      ),
+                      child: expand,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-        ],
+            ],
+          );
+        },
       );
     }
 

@@ -243,6 +243,36 @@ void main() {
       expect(track.top - item.top, closeTo(12, 0.5));
     });
 
+    testWidgets('부모 줄 — 꺾쇠 단추도 위에 맞춘다(폭 360 · 글자 200%), 넓은 줄은 가운데', (
+      tester,
+    ) async {
+      Widget parent() => _list([
+        PListParentItem(
+          prefix: _tile(),
+          title: '식비',
+          detail: '지출 · 하위 1개',
+          suffix: const Text('12,000원', key: ValueKey('v')),
+          expandLabel: '식비 하위 카테고리',
+          defaultOpen: false,
+          onTap: _noop,
+          children: [PListButtonItem(title: '외식', onTap: _noop)],
+        ),
+      ]);
+      await _scale(tester, 2.0);
+      await tester.pumpWidget(_host(parent()));
+      expect(_below, findsOneWidget);
+      var item = tester.getRect(_key('plist-item').first);
+      var button = tester.getRect(_key('plist-expand-button'));
+      // list.yaml item.alignItems flex-start — 위 10(= 줄 위 여백 12 − 단추가 겹치는 2)
+      expect(button.top - item.top, closeTo(10, 0.5));
+      // 보통 글자 — 한 줄이라 가운데
+      await _scale(tester, 1.0);
+      await tester.pumpWidget(_host(parent(), width: 361));
+      item = tester.getRect(_key('plist-item').first);
+      button = tester.getRect(_key('plist-expand-button'));
+      expect(button.center.dy, closeTo(item.center.dy, 0.5));
+    });
+
     testWidgets('보통 글자 · 넓은 줄은 지금과 같다 — 값은 옆, 가운데 맞춤', (tester) async {
       await tester.pumpWidget(_host(_textRow()));
       expect(_below, findsNothing);
@@ -261,7 +291,7 @@ void main() {
           _list([
             PListButtonItem(
               prefix: _tile(),
-              title: '롯데백화점 본점 식품관 선물세트 정산',
+              title: '숲길마트 본점 식품관 선물세트 정산',
               detail: '지출 · 식비 · 추석 명절',
               suffix: const Text(
                 'very-long-address-for-the-worst-case@example.kr',
@@ -393,6 +423,47 @@ void main() {
         handle.dispose();
       });
     }
+
+    testWidgets('PListValue.amount — 부품이 쉼표 끊기와 읽는 이름을 챙긴다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _scale(tester, 1.3);
+      await tester.pumpWidget(
+        _host(
+          _list([
+            PListItem(
+              title: '이번 달 지출',
+              suffix: PListValue.amount(
+                amount,
+                key: const ValueKey('amount'),
+                style: PTypography.t5.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ]),
+          width: 198,
+        ),
+      );
+      final got = lines(tester, _below).map(clean).toList();
+      expect(got.length, greaterThan(1), reason: '$got');
+      for (final line in got.take(got.length - 1)) {
+        expect(
+          line.endsWith(','),
+          isTrue,
+          reason: '줄 끝은 쉼표 — ${got.join("|")}',
+        );
+      }
+      expect(got.join(), amount);
+      final text = tester.widget<Text>(
+        find.descendant(of: _below, matching: find.byType(Text)),
+      );
+      expect(text.semanticsLabel, amount);
+      expect(text.data!.contains(_zwsp), isTrue);
+      // 줄 하나 = 한 노드 — 이름은 원래 금액
+      expect(
+        find.bySemanticsLabel(RegExp('^이번 달 지출\n−1,234,567,890원\$')),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
 
     testWidgets('읽는 이름은 원래 글이다', (tester) async {
       final handle = tester.ensureSemantics();

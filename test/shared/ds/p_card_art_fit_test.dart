@@ -5,17 +5,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/shared/ds/image_frame/p_card_art.dart';
+import 'package:groo_damda_app/shared/ds/institution_colors/institution_colors.dart';
 
 import '../../support/design_spec.dart';
 
 final _card = DesignSpec.load('card-art');
+
+const _fake = PInstitutionColor(
+  name: '숲길',
+  category: 'card',
+  aliases: [],
+  color: Color(0xFF2E7D5B),
+  text: PInstitutionText.white,
+);
 
 Widget _host(double width, {Brightness mode = Brightness.light}) => MaterialApp(
   theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
   home: Scaffold(
     body: Align(
       alignment: Alignment.topLeft,
-      child: PCardArt(issuer: '신한카드', name: '딥드림 체크', width: width),
+      // 지어낸 카드사 — 기관 색 표에 없으므로 면(PCardFace)을 지어낸 기관 값으로 직접 그린다
+      child: SizedBox(
+        width: width,
+        height: width / 1.586,
+        child: const PCardFace(
+          issuer: '숲길카드',
+          name: '새싹 체크',
+          institution: _fake,
+        ),
+      ),
     ),
   ),
 );
@@ -82,12 +100,12 @@ void main() {
           tester.platformDispatcher.textScaleFactorTestValue = scale;
           addTearDown(tester.platformDispatcher.clearAllTestValues);
           await tester.pumpWidget(_host(width, mode: mode));
-          expect(_text('신한카드'), label ? findsOneWidget : findsNothing);
-          expect(_text('딥드림 체크'), label ? findsOneWidget : findsNothing);
-          expect(_text('신'), label ? findsNothing : findsOneWidget);
+          expect(_text('숲길카드'), label ? findsOneWidget : findsNothing);
+          expect(_text('새싹 체크'), label ? findsOneWidget : findsNothing);
+          expect(_text('숲'), label ? findsNothing : findsOneWidget);
           if (!label) {
             // 작은 면과 같은 모양 — 면 높이의 40%, 글자 배율을 따르지 않는다
-            final initial = tester.widget<Text>(_text('신'));
+            final initial = tester.widget<Text>(_text('숲'));
             expect(initial.style!.fontSize, cardArtInitialSize(width / 1.586));
             expect(initial.textScaler, TextScaler.noScaling);
           }

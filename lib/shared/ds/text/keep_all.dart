@@ -25,7 +25,7 @@ bool _breakable(int rune) =>
 /// (U+200B)으로 바꾼다.
 ///
 /// **보이는 글에만** 쓴다. 읽는 이름은 원래 글이어야 해서 `Text(..., semanticsLabel: 원래 글)` 로 함께 넘긴다 —
-/// 복사 · 낭독 · 비교에는 이 글이 들어가지 않는다. 금액을 이 앱에서 보이는 글로 바꾸는 자리는 이 함수 하나다.
+/// 복사 · 낭독 · 비교에는 이 글이 들어가지 않는다. ds 의 금액 글(지표 · 순자산 · 목록 `PListValue.amount`)은 이 함수 하나로 만든다 — 옛 화면 위젯(`krwMasked` · `MaskedAmount` 등)은 아직 쓰지 않는다(화면 이관 때).
 String keepAllAmount(String amount) =>
     keepAll(amount).replaceAll(_commaJoined, _commaBreak);
 

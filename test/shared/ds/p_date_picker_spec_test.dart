@@ -584,7 +584,7 @@ void main() {
   for (final mode in Brightness.values) {
     for (final state in states) {
       testWidgets('${mode.name} 날짜 칸 $state — 스펙 값이다', (tester) async {
-        // sync(8480c17) 로 누름 색이 bg-neutral-weak-alpha 로 바뀌었다 — I-04(03-C)가 맞출 때까지 대기
+        // sync(8480c17) 로 누름 색이 bg-neutral-weak-alpha-pressed 로 바뀌었다 — I-04(03-C)가 맞출 때까지 대기
         if (state == 'pressed') {
           markTestSkipped('I-04 03-C 대기: 날짜 칸 pressed 색');
           return;

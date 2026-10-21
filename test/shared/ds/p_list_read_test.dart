@@ -165,7 +165,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('보기만 하는 줄은 지금처럼 값을 따로 읽는다(결정 대상이 아니다)', (tester) async {
+    testWidgets('보기만 하는 줄도 줄 하나 = 한 노드 — 값이 이름에 들어간다', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _host(
@@ -175,7 +175,7 @@ void main() {
           ),
         ),
       );
-      expect(_reading(tester, '정보'), ['정보', '결제 알림', '켜짐']);
+      expect(_reading(tester, '정보'), ['정보', '결제 알림\n켜짐']);
       handle.dispose();
     });
   });

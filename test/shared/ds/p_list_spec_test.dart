@@ -1004,7 +1004,7 @@ void _kindTests() {
       );
     });
 
-    testWidgets('제목 + 설명이 한 노드로 읽히고 값 글자는 따로 읽힌다', (tester) async {
+    testWidgets('제목 + 설명 + 값이 한 노드로 읽힌다(줄 하나 = 한 노드)', (tester) async {
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(
         _host(
@@ -1022,13 +1022,17 @@ void _kindTests() {
         ),
       );
       final node = tester.getSemantics(find.bySemanticsLabel(RegExp('결제 알림')));
-      expect(node.label, '결제 알림\n결제 예정일 D-1');
+      expect(node.label, '결제 알림\n결제 예정일 D-1\n켜짐');
       expect(
         node.getSemanticsData().flagsCollection.isButton,
         isFalse,
         reason: '보기만 하는 줄은 버튼이 아니다',
       );
-      expect(find.bySemanticsLabel('켜짐'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('켜짐'),
+        findsNothing,
+        reason: '값은 따로 읽히지 않는다',
+      );
       semantics.dispose();
     });
 
