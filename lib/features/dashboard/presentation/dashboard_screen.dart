@@ -1383,9 +1383,11 @@ class _BudgetRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
+              // RichText 는 앱 글꼴을 물려받지 않는다 — 글꼴을 직접 적는다(없으면 기기 시스템 글꼴로 나온다)
               RichText(
                 text: TextSpan(
                   style: TextStyle(
+                    fontFamily: PTypo.sans,
                     fontSize: PFontSize.bodyLg,
                     fontWeight: PFontWeight.bold,
                     color: over ? tokens.statusDangerFg : tokens.fgPrimary,

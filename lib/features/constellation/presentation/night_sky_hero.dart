@@ -8,6 +8,7 @@ import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 밤하늘 히어로 — 오늘의 목표 별자리가 별빛만큼 점등.
 /// 밤 장면이라 라이트/다크 공통 고정 다크 팔레트(웹 NightSkyHero 미러, 커스텀 hero 영역).
@@ -171,74 +172,80 @@ class NightSkyHero extends StatelessWidget {
                   ],
                 ),
               ),
-              // 좌하단: 진행 캡션
+              // 아래 줄 — 왼쪽 진행 캡션 · 오른쪽 스트릭 + 보호를 한 줄에 둔다. 따로 띄우면 폰 폭에서 둘이
+              // 겹친다(캡션이 오른쪽 묶음 아래로 파고든다). 캡션이 남은 폭에서 줄을 바꾼다.
               Positioned(
                 left: 16,
-                bottom: 13,
-                child: Text(
-                  caption,
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: 11,
-                    color: skyInk(c, 0x8C),
-                  ),
-                ),
-              ),
-              // 우하단: 스트릭 + 보호
-              Positioned(
                 right: 14,
                 bottom: 13,
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: skyInk(c, 0x17),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            LucideIcons.sparkles,
-                            size: 12,
-                            color: skyInk(c, 0xFF),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            l.constHeroStreak(today.streak),
-                            style: TextStyle(
-                              fontFamily: PTypo.sans,
-                              fontSize: 11.5,
-                              fontWeight: PFontWeight.bold,
-                              color: skyInk(c, 0xFF),
-                            ),
-                          ),
-                        ],
+                    Expanded(
+                      child: Text(
+                        // 줄은 낱말 사이에서만 바꾼다(줄바꿈 v114) — "2별" 이 "2 / 별" 로 갈리지 않게
+                        keepAll(caption),
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: 11,
+                          color: skyInk(c, 0x8C),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Icon(
-                          LucideIcons.cloud,
-                          size: 11,
-                          color: skyInk(c, 0xB2),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          l.constHeroGuardInfo(today.guardCount),
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: 10.5,
-                            fontWeight: PFontWeight.semi,
-                            color: skyInk(c, 0xB2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
                           ),
+                          decoration: BoxDecoration(
+                            color: skyInk(c, 0x17),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                LucideIcons.sparkles,
+                                size: 12,
+                                color: skyInk(c, 0xFF),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                l.constHeroStreak(today.streak),
+                                style: TextStyle(
+                                  fontFamily: PTypo.sans,
+                                  fontSize: 11.5,
+                                  fontWeight: PFontWeight.bold,
+                                  color: skyInk(c, 0xFF),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              LucideIcons.cloud,
+                              size: 11,
+                              color: skyInk(c, 0xB2),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              l.constHeroGuardInfo(today.guardCount),
+                              style: TextStyle(
+                                fontFamily: PTypo.sans,
+                                fontSize: 10.5,
+                                fontWeight: PFontWeight.semi,
+                                color: skyInk(c, 0xB2),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -1381,6 +1381,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                 total: total,
                 masked: widget.masked,
                 clickable: !isDrilled && view[i].hasChildren,
+                reserveChevron: !isDrilled && view.any((r) => r.hasChildren),
                 onTap: !isDrilled && view[i].hasChildren
                     ? () => setState(() => _activeParentId = view[i].rowId)
                     : null,
@@ -1399,6 +1400,7 @@ class _DonutLegendRow extends StatelessWidget {
     required this.total,
     required this.masked,
     required this.clickable,
+    required this.reserveChevron,
     required this.onTap,
   });
   final _DonutRow row;
@@ -1406,6 +1408,10 @@ class _DonutLegendRow extends StatelessWidget {
   final int total;
   final bool masked;
   final bool clickable;
+
+  /// 목록에 화살표가 하나라도 뜨면 모든 줄이 그 자리를 잡는다(금액 끝을 맞춘다). 하나도 없으면 자리를
+  /// 잡지 않아 금액이 줄 끝에 붙는다.
+  final bool reserveChevron;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
@@ -1452,20 +1458,22 @@ class _DonutLegendRow extends StatelessWidget {
                 fontWeight: PFontWeight.bold,
               ),
             ),
-            const SizedBox(width: PSpace.x4),
-            // 화살표는 하위 카테고리가 있을 때만 뜬다. 자리는 늘 잡아 둔다 —
-            // 조건부로 넣으면 금액 오른쪽 끝이 행마다 달라져 목록이 들쭉날쭉해진다.
+            // 화살표는 하위 카테고리가 있을 때만 뜬다. 목록에 하나라도 있으면 모든 줄이 자리를 잡는다 —
+            // 줄마다 넣고 빼면 금액 오른쪽 끝이 들쭉날쭉해진다. 하나도 없으면 금액이 줄 끝(띠 안 24)에 선다.
             // 폭은 아이콘 크기와 같아야 해서 spacing 토큰이 아니라 그 값을 그대로 쓴다.
-            SizedBox(
-              width: 13,
-              child: clickable
-                  ? Icon(
-                      LucideIcons.chevronRight,
-                      size: 13,
-                      color: t.fgTertiary,
-                    )
-                  : null,
-            ),
+            if (reserveChevron) ...[
+              const SizedBox(width: PSpace.x4),
+              SizedBox(
+                width: 13,
+                child: clickable
+                    ? Icon(
+                        LucideIcons.chevronRight,
+                        size: 13,
+                        color: t.fgTertiary,
+                      )
+                    : null,
+              ),
+            ],
           ],
         ),
       ),
@@ -2086,7 +2094,10 @@ class _HighlightCard extends StatelessWidget {
                     style: PTypo.h4.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.bold,
-                      fontFamily: valueIsAmount ? 'monospace' : null,
+                      // 금액은 라벨과 같은 Pretendard + 고정폭 숫자(typography.dart) — 'monospace' 는 iOS 에 없는 글꼴이다
+                      fontFeatures: valueIsAmount
+                          ? const [FontFeature.tabularFigures()]
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 2),

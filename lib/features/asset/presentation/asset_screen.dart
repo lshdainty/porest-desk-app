@@ -662,10 +662,12 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           // Big amount
+          // RichText 는 앱 글꼴을 물려받지 않는다 — 글꼴을 직접 적는다(없으면 기기 시스템 글꼴로 나온다)
           RichText(
             text: TextSpan(
               text: masked ? '••••••' : krw(netWorth),
               style: TextStyle(
+                fontFamily: PTypo.sans,
                 color: t.fgPrimary,
                 fontSize: PFontSize.h1,
                 fontWeight: PFontWeight.bold,
