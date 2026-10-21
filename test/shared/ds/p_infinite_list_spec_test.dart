@@ -2,6 +2,7 @@
 // × 라이트 · 다크의 여백 · 글자 · 색 · 원 24 · 다시 시도 단추(small 36 · 위 12), 그리고 동작(1초 뒤 원 · 300 안에서 받기 · 한 번만
 // 부르기 · 다시 시도 뒤에는 기다리기 · 끝 글 바꾸기). 웹은 같은 JSON 을 크로미움에서 잰다.
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
@@ -192,7 +193,9 @@ void main() {
         height: 600,
         child: ListView(
           controller: controller,
-          cacheExtent: kPInfiniteListReach,
+          scrollCacheExtent: const ScrollCacheExtent.pixels(
+            kPInfiniteListReach,
+          ),
           children: [
             for (var i = 0; i < rows; i++)
               SizedBox(height: rowHeight, child: Text('줄 $i')),

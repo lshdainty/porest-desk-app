@@ -13,7 +13,7 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 enum PInfiniteListStatus { loading, error, end }
 
 /// 다음 쪽을 부르는 거리 — 목록 끝이 화면 아래 끝에서 이만큼 안으로 오면 받는다(infinite-list.yaml sentinel.threshold,
-/// 지금 Desk 앱 값). 목록이 게으른 [ListView] 면 이 자리가 그려져야 재므로 `cacheExtent` 도 이만큼 준다.
+/// 지금 Desk 앱 값). 목록이 게으른 [ListView] 면 이 자리가 그려져야 재므로 `scrollCacheExtent` 도 이만큼 준다.
 const double kPInfiniteListReach = 300;
 
 /// Infinite List — 폰(768 미만) 긴 목록 끝의 한 자리. 쪽 넘김(Pagination)의 폰 짝이다. 수치 원본은 groo-design
