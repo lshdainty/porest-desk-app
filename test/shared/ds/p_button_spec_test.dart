@@ -98,7 +98,9 @@ Future<void> _check(
   final deco =
       tester
               .widget<DecoratedBox>(
-                find.descendant(of: box, matching: find.byType(DecoratedBox)),
+                find
+                    .descendant(of: box, matching: find.byType(DecoratedBox))
+                    .last,
               )
               .decoration
           as BoxDecoration;
@@ -110,15 +112,21 @@ Future<void> _check(
   if (iconOnly) px('root.width', size.width);
   px('root.radius', (deco.borderRadius! as BorderRadius).topLeft.x);
   color('root.background', deco.color ?? const Color(0x00000000));
+  // 테두리는 여백을 늘리지 않게 안쪽에 덧그린다(foregroundDecoration) — 높이가 최소 높이 그대로다
+  final foreground = tester.widget<Container>(box.first).foregroundDecoration;
+  final borderDeco = foreground as BoxDecoration?;
+  if (deco.border != null) {
+    failures.add('$where — 테두리를 바탕 장식에 두면 여백이 늘어 높이가 커진다');
+  }
   if (want.containsKey('root.borderColor')) {
-    final border = deco.border as Border?;
+    final border = borderDeco?.border as Border?;
     if (border == null) {
       failures.add('$where — root.borderColor: 테두리가 없다');
     } else {
       color('root.borderColor', border.top.color);
       px('root.borderWidth', border.top.width);
     }
-  } else if (deco.border != null) {
+  } else if (borderDeco != null) {
     failures.add('$where — 스펙에 없는 테두리가 있다');
   }
   final padding =
@@ -128,11 +136,11 @@ Future<void> _check(
               )
               .padding
           as EdgeInsets;
-  // Container 는 테두리 두께를 안쪽 여백에 더한다 — CSS(border-box)의 padding 과 맞추려면 뺀다
-  final borderWidth = (deco.border as Border?)?.top.width ?? 0;
-  px('root.paddingX', padding.left - borderWidth);
-  px('root.paddingY', padding.top - borderWidth);
-  px('root.padding', padding.top - borderWidth);
+  // 테두리가 있으면 가로 여백에 1씩 더해져 있다(웹 border-box 와 같은 폭) — 뺀 값이 스펙 paddingX
+  final borderW = borderDeco?.border == null ? 0 : 1;
+  px('root.paddingX', padding.left - borderW);
+  px('root.paddingY', padding.top);
+  px('root.padding', padding.top);
 
   // 글자 · 아이콘
   final icon = tester.widget<Icon>(
@@ -416,5 +424,116 @@ void main() {
       ),
     );
     semantics.dispose();
+  });
+
+  group('큰 글자 — 높이는 최소 높이다(사용자 결정 2026-10-22)', () {
+    Widget scaled(double factor, Widget child) => Builder(
+      builder: (context) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(factor)),
+        child: child,
+      ),
+    );
+
+    // 100% 는 36 · 40 · 48 그대로, 130% 는 글 줄 × 1.3 이 더해지고, 200% 는 small 54 · medium 58 · large 72 다
+    const heights = {
+      PButtonSize.small: [36.0, 54.0],
+      PButtonSize.medium: [40.0, 58.0],
+      PButtonSize.large: [48.0, 72.0],
+    };
+    for (final variant in [
+      PButtonVariant.brandSolid,
+      PButtonVariant.neutralOutline,
+    ]) {
+      testWidgets(
+        '${variant.name} — 글자 100% · 200% 에서 상자가 글을 따라 늘어나고 글은 잘리지 않는다',
+        (tester) async {
+          for (final e in heights.entries) {
+            for (var i = 0; i < 2; i++) {
+              final factor = i == 0 ? 1.0 : 2.0;
+              await tester.pumpWidget(
+                _host(
+                  Brightness.light,
+                  scaled(
+                    factor,
+                    PButton(
+                      label: '다시 시도',
+                      variant: variant,
+                      size: e.key,
+                      onPressed: () {},
+                    ),
+                  ),
+                ),
+              );
+              final box = tester.getSize(
+                find.descendant(
+                  of: find.byType(PButton),
+                  matching: find.byType(Container),
+                ),
+              );
+              expect(
+                box.height,
+                closeTo(e.value[i], 0.01),
+                reason: '${e.key.name} × $factor',
+              );
+              expect(tester.takeException(), isNull);
+            }
+          }
+        },
+      );
+    }
+
+    testWidgets('아이콘만 있는 버튼은 글자가 커져도 정사각 그대로다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          scaled(
+            2,
+            PButton.icon(
+              icon: LucideIcons.plus,
+              semanticLabel: '추가',
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+      final size = tester.getSize(
+        find.descendant(
+          of: find.byType(PButton),
+          matching: find.byType(Container),
+        ),
+      );
+      expect(size.width, size.height);
+      expect(size.height, 40);
+    });
+  });
+
+  testWidgets('윤곽 버튼은 채움 버튼보다 2px 넓다(테두리 1px × 2 — 웹 border-box 와 같은 폭)', (
+    tester,
+  ) async {
+    Future<double> width(PButtonVariant v) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          Align(
+            alignment: Alignment.topLeft,
+            child: PButton(label: '취소', variant: v, onPressed: () {}),
+          ),
+        ),
+      );
+      return tester
+          .getSize(
+            find.descendant(
+              of: find.byType(PButton),
+              matching: find.byType(Container),
+            ),
+          )
+          .width;
+    }
+
+    final solid = await width(PButtonVariant.neutralWeak);
+    final outline = await width(PButtonVariant.neutralOutline);
+    expect(outline - solid, 2);
   });
 }

@@ -411,7 +411,7 @@ class _HeroFallback extends StatelessWidget {
                   Text(
                     company!.trim(),
                     style: PTypo.bodySm.copyWith(
-                      color: brand.fg,
+                      color: brand.fgOf(context),
                       fontWeight: PFontWeight.semi,
                     ),
                     maxLines: 1,
@@ -422,7 +422,7 @@ class _HeroFallback extends StatelessWidget {
                   Text(
                     cardName!.trim(),
                     style: PTypo.body.copyWith(
-                      color: brand.fg,
+                      color: brand.fgOf(context),
                       fontWeight: PFontWeight.bold,
                     ),
                     maxLines: 2,

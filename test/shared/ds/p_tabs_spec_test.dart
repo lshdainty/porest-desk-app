@@ -545,6 +545,31 @@ void main() {
     }
   });
 
+  group('Chip Tabs 줄 폭', () {
+    testWidgets('Chip Tabs — 보이는 줄 폭에서 멈춘다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PChipTabs<int>(
+            value: 0,
+            onChanged: (_) {},
+            semanticLabel: '모아보기',
+            items: const [
+              PTab(value: 0, label: '이름이 아주 길어서 한 줄에 다 들어가지 않는 카드 혜택 모음 이야기'),
+              PTab(value: 1, label: '식비'),
+            ],
+          ),
+          width: 312,
+        ),
+      );
+      expect(
+        tester.getSize(find.byKey(const ValueKey('chip-box')).first).width,
+        312 - 2 * 24,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('Line 동작', () {
     testWidgets(
       'Fill — 360 폰에서 2 · 3 · 4 · 5개면 막대는 148 · 88 · 58 · 40(탭 폭 − 32), Hug 는 탭 폭 그대로',

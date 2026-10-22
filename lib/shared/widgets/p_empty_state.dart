@@ -7,7 +7,7 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 /// 빈 상태 표시 — 아이콘 + 메시지 (+ 보조 메시지).
 ///
 /// 일관된 spacing/색상/타이포로 통일된 empty state UI.
-/// `ListView` 등 스크롤 가능한 컨테이너 안에 넣어 RefreshIndicator 와 함께 사용.
+/// `ListView` 등 스크롤 가능한 컨테이너 안에 넣어 PPullToRefresh 와 함께 사용.
 ///
 /// 사용 예:
 /// ```dart

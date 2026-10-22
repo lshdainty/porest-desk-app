@@ -39,6 +39,7 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/transfer_ro
 import 'package:groo_damda_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
@@ -721,8 +722,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           children: [
             pin,
             Expanded(
-              child: RefreshIndicator(
-                color: t.fgBrand,
+              child: PPullToRefresh(
                 onRefresh: () async {
                   ref.invalidate(monthExpensesProvider(_key));
                   await ref.read(monthExpensesProvider(_key).future);

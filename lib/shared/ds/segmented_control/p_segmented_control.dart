@@ -332,6 +332,8 @@ class _SegmentedItemState<T> extends State<_SegmentedItem<T>>
           Text(
             keepAll(item.label),
             textAlign: TextAlign.center,
+            // 칸 글은 -static 16 — 글자 크기 설정을 따르지 않는다(1.4.4 예외: 4칸이 한 줄에 들게, 03-B 결정 4 A)
+            textScaler: TextScaler.noScaling,
             style: PTypography.t5.copyWith(
               fontWeight: FontWeight.w700,
               color: color,

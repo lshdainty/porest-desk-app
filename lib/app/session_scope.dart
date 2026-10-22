@@ -73,6 +73,9 @@ class _SessionScopeState extends State<SessionScope> {
   Widget build(BuildContext context) {
     return ProviderScope(
       key: ValueKey(_generation),
+      // Riverpod 의 기본 재시도(최대 10회)는 끈다 — 실패 화면이 열 번 다시 해 본 뒤에야 뜬다. 읽기의 10초 한도 · 1초 · 2초 뒤
+      // 두 번 다시 시도는 dio 의 ReadRetryInterceptor 한 곳이 맡는다(skeleton.md "요청 제한 10초").
+      retry: appProviderRetry,
       overrides: [
         ...widget.overrides,
         sessionRestartProvider.overrideWithValue(_restart),
@@ -87,3 +90,7 @@ class _SessionScopeState extends State<SessionScope> {
 /// [SessionScope] 아래에서만 값이 있다. 맨 `ProviderScope` 로 띄운 화면(위젯 테스트)
 /// 에서는 `null` 이고, 그때는 컨테이너를 바꿀 주체가 없다.
 final sessionRestartProvider = Provider<VoidCallback?>((ref) => null);
+
+/// 앱의 제공자 재시도 — 하지 않는다. 읽기의 저절로 다시 시도는 네트워크 층(`ReadRetryInterceptor`)이 10초 안에서 맡고, 그 위에서
+/// Riverpod 가 또 다시 하면 한도(10초)를 넘기고 쓰기까지 두 번 보낼 수 있다.
+Duration? appProviderRetry(int retryCount, Object error) => null;

@@ -1212,7 +1212,7 @@ class _PreviewTile extends StatelessWidget {
           child: Text(
             letter,
             style: TextStyle(
-              color: entry.color.fg,
+              color: entry.color.fgOf(context),
               fontWeight: PFontWeight.bold,
               fontSize: PFontSize.body,
             ),

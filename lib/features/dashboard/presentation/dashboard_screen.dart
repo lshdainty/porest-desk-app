@@ -39,6 +39,7 @@ import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -75,8 +76,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-
     final monthKey = (year: _month.year, month: _month.month);
     final summaryAsync = ref.watch(
       assetSummaryProvider((year: _month.year, month: _month.month)),
@@ -96,8 +95,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
     final budgetsAsync = ref.watch(monthBudgetsProvider(monthKey));
 
-    return RefreshIndicator(
-      color: t.fgBrand,
+    return PPullToRefresh(
       onRefresh: () async {
         ref.invalidate(
           assetSummaryProvider((year: _month.year, month: _month.month)),
@@ -108,6 +106,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           rangeSummaryProvider((startDate: _ymdStart, endDate: _ymdEnd)),
         );
         ref.invalidate(monthBudgetsProvider(monthKey));
+        await Future.wait([
+          ref.read(
+            assetSummaryProvider((
+              year: _month.year,
+              month: _month.month,
+            )).future,
+          ),
+          ref.read(monthExpensesProvider(monthKey).future),
+          ref.read(dashboardSummaryProvider.future),
+          ref.read(
+            rangeSummaryProvider((
+              startDate: _ymdStart,
+              endDate: _ymdEnd,
+            )).future,
+          ),
+          ref.read(monthBudgetsProvider(monthKey).future),
+        ]);
       },
       // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
       // 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다 — 띠 안 24 가 글자 자리다.

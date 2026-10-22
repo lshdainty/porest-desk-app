@@ -3,7 +3,7 @@
   "source": "specs/components/page-banner.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "91764c2b6325"
+    "sha256": "3b3b74b34b25"
   },
   "slots": {
     "root": "띠 — 화면 폭 전체, 모서리 없음",

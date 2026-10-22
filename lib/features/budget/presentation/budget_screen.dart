@@ -31,6 +31,7 @@ import 'package:groo_damda_app/features/budget/application/budget_providers.dart
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 const double _warnThreshold = 85;
 
@@ -73,8 +74,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       backgroundColor: context.colors.bgLayerBasement,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='예산' +
       // actions(theme/eye/bell/search) 일관 표시.
-      body: RefreshIndicator(
-        color: t.fgBrand,
+      body: PPullToRefresh(
         onRefresh: () async {
           ref.invalidate(monthBudgetsProvider(_key));
           ref.invalidate(

@@ -38,6 +38,7 @@ class PProgressCircle extends StatefulWidget {
     this.max = 100,
     this.semanticsLabel,
     this.valueText,
+    this.animateValue = true,
   }) : diameter = null,
        thickness = null,
        trackColor = null,
@@ -57,7 +58,8 @@ class PProgressCircle extends StatefulWidget {
   }) : size = null,
        tone = null,
        semanticsLabel = null,
-       valueText = null;
+       valueText = null,
+       animateValue = true;
 
   final PProgressCircleSize? size;
   final PProgressCircleTone? tone;
@@ -72,6 +74,9 @@ class PProgressCircle extends StatefulWidget {
 
   /// 값 있는 원의 값 글 — 기본 반올림한 "40%".
   final String? valueText;
+
+  /// 값이 바뀔 때 채움이 d6 로 따라 차는지 — false 면 바로 바뀐다(손가락을 따라가는 당겨서 새로 고침).
+  final bool animateValue;
 
   final double? diameter;
   final double? thickness;
@@ -136,7 +141,7 @@ class _PProgressCircleState extends State<PProgressCircle>
     final next = _fraction;
     if (!_determinate) {
       // 값 없는 원 — 다음에 값이 생기면 그 자리에서 시작한다
-    } else if (!wasDeterminate || _reduceMotion) {
+    } else if (!wasDeterminate || _reduceMotion || !widget.animateValue) {
       _fill.value = 1;
       _fillFrom = _fillTo = next;
     } else if (next != _fillTo) {

@@ -20,6 +20,34 @@ const double _badgeHeight = PSpacing.x6; // badge.height 24
 const double _actionIcon = 24; // actionButton.iconSize
 const double _ringWidth = 2; // focusRing.width(안쪽)
 
+/// 글자 배율을 따르는 치수(03-B 결정 3 A) — 타일 · 사진 80 · 파일 카드 160 · 썸네일 48 · 아이콘 24 · × 20(누르는 44 · 위 여백 16) · ×
+/// 아이콘 10 · × 둘레 구멍에 `MediaQuery.textScalerOf` 를 곱한다. 웹은 rem 이라 이미 그렇다. 200% 에서 사진 160 · 파일 카드 320 × 160.
+/// 이름 폭은 카드에서 좌우 여백 · 썸네일 · 사이를 뺀 나머지다(100% 70 → 200% 182) — 이름 네 줄 + 크기가 다 보인다.
+class _Dims {
+  const _Dims(this.scaler);
+
+  factory _Dims.of(BuildContext context) =>
+      _Dims(MediaQuery.textScalerOf(context));
+
+  final TextScaler scaler;
+
+  double s(double value) => scaler.scale(value);
+
+  double get tile => s(_tile);
+  double get fileWidth => s(_fileWidth);
+  double get thumb => s(_thumb);
+  double get icon => s(24);
+  double get removeSize => s(_removeSize);
+  double get removeIcon => s(_removeIcon);
+  double get removeTouch => s(_removeTouch);
+  double get maskSize => s(_maskSize);
+  double get maskOffset => s(_maskOffset);
+  double get touchBleed => s(_touchBleed);
+
+  /// 파일 카드의 이름 · 크기 폭 — 카드 − 좌우 여백 − 썸네일 − 사이.
+  double get metaWidth => fileWidth - 2 * _filePaddingX - thumb - _fileGap;
+}
+
 /// 앱의 길게 눌러 끌기 문턱 — 웹 터치와 같은 250ms(Flutter 기본 길게 누름 500ms 가 아니다).
 const Duration kAttachmentDragDelay = Duration(
   milliseconds: 250,
@@ -42,7 +70,7 @@ class _PressBox extends StatefulWidget {
     this.restColor = const Color(0x00000000),
     this.pressedColor,
     this.border,
-    this.basis = _tile,
+    this.basis,
     this.shrink = true,
     this.blocked = false,
     this.disabled = false,
@@ -61,8 +89,8 @@ class _PressBox extends StatefulWidget {
   final Color? pressedColor;
   final BoxBorder? border;
 
-  /// 누름 축소의 기준 길이(80 · 24).
-  final double basis;
+  /// 누름 축소의 기준 길이(80 · 24, 글자 배율을 곱한다) — 없으면 타일 한 변.
+  final double? basis;
   final bool shrink;
   final bool blocked;
   final bool disabled;
@@ -138,10 +166,9 @@ class _PressBoxState extends State<_PressBox> {
       ),
     );
 
+    final basis = widget.basis ?? _Dims.of(context).tile;
     final scaled = AnimatedScale(
-      scale: active && widget.shrink && !reduce
-          ? (widget.basis - 2) / widget.basis
-          : 1,
+      scale: active && widget.shrink && !reduce ? (basis - 2) / basis : 1,
       duration: PDuration.pressedScale,
       curve: PEasing.pressedScale,
       child: face,
@@ -224,25 +251,29 @@ class _TriggerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final d = _Dims.of(context);
     final dim = blocked || disabled;
     final iconColor = dim ? c.fgDisabled : c.fgNeutralSubtle;
     return _PressBox(
       focusNode: focusNode,
       radius: _itemRadius,
       label: label,
+      basis: d.tile,
       blocked: blocked,
       disabled: disabled,
       pressedColor: c.bgLayerDefaultPressed,
       border: Border.all(color: c.strokeNeutralWeak, width: 1),
       onTap: onTap,
       child: SizedBox(
-        width: _tile,
-        height: _tile,
+        width: d.tile,
+        height: d.tile,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: PSpacing.x1,
           children: [
-            ExcludeSemantics(child: Icon(icon, size: 24, color: iconColor)),
+            ExcludeSemantics(
+              child: Icon(icon, size: d.icon, color: iconColor),
+            ),
             if (max != null)
               ExcludeSemantics(
                 child: Text.rich(
@@ -275,9 +306,15 @@ class _TriggerTile extends StatelessWidget {
 
 /// × 둘레 구멍 — 지름 24, 가운데가 오른쪽 위 모서리에서 안쪽 6(× 의 가운데와 같다). 사진 · 덮개 · 윤곽이 × 에 닿지 않게 파낸다.
 class _HoleClipper extends CustomClipper<Path> {
-  const _HoleClipper({required this.radius});
+  const _HoleClipper({
+    required this.radius,
+    this.maskSize = _maskSize,
+    this.maskOffset = _maskOffset,
+  });
 
   final double radius;
+  final double maskSize;
+  final double maskOffset;
 
   @override
   Path getClip(Size size) {
@@ -288,15 +325,18 @@ class _HoleClipper extends CustomClipper<Path> {
     final hole = Path()
       ..addOval(
         Rect.fromCircle(
-          center: Offset(size.width - _maskOffset, _maskOffset),
-          radius: _maskSize / 2,
+          center: Offset(size.width - maskOffset, maskOffset),
+          radius: maskSize / 2,
         ),
       );
     return Path.combine(PathOperation.difference, box, hole);
   }
 
   @override
-  bool shouldReclip(_HoleClipper old) => old.radius != radius;
+  bool shouldReclip(_HoleClipper old) =>
+      old.radius != radius ||
+      old.maskSize != maskSize ||
+      old.maskOffset != maskOffset;
 }
 
 /// 항목 자리 — 항목(80 · 160) · × · 다시 시도를 한 상자에 담는다. 위 16 · 오른쪽 [rightBleed] 는 × 의 누르는 자리 44 가 들어가는 여백이고,
@@ -459,6 +499,7 @@ List<String> attachmentNameLines(
   required TextStyle style,
   TextScaler textScaler = TextScaler.noScaling,
   TextDirection textDirection = TextDirection.ltr,
+  double metaWidth = _metaWidth,
 }) {
   double measure(String s) {
     final p = TextPainter(
@@ -472,7 +513,7 @@ List<String> attachmentNameLines(
     return w;
   }
 
-  double widthOf(int line) => line == 0 ? _metaWidth - _nameClear : _metaWidth;
+  double widthOf(int line) => line == 0 ? metaWidth - _nameClear : metaWidth;
 
   List<String> wrap(String text) {
     final chars = text.characters.toList();
@@ -543,6 +584,7 @@ class _FileNameText extends StatelessWidget {
       style: style,
       textScaler: MediaQuery.textScalerOf(context),
       textDirection: Directionality.of(context),
+      metaWidth: _Dims.of(context).metaWidth,
     );
     return ExcludeSemantics(
       child: Column(
@@ -590,6 +632,7 @@ class _ItemFace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final d = _Dims.of(context);
     final percent = entry.progress == null
         ? null
         : entry.progress!.clamp(0.0, 1.0) * 100;
@@ -612,8 +655,8 @@ class _ItemFace extends StatelessWidget {
           children: [
             Container(
               key: const ValueKey('attachment-thumbnail'),
-              width: _thumb,
-              height: _thumb,
+              width: d.thumb,
+              height: d.thumb,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: c.bgNeutralWeak,
@@ -622,11 +665,15 @@ class _ItemFace extends StatelessWidget {
               child: status == PAttachmentStatus.uploading
                   ? circle(PProgressCircleTone.neutral)
                   : ExcludeSemantics(
-                      child: Icon(_fileIcon(entry), size: 24, color: iconColor),
+                      child: Icon(
+                        _fileIcon(entry),
+                        size: d.icon,
+                        color: iconColor,
+                      ),
                     ),
             ),
             SizedBox(
-              width: _metaWidth,
+              width: d.metaWidth,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -657,7 +704,7 @@ class _ItemFace extends StatelessWidget {
     final fallback = ColoredBox(
       color: c.bgNeutralWeak,
       child: Center(
-        child: Icon(LucideIcons.image, size: 24, color: c.fgNeutralSubtle),
+        child: Icon(LucideIcons.image, size: d.icon, color: c.fgNeutralSubtle),
       ),
     );
     return Stack(
@@ -752,12 +799,13 @@ class _RemoveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final d = _Dims.of(context);
     return _PressBox(
       focusNode: focusNode,
-      radius: _removeSize / 2,
+      radius: d.removeSize / 2,
       label: label,
-      basis: 24,
-      touch: _removeTouch,
+      basis: d.s(24),
+      touch: d.removeTouch,
       blocked: blocked,
       disabled: disabled,
       restColor: c.bgLayerDefault,
@@ -765,13 +813,13 @@ class _RemoveButton extends StatelessWidget {
       border: Border.all(color: c.strokeNeutralWeak, width: 1),
       onTap: onTap,
       child: SizedBox(
-        width: _removeSize,
-        height: _removeSize,
+        width: d.removeSize,
+        height: d.removeSize,
         child: Center(
           child: ExcludeSemantics(
             child: Icon(
               LucideIcons.x,
-              size: _removeIcon,
+              size: d.removeIcon,
               color: blocked || disabled ? c.fgDisabled : c.fgNeutral,
             ),
           ),
@@ -792,6 +840,7 @@ Widget _itemBody(
   Key? key,
 }) {
   final c = context.colors;
+  final d = _Dims.of(context);
   final image = entry.isImage;
   final face = DecoratedBox(
     // 파일 카드의 안쪽 1px 테두리 — 사진은 윤곽을 _ItemFace 가 그린다
@@ -809,11 +858,15 @@ Widget _itemBody(
   );
   return SizedBox(
     key: key,
-    width: image ? _tile : _fileWidth,
-    height: _tile,
+    width: image ? d.tile : d.fileWidth,
+    height: d.tile,
     child: hole
         ? ClipPath(
-            clipper: const _HoleClipper(radius: _itemRadius),
+            clipper: _HoleClipper(
+              radius: _itemRadius,
+              maskSize: d.maskSize,
+              maskOffset: d.maskOffset,
+            ),
             child: face,
           )
         : ClipRRect(
@@ -839,6 +892,7 @@ class _DragGhost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final image = entry.isImage;
+    final tile = _Dims.of(context).tile;
     Widget body = _itemBody(
       context,
       entry: entry,
@@ -852,7 +906,7 @@ class _DragGhost extends StatelessWidget {
       style: const TextStyle(decoration: TextDecoration.none),
       child: Transform.scale(
         key: const ValueKey('attachment-drag-ghost'),
-        scale: (_tile - 2) / _tile,
+        scale: (tile - 2) / tile,
         child: body,
       ),
     );
@@ -914,8 +968,9 @@ class _ItemSlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final d = _Dims.of(context);
     final image = entry.isImage;
-    final width = image ? _tile : _fileWidth;
+    final width = image ? d.tile : d.fileWidth;
     final error = status == PAttachmentStatus.error;
     final dim = readOnly && image;
 
@@ -982,16 +1037,20 @@ class _ItemSlot extends StatelessWidget {
 
     final stack = _OverflowStack(
       children: [
-        SizedBox(width: width + rightBleed, height: _tile + _touchBleed),
-        Positioned(top: _touchBleed, left: 0, child: draggable),
+        SizedBox(width: width + rightBleed, height: d.tile + d.touchBleed),
+        Positioned(top: d.touchBleed, left: 0, child: draggable),
         if (error)
           Positioned(
-            top: _touchBleed,
+            top: d.touchBleed,
             left: 0,
             width: width,
-            height: _tile,
+            height: d.tile,
             child: ClipPath(
-              clipper: const _HoleClipper(radius: _itemRadius),
+              clipper: _HoleClipper(
+                radius: _itemRadius,
+                maskSize: d.maskSize,
+                maskOffset: d.maskOffset,
+              ),
               child: _PressBox(
                 key: const ValueKey('attachment-retry'),
                 radius: _itemRadius,
@@ -1008,7 +1067,7 @@ class _ItemSlot extends StatelessWidget {
                     ExcludeSemantics(
                       child: Icon(
                         LucideIcons.rotateCw,
-                        size: _actionIcon,
+                        size: d.s(_actionIcon),
                         color: image ? c.staticWhite : c.fgNeutralSubtle,
                       ),
                     ),
@@ -1030,8 +1089,8 @@ class _ItemSlot extends StatelessWidget {
           ),
         // × — 가운데가 오른쪽 위 모서리에서 안쪽 6. 누르는 44 는 보이는 원 둘레로 12 씩
         Positioned(
-          top: _touchBleed + _maskOffset - _removeTouch / 2,
-          left: width - _maskOffset - _removeTouch / 2,
+          top: d.touchBleed + d.maskOffset - d.removeTouch / 2,
+          left: width - d.maskOffset - d.removeTouch / 2,
           child: _RemoveTouch(
             enabled: !readOnly && !disabled,
             child: _RemoveButton(

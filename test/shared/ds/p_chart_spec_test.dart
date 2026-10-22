@@ -874,6 +874,71 @@ void main() {
     });
 
     testWidgets(
+      '${mode.name} — 열지도: 글자 배율을 곱한 글이 칸보다 넓으면 칸 폭이 112 를 넘어도 글을 빼고 세기 색만 칠한다(03E-026b)',
+      (tester) async {
+        _viewport(tester, const Size(1200, 1000));
+        const rows = [PHeatmapRow(key: 'am', label: '오전', sub: '6~12시')];
+        const cols = [
+          PHeatmapColumn(key: 'a', label: '일'),
+          PHeatmapColumn(key: 'b', label: '월'),
+          PHeatmapColumn(key: 'c', label: '화'),
+          PHeatmapColumn(key: 'd', label: '수'),
+          PHeatmapColumn(key: 'e', label: '목'),
+          PHeatmapColumn(key: 'f', label: '금'),
+          PHeatmapColumn(key: 'g', label: '토'),
+        ];
+        // 가장 나쁜 값 — 999억("99,999,999,999원" 100% 에서 107 이라 112 칸에 든다)
+        const values = <List<double?>>[
+          [50, 100, 300, 600, 900, 99999999999, 0],
+        ];
+        final cellText = find.descendant(
+          of: find.byKey(const ValueKey('chart-heatmap-cell-0-5')),
+          matching: find.byType(Text),
+        );
+        for (final scale in [1.0, 1.3, 2.0]) {
+          await tester.pumpWidget(
+            _host(
+              mode,
+              Builder(
+                builder: (context) => MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: TextScaler.linear(scale)),
+                  child: const PHeatmap(
+                    label: '요일 · 시간대별 지출',
+                    rows: rows,
+                    columns: cols,
+                    values: values,
+                  ),
+                ),
+              ),
+              width: 960,
+            ),
+          );
+          await tester.pump();
+          final cell = tester.getRect(
+            find.byKey(const ValueKey('chart-heatmap-cell-0-5')),
+          );
+          expect(cell.width, greaterThanOrEqualTo(112), reason: '칸은 112 이상');
+          expect(tester.takeException(), isNull, reason: 'x$scale 넘침 없음');
+          if (scale == 1) {
+            expect(cellText, findsOneWidget, reason: 'x$scale 글이 든다');
+            expect(
+              tester.getSize(cellText).width,
+              lessThanOrEqualTo(cell.width - 4),
+            );
+          } else {
+            expect(
+              cellText,
+              findsNothing,
+              reason: 'x$scale 글이 칸보다 넓다 — 세기 색만(130% 139 · 200% 214)',
+            );
+          }
+        }
+      },
+    );
+
+    testWidgets(
       '${mode.name} — 열지도: 칸 정사각형 · 모서리 4 · 사이 6 · 세기 색 · 글자는 칸 폭 112 이상에서만',
       (tester) async {
         final want = _spec.resolve({'kind': 'heatmap'}, 'enabled');

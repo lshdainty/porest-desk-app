@@ -3,7 +3,7 @@
   "source": "specs/components/button.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "91764c2b6325"
+    "sha256": "3b3b74b34b25"
   },
   "slots": {
     "root": "버튼 상자(Container) — 배경 · 테두리 · 모양, 글자 · 아이콘 색(currentColor)",
@@ -802,11 +802,32 @@
       "note": "SEED bg.transparent-pressed 의 불투명 짝"
     },
     {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "최소 높이 — 글이 상자보다 크면(큰 글자) 상자가 글을 따라 늘어난다(2026-10-22 사용자 결정 — 버튼 큰 글자 A, SEED action-button root.minHeight)"
+    },
+    {
+      "rule": 12,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "최소 높이 — 글이 상자보다 크면(큰 글자) 상자가 글을 따라 늘어난다(2026-10-22 사용자 결정 — 버튼 큰 글자 A, SEED action-button root.minHeight)"
+    },
+    {
+      "rule": 13,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "height",
+      "note": "최소 높이 — 글이 상자보다 크면(큰 글자) 상자가 글을 따라 늘어난다(2026-10-22 사용자 결정 — 버튼 큰 글자 A, SEED action-button root.minHeight)"
+    },
+    {
       "rule": 14,
       "state": "enabled",
       "slot": "root",
       "prop": "height",
-      "note": "SEED 52 — groo 는 48(사용자 결정)"
+      "note": "SEED 52 — groo 는 48(사용자 결정). 최소 높이 — 글이 상자보다 크면(큰 글자) 상자가 글을 따라 늘어난다(2026-10-22 사용자 결정 — 버튼 큰 글자 A, SEED action-button root.minHeight)"
     },
     {
       "rule": 21,

@@ -1,5 +1,5 @@
 // GENERATED — scripts/sync_design.sh 가 institution-colors.json 에서 만든다. 손으로 고치지 않는다.
-// source: DESIGN.desk.md · sha256 91764c2b6325
+// source: DESIGN.desk.md · sha256 3b3b74b34b25
 
 /// 기관 색 표(스펙 JSON 의 data.entries) — `PInstitutionTable.fromSpecJson` 이 읽는다.
 const Map<String, dynamic> kInstitutionColorsSpec = {

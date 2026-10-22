@@ -27,6 +27,7 @@ import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
 import 'package:groo_damda_app/features/card/presentation/card_fee_text.dart';
 import 'package:groo_damda_app/features/card/presentation/card_benefit_detail_sheet.dart';
 import 'package:groo_damda_app/features/card/presentation/widgets/card_brand.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 종류 필터 값 — index 0=전체(null)/1=신용/2=체크. 라벨은 [_typeLabel].
 const _typeValues = <String?>[null, 'CREDIT', 'CHECK'];
@@ -110,7 +111,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   );
 
   /// 필터/검색 변경 → 누적 리셋 후 첫 페이지부터 다시 로드.
-  void _reset() {
+  Future<void> _reset() {
     setState(() {
       _cards.clear();
       _page = 0;
@@ -118,7 +119,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       _initialLoading = true;
       _error = null;
     });
-    _loadMore(initial: true);
+    return _loadMore(initial: true);
   }
 
   Future<void> _loadMore({bool initial = false}) async {
@@ -205,9 +206,8 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         elevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
-          onRefresh: () async => _reset(),
+        child: PPullToRefresh(
+          onRefresh: () => _reset(),
           child: ListView(
             controller: _scroll,
             // 목록 끝 자리가 화면 아래 300 안에서 그려져야 다음 쪽을 부른다(Infinite List)
@@ -573,7 +573,7 @@ class _CardVisual extends StatelessWidget {
             child: Text(
               _brandInitial(company),
               style: PTypo.caption.copyWith(
-                color: brand.fg,
+                color: brand.fgOf(context),
                 fontWeight: PFontWeight.bold,
                 letterSpacing: 0,
               ),

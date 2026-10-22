@@ -1,19 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/shared/brand/bank_colors.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/shared/ds/logo_tile/p_logo_tile.dart';
 
-/// 40×40 round-rect 자산 로고. front `AssetLogo` 1:1 미러.
+/// 자산 로고 — ds Logo Tile 이다(03E-010). 기관 이름(없으면 자산 이름)으로 기관 색 표 하나(institution-colors.yaml)에서
+/// 면 색 · 글자색을 찾고, 표에 없으면 Avatar 와 같은 이름 색이다. 저장된 자산 색(asset.color)과 이름 해시 색은 읽지 않는다.
 ///
-/// 카드 정식 이미지(카탈로그)가 있으면 그 이미지, 없으면 모노그램 + 회사 primary 색.
-/// 카탈로그 이미지는 외부 URL 이라 깨질 수 있어 실패하면 모노그램으로 되돌린다.
-///
-/// 색 우선순위:
-/// - asset.color → 생성 시 저장한 회사 primary (카드는 발급사 색)
-/// - getBrandColor(institution → assetName) → 브랜드 매칭
-/// - hashColor(assetName) → 해시 fallback
+/// 카드 정식 이미지(카탈로그)가 있으면 옅은 판 위에 카드 비율로 올리고, 받는 동안 · 못 받으면 첫 글자 면 그대로다.
+/// 크기는 Logo Tile 의 32 · 40 · 48 중 가장 가까운 큰 쪽이다([size] 가 32 이하면 32, 40 이하면 40, 그 위는 48).
 class AssetLogo extends StatelessWidget {
   const AssetLogo({super.key, required this.asset, this.size = 40});
 
@@ -22,61 +16,21 @@ class AssetLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final institution = asset.institution?.trim() ?? '';
     final imgUrl = asset.cardCatalog?.imgUrl;
-    if (imgUrl != null && imgUrl.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: PRadius.brLg,
-        child: Image.network(
-          imgUrl,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => _monogram(context),
-        ),
-      );
-    }
-    return _monogram(context);
-  }
-
-  Widget _monogram(BuildContext context) {
-    final brand = getBrandColor([asset.institution, asset.assetName]);
-    final bg =
-        _parseHex(asset.color) ?? brand?.bg ?? hashColor(asset.assetName);
-    final fg = brand?.fg ?? Colors.white;
-    final char = (asset.institution ?? asset.assetName).trim().isEmpty
-        ? '?'
-        : (asset.institution ?? asset.assetName).trim().characters.first;
-    // web AssetLogo font 분기 정합: ≤32 caption / ≥48 bodyLg / else bodySm
-    final fontSize = size <= 32
-        ? PFontSize.caption
-        : size >= 48
-        ? PFontSize.bodyLg
-        : PFontSize.bodySm;
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brLg),
-      child: Text(
-        char,
-        style: TextStyle(
-          color: fg,
-          fontSize: fontSize,
-          fontWeight: PFontWeight.bold,
-          letterSpacing: -0.28,
-          height: PLineHeight.tight,
-        ),
-      ),
+    return PLogoTile(
+      // 기관이 있으면 기관 색 표에서, 없으면 사용자가 지은 자산 이름이라 표를 보지 않는다(짧은 별칭이 걸리지 않게)
+      name: institution.isNotEmpty ? institution : asset.assetName,
+      face: institution.isNotEmpty
+          ? PLogoTileFace.institution
+          : PLogoTileFace.name,
+      size: size <= 32
+          ? PLogoTileSize.s32
+          : size <= 40
+          ? PLogoTileSize.s40
+          : PLogoTileSize.s48,
+      image: imgUrl != null && imgUrl.isNotEmpty ? NetworkImage(imgUrl) : null,
+      imageType: PLogoTileImageType.card,
     );
   }
-}
-
-Color? _parseHex(String? hex) {
-  if (hex == null || hex.isEmpty) return null;
-  var h = hex.trim();
-  if (h.startsWith('#')) h = h.substring(1);
-  if (h.length == 6) h = 'FF$h';
-  if (h.length != 8) return null;
-  final v = int.tryParse(h, radix: 16);
-  return v == null ? null : Color(v);
 }

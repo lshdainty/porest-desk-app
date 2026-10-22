@@ -34,6 +34,7 @@ import 'package:groo_damda_app/shared/widgets/p_floating_action_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 할일 — 모바일 원장 (design todo-mobile.jsx TodoMobileLedger 미러).
 ///
@@ -586,8 +587,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       children: [
         pin,
         Expanded(
-          child: RefreshIndicator(
-            color: t.fgBrand,
+          child: PPullToRefresh(
             onRefresh: () async {
               ref.invalidate(todoListProvider(_allFilter));
               invalidateConstellation(ref);

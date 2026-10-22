@@ -21,6 +21,7 @@ import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/features/sms/data/sms_android.dart';
 import 'package:groo_damda_app/features/sms/domain/sms_paste_args.dart';
 import 'package:groo_damda_app/features/sms/domain/sms_preview.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 아직 기록하지 않은 결제 알림 목록 (안드로이드).
 ///
@@ -129,8 +130,7 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         ],
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: _load,
           child: ListView(
             padding: EdgeInsets.fromLTRB(

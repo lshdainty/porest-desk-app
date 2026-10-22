@@ -39,6 +39,7 @@ import 'package:groo_damda_app/features/stats/domain/fixed_split.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/stats/presentation/fixed_variable_tab.dart';
 import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 통계·분석 화면 (front `StatsPage` 미러).
 ///
@@ -454,7 +455,6 @@ class _CategoryTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final categoriesAsync = ref.watch(categoriesProvider);
     final merchantAsync = ref.watch(
@@ -469,8 +469,7 @@ class _CategoryTab extends ConsumerWidget {
     // 하루 평균 전월 대비용 이전 기간
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
 
-    return RefreshIndicator(
-      color: t.fgBrand,
+    return PPullToRefresh(
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(
@@ -481,6 +480,11 @@ class _CategoryTab extends ConsumerWidget {
         );
         ref.invalidate(heatmapProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._range));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(state._range).future),
+          ref.read(heatmapProvider(state._range).future),
+          ref.read(rangeExpensesProvider(state._range).future),
+        ]);
       },
       child: ListView(
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
@@ -534,14 +538,16 @@ class _TrendTab extends ConsumerWidget {
   final _StatsScreenState state;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final monthExpAsync = ref.watch(rangeExpensesProvider(state._range));
-    return RefreshIndicator(
-      color: t.fgBrand,
+    return PPullToRefresh(
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._range));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(state._range).future),
+          ref.read(rangeExpensesProvider(state._range).future),
+        ]);
       },
       child: ListView(
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
@@ -590,20 +596,24 @@ class _CompareTab extends ConsumerWidget {
   final _StatsScreenState state;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
     final categoriesAsync = ref.watch(categoriesProvider);
     // 요일별 지출 비교 — 이번/지난 기간 원시 거래로 요일 집계.
     final nowExpAsync = ref.watch(rangeExpensesProvider(state._range));
     final prevExpAsync = ref.watch(rangeExpensesProvider(state._prevRangeKey));
-    return RefreshIndicator(
-      color: t.fgBrand,
+    return PPullToRefresh(
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
         ref.invalidate(rangeExpensesProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._prevRangeKey));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(state._range).future),
+          ref.read(rangeSummaryProvider(state._prevRangeKey).future),
+          ref.read(rangeExpensesProvider(state._range).future),
+          ref.read(rangeExpensesProvider(state._prevRangeKey).future),
+        ]);
       },
       child: ListView(
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리

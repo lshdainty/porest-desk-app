@@ -33,6 +33,7 @@ import 'package:groo_damda_app/features/recurring/presentation/recurring_detail_
 import 'package:groo_damda_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 enum _Filter { all, expense, income, transfer, paused }
 
@@ -113,8 +114,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         scrolledUnderElevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(recurringListProvider);
             await ref.read(recurringListProvider.future);

@@ -36,6 +36,7 @@ import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 통계 · 고정/변동 탭 — 한 기간의 수입·지출을 **고정**과 **변동(고정 제외)** 으로 나눠 보여 준다.
 /// 웹 `FixedVariableTab.tsx` 미러.
@@ -70,18 +71,20 @@ class FixedVariableTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final rangeAsync = ref.watch(rangeSummaryProvider(range));
     final categoriesAsync = ref.watch(categoriesProvider);
     final masked = ref.watch(hideCardProvider('stats.fixed'));
 
     void manage() => showFixedBulkSheet(context, ref, range);
 
-    return RefreshIndicator(
-      color: t.fgBrand,
+    return PPullToRefresh(
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(range));
         ref.invalidate(monthlyTrendProvider(6));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(range).future),
+          ref.read(monthlyTrendProvider(6).future),
+        ]);
       },
       child: ListView(
         key: const PageStorageKey('stats-fixed'),

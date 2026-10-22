@@ -919,7 +919,7 @@ class _PlaceholderBox extends StatelessWidget {
       child: Icon(
         LucideIcons.creditCard,
         size: 18,
-        color: brand?.fg ?? tokens.fgPrimary,
+        color: brand?.fgOf(context) ?? tokens.fgPrimary,
       ),
     );
   }
@@ -1138,7 +1138,7 @@ class _RowPlaceholder extends StatelessWidget {
       child: Text(
         name.isEmpty ? '?' : name.characters.first,
         style: TextStyle(
-          color: brand?.fg ?? tokens.fgPrimary,
+          color: brand?.fgOf(context) ?? tokens.fgPrimary,
           fontWeight: PFontWeight.bold,
           fontSize: PFontSize.micro,
         ),

@@ -629,6 +629,61 @@ void main() {
   });
 
   group('칸 폭 · 고른 알약 자리', () {
+    testWidgets(
+      '칸 글은 -static 16 — 글자 200% 에서도 커지지 않아 폰 4칸이 한 글자씩 쪼개지지 않는다(03-B 결정 4 A)',
+      (tester) async {
+        for (final scale in [1.0, 2.0]) {
+          await tester.pumpWidget(
+            MediaQuery(
+              data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+              child: _host(
+                Brightness.light,
+                _control(
+                  value: 'v0',
+                  onChanged: (_) {},
+                  items: [
+                    for (final l in ['오늘', '내일', '이번', '올해'])
+                      _item('v${l.hashCode}', l),
+                  ],
+                ),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          for (final label in ['오늘', '내일', '이번', '올해']) {
+            final text = tester.widget<Text>(
+              find.byWidgetPredicate(
+                (w) =>
+                    w is Text &&
+                    (w.data ?? '').replaceAll('\u2060', '') == label,
+              ),
+            );
+            expect(
+              text.textScaler,
+              TextScaler.noScaling,
+              reason: '$label × $scale',
+            );
+            expect(text.style!.fontSize, 16);
+            // 한 줄로 그려진다 — 높이가 글자 한 줄
+            expect(
+              tester
+                  .getSize(
+                    find.byWidgetPredicate(
+                      (w) =>
+                          w is Text &&
+                          (w.data ?? '').replaceAll('\u2060', '') == label,
+                    ),
+                  )
+                  .height,
+              lessThan(28),
+              reason: '$label × $scale',
+            );
+          }
+          expect(tester.takeException(), isNull);
+        }
+      },
+    );
+
     testWidgets('칸이 트랙 폭을 똑같이 나눈다 — 칸 수 2 ~ 4 · 최소 폭이 없다(폰 콘텐츠 폭 312 에 4개)', (
       tester,
     ) async {

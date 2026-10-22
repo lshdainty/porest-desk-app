@@ -875,6 +875,8 @@ void main() {
           .getSemanticsData();
       expect(data.label, '커피');
       expect(data.flagsCollection.isSelected, ui.Tristate.isTrue);
+      // 앱은 칸마다 Semantics(selected, label, button: true) — 버튼으로 읽는다(03B-009c)
+      expect(data.flagsCollection.isButton, isTrue);
       expect(find.bySemanticsLabel('coffee'), findsNothing);
       final other = tester
           .getSemantics(find.bySemanticsLabel('식사').first)

@@ -174,6 +174,38 @@ class _PHeatmapState extends State<PHeatmap> {
     );
   }
 
+  /// 칸에 적힐 글 가운데 가장 넓은 것의 폭(글자 배율 포함) — 빈 칸의 "—" 도 센다.
+  double _widestValue(
+    BuildContext context,
+    String Function(double) fmt,
+    double max,
+  ) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final style = PTypography.t1.copyWith(
+      fontWeight: FontWeight.w700,
+      fontFeatures: _tabular,
+    );
+    var widest = 0.0;
+    void measure(String text) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      widest = math.max(widest, painter.width);
+      painter.dispose();
+    }
+
+    for (var r = 0; r < widget.rows.length; r++) {
+      for (var c = 0; c < widget.columns.length; c++) {
+        final v = _value(r, c);
+        measure(heatStep(v, max) < 0 ? '—' : fmt(v!));
+      }
+    }
+    return widest;
+  }
+
   double? _value(int r, int c) {
     if (r >= widget.values.length) return null;
     final row = widget.values[r];
@@ -205,7 +237,11 @@ class _PHeatmapState extends State<PHeatmap> {
             (constraints.maxWidth - kHeatLabelColumn - kHeatGap * cols) /
                 math.max(1, cols),
           );
-          final showText = cell >= widget.textMinCellWidth;
+          // 칸 폭이 기준(112) 이상이어도 글자 설정을 키워 글이 칸보다 넓어지면 글을 뺀다 — 세기 색만(03E-026b).
+          // 좁다고 돈을 줄이거나 글자를 줄여 맞추지 않는다
+          final showText =
+              cell >= widget.textMinCellWidth &&
+              _widestValue(context, fmt, max) <= cell - kHeatCellTextPadding;
           // 줄 높이 — 칸(정사각형)과 시간대 라벨(13 + 11) 중 큰 쪽
           final rowH = math.max(cell, hasSub ? 33.0 : 18.0);
           const headH = 16.0;

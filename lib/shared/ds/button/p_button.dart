@@ -402,11 +402,17 @@ class _PButtonState extends State<PButton> {
     );
 
     final iconOnly = widget._iconOnly;
+    final borderWidth = colors.border == null ? 0.0 : 1.0;
     final padding = iconOnly
         ? EdgeInsets.all(s.iconOnlyPadding)
         : EdgeInsets.only(
-            left: widget.flush == PButtonFlush.left ? 0 : s.paddingX,
-            right: widget.flush == PButtonFlush.right ? 0 : s.paddingX,
+            // 테두리 1px 는 가로 여백에 더한다 — 웹 border-box(border + padding)와 같은 폭
+            left: widget.flush == PButtonFlush.left
+                ? 0
+                : s.paddingX + borderWidth,
+            right: widget.flush == PButtonFlush.right
+                ? 0
+                : s.paddingX + borderWidth,
             top: s.paddingY,
             bottom: s.paddingY,
           );
@@ -457,20 +463,30 @@ class _PButtonState extends State<PButton> {
       duration: PDuration.colorTransition,
       curve: PEasing.easing,
       builder: (context, background, child) => Container(
-        height: s.height,
-        width: iconOnly ? s.height : null,
+        // 높이는 최소 높이다 — 글자를 키우면 상자가 글을 따라 늘어난다(100% 는 36 · 40 · 48 그대로). 아이콘만 있는 버튼은 정사각
+        constraints: iconOnly
+            ? BoxConstraints.tightFor(width: s.height, height: s.height)
+            : BoxConstraints(minHeight: s.height),
         padding: padding,
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(s.radius),
-          border: colors.border == null
-              ? null
-              : Border.all(color: colors.border!, width: 1),
         ),
+        // 테두리 1px 는 세로 여백을 늘리지 않게 안쪽에 덧그린다(웹은 border 라 가로는 위 padding 에 1씩 더했다) — 테두리 있는 버튼도 100% 높이 36 · 40 · 48
+        foregroundDecoration: colors.border == null
+            ? null
+            : BoxDecoration(
+                borderRadius: BorderRadius.circular(s.radius),
+                border: Border.all(color: colors.border!, width: 1),
+              ),
         child: child,
       ),
       // 가로는 내용만큼(부모가 폭을 정하면 그 폭의 가운데), 세로는 상자 가운데
-      child: Align(widthFactor: iconOnly ? null : 1, child: content),
+      child: Align(
+        widthFactor: iconOnly ? null : 1,
+        heightFactor: iconOnly ? null : 1,
+        child: content,
+      ),
     );
 
     // 누름 축소 — 기준 길이에서 2px. 모션 줄이기 · 로딩 · 비활성이면 없다

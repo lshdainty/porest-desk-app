@@ -7501,6 +7501,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dsInfiniteListEnd => 'You\'ve reached the end.';
 
   @override
+  String get dsPullToRefreshLabel => 'Refreshing';
+
+  @override
+  String get dsPullToRefreshFailed =>
+      'Couldn\'t refresh. Please pull to try again later.';
+
+  @override
   String get dsCommonRetry => 'Try again';
 
   @override
