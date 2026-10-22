@@ -228,7 +228,7 @@ const _elsewhere = {
   'scrollRow.overflowX',
   'scrollRow.fog',
   'scrollRow.scrollPadding',
-  // I-03(03-E 결정 2 A) 가 칩을 줄 폭에서 멈추고 말줄임할 때 잰다 — sync(8480c17) 로 들어온 두 줄, 그때까지 대기
+  // 줄 폭에서 멈추고 글 끝을 말줄임한다(03-E 결정 2 A) — 아래 "줄 폭" 묶음이 잰다
   'root.maxWidth',
   'label.overflow',
 };
@@ -300,10 +300,7 @@ void main() {
           m(['root.height', 'root.width', 'root.radius']);
 
           // 색 — 바탕 · 안쪽 1px 선 · 글자(글자색은 글 · 아이콘이 따른다)
-          // solid 안 고른 막힌 칩의 바탕은 sync(8480c17) 로 "막혀도 바탕 그대로" 가 됐다 — I-03(03-B 결정 1 A)이 맞출 때까지 대기
-          final pendingDisabledFill =
-              disabled && !selected && combo['variant'] == 'solid';
-          if (!pendingDisabledFill) k.color('root.background', deco.color!);
+          k.color('root.background', deco.color!);
           k.border('root', deco);
           m([
             'root.background',
@@ -404,10 +401,11 @@ void main() {
             k.weight('label.fontWeight', text.style!);
             k.color('root.foreground', text.style!.color!);
             if (text.softWrap != false || text.maxLines != 1) {
-              k.fail('label: 줄바꿈 · 말줄임하지 않는다 — 한 줄');
+              k.fail('label: 줄바꿈하지 않는다 — 한 줄');
             }
-            if (text.overflow == TextOverflow.ellipsis) {
-              k.fail('label: 말줄임하지 않는다');
+            // 말줄임은 줄 폭에 닿을 때만 보인다 — 짧은 글은 그대로(아래 "줄 폭" 묶음)
+            if (text.overflow != TextOverflow.ellipsis) {
+              k.fail('label.overflow: 말줄임(…) 이어야 한다');
             }
             // 글만큼 넓어진다 — 가장자리 + 아이콘 + 6 + 글 + 6 + 아이콘 + 가장자리
             k.px(
@@ -488,6 +486,228 @@ void main() {
         expect(m.icon, want['icon.size']);
       }
     });
+  });
+
+  group('줄 폭', () {
+    const longLabel = '이름이 아주 길어서 한 줄에 다 들어가지 않는 카드 혜택 모음 이야기';
+    Widget scaled(double factor, Widget child) => Builder(
+      builder: (context) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(factor)),
+        child: child,
+      ),
+    );
+
+    testWidgets('root.maxWidth — 놓인 줄 폭에서 멈추고 글 끝을 말줄임한다(아이콘은 남는다)', (
+      tester,
+    ) async {
+      final want = _spec.resolve({}, 'enabled');
+      expect(want['root.maxWidth'], '100%');
+      expect(want['label.overflow'], '말줄임(…)');
+      for (final size in PChipSize.values) {
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PChipGroup(
+              children: [
+                PChip(
+                  label: longLabel,
+                  size: size,
+                  prefixIcon: LucideIcons.tag,
+                  suffixIcon: LucideIcons.chevronDown,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            width: 200,
+          ),
+        );
+        expect(tester.getSize(_box).width, 200, reason: '줄 폭 ${size.name}');
+        final text = tester.widget<Text>(
+          find.descendant(of: _box, matching: find.byType(Text)),
+        );
+        expect(text.overflow, TextOverflow.ellipsis);
+        expect(text.maxLines, 1);
+        // 아이콘은 줄지 않고 남는다
+        final icons = find.descendant(of: _box, matching: find.byType(Icon));
+        final m = PChipMetrics.of(size);
+        expect(tester.getSize(icons.first).width, m.prefixIcon);
+        expect(tester.getSize(icons.last).width, m.suffixIcon);
+        final box = tester.getRect(_box);
+        expect(
+          tester.getRect(icons.last).right,
+          closeTo(box.right - m.paddingX, 0.01),
+        );
+        expect(tester.takeException(), isNull, reason: '넘침 없음 ${size.name}');
+      }
+    });
+
+    testWidgets('줄보다 짧은 칩은 그대로 글만큼 넓다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PChipGroup(
+            children: [PChip(label: '식비', onPressed: () {})],
+          ),
+          width: 200,
+        ),
+      );
+      expect(tester.getSize(_box).width, lessThan(100));
+    });
+
+    testWidgets('입력값 칩 — 줄 폭에서 멈추고 글만 말줄임, 지우기 ×는 남는다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PChipGroup(
+            children: [
+              PInputChip(
+                label: longLabel,
+                removeLabel: '$longLabel 지우기',
+                onRemove: () {},
+              ),
+            ],
+          ),
+          width: 200,
+        ),
+      );
+      expect(tester.getSize(_pillBox).width, 200);
+      final remove = find.byKey(const ValueKey('input-chip-remove'));
+      expect(tester.getSize(remove).width, 14);
+      expect(
+        tester.getRect(remove).right,
+        closeTo(tester.getRect(_pillBox).right - 14, 0.01),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('가로 스크롤 줄 — 보이는 줄 폭(화면 여백 24 안)에서 멈춘다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PChipGroup(
+            layout: PChipGroupLayout.scroll,
+            children: [
+              PChip(label: longLabel, onPressed: () {}),
+              PChip(label: '식비', onPressed: () {}),
+            ],
+          ),
+          width: 312,
+        ),
+      );
+      expect(tester.getSize(_box.first).width, 312 - 2 * 24);
+      expect(tester.getSize(_box.last).width, lessThan(100));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('글자 200% 에서도 줄 폭 안이고 칩은 글을 따라 늘어난다', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          scaled(
+            2,
+            PChipGroup(
+              children: [PChip(label: longLabel, onPressed: () {})],
+            ),
+          ),
+          width: 200,
+        ),
+      );
+      expect(tester.getSize(_box).width, 200);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('큰 글자 — 높이는 최소 높이다', () {
+    Widget scaled(double factor, Widget child) => Builder(
+      builder: (context) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(factor)),
+        child: child,
+      ),
+    );
+
+    testWidgets(
+      '100% 는 32 · 36 · 40, 200% 는 (높이 − 19) + 19 × 2 = 51 · 55 · 59 — 글을 따라 늘어난다',
+      (tester) async {
+        const expected = {
+          PChipSize.small: [32.0, 51.0],
+          PChipSize.medium: [36.0, 55.0],
+          PChipSize.large: [40.0, 59.0],
+        };
+        for (final e in expected.entries) {
+          for (var i = 0; i < 2; i++) {
+            final factor = i == 0 ? 1.0 : 2.0;
+            await tester.pumpWidget(
+              _host(
+                Brightness.light,
+                scaled(
+                  factor,
+                  PChip(label: '식비', size: e.key, onPressed: () {}),
+                ),
+              ),
+            );
+            expect(
+              tester.getSize(_box).height,
+              closeTo(e.value[i], 0.01),
+              reason: '${e.key.name} × $factor',
+            );
+          }
+        }
+      },
+    );
+
+    testWidgets('입력값 칩도 200% 에서 늘어난다(55)', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          scaled(
+            2,
+            PInputChip(label: '김하나', removeLabel: '김하나 지우기', onRemove: () {}),
+          ),
+        ),
+      );
+      expect(tester.getSize(_pillBox).height, closeTo(55, 0.01));
+    });
+  });
+
+  group('막힌 Solid', () {
+    testWidgets(
+      '안 고른 solid 는 막혀도 바탕이 bg-neutral-weak-alpha 이고 글 · 아이콘만 fg-disabled 다',
+      (tester) async {
+        for (final mode in Brightness.values) {
+          await tester.pumpWidget(
+            _host(
+              mode,
+              const PChip(
+                label: '식비',
+                variant: PChipVariant.solid,
+                prefixIcon: LucideIcons.tag,
+                onPressed: null,
+              ),
+            ),
+          );
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pump(const Duration(milliseconds: 400));
+        final c = mode == Brightness.dark ? PColors.dark : PColors.light;
+          expect(
+            _decoration(tester, _box).color,
+            c.bgNeutralWeakAlpha,
+            reason: mode.name,
+          );
+          final text = tester.widget<Text>(
+            find.descendant(of: _box, matching: find.byType(Text)),
+          );
+          expect(text.style!.color, c.fgDisabled);
+          final icon = tester.widget<Icon>(
+            find.descendant(of: _box, matching: find.byType(Icon)),
+          );
+          expect(icon.color, c.fgDisabled);
+        }
+      },
+    );
   });
 
   group('입력값 칩', () {

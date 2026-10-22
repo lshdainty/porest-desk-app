@@ -92,7 +92,11 @@ SelectionColors chipColors(
     // 비활성 — 전용 색(흐리게 하지 않는다). 고른 채 막히면 짙은 1px 를 남겨 무엇을 골랐는지 보인다
     final outline = variant != PChipVariant.solid;
     return (
-      background: c.bgDisabled,
+      // solid 안 고른 칩은 막혀도 바탕이 그대로다(bg-neutral-weak-alpha — 회색 바닥 위에서도 보이게, 03-B 결정 1 A).
+      // 글 · 아이콘만 fg-disabled 로 바뀐다
+      background: variant == PChipVariant.solid && !selected
+          ? c.bgNeutralWeakAlpha
+          : c.bgDisabled,
       border: selected
           ? c.strokeNeutralSolid
           : (outline ? c.strokeNeutralWeak : clear),
@@ -153,6 +157,32 @@ Widget _icon(IconData data, double size, Color color) => ExcludeSemantics(
     child: Icon(data, size: size, color: color),
   ),
 );
+
+/// 칩 글 한 줄의 높이(t4 14 / 19) — 위아래 여백 (높이 − 19) ÷ 2 의 19.
+@visibleForTesting
+const double kChipLineHeight = 19;
+
+/// 가로 스크롤 줄 · Chip Tabs 가 칩에 알려 주는 최대 폭 — 보이는 줄 폭(화면 여백 안). 줄바꿈 묶음 · 그 밖에서는 놓인
+/// 줄 폭이 곧 부모 제약이라 필요 없다(03-E 결정 2 A + 후속).
+class ChipLineLimit extends InheritedWidget {
+  const ChipLineLimit({
+    super.key,
+    required this.maxWidth,
+    required super.child,
+  });
+
+  final double maxWidth;
+
+  static double? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ChipLineLimit>()?.maxWidth;
+
+  @override
+  bool updateShouldNotify(ChipLineLimit oldWidget) =>
+      maxWidth != oldWidget.maxWidth;
+}
+
+double _chipMaxWidth(BuildContext context) =>
+    ChipLineLimit.maybeOf(context) ?? double.infinity;
 
 /// 칩의 모습 — 알약 · 앞 아이콘 · 글 · 뒤 아이콘(· 탭의 알림 점). 색은 150ms 로 바뀌고, 누르면 칩 전체가 2px 거리
 /// 준다. 누르기 · 읽기는 이 위에서 [PressArea] 가 맡는다. Chip · Chip Tabs 가 함께 쓴다.
@@ -217,8 +247,9 @@ class ChipVisual extends StatelessWidget {
                 ? BoxConstraints.tightFor(width: m.height, height: m.height)
                 : BoxConstraints(
                     minWidth: m.minWidth,
+                    // 높이는 최소 높이다 — 글자를 키우면 글을 따라 늘어난다(03-E 결정 1 C)
                     minHeight: m.height,
-                    maxHeight: m.height,
+                    maxWidth: _chipMaxWidth(context),
                   ),
             child: DecoratedBox(
               key: const ValueKey('chip-box'),
@@ -231,9 +262,12 @@ class ChipVisual extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: iconOnly ? 0 : m.paddingX,
+                  // (높이 − 글 줄 19) ÷ 2 — 100% 에서 높이 그대로, 글자가 커지면 글을 따라 늘어난다
+                  vertical: iconOnly ? 0 : (m.height - kChipLineHeight) / 2,
                 ),
                 child: Center(
                   widthFactor: iconOnly ? null : 1,
+                  heightFactor: iconOnly ? null : 1,
                   child: iconOnly
                       ? _icon(icon!, m.icon, fg)
                       : Row(
@@ -242,16 +276,18 @@ class ChipVisual extends StatelessWidget {
                           children: [
                             if (prefixIcon != null)
                               _icon(prefixIcon!, m.prefixIcon, fg),
-                            // 줄바꿈 · 말줄임하지 않는다 — 글만큼 넓어진다
-                            ExcludeSemantics(
-                              child: Text(
-                                label!,
-                                maxLines: 1,
-                                softWrap: false,
-                                overflow: TextOverflow.visible,
-                                style: PTypography.t4.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: fg,
+                            // 줄바꿈하지 않는다 — 글만큼 넓어지다가 줄 폭에 닿으면 글 끝만 말줄임한다(아이콘은 남는다)
+                            Flexible(
+                              child: ExcludeSemantics(
+                                child: Text(
+                                  label!,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: PTypography.t4.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: fg,
+                                  ),
                                 ),
                               ),
                             ),
@@ -276,7 +312,7 @@ class ChipVisual extends StatelessWidget {
 /// 웹(desk-front `src/shared/ds/chip`)과 같은 값이다.
 ///
 /// 모양 — 알약(모서리 full). 높이 32 · 36 · 40, 글은 세 크기 모두 t4 14 · 500, 가장자리 ↔ 글 12 · 14 · 16, 아이콘 ↔
-/// 글 6, 앞 아이콘 14 · 16 · 16 · 뒤 아이콘 14 · 14 · 16. 글은 한 줄이고 줄바꿈 · 말줄임 없이 글만큼 넓어진다(최소 폭
+/// 글 6, 앞 아이콘 14 · 16 · 16 · 뒤 아이콘 14 · 14 · 16. 글은 한 줄이고 줄바꿈 없이 글만큼 넓어지다가 줄 폭에 닿으면 글 끝만 말줄임한다(최소 폭
 /// 44 · 48 · 52). 고른 칩은 브랜드가 아니라 중립색이다([PChipVariant] 가 고름의 모습을 정한다). 테두리는 안쪽 1px 라
 /// 크기가 변하지 않는다.
 ///
@@ -457,7 +493,7 @@ class PInputChip extends StatelessWidget {
         constraints: BoxConstraints(
           minWidth: m.minWidth,
           minHeight: m.height,
-          maxHeight: m.height,
+          maxWidth: _chipMaxWidth(context),
         ),
         child: DecoratedBox(
           key: const ValueKey('input-chip-box'),
@@ -476,14 +512,23 @@ class PInputChip extends StatelessWidget {
                 _icon(prefixIcon!, m.prefixIcon, colors.foreground),
                 const SizedBox(width: PSpacing.x1_5),
               ],
-              Text(
-                label,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.visible,
-                style: PTypography.t4.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: colors.foreground,
+              // 글 끝만 말줄임한다 — 지우기 ×는 줄지 않고 남는다
+              // 위아래 여백은 글에 둔다 — 줄이 칩 높이 전체라 지우기의 누르는 영역이 칩 높이만큼 받는다
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: (m.height - kChipLineHeight) / 2,
+                  ),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypography.t4.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: colors.foreground,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: PSpacing.x1_5),
@@ -631,26 +676,32 @@ class ChipLayout extends StatelessWidget {
                 behavior: ScrollConfiguration.of(
                   context,
                 ).copyWith(scrollbars: false),
-                child: SingleChildScrollView(
-                  key: const ValueKey('chip-scroll-row'),
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: PSpacing.globalGutter,
-                  ),
-                  // 위아래 안쪽 6 은 칩마다 둔다 — 칩의 누르는 영역 44 가 칩 둘레의 이 여백 안에서 받는다(부모 상자 밖은 받지
-                  // 못하므로 줄 전체에 여백을 두면 칩 바깥 6 은 받지 못한다)
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: PSpacing.betweenChips,
-                    children: [
-                      for (final child in children)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: scrollPaddingY,
-                          ),
-                          child: child,
-                        ),
-                    ],
+                child: LayoutBuilder(
+                  // 보이는 줄 폭(화면 여백 안)이 칩의 최대 폭이다
+                  builder: (context, box) => ChipLineLimit(
+                    maxWidth: box.maxWidth - 2 * PSpacing.globalGutter,
+                    child: SingleChildScrollView(
+                      key: const ValueKey('chip-scroll-row'),
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: PSpacing.globalGutter,
+                      ),
+                      // 위아래 안쪽 6 은 칩마다 둔다 — 칩의 누르는 영역 44 가 칩 둘레의 이 여백 안에서 받는다(부모 상자 밖은 받지
+                      // 못하므로 줄 전체에 여백을 두면 칩 바깥 6 은 받지 못한다)
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: PSpacing.betweenChips,
+                        children: [
+                          for (final child in children)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: scrollPaddingY,
+                              ),
+                              child: child,
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

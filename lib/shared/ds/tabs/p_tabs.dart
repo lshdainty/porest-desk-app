@@ -663,44 +663,50 @@ class _PChipTabsState<T> extends State<PChipTabs<T>> {
         axis: Axis.horizontal,
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: SingleChildScrollView(
-            key: const ValueKey('chip-tabs-scroll'),
-            controller: _scroll,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpacing.globalGutter,
-            ),
-            // 탭 목록의 읽는 말은 탭 바로 위에 둔다 — 스크롤 칸의 읽는 말이 그 사이에 끼면 탭 목록의 자식이 탭이 아니게 된다
-            child: Semantics(
-              container: true,
-              explicitChildNodes: true,
-              role: SemanticsRole.tabBar,
-              label: widget.semanticLabel,
-              child: Row(
-                key: _rowKey,
-                mainAxisSize: MainAxisSize.min,
-                spacing: PSpacing.betweenChips,
-                children: [
-                  for (var i = 0; i < widget.items.length; i++)
-                    // 위아래 8 은 칩마다 둔다 — 칩의 누르는 영역 44 가 그 안에서 받는다
-                    Padding(
-                      key: _tabKeys[i],
-                      padding: const EdgeInsets.symmetric(
-                        vertical: PSpacing.x2,
-                      ),
-                      child: _ChipTab<T>(
-                        item: widget.items[i],
-                        selected: i == selected,
-                        enabled: enabledAll && widget.items[i].enabled,
-                        variant: chipVariant,
-                        size: chipSize,
-                        dotColor: c.fgBrand,
-                        focusNode: nodes[i],
-                        onSelect: () =>
-                            widget.onChanged?.call(widget.items[i].value),
-                      ),
-                    ),
-                ],
+          // 칩 한 개의 최대 폭은 보이는 줄 폭(화면 여백 안)이다 — 넘치면 글 끝을 말줄임한다
+          child: LayoutBuilder(
+            builder: (context, box) => ChipLineLimit(
+              maxWidth: box.maxWidth - 2 * PSpacing.globalGutter,
+              child: SingleChildScrollView(
+                key: const ValueKey('chip-tabs-scroll'),
+                controller: _scroll,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PSpacing.globalGutter,
+                ),
+                // 탭 목록의 읽는 말은 탭 바로 위에 둔다 — 스크롤 칸의 읽는 말이 그 사이에 끼면 탭 목록의 자식이 탭이 아니게 된다
+                child: Semantics(
+                  container: true,
+                  explicitChildNodes: true,
+                  role: SemanticsRole.tabBar,
+                  label: widget.semanticLabel,
+                  child: Row(
+                    key: _rowKey,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: PSpacing.betweenChips,
+                    children: [
+                      for (var i = 0; i < widget.items.length; i++)
+                        // 위아래 8 은 칩마다 둔다 — 칩의 누르는 영역 44 가 그 안에서 받는다
+                        Padding(
+                          key: _tabKeys[i],
+                          padding: const EdgeInsets.symmetric(
+                            vertical: PSpacing.x2,
+                          ),
+                          child: _ChipTab<T>(
+                            item: widget.items[i],
+                            selected: i == selected,
+                            enabled: enabledAll && widget.items[i].enabled,
+                            variant: chipVariant,
+                            size: chipSize,
+                            dotColor: c.fgBrand,
+                            focusNode: nodes[i],
+                            onSelect: () =>
+                                widget.onChanged?.call(widget.items[i].value),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
