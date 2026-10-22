@@ -223,6 +223,30 @@ void main() {
     });
   });
 
+  group('연 · 월 휠 높이(I-04 21) — 요일 줄 + 6주', () {
+    for (final (scale, want) in [(1.0, 336.0), (2.0, 348.0)]) {
+      testWidgets('글자 ${(scale * 100).round()}% → $want', (tester) async {
+        _viewport(tester, const Size(360, 900));
+        await tester.pumpWidget(
+          _app(
+            PDatePicker.single(
+              labels: _labels,
+              inset: 0,
+              today: _today,
+              defaultWheelOpen: true,
+            ),
+            scale: scale,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getSize(find.byKey(const ValueKey('date-wheel'))).height,
+          want,
+        );
+      });
+    }
+  });
+
   group('보이는 달 — 눌림 색(03-C 2B)', () {
     testWidgets('보통 날은 투명 짝 bg-neutral-weak-alpha-pressed', (tester) async {
       _viewport(tester, const Size(360, 900));

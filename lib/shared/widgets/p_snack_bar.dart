@@ -65,98 +65,164 @@ void showPSnackBar(
   };
 
   final m = messenger ?? ScaffoldMessenger.of(context);
-  if (replace) m.clearSnackBars();
-  m.showSnackBar(
-    SnackBar(
-      // 색을 직접 그리므로 Material 기본 배경·여백을 걷어낸다.
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      padding: EdgeInsets.zero,
-      // SnackBar 는 기본으로 자기 Material 경계에서 자른다(Clip.hardEdge). 아래 카드의
-      // shadow-md 가 그 경계 밖에 그려져 통째로 잘렸고, 흰 토스트가 흰 목록 위에서
-      // 경계 없이 떠 있었다.
-      clipBehavior: Clip.none,
-      behavior: SnackBarBehavior.floating,
-      duration: duration,
-      content: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
-          vertical: PSpace.x12,
-        ),
-        decoration: BoxDecoration(
-          // 다크에서 surface(#242938)는 bg-page(#1A1F2E)와 차이가 작고, 분리를
-          // 맡던 그림자는 검은색이라 검은 배경 위에서 효과가 없다. 면을 한 단계
-          // 올려야 실제로 뜬다(sonner.md 2026-08-21). 라이트에선 raised 가
-          // surface 와 같은 값이라 변화 없다.
-          color: t.bgSurfaceRaised,
-          // 테두리 없음 — 면과 그림자만으로 분리한다(sonner.md 2026-08-21).
-          borderRadius: PRadius.brMd,
-          // 다크에서 lg·xl 은 부드러운 번짐이 아니라 한 겹 더 어두운 띠로 읽힌다
-          // (그림자 색이 50~60% 검정인데 배경이 이미 거의 검정이라 경계가 안 뭉개진다).
-          // md 는 띠가 안 생기고, 분리는 위의 surfaceRaised 면 차이가 해 준다.
-          boxShadow: t.shadowMd,
-        ),
-        // 최소 높이 52(sonner.md). 패딩 12+12 와 아이콘 22 만으로는 46 이라
-        // 모바일에서 눈에 안 들어왔다. 내용이 길면 자연히 늘어난다.
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52 - PSpace.x12 * 2),
-          // 줄 묶음은 최소 높이 안에서 세로 가운데 — 한 줄짜리가 위로 쏠리지 않는다
-          // (sonner.md align-content:center).
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                // 아이콘은 제목 첫 줄에 붙는다 — 두 줄이어도 가운데로 안 내려간다.
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (icon != null) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Icon(icon, size: 20, color: iconColor),
-                    ),
-                    const SizedBox(width: PSpace.md),
-                  ],
-                  Expanded(
-                    child: Text(
-                      message,
-                      // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
-                      // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
-                      // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
-                      // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.titleSm,
-                        fontWeight: PFontWeight.semi,
-                        height: 1.4,
-                        // 자간 없음(sonner.md ⓒ). 안 주면 SnackBar 의 content 글꼴
-                        // (bodyMedium, 자간 0.25)을 물려받아 같은 문구가 더 넓게 접힌다.
-                        letterSpacing: 0,
-                        color: t.fgPrimary,
-                      ),
-                    ),
+  final queue = _queues[m] ??= _SnackQueue();
+  // 한 번에 하나 — 새 띠는 바로 바꾼다. 단 지금 띠에 액션(되돌리기 · 다시 시도)이 있으면 그 띠가 끝날 때까지(시간 · 액션 · 닫기)
+  // 지키고 새 띠는 그 뒤에 온다. 기다리는 띠는 하나 — 그 사이 또 오면 마지막 것만 남는다(알림 결정 1B, I-04 19).
+  // [replace] 는 액션 띠까지 걷고 바로 띄운다.
+  void present() => queue.show(
+    m,
+    _build(
+      context,
+      t,
+      m,
+      message,
+      icon,
+      iconColor,
+      duration,
+      actionLabel,
+      onAction,
+    ),
+  );
+  if (replace) {
+    queue.pending = null;
+    queue.current = null;
+    m.clearSnackBars();
+    present();
+  } else if (queue.current != null && queue.currentHasAction) {
+    queue.pending = () {
+      queue.currentHasAction = actionLabel != null && onAction != null;
+      present();
+    };
+    return;
+  } else {
+    if (queue.current != null) m.removeCurrentSnackBar();
+    present();
+  }
+  queue.currentHasAction = actionLabel != null && onAction != null;
+}
+
+final Expando<_SnackQueue> _queues = Expando<_SnackQueue>();
+
+/// 한 메신저의 띠 — 떠 있는 것 하나 · 기다리는 것 하나.
+class _SnackQueue {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? current;
+  bool currentHasAction = false;
+  VoidCallback? pending;
+
+  void show(ScaffoldMessengerState m, SnackBar bar) {
+    final c = m.showSnackBar(bar);
+    current = c;
+    c.closed.then((_) {
+      if (current != c) return; // 이미 다른 띠로 바뀌었다
+      current = null;
+      currentHasAction = false;
+      final next = pending;
+      pending = null;
+      next?.call();
+    });
+  }
+}
+
+SnackBar _build(
+  BuildContext context,
+  GrooTokens t,
+  ScaffoldMessengerState m,
+  String message,
+  IconData? icon,
+  Color? iconColor,
+  Duration duration,
+  String? actionLabel,
+  VoidCallback? onAction,
+) {
+  return SnackBar(
+    // 색을 직접 그리므로 Material 기본 배경·여백을 걷어낸다.
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    padding: EdgeInsets.zero,
+    // SnackBar 는 기본으로 자기 Material 경계에서 자른다(Clip.hardEdge). 아래 카드의
+    // shadow-md 가 그 경계 밖에 그려져 통째로 잘렸고, 흰 토스트가 흰 목록 위에서
+    // 경계 없이 떠 있었다.
+    clipBehavior: Clip.none,
+    behavior: SnackBarBehavior.floating,
+    duration: duration,
+    content: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x16,
+        vertical: PSpace.x12,
+      ),
+      decoration: BoxDecoration(
+        // 다크에서 surface(#242938)는 bg-page(#1A1F2E)와 차이가 작고, 분리를
+        // 맡던 그림자는 검은색이라 검은 배경 위에서 효과가 없다. 면을 한 단계
+        // 올려야 실제로 뜬다(sonner.md 2026-08-21). 라이트에선 raised 가
+        // surface 와 같은 값이라 변화 없다.
+        color: t.bgSurfaceRaised,
+        // 테두리 없음 — 면과 그림자만으로 분리한다(sonner.md 2026-08-21).
+        borderRadius: PRadius.brMd,
+        // 다크에서 lg·xl 은 부드러운 번짐이 아니라 한 겹 더 어두운 띠로 읽힌다
+        // (그림자 색이 50~60% 검정인데 배경이 이미 거의 검정이라 경계가 안 뭉개진다).
+        // md 는 띠가 안 생기고, 분리는 위의 surfaceRaised 면 차이가 해 준다.
+        boxShadow: t.shadowMd,
+      ),
+      // 최소 높이 52(sonner.md). 패딩 12+12 와 아이콘 22 만으로는 46 이라
+      // 모바일에서 눈에 안 들어왔다. 내용이 길면 자연히 늘어난다.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 52 - PSpace.x12 * 2),
+        // 줄 묶음은 최소 높이 안에서 세로 가운데 — 한 줄짜리가 위로 쏠리지 않는다
+        // (sonner.md align-content:center).
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              // 아이콘은 제목 첫 줄에 붙는다 — 두 줄이어도 가운데로 안 내려간다.
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (icon != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(icon, size: 20, color: iconColor),
                   ),
+                  const SizedBox(width: PSpace.md),
                 ],
-              ),
-              // 버튼은 글 옆이 아니라 아래 줄 오른쪽 끝(sonner.md 2026-09-22). 옆에 두면
-              // 글 폭이 버튼만큼 줄어 두 문장짜리 안내가 폰에서 3줄로 접혔다.
-              if (actionLabel != null && onAction != null) ...[
-                const SizedBox(height: PSpace.md),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: PButton(
-                    label: actionLabel,
-                    size: PButtonSize.sm,
-                    onPressed: () {
-                      m.hideCurrentSnackBar();
-                      onAction();
-                    },
+                Expanded(
+                  child: Text(
+                    message,
+                    // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
+                    // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
+                    // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
+                    // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.titleSm,
+                      fontWeight: PFontWeight.semi,
+                      height: 1.4,
+                      // 자간 없음(sonner.md ⓒ). 안 주면 SnackBar 의 content 글꼴
+                      // (bodyMedium, 자간 0.25)을 물려받아 같은 문구가 더 넓게 접힌다.
+                      letterSpacing: 0,
+                      color: t.fgPrimary,
+                    ),
                   ),
                 ),
               ],
+            ),
+            // 버튼은 글 옆이 아니라 아래 줄 오른쪽 끝(sonner.md 2026-09-22). 옆에 두면
+            // 글 폭이 버튼만큼 줄어 두 문장짜리 안내가 폰에서 3줄로 접혔다.
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: PSpace.md),
+              Align(
+                alignment: Alignment.centerRight,
+                child: PButton(
+                  label: actionLabel,
+                  size: PButtonSize.sm,
+                  onPressed: () {
+                    m.hideCurrentSnackBar();
+                    onAction();
+                  },
+                ),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     ),

@@ -756,6 +756,66 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('액션 띠는 끝날 때까지 지킨다 — 새 띠는 그 띠가 시간으로 끝난 뒤에 온다(I-04 19)', (
+      tester,
+    ) async {
+      final api = await mount(tester);
+      await show(
+        tester,
+        api,
+        message: '삭제했어요.',
+        action: PSnackbarAction(label: '되돌리기', onPressed: () {}),
+      );
+      await advance(tester, 200);
+      api.show(message: '새 띠');
+      await tester.pump();
+      await advance(tester, 500);
+      expect(find.text(keepAll('삭제했어요.')), findsOneWidget, reason: '액션 띠를 지킨다');
+      expect(find.text(keepAll('새 띠')), findsNothing);
+      await advance(tester, 6000);
+      await advance(tester, 300);
+      expect(find.text(keepAll('삭제했어요.')), findsNothing);
+      expect(find.text(keepAll('새 띠')), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('액션을 누르면 그 띠가 끝나고 기다리던 띠가 온다 · 기다리는 띠는 하나(마지막)', (
+      tester,
+    ) async {
+      final api = await mount(tester);
+      var done = 0;
+      await show(
+        tester,
+        api,
+        message: '삭제했어요.',
+        action: PSnackbarAction(label: '되돌리기', onPressed: () => done++),
+      );
+      await advance(tester, 200);
+      api.show(message: '둘째');
+      api.show(message: '셋째');
+      await tester.pump();
+      await tester.tap(find.text('되돌리기'));
+      await advance(tester, 200);
+      await advance(tester, 300);
+      expect(done, 1);
+      expect(find.text(keepAll('둘째')), findsNothing);
+      expect(find.text(keepAll('셋째')), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('액션이 없는 띠끼리는 바로 바뀐다(액션 띠 뒤 새 띠와 다르다)', (tester) async {
+      final api = await mount(tester);
+      await show(tester, api, message: '첫째');
+      await advance(tester, 200);
+      api.show(message: '둘째');
+      await tester.pump();
+      await advance(tester, 150);
+      await advance(tester, 200);
+      expect(find.text(keepAll('첫째')), findsNothing);
+      expect(find.text(keepAll('둘째')), findsOneWidget);
+      await unmount(tester);
+    });
+
     testWidgets('같은 프레임에 두 번 띄우면 앞 띠는 그려지지 않고 바로 걷힌다', (tester) async {
       final api = await mount(tester);
       api.show(message: '첫째');
