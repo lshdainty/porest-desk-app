@@ -73,7 +73,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       // FAB 제거 — 칩 행 우측 + 추가 버튼이 새 메모 진입점 (web 정합).
       body: PScreenBandBody(
         child: PPullToRefresh(
-          onRefresh: () async => ref.invalidate(memoListProvider),
+          onRefresh: () async {
+            ref.invalidate(memoListProvider);
+            await ref.read(memoListProvider.future);
+          },
           child: listAsync.when(
             // 검색바·칩 행·추가 버튼은 정적 UI 틀 → 항상 실제 렌더(스켈레톤화 금지).
             // 데이터 영역(칩 카운트·카드 그리드)만 스켈레톤.

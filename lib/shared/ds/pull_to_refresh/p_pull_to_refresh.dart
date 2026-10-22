@@ -1,11 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart' show ScaffoldMessenger;
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
-import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 문턱 — 당긴 거리가 88 을 넘으면 놓았을 때 새로 고친다(손가락으로 약 117). pull-to-refresh.yaml `root.threshold`.
 const double kPullToRefreshThreshold = 88;
@@ -164,11 +165,15 @@ class PPullToRefreshState extends State<PPullToRefresh>
       await widget.onRefresh();
     } catch (_) {
       if (mounted) {
+        // 앱의 오류 알림이 지나는 길(showPSnackBar — 앱 뿌리의 ScaffoldMessenger)로 띄운다
         final text = dsL(context)?.dsPullToRefreshFailed;
-        PSnackbar.maybeOf(context)?.show(
-          message: text ?? '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
-          tone: PSnackbarTone.critical,
-        );
+        if (ScaffoldMessenger.maybeOf(context) != null) {
+          showPSnackBar(
+            context,
+            text ?? '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
+            severity: PSnackSeverity.error,
+          );
+        }
       }
     }
     if (!mounted) return;

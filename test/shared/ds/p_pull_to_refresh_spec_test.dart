@@ -9,7 +9,9 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
-import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
+import 'package:go_router/go_router.dart';
+import 'package:groo_damda_app/app/app.dart' show appMessengerKey;
+import 'package:groo_damda_app/app/session_scope.dart';
 
 import '../../support/design_spec.dart';
 
@@ -26,10 +28,7 @@ Widget _host(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
-    home: PSnackbarHost(
-      closeLabel: '닫기',
-      child: Scaffold(body: child),
-    ),
+    home: Scaffold(body: child),
   );
   return MediaQuery(
     data: MediaQueryData(
@@ -362,4 +361,49 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    '앱 뿌리와 같은 구성(SessionScope + MaterialApp.router + 전역 messenger 키)에서 실패하면 오류 알림이 실제로 뜬다',
+    (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, _) => Scaffold(
+              body: PPullToRefresh(
+                onRefresh: () async => throw Exception('boom'),
+                child: ListView(
+                  children: [
+                    for (var i = 0; i < 30; i++)
+                      SizedBox(height: 56, child: Text('줄 $i')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        SessionScope(
+          child: MaterialApp.router(
+            scaffoldMessengerKey: appMessengerKey,
+            routerConfig: router,
+            theme: GrooTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final g = await _pull(tester, 140);
+      await g.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+      expect(find.text('새로 고치지 못했어요. 잠시 후 다시 당겨주세요.'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 6));
+    },
+  );
 }

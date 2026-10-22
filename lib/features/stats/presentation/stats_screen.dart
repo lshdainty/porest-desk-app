@@ -480,6 +480,11 @@ class _CategoryTab extends ConsumerWidget {
         );
         ref.invalidate(heatmapProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._range));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(state._range).future),
+          ref.read(heatmapProvider(state._range).future),
+          ref.read(rangeExpensesProvider(state._range).future),
+        ]);
       },
       child: ListView(
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
@@ -539,6 +544,10 @@ class _TrendTab extends ConsumerWidget {
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._range));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(state._range).future),
+          ref.read(rangeExpensesProvider(state._range).future),
+        ]);
       },
       child: ListView(
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
@@ -599,6 +608,12 @@ class _CompareTab extends ConsumerWidget {
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
         ref.invalidate(rangeExpensesProvider(state._range));
         ref.invalidate(rangeExpensesProvider(state._prevRangeKey));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(state._range).future),
+          ref.read(rangeSummaryProvider(state._prevRangeKey).future),
+          ref.read(rangeExpensesProvider(state._range).future),
+          ref.read(rangeExpensesProvider(state._prevRangeKey).future),
+        ]);
       },
       child: ListView(
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리

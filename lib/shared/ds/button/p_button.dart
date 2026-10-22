@@ -402,11 +402,17 @@ class _PButtonState extends State<PButton> {
     );
 
     final iconOnly = widget._iconOnly;
+    final borderWidth = colors.border == null ? 0.0 : 1.0;
     final padding = iconOnly
         ? EdgeInsets.all(s.iconOnlyPadding)
         : EdgeInsets.only(
-            left: widget.flush == PButtonFlush.left ? 0 : s.paddingX,
-            right: widget.flush == PButtonFlush.right ? 0 : s.paddingX,
+            // 테두리 1px 는 가로 여백에 더한다 — 웹 border-box(border + padding)와 같은 폭
+            left: widget.flush == PButtonFlush.left
+                ? 0
+                : s.paddingX + borderWidth,
+            right: widget.flush == PButtonFlush.right
+                ? 0
+                : s.paddingX + borderWidth,
             top: s.paddingY,
             bottom: s.paddingY,
           );
@@ -466,7 +472,7 @@ class _PButtonState extends State<PButton> {
           color: background,
           borderRadius: BorderRadius.circular(s.radius),
         ),
-        // 테두리 1px 는 안쪽에 그리되 여백을 늘리지 않는다(웹 inset box-shadow) — 테두리 있는 버튼도 100% 36 · 40 · 48
+        // 테두리 1px 는 세로 여백을 늘리지 않게 안쪽에 덧그린다(웹은 border 라 가로는 위 padding 에 1씩 더했다) — 테두리 있는 버튼도 100% 높이 36 · 40 · 48
         foregroundDecoration: colors.border == null
             ? null
             : BoxDecoration(

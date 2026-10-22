@@ -106,6 +106,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           rangeSummaryProvider((startDate: _ymdStart, endDate: _ymdEnd)),
         );
         ref.invalidate(monthBudgetsProvider(monthKey));
+        await Future.wait([
+          ref.read(
+            assetSummaryProvider((
+              year: _month.year,
+              month: _month.month,
+            )).future,
+          ),
+          ref.read(monthExpensesProvider(monthKey).future),
+          ref.read(dashboardSummaryProvider.future),
+          ref.read(
+            rangeSummaryProvider((
+              startDate: _ymdStart,
+              endDate: _ymdEnd,
+            )).future,
+          ),
+          ref.read(monthBudgetsProvider(monthKey).future),
+        ]);
       },
       // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
       // 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다 — 띠 안 24 가 글자 자리다.

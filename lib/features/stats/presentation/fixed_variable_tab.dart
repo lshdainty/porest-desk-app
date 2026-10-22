@@ -81,6 +81,10 @@ class FixedVariableTab extends ConsumerWidget {
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(range));
         ref.invalidate(monthlyTrendProvider(6));
+        await Future.wait([
+          ref.read(rangeSummaryProvider(range).future),
+          ref.read(monthlyTrendProvider(6).future),
+        ]);
       },
       child: ListView(
         key: const PageStorageKey('stats-fixed'),

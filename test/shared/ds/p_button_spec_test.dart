@@ -136,7 +136,9 @@ Future<void> _check(
               )
               .padding
           as EdgeInsets;
-  px('root.paddingX', padding.left);
+  // 테두리가 있으면 가로 여백에 1씩 더해져 있다(웹 border-box 와 같은 폭) — 뺀 값이 스펙 paddingX
+  final borderW = borderDeco?.border == null ? 0 : 1;
+  px('root.paddingX', padding.left - borderW);
   px('root.paddingY', padding.top);
   px('root.padding', padding.top);
 
@@ -505,5 +507,33 @@ void main() {
       expect(size.width, size.height);
       expect(size.height, 40);
     });
+  });
+
+  testWidgets('윤곽 버튼은 채움 버튼보다 2px 넓다(테두리 1px × 2 — 웹 border-box 와 같은 폭)', (
+    tester,
+  ) async {
+    Future<double> width(PButtonVariant v) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          Align(
+            alignment: Alignment.topLeft,
+            child: PButton(label: '취소', variant: v, onPressed: () {}),
+          ),
+        ),
+      );
+      return tester
+          .getSize(
+            find.descendant(
+              of: find.byType(PButton),
+              matching: find.byType(Container),
+            ),
+          )
+          .width;
+    }
+
+    final solid = await width(PButtonVariant.neutralWeak);
+    final outline = await width(PButtonVariant.neutralOutline);
+    expect(outline - solid, 2);
   });
 }
