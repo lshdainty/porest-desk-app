@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
@@ -832,11 +833,14 @@ void _headerTests() {
         k.color('root.foreground', style.color!);
         // 제목과 오른쪽 버튼 사이 10
         k.measured.add('root.gap');
-        final row = tester.widget<Row>(
-          find.descendant(of: _key('plist-header'), matching: find.byType(Row)),
+        final row = tester.widget<PHeaderRow>(
+          find.descendant(
+            of: _key('plist-header'),
+            matching: find.byType(PHeaderRow),
+          ),
         );
-        if (row.spacing != 10) {
-          k.fail('root.gap: 스펙 10 · 실제 ${row.spacing}');
+        if (row.gap != 10) {
+          k.fail('root.gap: 스펙 10 · 실제 ${row.gap}');
         }
         await tester.pumpWidget(
           _host(

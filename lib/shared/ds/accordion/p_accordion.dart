@@ -5,6 +5,7 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/accordion/p_disclosure_trigger.dart';
 import 'package:groo_damda_app/shared/ds/accordion/p_expand_motion.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
@@ -439,27 +440,23 @@ class PAccordionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: PSpacing.x8),
-        child: Row(
-          spacing: PSpacing.x2,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Semantics(
-                header: true,
-                headingLevel: headingLevel,
-                child: Text(
-                  keepAll(title),
-                  key: const ValueKey('paccordion-header-title'),
-                  semanticsLabel: title,
-                  style: PTypography.t5.copyWith(
-                    color: context.colors.fgNeutral,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+        // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
+        child: PHeaderRow(
+          gap: PSpacing.x2,
+          title: Semantics(
+            header: true,
+            headingLevel: headingLevel,
+            child: Text(
+              keepAll(title),
+              key: const ValueKey('paccordion-header-title'),
+              semanticsLabel: title,
+              style: PTypography.t5.copyWith(
+                color: context.colors.fgNeutral,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            ?trailing,
-          ],
+          ),
+          action: trailing,
         ),
       ),
     );

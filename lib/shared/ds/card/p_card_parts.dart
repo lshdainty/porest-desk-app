@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
@@ -239,28 +240,25 @@ class PCardHeader extends StatelessWidget {
     return Padding(
       key: const ValueKey('card-header'),
       padding: padding,
-      child: Row(
-        spacing: PSpacing.x2,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: scope?.titleNamedByCard == true
-                // 카드 링크가 이 제목을 이름으로 갖는다 — 같은 글을 두 번 읽지 않는다
-                ? ExcludeSemantics(child: titleText)
-                : Semantics(
-                    header: true,
-                    headingLevel: headingLevel,
-                    child: titleText,
-                  ),
-          ),
-          if (actionLabel != null)
-            PTextButton(
-              label: actionLabel!,
-              semanticLabel: '$title $actionLabel',
-              onPressed: onAction,
-              bleedEnd: true,
-            ),
-        ],
+      // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
+      child: PHeaderRow(
+        gap: PSpacing.x2,
+        title: scope?.titleNamedByCard == true
+            // 카드 링크가 이 제목을 이름으로 갖는다 — 같은 글을 두 번 읽지 않는다
+            ? ExcludeSemantics(child: titleText)
+            : Semantics(
+                header: true,
+                headingLevel: headingLevel,
+                child: titleText,
+              ),
+        action: actionLabel == null
+            ? null
+            : PTextButton(
+                label: actionLabel!,
+                semanticLabel: '$title $actionLabel',
+                onPressed: onAction,
+                bleedEnd: true,
+              ),
       ),
     );
   }

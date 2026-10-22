@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
@@ -50,32 +51,29 @@ class PListHeader extends StatelessWidget {
           // 글 버튼(36)이 있으면 그 36 이 줄 높이다 — 위아래 8 + 20 과 같다(스펙 marginY −8)
           vertical: action == null ? PSpacing.x2 : 0,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: PSpacing.x2_5,
-          children: [
-            Flexible(
-              child: Semantics(
-                header: true,
-                headingLevel: 2,
-                container: true,
-                label: title,
-                child: ExcludeSemantics(
-                  child: Text(
-                    keepAll(title),
-                    key: const ValueKey('plist-header-title'),
-                    style: style,
-                  ),
-                ),
+        // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
+        child: PHeaderRow(
+          gap: PSpacing.x2_5,
+          expandTitle: false,
+          title: Semantics(
+            header: true,
+            headingLevel: 2,
+            container: true,
+            label: title,
+            child: ExcludeSemantics(
+              child: Text(
+                keepAll(title),
+                key: const ValueKey('plist-header-title'),
+                style: style,
               ),
             ),
-            if (action != null)
-              Transform.translate(
-                offset: const Offset(kTextButtonPaddingX, 0),
-                child: action,
-              ),
-          ],
+          ),
+          action: action == null
+              ? null
+              : Transform.translate(
+                  offset: const Offset(kTextButtonPaddingX, 0),
+                  child: action,
+                ),
         ),
       ),
     );
