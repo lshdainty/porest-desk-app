@@ -3,7 +3,7 @@
   "source": "specs/components/alert-dialog.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "d0ae84eb0c4d"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "overlay": "딤 — 확인창 뒤 화면 전체",
@@ -242,7 +242,7 @@
       "state": "enabled",
       "slot": "footer",
       "prop": "direction",
-      "note": "버튼 하나 폭 전체 — 알리기(\"확인\" 대신 결과에 맞는 동작 이름)"
+      "note": "버튼 하나 폭 전체 — 알리기. 고를 것이 없는 결과 알림은 \"확인\", 버튼이 일을 하면(다시 저장) 그 동작 이름(2026-10-22 5B)"
     }
   ]
 }

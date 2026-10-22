@@ -3,7 +3,7 @@
   "source": "specs/components/tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "d0ae84eb0c4d"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "list": "목록 — 탭을 담는 줄. 놓인 화면 · 구역 폭을 채우고 바닥에 구획 선",
@@ -146,7 +146,9 @@
       },
       "enabled": {
         "list": {
-          "paddingX": 0
+          "paddingX": 0,
+          "overflowX": "auto",
+          "scrollPadding": 16
         },
         "trigger": {
           "grow": 1
@@ -348,6 +350,20 @@
       "slot": "indicator",
       "prop": "background",
       "note": "목록 전체가 막혔을 때 고른 탭의 막대도 전용 색"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "overflowX",
+      "note": "글이 칸을 넘으면 Fill 모양 그대로 목록만 가로 스크롤 — 스크롤바는 숨긴다(SEED, 2026-10-21 03-G 3B)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "list",
+      "prop": "scrollPadding",
+      "note": "넘쳐 스크롤할 때 고른 탭이 화면 밖이면 16 여유를 두고 가까운 쪽으로 스크롤한다 — Hug 와 같다(웹 · 앱이 이미 이렇게 한다, 2026-10-22 I-04 검수). 넘치지 않으면 하는 일이 없다"
     },
     {
       "rule": 2,

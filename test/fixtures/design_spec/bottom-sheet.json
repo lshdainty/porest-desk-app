@@ -3,7 +3,7 @@
   "source": "specs/components/bottom-sheet.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "d0ae84eb0c4d"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "overlay": "딤 — 시트 뒤 화면 전체",
@@ -244,7 +244,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "maxHeight",
-      "note": "넘을 내용은 시트가 아니라 페이지로 둔다(SEED) — 시트 안 스크롤로 버티지 않는다"
+      "note": "처음부터 넘게 짠 내용은 시트가 아니라 페이지로 둔다(SEED) — 90% 로 늘려 버티지 않는다. 작은 화면 · 큰 글자 · 키보드로 넘친 것은 본문만 스크롤 + 끝 흐림(2026-10-22 9B)"
     },
     {
       "rule": 0,
