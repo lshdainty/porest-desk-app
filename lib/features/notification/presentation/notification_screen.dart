@@ -20,6 +20,7 @@ import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
 import 'package:groo_damda_app/features/notification/domain/notification.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 class NotificationScreen extends ConsumerWidget {
   const NotificationScreen({super.key});
@@ -65,8 +66,7 @@ class NotificationScreen extends ConsumerWidget {
         ],
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(notificationListProvider);
             ref.invalidate(unreadCountProvider);

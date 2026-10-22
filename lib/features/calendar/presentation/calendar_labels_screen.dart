@@ -23,6 +23,7 @@ import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 설정 진입 — 캘린더 라벨 관리 (전 캘린더 공용).
 ///
@@ -67,8 +68,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
         elevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(eventLabelsProvider);
             await ref.read(eventLabelsProvider.future);

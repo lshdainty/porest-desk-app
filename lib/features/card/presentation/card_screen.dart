@@ -23,6 +23,7 @@ import 'package:groo_damda_app/features/card/application/card_providers.dart';
 import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
 import 'package:groo_damda_app/features/card/presentation/card_fee_text.dart';
 import 'package:groo_damda_app/features/card/presentation/card_benefit_mapping_dialog.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 class CardScreen extends ConsumerStatefulWidget {
   const CardScreen({super.key});
@@ -202,8 +203,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         ),
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(cardCatalogPageProvider(_searchKey));
             await ref.read(cardCatalogPageProvider(_searchKey).future);

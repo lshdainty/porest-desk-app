@@ -26,6 +26,7 @@ import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 설정 진입 — 캘린더 관리·공유 (user_calendar 기반).
 ///
@@ -74,8 +75,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
         ],
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(userCalendarListProvider);
             await ref.read(userCalendarListProvider.future);

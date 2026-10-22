@@ -29,6 +29,7 @@ import 'package:groo_damda_app/features/preset/application/preset_providers.dart
 import 'package:groo_damda_app/features/preset/domain/expense_template.dart';
 import 'package:groo_damda_app/features/preset/presentation/preset_detail_sheet.dart';
 import 'package:groo_damda_app/features/preset/presentation/preset_edit_dialog.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 enum _SortKey { used, recent, name }
 
@@ -100,8 +101,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         elevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(presetListProvider);
             await ref.read(presetListProvider.future);

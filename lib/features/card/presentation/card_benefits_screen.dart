@@ -27,6 +27,7 @@ import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
 import 'package:groo_damda_app/features/card/presentation/card_fee_text.dart';
 import 'package:groo_damda_app/features/card/presentation/card_benefit_detail_sheet.dart';
 import 'package:groo_damda_app/features/card/presentation/widgets/card_brand.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 종류 필터 값 — index 0=전체(null)/1=신용/2=체크. 라벨은 [_typeLabel].
 const _typeValues = <String?>[null, 'CREDIT', 'CHECK'];
@@ -205,8 +206,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         elevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async => _reset(),
           child: ListView(
             controller: _scroll,

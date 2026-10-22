@@ -39,6 +39,7 @@ import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -75,8 +76,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-
     final monthKey = (year: _month.year, month: _month.month);
     final summaryAsync = ref.watch(
       assetSummaryProvider((year: _month.year, month: _month.month)),
@@ -96,8 +95,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
     final budgetsAsync = ref.watch(monthBudgetsProvider(monthKey));
 
-    return RefreshIndicator(
-      color: t.fgBrand,
+    return PPullToRefresh(
       onRefresh: () async {
         ref.invalidate(
           assetSummaryProvider((year: _month.year, month: _month.month)),

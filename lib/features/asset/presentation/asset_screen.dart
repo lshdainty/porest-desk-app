@@ -33,6 +33,7 @@ import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.da
 import 'package:groo_damda_app/features/asset/presentation/widgets/net_worth_chart.dart';
 import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH'};
 const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
@@ -127,8 +128,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
       // bottomNavigationBar 는 shell MobileScaffold 가 path-aware MoneyTabBar 표시.
       // FAB 미사용 — 각 그룹(계좌·예금/투자/카드/대출) 헤더의 '+ 추가'
       // 버튼이 종류별 적절한 다이얼로그를 띄움.
-      body: RefreshIndicator(
-        color: t.fgBrand,
+      body: PPullToRefresh(
         onRefresh: () async {
           ref.invalidate(assetsProvider);
           ref.invalidate(assetSummaryProvider);

@@ -25,6 +25,7 @@ import 'package:groo_damda_app/features/dutch_pay/application/dutch_pay_provider
 import 'package:groo_damda_app/features/dutch_pay/domain/dutch_pay.dart';
 import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
 import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_detail_sheet.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 더치페이 — 토스 톤 요약 2카드 + 진행/완료/친구 탭 (web `DutchScreen` mobile 미러).
 ///
@@ -66,8 +67,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         onPressed: () => showDutchPayCreateDialog(context),
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(dutchPayListProvider);
             await ref.read(dutchPayListProvider.future);

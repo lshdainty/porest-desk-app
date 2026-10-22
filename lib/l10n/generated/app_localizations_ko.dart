@@ -7344,6 +7344,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dsInfiniteListEnd => '모두 봤어요.';
 
   @override
+  String get dsPullToRefreshLabel => '새로 고치는 중';
+
+  @override
+  String get dsPullToRefreshFailed => '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.';
+
+  @override
   String get dsCommonRetry => '다시 시도';
 
   @override

@@ -22,6 +22,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 밤하늘 화면 — 성장·수집 전용 공간 (design forest-report.jsx NightSkyPage 미러).
 ///
@@ -63,8 +64,7 @@ class NightSkyScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: RefreshIndicator(
-        color: t.fgBrand,
+      body: PPullToRefresh(
         onRefresh: () async {
           ref.invalidate(constellationTodayProvider);
           ref.invalidate(constellationSkyProvider);

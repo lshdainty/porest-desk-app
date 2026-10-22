@@ -22,6 +22,7 @@ import 'package:groo_damda_app/shared/widgets/p_divider.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// "로그인된 기기" — 계정 > 보안에서 들어온다.
 ///
@@ -115,8 +116,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         elevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(deviceSessionListProvider);
             await ref.read(deviceSessionListProvider.future);

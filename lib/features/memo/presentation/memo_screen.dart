@@ -27,6 +27,7 @@ import 'package:groo_damda_app/features/memo/domain/memo_colors.dart';
 import 'package:groo_damda_app/features/memo/domain/memo_meta.dart';
 import 'package:groo_damda_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:groo_damda_app/features/memo/presentation/memo_detail_dialog.dart';
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 메모 — 토스 톤 색틴트 카드 그리드 (web `MemoScreen` mobile 미러).
 ///
@@ -71,8 +72,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       ),
       // FAB 제거 — 칩 행 우측 + 추가 버튼이 새 메모 진입점 (web 정합).
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async => ref.invalidate(memoListProvider),
           child: listAsync.when(
             // 검색바·칩 행·추가 버튼은 정적 UI 틀 → 항상 실제 렌더(스켈레톤화 금지).

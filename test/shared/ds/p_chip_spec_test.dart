@@ -691,7 +691,7 @@ void main() {
           );
           await tester.pump(const Duration(milliseconds: 400));
           await tester.pump(const Duration(milliseconds: 400));
-        final c = mode == Brightness.dark ? PColors.dark : PColors.light;
+          final c = mode == Brightness.dark ? PColors.dark : PColors.light;
           expect(
             _decoration(tester, _box).color,
             c.bgNeutralWeakAlpha,

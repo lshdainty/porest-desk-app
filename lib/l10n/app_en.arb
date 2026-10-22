@@ -4220,6 +4220,8 @@
   "apiErrorServer": "We couldn't complete the request. Please try again in a moment.",
   "dsInfiniteListError": "Couldn't load more.",
   "dsInfiniteListEnd": "You've reached the end.",
+  "dsPullToRefreshLabel": "Refreshing",
+  "dsPullToRefreshFailed": "Couldn't refresh. Please pull to try again later.",
   "dsCommonRetry": "Try again",
   "cardListLoadFailed": "Couldn't load cards",
   "cardListEnd": "You've seen all the cards.",

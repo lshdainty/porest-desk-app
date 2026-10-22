@@ -33,6 +33,7 @@ import 'package:groo_damda_app/features/budget/presentation/budget_edit_dialog.d
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/features/budget/presentation/budget_screen.dart'
     show showMonthPickerSheet;
+import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 
 /// 카테고리별 예산 상태 경고 임계값 — 웹 `BudgetManager.tsx` 정합 (관리 화면은 고정 85%).
 /// (개요 화면 `BudgetScreen` 은 사용자 설정 임계값을 따름.)
@@ -224,8 +225,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         elevation: 0,
       ),
       body: PScreenBandBody(
-        child: RefreshIndicator(
-          color: t.fgBrand,
+        child: PPullToRefresh(
           onRefresh: () async {
             ref.invalidate(monthBudgetsProvider(_key));
             ref.invalidate(

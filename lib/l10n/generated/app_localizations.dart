@@ -13412,6 +13412,18 @@ abstract class AppLocalizations {
   /// **'모두 봤어요.'**
   String get dsInfiniteListEnd;
 
+  /// 당겨서 새로 고침(Pull To Refresh)이 새로 고치는 동안만 읽히는 진행 표시의 이름 — 쉬는 동안 · 당기는 동안은 지시자를 숨긴다
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 고치는 중'**
+  String get dsPullToRefreshLabel;
+
+  /// 당겨서 새로 고침이 실패했을 때 Snackbar 글 — 보던 내용은 그대로 두고 알린다
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 고치지 못했어요. 잠시 후 다시 당겨주세요.'**
+  String get dsPullToRefreshFailed;
+
   /// ds 부품이 다시 하기 단추에 쓰는 공용 글 — 웹 ds.common.retry 와 짝
   ///
   /// In ko, this message translates to:
