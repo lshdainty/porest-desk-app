@@ -778,7 +778,8 @@ class _DayCell extends StatelessWidget {
 
     final Color dayColor;
     if (isOutside) {
-      dayColor = t.fgTertiary.withValues(alpha: 0.4);
+      // 이웃 달은 날짜 숫자만 fg-disabled — 그 칸의 일정 · 금액 · 휴일 이름은 이번 달과 같다(불투명도를 쓰지 않는다, 03-C 5A)
+      dayColor = t.fgDisabled;
     } else if (isToday) {
       // 오늘 — web 정합: 항상 오늘에만 solid 원 (선택 날짜 표시는 하지 않음)
       dayColor = t.fgOnBrand;
@@ -854,18 +855,13 @@ class _DayCell extends StatelessWidget {
                     right: PSpace.x4,
                     bottom: PSpace.x4,
                   ),
-                  child: _CellHolidayLabel(
-                    name: holidayName!,
-                    dimmed: isOutside,
-                    tokens: t,
-                  ),
+                  child: _CellHolidayLabel(name: holidayName!, tokens: t),
                 ),
               for (final ev in visible)
                 _CellEventLabel(
                   event: ev,
                   day: day,
                   position: _segPos(ev, day),
-                  dimmed: isOutside,
                   tokens: t,
                 ),
               if (overflow > 0)
@@ -910,13 +906,11 @@ class _CellEventLabel extends StatelessWidget {
     required this.event,
     required this.day,
     required this.position,
-    required this.dimmed,
     required this.tokens,
   });
   final CalendarEvent event;
   final DateTime day;
   final _SegPos position;
-  final bool dimmed;
   final GrooTokens tokens;
 
   @override
@@ -929,7 +923,7 @@ class _CellEventLabel extends StatelessWidget {
     // 멀티데이 연속 바: 시작=좌측만 round, 종료=우측만 round, 중간=square + full-bleed
     // (인접 셀과 이어지도록 연결 변은 가로 inset 0). 제목은 시작(first)/단일(none) 만(웹 정합).
     // 색은 dark-aware(solidSwatchColor: 체크박스와 동일 base) + 불투명(chipFill/chipText).
-    // 이월 셀은 Opacity. 웹은 동일하게 getPaletteByColor 한 함수로 통일.
+    // 이웃 달 셀의 일정도 이번 달과 같은 색이다(흐리게 하지 않는다). 웹은 동일하게 getPaletteByColor 한 함수로 통일.
     const r = Radius.circular(PRadius.sm);
     final radius = switch (position) {
       _SegPos.none => PRadius.brSm,
@@ -962,97 +956,12 @@ class _CellEventLabel extends StatelessWidget {
     } else {
       rowSegDays = 0;
     }
-    return Opacity(
-      opacity: dimmed ? 0.5 : 1.0,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: leftInset ? PSpace.x4 : 0.0,
-          right: rightInset ? PSpace.x4 : 0.0,
-          bottom: PSpace.x4, // 세로로 쌓인 이벤트 바 사이 간격(웹 gap-1 정합)
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4,
-            vertical: PSpace.x0,
-          ),
-          decoration: BoxDecoration(
-            color: chipFill(context, base),
-            borderRadius: radius,
-          ),
-          child: isRowSegEnd
-              ? Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // 빈 텍스트가 바 높이를 잡는다 — 라벨은 그 위에 겹쳐 스팬으로 뻗는다.
-                    Text(
-                      '',
-                      maxLines: 1,
-                      style: PTypo.micro.copyWith(fontWeight: PFontWeight.semi),
-                    ),
-                    Positioned.fill(
-                      child: LayoutBuilder(
-                        builder: (context, c) {
-                          // 칸 폭 균등 + 조각 사이 여백 0 — 칸 수 × 현재 폭으로 스팬을
-                          // 근사한다(첫·끝 조각의 바깥 4px 만 오차, 가운데 정렬이라 안 보인다).
-                          final spanW = c.maxWidth * rowSegDays;
-                          return Align(
-                            alignment: Alignment.centerRight,
-                            child: OverflowBox(
-                              alignment: Alignment.centerRight,
-                              maxWidth: spanW,
-                              child: SizedBox(
-                                width: spanW,
-                                child: Text(
-                                  event.title,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: false,
-                                  style: PTypo.micro.copyWith(
-                                    color: chipText(context, base),
-                                    fontWeight: PFontWeight.semi,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : Text(
-                  showText ? event.title : '',
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
-                  style: PTypo.micro.copyWith(
-                    color: chipText(context, base),
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-        ),
+    return Padding(
+      padding: EdgeInsets.only(
+        left: leftInset ? PSpace.x4 : 0.0,
+        right: rightInset ? PSpace.x4 : 0.0,
+        bottom: PSpace.x4, // 세로로 쌓인 이벤트 바 사이 간격(웹 gap-1 정합)
       ),
-    );
-  }
-}
-
-class _CellHolidayLabel extends StatelessWidget {
-  const _CellHolidayLabel({
-    required this.name,
-    required this.dimmed,
-    required this.tokens,
-  });
-  final String name;
-  final bool dimmed;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final base = tokens.statusDanger;
-    // 이벤트 칩과 동일 톤: 불투명 bg + 적응형 텍스트 · border 없음 · radius-sm.
-    return Opacity(
-      opacity: dimmed ? 0.5 : 1.0,
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: PSpace.x4,
@@ -1060,17 +969,91 @@ class _CellHolidayLabel extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: chipFill(context, base),
-          borderRadius: PRadius.brSm,
+          borderRadius: radius,
         ),
-        child: Text(
-          name,
-          maxLines: 1,
-          overflow: TextOverflow.clip,
-          softWrap: false,
-          style: PTypo.micro.copyWith(
-            color: chipText(context, base),
-            fontWeight: PFontWeight.semi,
-          ),
+        child: isRowSegEnd
+            ? Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // 빈 텍스트가 바 높이를 잡는다 — 라벨은 그 위에 겹쳐 스팬으로 뻗는다.
+                  Text(
+                    '',
+                    maxLines: 1,
+                    style: PTypo.micro.copyWith(fontWeight: PFontWeight.semi),
+                  ),
+                  Positioned.fill(
+                    child: LayoutBuilder(
+                      builder: (context, c) {
+                        // 칸 폭 균등 + 조각 사이 여백 0 — 칸 수 × 현재 폭으로 스팬을
+                        // 근사한다(첫·끝 조각의 바깥 4px 만 오차, 가운데 정렬이라 안 보인다).
+                        final spanW = c.maxWidth * rowSegDays;
+                        return Align(
+                          alignment: Alignment.centerRight,
+                          child: OverflowBox(
+                            alignment: Alignment.centerRight,
+                            maxWidth: spanW,
+                            child: SizedBox(
+                              width: spanW,
+                              child: Text(
+                                event.title,
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                                style: PTypo.micro.copyWith(
+                                  color: chipText(context, base),
+                                  fontWeight: PFontWeight.semi,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              )
+            : Text(
+                showText ? event.title : '',
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                softWrap: false,
+                style: PTypo.micro.copyWith(
+                  color: chipText(context, base),
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _CellHolidayLabel extends StatelessWidget {
+  const _CellHolidayLabel({required this.name, required this.tokens});
+  final String name;
+  final GrooTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = tokens.statusDanger;
+    // 이벤트 칩과 동일 톤: 불투명 bg + 적응형 텍스트 · border 없음 · radius-sm.
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x4,
+        vertical: PSpace.x0,
+      ),
+      decoration: BoxDecoration(
+        color: chipFill(context, base),
+        borderRadius: PRadius.brSm,
+      ),
+      child: Text(
+        name,
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+        softWrap: false,
+        style: PTypo.micro.copyWith(
+          color: chipText(context, base),
+          fontWeight: PFontWeight.semi,
         ),
       ),
     );
