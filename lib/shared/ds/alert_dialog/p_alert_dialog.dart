@@ -5,47 +5,12 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_responsive_pair.dart';
 import 'package:groo_damda_app/shared/ds/overlay/p_overlay.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
-/// 버튼 배치 — 한쪽 글이 반 폭을 넘으면 저절로 세로(확정이 위), 버튼 하나면 single.
-enum PAlertDialogLayout { horizontal, vertical, single }
-
 /// 확인창 폭 — 최대 272, 좌우 32 를 남긴다(화면이 336 보다 좁으면 화면 폭 − 64).
 const double _maxWidth = 272;
-
-/// 한 버튼이 쓰는 폭 — Button medium 40 의 좌우 안쪽 여백(16)과 글 폭. 반 폭을 넘으면 세로로 쌓는다.
-const double _buttonPaddingX = PSpacing.x4;
-
-/// 글 길이로 정하는 배치(웹 AlertDialogFooter 의 flex-wrap-reverse 와 같은 결과) — 위젯과 테스트가 같은 함수를 본다.
-@visibleForTesting
-PAlertDialogLayout alertDialogLayoutFor({
-  required double innerWidth,
-  required String? cancelLabel,
-  required String actionLabel,
-  TextScaler textScaler = TextScaler.noScaling,
-}) {
-  if (cancelLabel == null) return PAlertDialogLayout.single;
-  final half = (innerWidth - PSpacing.x2) / 2;
-  double need(String label) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: label,
-        style: PTypography.t4.copyWith(fontWeight: FontWeight.w700),
-      ),
-      textDirection: TextDirection.ltr,
-      textScaler: textScaler,
-      maxLines: 1,
-    )..layout();
-    final width = painter.width;
-    painter.dispose();
-    return width + _buttonPaddingX * 2;
-  }
-
-  return need(cancelLabel) > half || need(actionLabel) > half
-      ? PAlertDialogLayout.vertical
-      : PAlertDialogLayout.horizontal;
-}
 
 /// 작성 중 나가기 확인의 글 — 문자열은 부르는 쪽이 넘긴다(앱이 지역화한다).
 ///
@@ -135,55 +100,50 @@ class PAlertDialogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final scaler = MediaQuery.textScalerOf(context);
-
+    final media = MediaQuery.of(context);
+    final maxHeight = (media.size.height - media.padding.vertical)
+        .clamp(0.0, double.infinity)
+        .toDouble();
     final card = DecoratedBox(
       decoration: BoxDecoration(
         color: c.bgLayerFloating,
         borderRadius: BorderRadius.circular(PRounded.r5),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(PSpacing.x5),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final layout = alertDialogLayoutFor(
-              innerWidth: constraints.maxWidth,
-              cancelLabel: cancelLabel,
-              actionLabel: actionLabel,
-              textScaler: scaler,
-            );
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 제목은 확인창의 이름이 읽는다 — 다시 읽지 않는다
-                if (title != null)
-                  ExcludeSemantics(
-                    child: Text(
-                      keepAll(title!),
-                      style: PTypography.t7.copyWith(
-                        color: c.fgNeutral,
-                        fontWeight: FontWeight.w700,
-                      ),
+      // 넘치면 제목 · 설명 · 버튼이 함께 스크롤한다(끝 흐림 없음) — alert-dialog.yaml maxHeight · overflowY
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(PSpacing.x5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 제목은 확인창의 이름이 읽는다 — 다시 읽지 않는다
+              if (title != null)
+                ExcludeSemantics(
+                  child: Text(
+                    keepAll(title!),
+                    style: PTypography.t7.copyWith(
+                      color: c.fgNeutral,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: title == null ? 0 : PSpacing.x1_5,
-                  ),
-                  child: Text(
-                    keepAll(description),
-                    semanticsLabel: description,
-                    style: PTypography.t5.copyWith(color: c.fgNeutral),
-                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: PSpacing.x4),
-                  child: _footer(layout),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: title == null ? 0 : PSpacing.x1_5,
                 ),
-              ],
-            );
-          },
+                child: Text(
+                  keepAll(description),
+                  semanticsLabel: description,
+                  style: PTypography.t5.copyWith(color: c.fgNeutral),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: PSpacing.x4),
+                child: _footer(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -191,7 +151,8 @@ class PAlertDialogView extends StatelessWidget {
     Widget out = Padding(
       padding: const EdgeInsets.symmetric(horizontal: PSpacing.x8),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: _maxWidth),
+        // 높이는 안전 영역 안 화면까지
+        constraints: BoxConstraints(maxWidth: _maxWidth, maxHeight: maxHeight),
         child: card,
       ),
     );
@@ -227,14 +188,7 @@ class PAlertDialogView extends StatelessWidget {
     return Center(child: out);
   }
 
-  Widget _footer(PAlertDialogLayout layout) {
-    final cancel = cancelLabel == null
-        ? null
-        : PButton(
-            label: cancelLabel!,
-            variant: PButtonVariant.neutralWeak,
-            onPressed: onCancel ?? () {},
-          );
+  Widget _footer() {
     final action = PButton(
       label: actionLabel,
       variant: destructive
@@ -243,23 +197,18 @@ class PAlertDialogView extends StatelessWidget {
       loading: actionLoading,
       onPressed: onAction ?? () {},
     );
-    return switch (layout) {
-      PAlertDialogLayout.horizontal => Row(
-        spacing: PSpacing.x2,
-        children: [
-          Expanded(child: cancel!),
-          Expanded(child: action),
-        ],
+    if (cancelLabel == null) {
+      return Row(children: [Expanded(child: action)]);
+    }
+    // 짝 버튼 — 한 줄에 반씩, 한 라벨이 반 폭을 넘으면 세로(확정이 위). 시트 · 확인창 바닥은 이 부품(button.md)
+    return PResponsivePair(
+      primary: action,
+      secondary: PButton(
+        label: cancelLabel!,
+        variant: PButtonVariant.neutralWeak,
+        onPressed: onCancel ?? () {},
       ),
-      // 세로 — 확정이 위, 취소가 아래. 둘 다 폭 전체
-      PAlertDialogLayout.vertical => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: PSpacing.x2,
-        children: [action, cancel!],
-      ),
-      PAlertDialogLayout.single => Row(children: [Expanded(child: action)]),
-    };
+    );
   }
 }
 
