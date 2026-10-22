@@ -3,7 +3,7 @@
   "source": "specs/components/list.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "91764c2b6325"
+    "sha256": "3b3b74b34b25"
   },
   "slots": {
     "root": "목록(List) — 줄을 세로로 잇는다. 배경 · 줄 사이 간격 없음",
@@ -670,7 +670,7 @@
       "state": "enabled",
       "slot": "body",
       "prop": "paddingRight",
-      "note": "옆에 뒤 붙이개가 없다 — 제목이 줄 안 폭을 다 쓴다"
+      "note": "옆에 아무것도 남지 않을 때 0 — 제목이 줄 안 폭을 다 쓴다. 꺾쇠 · 컨트롤 · 작은 버튼이 줄 끝에 남으면 regular 의 10 그대로(조작 요소는 줄 끝 그대로 — 2026-10-17 사용자 결정, 2026-10-22 I-02 검수에서 문구를 맞춤)"
     },
     {
       "rule": 3,
