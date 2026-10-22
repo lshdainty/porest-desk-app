@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/rendering.dart' show SemanticsRole;
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -8,6 +10,8 @@ import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/date_picker_dates.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker_day.dart';
+import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart'
+    show keyboardHighlight;
 import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
 export 'package:groo_damda_app/shared/ds/date_picker/date_picker_dates.dart';
@@ -20,11 +24,10 @@ enum PDateSelection { single, range, multiple }
 /// 1280 이상 팝오버의 두 달 나란히(`twoMonths`)는 앱에 없다 — 앱은 시트로만 연다(팝오버 없음).
 enum PDateVisibleRange { month, continuous }
 
-// date-picker.yaml — 머리 · 요일 줄 · 날짜 줄 48, 이어지는 달: 달 이름 48 + 주 × 48 + 아래 16, 아래 안개 96, 연 · 월 휠 자리 336.
-const double _rowHeight = 48;
+// date-picker.yaml — 머리 · 요일 줄 · 날짜 줄은 최소 48(글이 크면 그만큼만 늘어난다, 03-C 1B), 이어지는 달: 달 이름 + 주 × 칸 +
+// 아래 16, 아래 안개 96, 연 · 월 휠 자리 = 요일 줄 + 6주(100% 에서 336).
 const double _monthGap = PSpacing.x4;
 const double _fogHeight = 96;
-const double _wheelAreaHeight = 336; // 요일 줄 48 + 6주 288
 const double _titleIcon = 20;
 const int _weeks = 6;
 
@@ -52,9 +55,15 @@ const int _weeks = 6;
 /// 빠른 기간(range) — 달력 위 칩 한 줄(Chip outlineStrong medium, 하나 고르기). 누르면 그 기간을 칠하고 시작이 든 달로 옮긴다.
 /// 달력에서 날을 누르면 칩 고름이 풀린다. 고를 수 있는 범위 밖에 걸친 칩은 막는다(잘라서 넣지 않는다).
 ///
-/// 읽기 — 달력은 이름 있는 묶음, 날짜는 이름 있는 버튼("2026년 10월 15일 목요일", 고른 날 · 기간 사이는 선택됨, 막힌 날 ·
-/// 읽기 전용은 비활성, 읽기 전용 시작일은 이름 끝에 말이 붙는다), 앞뒤 달 숫자는 숨긴다. 보이는 달이 바뀌면 "2026년 11월" 을
-/// 읽는다. 방향키로 날짜를 옮기는 격자 키보드(웹 WAI-ARIA Grid)는 앱에 없다 — 손가락 입력이 기본이고 날짜마다 읽는 말이 있다.
+/// 읽기 — 달력은 표(table)·줄(row)·칸(cell)이고 칸 안에 이름 있는 버튼이 든다("2026년 10월 15일 목요일", 오늘은 끝에
+/// ", 오늘", 고른 날 · 기간 사이는 선택됨, 막힌 날 · 읽기 전용은 비활성, 읽기 전용 시작일은 이름 끝에 말이 붙는다). 요일은
+/// 열 머리(columnHeader), 앞뒤 달 숫자는 숨긴다. 보이는 달이 바뀌면 "2026년 11월" 을 읽는다.
+///
+/// 키보드(하드웨어 키보드 · 스위치 접근, 03-C 결정 4A) — 웹 WAI-ARIA Grid 와 같다. 날짜 하나만 Tab 순서에 들고 ← → 하루,
+/// ↑ ↓ 한 주, Home · End 그 주의 일 · 토, PageUp · PageDown 한 달, Shift + PageUp · PageDown 한 해, Enter · Space 고름. 열 때
+/// 초점은 고른 날(없으면 오늘)이고, 링은 키보드로 옮길 때만(`FocusHighlightMode.traditional`) 원 둘레 안쪽 2px 로 그린다.
+/// 보이는 달 밖으로 옮기면 달이 따라 넘어가고(이어지는 달은 초점 날이 보이게 스크롤한다), 제목 · 이전 · 다음 · 휠로 달을 바꾸면
+/// 그 달 1일이 다음 Tab 자리다.
 class PDatePicker extends StatefulWidget {
   const PDatePicker.single({
     super.key,
@@ -193,6 +202,11 @@ class PDatePicker extends StatefulWidget {
 class _PDatePickerState extends State<PDatePicker> {
   late final DateTime _autoToday = startOfDay(DateTime.now());
   late DateTime _view;
+
+  // 키보드 — 날짜 하나만 Tab 순서에 든다(격자 전체가 초점 하나, 어느 날인지는 _focusDate)
+  late DateTime _focusDate;
+  final FocusNode _gridFocus = FocusNode(debugLabel: 'PDatePicker grid');
+  bool _revealing = false;
   bool _wheelOpen = false;
   late int _wheelYear;
   late int _wheelMonth;
@@ -203,6 +217,8 @@ class _PDatePickerState extends State<PDatePicker> {
   List<double> _heights = const [];
   List<double> _offsets = const [];
   ({int start, int end})? _layoutYears;
+  double _cellH = kDatePickerCellHeight;
+  double _labelH = kDatePickerCellHeight;
 
   DateTime get _today =>
       widget.today == null ? _autoToday : startOfDay(widget.today!);
@@ -256,24 +272,43 @@ class _PDatePickerState extends State<PDatePicker> {
   void initState() {
     super.initState();
     _view = _clampView(monthStart(_anchor ?? _today));
+    _focusDate = clampDay(_anchor ?? _today, _firstDay, _lastDay);
     _wheelYear = _view.year;
     _wheelMonth = _view.month;
     _wheelOpen = widget.defaultWheelOpen && !_continuous;
     _presetPick = _presetMatching();
-    if (_continuous) {
-      _ensureLayout();
-      _scroll = ScrollController(initialScrollOffset: _offsetOf(_view))
-        ..addListener(_onScroll);
-    }
+    _gridFocus.addListener(_onGridFocus);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncContinuous();
   }
 
   @override
   void didUpdateWidget(PDatePicker old) {
     super.didUpdateWidget(old);
+    _syncContinuous();
+  }
+
+  // 이어지는 달이면 달 위치를 글자 배율로 재고 스크롤을 만든다(글이 커지면 칸 · 달 이름 줄이 커진다)
+  void _syncContinuous() {
     if (_continuous) {
-      _ensureLayout();
-      _scroll ??= ScrollController(initialScrollOffset: _offsetOf(_view))
-        ..addListener(_onScroll);
+      final changed = _ensureLayout(MediaQuery.textScalerOf(context));
+      if (_scroll == null) {
+        _scroll = ScrollController(initialScrollOffset: _offsetOf(_view))
+          ..addListener(_onScroll);
+      } else if (changed) {
+        // 배율이 바뀌었다 — 보던 달을 다시 맨 위로(빌드 중에는 스크롤을 건드리지 않는다)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final c = _scroll;
+          if (!mounted || c == null || !c.hasClients) return;
+          _revealing = true;
+          c.jumpTo(math.min(_offsetOf(_view), c.position.maxScrollExtent));
+          _revealing = false;
+        });
+      }
     } else if (_scroll != null) {
       _scroll!.dispose();
       _scroll = null;
@@ -282,29 +317,41 @@ class _PDatePickerState extends State<PDatePicker> {
 
   @override
   void dispose() {
+    _gridFocus.removeListener(_onGridFocus);
+    _gridFocus.dispose();
     _scroll?.dispose();
     super.dispose();
   }
 
+  void _onGridFocus() {
+    if (mounted) setState(() {});
+  }
+
   // ── 이어지는 달: 달 위치 ──
-  void _ensureLayout() {
+  bool _ensureLayout(TextScaler scaler) {
     final years = (start: _yearStart, end: _yearEnd);
-    if (_layoutYears == years) return;
+    final cell = datePickerCellHeight(scaler);
+    final label = datePickerRowHeight(scaler);
+    if (_layoutYears == years && _cellH == cell && _labelH == label) {
+      return false;
+    }
     _layoutYears = years;
+    _cellH = cell;
+    _labelH = label;
     final count = (years.end - years.start + 1) * 12;
     final heights = <double>[];
     final offsets = <double>[];
     var total = 0.0;
     for (var i = 0; i < count; i++) {
       final d = fromMonthNumber(_firstMonth + i);
-      final h =
-          _rowHeight + weeksInMonth(d.year, d.month) * _rowHeight + _monthGap;
+      final h = label + weeksInMonth(d.year, d.month) * cell + _monthGap;
       offsets.add(total);
       heights.add(h);
       total += h;
     }
     _heights = heights;
     _offsets = offsets;
+    return true;
   }
 
   double _offsetOf(DateTime d) {
@@ -318,14 +365,27 @@ class _PDatePickerState extends State<PDatePicker> {
     final index = monthAt(_offsets, _heights, c.offset);
     final month = fromMonthNumber(_firstMonth + index);
     if (monthNumber(month) != monthNumber(_view)) {
-      setState(() => _view = month);
+      setState(() {
+        _view = month;
+        if (!_revealing) _alignFocus();
+      });
+    }
+  }
+
+  // 보이는 달이 바뀌면(스크롤 · 이전 · 다음 · 휠 · 빠른 기간) 그 달 1일이 다음 Tab 자리다. 키보드로 옮긴 것은 건드리지 않는다
+  void _alignFocus() {
+    if (monthNumber(_focusDate) != monthNumber(_view)) {
+      _focusDate = clampDay(_view, _firstDay, _lastDay);
     }
   }
 
   // 보이는 달을 바꾼다 — 이어지는 달이면 그 달을 맨 위로
   void _showMonth(DateTime month) {
     final next = _clampView(month);
-    setState(() => _view = next);
+    setState(() {
+      _view = next;
+      _alignFocus();
+    });
     final c = _scroll;
     if (_continuous && c != null && c.hasClients) {
       c.jumpTo(math.min(_offsetOf(next), c.position.maxScrollExtent));
@@ -473,92 +533,216 @@ class _PDatePickerState extends State<PDatePicker> {
     setState(() {
       _wheelOpen = false;
       _view = picked;
+      _alignFocus();
     });
   }
 
   void _step(int dir) {
-    setState(
-      () => _view = _clampView(fromMonthNumber(monthNumber(_view) + dir)),
-    );
+    setState(() {
+      _view = _clampView(fromMonthNumber(monthNumber(_view) + dir));
+      _alignFocus();
+    });
+  }
+
+  // ── 키보드(WAI-ARIA Grid) ──
+  KeyEventResult _onGridKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final hw = HardwareKeyboard.instance;
+    if (hw.isAltPressed || hw.isControlPressed || hw.isMetaPressed) {
+      return KeyEventResult.ignored;
+    }
+    final key = event.logicalKey;
+    final shift = hw.isShiftPressed;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final d = _focusDate;
+
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter ||
+        key == LogicalKeyboardKey.space) {
+      if (event is KeyDownEvent) _selectDate(d);
+      return KeyEventResult.handled;
+    }
+    DateTime? next;
+    if (key == LogicalKeyboardKey.pageUp ||
+        key == LogicalKeyboardKey.pageDown) {
+      final dir = key == LogicalKeyboardKey.pageUp ? -1 : 1;
+      next = addMonths(d, shift ? dir * 12 : dir);
+    } else if (shift) {
+      return KeyEventResult.ignored;
+    } else if (key == LogicalKeyboardKey.arrowLeft) {
+      next = addDays(d, rtl ? 1 : -1);
+    } else if (key == LogicalKeyboardKey.arrowRight) {
+      next = addDays(d, rtl ? -1 : 1);
+    } else if (key == LogicalKeyboardKey.arrowUp) {
+      next = addDays(d, -7);
+    } else if (key == LogicalKeyboardKey.arrowDown) {
+      next = addDays(d, 7);
+    } else if (key == LogicalKeyboardKey.home) {
+      next = weekStart(d);
+    } else if (key == LogicalKeyboardKey.end) {
+      next = weekEnd(d);
+    } else {
+      return KeyEventResult.ignored;
+    }
+    _moveFocus(next);
+    return KeyEventResult.handled;
+  }
+
+  // 초점 날을 옮긴다 — 고를 수 있는 연도 안에서, 보이는 달 밖이면 달이 따라 넘어간다(이어지는 달은 스크롤)
+  void _moveFocus(DateTime to) {
+    final next = clampDay(to, _firstDay, _lastDay);
+    setState(() {
+      _focusDate = next;
+      if (!_continuous && monthNumber(next) != monthNumber(_view)) {
+        _view = _clampView(monthStart(next));
+      }
+    });
+    if (_continuous) _reveal(next);
+  }
+
+  // 이어지는 달에서 초점 날이 보이게 — 안개 밖까지만 올린다
+  void _reveal(DateTime d) {
+    final c = _scroll;
+    if (c == null || !c.hasClients) return;
+    final i = monthNumber(d) - _firstMonth;
+    if (i < 0 || i >= _offsets.length) return;
+    final week = (weekdayIndex(DateTime(d.year, d.month)) + d.day - 1) ~/ 7;
+    final top = _offsets[i] + _labelH + week * _cellH;
+    final bottom = top + _cellH;
+    final viewport = c.position.viewportDimension;
+    final usable = viewport > _fogHeight + 2 * _cellH
+        ? viewport - _fogHeight
+        : viewport;
+    var target = c.offset;
+    if (top < c.offset) {
+      target = top;
+    } else if (bottom > c.offset + usable) {
+      target = bottom - usable;
+    }
+    if (target == c.offset) return;
+    _revealing = true;
+    c.jumpTo(target.clamp(0.0, c.position.maxScrollExtent));
+    _revealing = false;
   }
 
   // ── 그리기 ──
   Widget _weekdayRow(double cellW) {
     final c = context.colors;
     final l = widget.labels;
-    return SizedBox(
-      key: const ValueKey('date-weekdays'),
-      height: _rowHeight,
-      child: Row(
-        children: [
-          for (var i = 0; i < 7; i++)
-            Semantics(
-              label: l.weekdaysLong[i],
-              excludeSemantics: true,
-              child: SizedBox(
-                width: cellW,
-                child: Center(
-                  child: Text(
-                    l.weekdays[i],
-                    style: PTypography.t4.copyWith(
-                      color: c.fgNeutralSubtle,
-                      fontWeight: FontWeight.w500,
+    final scaler = MediaQuery.textScalerOf(context);
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      role: SemanticsRole.row,
+      child: SizedBox(
+        key: const ValueKey('date-weekdays'),
+        height: datePickerRowHeight(scaler, lineHeight: 19),
+        child: Row(
+          children: [
+            for (var i = 0; i < 7; i++)
+              Semantics(
+                container: true,
+                role: SemanticsRole.columnHeader,
+                label: l.weekdaysLong[i],
+                excludeSemantics: true,
+                child: SizedBox(
+                  width: cellW,
+                  child: Center(
+                    child: Text(
+                      l.weekdays[i],
+                      style: PTypography.t4.copyWith(
+                        color: c.fgNeutralSubtle,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // 한 달 — fixed 는 늘 6주(앞뒤 달은 흐리게), natural 은 그 달의 주 수(앞뒤 달은 비운다)
-  Widget _grid(DateTime month, double cellW, {required bool fixed}) {
+  Widget _grid(
+    DateTime month,
+    double cellW, {
+    required bool fixed,
+    Widget? weekdays,
+  }) {
     final y = month.year;
     final m = month.month;
     final first = weekStart(DateTime(y, m));
     final weeks = fixed ? _weeks : weeksInMonth(y, m);
     final label = widget.labels.month(y, m);
+    final ringOn = _gridFocus.hasFocus && keyboardHighlight();
     return Semantics(
       container: true,
       explicitChildNodes: true,
+      role: SemanticsRole.table,
       label: label,
       child: Column(
-        key: ValueKey('date-grid-$y-${pad2(m)}'),
         children: [
-          for (var w = 0; w < weeks; w++)
-            Row(
-              children: [
-                for (var i = 0; i < 7; i++)
-                  Builder(
-                    builder: (context) {
-                      final d = addDays(first, w * 7 + i);
-                      if (d.month != m) {
-                        return PDatePickerOutsideCell(
-                          key: ValueKey('date-outside-${dayKey(d)}'),
-                          date: d,
-                          width: cellW,
-                          show: fixed,
-                        );
-                      }
-                      final s = _cellState(d);
-                      final name = s.readOnly
-                          ? '${widget.labels.day(d)}, '
-                                '${widget.labels.readOnlyRangeStart}'
-                          : widget.labels.day(d);
-                      return PDatePickerDayCell(
-                        key: ValueKey('date-${dayKey(d)}'),
-                        date: d,
-                        state: s,
-                        label: name,
-                        width: cellW,
-                        onTap: () => _selectDate(d),
-                      );
-                    },
+          ?weekdays,
+          Column(
+            key: ValueKey('date-grid-$y-${pad2(m)}'),
+            children: [
+              for (var w = 0; w < weeks; w++)
+                Semantics(
+                  container: true,
+                  explicitChildNodes: true,
+                  role: SemanticsRole.row,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < 7; i++)
+                        Builder(
+                          builder: (context) {
+                            final d = addDays(first, w * 7 + i);
+                            if (d.month != m) {
+                              return PDatePickerOutsideCell(
+                                key: ValueKey('date-outside-${dayKey(d)}'),
+                                date: d,
+                                width: cellW,
+                                show: fixed,
+                              );
+                            }
+                            final s = _cellState(d);
+                            var name = s.readOnly
+                                ? '${widget.labels.day(d)}, '
+                                      '${widget.labels.readOnlyRangeStart}'
+                                : widget.labels.day(d);
+                            if (s.today) name = '$name, ${widget.labels.today}';
+                            final cell = PDatePickerDayCell(
+                              key: ValueKey('date-${dayKey(d)}'),
+                              date: d,
+                              state: s,
+                              label: name,
+                              width: cellW,
+                              focused: ringOn && sameDay(d, _focusDate),
+                              onTap: () {
+                                // 눌러도 키보드가 이어진다 — 그 날이 초점 자리(링은 터치 모드에서 그리지 않는다)
+                                setState(() => _focusDate = d);
+                                _gridFocus.requestFocus();
+                                _selectDate(d);
+                              },
+                            );
+                            // 격자의 칸(cell) 안에 이름 있는 버튼 — 표(table) · 줄(row) · 칸(cell)로 읽힌다
+                            return Semantics(
+                              container: true,
+                              explicitChildNodes: true,
+                              role: SemanticsRole.cell,
+                              child: cell,
+                            );
+                          },
+                        ),
+                    ],
                   ),
-              ],
-            ),
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -596,10 +780,13 @@ class _PDatePickerState extends State<PDatePicker> {
     final canNext = !_wheelOpen && viewNumber < _lastViewMonth;
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final title = l.month(_view.year, _view.month);
+    final scaler = MediaQuery.textScalerOf(context);
+    final weekdayH = datePickerRowHeight(scaler, lineHeight: 19);
+    final cellH = datePickerCellHeight(scaler);
 
     final header = SizedBox(
       key: const ValueKey('date-header'),
-      height: _rowHeight,
+      height: datePickerRowHeight(scaler),
       child: Row(
         children: [
           Expanded(
@@ -680,7 +867,7 @@ class _PDatePickerState extends State<PDatePicker> {
       ];
       area = SizedBox(
         key: const ValueKey('date-wheel'),
-        height: _wheelAreaHeight,
+        height: weekdayH + _weeks * cellH,
         child: Center(
           child: PWheelPicker(
             semanticLabel: l.month(_wheelYear, _wheelMonth),
@@ -711,9 +898,16 @@ class _PDatePickerState extends State<PDatePicker> {
       area = LayoutBuilder(
         builder: (context, constraints) {
           final cellW = constraints.maxWidth / 7;
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [_weekdayRow(cellW), _grid(_view, cellW, fixed: true)],
+          return Focus(
+            focusNode: _gridFocus,
+            autofocus: true,
+            onKeyEvent: _onGridKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _grid(_view, cellW, fixed: true, weekdays: _weekdayRow(cellW)),
+              ],
+            ),
           );
         },
       );
@@ -752,29 +946,41 @@ class _PDatePickerState extends State<PDatePicker> {
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: widget.inset),
-                    child: _weekdayRow(cellW),
+                    // 이어지는 달은 요일 줄이 달 밖에 붙는다 — 줄 하나짜리 표
+                    child: Semantics(
+                      container: true,
+                      explicitChildNodes: true,
+                      role: SemanticsRole.table,
+                      child: _weekdayRow(cellW),
+                    ),
                   ),
                   Expanded(
-                    child: ScrollConfiguration(
-                      behavior: ScrollConfiguration.of(
-                        context,
-                      ).copyWith(scrollbars: false),
-                      child: ListView.builder(
-                        key: const ValueKey('date-scroll'),
-                        controller: _scroll,
-                        padding: EdgeInsets.zero,
-                        physics: const ClampingScrollPhysics(),
-                        itemCount: _heights.length,
-                        itemExtentBuilder: (index, _) => _heights[index],
-                        itemBuilder: (context, index) {
-                          final month = fromMonthNumber(_firstMonth + index);
-                          return _ContinuousMonth(
-                            key: ValueKey('date-month-${monthNumber(month)}'),
-                            inset: widget.inset,
-                            title: l.month(month.year, month.month),
-                            grid: _grid(month, cellW, fixed: false),
-                          );
-                        },
+                    child: Focus(
+                      focusNode: _gridFocus,
+                      autofocus: true,
+                      onKeyEvent: _onGridKey,
+                      child: ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(
+                          context,
+                        ).copyWith(scrollbars: false),
+                        child: ListView.builder(
+                          key: const ValueKey('date-scroll'),
+                          controller: _scroll,
+                          padding: EdgeInsets.zero,
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: _heights.length,
+                          itemExtentBuilder: (index, _) => _heights[index],
+                          itemBuilder: (context, index) {
+                            final month = fromMonthNumber(_firstMonth + index);
+                            return _ContinuousMonth(
+                              key: ValueKey('date-month-${monthNumber(month)}'),
+                              inset: widget.inset,
+                              title: l.month(month.year, month.month),
+                              grid: _grid(month, cellW, fixed: false),
+                              labelHeight: _labelH,
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -849,11 +1055,15 @@ class _ContinuousMonth extends StatelessWidget {
     required this.inset,
     required this.title,
     required this.grid,
+    required this.labelHeight,
   });
 
   final double inset;
   final String title;
   final Widget grid;
+
+  /// 달 이름 줄 높이 — 최소 48, 글자 배율에 따라 커진다.
+  final double labelHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -865,7 +1075,7 @@ class _ContinuousMonth extends StatelessWidget {
         children: [
           Container(
             key: const ValueKey('date-month-label'),
-            height: _rowHeight,
+            height: labelHeight,
             padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
             alignment: Alignment.centerLeft,
             child: Text(

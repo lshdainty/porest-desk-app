@@ -470,6 +470,45 @@ void main() {
       expect(_centerLabel(tester, '시'), '1');
     });
 
+    testWidgets(
+      'Home · End 는 오전 · 오후를 그대로 두고 1 · 12 로 간다 — 지나간 칸을 세지 않는다(03-C 3A)',
+      (tester) async {
+        final calls = <PTimeValue>[];
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            _Holder(initial: const PTimeValue(15, 30), calls: calls),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await _tab(tester, 2);
+        await _key(tester, LogicalKeyboardKey.end);
+        expect(calls.last, const PTimeValue(12, 30)); // 오후 12
+        expect(_centerLabel(tester, '오전/오후'), '오후');
+        await _key(tester, LogicalKeyboardKey.home);
+        expect(calls.last, const PTimeValue(13, 30)); // 오후 1
+        expect(_centerLabel(tester, '오전/오후'), '오후');
+        expect(_centerLabel(tester, '시'), '1');
+      },
+    );
+
+    testWidgets('오전 9 에서 End → 오전 12(0시), Home → 오전 1', (tester) async {
+      final calls = <PTimeValue>[];
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          _Holder(initial: const PTimeValue(9, 30), calls: calls),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await _tab(tester, 2);
+      await _key(tester, LogicalKeyboardKey.end);
+      expect(calls.last, const PTimeValue(0, 30));
+      expect(_centerLabel(tester, '오전/오후'), '오전');
+      await _key(tester, LogicalKeyboardKey.home);
+      expect(calls.last, const PTimeValue(1, 30));
+    });
+
     testWidgets('분 간격 30 — 두 칸(00 · 30), 한 칸 내리면 30', (tester) async {
       final calls = <PTimeValue>[];
       await tester.pumpWidget(

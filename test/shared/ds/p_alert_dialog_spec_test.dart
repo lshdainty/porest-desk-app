@@ -255,39 +255,93 @@ void main() {
     expect(tester.getSize(_card(PColors.light)).width, 300 - 64);
   });
 
-  test('배치는 글 길이가 정한다 — 한쪽 글이 반 폭을 넘으면 세로, 버튼 하나는 single', () {
-    // 안쪽 폭 232(272 − 40) → 반 폭 112, 버튼 안쪽 여백 32 를 빼면 글 80
-    expect(
-      alertDialogLayoutFor(
-        innerWidth: 232,
-        cancelLabel: '취소',
-        actionLabel: '삭제',
-      ),
-      PAlertDialogLayout.horizontal,
+  testWidgets('배치는 짝 버튼 부품이 정한다 — 한 라벨이 반 폭을 넘으면 세로, 버튼 하나는 single', (
+    tester,
+  ) async {
+    _viewport(tester, const Size(390, 800));
+    for (final (layout, row, column) in [
+      ('horizontal', true, false),
+      ('vertical', false, true),
+      ('single', false, false),
+    ]) {
+      await tester.pumpWidget(
+        _app(Brightness.light, Scaffold(body: _view(layout))),
+      );
+      expect(
+        find.byKey(const ValueKey('pair-row')),
+        row ? findsOneWidget : findsNothing,
+        reason: layout,
+      );
+      expect(
+        find.byKey(const ValueKey('pair-column')),
+        column ? findsOneWidget : findsNothing,
+        reason: layout,
+      );
+    }
+    // 세로면 확정이 위
+    await tester.pumpWidget(
+      _app(Brightness.light, Scaffold(body: _view('vertical'))),
     );
     expect(
-      alertDialogLayoutFor(
-        innerWidth: 232,
-        cancelLabel: '계속 작성하기',
-        actionLabel: '나가기',
+      tester.getTopLeft(find.text('저장하지 않고 나가기')).dy,
+      lessThan(tester.getTopLeft(find.text('계속 작성하기')).dy),
+    );
+  });
+
+  testWidgets('360 × 640 · 글자 200% · 긴 설명 — 높이는 안전 영역 안이고 확인 버튼까지 스크롤로 닿는다', (
+    tester,
+  ) async {
+    _viewport(tester, const Size(360, 640));
+    tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
+    addTearDown(tester.view.resetPadding);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: _theme(Brightness.light),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: Scaffold(
+          body: PAlertDialogView(
+            title: '이 가계부를 삭제할까요?',
+            description: List.filled(
+              8,
+              '삭제하면 이 가계부의 거래 · 예산 · 반복 설정이 모두 사라지고 되돌릴 수 없어요.',
+            ).join(' '),
+            cancelLabel: '취소',
+            actionLabel: '삭제',
+            destructive: true,
+            onCancel: () {},
+            onAction: () {},
+          ),
+        ),
       ),
-      PAlertDialogLayout.vertical,
+    );
+    expect(tester.takeException(), isNull);
+    final card = _card(PColors.light);
+    final rect = tester.getRect(card);
+    expect(rect.height, lessThanOrEqualTo(640 - 48));
+    expect(rect.top, greaterThanOrEqualTo(24));
+    expect(rect.bottom, lessThanOrEqualTo(640 - 24));
+    // 처음엔 버튼이 카드 밖(스크롤 안)에 있다 → 스크롤하면 닿는다
+    final scrollable = find.descendant(
+      of: card,
+      matching: find.byType(Scrollable),
+    );
+    expect(scrollable, findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('삭제'),
+      200,
+      scrollable: scrollable,
     );
     expect(
-      alertDialogLayoutFor(
-        innerWidth: 232,
-        cancelLabel: '취소',
-        actionLabel: '저장하지 않고 나가기',
-      ),
-      PAlertDialogLayout.vertical,
-    );
-    expect(
-      alertDialogLayoutFor(
-        innerWidth: 232,
-        cancelLabel: null,
-        actionLabel: '거래 보기',
-      ),
-      PAlertDialogLayout.single,
+      tester.getRect(find.text('삭제')).bottom,
+      lessThanOrEqualTo(rect.bottom),
     );
   });
 

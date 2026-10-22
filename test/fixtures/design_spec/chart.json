@@ -3,7 +3,7 @@
   "source": "specs/components/chart.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "root": "차트 상자 — 카드 본문 안, 폭 100%. 높이는 쓰는 자리가 정한다",
@@ -202,7 +202,7 @@
         "heatmapCell": {
           "aspectRatio": "1 / 1",
           "radius": 4,
-          "background": "bg-brand-solid 18 · 35 · 55 · 75 · 100%"
+          "background": "bg-brand-solid 18 · 35 · 55 · 76 · 100%"
         },
         "heatmapValue": {
           "threshold": 112,
@@ -684,7 +684,7 @@
       "state": "enabled",
       "slot": "heatmapValue",
       "prop": "foreground",
-      "note": "칸 바탕 위 4.5 를 넘는 쪽 — Desk 라이트 18 · 35 · 55% 는 fg-neutral(5.69 이상) · 75 · 100% 는 static-white(4.62 · 8.38), 다크는 모두 fg-neutral(7.74 이상). HR 은 라이트 18 ~ 75% 가 fg-neutral(5.23 이상) · 100% 만 static-white(5.06), 다크는 모두 fg-neutral(4.69 이상 — HR 100% 단계). 칸마다 재지 않고 단계마다 정해 둔다"
+      "note": "칸 바탕 위 4.5 를 넘는 쪽 — Desk 라이트 18 · 35 · 55% 는 fg-neutral(5.69 이상) · 76 · 100% 는 static-white(4.74 · 8.38), HR(v121 그루 초록) 라이트는 18 · 35 · 55% 가 fg-neutral(5.94 이상) · 76 · 100% 가 static-white(4.52 · 8.17), 다크는 둘 다 모두 fg-neutral(7.74 이상). 넷째 단계는 75% 였다 — 그루 초록에서 어느 글자도 4.5 에 못 미쳐(흰 4.40) 두 브랜드 함께 76% 로 올렸다(2026-10-22 사용자 결정 B, https://claude.ai/artifact/JftMz8DQo6yKaGJ5kS9N53). 칸마다 재지 않고 단계마다 정해 둔다"
     },
     {
       "rule": 0,

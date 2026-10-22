@@ -1692,7 +1692,7 @@ class _HeatmapCard extends StatelessWidget {
 
     Color bgFor(int bucket) {
       if (bucket == 0) return t.bgMuted;
-      final alpha = [0.0, 0.18, 0.35, 0.55, 0.75, 1.0][bucket];
+      final alpha = [0.0, 0.18, 0.35, 0.55, 0.76, 1.0][bucket];
       return t.fgBrand.withValues(alpha: alpha);
     }
 

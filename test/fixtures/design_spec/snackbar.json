@@ -3,7 +3,7 @@
   "source": "specs/components/snackbar.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "region": "자리 — 화면 아래 가운데. 탭 바 · 플로팅 버튼 · 바닥 버튼을 피해 그 위에 선다",
@@ -172,7 +172,7 @@
       "properties": [
         "지금 것 사라짐 → 새 것 나타남"
       ],
-      "note": "한 번에 하나 — 새 것이 오면 지금 것을 바로 바꾼다"
+      "note": "한 번에 하나 — 새 것이 오면 지금 것을 바로 바꾼다. 지금 것에 액션이 있으면 끝날 때까지 지키고 새 것은 그 뒤에(기다리는 것은 하나 — 2026-10-22 1B)"
     }
   },
   "notes": [
@@ -286,7 +286,7 @@
       "state": "enabled",
       "slot": "action",
       "prop": "foreground",
-      "note": "반전 짝(v115) — 짙은 띠 위 Desk 6.90 · HR 7.05, 다크의 밝은 띠 위 7.76 · 4.69"
+      "note": "반전 짝(v115) — 짙은 띠 위 Desk 6.90 · HR 6.88, 다크의 밝은 띠 위 7.76 · 7.56"
     },
     {
       "rule": 0,

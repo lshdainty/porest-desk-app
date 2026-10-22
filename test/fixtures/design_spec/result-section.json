@@ -3,7 +3,7 @@
   "source": "specs/components/result-section.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "root": "묶음 — 놓인 자리 가운데",
@@ -234,7 +234,7 @@
       "state": "enabled",
       "slot": "secondaryButton",
       "prop": "foreground",
-      "note": "SEED Text Button 글자 t4 · 700 · fg.neutral-muted — 2026-10-16 사용자 결정 글자 역할 D2(전 ghost 의 fg-neutral)"
+      "note": "지금 값은 fg-neutral-muted — SEED Text Button 글자 t4 · 700 · fg.neutral-muted(2026-10-16 사용자 결정 글자 역할 D2). D2 이전에는 Button ghost 의 fg-neutral 이었고 D2 가 바꿨다 — 둘째 버튼을 ghost 그대로 두면 틀린다"
     },
     {
       "rule": 1,

@@ -3,7 +3,7 @@
   "source": "specs/components/swipe-actions.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "row": "ⓐ 감싸는 목록 줄 — 스펙이 내부를 정의하지 않는다. 닫혔을 때 초점을 받을 수 있다(tabIndex -1)",

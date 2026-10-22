@@ -3,7 +3,7 @@
   "source": "specs/components/resizable.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "group": "나눈 자리 — split 은 목록 | 상세 두 패널, widget 은 대시보드 칸(격자)",
@@ -452,7 +452,7 @@
       "state": "enabled",
       "slot": "placeholder",
       "prop": "borderColor",
-      "note": "바닥 위 HR 4.69 · 다크 7.05 · 옅은 바탕 위 4.56 · 5.42(≥ 3) — 자리표시의 경계"
+      "note": "바닥 위 HR 7.56 · 다크 6.88 · 옅은 바탕 위 7.18 · 5.47(≥ 3) — 자리표시의 경계"
     },
     {
       "rule": 1,

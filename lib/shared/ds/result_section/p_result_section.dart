@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 
 /// 결과 — empty(비어 있음 · 처음, 기본 — 회색 아이콘) · failure(불러오기 실패 · 화면 오류 — 위험 색 느낌표, 첫 버튼은
 /// "다시 시도") · done(완료 — 성공 색 체크).
@@ -105,7 +106,7 @@ double resultSectionPaddingX(PResultPlacement placement) => switch (placement) {
 ///   [title]           무슨 상태인지 한 줄(큰 글씨라 마침표 없이)
 ///   [description]     왜 · 무엇을 하면 되는지, 해요체 + 마침표, 최대 두 줄을 권한다(서버가 보낸 글 · 예외 · 영어는 쓰지 않는다)
 ///   [primaryAction]   첫 버튼 — 해결 · 다음 동작. PButton neutralWeak medium(40)
-///   [secondaryAction] 둘째 버튼 — 보조 동작. PButton ghost small(36), 위아래로 8 블리드 — 글 자리만 차지한다
+///   [secondaryAction] 둘째 버튼 — 보조 동작. PTextButton(글 버튼 D2 — t4 · 700 · fg-neutral-muted · 36), 위아래로 8 블리드 — 글 자리만 차지한다
 ///   [headingLevel]    제목 단계(웹 `as` — 기본 2). 화면 전체 결과면 그 화면의 제목 단계로
 ///
 /// 묶음 — 좌우 48(놓인 자리가 카드면 [placement]) · 위아래 16, 놓인 자리의 가운데에 서고(부모가 높이를 주면 남는 높이를
@@ -255,7 +256,11 @@ class PResultSection extends StatelessWidget {
     // (첫 버튼이 있으면 위 8 은 그 12 안에 이미 들어 있어 아래 8 만 뺀다)
     final secondaryButton = secondary == null
         ? null
-        : button(secondary, PButtonVariant.ghost, PButtonSize.small);
+        // 글 버튼(D2 — SEED Text Button: t4 · 700 · fg-neutral-muted · 36)
+        : PTextButton(
+            label: secondary.label,
+            onPressed: secondary.loading ? null : secondary.onPressed,
+          );
     const secondaryHeight = 36.0;
     return Column(
       mainAxisSize: MainAxisSize.min,

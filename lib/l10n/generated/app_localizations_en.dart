@@ -211,7 +211,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notiEmpty => 'No notifications';
 
   @override
-  String get notiMarkAllRead => 'Mark all read';
+  String get notiMarkAllRead => 'Read all';
+
+  @override
+  String notiMore(String title) {
+    return 'More for $title';
+  }
+
+  @override
+  String get notiDeleteTitle => 'Delete notification';
+
+  @override
+  String get notiDeleteDescription =>
+      'Deleted notifications can\'t be restored.';
 
   @override
   String get notiTypeEventReminder => 'Event Reminder';
@@ -7457,6 +7469,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dsDatePresets => 'Quick ranges';
+
+  @override
+  String get dsDateToday => 'today';
+
+  @override
+  String dsTabPosition(int index, int count) {
+    return 'Tab $index of $count';
+  }
 
   @override
   String get dsDatePresetThisWeek => 'This week';

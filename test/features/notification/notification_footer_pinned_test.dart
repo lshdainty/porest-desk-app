@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
@@ -128,14 +129,19 @@ void main() {
     await _pump(tester, _items(3));
     // 행은 [좌우 24 패딩][아이콘 · 글] 순이다 — SEED List 줄(9-1)로 바꾸면서 3px 좌측 엣지바를
     // 걷었다(안 읽음은 bg-brand-weak + 점). 여기서 벌어지면 좌우 여백이 24 가 아니라는 뜻이다.
+    // 왼쪽은 종류 아이콘 상자, 오른쪽은 줄 끝 ⋮ 버튼이다(× 를 ⋮ 로 바꿨다 — 알림 지우기).
     final list = tester.getRect(find.byType(ListView));
-    final content = tester.getRect(
+    final tile = tester.getRect(
       find
-          .descendant(of: find.byType(ListView), matching: find.byType(Row))
+          .ancestor(
+            of: find.byIcon(LucideIcons.bell).first,
+            matching: find.byType(Container),
+          )
           .first,
     );
-    expect(content.left - list.left, closeTo(24, 1));
-    expect(list.right - content.right, closeTo(24, 1));
+    final more = tester.getRect(find.byKey(const ValueKey('noti-more-1')));
+    expect(tile.left - list.left, closeTo(24, 1));
+    expect(list.right - more.right, closeTo(24, 1));
   });
 
   testWidgets('안읽음 헤더도 좌우 24 다', (tester) async {

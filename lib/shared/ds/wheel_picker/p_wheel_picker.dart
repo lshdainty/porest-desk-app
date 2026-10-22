@@ -239,6 +239,7 @@ class PWheelPickerColumn<T> extends StatefulWidget {
     this.value,
     this.initialValue,
     this.onChanged,
+    this.onJump,
     this.onIndexChange,
     this.loop = false,
     this.align = PWheelPickerAlign.center,
@@ -260,6 +261,11 @@ class PWheelPickerColumn<T> extends StatefulWidget {
 
   /// 휠이 멈춰 값이 정해졌을 때 한 번 — 값이 바뀌었을 때만.
   final PWheelPickerChanged<T>? onChanged;
+
+  /// Home · End 로 건너뛰어 멈춰 값이 정해졌을 때 — 이때는 [onChanged] 대신 이것을 부른다(없으면 [onChanged] 로 stepDelta 와
+  /// 함께 알린다). 반복 칼럼에서 지나간 칸 수가 아니라 간 값 자체로 셈해야 할 때(시: 오전 · 오후를 그대로 두고 1 · 12 로 간다,
+  /// 03-C 결정 3A). 웹 `WheelPickerValueChangeDetails.jump` 와 같은 뜻이다.
+  final ValueChanged<T>? onJump;
 
   /// 굴리는 동안 띠를 지나는 항목마다(햅틱 등) — 값은 아직 정해지지 않았다. 쓰는 쪽이 움직인 때만(밀기 · 누르기 · 키)
   /// 부르고, 쓰는 쪽이 값을 바꿔 옮길 때는 부르지 않는다.
@@ -302,6 +308,9 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
 
   /// 사용자가 끌고 있다 — 쓰는 쪽이 바꾼 값으로 덮어쓰지 않는다.
   bool _dragging = false;
+
+  /// 지금 가는 이동이 Home · End 의 건너뛰기다 — 멈추면 [PWheelPickerColumn.onJump] 로 알리고 지운다.
+  bool _jump = false;
 
   /// 우리가 값 맞추기로 옮기는 중 — 알리지 않는다.
   bool _syncing = false;
@@ -416,9 +425,16 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
     _keyboardTarget = p;
     _notify = false;
     final value = widget.options[_indexOf(p)].value;
+    final jumped = _jump;
+    _jump = false;
     if (value != _current) {
       if (widget.value == null) setState(() => _inner = value);
-      widget.onChanged?.call(value, stepDelta);
+      final onJump = widget.onJump;
+      if (jumped && onJump != null) {
+        onJump(value);
+      } else {
+        widget.onChanged?.call(value, stepDelta);
+      }
     }
   }
 
@@ -428,6 +444,7 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
       if (n.dragDetails != null) {
         // 손가락이 닿았다 — 지나는 항목을 알리고, 쓰는 쪽의 값 · 키 자리는 접는다
         _dragging = true;
+        _jump = false;
         _notify = true;
         _keyboardTarget = null;
       }
@@ -457,13 +474,14 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
   // ── 누르기 · 키 · 조절 ────────────────────────────────────────
 
   /// 그 자리(물리 번호)로 — 부드럽게(모션 줄이기 · 키를 누르고 있으면 바로), 멈춘 뒤 값을 정한다.
-  void _moveToPhysical(int physical, {bool smooth = true}) {
+  void _moveToPhysical(int physical, {bool smooth = true, bool jump = false}) {
     if (!_controller.hasClients) return;
     var target = physical;
     if (!widget.loop) target = target.clamp(0, _count - 1);
     _keyboardTarget = target;
     // 이미 그 자리면 움직일 것이 없다 — 알림도 오지 않으니 움직이는 중으로 남기지 않는다
     if (target == _controller.selectedItem && _centered(target)) return;
+    _jump = jump;
     _notify = true;
     if (smooth && !_reduceMotion) {
       _controller.animateToItem(
@@ -483,7 +501,7 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
     _moveToPhysical(from + by, smooth: smooth);
   }
 
-  void _moveToIndex(int index, {bool smooth = true}) {
+  void _moveToIndex(int index, {bool smooth = true, bool jump = false}) {
     if (!_controller.hasClients) return;
     final from = _keyboardTarget ?? _controller.selectedItem;
     var target = index;
@@ -494,7 +512,7 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
       if (delta < -_count / 2) delta += _count;
       target = from + delta;
     }
-    _moveToPhysical(target, smooth: smooth);
+    _moveToPhysical(target, smooth: smooth, jump: jump);
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -515,9 +533,9 @@ class _PWheelPickerColumnState<T> extends State<PWheelPickerColumn<T>> {
     } else if (key == LogicalKeyboardKey.arrowDown) {
       _moveToIndex(_indexOf(from) + 1, smooth: smooth);
     } else if (key == LogicalKeyboardKey.home) {
-      _moveToIndex(0, smooth: smooth);
+      _moveToIndex(0, smooth: smooth, jump: true);
     } else if (key == LogicalKeyboardKey.end) {
-      _moveToIndex(_count - 1, smooth: smooth);
+      _moveToIndex(_count - 1, smooth: smooth, jump: true);
     } else {
       return KeyEventResult.ignored;
     }

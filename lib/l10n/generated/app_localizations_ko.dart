@@ -212,6 +212,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notiMarkAllRead => '모두 읽음';
 
   @override
+  String notiMore(String title) {
+    return '$title 더보기';
+  }
+
+  @override
+  String get notiDeleteTitle => '알림 삭제';
+
+  @override
+  String get notiDeleteDescription => '삭제한 알림은 되돌릴 수 없어요.';
+
+  @override
   String get notiTypeEventReminder => '일정 알림';
 
   @override
@@ -7301,6 +7312,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dsDatePresets => '빠른 기간';
+
+  @override
+  String get dsDateToday => '오늘';
+
+  @override
+  String dsTabPosition(int index, int count) {
+    return '탭 $index/$count';
+  }
 
   @override
   String get dsDatePresetThisWeek => '이번 주';

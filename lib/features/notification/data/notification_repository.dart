@@ -61,7 +61,11 @@ class NotificationRepository {
 
   Future<void> delete(int id) async {
     try {
-      await _dio.delete<void>('/notification/$id');
+      // 오류 알림은 화면이 확인창을 열어 둔 채 띄운다 — 인터셉터의 전역 토스트와 겹치지 않게 막는다
+      await _dio.delete<void>(
+        '/notification/$id',
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

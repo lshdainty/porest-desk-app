@@ -3,7 +3,7 @@
   "source": "specs/components/progress.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "root": "묶음 — 이름 줄 · 막대 · 금액 줄",
@@ -194,7 +194,7 @@
       "state": "enabled",
       "slot": "fill",
       "prop": "background",
-      "note": "브랜드 글자색 — 다크는 밝은 짝. 트랙과 Desk 7.76 · 다크 4.69, HR 4.69 · 4.79"
+      "note": "브랜드 글자색 — 다크는 밝은 짝. 트랙과 Desk 7.76 · 다크 4.69, HR 7.56 · 4.67"
     },
     {
       "rule": 0,

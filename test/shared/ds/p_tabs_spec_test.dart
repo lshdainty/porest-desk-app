@@ -809,6 +809,109 @@ void main() {
       expect(tester.getRect(find.text(names[0])).left, 26);
     });
 
+    testWidgets(
+      'Fill 이 넘치면(360 · 영어 긴 탭 넷) 칸을 나누지 않고 가로 스크롤 — 줄이 넘치지 않고 고른 넷째 탭이 보인다(03-G 3B)',
+      (tester) async {
+        final names = [
+          'Monthly overview',
+          'Spending by category',
+          'Recurring payments',
+          'Budget settings',
+        ];
+        var value = 'v0';
+        late StateSetter set;
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            StatefulBuilder(
+              builder: (context, setState) {
+                set = setState;
+                return PTabs<String>(
+                  value: value,
+                  onChanged: (v) => setState(() => value = v),
+                  semanticLabel: 'Stats',
+                  items: [for (var i = 0; i < 4; i++) _tab('v$i', names[i])],
+                );
+              },
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(tester.takeException(), isNull, reason: '줄이 넘치지 않는다');
+        final scroll = find.byKey(const ValueKey('tabs-scroll'));
+        expect(scroll, findsOneWidget, reason: '넘치면 스크롤 목록');
+        expect(find.byType(Scrollbar), findsNothing);
+        final view = tester.getRect(scroll);
+        expect(view.width, 360);
+        // 칸을 나누지 않는다 — 탭 폭은 글 + 좌우 10
+        for (final n in names) {
+          final tab = tester.getRect(_tabOf(n));
+          final label = tester.getRect(find.text(n));
+          expect(tab.width, closeTo(label.width + 20, 0.5), reason: n);
+        }
+        // 첫 탭에서 시작 — 내용 폭이 줄 폭보다 크다
+        final position = tester
+            .state<ScrollableState>(
+              find.descendant(of: scroll, matching: find.byType(Scrollable)),
+            )
+            .position;
+        expect(position.maxScrollExtent, greaterThan(0));
+        expect(tester.getRect(_tabOf(names[3])).right, greaterThan(360));
+        // 넷째 탭을 고르면 보이는 자리로 따라온다
+        set(() => value = 'v3');
+        await tester.pumpAndSettle();
+        final last = tester.getRect(_tabOf(names[3]));
+        expect(last.right, lessThanOrEqualTo(view.right + 0.01));
+        expect(last.left, greaterThanOrEqualTo(view.left));
+        // 막대 들임 16 은 fill 값 그대로
+        final bar = tester.getRect(_bar);
+        expect(bar.left - last.left, closeTo(16, 0.01));
+        expect(last.right - bar.right, closeTo(16, 0.01));
+        // 글 폭 합이 줄 폭에 들면 다시 칸을 똑같이 나눈다(360 폰 2개면 막대 148)
+      },
+    );
+
+    test('fillTabWidths — 칸보다 긴 탭만 글 폭, 나머지가 남은 폭을 똑같이', () {
+      // 360 에 글 폭 100 · 200 · 40 → 똑같이 120 이면 둘째(200)가 넘는다 → 200 고정, 남은 160 은 80 씩인데 첫째(100)도 넘으니 100 고정 → 셋째 60
+      expect(fillTabWidths([100, 200, 40], 360), [100, 200, 60]);
+      expect(fillTabWidths([48, 160, 48], 360), [100, 160, 100]);
+      // 모두 칸 안이면 똑같이
+      expect(fillTabWidths([60, 70, 50], 360), [120, 120, 120]);
+      // 합이 총 폭
+      final w = fillTabWidths([150, 100, 40, 30], 360);
+      expect(w.fold<double>(0, (a, b) => a + b), closeTo(360, 0.001));
+    });
+
+    testWidgets('Fill — 합은 줄 안이지만 한 탭 글이 칸보다 길면 그 탭만 넓어진다(글이 칸 밖으로 넘치지 않는다)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PTabs<String>(
+            value: 'a',
+            onChanged: (_) {},
+            semanticLabel: 'Stats',
+            items: [_tab('a', 'Ab'), _tab('b', 'Long label'), _tab('c', 'Cd')],
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('tabs-scroll')), findsNothing);
+      final a = tester.getSize(_tabOf('Ab')).width;
+      final b = tester.getSize(_tabOf('Long label')).width;
+      final c = tester.getSize(_tabOf('Cd')).width;
+      expect(a + b + c, closeTo(360, 0.5));
+      expect(b, greaterThan(120), reason: '그 탭만 넓어진다');
+      expect(a, lessThan(120));
+      expect(
+        tester.getSize(find.text('Long label')).width,
+        lessThanOrEqualTo(b - 20 + 0.5),
+        reason: '글이 칸 안에 든다',
+      );
+    });
+
     testWidgets('알림 점은 안 고른 탭에만 — 고르면 사라지고 탭 폭은 바뀌지 않는다', (tester) async {
       final semantics = tester.ensureSemantics();
       var value = 'a';
@@ -833,12 +936,12 @@ void main() {
       expect(_lineDot, findsOneWidget);
       final width = tester.getSize(_tabOf('완료')).width;
       // 점이 있는 탭 이름 뒤에 읽는 글을 덧붙인다 — 점만으로 알리지 않는다
-      expect(find.bySemanticsLabel('완료 새 소식'), findsOneWidget);
+      expect(find.bySemanticsLabel('완료 새 소식, 탭 2/2'), findsOneWidget);
       set(() => value = 'b');
       await tester.pump();
       expect(_lineDot, findsNothing);
-      expect(find.bySemanticsLabel('완료 새 소식'), findsNothing);
-      expect(find.bySemanticsLabel('완료'), findsOneWidget);
+      expect(find.bySemanticsLabel('완료 새 소식, 탭 2/2'), findsNothing);
+      expect(find.bySemanticsLabel('완료, 탭 2/2'), findsOneWidget);
       expect(tester.getSize(_tabOf('완료')).width, width);
       semantics.dispose();
     });
@@ -1027,12 +1130,14 @@ void main() {
       );
       final list = tester.getSemantics(find.bySemanticsLabel('통계'));
       expect(list.getSemanticsData().role, SemanticsRole.tabBar);
-      final selected = tester.getSemantics(find.bySemanticsLabel('카테고리'));
+      final selected = tester.getSemantics(
+        find.bySemanticsLabel('카테고리, 탭 1/3'),
+      );
       expect(selected.getSemanticsData().role, SemanticsRole.tab);
       expect(
         selected,
         isSemantics(
-          label: '카테고리',
+          label: '카테고리, 탭 1/3',
           isSelected: true,
           hasSelectedState: true,
           hasEnabledState: true,
@@ -1042,7 +1147,7 @@ void main() {
         ),
       );
       expect(
-        tester.getSemantics(find.bySemanticsLabel('추이')),
+        tester.getSemantics(find.bySemanticsLabel('추이, 탭 2/3')),
         isSemantics(
           hasEnabledState: true,
           isEnabled: false,
@@ -1051,9 +1156,9 @@ void main() {
         ),
       );
       expect(
-        tester.getSemantics(find.bySemanticsLabel('비교 새 소식')),
+        tester.getSemantics(find.bySemanticsLabel('비교 새 소식, 탭 3/3')),
         isSemantics(
-          label: '비교 새 소식',
+          label: '비교 새 소식, 탭 3/3',
           hasSelectedState: true,
           isSelected: false,
           hasTapAction: true,
@@ -1086,17 +1191,41 @@ void main() {
         SemanticsRole.tabBar,
       );
       expect(
-        tester.getSemantics(find.bySemanticsLabel('보유')),
+        tester.getSemantics(find.bySemanticsLabel('보유, 탭 2/2')),
         isSemantics(
-          label: '보유',
+          label: '보유, 탭 2/2',
           isSelected: true,
           hasSelectedState: true,
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('전체 새 소식'), findsOneWidget);
+      expect(find.bySemanticsLabel('전체 새 소식, 탭 1/2'), findsOneWidget);
+      // 안드로이드 · iOS 는 tab 역할을 전달하지 않아 이름 끝 "탭 n/m" 이 위치를 알린다(Material TabBar 와 같다)
       semantics.dispose();
     });
+  });
+
+  testWidgets('영어 — 탭 이름 끝은 "Tab n of m"', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GrooTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(
+          body: PTabs<String>(
+            value: 'a',
+            onChanged: (_) {},
+            semanticLabel: 'Stats',
+            items: [_tab('a', 'Spending'), _tab('b', 'Budget')],
+          ),
+        ),
+      ),
+    );
+    expect(find.bySemanticsLabel('Spending, Tab 1 of 2'), findsOneWidget);
+    expect(find.bySemanticsLabel('Budget, Tab 2 of 2'), findsOneWidget);
+    semantics.dispose();
   });
 
   group('Chip Tabs 동작', () {

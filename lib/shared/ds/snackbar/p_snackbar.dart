@@ -24,7 +24,8 @@ class PSnackbarAction {
 
 /// 띄우고 닫는 쪽 — [PSnackbar.of] 가 돌려준다(웹 `useSnackbar()`). 돌려주는 것은 늘 같다.
 abstract interface class PSnackbarApi {
-  /// 띠를 띄운다 — 떠 있는 띠가 있으면 바로 바꾼다(한 번에 하나). 내보내는 중에 또 오면 마지막 것만 남는다.
+  /// 띠를 띄운다 — 떠 있는 띠가 있으면 바로 바꾼다(한 번에 하나). 단 떠 있는 띠에 액션이 있으면 그 띠가 끝날 때까지 지키고 새 띠는
+  /// 그 뒤에 온다. 기다리는 띠는 하나 — 그 사이(내보내는 중 포함) 또 오면 마지막 것만 남는다.
   ///
   /// [message] 는 해요체 문장 + 마침표, 무엇이 됐는지 먼저("거래를 저장했어요."). 서버가 보낸 글 · 영어 · 코드는 쓰지
   /// 않는다. [action] 이 있으면 6초, 없으면 4초.
@@ -213,8 +214,10 @@ class PSnackbarHostState extends State<PSnackbarHost>
         _pending = null;
         return;
       }
-      // 지금 띠를 내보내고 새 띠는 기다린다 — 내보내는 중에 또 오면 마지막 것만 남는다
-      if (entry.open) _entry = entry.closed();
+      // 지금 띠에 액션(되돌리기 · 다시 시도)이 있으면 그 띠가 끝날 때까지(시간 · 액션 · 닫기) 지키고 새 띠는 그 뒤에 온다.
+      // 액션이 없으면 지금 띠를 내보내고 새 띠는 기다린다. 기다리는 띠는 하나 — 그 사이 또 오면 마지막 것만 남는다
+      // (알림 결정 1B, I-04 19)
+      if (entry.open && entry.options.action == null) _entry = entry.closed();
       _pending = options;
     });
     // 새 띠가 뜰 때도 다시 잰다 — 크기는 그대로 자리만 옮긴 바닥 요소가 있을 수 있다

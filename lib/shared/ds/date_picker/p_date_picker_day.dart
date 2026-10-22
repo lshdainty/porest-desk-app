@@ -7,9 +7,24 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 // 날짜 칸 하나 — 달력(p_date_picker.dart)이 그리고, 카탈로그 견본이 상태별로 한 칸씩 그린다. 웹
 // `date-picker-day.tsx` 와 같은 값 · 같은 겹침 규칙이다.
 
-/// 칸 높이 · 원 크기 — date-picker.yaml cell.height 48 · dayVisual.size 42(칸 위 3 · 가로 가운데).
+/// 칸 높이(최소) · 원 크기 — date-picker.yaml cell.height 48 · dayVisual.size 42(칸 위 3 · 가로 가운데).
+/// 칸 · 머리 · 요일 줄은 **최소** 48 이고 글이 크면 그만큼만 늘어난다 — 글자만 배율을 따르고 원 42 · 이전 · 다음 40 은 px
+/// 그대로다(03-C 결정 1B).
 const double kDatePickerCellHeight = 48;
 const double kDatePickerDaySize = 42;
+
+/// 숫자 글의 줄 높이(t5 16 / 22) — 글자 배율을 곱하면 칸이 얼마나 커야 하는지 나온다.
+const double _kDayLineHeight = 22;
+
+/// 칸 높이 — 최소 48, 글이 원 42 보다 크면 글 + 위아래 3. 글자 200% 면 44 + 6 = 50(6주 300).
+double datePickerCellHeight(TextScaler scaler) => math.max(
+  kDatePickerCellHeight,
+  math.max(kDatePickerDaySize, scaler.scale(_kDayLineHeight)) + 6,
+);
+
+/// 머리 · 요일 줄 · 달 이름 줄 높이 — 최소 48, 글줄([lineHeight])이 더 크면 그만큼.
+double datePickerRowHeight(TextScaler scaler, {double lineHeight = 22}) =>
+    math.max(kDatePickerCellHeight, scaler.scale(lineHeight));
 
 /// 원 크기 — 칸이 44 보다 좁으면(320 화면) 칸 폭 − 2(date-picker.yaml dayVisual.size).
 double datePickerDaySize(double cellWidth) =>
@@ -89,7 +104,7 @@ TextStyle datePickerDayText(Color color, {bool bold = false}) =>
 /// 날짜 칸 — 칸 전체(폭 [width] × 높이 48)가 누르는 자리다. 원 42(칸 가운데) · 숫자 · 기간 띠.
 ///
 ///   보통       숫자 fg-neutral-muted · 원 없음
-///   누름       원 bg-layer-floating-pressed(터치는 누르는 동안). 오늘(옅은 원) · 기간 사이 날(띠) 위에서는 한 단계 짙은
+///   누름       원 bg-neutral-weak-alpha-pressed(터치는 누르는 동안). 오늘(옅은 원) · 기간 사이 날(띠) 위에서는 불투명
 ///              bg-neutral-weak-pressed. 날짜는 줄지 않는다. 고른 날 · 막힌 날 · 읽기 전용에는 없다
 ///   오늘       원 bg-neutral-weak + 숫자 700 · fg-neutral. 고른 날 · 기간 안에서도 700 은 남는다
 ///   고름       원 bg-neutral-inverted + 숫자 fg-neutral-inverted — 오늘이어도 이 모양
@@ -106,10 +121,14 @@ class PDatePickerDayCell extends StatefulWidget {
     required this.label,
     required this.width,
     required this.onTap,
+    this.focused = false,
   });
 
   final DateTime date;
   final PDatePickerDayState state;
+
+  /// 키보드 초점이 온 날 — 원 둘레 안쪽에 링(stroke-focus-ring 2). 달력이 키보드로 옮긴 때만 켠다(터치 모드에는 없다).
+  final bool focused;
 
   /// 버튼 이름 — "2026년 10월 15일 목요일"(읽기 전용이면 뒤에 말이 붙은 것).
   final String label;
@@ -138,10 +157,12 @@ class _PDatePickerDayCellState extends State<PDatePickerDayCell> {
     final band = datePickerBand(s);
     final day = datePickerDaySize(widget.width);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final cellHeight = datePickerCellHeight(MediaQuery.textScalerOf(context));
 
-    // 눌리는 날 — 보통은 bg-layer-floating-pressed, 오늘 · 기간 사이 날은 한 단계 짙게. 그 밖에는 없다
+    // 눌리는 날 — 보통은 투명 짝 bg-neutral-weak-alpha-pressed(03-C 결정 2B), 오늘 · 기간 사이 날은 불투명
+    // bg-neutral-weak-pressed(투명 색을 띠에 얹으면 또 다른 색이 된다). 그 밖에는 없다
     final pressedColor = switch (tone) {
-      PDatePickerDayTone.enabled => c.bgLayerFloatingPressed,
+      PDatePickerDayTone.enabled => c.bgNeutralWeakAlphaPressed,
       PDatePickerDayTone.today ||
       PDatePickerDayTone.inRange => c.bgNeutralWeakPressed,
       _ => null,
@@ -180,7 +201,7 @@ class _PDatePickerDayCellState extends State<PDatePickerDayCell> {
 
     Widget visual = SizedBox(
       width: widget.width,
-      height: kDatePickerCellHeight,
+      height: cellHeight,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -189,7 +210,7 @@ class _PDatePickerDayCellState extends State<PDatePickerDayCell> {
               key: ValueKey('date-band-${band.name}'),
               left: band == PDatePickerBand.start ? widget.width / 2 : 0,
               right: band == PDatePickerBand.end ? widget.width / 2 : 0,
-              top: (kDatePickerCellHeight - day) / 2,
+              top: (cellHeight - day) / 2,
               height: day,
               child: ColoredBox(color: c.bgNeutralWeak),
             ),
@@ -202,6 +223,10 @@ class _PDatePickerDayCellState extends State<PDatePickerDayCell> {
             decoration: BoxDecoration(
               color: circle,
               borderRadius: BorderRadius.circular(PRounded.full),
+              // 초점 링 — 원 둘레 안쪽 2(date-picker.yaml focused.focusRing offset −2)
+              border: widget.focused
+                  ? Border.all(color: c.strokeFocusRing, width: 2)
+                  : null,
             ),
           ),
           text,
@@ -228,11 +253,13 @@ class _PDatePickerDayCellState extends State<PDatePickerDayCell> {
       ),
     );
 
+    // 격자의 칸(cell)은 달력이 감싼다(role: cell) — 이 버튼이 그 안에 든다(03C-004)
     return Semantics(
       container: true,
       button: true,
       enabled: tappable,
       selected: s.selected || s.inRange,
+      focused: widget.focused,
       label: widget.label,
       onTap: tappable ? widget.onTap : null,
       excludeSemantics: true,
@@ -261,7 +288,7 @@ class PDatePickerOutsideCell extends StatelessWidget {
     return ExcludeSemantics(
       child: SizedBox(
         width: width,
-        height: kDatePickerCellHeight,
+        height: datePickerCellHeight(MediaQuery.textScalerOf(context)),
         child: show
             ? Center(
                 child: Text(

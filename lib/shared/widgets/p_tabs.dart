@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show SemanticsRole;
 
 import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart'
+    as ds
+    show tabPositionName;
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
@@ -61,14 +65,18 @@ class PTabs<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    switch (variant) {
-      case PTabsVariant.container:
-        return _container(t);
-      case PTabsVariant.underline:
-        return _underline(t);
-      case PTabsVariant.pills:
-        return _pills(t);
-    }
+    final list = switch (variant) {
+      PTabsVariant.container => _container(t),
+      PTabsVariant.underline => _underline(t),
+      PTabsVariant.pills => _pills(t),
+    };
+    // 읽기 — 탭 목록(tabBar) 안에 탭(tab)이 든다(03G-013). 자식은 모두 탭이어야 한다
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      role: SemanticsRole.tabBar,
+      child: list,
+    );
   }
 
   Widget _container(GrooTokens t) {
@@ -218,23 +226,35 @@ class PTabs<T> extends StatelessWidget {
     // 읽기 — 고른 탭을 알린다(01A-091). 누르는 영역은 44 까지(01A-090).
     return TouchTarget(
       minSize: PTouch.min,
-      child: Semantics(
-        button: true,
-        selected: active,
-        enabled: !disabled,
-        child: PPressFeedback(
-          enabled: !disabled && !active,
-          child: AnimatedContainer(
-            duration: PMotion.fast,
-            curve: PMotion.standard,
-            height: height,
-            decoration: decoration,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: disabled || active ? null : () => onChanged(item.value),
-                borderRadius: radius == BorderRadius.zero ? null : radius,
-                child: inner,
+      // 탭 — 고른 탭도 누를 수 있는 노드다(이미 고른 탭을 눌러도 아무 일 없다). 보조 기술은 tab 이 tap 동작을 갖길 요구한다
+      child: Builder(
+        builder: (context) => Semantics(
+          container: true,
+          role: SemanticsRole.tab,
+          selected: active,
+          enabled: !disabled,
+          label:
+              '${item.label}, ${ds.tabPositionName(context, items.indexOf(item), items.length)}',
+          onTap: disabled
+              ? null
+              : (active ? () {} : () => onChanged(item.value)),
+          excludeSemantics: true,
+          child: PPressFeedback(
+            enabled: !disabled && !active,
+            child: AnimatedContainer(
+              duration: PMotion.fast,
+              curve: PMotion.standard,
+              height: height,
+              decoration: decoration,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: disabled || active
+                      ? null
+                      : () => onChanged(item.value),
+                  borderRadius: radius == BorderRadius.zero ? null : radius,
+                  child: inner,
+                ),
               ),
             ),
           ),

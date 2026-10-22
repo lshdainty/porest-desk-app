@@ -3,7 +3,7 @@
   "source": "specs/components/chip-tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "list": "목록 — 한 줄 가로 스크롤. 바탕 · 바닥 선이 없다",
@@ -142,7 +142,7 @@
       "state": "enabled",
       "slot": "notification",
       "prop": "background",
-      "note": "브랜드 글자색 — 안 고른 칩(bg-neutral-weak · 투명) 위 Desk 7.76 · 4.69 · HR 4.69 · 4.79. 고른 칩(짙은 채움)에는 없다 — 내용을 보면 사라진다"
+      "note": "브랜드 글자색 — 안 고른 칩(bg-neutral-weak · 투명) 위 Desk 7.76 · 4.69 · HR 7.56 · 4.67. 고른 칩(짙은 채움)에는 없다 — 내용을 보면 사라진다"
     },
     {
       "rule": 0,

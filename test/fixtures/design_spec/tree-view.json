@@ -3,7 +3,7 @@
   "source": "specs/components/tree-view.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "root": "나무(role=tree) — 이름 필수. Tab 정지점 하나",

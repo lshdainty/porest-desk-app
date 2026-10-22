@@ -3,7 +3,7 @@
   "source": "specs/components/button.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "root": "버튼 상자(Container) — 배경 · 테두리 · 모양, 글자 · 아이콘 색(currentColor)",
@@ -792,7 +792,7 @@
       "state": "enabled",
       "slot": "progressCircle",
       "prop": "range",
-      "note": "Progress Circle brand 톤과 같다 — 다크는 밝은 짝(바탕 위 라이트 Desk 8.38 · HR 5.06, 다크 Desk 6.10 · HR 6.23 — 트랙과 Desk 6.59 · 4.73). 2026-10-08 까지 bg-brand-solid 라 다크 바탕 위 1.73 이었다(채움 색은 다크에서도 짙다)"
+      "note": "Progress Circle brand 톤과 같다 — 다크는 밝은 짝(바탕 위 라이트 Desk 8.38 · HR 8.17, 다크 Desk 6.10 · HR 6.07 — 트랙과 Desk 6.59 · 4.73). 2026-10-08 까지 bg-brand-solid 라 다크 바탕 위 1.73 이었다(채움 색은 다크에서도 짙다)"
     },
     {
       "rule": 5,

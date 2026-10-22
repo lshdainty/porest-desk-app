@@ -186,25 +186,106 @@ void main() {
     expect(find.text('잔액 고치기'), findsNothing);
   });
 
-  testWidgets('replace 는 떠 있는 토스트를 걷고 바로 띄운다 — 기본은 줄을 선다', (tester) async {
+  testWidgets('replace 는 액션 띠까지 걷고 바로 띄운다', (tester) async {
     late BuildContext ctx;
     await tester.pumpWidget(_host((c) => ctx = c));
     await tester.tap(find.text('show'));
 
-    showPSnackBar(ctx, '먼저', duration: const Duration(seconds: 10));
+    showPSnackBar(
+      ctx,
+      '액션 띠',
+      duration: const Duration(seconds: 10),
+      actionLabel: '되돌리기',
+      onAction: () {},
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    showPSnackBar(ctx, '줄 선다', duration: const Duration(seconds: 10));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('먼저'), findsOneWidget);
-    expect(find.text('줄 선다'), findsNothing);
-
     showPSnackBar(ctx, '바로', replace: true);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('먼저'), findsNothing);
-    expect(find.text('줄 선다'), findsNothing);
+    expect(find.text('액션 띠'), findsNothing);
     expect(find.text('바로'), findsOneWidget);
+  });
+
+  // ── 액션 띠는 끝날 때까지 지킨다(알림 결정 1B, I-04 19) ──
+  testWidgets('액션이 없는 띠끼리는 바로 바뀐다', (tester) async {
+    late BuildContext ctx;
+    await tester.pumpWidget(_host((c) => ctx = c));
+    await tester.tap(find.text('show'));
+    showPSnackBar(ctx, '먼저', duration: const Duration(seconds: 10));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    showPSnackBar(ctx, '다음', duration: const Duration(seconds: 10));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('먼저'), findsNothing);
+    expect(find.text('다음'), findsOneWidget);
+  });
+
+  testWidgets('액션 띠가 떠 있으면 새 띠는 그 띠가 끝난 뒤(시간)에 온다', (tester) async {
+    late BuildContext ctx;
+    await tester.pumpWidget(_host((c) => ctx = c));
+    await tester.tap(find.text('show'));
+    showPSnackBar(
+      ctx,
+      '삭제했어요',
+      duration: const Duration(seconds: 6),
+      actionLabel: '되돌리기',
+      onAction: () {},
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    showPSnackBar(ctx, '새 띠');
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('삭제했어요'), findsOneWidget, reason: '액션 띠를 지킨다');
+    expect(find.text('새 띠'), findsNothing);
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('삭제했어요'), findsNothing);
+    expect(find.text('새 띠'), findsOneWidget);
+  });
+
+  testWidgets('액션을 누르면 그 띠가 끝나고 기다리던 띠가 뜬다', (tester) async {
+    late BuildContext ctx;
+    var undone = 0;
+    await tester.pumpWidget(_host((c) => ctx = c));
+    await tester.tap(find.text('show'));
+    showPSnackBar(
+      ctx,
+      '삭제했어요',
+      duration: const Duration(seconds: 6),
+      actionLabel: '되돌리기',
+      onAction: () => undone++,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    showPSnackBar(ctx, '새 띠');
+    await tester.pump();
+    await tester.tap(find.text('되돌리기'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(undone, 1);
+    expect(find.text('새 띠'), findsOneWidget);
+  });
+
+  testWidgets('기다리는 띠는 하나 — 기다리는 사이 또 오면 마지막 것만', (tester) async {
+    late BuildContext ctx;
+    await tester.pumpWidget(_host((c) => ctx = c));
+    await tester.tap(find.text('show'));
+    showPSnackBar(
+      ctx,
+      '삭제했어요',
+      duration: const Duration(seconds: 6),
+      actionLabel: '되돌리기',
+      onAction: () {},
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    showPSnackBar(ctx, '둘째');
+    showPSnackBar(ctx, '셋째');
+    await tester.pump(const Duration(seconds: 7));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('둘째'), findsNothing);
+    expect(find.text('셋째'), findsOneWidget);
   });
 }

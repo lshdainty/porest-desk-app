@@ -10,6 +10,7 @@ import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
 import 'package:groo_damda_app/shared/widgets/p_chip.dart';
+import 'package:groo_damda_app/shared/widgets/p_floating_action_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_accordion.dart';
 import 'package:groo_damda_app/shared/widgets/p_radio_list.dart';
@@ -256,6 +257,74 @@ void main() {
     final chip = tester.getRect(find.byType(PTypeChip));
     await tester.tapAt(Offset(chip.center.dx, chip.top - 1));
     expect(picked, 'chip');
+    handle.dispose();
+  });
+
+  testWidgets('PTabs — 탭 목록(tabBar) 안의 탭(tab), 고른 탭도 누를 수 있는 노드다(03G-013)', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final picked = <int>[];
+    await tester.pumpWidget(
+      _host(
+        PTabs<int>(
+          value: 1,
+          onChanged: picked.add,
+          items: const [
+            PTabItem(value: 1, label: '지출'),
+            PTabItem(value: 2, label: '수입'),
+            PTabItem(value: 3, label: '이체', disabled: true),
+          ],
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final nodes = _nodes(tester).toList();
+    expect(nodes.where((n) => n.role == SemanticsRole.tabBar), hasLength(1));
+    final tabs = nodes.where((n) => n.role == SemanticsRole.tab).toList();
+    expect(tabs.map((n) => n.label), ['지출, 탭 1/3', '수입, 탭 2/3', '이체, 탭 3/3']);
+    // 고른 탭(지출)에도 tap 동작이 있다 — 눌러도 아무 일 없다
+    final selected = tabs.firstWhere((n) => n.label.startsWith('지출'));
+    expect(selected.flagsCollection.isSelected, Tristate.isTrue);
+    expect(selected.hasAction(SemanticsAction.tap), isTrue);
+    final other = tabs.firstWhere((n) => n.label.startsWith('수입'));
+    expect(other.flagsCollection.isSelected, Tristate.isFalse);
+    expect(other.hasAction(SemanticsAction.tap), isTrue);
+    // 막힌 탭은 비활성
+    final blocked = tabs.firstWhere((n) => n.label.startsWith('이체'));
+    expect(blocked.flagsCollection.isEnabled, Tristate.isFalse);
+    // 읽기 도구의 탭 동작이 값을 바꾼다
+    tester.semantics.tap(find.semantics.byLabel('수입, 탭 2/3'));
+    await tester.pump();
+    expect(picked, [2]);
+    tester.semantics.tap(find.semantics.byLabel('지출, 탭 1/3'));
+    await tester.pump();
+    expect(picked, [2], reason: '고른 탭을 눌러도 부르지 않는다');
+    handle.dispose();
+  });
+
+  testWidgets('PFloatingActionButton — 버튼이고 이름은 tooltip 이다(03G-017)', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    var taps = 0;
+    await tester.pumpWidget(
+      _host(
+        PFloatingActionButton(
+          icon: Icons.add,
+          tooltip: '거래 추가',
+          onPressed: () => taps++,
+        ),
+      ),
+    );
+    final fab = _nodes(
+      tester,
+    ).where((n) => n.label.contains('거래 추가') && n.flagsCollection.isButton);
+    expect(fab, isNotEmpty, reason: '이름 있는 버튼 노드');
+    expect(fab.first.hasAction(SemanticsAction.tap), isTrue);
+    tester.semantics.tap(find.semantics.byLabel('거래 추가'));
+    await tester.pump();
+    expect(taps, 1);
     handle.dispose();
   });
 }

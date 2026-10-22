@@ -90,7 +90,12 @@ class _PCollapsibleState extends State<PCollapsible>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        widget.trigger(context, _isOpen, _toggle),
+        // 트리거는 펼침 상태를 알리는 버튼이다 — 호출부(InkWell 등)의 누르기 위에 button · expanded 를 얹는다(03G-012)
+        Semantics(
+          button: true,
+          expanded: _isOpen,
+          child: widget.trigger(context, _isOpen, _toggle),
+        ),
         SizeTransition(
           // 세로축 기준 위쪽 고정 — 기존 axisAlignment: -1 과 같은 값
           // (Axis.vertical 일 때 AlignmentDirectional(-1.0, axisAlignment)).

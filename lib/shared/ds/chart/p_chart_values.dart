@@ -240,8 +240,9 @@ const double kHeatLabelColumn = 56;
 /// 칸 사이(가로 · 세로 같다).
 const double kHeatGap = PSpacing.x1_5;
 
-/// 세기 다섯 — bg-brand-solid 를 카드 면에 섞은 비율(18 · 35 · 55 · 75 · 100%).
-const List<double> kHeatMix = [0.18, 0.35, 0.55, 0.75, 1];
+/// 세기 다섯 — bg-brand-solid 를 카드 면에 섞은 비율(18 · 35 · 55 · 76 · 100%). 넷째는 75 였다 — 그루 초록(이음)에서 어느 글자도
+/// 4.5 에 못 미쳐 두 브랜드 함께 76% 로 올렸다(2026-10-22 사용자 결정 B, groo-design #187). 끊는 자리는 그대로다.
+const List<double> kHeatMix = [0.18, 0.35, 0.55, 0.76, 1];
 
 /// 가장 큰 칸 값에 대한 비율로 끊는 자리 — 8 · 22 · 45 · 75%.
 const List<double> kHeatCuts = [0.08, 0.22, 0.45, 0.75];

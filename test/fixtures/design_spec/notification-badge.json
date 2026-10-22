@@ -3,7 +3,7 @@
   "source": "specs/components/notification-badge.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "853c4f4d30e9"
   },
   "slots": {
     "root": "점(small) · 숫자 알약(large) — 붙는 대상의 상자 위에 겹쳐 놓인다(자리를 차지하지 않는다)",
@@ -136,7 +136,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "background",
-      "note": "브랜드 글자색 — 다크에서 밝은 짝(표면 위 Desk 8.38 · 6.10 · HR 5.06 · 6.23). bg-brand-solid 는 다크 표면과 1.73 · 2.86 이라 쓰지 않는다"
+      "note": "브랜드 글자색 — 다크에서 밝은 짝(표면 위 Desk 8.38 · 6.10 · HR 8.17 · 6.07). bg-brand-solid 는 다크 표면과 Desk · HR 1.73 이라 쓰지 않는다"
     },
     {
       "rule": 2,
@@ -150,7 +150,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "background",
-      "note": "알약 면은 다크 표면과 Desk 1.73 · HR 2.86 — 흰 숫자가 정보를 들고 있다(8.36 · 5.06)"
+      "note": "알약 면은 다크 표면과 Desk · HR 1.73 — 흰 숫자가 정보를 들고 있다(다크 Desk · HR 8.36)"
     },
     {
       "rule": 2,
@@ -164,7 +164,7 @@
       "state": "enabled",
       "slot": "label",
       "prop": "foreground",
-      "note": "Desk 8.38 · 다크 8.36 · HR 5.06 · 5.06"
+      "note": "Desk 8.38 · 다크 8.36 · HR 8.17 · 8.36"
     },
     {
       "rule": 2,
