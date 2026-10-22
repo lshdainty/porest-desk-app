@@ -9,7 +9,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/app/app.dart' show appMessengerKey;
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
 import 'package:groo_damda_app/features/notification/data/notification_repository.dart';
 import 'package:groo_damda_app/features/notification/domain/notification.dart';
@@ -18,11 +20,15 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 class _FakeRepo extends NotificationRepository {
-  _FakeRepo(this.deleted) : super(Dio());
+  _FakeRepo(this.deleted, {this.fail = false}) : super(Dio());
   final List<int> deleted;
+  final bool fail;
 
   @override
-  Future<void> delete(int id) async => deleted.add(id);
+  Future<void> delete(int id) async {
+    if (fail) throw ApiException(code: 'X', message: '삭제하지 못했어요');
+    deleted.add(id);
+  }
 }
 
 // 가장 나쁜 값 — 두 줄을 넘는 제목
@@ -51,6 +57,7 @@ Future<void> _pump(
   WidgetTester tester,
   List<int> deleted, {
   double scale = 1,
+  bool fail = false,
 }) async {
   tester.view.physicalSize = const Size(360, 780);
   tester.view.devicePixelRatio = 1;
@@ -69,12 +76,14 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         notificationRepositoryProvider.overrideWith(
-          (ref) async => _FakeRepo(deleted),
+          (ref) async => _FakeRepo(deleted, fail: fail),
         ),
         notificationListProvider.overrideWith((ref) async => _items),
         unreadCountProvider.overrideWith((ref) async => 1),
       ],
       child: MaterialApp.router(
+        // 앱 뿌리와 같은 구성 — 오류 알림이 지나는 전역 ScaffoldMessenger
+        scaffoldMessengerKey: appMessengerKey,
         routerConfig: router,
         theme: GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -99,8 +108,22 @@ void main() {
     await _pump(tester, []);
     expect(find.byIcon(LucideIcons.x), findsNothing);
     expect(find.byIcon(LucideIcons.ellipsisVertical), findsNWidgets(2));
-    expect(find.byTooltip('$_longTitle 더보기'), findsOneWidget);
-    expect(find.byTooltip('할 일 알림 더보기'), findsOneWidget);
+    final handle = tester.ensureSemantics();
+    expect(find.bySemanticsLabel('$_longTitle 더보기'), findsOneWidget);
+    expect(find.bySemanticsLabel('할 일 알림 더보기'), findsOneWidget);
+    // ds 아이콘 버튼 xsmall 32(웹과 같다) — 누르는 영역은 44 까지
+    final more = find.byKey(const ValueKey('noti-more-1'));
+    expect(
+      tester
+          .getSize(
+            find
+                .descendant(of: more, matching: find.byType(DecoratedBox))
+                .first,
+          )
+          .width,
+      lessThanOrEqualTo(44),
+    );
+    handle.dispose();
     // ⋮ 는 읽음 처리 InkWell 안에 들어 있지 않다
     expect(
       find.descendant(
@@ -157,5 +180,24 @@ void main() {
     final more = tester.getRect(find.byKey(const ValueKey('noti-more-1')));
     expect(more.right, lessThanOrEqualTo(360));
     expect(more.left, greaterThanOrEqualTo(0));
+  });
+
+  testWidgets('지우기가 실패하면 확인창은 열려 있고 오류 알림이 뜬다(웹과 같다)', (tester) async {
+    final deleted = <int>[];
+    await _pump(tester, deleted, fail: true);
+    await tester.tap(find.byKey(const ValueKey('noti-more-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(keepAll('삭제')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('삭제'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(deleted, isEmpty);
+    // 창은 그대로
+    expect(find.text(keepAll('알림 삭제')), findsOneWidget);
+    // 오류 알림
+    expect(find.textContaining('삭제하지 못했어요'), findsWidgets);
+    // 확정 버튼이 다시 눌린다(로딩이 풀렸다)
+    expect(find.text('삭제'), findsOneWidget);
   });
 }

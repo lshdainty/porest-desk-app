@@ -18,6 +18,8 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart' as ds;
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/features/notification/application/notification_providers.dart';
 import 'package:groo_damda_app/features/notification/domain/notification.dart';
@@ -142,17 +144,14 @@ class NotificationScreen extends ConsumerWidget {
                                 } catch (_) {}
                               }
                             },
+                            // 실패하면 던진다 — 확인창이 열린 채 오류 알림이 뜬다(_NotiRowState._confirmDelete)
                             onDelete: () async {
-                              try {
-                                final repo = await ref.read(
-                                  notificationRepositoryProvider.future,
-                                );
-                                await repo.delete(n.rowId);
-                                ref.invalidate(notificationListProvider);
-                                ref.invalidate(unreadCountProvider);
-                              } on ApiException {
-                                if (!context.mounted) return;
-                              }
+                              final repo = await ref.read(
+                                notificationRepositoryProvider.future,
+                              );
+                              await repo.delete(n.rowId);
+                              ref.invalidate(notificationListProvider);
+                              ref.invalidate(unreadCountProvider);
                             },
                           ),
                       ],
@@ -476,12 +475,14 @@ class _NotiRowState extends State<_NotiRow> {
           // ⋮ — 폰에서는 떠 있는 메뉴가 아니라 Menu Sheet 다. 지우기는 확인창을 거친다(되돌릴 수 없는 동작)
           Padding(
             padding: const EdgeInsets.only(top: PSpace.x12, right: PSpace.x24),
-            child: PButton.icon(
+            // ds 아이콘 버튼 — xsmall 32 · ghost neutralSubtle(웹과 같다). 누르는 영역 44 는 버튼이 넓힌다
+            child: ds.PButton.icon(
               key: ValueKey('noti-more-${noti.rowId}'),
               icon: LucideIcons.ellipsisVertical,
-              size: PButtonSize.sm,
-              iconColor: tokens.fgTertiary,
-              tooltip: l.notiMore(noti.title),
+              semanticLabel: l.notiMore(noti.title),
+              variant: ds.PButtonVariant.ghost,
+              ghostColor: ds.PButtonGhostColor.neutralSubtle,
+              size: ds.PButtonSize.xsmall,
               onPressed: () => _openMenu(l),
             ),
           ),
@@ -520,6 +521,15 @@ class _NotiRowState extends State<_NotiRow> {
       actionLabel: l.actionDelete,
       destructive: true,
       onAction: onDelete,
+      // 실패하면 확인창은 그대로 두고 오류 알림을 띄운다(웹과 같다)
+      onActionError: (e) {
+        if (!mounted) return;
+        showPSnackBar(
+          context,
+          e is ApiException ? e.message : l.apiErrorServer,
+          severity: PSnackSeverity.error,
+        );
+      },
     );
   }
 

@@ -244,6 +244,7 @@ abstract final class PAlertDialog {
     FutureOr<void> Function()? onAction,
     String? semanticLabel,
     bool useRootNavigator = true,
+    void Function(Object error)? onActionError,
   }) async {
     final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
     final route = _PAlertDialogRoute(
@@ -256,6 +257,7 @@ abstract final class PAlertDialog {
         actionLabel: actionLabel,
         destructive: destructive,
         onAction: onAction,
+        onActionError: onActionError,
         semanticLabel: semanticLabel,
       ),
     );
@@ -375,6 +377,7 @@ class _AlertHost extends StatefulWidget {
     required this.actionLabel,
     required this.destructive,
     required this.onAction,
+    required this.onActionError,
     required this.semanticLabel,
   });
 
@@ -384,6 +387,7 @@ class _AlertHost extends StatefulWidget {
   final String actionLabel;
   final bool destructive;
   final FutureOr<void> Function()? onAction;
+  final void Function(Object error)? onActionError;
   final String? semanticLabel;
 
   @override
@@ -399,6 +403,13 @@ class _AlertHostState extends State<_AlertHost> {
       setState(() => _loading = true);
       try {
         await run();
+      } catch (e) {
+        // [PAlertDialog.show] 의 onActionError 가 있으면 오류를 그리로 넘기고 창은 그대로 둔다(알림은 그쪽이 띄운다).
+        // 없으면 지금까지처럼 그대로 던진다.
+        final handler = widget.onActionError;
+        if (handler == null) rethrow;
+        handler(e);
+        return;
       } finally {
         if (mounted) setState(() => _loading = false);
       }
