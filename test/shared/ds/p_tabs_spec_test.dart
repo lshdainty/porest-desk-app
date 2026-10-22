@@ -871,6 +871,47 @@ void main() {
       },
     );
 
+    test('fillTabWidths — 칸보다 긴 탭만 글 폭, 나머지가 남은 폭을 똑같이', () {
+      // 360 에 글 폭 100 · 200 · 40 → 똑같이 120 이면 둘째(200)가 넘는다 → 200 고정, 남은 160 은 80 씩인데 첫째(100)도 넘으니 100 고정 → 셋째 60
+      expect(fillTabWidths([100, 200, 40], 360), [100, 200, 60]);
+      expect(fillTabWidths([48, 160, 48], 360), [100, 160, 100]);
+      // 모두 칸 안이면 똑같이
+      expect(fillTabWidths([60, 70, 50], 360), [120, 120, 120]);
+      // 합이 총 폭
+      final w = fillTabWidths([150, 100, 40, 30], 360);
+      expect(w.fold<double>(0, (a, b) => a + b), closeTo(360, 0.001));
+    });
+
+    testWidgets('Fill — 합은 줄 안이지만 한 탭 글이 칸보다 길면 그 탭만 넓어진다(글이 칸 밖으로 넘치지 않는다)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PTabs<String>(
+            value: 'a',
+            onChanged: (_) {},
+            semanticLabel: 'Stats',
+            items: [_tab('a', 'Ab'), _tab('b', 'Long label'), _tab('c', 'Cd')],
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('tabs-scroll')), findsNothing);
+      final a = tester.getSize(_tabOf('Ab')).width;
+      final b = tester.getSize(_tabOf('Long label')).width;
+      final c = tester.getSize(_tabOf('Cd')).width;
+      expect(a + b + c, closeTo(360, 0.5));
+      expect(b, greaterThan(120), reason: '그 탭만 넓어진다');
+      expect(a, lessThan(120));
+      expect(
+        tester.getSize(find.text('Long label')).width,
+        lessThanOrEqualTo(b - 20 + 0.5),
+        reason: '글이 칸 안에 든다',
+      );
+    });
+
     testWidgets('알림 점은 안 고른 탭에만 — 고르면 사라지고 탭 폭은 바뀌지 않는다', (tester) async {
       final semantics = tester.ensureSemantics();
       var value = 'a';
