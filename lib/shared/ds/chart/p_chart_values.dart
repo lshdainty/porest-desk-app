@@ -230,6 +230,10 @@ const double kChartHoleInset = PSpacing.x1;
 /// 칸 폭이 이 값 이상일 때만 칸에 금액을 적는다(px) — "99,999,999,999원" 이 107 이라 999억까지 들어간다.
 const double kHeatTextMinCellWidth = 112;
 
+/// 칸 글 좌우에 남기는 여백의 합 — 글(글자 배율 포함)이 칸 폭 − 이 값보다 넓으면 글을 빼고 세기 색만 칠한다.
+/// 100% 에서 가장 넓은 글("99,999,999,999원" 107)이 112 칸에 드는 값이다.
+const double kHeatCellTextPadding = 4;
+
 /// 왼쪽 시간대 라벨 열 폭(px).
 const double kHeatLabelColumn = 56;
 
