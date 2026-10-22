@@ -5,7 +5,7 @@
 // 앱은 늘 large 다 — medium · responsive(1280 이상 데스크톱 웹)는 재지 않는다. 앱에 없는 상태(웹의 focused — 키보드 포커스
 // 링)도 재지 않는다. 목록은 폰에서도 칸 아래에 붙는다(시트가 아니다).
 import 'dart:math' as math;
-import 'dart:ui' show Tristate;
+import 'dart:ui' show CheckedState, Tristate;
 
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
@@ -1086,6 +1086,71 @@ void main() {
         tester.getSemantics(_row('현금')).flagsCollection.isSelected,
         Tristate.isTrue,
       );
+      handle.dispose();
+    });
+
+    testWidgets(
+      '선택지 낭독 — 하나 고르기는 button + selected(checked 없음), 여럿 고르기는 checked 를 더한다(03-B 결정 2 A)',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        // 하나 고르기
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PSelect<String>(
+              groups: _groups,
+              value: 'cash',
+              onChanged: (_) {},
+              placeholder: '휴가 정책 선택',
+            ),
+          ),
+        );
+        await _open(tester);
+        final picked = tester.getSemantics(_row('현금')).flagsCollection;
+        expect(picked.isButton, isTrue);
+        expect(picked.isSelected, Tristate.isTrue);
+        expect(
+          picked.isChecked,
+          CheckedState.none,
+          reason: '하나 고르기는 체크 상태를 읽지 않는다',
+        );
+        expect(
+          picked.isInMutuallyExclusiveGroup,
+          isFalse,
+          reason: '라디오로 읽지 않는다',
+        );
+        final other = tester.getSemantics(_row('간편결제')).flagsCollection;
+        expect(other.isButton, isTrue);
+        expect(other.isSelected, Tristate.isFalse);
+        expect(other.isChecked, CheckedState.none);
+        handle.dispose();
+      },
+    );
+
+    testWidgets('선택지 낭독 — 여럿 고르기는 button + selected + checked(체크됨 · 체크 안 됨)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PSelect<String>.multiple(
+            groups: _groups,
+            values: const ['cash'],
+            onChanged: (_) {},
+            placeholder: '휴가 정책 선택',
+          ),
+        ),
+      );
+      await _open(tester);
+      final picked = tester.getSemantics(_row('현금')).flagsCollection;
+      expect(picked.isButton, isTrue);
+      expect(picked.isSelected, Tristate.isTrue);
+      expect(picked.isChecked, CheckedState.isTrue);
+      final other = tester.getSemantics(_row('간편결제')).flagsCollection;
+      expect(other.isButton, isTrue);
+      expect(other.isSelected, Tristate.isFalse);
+      expect(other.isChecked, CheckedState.isFalse);
       handle.dispose();
     });
 

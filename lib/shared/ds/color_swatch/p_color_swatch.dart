@@ -256,10 +256,12 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
       j =
           offset +
           math.min(row * _columns + g % _columns, pColorSwatchOrder.length - 1);
-    } else if (key == LogicalKeyboardKey.home) {
-      j = 0;
-    } else if (key == LogicalKeyboardKey.end) {
-      j = n - 1;
+    } else if (key == LogicalKeyboardKey.home ||
+        key == LogicalKeyboardKey.end ||
+        key == LogicalKeyboardKey.pageUp ||
+        key == LogicalKeyboardKey.pageDown) {
+      // 받지 않는다 — 초점도 고른 칸도 그대로, 화면도 스크롤되지 않는다(하나 고르기 묶음은 화살표만 — 03-E 결정 3 후속)
+      return KeyEventResult.handled;
     } else if (key == LogicalKeyboardKey.space) {
       // 초점의 칸을 고른다
       _select(order[i]);
@@ -308,14 +310,12 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
         checked: checked,
         disabled: disabled,
         tabbable: i == tabbable,
+        // 지금 색 칸은 이름이 아래 글로 보인다 — 툴팁 없이
+        tooltip: !isCurrent,
         checkColor: checkColor,
         onSelect: () => _select(v),
         onKey: (e) => _onKey(context, i, e),
       );
-      // 지금 색 칸은 이름이 아래 글로 보인다 — 툴팁 없이
-      if (!isCurrent) {
-        swatch = PTooltip(message: name, child: swatch);
-      }
       // 누르는 영역 44 — 툴팁 바깥에서 넓힌다(사이의 상자들이 칸 밖 누름을 먼저 거르지 않게)
       return _HitSlop(child: swatch);
     }
@@ -346,19 +346,19 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
             cell(0),
             const SizedBox(height: _labelMarginTop),
             ExcludeSemantics(
-              child: SizedBox(
-                height: PTypography.t2.fontSize! * PTypography.t2.height!,
-                child: OverflowBox(
-                  maxWidth: double.infinity,
-                  child: Text(
-                    widget.currentColor != null
-                        ? _currentName(context)
-                        : _autoName(context),
-                    key: const ValueKey('swatch-current-label'),
-                    maxLines: 1,
-                    softWrap: false,
-                    style: PTypography.t2.copyWith(color: c.fgNeutralSubtle),
-                  ),
+              // 높이는 글을 따라간다 — 글자 설정을 키워도 위아래가 잘리지 않는다(t2 는 글자 설정을 따른다, 03B-006).
+              // 폭은 열 폭(칸 40)을 키우지 않으니 글만큼 넘쳐 보이게 둔다
+              child: OverflowBox(
+                maxWidth: double.infinity,
+                fit: OverflowBoxFit.deferToChild,
+                child: Text(
+                  widget.currentColor != null
+                      ? _currentName(context)
+                      : _autoName(context),
+                  key: const ValueKey('swatch-current-label'),
+                  maxLines: 1,
+                  softWrap: false,
+                  style: PTypography.t2.copyWith(color: c.fgNeutralSubtle),
                 ),
               ),
             ),
@@ -412,6 +412,7 @@ class _PColorSwatchGroupState extends State<PColorSwatchGroup> {
 
     return Semantics(
       container: true,
+      role: SemanticsRole.radioGroup,
       label: widget.semanticLabel ?? field?.label,
       isRequired: (field?.required ?? false) ? true : null,
       validationResult: (field?.invalid ?? false)
@@ -460,6 +461,7 @@ class _SwatchCell extends StatefulWidget {
     required this.checked,
     required this.disabled,
     required this.tabbable,
+    required this.tooltip,
     required this.checkColor,
     required this.onSelect,
     required this.onKey,
@@ -472,6 +474,9 @@ class _SwatchCell extends StatefulWidget {
   final bool checked;
   final bool disabled;
   final bool tabbable;
+
+  /// 마우스를 올리면 색 이름 툴팁 — 칸의 의미 노드 안에 둔다(밖에 두면 첫 칸의 이름이 묶음에 붙는다).
+  final bool tooltip;
   final Color checkColor;
   final VoidCallback onSelect;
   final KeyEventResult Function(KeyEvent) onKey;
@@ -601,23 +606,27 @@ class _SwatchCellState extends State<_SwatchCell> {
         focused: widget.node.hasFocus,
         onTap: disabled ? null : widget.onSelect,
         child: ExcludeSemantics(
-          child: Focus(
-            focusNode: widget.node,
-            canRequestFocus: !disabled,
-            skipTraversal: !widget.tabbable,
-            onKeyEvent: (_, e) => widget.onKey(e),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTapDown: disabled
-                  ? null
-                  : (_) => setState(() => _pressed = true),
-              onTapCancel: () => setState(() => _pressed = false),
-              onTapUp: (_) => setState(() => _pressed = false),
-              onTap: disabled ? null : widget.onSelect,
-              child: SelectionPressScale(
-                pressed: _pressed && !disabled,
-                size: const Size.square(_swatch),
-                child: dot,
+          // 툴팁은 보이는 마우스 길이다 — 이름은 칸 노드가 이미 갖고 있어 의미에서는 뺀다
+          child: _MaybeTooltip(
+            message: widget.tooltip ? widget.name : null,
+            child: Focus(
+              focusNode: widget.node,
+              canRequestFocus: !disabled,
+              skipTraversal: !widget.tabbable,
+              onKeyEvent: (_, e) => widget.onKey(e),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: disabled
+                    ? null
+                    : (_) => setState(() => _pressed = true),
+                onTapCancel: () => setState(() => _pressed = false),
+                onTapUp: (_) => setState(() => _pressed = false),
+                onTap: disabled ? null : widget.onSelect,
+                child: SelectionPressScale(
+                  pressed: _pressed && !disabled,
+                  size: const Size.square(_swatch),
+                  child: dot,
+                ),
               ),
             ),
           ),
@@ -625,6 +634,17 @@ class _SwatchCellState extends State<_SwatchCell> {
       ),
     );
   }
+}
+
+class _MaybeTooltip extends StatelessWidget {
+  const _MaybeTooltip({required this.message, required this.child});
+
+  final String? message;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      message == null ? child : PTooltip(message: message!, child: child);
 }
 
 class _SwatchPainter extends CustomPainter {

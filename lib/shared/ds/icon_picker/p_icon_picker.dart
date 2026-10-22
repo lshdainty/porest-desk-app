@@ -259,6 +259,7 @@ class _PIconPickerCellState extends State<PIconPickerCell> {
         onExit: (_) => setState(() => _hovered = false),
         child: Semantics(
           container: true,
+          button: true,
           label: widget.icon.name,
           selected: selected,
           focusable: true,

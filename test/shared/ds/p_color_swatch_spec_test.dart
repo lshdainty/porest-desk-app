@@ -87,10 +87,12 @@ _HarnessState _state(WidgetTester tester) =>
 Finder _cell(int i) => find.byKey(ValueKey('swatch-$i'));
 Finder _paint(int i) =>
     find.descendant(of: _cell(i), matching: find.byType(CustomPaint)).first;
+// 칸의 초점 노드 — 툴팁도 Focus 를 하나 두므로(노드 없음) 칸의 것(노드를 준 것)을 고른다
 FocusNode _node(WidgetTester tester, int i) => tester
-    .widget<Focus>(
-      find.descendant(of: _cell(i), matching: find.byType(Focus)).first,
+    .widgetList<Focus>(
+      find.descendant(of: _cell(i), matching: find.byType(Focus)),
     )
+    .firstWhere((f) => f.focusNode != null)
     .focusNode!;
 
 const _gray = Color(0xFF9E9E9E);
@@ -531,29 +533,34 @@ void main() {
         );
       });
 
-      testWidgets('Home · End 는 첫 칸 · 마지막 칸, Space 는 초점의 칸을 고른다', (
-        tester,
-      ) async {
-        await pump(tester, const _Harness(initial: blue));
-        await _keyboardFocus(tester, 4);
-        await _key(tester, LogicalKeyboardKey.end);
-        expect(
-          _state(tester).value,
-          const PColorSwatchValue.color(PChartColor.gray),
-        );
-        await _key(tester, LogicalKeyboardKey.home);
-        expect(_state(tester).value, red);
-        // Space — 초점은 그대로 두고 그 칸을 고른다
-        await pump(tester, _Harness(key: UniqueKey()));
-        await _keyboardFocus(tester, 2);
-        expect(_state(tester).value, isNull);
-        await _key(tester, LogicalKeyboardKey.space);
-        expect(
-          _state(tester).value,
-          const PColorSwatchValue.color(PChartColor.yellow),
-        );
-        expect(_node(tester, 2).hasFocus, isTrue);
-      });
+      testWidgets(
+        'Home · End · PageUp · PageDown 은 받지 않는다 — 초점도 고른 칸도 그대로, Space 는 초점의 칸을 고른다',
+        (tester) async {
+          await pump(tester, const _Harness(initial: blue));
+          await _keyboardFocus(tester, 4);
+          for (final key in [
+            LogicalKeyboardKey.home,
+            LogicalKeyboardKey.end,
+            LogicalKeyboardKey.pageUp,
+            LogicalKeyboardKey.pageDown,
+          ]) {
+            await _key(tester, key);
+            expect(_state(tester).value, blue, reason: key.keyLabel);
+            expect(_state(tester).picks, isEmpty, reason: key.keyLabel);
+            expect(_node(tester, 4).hasFocus, isTrue, reason: key.keyLabel);
+          }
+          // Space — 초점은 그대로 두고 그 칸을 고른다
+          await pump(tester, _Harness(key: UniqueKey()));
+          await _keyboardFocus(tester, 2);
+          expect(_state(tester).value, isNull);
+          await _key(tester, LogicalKeyboardKey.space);
+          expect(
+            _state(tester).value,
+            const PColorSwatchValue.color(PChartColor.yellow),
+          );
+          expect(_node(tester, 2).hasFocus, isTrue);
+        },
+      );
 
       testWidgets('지금 색 칸은 차례의 맨 앞 — ↑ ↓ 는 줄 밖이라 그대로', (tester) async {
         await pump(
@@ -849,6 +856,72 @@ void main() {
         expect(find.bySemanticsLabel('색상'), findsWidgets);
         handle.dispose();
       });
+
+      testWidgets(
+        '묶음은 radioGroup 역할 · 이름은 Field 라벨만 — 첫 칸 툴팁이 묶음 이름에 붙지 않는다(03B-004b)',
+        (tester) async {
+          final handle = tester.ensureSemantics();
+          await pump(tester, const _Harness(initial: blue));
+          final group = tester.getSemantics(find.bySemanticsLabel('색상').first);
+          final data = group.getSemanticsData();
+          expect(data.role, ui.SemanticsRole.radioGroup);
+          expect(data.label, '색상');
+          expect(data.tooltip, isEmpty, reason: '툴팁이 묶음 노드에 붙지 않는다');
+          // 칸 노드는 묶음 노드의 바로 아래다 — 툴팁 노드가 사이에 끼지 않는다
+          final children = <SemanticsNode>[];
+          group.visitChildren((c) {
+            children.add(c);
+            return true;
+          });
+          expect(children.length, 10);
+          for (final cell in children) {
+            final d = cell.getSemanticsData();
+            expect(d.flagsCollection.isInMutuallyExclusiveGroup, isTrue);
+            expect(d.label, isNotEmpty);
+          }
+          expect(
+            [for (final c in children) c.getSemanticsData().label],
+            ['빨강', '주황', '노랑', '초록', '파랑', '남색', '보라', '분홍', '갈색', '회색'],
+          );
+          handle.dispose();
+        },
+      );
+
+      testWidgets(
+        '"지금 색" 글은 글자 설정을 따라 자라고 위아래가 잘리지 않는다 — 16 고정이 아니다(03B-006)',
+        (tester) async {
+          for (final scale in [1.0, 2.0]) {
+            await tester.pumpWidget(
+              MediaQuery(
+                data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+                child: _host(
+                  Brightness.light,
+                  _Harness(
+                    key: UniqueKey(),
+                    initial: current,
+                    currentColor: _gray,
+                  ),
+                ),
+              ),
+            );
+            await _settle(tester);
+            final label = find.byKey(const ValueKey('swatch-current-label'));
+            final text = tester.getSize(label).height;
+            final box = tester.getSize(
+              find
+                  .ancestor(of: label, matching: find.byType(OverflowBox))
+                  .first,
+            );
+            expect(text, closeTo(16 * scale, 0.01), reason: 'x$scale 글 높이');
+            expect(
+              box.height,
+              closeTo(text, 0.01),
+              reason: 'x$scale 상자는 글을 따른다',
+            );
+            expect(tester.takeException(), isNull);
+          }
+        },
+      );
 
       testWidgets('칸마다 같은 이름의 툴팁 — 지금 색 칸은 두지 않는다', (tester) async {
         await pump(tester, const _Harness(initial: blue));
