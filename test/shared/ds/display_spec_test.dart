@@ -507,6 +507,13 @@ void main() {
       expect(avatarInitial('  김민수 '), '김');
       expect(avatarInitial('kim minsu'), 'K');
       expect(avatarInitial('7월 모임'), '7');
+      // 대문자로 바꾸면 글자가 늘어나는 글자는 원래 첫 글자를 쓴다(03E-020) — 이니셜은 늘 한 글자
+      expect(avatarInitial('ßeta'), 'ß');
+      expect(avatarInitial('ﬁne'), 'ﬁ');
+      expect(avatarInitial('éclair'), 'É');
+      for (final n in ['ßeta', 'ﬁne', 'kim', '김민수', '😀 모임']) {
+        expect(avatarInitial(n).characters.length, 1, reason: n);
+      }
       // 코드 포인트 합 % 10 — "김민수" = 44608 + 48124 + 49688
       expect(avatarHueIndex('김민수'), (44608 + 48124 + 49688) % 10);
       // 이모지는 코드 포인트 하나로 센다(UTF-16 둘이 아니다)

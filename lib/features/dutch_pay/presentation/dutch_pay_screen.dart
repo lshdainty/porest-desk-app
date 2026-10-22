@@ -9,7 +9,8 @@ import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/shared/ds/avatar/p_avatar.dart'
+    show avatarHueColor, avatarInitial;
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
@@ -354,61 +355,40 @@ String dutchKDate(String? iso) {
   return formatDay(DateTime(2000, m, d)).md;
 }
 
-// ─────────────────────────────────────────────────────────────
-// 아바타 팔레트 — 이름 기반 chart 10색 순환 (라이트/다크 자동 swap).
-// ─────────────────────────────────────────────────────────────
-
-/// 이름을 안정적 인덱스로 해싱해 chart 10색 중 하나 반환.
-Color dutchAvatarColor(BuildContext context, String name) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  var h = 0;
-  for (final c in name.codeUnits) {
-    h = (h * 31 + c) & 0x7fffffff;
-  }
-  final pair = kChartPairs[h % kChartPairs.length];
-  return isDark ? pair.light : pair.base;
-}
-
-/// 28/36/40px 원형 아바타 — 이름 첫 글자 + 팔레트 18% 틴트 배경.
+/// 28/36/40px 원형 아바타 — 이름 첫 글자 + 이름 색 바탕. 이니셜 · 이름 색은 ds Avatar 의 규칙 함수(avatarInitial ·
+/// avatarHueColor)를 쓴다 — 웹과 같은 사람은 같은 색이다(03E-011). 안 낸 사람을 흐리게 하지 않는다(v106 — 상태는 글이 말한다).
 class DutchAvatar extends StatelessWidget {
   const DutchAvatar({
     super.key,
     required this.name,
     this.size = 36,
-    this.dimmed = false,
     this.borderColor,
   });
   final String name;
   final double size;
-  final bool dimmed;
   final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
-    final color = dutchAvatarColor(context, name);
-    final ch = name.trim().isEmpty
-        ? '?'
-        : name.trim().characters.first.toUpperCase();
-    return Opacity(
-      opacity: dimmed ? 0.5 : 1,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: borderColor == null
-              ? null
-              : Border.all(color: borderColor!, width: 2),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          ch,
-          style: PTypo.caption.copyWith(
-            color: Colors.white,
-            fontWeight: PFontWeight.bold,
-            fontSize: size * 0.38,
-          ),
+    final c = context.colors;
+    final initial = avatarInitial(name);
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: avatarHueColor(c, name),
+        shape: BoxShape.circle,
+        border: borderColor == null
+            ? null
+            : Border.all(color: borderColor!, width: 2),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial.isEmpty ? '?' : initial,
+        style: PTypo.caption.copyWith(
+          color: c.fgNeutralInverted,
+          fontWeight: PFontWeight.bold,
+          fontSize: size * 0.38,
         ),
       ),
     );
@@ -659,7 +639,7 @@ class _SessionCard extends StatelessWidget {
   }
 }
 
-/// 참여자 아바타 겹침 스택 — 28px, 최대 4개 고정폭(88), 미지불 dim.
+/// 참여자 아바타 겹침 스택 — 28px, 최대 4개 고정폭(88). 안 낸 사람도 흐리지 않는다(옆 "낸 수/전체" 가 말한다).
 /// 인원수 무관하게 폭 고정 → 진행바 길이 항상 동일. 5+면 3개 + +N 배지.
 class _AvatarStack extends StatelessWidget {
   const _AvatarStack({required this.participants});
@@ -689,7 +669,6 @@ class _AvatarStack extends StatelessWidget {
               child: DutchAvatar(
                 name: shown[i].participantName ?? '?',
                 size: size,
-                dimmed: !shown[i].isPaid,
                 borderColor: t.bgSurface,
               ),
             ),

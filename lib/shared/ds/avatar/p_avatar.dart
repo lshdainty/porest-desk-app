@@ -69,11 +69,14 @@ avatarMetrics(PAvatarSize size) => switch (size) {
 };
 
 /// 이니셜 — 표시 이름(앞뒤 공백만 뺀 글)의 첫 글자 하나(사용자가 보는 글자 단위). 로마자만 대문자로.
-/// "김민수" → "김", "Kim Minsu" → "K". 웹 avatarInitial 과 같은 규칙이다.
+/// "김민수" → "김", "Kim Minsu" → "K". 웹 avatarInitial 과 같은 규칙이다. 대문자로 바꿔 글자가 늘면 원래 글자.
 String avatarInitial(String name) {
   final shown = name.trim();
   if (shown.isEmpty) return '';
-  return shown.characters.first.toUpperCase();
+  final first = shown.characters.first;
+  final upper = first.toUpperCase();
+  // 대문자로 바꾸면 글자가 늘어나는 글자("ß" → "SS", "ﬁ" → "FI")는 원래 첫 글자를 쓴다 — 이니셜은 한 글자다
+  return upper.characters.length > 1 ? first : upper;
 }
 
 /// 이름 색의 차례 — 표시 이름의 유니코드 코드 포인트(UTF-16 단위가 아니다)를 모두 더해 10 으로 나눈 나머지.
