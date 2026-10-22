@@ -3,7 +3,7 @@
   "source": "specs/components/help-bubble.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "d0ae84eb0c4d"
   },
   "slots": {
     "root": "말풍선 — 짙은 바탕, 트리거 쪽에 화살표",
@@ -256,7 +256,7 @@
       "state": "focused",
       "slot": "focusRing",
       "prop": "color",
-      "note": "말풍선 글자색 — 브랜드 링(stroke-focus-ring)은 짙은 말풍선 위에서 Desk 1.96 · HR 3.24 로 3:1 에 못 미친다"
+      "note": "말풍선 글자색 — 브랜드 링(stroke-focus-ring)은 짙은 말풍선 위에서 Desk 1.96 · HR 2.01 로 3:1 에 못 미친다"
     },
     {
       "rule": 0,

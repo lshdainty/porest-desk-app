@@ -3,7 +3,7 @@
   "source": "specs/components/tag-group.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "d0ae84eb0c4d"
   },
   "slots": {
     "root": "묶음 — 항목을 \" · \" 로 잇는다. 줄바꿈하거나(기본) 한 줄에서 항목마다 말줄임한다",
@@ -315,7 +315,7 @@
       "state": "enabled",
       "slot": "item",
       "prop": "foreground",
-      "note": "Desk 8.38 · 6.10 · HR 5.06 · 6.23"
+      "note": "Desk 8.38 · 6.10 · HR 8.17 · 6.07"
     },
     {
       "rule": 9,

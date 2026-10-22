@@ -3,7 +3,7 @@
   "source": "specs/components/tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "d0ae84eb0c4d"
   },
   "slots": {
     "list": "목록 — 탭을 담는 줄. 놓인 화면 · 구역 폭을 채우고 바닥에 구획 선",
@@ -305,7 +305,7 @@
       "state": "enabled",
       "slot": "notification",
       "prop": "background",
-      "note": "브랜드 글자색 — 목록 바탕과 Desk 8.38 · 6.10 · HR 5.06 · 6.23(bg-brand-solid 는 다크에서 1.73 · 2.86 이라 안 보인다). 고른 탭에는 없다 — 내용을 보면 사라진다"
+      "note": "브랜드 글자색 — 목록 바탕과 Desk 8.38 · 6.10 · HR 8.17 · 6.07(bg-brand-solid 는 다크에서 Desk · HR 1.73 이라 안 보인다). 고른 탭에는 없다 — 내용을 보면 사라진다"
     },
     {
       "rule": 0,

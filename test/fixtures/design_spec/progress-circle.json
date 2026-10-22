@@ -3,7 +3,7 @@
   "source": "specs/components/progress-circle.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "d0ae84eb0c4d"
   },
   "slots": {
     "root": "원 상자 — 지름 · 두께, 정사각",
@@ -283,7 +283,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "range",
-      "note": "다크는 밝은 짝 — 흰 면 위 Desk 8.38 · HR 5.06, 다크 Desk 6.10 · HR 6.23. 트랙과 Desk 6.59 · 4.73 · HR 4.20 · 4.59"
+      "note": "다크는 밝은 짝 — 흰 면 위 Desk 8.38 · HR 8.17, 다크 Desk 6.10 · HR 6.07. 트랙과 Desk 6.59 · 4.73 · HR 6.40 · 4.71"
     },
     {
       "rule": 6,

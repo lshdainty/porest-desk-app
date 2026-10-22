@@ -3,7 +3,7 @@
   "source": "specs/components/badge.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "d0ae84eb0c4d"
   },
   "slots": {
     "root": "상자 — 둥근 사각. 글만큼 넓어지고 최대 폭이 없다(부모가 좁을 때만 글이 말줄임)",
@@ -534,7 +534,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "foreground",
-      "note": "Desk 8.74 · 다크 5.48 · HR 5.58 · 5.42"
+      "note": "Desk 8.74 · 다크 5.48 · HR 8.49 · 5.47"
     },
     {
       "rule": 8,
@@ -583,7 +583,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "foreground",
-      "note": "Desk 8.38 · 8.36 · HR 5.06 · 5.06"
+      "note": "Desk 8.38 · 8.36 · HR 8.17 · 8.36"
     },
     {
       "rule": 14,
@@ -639,14 +639,14 @@
       "state": "enabled",
       "slot": "root",
       "prop": "borderColor",
-      "note": "Desk 2.45 · 3.86 · HR 2.53 · 4.01 — 의미 색 넷보다 짙다(v109 값 그대로)"
+      "note": "Desk 2.45 · 3.86 · HR 2.47 · 3.83 — 의미 색 넷보다 짙다(v109 값 그대로 · HR 은 v121 그루 초록)"
     },
     {
       "rule": 19,
       "state": "enabled",
       "slot": "root",
       "prop": "foreground",
-      "note": "Desk 8.38 · 6.10 · HR 5.06 · 6.23"
+      "note": "Desk 8.38 · 6.10 · HR 8.17 · 6.07"
     },
     {
       "rule": 20,

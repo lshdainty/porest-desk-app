@@ -3,7 +3,7 @@
   "source": "specs/components/page-banner.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "3b3b74b34b25"
+    "sha256": "d0ae84eb0c4d"
   },
   "slots": {
     "root": "띠 — 화면 폭 전체, 모서리 없음",
@@ -712,7 +712,7 @@
       "state": "focused",
       "slot": "focusRing",
       "prop": "color",
-      "note": "옅은 바탕 위 3.91 이상. 짙은 바탕은 띠 글자색(아래 solid 규칙) — 브랜드 링은 짙은 띠 위 1.00 ~ 3.24 다"
+      "note": "옅은 바탕 위 3.90 이상. 짙은 바탕은 띠 글자색(아래 solid 규칙) — 브랜드 링은 짙은 띠 위 1.61 ~ 2.44 다"
     },
     {
       "rule": 2,
