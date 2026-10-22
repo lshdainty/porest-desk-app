@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
@@ -310,7 +312,9 @@ class _NotiRow extends StatefulWidget {
 
   /// 읽음 처리 — 비동기. 끝날 때까지 행이 스피너를 띄우고 잠긴다.
   final Future<void> Function() onTap;
-  final VoidCallback onDelete;
+
+  /// 지우기 — 메뉴(⋮)의 "삭제" 를 고르고 확인창에서 삭제를 누르면 부른다. 끝날 때까지 확인창이 로딩이다.
+  final Future<void> Function() onDelete;
 
   @override
   State<_NotiRow> createState() => _NotiRowState();
@@ -342,7 +346,7 @@ class _NotiRowState extends State<_NotiRow> {
   AppNotification get noti => widget.noti;
   GrooTokens get tokens => widget.tokens;
   DateTime get now => widget.now;
-  VoidCallback get onDelete => widget.onDelete;
+  Future<void> Function() get onDelete => widget.onDelete;
 
   // 읽음 처리 진행 중 — 안 읽음 점 자리에 스피너, 탭 잠금. 통신이 느리면 눌렀는지
   // 알 수 없어 다시 누르게 됐다(사용자 신고).
@@ -366,11 +370,13 @@ class _NotiRowState extends State<_NotiRow> {
     final c = context.colors;
     // SEED List 줄(9-1 · 9-2) — 타일 40 · 제목 16/400 · 설명 13 muted · 시각 13 subtle, 안 읽음은 bg-brand-weak + 점.
     // 역할은 목록이고 **안 읽은 줄만 버튼**이다(누르면 읽음). 읽은 줄은 눌리지 않는다.
-    final row = Container(
-      color: unread ? c.bgBrandWeak : null,
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x24,
-        vertical: PSpace.x12,
+    // 읽음 처리를 누르는 자리(왼쪽 내용)와 ⋮ 는 형제다 — ⋮ 를 줄 버튼 안에 넣지 않는다.
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.x12,
+        PSpace.x4,
+        PSpace.x12,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +445,7 @@ class _NotiRowState extends State<_NotiRow> {
               ],
             ),
           ),
-          // 시각은 우측 상단(웹 정합 — 좌측=내용, 우측=시각+X).
+          // 시각은 우측 상단(웹 정합 — 좌측=내용, 우측=시각+⋮).
           if ((noti.createAt ?? '').isNotEmpty) ...[
             const SizedBox(width: PSpace.x8),
             Padding(
@@ -450,22 +456,70 @@ class _NotiRowState extends State<_NotiRow> {
               ),
             ),
           ],
-          const SizedBox(width: PSpace.x4),
-          PButton.icon(
-            icon: LucideIcons.x,
-            size: PButtonSize.sm,
-            iconColor: tokens.fgTertiary,
-            tooltip: l.actionDelete,
-            onPressed: onDelete,
+        ],
+      ),
+    );
+    final row = Container(
+      color: unread ? c.bgBrandWeak : null,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: unread
+                ? Semantics(
+                    button: true,
+                    enabled: !_busy,
+                    child: InkWell(onTap: _busy ? null : _tap, child: content),
+                  )
+                : content,
+          ),
+          // ⋮ — 폰에서는 떠 있는 메뉴가 아니라 Menu Sheet 다. 지우기는 확인창을 거친다(되돌릴 수 없는 동작)
+          Padding(
+            padding: const EdgeInsets.only(top: PSpace.x12, right: PSpace.x24),
+            child: PButton.icon(
+              key: ValueKey('noti-more-${noti.rowId}'),
+              icon: LucideIcons.ellipsisVertical,
+              size: PButtonSize.sm,
+              iconColor: tokens.fgTertiary,
+              tooltip: l.notiMore(noti.title),
+              onPressed: () => _openMenu(l),
+            ),
           ),
         ],
       ),
     );
-    if (!unread) return row;
-    return Semantics(
-      button: true,
-      enabled: !_busy,
-      child: InkWell(onTap: _busy ? null : _tap, child: row),
+    return row;
+  }
+
+  /// ⋮ → Menu Sheet(제목 = 알림 제목, 위험 줄 "삭제" 하나) → 시트가 다 닫힌 뒤 Alert Dialog "알림 삭제".
+  Future<void> _openMenu(AppLocalizations l) {
+    return PMenuSheet.show(
+      context,
+      title: noti.title,
+      groups: [
+        PMenuSheetGroup([
+          PMenuSheetItem(
+            label: l.actionDelete,
+            icon: LucideIcons.trash2,
+            tone: PMenuSheetTone.critical,
+            onSelect: _confirmDelete,
+          ),
+        ]),
+      ],
+    );
+  }
+
+  Future<void> _confirmDelete() async {
+    if (!mounted) return;
+    final l = AppLocalizations.of(context);
+    await PAlertDialog.show(
+      context,
+      title: l.notiDeleteTitle,
+      description: l.notiDeleteDescription,
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
+      destructive: true,
+      onAction: onDelete,
     );
   }
 

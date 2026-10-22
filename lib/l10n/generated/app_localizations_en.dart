@@ -211,7 +211,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notiEmpty => 'No notifications';
 
   @override
-  String get notiMarkAllRead => 'Mark all read';
+  String get notiMarkAllRead => 'Read all';
+
+  @override
+  String notiMore(String title) {
+    return 'More for $title';
+  }
+
+  @override
+  String get notiDeleteTitle => 'Delete notification';
+
+  @override
+  String get notiDeleteDescription =>
+      'Deleted notifications can\'t be restored.';
 
   @override
   String get notiTypeEventReminder => 'Event Reminder';

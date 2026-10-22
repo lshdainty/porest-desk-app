@@ -500,6 +500,24 @@ abstract class AppLocalizations {
   /// **'모두 읽음'**
   String get notiMarkAllRead;
 
+  /// 알림 줄 끝 ⋮ 버튼의 이름 — 메뉴 시트의 이름이기도 하다
+  ///
+  /// In ko, this message translates to:
+  /// **'{title} 더보기'**
+  String notiMore(String title);
+
+  /// No description provided for @notiDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 삭제'**
+  String get notiDeleteTitle;
+
+  /// No description provided for @notiDeleteDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제한 알림은 되돌릴 수 없어요.'**
+  String get notiDeleteDescription;
+
   /// No description provided for @notiTypeEventReminder.
   ///
   /// In ko, this message translates to:

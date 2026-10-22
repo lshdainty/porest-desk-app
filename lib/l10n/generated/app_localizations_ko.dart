@@ -212,6 +212,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notiMarkAllRead => '모두 읽음';
 
   @override
+  String notiMore(String title) {
+    return '$title 더보기';
+  }
+
+  @override
+  String get notiDeleteTitle => '알림 삭제';
+
+  @override
+  String get notiDeleteDescription => '삭제한 알림은 되돌릴 수 없어요.';
+
+  @override
   String get notiTypeEventReminder => '일정 알림';
 
   @override
