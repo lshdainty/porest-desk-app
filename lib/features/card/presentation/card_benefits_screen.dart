@@ -573,7 +573,7 @@ class _CardVisual extends StatelessWidget {
             child: Text(
               _brandInitial(company),
               style: PTypo.caption.copyWith(
-                color: brand.fg,
+                color: brand.fgOf(context),
                 fontWeight: PFontWeight.bold,
                 letterSpacing: 0,
               ),
