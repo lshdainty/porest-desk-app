@@ -408,6 +408,11 @@ class _DayCell extends StatelessWidget {
                     fontSize: PFontSize.bodyMd,
                     fontWeight: weight,
                     color: textColor,
+                    // 막힌 날은 바탕 없이 흐린 숫자 + 취소선(date-picker 스펙, 03-C — 웹 I-04 와 같다)
+                    decoration: disabled
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    decorationColor: textColor,
                   ),
                 ),
               ),
