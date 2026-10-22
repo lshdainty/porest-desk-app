@@ -364,6 +364,117 @@ void main() {
       semantics.dispose();
     });
 
+    group('truncate — 줄어드는 항목의 최소 폭(03-E 결정 5 B)', () {
+      const long = '신한카드체크카드';
+      const other = '체크카드혜택안내';
+      const amount = '12,000원';
+
+      Widget group(double width, List<PTag> items) => _host(
+        Brightness.light,
+        SizedBox(
+          width: width,
+          child: PTagGroup(
+            size: PTagGroupSize.t3,
+            overflow: PTagGroupOverflow.truncate,
+            items: items,
+          ),
+        ),
+      );
+      double w(WidgetTester tester, String text) =>
+          tester.getSize(find.text(text)).width;
+
+      testWidgets('넉넉하면 모두 글만큼이다', (tester) async {
+        await tester.pumpWidget(
+          group(320, const [PTag(long), PTag('식비'), PTag(amount, shrink: 0)]),
+        );
+        expect(tester.takeException(), isNull);
+        final full = w(tester, long);
+        expect(full, greaterThan(40));
+        expect(w(tester, '식비'), lessThan(full));
+      });
+
+      testWidgets('넘치면 줄어드는 항목만 줄고, 두 글자 이하 · shrink 0 은 글 폭 그대로다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          group(320, const [PTag(long), PTag('식비'), PTag(amount, shrink: 0)]),
+        );
+        final natural = (
+          long: w(tester, long),
+          b: w(tester, '식비'),
+          c: w(tester, amount),
+        );
+        final sep = tester.getSize(find.text(tagGroupSeparator).first).width;
+        final width = natural.long + natural.b + natural.c + 2 * sep - 40;
+        await tester.pumpWidget(
+          group(width, const [PTag(long), PTag('식비'), PTag(amount, shrink: 0)]),
+        );
+        expect(tester.takeException(), isNull);
+        expect(w(tester, long), closeTo(natural.long - 40, 1));
+        expect(w(tester, '식비'), natural.b);
+        expect(w(tester, amount), natural.c);
+      });
+
+      testWidgets(
+        '줄어드는 항목도 첫 글자 + … (2.1em = t3 27.3)까지만 주고, 그래도 넘치면 줄 끝이 잘린다',
+        (tester) async {
+          await tester.pumpWidget(
+            group(320, const [PTag(long), PTag('식비'), PTag(amount, shrink: 0)]),
+          );
+          final natural = (b: w(tester, '식비'), c: w(tester, amount));
+          await tester.pumpWidget(
+            group(120, const [PTag(long), PTag('식비'), PTag(amount, shrink: 0)]),
+          );
+          expect(tester.takeException(), isNull, reason: '넘침 줄무늬 없이 잘린다');
+          expect(w(tester, long), closeTo(27.3, 0.01));
+          expect(w(tester, '식비'), natural.b);
+          expect(w(tester, amount), natural.c);
+        },
+      );
+
+      testWidgets('아이콘이 있으면 최소 폭은 2.1em + 아이콘 + 사이 2 이고 아이콘은 늘 보인다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          group(100, const [
+            PTag(long, icon: LucideIcons.utensils),
+            PTag(amount, shrink: 0),
+          ]),
+        );
+        expect(tester.takeException(), isNull);
+        expect(w(tester, long), closeTo(27.3, 0.01));
+        expect(tester.getSize(find.byType(Icon)).width, 13);
+      });
+
+      testWidgets('글자 200% 에서는 최소 폭도 em 이라 두 배가 된다', (tester) async {
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+            child: group(200, const [PTag(long), PTag(amount, shrink: 0)]),
+          ),
+        );
+        expect(w(tester, long), closeTo(54.6, 0.01));
+      });
+
+      testWidgets('줄어드는 항목이 둘이면 넘친 폭을 글 폭 × shrink 비율로 나눠 함께 준다', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          group(320, const [PTag(long), PTag(other, shrink: 3)]),
+        );
+        final a = w(tester, long);
+        final b = w(tester, other);
+        final sep = tester.getSize(find.text(tagGroupSeparator).first).width;
+        const over = 50.0;
+        await tester.pumpWidget(
+          group(a + b + sep - over, const [PTag(long), PTag(other, shrink: 3)]),
+        );
+        final weight = a * 1 + b * 3;
+        expect(w(tester, long), closeTo(a - over * a / weight, 1));
+        expect(w(tester, other), closeTo(b - over * b * 3 / weight, 1));
+      });
+    });
+
     test('구분은 줄이 안 바뀌는 공백 · 가운뎃점 · 공백', () {
       final want = spec.resolve({}, 'enabled');
       expect('${want['separator.glyph']}'.trim(), '·');
