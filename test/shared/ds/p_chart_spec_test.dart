@@ -1,6 +1,7 @@
 // Chart 가 스펙 값(test/fixtures/design_spec/chart.json)대로인지 — 차트 10색 · 눈금 · 격자 · 선 · 막대 · 도넛 · 열지도 · 툴팁 · 지표
 // 타일 · 도넛 범례를 라이트 · 다크로 잰다. 웹은 같은 JSON 을 크로미움에서 잰다. 앱에 없는 상태(hovered · focused — 웹 상태)와
 // 웹 전용 값(cursor · transition 이름 · z-index)은 건너뛴다. 그림 안(격자 · 점 · 선)은 fl_chart 에 넘긴 데이터를 읽어 잰다.
+import 'dart:math' as math;
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -1014,7 +1015,7 @@ void main() {
           (deco.borderRadius as BorderRadius).topLeft.x,
           want['heatmapCell.radius'],
         );
-        // 세기 색 — 브랜드 채움을 카드 면에 18 · 35 · 55 · 75 · 100% 섞는다
+        // 세기 색 — 브랜드 채움을 카드 면에 18 · 35 · 55 · 76 · 100% 섞는다(넷째는 75 → 76, 2026-10-22 #187)
         Color bg(int r, int col) =>
             (tester
                         .widget<Container>(
@@ -1029,6 +1030,22 @@ void main() {
                     as BoxDecoration)
                 .color!;
         final steps = [for (var i = 0; i < 5; i++) heatStepColor(c, i)];
+        expect(kHeatMix, [0.18, 0.35, 0.55, 0.76, 1], reason: '넷째 세기 76%');
+        // 라이트 76% 칸 위 흰 글자는 4.5 를 넘는다(스펙 note 4.74)
+        if (mode == Brightness.light) {
+          double lum(Color x) {
+            double ch(double v) => v <= 0.03928
+                ? v / 12.92
+                : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+            return 0.2126 * ch(x.r) + 0.7152 * ch(x.g) + 0.0722 * ch(x.b);
+          }
+
+          final bgL = lum(steps[3]);
+          final fgL = lum(c.staticWhite);
+          final ratio = (fgL + 0.05) / (bgL + 0.05);
+          expect(ratio, greaterThan(4.5), reason: '76% 칸 위 흰 글자 $ratio');
+          expect(ratio, closeTo(4.74, 0.05));
+        }
         expect(bg(0, 0), steps[0], reason: '50 / 1000 = 5% → 0 단계');
         expect(bg(0, 1), steps[1], reason: '100 → 10%');
         expect(bg(0, 2), steps[2], reason: '300 → 30%');
@@ -1093,7 +1110,7 @@ void main() {
         );
         expect(none.data, '—');
         expect(sameColor(c.fgNeutralSubtle, none.style!.color!), isTrue);
-        // 라이트는 75 · 100% 만 흰 글자, 다크는 전부 fg-neutral
+        // 라이트는 76 · 100% 만 흰 글자, 다크는 전부 fg-neutral
         if (mode == Brightness.light) {
           expect(texts, [
             c.fgNeutral,
