@@ -3,7 +3,7 @@
   "source": "specs/components/card.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "카드 면 — 바닥(bg-layer-basement) 위 흰 면 + 1px 테두리, 그림자 없음",
@@ -145,6 +145,7 @@
             "dark": "#F5F6FA"
           },
           "numerals": "tabular-nums",
+          "lineBreak": "쉼표 뒤",
           "marginTop": 4
         },
         "delta": {
@@ -427,6 +428,7 @@
           "fontWeight": 700,
           "foreground": "#FFFFFF",
           "numerals": "tabular-nums",
+          "lineBreak": "쉼표 뒤",
           "marginTop": 6
         },
         "heroDetail": {
@@ -580,6 +582,13 @@
       "slot": "statValue",
       "prop": "numerals",
       "note": "돈은 줄이지 않고 원까지 · 빼기는 U+2212. 숫자가 굴러가는 애니메이션을 두지 않는다"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "statValue",
+      "prop": "lineBreak",
+      "note": "카드보다 긴 금액(큰 글자 · 큰 수)은 쉼표 뒤에서만 줄을 바꾼다 — 세 자리 묶음을 가르지 않는다. 금액 글을 만드는 함수가 보이는 글의 쉼표 뒤마다 웹 <wbr> · 앱 U+200B 를 넣는다(읽는 이름 · 복사에는 넣지 않는다). 묶음 하나가 칸보다 길 때만 v114 의 칸 끝 끊기. 글자를 줄여 맞추지 않는다(2026-10-17 사용자 결정 03-D 결정 2 B — Typography v114 의 예외)"
     },
     {
       "rule": 0,
@@ -811,6 +820,13 @@
       "slot": "heroAmount",
       "prop": "fontWeight",
       "note": "v100 — 지금 800"
+    },
+    {
+      "rule": 11,
+      "state": "enabled",
+      "slot": "heroAmount",
+      "prop": "lineBreak",
+      "note": "지표 숫자와 같다(statValue.lineBreak) — 글자 200% 에서 18자리 금액이 3 → 4줄이 될 수 있다"
     },
     {
       "rule": 11,

@@ -251,6 +251,8 @@ const _behavior = {
   'expandButton.transitionProperty',
   'expandButton.name',
   'subList.display',
+  // 좁은 줄(03-D 결정 1 B) — 아래 '좁은 줄' 묶음이 문턱과 모양을 잰다
+  'content.stackBelow',
   // 값이 길 때(Q-001) — 가장 나쁜 값 묶음의 '값이 길 때' 테스트가 잰다
   'body.flexGrow',
   'body.minWidth',
@@ -1002,7 +1004,7 @@ void _kindTests() {
       );
     });
 
-    testWidgets('제목 + 설명이 한 노드로 읽히고 값 글자는 따로 읽힌다', (tester) async {
+    testWidgets('제목 + 설명 + 값이 한 노드로 읽힌다(줄 하나 = 한 노드)', (tester) async {
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(
         _host(
@@ -1020,13 +1022,17 @@ void _kindTests() {
         ),
       );
       final node = tester.getSemantics(find.bySemanticsLabel(RegExp('결제 알림')));
-      expect(node.label, '결제 알림\n결제 예정일 D-1');
+      expect(node.label, '결제 알림\n결제 예정일 D-1\n켜짐');
       expect(
         node.getSemanticsData().flagsCollection.isButton,
         isFalse,
         reason: '보기만 하는 줄은 버튼이 아니다',
       );
-      expect(find.bySemanticsLabel('켜짐'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('켜짐'),
+        findsNothing,
+        reason: '값은 따로 읽히지 않는다',
+      );
       semantics.dispose();
     });
 
@@ -1114,7 +1120,7 @@ void _kindTests() {
       expect(taps, 2);
     });
 
-    testWidgets('제목 + 설명이 버튼의 이름이고 뒤 붙이개는 따로 읽힌다', (tester) async {
+    testWidgets('제목 + 설명 + 값이 버튼의 이름 하나다(03-D 결정 4 A)', (tester) async {
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(
         _host(
@@ -1136,14 +1142,15 @@ void _kindTests() {
       expect(
         tester.getSemantics(find.bySemanticsLabel(RegExp('기본 통화'))),
         isSemantics(
-          label: '기본 통화\n표시할 통화',
+          label: '기본 통화\n표시할 통화\n대한민국 원',
           isButton: true,
           isEnabled: true,
           hasEnabledState: true,
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('대한민국 원'), findsOneWidget);
+      // 값은 따로 읽히지 않는다 — 줄 하나 = 한 번
+      expect(find.bySemanticsLabel('대한민국 원'), findsNothing);
       expect(
         tester.getSemantics(find.bySemanticsLabel('막힌 줄')),
         isSemantics(
@@ -3023,8 +3030,11 @@ void _worstTests() {
         return tester.getSize(_suffixes);
       }
 
-      const value = 'desk@example.kr';
+      // Q-001 은 줄 안 폭이 16em(256)이상일 때의 규칙이다(좁은 줄은 값이 아래로 간다 — p_list_narrow_test) — 그 폭에서
+      // 값이 모자랄 만큼 긴 글을 쓴다
+      const value = 'desk-long-address-name-and-more@example.kr';
       final wide = await suffixSize(800, value);
+      expect(wide.width + kPListBodyMinWidth - 40, greaterThan(256));
       // 본문(이메일)이 눌려도 본문 최소 폭이 남는 폭 — 값은 그대로다
       final mid = await suffixSize(
         wide.width + 48 + kPListBodyMinWidth + 4,

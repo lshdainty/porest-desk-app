@@ -3,7 +3,7 @@
   "source": "specs/components/tabs.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "list": "목록 — 탭을 담는 줄. 놓인 화면 · 구역 폭을 채우고 바닥에 구획 선",
@@ -354,7 +354,7 @@
       "state": "enabled",
       "slot": "trigger",
       "prop": "grow",
-      "note": "칸을 똑같이 나눈다 — 글이 칸보다 길면 그 탭만 넓어진다(그러면 Hug 로)"
+      "note": "칸을 똑같이 나눈다 — 글이 칸보다 길면 그 탭만 넓어지고, 넘치면 Fill 모양 그대로 목록만 가로 스크롤(SEED, 2026-10-21 03-G 3B)"
     },
     {
       "rule": 2,

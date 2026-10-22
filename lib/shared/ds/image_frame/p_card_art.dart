@@ -33,6 +33,23 @@ PCardArtSize cardArtSizeFor(double width) => width < 96
 double cardArtInitialSize(double height) =>
     math.max(10, (height * 0.4).roundToDouble());
 
+/// 회사 줄 + 카드 이름 한 줄이 면에 드는가 — 면 높이 ≥ (회사 줄 높이 + 카드 이름 한 줄 높이) × 글자 배율 + 아래 여백
+/// (여백은 배율을 따르지 않는다). 안 들면 회사 첫 글자 면(small 과 같은 모양)으로 바꾼다(card-art.yaml label.fit,
+/// 2026-10-17 사용자 결정 03-D 결정 3 A). 웹은 틀 높이 컨테이너 쿼리 — medium `calc(2.1875rem + 8px)` · large
+/// `calc(2.5rem + 14px)`, 앱은 같은 식을 글자 배율로 잰다. small 은 늘 첫 글자라 묻지 않는다.
+bool cardArtLabelFits({
+  required double height,
+  required PCardArtSize size,
+  required TextScaler textScaler,
+  required double issuerLine,
+  required double nameLine,
+}) {
+  final bottom = size == PCardArtSize.large ? PSpacing.x3_5 : PSpacing.x2;
+  final need =
+      textScaler.scale(issuerLine) + textScaler.scale(nameLine) + bottom;
+  return height >= need;
+}
+
 /// 단어 단위로 줄을 바꾼다 — 단어 안(공백 없는 글자 사이)에 U+2060(word joiner)을 끼워 글자 단위로 끊기지 않게 한다
 /// (웹 `keep-all` 과 같다 · v114). 너무 긴 한 단어는 그래도 넘치면 끊긴다.
 String keepWords(String text) =>
@@ -129,7 +146,24 @@ class PCardFace extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, box) {
           final size = cardArtSizeFor(box.maxWidth);
-          if (size == PCardArtSize.small) {
+          final large = size == PCardArtSize.large;
+          final issuerStyle = (large ? PTypography.t3 : PTypography.t2)
+              .copyWith(fontWeight: FontWeight.w500, color: color);
+          final nameStyle = (large ? PTypography.t5 : PTypography.t4).copyWith(
+            fontWeight: FontWeight.w700,
+            color: color,
+          );
+          // 글이 안 드는 면(큰 글자) — 회사 줄 + 카드 이름 한 줄(지금 글자 배율)과 아래 여백이 면 높이보다 크면 첫 글자 면
+          final fits =
+              size == PCardArtSize.small ||
+              cardArtLabelFits(
+                height: box.maxHeight,
+                size: size,
+                textScaler: MediaQuery.textScalerOf(context),
+                issuerLine: issuerStyle.fontSize! * (issuerStyle.height ?? 1),
+                nameLine: nameStyle.fontSize! * (nameStyle.height ?? 1),
+              );
+          if (size == PCardArtSize.small || !fits) {
             return Center(
               child: Text(
                 avatarInitial(issuer),
@@ -145,13 +179,6 @@ class PCardFace extends StatelessWidget {
               ),
             );
           }
-          final large = size == PCardArtSize.large;
-          final issuerStyle = (large ? PTypography.t3 : PTypography.t2)
-              .copyWith(fontWeight: FontWeight.w500, color: color);
-          final nameStyle = (large ? PTypography.t5 : PTypography.t4).copyWith(
-            fontWeight: FontWeight.w700,
-            color: color,
-          );
           return Align(
             alignment: Alignment.bottomLeft,
             child: Padding(

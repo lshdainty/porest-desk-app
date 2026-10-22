@@ -3,7 +3,7 @@
   "source": "specs/components/collapsible.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "접는 자리 하나 — 트리거 + 펼친 내용. surface card 면 Card 면",
@@ -409,6 +409,13 @@
       "slot": "title",
       "prop": "lineClamp",
       "note": "늘 줄을 바꾼다(10A)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "description",
+      "prop": "fontWeight",
+      "note": "SEED accordion-item description medium — 머리 제목 500 과 한 벌. 글자 역할 R9 의 \"여닫는 머리 설명\"(2026-10-17 사용자 결정 01T-005 — 줄 설명 400 에 맞추지 않는다)"
     },
     {
       "rule": 0,

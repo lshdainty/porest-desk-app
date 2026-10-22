@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/infinite_list/p_infinite_list.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
@@ -16,7 +19,6 @@ import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_checkbox.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
-import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
@@ -78,7 +80,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   @override
   void initState() {
     super.initState();
-    _scroll.addListener(_onScroll);
     // ref(Provider)·inherited widget 접근은 initState 완료 후로 미룸.
     // initState 안에서 동기 호출하면 _loadMore 의 ref.invalidate/ref.read 가
     // dependOnInheritedWidgetOfExactType<_UncontrolledProviderScope> 를 initState 완료 전에
@@ -147,12 +148,10 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     }
   }
 
-  void _onScroll() {
-    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 300 &&
-        _hasMore &&
-        !_loadingMore) {
-      _loadMore();
-    }
+  /// 목록 끝 자리의 "다시 시도" — 못 받은 그 쪽을 다시 받는다(이미 받은 줄은 그대로).
+  void _retryMore() {
+    setState(() => _error = null);
+    _loadMore();
   }
 
   void _onSearchChanged(String _) {
@@ -184,7 +183,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   @override
   void dispose() {
     _kwCtrl.dispose();
-    _scroll.removeListener(_onScroll);
     _scroll.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -212,6 +210,10 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           onRefresh: () async => _reset(),
           child: ListView(
             controller: _scroll,
+            // 목록 끝 자리가 화면 아래 300 안에서 그려져야 다음 쪽을 부른다(Infinite List)
+            scrollCacheExtent: const ScrollCacheExtent.pixels(
+              kPInfiniteListReach,
+            ),
             padding: const EdgeInsets.fromLTRB(
               PSpace.x24,
               PSpace.x16,
@@ -300,14 +302,16 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       ];
     }
 
-    // 에러 (누적된 카드가 없을 때만 전체 에러 표시)
+    // 첫 쪽을 못 불러왔다 — 목록 자리가 Result Section 의 실패다(예외 · 서버 글은 설명에 쓰지 않는다)
     if (_error != null && _cards.isEmpty) {
       return [
-        Padding(
-          padding: const EdgeInsets.only(top: PSpace.x16),
-          child: Text(
-            '${l.cardLoadError}\n$_error',
-            style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
+        PResultSection(
+          kind: PResultKind.failure,
+          size: PResultSize.medium,
+          title: l.cardListLoadFailed,
+          primaryAction: PResultAction(
+            label: l.dsCommonRetry,
+            onPressed: _reset,
           ),
         ),
       ];
@@ -335,17 +339,19 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           tokens: t,
         ),
       ],
-      // 추가 페이지 로딩 인디케이터
-      if (_loadingMore) ...[
-        const SizedBox(height: PSpace.x16),
-        Center(
-          child: PCircularProgressIndicator(
-            size: 24,
-            strokeWidth: 2.5,
-            color: t.fgBrand,
-          ),
+      // 목록 끝 자리 — 받는 중(곧 받는다) · 못 불러옴 · 끝. 한 쪽으로 끝나는 짧은 목록에는 끝 글을 두지 않는다
+      if (_error != null)
+        PInfiniteListEnd(status: PInfiniteListStatus.error, onRetry: _retryMore)
+      else if (_hasMore)
+        PInfiniteListEnd(
+          status: PInfiniteListStatus.loading,
+          onReachEnd: _loadMore,
+        )
+      else if (_page > 1)
+        PInfiniteListEnd(
+          status: PInfiniteListStatus.end,
+          endText: l.cardListEnd,
         ),
-      ],
     ];
   }
 }

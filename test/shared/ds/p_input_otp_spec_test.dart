@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
@@ -305,6 +306,28 @@ void main() {
         final style = tester.widget<Text>(find.text('6자리 숫자')).style!;
         k.color('placeholder.foreground', style.color!);
         expect(k.failures, isEmpty);
+      });
+    }
+
+    // 01T-013 — 막혀도 자리 글은 fg-placeholder 다(Input 의 fg-disabled 를 덮는다)
+    for (final mode in Brightness.values) {
+      testWidgets('${mode.name} — 막혀도 빈 칸의 글은 fg-placeholder', (tester) async {
+        final want = spec.resolve({'size': 'large'}, 'disabled');
+        final k = SpecCheck(mode, want, 'placeholder disabled ${mode.name}');
+        await tester.pumpWidget(
+          _host(mode, _Sample(clock: _Clock(), disabled: true)),
+        );
+        final style = tester.widget<Text>(find.text('6자리 숫자')).style!;
+        k.color('placeholder.foreground', style.color!);
+        expect(k.failures, isEmpty);
+        final tokens = mode == Brightness.dark
+            ? GrooTokens.dark
+            : GrooTokens.light;
+        expect(style.color, tokens.fgPlaceholder);
+        // 다크는 두 역할이 같은 값(#838997)이라 라이트에서만 갈린다
+        if (mode == Brightness.light) {
+          expect(style.color, isNot(tokens.fgDisabled));
+        }
       });
     }
   });

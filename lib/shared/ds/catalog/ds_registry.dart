@@ -27,6 +27,7 @@ import 'package:groo_damda_app/shared/ds/icon_picker/icon_picker_demo.dart';
 import 'package:groo_damda_app/shared/ds/image_frame/image_frame_demo.dart';
 import 'package:groo_damda_app/shared/ds/input/input_demo.dart';
 import 'package:groo_damda_app/shared/ds/input_button/input_button_demo.dart';
+import 'package:groo_damda_app/shared/ds/infinite_list/infinite_list_demo.dart';
 import 'package:groo_damda_app/shared/ds/input_otp/input_otp_demo.dart';
 import 'package:groo_damda_app/shared/ds/list/list_demo.dart';
 import 'package:groo_damda_app/shared/ds/logo_tile/logo_tile_demo.dart';
@@ -65,7 +66,7 @@ import 'package:groo_damda_app/shared/ds/wheel_picker/wheel_picker_demo.dart';
 /// (Button ← Progress Circle, Chip ← Field · Scroll Fog …). 웹(desk-front
 /// `src/shared/ds/catalog/registry.ts`)과 같은 차례다.
 ///
-/// 앱은 57개다 — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
+/// 앱은 58개다(Infinite List 는 폰 전용 — 웹은 `InfiniteListEnd` 가 같은 규칙) — Dialog · Menu · Popover · Table · Table Pagination · Pagination · Side Navigation 은 1280 · 768 이상 전용이라 앱에서는
 /// Bottom Sheet · Menu Sheet · List 줄이 맡는다.
 ///
 /// 컴포넌트를 만들면 그 줄에 demo 를 단다 — 스펙의 변형 · 크기 · 상태를 모두 그린 위젯.
@@ -161,7 +162,10 @@ const List<DsFamily> dsFamilies = [
     DsEntry('Image Frame', 'image-frame', demo: _imageFrame),
     DsEntry('Logo Tile', 'logo-tile', demo: _logoTile),
   ]),
-  DsFamily('list', '13 목록', [DsEntry('List', 'list', demo: _list)]),
+  DsFamily('list', '13 목록', [
+    DsEntry('List', 'list', demo: _list),
+    DsEntry('Infinite List', 'infinite-list', demo: _infiniteList),
+  ]),
   // Table · Table Pagination · Pagination 은 768 이상 전용이라 폰은 List 줄 · 끝없이 불러오기가 맡는다
   DsFamily('data', '14 데이터', [
     DsEntry('Card', 'card', demo: _card),
@@ -236,6 +240,7 @@ Widget _datePicker(BuildContext context) => const DatePickerDemo();
 Widget _select(BuildContext context) => const SelectDemo();
 Widget _selectBox(BuildContext context) => const SelectBoxDemo();
 Widget _list(BuildContext context) => const ListDemo();
+Widget _infiniteList(BuildContext context) => const InfiniteListDemo();
 Widget _card(BuildContext context) => const CardDemo();
 Widget _chart(BuildContext context) => const ChartDemo();
 Widget _swipeActions(BuildContext context) => const SwipeActionsDemo();

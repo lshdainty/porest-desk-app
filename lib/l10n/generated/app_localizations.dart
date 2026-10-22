@@ -13400,6 +13400,36 @@ abstract class AppLocalizations {
   /// **'요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.'**
   String get apiErrorServer;
 
+  /// 목록 끝(Infinite List)에서 다음 쪽을 못 받았을 때 글 — 이미 받은 줄은 그대로 두고 다시 시도 버튼이 붙는다
+  ///
+  /// In ko, this message translates to:
+  /// **'더 불러오지 못했어요.'**
+  String get dsInfiniteListError;
+
+  /// 목록 끝(Infinite List)에서 더 받을 쪽이 없을 때 기본 글 — 목록마다 "카드를 모두 봤어요." 처럼 바꿀 수 있다
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 봤어요.'**
+  String get dsInfiniteListEnd;
+
+  /// ds 부품이 다시 하기 단추에 쓰는 공용 글 — 웹 ds.common.retry 와 짝
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get dsCommonRetry;
+
+  /// 카드 혜택 목록 첫 쪽을 못 불러왔을 때 Result Section 제목 — 예외 · 서버 글을 붙이지 않는다
+  ///
+  /// In ko, this message translates to:
+  /// **'카드를 불러오지 못했어요'**
+  String get cardListLoadFailed;
+
+  /// 카드 혜택 목록 끝 자리의 끝 글(Infinite List) — 한 쪽이 넘게 받았을 때만
+  ///
+  /// In ko, this message translates to:
+  /// **'카드를 모두 봤어요.'**
+  String get cardListEnd;
+
   /// No description provided for @apiErrorNetwork.
   ///
   /// In ko, this message translates to:

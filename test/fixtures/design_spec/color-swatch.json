@@ -3,7 +3,7 @@
   "source": "specs/components/color-swatch.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "group": "묶음 — radiogroup, 5 × 2 격자. 이름은 Field 라벨(\"색상\")",
@@ -59,7 +59,7 @@
           "gap": 12,
           "width": 248,
           "order": "색상환",
-          "keyboard": "← → · ↑ ↓ · Home · End"
+          "keyboard": "← → · ↑ ↓"
         },
         "swatch": {
           "size": 40,
@@ -349,7 +349,7 @@
       "state": "enabled",
       "slot": "group",
       "prop": "gap",
-      "note": "칸 사이 · 줄 사이 12 — 누르는 영역 44 가 겹치지 않는다"
+      "note": "칸 사이 · 줄 사이 12 — 누르는 영역 44 가 겹치지 않는다. 칸과 같이 px 고정(-static) — 글자 크기 설정을 따르지 않는다"
     },
     {
       "rule": 0,
@@ -370,7 +370,14 @@
       "state": "enabled",
       "slot": "group",
       "prop": "keyboard",
-      "note": "radiogroup — 묶음에 Tab 하나(고른 칸, 없으면 첫 칸), 화살표로 옮기며 고른다. ← → 는 차례대로(줄 끝에서 다음 줄로), ↑ ↓ 는 위아래 줄의 같은 칸. 끝에서 처음으로 돈다(APG radiogroup). 지금 색 칸은 차례의 맨 앞(그 칸에서 ↑ ↓ 는 그대로). Enter 는 고르지 않고 폼을 보낸다(Radio Group 과 같다)"
+      "note": "radiogroup — 묶음에 Tab 하나(고른 칸, 없으면 첫 칸), 화살표로 옮기며 고른다. Home · End · PageUp · PageDown 은 받지 않는다 — 초점도 고른 칸도 그대로, 화면도 스크롤되지 않는다(하나 고르기 묶음은 화살표만 — SEED · 진짜 라디오 · APG, 2026-10-17 사용자 결정 03-E 결정 3 후속 · 색 칸 예외는 고르지 않았다). ← → 는 차례대로(줄 끝에서 다음 줄로), ↑ ↓ 는 위아래 줄의 같은 칸. 끝에서 처음으로 돈다(APG radiogroup). 지금 색 칸은 차례의 맨 앞(그 칸에서 ↑ ↓ 는 그대로). Enter 는 고르지 않고 폼을 보낸다(Radio Group 과 같다)"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "swatch",
+      "prop": "size",
+      "note": "-static — 웹도 px 그대로, 글자 크기 설정을 따르지 않는다(앱과 같다). 색이 곧 값이라 글처럼 읽을 일이 없어 WCAG 1.4.4(글 확대) 대상이 아니다. rem 이면 200% 에서 80 원이 40 열 · 12 간격 격자에서 서로 겹친다. 누르는 44 · 체크 16 · 지금 색 칸 40 도 그대로(2026-10-17 사용자 결정 — 03-B 결정 5 A, 폭 안 5열로 키우는 안(B)은 고르지 않았다)"
     },
     {
       "rule": 0,
@@ -398,7 +405,7 @@
       "state": "enabled",
       "slot": "swatch",
       "prop": "tooltip",
-      "note": "마우스를 올리면 groo Tooltip 으로 같은 이름(네이티브 title 은 쓰지 않는다) — 색으로 가리기 어려운 사람도 이름을 본다. Icon Picker 의 칸 툴팁과 같다"
+      "note": "마우스를 올리면 groo Tooltip 으로 같은 이름(네이티브 title 은 쓰지 않는다) — 색으로 가리기 어려운 사람도 이름을 본다. Icon Picker 의 칸 툴팁과 같다. 앱은 툴팁을 칸의 의미 노드 안에 두거나 의미에서 뺀다 — 칸 밖이면 첫 칸의 색 이름이 묶음 이름에 붙는다(2026-10-17 사용자 승인 — 03B-004b)"
     },
     {
       "rule": 0,

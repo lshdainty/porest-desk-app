@@ -3,7 +3,7 @@
   "source": "specs/components/attachment-input.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "8e7da59ba7f5"
+    "sha256": "91764c2b6325"
   },
   "slots": {
     "root": "첨부 칸 전체 — 드롭존(있으면)과 항목 줄을 세로로 담는다. 라벨 · 설명 · 오류는 Field 가 둘레에서 그린다",
@@ -870,7 +870,7 @@
       "state": "enabled",
       "slot": "trigger",
       "prop": "size",
-      "note": "정사각 — SEED trigger"
+      "note": "정사각 — SEED trigger. 큰 글자에서 상자 · 아이콘 · × 는 글자 배율만큼 커진다 — 웹은 rem 이라 이미 그렇고, 앱은 타일 · 사진 80 · 파일 카드 160 · 썸네일 48 · 아이콘 24 · × 20(누르는 44 · 위 여백 16) · × 아이콘 10 에 글자 배율(textScaler)을 곱한다. 200% 에서 사진 160 · 파일 카드 320 × 160 — 이름 네 줄 + 크기 한 줄이 다 보이고, 실패한 사진의 \"다시 시도\" 가 잘리지 않는다. 한 화면에 타일이 하나 반 정도만 보이고 나머지는 옆으로 민다. 80 고정 + 줄 줄이기(B)는 고르지 않았다(2026-10-17 사용자 결정 — 03-B 결정 3 A)"
     },
     {
       "rule": 0,
@@ -940,7 +940,7 @@
       "state": "enabled",
       "slot": "item",
       "prop": "height",
-      "note": "사진 · 파일 같은 높이 — 줄이 한 높이다"
+      "note": "사진 · 파일 같은 높이 — 줄이 한 높이다. 큰 글자에서는 글자 배율만큼(trigger.size 비고 — 200% 160)"
     },
     {
       "rule": 0,
@@ -1507,7 +1507,7 @@
       "state": "enabled",
       "slot": "item",
       "prop": "width",
-      "note": "SEED item file"
+      "note": "SEED item file — 큰 글자에서는 글자 배율만큼(200% 320, trigger.size 비고)"
     },
     {
       "rule": 2,

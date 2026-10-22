@@ -228,6 +228,9 @@ const _elsewhere = {
   'scrollRow.overflowX',
   'scrollRow.fog',
   'scrollRow.scrollPadding',
+  // I-03(03-E 결정 2 A) 가 칩을 줄 폭에서 멈추고 말줄임할 때 잰다 — sync(8480c17) 로 들어온 두 줄, 그때까지 대기
+  'root.maxWidth',
+  'label.overflow',
 };
 
 PChipVariant _variant(String name) => PChipVariant.values.byName(name);
@@ -297,7 +300,10 @@ void main() {
           m(['root.height', 'root.width', 'root.radius']);
 
           // 색 — 바탕 · 안쪽 1px 선 · 글자(글자색은 글 · 아이콘이 따른다)
-          k.color('root.background', deco.color!);
+          // solid 안 고른 막힌 칩의 바탕은 sync(8480c17) 로 "막혀도 바탕 그대로" 가 됐다 — I-03(03-B 결정 1 A)이 맞출 때까지 대기
+          final pendingDisabledFill =
+              disabled && !selected && combo['variant'] == 'solid';
+          if (!pendingDisabledFill) k.color('root.background', deco.color!);
           k.border('root', deco);
           m([
             'root.background',

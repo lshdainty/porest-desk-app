@@ -7495,6 +7495,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t complete the request. Please try again in a moment.';
 
   @override
+  String get dsInfiniteListError => 'Couldn\'t load more.';
+
+  @override
+  String get dsInfiniteListEnd => 'You\'ve reached the end.';
+
+  @override
+  String get dsCommonRetry => 'Try again';
+
+  @override
+  String get cardListLoadFailed => 'Couldn\'t load cards';
+
+  @override
+  String get cardListEnd => 'You\'ve seen all the cards.';
+
+  @override
   String get apiErrorNetwork =>
       'The network connection is unstable. Please try again in a moment.';
 }

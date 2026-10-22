@@ -529,6 +529,26 @@ class _PrefixDemo extends StatelessWidget {
               ],
             ),
             DemoRow(
+              label: '금액 — PListValue.amount(쉼표 뒤에서만 줄이 바뀌고 읽는 이름은 원래 금액)',
+              children: [
+                _Cell(
+                  child: PList(
+                    semanticLabel: '금액',
+                    children: [
+                      PListItem(
+                        title: '이번 달 지출',
+                        suffix: PListValue.amount('−1,234,567,890원'),
+                      ),
+                      PListItem(
+                        title: '이번 달 수입',
+                        suffix: PListValue.amount('+3,200,000원'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            DemoRow(
               label: '작은 버튼 · 메뉴 — 줄 · 작은 버튼 · 메뉴, 누르는 것 셋',
               children: [
                 _Cell(
