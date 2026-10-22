@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart' show Scaffold;
 import 'package:flutter/rendering.dart' show SemanticsRole;
 import 'package:flutter/widgets.dart';
 
@@ -317,7 +318,14 @@ class _PAlertDialogRoute extends PopupRoute<bool> {
   ) => themes.wrap(
     DefaultTextStyle.merge(
       style: const TextStyle(decoration: TextDecoration.none),
-      child: Builder(builder: builder),
+      // 확인창 위에도 스낵바가 보이게 하는 층 — 투명 Scaffold 로 감싼다(DESIGN Z-index: 스낵바가 확인창 위). 라우트에
+      // Scaffold 가 없으면 전역 ScaffoldMessenger 의 띠가 아래 페이지에 그려져 딤에 덮인다. 시트의 `_SheetToastLayer`
+      // (`p_modal.dart`)와 같은 방법이다 — 새 messenger 를 두지 않으므로 확인창을 닫아도 페이지 쪽 띠는 남는다.
+      child: Scaffold(
+        backgroundColor: const Color(0x00000000),
+        resizeToAvoidBottomInset: false,
+        body: Builder(builder: builder),
+      ),
     ),
   );
 

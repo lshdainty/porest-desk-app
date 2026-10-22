@@ -17,6 +17,8 @@ import 'package:groo_damda_app/features/notification/data/notification_repositor
 import 'package:groo_damda_app/features/notification/domain/notification.dart';
 import 'package:groo_damda_app/features/notification/presentation/notification_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 class _FakeRepo extends NotificationRepository {
@@ -111,18 +113,19 @@ void main() {
     final handle = tester.ensureSemantics();
     expect(find.bySemanticsLabel('$_longTitle 더보기'), findsOneWidget);
     expect(find.bySemanticsLabel('할 일 알림 더보기'), findsOneWidget);
-    // ds 아이콘 버튼 xsmall 32(웹과 같다) — 누르는 영역은 44 까지
+    // ds 아이콘 버튼 — 보이는 크기 32(xsmall, 웹과 같다), 누르는 영역은 따로 44
     final more = find.byKey(const ValueKey('noti-more-1'));
-    expect(
-      tester
-          .getSize(
-            find
-                .descendant(of: more, matching: find.byType(DecoratedBox))
-                .first,
-          )
-          .width,
-      lessThanOrEqualTo(44),
+    final visible = tester.getSize(
+      find.descendant(of: more, matching: find.byType(DecoratedBox)).first,
     );
+    expect(visible, const Size(32, 32));
+    // 누르는 영역 44 — 보이는 상자 위 5px 도 눌린다(위아래 6 씩 넓힌다)
+    final box = tester.getRect(
+      find.descendant(of: more, matching: find.byType(DecoratedBox)).first,
+    );
+    await tester.tapAt(box.topCenter - const Offset(0, 5));
+    await tester.pumpAndSettle();
+    expect(find.text(keepAll('삭제')), findsOneWidget, reason: '넓힌 영역에서 메뉴가 열린다');
     handle.dispose();
     // ⋮ 는 읽음 처리 InkWell 안에 들어 있지 않다
     expect(
@@ -199,5 +202,48 @@ void main() {
     expect(find.textContaining('삭제하지 못했어요'), findsWidgets);
     // 확정 버튼이 다시 눌린다(로딩이 풀렸다)
     expect(find.text('삭제'), findsOneWidget);
+  });
+
+  testWidgets('실패 알림 띠는 확인창 딤 위에 그려진다 — 눌러서 동작한다(DESIGN Z-index)', (
+    tester,
+  ) async {
+    await _pump(tester, <int>[], fail: true);
+    await tester.tap(find.byKey(const ValueKey('noti-more-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(keepAll('삭제')));
+    await tester.pumpAndSettle();
+    expect(find.text(keepAll('알림 삭제')), findsOneWidget);
+    // 확인창이 떠 있는 동안 액션이 달린 띠를 띄워 눌러 본다 — 딤 아래에 그려지면 딤이 받아 동작하지 않는다
+    var taps = 0;
+    final ctx = tester.element(find.byType(PAlertDialogView));
+    showPSnackBar(
+      ctx,
+      '확인창 위 띠',
+      actionLabel: '다시 시도',
+      onAction: () => taps++,
+      duration: const Duration(seconds: 20),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    // 확인창 라우트의 Scaffold 안에도 띠가 그려진다
+    final routeScaffold = find.ancestor(
+      of: find.byType(PAlertDialogView),
+      matching: find.byType(Scaffold),
+    );
+    expect(routeScaffold, findsOneWidget);
+    expect(
+      find.descendant(of: routeScaffold, matching: find.text('확인창 위 띠')),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.descendant(of: routeScaffold, matching: find.text('다시 시도')),
+    );
+    await tester.pump();
+    expect(taps, 1, reason: '딤 위에 있어 눌린다');
+    expect(
+      find.text(keepAll('알림 삭제')),
+      findsOneWidget,
+      reason: '띠를 눌러도 확인창은 닫히지 않는다',
+    );
   });
 }

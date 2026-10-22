@@ -46,8 +46,9 @@ void showPSnackBar(
   String? actionLabel,
   VoidCallback? onAction,
 
-  /// 떠 있거나 줄 선 토스트를 걷고 바로 띄운다. 기본은 줄을 서서 앞 토스트가 끝난
-  /// 뒤에 뜬다.
+  /// 액션이 달린 띠까지 걷고 바로 띄운다. 기본은 새 띠가 바로 바꾸되, 떠 있는 띠에 액션
+  /// (되돌리기 · 다시 시도)이 있으면 그 띠가 끝날 때까지 지키고 새 띠는 그 뒤에 온다 —
+  /// 기다리는 띠는 하나(그 사이 또 오면 마지막 것만).
   bool replace = false,
 
   /// 직접 넘기는 messenger — 전역 키로 띄울 때 쓴다. ScaffoldMessenger.of 는
