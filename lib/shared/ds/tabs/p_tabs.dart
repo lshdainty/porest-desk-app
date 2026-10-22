@@ -213,9 +213,10 @@ void revealInScroll(
 /// fg-neutral · 끝이 각지다 — 이고 고른 탭이 바뀌면 left · width 로 200ms 미끄러진다(모션 줄이기에도 그대로다 — 마이크로
 /// 모션). 크기가 바뀌어 다시 놓을 때는 바로 놓는다.
 ///
-/// [PTabsLayout.fill] 은 칸을 똑같이 나누고 막대는 탭에서 좌우 16 들인다(360 폰 2 · 3 · 4 · 5개면 148 · 88 · 58 · 40). 글이
-/// 칸보다 길면 Hug 로 둔다(웹은 그 탭만 넓어지지만 앱은 넓어지지 않는다). [PTabsLayout.hug] 은 탭이 글 + 좌우 10 · 목록 좌우 16
-/// 이고 넘치면 가로 스크롤(스크롤바는 숨긴다)이며 막대는 탭 폭 그대로다. 고른 탭이 목록 밖이면 가장자리에서 16 띄워 가까운 쪽으로
+/// [PTabsLayout.fill] 은 칸을 똑같이 나누고 막대는 탭에서 좌우 16 들인다(360 폰 2 · 3 · 4 · 5개면 148 · 88 · 58 · 40). 글 폭의
+/// 합(글 + 좌우 10)이 줄 폭을 넘으면 칸을 나누지 않고 Hug 처럼 가로 스크롤한다(스크롤바는 숨긴다) — 탭 칸 폭은 글 + 좌우 10
+/// 이고 막대 들임 16 은 fill 값 그대로이며, 고른 탭은 목록 밖이면 드러낸다(03-G 결정 3B). [PTabsLayout.hug] 은 탭이 글 + 좌우 10 ·
+/// 목록 좌우 16 이고 넘치면 가로 스크롤이며 막대는 탭 폭 그대로다. 고른 탭이 목록 밖이면 가장자리에서 16 띄워 가까운 쪽으로
 /// 목록만 스크롤한다.
 ///
 /// 상태 — 호버 모양은 없다. 누르면 탭만 2px 거리 준다(기준 max(높이, 폭 ÷ 4, 24) — 모션 줄이기면 줄지 않는다), 색은 그대로다.
@@ -263,6 +264,11 @@ class _PTabsState<T> extends State<PTabs<T>> {
   bool _animate = false;
   bool _valueChanged = false;
   bool _firstReveal = true;
+
+  /// 이번에 가로 스크롤 목록으로 그리는가(hug, 또는 글 폭 합이 줄 폭을 넘는 fill) · 스크롤 내용 앞의 안쪽 여백.
+  bool _scrolling = false;
+  double? _lastWidth;
+  double _scrollLead = 0;
 
   @override
   void initState() {
@@ -315,12 +321,12 @@ class _PTabsState<T> extends State<PTabs<T>> {
     if (tab is! RenderBox || !tab.hasSize) return;
     final origin = tab.localToGlobal(Offset.zero, ancestor: stack);
     final rect = origin & tab.size;
-    if (widget.layout == PTabsLayout.hug) {
+    if (_scrolling) {
       revealInScroll(
         context,
         _scroll,
-        // 스크롤 내용 좌표 — 안쪽 여백 16 이 앞에 있다
-        rect.shift(const Offset(PSpacing.x4, 0)),
+        // 스크롤 내용 좌표 — hug 는 안쪽 여백 16 이 앞에 있다
+        rect.shift(Offset(_scrollLead, 0)),
         PSpacing.x4,
         animate: !_firstReveal,
       );
@@ -341,16 +347,76 @@ class _PTabsState<T> extends State<PTabs<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
     final m = tabsMetrics(widget.size);
-    final hug = widget.layout == PTabsLayout.hug;
+    final isHug = widget.layout == PTabsLayout.hug;
     final enabledAll = widget.onChanged != null;
     final selected = _selectedIndex;
-    final inset = hug ? 0.0 : PSpacing.x4;
     final placed = _placed;
     final barDisabled =
         selected >= 0 && !(enabledAll && widget.items[selected].enabled);
 
+    // fill 은 글 폭의 합이 줄 폭을 넘으면 칸을 나누지 않고 hug 처럼 가로 스크롤한다(막대 들임 16 은 fill 값 그대로)
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fillOverflows =
+            !isHug &&
+            constraints.hasBoundedWidth &&
+            _naturalWidth(context, m.text) > constraints.maxWidth + 0.01;
+        final hug = isHug || fillOverflows;
+        final inset = isHug ? 0.0 : PSpacing.x4;
+        // 줄 폭이나 스크롤 여부가 바뀌면 막대를 다시 놓는다
+        if (_scrolling != hug || _lastWidth != constraints.maxWidth) {
+          _afterLayout();
+        }
+        _lastWidth = constraints.maxWidth;
+        _scrolling = hug;
+        _scrollLead = isHug ? PSpacing.x4 : 0;
+        return _buildList(
+          context,
+          m,
+          hug,
+          inset,
+          enabledAll,
+          selected,
+          placed,
+          barDisabled,
+        );
+      },
+    );
+  }
+
+  /// 탭마다 글 폭 + 좌우 10 의 합 — fill 이 칸을 나눌 수 있는지 가르는 값.
+  double _naturalWidth(BuildContext context, TextStyle base) {
+    final scaler = MediaQuery.textScalerOf(context);
+    var sum = 0.0;
+    for (final item in widget.items) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: item.label,
+          style: base.copyWith(fontWeight: FontWeight.w700),
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      sum += painter.width + 2 * PSpacing.x2_5;
+      painter.dispose();
+    }
+    return sum;
+  }
+
+  Widget _buildList(
+    BuildContext context,
+    ({double height, TextStyle text, double lineHeight}) m,
+    bool hug,
+    double inset,
+    bool enabledAll,
+    int selected,
+    Rect? placed,
+    bool barDisabled,
+  ) {
+    final c = context.colors;
+    final isHug = widget.layout == PTabsLayout.hug;
     return TabListFocus(
       count: widget.items.length,
       enabledAt: (i) => enabledAll && widget.items[i].enabled,
@@ -423,8 +489,8 @@ class _PTabsState<T> extends State<PTabs<T>> {
                       key: const ValueKey('tabs-scroll'),
                       controller: _scroll,
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PSpacing.x4,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isHug ? PSpacing.x4 : 0,
                       ),
                       child: bar,
                     ),

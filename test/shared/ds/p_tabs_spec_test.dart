@@ -809,6 +809,68 @@ void main() {
       expect(tester.getRect(find.text(names[0])).left, 26);
     });
 
+    testWidgets(
+      'Fill 이 넘치면(360 · 영어 긴 탭 넷) 칸을 나누지 않고 가로 스크롤 — 줄이 넘치지 않고 고른 넷째 탭이 보인다(03-G 3B)',
+      (tester) async {
+        final names = [
+          'Monthly overview',
+          'Spending by category',
+          'Recurring payments',
+          'Budget settings',
+        ];
+        var value = 'v0';
+        late StateSetter set;
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            StatefulBuilder(
+              builder: (context, setState) {
+                set = setState;
+                return PTabs<String>(
+                  value: value,
+                  onChanged: (v) => setState(() => value = v),
+                  semanticLabel: 'Stats',
+                  items: [for (var i = 0; i < 4; i++) _tab('v$i', names[i])],
+                );
+              },
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(tester.takeException(), isNull, reason: '줄이 넘치지 않는다');
+        final scroll = find.byKey(const ValueKey('tabs-scroll'));
+        expect(scroll, findsOneWidget, reason: '넘치면 스크롤 목록');
+        expect(find.byType(Scrollbar), findsNothing);
+        final view = tester.getRect(scroll);
+        expect(view.width, 360);
+        // 칸을 나누지 않는다 — 탭 폭은 글 + 좌우 10
+        for (final n in names) {
+          final tab = tester.getRect(_tabOf(n));
+          final label = tester.getRect(find.text(n));
+          expect(tab.width, closeTo(label.width + 20, 0.5), reason: n);
+        }
+        // 첫 탭에서 시작 — 내용 폭이 줄 폭보다 크다
+        final position = tester
+            .state<ScrollableState>(
+              find.descendant(of: scroll, matching: find.byType(Scrollable)),
+            )
+            .position;
+        expect(position.maxScrollExtent, greaterThan(0));
+        expect(tester.getRect(_tabOf(names[3])).right, greaterThan(360));
+        // 넷째 탭을 고르면 보이는 자리로 따라온다
+        set(() => value = 'v3');
+        await tester.pumpAndSettle();
+        final last = tester.getRect(_tabOf(names[3]));
+        expect(last.right, lessThanOrEqualTo(view.right + 0.01));
+        expect(last.left, greaterThanOrEqualTo(view.left));
+        // 막대 들임 16 은 fill 값 그대로
+        final bar = tester.getRect(_bar);
+        expect(bar.left - last.left, closeTo(16, 0.01));
+        expect(last.right - bar.right, closeTo(16, 0.01));
+        // 글 폭 합이 줄 폭에 들면 다시 칸을 똑같이 나눈다(360 폰 2개면 막대 148)
+      },
+    );
+
     testWidgets('알림 점은 안 고른 탭에만 — 고르면 사라지고 탭 폭은 바뀌지 않는다', (tester) async {
       final semantics = tester.ensureSemantics();
       var value = 'a';
