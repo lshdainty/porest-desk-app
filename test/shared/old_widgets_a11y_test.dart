@@ -282,22 +282,22 @@ void main() {
     final nodes = _nodes(tester).toList();
     expect(nodes.where((n) => n.role == SemanticsRole.tabBar), hasLength(1));
     final tabs = nodes.where((n) => n.role == SemanticsRole.tab).toList();
-    expect(tabs.map((n) => n.label), ['지출', '수입', '이체']);
+    expect(tabs.map((n) => n.label), ['지출, 탭 1/3', '수입, 탭 2/3', '이체, 탭 3/3']);
     // 고른 탭(지출)에도 tap 동작이 있다 — 눌러도 아무 일 없다
-    final selected = tabs.firstWhere((n) => n.label == '지출');
+    final selected = tabs.firstWhere((n) => n.label.startsWith('지출'));
     expect(selected.flagsCollection.isSelected, Tristate.isTrue);
     expect(selected.hasAction(SemanticsAction.tap), isTrue);
-    final other = tabs.firstWhere((n) => n.label == '수입');
+    final other = tabs.firstWhere((n) => n.label.startsWith('수입'));
     expect(other.flagsCollection.isSelected, Tristate.isFalse);
     expect(other.hasAction(SemanticsAction.tap), isTrue);
     // 막힌 탭은 비활성
-    final blocked = tabs.firstWhere((n) => n.label == '이체');
+    final blocked = tabs.firstWhere((n) => n.label.startsWith('이체'));
     expect(blocked.flagsCollection.isEnabled, Tristate.isFalse);
     // 읽기 도구의 탭 동작이 값을 바꾼다
-    tester.semantics.tap(find.semantics.byLabel('수입'));
+    tester.semantics.tap(find.semantics.byLabel('수입, 탭 2/3'));
     await tester.pump();
     expect(picked, [2]);
-    tester.semantics.tap(find.semantics.byLabel('지출'));
+    tester.semantics.tap(find.semantics.byLabel('지출, 탭 1/3'));
     await tester.pump();
     expect(picked, [2], reason: '고른 탭을 눌러도 부르지 않는다');
     handle.dispose();

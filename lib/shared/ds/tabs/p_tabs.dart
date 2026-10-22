@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
 import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
@@ -200,6 +201,11 @@ void revealInScroll(
     controller.jumpTo(target);
   }
 }
+
+/// 탭 이름 뒤에 붙는 자리 — "탭 2/3"(en "Tab 2 of 3"). Flutter(Android · iOS)는 tab 역할을 화면 읽기 도구에 전달하지 않아 이름으로
+/// 알린다(Material TabBar 와 같다). 선택됨은 selected 상태가 알린다.
+String tabPositionName(BuildContext context, int index, int count) =>
+    dsL(context)?.dsTabPosition(index + 1, count) ?? '탭 ${index + 1}/$count';
 
 // ── Line ──────────────────────────────────────────────────────────────────────
 
@@ -431,6 +437,8 @@ class _PTabsState<T> extends State<PTabs<T>> {
                 child: _LineTab<T>(
                   key: _tabKeys[i],
                   item: widget.items[i],
+                  index: i,
+                  count: widget.items.length,
                   selected: i == selected,
                   enabled: enabledAll && widget.items[i].enabled,
                   hug: hug,
@@ -511,6 +519,8 @@ class _LineTab<T> extends StatelessWidget {
   const _LineTab({
     super.key,
     required this.item,
+    required this.index,
+    required this.count,
     required this.selected,
     required this.enabled,
     required this.hug,
@@ -520,6 +530,8 @@ class _LineTab<T> extends StatelessWidget {
   });
 
   final PTab<T> item;
+  final int index;
+  final int count;
   final bool selected;
   final bool enabled;
   final bool hug;
@@ -554,7 +566,7 @@ class _LineTab<T> extends StatelessWidget {
         role: SemanticsRole.tab,
         selected: selected,
         enabled: enabled,
-        label: name,
+        label: '$name, ${tabPositionName(context, index, count)}',
         onTap: onTap,
         child: child,
       ),
@@ -760,6 +772,8 @@ class _PChipTabsState<T> extends State<PChipTabs<T>> {
                           ),
                           child: _ChipTab<T>(
                             item: widget.items[i],
+                            index: i,
+                            count: widget.items.length,
                             selected: i == selected,
                             enabled: enabledAll && widget.items[i].enabled,
                             variant: chipVariant,
@@ -785,6 +799,8 @@ class _PChipTabsState<T> extends State<PChipTabs<T>> {
 class _ChipTab<T> extends StatelessWidget {
   const _ChipTab({
     required this.item,
+    required this.index,
+    required this.count,
     required this.selected,
     required this.enabled,
     required this.variant,
@@ -795,6 +811,8 @@ class _ChipTab<T> extends StatelessWidget {
   });
 
   final PTab<T> item;
+  final int index;
+  final int count;
   final bool selected;
   final bool enabled;
   final PChipVariant variant;
@@ -819,7 +837,7 @@ class _ChipTab<T> extends StatelessWidget {
         role: SemanticsRole.tab,
         selected: selected,
         enabled: enabled,
-        label: name,
+        label: '$name, ${tabPositionName(context, index, count)}',
         onTap: onTap,
         child: child,
       ),

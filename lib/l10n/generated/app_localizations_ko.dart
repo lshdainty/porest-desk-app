@@ -7317,6 +7317,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dsDateToday => '오늘';
 
   @override
+  String dsTabPosition(int index, int count) {
+    return '탭 $index/$count';
+  }
+
+  @override
   String get dsDatePresetThisWeek => '이번 주';
 
   @override

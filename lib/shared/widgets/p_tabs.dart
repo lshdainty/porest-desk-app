@@ -3,6 +3,9 @@ import 'package:flutter/rendering.dart' show SemanticsRole;
 
 import 'package:groo_damda_app/shared/ds/press_feedback/p_press_feedback.dart';
 import 'package:groo_damda_app/app/theme/motion.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart'
+    as ds
+    show tabPositionName;
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart' show PTouch;
@@ -224,27 +227,34 @@ class PTabs<T> extends StatelessWidget {
     return TouchTarget(
       minSize: PTouch.min,
       // 탭 — 고른 탭도 누를 수 있는 노드다(이미 고른 탭을 눌러도 아무 일 없다). 보조 기술은 tab 이 tap 동작을 갖길 요구한다
-      child: Semantics(
-        container: true,
-        role: SemanticsRole.tab,
-        selected: active,
-        enabled: !disabled,
-        label: item.label,
-        onTap: disabled ? null : (active ? () {} : () => onChanged(item.value)),
-        excludeSemantics: true,
-        child: PPressFeedback(
-          enabled: !disabled && !active,
-          child: AnimatedContainer(
-            duration: PMotion.fast,
-            curve: PMotion.standard,
-            height: height,
-            decoration: decoration,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: disabled || active ? null : () => onChanged(item.value),
-                borderRadius: radius == BorderRadius.zero ? null : radius,
-                child: inner,
+      child: Builder(
+        builder: (context) => Semantics(
+          container: true,
+          role: SemanticsRole.tab,
+          selected: active,
+          enabled: !disabled,
+          label:
+              '${item.label}, ${ds.tabPositionName(context, items.indexOf(item), items.length)}',
+          onTap: disabled
+              ? null
+              : (active ? () {} : () => onChanged(item.value)),
+          excludeSemantics: true,
+          child: PPressFeedback(
+            enabled: !disabled && !active,
+            child: AnimatedContainer(
+              duration: PMotion.fast,
+              curve: PMotion.standard,
+              height: height,
+              decoration: decoration,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: disabled || active
+                      ? null
+                      : () => onChanged(item.value),
+                  borderRadius: radius == BorderRadius.zero ? null : radius,
+                  child: inner,
+                ),
               ),
             ),
           ),

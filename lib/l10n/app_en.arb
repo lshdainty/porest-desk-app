@@ -4211,6 +4211,7 @@
   "dsDateReadOnlyStart": "Read-only start date",
   "dsDatePresets": "Quick ranges",
   "dsDateToday": "today",
+  "dsTabPosition": "Tab {index} of {count}",
   "dsDatePresetThisWeek": "This week",
   "dsDatePresetThisMonth": "This month",
   "dsDatePresetLastMonth": "Last month",

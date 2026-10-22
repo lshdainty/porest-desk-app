@@ -7474,6 +7474,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dsDateToday => 'today';
 
   @override
+  String dsTabPosition(int index, int count) {
+    return 'Tab $index of $count';
+  }
+
+  @override
   String get dsDatePresetThisWeek => 'This week';
 
   @override

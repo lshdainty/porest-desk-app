@@ -4458,6 +4458,8 @@
   "dsDateReadOnlyStart": "읽기 전용 시작일",
   "dsDatePresets": "빠른 기간",
   "dsDateToday": "오늘",
+  "dsTabPosition": "탭 {index}/{count}",
+  "@dsTabPosition": {"description": "탭 이름 뒤에 붙는 자리 — 안드로이드 · iOS 는 tab 역할을 전달하지 않아 이름으로 알린다(Material TabBar 와 같다)", "placeholders": {"index": {"type": "int"}, "count": {"type": "int"}}},
   "dsDatePresetThisWeek": "이번 주",
   "dsDatePresetThisMonth": "이번 달",
   "dsDatePresetLastMonth": "지난 달",

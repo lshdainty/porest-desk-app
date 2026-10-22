@@ -895,12 +895,12 @@ void main() {
       expect(_lineDot, findsOneWidget);
       final width = tester.getSize(_tabOf('완료')).width;
       // 점이 있는 탭 이름 뒤에 읽는 글을 덧붙인다 — 점만으로 알리지 않는다
-      expect(find.bySemanticsLabel('완료 새 소식'), findsOneWidget);
+      expect(find.bySemanticsLabel('완료 새 소식, 탭 2/2'), findsOneWidget);
       set(() => value = 'b');
       await tester.pump();
       expect(_lineDot, findsNothing);
-      expect(find.bySemanticsLabel('완료 새 소식'), findsNothing);
-      expect(find.bySemanticsLabel('완료'), findsOneWidget);
+      expect(find.bySemanticsLabel('완료 새 소식, 탭 2/2'), findsNothing);
+      expect(find.bySemanticsLabel('완료, 탭 2/2'), findsOneWidget);
       expect(tester.getSize(_tabOf('완료')).width, width);
       semantics.dispose();
     });
@@ -1089,12 +1089,14 @@ void main() {
       );
       final list = tester.getSemantics(find.bySemanticsLabel('통계'));
       expect(list.getSemanticsData().role, SemanticsRole.tabBar);
-      final selected = tester.getSemantics(find.bySemanticsLabel('카테고리'));
+      final selected = tester.getSemantics(
+        find.bySemanticsLabel('카테고리, 탭 1/3'),
+      );
       expect(selected.getSemanticsData().role, SemanticsRole.tab);
       expect(
         selected,
         isSemantics(
-          label: '카테고리',
+          label: '카테고리, 탭 1/3',
           isSelected: true,
           hasSelectedState: true,
           hasEnabledState: true,
@@ -1104,7 +1106,7 @@ void main() {
         ),
       );
       expect(
-        tester.getSemantics(find.bySemanticsLabel('추이')),
+        tester.getSemantics(find.bySemanticsLabel('추이, 탭 2/3')),
         isSemantics(
           hasEnabledState: true,
           isEnabled: false,
@@ -1113,9 +1115,9 @@ void main() {
         ),
       );
       expect(
-        tester.getSemantics(find.bySemanticsLabel('비교 새 소식')),
+        tester.getSemantics(find.bySemanticsLabel('비교 새 소식, 탭 3/3')),
         isSemantics(
-          label: '비교 새 소식',
+          label: '비교 새 소식, 탭 3/3',
           hasSelectedState: true,
           isSelected: false,
           hasTapAction: true,
@@ -1148,17 +1150,41 @@ void main() {
         SemanticsRole.tabBar,
       );
       expect(
-        tester.getSemantics(find.bySemanticsLabel('보유')),
+        tester.getSemantics(find.bySemanticsLabel('보유, 탭 2/2')),
         isSemantics(
-          label: '보유',
+          label: '보유, 탭 2/2',
           isSelected: true,
           hasSelectedState: true,
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('전체 새 소식'), findsOneWidget);
+      expect(find.bySemanticsLabel('전체 새 소식, 탭 1/2'), findsOneWidget);
+      // 안드로이드 · iOS 는 tab 역할을 전달하지 않아 이름 끝 "탭 n/m" 이 위치를 알린다(Material TabBar 와 같다)
       semantics.dispose();
     });
+  });
+
+  testWidgets('영어 — 탭 이름 끝은 "Tab n of m"', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GrooTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(
+          body: PTabs<String>(
+            value: 'a',
+            onChanged: (_) {},
+            semanticLabel: 'Stats',
+            items: [_tab('a', 'Spending'), _tab('b', 'Budget')],
+          ),
+        ),
+      ),
+    );
+    expect(find.bySemanticsLabel('Spending, Tab 1 of 2'), findsOneWidget);
+    expect(find.bySemanticsLabel('Budget, Tab 2 of 2'), findsOneWidget);
+    semantics.dispose();
   });
 
   group('Chip Tabs 동작', () {

@@ -13358,6 +13358,12 @@ abstract class AppLocalizations {
   /// **'오늘'**
   String get dsDateToday;
 
+  /// 탭 이름 뒤에 붙는 자리 — 안드로이드 · iOS 는 tab 역할을 전달하지 않아 이름으로 알린다(Material TabBar 와 같다)
+  ///
+  /// In ko, this message translates to:
+  /// **'탭 {index}/{count}'**
+  String dsTabPosition(int index, int count);
+
   /// No description provided for @dsDatePresetThisWeek.
   ///
   /// In ko, this message translates to:
