@@ -17,6 +17,7 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/feedback_parts.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/page_banner/p_page_banner.dart';
@@ -2539,20 +2540,8 @@ void main() {
           final descRect = tester.getRect(find.byKey(description));
           k.px('description.marginTop', descRect.top - titleRect.bottom);
 
-          // ── 버튼 ── 위 28 · 24, 첫 버튼 medium 40 neutralWeak, 둘째 small 36 ghost
+          // ── 버튼 ── 위 28 · 24, 첫 버튼 medium 40 neutralWeak, 둘째 글 버튼 36 muted
           final primaryButton = tester.widget<PButton>(
-            find.descendant(
-              of: find.byKey(primary),
-              matching: find.byType(PButton),
-            ),
-          );
-          final secondaryButton = tester.widget<PButton>(
-            find.descendant(
-              of: find.byKey(secondary),
-              matching: find.byType(PButton),
-            ),
-          );
-          final primaryRect = tester.getRect(
             find.descendant(
               of: find.byKey(primary),
               matching: find.byType(PButton),
@@ -2561,6 +2550,18 @@ void main() {
           final secondaryRect = tester.getRect(
             find.descendant(
               of: find.byKey(secondary),
+              matching: find.byKey(const ValueKey('text-button-box')),
+            ),
+          );
+          final secondaryLabel = tester.widget<Text>(
+            find.descendant(
+              of: find.byKey(secondary),
+              matching: find.byKey(const ValueKey('text-button-label')),
+            ),
+          );
+          final primaryRect = tester.getRect(
+            find.descendant(
+              of: find.byKey(primary),
               matching: find.byType(PButton),
             ),
           );
@@ -2578,13 +2579,13 @@ void main() {
               'primaryButton: 스펙 ${primarySpec.join(' ')} neutralWeak · 실제 ${primaryButton.size.name} ${primaryRect.height} ${primaryButton.variant}',
             );
           }
-          if (secondaryButton.size.name != secondarySpec[0] ||
-              secondaryRect.height != double.parse(secondarySpec[1]) ||
-              secondaryButton.variant != PButtonVariant.ghost) {
+          // 글 버튼(D2) — 보이는 상자 36, 글 t4 · 700 · fg-neutral-muted
+          if (secondaryRect.height != double.parse(secondarySpec[1])) {
             k.fail(
-              'secondaryButton: 스펙 ${secondarySpec.join(' ')} ghost · 실제 ${secondaryButton.size.name} ${secondaryRect.height} ${secondaryButton.variant}',
+              'secondaryButton: 스펙 ${secondarySpec.join(' ')} · 실제 ${secondaryRect.height}',
             );
           }
+          k.color('secondaryButton.foreground', secondaryLabel.style!.color!);
           // 사이 20 — 둘째 버튼이 위아래로 8 블리드해 보이는 상자 사이는 12
           k.pxMinus('actions.gap', 8, secondaryRect.top - primaryRect.bottom);
           // 둘째 버튼은 레이아웃에서 위 8 · 아래 8 을 뺀다 — 묶음 높이 40 + 20 + 20
