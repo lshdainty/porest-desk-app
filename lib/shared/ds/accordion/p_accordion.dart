@@ -443,6 +443,7 @@ class PAccordionHeader extends StatelessWidget {
         // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
         child: PHeaderRow(
           gap: PSpacing.x2,
+          actionBleed: kTextButtonPaddingX,
           title: Semantics(
             header: true,
             headingLevel: headingLevel,
@@ -505,5 +506,7 @@ class PAccordionExpandAll extends StatelessWidget {
   Widget build(BuildContext context) => PTextButton(
     label: _allOpen ? collapseLabel : expandLabel,
     onPressed: _activate,
+    // 줄 끝에서 −14 — 글 끝이 부모 여백에 선다(레시피 EXPAND_ALL `-mr-x3_5`, D2)
+    bleedEnd: true,
   );
 }

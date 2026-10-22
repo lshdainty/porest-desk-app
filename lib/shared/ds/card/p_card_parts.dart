@@ -243,6 +243,7 @@ class PCardHeader extends StatelessWidget {
       // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
       child: PHeaderRow(
         gap: PSpacing.x2,
+        actionBleed: kTextButtonPaddingX,
         title: scope?.titleNamedByCard == true
             // 카드 링크가 이 제목을 이름으로 갖는다 — 같은 글을 두 번 읽지 않는다
             ? ExcludeSemantics(child: titleText)

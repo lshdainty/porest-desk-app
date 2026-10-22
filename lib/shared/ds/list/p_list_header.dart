@@ -54,6 +54,7 @@ class PListHeader extends StatelessWidget {
         // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
         child: PHeaderRow(
           gap: PSpacing.x2_5,
+          actionBleed: kTextButtonPaddingX,
           expandTitle: false,
           title: Semantics(
             header: true,

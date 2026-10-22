@@ -79,6 +79,22 @@ void main() {
       expect(tester.getSize(find.byType(PHeaderRow)).height, 22 + 8 + 36);
     });
 
+    testWidgets('끝 블리드(−14)는 판정에서 동작 폭에서 뺀다 — 웹 `-mr-x3_5` 와 같다', (
+      tester,
+    ) async {
+      _viewport(tester);
+      Widget bleedRow(double actionWidth) => PHeaderRow(
+        actionBleed: 14,
+        title: const SizedBox(width: 40, height: 22),
+        action: SizedBox(width: actionWidth, height: 36),
+      );
+      // 폭 300: 한 줄 한도 = 150 − 8 + 14 = 156
+      await tester.pumpWidget(_app(bleedRow(156), width: 300));
+      expect(tester.getSize(find.byType(PHeaderRow)).height, 36);
+      await tester.pumpWidget(_app(bleedRow(157), width: 300));
+      expect(tester.getSize(find.byType(PHeaderRow)).height, 22 + 8 + 36);
+    });
+
     testWidgets('동작이 없으면 제목만', (tester) async {
       _viewport(tester);
       await tester.pumpWidget(

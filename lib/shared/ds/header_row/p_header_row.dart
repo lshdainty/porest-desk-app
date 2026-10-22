@@ -21,23 +21,32 @@ class PHeaderRow extends MultiChildRenderObjectWidget {
     Widget? action,
     this.gap = 8,
     this.expandTitle = true,
+    this.actionBleed = 0,
   }) : super(children: [title, ?action]);
 
   /// 제목과 동작 사이(한 줄) · 내려갔을 때 두 줄 사이.
   final double gap;
 
+  /// 동작이 줄 끝에서 바깥으로 내미는 폭(글 버튼의 좌우 여백 14) — 웹의 `-mr-x3_5` 와 같다. 한 줄 판정과 제목이 쓸 폭을 셀 때 동작
+  /// 폭에서 뺀다(그리기를 옮기는 것은 동작 쪽 몫이다).
+  final double actionBleed;
+
   /// 한 줄일 때 제목이 남는 폭을 모두 쓴다(카드 · 아코디언 머리). 아니면 글 폭만(목록 제목).
   final bool expandTitle;
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderHeaderRow(gap: gap, expandTitle: expandTitle);
+  RenderObject createRenderObject(BuildContext context) => _RenderHeaderRow(
+    gap: gap,
+    expandTitle: expandTitle,
+    actionBleed: actionBleed,
+  );
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderHeaderRow)
       ..gap = gap
-      ..expandTitle = expandTitle;
+      ..expandTitle = expandTitle
+      ..actionBleed = actionBleed;
   }
 }
 
@@ -47,9 +56,20 @@ class _RenderHeaderRow extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, _HeaderRowParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, _HeaderRowParentData> {
-  _RenderHeaderRow({required double gap, required bool expandTitle})
-    : _gap = gap,
-      _expandTitle = expandTitle;
+  _RenderHeaderRow({
+    required double gap,
+    required bool expandTitle,
+    required double actionBleed,
+  }) : _gap = gap,
+       _expandTitle = expandTitle,
+       _actionBleed = actionBleed;
+
+  double _actionBleed;
+  set actionBleed(double value) {
+    if (_actionBleed == value) return;
+    _actionBleed = value;
+    markNeedsLayout();
+  }
 
   double _gap;
   double get gap => _gap;
@@ -82,7 +102,7 @@ class _RenderHeaderRow extends RenderBox
 
   /// 한 줄에 둘 수 있는가 — 제목이 50% 를 지키고도 동작이 든다.
   bool _fitsOneLine(double width, double actionWidth) =>
-      actionWidth + _gap + width * 0.5 <= width + 0.01;
+      actionWidth - _actionBleed + _gap + width * 0.5 <= width + 0.01;
 
   static const _unbounded = BoxConstraints();
 
@@ -133,7 +153,9 @@ class _RenderHeaderRow extends RenderBox
       return constraints.constrain(Size(width, t.height + _gap + a.height));
     }
     // 한 줄 — 제목이 남는 폭, 동작은 오른쪽 끝, 세로 가운데
-    final room = width.isFinite ? math.max(0.0, width - a.width - _gap) : width;
+    final room = width.isFinite
+        ? math.max(0.0, width - (a.width - _actionBleed) - _gap)
+        : width;
     final t = layoutChild(
       title,
       _expandTitle && width.isFinite
@@ -189,7 +211,9 @@ class _RenderHeaderRow extends RenderBox
     if (width.isFinite && !_fitsOneLine(width, aw)) {
       return title.getMaxIntrinsicHeight(width) + _gap + ah;
     }
-    final room = width.isFinite ? math.max(0.0, width - aw - _gap) : width;
+    final room = width.isFinite
+        ? math.max(0.0, width - (aw - _actionBleed) - _gap)
+        : width;
     return math.max(title.getMaxIntrinsicHeight(room), ah);
   }
 
