@@ -1882,4 +1882,178 @@ void main() {
       expect(lines, findsWidgets);
     });
   });
+
+  group('큰 글자 — 상자도 글자 배율을 따른다(03-B 결정 3 A)', () {
+    Widget scaled(double factor, Widget child) => MediaQuery(
+      data: MediaQueryData(textScaler: TextScaler.linear(factor)),
+      child: child,
+    );
+
+    testWidgets(
+      '200% 에서 타일 · 사진 160, 파일 카드 320 × 160, 썸네일 96, × 40(누르는 88), 아이콘 48',
+      (tester) async {
+        tester.view.physicalSize = const Size(900, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        for (final factor in [1.0, 2.0]) {
+          await tester.pumpWidget(
+            scaled(
+              factor,
+              _host(
+                Brightness.light,
+                _input(
+                  entries: [_entry('p'), _entry('f', image: false)],
+                  onRemove: (_) {},
+                ),
+                width: 800,
+              ),
+            ),
+          );
+          expect(tester.takeException(), isNull, reason: 'x$factor 넘침');
+          expect(
+            tester.getSize(_trigger),
+            Size.square(80 * factor),
+            reason: 'x$factor 타일',
+          );
+          final bodies = tester.widgetList(_body).length;
+          expect(bodies, 2);
+          expect(
+            tester.getSize(_body.at(0)),
+            Size.square(80 * factor),
+            reason: 'x$factor 사진',
+          );
+          expect(
+            tester.getSize(_body.at(1)),
+            Size(160 * factor, 80 * factor),
+            reason: 'x$factor 파일 카드',
+          );
+          expect(
+            tester.getSize(find.byKey(const ValueKey('attachment-thumbnail'))),
+            Size.square(48 * factor),
+            reason: 'x$factor 썸네일',
+          );
+          // × — 누르는 자리 44, 보이는 원 20
+          expect(
+            tester.getSize(_remove.first),
+            Size.square(44 * factor),
+            reason: 'x$factor × 누르는 자리',
+          );
+          final circle = find
+              .ancestor(
+                of: find.descendant(
+                  of: _remove.first,
+                  matching: find.byType(Icon),
+                ),
+                matching: find.byType(SizedBox),
+              )
+              .first;
+          expect(
+            tester.getSize(circle),
+            Size.square(20 * factor),
+            reason: 'x$factor × 원',
+          );
+          // 아이콘 24 · × 아이콘 10
+          final triggerIcon = tester.widget<Icon>(
+            find.descendant(of: _trigger, matching: find.byType(Icon)),
+          );
+          expect(triggerIcon.size, 24 * factor);
+          final xIcon = tester.widget<Icon>(
+            find.descendant(of: _remove.first, matching: find.byType(Icon)),
+          );
+          expect(xIcon.size, 10 * factor);
+        }
+      },
+    );
+
+    testWidgets('200% 파일 카드 — 이름 폭이 카드를 따라 넓어져 이름 네 줄 + 크기가 모두 보인다', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(900, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        scaled(
+          2,
+          _host(
+            Brightness.light,
+            _input(
+              entries: [
+                _entry(
+                  'f',
+                  image: false,
+                  name: '2026년_9월_카드_이용대금_명세서_최종_수정본_사본_프린트용.pdf',
+                ),
+              ],
+            ),
+            width: 800,
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final card = tester.getRect(_body.first);
+      expect(card.size, const Size(320, 160));
+      final lines = find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey &&
+            '${(w.key! as ValueKey).value}'.startsWith('attachment-name-line-'),
+      );
+      expect(lines, findsAtLeastNWidgets(1));
+      expect(lines.evaluate().length, lessThanOrEqualTo(4));
+      final size = tester.getRect(
+        find.byKey(const ValueKey('attachment-size')),
+      );
+      // 크기까지 카드 안에 든다
+      expect(size.bottom, lessThanOrEqualTo(card.bottom));
+      for (final line in lines.evaluate()) {
+        final r = tester.getRect(find.byElementPredicate((e) => e == line));
+        expect(r.bottom, lessThanOrEqualTo(card.bottom));
+        expect(r.right, lessThanOrEqualTo(card.right));
+      }
+      // 이름 폭 = 카드 − 좌우 여백 16 × 2 − 썸네일 96 − 사이 10
+      final meta = tester.getSize(
+        find
+            .ancestor(
+              of: find.byKey(const ValueKey('attachment-size')),
+              matching: find.byType(SizedBox),
+            )
+            .first,
+      );
+      expect(meta.width, 320 - 32 - 96 - 10);
+    });
+
+    testWidgets('200% 실패한 사진 — "다시 시도" 가 잘리지 않고 × 의 누르는 자리가 배율을 따른다', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(900, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      var retried = 0;
+      await tester.pumpWidget(
+        scaled(
+          2,
+          _host(
+            Brightness.light,
+            _input(
+              entries: [_entry('p', status: PAttachmentStatus.error)],
+              onRetry: (_) => retried++,
+            ),
+            width: 800,
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final retry = tester.getRect(_retry);
+      expect(retry.size, const Size.square(160));
+      final label = tester.getRect(find.text('다시 시도'));
+      expect(label.left, greaterThanOrEqualTo(retry.left));
+      expect(label.right, lessThanOrEqualTo(retry.right));
+      // × 의 누르는 자리 = 44 × 2, 가운데는 오른쪽 위 모서리에서 안쪽 12
+      final x = tester.getRect(_remove);
+      expect(x.size, const Size.square(88));
+      expect(x.center.dx, closeTo(retry.right - 12, 0.01));
+      expect(x.center.dy, closeTo(retry.top + 12, 0.01));
+      await tester.tapAt(retry.center);
+      expect(retried, 1);
+    });
+  });
 }

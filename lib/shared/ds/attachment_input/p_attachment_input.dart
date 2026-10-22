@@ -220,7 +220,9 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     _dragStartFinger = finger;
     _dragFinger = finger;
     // 항목 몸의 왼쪽 위 — 자리 상자의 위 16(× 의 누르는 자리)을 뺀다
-    _dragStartTopLeft = box.localToGlobal(const Offset(0, _touchBleed));
+    _dragStartTopLeft = box.localToGlobal(
+      Offset(0, _Dims.of(context).touchBleed),
+    );
     _dragTarget = widget.entries.indexWhere((e) => e.id == entry.id);
     _say(
       dsL(context)?.dsAttachLifted(_dragTarget + 1) ??
@@ -676,6 +678,8 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
   @override
   Widget build(BuildContext context) {
     final field = PFieldScope.maybeOf(context)?.data;
+    // × 의 누르는 자리가 들어갈 위 · 오른쪽 여백 16 — 글자 배율을 따른다(03-B 결정 3 A)
+    final bleedPx = _Dims.of(context).touchBleed;
     final disabled = _disabled;
     final readOnly = _readOnly;
     final limited = widget.maxFiles < PAttachmentInput.unlimited;
@@ -719,7 +723,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
             readOnly: readOnly,
             disabled: disabled,
             badgeLabel: entry.isImage ? badge : null,
-            rightBleed: last ? _touchBleed : 0,
+            rightBleed: last ? bleedPx : 0,
             onRemove: () => _remove(entry.id),
             onRetry: widget.onRetry == null
                 ? null
@@ -765,7 +769,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
           ),
           if (slots.isNotEmpty)
             _PullUp(
-              pull: _touchBleed,
+              pull: bleedPx,
               child: Padding(
                 padding: const EdgeInsets.only(top: 0),
                 child: _RemoveFirstScope(
@@ -781,7 +785,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
       );
     } else {
       final trigger = Padding(
-        padding: const EdgeInsets.only(top: _touchBleed),
+        padding: EdgeInsets.only(top: bleedPx),
         child: _TriggerTile(
           key: const ValueKey('attachment-trigger'),
           focusNode: _triggerNode,
@@ -805,7 +809,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.only(
             left: bleed,
-            right: (bleed - _touchBleed).clamp(0, bleed),
+            right: (bleed - bleedPx).clamp(0, bleed),
           ),
           child: _RemoveFirstScope(
             child: Row(
@@ -846,7 +850,7 @@ class _PAttachmentInputState extends State<PAttachmentInput> {
     );
     // 항목 줄 위 16 은 × 의 누르는 자리 — 위에 라벨(머리)이 있으면 레이아웃에서 빼고(웹 -mt-x4) 그 자리의 누르기는 이 칸이 받는다.
     // 라벨이 없으면(라벨 없는 Field · 칸이 맨 위) 그 위에는 받아 줄 부모 자리가 없어 누르기가 잘린다 — 16 을 레이아웃에 남겨 둔다
-    final pull = field?.label != null ? _touchBleed : 0.0;
+    final pull = field?.label != null ? bleedPx : 0.0;
     return widget.layout == PAttachmentLayout.tile
         ? _PullUp(pull: pull, child: root)
         : root;
