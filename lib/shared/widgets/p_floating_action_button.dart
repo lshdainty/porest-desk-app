@@ -37,13 +37,18 @@ class PFloatingActionButton extends StatelessWidget {
         color: t.bgBrandSolid,
         shape: const CircleBorder(),
         elevation: 0,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onPressed,
-          child: SizedBox(
-            width: 52,
-            height: 52,
-            child: Icon(icon, size: 22, color: t.fgOnBrand),
+        // 읽기 — 아이콘뿐인 버튼이라 이름이 없으면 "버튼" 으로만 읽힌다(03G-017). 이름은 tooltip
+        child: Semantics(
+          button: true,
+          label: tooltip,
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onPressed,
+            child: SizedBox(
+              width: 52,
+              height: 52,
+              child: Icon(icon, size: 22, color: t.fgOnBrand),
+            ),
           ),
         ),
       ),
