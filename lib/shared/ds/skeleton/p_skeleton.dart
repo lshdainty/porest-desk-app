@@ -330,12 +330,16 @@ class _PLoadingRegionState extends State<PLoadingRegion> {
   PWaitPhase _phase = PWaitPhase.quiet;
   Timer? _show;
   Timer? _slow;
+  Timer? _limit;
   _PLoadingAnnouncerState? _announcer;
+
+  /// 요청 제한 10초에 닿았다 — 요청이 아직 안 끝났어도 기다림을 끊고 실패 자리를 보인다(내용이 오면 그 내용이 이긴다).
+  bool _timedOut = false;
 
   /// 기다리는 모습을 그린 적이 있다 — 내용이 오면 투명도로 나타난다. 처음부터 내용이 있었으면 그대로 보인다
   bool _waited = false;
 
-  bool get _waiting => widget.pending && !widget.failed;
+  bool get _waiting => widget.pending && !widget.failed && !_timedOut;
 
   @override
   void initState() {
@@ -358,7 +362,11 @@ class _PLoadingRegionState extends State<PLoadingRegion> {
   @override
   void didUpdateWidget(PLoadingRegion old) {
     super.didUpdateWidget(old);
-    final wasWaiting = old.pending && !old.failed;
+    final wasWaiting = old.pending && !old.failed && !_timedOut;
+    if (!widget.pending || widget.failed) {
+      // 요청이 끝났다(내용이 왔거나 스스로 실패했다) — 10초 표시를 푼다
+      _timedOut = false;
+    }
     if (_waiting && !wasWaiting) {
       _startClock();
     } else if (!_waiting && wasWaiting) {
@@ -372,13 +380,28 @@ class _PLoadingRegionState extends State<PLoadingRegion> {
   void _startClock() {
     _stopClock();
     _phase = PWaitPhase.quiet;
+    _timedOut = false;
     _show = Timer(PLoadingTiming.showAfter, () => _advance(PWaitPhase.waiting));
     _slow = Timer(PLoadingTiming.slowAfter, () => _advance(PWaitPhase.slow));
+    // 처음 요청부터 10초가 지나면 실패로 — 실패 자리([PLoadingRegion.failure])가 없는 영역은 그대로 기다린다
+    if (widget.failure != null) {
+      _limit = Timer(PLoadingTiming.timeout, _giveUp);
+    }
+  }
+
+  void _giveUp() {
+    if (!mounted || !widget.pending || widget.failed) return;
+    setState(() {
+      _timedOut = true;
+      _phase = PWaitPhase.quiet;
+    });
+    _report();
   }
 
   void _stopClock() {
     _show?.cancel();
     _slow?.cancel();
+    _limit?.cancel();
   }
 
   void _advance(PWaitPhase phase) {
@@ -418,7 +441,9 @@ class _PLoadingRegionState extends State<PLoadingRegion> {
       ),
     );
 
-    if (widget.failed) return widget.failure ?? const SizedBox.shrink();
+    if (widget.failed || _timedOut) {
+      return widget.failure ?? const SizedBox.shrink();
+    }
     if (!_waiting) {
       if (!_waited || reduceMotion) return widget.child;
       // 기다린 뒤 — 투명도로 나타난다

@@ -11,8 +11,18 @@ import 'package:groo_damda_app/core/network/interceptors/auth_interceptor.dart';
 import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:groo_damda_app/core/network/interceptors/lang_interceptor.dart';
 import 'package:groo_damda_app/core/network/interceptors/log_interceptor.dart';
+import 'package:groo_damda_app/core/network/interceptors/read_retry_interceptor.dart';
 import 'package:groo_damda_app/core/network/secure_cookie_storage.dart';
 import 'package:groo_damda_app/core/network/user_agent.dart';
+
+/// 증권 조회 경로 — 읽기 10초 한도는 받지만 저절로 다시 보내지 않는다(`securitiesNoRetry` 와 같다).
+const List<String> kSecuritiesPathPrefixes = [
+  '/namu',
+  '/toss',
+  '/securities',
+  '/stock-watch',
+  '/stocks',
+];
 
 /// 영속 cookie_jar (`desk_access_token` 보존) — OS 보안 저장소(Keystore/Keychain)에
 /// 암호화 저장(SecureCookieStorage). 단일 인스턴스를 dio 와 로그아웃 헬퍼가 공유.
@@ -66,6 +76,15 @@ final dioProvider = FutureProvider<Dio>((ref) async {
             ),
           ),
         );
+
+  // 읽기(GET)는 처음 요청부터 다시 시도까지 합쳐 10초 안에 끝낸다 — 그 안에서 5xx · 네트워크 실패만 1초 · 2초 뒤 두 번 다시
+  // 보내고, 4xx 와 쓰기는 다시 보내지 않는다(skeleton.md "요청 제한 10초", 03E-021). 맨 앞에 두어 다시 시도로 살아난 요청의
+  // 첫 실패를 뒤 인터셉터(401 처리 · 로그)가 보지 못하게 한다.
+  dio.httpClientAdapter = ReadDeadlineAdapter(dio.httpClientAdapter);
+  dio.interceptors.insert(
+    0,
+    ReadRetryInterceptor(dio, noRetryPathPrefixes: kSecuritiesPathPrefixes),
+  );
 
   ref.onDispose(dio.close);
   return dio;

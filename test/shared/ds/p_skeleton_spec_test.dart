@@ -245,6 +245,76 @@ void main() {
       );
     });
 
+    testWidgets(
+      '요청 제한 10초 — 아직 기다리는 중이어도 10초에 실패 자리를 보이고, 내용이 오면 내용이 이긴다(03E-021)',
+      (tester) async {
+        await tester.pumpWidget(
+          _host(Brightness.light, skeletonRegion(pending: true)),
+        );
+        await tester.pump(const Duration(milliseconds: 9990));
+        expect(find.text('실패'), findsNothing);
+        expect(find.byType(PSkeleton), findsOneWidget);
+        await tester.pump(const Duration(milliseconds: 20));
+        expect(find.text('실패'), findsOneWidget);
+        expect(find.byType(PSkeleton), findsNothing);
+        expect(find.text('내용'), findsNothing);
+        // 늦게라도 내용이 오면 내용을 보인다
+        await tester.pumpWidget(
+          _host(Brightness.light, skeletonRegion(pending: false)),
+        );
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('내용'), findsOneWidget);
+        expect(find.text('실패'), findsNothing);
+      },
+    );
+
+    testWidgets('실패 자리가 없는 영역은 10초가 지나도 계속 기다린다 · 10초 안에 오면 실패가 아니다', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          const PLoadingRegion(
+            pending: true,
+            fallback: PSkeleton(width: 200, height: 19),
+            child: Text('내용'),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 11));
+      expect(find.byType(PSkeleton), findsOneWidget);
+      // 10초 안에 온다
+      await tester.pumpWidget(
+        _host(Brightness.light, skeletonRegion(pending: true)),
+      );
+      await tester.pump(const Duration(seconds: 9));
+      await tester.pumpWidget(
+        _host(Brightness.light, skeletonRegion(pending: false)),
+      );
+      await tester.pump(const Duration(seconds: 3));
+      expect(find.text('내용'), findsOneWidget);
+      expect(find.text('실패'), findsNothing);
+    });
+
+    testWidgets('실패 화면의 다시 시도로 pending 이 다시 켜지면 시간표를 처음부터 센다', (tester) async {
+      await tester.pumpWidget(
+        _host(Brightness.light, skeletonRegion(pending: true)),
+      );
+      await tester.pump(const Duration(seconds: 10, milliseconds: 100));
+      expect(find.text('실패'), findsOneWidget);
+      // 다시 시도 — 요청이 끝났다가(pending false 한 프레임) 다시 시작한다
+      await tester.pumpWidget(
+        _host(Brightness.light, skeletonRegion(pending: false, failed: true)),
+      );
+      await tester.pumpWidget(
+        _host(Brightness.light, skeletonRegion(pending: true)),
+      );
+      await tester.pump(const Duration(seconds: 5));
+      expect(find.text('실패'), findsNothing);
+      await tester.pump(const Duration(seconds: 5, milliseconds: 100));
+      expect(find.text('실패'), findsOneWidget);
+    });
+
     testWidgets('원 모드 — 가운데 원(40), 오래 걸림 글은 원 아래', (tester) async {
       await tester.pumpWidget(
         _host(
