@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/l10n/ds_l10n.dart';
@@ -306,11 +308,15 @@ class PAvatarPhotoEdit extends StatelessWidget {
 typedef PAvatarPerson = ({String name, ImageProvider? image});
 
 /// Avatar Stack — 아바타를 가로로 겹쳐 놓는다(뒤에 오는 아바타가 위). 수치 원본은 groo-design
-/// `specs/components/avatar-stack.yaml`. 앞 4명까지, 5명 이상이면 앞 4명 + "+N"(N = 전체 − 4, 99 를 넘으면 "+99").
+/// `specs/components/avatar-stack.yaml`. 앞 4명까지, 5명 이상이면 앞 4명 + "+N"(N = 전체 − 보이는 사람, 99 를 넘으면
+/// "+99"). **놓인 폭에 맞춰 보이는 사람 수를 줄인다**(03-E 결정 4 B) — 폭 W 에 원 c 개가 들면 c = 1 + ⌊(W − 지름) ÷ (지름 −
+/// 겹침)⌋ 이고 보이는 사람 = min(4, c − 1)(가장 적어도 1명). 크기는 줄이지 않는다. 폭이 바뀌면(화면 돌림) 다시 센다 —
+/// [LayoutBuilder]. 폭이 정해지지 않은 자리(가로 [Row] 안)는 앞 4명이다.
 /// 아바타마다 바깥 링(놓인 바탕색 — 크기를 바꾸지 않는다)이 앞 아바타를 끊는다. 시트 · 대화상자 안이면
 /// [onFloating] — 링이 bg-layer-floating 이다.
-/// [semanticsLabel] 을 주면 묶음 하나로 읽고("참여자 6명: 김민수, 이서연, 박지훈, 최유진 외 2명"), 없으면 읽지 않는다
-/// (묶음 옆 글이 수를 말한다).
+/// 읽기 — [semanticsLabelBuilder] 가 있으면 보이는 사람 수 · 넘친 수를 받아 묶음 하나의 이름을 만든다("참여자 6명: 김민수,
+/// 이서연 외 4명" — "외 N명" 이 보이는 "+N" 과 같게 바뀐다). 없으면 [semanticsLabel] 그대로(폭에 따라 바뀌지 않는 글),
+/// 둘 다 없으면 읽지 않는다(묶음 옆 글이 수를 말한다).
 class PAvatarStack extends StatelessWidget {
   const PAvatarStack({
     super.key,
@@ -318,6 +324,7 @@ class PAvatarStack extends StatelessWidget {
     this.size = PAvatarSize.s24,
     this.onFloating = false,
     this.semanticsLabel,
+    this.semanticsLabelBuilder,
   });
 
   final List<PAvatarPerson> people;
@@ -325,15 +332,64 @@ class PAvatarStack extends StatelessWidget {
   final bool onFloating;
   final String? semanticsLabel;
 
+  /// 보이는 사람 수 `shown` 과 넘친 사람 수 `rest` 로 묶음의 이름을 만든다 — [semanticsLabel] 보다 앞선다.
+  final String Function(int shown, int rest)? semanticsLabelBuilder;
+
   /// 보이는 사람 수 — 앞 4명까지.
   static const int maxShown = 4;
 
+  /// 폭 [maxWidth] 에서 보이는 사람 수(avatar-stack.yaml root.overflow). 모두(4명 이하)가 폭에 들면 모두이고, 아니면 "+N" 원까지
+  /// 드는 원 수 c 에서 min(4, c − 1) — 가장 적어도 1명. [maxWidth] 가 무한이면 앞 4명까지다.
+  @visibleForTesting
+  static int visibleCount({
+    required int total,
+    required double diameter,
+    required double overlap,
+    required double maxWidth,
+  }) {
+    if (total <= 0) return 0;
+    final step = diameter - overlap;
+    final capped = math.min(total, maxShown);
+    if (!maxWidth.isFinite) return capped;
+    if (total <= maxShown &&
+        diameter + step * (total - 1) <= maxWidth + 0.001) {
+      return total;
+    }
+    final c = 1 + ((maxWidth - diameter) / step).floor();
+    return math.max(1, math.min(maxShown, c - 1));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
     final m = avatarMetrics(size);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final shown = visibleCount(
+          total: people.length,
+          diameter: m.diameter,
+          overlap: m.overlap,
+          maxWidth: box.maxWidth,
+        );
+        return _build(context, m, shown);
+      },
+    );
+  }
+
+  Widget _build(
+    BuildContext context,
+    ({
+      double diameter,
+      double initial,
+      double overlap,
+      double ring,
+      double more,
+    })
+    m,
+    int shownCount,
+  ) {
+    final c = context.colors;
     final ringColor = onFloating ? c.bgLayerFloating : c.bgLayerDefault;
-    final shown = people.take(maxShown).toList();
+    final shown = people.take(shownCount).toList();
     final rest = people.length - shown.length;
     final step = m.diameter - m.overlap;
 
@@ -376,22 +432,30 @@ class PAvatarStack extends StatelessWidget {
         ),
     ];
 
-    final stack = SizedBox(
-      width: items.isEmpty ? 0 : m.diameter + step * (items.length - 1),
-      height: m.diameter,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          for (var i = 0; i < items.length; i++)
-            Positioned(left: step * i, top: 0, child: items[i]),
-        ],
+    final stack = Align(
+      // 놓인 자리가 폭을 정해도(꽉 찬 자리) 묶음은 원 수만큼의 폭이다
+      alignment: AlignmentDirectional.centerStart,
+      widthFactor: 1,
+      heightFactor: 1,
+      child: SizedBox(
+        width: items.isEmpty ? 0 : m.diameter + step * (items.length - 1),
+        height: m.diameter,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var i = 0; i < items.length; i++)
+              Positioned(left: step * i, top: 0, child: items[i]),
+          ],
+        ),
       ),
     );
-    if (semanticsLabel == null) return ExcludeSemantics(child: stack);
+    final label =
+        semanticsLabelBuilder?.call(shown.length, rest) ?? semanticsLabel;
+    if (label == null) return ExcludeSemantics(child: stack);
     return Semantics(
       container: true,
       image: true,
-      label: semanticsLabel,
+      label: label,
       child: ExcludeSemantics(child: stack),
     );
   }

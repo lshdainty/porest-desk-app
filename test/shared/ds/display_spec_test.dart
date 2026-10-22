@@ -23,6 +23,20 @@ Widget _host(Brightness mode, Widget child) => MaterialApp(
   ),
 );
 
+/// 폭이 넓은 자리 — 넓은 묶음이 폭에 걸리지 않게 한다(왼쪽 위에 놓고 폭은 자식이 정한다).
+Widget _wideHost(Brightness mode, Widget child) => MaterialApp(
+  theme: mode == Brightness.dark ? GrooTheme.dark() : GrooTheme.light(),
+  home: Scaffold(
+    body: Align(
+      alignment: Alignment.topLeft,
+      child: SizedBox(
+        width: 700,
+        child: Align(alignment: Alignment.topLeft, child: child),
+      ),
+    ),
+  ),
+);
+
 /// 실패를 모으는 작은 도우미 — 색 · 수를 스펙과 맞춘다.
 class _Check {
   _Check(this.mode, this.want, this.where);
@@ -574,11 +588,12 @@ void main() {
     for (final mode in Brightness.values) {
       testWidgets('${mode.name} — 크기 × 바탕마다 겹침 · 링 · "+N"', (tester) async {
         final failures = <String>[];
+        // 가장 큰 108 도 앞 4명이 다 드는 폭(108 + 4 × 81 = 432) — 폭이 모자랄 때는 아래 "폭에 맞춰" 가 잰다
         // surface(default · floating) — 떠 있는 바탕(시트 · 대화상자 · 팝오버)의 링은 bg-layer-floating(2026-10-08)
         for (final combo in spec.combos(['size', 'surface'])) {
           final size = PAvatarSize.values.byName('s${combo['size']}');
           await tester.pumpWidget(
-            _host(
+            _wideHost(
               mode,
               PAvatarStack(
                 key: UniqueKey(),
@@ -641,6 +656,120 @@ void main() {
         if (failures.isNotEmpty) fail(failures.join('\n'));
       });
     }
+
+    group('폭에 맞춰 보이는 사람 수를 줄인다(03-E 결정 4 B)', () {
+      test('visibleCount — 스펙 예: 108 · 6명 · W 312 → 2명 + "+4"(폭 270)', () {
+        final m = avatarMetrics(PAvatarSize.s108);
+        final shown = PAvatarStack.visibleCount(
+          total: 6,
+          diameter: m.diameter,
+          overlap: m.overlap,
+          maxWidth: 312,
+        );
+        expect(shown, 2);
+        // 원 3 개 = 108 + 2 × 81 = 270
+        expect(m.diameter + 2 * (m.diameter - m.overlap), 270);
+      });
+
+      test('폰 안쪽 폭 312 에서 64 까지는 늘 앞 4명이고 80 부터 줄어든다', () {
+        int shown(PAvatarSize size, {int total = 6}) {
+          final m = avatarMetrics(size);
+          return PAvatarStack.visibleCount(
+            total: total,
+            diameter: m.diameter,
+            overlap: m.overlap,
+            maxWidth: 312,
+          );
+        }
+
+        for (final s in [
+          PAvatarSize.s20,
+          PAvatarSize.s24,
+          PAvatarSize.s36,
+          PAvatarSize.s42,
+          PAvatarSize.s48,
+          PAvatarSize.s56,
+          PAvatarSize.s64,
+        ]) {
+          expect(shown(s), 4, reason: s.name);
+        }
+        // 64 · 5 원 = 64 + 4 × 48 = 256
+        expect(shown(PAvatarSize.s80), lessThan(4));
+        expect(shown(PAvatarSize.s96), lessThan(4));
+      });
+
+      test('4명 이하가 다 들면 모두, 안 들면 줄이고, 가장 적어도 1명이다', () {
+        final m = avatarMetrics(PAvatarSize.s48);
+        int shown(int total, double w) => PAvatarStack.visibleCount(
+          total: total,
+          diameter: m.diameter,
+          overlap: m.overlap,
+          maxWidth: w,
+        );
+        // 48 · 3명 = 48 + 2 × 36 = 120
+        expect(shown(3, 120), 3);
+        expect(shown(3, 119), 1);
+        expect(shown(4, 156), 4);
+        expect(shown(4, 155), 2);
+        expect(shown(1, 10), 1, reason: '그래도 넘치면 작은 크기를 쓴다 — 1명은 남긴다');
+        expect(shown(9, 0), 1);
+        expect(shown(0, 300), 0);
+        expect(shown(9, double.infinity), 4);
+      });
+
+      testWidgets('놓인 폭이 바뀌면 다시 센다 — "+N" 과 이름의 "외 N명" 이 함께 바뀐다', (
+        tester,
+      ) async {
+        final many = [
+          for (final n in ['김민수', '이서연', '박지훈', '최유진', '정다은', '한지민'])
+            (name: n, image: null),
+        ];
+        Future<void> pump(double width) => tester.pumpWidget(
+          _wideHost(
+            Brightness.light,
+            SizedBox(
+              width: width,
+              child: PAvatarStack(
+                people: many,
+                size: PAvatarSize.s108,
+                semanticsLabelBuilder: (shown, rest) =>
+                    '참여자 ${many.length}명: ${many.take(shown).map((p) => p.name).join(', ')} 외 $rest명',
+              ),
+            ),
+          ),
+        );
+        final semantics = tester.ensureSemantics();
+        await pump(312);
+        expect(find.byType(PAvatar), findsNWidgets(2));
+        expect(find.text('+4'), findsOneWidget);
+        // 원 3 개의 폭 — 묶음 안의 겹친 상자
+        expect(
+          tester
+              .getSize(
+                find
+                    .descendant(
+                      of: find.byType(PAvatarStack),
+                      matching: find.byType(Stack),
+                    )
+                    .first,
+              )
+              .width,
+          270,
+        );
+        expect(find.bySemanticsLabel('참여자 6명: 김민수, 이서연 외 4명'), findsOneWidget);
+        await pump(600);
+        expect(find.byType(PAvatar), findsNWidgets(4));
+        expect(find.text('+2'), findsOneWidget);
+        expect(
+          find.bySemanticsLabel('참여자 6명: 김민수, 이서연, 박지훈, 최유진 외 2명'),
+          findsOneWidget,
+        );
+        await pump(100);
+        expect(find.byType(PAvatar), findsNWidgets(1));
+        expect(find.text('+5'), findsOneWidget);
+        semantics.dispose();
+      });
+    });
 
     testWidgets('"+N" 은 99 를 넘지 않고, 4명 이하면 없다', (tester) async {
       final many = [for (var i = 0; i < 120; i++) (name: '사람$i', image: null)];
