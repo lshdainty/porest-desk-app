@@ -244,6 +244,13 @@ class _PTimePickerState extends State<PTimePicker> {
               PTimeValue(((cur.hour + stepDelta) % 24 + 24) % 24, cur.minute),
             );
           },
+          // Home · End — 오전 · 오후를 그대로 두고 1 · 12 로 간다(지나간 칸을 세지 않는다, 03-C 결정 3A)
+          onJump: (next) {
+            final cur = _current;
+            _commit(
+              PTimeValue((next % 12) + (cur.hour >= 12 ? 12 : 0), cur.minute),
+            );
+          },
         ),
         PWheelPickerColumn<int>(
           semanticLabel: l.minute,
