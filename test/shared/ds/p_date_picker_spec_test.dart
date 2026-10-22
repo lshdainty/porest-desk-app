@@ -11,6 +11,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -584,11 +586,6 @@ void main() {
   for (final mode in Brightness.values) {
     for (final state in states) {
       testWidgets('${mode.name} 날짜 칸 $state — 스펙 값이다', (tester) async {
-        // sync(8480c17) 로 누름 색이 bg-neutral-weak-alpha-pressed 로 바뀌었다 — I-04(03-C)가 맞출 때까지 대기
-        if (state == 'pressed') {
-          markTestSkipped('I-04 03-C 대기: 날짜 칸 pressed 색');
-          return;
-        }
         final title = '${mode.name} day $state';
         final combo = {'selection': 'range', 'visibleRange': 'month'};
         // pressed · hovered 는 같은 색이다
@@ -889,7 +886,7 @@ void main() {
     });
 
     testWidgets(
-      '누르는 동안 — 오늘 · 기간 사이 날은 한 단계 짙은 색, 고른 날 · 막힌 날 · 읽기 전용은 그대로, 날짜는 줄지 않는다',
+      '누르는 동안 — 보통 날은 투명 짝, 오늘 · 기간 사이 날은 불투명 한 단계 짙은 색, 고른 날 · 막힌 날 · 읽기 전용은 그대로, 날짜는 줄지 않는다',
       (tester) async {
         Future<Color?> pressed(PDatePickerDayState s) async {
           await pump(tester, s);
@@ -911,9 +908,10 @@ void main() {
           return c;
         }
 
+        // 보통 날은 투명 짝(03-C 결정 2B), 오늘 · 기간 사이 날은 불투명
         expect(
           await pressed(const PDatePickerDayState()),
-          light.bgLayerFloatingPressed,
+          light.bgNeutralWeakAlphaPressed,
         );
         expect(
           await pressed(const PDatePickerDayState(today: true)),
@@ -1171,6 +1169,21 @@ void main() {
       expect(formatDateValue(null, _today), '');
     });
 
+    test(
+      '하루 en — 올해는 "Thu, Oct 15", 다른 해는 "Sun, Jan 3, 2027"(웹 i18n.test.ts 와 같다)',
+      () async {
+        await initializeDateFormatting();
+        final prev = Intl.defaultLocale;
+        Intl.defaultLocale = 'en';
+        addTearDown(() => Intl.defaultLocale = prev);
+        expect(formatDateValue(DateTime(2026, 10, 15), _today), 'Thu, Oct 15');
+        expect(
+          formatDateValue(DateTime(2027, 1, 3), _today),
+          'Sun, Jan 3, 2027',
+        );
+      },
+    );
+
     test('기간 — 물결표를 앞뒤에 붙여 쓴다, 올해가 아닌 날이 끼면 양쪽에 연도, 끝이 없으면 빈 글', () {
       expect(
         formatRangeValue(
@@ -1328,7 +1341,7 @@ void main() {
       expect(
         tester.getSemantics(_day(DateTime(2026, 10, 15))),
         isSemantics(
-          label: '2026년 10월 15일 목요일',
+          label: '2026년 10월 15일 목요일, 오늘', // 오늘은 이름 끝에 ", 오늘"
           isButton: true,
           hasEnabledState: true,
           isEnabled: true,
@@ -1427,6 +1440,7 @@ void main() {
         yearWheel: 'Year',
         monthWheel: 'Month',
         readOnlyRangeStart: 'read-only start',
+        today: 'today',
         presets: 'Quick ranges',
         weekdays: const ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
         weekdaysLong: const [
@@ -1455,7 +1469,7 @@ void main() {
       expect(find.bySemanticsLabel('Previous month'), findsOneWidget);
       expect(find.bySemanticsLabel('Next month'), findsOneWidget);
       expect(find.bySemanticsLabel('Wednesday'), findsOneWidget);
-      expect(find.bySemanticsLabel('2026-10-15'), findsOneWidget);
+      expect(find.bySemanticsLabel('2026-10-15, today'), findsOneWidget);
       semantics.dispose();
     });
 

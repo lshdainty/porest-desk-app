@@ -13334,6 +13334,12 @@ abstract class AppLocalizations {
   /// **'빠른 기간'**
   String get dsDatePresets;
 
+  /// No description provided for @dsDateToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get dsDateToday;
+
   /// No description provided for @dsDatePresetThisWeek.
   ///
   /// In ko, this message translates to:

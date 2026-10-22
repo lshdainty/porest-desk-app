@@ -4453,6 +4453,7 @@
   "dsDateMonth": "월",
   "dsDateReadOnlyStart": "읽기 전용 시작일",
   "dsDatePresets": "빠른 기간",
+  "dsDateToday": "오늘",
   "dsDatePresetThisWeek": "이번 주",
   "dsDatePresetThisMonth": "이번 달",
   "dsDatePresetLastMonth": "지난 달",

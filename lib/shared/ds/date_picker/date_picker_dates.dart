@@ -144,6 +144,7 @@ class PDatePickerLabels {
     required this.yearWheel,
     required this.monthWheel,
     required this.readOnlyRangeStart,
+    required this.today,
     required this.presets,
     required this.weekdays,
     required this.weekdaysLong,
@@ -165,6 +166,9 @@ class PDatePickerLabels {
 
   /// 읽기 전용 시작일 이름 끝에 붙는 말.
   final String readOnlyRangeStart;
+
+  /// 오늘 날짜 이름 끝에 붙는 말 — "2026년 10월 15일 목요일, 오늘"(03C-004).
+  final String today;
 
   /// 빠른 기간 칩 묶음 이름.
   final String presets;
@@ -221,6 +225,7 @@ class PDatePickerLabels {
       yearWheel: l.dsDateYear,
       monthWheel: l.dsDateMonth,
       readOnlyRangeStart: l.dsDateReadOnlyStart,
+      today: l.dsDateToday,
       presets: l.dsDatePresets,
       weekdays: short,
       weekdaysLong: long,
@@ -254,6 +259,7 @@ class PDatePickerLabels {
     yearWheel: '연도',
     monthWheel: '월',
     readOnlyRangeStart: '읽기 전용 시작일',
+    today: '오늘',
     presets: '빠른 기간',
     weekdays: _weekdays,
     weekdaysLong: _weekdaysLong,
@@ -280,12 +286,10 @@ class PDatePickerLabels {
 String formatDateValue(DateTime? date, DateTime today) {
   if (date == null) return '';
   if (localeIsEn()) {
-    // en: "Oct 15 (Thu)" · 다른 해 "Jan 3, 2027 (Sun)"
-    final md = DateFormat.MMMd('en').format(date);
-    final dow = DateFormat.E('en').format(date);
+    // en: "Thu, Oct 15" · 다른 해 "Sun, Jan 3, 2027" — 웹 i18n.test.ts 와 같은 꼴
     return date.year == today.year
-        ? '$md ($dow)'
-        : '${DateFormat.yMMMd('en').format(date)} ($dow)';
+        ? DateFormat('E, MMM d', 'en').format(date)
+        : DateFormat('E, MMM d, y', 'en').format(date);
   }
   final text =
       '${date.month}월 ${date.day}일 (${PDatePickerLabels._weekdays[weekdayIndex(date)]})';

@@ -7459,6 +7459,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dsDatePresets => 'Quick ranges';
 
   @override
+  String get dsDateToday => 'today';
+
+  @override
   String get dsDatePresetThisWeek => 'This week';
 
   @override

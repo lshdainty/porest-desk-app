@@ -7303,6 +7303,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dsDatePresets => '빠른 기간';
 
   @override
+  String get dsDateToday => '오늘';
+
+  @override
   String get dsDatePresetThisWeek => '이번 주';
 
   @override

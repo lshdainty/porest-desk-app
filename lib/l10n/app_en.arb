@@ -4207,6 +4207,7 @@
   "dsDateMonth": "Month",
   "dsDateReadOnlyStart": "Read-only start date",
   "dsDatePresets": "Quick ranges",
+  "dsDateToday": "today",
   "dsDatePresetThisWeek": "This week",
   "dsDatePresetThisMonth": "This month",
   "dsDatePresetLastMonth": "Last month",
