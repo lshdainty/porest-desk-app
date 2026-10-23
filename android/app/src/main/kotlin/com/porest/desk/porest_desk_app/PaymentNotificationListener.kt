@@ -120,7 +120,7 @@ class PaymentNotificationListener : NotificationListenerService() {
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_menu_edit)
+            .setSmallIcon(R.drawable.ic_stat_groo)
             .setContentTitle(getString(R.string.sms_notification_title))
             .setContentText(SmsPaymentFilter.summarize(body))
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))

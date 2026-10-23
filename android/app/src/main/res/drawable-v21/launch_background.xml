@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
+<!-- 안드로이드 11 이하 시작 화면: 바탕 bg-layer-default(라이트 · 다크는 values-night) + 가운데 나무 96dp.
+     12 이상은 values-v31 · values-night-v31 의 windowSplashScreen* 이 맡는다. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="?android:colorBackground" />
+    <item android:drawable="@color/splash_background" />
 
-    <!-- You can insert your own image assets here -->
-    <!-- <item>
+    <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/launch_image" />
-    </item> -->
+            android:src="@drawable/launch_tree" />
+    </item>
 </layer-list>

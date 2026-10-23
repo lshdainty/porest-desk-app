@@ -69,9 +69,10 @@ Future<void> initUpdateNotifications() async {
   try {
     await _plugin.initialize(
       settings: const InitializationSettings(
-        // 앱 아이콘을 그대로 쓴다. 전용 흑백 아이콘을 두면 리소스가 하나 더 늘고,
-        // 지금 알림은 이것 하나뿐이라 구분할 대상이 없다.
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        // 알림 작은 아이콘은 한 색 나무 실루엣이다(res/drawable/ic_stat_groo.xml).
+        // 안드로이드가 불투명 픽셀을 흰색으로 칠하므로 색 있는 런처 PNG 를 쓰면
+        // 흰 네모로 보인다. 결제 감지 알림(PaymentNotificationListener)도 같은 것을 쓴다.
+        android: AndroidInitializationSettings('@drawable/ic_stat_groo'),
       ),
       onDidReceiveNotificationResponse: _onTap,
     );
