@@ -244,8 +244,8 @@ void main() {
 
     test('조금씩 오면 끊기지 않는다', () async {
       final repo = ExportRepository(
-        dioWith(_SlowAdapter(chunks: 4, gap: const Duration(milliseconds: 60))),
-        stallTimeout: const Duration(milliseconds: 150),
+        dioWith(_SlowAdapter(chunks: 4, gap: const Duration(milliseconds: 80))),
+        stallTimeout: const Duration(milliseconds: 1500),
         tempDir: () async => Directory.systemTemp,
       );
       final f = await repo.download(body: {}, filename: 'ok-stall-test.csv');

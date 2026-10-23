@@ -270,10 +270,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final ctx = _previewKey.currentContext;
         if (ctx != null) {
-          Scrollable.ensureVisible(
-            ctx,
-            duration: const Duration(milliseconds: 200),
-          );
+          Scrollable.ensureVisible(ctx, duration: PDuration.d4);
         }
       });
     } on ApiException {
