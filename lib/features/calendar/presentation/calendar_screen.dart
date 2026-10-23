@@ -145,8 +145,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   shouldFillViewport: true,
                   headerVisible: false,
                   daysOfWeekStyle: DaysOfWeekStyle(
-                    weekendStyle: PTypo.caption.copyWith(color: t.fgSecondary),
-                    weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
+                    weekendStyle: PTypography.t2.copyWith(
+                      color: context.colors.fgNeutralMuted,
+                    ),
+                    weekdayStyle: PTypography.t2.copyWith(
+                      color: context.colors.fgNeutralMuted,
+                    ),
                   ),
                   calendarStyle: const CalendarStyle(
                     outsideDaysVisible: true,

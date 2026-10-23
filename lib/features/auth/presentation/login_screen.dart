@@ -170,7 +170,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ],
                 PButton(
                   label: l.authSsoLogin,
-                  onPressed: (_busy || exchanging) ? null : _login,
+                  // 로딩 중에도 막지 않는다 — 막으면 회색 위에 원이 돈다(웹은 누름 색 + 원).
+                  // PButton 이 loading 중 누름을 삼킨다.
+                  onPressed: _login,
                   loading: _busy || exchanging,
                   size: PButtonSize.large,
                 ),
