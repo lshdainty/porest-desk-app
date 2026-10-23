@@ -262,7 +262,7 @@ void main() {
             expenseType: 'EXPENSE',
             amount: 12000,
             description: '점심값',
-            expenseDate: '${_ymd(now)}T12:00:00',
+            expenseDate: '${_ymd(now)}T00:00:01',
           ),
         ],
       );
