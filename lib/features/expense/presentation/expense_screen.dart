@@ -346,6 +346,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   effective,
                 ),
               )
+              // 자산 상세 "전체 보기" 로 들어온 자산 — 목록을 그 자산 거래로 거른다(옛 앱은 칩만 달고 거르지 않았다).
+              .where(
+                (e) => _assetIdFilter == null || e.assetRowId == _assetIdFilter,
+              )
               .toList()
             ..sort(
               (a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
@@ -353,7 +357,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
 
       // 환불은 지출 상계, 아직 안 온 건 제외 — 서버 월 요약과 같은 규칙.
       // 필터가 걸려 있으면 **걸러진 목록으로** 다시 센다(조합 15, 사용자 결정).
-      final filterOn = !_advFilter.isEmpty;
+      final filterOn = !_advFilter.isEmpty || _assetIdFilter != null;
       monthIncome = incomeSum(filterOn ? filtered : raw);
       monthExpense = expenseSum(filterOn ? filtered : raw);
 
@@ -389,6 +393,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           effective,
         );
         if (!ok) continue;
+        if (_assetIdFilter != null &&
+            tr.fromAssetRowId != _assetIdFilter &&
+            tr.toAssetRowId != _assetIdFilter) {
+          continue;
+        }
         transferGroups.putIfAbsent(d, () => []).add(tr);
       }
 
