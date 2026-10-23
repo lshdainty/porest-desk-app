@@ -27,6 +27,8 @@ class _FakeAuth extends AuthNotifier {
   Future<User?> build() async => null;
 
   void failLogin(Object e) => state = AsyncError(e, StackTrace.current);
+
+  void startExchange() => state = const AsyncLoading<User?>();
 }
 
 Future<_FakeAuth> _pump(
@@ -195,4 +197,40 @@ void main() {
       reason: '자리는 버튼 위',
     );
   });
+
+  // 로딩은 누름 색 위 원이다 — 막힌(disabled) 회색 위가 아니다(웹 button.tsx: aria-busy + 누름 삼킴).
+  for (final dark in [false, true]) {
+    testWidgets('교환 중 버튼 — ${dark ? '다크' : '라이트'} 누름 색 + 원, 막히지 않는다', (
+      tester,
+    ) async {
+      final auth = await _pump(tester, dark: dark);
+      auth.startExchange();
+      await tester.pump();
+      final c = (dark ? GrooTheme.dark() : GrooTheme.light())
+          .extension<PColors>()!;
+      final button = tester.widget<PButton>(find.byType(PButton));
+      expect(button.loading, isTrue);
+      expect(button.onPressed, isNotNull, reason: 'disabled 상태로 내려가지 않는다');
+      expect(
+        find.descendant(
+          of: find.byType(PButton),
+          matching: find.byType(PProgressCircle),
+        ),
+        findsOneWidget,
+      );
+      final bgs = tester
+          .widgetList<DecoratedBox>(
+            find.descendant(
+              of: find.byType(PButton),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .map((d) => d.decoration)
+          .whereType<BoxDecoration>()
+          .map((d) => d.color)
+          .toList();
+      expect(bgs, contains(c.bgNeutralInvertedPressed), reason: '누름 색');
+      expect(bgs, isNot(contains(c.bgNeutralInverted)));
+    });
+  }
 }

@@ -123,6 +123,7 @@ class PResultSection extends StatelessWidget {
     this.size = PResultSize.large,
     this.icon,
     this.description,
+    this.moreDescriptions = const [],
     this.primaryAction,
     this.secondaryAction,
     this.headingLevel = 2,
@@ -138,6 +139,9 @@ class PResultSection extends StatelessWidget {
   final IconData? icon;
   final String title;
   final String? description;
+
+  /// [description] 뒤에 이어지는 문단들 — 문단 사이는 8(웹 `mt-x2`). `\n\n` 으로 이으면 줄 높이 한 줄(22)이 된다.
+  final List<String> moreDescriptions;
   final PResultAction? primaryAction;
   final PResultAction? secondaryAction;
   final int headingLevel;
@@ -210,6 +214,19 @@ class PResultSection extends StatelessWidget {
                 ),
               ),
             ),
+          if (description != null)
+            for (final more in moreDescriptions)
+              Padding(
+                padding: const EdgeInsets.only(top: PSpacing.x2),
+                child: Text(
+                  keepAll(more),
+                  textAlign: TextAlign.center,
+                  style: s.description.copyWith(
+                    color: colors.description,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
           if (primary != null || secondary != null)
             Padding(
               padding: EdgeInsets.only(top: s.actionsGap),

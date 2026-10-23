@@ -342,4 +342,34 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text(_l.withdrawnToLogin), findsOneWidget);
   });
+
+  testWidgets('두 문단 사이 8 · 결과와 버튼 사이는 결과의 안쪽 16 만', (tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authProvider.overrideWith(() => _FakeAuth(null))],
+        child: MaterialApp(
+          theme: GrooTheme.light(),
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const WithdrawnScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final first = tester.getRect(_body(_l.withdrawnBody));
+    final second = tester.getRect(_body(_l.withdrawIrreversibleRejoin));
+    expect(second.top - first.bottom, 8, reason: '문단 사이 8(웹 mt-x2)');
+    final content = tester.getRect(
+      find.byKey(const ValueKey('result-section-content')),
+    );
+    expect(content.bottom - second.bottom, 16, reason: '결과 아래 안쪽 16');
+    final btn = tester.getRect(find.byType(PButton));
+    final section = tester.getRect(find.byType(PResultSection));
+    expect(btn.top - section.bottom, greaterThanOrEqualTo(0));
+    expect(btn.top, greaterThanOrEqualTo(content.bottom));
+  });
 }

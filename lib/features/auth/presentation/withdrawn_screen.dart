@@ -57,9 +57,9 @@ class WithdrawnScreen extends ConsumerWidget {
                           // 화면 제목이라 머리말 1단계
                           headingLevel: 1,
                           title: l.withdrawnTitle,
-                          // 두 문장을 두 문단으로 — 문구는 줄이지 않는다
-                          description:
-                              '${l.withdrawnBody}\n\n${l.withdrawIrreversibleRejoin}',
+                          // 두 문장을 두 문단으로 — 문구는 줄이지 않는다. 문단 사이 8(웹 mt-x2)
+                          description: l.withdrawnBody,
+                          moreDescriptions: [l.withdrawIrreversibleRejoin],
                         ),
                       ),
                     ),
@@ -67,7 +67,7 @@ class WithdrawnScreen extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
                       PSpacing.x6,
-                      PSpacing.x4,
+                      0, // 결과 ↔ 버튼은 결과의 아래 안쪽 16 만(웹과 같다)
                       PSpacing.x6,
                       PSpacing.x6,
                     ),
