@@ -51,7 +51,6 @@ class LedgerDayGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.colors;
     final categories = ref.watch(categoriesProvider).value ?? const [];
     // 삭제 확인창이 결제가 끝난 회차인지 가르는 데 쓴다 — 카드의 cardClosedThrough.
     final assets = ref.watch(assetsProvider).value;
@@ -85,6 +84,7 @@ class LedgerDayGroup extends ConsumerWidget {
                       ? null
                       : categories.byRowId(e.categoryRowId!),
                   flags: flags,
+                  highlighted: isFocus,
                 );
                 Widget line = PSwipeActions(
                   actions: actions,
@@ -112,10 +112,6 @@ class LedgerDayGroup extends ConsumerWidget {
                     ],
                   ),
                 );
-                // 알림 · 검색에서 들어온 줄 — List `highlighted`(bg-brand-weak)와 같은 바탕. 쉬는 바탕은 줄 폭 전체 · 모서리 0(list.yaml).
-                if (isFocus) {
-                  line = ColoredBox(color: c.bgBrandWeak, child: line);
-                }
                 return KeyedSubtree(key: k, child: line);
               },
             ),

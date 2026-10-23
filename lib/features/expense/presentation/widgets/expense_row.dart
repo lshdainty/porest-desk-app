@@ -38,6 +38,7 @@ class ExpenseRow extends StatelessWidget {
     this.onTap,
     this.showInstallment = false,
     this.gutter,
+    this.highlighted = false,
     super.key,
   });
 
@@ -65,6 +66,9 @@ class ExpenseRow extends StatelessWidget {
   /// **임시 인자** — 기본(null)은 ds List 줄의 24(홈이 쓴다). 좌우 24 를 아직 쥐고 있는 호스트(가계부 · 검색 · 자산 상세 · 거래
   /// 상세)는 0 을 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
+
+  /// 알림 · 검색에서 들어온 줄 — ds List `highlighted`(바탕 `bg-brand-weak`, 누름 · 설명 글 보정이 따라온다).
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +123,8 @@ class ExpenseRow extends StatelessWidget {
       size: PTagGroupSize.t3,
       overflow: PTagGroupOverflow.truncate,
       items: [
-        PTag(cName),
+        // 카테고리는 줄이지 않는다(shrink 0) — 줄 오른쪽이 ⋮ 자리만큼 좁아져도 자산 이름이 먼저 줄어 "부…" 처럼 한 글자가 되지 않는다.
+        PTag(cName, shrink: 0),
         PTag(expense.assetName ?? '-'),
         if (showInstallment && (expense.installmentMonths ?? 1) > 1)
           PTag(l.assetInstallmentBadge(expense.installmentMonths!)),
@@ -146,6 +151,7 @@ class ExpenseRow extends StatelessWidget {
         titleSuffix: badges,
         titleColor: titleColor,
         gutter: gutter,
+        highlighted: highlighted,
         detailChild: detail,
         prefix: prefix,
         suffix: suffix,
@@ -156,6 +162,7 @@ class ExpenseRow extends StatelessWidget {
       titleSuffix: badges,
       titleColor: titleColor,
       gutter: gutter,
+      highlighted: highlighted,
       detailChild: detail,
       prefix: prefix,
       suffix: suffix,
