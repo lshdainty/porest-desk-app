@@ -2142,7 +2142,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get updateCheckFailed => 'Couldn\'t check for a new version';
+  String get updateCheckFailed => 'Couldn\'t check for a new version.';
 
   @override
   String get updateRequiredDesc =>

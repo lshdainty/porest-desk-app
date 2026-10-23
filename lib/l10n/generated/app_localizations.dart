@@ -3935,7 +3935,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateCheckFailed.
   ///
   /// In ko, this message translates to:
-  /// **'새 버전을 확인하지 못했어요'**
+  /// **'새 버전을 확인하지 못했어요.'**
   String get updateCheckFailed;
 
   /// No description provided for @updateRequiredDesc.
@@ -12029,7 +12029,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateAutoBlockerPath.
   ///
   /// In ko, this message translates to:
-  /// **'설정 > 보안 및 개인정보 보호 > 자동 차단 에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  /// **'설정 > 보안 및 개인정보 보호 > 자동 차단에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
   String get updateAutoBlockerPath;
 
   /// No description provided for @updateAutoBlockerAfterDirect.

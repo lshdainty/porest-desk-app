@@ -1273,7 +1273,7 @@
       }
     }
   },
-  "updateCheckFailed": "Couldn't check for a new version",
+  "updateCheckFailed": "Couldn't check for a new version.",
   "updateRequiredDesc": "This update is required. You can't use the app until you install it.",
   "expScheduled": "Scheduled",
   "expTypeTransfer": "Transfer",

@@ -2108,7 +2108,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get updateCheckFailed => '새 버전을 확인하지 못했어요';
+  String get updateCheckFailed => '새 버전을 확인하지 못했어요.';
 
   @override
   String get updateRequiredDesc => '이번 버전부터 꼭 업데이트해야 해요. 받기 전에는 앱을 쓸 수 없어요.';
@@ -6563,7 +6563,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get updateAutoBlockerPath =>
-      '설정 > 보안 및 개인정보 보호 > 자동 차단 에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.';
+      '설정 > 보안 및 개인정보 보호 > 자동 차단에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.';
 
   @override
   String get updateAutoBlockerAfterDirect =>
