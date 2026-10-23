@@ -400,21 +400,28 @@ class LedgerCalendar extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  width: dayCircle,
-                  height: dayCircle,
-                  alignment: Alignment.center,
+                  // 최소 36 · 좌우 4 — 글자 200% 에서 두 자리 날이 잘리지 않게 글을 따라 늘어난다(웹 `min-w-x9 px-x1`)
+                  constraints: const BoxConstraints(
+                    minWidth: dayCircle,
+                    minHeight: dayCircle,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
                   decoration: isSel
                       ? BoxDecoration(
                           color: c.bgBrandSolid,
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(PRounded.full),
                         )
                       : null,
-                  child: Text(
-                    '${cellData.d}',
-                    style: PTypography.t5.copyWith(
-                      fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                      color: numColor,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                  child: Center(
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: Text(
+                      '${cellData.d}',
+                      style: PTypography.t5.copyWith(
+                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                        color: numColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                 ),

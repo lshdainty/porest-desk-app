@@ -682,7 +682,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       final amount = localeIsEn()
           ? '₩${krw(diff.abs())}'
           : '${formatChartAxis(diff.abs().toDouble())}원';
-      final shownAmount = masked ? '••' : amount;
+      // 가림 점은 krw.dart 와 한 벌 — 줄여 쓴 금액(만 · 억)은 4개
+      final shownAmount = masked ? '••••' : amount;
       final less = diff > 0;
       return Text.rich(
         TextSpan(
