@@ -775,9 +775,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetAccountDetail => 'Account details';
 
   @override
-  String get assetShowAmount => 'Show amount';
-
-  @override
   String get assetHideAmount => 'Hide amount';
 
   @override
@@ -1820,9 +1817,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashTrendTitle => 'Last 6 months';
 
   @override
-  String get dashSeeMore => 'See more';
-
-  @override
   String get dashEmptyTransactions => 'No recent transactions';
 
   @override
@@ -1846,9 +1840,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashHideAmount => 'Hide amounts';
-
-  @override
   String get dashVsLastMonth => 'vs last month';
 
   @override
@@ -1858,9 +1849,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String dashMonthLedger(int month) {
     return '$month ledger';
   }
-
-  @override
-  String get dashMonthTxError => 'Couldn\'t load this month\'s transactions';
 
   @override
   String get dashDailyAvgPrefix => 'Daily average ';
@@ -1884,7 +1872,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashSame => ' the same.';
 
   @override
-  String get dashNoCategoryData => 'No category data';
+  String get dashNoCategoryData => 'No spending this month';
 
   @override
   String get dashNoBudget => 'No budgets set';
@@ -1893,10 +1881,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashTodaySpend => 'Spent today';
 
   @override
-  String get dashTxError => 'Couldn\'t load transactions';
+  String get dashNoTodaySpend => 'Nothing spent today yet';
 
   @override
-  String get dashNoTodaySpend => 'Nothing spent today yet';
+  String get dashViewAll => 'View all';
+
+  @override
+  String get dashHideAmountsSettings => 'Hide amounts settings';
+
+  @override
+  String get dashNoLastMonth => 'No record for last month';
+
+  @override
+  String dashBudgetOf(String name) {
+    return '$name budget';
+  }
+
+  @override
+  String get dashBudgetTotal => 'Total budget';
+
+  @override
+  String dashCategoryChartLabel(int month, String total) {
+    return 'Spending by category in month $month, total $total';
+  }
+
+  @override
+  String get dashCategoryOthers => 'Others';
+
+  @override
+  String get dashTableShare => 'Share';
+
+  @override
+  String get dashTableAmount => 'Amount';
+
+  @override
+  String get dashFailNetWorth => 'Couldn\'t load net worth';
+
+  @override
+  String get dashFailMonth => 'Couldn\'t load this month\'s ledger';
+
+  @override
+  String get dashFailCategory => 'Couldn\'t load categories';
+
+  @override
+  String get dashFailBudget => 'Couldn\'t load budgets';
+
+  @override
+  String get dashFailSchedule => 'Couldn\'t load events and todos';
+
+  @override
+  String get dashFailToday => 'Couldn\'t load today\'s spending';
+
+  @override
+  String get dashFailDesc => 'Please try again in a moment.';
 
   @override
   String get expTitle => 'Expenses';

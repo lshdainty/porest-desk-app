@@ -408,7 +408,6 @@
   "assetCardDetail": "Card details",
   "assetInvestDetail": "Investment details",
   "assetAccountDetail": "Account details",
-  "assetShowAmount": "Show amount",
   "assetHideAmount": "Hide amount",
   "assetPeriod3m": "3 months",
   "assetPeriod6m": "6 months",
@@ -1085,7 +1084,6 @@
     }
   },
   "dashTrendTitle": "Last 6 months",
-  "dashSeeMore": "See more",
   "dashEmptyTransactions": "No recent transactions",
   "dashEmptyEvents": "No upcoming events",
   "dashEmptyTodos": "No pending todos",
@@ -1100,7 +1098,6 @@
       }
     }
   },
-  "dashHideAmount": "Hide amounts",
   "dashVsLastMonth": "vs last month",
   "dashLiabilities": "Liabilities",
   "dashMonthLedger": "{month} ledger",
@@ -1111,7 +1108,6 @@
       }
     }
   },
-  "dashMonthTxError": "Couldn't load this month's transactions",
   "dashDailyAvgPrefix": "Daily average ",
   "dashSpentMasked": " spent.",
   "dashSpentUnit": " spent.",
@@ -1119,11 +1115,43 @@
   "dashSaving": " saved.",
   "dashSpentMore": " more.",
   "dashSame": " the same.",
-  "dashNoCategoryData": "No category data",
+  "dashNoCategoryData": "No spending this month",
   "dashNoBudget": "No budgets set",
   "dashTodaySpend": "Spent today",
-  "dashTxError": "Couldn't load transactions",
   "dashNoTodaySpend": "Nothing spent today yet",
+  "dashViewAll": "View all",
+  "dashHideAmountsSettings": "Hide amounts settings",
+  "dashNoLastMonth": "No record for last month",
+  "dashBudgetOf": "{name} budget",
+  "@dashBudgetOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashBudgetTotal": "Total budget",
+  "dashCategoryChartLabel": "Spending by category in month {month}, total {total}",
+  "@dashCategoryChartLabel": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "dashCategoryOthers": "Others",
+  "dashTableShare": "Share",
+  "dashTableAmount": "Amount",
+  "dashFailNetWorth": "Couldn't load net worth",
+  "dashFailMonth": "Couldn't load this month's ledger",
+  "dashFailCategory": "Couldn't load categories",
+  "dashFailBudget": "Couldn't load budgets",
+  "dashFailSchedule": "Couldn't load events and todos",
+  "dashFailToday": "Couldn't load today's spending",
+  "dashFailDesc": "Please try again in a moment.",
   "expTitle": "Expenses",
   "expFilterAll": "All",
   "expFilterIncome": "Income",

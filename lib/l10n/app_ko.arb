@@ -412,7 +412,6 @@
   "assetCardDetail": "카드 상세",
   "assetInvestDetail": "투자 상세",
   "assetAccountDetail": "계좌 상세",
-  "assetShowAmount": "금액 표시",
   "assetHideAmount": "금액 가리기",
   "assetPeriod3m": "3개월",
   "assetPeriod6m": "6개월",
@@ -1080,7 +1079,7 @@
   "dashRecent": "최근 거래",
   "dashUpcoming": "다가오는 일정",
   "dashRecentTodos": "최근 할 일",
-  "dashOverdue": "연체 {count}",
+  "dashOverdue": "연체 {count}건",
   "@dashOverdue": {
     "placeholders": {
       "count": {
@@ -1089,7 +1088,6 @@
     }
   },
   "dashTrendTitle": "최근 6개월",
-  "dashSeeMore": "자세히",
   "dashEmptyTransactions": "최근 거래가 없습니다",
   "dashEmptyEvents": "예정된 일정이 없습니다",
   "dashEmptyTodos": "처리할 할 일이 없습니다",
@@ -1104,7 +1102,6 @@
       }
     }
   },
-  "dashHideAmount": "금액 숨김",
   "dashVsLastMonth": "지난달 대비",
   "dashLiabilities": "부채",
   "dashMonthLedger": "{month}월 가계부",
@@ -1115,7 +1112,6 @@
       }
     }
   },
-  "dashMonthTxError": "이번달 거래를 불러오지 못했습니다",
   "dashDailyAvgPrefix": "하루 평균 ",
   "dashSpentMasked": " 썼어요.",
   "dashSpentUnit": "원 썼어요.",
@@ -1123,11 +1119,43 @@
   "dashSaving": " 절약 중이에요.",
   "dashSpentMore": " 더 썼어요.",
   "dashSame": " 동일해요.",
-  "dashNoCategoryData": "카테고리 데이터가 없어요",
+  "dashNoCategoryData": "이번 달 지출이 없어요",
   "dashNoBudget": "등록된 예산이 없어요",
   "dashTodaySpend": "오늘 쓴 돈",
-  "dashTxError": "거래를 불러오지 못했습니다",
   "dashNoTodaySpend": "오늘은 아직 쓴 돈이 없어요",
+  "dashViewAll": "전체 보기",
+  "dashHideAmountsSettings": "금액 가리기 설정",
+  "dashNoLastMonth": "지난달 기록 없음",
+  "dashBudgetOf": "{name} 예산",
+  "@dashBudgetOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashBudgetTotal": "전체 예산",
+  "dashCategoryChartLabel": "{month}월 카테고리별 지출, 합계 {total}",
+  "@dashCategoryChartLabel": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "dashCategoryOthers": "기타",
+  "dashTableShare": "비율",
+  "dashTableAmount": "금액",
+  "dashFailNetWorth": "순자산을 불러오지 못했어요",
+  "dashFailMonth": "이번 달 가계부를 불러오지 못했어요",
+  "dashFailCategory": "카테고리를 불러오지 못했어요",
+  "dashFailBudget": "예산을 불러오지 못했어요",
+  "dashFailSchedule": "일정과 할 일을 불러오지 못했어요",
+  "dashFailToday": "오늘 쓴 돈을 불러오지 못했어요",
+  "dashFailDesc": "잠시 뒤 다시 시도해 주세요.",
   "expTitle": "가계부",
   "expFilterAll": "전체",
   "expFilterIncome": "수입",

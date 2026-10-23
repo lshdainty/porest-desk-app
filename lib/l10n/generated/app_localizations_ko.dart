@@ -762,9 +762,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetAccountDetail => '계좌 상세';
 
   @override
-  String get assetShowAmount => '금액 표시';
-
-  @override
   String get assetHideAmount => '금액 가리기';
 
   @override
@@ -1788,14 +1785,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String dashOverdue(int count) {
-    return '연체 $count';
+    return '연체 $count건';
   }
 
   @override
   String get dashTrendTitle => '최근 6개월';
-
-  @override
-  String get dashSeeMore => '자세히';
 
   @override
   String get dashEmptyTransactions => '최근 거래가 없습니다';
@@ -1821,9 +1815,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get dashHideAmount => '금액 숨김';
-
-  @override
   String get dashVsLastMonth => '지난달 대비';
 
   @override
@@ -1833,9 +1824,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String dashMonthLedger(int month) {
     return '$month월 가계부';
   }
-
-  @override
-  String get dashMonthTxError => '이번달 거래를 불러오지 못했습니다';
 
   @override
   String get dashDailyAvgPrefix => '하루 평균 ';
@@ -1859,7 +1847,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dashSame => ' 동일해요.';
 
   @override
-  String get dashNoCategoryData => '카테고리 데이터가 없어요';
+  String get dashNoCategoryData => '이번 달 지출이 없어요';
 
   @override
   String get dashNoBudget => '등록된 예산이 없어요';
@@ -1868,10 +1856,59 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dashTodaySpend => '오늘 쓴 돈';
 
   @override
-  String get dashTxError => '거래를 불러오지 못했습니다';
+  String get dashNoTodaySpend => '오늘은 아직 쓴 돈이 없어요';
 
   @override
-  String get dashNoTodaySpend => '오늘은 아직 쓴 돈이 없어요';
+  String get dashViewAll => '전체 보기';
+
+  @override
+  String get dashHideAmountsSettings => '금액 가리기 설정';
+
+  @override
+  String get dashNoLastMonth => '지난달 기록 없음';
+
+  @override
+  String dashBudgetOf(String name) {
+    return '$name 예산';
+  }
+
+  @override
+  String get dashBudgetTotal => '전체 예산';
+
+  @override
+  String dashCategoryChartLabel(int month, String total) {
+    return '$month월 카테고리별 지출, 합계 $total';
+  }
+
+  @override
+  String get dashCategoryOthers => '기타';
+
+  @override
+  String get dashTableShare => '비율';
+
+  @override
+  String get dashTableAmount => '금액';
+
+  @override
+  String get dashFailNetWorth => '순자산을 불러오지 못했어요';
+
+  @override
+  String get dashFailMonth => '이번 달 가계부를 불러오지 못했어요';
+
+  @override
+  String get dashFailCategory => '카테고리를 불러오지 못했어요';
+
+  @override
+  String get dashFailBudget => '예산을 불러오지 못했어요';
+
+  @override
+  String get dashFailSchedule => '일정과 할 일을 불러오지 못했어요';
+
+  @override
+  String get dashFailToday => '오늘 쓴 돈을 불러오지 못했어요';
+
+  @override
+  String get dashFailDesc => '잠시 뒤 다시 시도해 주세요.';
 
   @override
   String get expTitle => '가계부';
