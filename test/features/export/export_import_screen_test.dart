@@ -548,6 +548,10 @@ void main() {
       );
       expect(cta.size, PButtonSize.large);
       expect(cta.variant, PButtonVariant.neutralSolid);
+      final ctaRect = tester.getRect(
+        find.widgetWithText(PButton, _l.importGoExpense),
+      );
+      expect(ctaRect.width, 360 - 48, reason: '바닥 CTA 는 좌우 24 로 폭 가득');
       await tester.tap(find.text(_l.importGoExpense));
       await tester.pumpAndSettle();
       expect(find.text('EXPENSE'), findsOneWidget);

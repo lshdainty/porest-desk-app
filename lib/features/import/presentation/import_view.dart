@@ -690,11 +690,14 @@ class _ImportViewState extends ConsumerState<ImportView> {
         ),
         // 바닥 CTA 하나 — 좌우 24 · 위 12 · 아래 24, 안전 영역 위
         _bottomBar(
-          PButton(
-            label: l.importGoExpense,
-            variant: PButtonVariant.neutralSolid,
-            size: PButtonSize.large,
-            onPressed: () => context.go('/expense?tab=expense'),
+          SizedBox(
+            width: double.infinity,
+            child: PButton(
+              label: l.importGoExpense,
+              variant: PButtonVariant.neutralSolid,
+              size: PButtonSize.large,
+              onPressed: () => context.go('/expense?tab=expense'),
+            ),
           ),
         ),
       ],
