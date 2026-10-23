@@ -140,39 +140,9 @@ class LedgerTotalRow extends StatelessWidget {
         PSpacing.globalGutter,
         0,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (loading) ...[
-                  PSkeleton.text(PTypography.t9, width: 160),
-                  const SizedBox(height: PSpacing.x1_5),
-                  PSkeleton.text(PTypography.t4, width: 200),
-                ] else if (!failed) ...[
-                  Text(
-                    // 금액은 쉼표 뒤에서만 줄을 바꾼다 — 큰 글자에서 숫자 가운데가 끊기지 않게
-                    keepAllAmount(total ?? ''),
-                    semanticsLabel: total,
-                    style: PTypography.t9.copyWith(
-                      color: c.fgNeutral,
-                      fontWeight: FontWeight.w700,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  if (insight != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: PSpacing.x1_5),
-                      child: insight,
-                    ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: PSpacing.x3),
-          Semantics(
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final button = Semantics(
             container: true,
             expanded: summaryOpen,
             child: PButton(
@@ -181,8 +151,55 @@ class LedgerTotalRow extends StatelessWidget {
               variant: PButtonVariant.neutralOutline,
               onPressed: (loading || failed) ? null : onToggleSummary,
             ),
-          ),
-        ],
+          );
+          final figures = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (loading) ...[
+                PSkeleton.text(PTypography.t9, width: 160),
+                const SizedBox(height: PSpacing.x1_5),
+                PSkeleton.text(PTypography.t4, width: 200),
+              ] else if (!failed) ...[
+                Text(
+                  // 금액은 쉼표 뒤에서만 줄을 바꾼다 — 큰 글자에서 숫자 가운데가 끊기지 않게
+                  keepAllAmount(total ?? ''),
+                  semanticsLabel: total,
+                  style: PTypography.t9.copyWith(
+                    color: c.fgNeutral,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                if (insight != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: PSpacing.x1_5),
+                    child: insight,
+                  ),
+              ],
+            ],
+          );
+          // 단추가 폭의 절반을 넘게 차지하면(큰 글자 · 영어) 합계가 글자 하나씩 꺾이므로 단추를 아래 줄로 내린다(웹 flex-wrap).
+          final wide = PButton(
+            label: l.txmSpendSummary,
+            size: PButtonSize.small,
+            onPressed: null,
+          ).naturalWidth(context);
+          if (wide > box.maxWidth * 0.5) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: PSpacing.x3,
+              children: [figures, button],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: PSpacing.x3,
+            children: [
+              Expanded(child: figures),
+              button,
+            ],
+          );
+        },
       ),
     );
   }
