@@ -4058,7 +4058,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutDesc => '이 기기에서만';
 
   @override
-  String get accountWithdraw => 'desk 이용 해지';
+  String get accountWithdraw => '그루 담다 이용 해지';
 
   @override
   String get accountWithdrawDesc => '복구할 수 없어요';
@@ -4080,7 +4080,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutConfirm => '정말 로그아웃 하시겠어요?';
 
   @override
-  String get accountWithdrawTitle => 'desk 이용 해지';
+  String get accountWithdrawTitle => '그루 담다 이용 해지';
 
   @override
   String get withdrawIntro => '이용을 해지하면 바로 로그인이 막히고 되돌릴 수 없어요.';
@@ -4119,10 +4119,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내주세요.';
 
   @override
-  String get withdrawReasonLabel => '떠나시는 이유 (선택)';
+  String get withdrawReasonLabel => '떠나는 이유';
 
   @override
-  String get withdrawReasonPlaceholder => '알려주시면 다음에 더 낫게 만들게요';
+  String get withdrawReasonPlaceholder => '알려주면 다음에 더 낫게 만들게요';
 
   @override
   String get withdrawNext => '계속';
@@ -4134,7 +4134,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawReauthIntro => '본인이 맞는지 한 번만 더 확인할게요.';
 
   @override
-  String get withdrawUseEmailCode => '비밀번호가 없으신가요? 메일로 코드 받기';
+  String get withdrawUseEmailCode => '비밀번호가 없나요? 메일로 코드 받기';
 
   @override
   String get withdrawUsePassword => '비밀번호로 확인하기';
@@ -4152,13 +4152,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawResendCode => '다시 받기';
 
   @override
-  String get withdrawCodeSent => '메일로 코드를 보냈어요';
+  String get withdrawCodeSent => '메일로 코드를 보냈어요.';
 
   @override
-  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해주세요.';
-
-  @override
-  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해주세요';
+  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해주세요.';
 
   @override
   String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요';
@@ -4172,17 +4169,49 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawBlockedOther => '아직 해지할 수 없는 상태예요';
 
   @override
-  String get withdrawBlockedHint => '구독을 먼저 해지하시면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.';
+  String get withdrawBlockedHint => '구독을 먼저 해지하면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.';
 
   @override
   String get withdrawnTitle => '이용 해지가 끝났어요';
 
   @override
   String get withdrawnBody =>
-      '그동안 desk 를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.';
+      '그동안 그루 담다를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.';
 
   @override
   String get withdrawnToLogin => '로그인 화면으로';
+
+  @override
+  String get withdrawCodeDescription => '10분 안에 입력해주세요 · 5번 틀리면 다시 받아요.';
+
+  @override
+  String get withdrawCodeIncomplete => '인증 코드 6자리를 입력해주세요.';
+
+  @override
+  String get withdrawCodeWrong => '코드가 맞지 않거나 시간이 지났어요. 확인하거나 다시 받아주세요.';
+
+  @override
+  String withdrawResendCooldown(int seconds) {
+    return '다시 받기($seconds초)';
+  }
+
+  @override
+  String get withdrawBusy => '해지하는 중';
+
+  @override
+  String get withdrawLoadFailedTitle => '해지 정보를 불러오지 못했어요';
+
+  @override
+  String get sheetLeaveTitle => '작성한 내용이 사라져요';
+
+  @override
+  String get sheetLeaveDescription => '나가면 입력한 내용이 저장되지 않아요.';
+
+  @override
+  String get sheetLeaveStay => '계속 작성';
+
+  @override
+  String get sheetLeaveLeave => '나가기';
 
   @override
   String get notiUnreadPrefix => '읽지 않은 알림 ';

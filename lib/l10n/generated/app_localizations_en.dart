@@ -4115,7 +4115,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutDesc => 'This device only';
 
   @override
-  String get accountWithdraw => 'Stop using desk';
+  String get accountWithdraw => 'Stop using 그루 담다';
 
   @override
   String get accountWithdrawDesc => 'Cannot be undone';
@@ -4137,11 +4137,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutConfirm => 'Are you sure you want to log out?';
 
   @override
-  String get accountWithdrawTitle => 'Stop using desk';
+  String get accountWithdrawTitle => 'Stop using 그루 담다';
 
   @override
   String get withdrawIntro =>
-      'Stopping desk signs you out immediately and cannot be undone.';
+      'Stopping 그루 담다 signs you out immediately and cannot be undone.';
 
   @override
   String withdrawImpactCalendarsOwned(int count) {
@@ -4179,7 +4179,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your records are kept and then destroyed under our privacy policy. Export anything you need before you stop.';
 
   @override
-  String get withdrawReasonLabel => 'Why are you leaving? (optional)';
+  String get withdrawReasonLabel => 'Why are you leaving?';
 
   @override
   String get withdrawReasonPlaceholder =>
@@ -4189,7 +4189,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawNext => 'Continue';
 
   @override
-  String get withdrawConfirm => 'Stop using desk';
+  String get withdrawConfirm => 'Stop using 그루 담다';
 
   @override
   String get withdrawReauthIntro => 'Just once more, let us confirm it is you.';
@@ -4213,23 +4213,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawResendCode => 'Send again';
 
   @override
-  String get withdrawCodeSent => 'We sent a code to your email';
-
-  @override
-  String get withdrawCodeHint =>
-      'If you do not see it, check your spam folder.';
+  String get withdrawCodeSent => 'We sent a code to your email.';
 
   @override
   String get withdrawFailed =>
-      'Could not stop your desk account. Please try again shortly';
+      'Could not stop your 그루 담다 account. Please try again shortly.';
 
   @override
   String get withdrawBlockedSubscription =>
-      'You still have an active subscription, so you cannot stop desk yet';
+      'You still have an active subscription, so you cannot stop using 그루 담다 yet';
 
   @override
   String withdrawBlockedSubscriptionUntil(String date) {
-    return 'Your subscription runs until $date, so you cannot stop desk yet';
+    return 'Your subscription runs until $date, so you cannot stop using 그루 담다 yet';
   }
 
   @override
@@ -4237,17 +4233,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawBlockedHint =>
-      'Cancel your subscription first — you can stop desk once the paid period ends.';
+      'Cancel your subscription first — you can stop using 그루 담다 once the paid period ends.';
 
   @override
-  String get withdrawnTitle => 'Your desk account is closed';
+  String get withdrawnTitle => 'Your 그루 담다 account is closed';
 
   @override
   String get withdrawnBody =>
-      'Thank you for using desk. Remaining data is kept and then destroyed under our privacy policy.';
+      'Thank you for using 그루 담다. Remaining data is kept and then destroyed under our privacy policy.';
 
   @override
   String get withdrawnToLogin => 'Go to sign in';
+
+  @override
+  String get withdrawCodeDescription =>
+      'Enter it within 10 minutes · after 5 wrong tries, request a new one.';
+
+  @override
+  String get withdrawCodeIncomplete => 'Enter the 6-digit verification code.';
+
+  @override
+  String get withdrawCodeWrong =>
+      'The code is wrong or has expired. Check it or request a new one.';
+
+  @override
+  String withdrawResendCooldown(int seconds) {
+    return 'Send again (${seconds}s)';
+  }
+
+  @override
+  String get withdrawBusy => 'Closing your account';
+
+  @override
+  String get withdrawLoadFailedTitle => 'Couldn\'t load your account details';
+
+  @override
+  String get sheetLeaveTitle => 'Your changes will be lost';
+
+  @override
+  String get sheetLeaveDescription =>
+      'If you leave, what you entered won\'t be saved.';
+
+  @override
+  String get sheetLeaveStay => 'Keep editing';
+
+  @override
+  String get sheetLeaveLeave => 'Leave';
 
   @override
   String get notiUnreadPrefix => '';

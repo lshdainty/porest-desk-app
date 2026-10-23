@@ -7529,7 +7529,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdraw.
   ///
   /// In ko, this message translates to:
-  /// **'desk 이용 해지'**
+  /// **'그루 담다 이용 해지'**
   String get accountWithdraw;
 
   /// No description provided for @accountWithdrawDesc.
@@ -7565,7 +7565,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdrawTitle.
   ///
   /// In ko, this message translates to:
-  /// **'desk 이용 해지'**
+  /// **'그루 담다 이용 해지'**
   String get accountWithdrawTitle;
 
   /// No description provided for @withdrawIntro.
@@ -7625,13 +7625,13 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawReasonLabel.
   ///
   /// In ko, this message translates to:
-  /// **'떠나시는 이유 (선택)'**
+  /// **'떠나는 이유'**
   String get withdrawReasonLabel;
 
   /// No description provided for @withdrawReasonPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'알려주시면 다음에 더 낫게 만들게요'**
+  /// **'알려주면 다음에 더 낫게 만들게요'**
   String get withdrawReasonPlaceholder;
 
   /// No description provided for @withdrawNext.
@@ -7655,7 +7655,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawUseEmailCode.
   ///
   /// In ko, this message translates to:
-  /// **'비밀번호가 없으신가요? 메일로 코드 받기'**
+  /// **'비밀번호가 없나요? 메일로 코드 받기'**
   String get withdrawUseEmailCode;
 
   /// No description provided for @withdrawUsePassword.
@@ -7691,19 +7691,13 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawCodeSent.
   ///
   /// In ko, this message translates to:
-  /// **'메일로 코드를 보냈어요'**
+  /// **'메일로 코드를 보냈어요.'**
   String get withdrawCodeSent;
-
-  /// No description provided for @withdrawCodeHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'메일함에 코드가 안 보이면 스팸함도 확인해주세요.'**
-  String get withdrawCodeHint;
 
   /// No description provided for @withdrawFailed.
   ///
   /// In ko, this message translates to:
-  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해주세요'**
+  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해주세요.'**
   String get withdrawFailed;
 
   /// No description provided for @withdrawBlockedSubscription.
@@ -7727,7 +7721,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawBlockedHint.
   ///
   /// In ko, this message translates to:
-  /// **'구독을 먼저 해지하시면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.'**
+  /// **'구독을 먼저 해지하면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.'**
   String get withdrawBlockedHint;
 
   /// No description provided for @withdrawnTitle.
@@ -7739,7 +7733,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawnBody.
   ///
   /// In ko, this message translates to:
-  /// **'그동안 desk 를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
+  /// **'그동안 그루 담다를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
   String get withdrawnBody;
 
   /// No description provided for @withdrawnToLogin.
@@ -7747,6 +7741,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'로그인 화면으로'**
   String get withdrawnToLogin;
+
+  /// No description provided for @withdrawCodeDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'10분 안에 입력해주세요 · 5번 틀리면 다시 받아요.'**
+  String get withdrawCodeDescription;
+
+  /// No description provided for @withdrawCodeIncomplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 코드 6자리를 입력해주세요.'**
+  String get withdrawCodeIncomplete;
+
+  /// No description provided for @withdrawCodeWrong.
+  ///
+  /// In ko, this message translates to:
+  /// **'코드가 맞지 않거나 시간이 지났어요. 확인하거나 다시 받아주세요.'**
+  String get withdrawCodeWrong;
+
+  /// No description provided for @withdrawResendCooldown.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 받기({seconds}초)'**
+  String withdrawResendCooldown(int seconds);
+
+  /// No description provided for @withdrawBusy.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지하는 중'**
+  String get withdrawBusy;
+
+  /// No description provided for @withdrawLoadFailedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지 정보를 불러오지 못했어요'**
+  String get withdrawLoadFailedTitle;
+
+  /// No description provided for @sheetLeaveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'작성한 내용이 사라져요'**
+  String get sheetLeaveTitle;
+
+  /// No description provided for @sheetLeaveDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'나가면 입력한 내용이 저장되지 않아요.'**
+  String get sheetLeaveDescription;
+
+  /// No description provided for @sheetLeaveStay.
+  ///
+  /// In ko, this message translates to:
+  /// **'계속 작성'**
+  String get sheetLeaveStay;
+
+  /// No description provided for @sheetLeaveLeave.
+  ///
+  /// In ko, this message translates to:
+  /// **'나가기'**
+  String get sheetLeaveLeave;
 
   /// No description provided for @notiUnreadPrefix.
   ///
