@@ -412,6 +412,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   for (final e in g.items)
                     // 가계부·홈·거래상세와 **같은 행 위젯**이다(앱에 행 위젯은 이것 하나).
                     ExpenseRow(
+                      gutter: 0,
                       expense: e,
                       category: _findCategory(categories, e.categoryRowId),
                       flags: flags,

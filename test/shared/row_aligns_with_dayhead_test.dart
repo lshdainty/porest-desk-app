@@ -18,7 +18,10 @@ import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
+import '../support/plain_text.dart';
 
 const _pagePad = 24.0;
 
@@ -66,9 +69,9 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pump(const Duration(milliseconds: 16));
 }
 
-/// 행 안 첫 Container = 40x40 카테고리 아이콘 상자. 그 왼쪽이 행의 시작점이다.
+/// 행 안 앞 타일(ds `PListTile` 40 × 40) — 그 왼쪽이 행의 시작점이다.
 double _contentLeft(WidgetTester tester, Finder row) => tester
-    .getRect(find.descendant(of: row, matching: find.byType(Container)).first)
+    .getRect(find.descendant(of: row, matching: find.byType(PListTile)).first)
     .left;
 
 void main() {
@@ -85,6 +88,7 @@ void main() {
             flags: const MaskFlags.cardOnly(false),
           ),
           ExpenseRow(
+            gutter: 0,
             expense: _e(),
             category: null,
             flags: const MaskFlags.cardOnly(false),
@@ -113,15 +117,15 @@ void main() {
     expect(skeletonRow, closeTo(_pagePad, 0.5));
   });
 
-  testWidgets('행 금액은 지출·수입이 같은 색이다 (2026-07-27 73449cf)', (tester) async {
-    // 색 구분은 날짜 헤더의 일 합계만 한다. 토큰 값을 직접 비교하면 테마가 바뀔 때
-    // 같이 깨지므로, **두 종류가 같은 색인가**만 본다 — 그게 이 결정의 내용이다.
-    // Color 객체는 같은 값이어도 == 가 아닐 수 있다 — 32비트 값으로 비교한다.
-    final colors = <String, int?>{};
+  testWidgets('행 금액 색 — 지출은 fg-neutral, 수입만 fg-brand (list.md D1)', (
+    tester,
+  ) async {
+    final colors = <String, Color?>{};
     for (final type in ['EXPENSE', 'INCOME']) {
       await _pump(
         tester,
         ExpenseRow(
+          gutter: 0,
           expense: _e(type: type),
           category: null,
           flags: const MaskFlags.cardOnly(false),
@@ -131,56 +135,66 @@ void main() {
           .widget<Text>(
             find.descendant(
               of: find.byType(ExpenseRow),
-              matching: find.textContaining('원'),
+              matching: find.byWidgetPredicate(
+                (w) => w is Text && plainOf(w.data ?? '').endsWith('원'),
+              ),
             ),
           )
           .style
-          ?.color
-          ?.toARGB32();
+          ?.color;
     }
-    expect(colors['EXPENSE'], isNotNull);
-    expect(
-      colors['INCOME'],
-      colors['EXPENSE'],
-      reason: '행 금액이 종류별로 다른 색이면 가계부 규칙을 어긴 것이다',
-    );
+    // 테스트 테마는 다크 — 역할 색으로 비교한다
+    expect(colors['EXPENSE'], PColors.dark.fgNeutral);
+    expect(colors['INCOME'], PColors.dark.fgBrand);
   });
 
-  testWidgets('예정(미래) 거래만 흐려진다 — 지나간 거래는 또렷하다', (tester) async {
-    // 회색으로 보이는 것은 금액 색이 아니라 **행 전체의 opacity 0.6** 이다.
-    // 합계에도 안 들어가는 값이라 지나간 거래와 같은 무게로 보이면 안 된다.
+  testWidgets('예정(미래) 거래 — 줄 전체를 흐리지 않고 제목 · 금액만 fg-neutral-subtle', (
+    tester,
+  ) async {
+    // list.md "합계에 안 드는 줄" — 불투명도(0.6)를 걷고 배지가 말한다. 지나간 거래는 보통 색이다.
     final past = DateTime.now().subtract(const Duration(days: 1));
     final future = DateTime.now().add(const Duration(days: 3));
-    double opacityOf(WidgetTester t) => t
-        .widget<Opacity>(
-          find
-              .descendant(
-                of: find.byType(ExpenseRow),
-                matching: find.byType(Opacity),
-              )
-              .first,
+    Color? amountColor(WidgetTester t) => t
+        .widget<Text>(
+          find.descendant(
+            of: find.byType(ExpenseRow),
+            matching: find.byWidgetPredicate(
+              (w) => w is Text && plainOf(w.data ?? '').endsWith('원'),
+            ),
+          ),
         )
-        .opacity;
+        .style
+        ?.color;
 
     await _pump(
       tester,
       ExpenseRow(
+        gutter: 0,
         expense: _e(date: past),
         category: null,
         flags: const MaskFlags.cardOnly(false),
       ),
     );
-    expect(opacityOf(tester), 1);
+    expect(amountColor(tester), PColors.dark.fgNeutral);
 
     await _pump(
       tester,
       ExpenseRow(
+        gutter: 0,
         expense: _e(date: future),
         category: null,
         flags: const MaskFlags.cardOnly(false),
       ),
     );
-    expect(opacityOf(tester), lessThan(1));
+    expect(amountColor(tester), PColors.dark.fgNeutralSubtle);
+    expect(
+      find.descendant(
+        of: find.byType(ExpenseRow),
+        matching: find.byType(Opacity),
+      ),
+      findsNothing,
+      reason: '줄 전체를 흐리면 배지까지 흐려진다',
+    );
   });
 
   testWidgets('행 금액의 마이너스는 U+2212 — 헤더 합계와 같은 기호다', (tester) async {
@@ -200,6 +214,7 @@ void main() {
             flags: const MaskFlags.cardOnly(false),
           ),
           ExpenseRow(
+            gutter: 0,
             expense: _e(),
             category: null,
             flags: const MaskFlags.cardOnly(false),
@@ -207,7 +222,7 @@ void main() {
         ],
       ),
     );
-    expect(find.text('−3,000원'), findsNWidgets(2)); // 헤더 합계 + 행
+    expect(findPlain('−3,000원'), findsNWidgets(2)); // 헤더 합계 + 행
     expect(find.textContaining('-3,000'), findsNothing); // ASCII 하이픈
   });
 
@@ -215,22 +230,24 @@ void main() {
     await _pump(
       tester,
       ExpenseRow(
+        gutter: 0,
         expense: _e(type: 'INCOME'),
         category: null,
         flags: const MaskFlags.cardOnly(false),
       ),
     );
-    expect(find.text('+3,000원'), findsOneWidget);
+    expect(findPlain('+3,000원'), findsOneWidget);
 
     await _pump(
       tester,
       ExpenseRow(
+        gutter: 0,
         expense: _e(amount: 0),
         category: null,
         flags: const MaskFlags.cardOnly(false),
       ),
     );
     // 빈 계정에서 `−0원` 으로 보이던 자리(QA #1).
-    expect(find.text('0원'), findsOneWidget);
+    expect(findPlain('0원'), findsOneWidget);
   });
 }

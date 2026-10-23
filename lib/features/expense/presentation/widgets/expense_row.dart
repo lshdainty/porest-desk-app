@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/expense/presentation/tx_detail_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 
 /// 아직 오지 않은 거래인가 — 서버가 합계에서 빼는 기준과 같다.
 bool _isScheduled(String? expenseDate) {
@@ -23,6 +23,12 @@ bool _isScheduled(String? expenseDate) {
   return DateTime.parse(normalized).isAfter(DateTime.now());
 }
 
+/// 거래 줄 — 가계부 · 검색 · 자산 상세 · 거래 상세 · 홈이 **같이 쓰는 하나뿐인 줄**이다(ds List 줄 값, I-06 28).
+///
+/// 앞 타일 40(모서리 12 · 카테고리 옅은 바탕) · 제목 t5 400(줄을 바꾼다, 말줄임 없음 — 뒤에 배지가 이어 붙는다) ·
+/// 설명 Tag Group t3 한 줄 말줄임(분류 · 통장 · 할부) · 금액 t5 700 고정폭 원까지(지출 `fg-neutral`, 수입만 `fg-brand` + "+").
+/// 합계에 안 드는 줄(예정 · 환불)은 줄 전체를 흐리지 않고 제목 · 금액만 `fg-neutral-subtle` 이며 배지가 말한다.
+/// 줄이 제 좌우 24 · 위아래 12 를 가지므로 부르는 쪽은 좌우 여백을 두지 않는다.
 class ExpenseRow extends StatelessWidget {
   const ExpenseRow({
     required this.expense,
@@ -31,6 +37,7 @@ class ExpenseRow extends StatelessWidget {
     this.interactive = true,
     this.onTap,
     this.showInstallment = false,
+    this.gutter,
     super.key,
   });
 
@@ -40,7 +47,7 @@ class ExpenseRow extends StatelessWidget {
   /// 화면 카드 + 종류 카드. 행이 자기 종류(수입/지출)로 판정한다.
   final MaskFlags flags;
 
-  /// false 면 InkWell tap 비활성 — 단순 표시 용도 (예: 가맹점 history).
+  /// false 면 누르지 않는 줄 — 단순 표시 용도 (예: 가맹점 history).
   final bool interactive;
 
   /// 탭했을 때 할 일. 안 주면 거래 상세 시트를 연다(목록의 기본 동작).
@@ -49,15 +56,19 @@ class ExpenseRow extends StatelessWidget {
   /// 요약 카드라 거기서 더 볼 게 없고, 맥락째 옮겨 주는 편이 낫다.
   final VoidCallback? onTap;
 
-  /// 할부면 보조 줄에 "할부 N개월" 을 붙인다 — 카드 상세의 이용 내역이 쓴다.
+  /// 할부면 설명에 "할부 N개월" 을 붙인다 — 카드 상세의 이용 내역이 쓴다.
   ///
   /// 할부 행의 금액은 원금(전액)이라, 이 표시가 없으면 회차 청구(예정액)와 행 금액이
   /// 왜 다른지 알 길이 없다. 가계부 목록은 결제 수단을 따지지 않으므로 끈다.
   final bool showInstallment;
 
+  /// 줄 좌우 여백 — 기본(null)은 ds List 줄의 24. 좌우 24 를 아직 쥐고 있는 화면(가계부 · 검색 · 자산 상세 · 거래 상세)은 0 을
+  /// 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 이관되면 걷는다.
+  final double? gutter;
+
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
 
     // 카테고리 색은 백엔드 카테고리 우선, 없으면 거래에 임베드된 categoryColor, 없으면 토큰
@@ -66,206 +77,89 @@ class ExpenseRow extends StatelessWidget {
     final cName =
         category?.categoryName ?? expense.categoryName ?? l.expUncategorized;
 
-    // 환불된 거래 — 합계에서 빠져 있다. 예정 거래와 같은 흐림을 쓰되 **배지로 갈라
-    // 보인다**(금액 취소선까지 더한다). 흐림만으로는 "아직 안 온 것" 과 구분이 안 된다.
+    final scheduled = _isScheduled(expense.expenseDate);
     final refunded = expense.isRefunded;
+    // 합계에 안 드는 줄 — 예정(아직 안 빠진 돈) · 환불(취소된 돈)
+    final excluded = scheduled || refunded;
 
-    final fg = resolveChartColor(context, colorRaw, fallback: t.fgBrand);
+    final fg = resolveChartColor(context, colorRaw, fallback: c.fgBrand);
     final bg = softBg(context, fg);
     final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
 
-    return InkWell(
-      onTap: !interactive
-          ? null
-          : (onTap ?? () => showTxDetailDialog(context, expense)),
-      borderRadius: BorderRadius.circular(10),
-      // 아직 오지 않은 거래는 행째로 흐리게 — 합계에도 안 들어가는 값이라 지나간
-      // 거래와 같은 무게로 보이면 안 된다. 배지만으로는 눈에 잘 안 걸린다.
-      // 웹 LedgerRow 의 dim(opacity-60) 정합.
-      child: Opacity(
-        opacity: _isScheduled(expense.expenseDate) || refunded ? 0.6 : 1,
-        child: Padding(
-          // design `.m-scroll .tx-list .tx-row`: 12px 10px + radius 10 (플랫 행 리듬).
-          // web pl-1.5(6)−ml-1(4) = 순 좌측 +2 정합(사용자 결정). 우측 0.
-          // 좌우는 페이지가 쥔다. 행이 여기서 좌측 2 를 더 얹으면 그만큼 날짜 헤더와
-          // 어긋난다 — 미세하지만 목록 전체가 헤더보다 오른쪽으로 밀려 보인다.
-          padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: PRadius.tile(40),
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 18, color: fg),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            expense.merchant ?? expense.description ?? cName,
-                            style: PTypo.body.copyWith(
-                              color: t.fgPrimary,
-                              fontWeight: PFontWeight.semi,
-                              letterSpacing: -0.07,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        // 아직 오지 않은 거래(반복거래 선생성분) — 합계에는 안 들어간다.
-                        if (_isScheduled(expense.expenseDate)) ...[
-                          const SizedBox(width: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.bgMuted,
-                              borderRadius: PRadius.brXs,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).expScheduled,
-                              style: PTypo.micro.copyWith(
-                                color: t.fgTertiary,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                        // 환불된 거래 — 그 자리에 남아 있지만 합계에서는 빠졌다.
-                        if (refunded) ...[
-                          const SizedBox(width: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.bgMuted,
-                              borderRadius: PRadius.brXs,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).expRefundedBadge,
-                              style: PTypo.micro.copyWith(
-                                color: t.fgTertiary,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                        // 기록만 — 결제가 끝난 회차에 뒤늦게 적은 카드 지출(닫힌 회차 R2).
-                        // 합계에는 들어가므로 흐리지 않고 배지만 단다.
-                        if (expense.isRecordOnly) ...[
-                          const SizedBox(width: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.bgMuted,
-                              borderRadius: PRadius.brXs,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).expRecordOnlyBadge,
-                              style: PTypo.micro.copyWith(
-                                color: t.fgTertiary,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                        // 고정 수입·지출 — 환불된 거래는 합계에서 빠져 있어 표시할 이유가 없다.
-                        if (expense.isFixed && !refunded) ...[
-                          const SizedBox(width: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.bgMuted,
-                              borderRadius: PRadius.brXs,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).fixedBadge,
-                              style: PTypo.micro.copyWith(
-                                color: t.fgTertiary,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                        // 분할 거래 표시 — 분할 아이콘 + 개수(쉬운 식별).
-                        if (expense.splitCategoryRowIds.isNotEmpty) ...[
-                          const SizedBox(width: 5),
-                          Icon(LucideIcons.split, size: 12, color: t.fgBrand),
-                          const SizedBox(width: 2),
-                          Text(
-                            '${expense.splitCategoryRowIds.length}',
-                            style: PTypo.caption.copyWith(
-                              color: t.fgBrand,
-                              fontWeight: PFontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      [
-                        cName,
-                        expense.assetName ?? '-',
-                        if (showInstallment &&
-                            (expense.installmentMonths ?? 1) > 1)
-                          l.assetInstallmentBadge(expense.installmentMonths!),
-                      ].join(' · '),
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Text(
-                // 부호는 **손으로** 붙인다 — NumberFormat 이 음수에 찍는 ASCII
-                // 하이픈은 U+2212 와 폭이 달라, 같은 카드의 헤더 합계(−)와 섞이면
-                // tabular figures 정렬이 어긋난다(QA #22 와 같은 자리).
-                // 그래서 값은 절댓값으로 넘기고 부호는 minusOf 가 정한다.
-                krwSigned(
-                  expense.signedAmount.abs(),
-                  flags.ofType(expense.expenseType),
-                  sign: expense.signedAmount > 0
-                      ? '+'
-                      : minusOf(expense.signedAmount.abs()),
-                  unit: true,
-                ),
-                // 행 금액은 지출/수입 무관 일반 텍스트색 — 색 구분은 날짜 헤더 일 합계만(사용자 결정).
-                style: PTypo.money.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.14,
-                  // 환불된 거래의 금액은 취소선 — 부호는 원래대로 둔다(지출은 −).
-                  // 부호를 뒤집으면 목록만 보고 수입으로 읽는다.
-                  decoration: refunded ? TextDecoration.lineThrough : null,
-                  decorationColor: refunded ? t.fgTertiary : null,
-                ),
-              ),
-            ],
-          ),
+    final income = expense.signedAmount > 0;
+    final amountColor = excluded
+        ? c.fgNeutralSubtle
+        : (income ? c.fgBrand : c.fgNeutral);
+    final amountText = krwSigned(
+      expense.signedAmount.abs(),
+      flags.ofType(expense.expenseType),
+      sign: income ? '+' : minusOf(expense.signedAmount.abs()),
+      unit: true,
+    );
+
+    final badges = <Widget>[
+      if (scheduled) PBadge(label: l.expScheduled),
+      if (refunded) PBadge(label: l.expRefundedBadge),
+      // 기록만 — 결제가 끝난 회차에 뒤늦게 적은 카드 지출(닫힌 회차 R2). 합계에는 들어간다.
+      if (expense.isRecordOnly) PBadge(label: l.expRecordOnlyBadge),
+      // 고정 수입·지출 — 환불된 거래는 합계에서 빠져 있어 표시할 이유가 없다.
+      if (expense.isFixed && !refunded)
+        PBadge(label: l.fixedBadge, tone: PBadgeTone.brand),
+      // 분할 거래 — 분할 아이콘 + 개수
+      if (expense.splitCategoryRowIds.isNotEmpty)
+        PBadge(
+          label: '${expense.splitCategoryRowIds.length}',
+          prefixIcon: LucideIcons.split,
+          tone: PBadgeTone.brand,
         ),
+    ];
+
+    final title = expense.merchant ?? expense.description ?? cName;
+    final detail = PTagGroup(
+      size: PTagGroupSize.t3,
+      overflow: PTagGroupOverflow.truncate,
+      items: [
+        PTag(cName),
+        PTag(expense.assetName ?? '-'),
+        if (showInstallment && (expense.installmentMonths ?? 1) > 1)
+          PTag(l.assetInstallmentBadge(expense.installmentMonths!)),
+      ],
+    );
+    final prefix = PListTile(background: bg, color: fg, child: Icon(icon));
+    // 부호는 **손으로** 붙인다 — U+2212 와 tabular figures 정렬(QA #22). 금액은 쉼표 뒤에서만 줄을 바꾼다.
+    final suffix = PListValue.amount(
+      amountText,
+      style: TextStyle(
+        color: amountColor,
+        fontWeight: FontWeight.w700,
+        fontFeatures: const [FontFeature.tabularFigures()],
+        // 환불된 거래의 금액은 취소선 — 부호는 원래대로 둔다(지출은 −). 뜻은 배지 글이 말한다.
+        decoration: refunded ? TextDecoration.lineThrough : null,
+        decorationColor: refunded ? c.fgNeutralSubtle : null,
       ),
+    );
+    final titleColor = excluded ? c.fgNeutralSubtle : null;
+
+    if (!interactive) {
+      return PListItem(
+        title: title,
+        titleSuffix: badges,
+        titleColor: titleColor,
+        gutter: gutter,
+        detailChild: detail,
+        prefix: prefix,
+        suffix: suffix,
+      );
+    }
+    return PListButtonItem(
+      title: title,
+      titleSuffix: badges,
+      titleColor: titleColor,
+      gutter: gutter,
+      detailChild: detail,
+      prefix: prefix,
+      suffix: suffix,
+      onTap: onTap ?? () => showTxDetailDialog(context, expense),
     );
   }
 }

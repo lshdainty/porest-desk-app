@@ -778,6 +778,7 @@ class _MerchantHistorySection extends ConsumerWidget {
             ),
             for (final h in entry.value)
               ExpenseRow(
+                gutter: 0,
                 expense: h,
                 category: h.categoryRowId == null
                     ? null
