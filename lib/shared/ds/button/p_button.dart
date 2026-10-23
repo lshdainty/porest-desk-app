@@ -109,7 +109,7 @@ class PButton extends StatefulWidget {
 
   bool get _iconOnly => icon != null;
 
-  /// 이 버튼이 라벨 한 줄을 다 보이려면 필요한 폭 — 좌우 여백 + 글 + 아이콘. 짝 버튼([PResponsivePair])이 반 폭에
+  /// 이 버튼이 라벨 한 줄을 다 보이려면 필요한 폭 — 좌우 여백 + 글 + 아이콘. 짝 버튼([PResponsivePair])이 자기 몫(반 또는 비율)에
   /// 들어가는지 재는 데 쓴다.
   double naturalWidth(BuildContext context) {
     final s = _sizes[size]!;
@@ -616,6 +616,17 @@ class _OverflowCenter extends SingleChildRenderObjectWidget {
 
 class _RenderOverflowCenter extends RenderShiftedBox {
   _RenderOverflowCenter() : super(null);
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final child = this.child;
+    if (child == null) return constraints.smallest;
+    return constraints.constrain(
+      child.getDryLayout(
+        constraints.copyWith(minWidth: 0, maxWidth: double.infinity),
+      ),
+    );
+  }
 
   @override
   void performLayout() {

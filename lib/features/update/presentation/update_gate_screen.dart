@@ -14,6 +14,7 @@ import 'package:groo_damda_app/features/update/presentation/update_progress.dart
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/button/p_responsive_pair.dart';
@@ -45,7 +46,7 @@ class UpdateGateScreen extends ConsumerWidget {
       return Scaffold(
         // 셸 밖 화면은 흰 면 하나(Q11 11B)
         backgroundColor: context.colors.bgLayerDefault,
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: PProgressCircle()),
       );
     }
 
@@ -130,8 +131,8 @@ class UpdateGateScreen extends ConsumerWidget {
       semanticLabel: l.updateTitle,
       description: l.updateGateForcedCancelBody,
       actionLabel: l.actionConfirm,
-      // 다이얼로그를 먼저 닫지 않는다 — 닫기와 종료가 겹치면 종료 직전
-      // 프레임에서 에러가 남는다. 안드는 여기서 바로 끝낸다. iOS 는 확인이 닫기다.
+      // 확인창은 onAction 이 끝나면 늘 닫힌다. 안드로이드는 그 안에서 앱을 끝내고(닫기 전에 앱이
+      // 꺼진다), iOS 는 아무것도 안 하고 확인창만 닫혀 게이트 화면으로 돌아간다.
       onAction: () {
         if (Platform.isAndroid) SystemNavigator.pop();
       },

@@ -151,6 +151,12 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('글자 130% · 폭 360 — 넘치지 않는다', (tester) async {
+    await _pump(tester, textScale: 1.3);
+    expect(tester.takeException(), isNull);
+    expect(find.text('그루 담다'), findsOneWidget);
+  });
+
   // 글자 200% · 폭 360 — ds Button 라벨은 한 줄 고정이라 버튼보다 넓어질 수 있다. 받아들이되 레이아웃 오류가
   // 아니어야 하고 라벨은 잘리지 않고 그려진다(I-05 Q-021).
   testWidgets('글자 200% · 폭 360 — 오류 없이 라벨이 한 줄로 다 그려진다', (tester) async {

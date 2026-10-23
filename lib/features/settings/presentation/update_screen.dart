@@ -14,6 +14,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -46,7 +47,7 @@ class UpdateScreen extends ConsumerWidget {
       ),
       body: PScreenBandBody(
         child: statusAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PProgressCircle()),
           // 서버를 못 읽어도 화면은 뜬다 — 지금 버전만이라도 보여 준다.
           error: (_, _) => const _Body(status: null),
           data: (s) => _Body(status: s),
