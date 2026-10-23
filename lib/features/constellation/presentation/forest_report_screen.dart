@@ -100,7 +100,6 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
       ),
       body: today == null || todos == null
           ? ListView(
-              padding: const EdgeInsets.only(bottom: 36),
               children: PScreenBands.children([
                 for (final h in const [90.0, 64.0, 150.0, 220.0])
                   PScreenSection(
@@ -177,7 +176,6 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
         '${_ymd(days.first).replaceAll('-', '.')} ~ ${_ymd(days.last).replaceAll('-', '.')}';
 
     return ListView(
-      padding: const EdgeInsets.only(top: kScreenBandGap, bottom: 36),
       children: [
         // ── 주간 네비 + 스트립 + 날짜 헤더 — 띠 하나 ──
         PScreenSection(

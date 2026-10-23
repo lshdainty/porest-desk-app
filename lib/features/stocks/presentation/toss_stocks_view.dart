@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/colors.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
@@ -167,7 +166,6 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
     // Scaffold·AppBar 는 증권사 셸(StocksScreen)이 소유한다 — 증권사를 바꿔도 헤더가 유지된다.
     // 띠 화면(I-01 결정 1B) — 장 상태 · 내 투자 · 종목 목록이 띠 하나씩, 띠 사이 8 은 회색 바닥.
     return ListView(
-      padding: const EdgeInsets.only(bottom: PSpacing.x6),
       children: PScreenBands.children([
         const PScreenSection(child: _MarketStatusBar()),
         _SummaryCard(masked: masked, holdings: holdings),

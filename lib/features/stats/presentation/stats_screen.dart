@@ -490,9 +490,8 @@ class _CategoryTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-category'),
-        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 사이 8 은 회색 바닥(I-01 결정 3).
         padding: EdgeInsets.only(
-          top: kScreenBandGap,
           // 떠 있는 하단 바 보상
           bottom: bottomNavigationInset(context),
         ),
@@ -553,9 +552,8 @@ class _TrendTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-trend'),
-        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 사이 8 은 회색 바닥(I-01 결정 3).
         padding: EdgeInsets.only(
-          top: kScreenBandGap,
           // 떠 있는 하단 바 보상
           bottom: bottomNavigationInset(context),
         ),
@@ -619,9 +617,8 @@ class _CompareTab extends ConsumerWidget {
         // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
         // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
         key: const PageStorageKey('stats-compare'),
-        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠(_Card), 사이 8 은 회색 바닥(I-01 결정 3).
         padding: EdgeInsets.only(
-          top: kScreenBandGap,
           // 떠 있는 하단 바 보상
           bottom: bottomNavigationInset(context),
         ),

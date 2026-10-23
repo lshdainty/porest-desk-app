@@ -254,7 +254,6 @@ class _AssetBody extends StatelessWidget {
     final l = AppLocalizations.of(context);
     if (assets.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.only(top: kScreenBandGap),
         children: [
           // 빈 상태도 구역 띠 하나 — 폰 구역 화면은 한 방식만(I-01 결정 3).
           PScreenSection(
@@ -324,11 +323,10 @@ class _AssetBody extends StatelessWidget {
         ? (changeAmount / lastMonth.abs() * 1000).round() / 10
         : (summary?.changePercent ?? 0.0);
 
-    // 폰 구역 화면 — 순자산 요약 · 그룹마다 화면 폭 흰 띠(PScreenSection), 맨 위 · 사이 8 은
+    // 폰 구역 화면 — 순자산 요약 · 그룹마다 화면 폭 흰 띠(PScreenSection), 사이 8 은
     // 회색 바닥(I-01 결정 3). 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다.
     return ListView(
       padding: EdgeInsets.only(
-        top: kScreenBandGap,
         // 떠 있는 하단 바 보상
         bottom: bottomNavigationInset(context),
       ),
@@ -1233,10 +1231,7 @@ class _AssetPageSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return ListView(
-      padding: EdgeInsets.only(
-        top: kScreenBandGap,
-        bottom: bottomNavigationInset(context),
-      ),
+      padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
       children: [
         const _AssetSummaryCardSkeleton(),
         const SizedBox(height: PSpacing.x2),

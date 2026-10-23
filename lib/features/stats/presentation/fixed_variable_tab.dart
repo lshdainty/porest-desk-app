@@ -88,9 +88,8 @@ class FixedVariableTab extends ConsumerWidget {
       },
       child: ListView(
         key: const PageStorageKey('stats-fixed'),
-        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠, 맨 위 · 사이 8 은 회색 바닥(I-01 결정 3).
+        // 폰 구역 화면 — 구역마다 화면 폭 흰 띠, 사이 8 은 회색 바닥(I-01 결정 3).
         padding: EdgeInsets.only(
-          top: kScreenBandGap,
           // 떠 있는 하단 바 보상
           bottom: bottomNavigationInset(context),
         ),

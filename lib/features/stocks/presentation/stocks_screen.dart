@@ -71,24 +71,21 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
           // 연결이 하나뿐이면 고를 게 없다 — 탭을 감춘다.
           // 띠 화면(I-01 결정 1B) — 증권사 고르기도 띠 하나다.
           if (connected.length > 1)
-            Padding(
-              padding: const EdgeInsets.only(top: kScreenBandGap),
-              child: PScreenSection(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: PSpacing.x6,
-                  vertical: PSpacing.x3,
-                ),
-                child: PTabs<String>(
-                  value: active,
-                  onChanged: (v) => setState(() => _broker = v),
-                  variant: PTabsVariant.container,
-                  size: PTabsSize.sm,
-                  expand: true,
-                  items: [
-                    for (final b in connected)
-                      PTabItem(value: b, label: _brokerLabel(l, b)),
-                  ],
-                ),
+            PScreenSection(
+              padding: const EdgeInsets.symmetric(
+                horizontal: PSpacing.x6,
+                vertical: PSpacing.x3,
+              ),
+              child: PTabs<String>(
+                value: active,
+                onChanged: (v) => setState(() => _broker = v),
+                variant: PTabsVariant.container,
+                size: PTabsSize.sm,
+                expand: true,
+                items: [
+                  for (final b in connected)
+                    PTabItem(value: b, label: _brokerLabel(l, b)),
+                ],
               ),
             ),
           Expanded(child: _body(active)),
@@ -125,14 +122,11 @@ class _UnsupportedBroker extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return Align(
       alignment: Alignment.topCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(top: kScreenBandGap),
-        child: PScreenSection(
-          child: Text(
-            l.stocksBrokerUnsupported,
-            textAlign: TextAlign.center,
-            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-          ),
+      child: PScreenSection(
+        child: Text(
+          l.stocksBrokerUnsupported,
+          textAlign: TextAlign.center,
+          style: PTypo.bodySm.copyWith(color: t.fgTertiary),
         ),
       ),
     );

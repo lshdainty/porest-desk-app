@@ -15,9 +15,7 @@ const _alreadyMixed = <String>{
   'lib/features/dashboard/presentation/dashboard_screen.dart',
   'lib/features/stats/presentation/fixed_variable_tab.dart',
   'lib/features/stats/presentation/stats_screen.dart',
-  'lib/features/stocks/presentation/namu_stocks_view.dart',
   'lib/features/stocks/presentation/stocks_screen.dart',
-  'lib/features/stocks/presentation/toss_stocks_view.dart',
 };
 
 final _old = RegExp(r'\bPSpace\.');

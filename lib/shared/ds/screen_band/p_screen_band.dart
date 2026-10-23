@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
-/// 띠 사이 · 맨 위 간격 — 회색 바닥이 8 만큼 비친다(SEED Divider "강함"). 02-005 / Q-019-3 사용자 결정.
+/// 띠 사이 간격 — 회색 바닥이 8 만큼 비친다(SEED Divider "강함"). 맨 위 · 맨 아래에는 두지 않는다(I-05 74).
 const double kScreenBandGap = PSpacing.x2;
 
 /// 띠 안쪽 위 · 아래 여백.
@@ -37,13 +37,12 @@ class PScreenBand extends StatelessWidget {
   }
 }
 
-/// 띠를 세로로 쌓는다 — 맨 위 8 · 띠 사이 8. 스크롤 목록 안의 자식으로 풀어 쓸 때는 [PScreenBands.children] 을 쓴다.
+/// 띠를 세로로 쌓는다 — 띠 사이 8 만(맨 위 · 맨 아래 틈 없음). 스크롤 목록 안의 자식으로 풀어 쓸 때는 [PScreenBands.children] 을 쓴다.
 class PScreenBands {
   const PScreenBands._();
 
-  /// 맨 위 8 을 먼저 두고 띠 사이마다 8 을 낀 자식 목록.
+  /// 띠 사이마다 8 을 낀 자식 목록.
   static List<Widget> children(List<Widget> bands) => [
-    const SizedBox(height: kScreenBandGap),
     for (var i = 0; i < bands.length; i++) ...[
       if (i > 0) const SizedBox(height: kScreenBandGap),
       bands[i],
@@ -53,7 +52,7 @@ class PScreenBands {
 
 /// 구역 띠 하나 — Desk 폰 구역 화면(홈 · 자산 · 통계 · 예산 · 카드 상세 · 밤하늘 · 숲 리포트 · 증권)이 구역마다 둔다.
 /// 화면 폭 `bg-layer-default` 면이고 모서리 · 테두리 · 그림자가 없다. 띠 안은 카드 안과 같은 값 — 사방 24(띠 안 위 4 ·
-/// 아래 8 은 이 안에 든다). 띠 사이 · 맨 위는 [kScreenBandGap](8) — 회색 바닥이 보이는 틈이다
+/// 아래 8 은 이 안에 든다). 띠 사이는 [kScreenBandGap](8) — 회색 바닥이 보이는 틈이다
 /// (groo-design DESIGN Layout "화면 바탕" — 2026-10-21 사용자 결정 I-01 결정 3: 폰에는 카드 화면이 없다).
 /// 목록 구역은 줄이 제 좌우 24 를 가지므로 [padding] 의 좌우를 0 으로 준다.
 class PScreenSection extends StatelessWidget {
@@ -79,7 +78,7 @@ class PScreenSection extends StatelessWidget {
   }
 }
 
-/// 띠 화면의 본문 전체를 **하나의 흰 띠**로 감싼다 — 맨 위 8 은 회색 바닥, 그 아래는 화면 폭 흰 띠가 남은 높이를 채운다.
+/// 띠 화면의 본문 전체를 **하나의 흰 띠**로 감싼다 — 머리 바로 아래부터 화면 폭 흰 띠가 남은 높이를 채운다.
 /// 묶음마다 띠를 나누지 않은 화면(목록 · 폼)이 쓰는 한 장 띠다. 묶음이 나뉘는 화면은 [PScreenBands] 로 띠를 직접 쌓는다.
 class PScreenBandBody extends StatelessWidget {
   const PScreenBandBody({super.key, required this.child});
@@ -88,13 +87,10 @@ class PScreenBandBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: kScreenBandGap),
-      child: ColoredBox(
-        key: const ValueKey('screen-band-body'),
-        color: context.colors.bgLayerDefault,
-        child: SizedBox(width: double.infinity, child: child),
-      ),
+    return ColoredBox(
+      key: const ValueKey('screen-band-body'),
+      color: context.colors.bgLayerDefault,
+      child: SizedBox(width: double.infinity, child: child),
     );
   }
 }
