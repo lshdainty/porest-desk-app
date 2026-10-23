@@ -1927,7 +1927,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashFailBudget => 'Couldn\'t load budgets';
 
   @override
-  String get dashFailSchedule => 'Couldn\'t load events and todos';
+  String get dashFailUpcoming => 'Couldn\'t load upcoming events';
+
+  @override
+  String get dashFailTodos => 'Couldn\'t load recent todos';
 
   @override
   String get dashFailToday => 'Couldn\'t load today\'s spending';

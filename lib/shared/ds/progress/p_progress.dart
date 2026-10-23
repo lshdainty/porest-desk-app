@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/list/list_row.dart'
+    show kPListStackBelowEm;
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 한도 · 목표.
@@ -85,24 +87,25 @@ class PProgress extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: PSpacing.x1_5,
       children: [
-        // 이름 줄 — 막대가 같은 말을 읽으므로 보조 기술에는 숨긴다
+        // 이름 줄 — 막대가 같은 말을 읽으므로 보조 기술에는 숨긴다. 이름은 줄을 바꾸고(progress.md:33) 오른쪽 글은 양 끝에 선다.
+        // 줄 안 폭이 글자 16개(16em — List 와 같은 문턱)보다 좁으면 오른쪽 글을 이름 아래 왼쪽으로 내린다(웹 · 앱 한 벌).
         ExcludeSemantics(
-          // 이름 · 오른쪽 글 — 한 줄에 들면 양 끝, 오른쪽 글이 길면(큰 글자 · 큰 "초과" 금액) 아래 줄로 내려
-          // 이름이 한 글자 폭이 되지 않는다(I-06 22 — 스펙 보강 질문)
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: PSpacing.x2,
-            runSpacing: PSpacing.x0_5,
-            children: [
-              Text(
-                label,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final narrow =
+                  constraints.maxWidth <
+                  kPListStackBelowEm *
+                      MediaQuery.textScalerOf(
+                        context,
+                      ).scale(PTypography.t5.fontSize!);
+              final name = Text(
+                keepAll(label),
                 style: PTypography.t4.copyWith(
                   color: c.fgNeutral,
                   fontWeight: FontWeight.w500,
                 ),
-              ),
-              Text(
+              );
+              final statusText = Text(
                 status,
                 style: PTypography.t3.copyWith(
                   fontFeatures: tabular,
@@ -115,8 +118,23 @@ class PProgress extends StatelessWidget {
                       ? FontWeight.w400
                       : FontWeight.w700,
                 ),
-              ),
-            ],
+              );
+              if (narrow) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [name, statusText],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                spacing: PSpacing.x2,
+                children: [
+                  Expanded(child: name),
+                  statusText,
+                ],
+              );
+            },
           ),
         ),
         PProgressBar(

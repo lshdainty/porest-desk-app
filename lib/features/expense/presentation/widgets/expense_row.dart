@@ -62,8 +62,8 @@ class ExpenseRow extends StatelessWidget {
   /// 왜 다른지 알 길이 없다. 가계부 목록은 결제 수단을 따지지 않으므로 끈다.
   final bool showInstallment;
 
-  /// 줄 좌우 여백 — 기본(null)은 ds List 줄의 24. 좌우 24 를 아직 쥐고 있는 화면(가계부 · 검색 · 자산 상세 · 거래 상세)은 0 을
-  /// 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 이관되면 걷는다.
+  /// **임시 인자** — 기본(null)은 ds List 줄의 24(홈이 쓴다). 좌우 24 를 아직 쥐고 있는 호스트(가계부 · 검색 · 자산 상세 · 거래
+  /// 상세)는 0 을 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
 
   @override

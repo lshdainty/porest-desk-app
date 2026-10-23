@@ -44,9 +44,8 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 const _tabular = [FontFeature.tabularFigures()];
 const _mask = '••••';
 
-/// 홈 / 대시보드 — 폰 띠 화면(I-06 1A). 띠는 주제가 바뀌는 자리에서만 끊는다 — ① 순자산 ② 이번 달 돈(가계부 · 카테고리 ·
-/// 예산) ③ 할 일 · 일정 ④ 오늘 쓴 돈. 한 띠 안 구역은 구역 제목 + 여백(48)으로 가른다. 머리 바로 아래 첫 띠 · 마지막 띠 아래에는
-/// 틈을 두지 않고 8 은 띠 사이에만 둔다.
+/// 홈 / 대시보드 — 폰 띠 화면. 구역마다 띠다(사용자 10-23) — 순자산 · 이번 달 가계부 · 카테고리 · 예산 · 다가오는 일정 ·
+/// 최근 할 일 · 오늘 쓴 돈. 머리 바로 아래 첫 띠 · 마지막 띠 아래에는 틈을 두지 않고 8 은 띠 사이에만 둔다.
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
@@ -106,16 +105,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     void retryExpenses() => ref.invalidate(monthExpensesProvider(monthKey));
     void retryDashboard() => ref.invalidate(dashboardSummaryProvider);
 
+    final dashFailed = dashboardAsync.hasError && !dashboardAsync.hasValue;
     final dashFirstLoading =
-        dashboardAsync.isLoading && !dashboardAsync.hasValue;
+        dashboardAsync.isLoading && !dashboardAsync.hasValue && !dashFailed;
     final dash = dashboardAsync.value;
     final events = dash?.upcomingEvents.take(3).toList() ?? const [];
     final todos = dash?.recentTodos.take(3).toList() ?? const [];
-    final dashFailed = dashboardAsync.hasError && !dashboardAsync.hasValue;
-    // 띠 ③ — 일정 · 할 일이 모두 비면 띠 자체가 없다(빈 흰 띠 · 겹친 틈 0)
-    final showSchedule =
-        dashFirstLoading || dashFailed || events.isNotEmpty || todos.isNotEmpty;
-
+    // 폰 홈은 구역마다 띠다(사용자 10-23) — 일곱 띠, 사이 8. 일정 · 할 일이 비면 그 띠는 없다.
+    void goCalendar() => context.go('/calendar');
+    void goTodos() => context.go('/todos');
     final bands = <Widget>[
       _NetWorthBand(
         summaryAsync: summaryAsync,
@@ -123,7 +121,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         onToggleMask: () => context.push('/settings/hide-amounts'),
         onRetry: retrySummary,
       ),
-      _band([
+      _band(
         _MonthSection(
           month: _month,
           rangeAsync: summaryRangeAsync,
@@ -131,6 +129,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           flags: ref.watch(maskFlagsProvider('home.monthExpense')),
           onRetry: retryRange,
         ),
+      ),
+      _band(
         _CategorySection(
           month: _month,
           rangeAsync: summaryRangeAsync,
@@ -138,47 +138,55 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           masked: ref.watch(hideCardProvider('home.categoryDonut')),
           onRetry: retryRange,
         ),
+      ),
+      _band(
         _BudgetSection(
           budgetsAsync: budgetsAsync,
           rangeAsync: summaryRangeAsync,
           categoriesAsync: categoriesAsync,
           masked: ref.watch(hideCardProvider('home.budget')),
+          // 실패한 질의만 다시 받는다 — 예산 목록 · 기간 합계 중 실패한 쪽
           onRetry: () {
-            retryBudgets();
-            retryRange();
+            if (budgetsAsync.hasError) retryBudgets();
+            if (summaryRangeAsync.hasError) retryRange();
           },
         ),
-      ]),
-      if (showSchedule)
-        _band([
-          if (dashFirstLoading) ...[
-            _SchedulePlaceholder(title: l.dashUpcoming),
-            _SchedulePlaceholder(title: l.dashRecentTodos),
-          ] else if (dashFailed)
-            _TextSection(
-              header: PCardHeader(title: l.dashUpcoming),
-              body: _Failure(
-                title: l.dashFailSchedule,
-                onRetry: retryDashboard,
-              ),
-            )
-          else ...[
-            if (events.isNotEmpty) _UpcomingSection(events: events),
-            if (todos.isNotEmpty)
-              _TodosSection(
-                todos: todos,
-                overdue: dash?.todoSummary.overDueCount ?? 0,
-              ),
-          ],
-        ]),
-      _band([
+      ),
+      if (dashFirstLoading) ...[
+        _band(_SchedulePlaceholder(title: l.dashUpcoming, onAll: goCalendar)),
+        _band(_SchedulePlaceholder(title: l.dashRecentTodos, onAll: goTodos)),
+      ] else if (dashFailed) ...[
+        // 한 질의라 함께 실패해도 띠마다 하나씩 알린다
+        _band(
+          _TextSection(
+            header: _head(context, l.dashUpcoming, onAll: goCalendar),
+            body: _Failure(title: l.dashFailUpcoming, onRetry: retryDashboard),
+          ),
+        ),
+        _band(
+          _TextSection(
+            header: _head(context, l.dashRecentTodos, onAll: goTodos),
+            body: _Failure(title: l.dashFailTodos, onRetry: retryDashboard),
+          ),
+        ),
+      ] else ...[
+        if (events.isNotEmpty) _band(_UpcomingSection(events: events)),
+        if (todos.isNotEmpty)
+          _band(
+            _TodosSection(
+              todos: todos,
+              overdue: dash?.todoSummary.overDueCount ?? 0,
+            ),
+          ),
+      ],
+      _band(
         _TodaySection(
           expensesAsync: expensesAsync,
           categoriesAsync: categoriesAsync,
           masked: ref.watch(hideCardProvider('home.todaySpend')),
           onRetry: retryExpenses,
         ),
-      ]),
+      ),
     ];
 
     return PPullToRefresh(
@@ -231,12 +239,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 // ─── 틀 ──────────────────────────────────────────────────
 
-/// 띠 하나 — 화면 폭 흰 면. 구역이 제 위아래 여백을 가진다(글 구역 24 · 24, 목록 구역 24 · 12 + 줄 12).
-Widget _band(List<Widget> sections) => PScreenSection(
+/// 띠 하나 — 화면 폭 흰 면에 구역 하나. 구역이 제 위아래 여백을 가진다(글 구역 24 · 24, 목록 구역 24 · 12 + 줄 12).
+Widget _band(Widget section) => PScreenSection(
   padding: EdgeInsets.zero,
   child: Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: sections,
+    children: [section],
   ),
 );
 
@@ -388,12 +396,12 @@ class _NetWorthBand extends StatelessWidget {
     final loading = summaryAsync.isLoading && !summaryAsync.hasValue;
     if (summaryAsync.hasError && !summaryAsync.hasValue) {
       // 브랜드 채움 위에는 Result Section 색이 없다 — 이 구역만 흰 띠로 알린다(P 절)
-      return _band([
+      return _band(
         _TextSection(
           header: PCardHeader(title: l.assetNetWorth),
           body: _Failure(title: l.dashFailNetWorth, onRetry: onRetry),
         ),
-      ]);
+      );
     }
     final s = summaryAsync.value;
     final netWorth = s?.netWorth ?? 0;
@@ -401,7 +409,6 @@ class _NetWorthBand extends StatelessWidget {
     final totalDebt = s?.totalDebt ?? 0;
     final changePct = s?.changePercent ?? 0.0;
     final noLast = (s?.lastMonthNetWorth ?? 0) == 0;
-    const white = Color(0xFFFFFFFF);
 
     // 면 — 순자산 카드(hero)의 그라디언트 · 장식 빛은 ds 값이다. 폰에서는 띠라 화면 폭 · 모서리 0.
     final content = Padding(
@@ -419,7 +426,7 @@ class _NetWorthBand extends StatelessWidget {
               ExcludeSemantics(
                 child: Icon(LucideIcons.wallet, size: 16, color: c.staticWhite),
               ),
-              const SizedBox(width: PSpacing.x2),
+              const SizedBox(width: PSpacing.x1_5),
               Expanded(child: PCardHeroLabel(l.assetNetWorth)),
               // 눈 보이는 40 · 아이콘 20 — 아이콘 오른쪽 끝이 글 가장자리 24 에 서게 10 만큼 바깥으로
               Transform.translate(
@@ -435,7 +442,11 @@ class _NetWorthBand extends StatelessWidget {
           if (loading)
             Padding(
               padding: const EdgeInsets.only(top: PSpacing.x1_5),
-              child: _heroSkelBar(c, width: 200, height: 42),
+              child: _heroSkelBar(
+                c,
+                width: 200,
+                height: _lineHeight(PTypography.t12),
+              ),
             )
           else
             PCardHeroAmount(krwSigned(netWorth, masked, unit: true)),
@@ -443,7 +454,11 @@ class _NetWorthBand extends StatelessWidget {
           if (loading)
             Padding(
               padding: const EdgeInsets.only(top: PSpacing.x1),
-              child: _heroSkelBar(c, width: 120, height: 18),
+              child: _heroSkelBar(
+                c,
+                width: 120,
+                height: _lineHeight(PTypography.t3),
+              ),
             )
           else if (noLast)
             PCardHeroDetail(text: l.dashNoLastMonth)
@@ -469,7 +484,7 @@ class _NetWorthBand extends StatelessWidget {
             padding: const EdgeInsets.only(top: PSpacing.x4_5),
             decoration: BoxDecoration(
               border: Border(
-                top: BorderSide(color: white.withValues(alpha: 0.14)),
+                top: BorderSide(color: c.staticWhite.withValues(alpha: 0.14)),
               ),
             ),
             child: IntrinsicHeight(
@@ -483,7 +498,10 @@ class _NetWorthBand extends StatelessWidget {
                       loading: loading,
                     ),
                   ),
-                  Container(width: 1, color: white.withValues(alpha: 0.14)),
+                  Container(
+                    width: 1,
+                    color: c.staticWhite.withValues(alpha: 0.14),
+                  ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: PSpacing.x4),
@@ -519,29 +537,7 @@ class _NetWorthBand extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
-            right: kCardHeroGlowRight,
-            top: kCardHeroGlowTop,
-            width: kCardHeroGlowSize,
-            height: kCardHeroGlowSize,
-            child: ExcludeSemantics(
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      radius: math.sqrt2 / 2,
-                      colors: [
-                        c.staticWhite.withValues(alpha: 0.22),
-                        c.staticWhite.withValues(alpha: 0),
-                      ],
-                      stops: const [0, 0.7],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const PCardHeroGlow(),
           PCardScope(
             variant: PCardVariant.hero,
             body: PCardBody.content,
@@ -552,6 +548,9 @@ class _NetWorthBand extends StatelessWidget {
     );
   }
 }
+
+/// 글줄 높이 — 불러오는 자리가 실제 글과 같은 높이가 되게(ds `PSkeleton.text` 와 같은 셈).
+double _lineHeight(TextStyle style) => style.fontSize! * (style.height ?? 1);
 
 /// 브랜드 채움 위 불러오는 자리 — 채움 위 Skeleton 짝이 ds 에 없어 흰 18% 막대를 쓴다(ds 짝 없음 — 결과표).
 Widget _heroSkelBar(
@@ -596,10 +595,10 @@ class _HeroEyeButton extends StatelessWidget {
       ),
       builder: (context, pressed, size) => PressScale(
         pressed: pressed,
-        size: const Size.square(40),
+        size: const Size.square(PSpacing.x10),
         child: SizedBox.square(
           key: const ValueKey('home-hero-eye'),
-          dimension: 40,
+          dimension: PSpacing.x10,
           child: Center(
             child: ExcludeSemantics(
               child: Icon(
@@ -642,7 +641,7 @@ class _HeroSplitCol extends StatelessWidget {
         ),
         const SizedBox(height: PSpacing.x1),
         if (loading)
-          _heroSkelBar(c, width: 96, height: 22)
+          _heroSkelBar(c, width: 96, height: _lineHeight(PTypography.t5))
         else
           _amount(value, c.staticWhite),
       ],
@@ -761,25 +760,29 @@ class _MonthSection extends StatelessWidget {
               TextSpan(
                 style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
                 children: [
-                  TextSpan(text: l.dashDailyAvgPrefix, style: note),
+                  TextSpan(text: keepAll(l.dashDailyAvgPrefix), style: note),
                   TextSpan(
-                    text: krwMasked(dailyAvg, expenseMasked),
+                    text: keepAllAmount(krwMasked(dailyAvg, expenseMasked)),
                     style: strong,
                   ),
                   TextSpan(
-                    text: expenseMasked ? l.dashSpentMasked : l.dashSpentUnit,
+                    text: keepAll(
+                      expenseMasked ? l.dashSpentMasked : l.dashSpentUnit,
+                    ),
                     style: note,
                   ),
                   if (prevExpense > 0) ...[
-                    TextSpan(text: l.dashVsPrevPrefix, style: note),
+                    TextSpan(text: keepAll(l.dashVsPrevPrefix), style: note),
                     TextSpan(
                       text: '${savingsPct.abs().toStringAsFixed(0)}%',
                       style: strong,
                     ),
                     TextSpan(
-                      text: saving
-                          ? l.dashSaving
-                          : (savingsPct < 0 ? l.dashSpentMore : l.dashSame),
+                      text: keepAll(
+                        saving
+                            ? l.dashSaving
+                            : (savingsPct < 0 ? l.dashSpentMore : l.dashSame),
+                      ),
                       style: note,
                     ),
                   ],
@@ -842,11 +845,11 @@ class _CategorySection extends StatelessWidget {
             ),
             const SizedBox(height: PSpacing.x4),
             for (var i = 0; i < 4; i++)
-              const SizedBox(
+              SizedBox(
                 height: kChartDonutRowHeight,
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: PSkeleton(height: 14),
+                  child: PSkeleton.text(PTypography.t4),
                 ),
               ),
           ],
@@ -1119,28 +1122,34 @@ class _SkeletonRow extends StatelessWidget {
       spacing: PSpacing.x3,
       children: [
         if (prefix)
-          const PSkeleton(width: 20, height: 20, radius: PSkeletonRadius.full),
+          const PSkeleton(
+            width: PSpacing.x5,
+            height: PSpacing.x5,
+            radius: PSkeletonRadius.full,
+          ),
         Expanded(
           child: Align(
             alignment: Alignment.centerLeft,
-            child: PSkeleton(width: titleWidth, height: 22),
+            child: PSkeleton.text(PTypography.t5, width: titleWidth),
           ),
         ),
-        const PSkeleton(width: 40, height: 22),
+        PSkeleton.text(PTypography.t5, width: PSpacing.x10),
       ],
     ),
   );
 }
 
-/// 첫 불러오기 — 구역 틀(제목) + 줄 Skeleton 둘.
+/// 첫 불러오기 — 구역 틀(제목 + 전체 보기) + 줄 Skeleton 둘.
 class _SchedulePlaceholder extends StatelessWidget {
-  const _SchedulePlaceholder({required this.title});
+  const _SchedulePlaceholder({required this.title, required this.onAll});
 
   final String title;
+  final VoidCallback onAll;
 
   @override
   Widget build(BuildContext context) => _ListSection(
-    header: PCardHeader(title: title),
+    // 틀은 먼저 — 머리와 "전체 보기" 는 실제와 같다
+    header: _head(context, title, onAll: onAll),
     children: const [_SkeletonRow(), _SkeletonRow(titleWidth: 120)],
   );
 }
@@ -1169,7 +1178,12 @@ PListAlign _alignFor(
       ? 0.0
       : suffixes.map(measure).reduce(math.max);
   final avail =
-      width - 2 * PSpacing.x6 - prefixWidth - PSpacing.x3 - suffixW - 10;
+      width -
+      2 * PSpacing.x6 -
+      prefixWidth -
+      PSpacing.x3 -
+      suffixW -
+      PSpacing.x2_5;
   for (final t in titles) {
     final tp = TextPainter(
       text: TextSpan(text: keepAll(t), style: PTypography.t5),
@@ -1211,7 +1225,7 @@ class _UpcomingSection extends StatelessWidget {
               box.maxWidth,
               titles: [for (final e in events) e.title],
               suffixes: [for (final e in events) _dayLabel(l, e.daysUntil)],
-              prefixWidth: 16,
+              prefixWidth: PSpacing.x2 + 2 * PSpacing.x1,
             );
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1224,13 +1238,15 @@ class _UpcomingSection extends StatelessWidget {
                     prefix: Padding(
                       padding: EdgeInsets.fromLTRB(
                         PSpacing.x1,
-                        align == PListAlign.top ? 7 : 0,
+                        align == PListAlign.top
+                            ? (_lineHeight(PTypography.t5) - PSpacing.x2) / 2
+                            : 0,
                         PSpacing.x1,
                         0,
                       ),
                       child: Container(
-                        width: 8,
-                        height: 8,
+                        width: PSpacing.x2,
+                        height: PSpacing.x2,
                         decoration: BoxDecoration(
                           color: resolveChartColor(
                             context,
@@ -1297,7 +1313,7 @@ class _TodosSection extends StatelessWidget {
                 for (final t in todos)
                   if (t.dueDate != null) t.dueDate!.substring(5, 10),
               ],
-              prefixWidth: 20,
+              prefixWidth: PSpacing.x5,
             );
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1311,7 +1327,9 @@ class _TodosSection extends StatelessWidget {
                     prefix: ExcludeSemantics(
                       child: Padding(
                         padding: EdgeInsets.only(
-                          top: align == PListAlign.top ? 1 : 0,
+                          top: align == PListAlign.top
+                              ? (_lineHeight(PTypography.t5) - PSpacing.x5) / 2
+                              : 0,
                         ),
                         child: isDone(t)
                             ? Icon(
@@ -1320,15 +1338,15 @@ class _TodosSection extends StatelessWidget {
                                 color: c.fgPositive,
                               )
                             : Container(
-                                width: 20,
-                                height: 20,
+                                width: PSpacing.x5,
+                                height: PSpacing.x5,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: isOver(t)
                                         ? c.fgCritical
                                         : c.strokeNeutralSolid,
-                                    width: 2,
+                                    width: PSpacing.x0_5,
                                   ),
                                 ),
                               ),

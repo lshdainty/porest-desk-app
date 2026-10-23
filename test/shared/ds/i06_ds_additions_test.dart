@@ -11,6 +11,7 @@ import 'package:groo_damda_app/shared/ds/card/p_card.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
+import '../../support/plain_text.dart';
 
 Future<void> _pump(
   WidgetTester tester,
@@ -160,20 +161,40 @@ void main() {
         find.byKey(const ValueKey('chart-donut-amount')),
       );
       expect(amount.top, greaterThanOrEqualTo(label.bottom - 1));
-      expect(find.text('카페·간식·디저트 모임 지출 항목'), findsOneWidget);
+      expect(findPlain('카페·간식·디저트 모임 지출 항목'), findsOneWidget);
     });
   });
 
   group('PProgress 이름 줄', () {
-    testWidgets('오른쪽 글이 길면 이름 아래로 — 이름이 한 글자 폭이 되지 않는다', (tester) async {
+    const longName = '카페·간식·디저트 모임 지출 항목 예산';
+
+    testWidgets('100% — 이름은 줄을 바꾸고 오른쪽 글은 오른쪽 끝에 남는다(progress.md:33)', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const PProgress(label: longName, value: 987654321, max: 100000),
+      );
+      expect(tester.takeException(), isNull);
+      final name = tester.getRect(findPlain(longName));
+      final status = tester.getRect(find.textContaining('초과'));
+      expect(name.left, 0);
+      expect(status.left, greaterThan(name.right - 1), reason: '같은 줄 — 이름 오른쪽');
+      expect(status.right, closeTo(360, 1), reason: '오른쪽 끝');
+      expect(name.height, greaterThan(30), reason: '이름이 두 줄 이상으로 접힌다');
+    });
+
+    testWidgets('200% — 줄 안 폭이 16em 보다 좁으면 오른쪽 글이 이름 아래 왼쪽', (tester) async {
       await _pump(
         tester,
         const PProgress(label: '전체 예산', value: 3909345678, max: 3000000),
         scale: 2,
       );
       expect(tester.takeException(), isNull);
-      final name = tester.getRect(find.text('전체 예산'));
-      expect(name.width, greaterThan(100));
+      final name = tester.getRect(findPlain('전체 예산'));
+      final status = tester.getRect(find.textContaining('초과'));
+      expect(status.top, greaterThanOrEqualTo(name.bottom - 1));
+      expect(status.left, name.left);
     });
 
     testWidgets('금액 줄은 쉼표 · " / " 뒤에서만 끊긴다(보호 글자 포함)', (tester) async {
@@ -184,8 +205,8 @@ void main() {
       final line = tester
           .widgetList<Text>(find.byType(Text))
           .firstWhere((t) => (t.data ?? '').contains('/'));
-      expect(line.data, contains('​'));
-      expect(line.data, contains('⁠'));
+      expect(line.data, contains('\u200B'));
+      expect(line.data, contains('\u2060'));
     });
   });
 }

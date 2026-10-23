@@ -32,6 +32,8 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
@@ -111,6 +113,11 @@ Future<void> _pump(
   List<Budget>? budgets,
   List<Expense>? today,
   Object? rangeError,
+  Object? budgetsError,
+  bool dashPending = false,
+  Object? dashError,
+  List<String?>? categoryColors,
+  Map<String, int>? reads,
   Set<String> hidden = const {},
   Brightness brightness = Brightness.light,
 }) async {
@@ -120,6 +127,7 @@ Future<void> _pump(
   SharedPreferences.setMockInitialValues({});
   final overrides = [
     assetSummaryProvider.overrideWith((ref, key) async {
+      reads?.update('summary', (v) => v + 1, ifAbsent: () => 1);
       if (summaryError != null) throw summaryError;
       return summary ??
           const AssetSummary(
@@ -131,6 +139,9 @@ Future<void> _pump(
           );
     }),
     rangeSummaryProvider.overrideWith((ref, r) async {
+      if (r.startDate == _monthStart()) {
+        reads?.update('range', (v) => v + 1, ifAbsent: () => 1);
+      }
       if (rangeError != null) throw rangeError;
       return _range(r.startDate, r.endDate, categories: categories);
     }),
@@ -142,12 +153,16 @@ Future<void> _pump(
             rowId: i + 1,
             categoryName: 'c$i',
             expenseType: 'EXPENSE',
+            color: categoryColors != null && i < categoryColors.length
+                ? categoryColors[i]
+                : null,
           ),
       ],
     ),
-    monthBudgetsProvider.overrideWith(
-      (ref, key) async =>
-          budgets ??
+    monthBudgetsProvider.overrideWith((ref, key) async {
+      reads?.update('budgets', (v) => v + 1, ifAbsent: () => 1);
+      if (budgetsError != null) throw budgetsError;
+      return budgets ??
           [
             Budget(
               rowId: 1,
@@ -163,9 +178,14 @@ Future<void> _pump(
               budgetYear: key.year,
               budgetMonth: key.month,
             ),
-          ],
-    ),
-    dashboardSummaryProvider.overrideWith((ref) async => dash ?? _dash()),
+          ];
+    }),
+    dashboardSummaryProvider.overrideWith((ref) async {
+      reads?.update('dash', (v) => v + 1, ifAbsent: () => 1);
+      if (dashPending) return Completer<DashboardSummary>().future;
+      if (dashError != null) throw dashError;
+      return dash ?? _dash();
+    }),
   ];
   await tester.pumpWidget(
     ProviderScope(
@@ -224,7 +244,11 @@ void main() {
   group('띠 넷 — 1A · 5 · 6 · 8', () {
     testWidgets('띠 넷 · 사이 8 셋 · 머리 아래 틈 0 · 마지막 띠 아래 8 없음', (tester) async {
       await _pump(tester, today: [_tx(1)]);
-      expect(_bandCount(), 4);
+      expect(
+        _bandCount(),
+        7,
+        reason: '구역마다 띠 — 순자산 · 가계부 · 카테고리 · 예산 · 일정 · 할 일 · 오늘',
+      );
       final rects = _bandRects(tester);
       final top = tester.getRect(find.byType(DashboardScreen)).top;
       // 테스트 빌드는 dev 라 배지 줄(위 8 + 20 + 아래 8)이 순자산 위에 선다 — 운영(prod)이면 틈 0
@@ -234,43 +258,76 @@ void main() {
         devRow,
         reason: '머리 바로 아래 첫 띠 — 틈 없음(배지 줄 말고는)',
       );
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 6; i++) {
         expect(rects[i + 1].top - rects[i].bottom, 8, reason: '띠 사이 8');
       }
     });
 
-    testWidgets('일정 · 할 일이 비는 네 갈래 — 띠 수 4 · 4 · 4 · 3', (tester) async {
+    testWidgets('일정 · 할 일이 비는 네 갈래 — 띠 수 7 · 6 · 6 · 5', (tester) async {
       await _pump(tester, dash: _dash());
-      expect(_bandCount(), 4);
+      expect(_bandCount(), 7);
       await _pump(tester, dash: _dash(todos: 0));
-      expect(_bandCount(), 4);
+      expect(_bandCount(), 6);
       await _pump(tester, dash: _dash(events: 0));
-      expect(_bandCount(), 4);
+      expect(_bandCount(), 6);
       await _pump(tester, dash: _dash(events: 0, todos: 0));
-      expect(_bandCount(), 3, reason: '둘 다 비면 띠 ③ 자체가 없다');
+      expect(_bandCount(), 5, reason: '둘 다 비면 일정 · 할 일 띠가 없다');
       final rects = _bandRects(tester);
       for (var i = 0; i < rects.length - 1; i++) {
         expect(rects[i + 1].top - rects[i].bottom, 8, reason: '빈 띠 · 겹친 틈 없음');
       }
     });
 
-    testWidgets('띠 ② 구역 사이 48 · 띠 위 24 · 구역 머리 제목 t5 · 700', (tester) async {
+    testWidgets(
+      '띠 안 값 — 머리 위 24 · 글 구역 아래 24 · 목록 구역 아래 12 + 줄 · 제목 t5 · 700',
+      (tester) async {
+        await _pump(tester);
+        final headers = find.byKey(const ValueKey('card-header'));
+        // 순자산 띠는 머리가 없다 — 가계부 · 카테고리 · 예산 · 일정 · 할 일 · 오늘 쓴 돈
+        expect(headers, findsNWidgets(6));
+        final rects = _bandRects(tester);
+        final titles = find.byKey(const ValueKey('card-title'));
+        for (var i = 0; i < 6; i++) {
+          expect(
+            tester.getRect(titles.at(i)).top - rects[i + 1].top,
+            // 머리 위 24 + (동작 버튼 36 이 제목 22 보다 높아 세로 가운데 정렬로 제목이 7 내려간다)
+            anyOf(24, 31),
+            reason: '띠 맨 위 = 머리 위 24 (띠 ${i + 2})',
+          );
+        }
+        // 카테고리(글 · 차트 구역) — 마지막 내용 끝에서 아래 24
+        expect(
+          rects[2].bottom -
+              tester
+                  .getRect(find.byKey(const ValueKey('chart-donut-legend')))
+                  .bottom,
+          24,
+        );
+        // 일정(목록 구역) — 마지막 줄 아래 12(줄 자체 12 와 합쳐 24)
+        final rows = find.byType(PListButtonItem);
+        expect(rects[4].bottom - tester.getRect(rows.at(2)).bottom, 12);
+        final title = tester.widget<Text>(titles.first);
+        expect(title.style?.fontSize, 16);
+        expect(title.style?.fontWeight, FontWeight.w700);
+      },
+    );
+
+    testWidgets('눈 누르는 영역 44', (tester) async {
       await _pump(tester);
-      final headers = find.byKey(const ValueKey('card-header'));
-      // 순자산 띠는 머리가 없다 — 가계부 · 카테고리 · 예산 · 일정 · 할 일 · 오늘 쓴 돈
-      expect(headers, findsNWidgets(6));
-      final band2 = _bandRects(tester)[1];
-      expect(
-        tester.getRect(find.byKey(const ValueKey('card-title')).first).top -
-            band2.top,
-        24,
-        reason: '띠 맨 위 = 첫 머리 위 24',
+      final area = tester.widget<PressArea>(
+        find.descendant(
+          of:
+              find
+                  .byKey(const ValueKey('home-hero-eye'))
+                  .first
+                  .evaluate()
+                  .isEmpty
+              ? find.byType(DashboardScreen)
+              : find.byType(DashboardScreen),
+          matching: find.byType(PressArea),
+        ),
       );
-      final title = tester.widget<Text>(
-        find.byKey(const ValueKey('card-title')).first,
-      );
-      expect(title.style?.fontSize, 16);
-      expect(title.style?.fontWeight, FontWeight.w700);
+      expect(area.touchMin, 44);
     });
   });
 
@@ -365,7 +422,9 @@ void main() {
       // 안내 문장의 % 는 fg-neutral · 700(색으로 좋고 나쁨을 말하지 않는다)
       final note = tester.widget<RichText>(
         find.byWidgetPredicate(
-          (w) => w is RichText && w.text.toPlainText().startsWith('하루 평균'),
+          (w) =>
+              w is RichText &&
+              plainOf(w.text.toPlainText()).startsWith('하루 평균'),
         ),
       );
       final spans = <TextSpan>[];
@@ -400,7 +459,7 @@ void main() {
         expect(t.overflow, isNot(TextOverflow.ellipsis));
         expect(t.maxLines, isNull);
       }
-      expect(find.text(_longCat), findsOneWidget, reason: '긴 이름이 모든 글자 보인다');
+      expect(findPlain(_longCat), findsOneWidget, reason: '긴 이름이 모든 글자 보인다');
     });
 
     testWidgets('가리면 합계 · 범례 금액 ••••', (tester) async {
@@ -555,8 +614,8 @@ void main() {
     });
   });
 
-  group('실패 — 33', () {
-    testWidgets('기간 합계 실패 → 가계부 · 카테고리 · 예산만 실패, 0원 없음, 다시 시도', (tester) async {
+  group('실패 — 33 · 36', () {
+    testWidgets('기간 합계 실패 → 가계부 · 카테고리 · 예산만 실패, 0원 없음', (tester) async {
       await _pump(tester, rangeError: Exception('x'));
       expect(find.byType(PResultSection), findsNWidgets(3));
       expect(findPlain('0원'), findsNothing, reason: '조용한 0원이 없다');
@@ -565,11 +624,110 @@ void main() {
       expect(find.text('오늘'), findsOneWidget);
     });
 
-    testWidgets('순자산 실패 → 그 구역만 실패', (tester) async {
+    testWidgets('실패 한 벌 — "{구역}을/를 불러오지 못했어요" + 같은 설명', (tester) async {
+      await _pump(
+        tester,
+        rangeError: Exception('x'),
+        summaryError: Exception('x'),
+        dashError: Exception('x'),
+      );
+      for (final t in [
+        '순자산을 불러오지 못했어요',
+        '이번 달 가계부를 불러오지 못했어요',
+        '카테고리를 불러오지 못했어요',
+        '예산을 불러오지 못했어요',
+        '다가오는 일정을 불러오지 못했어요',
+        '최근 할 일을 불러오지 못했어요',
+      ]) {
+        expect(findPlain(t), findsOneWidget, reason: t);
+      }
+      expect(findPlain('잠시 뒤 다시 시도해주세요.'), findsNWidgets(6));
+      // 일정 · 할 일은 같은 질의라 같이 실패해도 띠마다 하나씩
+      expect(
+        _whiteBands.evaluate().length,
+        7,
+        reason: '순자산도 흰 띠 — 모두 구역마다 하나씩',
+      );
+    });
+
+    testWidgets('순자산 실패 — 브랜드 채움이 아니라 흰 띠 + 머리 "순자산"', (tester) async {
       await _pump(tester, summaryError: Exception('x'));
+      expect(find.byKey(const ValueKey('home-hero-face')), findsNothing);
+      expect(findPlain('순자산'), findsOneWidget);
       expect(find.byType(PResultSection), findsOneWidget);
-      expect(find.text('다시 시도'), findsOneWidget);
-      expect(findPlain('0원'), findsNothing);
+    });
+
+    testWidgets('다시 시도는 그 구역 질의만 — 순자산', (tester) async {
+      final reads = <String, int>{};
+      await _pump(tester, summaryError: Exception('x'), reads: reads);
+      final before = Map.of(reads);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(reads['summary'], before['summary']! + 1);
+      expect(reads['range'], before['range'], reason: '다른 질의는 안 부른다');
+      expect(reads['budgets'], before['budgets']);
+      expect(reads['dash'], before['dash']);
+    });
+
+    testWidgets('다시 시도는 그 구역 질의만 — 예산은 실패한 예산 목록만', (tester) async {
+      final reads = <String, int>{};
+      await _pump(tester, budgetsError: Exception('x'), reads: reads);
+      final before = Map.of(reads);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(reads['budgets'], before['budgets']! + 1);
+      expect(reads['range'], before['range'], reason: '멀쩡한 기간 합계는 다시 받지 않는다');
+    });
+
+    testWidgets('일정 · 할 일 — 한 질의 실패는 두 띠에 하나씩, 다시 시도는 그 질의 하나', (tester) async {
+      final reads = <String, int>{};
+      await _pump(tester, dashError: Exception('x'), reads: reads);
+      expect(find.byType(PResultSection), findsNWidgets(2));
+      final before = Map.of(reads);
+      await tester.tap(find.text('다시 시도').first);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(reads['dash'], before['dash']! + 1);
+      expect(reads['summary'], before['summary']);
+    });
+
+    testWidgets('불러오는 중 — 일정 · 할 일 틀이 먼저(머리 + 전체 보기)', (tester) async {
+      await _pump(tester, dashPending: true);
+      expect(findPlain('다가오는 일정'), findsOneWidget);
+      expect(findPlain('최근 할 일'), findsOneWidget);
+      // 카테고리 · 예산 · 오늘 쓴 돈 + 일정 · 할 일 = 다섯
+      expect(find.text('전체 보기'), findsNWidgets(5));
+    });
+  });
+
+  group('저장된 색 — 18', () {
+    test('chartKeyOfHex 는 차트 10색 기본 hex 만 이름으로 읽는다', () {
+      expect(chartKeyOfHex('#2c70bf'), 'blue');
+      expect(chartKeyOfHex(' #2C70BF '), 'blue');
+      expect(chartKeyOfHex('#c73838'), 'red');
+      expect(chartKeyOfHex('#123456'), isNull);
+      expect(chartKeyOfHex(null), isNull);
+      expect(chartKeyOfHex(''), isNull);
+    });
+
+    testWidgets('저장된 hex 가 같은 색 이름으로 · 나머지는 안 쓴 색 · 같은 색 두 번 없음', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        categories: 4,
+        categoryColors: ['#c73838', null, '#123456', '#2c70bf'],
+      );
+      final donut = tester.widget<PDonutChart>(find.byType(PDonutChart));
+      final colors = donut.slices.map((s) => s.color).toList();
+      expect(colors[0], PChartColor.red, reason: '저장된 red');
+      expect(colors[3], PChartColor.blue, reason: '저장된 blue');
+      // 색 없음(1) · 팔레트 밖(2) — 쓰지 않은 색(blue · red 는 이미 씀)에서 배정 순서대로
+      expect(colors[1], PChartColor.green);
+      expect(colors[2], PChartColor.orange);
+      expect(colors.toSet().length, 4);
     });
   });
 }

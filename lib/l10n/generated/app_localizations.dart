@@ -3560,11 +3560,17 @@ abstract class AppLocalizations {
   /// **'예산을 불러오지 못했어요'**
   String get dashFailBudget;
 
-  /// No description provided for @dashFailSchedule.
+  /// No description provided for @dashFailUpcoming.
   ///
   /// In ko, this message translates to:
-  /// **'일정과 할 일을 불러오지 못했어요'**
-  String get dashFailSchedule;
+  /// **'다가오는 일정을 불러오지 못했어요'**
+  String get dashFailUpcoming;
+
+  /// No description provided for @dashFailTodos.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 할 일을 불러오지 못했어요'**
+  String get dashFailTodos;
 
   /// No description provided for @dashFailToday.
   ///
@@ -3575,7 +3581,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashFailDesc.
   ///
   /// In ko, this message translates to:
-  /// **'잠시 뒤 다시 시도해 주세요.'**
+  /// **'잠시 뒤 다시 시도해주세요.'**
   String get dashFailDesc;
 
   /// No description provided for @expTitle.

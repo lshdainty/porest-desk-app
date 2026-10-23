@@ -141,7 +141,7 @@ abstract class PListItemBase extends StatelessWidget {
   /// 제목 취소선(완료한 할 일).
   final bool titleStrike;
 
-  /// 줄 좌우 여백(기본 24) — 좌우 24 를 쥔 옛 호스트 안에서만 0.
+  /// **임시 인자** — 줄 좌우 여백(기본 24). 좌우 24 를 쥔 옛 호스트 안에서만 0, 호스트가 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
 }
 

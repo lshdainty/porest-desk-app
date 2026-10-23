@@ -253,7 +253,8 @@ class PListRowFrame extends StatefulWidget {
   /// 제목에 취소선 — 완료한 할 일.
   final bool titleStrike;
 
-  /// 줄 좌우 여백 — 기본 24. 호스트 화면이 아직 좌우 24 를 쥐고 있을 때만 0 을 준다(글자 자리가 24 로 같게 — 화면 이관 때 걷는다).
+  /// **임시 인자** — 줄 좌우 여백 기본 24(list.md). 호스트가 아직 좌우 24 를 쥐고 있을 때만 0 을 준다(글자 자리가 24 로 같게).
+  /// 호스트가 바깥 24 를 걷을 때 함께 걷는다 — 가계부 I-07 4 · 검색 I-08 08-3 · 자산 상세 · 거래 상세(지시서 아직 없음).
   final double? gutter;
   final Widget? prefix;
   final Widget? suffix;
@@ -588,13 +589,15 @@ class _PListRowFrameState extends State<PListRowFrame> {
                 TextSpan(
                   children: [
                     TextSpan(text: keepAll(widget.title)),
-                    for (final b in widget.titleSuffix!) ...[
-                      const TextSpan(text: ' '),
+                    // 제목 ↔ 배지 6(Card 머리 덧붙임과 같은 값)
+                    for (final b in widget.titleSuffix!)
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,
-                        child: b,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: PSpacing.x1_5),
+                          child: b,
+                        ),
                       ),
-                    ],
                   ],
                 ),
                 style: PTypography.t5.copyWith(

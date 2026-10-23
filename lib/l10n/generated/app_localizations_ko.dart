@@ -1902,13 +1902,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dashFailBudget => '예산을 불러오지 못했어요';
 
   @override
-  String get dashFailSchedule => '일정과 할 일을 불러오지 못했어요';
+  String get dashFailUpcoming => '다가오는 일정을 불러오지 못했어요';
+
+  @override
+  String get dashFailTodos => '최근 할 일을 불러오지 못했어요';
 
   @override
   String get dashFailToday => '오늘 쓴 돈을 불러오지 못했어요';
 
   @override
-  String get dashFailDesc => '잠시 뒤 다시 시도해 주세요.';
+  String get dashFailDesc => '잠시 뒤 다시 시도해주세요.';
 
   @override
   String get expTitle => '가계부';

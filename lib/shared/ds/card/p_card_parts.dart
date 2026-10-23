@@ -259,7 +259,6 @@ class PCardHeader extends StatelessWidget {
                 key: const ValueKey('card-title-wrap'),
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: PSpacing.x1_5,
-                runSpacing: PSpacing.x1,
                 children: [titleNode, titleSuffix!],
               ),
         action: actionLabel == null
