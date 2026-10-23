@@ -32,7 +32,7 @@ import 'package:groo_damda_app/features/expense/presentation/tx_detail_dialog.da
 import 'package:groo_damda_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 
 const _card = Asset(
   rowId: 9,
@@ -133,8 +133,7 @@ Future<void> _pumpRouted(
 
 Widget _swipeRow(Expense e, Asset asset) => Consumer(
   builder: (ctx, ref, _) => PSwipeActions(
-    groupTag: 'test',
-    actions: expenseActions.swipeActions(ctx, ref, e, asset: asset),
+    actions: expenseActions.dsSwipeActions(ctx, ref, e, asset: asset),
     child: const SizedBox(
       height: 64,
       width: double.infinity,

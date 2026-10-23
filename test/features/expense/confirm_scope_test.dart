@@ -34,7 +34,7 @@ import 'package:groo_damda_app/features/notification/application/user_preference
 import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 
 const _closedLine = '이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
 
@@ -337,13 +337,13 @@ void main() {
         tester,
         Consumer(
           builder: (ctx, ref, _) {
-            future = expenseActions.swipeActions(
+            future = expenseActions.dsSwipeActions(
               ctx,
               ref,
               _open.copyWith(expenseDate: '${_dayKey(2)}T09:00:00'),
               asset: _card,
             );
-            past = expenseActions.swipeActions(
+            past = expenseActions.dsSwipeActions(
               ctx,
               ref,
               _open.copyWith(expenseDate: '${_dayKey(-3)}T09:00:00'),

@@ -30,7 +30,7 @@ import 'package:groo_damda_app/features/notification/application/user_preference
 import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_select.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/widgets/p_detail.dart';
 
 const _account = Asset(
@@ -196,7 +196,7 @@ void main() {
       tester,
       Consumer(
         builder: (ctx, ref, _) {
-          actions = expenseActions.swipeActions(
+          actions = expenseActions.dsSwipeActions(
             ctx,
             ref,
             refunded,

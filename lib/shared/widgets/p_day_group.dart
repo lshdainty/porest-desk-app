@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
@@ -134,11 +133,11 @@ class PDayGroupSkeleton extends StatelessWidget {
         const Row(
           children: [
             PSkeleton.line(width: 48, height: 13),
-            SizedBox(width: PSpace.x8),
+            SizedBox(width: PSpacing.x2),
             PSkeleton.line(width: 24, height: 11),
             Spacer(),
             PSkeleton.line(width: 60, height: 11),
-            SizedBox(width: PSpace.x8),
+            SizedBox(width: PSpacing.x2),
             PSkeleton.line(width: 60, height: 11),
           ],
         ),
@@ -147,7 +146,7 @@ class PDayGroupSkeleton extends StatelessWidget {
           children: [
             for (int i = 0; i < rows; i++)
               const Padding(
-                padding: EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
+                padding: EdgeInsets.fromLTRB(0, PSpacing.x3, 0, PSpacing.x3),
                 child: Row(
                   children: [
                     // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
@@ -156,7 +155,7 @@ class PDayGroupSkeleton extends StatelessWidget {
                       height: 40,
                       borderRadius: PRadius.brLg,
                     ),
-                    SizedBox(width: PSpace.x12),
+                    SizedBox(width: PSpacing.x3),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,7 +166,7 @@ class PDayGroupSkeleton extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: PSpace.x8),
+                    SizedBox(width: PSpacing.x2),
                     PSkeleton.line(width: 80, height: 14),
                   ],
                 ),

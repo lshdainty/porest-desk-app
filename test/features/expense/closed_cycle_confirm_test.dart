@@ -31,7 +31,17 @@ import 'package:groo_damda_app/features/expense_split/data/expense_split_reposit
 import 'package:groo_damda_app/features/preset/application/preset_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+
+/// ds 확인창은 글자 사이에 낱말 단위 줄바꿈 U+2060 을 넣는다 — 그 글자를 뺀 글로 찾는다.
+Finder _plain(String needle) => find.byWidgetPredicate(
+  (w) =>
+      w is Text &&
+      (w.data ?? w.textSpan?.toPlainText() ?? '')
+          .replaceAll('\u2060', '')
+          .replaceAll('\u200B', '')
+          .contains(needle),
+);
 
 const _closedLine = '이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.';
 
@@ -183,8 +193,7 @@ Future<void> _drainToast(WidgetTester tester) async {
 /// 스와이프 액션만 단 행 하나 — 가계부 목록과 같은 조립(`expenseActions.swipeActions`).
 Widget _swipeRow(Expense e) => Consumer(
   builder: (ctx, ref, _) => PSwipeActions(
-    groupTag: 'test',
-    actions: expenseActions.swipeActions(ctx, ref, e, asset: _card),
+    actions: expenseActions.dsSwipeActions(ctx, ref, e, asset: _card),
     child: const SizedBox(
       height: 64,
       width: double.infinity,
@@ -213,8 +222,8 @@ void main() {
 
       await _swipeDelete(tester);
 
-      expect(find.textContaining('"버스" 거래를 삭제할까요?'), findsOneWidget);
-      expect(find.textContaining(_closedLine), findsOneWidget);
+      expect(_plain('"버스" 거래를 삭제할까요?'), findsOneWidget);
+      expect(_plain(_closedLine), findsOneWidget);
     });
 
     testWidgets('열린 회차는 문구가 없다', (tester) async {
@@ -223,9 +232,9 @@ void main() {
 
       await _swipeDelete(tester);
 
-      expect(find.textContaining('"버스" 거래를 삭제할까요?'), findsOneWidget);
-      expect(find.textContaining(_closedLine), findsNothing);
-      expect(find.textContaining('환급'), findsNothing, reason: '예고 문구는 걷었다');
+      expect(_plain('"버스" 거래를 삭제할까요?'), findsOneWidget);
+      expect(_plain(_closedLine), findsNothing);
+      expect(_plain('환급'), findsNothing, reason: '예고 문구는 걷었다');
     });
 
     testWidgets('미리 낸 돈이 돌아오면 지운 뒤 토스트로 알린다(D4)', (tester) async {
