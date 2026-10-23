@@ -1407,6 +1407,8 @@ class _RecentExpenses extends StatelessWidget {
               transfer: tr,
               flags: flags,
               perspectiveAssetRowId: perspectiveAssetRowId,
+              // 이 화면이 아직 좌우 24 를 쥔다 — 글자 자리가 24 로 같게 줄의 24 는 끈다.
+              gutter: 0,
               onTap: () => showTransferDetailSheet(context, tr),
             ),
         ],
