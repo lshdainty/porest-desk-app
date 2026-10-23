@@ -3355,13 +3355,13 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get exportSuccess => '내보내기를 완료했어요';
+  String get exportSuccess => '내보냈어요.';
 
   @override
   String get exportTypeExpense => '거래 내역';
 
   @override
-  String get exportTypeAsset => '자산·계좌';
+  String get exportTypeAsset => '자산 · 계좌';
 
   @override
   String get exportTypeBudget => '예산 설정';
@@ -3379,13 +3379,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportTypeTodo => '할 일';
 
   @override
-  String get exportFormatCsvDesc => '엑셀·구글시트';
+  String get exportFormatCsvDesc => '엑셀 · 구글시트';
 
   @override
   String get exportFormatExcelDesc => 'Microsoft Excel';
 
   @override
-  String get exportFormatJsonDesc => '개발자·백업';
+  String get exportFormatJsonDesc => '개발자 · 백업';
 
   @override
   String get exportPeriodThisMonth => '이번 달';
@@ -3414,7 +3414,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get exportTypesDesc => '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.';
+  String get exportTypesDesc => '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶어요.';
 
   @override
   String exportCount(int count) {
@@ -3425,7 +3425,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportFormatTitle => '파일 형식';
 
   @override
-  String get exportMaskLabel => '민감 정보 가리기 (잔액·금액·기관)';
+  String get exportMaskLabel => '민감 정보 가리기 (잔액 · 금액 · 기관)';
 
   @override
   String get exportPreview => '미리보기';
@@ -6035,13 +6035,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importSourceTitle => '어떤 앱에서 가져오나요?';
 
   @override
-  String get importSourceDesc => '기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요';
+  String get importSourceDesc => '기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰요.';
 
   @override
-  String get importSourceGroo => '담다 백업';
+  String get importSourceGroo => '그루 담다';
 
   @override
-  String get importSourceGrooDesc => '내보내기 파일 다시 가져오기';
+  String get importSourceGrooDesc => '그루 담다에서 내보낸 파일';
 
   @override
   String get importSourceEasybudget => '편한가계부·머니매니저';
@@ -6081,7 +6081,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importDropHint => '.csv · .xlsx · .xls 지원';
 
   @override
-  String get importAnalyzing => '파일 분석 중…';
+  String get importAnalyzing => '파일을 분석하는 중';
 
   @override
   String get importNotice =>
@@ -6102,7 +6102,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importMapTitle => '열 매핑';
 
   @override
-  String get importMapDesc => '파일의 열을 가계부 항목에 연결하세요. 자동 감지값을 바꿀 수 있어요.';
+  String get importMapDesc => '파일의 열을 가계부 항목에 연결해주세요. 자동으로 찾은 값은 바꿀 수 있어요.';
 
   @override
   String get importNotMapped => '가져오지 않음';
@@ -6126,7 +6126,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importBlockedDesc =>
-      '해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요';
+      '해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요.';
 
   @override
   String get categoryMoveTxAction => '옮기기';
@@ -6184,7 +6184,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importFieldDate => '날짜';
 
   @override
-  String get importFieldType => '수입/지출';
+  String get importFieldType => '수입 · 지출';
 
   @override
   String get importFieldAmount => '금액';
@@ -6193,7 +6193,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importFieldCategory => '카테고리';
 
   @override
-  String get importFieldAsset => '자산·결제수단';
+  String get importFieldAsset => '자산 · 결제수단';
 
   @override
   String get importFieldMemo => '메모';
@@ -6247,7 +6247,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importDoneDetail(int skipped, int failed) {
-    return '건너뜀 $skipped · 실패 $failed';
+    return '건너뛴 거래 $skipped건 · 못 가져온 거래 $failed건';
   }
 
   @override
@@ -6261,6 +6261,50 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importStepDone => '완료';
+
+  @override
+  String get exportTabsLabel => '데이터 내보내기 · 가져오기';
+
+  @override
+  String get exportSelectAll => '모두';
+
+  @override
+  String get exportCountsFailed => '건수를 불러오지 못했어요.';
+
+  @override
+  String get exportRangePlaceholder => '기간 선택';
+
+  @override
+  String get exportStalled => '내보내기가 멈췄어요. 다시 시도해주세요.';
+
+  @override
+  String get exportFailed => '내보내지 못했어요. 다시 시도해주세요.';
+
+  @override
+  String get exportPreviewTabsLabel => '미리보기 데이터 종류';
+
+  @override
+  String importStepMeta(int current, int total) {
+    return '$current / $total단계';
+  }
+
+  @override
+  String get importBusy => '가져오는 중';
+
+  @override
+  String get importFileTooLarge => '10MB 넘는 파일은 올릴 수 없어요.';
+
+  @override
+  String get importFileInvalid => 'CSV 또는 Excel 파일만 올릴 수 있어요.';
+
+  @override
+  String get importBadgeError => '오류';
+
+  @override
+  String get importBadgeDup => '중복';
+
+  @override
+  String get importGoExpense => '가계부로 가기';
 
   @override
   String get calDetailDday => 'D-DAY';

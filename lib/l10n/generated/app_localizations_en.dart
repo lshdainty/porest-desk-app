@@ -3404,7 +3404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get exportSuccess => 'Export complete';
+  String get exportSuccess => 'Exported.';
 
   @override
   String get exportTypeExpense => 'Transactions';
@@ -6132,10 +6132,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick your previous app and we\'ll auto-map the columns';
 
   @override
-  String get importSourceGroo => '담다 백업';
+  String get importSourceGroo => '그루 담다';
 
   @override
-  String get importSourceGrooDesc => 'Re-import an export file';
+  String get importSourceGrooDesc => 'File exported from 그루 담다';
 
   @override
   String get importSourceEasybudget => 'EasyBudget · Money Manager';
@@ -6221,7 +6221,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importBlockedDesc =>
-      'Rows using it will fail. Move its transactions into a subcategory or change the category in the file';
+      'Rows using it will fail. Move its transactions into a subcategory or change the category in the file.';
 
   @override
   String get categoryMoveTxAction => 'Move';
@@ -6358,6 +6358,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importStepDone => 'Done';
+
+  @override
+  String get exportTabsLabel => 'Export and import data';
+
+  @override
+  String get exportSelectAll => 'All';
+
+  @override
+  String get exportCountsFailed => 'Couldn\'t load the counts.';
+
+  @override
+  String get exportRangePlaceholder => 'Select a range';
+
+  @override
+  String get exportStalled => 'The export stalled. Please try again.';
+
+  @override
+  String get exportFailed => 'Couldn\'t export. Please try again.';
+
+  @override
+  String get exportPreviewTabsLabel => 'Preview data type';
+
+  @override
+  String importStepMeta(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get importBusy => 'Importing';
+
+  @override
+  String get importFileTooLarge => 'Files over 10MB can\'t be uploaded.';
+
+  @override
+  String get importFileInvalid => 'Only CSV or Excel files can be uploaded.';
+
+  @override
+  String get importBadgeError => 'Error';
+
+  @override
+  String get importBadgeDup => 'Duplicate';
+
+  @override
+  String get importGoExpense => 'Go to ledger';
 
   @override
   String get calDetailDday => 'D-DAY';

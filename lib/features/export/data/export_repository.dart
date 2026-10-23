@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -59,8 +60,18 @@ class ExportPreviewTable {
 
 /// 데이터 내보내기 API. 다운로드는 dio stream → 임시파일로 점진 기록(대용량 대응).
 class ExportRepository {
-  ExportRepository(this._dio);
+  ExportRepository(
+    this._dio, {
+    this.stallTimeout = const Duration(seconds: 10),
+    this.tempDir,
+  });
   final Dio _dio;
+
+  /// 받은 바이트가 이만큼 늘지 않으면 실패로 본다.
+  final Duration stallTimeout;
+
+  /// 임시 폴더 — 시험에서 바꾼다.
+  final Future<Directory> Function()? tempDir;
 
   Future<List<ExportTypeCount>> counts(Map<String, dynamic> body) async {
     try {
@@ -108,23 +119,47 @@ class ExportRepository {
   }
 
   /// 파일 생성 → 임시파일에 스트림 기록. 생성된 File 반환(호출처가 Share).
+  ///
+  /// **받은 바이트가 [stallTimeout](10초) 동안 늘지 않으면 끊고 [ExportStalledException] 을 던진다**
+  /// (I-05 47 — 서버가 파일을 만드는 동안도 센다. 조금씩이라도 오면 끊기지 않는다).
   Future<File> download({
     required Map<String, dynamic> body,
     required String filename,
     void Function(int received, int total)? onReceiveProgress,
   }) async {
+    final cancel = CancelToken();
+    var stalled = false;
+    Timer? watch;
+    void kick() {
+      watch?.cancel();
+      watch = Timer(stallTimeout, () {
+        stalled = true;
+        cancel.cancel('stalled');
+      });
+    }
+
+    kick();
     try {
       final res = await _dio.post<ResponseBody>(
         '/export',
         data: body,
-        options: Options(responseType: ResponseType.stream),
-        onReceiveProgress: onReceiveProgress,
+        cancelToken: cancel,
+        // 이 길의 실패는 화면이 [다시 시도] 가 달린 띠로 알린다 — 전역 토스트와 겹치지 않게
+        options: Options(
+          responseType: ResponseType.stream,
+          extra: {kSilentErrorToast: true},
+        ),
+        onReceiveProgress: (received, total) {
+          kick();
+          onReceiveProgress?.call(received, total);
+        },
       );
-      final dir = await getTemporaryDirectory();
+      final dir = await (tempDir ?? getTemporaryDirectory)();
       final file = File('${dir.path}/$filename');
       final sink = file.openWrite();
       try {
         await for (final chunk in res.data!.stream) {
+          kick();
           sink.add(chunk);
         }
       } finally {
@@ -132,9 +167,20 @@ class ExportRepository {
       }
       return file;
     } on DioException catch (e) {
+      if (stalled) throw const ExportStalledException();
       throw ApiException.fromDio(e);
+    } finally {
+      watch?.cancel();
     }
   }
+}
+
+/// 받기가 [ExportRepository.stallTimeout] 동안 멈췄다.
+class ExportStalledException implements Exception {
+  const ExportStalledException();
+
+  @override
+  String toString() => 'ExportStalledException';
 }
 
 final exportRepositoryProvider = FutureProvider<ExportRepository>((ref) async {

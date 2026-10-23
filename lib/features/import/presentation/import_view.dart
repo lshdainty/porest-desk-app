@@ -1,22 +1,34 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
-import 'package:groo_damda_app/shared/widgets/p_switch.dart';
-import 'package:groo_damda_app/features/import/data/import_repository.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/import/data/import_repository.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_input.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_responsive_pair.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+import 'package:groo_damda_app/shared/ds/select_box/p_select_box.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/shared/widgets/p_busy_scrim.dart';
+
+/// 서버 한도(`application.yml` multipart 10MB) — 고르는 순간 미리 검사한다(서버도 같은 한도로 검사한다).
+const int kImportMaxBytes = 10 * 1024 * 1024;
 
 typedef _FieldMeta = ({
   String key,
@@ -34,14 +46,20 @@ const List<String> importSources = [
   'CUSTOM',
 ];
 
-String _sourceLabel(AppLocalizations l, String v) => switch (v) {
-  'POREST' => '${l.importSourceGroo} · ${l.importSourceGrooDesc}',
-  'EASYBUDGET' =>
-    '${l.importSourceEasybudget} · ${l.importSourceEasybudgetDesc}',
-  'BANKSALAD' => '${l.importSourceBanksalad} · ${l.importSourceBanksaladDesc}',
-  'TOSS' => '${l.importSourceToss} · ${l.importSourceTossDesc}',
-  _ => '${l.importSourceCustom} · ${l.importSourceCustomDesc}',
-};
+({String title, String desc}) _sourceText(AppLocalizations l, String v) =>
+    switch (v) {
+      'POREST' => (title: l.importSourceGroo, desc: l.importSourceGrooDesc),
+      'EASYBUDGET' => (
+        title: l.importSourceEasybudget,
+        desc: l.importSourceEasybudgetDesc,
+      ),
+      'BANKSALAD' => (
+        title: l.importSourceBanksalad,
+        desc: l.importSourceBanksaladDesc,
+      ),
+      'TOSS' => (title: l.importSourceToss, desc: l.importSourceTossDesc),
+      _ => (title: l.importSourceCustom, desc: l.importSourceCustomDesc),
+    };
 
 const List<_FieldMeta> _fields = [
   (key: 'DATE', label: _fDate, required: true),
@@ -70,10 +88,30 @@ String _fMemo(AppLocalizations l) => l.importFieldMemo;
 
 enum _Step { upload, mapping, done }
 
+/// 가져오기 고르기 창 — 확장자를 CSV · Excel 로 좁힌다(앱은 카메라 · 갤러리가 없는 파일 하나 고르기).
+Future<List<PAttachmentPicked>> _pickImportFiles(
+  PAttachmentSource source,
+  int limit,
+) async {
+  final picked = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: const ['csv', 'xlsx', 'xls'],
+  );
+  if (picked == null) return const [];
+  return [
+    for (final f in picked.files)
+      PAttachmentPicked(name: f.name, size: f.size, path: f.path),
+  ];
+}
+
 /// 데이터 가져오기 마법사 — 소스선택 → 파일업로드(analyze) → 열매핑·미리보기·옵션(execute) → 완료.
-/// ExportScreen 세그의 '가져오기' 모드 본문.
+/// ExportScreen 탭의 '가져오기' 모드 본문.
 class ImportView extends ConsumerStatefulWidget {
-  const ImportView({super.key});
+  const ImportView({super.key, this.pickFiles = _pickImportFiles});
+
+  /// 고르기 창 — 시험에서 바꾼다.
+  @visibleForTesting
+  final PAttachmentPickFiles pickFiles;
 
   @override
   ConsumerState<ImportView> createState() => _ImportViewState();
@@ -83,7 +121,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
   _Step _step = _Step.upload;
   String _source = 'POREST';
   File? _file;
-  bool _analyzing = false;
+  List<PAttachmentEntry> _entries = const [];
+  String? _fileError;
   ImportAnalyzeResult? _analysis;
   Map<String, int> _mapping = {};
   bool _dupSkip = true;
@@ -97,17 +136,29 @@ class _ImportViewState extends ConsumerState<ImportView> {
           _mapping.containsKey('AMOUNT_OUT') ||
           _mapping.containsKey('AMOUNT_IN'));
 
-  Future<void> _pickAndAnalyze() async {
-    final picked = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv', 'xlsx', 'xls'],
-    );
-    final path = picked?.files.single.path;
-    if (path == null) return;
+  void _onAccept(List<PAttachmentEntry> added) {
+    final entry = added.first;
+    if (entry.path == null) return;
     setState(() {
-      _file = File(path);
-      _analyzing = true;
+      _file = File(entry.path!);
+      _fileError = null;
+      _entries = [entry.copyWith(status: PAttachmentStatus.uploading)];
     });
+    _analyze();
+  }
+
+  void _onReject(List<PAttachmentRejection> rejected) {
+    final l = AppLocalizations.of(context);
+    final tooLarge = rejected.any(
+      (r) => r.codes.contains(PAttachmentRejectionCode.fileTooLarge),
+    );
+    // 거절은 칸 아래 오류 글 — 전역 토스트가 아니다
+    setState(
+      () => _fileError = tooLarge ? l.importFileTooLarge : l.importFileInvalid,
+    );
+  }
+
+  Future<void> _analyze() async {
     try {
       final repo = await ref.read(importRepositoryProvider.future);
       final res = await repo.analyze(_file!, _source);
@@ -116,17 +167,26 @@ class _ImportViewState extends ConsumerState<ImportView> {
         _analysis = res;
         _mapping = Map<String, int>.from(res.suggestedMapping);
         _step = _Step.mapping;
+        _entries = const [];
       });
     } on ApiException {
-      if (mounted) {}
-    } finally {
-      if (mounted) setState(() => _analyzing = false);
+      if (mounted) {
+        setState(() {
+          _entries = [
+            for (final e in _entries)
+              e.copyWith(status: PAttachmentStatus.error),
+          ];
+        });
+      }
     }
   }
 
   Future<void> _runImport() async {
     if (_file == null || !_canExecute) return;
+    final l = AppLocalizations.of(context);
     setState(() => _executing = true);
+    // 확정하는 동안 화면 전체 딤 + 흰 원 40 (I-05 49) — 37 과 같은 덮개
+    final scrim = PBusyScrim.show(context, label: l.importBusy);
     try {
       final repo = await ref.read(importRepositoryProvider.future);
       final res = await repo.execute(
@@ -148,6 +208,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
     } on ApiException {
       // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     } finally {
+      scrim.hide();
       if (mounted) setState(() => _executing = false);
     }
   }
@@ -156,229 +217,202 @@ class _ImportViewState extends ConsumerState<ImportView> {
     setState(() {
       _step = _Step.upload;
       _file = null;
+      _entries = const [];
+      _fileError = null;
       _analysis = null;
       _mapping = {};
       _result = null;
     });
   }
 
+  static const _gutter = EdgeInsets.symmetric(
+    horizontal: PSpacing.globalGutter,
+  );
+
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    return ListView(
-      // 세그↔스텝바 32(web gap-2xl 정합, 사용자 결정) — 하단은 24 유지.
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.x24,
-        PSpace.x32,
-        PSpace.x24,
-        PSpace.x24,
-      ),
-      children: [
-        _stepper(t),
-        const SizedBox(height: PSpace.x32),
-        if (_step == _Step.upload) ..._uploadStep(t),
-        if (_step == _Step.mapping && _analysis != null)
-          ..._mappingStep(t, _analysis!),
-        if (_step == _Step.done && _result != null) _doneStep(t, _result!),
-        const SizedBox(height: PSpace.x32),
-      ],
-    );
-  }
-
-  // ── 스텝 인디케이터 ──────────────────────────────────────
-
-  Widget _stepper(GrooTokens t) {
     final l = AppLocalizations.of(context);
-    final steps = [
-      (k: _Step.upload, label: l.importStepUpload),
-      (k: _Step.mapping, label: l.importStepMapping),
-      (k: _Step.done, label: l.importStepDone),
-    ];
-    final idx = steps.indexWhere((s) => s.k == _step);
-    return Row(
-      children: [
-        for (int i = 0; i < steps.length; i++) ...[
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              // 동그라미 채움은 다크에서도 primary 고정(bgBrandSolid, 사용자 결정·web 정합).
-              color: i <= idx ? t.bgBrandSolid : t.bgMuted,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              i < idx ? '✓' : '${i + 1}',
-              style: PTypo.micro.copyWith(
-                color: i <= idx ? t.fgOnBrand : t.fgTertiary,
-                fontWeight: PFontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: PSpace.x8),
+    final Widget content = switch (_step) {
+      _Step.upload => _uploadStep(l),
+      _Step.mapping when _analysis != null => _mappingStep(l, _analysis!),
+      _Step.done when _result != null => _doneStep(l, _result!),
+      _ => const SizedBox.shrink(),
+    };
+    return content;
+  }
+
+  // ── 단계 머리 — "2 / 3단계" + 단계 이름 + 한 줄 설명 (Q6 6B) ──
+
+  Widget _stepHead(AppLocalizations l, int n, String name, String desc) {
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        PSpacing.globalGutter,
+        PSpacing.x6,
+        PSpacing.globalGutter,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Text(
-            steps[i].label,
-            style: PTypo.bodySm.copyWith(
-              color: i <= idx ? t.fgPrimary : t.fgTertiary,
-              fontWeight: i == idx ? PFontWeight.bold : PFontWeight.regular,
+            l.importStepMeta(n, 3),
+            style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+          ),
+          const SizedBox(height: PSpacing.x1),
+          Text(
+            name,
+            style: PTypography.t5.copyWith(
+              color: c.fgNeutral,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          if (i < steps.length - 1)
-            Expanded(
-              child: Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(horizontal: PSpace.x8),
-                color: t.borderSubtle,
-              ),
-            ),
+          const SizedBox(height: PSpacing.x1),
+          Text(desc, style: PTypography.t5.copyWith(color: c.fgNeutralMuted)),
         ],
-      ],
+      ),
     );
   }
+
+  Widget _section(String title, Widget body, {bool first = false}) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(height: first ? PSpacing.x2 : PSpacing.x6),
+      PListHeader(title: title, variant: PListHeaderVariant.boldSolid),
+      body,
+    ],
+  );
 
   // ── 1. 업로드 ────────────────────────────────────────────
 
-  List<Widget> _uploadStep(GrooTokens t) {
-    final l = AppLocalizations.of(context);
-    return [
-      _cardShell(
-        t,
-        title: l.importSourceTitle,
-        desc: l.importSourceDesc,
-        child: PSelect<String>(
-          value: _source,
-          onChanged: (v) => setState(() => _source = v ?? 'POREST'),
-          items: importSources
-              .map((s) => PSelectItem(value: s, label: _sourceLabel(l, s)))
-              .toList(),
-        ),
-      ),
-      const SizedBox(height: PSpace.x32),
-      _cardShell(
-        t,
-        title: l.importUploadTitle,
-        desc: l.importUploadDesc,
-        child: InkWell(
-          onTap: _analyzing ? null : _pickAndAnalyze,
-          borderRadius: PRadius.brLg,
-          child: Container(
-            width: double.infinity, // 풀폭 드롭존(web 정합, 사용자 결정)
-            padding: const EdgeInsets.symmetric(
-              vertical: PSpace.x24,
-              horizontal: PSpace.x16,
-            ),
-            decoration: BoxDecoration(
-              color: t.bgMuted,
-              borderRadius: PRadius.brLg,
-              border: Border.all(
-                color: t.borderDefault,
-                style: BorderStyle.solid,
-              ),
-            ),
-            child: Column(
+  Widget _uploadStep(AppLocalizations l) {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: PSpacing.x6),
+      children: [
+        _stepHead(l, 1, l.importStepUpload, l.importSourceDesc),
+        _section(
+          l.importSourceTitle,
+          Padding(
+            padding: _gutter,
+            child: PRadioSelectBoxGroup<String>(
+              semanticLabel: l.importSourceTitle,
+              value: _source,
+              onChanged: (v) => setState(() => _source = v),
+              columns: 1,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: t.bgBrandSubtle,
-                    shape: BoxShape.circle,
+                for (final s in importSources)
+                  PRadioSelectBox<String>(
+                    value: s,
+                    label: _sourceText(l, s).title,
+                    description: _sourceText(l, s).desc,
                   ),
-                  alignment: Alignment.center,
-                  child: _analyzing
-                      ? SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.4,
-                            color: t.fgBrand,
-                          ),
-                        )
-                      : Icon(LucideIcons.upload, size: 22, color: t.fgBrand),
-                ),
-                const SizedBox(height: PSpace.x8),
-                Text(
-                  _analyzing ? l.importAnalyzing : l.importDropTitle,
-                  style: PTypo.body.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  l.importDropHint,
-                  style: PTypo.micro.copyWith(color: t.fgTertiary),
-                ),
               ],
             ),
           ),
+          first: true,
         ),
-      ),
-      const SizedBox(height: PSpace.x32),
-      Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
-          vertical: PSpace.x12,
-        ),
-        decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(LucideIcons.info, size: 15, color: t.fgTertiary),
-            const SizedBox(width: PSpace.x8),
-            Expanded(
-              child: Text(
-                l.importNotice,
-                style: PTypo.caption.copyWith(
-                  color: t.fgSecondary,
-                  height: 1.5,
-                ),
+        _section(
+          l.importUploadTitle,
+          Padding(
+            padding: _gutter,
+            child: PField(
+              description: l.importUploadDesc,
+              invalid: _fileError != null,
+              errorMessage: _fileError,
+              child: PAttachmentInput(
+                layout: PAttachmentLayout.dropzone,
+                semanticLabel: l.importUploadTitle,
+                accept: '.csv,.xlsx,.xls',
+                maxFiles: 1,
+                maxFileSize: kImportMaxBytes,
+                entries: _entries,
+                pickFiles: widget.pickFiles,
+                onFilesAccept: _onAccept,
+                onFilesReject: _onReject,
+                onRetry: (_) => _analyze(),
+                onRemove: (_) => setState(() {
+                  _entries = const [];
+                  _file = null;
+                }),
               ),
             ),
-          ],
+          ),
         ),
-      ),
-    ];
+        const SizedBox(height: PSpacing.x6),
+        Padding(
+          padding: _gutter,
+          child: PCallout(description: l.importNotice),
+        ),
+      ],
+    );
   }
 
   // ── 2. 매핑 ──────────────────────────────────────────────
 
-  List<Widget> _mappingStep(GrooTokens t, ImportAnalyzeResult a) {
-    final l = AppLocalizations.of(context);
-    return [
-      // 실행하면 반드시 실패할 행을 미리 알린다 — 넣고 나서 실패 숫자만 보면 원인을 알 수 없다.
-      if (a.blockedParents.isNotEmpty) ...[
-        Container(
-          padding: const EdgeInsets.all(PSpace.x16),
-          decoration: BoxDecoration(
-            color: t.bgMuted,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: t.statusDanger.withValues(alpha: 0.4)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _mappingStep(AppLocalizations l, ImportAnalyzeResult a) {
+    final c = context.colors;
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: PSpacing.x6),
             children: [
-              Icon(
-                LucideIcons.triangleAlert,
-                size: 17,
-                color: t.statusDangerFg,
-              ),
-              const SizedBox(width: PSpace.x8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              _stepHead(l, 2, l.importStepMapping, l.importMapDesc),
+              // 실행하면 반드시 실패할 행을 미리 알린다 — 넣고 나서 실패 숫자만 보면 원인을 알 수 없다.
+              if (a.blockedParents.isNotEmpty) ...[
+                const SizedBox(height: PSpacing.x4),
+                Padding(
+                  padding: _gutter,
+                  child: PCallout(
+                    tone: PCalloutTone.critical,
+                    title: l.importBlockedTitle(a.blockedParents.join(', ')),
+                    description: l.importBlockedDesc,
+                  ),
+                ),
+              ],
+              _section(
+                l.importFileTitle,
+                PList(
+                  semanticLabel: l.importFileTitle,
                   children: [
-                    Text(
-                      l.importBlockedTitle(a.blockedParents.join(', ')),
-                      style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.semi,
+                    PListItem(
+                      prefix: PListTile(
+                        background: c.bgNeutralWeak,
+                        color: c.fgNeutralMuted,
+                        child: const Icon(LucideIcons.fileSpreadsheet),
+                      ),
+                      title: a.fileName,
+                      detail: l.importRowsDetected(a.totalRows, a.validRows),
+                      suffix: PListAction(
+                        child: PButton(
+                          label: l.importChange,
+                          variant: PButtonVariant.ghost,
+                          size: PButtonSize.small,
+                          onPressed: _reset,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      l.importBlockedDesc,
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ],
+                ),
+              ),
+              _section(l.importMapTitle, _mapFields(l, a)),
+              _section(l.exportPreview, _previewList(l, a)),
+              _section(
+                l.importOptionsTitle,
+                PListCheckGroup(
+                  semanticLabel: l.importOptionsTitle,
+                  children: [
+                    PListCheckItem(
+                      title: l.importOptDupSkip,
+                      detail: l.importOptDupSkipDesc(a.duplicateCount),
+                      checked: _dupSkip,
+                      onChanged: (v) => setState(() => _dupSkip = v),
+                    ),
+                    PListCheckItem(
+                      title: l.importOptAutoCat,
+                      detail: l.importOptAutoCatDesc,
+                      checked: _autoCat,
+                      onChanged: (v) => setState(() => _autoCat = v),
                     ),
                   ],
                 ),
@@ -386,390 +420,190 @@ class _ImportViewState extends ConsumerState<ImportView> {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x16),
-      ],
-      _cardShell(
-        t,
-        title: l.importFileTitle,
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: t.bgMuted,
-                borderRadius: PRadius.brMd,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                LucideIcons.fileSpreadsheet,
-                size: 17,
-                color: t.fgSecondary,
-              ),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    a.fileName,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    l.importRowsDetected(a.totalRows, a.validRows),
-                    style: PTypo.micro.copyWith(color: t.fgTertiary),
-                  ),
-                ],
-              ),
-            ),
-            PButton(
-              label: l.importChange,
-              icon: LucideIcons.x,
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.sm,
-              onPressed: _reset,
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: PSpace.x32),
-      _cardShell(
-        t,
-        title: l.importMapTitle,
-        desc: l.importMapDesc,
-        child: Column(
-          children: [
-            for (final f in _fields) ...[
-              Row(
-                children: [
-                  SizedBox(
-                    width: 96,
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: f.label(l),
-                            style: PTypo.bodySm.copyWith(
-                              color: t.fgPrimary,
-                              fontWeight: PFontWeight.semi,
-                            ),
-                          ),
-                          if (f.required)
-                            TextSpan(
-                              text: ' *',
-                              style: PTypo.bodySm.copyWith(
-                                color: t.statusDangerFg,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: PSelect<int?>(
-                      value: _mapping[f.key],
-                      placeholder: l.importNotMapped,
-                      onChanged: (v) => setState(() {
-                        if (v == null) {
-                          _mapping.remove(f.key);
-                        } else {
-                          _mapping[f.key] = v;
-                        }
-                      }),
-                      items: [
-                        PSelectItem<int?>(
-                          value: null,
-                          label: l.importNotMapped,
-                        ),
-                        ...a.columns.map(
-                          (c) => PSelectItem<int?>(
-                            value: c.index,
-                            label: c.name.isEmpty ? '#${c.index + 1}' : c.name,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: PSpace.x8),
-            ],
-          ],
-        ),
-      ),
-      const SizedBox(height: PSpace.x32),
-      _cardShell(
-        t,
-        title: l.exportPreview,
-        desc: l.importPreviewDesc(a.duplicateCount),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowHeight: 36,
-            dataRowMinHeight: 32,
-            dataRowMaxHeight: 44,
-            columnSpacing: 18,
-            columns:
-                [
-                      l.importFieldDate,
-                      l.importFieldType,
-                      l.importFieldCategory,
-                      l.importFieldAsset,
-                      l.importFieldAmount,
-                      l.importFieldMemo,
-                    ]
-                    .map(
-                      (h) => DataColumn(
-                        label: Text(
-                          h,
-                          style: PTypo.caption.copyWith(
-                            color: t.fgSecondary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-            rows: a.preview.map((r) {
-              final dim = r.error != null || (r.duplicate && _dupSkip);
-              final color = dim ? t.fgTertiary : t.fgPrimary;
-              return DataRow(
-                cells: [
-                  DataCell(
-                    Text(
-                      r.date != null && r.date!.length >= 10
-                          ? r.date!.substring(0, 10)
-                          : '—',
-                      style: PTypo.caption.copyWith(color: color),
-                    ),
-                  ),
-                  DataCell(
-                    r.type == null
-                        ? Text('—', style: PTypo.caption.copyWith(color: color))
-                        : Text(
-                            r.type == 'INCOME'
-                                ? l.importIncome
-                                : l.importExpense,
-                            style: PTypo.caption.copyWith(
-                              color: r.type == 'INCOME'
-                                  ? t.fgBrand
-                                  : t.fgSecondary,
-                              fontWeight: PFontWeight.bold,
-                            ),
-                          ),
-                  ),
-                  DataCell(
-                    Text(
-                      r.category ?? '—',
-                      style: PTypo.caption.copyWith(color: color),
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      r.asset ?? '—',
-                      style: PTypo.caption.copyWith(color: color),
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      r.amount != null ? _fmt(r.amount!) : '—',
-                      style: PTypo.caption.copyWith(
-                        color: color,
-                        fontWeight: PFontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Row(
-                      children: [
-                        if (r.duplicate)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Text(
-                              l.importDupBadge,
-                              style: PTypo.micro.copyWith(
-                                color: t.statusWarningFg,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        Flexible(
-                          child: Text(
-                            r.memo ?? '',
-                            style: PTypo.caption.copyWith(color: color),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PSpacing.globalGutter,
+            PSpacing.x3,
+            PSpacing.globalGutter,
+            PSpacing.x4,
           ),
-        ),
-      ),
-      const SizedBox(height: PSpace.x32),
-      _cardShell(
-        t,
-        title: l.importOptionsTitle,
-        child: Column(
-          children: [
-            _optionRow(
-              t,
-              l.importOptDupSkip,
-              l.importOptDupSkipDesc(a.duplicateCount),
-              _dupSkip,
-              (v) => setState(() => _dupSkip = v),
-            ),
-            const SizedBox(height: PSpace.x8),
-            _optionRow(
-              t,
-              l.importOptAutoCat,
-              l.importOptAutoCatDesc,
-              _autoCat,
-              (v) => setState(() => _autoCat = v),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: PSpace.x32),
-      Row(
-        children: [
-          Expanded(
-            child: PButton(
+          child: PResponsivePair(
+            secondary: PButton(
               label: l.importPrev,
-              icon: LucideIcons.arrowLeft,
-              variant: PButtonVariant.outline,
-              onPressed: _reset,
+              variant: PButtonVariant.neutralWeak,
+              size: PButtonSize.large,
+              onPressed: _executing ? null : _reset,
             ),
-          ),
-          const SizedBox(width: PSpace.x8),
-          Expanded(
-            child: PButton(
+            primary: PButton(
               label: l.importDoImport(
                 _dupSkip ? a.validRows - a.duplicateCount : a.validRows,
               ),
-              icon: LucideIcons.download,
-              loading: _executing,
-              onPressed: _canExecute ? _runImport : null,
+              variant: PButtonVariant.neutralSolid,
+              size: PButtonSize.large,
+              onPressed: _canExecute && !_executing ? _runImport : null,
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _mapFields(AppLocalizations l, ImportAnalyzeResult a) {
+    const none = -1;
+    final items = [
+      PSelectGroup<int>(
+        items: [
+          PSelectItem<int>(value: none, label: l.importNotMapped),
+          for (final col in a.columns)
+            PSelectItem<int>(
+              value: col.index,
+              label: col.name.isEmpty ? '#${col.index + 1}' : col.name,
+            ),
         ],
       ),
     ];
+    return Padding(
+      padding: _gutter,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: PSpacing.x4,
+        children: [
+          for (final f in _fields)
+            PField(
+              label: f.label(l),
+              // 필수가 둘뿐이라 필수 칸에만 점(field.md 2/3 규칙)
+              required: f.required,
+              indicator: f.required
+                  ? PFieldIndicator.required
+                  : PFieldIndicator.none,
+              child: PSelect<int>(
+                groups: items,
+                value: _mapping[f.key] ?? none,
+                placeholder: l.importNotMapped,
+                onChanged: (v) => setState(() {
+                  if (v == none) {
+                    _mapping.remove(f.key);
+                  } else {
+                    _mapping[f.key] = v;
+                  }
+                }),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
-  Widget _optionRow(
-    GrooTokens t,
-    String title,
-    String desc,
-    bool value,
-    ValueChanged<bool> onChanged,
-  ) {
-    return Row(
+  /// 미리보기 — 폰이라 표가 아니라 List 줄: 제목(메모) + 설명 Tag Group(나머지 열) + 뒤 금액. 오류 · 중복은 상태 Badge.
+  Widget _previewList(AppLocalizations l, ImportAnalyzeResult a) {
+    final c = context.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-              const SizedBox(height: 1),
-              Text(desc, style: PTypo.micro.copyWith(color: t.fgTertiary)),
-            ],
+        Padding(
+          padding: _gutter,
+          child: Text(
+            l.importPreviewDesc(a.duplicateCount),
+            style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
           ),
         ),
-        const SizedBox(width: PSpace.x12),
-        PSwitch(value: value, onChanged: onChanged),
+        PList(
+          semanticLabel: l.exportPreview,
+          children: [
+            for (final r in a.preview)
+              PListItem(
+                title: (r.memo != null && r.memo!.isNotEmpty)
+                    ? r.memo!
+                    : (r.category ?? '—'),
+                detailChild: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: PSpacing.x1,
+                  children: [
+                    if (r.error != null || r.duplicate)
+                      PBadgeGroup(
+                        children: [
+                          if (r.error != null)
+                            PBadge(
+                              label: l.importBadgeError,
+                              tone: PBadgeTone.critical,
+                            ),
+                          if (r.duplicate) PBadge(label: l.importBadgeDup),
+                        ],
+                      ),
+                    PTagGroup(
+                      items: [
+                        PTag(
+                          r.date != null && r.date!.length >= 10
+                              ? r.date!.substring(0, 10)
+                              : '—',
+                        ),
+                        if (r.type != null)
+                          PTag(
+                            r.type == 'INCOME'
+                                ? l.importIncome
+                                : l.importExpense,
+                          ),
+                        if (r.category != null && r.memo != null)
+                          PTag(r.category!),
+                        if (r.asset != null) PTag(r.asset!),
+                      ],
+                    ),
+                  ],
+                ),
+                suffix: r.amount != null
+                    ? PListValue.amount(_fmt(r.amount!))
+                    : null,
+              ),
+          ],
+        ),
       ],
     );
   }
 
   // ── 3. 완료 ──────────────────────────────────────────────
 
-  Widget _doneStep(GrooTokens t, ImportExecuteResult r) {
-    final l = AppLocalizations.of(context);
-    return _cardShell(
-      t,
-      title: l.importDoneTitle,
-      child: Column(
-        children: [
-          const SizedBox(height: PSpace.x12),
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: t.bgBrandSubtle,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(LucideIcons.check, size: 30, color: t.fgBrand),
-          ),
-          const SizedBox(height: PSpace.x12),
-          Text(
-            l.importDoneCount(r.imported),
-            style: PTypo.body.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            l.importDoneDetail(r.skipped, r.failed),
-            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: PSpace.x16),
-          PButton(
-            label: l.importAnother,
-            icon: LucideIcons.plus,
-            variant: PButtonVariant.outline,
-            size: PButtonSize.sm,
-            onPressed: _reset,
-          ),
-          const SizedBox(height: PSpace.x12),
-        ],
-      ),
-    );
-  }
-
-  // ── 공통 ─────────────────────────────────────────────────
-
-  Widget _cardShell(
-    GrooTokens t, {
-    required String title,
-    String? desc,
-    required Widget child,
-  }) {
+  Widget _doneStep(AppLocalizations l, ImportExecuteResult r) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: PTypo.body.copyWith(
-            color: t.fgPrimary,
-            fontWeight: PFontWeight.bold,
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              child: PResultSection(
+                kind: PResultKind.done,
+                size: PResultSize.large,
+                title: l.importDoneTitle,
+                description:
+                    '${l.importDoneCount(r.imported)}\n${l.importDoneDetail(r.skipped, r.failed)}',
+              ),
+            ),
           ),
         ),
-        if (desc != null) ...[
-          const SizedBox(height: 2),
-          Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),
-        ],
-        const SizedBox(height: PSpace.x12),
-        child,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PSpacing.globalGutter,
+            PSpacing.x3,
+            PSpacing.globalGutter,
+            PSpacing.x4,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: PSpacing.x2,
+            children: [
+              PButton(
+                label: l.importGoExpense,
+                variant: PButtonVariant.neutralSolid,
+                size: PButtonSize.large,
+                onPressed: () => context.go('/expense?tab=expense'),
+              ),
+              PButton(
+                label: l.importAnother,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.medium,
+                onPressed: _reset,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
