@@ -21,6 +21,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
 import 'package:groo_damda_app/features/expense/presentation/filter_dialog.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/filter_bodies.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
@@ -31,6 +32,7 @@ import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dar
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -246,16 +248,18 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    // 손으로 칠한 바탕이 아니라 ds List 의 `highlighted` 로 강조한다
+    final row = find.byWidgetPredicate(
+      (w) => w is PListButtonItem && w.highlighted,
+    );
+    expect(row, findsOneWidget);
     final c = tester.element(find.byType(ExpenseScreen)).colors;
-    final boxes = tester
-        .widgetList<ColoredBox>(find.byType(ColoredBox))
-        .where((b) => b.color == c.bgBrandWeak);
-    // 쉬는 바탕은 줄 폭 전체 · 모서리 0 — 둥근 상자(DecoratedBox)가 아니다
-    expect(boxes, isNotEmpty);
     expect(
-      tester.getSize(find.byWidget(boxes.first)).width,
-      360,
-      reason: '강조 바탕은 줄 폭 전체',
+      find.byWidgetPredicate(
+        (w) => w is ColoredBox && w.color == c.bgBrandWeak,
+      ),
+      findsNothing,
+      reason: '화면이 같은 바탕을 직접 칠하지 않는다',
     );
   });
 
@@ -675,7 +679,8 @@ void main() {
       expenses: (key) async =>
           key == cur ? [_tx(1, '이번 달 가게', 100000)] : [_tx(2, '지난달 가게', 400000)],
     );
-    expect(_text('••', contains: true), findsWidgets);
+    // 줄여 쓴 금액의 가림 점은 4개(krw.dart 와 한 벌)
+    expect(_text('••••', contains: true), findsWidgets);
     expect(_text('만원', contains: true), findsNothing);
   });
 
@@ -693,6 +698,58 @@ void main() {
     expect(find.text(names[PDatePreset.last3Months]!), findsOneWidget);
     expect(find.text(names[PDatePreset.lastMonth]!), findsNothing);
     expect(find.text(names[PDatePreset.thisYear]!), findsNothing);
+  });
+
+  testWidgets('글자 200% — 두 자리 날 숫자 원이 글을 따라 늘어 잘리지 않는다', (tester) async {
+    await _pump(tester, textScale: 2, expenses: (_) async => const []);
+    await tester.tap(find.bySemanticsLabel('월 달력'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    final text = find.text('18').first;
+    final circle = find
+        .ancestor(of: text, matching: find.byType(Container))
+        .first;
+    expect(
+      tester.getSize(circle).width,
+      greaterThanOrEqualTo(tester.getSize(text).width + 8 - 0.5),
+      reason: '좌우 4 + 글 폭 이상',
+    );
+    expect(tester.getSize(circle).width, greaterThanOrEqualTo(36));
+  });
+
+  testWidgets('줄이 ⋮ 자리만큼 좁아도 카테고리는 줄지 않는다(자산 이름이 먼저 준다)', (tester) async {
+    await _pump(
+      tester,
+      expenses: (_) async => [
+        _tx(1, '가게', 12000).copyWith(
+          categoryRowId: null,
+          categoryName: '주거 · 관리비 · 공과금',
+          assetName: '아주 길고 긴 이름의 통장 별칭입니다 정말로 길어요 길어요',
+        ),
+      ],
+    );
+    final cat = _text('주거 · 관리비 · 공과금', contains: true);
+    expect(cat, findsOneWidget);
+    // 글 폭이 그대로(13px 에서 약 90) — 한 글자 + … 로 줄지 않았다
+    expect(tester.getSize(cat).width, greaterThan(70));
+  });
+
+  test('폰 빠른 기간의 범위는 ds 정의(달력 단위)를 따른다 — 이름은 이번 주 · 이번 달 · 3개월', () {
+    expect(kFilterPeriodPresets, [
+      PDatePreset.thisWeek,
+      PDatePreset.thisMonth,
+      PDatePreset.last3Months,
+    ]);
+    // 2026-10-23(금) 기준
+    final today = DateTime(2026, 10, 23);
+    final week = getPresetRange(PDatePreset.thisWeek, today);
+    expect(week.start, DateTime(2026, 10, 18), reason: '일요일 시작');
+    expect(week.end, DateTime(2026, 10, 24), reason: '토요일 끝(앞으로의 날도 든다)');
+    final month = getPresetRange(PDatePreset.thisMonth, today);
+    expect(month.start, DateTime(2026, 10, 1));
+    expect(month.end, DateTime(2026, 10, 31), reason: '이달 말일까지(옛 폰은 오늘까지)');
+    final three = getPresetRange(PDatePreset.last3Months, today);
+    expect(three.start, DateTime(2026, 8, 1), reason: '두 달 전 1일');
+    expect(three.end, DateTime(2026, 10, 31));
   });
 
   group('200% · 다크 — 가장 나쁜 값에서 넘침 오류가 없다', () {

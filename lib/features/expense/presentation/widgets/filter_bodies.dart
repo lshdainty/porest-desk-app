@@ -131,7 +131,7 @@ String _ymd(DateTime d) =>
     '${d.day.toString().padLeft(2, '0')}';
 
 /// 폰 빠른 기간 — 옛 폰 탭에 있던 이번 주 · 이번 달 · 3개월만(스펙 한 벌의 넓은 기간 지난달 · 올해는 폰에 들이지 않는다).
-const _presets = [
+const kFilterPeriodPresets = [
   PDatePreset.thisWeek,
   PDatePreset.thisMonth,
   PDatePreset.last3Months,
@@ -159,7 +159,7 @@ Future<PDateRange?> showFilterPeriodSheet(
               labels: labels,
               semanticLabel: l.expFilterPeriodPick,
               visibleRange: PDateVisibleRange.continuous,
-              presets: _presets,
+              presets: kFilterPeriodPresets,
               value: draft,
               min: DateTime(2000),
               max: DateTime(2100),
