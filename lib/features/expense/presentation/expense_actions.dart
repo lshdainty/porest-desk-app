@@ -12,6 +12,9 @@ import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:groo_damda_app/features/expense/presentation/closed_cycle_notice.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/actions/item_actions.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart'
+    as ds;
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 거래 하나에 할 수 있는 일 — 목록 행(스와이프)과 상세 시트가 같은 것을 부른다.
@@ -114,6 +117,47 @@ class ExpenseActions implements ItemActions<Expense> {
           confirmTitle: deleteConfirmTitle(context, e),
           confirmMessage: deleteConfirmMessageWith(context, e, asset),
           onSelect: () => delete(context, ref, e, asset: asset),
+        ),
+    ];
+  }
+
+  /// 목록 줄의 밀기 · 줄 끝 ⋮ 가 함께 쓰는 동작 — ds Swipe Actions 의 배열이다(수정 → 삭제 차례, I-07 6).
+  ///
+  /// 시스템이 만든 거래(`autoSource != null`)는 비어 있다(밀기 · ⋮ 모두 없음). 삭제는 ds 가 확인창을 갖지 않으므로
+  /// 여기서 Alert Dialog 를 먼저 띄운다 — 제목 · 본문은 상세 시트에서 지울 때와 같다(결제가 끝난 회차 한 줄 포함).
+  List<ds.PSwipeAction> dsSwipeActions(
+    BuildContext context,
+    WidgetRef ref,
+    Expense e, {
+    required Asset? asset,
+  }) {
+    final l = AppLocalizations.of(context);
+    return [
+      if (canEdit(e))
+        ds.PSwipeAction(
+          label: l.actionEdit,
+          icon: LucideIcons.pencil,
+          kind: ds.PSwipeActionKind.primary,
+          onSelect: () => edit(context, ref, e),
+        ),
+      if (canDelete(e))
+        ds.PSwipeAction(
+          label: l.actionDelete,
+          icon: LucideIcons.trash2,
+          kind: ds.PSwipeActionKind.destructive,
+          onSelect: () async {
+            final ok = await PAlertDialog.show(
+              context,
+              title: deleteConfirmTitle(context, e),
+              description: deleteConfirmMessageWith(context, e, asset),
+              cancelLabel: l.actionCancel,
+              actionLabel: l.actionDelete,
+              destructive: true,
+            );
+            if (ok && context.mounted) {
+              await delete(context, ref, e, asset: asset);
+            }
+          },
         ),
     ];
   }

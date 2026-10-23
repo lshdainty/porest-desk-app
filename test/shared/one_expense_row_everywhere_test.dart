@@ -19,7 +19,8 @@ const _rowWidget = 'lib/features/expense/presentation/widgets/expense_row.dart';
 
 /// 거래 목록을 그리는 네 화면.
 const _screens = {
-  '가계부': 'lib/features/expense/presentation/expense_screen.dart',
+  // 날짜 묶음(머리 + 줄)은 I-07 에서 expense_screen 밖 ledger_day_group.dart 로 나갔다.
+  '가계부': 'lib/features/expense/presentation/widgets/ledger_day_group.dart',
   '검색': 'lib/features/search/presentation/search_screen.dart',
   '거래상세': 'lib/features/expense/presentation/tx_detail_dialog.dart',
   '홈': 'lib/features/dashboard/presentation/dashboard_screen.dart',
