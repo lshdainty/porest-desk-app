@@ -394,7 +394,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
 
   /// 본문 + 뒤 붙이개(groo-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
   ///   글([Text]로 넘긴 값) — 본문이 최소 폭(1em + 뒤 여백 10)이 된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다.
-  ///   위젯(금액 노드 · 화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다. 큰 금액을 줄이는 건 화면 몫이다.
+  ///   금액 노드([PListValue]) — 글 값처럼 본문 최소 폭만 남기고 쉼표 뒤에서 줄을 바꾼다(글자는 줄이지 않는다).
+  ///   그 밖 위젯(화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다.
   ///
   /// [mergeValue] — 누르는 줄 · 링크 줄은 제목 + 설명 + 값이 한 이름이다(03-D 결정 4 A). 값(글 · [PListValue])만 본문과
   /// 같은 [MergeSemantics] 로 묶고, 화살표 · 작은 버튼 같은 조작 요소는 따로 읽힌다. 읽는 순서는 본문 → 값 → 조작 요소.
@@ -409,7 +410,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
     final parts = splitListSuffix(suffix);
     final merge = mergeValue && parts.values.isNotEmpty;
     final bodyNode = buildBodyNode(container: !merge);
-    final isText = suffix is Text;
+    // 글 값 · 금액 값(PListValue)은 본문 최소 폭만 남기고 줄을 바꾼다 — 금액은 쉼표 뒤에서만(03-D 결정 2 B, keepAllAmount 의 U+200B).
+    final isText = suffix is Text || suffix is PListValue;
     final valueSide = merge
         ? (parts.values.length == 1
               ? parts.values.first

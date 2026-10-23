@@ -702,6 +702,23 @@ void main() {
       for (var i = 3; i <= 10; i++) _tx(i, '가게 $i', 1000 * i),
     ];
 
+    testWidgets('360 · 100% 최악값 금액은 쉼표 뒤에서 두 줄이 되고 넘치지 않는다', (tester) async {
+      await _pump(tester, expenses: (_) async => worst);
+      expect(tester.takeException(), isNull);
+      final amount = find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            _plain(w.data ?? '') == '−1,234,567,890원' &&
+            w.style?.fontWeight == FontWeight.w700 &&
+            w.style?.fontSize == null,
+      );
+      expect(amount, findsOneWidget);
+      // 한 줄(t5 22)보다 크다 = 쉼표 뒤에서 접혔다
+      expect(tester.getSize(amount).height, greaterThan(30));
+    });
+
+    // 가장 나쁜 값 −1,234,567,890원 — 쉼표 뒤에서만 줄을 바꿔 넘치지 않는다(03-D 결정 2 B). 200% 는 줄 안 폭 16em 미만이라
+    // 값이 본문 아래로 접힌다(03-D 결정 1 B).
     for (final scale in [1.0, 2.0]) {
       testWidgets('x$scale 가계부 · 소비 요약 · 월 달력', (tester) async {
         final errors = <FlutterErrorDetails>[];
@@ -729,7 +746,7 @@ void main() {
               .map((d) => d.toString().split('\n').take(12).join(' | '))
               .join('\n'),
         );
-      }, skip: scale == 1.0);
+      });
     }
   });
 
