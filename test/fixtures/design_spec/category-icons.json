@@ -3,7 +3,7 @@
   "source": "specs/components/category-icons.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "853c4f4d30e9"
+    "sha256": "a3df9fd00e94"
   },
   "data": {
     "name": "CategoryIcons",

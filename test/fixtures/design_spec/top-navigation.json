@@ -3,7 +3,7 @@
   "source": "specs/components/top-navigation.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "853c4f4d30e9"
+    "sha256": "a3df9fd00e94"
   },
   "slots": {
     "root": "바 — 화면 폭 · 높이 56(위 안전 영역은 더한다). 맨 위에 붙어 스크롤해도 그 자리에 있다",
@@ -30,11 +30,16 @@
       "back",
       "close",
       "menu"
+    ],
+    "tone": [
+      "layer",
+      "transparent"
     ]
   },
   "defaults": {
     "type": "standard",
-    "leadingIcon": "back"
+    "leadingIcon": "back",
+    "tone": "layer"
   },
   "states": [
     "enabled",
@@ -282,6 +287,44 @@
     },
     {
       "when": {
+        "tone": "transparent"
+      },
+      "enabled": {
+        "root": {
+          "background": "transparent",
+          "position": "사진 위에 겹침(sticky 그대로)",
+          "scrim": "열린 일",
+          "scrimBleedBottom": 20
+        },
+        "title": {
+          "foreground": "#FFFFFF"
+        },
+        "iconButton": {
+          "color": "#FFFFFF"
+        },
+        "textButton": {
+          "foreground": "#FFFFFF"
+        }
+      },
+      "hovered": {
+        "iconButton": {
+          "background": "열린 일"
+        },
+        "textButton": {
+          "background": "열린 일"
+        }
+      },
+      "pressed": {
+        "iconButton": {
+          "background": "열린 일"
+        },
+        "textButton": {
+          "background": "열린 일"
+        }
+      }
+    },
+    {
+      "when": {
         "leadingIcon": "back"
       },
       "enabled": {
@@ -348,7 +391,7 @@
       "state": "enabled",
       "slot": "root",
       "prop": "background",
-      "note": "불투명 — 투명 바(사진 위 흰 글자 + 막)는 두지 않는다"
+      "note": "불투명(tone layer) — 사진 위 투명 바는 아래 tone 규칙"
     },
     {
       "rule": 0,
@@ -717,19 +760,96 @@
     {
       "rule": 4,
       "state": "enabled",
-      "slot": "leading",
-      "prop": "glyph",
-      "note": "이름 \"뒤로\""
+      "slot": "root",
+      "prop": "background",
+      "note": "SEED tone transparent(gradient=false 의 바탕 #00000000) — 사진 위에 겹친다. 스크롤해 사진이 바 밑으로 지나가면 tone layer 로 바뀌어 바탕이 채워진다(SEED \"배경이 투명한 Top Navigation 을 사용하는 경우 스크롤할 때 배경색이 채워지는 동작\") — 선은 긋지 않는다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "position",
+      "note": "본문(사진)이 바 아래가 아니라 화면 맨 위(위 안전 영역 포함)에서 시작한다 — 바는 그 위에 얹힌다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "scrim",
+      "note": "SEED gradient=true(권장 — gradient=false 는 '권장하지 않습니다 … 가독성을 직접 확보해야') — 바 위 검정 35%(#00000059) → 아래 투명. groo 토큰이 없다 — 이 톤을 쓰는 화면을 이관할 때 정한다"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "root",
+      "prop": "scrimBleedBottom",
+      "note": "SEED bleedBottom x5 — 막이 바 아래로 20 더 내려온다(막과 함께 쓴다)"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "foreground",
+      "note": "SEED palette.static-white — 두 모드 같다. 대비는 사진과 막이 정한다(막은 열린 일)"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "iconButton",
+      "prop": "color",
+      "note": "SEED top-navigation-icon-button tone transparent"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
+      "slot": "textButton",
+      "prop": "foreground",
+      "note": "SEED top-navigation-text-button tone transparent"
+    },
+    {
+      "rule": 4,
+      "state": "hovered",
+      "slot": "iconButton",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed(투명도 있는 누름 바탕) — groo 토큰이 없다. 불투명한 bg-layer-default-pressed 는 사진 위에 회색 상자가 되어 쓰지 않는다 — 정할 때까지 바탕 없이 축소만"
+    },
+    {
+      "rule": 4,
+      "state": "hovered",
+      "slot": "textButton",
+      "prop": "background",
+      "note": "아이콘 버튼과 같다"
+    },
+    {
+      "rule": 4,
+      "state": "pressed",
+      "slot": "iconButton",
+      "prop": "background",
+      "note": "SEED bg.transparent-pressed — groo 토큰 없음. 정할 때까지 바탕 없이 2px 거리 축소만"
+    },
+    {
+      "rule": 4,
+      "state": "pressed",
+      "slot": "textButton",
+      "prop": "background",
+      "note": "아이콘 버튼과 같다"
     },
     {
       "rule": 5,
       "state": "enabled",
       "slot": "leading",
       "prop": "glyph",
-      "note": "이름 \"닫기\""
+      "note": "이름 \"뒤로\" — 기본은 들어온 화면(History), 화면마다 상위 화면(Hierarchy)을 고를 수 있다(top-navigation.md 의 \"← 는 어디로\")"
     },
     {
       "rule": 6,
+      "state": "enabled",
+      "slot": "leading",
+      "prop": "glyph",
+      "note": "이름 \"닫기\""
+    },
+    {
+      "rule": 7,
       "state": "enabled",
       "slot": "leading",
       "prop": "glyph",

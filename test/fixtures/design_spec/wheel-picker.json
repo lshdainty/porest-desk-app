@@ -3,7 +3,7 @@
   "source": "specs/components/wheel-picker.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "853c4f4d30e9"
+    "sha256": "a3df9fd00e94"
   },
   "slots": {
     "root": "휠 — 칼럼 묶음을 가운데에 모은다",
