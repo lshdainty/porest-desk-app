@@ -4274,7 +4274,6 @@
   "expFilterAddAmountRange": "구간 추가",
   "expFilterPeriodAlwaysAnd": "기간은 항상 함께 적용돼요.",
   "expFilterRemoveRow": "이 줄 지우기",
-  "expFilterChipLegend": "한 번 더 누르면 '빼고'가 돼요.",
   "expFilterExcluded": "{count}개 빼고",
   "@expFilterExcluded": {
     "placeholders": {

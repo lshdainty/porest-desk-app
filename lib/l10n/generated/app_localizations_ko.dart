@@ -7020,9 +7020,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFilterRemoveRow => '이 줄 지우기';
 
   @override
-  String get expFilterChipLegend => '한 번 더 누르면 \'빼고\'가 돼요.';
-
-  @override
   String expFilterExcluded(int count) {
     return '$count개 빼고';
   }

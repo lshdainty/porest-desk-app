@@ -7139,9 +7139,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expFilterRemoveRow => 'Remove this row';
 
   @override
-  String get expFilterChipLegend => 'Tap again to exclude it.';
-
-  @override
   String expFilterExcluded(int count) {
     return '$count excluded';
   }

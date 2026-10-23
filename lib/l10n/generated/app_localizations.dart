@@ -12710,12 +12710,6 @@ abstract class AppLocalizations {
   /// **'이 줄 지우기'**
   String get expFilterRemoveRow;
 
-  /// No description provided for @expFilterChipLegend.
-  ///
-  /// In ko, this message translates to:
-  /// **'한 번 더 누르면 \'빼고\'가 돼요.'**
-  String get expFilterChipLegend;
-
   /// No description provided for @expFilterExcluded.
   ///
   /// In ko, this message translates to:
