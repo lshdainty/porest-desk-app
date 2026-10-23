@@ -15,7 +15,8 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_responsive_pair.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 새 버전이 나왔을 때 앞을 막고 알리는 화면.
@@ -262,30 +263,23 @@ class _Actions extends ConsumerWidget {
       );
     }
 
-    return Row(
-      children: [
-        Expanded(
-          child: PButton(
-            label: l.actionCancel,
-            // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리 없는
-            // 회색 채움(spec button.md Migration notes 2026-08).
-            variant: PButtonVariant.secondary,
-            size: PButtonSize.lg,
-            fullWidth: true,
-            onPressed: onCancel,
-          ),
-        ),
-        const SizedBox(width: PSpacing.x3),
-        Expanded(
-          child: PButton(
-            label: progress.stage == ApkStage.failed
-                ? l.updateSheetRetry
-                : l.updateGateInstall,
-            size: PButtonSize.lg,
-            onPressed: () => _install(context, ref),
-          ),
-        ),
-      ],
+    // 화면 바닥의 Dismiss + CTA — 3:7(button.md). 라벨이 자기 몫을 넘으면 쌓는다.
+    return PResponsivePair(
+      secondaryFlex: 3,
+      primaryFlex: 7,
+      secondary: PButton(
+        label: l.actionCancel,
+        size: PButtonSize.large,
+        variant: PButtonVariant.neutralWeak,
+        onPressed: onCancel,
+      ),
+      primary: PButton(
+        label: progress.stage == ApkStage.failed
+            ? l.updateSheetRetry
+            : l.updateGateInstall,
+        size: PButtonSize.large,
+        onPressed: () => _install(context, ref),
+      ),
     );
   }
 

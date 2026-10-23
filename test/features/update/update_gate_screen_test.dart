@@ -17,6 +17,7 @@ import 'package:groo_damda_app/core/update/apk_installer.dart';
 import 'package:groo_damda_app/core/update/app_update.dart';
 import 'package:groo_damda_app/features/update/presentation/update_gate_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
@@ -143,6 +144,30 @@ void main() {
 
   testWidgets('글자 200% · 폭 360 — 넘치지 않는다', (tester) async {
     await _pump(tester, forced: true, scale: 2);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('바닥 짝 [취소][설치] — 100% 는 한 줄 3 : 7, 200% 는 쌓인다', (tester) async {
+    await _pump(tester, forced: true);
+    expect(find.byKey(const ValueKey('pair-row')), findsOneWidget);
+    final cancel = tester.getSize(find.byType(PButton).first);
+    final install = tester.getSize(find.byType(PButton).last);
+    expect(cancel.width, closeTo(304 * 0.3, 0.01));
+    expect(install.width, closeTo(304 * 0.7, 0.01));
+    expect(cancel.height, 48);
+    expect(
+      tester.widget<PButton>(find.byType(PButton).first).variant,
+      PButtonVariant.neutralWeak,
+    );
+    expect(
+      tester.widget<PButton>(find.byType(PButton).last).variant,
+      PButtonVariant.neutralSolid,
+    );
+  });
+
+  testWidgets('바닥 짝 200% — 쌓이고 오류가 없다', (tester) async {
+    await _pump(tester, forced: true, scale: 2);
+    expect(find.byKey(const ValueKey('pair-column')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
