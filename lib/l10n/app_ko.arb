@@ -1901,7 +1901,7 @@
   "expActionFailed": "실패",
   "expUpdated": "거래가 수정되었습니다",
   "expAdded": "거래가 추가되었습니다",
-  "expDeleteConfirm": "\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.",
+  "expDeleteConfirm": "\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요.",
   "@expDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -2038,8 +2038,6 @@
   "expPeriodWeek": "이번 주",
   "expPeriod3Month": "3개월",
   "expPeriodCustom": "직접 선택",
-  "expStartDate": "시작일",
-  "expEndDate": "종료일",
   "expDateRangeError": "시작일이 종료일보다 늦을 수 없어요.",
   "expTxType": "거래 종류",
   "expAmountRange": "금액 범위",
@@ -4604,7 +4602,7 @@
   "apiErrorNetwork": "네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.",
   "txmCalendarToggle": "월 달력",
   "expFilteredEmpty": "조건에 맞는 거래가 없어요",
-  "expFilteredEmptyDesc": "조건을 바꾸거나 지워 보세요.",
+  "expFilteredEmptyDesc": "조건을 바꾸거나 지워보세요.",
   "expFilterMatchAllDesc": "걸린 조건을 모두 만족하는 거래만",
   "expFilterMatchAnyDesc": "걸린 조건 중 하나라도 만족하면",
   "expFilterModeInclude": "고른 것만",
@@ -4612,6 +4610,7 @@
   "expFilterPeriodPick": "기간 선택",
   "expFilterClearOne": "{name} 지우기",
   "@expFilterClearOne": {"placeholders": {"name": {"type": "String"}}},
-  "expFilterMoreCount": "{first} 외 {count}개",
-  "@expFilterMoreCount": {"placeholders": {"first": {"type": "String"}, "count": {"type": "int"}}}
+  "expFilterModeGroup": "{name} 고르는 방식",
+  "expLoadErrorDesc": "잠시 뒤에 다시 시도해주세요.",
+  "@expFilterModeGroup": {"placeholders": {"name": {"type": "String"}}}
 }

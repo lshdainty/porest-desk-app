@@ -2021,8 +2021,6 @@
   "expPeriodWeek": "This week",
   "expPeriod3Month": "3 months",
   "expPeriodCustom": "Custom",
-  "expStartDate": "Start date",
-  "expEndDate": "End date",
   "expDateRangeError": "Start date can't be after end date.",
   "expTxType": "Transaction type",
   "expAmountRange": "Amount range",
@@ -4356,6 +4354,7 @@
   "expFilterPeriodPick": "Pick a period",
   "expFilterClearOne": "Clear {name}",
   "@expFilterClearOne": {"placeholders": {"name": {"type": "String"}}},
-  "expFilterMoreCount": "{first} +{count} more",
-  "@expFilterMoreCount": {"placeholders": {"first": {"type": "String"}, "count": {"type": "int"}}}
+  "expFilterModeGroup": "How to pick {name}",
+  "expLoadErrorDesc": "Please try again in a moment.",
+  "@expFilterModeGroup": {"placeholders": {"name": {"type": "String"}}}
 }

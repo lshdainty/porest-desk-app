@@ -5555,7 +5555,7 @@ abstract class AppLocalizations {
   /// No description provided for @expDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.'**
+  /// **'\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요.'**
   String expDeleteConfirm(String name);
 
   /// No description provided for @expDeleted.
@@ -5941,18 +5941,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'직접 선택'**
   String get expPeriodCustom;
-
-  /// No description provided for @expStartDate.
-  ///
-  /// In ko, this message translates to:
-  /// **'시작일'**
-  String get expStartDate;
-
-  /// No description provided for @expEndDate.
-  ///
-  /// In ko, this message translates to:
-  /// **'종료일'**
-  String get expEndDate;
 
   /// No description provided for @expDateRangeError.
   ///
@@ -13817,7 +13805,7 @@ abstract class AppLocalizations {
   /// No description provided for @expFilteredEmptyDesc.
   ///
   /// In ko, this message translates to:
-  /// **'조건을 바꾸거나 지워 보세요.'**
+  /// **'조건을 바꾸거나 지워보세요.'**
   String get expFilteredEmptyDesc;
 
   /// No description provided for @expFilterMatchAllDesc.
@@ -13856,11 +13844,17 @@ abstract class AppLocalizations {
   /// **'{name} 지우기'**
   String expFilterClearOne(String name);
 
-  /// No description provided for @expFilterMoreCount.
+  /// No description provided for @expFilterModeGroup.
   ///
   /// In ko, this message translates to:
-  /// **'{first} 외 {count}개'**
-  String expFilterMoreCount(String first, int count);
+  /// **'{name} 고르는 방식'**
+  String expFilterModeGroup(String name);
+
+  /// No description provided for @expLoadErrorDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤에 다시 시도해주세요.'**
+  String get expLoadErrorDesc;
 }
 
 class _AppLocalizationsDelegate

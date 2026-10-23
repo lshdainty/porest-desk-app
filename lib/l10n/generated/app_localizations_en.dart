@@ -3283,12 +3283,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expPeriodCustom => 'Custom';
 
   @override
-  String get expStartDate => 'Start date';
-
-  @override
-  String get expEndDate => 'End date';
-
-  @override
   String get expDateRangeError => 'Start date can\'t be after end date.';
 
   @override
@@ -7838,7 +7832,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String expFilterMoreCount(String first, int count) {
-    return '$first +$count more';
+  String expFilterModeGroup(String name) {
+    return 'How to pick $name';
   }
+
+  @override
+  String get expLoadErrorDesc => 'Please try again in a moment.';
 }

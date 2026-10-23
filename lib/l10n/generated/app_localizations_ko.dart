@@ -3020,7 +3020,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String expDeleteConfirm(String name) {
-    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.';
+    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요.';
   }
 
   @override
@@ -3233,12 +3233,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expPeriodCustom => '직접 선택';
-
-  @override
-  String get expStartDate => '시작일';
-
-  @override
-  String get expEndDate => '종료일';
 
   @override
   String get expDateRangeError => '시작일이 종료일보다 늦을 수 없어요.';
@@ -7643,7 +7637,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFilteredEmpty => '조건에 맞는 거래가 없어요';
 
   @override
-  String get expFilteredEmptyDesc => '조건을 바꾸거나 지워 보세요.';
+  String get expFilteredEmptyDesc => '조건을 바꾸거나 지워보세요.';
 
   @override
   String get expFilterMatchAllDesc => '걸린 조건을 모두 만족하는 거래만';
@@ -7666,7 +7660,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String expFilterMoreCount(String first, int count) {
-    return '$first 외 $count개';
+  String expFilterModeGroup(String name) {
+    return '$name 고르는 방식';
   }
+
+  @override
+  String get expLoadErrorDesc => '잠시 뒤에 다시 시도해주세요.';
 }
