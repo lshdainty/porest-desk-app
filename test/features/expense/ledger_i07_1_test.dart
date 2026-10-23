@@ -1,0 +1,563 @@
+// 가계부 폰 옮기기 · 거르기 시트 · 조건 본문 부품(I-07 07-1 앱 몫).
+//
+// 화면을 실제로 띄워 값을 잰다 — 부품만 검사해 통과시키지 않는다(O 표). 고정한 오늘은 쓰지 않고 오늘 기준 상대 날짜로
+// 데이터를 만든다(고정한 오늘 + 벽시계 = 시한폭탄).
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
+import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
+import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
+import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
+import 'package:groo_damda_app/features/expense/presentation/filter_dialog.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_day_group.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/widgets/p_card.dart';
+
+/// ds List 의 keepAll 이 글자 사이에 넣는 U+2060 · U+200B 를 뺀 글로 찾는다.
+String _plain(String s) => s.replaceAll('\u2060', '').replaceAll('\u200B', '');
+
+Finder _text(String s, {bool contains = false}) => find.byWidgetPredicate((w) {
+  if (w is! Text) return false;
+  final raw = _plain(w.data ?? w.textSpan?.toPlainText() ?? '');
+  return contains ? raw.contains(s) : raw == s;
+});
+
+String _ymd(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
+/// 이번 달 1일의 오전 — 오늘보다 늘 앞이거나 같은 날(예정 거래가 되지 않는다).
+String _stamp(int day) {
+  final now = DateTime.now();
+  return '${_ymd(DateTime(now.year, now.month, day))}T00:00:00';
+}
+
+Expense _tx(
+  int id,
+  String name,
+  int amount, {
+  String type = 'EXPENSE',
+  String? auto,
+  int day = 1,
+  int categoryId = 1,
+  int assetId = 1,
+}) => Expense(
+  rowId: id,
+  expenseType: type,
+  amount: amount,
+  merchant: name,
+  expenseDate: _stamp(day),
+  categoryRowId: categoryId,
+  categoryName: '식비',
+  assetRowId: assetId,
+  assetName: '월급 통장',
+  autoSource: auto,
+);
+
+const _cats = [
+  ExpenseCategory(rowId: 1, categoryName: '식비', expenseType: 'EXPENSE'),
+  ExpenseCategory(rowId: 2, categoryName: '교통', expenseType: 'EXPENSE'),
+];
+
+const _assets = [
+  Asset(rowId: 1, assetName: '월급 통장', assetType: 'BANK_ACCOUNT'),
+  Asset(rowId: 2, assetName: '지갑', assetType: 'CASH'),
+];
+
+Future<void> _pump(
+  WidgetTester tester, {
+  Future<List<Expense>> Function(MonthKey key)? expenses,
+  List<AssetTransfer> transfers = const [],
+  String locale = 'ko',
+  Brightness brightness = Brightness.light,
+  double textScale = 1,
+  bool disableAnimations = false,
+  int? initialAssetId,
+  String? initialMonth,
+  Size size = const Size(360, 780),
+}) async {
+  tester.view.physicalSize = Size(size.width * 2, size.height * 2);
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    ProviderScope(
+      retry: (_, _) => null,
+      overrides: [
+        categoriesProvider.overrideWith((ref) async => _cats),
+        assetsProvider.overrideWith((ref) async => _assets),
+        assetTransfersProvider.overrideWith((ref, key) async => transfers),
+        monthExpensesProvider.overrideWith(
+          (ref, key) =>
+              expenses?.call(key) ??
+              Future.value([
+                _tx(1, '점심 가게', 12000, day: 1),
+                _tx(2, '월급', 3000000, type: 'INCOME', day: 1),
+              ]),
+        ),
+      ],
+      child: MaterialApp(
+        theme: brightness == Brightness.dark
+            ? GrooTheme.dark()
+            : GrooTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: Locale(locale),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(textScale),
+            disableAnimations: disableAnimations,
+          ),
+          child: child!,
+        ),
+        home: Scaffold(
+          body: ExpenseScreen(
+            initialAssetId: initialAssetId,
+            initialMonth: initialMonth,
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// 필터 시트가 돌려준 값 — 시트를 닫은 뒤 본다.
+ExpenseFilter? _result;
+
+void main() {
+  testWidgets('5 이체 줄 — 거래 줄과 글자 자리가 같고 타일은 회색 40', (tester) async {
+    final now = DateTime.now();
+    await _pump(
+      tester,
+      transfers: [
+        AssetTransfer(
+          rowId: 9,
+          fromAssetRowId: 1,
+          fromAssetName: '월급 통장',
+          toAssetRowId: 2,
+          toAssetName: '지갑',
+          amount: 50000,
+          description: '용돈 옮김',
+          transferDate: '${_ymd(DateTime(now.year, now.month, 1))}T00:00:00',
+        ),
+      ],
+    );
+    final c = tester.element(find.byType(ExpenseScreen)).colors;
+    final txTitle = tester.getTopLeft(find.text('점심 가게')).dx;
+    final trTitle = tester.getTopLeft(_text('용돈 옮김')).dx;
+    expect(trTitle, closeTo(txTitle, 0.5), reason: '거래 줄 · 이체 줄 글자 x');
+    final tile = find.byKey(const ValueKey('plist-tile'));
+    expect(tile, findsOneWidget);
+    expect(tester.getSize(tile), const Size(40, 40));
+    final deco = tester.widget<DecoratedBox>(tile).decoration as BoxDecoration;
+    expect(deco.color, c.chartGrayWeak);
+    expect(deco.borderRadius, BorderRadius.circular(12));
+    // 이체 줄은 밀기 · ⋮ 로 감싸지 않는다 — ⋮ 는 거래 줄 둘뿐
+    expect(find.byIcon(LucideIcons.ellipsisVertical), findsNWidgets(2));
+  });
+
+  testWidgets('6 줄 끝 ⋮ → 메뉴 시트 [수정, 삭제] · 시스템 거래는 ⋮ 없음', (tester) async {
+    await _pump(
+      tester,
+      expenses: (_) async => [
+        _tx(1, '점심 가게', 12000),
+        _tx(2, '매도 손익', 90000, type: 'INCOME', auto: 'TRADE_PNL'),
+      ],
+    );
+    expect(find.byIcon(LucideIcons.ellipsisVertical), findsOneWidget);
+    await tester.tap(find.byIcon(LucideIcons.ellipsisVertical));
+    await tester.pumpAndSettle();
+    expect(find.text('수정'), findsWidgets);
+    expect(find.text('삭제'), findsWidgets);
+  });
+
+  testWidgets('6 알림에서 들어온 줄은 bg-brand-weak 로 강조한다', (tester) async {
+    tester.view.physicalSize = const Size(720, 1560);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          categoriesProvider.overrideWith((ref) async => _cats),
+          assetsProvider.overrideWith((ref) async => _assets),
+          assetTransfersProvider.overrideWith((ref, key) async => const []),
+          monthExpensesProvider.overrideWith(
+            (ref, key) async => [_tx(1, '점심 가게', 12000)],
+          ),
+        ],
+        child: MaterialApp(
+          theme: GrooTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ko'),
+          home: const Scaffold(body: ExpenseScreen(focusTxId: 1)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final c = tester.element(find.byType(ExpenseScreen)).colors;
+    final boxes = tester
+        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+        .where(
+          (b) =>
+              b.decoration is BoxDecoration &&
+              (b.decoration as BoxDecoration).color == c.bgBrandWeak,
+        );
+    expect(boxes, isNotEmpty);
+  });
+
+  testWidgets('7 거르기 단추에 개수 배지 · 켜짐 틴트가 없다 — 이름은 필터', (tester) async {
+    await _pump(tester, initialAssetId: 1);
+    expect(find.byType(PBadge), findsNothing);
+    expect(find.bySemanticsLabel('필터'), findsWidgets);
+  });
+
+  testWidgets('8 소비 요약 ↔ 월 달력은 하나만 펼친다 · 요약에 카드가 없다', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.text('소비 요약'));
+    await tester.pumpAndSettle();
+    expect(_text('합계'), findsOneWidget);
+    expect(find.byType(PCard), findsNothing);
+    // 달력을 펼치면 요약이 접힌다(요약 줄 "합계" 가 사라진다)
+    await tester.tap(find.bySemanticsLabel('월 달력'));
+    await tester.pumpAndSettle();
+    expect(_text('합계'), findsNothing);
+    // 요약을 다시 펼치면 달력이 접힌다
+    await tester.tap(find.text('소비 요약'));
+    await tester.pumpAndSettle();
+    expect(_text('합계'), findsOneWidget);
+  });
+
+  testWidgets('11 오는 날은 불투명도 대신 fg-neutral-subtle · 펼침 이름은 월 달력 고정', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final next = DateTime(now.year, now.month + 1, 1);
+    await _pump(
+      tester,
+      initialMonth: '${next.year}-${next.month.toString().padLeft(2, '0')}',
+      expenses: (_) async => const [],
+    );
+    final c = tester.element(find.byType(ExpenseScreen)).colors;
+    // 접힌 상태 — 한 주. 다음 달은 모두 오는 날이다
+    final dayTexts = find.descendant(
+      of: find.byType(InkWell),
+      matching: find.text('1'),
+    );
+    expect(dayTexts, findsWidgets);
+    final text = tester.widget<Text>(dayTexts.first);
+    expect(text.style!.color, c.fgNeutralSubtle);
+    expect(
+      find.ancestor(of: dayTexts.first, matching: find.byType(Opacity)),
+      findsNothing,
+    );
+    final handle = tester.ensureSemantics();
+    expect(find.bySemanticsLabel('월 달력'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('월 달력'));
+    await tester.pumpAndSettle();
+    // 펼쳐도 이름은 그대로
+    expect(find.bySemanticsLabel('월 달력'), findsOneWidget);
+    handle.dispose();
+  });
+
+  group('12 원장 머리 숨기기', () {
+    final many = [for (var i = 1; i <= 12; i++) _tx(i, '가게 $i', 1000 * i)];
+
+    double headerDy(WidgetTester tester) => tester
+        .widget<Transform>(find.byKey(const ValueKey('pscrollautohide-header')))
+        .transform
+        .getTranslation()
+        .y;
+
+    testWidgets('내리면 머리가 위로 숨는다', (tester) async {
+      await _pump(tester, expenses: (_) async => many);
+      expect(find.byType(PScrollAutoHide), findsOneWidget);
+      await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+      await tester.pump();
+      expect(headerDy(tester), lessThan(0));
+    });
+
+    testWidgets('모션 줄이기면 숨기지 않는다', (tester) async {
+      await _pump(tester, expenses: (_) async => many, disableAnimations: true);
+      await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+      await tester.pump();
+      expect(headerDy(tester), 0);
+    });
+  });
+
+  testWidgets('14 날짜 머리 — 머리말 2 · t4 · 500 · fg-neutral-subtle', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await _pump(tester);
+    final c = tester.element(find.byType(ExpenseScreen)).colors;
+    final head = find.byType(LedgerDayHeader).first;
+    final title = tester.widget<Text>(
+      find
+          .descendant(
+            of: head,
+            matching: find.byWidgetPredicate(
+              (w) => w is Text && (w.data ?? '').contains('. '),
+            ),
+          )
+          .first,
+    );
+    expect(title.style!.fontSize, 14);
+    expect(title.style!.fontWeight, FontWeight.w500);
+    expect(title.style!.color, c.fgNeutralSubtle);
+    final node = tester.getSemantics(
+      find.descendant(
+        of: head,
+        matching: find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.headingLevel == 2,
+        ),
+      ),
+    );
+    expect(node.getSemanticsData().headingLevel, 2);
+    // 그날 합계는 폰에서 그대로 둔다
+    expect(find.textContaining('−12,000원'), findsWidgets);
+    handle.dispose();
+  });
+
+  group('16 비어 있음 · 불러오기 · 실패', () {
+    testWidgets('걸러서 0건 = funnel-x · 버튼 없음', (tester) async {
+      await _pump(tester, initialAssetId: 1, expenses: (_) async => const []);
+      expect(_text('조건에 맞는 거래가 없어요'), findsOneWidget);
+      expect(find.byIcon(LucideIcons.funnelX), findsOneWidget);
+      final section = find.byType(PResultSection);
+      expect(
+        find.descendant(of: section, matching: find.byType(TextButton)),
+        findsNothing,
+      );
+      expect(
+        tester.widget<PResultSection>(section).primaryAction,
+        isNull,
+        reason: '버튼 없음',
+      );
+    });
+
+    testWidgets('이 달 0건 = 지금 글 · 버튼 없음', (tester) async {
+      await _pump(tester, expenses: (_) async => const []);
+      expect(_text('거래가 없어요', contains: true), findsOneWidget);
+      expect(
+        tester
+            .widget<PResultSection>(find.byType(PResultSection))
+            .primaryAction,
+        isNull,
+      );
+    });
+
+    testWidgets('실패에는 오류 원문을 그리지 않고 다시 시도만 둔다', (tester) async {
+      await _pump(
+        tester,
+        expenses: (_) => Future.error(Exception('RAW_SERVER_TEXT_9137')),
+      );
+      expect(find.textContaining('RAW_SERVER_TEXT_9137'), findsNothing);
+      final section = tester.widget<PResultSection>(
+        find.byType(PResultSection),
+      );
+      expect(section.kind, PResultKind.failure);
+      expect(section.primaryAction?.label, '다시 시도');
+    });
+
+    testWidgets('달을 옮길 때 달 이름이 먼저 바뀌고 화면 통째 스켈레톤으로 돌아가지 않는다', (tester) async {
+      final pending = Completer<List<Expense>>();
+      final now = DateTime.now();
+      final cur = (year: now.year, month: now.month);
+      await _pump(
+        tester,
+        expenses: (key) => key == cur
+            ? Future.value([_tx(1, '점심 가게', 12000)])
+            : pending.future,
+      );
+      expect(find.text('${now.month}월'), findsWidgets);
+      final prevMonth = DateTime(now.year, now.month - 1, 1);
+      await tester.tap(find.bySemanticsLabel('이전 달'));
+      await tester.pump(const Duration(milliseconds: 50));
+      // 달 이름은 바로 바뀌고, 머리 틀(Scroll Auto Hide · 달 이동 줄)은 그대로 있다
+      expect(find.text('${prevMonth.month}월'), findsWidgets);
+      expect(find.byType(PScrollAutoHide), findsOneWidget);
+      expect(find.byType(PSkeleton), findsWidgets);
+      // 옛 달 숫자는 지운다
+      expect(find.text('점심 가게'), findsNothing);
+      pending.complete(const []);
+      await tester.pumpAndSettle();
+    });
+  });
+
+  group('18 ~ 23 필터 시트와 조건 본문', () {
+    Future<ExpenseFilter?> open(
+      WidgetTester tester, {
+      ExpenseFilter initial = const ExpenseFilter(),
+      Brightness brightness = Brightness.light,
+      double textScale = 1,
+    }) async {
+      tester.view.physicalSize = const Size(720, 1560);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      _result = null;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            categoriesProvider.overrideWith((ref) async => _cats),
+            assetsProvider.overrideWith((ref) async => _assets),
+          ],
+          child: MaterialApp(
+            theme: brightness == Brightness.dark
+                ? GrooTheme.dark()
+                : GrooTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              child: child!,
+            ),
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () async {
+                    _result = await showFilterDialog(context, initial);
+                  },
+                  child: const Text('열기'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('열기'));
+      await tester.pumpAndSettle();
+      return _result;
+    }
+
+    testWidgets('조건이 하나 이하면 조건 맞추기 두 줄이 막힌다 · 안내가 뜬다', (tester) async {
+      await open(tester);
+      expect(find.text('조건이 두 개 이상일 때 고를 수 있어요.'), findsOneWidget);
+      expect(_text('모두 일치'), findsOneWidget);
+      expect(_text('하나라도 일치'), findsOneWidget);
+      expect(_text('걸린 조건을 모두 만족하는 거래만'), findsOneWidget);
+    });
+
+    testWidgets('빼고 로 바꾸면 고른 것이 exclude 로 옮겨 가고 섞이지 않는다', (tester) async {
+      await open(tester);
+      await tester.ensureVisible(find.text('식비'));
+      await tester.tap(find.text('식비'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('고른 것 빼고').first);
+      await tester.tap(find.text('고른 것 빼고').first);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('교통'));
+      await tester.tap(find.text('교통'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('필터 적용'));
+      await tester.pumpAndSettle();
+      expect(find.text('필터 적용'), findsNothing);
+      // 넣기 · 빼기가 한 조건 안에서 섞이지 않는다 — 식비(넣기)가 빼기로 옮겨 가고 교통이 더해졌다
+      expect(_result!.categories.include, isEmpty);
+      expect(_result!.categories.exclude, {1, 2});
+    });
+
+    testWidgets('기간 오류(시작 > 끝)면 필터 적용이 막힌다', (tester) async {
+      await open(
+        tester,
+        initial: const ExpenseFilter(
+          periods: [
+            FilterPeriodRange(
+              preset: FilterPeriodPreset.custom,
+              start: '2026-10-20',
+              end: '2026-10-01',
+            ),
+          ],
+        ),
+      );
+      expect(find.text('시작일이 종료일보다 늦을 수 없어요.'), findsOneWidget);
+      await tester.tap(find.text('필터 적용'));
+      await tester.pumpAndSettle();
+      // 막혀서 시트가 그대로 열려 있다
+      expect(find.text('필터 적용'), findsOneWidget);
+    });
+
+    testWidgets('거래 종류 둘 다 끄면 전체 — 칩 줄에 엉뚱한 수입 칩이 생기지 않는다', (tester) async {
+      await open(tester);
+      for (final name in ['지출', '수입']) {
+        await tester.ensureVisible(find.text(name).first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(name).first);
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.text('필터 적용'));
+      await tester.pumpAndSettle();
+      expect(find.text('필터 적용'), findsNothing);
+      // 둘 다 끄면 둘 다 켠 것과 같다 — 빈 집합을 내보내지 않는다(= 종류 조건 없음)
+      expect(_result!.types, {'EXPENSE', 'INCOME'});
+      expect(activeConditionCount(_result!), 0);
+    });
+
+    testWidgets('본문이 넘치면 본문만 스크롤하고 200% 에서도 넘침 오류가 없다', (tester) async {
+      await open(tester, textScale: 2, brightness: Brightness.dark);
+      expect(tester.takeException(), isNull);
+      await tester.drag(
+        find
+            .descendant(
+              of: find.byType(PBottomSheetContent),
+              matching: find.byType(SingleChildScrollView),
+            )
+            .first,
+        const Offset(0, -600),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  testWidgets('13 가계부 묶음 1차 Line 탭은 화면을 내려도 상단에 남는다', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GrooTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: Scaffold(
+          body: MoneyBundleScreen(
+            tab: MoneyTab.expense,
+            pages: [
+              ListView(children: [for (var i = 0; i < 60; i++) Text('줄 $i')]),
+              const SizedBox(),
+              const SizedBox(),
+              const SizedBox(),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final before = tester.getTopLeft(find.byType(PTabs<MoneyTab>));
+    await tester.drag(find.byType(ListView).first, const Offset(0, -800));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.byType(PTabs<MoneyTab>)), before);
+  });
+}
