@@ -228,7 +228,7 @@ void main() {
       expect(tester.widget<TextField>(_fieldWith('버스')).enabled, isNot(false));
 
       expect(
-        find.text('결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요'),
+        find.text('결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러주세요'),
         findsOneWidget,
       );
       expect(find.text('고쳐 쓰기'), findsOneWidget);
