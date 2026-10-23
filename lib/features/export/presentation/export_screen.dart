@@ -17,10 +17,10 @@ import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
-import 'package:groo_damda_app/shared/ds/list/list_row.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/select_box/p_select_box.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
@@ -309,8 +309,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     } on ExportStalledException {
       // 받은 바이트가 10초 동안 늘지 않으면 끊는다(I-05 47) — 옛 길의 오류 띠 + [다시 시도]
       if (mounted) _failBar(l.exportStalled);
-    } on ApiException catch (e) {
-      if (mounted) _failBar(e.message.isEmpty ? l.exportFailed : e.message);
+    } on ApiException {
+      // 서버가 준 글은 그대로 내지 않는다(Writing 오류) — 화면 글 + [다시 시도]
+      if (mounted) _failBar(l.exportFailed);
     } finally {
       if (mounted) setState(() => _downloading = false);
     }
@@ -558,7 +559,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   // ── 데이터 종류 ──────────────────────────────────────────
 
   Widget _typesBody(AppLocalizations l) {
-    final c = context.colors;
     final group = PListCheckGroup(
       semanticLabel: l.exportTypesTitle(_selected.length),
       children: [
@@ -570,17 +570,21 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         ),
         const PListDivider(),
         for (final t in _types)
-          _TypeRow(
-            icon: t.icon,
+          PListCheckItem(
             title: _typeLabel(l, t.name),
+            // 앞 = 아이콘 22(list.yaml icon) — 줄이 22 · fg-neutral 로 입힌다
+            prefix: Icon(t.icon),
+            markPosition: PListMarkPosition.suffix,
             checked: _selected.contains(t.name),
-            onChanged: () => _toggleType(t.name),
-            value: _countsFailed
+            onChanged: (_) => _toggleType(t.name),
+            // 뒤 값 = 개수 — 불러오는 중이면 글 자리 Skeleton, 실패하면 비운다
+            suffixValue: _countsFailed
                 ? null
                 : _counts.containsKey(t.slug)
-                ? l.exportCount(_counts[t.slug]!)
+                ? Text(l.exportCount(_counts[t.slug]!))
+                : _countsLoading
+                ? PSkeleton.text(PTypography.t5, width: PSpacing.x10)
                 : null,
-            loading: _countsLoading && !_countsFailed,
           ),
       ],
     );
@@ -610,14 +614,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             ),
           ),
         ],
-        if (_selected.isEmpty && !_countsFailed)
-          Padding(
-            padding: _gutter,
-            child: Text(
-              l.exportTypesDesc,
-              style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
-            ),
-          ),
       ],
     );
   }
@@ -649,33 +645,42 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   Widget _actions(AppLocalizations l) {
     final disabled = _selected.isEmpty || _customInvalid;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        PSpacing.globalGutter,
-        PSpacing.x3,
-        PSpacing.globalGutter,
-        PSpacing.x4,
-      ),
-      child: PResponsivePair(
-        secondary: PButton(
-          label: l.exportPreview,
-          variant: PButtonVariant.neutralWeak,
-          size: PButtonSize.large,
-          loading: _previewing,
-          onPressed: disabled ? null : _runPreview,
+    return SafeArea(
+      top: false,
+      // 화면 바닥 짝 — 좌우 24 · 위 12 · 아래 24, 안전 영역(제스처 막대) 위(I-05 27 · 45)
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          PSpacing.globalGutter,
+          PSpacing.x3,
+          PSpacing.globalGutter,
+          PSpacing.x6,
         ),
-        primary: PButton(
-          label: l.exportRun,
-          variant: PButtonVariant.neutralSolid,
-          size: PButtonSize.large,
-          loading: _downloading,
-          onPressed: disabled ? null : _runExport,
+        child: PResponsivePair(
+          secondary: PButton(
+            label: l.exportPreview,
+            variant: PButtonVariant.neutralWeak,
+            size: PButtonSize.large,
+            loading: _previewing,
+            onPressed: disabled ? null : _runPreview,
+          ),
+          primary: PButton(
+            label: l.exportRun,
+            variant: PButtonVariant.neutralSolid,
+            size: PButtonSize.large,
+            loading: _downloading,
+            onPressed: disabled ? null : _runExport,
+          ),
         ),
       ),
     );
   }
 
   // ── 미리보기 — 폰이라 표가 아니라 List 줄(table.md "폰이라 List 줄로") ──
+
+  /// 금액 열 — 머리 이름이 금액인 열(R13 줄 금액으로 뒤에 둔다). 없으면 -1.
+  int _amountColumn(List<String> headers) => headers.indexWhere(
+    (h) => h.contains('금액') || h.toLowerCase().contains('amount'),
+  );
 
   Widget _previewBody(AppLocalizations l) {
     final c = context.colors;
@@ -692,6 +697,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               totalCount: 0,
             ),
     );
+    final amountAt = _amountColumn(active.headers);
+    final total = tables.fold<int>(0, (a, t) => a + t.totalCount);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -711,17 +718,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             ],
           ),
         if (active.rows.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpacing.globalGutter,
-              vertical: PSpacing.x5,
-            ),
-            child: Center(
-              child: Text(
-                l.exportEmpty,
-                style: PTypography.t5.copyWith(color: c.fgNeutralSubtle),
-              ),
-            ),
+          PResultSection(
+            kind: PResultKind.empty,
+            size: PResultSize.medium,
+            icon: LucideIcons.fileSearch,
+            title: l.exportPreviewEmptyTitle,
+            description: l.exportEmpty,
           )
         else
           PList(
@@ -732,71 +734,28 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   title: row.isEmpty ? '' : row.first,
                   detailChild: PTagGroup(
                     items: [
-                      for (final cell in row.skip(1))
-                        if (cell.isNotEmpty) PTag(cell),
+                      for (var i = 1; i < row.length; i++)
+                        if (i != amountAt && row[i].isNotEmpty) PTag(row[i]),
                     ],
                   ),
+                  // 뒤 금액(R13 줄 금액) — 금액 열이 있을 때
+                  suffix:
+                      amountAt > 0 &&
+                          amountAt < row.length &&
+                          row[amountAt].isNotEmpty
+                      ? PListValue.amount(row[amountAt])
+                      : null,
                 ),
             ],
           ),
         Padding(
           padding: _gutter,
           child: Text(
-            l.exportPreviewRows(active.rows.length),
-            style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+            '${l.exportPreviewRows(active.rows.length)} · ${l.exportPreviewTotal(tables.length, total)}',
+            style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
           ),
         ),
       ],
-    );
-  }
-}
-
-/// 데이터 종류 한 줄 — 앞 아이콘 22 · 제목 · 뒤 개수 값 + 오른쪽 체크 24, 줄 전체가 누르는 자리(I-05 42).
-/// 개수를 불러오는 중이면 값 자리가 Skeleton 이고, 실패하면 값 자리를 비운다.
-class _TypeRow extends StatelessWidget {
-  const _TypeRow({
-    required this.icon,
-    required this.title,
-    required this.checked,
-    required this.onChanged,
-    required this.value,
-    required this.loading,
-  });
-
-  final IconData icon;
-  final String title;
-  final bool checked;
-  final VoidCallback onChanged;
-  final String? value;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return PListRowFrame(
-      title: title,
-      prefix: PListTile(
-        background: c.bgNeutralWeak,
-        color: c.fgNeutralMuted,
-        child: Icon(icon),
-      ),
-      suffix: PListSuffix(
-        children: [
-          if (loading && value == null)
-            const PSkeleton(width: 32, height: 16)
-          else if (value != null)
-            PListValue(child: Text(value!)),
-          PCheckmark(
-            checked: checked,
-            size: PCheckboxSize.large,
-            scaleOnPress: false,
-          ),
-        ],
-      ),
-      interactive: true,
-      onActivate: onChanged,
-      activateOnEnter: false,
-      semantics: PListRowSemantics(wholeRow: true, checked: checked),
     );
   }
 }

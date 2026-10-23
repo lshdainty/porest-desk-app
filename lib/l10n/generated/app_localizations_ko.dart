@@ -3379,7 +3379,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportTypeTodo => '할 일';
 
   @override
-  String get exportFormatCsvDesc => '엑셀 · 구글시트';
+  String get exportFormatCsvDesc => '엑셀 · 구글 시트';
 
   @override
   String get exportFormatExcelDesc => 'Microsoft Excel';
@@ -4138,7 +4138,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawReauthIntro => '본인이 맞는지 한 번만 더 확인할게요.';
 
   @override
-  String get withdrawUseEmailCode => '비밀번호가 없나요? 메일로 코드 받기';
+  String get withdrawUseEmailCode => '비밀번호가 없다면 메일로 코드 받기';
 
   @override
   String get withdrawUsePassword => '비밀번호로 확인하기';
@@ -4166,7 +4166,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String withdrawBlockedSubscriptionUntil(String date) {
-    return '구독이 $date 까지 남아 있어 아직 해지할 수 없어요';
+    return '구독이 $date까지 남아 있어 아직 해지할 수 없어요';
   }
 
   @override
@@ -6069,7 +6069,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importSourceCustom => '직접 매핑';
 
   @override
-  String get importSourceCustomDesc => 'CSV·Excel 직접 연결';
+  String get importSourceCustomDesc => 'CSV · Excel 직접 연결';
 
   @override
   String get importUploadTitle => '파일 업로드';
@@ -6089,14 +6089,21 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importNotice =>
-      '가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.';
+      '가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복 · 오류를 확인할 수 있어요.';
 
   @override
   String get importFileTitle => '가져올 파일';
 
   @override
   String importRowsDetected(int total, int valid) {
-    return '$total개 행 · 유효 $valid건';
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat validNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String validString = validNumberFormat.format(valid);
+
+    return '$totalString개 행 · 유효 $validString건';
   }
 
   @override
@@ -6106,7 +6113,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importMapTitle => '열 매핑';
 
   @override
-  String get importMapDesc => '파일의 열을 가계부 항목에 연결해주세요. 자동으로 찾은 값은 바꿀 수 있어요.';
+  String get importMapDesc => '파일의 열을 가계부 항목에 연결해요. 자동으로 찾은 값을 확인하고 바꿀 수 있어요.';
 
   @override
   String get importNotMapped => '가져오지 않음';
@@ -6204,7 +6211,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importPreviewDesc(int dup) {
-    return '중복 의심 $dup건';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return '중복 의심 $dupString건';
   }
 
   @override
@@ -6224,21 +6236,30 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importOptDupSkipDesc(int dup) {
-    return '날짜·금액·내용이 같은 $dup건을 제외해요';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return '날짜 · 금액 · 내용이 같은 $dupString건을 제외해요.';
   }
 
   @override
   String get importOptAutoCat => '새 카테고리 자동 생성';
 
   @override
-  String get importOptAutoCatDesc => '없는 카테고리는 자동으로 만들어요';
+  String get importOptAutoCatDesc => '없는 카테고리는 자동으로 만들어요.';
 
   @override
   String get importPrev => '이전';
 
   @override
   String importDoImport(int count) {
-    return '$count건 가져오기';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString건 가져오기';
   }
 
   @override
@@ -6246,12 +6267,23 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importDoneCount(int count) {
-    return '$count건을 가져왔어요';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString건을 가져왔어요';
   }
 
   @override
   String importDoneDetail(int skipped, int failed) {
-    return '건너뛴 거래 $skipped건 · 못 가져온 거래 $failed건';
+    final intl.NumberFormat skippedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String skippedString = skippedNumberFormat.format(skipped);
+    final intl.NumberFormat failedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String failedString = failedNumberFormat.format(failed);
+
+    return '건너뛴 거래 $skippedString건 · 못 가져온 거래 $failedString건.';
   }
 
   @override
@@ -6279,10 +6311,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportRangePlaceholder => '기간 선택';
 
   @override
-  String get exportStalled => '내보내기가 멈췄어요. 다시 시도해주세요.';
+  String get exportStalled => '파일을 받는 중에 멈췄어요.';
 
   @override
-  String get exportFailed => '내보내지 못했어요. 다시 시도해주세요.';
+  String get exportFailed => '내보내지 못했어요.';
 
   @override
   String get exportPreviewTabsLabel => '미리보기 데이터 종류';
@@ -6296,18 +6328,57 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importBusy => '가져오는 중';
 
   @override
+  String get importStepUploadDesc => '가져올 앱과 파일을 골라주세요.';
+
+  @override
+  String get importStepMappingDesc => '열이 맞는지 확인하고 가져올 거래를 점검해주세요.';
+
+  @override
+  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해주세요.';
+
+  @override
+  String get withdrawPasswordWrong => '비밀번호가 맞지 않아요. 다시 확인해주세요.';
+
+  @override
+  String get withdrawLoadFailedDescription => '잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String exportPreviewTotal(int types, int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '선택한 $types종 합계 약 $countString건';
+  }
+
+  @override
+  String get exportPreviewEmptyTitle => '미리볼 데이터가 없어요';
+
+  @override
   String importCreatedCatTitle(int count) {
-    return '새로 만든 카테고리 $count개';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '새로 만든 카테고리 $countString개';
   }
 
   @override
   String importNewCatMore(int count) {
-    return '외 $count개';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '외 $countString개';
   }
 
   @override
   String importFailuresTitle(int count) {
-    return '실패한 행 $count건';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '실패한 행 $countString건';
   }
 
   @override
@@ -6317,7 +6388,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importFailuresCapped(int total, int shown) {
-    return '실패 $total건 중 앞의 $shown건만 보여줘요';
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat shownNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String shownString = shownNumberFormat.format(shown);
+
+    return '실패 $totalString건 중 앞의 $shownString건만 보여줘요.';
   }
 
   @override
@@ -6337,13 +6415,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importFailReasonResolve => '카테고리나 자산을 찾지 못했어요';
 
   @override
-  String get importFailReasonSave => '저장하는 중에 오류가 났어요';
+  String get importFailReasonSave => '저장하는 중에 오류가 나서 가져오지 못했어요';
 
   @override
-  String get importFailReasonUnknown => '알 수 없는 이유로 못 가져왔어요';
+  String get importFailReasonUnknown => '알 수 없는 이유로 가져오지 못했어요';
 
   @override
-  String get importFileTooLarge => '10MB 넘는 파일은 올릴 수 없어요.';
+  String get importFileTooLarge => '파일은 10MB까지 올릴 수 있어요.';
 
   @override
   String get importFileInvalid => 'CSV 또는 Excel 파일만 올릴 수 있어요.';

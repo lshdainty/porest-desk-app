@@ -20,7 +20,9 @@ import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_input.dar
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/select_box/p_select_box.dart';
@@ -36,9 +38,28 @@ Finder _t(String part) => find.byWidgetPredicate(
 );
 
 class _ExportRepo extends ExportRepository {
-  _ExportRepo({this.fail = false}) : super(Dio());
+  _ExportRepo({this.fail = false, this.tables, this.stall = false})
+    : super(Dio());
   final bool fail;
+  final bool stall;
+  final List<ExportPreviewTable>? tables;
+  int downloads = 0;
   Completer<void>? gate;
+
+  @override
+  Future<List<ExportPreviewTable>> preview(Map<String, dynamic> body) async =>
+      tables ?? const [];
+
+  @override
+  Future<File> download({
+    required Map<String, dynamic> body,
+    required String filename,
+    void Function(int received, int total)? onReceiveProgress,
+  }) async {
+    downloads++;
+    if (stall) throw const ExportStalledException();
+    throw ApiException(code: 'X', message: 'server raw');
+  }
 
   @override
   Future<List<ExportTypeCount>> counts(Map<String, dynamic> body) async {
@@ -196,7 +217,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       PListCheckItem parent() =>
-          tester.widget<PListCheckItem>(find.byType(PListCheckItem));
+          tester.widgetList<PListCheckItem>(find.byType(PListCheckItem)).first;
       // 처음 3개 고름 → 일부(null)
       expect(parent().checked, isNull);
       expect(parent().markPosition, PListMarkPosition.suffix);
@@ -209,6 +230,152 @@ void main() {
       // 개수 6자리
       expect(_t(_l.exportCount(123456)), findsOneWidget);
     });
+
+    testWidgets(
+      '종류 줄 — 앞 아이콘 22(타일 아님) · 줄 누르면 체크 · 불러오는 중 Skeleton · 설명 한 번',
+      (tester) async {
+        final gate = Completer<void>();
+        final repo = _ExportRepo()..gate = gate;
+        await _pump(
+          tester,
+          const ExportScreen(),
+          overrides: [
+            exportRepositoryProvider.overrideWith((ref) async => repo),
+          ],
+        );
+        await tester.pump();
+        // 불러오는 중 — 값 자리가 글 자리 Skeleton(t5 줄 높이, 폭 x10)
+        final sk = tester
+            .widgetList<PSkeleton>(find.byType(PSkeleton))
+            .toList();
+        expect(sk, hasLength(7));
+        expect(sk.first.width, PSpacing.x10);
+        expect(
+          sk.first.height,
+          PTypography.t5.fontSize! * PTypography.t5.height!,
+        );
+        gate.complete();
+        await tester.pumpAndSettle();
+        expect(find.byType(PSkeleton), findsNothing);
+
+        final rows = tester
+            .widgetList<PListCheckItem>(find.byType(PListCheckItem))
+            .toList();
+        expect(rows, hasLength(8)); // 모두 + 7종
+        for (final r in rows.skip(1)) {
+          expect(r.prefix, isA<Icon>(), reason: '앞은 맨 아이콘 — 40 타일이 아니다');
+          expect(r.markPosition, PListMarkPosition.suffix);
+        }
+        expect(find.byType(PListTile), findsNothing);
+        // 줄 전체가 누르는 자리 — 제목을 눌러도 체크가 바뀐다(처음 거래 내역은 골라져 있다)
+        expect(rows[1].checked, isTrue);
+        await tester.tap(_t(_l.exportTypeExpense));
+        await tester.pump();
+        expect(
+          tester
+              .widgetList<PListCheckItem>(find.byType(PListCheckItem))
+              .toList()[1]
+              .checked,
+          isFalse,
+        );
+        // 아무것도 안 골라도 같은 설명 글이 두 번 나오지 않는다
+        await tester.tap(_t(_l.exportSelectAll)); // 일부 → 모두
+        await tester.tap(_t(_l.exportSelectAll)); // 모두 → 없음
+        await tester.pump();
+        expect(_t(_l.exportTypesDesc), findsOneWidget);
+      },
+    );
+
+    testWidgets('바닥 짝 — 안전 영역 위, 아래 24', (tester) async {
+      tester.view.padding = const FakeViewPadding(bottom: 34 * 3);
+      tester.view.viewPadding = const FakeViewPadding(bottom: 34 * 3);
+      addTearDown(tester.view.resetPadding);
+      addTearDown(tester.view.resetViewPadding);
+      await _pump(
+        tester,
+        const ExportScreen(),
+        overrides: [
+          exportRepositoryProvider.overrideWith((ref) async => _ExportRepo()),
+        ],
+      );
+      await tester.pumpAndSettle();
+      final rect = tester.getRect(find.widgetWithText(PButton, _l.exportRun));
+      expect(rect.bottom, 2400 - 34 - 24);
+    });
+
+    testWidgets('미리보기 — 금액 열은 뒤 값(R13) · 빈 표는 Result Section', (tester) async {
+      final repo = _ExportRepo(
+        tables: const [
+          ExportPreviewTable(
+            type: 'EXPENSE',
+            displayName: '거래 내역',
+            headers: ['날짜', '내용', '금액'],
+            rows: [
+              ['2026-10-01', '점심', '12,000'],
+            ],
+            totalCount: 1,
+          ),
+          ExportPreviewTable(
+            type: 'MEMO',
+            displayName: '메모',
+            headers: ['제목'],
+            rows: [],
+            totalCount: 0,
+          ),
+        ],
+      );
+      await _pump(
+        tester,
+        const ExportScreen(),
+        overrides: [exportRepositoryProvider.overrideWith((ref) async => repo)],
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(PButton, _l.exportPreview));
+      await tester.pumpAndSettle();
+      final item = tester
+          .widgetList<PListItem>(find.byType(PListItem))
+          .firstWhere((i) => i.title == '2026-10-01');
+      expect(item.suffix, isA<PListValue>(), reason: '금액은 줄 뒤 값');
+      // 메모 탭 — 빈 표
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PTabs<String>).last,
+          matching: _t('메모'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final res = tester.widget<PResultSection>(find.byType(PResultSection));
+      expect(res.kind, PResultKind.empty);
+      expect(res.size, PResultSize.medium);
+    });
+
+    for (final stall in [true, false]) {
+      testWidgets('내보내기 ${stall ? "멈춤" : "실패"} — 오류 띠 + [다시 시도]', (
+        tester,
+      ) async {
+        final repo = _ExportRepo(stall: stall);
+        await _pump(
+          tester,
+          const ExportScreen(),
+          overrides: [
+            exportRepositoryProvider.overrideWith((ref) async => repo),
+          ],
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(PButton, _l.exportRun));
+        await tester.pumpAndSettle();
+        expect(repo.downloads, 1);
+        expect(
+          find.text(stall ? _l.exportStalled : _l.exportFailed),
+          findsOneWidget,
+        );
+        // 서버 글은 그대로 내지 않는다
+        expect(find.text('server raw'), findsNothing);
+        await tester.tap(find.text(_l.actionRetry));
+        await tester.pumpAndSettle();
+        expect(repo.downloads, 2);
+      });
+    }
 
     testWidgets('개수 실패 — 값 자리 비우고 묶음 아래 오류 글 + 다시 시도', (tester) async {
       await _pump(
@@ -431,7 +598,8 @@ void main() {
       await tester.tap(find.widgetWithText(PButton, _l.importDoImport(8)));
       await tester.pumpAndSettle();
       expect(_t(_l.importCreatedCatTitle(5)), findsOneWidget);
-      expect(find.byType(PBadge), findsNWidgets(2));
+      // 만든 카테고리 = List 줄(배지 아님) + "외 3개"
+      expect(_t('식비 > 커피'), findsOneWidget);
       expect(_t(_l.importNewCatMore(3)), findsOneWidget);
       expect(_t(_l.importFailuresTitle(120)), findsOneWidget);
       expect(_t(_l.importFailureLine(3)), findsOneWidget);

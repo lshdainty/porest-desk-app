@@ -3428,7 +3428,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportTypeTodo => 'To-dos';
 
   @override
-  String get exportFormatCsvDesc => 'Excel & Google Sheets';
+  String get exportFormatCsvDesc => 'Excel · Google Sheets';
 
   @override
   String get exportFormatExcelDesc => 'Microsoft Excel';
@@ -6190,7 +6190,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importRowsDetected(int total, int valid) {
-    return '$total rows · $valid valid';
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat validNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String validString = validNumberFormat.format(valid);
+
+    return '$totalString rows · $validString valid';
   }
 
   @override
@@ -6201,7 +6208,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importMapDesc =>
-      'Connect file columns to ledger fields. Adjust the auto-detected values.';
+      'Connect file columns to ledger fields. Review auto-detected values and adjust.';
 
   @override
   String get importNotMapped => 'Don\'t import';
@@ -6300,7 +6307,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importPreviewDesc(int dup) {
-    return '$dup possible duplicates';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return '$dupString possible duplicates';
   }
 
   @override
@@ -6320,7 +6332,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importOptDupSkipDesc(int dup) {
-    return 'Excludes $dup rows with same date, amount and content';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return 'Excludes $dupString rows with the same date, amount, and content.';
   }
 
   @override
@@ -6328,14 +6345,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importOptAutoCatDesc =>
-      'Missing categories are created automatically';
+      'Missing categories are created automatically.';
 
   @override
   String get importPrev => 'Back';
 
   @override
   String importDoImport(int count) {
-    return 'Import $count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Import $countString';
   }
 
   @override
@@ -6343,12 +6364,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importDoneCount(int count) {
-    return 'Imported $count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Imported $countString transactions';
   }
 
   @override
   String importDoneDetail(int skipped, int failed) {
-    return '$skipped skipped · $failed failed';
+    final intl.NumberFormat skippedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String skippedString = skippedNumberFormat.format(skipped);
+    final intl.NumberFormat failedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String failedString = failedNumberFormat.format(failed);
+
+    return '$skippedString skipped · $failedString not imported.';
   }
 
   @override
@@ -6376,10 +6408,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportRangePlaceholder => 'Select a range';
 
   @override
-  String get exportStalled => 'The export stalled. Please try again.';
+  String get exportStalled => 'The download stopped.';
 
   @override
-  String get exportFailed => 'Couldn\'t export. Please try again.';
+  String get exportFailed => 'Couldn\'t export.';
 
   @override
   String get exportPreviewTabsLabel => 'Preview data type';
@@ -6393,18 +6425,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importBusy => 'Importing';
 
   @override
+  String get importStepUploadDesc => 'Choose the app and the file to import.';
+
+  @override
+  String get importStepMappingDesc =>
+      'Check the columns and review the transactions before importing.';
+
+  @override
+  String get withdrawCodeHint =>
+      'If you do not see it, check your spam folder.';
+
+  @override
+  String get withdrawPasswordWrong =>
+      'The password is wrong. Please check it again.';
+
+  @override
+  String get withdrawLoadFailedDescription => 'Please try again in a moment.';
+
+  @override
+  String exportPreviewTotal(int types, int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'About $countString rows across $types selected types';
+  }
+
+  @override
+  String get exportPreviewEmptyTitle => 'Nothing to preview';
+
+  @override
   String importCreatedCatTitle(int count) {
-    return '$count categories created';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString categories created';
   }
 
   @override
   String importNewCatMore(int count) {
-    return '+$count more';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '+$countString more';
   }
 
   @override
   String importFailuresTitle(int count) {
-    return '$count failed rows';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString failed rows';
   }
 
   @override
@@ -6414,7 +6488,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importFailuresCapped(int total, int shown) {
-    return 'Showing the first $shown of $total failures';
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat shownNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String shownString = shownNumberFormat.format(shown);
+
+    return 'Showing the first $shownString of $totalString failures.';
   }
 
   @override
@@ -6440,7 +6521,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importFailReasonUnknown => 'Failed for an unknown reason';
 
   @override
-  String get importFileTooLarge => 'Files over 10MB can\'t be uploaded.';
+  String get importFileTooLarge => 'Files up to 10MB can be uploaded.';
 
   @override
   String get importFileInvalid => 'Only CSV or Excel files can be uploaded.';

@@ -287,11 +287,16 @@ class _ImportViewState extends ConsumerState<ImportView> {
     );
   }
 
-  Widget _section(String title, Widget body, {bool first = false}) => Column(
+  Widget _section(
+    String title,
+    Widget body, {
+    bool first = false,
+    PListHeaderVariant variant = PListHeaderVariant.boldSolid,
+  }) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       SizedBox(height: first ? PSpacing.x2 : PSpacing.x6),
-      PListHeader(title: title, variant: PListHeaderVariant.boldSolid),
+      PListHeader(title: title, variant: variant),
       body,
     ],
   );
@@ -302,7 +307,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
     return ListView(
       padding: const EdgeInsets.only(bottom: PSpacing.x6),
       children: [
-        _stepHead(l, 1, l.importStepUpload, l.importSourceDesc),
+        _stepHead(l, 1, l.importStepUpload, l.importStepUploadDesc),
         _section(
           l.importSourceTitle,
           Padding(
@@ -363,14 +368,13 @@ class _ImportViewState extends ConsumerState<ImportView> {
   // ── 2. 매핑 ──────────────────────────────────────────────
 
   Widget _mappingStep(AppLocalizations l, ImportAnalyzeResult a) {
-    final c = context.colors;
     return Column(
       children: [
         Expanded(
           child: ListView(
             padding: const EdgeInsets.only(bottom: PSpacing.x6),
             children: [
-              _stepHead(l, 2, l.importStepMapping, l.importMapDesc),
+              _stepHead(l, 2, l.importStepMapping, l.importStepMappingDesc),
               // 실행하면 반드시 실패할 행을 미리 알린다 — 넣고 나서 실패 숫자만 보면 원인을 알 수 없다.
               if (a.blockedParents.isNotEmpty) ...[
                 const SizedBox(height: PSpacing.x4),
@@ -389,11 +393,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
                   semanticLabel: l.importFileTitle,
                   children: [
                     PListItem(
-                      prefix: PListTile(
-                        background: c.bgNeutralWeak,
-                        color: c.fgNeutralMuted,
-                        child: const Icon(LucideIcons.fileSpreadsheet),
-                      ),
+                      // 앞 = 아이콘 22(list.yaml icon) — 회색 타일이 아니다
+                      prefix: const Icon(LucideIcons.fileSpreadsheet),
                       title: a.fileName,
                       detail: l.importRowsDetected(a.totalRows, a.validRows),
                       suffix: PListAction(
@@ -433,14 +434,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            PSpacing.globalGutter,
-            PSpacing.x3,
-            PSpacing.globalGutter,
-            PSpacing.x4,
-          ),
-          child: PResponsivePair(
+        _bottomBar(
+          PResponsivePair(
             secondary: PButton(
               label: l.importPrev,
               variant: PButtonVariant.neutralWeak,
@@ -586,39 +581,49 @@ class _ImportViewState extends ConsumerState<ImportView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: PSpacing.x6),
+                // 제목 = "N건을 가져왔어요"(result-section.md 예), 설명 = 건너뜀 · 못 가져옴, 둘째 = 글 버튼(R16)
                 PResultSection(
                   kind: PResultKind.done,
                   size: PResultSize.large,
-                  title: l.importDoneTitle,
-                  description:
-                      '${l.importDoneCount(r.imported)}\n${l.importDoneDetail(r.skipped, r.failed)}',
+                  title: l.importDoneCount(r.imported),
+                  description: l.importDoneDetail(r.skipped, r.failed),
+                  secondaryAction: PResultAction(
+                    label: l.importAnother,
+                    onPressed: _reset,
+                  ),
                 ),
-                // 만든 카테고리 — 미리보기에서 본 것과 실제가 같은지 확인시킨다
+                // 만든 카테고리 — 미리보기에서 본 것과 실제가 같은지 확인시킨다(목록 제목 R5 + 줄)
                 if (r.createdCategories.isNotEmpty)
                   _section(
                     l.importCreatedCatTitle(r.createdCategoryCount),
-                    Padding(
-                      padding: _gutter,
-                      child: Wrap(
-                        spacing: PSpacing.x1,
-                        runSpacing: PSpacing.x1,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          for (final n in r.createdCategories) PBadge(label: n),
-                          if (r.createdCategoryCount >
-                              r.createdCategories.length)
-                            Text(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        PList(
+                          semanticLabel: l.importCreatedCatTitle(
+                            r.createdCategoryCount,
+                          ),
+                          children: [
+                            for (final n in r.createdCategories)
+                              PListItem(title: n),
+                          ],
+                        ),
+                        if (r.createdCategoryCount > r.createdCategories.length)
+                          Padding(
+                            padding: _gutter,
+                            child: Text(
                               l.importNewCatMore(
                                 r.createdCategoryCount -
                                     r.createdCategories.length,
                               ),
-                              style: PTypography.t3.copyWith(
+                              style: PTypography.t4.copyWith(
                                 color: c.fgNeutralSubtle,
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
+                    variant: PListHeaderVariant.mediumWeak,
                   ),
                 // 못 넣은 행 — 줄 번호 + 사유, 잘렸으면 그 사실을 말한다
                 if (r.failures.isNotEmpty)
@@ -633,11 +638,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
                             for (final f in r.failures)
                               PListItem(
                                 title: l.importFailureLine(f.lineNo),
-                                suffix: PListValue(
-                                  child: Text(
-                                    importFailReasonText(l, f.reason),
-                                  ),
-                                ),
+                                detail: importFailReasonText(l, f.reason),
                               ),
                           ],
                         ),
@@ -656,41 +657,39 @@ class _ImportViewState extends ConsumerState<ImportView> {
                           ),
                       ],
                     ),
+                    variant: PListHeaderVariant.mediumWeak,
                   ),
                 const SizedBox(height: PSpacing.x6),
               ],
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            PSpacing.globalGutter,
-            PSpacing.x3,
-            PSpacing.globalGutter,
-            PSpacing.x4,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: PSpacing.x2,
-            children: [
-              PButton(
-                label: l.importGoExpense,
-                variant: PButtonVariant.neutralSolid,
-                size: PButtonSize.large,
-                onPressed: () => context.go('/expense?tab=expense'),
-              ),
-              PButton(
-                label: l.importAnother,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.medium,
-                onPressed: _reset,
-              ),
-            ],
+        // 바닥 CTA 하나 — 좌우 24 · 위 12 · 아래 24, 안전 영역 위
+        _bottomBar(
+          PButton(
+            label: l.importGoExpense,
+            variant: PButtonVariant.neutralSolid,
+            size: PButtonSize.large,
+            onPressed: () => context.go('/expense?tab=expense'),
           ),
         ),
       ],
     );
   }
+
+  /// 화면 바닥 줄 — 좌우 24 · 위 12 · 아래 24, 안전 영역 위(I-05 27 · 45).
+  Widget _bottomBar(Widget child) => SafeArea(
+    top: false,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(
+        PSpacing.globalGutter,
+        PSpacing.x3,
+        PSpacing.globalGutter,
+        PSpacing.x6,
+      ),
+      child: child,
+    ),
+  );
 
   String _fmt(int v) {
     final s = v.toString();

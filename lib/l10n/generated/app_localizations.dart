@@ -6227,7 +6227,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportFormatCsvDesc.
   ///
   /// In ko, this message translates to:
-  /// **'엑셀 · 구글시트'**
+  /// **'엑셀 · 구글 시트'**
   String get exportFormatCsvDesc;
 
   /// No description provided for @exportFormatExcelDesc.
@@ -7655,7 +7655,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawUseEmailCode.
   ///
   /// In ko, this message translates to:
-  /// **'비밀번호가 없나요? 메일로 코드 받기'**
+  /// **'비밀번호가 없다면 메일로 코드 받기'**
   String get withdrawUseEmailCode;
 
   /// No description provided for @withdrawUsePassword.
@@ -7709,7 +7709,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawBlockedSubscriptionUntil.
   ///
   /// In ko, this message translates to:
-  /// **'구독이 {date} 까지 남아 있어 아직 해지할 수 없어요'**
+  /// **'구독이 {date}까지 남아 있어 아직 해지할 수 없어요'**
   String withdrawBlockedSubscriptionUntil(String date);
 
   /// No description provided for @withdrawBlockedOther.
@@ -11195,7 +11195,7 @@ abstract class AppLocalizations {
   /// No description provided for @importSourceCustomDesc.
   ///
   /// In ko, this message translates to:
-  /// **'CSV·Excel 직접 연결'**
+  /// **'CSV · Excel 직접 연결'**
   String get importSourceCustomDesc;
 
   /// No description provided for @importUploadTitle.
@@ -11231,7 +11231,7 @@ abstract class AppLocalizations {
   /// No description provided for @importNotice.
   ///
   /// In ko, this message translates to:
-  /// **'가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.'**
+  /// **'가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복 · 오류를 확인할 수 있어요.'**
   String get importNotice;
 
   /// No description provided for @importFileTitle.
@@ -11261,7 +11261,7 @@ abstract class AppLocalizations {
   /// No description provided for @importMapDesc.
   ///
   /// In ko, this message translates to:
-  /// **'파일의 열을 가계부 항목에 연결해주세요. 자동으로 찾은 값은 바꿀 수 있어요.'**
+  /// **'파일의 열을 가계부 항목에 연결해요. 자동으로 찾은 값을 확인하고 바꿀 수 있어요.'**
   String get importMapDesc;
 
   /// No description provided for @importNotMapped.
@@ -11471,7 +11471,7 @@ abstract class AppLocalizations {
   /// No description provided for @importOptDupSkipDesc.
   ///
   /// In ko, this message translates to:
-  /// **'날짜·금액·내용이 같은 {dup}건을 제외해요'**
+  /// **'날짜 · 금액 · 내용이 같은 {dup}건을 제외해요.'**
   String importOptDupSkipDesc(int dup);
 
   /// No description provided for @importOptAutoCat.
@@ -11483,7 +11483,7 @@ abstract class AppLocalizations {
   /// No description provided for @importOptAutoCatDesc.
   ///
   /// In ko, this message translates to:
-  /// **'없는 카테고리는 자동으로 만들어요'**
+  /// **'없는 카테고리는 자동으로 만들어요.'**
   String get importOptAutoCatDesc;
 
   /// No description provided for @importPrev.
@@ -11513,7 +11513,7 @@ abstract class AppLocalizations {
   /// No description provided for @importDoneDetail.
   ///
   /// In ko, this message translates to:
-  /// **'건너뛴 거래 {skipped}건 · 못 가져온 거래 {failed}건'**
+  /// **'건너뛴 거래 {skipped}건 · 못 가져온 거래 {failed}건.'**
   String importDoneDetail(int skipped, int failed);
 
   /// No description provided for @importAnother.
@@ -11567,13 +11567,13 @@ abstract class AppLocalizations {
   /// No description provided for @exportStalled.
   ///
   /// In ko, this message translates to:
-  /// **'내보내기가 멈췄어요. 다시 시도해주세요.'**
+  /// **'파일을 받는 중에 멈췄어요.'**
   String get exportStalled;
 
   /// No description provided for @exportFailed.
   ///
   /// In ko, this message translates to:
-  /// **'내보내지 못했어요. 다시 시도해주세요.'**
+  /// **'내보내지 못했어요.'**
   String get exportFailed;
 
   /// No description provided for @exportPreviewTabsLabel.
@@ -11593,6 +11593,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'가져오는 중'**
   String get importBusy;
+
+  /// No description provided for @importStepUploadDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져올 앱과 파일을 골라주세요.'**
+  String get importStepUploadDesc;
+
+  /// No description provided for @importStepMappingDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'열이 맞는지 확인하고 가져올 거래를 점검해주세요.'**
+  String get importStepMappingDesc;
+
+  /// No description provided for @withdrawCodeHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일함에 코드가 안 보이면 스팸함도 확인해주세요.'**
+  String get withdrawCodeHint;
+
+  /// No description provided for @withdrawPasswordWrong.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 맞지 않아요. 다시 확인해주세요.'**
+  String get withdrawPasswordWrong;
+
+  /// No description provided for @withdrawLoadFailedDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤 다시 시도해주세요.'**
+  String get withdrawLoadFailedDescription;
+
+  /// No description provided for @exportPreviewTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 {types}종 합계 약 {count}건'**
+  String exportPreviewTotal(int types, int count);
+
+  /// No description provided for @exportPreviewEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리볼 데이터가 없어요'**
+  String get exportPreviewEmptyTitle;
 
   /// No description provided for @importCreatedCatTitle.
   ///
@@ -11621,7 +11663,7 @@ abstract class AppLocalizations {
   /// No description provided for @importFailuresCapped.
   ///
   /// In ko, this message translates to:
-  /// **'실패 {total}건 중 앞의 {shown}건만 보여줘요'**
+  /// **'실패 {total}건 중 앞의 {shown}건만 보여줘요.'**
   String importFailuresCapped(int total, int shown);
 
   /// No description provided for @importFailReasonDate.
@@ -11657,19 +11699,19 @@ abstract class AppLocalizations {
   /// No description provided for @importFailReasonSave.
   ///
   /// In ko, this message translates to:
-  /// **'저장하는 중에 오류가 났어요'**
+  /// **'저장하는 중에 오류가 나서 가져오지 못했어요'**
   String get importFailReasonSave;
 
   /// No description provided for @importFailReasonUnknown.
   ///
   /// In ko, this message translates to:
-  /// **'알 수 없는 이유로 못 가져왔어요'**
+  /// **'알 수 없는 이유로 가져오지 못했어요'**
   String get importFailReasonUnknown;
 
   /// No description provided for @importFileTooLarge.
   ///
   /// In ko, this message translates to:
-  /// **'10MB 넘는 파일은 올릴 수 없어요.'**
+  /// **'파일은 10MB까지 올릴 수 있어요.'**
   String get importFileTooLarge;
 
   /// No description provided for @importFileInvalid.
