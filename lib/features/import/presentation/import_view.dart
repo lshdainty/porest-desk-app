@@ -24,8 +24,10 @@ typedef _FieldMeta = ({
   bool required,
 });
 
-const List<String> _sources = [
-  '그루',
+/// 서버 `ImportSource` enum 이름 그대로 — 화면 문구가 아니라 요청 값이다. 바꾸면 400.
+@visibleForTesting
+const List<String> importSources = [
+  'POREST',
   'EASYBUDGET',
   'BANKSALAD',
   'TOSS',
@@ -33,7 +35,7 @@ const List<String> _sources = [
 ];
 
 String _sourceLabel(AppLocalizations l, String v) => switch (v) {
-  '그루' => '${l.importSourceGroo} · ${l.importSourceGrooDesc}',
+  'POREST' => '${l.importSourceGroo} · ${l.importSourceGrooDesc}',
   'EASYBUDGET' =>
     '${l.importSourceEasybudget} · ${l.importSourceEasybudgetDesc}',
   'BANKSALAD' => '${l.importSourceBanksalad} · ${l.importSourceBanksaladDesc}',
@@ -79,7 +81,7 @@ class ImportView extends ConsumerStatefulWidget {
 
 class _ImportViewState extends ConsumerState<ImportView> {
   _Step _step = _Step.upload;
-  String _source = '그루';
+  String _source = 'POREST';
   File? _file;
   bool _analyzing = false;
   ImportAnalyzeResult? _analysis;
@@ -245,8 +247,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
         desc: l.importSourceDesc,
         child: PSelect<String>(
           value: _source,
-          onChanged: (v) => setState(() => _source = v ?? '그루'),
-          items: _sources
+          onChanged: (v) => setState(() => _source = v ?? 'POREST'),
+          items: importSources
               .map((s) => PSelectItem(value: s, label: _sourceLabel(l, s)))
               .toList(),
         ),
