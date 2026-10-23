@@ -6393,6 +6393,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importBusy => 'Importing';
 
   @override
+  String importCreatedCatTitle(int count) {
+    return '$count categories created';
+  }
+
+  @override
+  String importNewCatMore(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String importFailuresTitle(int count) {
+    return '$count failed rows';
+  }
+
+  @override
+  String importFailureLine(int line) {
+    return 'Line $line';
+  }
+
+  @override
+  String importFailuresCapped(int total, int shown) {
+    return 'Showing the first $shown of $total failures';
+  }
+
+  @override
+  String get importFailReasonDate => 'Couldn\'t read the date';
+
+  @override
+  String get importFailReasonAmount => 'Couldn\'t read the amount';
+
+  @override
+  String get importFailReasonType => 'Couldn\'t tell income from expense';
+
+  @override
+  String get importFailReasonParentHasTx =>
+      'This category has its own transactions so no subcategory can be created';
+
+  @override
+  String get importFailReasonResolve => 'Couldn\'t match the category or asset';
+
+  @override
+  String get importFailReasonSave => 'Something went wrong while saving';
+
+  @override
+  String get importFailReasonUnknown => 'Failed for an unknown reason';
+
+  @override
   String get importFileTooLarge => 'Files over 10MB can\'t be uploaded.';
 
   @override

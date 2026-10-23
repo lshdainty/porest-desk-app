@@ -11594,6 +11594,78 @@ abstract class AppLocalizations {
   /// **'가져오는 중'**
   String get importBusy;
 
+  /// No description provided for @importCreatedCatTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 만든 카테고리 {count}개'**
+  String importCreatedCatTitle(int count);
+
+  /// No description provided for @importNewCatMore.
+  ///
+  /// In ko, this message translates to:
+  /// **'외 {count}개'**
+  String importNewCatMore(int count);
+
+  /// No description provided for @importFailuresTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패한 행 {count}건'**
+  String importFailuresTitle(int count);
+
+  /// No description provided for @importFailureLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'{line}행'**
+  String importFailureLine(int line);
+
+  /// No description provided for @importFailuresCapped.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패 {total}건 중 앞의 {shown}건만 보여줘요'**
+  String importFailuresCapped(int total, int shown);
+
+  /// No description provided for @importFailReasonDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜를 읽을 수 없어요'**
+  String get importFailReasonDate;
+
+  /// No description provided for @importFailReasonAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액을 읽을 수 없어요'**
+  String get importFailReasonAmount;
+
+  /// No description provided for @importFailReasonType.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 · 지출 구분을 읽을 수 없어요'**
+  String get importFailReasonType;
+
+  /// No description provided for @importFailReasonParentHasTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카테고리에는 거래가 직접 달려 있어 하위 분류를 만들 수 없어요'**
+  String get importFailReasonParentHasTx;
+
+  /// No description provided for @importFailReasonResolve.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리나 자산을 찾지 못했어요'**
+  String get importFailReasonResolve;
+
+  /// No description provided for @importFailReasonSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하는 중에 오류가 났어요'**
+  String get importFailReasonSave;
+
+  /// No description provided for @importFailReasonUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 이유로 못 가져왔어요'**
+  String get importFailReasonUnknown;
+
   /// No description provided for @importFileTooLarge.
   ///
   /// In ko, this message translates to:

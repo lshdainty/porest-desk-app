@@ -17,6 +17,7 @@ import 'package:groo_damda_app/features/import/data/import_repository.dart';
 import 'package:groo_damda_app/features/import/presentation/import_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_input.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
@@ -61,6 +62,7 @@ class _ExportRepo extends ExportRepository {
 class _ImportRepo extends ImportRepository {
   _ImportRepo() : super(Dio());
   Completer<ImportExecuteResult>? execGate;
+  ImportExecuteResult? result;
 
   @override
   Future<ImportAnalyzeResult> analyze(File file, String source) async =>
@@ -96,7 +98,7 @@ class _ImportRepo extends ImportRepository {
     required Map<String, int> mapping,
     required bool dupSkip,
     required bool autoCat,
-  }) => execGate!.future;
+  }) => result != null ? Future.value(result!) : execGate!.future;
 }
 
 Future<void> _pump(
@@ -369,6 +371,75 @@ void main() {
       await tester.tap(find.text(_l.importGoExpense));
       await tester.pumpAndSettle();
       expect(find.text('EXPENSE'), findsOneWidget);
+    });
+
+    test('실행 응답 파싱 — 실패 줄 · 잘림 · 만든 카테고리, 옛 응답은 빈 값', () {
+      final r = ImportExecuteResult.fromJson({
+        'imported': 5,
+        'skipped': 1,
+        'failed': 120,
+        'failures': [
+          {'lineNo': 3, 'reason': 'date'},
+          {'lineNo': 9, 'reason': 'fxRate'},
+        ],
+        'failuresTruncated': true,
+        'createdCategories': ['식비', '식비 > 커피'],
+        'createdCategoryCount': 4,
+      });
+      expect(r.failures.map((f) => f.lineNo), [3, 9]);
+      expect(r.failures.last.reason, 'fxRate');
+      expect(r.failuresTruncated, isTrue);
+      expect(r.createdCategories, ['식비', '식비 > 커피']);
+      expect(r.createdCategoryCount, 4);
+      final old = ImportExecuteResult.fromJson({
+        'imported': 1,
+        'skipped': 0,
+        'failed': 0,
+      });
+      expect(old.failures, isEmpty);
+      expect(old.failuresTruncated, isFalse);
+      expect(old.createdCategories, isEmpty);
+    });
+
+    test('모르는 사유 코드는 코드를 흘리지 않고 기본 글로', () {
+      expect(importFailReasonText(_l, 'date'), _l.importFailReasonDate);
+      expect(importFailReasonText(_l, 'fxRate'), _l.importFailReasonUnknown);
+      expect(importFailReasonText(_l, 'fxRate'), isNot(contains('fxRate')));
+    });
+
+    testWidgets('완료 — 만든 카테고리 · 실패 줄 목록 · 잘렸다는 글', (tester) async {
+      final repo = _ImportRepo()
+        ..result = ImportExecuteResult(
+          imported: 70,
+          skipped: 0,
+          failed: 120,
+          failures: [
+            const ImportFailureRow(lineNo: 3, reason: 'date'),
+            const ImportFailureRow(lineNo: 9, reason: 'fxRate'),
+          ],
+          failuresTruncated: true,
+          createdCategories: const ['식비', '식비 > 커피'],
+          createdCategoryCount: 5,
+        );
+      await _pump(
+        tester,
+        Scaffold(body: ImportView(pickFiles: pick(2048))),
+        overrides: [importRepositoryProvider.overrideWith((ref) async => repo)],
+      );
+      await tester.tap(find.byKey(const ValueKey('attachment-pick')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(PButton, _l.importDoImport(8)));
+      await tester.pumpAndSettle();
+      expect(_t(_l.importCreatedCatTitle(5)), findsOneWidget);
+      expect(find.byType(PBadge), findsNWidgets(2));
+      expect(_t(_l.importNewCatMore(3)), findsOneWidget);
+      expect(_t(_l.importFailuresTitle(120)), findsOneWidget);
+      expect(_t(_l.importFailureLine(3)), findsOneWidget);
+      expect(_t(_l.importFailReasonDate), findsOneWidget);
+      expect(_t(_l.importFailReasonUnknown), findsOneWidget);
+      expect(find.textContaining('fxRate'), findsNothing);
+      expect(_t(_l.importFailuresCapped(120, 2)), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }

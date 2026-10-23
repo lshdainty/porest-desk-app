@@ -109,21 +109,60 @@ class ImportAnalyzeResult {
 }
 
 /// 저장 결과.
+/// 실행에서 읽지 못해 못 넣은 행 — 줄 번호 + 사유 코드(서버 `FailureRow`).
+class ImportFailureRow {
+  const ImportFailureRow({required this.lineNo, required this.reason});
+  final int lineNo;
+
+  /// 사유 코드 — 화면 글이 아니다. 모르는 코드는 화면이 기본 글로 바꾼다.
+  final String reason;
+
+  factory ImportFailureRow.fromJson(Map<String, dynamic> j) => ImportFailureRow(
+    lineNo: (j['lineNo'] as num?)?.toInt() ?? 0,
+    reason: j['reason']?.toString() ?? '',
+  );
+}
+
 class ImportExecuteResult {
   const ImportExecuteResult({
     required this.imported,
     required this.skipped,
     required this.failed,
+    this.failures = const [],
+    this.failuresTruncated = false,
+    this.createdCategories = const [],
+    this.createdCategoryCount = 0,
   });
   final int imported;
   final int skipped;
   final int failed;
+
+  /// 실패한 행 — 서버가 상한(50)까지만 담는다.
+  final List<ImportFailureRow> failures;
+
+  /// [failures] 가 상한에서 잘렸는가.
+  final bool failuresTruncated;
+
+  /// 이번에 만든 카테고리 경로(생성 순서, 상한까지만) · 실제 전체 개수.
+  final List<String> createdCategories;
+  final int createdCategoryCount;
 
   factory ImportExecuteResult.fromJson(Map<String, dynamic> j) =>
       ImportExecuteResult(
         imported: (j['imported'] as num?)?.toInt() ?? 0,
         skipped: (j['skipped'] as num?)?.toInt() ?? 0,
         failed: (j['failed'] as num?)?.toInt() ?? 0,
+        failures: ((j['failures'] as List?) ?? [])
+            .map(
+              (e) =>
+                  ImportFailureRow.fromJson((e as Map).cast<String, dynamic>()),
+            )
+            .toList(),
+        failuresTruncated: j['failuresTruncated'] as bool? ?? false,
+        createdCategories: ((j['createdCategories'] as List?) ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        createdCategoryCount: (j['createdCategoryCount'] as num?)?.toInt() ?? 0,
       );
 }
 

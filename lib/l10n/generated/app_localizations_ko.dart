@@ -6296,6 +6296,53 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importBusy => '가져오는 중';
 
   @override
+  String importCreatedCatTitle(int count) {
+    return '새로 만든 카테고리 $count개';
+  }
+
+  @override
+  String importNewCatMore(int count) {
+    return '외 $count개';
+  }
+
+  @override
+  String importFailuresTitle(int count) {
+    return '실패한 행 $count건';
+  }
+
+  @override
+  String importFailureLine(int line) {
+    return '$line행';
+  }
+
+  @override
+  String importFailuresCapped(int total, int shown) {
+    return '실패 $total건 중 앞의 $shown건만 보여줘요';
+  }
+
+  @override
+  String get importFailReasonDate => '날짜를 읽을 수 없어요';
+
+  @override
+  String get importFailReasonAmount => '금액을 읽을 수 없어요';
+
+  @override
+  String get importFailReasonType => '수입 · 지출 구분을 읽을 수 없어요';
+
+  @override
+  String get importFailReasonParentHasTx =>
+      '이 카테고리에는 거래가 직접 달려 있어 하위 분류를 만들 수 없어요';
+
+  @override
+  String get importFailReasonResolve => '카테고리나 자산을 찾지 못했어요';
+
+  @override
+  String get importFailReasonSave => '저장하는 중에 오류가 났어요';
+
+  @override
+  String get importFailReasonUnknown => '알 수 없는 이유로 못 가져왔어요';
+
+  @override
   String get importFileTooLarge => '10MB 넘는 파일은 올릴 수 없어요.';
 
   @override

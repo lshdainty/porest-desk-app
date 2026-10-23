@@ -86,6 +86,19 @@ String _fCategory(AppLocalizations l) => l.importFieldCategory;
 String _fAsset(AppLocalizations l) => l.importFieldAsset;
 String _fMemo(AppLocalizations l) => l.importFieldMemo;
 
+/// 서버 사유 코드 → 화면 글. 모르는 코드는 코드를 흘리지 않고 기본 글로(웹 `failReasonKey` 와 같다).
+@visibleForTesting
+String importFailReasonText(AppLocalizations l, String reason) =>
+    switch (reason) {
+      'date' => l.importFailReasonDate,
+      'amount' => l.importFailReasonAmount,
+      'type' => l.importFailReasonType,
+      'parentHasTx' => l.importFailReasonParentHasTx,
+      'resolve' => l.importFailReasonResolve,
+      'save' => l.importFailReasonSave,
+      _ => l.importFailReasonUnknown,
+    };
+
 enum _Step { upload, mapping, done }
 
 /// 가져오기 고르기 창 — 확장자를 CSV · Excel 로 좁힌다(앱은 카메라 · 갤러리가 없는 파일 하나 고르기).
@@ -563,18 +576,89 @@ class _ImportViewState extends ConsumerState<ImportView> {
   // ── 3. 완료 ──────────────────────────────────────────────
 
   Widget _doneStep(AppLocalizations l, ImportExecuteResult r) {
+    final c = context.colors;
+    final capped = r.failuresTruncated || r.failed > r.failures.length;
     return Column(
       children: [
         Expanded(
-          child: Center(
-            child: SingleChildScrollView(
-              child: PResultSection(
-                kind: PResultKind.done,
-                size: PResultSize.large,
-                title: l.importDoneTitle,
-                description:
-                    '${l.importDoneCount(r.imported)}\n${l.importDoneDetail(r.skipped, r.failed)}',
-              ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: PSpacing.x6),
+                PResultSection(
+                  kind: PResultKind.done,
+                  size: PResultSize.large,
+                  title: l.importDoneTitle,
+                  description:
+                      '${l.importDoneCount(r.imported)}\n${l.importDoneDetail(r.skipped, r.failed)}',
+                ),
+                // 만든 카테고리 — 미리보기에서 본 것과 실제가 같은지 확인시킨다
+                if (r.createdCategories.isNotEmpty)
+                  _section(
+                    l.importCreatedCatTitle(r.createdCategoryCount),
+                    Padding(
+                      padding: _gutter,
+                      child: Wrap(
+                        spacing: PSpacing.x1,
+                        runSpacing: PSpacing.x1,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          for (final n in r.createdCategories) PBadge(label: n),
+                          if (r.createdCategoryCount >
+                              r.createdCategories.length)
+                            Text(
+                              l.importNewCatMore(
+                                r.createdCategoryCount -
+                                    r.createdCategories.length,
+                              ),
+                              style: PTypography.t3.copyWith(
+                                color: c.fgNeutralSubtle,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                // 못 넣은 행 — 줄 번호 + 사유, 잘렸으면 그 사실을 말한다
+                if (r.failures.isNotEmpty)
+                  _section(
+                    l.importFailuresTitle(r.failed),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        PList(
+                          semanticLabel: l.importFailuresTitle(r.failed),
+                          children: [
+                            for (final f in r.failures)
+                              PListItem(
+                                title: l.importFailureLine(f.lineNo),
+                                suffix: PListValue(
+                                  child: Text(
+                                    importFailReasonText(l, f.reason),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (capped)
+                          Padding(
+                            padding: _gutter,
+                            child: Text(
+                              l.importFailuresCapped(
+                                r.failed,
+                                r.failures.length,
+                              ),
+                              style: PTypography.t4.copyWith(
+                                color: c.fgNeutralSubtle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: PSpacing.x6),
+              ],
             ),
           ),
         ),
