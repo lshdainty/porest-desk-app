@@ -62,7 +62,7 @@ class TransferRow extends StatelessWidget {
         perspectiveAssetRowId != null &&
         transfer.toAssetRowId == perspectiveAssetRowId;
     final int shown = isOut ? transfer.amount + fee : transfer.amount;
-    final String sign = isOut ? '-' : (isIn ? '+' : '');
+    final String sign = isOut ? '−' : (isIn ? '+' : '');
 
     final route =
         '${transfer.fromAssetName ?? '-'} → ${transfer.toAssetName ?? '-'}';

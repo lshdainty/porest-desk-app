@@ -128,11 +128,13 @@ class _FilterSheetState extends State<_FilterSheet> {
           ),
           gap,
           FilterCategoryBody(
+            key: ValueKey('cat-$_epoch'),
             value: _cats,
             onChanged: (v) => setState(() => _cats = v),
           ),
           gap,
           FilterAssetBody(
+            key: ValueKey('asset-$_epoch'),
             value: _accs,
             onChanged: (v) => setState(() => _accs = v),
           ),

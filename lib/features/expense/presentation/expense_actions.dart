@@ -15,7 +15,6 @@ import 'package:groo_damda_app/shared/actions/item_actions.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart'
     as ds;
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 거래 하나에 할 수 있는 일 — 목록 행(스와이프)과 상세 시트가 같은 것을 부른다.
 ///
@@ -89,37 +88,6 @@ class ExpenseActions implements ItemActions<Expense> {
     deleteConfirmMessage(context, e),
     closedCycleSpanOfExpense(e, asset),
   );
-
-  /// 목록 행을 밀었을 때 드러나는 액션 — 수정·삭제.
-  ///
-  /// 확인창 문구가 액션을 만들 때 굳는 선언형이라 여기서 다 정한다. 상세 시트의
-  /// 삭제와 같은 제목·같은 본문이다(spec alert-dialog).
-  List<PSwipeAction> swipeActions(
-    BuildContext context,
-    WidgetRef ref,
-    Expense e, {
-    required Asset? asset,
-  }) {
-    final l = AppLocalizations.of(context);
-    return [
-      if (canEdit(e))
-        PSwipeAction(
-          label: l.actionEdit,
-          icon: LucideIcons.pencil,
-          kind: PSwipeKind.primary,
-          onSelect: () => edit(context, ref, e),
-        ),
-      if (canDelete(e))
-        PSwipeAction(
-          label: l.actionDelete,
-          icon: LucideIcons.trash2,
-          kind: PSwipeKind.destructive,
-          confirmTitle: deleteConfirmTitle(context, e),
-          confirmMessage: deleteConfirmMessageWith(context, e, asset),
-          onSelect: () => delete(context, ref, e, asset: asset),
-        ),
-    ];
-  }
 
   /// 목록 줄의 밀기 · 줄 끝 ⋮ 가 함께 쓰는 동작 — ds Swipe Actions 의 배열이다(수정 → 삭제 차례, I-07 6).
   ///

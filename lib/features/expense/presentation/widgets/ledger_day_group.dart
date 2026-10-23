@@ -2,122 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/core/format/date.dart';
-import 'package:groo_damda_app/core/format/krw.dart';
-import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
-import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_actions.dart';
 import 'package:groo_damda_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/transfer_row.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 
-/// 줄 끝 ⋮ 자리 — 단추 40 + 오른쪽 12. 밀기가 없는 줄(이체 · 시스템 거래)도 같은 폭을 비워 금액 자리를 맞춘다.
-const double kLedgerMoreSlot = PSpacing.x10 + PSpacing.x3;
-
-/// 날짜 묶음 머리 — List Header `mediumWeak`(t4 14 / 19 · 500 · `fg-neutral-subtle` · 좌우 24 · 위아래 8) 값이다(I-07 14).
-///
-/// 글 "26. 10. 22(목) · 오늘". **그날 합계는 폰에서 지금처럼 둔다**(Q1 A) — 지출 `fg-neutral` · 수입 `fg-brand` + "+" · t4 · 500 ·
-/// 고정폭. 합계가 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 내려간다(Header Row — List Header 와 같은 판정).
-/// 머리말 `headingLevel: 2`. 검색이 쓰는 `PDayHeader` 는 그대로 둔다(I-08 몫).
-class LedgerDayHeader extends StatelessWidget {
-  const LedgerDayHeader({
-    super.key,
-    required this.date,
-    required this.items,
-    required this.flags,
-  });
-
-  final DateTime date;
-
-  /// 그날의 거래 — 합계 계산에만 쓴다(이체는 순자산 증감이 0 이라 호출부가 빼고 넘긴다).
-  final List<Expense> items;
-  final MaskFlags flags;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final l = AppLocalizations.of(context);
-    final ds = ledgerKey(date);
-    final now = DateTime.now();
-    final rel = ds == ledgerKey(now)
-        ? l.txmToday
-        : ds == ledgerKey(now.subtract(const Duration(days: 1)))
-        ? l.txmYesterday
-        : null;
-    final label = formatDay(date);
-    final text =
-        '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})${rel == null ? '' : ' · $rel'}';
-    final style = PTypography.t4.copyWith(
-      color: c.fgNeutralSubtle,
-      fontWeight: FontWeight.w500,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    final dayExpense = expenseSum(items);
-    final dayIncome = incomeSum(items);
-    TextStyle sum(Color color) => style.copyWith(color: color);
-    final sums = (dayExpense > 0 || dayIncome > 0)
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: PSpacing.x2,
-            children: [
-              if (dayExpense > 0)
-                Text(
-                  krwSigned(
-                    dayExpense,
-                    flags.of(MaskKind.expense),
-                    sign: '−',
-                    unit: true,
-                  ),
-                  style: sum(c.fgNeutral),
-                ),
-              if (dayIncome > 0)
-                Text(
-                  krwSigned(
-                    dayIncome,
-                    flags.of(MaskKind.income),
-                    sign: '+',
-                    unit: true,
-                  ),
-                  style: sum(c.fgBrand),
-                ),
-            ],
-          )
-        : null;
-    return Padding(
-      key: const ValueKey('ledger-day-header'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpacing.globalGutter,
-        vertical: PSpacing.x2,
-      ),
-      child: PHeaderRow(
-        gap: PSpacing.x2_5,
-        expandTitle: true,
-        title: Semantics(
-          header: true,
-          headingLevel: 2,
-          container: true,
-          label: text,
-          child: ExcludeSemantics(child: Text(text, style: style)),
-        ),
-        action: sums,
-      ),
-    );
-  }
-
-  static String ledgerKey(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-'
-      '${d.month.toString().padLeft(2, '0')}-'
-      '${d.day.toString().padLeft(2, '0')}';
-}
+/// 줄 오른쪽 자리 — 화면 여백 24 + ⋮ 자리 32(단추 40 은 오른쪽으로 8 내민다, 웹 `-mr-x2`). 금액 끝은 화면 끝에서 56 이고 ⋮ 글리프는
+/// 27 에 선다. 밀기가 없는 줄(이체 · 시스템 거래)은 이 자리를 **비워** 금액 자리를 맞춘다(Q6 A, 웹 · 앱 한 벌).
+const double kLedgerMoreSlot = PSpacing.globalGutter + PSpacing.x8;
 
 /// 날짜 묶음 하나 — 머리 + 거래 줄 + 이체 줄. 묶음 위 12 · 첫 묶음 4.
 ///
@@ -157,7 +57,7 @@ class LedgerDayGroup extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LedgerDayHeader(date: date, items: items, flags: flags),
+          PDayHeader(date: date, items: items, flags: flags),
           for (final e in items)
             Builder(
               builder: (_) {
@@ -191,30 +91,24 @@ class LedgerDayGroup extends ConsumerWidget {
                   child: Row(
                     children: [
                       Expanded(child: row),
-                      if (actions.isEmpty)
-                        const SizedBox(width: kLedgerMoreSlot)
-                      else
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            end: PSpacing.x3,
-                          ),
-                          child: PSwipeActionsMore(
-                            actions: actions,
-                            rowLabel: name,
-                          ),
-                        ),
+                      SizedBox(
+                        width: kLedgerMoreSlot,
+                        child: actions.isEmpty
+                            ? null
+                            : Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: PSwipeActionsMore(
+                                  actions: actions,
+                                  rowLabel: name,
+                                ),
+                              ),
+                      ),
                     ],
                   ),
                 );
-                // 알림 · 검색에서 들어온 줄 — List `highlighted`(bg-brand-weak)와 같은 바탕 · 모서리.
+                // 알림 · 검색에서 들어온 줄 — List `highlighted`(bg-brand-weak)와 같은 바탕. 쉬는 바탕은 줄 폭 전체 · 모서리 0(list.yaml).
                 if (isFocus) {
-                  line = DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: c.bgBrandWeak,
-                      borderRadius: BorderRadius.circular(PRounded.r2_5),
-                    ),
-                    child: line,
-                  );
+                  line = ColoredBox(color: c.bgBrandWeak, child: line);
                 }
                 return KeyedSubtree(key: k, child: line);
               },

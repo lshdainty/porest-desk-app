@@ -219,6 +219,7 @@ class PListRowFrame extends StatefulWidget {
     this.detail,
     this.detailChild,
     this.titleColor,
+    this.titleWeight,
     this.titleSuffix,
     this.titleStrike = false,
     this.gutter,
@@ -247,6 +248,9 @@ class PListRowFrame extends StatefulWidget {
 
   /// 제목 색을 덮는다 — 합계에 안 드는 줄(예정 · 환불)의 `fg-neutral-subtle`. 막힌 줄은 비활성 색이 이긴다.
   final Color? titleColor;
+
+  /// 제목 굵기를 덮는다 — 화면 값(합계 줄만 700). 기본 400.
+  final FontWeight? titleWeight;
 
   /// 제목 글 바로 뒤에 이어 붙는 배지들 — 제목과 함께 줄을 바꾼다(거래 줄의 예정 · 환불 · 고정 배지). 읽는 이름은 제목 글 + 배지 글.
   final List<Widget>? titleSuffix;
@@ -581,7 +585,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
                 semanticsLabel: widget.title,
                 style: PTypography.t5.copyWith(
                   color: titleColor,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: widget.titleWeight ?? FontWeight.w400,
                   decoration: widget.titleStrike
                       ? TextDecoration.lineThrough
                       : null,
@@ -606,7 +610,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
                 ),
                 style: PTypography.t5.copyWith(
                   color: titleColor,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: widget.titleWeight ?? FontWeight.w400,
                   decoration: widget.titleStrike
                       ? TextDecoration.lineThrough
                       : null,

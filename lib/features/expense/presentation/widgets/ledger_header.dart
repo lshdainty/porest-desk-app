@@ -13,7 +13,7 @@ import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
-import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
 
 /// 가계부 원장 머리 — 달 이동 · 합계 · 인사이트 · 소비 요약 · 주 달력(I-07 7 · 8 · 11).
 ///
@@ -210,7 +210,7 @@ class LedgerSummaryList extends StatelessWidget {
     );
     final net = income - expense;
     return Padding(
-      padding: const EdgeInsets.only(top: PSpacing.x3),
+      padding: const EdgeInsets.only(top: PSpacing.x2),
       child: PList(
         semanticLabel: l.txmSpendSummary,
         children: [
@@ -240,6 +240,8 @@ class LedgerSummaryList extends StatelessWidget {
           ),
           PListItem(
             title: l.expTotal,
+            // 합계 줄 제목만 700(지시서 8 — 화면 값)
+            titleWeight: FontWeight.w700,
             suffix: PListValue.amount(
               krwSigned(
                 net.abs(),
@@ -334,22 +336,27 @@ class LedgerCalendar extends StatelessWidget {
       final data = loading ? null : byDay[cellData.ds];
       final future = cellData.ds.compareTo(todayStr) > 0;
       // 오는 날은 불투명도로 흐리지 않고 옅은 글자색 역할로 말한다(v106).
+      // 일 = 치명 · 토 = 브랜드(옛 뜻 그대로 — 색 이름만 새것)
       final numColor = isSel
           ? c.staticWhite
-          : (future ? c.fgNeutralSubtle : c.fgNeutral);
+          : future
+          ? c.fgNeutralSubtle
+          : (i % 7 == 0
+                ? c.fgCritical
+                : (i % 7 == 6 ? c.fgBrand : c.fgNeutral));
       Widget amounts() => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (data!.out > 0)
             Text(
-              '-${flags.of(MaskKind.expense) ? '••••' : krw(data.out)}',
+              '−${flags.of(MaskKind.expense) ? '••' : krw(data.out)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: amountStyle(c.fgNeutral),
             ),
           if (data.inn > 0)
             Text(
-              '+${flags.of(MaskKind.income) ? '••••' : krw(data.inn)}',
+              '+${flags.of(MaskKind.income) ? '••' : krw(data.inn)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: amountStyle(c.fgBrand),
@@ -503,30 +510,28 @@ class LedgerCellTooltip extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return Tooltip(
       richMessage: WidgetSpan(
-        child: PChartTooltipBox(
-          title: title,
+        child: PChartTooltip(
+          head: title,
           rows: [
-            PChartTooltipRowData(
-              color: c.fgNeutral,
-              label: l.expSummaryExpense,
-              amount: krwSigned(
+            PChartTooltipRow(
+              swatch: c.fgNeutral,
+              name: l.expSummaryExpense,
+              value: krwSigned(
                 out,
                 flags.of(MaskKind.expense),
                 sign: '−',
                 unit: true,
               ),
-              amountColor: c.fgNeutral,
             ),
-            PChartTooltipRowData(
-              color: c.fgBrand,
-              label: l.expSummaryIncome,
-              amount: krwSigned(
+            PChartTooltipRow(
+              swatch: c.fgBrand,
+              name: l.expSummaryIncome,
+              value: krwSigned(
                 inn,
                 flags.of(MaskKind.income),
                 sign: '+',
                 unit: true,
               ),
-              amountColor: c.fgBrand,
             ),
           ],
         ),

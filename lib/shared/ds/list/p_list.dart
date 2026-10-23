@@ -163,9 +163,13 @@ class PListItem extends PListItemBase {
     super.titleStrike,
     super.gutter,
     super.verticalPadding,
+    this.titleWeight,
     this.prefix,
     this.suffix,
   });
+
+  /// 제목 굵기 덮개 — 화면 값(합계 줄만 700).
+  final FontWeight? titleWeight;
 
   /// 앞 붙이개 — 아이콘 22 · [PListTile] · 로고 타일 · 아바타.
   final Widget? prefix;
@@ -179,6 +183,7 @@ class PListItem extends PListItemBase {
     detail: detail,
     detailChild: detailChild,
     titleColor: titleColor,
+    titleWeight: titleWeight,
     titleSuffix: titleSuffix,
     titleStrike: titleStrike,
     gutter: gutter,

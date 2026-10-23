@@ -504,6 +504,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           PResultSection(
             kind: PResultKind.failure,
             title: l.expLoadError,
+            description: l.expLoadErrorDesc,
             primaryAction: PResultAction(
               label: l.actionRetry,
               onPressed: () => ref.invalidate(monthExpensesProvider(_key)),
@@ -549,33 +550,33 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             ),
           );
         }
-        // 지난달 이용 내역 보기 — 필터 활성 시 숨김(사용자 결정). 줄을 덧붙이지 않고 달을 옮긴다.
-        if (!filterActive) {
-          listChildren.add(
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpacing.globalGutter,
-                PSpacing.x6,
-                PSpacing.globalGutter,
-                0,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PButton(
-                      label: l.txmPrevMonthBtn(
-                        _monthLabel(DateTime(_month.year, _month.month - 1, 1)),
-                      ),
-                      size: PButtonSize.large,
-                      variant: PButtonVariant.neutralWeak,
-                      onPressed: () => _goMonth(-1),
-                    ),
-                  ),
-                ],
-              ),
+      }
+      // 지난달 이용 내역 보기 — 이 달이 비어 있어도 둔다(지난달로 가는 길). 필터 활성 시 숨김(사용자 결정). 줄을 덧붙이지 않고 달을 옮긴다.
+      if (!loading && !failed && !filterActive) {
+        listChildren.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpacing.globalGutter,
+              PSpacing.x6,
+              PSpacing.globalGutter,
+              0,
             ),
-          );
-        }
+            child: Row(
+              children: [
+                Expanded(
+                  child: PButton(
+                    label: l.txmPrevMonthBtn(
+                      _monthLabel(DateTime(_month.year, _month.month - 1, 1)),
+                    ),
+                    size: PButtonSize.large,
+                    variant: PButtonVariant.neutralWeak,
+                    onPressed: () => _goMonth(-1),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       }
       return PPullToRefresh(
         onRefresh: () async {

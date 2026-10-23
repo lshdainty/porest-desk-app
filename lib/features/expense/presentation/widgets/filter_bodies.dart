@@ -82,7 +82,7 @@ class FilterMatchBody extends StatelessWidget {
         _pad(
           Text(
             l.expFilterPeriodAlwaysAnd,
-            style: PTypography.t3.copyWith(color: c.fgNeutralMuted),
+            style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
           ),
         ),
         const SizedBox(height: PSpacing.x1),
@@ -109,7 +109,7 @@ class FilterMatchBody extends StatelessWidget {
               padding: const EdgeInsets.only(top: PSpacing.x1_5),
               child: Text(
                 l.expFilterMatchHint,
-                style: PTypography.t3.copyWith(color: c.fgNeutralMuted),
+                style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
               ),
             ),
           ),
@@ -129,14 +129,6 @@ String _ymd(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-'
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
-
-const _presets = [
-  PDatePreset.thisWeek,
-  PDatePreset.thisMonth,
-  PDatePreset.lastMonth,
-  PDatePreset.last3Months,
-  PDatePreset.thisYear,
-];
 
 /// 기간 고르는 시트 — 달이 위아래로 이어지고 위에 빠른 기간 칩 줄이 있다. 바닥은 "초기화" + "완료"(끝을 고르기 전에는 "완료" 가 막힌다).
 Future<PDateRange?> showFilterPeriodSheet(
@@ -160,7 +152,6 @@ Future<PDateRange?> showFilterPeriodSheet(
               labels: labels,
               semanticLabel: l.expFilterPeriodPick,
               visibleRange: PDateVisibleRange.continuous,
-              presets: _presets,
               value: draft,
               min: DateTime(2000),
               max: DateTime(2100),
@@ -269,9 +260,25 @@ class FilterPeriodBody extends StatelessWidget {
           _pad(
             Padding(
               padding: const EdgeInsets.only(top: PSpacing.x1_5),
-              child: Text(
-                l.expDateRangeError,
-                style: PTypography.t3.copyWith(color: c.fgCritical),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: PSpacing.x1,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: PSpacing.x0_5),
+                    child: Icon(
+                      LucideIcons.circleAlert,
+                      size: PSpacing.x4,
+                      color: c.fgCritical,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      l.expDateRangeError,
+                      style: PTypography.t4.copyWith(color: c.fgCritical),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -350,8 +357,14 @@ class FilterTypeBody extends StatelessWidget {
 
 /// 넣기 · 빼기 하나 고르기 칩 둘. 한 조건 안에서 넣기 · 빼기를 섞지 않는다 — 바꾸면 고른 것이 반대쪽 묶음으로 옮겨 간다.
 class _ModeChips extends StatelessWidget {
-  const _ModeChips({required this.exclude, required this.onChanged});
+  const _ModeChips({
+    required this.condition,
+    required this.exclude,
+    required this.onChanged,
+  });
 
+  /// 조건 이름 — 묶음 이름 "{조건} 고르는 방식" 에 들어간다.
+  final String condition;
   final bool exclude;
   final ValueChanged<bool> onChanged;
 
@@ -360,7 +373,7 @@ class _ModeChips extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return _pad(
       PChipGroup(
-        semanticLabel: l.expFilterModeInclude,
+        semanticLabel: l.expFilterModeGroup(condition),
         children: [
           PChip(
             label: l.expFilterModeInclude,
@@ -380,7 +393,7 @@ class _ModeChips extends StatelessWidget {
   }
 }
 
-/// [IncludeExclude] 를 "고른 것만 / 고른 것 빼고" 한쪽으로만 채운다.
+/// [IncludeExclude] 의 처음 모드 — 빼기만 채워져 있으면 "고른 것 빼고". 이후 모드는 부품이 상태로 쥔다.
 bool _isExcludeMode(IncludeExclude v) =>
     v.include.isEmpty && v.exclude.isNotEmpty;
 
@@ -392,8 +405,9 @@ IncludeExclude _switchMode(IncludeExclude v, bool toExclude) {
   return _withMode(v, toExclude, {...picked});
 }
 
-/// 카테고리 — 모드 칩 + 부모 카테고리 칩 여럿(하위는 `expandCats` 가 펼친다).
-class FilterCategoryBody extends ConsumerWidget {
+/// 카테고리 — 모드 칩 + 부모 카테고리 칩 여럿(하위는 `expandCats` 가 펼친다). 모드는 값에서 추론하지 않고 이 부품이 쥔다 —
+/// 아무것도 안 고른 채 "고른 것 빼고" 를 먼저 눌러도 그대로 남는다.
+class FilterCategoryBody extends ConsumerStatefulWidget {
   const FilterCategoryBody({
     super.key,
     required this.value,
@@ -406,21 +420,32 @@ class FilterCategoryBody extends ConsumerWidget {
   final bool withHeader;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FilterCategoryBody> createState() => _FilterCategoryBodyState();
+}
+
+class _FilterCategoryBodyState extends ConsumerState<FilterCategoryBody> {
+  late bool _exclude = _isExcludeMode(widget.value);
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final parents = categories.where((c) => c.parentRowId == null).toList()
       ..sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
     if (parents.isEmpty) return const SizedBox.shrink();
-    final exclude = _isExcludeMode(value);
-    final picked = exclude ? value.exclude : value.include;
+    final value = widget.value;
+    final picked = _exclude ? value.exclude : value.include;
     return _Section(
       title: l.expCategory,
-      withHeader: withHeader,
+      withHeader: widget.withHeader,
       children: [
         _ModeChips(
-          exclude: exclude,
-          onChanged: (v) => onChanged(_switchMode(value, v)),
+          condition: l.expCategory,
+          exclude: _exclude,
+          onChanged: (v) {
+            setState(() => _exclude = v);
+            widget.onChanged(_switchMode(value, v));
+          },
         ),
         const SizedBox(height: PSpacing.x2),
         _pad(
@@ -434,7 +459,7 @@ class FilterCategoryBody extends ConsumerWidget {
                   onChanged: (on) {
                     final next = {...picked};
                     on ? next.add(c.rowId) : next.remove(c.rowId);
-                    onChanged(_withMode(value, exclude, next));
+                    widget.onChanged(_withMode(value, _exclude, next));
                   },
                 ),
             ],
@@ -445,8 +470,8 @@ class FilterCategoryBody extends ConsumerWidget {
   }
 }
 
-/// 계좌 · 카드 — 모드 칩 + 체크 줄(앞 Logo Tile 40 · 뒤 체크 24).
-class FilterAssetBody extends ConsumerWidget {
+/// 계좌 · 카드 — 모드 칩 + 체크 줄(앞 Logo Tile 40 · 뒤 체크 24). 모드는 부품이 쥔다(위와 같다).
+class FilterAssetBody extends ConsumerStatefulWidget {
   const FilterAssetBody({
     super.key,
     required this.value,
@@ -459,19 +484,30 @@ class FilterAssetBody extends ConsumerWidget {
   final bool withHeader;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FilterAssetBody> createState() => _FilterAssetBodyState();
+}
+
+class _FilterAssetBodyState extends ConsumerState<FilterAssetBody> {
+  late bool _exclude = _isExcludeMode(widget.value);
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final assets = ref.watch(assetsProvider).value ?? const [];
     if (assets.isEmpty) return const SizedBox.shrink();
-    final exclude = _isExcludeMode(value);
-    final picked = exclude ? value.exclude : value.include;
+    final value = widget.value;
+    final picked = _exclude ? value.exclude : value.include;
     return _Section(
       title: l.expAccountCard,
-      withHeader: withHeader,
+      withHeader: widget.withHeader,
       children: [
         _ModeChips(
-          exclude: exclude,
-          onChanged: (v) => onChanged(_switchMode(value, v)),
+          condition: l.expAccountCard,
+          exclude: _exclude,
+          onChanged: (v) {
+            setState(() => _exclude = v);
+            widget.onChanged(_switchMode(value, v));
+          },
         ),
         const SizedBox(height: PSpacing.x1),
         PListCheckGroup(
@@ -486,7 +522,7 @@ class FilterAssetBody extends ConsumerWidget {
                 onChanged: (on) {
                   final next = {...picked};
                   on ? next.add(a.rowId) : next.remove(a.rowId);
-                  onChanged(_withMode(value, exclude, next));
+                  widget.onChanged(_withMode(value, _exclude, next));
                 },
               ),
           ],

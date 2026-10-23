@@ -407,7 +407,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  PDayHeader(date: g.date, items: g.items, flags: flags),
+                  // 이 화면이 아직 바깥 24 를 쥔다 — 머리의 24 는 끈다(바깥 24 를 걷을 때 함께, I-08).
+                  PDayHeader(
+                    date: g.date,
+                    items: g.items,
+                    flags: flags,
+                    gutter: 0,
+                  ),
                   const SizedBox(height: 6),
                   for (final e in g.items)
                     // 가계부·홈·거래상세와 **같은 행 위젯**이다(앱에 행 위젯은 이것 하나).

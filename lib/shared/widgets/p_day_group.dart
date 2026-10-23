@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
@@ -11,22 +10,23 @@ import 'package:groo_damda_app/core/settings/mask_flags.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_aggregates.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
-/// 날짜 그룹 헤더 — `"26. 9. 12(토) · 오늘"` + 그날 합계.
+/// 날짜 묶음 머리 — List Header `mediumWeak`(t4 14 / 19 · 500 · `fg-neutral-subtle` · 좌우 24 · 위아래 8 · gap 10) 값이다(I-07 14).
 ///
-/// 가계부(`expense_screen` 의 `_DayGroup`)에서 떼어냈다. 검색 결과도 같은 모양으로
-/// 묶어야 해서 공용으로 둔다 — **두 화면이 각자 그리면 반드시 갈라진다**(검색은
-/// 원래 자체 행에 부제로 날짜를 넣고 구분선을 그렸다).
+/// 글 `"26. 10. 22(목) · 오늘"` + 그날 합계(지출 `fg-neutral` · 수입 `fg-brand` + "+" · t4 500 고정폭). 합계가 머리 폭의 절반을
+/// 넘으면 제목 아래 줄 오른쪽 끝으로 내려간다(`PHeaderRow` — List Header 와 같은 판정). 머리말 `headingLevel: 2`.
 ///
-/// 합계는 월 헤더와 같은 규칙이다 — 환불 상계 + 예정 제외(`expenseSum`/`incomeSum`).
-/// 이체는 순자산 증감이 0 이라 합계에 넣지 않는다(호출부가 빼고 넘긴다).
+/// 가계부 · 검색이 함께 쓴다 — 두 화면이 각자 그리면 반드시 갈라진다. 합계는 월 헤더와 같은 규칙(환불 상계 + 예정 제외 —
+/// `expenseSum`/`incomeSum`)이고 이체는 순자산 증감이 0 이라 호출부가 빼고 넘긴다.
 class PDayHeader extends StatelessWidget {
   const PDayHeader({
     super.key,
     required this.date,
     required this.items,
     required this.flags,
+    this.gutter,
   });
 
   final DateTime date;
@@ -37,9 +37,13 @@ class PDayHeader extends StatelessWidget {
   /// 금액마다 자기 종류로 가림 판정을 한다.
   final MaskFlags flags;
 
+  /// **임시 인자** — 좌우 여백 기본 24(List Header). 바깥 24 를 아직 쥔 호스트(검색)만 0 을 준다 — 호스트가 바깥 24 를 걷을 때
+  /// 함께 걷는다(I-06 의 List 줄 `gutter` 와 같은 뜻).
+  final double? gutter;
+
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final ds = _ymd(date);
     final now = DateTime.now();
@@ -49,54 +53,61 @@ class PDayHeader extends StatelessWidget {
         ? l.txmYesterday
         : null;
     final label = formatDay(date);
+    final text =
+        '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})${rel == null ? '' : ' · $rel'}';
+    final style = PTypography.t4.copyWith(
+      color: c.fgNeutralSubtle,
+      fontWeight: FontWeight.w500,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     final dayExpense = expenseSum(items);
     final dayIncome = incomeSum(items);
-
-    // txm dayhead — "yy. m. d(요일) · 오늘/어제" + 일 합계 (design .txm-dayhead).
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})',
-          style: PTypo.bodySm.copyWith(
-            color: t.fgSecondary,
-            fontWeight: PFontWeight.semi,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+    final sums = (dayExpense > 0 || dayIncome > 0)
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: PSpacing.x2,
+            children: [
+              if (dayExpense > 0)
+                Text(
+                  krwSigned(
+                    dayExpense,
+                    flags.of(MaskKind.expense),
+                    sign: '−',
+                    unit: true,
+                  ),
+                  style: style.copyWith(color: c.fgNeutral),
+                ),
+              if (dayIncome > 0)
+                Text(
+                  krwSigned(
+                    dayIncome,
+                    flags.of(MaskKind.income),
+                    sign: '+',
+                    unit: true,
+                  ),
+                  style: style.copyWith(color: c.fgBrand),
+                ),
+            ],
+          )
+        : null;
+    return Padding(
+      key: const ValueKey('day-header'),
+      padding: EdgeInsets.symmetric(
+        horizontal: gutter ?? PSpacing.globalGutter,
+        vertical: PSpacing.x2,
+      ),
+      child: PHeaderRow(
+        gap: PSpacing.x2_5,
+        expandTitle: true,
+        title: Semantics(
+          header: true,
+          headingLevel: 2,
+          container: true,
+          label: text,
+          child: ExcludeSemantics(child: Text(text, style: style)),
         ),
-        if (rel != null)
-          Text(' · $rel', style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
-        const Spacer(),
-        if (dayExpense > 0)
-          Text(
-            krwSigned(
-              dayExpense,
-              flags.of(MaskKind.expense),
-              sign: '−',
-              unit: true,
-            ),
-            style: PTypo.caption.copyWith(
-              color: t.fgExpense,
-              fontWeight: PFontWeight.semi,
-            ),
-          ),
-        if (dayIncome > 0) ...[
-          if (dayExpense > 0) const SizedBox(width: PSpace.x8),
-          Text(
-            krwSigned(
-              dayIncome,
-              flags.of(MaskKind.income),
-              sign: '+',
-              unit: true,
-            ),
-            style: PTypo.caption.copyWith(
-              color: t.fgIncome,
-              fontWeight: PFontWeight.semi,
-            ),
-          ),
-        ],
-      ],
+        action: sums,
+      ),
     );
   }
 

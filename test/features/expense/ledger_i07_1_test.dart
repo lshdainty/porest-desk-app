@@ -20,6 +20,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
 import 'package:groo_damda_app/features/expense/presentation/filter_dialog.dart';
+import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_day_group.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
@@ -28,6 +29,7 @@ import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 
@@ -237,13 +239,15 @@ void main() {
     await tester.pumpAndSettle();
     final c = tester.element(find.byType(ExpenseScreen)).colors;
     final boxes = tester
-        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
-        .where(
-          (b) =>
-              b.decoration is BoxDecoration &&
-              (b.decoration as BoxDecoration).color == c.bgBrandWeak,
-        );
+        .widgetList<ColoredBox>(find.byType(ColoredBox))
+        .where((b) => b.color == c.bgBrandWeak);
+    // 쉬는 바탕은 줄 폭 전체 · 모서리 0 — 둥근 상자(DecoratedBox)가 아니다
     expect(boxes, isNotEmpty);
+    expect(
+      tester.getSize(find.byWidget(boxes.first)).width,
+      360,
+      reason: '강조 바탕은 줄 폭 전체',
+    );
   });
 
   testWidgets('7 거르기 단추에 개수 배지 · 켜짐 틴트가 없다 — 이름은 필터', (tester) async {
@@ -331,7 +335,7 @@ void main() {
     final handle = tester.ensureSemantics();
     await _pump(tester);
     final c = tester.element(find.byType(ExpenseScreen)).colors;
-    final head = find.byType(LedgerDayHeader).first;
+    final head = find.byType(PDayHeader).first;
     final title = tester.widget<Text>(
       find
           .descendant(
@@ -500,6 +504,20 @@ void main() {
       expect(_result!.categories.exclude, {1, 2});
     });
 
+    testWidgets('아무것도 안 고른 채 "고른 것 빼고" 를 먼저 누르면 그 모드로 남는다', (tester) async {
+      await open(tester);
+      await tester.ensureVisible(find.text('고른 것 빼고').first);
+      await tester.tap(find.text('고른 것 빼고').first);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('식비'));
+      await tester.tap(find.text('식비'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('필터 적용'));
+      await tester.pumpAndSettle();
+      expect(_result!.categories.include, isEmpty);
+      expect(_result!.categories.exclude, {1});
+    });
+
     testWidgets('기간 오류(시작 > 끝)면 필터 적용이 막힌다', (tester) async {
       await open(
         tester,
@@ -551,6 +569,83 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
     });
+  });
+
+  testWidgets('11 합계 줄 제목만 700 · 7 소비 요약 위 8', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.text('소비 요약'));
+    await tester.pumpAndSettle();
+    FontWeight? weightOf(String t) => tester
+        .widget<Text>(
+          find.descendant(of: find.byType(Scaffold), matching: _text(t)).first,
+        )
+        .style
+        ?.fontWeight;
+    expect(weightOf('합계'), FontWeight.w700);
+    expect(weightOf('지출'), FontWeight.w400);
+  });
+
+  testWidgets('15 · 47 칸 금액은 가림 "••" · 빼기는 U+2212', (tester) async {
+    await _pump(tester);
+    // 접힌 주 달력 — 오늘이 든 주의 칸 금액(오늘 거래가 없으면 이번 달 1일 거래는 월 달력에서)
+    await tester.tap(find.bySemanticsLabel('월 달력'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('-1', findRichText: true), findsNothing);
+    expect(_text('−12,000', contains: true), findsWidgets);
+  });
+
+  testWidgets('자산 거르기(?assetId)는 목록을 그 자산 거래로 거른다', (tester) async {
+    await _pump(
+      tester,
+      initialAssetId: 2,
+      expenses: (_) async => [
+        _tx(1, '월급 통장 결제', 12000, assetId: 1),
+        _tx(2, '지갑 결제', 3000, assetId: 2),
+      ],
+    );
+    expect(find.text('지갑 결제'), findsOneWidget);
+    expect(find.text('월급 통장 결제'), findsNothing);
+  });
+
+  testWidgets('빈 달에도 지난달 이용 내역 보기 단추가 있다', (tester) async {
+    await _pump(tester, expenses: (_) async => const []);
+    expect(find.textContaining('이용 내역 보기'), findsOneWidget);
+  });
+
+  testWidgets('실패에는 설명 글이 있다', (tester) async {
+    await _pump(tester, expenses: (_) => Future.error(Exception('x')));
+    expect(
+      tester.widget<PResultSection>(find.byType(PResultSection)).description,
+      '잠시 뒤에 다시 시도해주세요.',
+    );
+  });
+
+  testWidgets('영어 "Delete" 밀기 라벨도 한 줄 — 칸이 글 폭만큼 넓어진다', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GrooTheme.light(),
+        home: Scaffold(
+          body: PSwipeActions(
+            actions: [
+              PSwipeAction(
+                label: 'Delete',
+                kind: PSwipeActionKind.destructive,
+                icon: LucideIcons.trash2,
+                onSelect: () {},
+              ),
+            ],
+            child: const SizedBox(height: 64, width: double.infinity),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    final label = tester.getSize(
+      find.byKey(const ValueKey('swipe-label-Delete')),
+    );
+    expect(label.height, lessThan(20), reason: '한 줄');
+    expect(swipeSlotWidth(0), 56, reason: '한글 두 글자 칸은 그대로');
   });
 
   group('200% · 다크 — 가장 나쁜 값에서 이 PR 의 자리에는 넘침 오류가 없다', () {

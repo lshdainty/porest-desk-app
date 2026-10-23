@@ -86,6 +86,7 @@ void main() {
             date: DateTime(2026, 9, 12),
             items: [_e()],
             flags: const MaskFlags.cardOnly(false),
+            gutter: 0,
           ),
           ExpenseRow(
             gutter: 0,
@@ -212,6 +213,7 @@ void main() {
             date: DateTime(2026, 9, 12),
             items: [_e()],
             flags: const MaskFlags.cardOnly(false),
+            gutter: 0,
           ),
           ExpenseRow(
             gutter: 0,
