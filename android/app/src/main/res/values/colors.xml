@@ -2,4 +2,8 @@
 <resources>
     <!-- 적응형 아이콘 뒤 층 — 라이트 · 다크 같다(흰 타일 + 시안 나무). -->
     <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- OS 시작 화면 바탕 = 토큰 bg-layer-default(라이트). XML 은 토큰을 못 읽어 hex 를 적는다.
+         앱 첫 화면(스플래시) 바탕과 같아야 넘어갈 때 바탕이 안 바뀐다. 값 대조는
+         test/native/launch_screen_test.dart 가 groo_tokens.g.dart 와 한다. -->
+    <color name="splash_background">#FFFFFF</color>
 </resources>

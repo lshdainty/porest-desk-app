@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 토큰 bg-layer-default(다크). 라이트는 values/colors.xml. -->
+    <color name="splash_background">#242938</color>
+</resources>
