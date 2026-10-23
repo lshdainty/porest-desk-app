@@ -467,7 +467,7 @@ class _SearchLoadingSkeleton extends StatelessWidget {
         child: const PScreenBand(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: PSpace.x24),
-            child: PDayGroupSkeleton(rows: 3),
+            child: PDayGroupSkeleton(rows: 3, gutter: 0, headerGap: 6),
           ),
         ),
       ),

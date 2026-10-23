@@ -3274,12 +3274,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expPeriodWeek => 'This week';
-
-  @override
-  String get expPeriod3Month => '3 months';
-
-  @override
   String get expPeriodCustom => 'Custom';
 
   @override

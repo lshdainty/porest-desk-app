@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
@@ -258,6 +260,15 @@ class LedgerSummaryList extends StatelessWidget {
   }
 }
 
+/// 툴팁 머리 — "10월 21일 (목)"(chart.md · 웹과 같은 꼴).
+String _tooltipHead(String ds) {
+  final d = DateTime.parse(ds);
+  final dow = formatDay(d).dow;
+  return localeIsEn()
+      ? DateFormat('MMM d (E)', 'en').format(d)
+      : '${d.month}월 ${d.day}일 ($dow)';
+}
+
 /// 접이식 캘린더 — 접힘: 선택 주 1줄 / 펼침: 월 전체. 요일 t2 · 날 숫자 t5 · 칸 금액 t1.
 class LedgerCalendar extends StatelessWidget {
   const LedgerCalendar({
@@ -395,8 +406,7 @@ class LedgerCalendar extends StatelessWidget {
                   PSkeleton.text(PTypography.t1, width: 32)
                 else if (data != null)
                   LedgerCellTooltip(
-                    title:
-                        '${int.parse(cellData.ds.substring(5, 7))}. ${cellData.d}',
+                    title: _tooltipHead(cellData.ds),
                     out: data.out,
                     inn: data.inn,
                     flags: flags,
@@ -514,7 +524,7 @@ class LedgerCellTooltip extends StatelessWidget {
           head: title,
           rows: [
             PChartTooltipRow(
-              swatch: c.fgNeutral,
+              swatch: c.chartRed,
               name: l.expSummaryExpense,
               value: krwSigned(
                 out,
@@ -524,7 +534,7 @@ class LedgerCellTooltip extends StatelessWidget {
               ),
             ),
             PChartTooltipRow(
-              swatch: c.fgBrand,
+              swatch: c.chartBlue,
               name: l.expSummaryIncome,
               value: krwSigned(
                 inn,

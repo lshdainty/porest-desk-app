@@ -2018,8 +2018,6 @@
       }
     }
   },
-  "expPeriodWeek": "This week",
-  "expPeriod3Month": "3 months",
   "expPeriodCustom": "Custom",
   "expDateRangeError": "Start date can't be after end date.",
   "expTxType": "Transaction type",

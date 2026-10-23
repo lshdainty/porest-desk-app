@@ -130,7 +130,14 @@ String _ymd(DateTime d) =>
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
 
-/// 기간 고르는 시트 — 달이 위아래로 이어지고 위에 빠른 기간 칩 줄이 있다. 바닥은 "초기화" + "완료"(끝을 고르기 전에는 "완료" 가 막힌다).
+/// 폰 빠른 기간 — 옛 폰 탭에 있던 이번 주 · 이번 달 · 3개월만(스펙 한 벌의 넓은 기간 지난달 · 올해는 폰에 들이지 않는다).
+const _presets = [
+  PDatePreset.thisWeek,
+  PDatePreset.thisMonth,
+  PDatePreset.last3Months,
+];
+
+/// 기간 고르는 시트 — 달이 위아래로 이어지고 위에 빠른 기간 칩 줄(이번 주 · 이번 달 · 3개월 — 옛 폰에 있던 것만)이 있다. 바닥은 "초기화" + "완료"(끝을 고르기 전에는 "완료" 가 막힌다).
 Future<PDateRange?> showFilterPeriodSheet(
   BuildContext context, {
   required PDateRange? current,
@@ -152,6 +159,7 @@ Future<PDateRange?> showFilterPeriodSheet(
               labels: labels,
               semanticLabel: l.expFilterPeriodPick,
               visibleRange: PDateVisibleRange.continuous,
+              presets: _presets,
               value: draft,
               min: DateTime(2000),
               max: DateTime(2100),
@@ -262,7 +270,7 @@ class FilterPeriodBody extends StatelessWidget {
               padding: const EdgeInsets.only(top: PSpacing.x1_5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: PSpacing.x1,
+                spacing: PSpacing.x1_5,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: PSpacing.x0_5),

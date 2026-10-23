@@ -2035,8 +2035,6 @@
       }
     }
   },
-  "expPeriodWeek": "이번 주",
-  "expPeriod3Month": "3개월",
   "expPeriodCustom": "직접 선택",
   "expDateRangeError": "시작일이 종료일보다 늦을 수 없어요.",
   "expTxType": "거래 종류",

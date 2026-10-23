@@ -456,6 +456,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     monthExpense,
                     prevAsync.value,
                     categoriesAsync.value,
+                    // 인사이트는 지난달과의 차액을 말한다 — 크기가 드러나 월 합계 카드와 함께 가린다.
+                    masked: summaryFlags.of(MaskKind.expense),
                   ),
             summaryOpen: _sumOpen,
             // 월 전체 캘린더와 동시 열면 고정 머리가 화면을 초과(overflow) — 서로 접는다.
@@ -477,7 +479,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             expanded: _expanded,
             byDay: byDay,
             loading: loading,
-            flags: ref.watch(maskFlagsProvider('ledger.calendar')),
+            flags: _calendarFlags(ref),
             onSelect: (ds) {
               setState(() => _selected = ds);
               if (byDay.containsKey(ds)) _scrollToDay(ds, groupKeys);
@@ -552,7 +554,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         }
       }
       // 지난달 이용 내역 보기 — 이 달이 비어 있어도 둔다(지난달로 가는 길). 필터 활성 시 숨김(사용자 결정). 줄을 덧붙이지 않고 달을 옮긴다.
-      if (!loading && !failed && !filterActive) {
+      if (!failed && !filterActive) {
         listChildren.add(
           Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -639,6 +641,19 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   static Widget _plainInsight(String text, TextStyle style) =>
       Text(keepAll(text), semanticsLabel: text, style: style);
 
+  /// 달력 칸 · 칸 툴팁의 가림 — 캘린더 카드와 거래 목록 카드의 합집합(툴팁이 거래 금액을 말하므로 "캘린더 금액"만 가린 사람에게
+  /// 툴팁 금액이 보이면 안 된다).
+  MaskFlags _calendarFlags(WidgetRef ref) {
+    final a = ref.watch(maskFlagsProvider('ledger.calendar'));
+    final b = ref.watch(maskFlagsProvider('ledger.txList'));
+    return MaskFlags(
+      card: a.card || b.card,
+      expense: a.expense || b.expense,
+      income: a.income || b.income,
+      transfer: a.transfer || b.transfer,
+    );
+  }
+
   /// 인사이트 한 줄 — 지난달 대비(덜/더/비슷) / 없으면 최다 지출 카테고리.
   Widget? _insight(
     AppLocalizations l,
@@ -646,8 +661,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     List<Expense> raw,
     int monthExpense,
     List<Expense>? prevRaw,
-    List<ExpenseCategory>? categories,
-  ) {
+    List<ExpenseCategory>? categories, {
+    bool masked = false,
+  }) {
     final subStyle = PTypography.t4.copyWith(
       color: c.fgNeutralMuted,
       fontWeight: FontWeight.w400,
@@ -666,6 +682,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       final amount = localeIsEn()
           ? '₩${krw(diff.abs())}'
           : '${formatChartAxis(diff.abs().toDouble())}원';
+      final shownAmount = masked ? '••' : amount;
       final less = diff > 0;
       return Text.rich(
         TextSpan(
@@ -676,7 +693,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             ),
             TextSpan(
               text: keepAll(
-                less ? l.txmInsightLessHl(amount) : l.txmInsightMoreHl(amount),
+                less
+                    ? l.txmInsightLessHl(shownAmount)
+                    : l.txmInsightMoreHl(shownAmount),
               ),
               style: TextStyle(
                 fontWeight: FontWeight.w700,

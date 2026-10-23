@@ -11,6 +11,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
@@ -21,7 +22,6 @@ import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
 import 'package:groo_damda_app/features/expense/presentation/filter_dialog.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
-import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_day_group.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
@@ -29,6 +29,8 @@ import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
+import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -96,6 +98,7 @@ Future<void> _pump(
   int? initialAssetId,
   String? initialMonth,
   Size size = const Size(360, 780),
+  Set<String> hidden = const {},
 }) async {
   tester.view.physicalSize = Size(size.width * 2, size.height * 2);
   tester.view.devicePixelRatio = 2;
@@ -104,6 +107,7 @@ Future<void> _pump(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
+        hideCardProvider.overrideWith((ref, card) => hidden.contains(card)),
         categoriesProvider.overrideWith((ref) async => _cats),
         assetsProvider.overrideWith((ref) async => _assets),
         assetTransfersProvider.overrideWith((ref, key) async => transfers),
@@ -646,6 +650,44 @@ void main() {
     );
     expect(label.height, lessThan(20), reason: '한 줄');
     expect(swipeSlotWidth(0), 56, reason: '한글 두 글자 칸은 그대로');
+  });
+
+  testWidgets('가림: 거래 목록 카드만 켜도 달력 칸 금액은 "••" (툴팁이 같은 금액을 말한다)', (
+    tester,
+  ) async {
+    await _pump(tester, hidden: {'ledger.txList'});
+    await tester.tap(find.bySemanticsLabel('월 달력'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('−••'), findsWidgets);
+  });
+
+  testWidgets('가림: 월 합계 카드를 켜면 인사이트 금액도 가린다', (tester) async {
+    final now = DateTime.now();
+    final cur = (year: now.year, month: now.month);
+    await _pump(
+      tester,
+      hidden: {'ledger.monthSummary'},
+      expenses: (key) async =>
+          key == cur ? [_tx(1, '이번 달 가게', 100000)] : [_tx(2, '지난달 가게', 400000)],
+    );
+    expect(_text('••', contains: true), findsWidgets);
+    expect(_text('만원', contains: true), findsNothing);
+  });
+
+  testWidgets('폰 기간 시트의 빠른 기간은 이번 주 · 이번 달 · 3개월 — 넓은 기간은 없다', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byIcon(LucideIcons.slidersHorizontal));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(PInputButton).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(PInputButton).first);
+    await tester.pumpAndSettle();
+    final names = PDatePickerLabels.ko.presetNames;
+    expect(find.text(names[PDatePreset.thisWeek]!), findsOneWidget);
+    expect(find.text(names[PDatePreset.thisMonth]!), findsOneWidget);
+    expect(find.text(names[PDatePreset.last3Months]!), findsOneWidget);
+    expect(find.text(names[PDatePreset.lastMonth]!), findsNothing);
+    expect(find.text(names[PDatePreset.thisYear]!), findsNothing);
   });
 
   group('200% · 다크 — 가장 나쁜 값에서 이 PR 의 자리에는 넘침 오류가 없다', () {

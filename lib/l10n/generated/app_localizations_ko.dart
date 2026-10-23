@@ -3226,12 +3226,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get expPeriodWeek => '이번 주';
-
-  @override
-  String get expPeriod3Month => '3개월';
-
-  @override
   String get expPeriodCustom => '직접 선택';
 
   @override

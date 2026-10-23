@@ -5924,18 +5924,6 @@ abstract class AppLocalizations {
   /// **'{count}개 선택'**
   String expNSelected(int count);
 
-  /// No description provided for @expPeriodWeek.
-  ///
-  /// In ko, this message translates to:
-  /// **'이번 주'**
-  String get expPeriodWeek;
-
-  /// No description provided for @expPeriod3Month.
-  ///
-  /// In ko, this message translates to:
-  /// **'3개월'**
-  String get expPeriod3Month;
-
   /// No description provided for @expPeriodCustom.
   ///
   /// In ko, this message translates to:
