@@ -24,6 +24,7 @@ import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/select_box/p_select_box.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -458,7 +459,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       controller: _scroll,
       padding: const EdgeInsets.only(bottom: PSpacing.x6),
       children: [
-        _section(l.exportPeriodTitle, _periodBody(l), first: true),
+        // 탭 바로 아래 첫 구역도 구역 제목 + 위 24(웹과 같은 값)
+        _section(l.exportPeriodTitle, _periodBody(l)),
         _section(
           l.exportTypesTitle(_selected.length),
           _typesBody(l),
@@ -499,7 +501,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           Padding(
             padding: _gutter,
             child: Text(
-              note,
+              keepAll(note),
+              semanticsLabel: note,
               style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
             ),
           ),

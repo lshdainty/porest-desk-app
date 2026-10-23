@@ -25,6 +25,7 @@ import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/select/p_select.dart';
 import 'package:groo_damda_app/shared/ds/select_box/p_select_box.dart';
 import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/widgets/p_busy_scrim.dart';
 
 /// 서버 한도(`application.yml` multipart 10MB) — 고르는 순간 미리 검사한다(서버도 같은 한도로 검사한다).
@@ -281,7 +282,11 @@ class _ImportViewState extends ConsumerState<ImportView> {
             ),
           ),
           const SizedBox(height: PSpacing.x1),
-          Text(desc, style: PTypography.t5.copyWith(color: c.fgNeutralMuted)),
+          Text(
+            keepAll(desc),
+            semanticsLabel: desc,
+            style: PTypography.t5.copyWith(color: c.fgNeutralMuted),
+          ),
         ],
       ),
     );
@@ -409,7 +414,26 @@ class _ImportViewState extends ConsumerState<ImportView> {
                   ],
                 ),
               ),
-              _section(l.importMapTitle, _mapFields(l, a)),
+              _section(
+                l.importMapTitle,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: _gutter,
+                      child: Text(
+                        keepAll(l.importMapDesc),
+                        semanticsLabel: l.importMapDesc,
+                        style: PTypography.t4.copyWith(
+                          color: context.colors.fgNeutralSubtle,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: PSpacing.x3),
+                    _mapFields(l, a),
+                  ],
+                ),
+              ),
               _section(l.exportPreview, _previewList(l, a)),
               _section(
                 l.importOptionsTitle,

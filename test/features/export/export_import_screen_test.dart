@@ -193,6 +193,19 @@ void main() {
       expect(groups[0].children, hasLength(5));
       expect(groups[1].children, hasLength(3));
 
+      // 기간 표기 — 스펙 Date Picker "9월 28일~10월 6일"(물결표를 앞뒤에 붙여 쓴다)
+      final desc = groups[0].children
+          .cast<PRadioSelectBox<String>>()
+          .map((b) => b.description!)
+          .where((d) => d.contains('~'))
+          .toList();
+      expect(desc, hasLength(4));
+      expect(desc.any((d) => d.contains(' — ')), isFalse);
+      // 탭 바로 아래 첫 구역 머리까지 위 24 + 머리 위 8
+      final tabsBottom = tester.getRect(find.byType(PTabs<String>)).bottom;
+      final headTop = tester.getRect(_t(_l.exportPeriodTitle).first).top;
+      expect(headTop - tabsBottom, greaterThanOrEqualTo(PSpacing.x6));
+
       // 민감 정보 가리기 = ds Checkbox
       expect(find.byType(PCheckbox), findsOneWidget);
 
