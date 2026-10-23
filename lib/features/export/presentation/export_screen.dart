@@ -183,7 +183,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         : 'csv';
     final rangePart = '${r.start}_${r.end}';
     if (format != 'EXCEL' && types.length > 1) {
-      return 'porest-export-$rangePart.zip';
+      return 'groo-export-$rangePart.zip';
     }
     final namePart = types.length == 1 ? _slugOf(types.first) : 'export';
     return 'porest-$namePart-$rangePart.$ext';
