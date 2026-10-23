@@ -57,15 +57,17 @@ class DashboardScreen extends ConsumerStatefulWidget {
 @visibleForTesting
 DateTime Function() dashboardNow = DateTime.now;
 
-DateTime _thisMonth() {
+/// 오늘(날짜만)
+DateTime _today() {
   final n = dashboardNow();
-  return DateTime(n.year, n.month, 1);
+  return DateTime(n.year, n.month, n.day);
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with WidgetsBindingObserver {
   // 이번 달 고정(고르기 없음) — 다만 앱이 다시 앞으로 올 때 날짜가 바뀌었으면 새로 잡는다(아래)
-  DateTime _month = _thisMonth();
+  DateTime _day = _today();
+  DateTime get _month => DateTime(_day.year, _day.month, 1);
 
   @override
   void initState() {
@@ -79,13 +81,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     super.dispose();
   }
 
-  /// 홈을 켜 둔 채 달이 바뀌면(말일 → 1일) 다시 앞으로 올 때 달을 새로 잡는다 — 안 그러면 다시 켤 때까지 홈 전체가 지난달로
-  /// 남고 "오늘 쓴 돈" 도 빈다.
+  /// 홈을 켜 둔 채 날짜가 바뀌면 다시 앞으로 올 때 새로 잡는다 — 안 그러면 다시 켤 때까지 "오늘 쓴 돈" · 일정 "오늘" 이 어제
+  /// 기준으로 남고, 달이 바뀐(말일 → 1일) 경우엔 홈 전체가 지난달로 남는다. 달이 같으면 질의는 그대로이고 오늘 기준만 다시 그린다.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
-    final now = _thisMonth();
-    if (now != _month) setState(() => _month = now);
+    final today = _today();
+    if (today != _day) setState(() => _day = today);
   }
 
   String get _ymdStart =>
@@ -509,7 +511,7 @@ class _NetWorthBand extends StatelessWidget {
             ),
           const SizedBox(height: PSpacing.x5),
           Container(
-            padding: const EdgeInsets.only(top: PSpacing.x4_5),
+            padding: const EdgeInsets.only(top: PSpacing.x4),
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(color: c.staticWhite.withValues(alpha: 0.14)),
@@ -520,10 +522,13 @@ class _NetWorthBand extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
-                    child: _HeroSplitCol(
-                      label: l.navAsset,
-                      value: _won(totalAssets, masked),
-                      loading: loading,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: PSpacing.x4),
+                      child: _HeroSplitCol(
+                        label: l.navAsset,
+                        value: _won(totalAssets, masked),
+                        loading: loading,
+                      ),
                     ),
                   ),
                   Container(

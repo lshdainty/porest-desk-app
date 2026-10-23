@@ -1,9 +1,7 @@
 // I-06 이 ds 에 더한 자리 — 카드 머리 덧붙임(10) · 목록 줄 제목 뒤 배지 · 취소선 · 좌우 여백 · 도넛 범례 좁은 줄 · Progress 이름 줄.
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';

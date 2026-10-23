@@ -1130,7 +1130,7 @@
       }
     }
   },
-  "dashBudgetTotal": "total budget",
+  "dashBudgetTotal": "Total budget",
   "dashCategoryChartLabel": "Spending by category in month {month}, total {total}",
   "@dashCategoryChartLabel": {
     "placeholders": {

@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -14,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:groo_damda_app/app/env.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
-import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
@@ -37,7 +35,6 @@ import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import '../../support/plain_text.dart';
 
@@ -98,11 +95,6 @@ RangeSummary _range(String start, String end, {int categories = 5}) =>
       ],
     );
 
-class _H {
-  _H(this.tester);
-  final WidgetTester tester;
-}
-
 Future<void> _pump(
   WidgetTester tester, {
   double width = 360,
@@ -123,6 +115,7 @@ Future<void> _pump(
   Map<String, int>? reads,
   Set<String> hidden = const {},
   Brightness brightness = Brightness.light,
+  String locale = 'ko',
 }) async {
   tester.view.physicalSize = Size(width * 2, 4000 * 2);
   tester.view.devicePixelRatio = 2.0;
@@ -181,7 +174,7 @@ Future<void> _pump(
               rowId: 2,
               categoryRowId: 1,
               categoryName: _longCat,
-              budgetAmount: 1000000000,
+              budgetAmount: 100000000,
               budgetYear: key.year,
               budgetMonth: key.month,
             ),
@@ -204,7 +197,7 @@ Future<void> _pump(
             : GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ko'),
+        locale: Locale(locale),
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,
@@ -500,8 +493,13 @@ void main() {
       expect(bars, hasLength(2));
       expect(bars.first.label, '총 예산');
       expect(bars.last.label, '$_longCat 예산', reason: '긴 카테고리 이름 + 예산');
-      // 총 예산은 넘쳤다(3,912,345,678 > 3,000,000)
-      expect(find.textContaining('초과'), findsWidgets);
+      // 총 예산도(3,912,345,678 > 3,000,000) · 긴 이름 예산도(987,654,321 > 100,000,000) 넘쳤다
+      expect(find.textContaining('초과'), findsNWidgets(2));
+      final overText = find.descendant(
+        of: find.byWidget(bars.last),
+        matching: find.textContaining('887,654,321원 초과'),
+      );
+      expect(overText, findsOneWidget, reason: '긴 이름 줄에 "…원 초과" 가 있다');
       expect(find.byType(PListTile), findsNothing, reason: '카테고리 타일을 뺀다');
     });
 
@@ -738,6 +736,14 @@ void main() {
     });
   });
 
+  group('예산 이름 en', () {
+    testWidgets('한 달 전체 예산 금액의 이름 "Total budget"', (tester) async {
+      await _pump(tester, locale: 'en');
+      final bars = tester.widgetList<PProgress>(find.byType(PProgress));
+      expect(bars.first.label, 'Total budget');
+    });
+  });
+
   group('불러오는 중 줄 모양 — 웹 한 벌', () {
     testWidgets('오늘 쓴 돈: 타일 40 · 모서리 12 + 제목 · 설명 두 줄(66)', (tester) async {
       await _pump(tester, todayPending: true);
@@ -784,11 +790,41 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(starts, contains('2026-02-01'), reason: '새 달 기간 합계를 받는다');
       expect(findPlain('모퉁이 커피'), findsOneWidget, reason: '오늘 쓴 돈이 2월 1일 거래로');
-      expect(findPlain('10월 가계부'), findsNothing);
+      expect(findPlain('1월 가계부'), findsNothing);
       expect(findPlainContaining('2월 가계부'), findsOneWidget);
     });
 
-    testWidgets('같은 달이면 다시 받지 않는다', (tester) async {
+    testWidgets('같은 달 안에서 날만 바뀌어도 오늘 기준이 새로 잡힌다(질의는 그대로)', (tester) async {
+      dashboardNow = () => DateTime(2026, 1, 15, 23, 0);
+      final starts = <String>[];
+      await _pump(
+        tester,
+        rangeStarts: starts,
+        today: [
+          Expense(
+            rowId: 1,
+            expenseType: 'EXPENSE',
+            amount: 4800,
+            merchant: '모퉁이 커피',
+            expenseDate: '2026-01-16T00:00:00',
+          ),
+        ],
+      );
+      final n = starts.length;
+      expect(findPlain('오늘은 아직 쓴 돈이 없어요'), findsOneWidget);
+      dashboardNow = () => DateTime(2026, 1, 16, 9, 0);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      expect(
+        findPlain('모퉁이 커피'),
+        findsOneWidget,
+        reason: '1월 16일 거래가 오늘 쓴 돈으로',
+      );
+      expect(starts.length, n, reason: '달이 같으니 다시 받지 않는다');
+    });
+
+    testWidgets('같은 날이면 다시 받지 않는다', (tester) async {
       dashboardNow = () => DateTime(2026, 1, 15, 9, 0);
       final starts = <String>[];
       await _pump(tester, rangeStarts: starts);
