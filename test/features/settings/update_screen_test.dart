@@ -106,6 +106,11 @@ void main() {
       final button = tester.widget<PButton>(find.byType(PButton));
       expect(button.size, PButtonSize.large);
       expect(button.variant, PButtonVariant.neutralSolid);
+      expect(
+        tester.getSize(find.byType(PButton)).width,
+        360.0 - 48,
+        reason: '전체 폭',
+      );
       expect(tester.takeException(), isNull);
     });
   }

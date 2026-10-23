@@ -107,6 +107,11 @@ void main() {
         expect(button.size, PButtonSize.large);
         expect(button.variant, PButtonVariant.neutralSolid);
         expect(tester.getSize(find.byType(PButton)).height, 48);
+        expect(
+          tester.getSize(find.byType(PButton)).width,
+          360.0 - 48,
+          reason: '전체 폭(좌우 24)',
+        );
         // 브라우저를 여는 동안의 덮개(딤 + 원)가 없다 — 로딩은 버튼 몫
         expect(
           find.descendant(
