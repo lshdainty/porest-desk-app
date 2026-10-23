@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
@@ -126,7 +125,6 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
 
     // 띠 화면(I-01 결정 1B) — 국내/해외 · 보유 · 검색 · 고른 종목 · 결과가 띠 하나씩.
     return ListView(
-      padding: const EdgeInsets.only(bottom: PSpacing.x6),
       children: PScreenBands.children([
         PScreenSection(
           child: PTabs<String>(

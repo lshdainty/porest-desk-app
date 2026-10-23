@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/features/update/presentation/release_notes_view.dart';
 
 const _notes = '''
@@ -39,8 +38,8 @@ void main() {
     final header = _styleOf(tester, '새 기능');
     final item = _styleOf(tester, '계좌 행을 밀면 수정·삭제');
 
-    expect(header.fontWeight, PFontWeight.bold);
-    expect(item.fontWeight, isNot(PFontWeight.bold));
+    expect(header.fontWeight, FontWeight.w500, reason: 'R6 줄 제목 t4 · 500');
+    expect(item.fontWeight, FontWeight.w400);
     // 제목이 항목보다 진하다 — 색으로도 갈린다.
     expect(header.color, isNot(item.color));
   });

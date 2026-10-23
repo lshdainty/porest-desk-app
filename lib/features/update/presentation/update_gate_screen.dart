@@ -6,16 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/update/apk_installer.dart';
 import 'package:groo_damda_app/core/update/app_update.dart';
 import 'package:groo_damda_app/features/update/presentation/release_notes_view.dart';
+import 'package:groo_damda_app/features/update/presentation/update_progress.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_responsive_pair.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 새 버전이 나왔을 때 앞을 막고 알리는 화면.
@@ -35,7 +37,6 @@ class UpdateGateScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final status = ref.watch(updateStatusProvider).value;
     final release = status?.latest;
 
@@ -43,8 +44,9 @@ class UpdateGateScreen extends ConsumerWidget {
     // 조용히 빠져나간다(취소 직후 재평가가 늦게 도는 찰나 등).
     if (release == null) {
       return Scaffold(
-        backgroundColor: t.bgCanvas,
-        body: const Center(child: CircularProgressIndicator()),
+        // 셸 밖 화면은 흰 면 하나(Q11 11B)
+        backgroundColor: context.colors.bgLayerDefault,
+        body: const Center(child: PProgressCircle()),
       );
     }
 
@@ -58,24 +60,29 @@ class UpdateGateScreen extends ConsumerWidget {
         _cancel(context, ref, status: status, forced: forced);
       },
       child: Scaffold(
-        backgroundColor: t.bgCanvas,
+        backgroundColor: context.colors.bgLayerDefault,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(PSpace.x24),
+            padding: const EdgeInsets.all(PSpacing.x6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: PSpace.x24),
+                const SizedBox(height: PSpacing.x6),
                 _Header(release: release, currentBuild: status.currentBuild),
                 if (forced) ...[
-                  const SizedBox(height: PSpace.x24),
-                  const _ForcedNotice(),
+                  const SizedBox(height: PSpacing.x6),
+                  PCallout(
+                    tone: PCalloutTone.warning,
+                    description: AppLocalizations.of(
+                      context,
+                    ).updateRequiredDesc,
+                  ),
                 ],
-                const SizedBox(height: PSpace.x32),
+                const SizedBox(height: PSpacing.x8),
                 // 바뀐 내용은 길 수 있어 남는 공간을 다 쓰고 그 안에서 스크롤한다.
                 // 노트가 비어 있으면(옛 version.json) 섹션 자체를 숨긴다.
                 Expanded(child: _Changes(notes: release.notes)),
-                const SizedBox(height: PSpace.x24),
+                const SizedBox(height: PSpacing.x6),
                 _Actions(
                   release: release,
                   forced: forced,
@@ -118,31 +125,17 @@ class UpdateGateScreen extends ConsumerWidget {
   /// 구버전을 못 쓰게 한다는 목적은 똑같이 이룬다.
   Future<void> _confirmForcedExit(BuildContext context) async {
     final l = AppLocalizations.of(context);
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => PFormAlertDialog(
-        titleLeading: Icon(
-          LucideIcons.triangleAlert,
-          size: 18,
-          color: ctx.tokens.statusWarningFg,
-        ),
-        title: l.updateGateForcedCancelBody,
-        content: const SizedBox.shrink(),
-        actions: [
-          PButton(
-            label: l.actionConfirm,
-            onPressed: () {
-              // 다이얼로그를 먼저 닫지 않는다 — 닫기와 종료가 겹치면 종료 직전
-              // 프레임에서 에러가 남는다. 안드는 여기서 바로 끝낸다.
-              if (Platform.isAndroid) {
-                SystemNavigator.pop();
-                return;
-              }
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
+    // 고를 것이 없는 결과 알림이라 "확인" 하나다(P1 B-3). 제목이 없으니 묻는 말로 이름을 단다.
+    await PAlertDialog.show(
+      context,
+      semanticLabel: l.updateTitle,
+      description: l.updateGateForcedCancelBody,
+      actionLabel: l.actionConfirm,
+      // 확인창은 onAction 이 끝나면 늘 닫힌다. 안드로이드는 그 안에서 앱을 끝내고(닫기 전에 앱이
+      // 꺼진다), iOS 는 아무것도 안 하고 확인창만 닫혀 게이트 화면으로 돌아간다.
+      onAction: () {
+        if (Platform.isAndroid) SystemNavigator.pop();
+      },
     );
   }
 }
@@ -155,75 +148,49 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ds 부품이 없는 자리 — 모양은 두고 색 이름만 새 이름으로
         Container(
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: t.bgBrandSubtle,
+            color: c.bgBrandWeak,
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
-          child: Icon(LucideIcons.download, size: 24, color: t.fgBrand),
+          child: Icon(LucideIcons.download, size: 24, color: c.fgBrand),
         ),
-        const SizedBox(width: PSpace.x16),
+        const SizedBox(width: PSpacing.x4),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l.updateGateTitle(release.version),
-                style: PTypo.bodyLg.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
+              // R1 폰 들어간 화면 제목 — 화면 제목이라 머리말 1단계
+              Semantics(
+                header: true,
+                headingLevel: 1,
+                child: Text(
+                  l.updateGateTitle(release.version),
+                  style: PTypography.t6.copyWith(
+                    color: c.fgNeutral,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-              const SizedBox(height: PSpace.x4),
+              const SizedBox(height: PSpacing.x1),
+              // R9 메타
               Text(
                 l.updateCurrentBuild(currentBuild.toString()),
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
+                style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
               ),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ForcedNotice extends StatelessWidget {
-  const _ForcedNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: t.statusWarningSubtle,
-        borderRadius: PRadius.brLg,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(LucideIcons.triangleAlert, size: 18, color: t.statusWarningFg),
-          const SizedBox(width: PSpace.x12),
-          Expanded(
-            child: Text(
-              l.updateRequiredDesc,
-              style: PTypo.bodySm.copyWith(
-                color: t.statusWarningFg,
-                height: 1.6,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -235,33 +202,33 @@ class _Changes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     if (!PReleaseNotes.hasContent(notes)) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // R4 구역 제목
         Text(
           l.updateSheetChanges,
-          style: PTypo.bodySm.copyWith(
-            color: t.fgPrimary,
-            fontWeight: PFontWeight.bold,
+          style: PTypography.t5.copyWith(
+            color: c.fgNeutral,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: PSpace.x12),
+        const SizedBox(height: PSpacing.x3),
         Expanded(
+          // 회색 상자는 ds 부품이 없다 — 모양은 두고 이름만. 흰 면 위라 라이트에서도 보인다(76)
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(PSpace.x16),
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x4),
             decoration: BoxDecoration(
-              color: t.bgMuted,
-              borderRadius: PRadius.brLg,
+              color: c.bgNeutralWeak,
+              borderRadius: BorderRadius.circular(PRounded.r3),
             ),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [PReleaseNotes(notes: notes)],
-            ),
+            // 상자 안이 스크롤된다 — 넘치면 끝 흐림
+            child: PScrollFog(child: PReleaseNotes(notes: notes)),
           ),
         ),
       ],
@@ -283,60 +250,37 @@ class _Actions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final progress = ref.watch(apkInstallerProvider);
 
     // 받는 중에는 버튼 대신 진행 상태를 보여 준다 — 두 번 누르는 걸 막는다.
     if (progress.isBusy) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            progress.stage == ApkStage.opening
-                ? l.updateSheetOpening
-                : l.updateSheetDownloading,
-            style: PTypo.caption.copyWith(color: t.fgSecondary),
-          ),
-          const SizedBox(height: PSpace.x8),
-          ClipRRect(
-            borderRadius: PRadius.brFull,
-            child: LinearProgressIndicator(
-              // 서버가 길이를 안 주면 비율을 모른다 — 그때는 흐르는 표시로.
-              value: progress.ratio,
-              minHeight: 6,
-              backgroundColor: t.bgMuted,
-              color: t.bgBrandSolid,
-            ),
-          ),
-        ],
+      return updateProgressRow(
+        context,
+        label: progress.stage == ApkStage.opening
+            ? l.updateSheetOpening
+            : l.updateSheetDownloading,
+        ratio: progress.ratio,
       );
     }
 
-    return Row(
-      children: [
-        Expanded(
-          child: PButton(
-            label: l.actionCancel,
-            // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리 없는
-            // 회색 채움(spec button.md Migration notes 2026-08).
-            variant: PButtonVariant.secondary,
-            size: PButtonSize.lg,
-            fullWidth: true,
-            onPressed: onCancel,
-          ),
-        ),
-        const SizedBox(width: PSpace.x12),
-        Expanded(
-          child: PButton(
-            label: progress.stage == ApkStage.failed
-                ? l.updateSheetRetry
-                : l.updateGateInstall,
-            size: PButtonSize.lg,
-            onPressed: () => _install(context, ref),
-          ),
-        ),
-      ],
+    // 화면 바닥의 Dismiss + CTA — 3:7(button.md). 라벨이 자기 몫을 넘으면 쌓는다.
+    return PResponsivePair(
+      secondaryFlex: 3,
+      primaryFlex: 7,
+      secondary: PButton(
+        label: l.actionCancel,
+        size: PButtonSize.large,
+        variant: PButtonVariant.neutralWeak,
+        onPressed: onCancel,
+      ),
+      primary: PButton(
+        label: progress.stage == ApkStage.failed
+            ? l.updateSheetRetry
+            : l.updateGateInstall,
+        size: PButtonSize.large,
+        onPressed: () => _install(context, ref),
+      ),
     );
   }
 

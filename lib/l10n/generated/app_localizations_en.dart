@@ -2142,7 +2142,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get updateCheckFailed => 'Couldn\'t check for a new version';
+  String get updateCheckFailed => 'Couldn\'t check for a new version.';
 
   @override
   String get updateRequiredDesc =>
@@ -2432,31 +2432,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardBenefitTypeMileage => 'Mileage';
 
   @override
-  String get cardManageTitle => 'Manage cards';
-
-  @override
   String get cardBenefitsTitle => 'Card benefits';
 
   @override
   String get cardSelectTitle => 'Select card';
 
   @override
-  String get cardBenefitMappingTitle => 'Card benefit mapping';
-
-  @override
-  String get cardBenefitMappingTooltip => 'Benefit mapping';
-
-  @override
-  String get cardSearchHintName => 'Search by card name';
-
-  @override
   String get cardSearchHintFull => 'Search by name, brand, or benefit';
 
   @override
   String get cardSearchHintNameCompany => 'Search card / issuer';
-
-  @override
-  String get cardLoadError => 'Failed to load cards';
 
   @override
   String get cardDetailLoadError => 'Failed to load card details';
@@ -2469,9 +2454,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardDeleteFailed => 'Failed to delete';
-
-  @override
-  String get cardMappingLoadError => 'Failed to load mappings';
 
   @override
   String get cardLastMonthPerf => 'Last month spend';
@@ -2492,12 +2474,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardCautions => 'Notes';
-
-  @override
-  String get cardCautionDetailsFallback => 'Details';
-
-  @override
-  String get cardBenefits => 'Benefits';
 
   @override
   String get cardNone => 'None';
@@ -2545,40 +2521,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cardMappingNew => 'New mapping';
-
-  @override
-  String get cardMappingNewDesc =>
-      'Link a card benefit category (e.g., Cafe, Fuel) to a ledger category to power auto-suggestions when entering transactions.';
-
-  @override
-  String get cardMappingBenefitPlaceholder => 'Benefit category';
-
-  @override
-  String get cardMappingCategoryPlaceholder => 'Ledger category';
-
-  @override
-  String get cardMappingAdd => 'Add mapping';
-
-  @override
-  String get cardMappingRegistered => 'Registered mappings';
-
-  @override
-  String get cardMappingEmpty => 'No mappings registered';
-
-  @override
-  String get cardMappingDefault => 'Default';
-
-  @override
   String get cardIncludeDiscontinued => 'Include discontinued cards';
 
   @override
   String cardTotalCount(int count) {
     return '$count total';
   }
-
-  @override
-  String get cardEmpty => 'No cards';
 
   @override
   String get cardNoResults => 'No results';
@@ -2703,28 +2651,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryIconLabel => 'Icon';
 
   @override
-  String get authLoginPrompt => 'Sign in with your SSO account';
+  String get authLoginPrompt => 'Sign in with your 그루 account.';
 
   @override
-  String get authSsoLogin => 'SSO login';
+  String get authSsoLogin => 'Sign in with 그루';
 
   @override
   String get authLoginTitle => 'Login';
 
   @override
-  String get authLoginFailed => 'Login failed';
+  String get authLoginFailed => 'Could not sign in.';
 
   @override
   String get authLoginExpired =>
       'Your sign-in timed out. Please sign in again.';
 
   @override
-  String get authLoginError => 'Error during login';
+  String get authLoginError => 'Could not complete sign-in.';
 
   @override
-  String authSecurityNotHttps(String url) {
-    return 'Security error: the SSO server is not HTTPS ($url).';
-  }
+  String get authSecurityNotHttps =>
+      'The connection to the sign-in server is not secure.';
 
   @override
   String get authStateMismatch =>

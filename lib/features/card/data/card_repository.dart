@@ -65,31 +65,6 @@ class CardRepository {
     return p.content;
   }
 
-  /// 특정 카드의 사용 가능 혜택 (지출 입력 시 자동 추천용).
-  /// GET /card-catalogs/{id}/available-benefits?expenseCategoryRowId=N.
-  Future<List<Map<String, dynamic>>> availableBenefits(
-    int cardRowId, {
-    int? expenseCategoryRowId,
-  }) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/card-catalogs/$cardRowId/available-benefits',
-        queryParameters: {'expenseCategoryRowId': ?expenseCategoryRowId},
-      );
-      final body = ApiResponse<Map<String, dynamic>>.fromJson(
-        res.data ?? const {},
-        (raw) => raw! as Map<String, dynamic>,
-      );
-      if (!body.success || body.data == null) {
-        throw ApiException(code: body.code, message: body.message);
-      }
-      final list = (body.data!['benefits'] as List?) ?? const [];
-      return list.cast<Map<String, dynamic>>();
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
   Future<CardCatalogDetail> detail(int id) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>('/card-catalogs/$id');

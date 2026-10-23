@@ -1,9 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/core/network/dio_provider.dart';
-import 'package:groo_damda_app/features/card/data/card_benefit_mapping_repository.dart';
 import 'package:groo_damda_app/features/card/data/card_repository.dart';
-import 'package:groo_damda_app/features/card/domain/card_benefit_mapping.dart';
 import 'package:groo_damda_app/features/card/domain/card_catalog.dart'
     hide CardPerformance;
 import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
@@ -85,19 +83,3 @@ final cardPerformanceProvider =
         yearMonth: key.yearMonth,
       );
     });
-
-// ─── CardBenefitMapping (#372) ──────────────────────────────
-
-final cardBenefitMappingRepositoryProvider =
-    FutureProvider<CardBenefitMappingRepository>((ref) async {
-      final dio = await ref.watch(dioProvider.future);
-      return CardBenefitMappingRepository(dio);
-    });
-
-final cardBenefitMappingsProvider = FutureProvider<List<CardBenefitMapping>>((
-  ref,
-) async {
-  ref.keepAlive();
-  final repo = await ref.watch(cardBenefitMappingRepositoryProvider.future);
-  return repo.list();
-});

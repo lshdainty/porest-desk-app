@@ -11,6 +11,7 @@
 //  - 해지를 마치면 토스트가 아니라 이 화면이 뜨고 로그아웃한다
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +19,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:groo_damda_app/app/router.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/core/auth/user.dart';
@@ -30,6 +32,8 @@ import 'package:groo_damda_app/features/settings/data/withdrawal_repository.dart
 import 'package:groo_damda_app/features/settings/domain/withdrawal_check.dart';
 import 'package:groo_damda_app/features/settings/presentation/withdrawal_sheet.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 
 const _user = User(
   rowId: 1,
@@ -79,6 +83,11 @@ class _FakeRepo extends WithdrawalRepository {
 }
 
 final _l = lookupAppLocalizations(const Locale('ko'));
+
+/// 설명은 두 문단 하나의 글이다 — 보이지 않는 줄바꿈 보호 글자(keepAll)는 빼고 찾는다.
+Finder _body(String part) => find.byWidgetPredicate(
+  (w) => w is Text && (w.data ?? '').replaceAll('\u2060', '').contains(part),
+);
 
 MaterialApp _app(GoRouter router) => MaterialApp.router(
   theme: GrooTheme.light(),
@@ -132,10 +141,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(WithdrawnScreen), findsOneWidget);
-    expect(find.text(_l.withdrawnTitle), findsOneWidget);
-    expect(find.text(_l.withdrawnBody), findsOneWidget);
-    expect(find.textContaining('감사했습니다'), findsOneWidget);
-    expect(find.text(_l.withdrawIrreversibleRejoin), findsOneWidget);
+    expect(_body(_l.withdrawnTitle), findsOneWidget);
+    expect(_body(_l.withdrawnBody), findsOneWidget);
+    expect(_body('감사했습니다'), findsOneWidget);
+    expect(_body(_l.withdrawIrreversibleRejoin), findsOneWidget);
     expect(find.text(_l.withdrawnToLogin), findsOneWidget);
     expect(find.text(_l.authSsoLogin), findsNothing);
   });
@@ -248,8 +257,89 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(WithdrawnScreen), findsOneWidget);
-    expect(find.textContaining('감사했습니다'), findsOneWidget);
+    expect(_body('감사했습니다'), findsOneWidget);
     expect(auth.logouts, 1);
     expect(find.byType(SnackBar), findsNothing, reason: '예전 6초 토스트는 없다');
+  });
+
+  // I-05 26 · 27 · 77 — 화면 짜임
+  for (final dark in [false, true]) {
+    testWidgets('${dark ? "다크" : "라이트"} — Result Section done · 흰 면 · 바닥 CTA', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.reset);
+      final handle = tester.ensureSemantics();
+      final auth = _FakeAuth(null);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authProvider.overrideWith(() => auth)],
+          child: MaterialApp(
+            theme: dark ? GrooTheme.dark() : GrooTheme.light(),
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const WithdrawnScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final c = (dark ? GrooTheme.dark() : GrooTheme.light())
+          .extension<PColors>()!;
+      expect(
+        tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor,
+        c.bgLayerDefault,
+      );
+      final section = tester.widget<PResultSection>(
+        find.byType(PResultSection),
+      );
+      expect(section.kind, PResultKind.done);
+      expect(section.size, PResultSize.large);
+      expect(section.headingLevel, 1);
+      expect(
+        tester
+            .getSemantics(find.byKey(const ValueKey('result-section-title')))
+            .hasFlag(SemanticsFlag.isHeader),
+        isTrue,
+      );
+      // 버튼은 하나 — ds Button large neutralSolid, 화면 바닥 좌우 24
+      expect(find.byType(PButton), findsOneWidget);
+      final button = tester.widget<PButton>(find.byType(PButton));
+      expect(button.size, PButtonSize.large);
+      expect(button.variant, PButtonVariant.neutralSolid);
+      final rect = tester.getRect(find.byType(PButton));
+      expect(rect.left, 24);
+      expect(rect.right, 360 - 24);
+      expect(rect.bottom, 780 - 24, reason: '바닥 24');
+      handle.dispose();
+    });
+  }
+
+  testWidgets('글자 200% · 폭 360 — 바닥 버튼 라벨이 오류 없이 다 그려진다', (tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authProvider.overrideWith(() => _FakeAuth(null))],
+        child: MaterialApp(
+          theme: GrooTheme.light(),
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: const WithdrawnScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text(_l.withdrawnToLogin), findsOneWidget);
   });
 }

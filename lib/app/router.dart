@@ -13,8 +13,6 @@ import 'package:groo_damda_app/features/budget/presentation/budget_settings_scre
 import 'package:groo_damda_app/features/calendar/presentation/calendar_labels_screen.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
 import 'package:groo_damda_app/features/card/presentation/card_benefits_screen.dart';
-import 'package:groo_damda_app/features/card/presentation/card_detail_screen.dart';
-import 'package:groo_damda_app/features/card/presentation/card_screen.dart';
 import 'package:groo_damda_app/features/category/presentation/category_screen.dart';
 import 'package:groo_damda_app/features/dutch_pay/presentation/dutch_pay_screen.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_share_screen.dart';
@@ -226,7 +224,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/saving-goals',
         builder: (_, _) => const SavingGoalScreen(),
       ),
-      GoRoute(path: '/cards', builder: (_, _) => const CardScreen()),
       GoRoute(
         path: '/card-benefits',
         builder: (_, _) => const CardBenefitsScreen(),
@@ -235,11 +232,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/stocks',
         builder: (_, _) => const SecuritiesGate(child: StocksScreen()),
-      ),
-      GoRoute(
-        path: '/cards/:id',
-        builder: (_, state) =>
-            CardDetailScreen(catalogId: int.parse(state.pathParameters['id']!)),
       ),
 
       // 옛 경로 — 가계부 묶음에서 그 탭을 고른 채로 간다(딥링크 · 북마크가 깨지지 않게).

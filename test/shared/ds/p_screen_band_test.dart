@@ -1,4 +1,4 @@
-// 띠 화면(02-005 / Q-019-3) — 회색 바닥(basement) 위에 화면 폭 흰 띠(default)를 8 띄워 쌓는다. 맨 위 8 · 띠 사이 8 ·
+// 띠 화면(02-005 / Q-019-3) — 회색 바닥(basement) 위에 화면 폭 흰 띠(default)를 8 띄워 쌓는다. 띠 사이 8 만(맨 위 · 맨 아래 틈 0) ·
 // 띠 안은 위 4 · 아래 8. 라이트 · 다크, 폭 360 · 390 · 768.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,8 +36,13 @@ void main() {
         expect(bands, findsNWidgets(2));
         final a = tester.getRect(bands.at(0));
         final b = tester.getRect(bands.at(1));
-        expect(a.top, 8, reason: '맨 위 8');
+        expect(a.top, 0, reason: '맨 위 틈 0');
         expect(b.top - a.bottom, 8, reason: '띠 사이 8');
+        expect(
+          tester.getRect(find.byType(ListView)).bottom - b.bottom,
+          greaterThan(0),
+          reason: '마지막 띠 아래는 목록 끝(틈을 따로 두지 않는다)',
+        );
         expect(a.width, width, reason: '화면 폭');
         expect(a.height, 4 + 40 + 8, reason: '띠 안 위 4 · 아래 8');
         final fill = tester.widget<ColoredBox>(bands.first).color;
@@ -64,8 +69,8 @@ void main() {
             backgroundColor: c.bgLayerBasement,
             body: Column(
               children: const [
-                SizedBox(height: kScreenBandGap),
                 PScreenSection(child: SizedBox(height: 40)),
+                SizedBox(height: kScreenBandGap),
                 Expanded(child: PScreenBandBody(child: SizedBox())),
               ],
             ),
@@ -77,7 +82,7 @@ void main() {
         find.byKey(const ValueKey('screen-section')),
       );
       expect(section.width, 390, reason: '화면 폭');
-      expect(section.top, 8, reason: '맨 위 8');
+      expect(section.top, 0, reason: '맨 위 틈 0');
       expect(section.height, 40 + 48, reason: '안쪽 24');
       expect(
         tester
@@ -85,11 +90,11 @@ void main() {
             .color,
         c.bgLayerDefault,
       );
-      // 한 장 띠 — 맨 위 8 은 바닥, 그 아래 화면 폭 흰 면
+      // 한 장 띠 — 띠 사이 8 만(구역 띠 다음), 화면 폭 흰 면
       final band = tester.getRect(
         find.byKey(const ValueKey('screen-band-body')),
       );
-      expect(band.top - section.bottom, 8);
+      expect(band.top - section.bottom, 8, reason: '띠 사이 8');
       expect(
         tester
             .widget<ColoredBox>(find.byKey(const ValueKey('screen-band-body')))
@@ -98,4 +103,25 @@ void main() {
       );
     });
   }
+
+  testWidgets('한 장 띠는 머리 바로 아래(맨 위)에 틈 0 으로 놓인다', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GrooTheme.light(),
+        home: const Scaffold(
+          body: Column(
+            children: [
+              SizedBox(height: 56),
+              Expanded(child: PScreenBandBody(child: SizedBox())),
+            ],
+          ),
+        ),
+      ),
+    );
+    final band = tester.getRect(find.byKey(const ValueKey('screen-band-body')));
+    expect(band.top, 56, reason: '머리 바로 아래 0');
+  });
 }

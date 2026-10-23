@@ -179,9 +179,10 @@ void main() {
       expect(loginErrorMessage(err('AUTH_003'), ko), ko.authLoginExpired);
     });
 
-    test('아는 게 없으면 서버 메시지만 보여 준다', () {
+    test('아는 게 없으면 서버 글을 붙이지 않고 로그인하지 못했다고만 말한다', () {
       final msg = loginErrorMessage(err('AUTH_099', '알 수 없는 오류'), ko);
-      expect(msg, contains('알 수 없는 오류'));
+      expect(msg, ko.authLoginFailed);
+      expect(msg, isNot(contains('알 수 없는 오류')));
       expect(msg, isNot(contains('ApiException')));
     });
 

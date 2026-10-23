@@ -1273,7 +1273,7 @@
       }
     }
   },
-  "updateCheckFailed": "Couldn't check for a new version",
+  "updateCheckFailed": "Couldn't check for a new version.",
   "updateRequiredDesc": "This update is required. You can't use the app until you install it.",
   "expScheduled": "Scheduled",
   "expTypeTransfer": "Transfer",
@@ -1457,20 +1457,14 @@
   "cardBenefitTypePoint": "Points",
   "cardBenefitTypeCashback": "Cashback",
   "cardBenefitTypeMileage": "Mileage",
-  "cardManageTitle": "Manage cards",
   "cardBenefitsTitle": "Card benefits",
   "cardSelectTitle": "Select card",
-  "cardBenefitMappingTitle": "Card benefit mapping",
-  "cardBenefitMappingTooltip": "Benefit mapping",
-  "cardSearchHintName": "Search by card name",
   "cardSearchHintFull": "Search by name, brand, or benefit",
   "cardSearchHintNameCompany": "Search card / issuer",
-  "cardLoadError": "Failed to load cards",
   "cardDetailLoadError": "Failed to load card details",
   "cardSearchError": "Card search failed",
   "cardAddFailed": "Failed to add",
   "cardDeleteFailed": "Failed to delete",
-  "cardMappingLoadError": "Failed to load mappings",
   "cardLastMonthPerf": "Last month spend",
   "cardKeyBenefitTags": "Key benefit tags",
   "cardBenefitDetailCount": "Benefit details · {count}",
@@ -1484,8 +1478,6 @@
   "cardExpandAll": "Expand all",
   "cardCollapseAll": "Collapse all",
   "cardCautions": "Notes",
-  "cardCautionDetailsFallback": "Details",
-  "cardBenefits": "Benefits",
   "cardNone": "None",
   "cardFeeUnknown": "Unknown",
   "cardFeeFree": "Free",
@@ -1539,14 +1531,6 @@
       }
     }
   },
-  "cardMappingNew": "New mapping",
-  "cardMappingNewDesc": "Link a card benefit category (e.g., Cafe, Fuel) to a ledger category to power auto-suggestions when entering transactions.",
-  "cardMappingBenefitPlaceholder": "Benefit category",
-  "cardMappingCategoryPlaceholder": "Ledger category",
-  "cardMappingAdd": "Add mapping",
-  "cardMappingRegistered": "Registered mappings",
-  "cardMappingEmpty": "No mappings registered",
-  "cardMappingDefault": "Default",
   "cardIncludeDiscontinued": "Include discontinued cards",
   "cardTotalCount": "{count} total",
   "@cardTotalCount": {
@@ -1556,7 +1540,6 @@
       }
     }
   },
-  "cardEmpty": "No cards",
   "cardNoResults": "No results",
   "cardNoResultsHint": "Try a different search term",
   "cardPickerNoMatch": "No matching cards",
@@ -1638,20 +1621,13 @@
   "categoryMakeRoot": "— Keep as top-level category —",
   "categoryNamePlaceholder": "e.g., Pets, Side income",
   "categoryIconLabel": "Icon",
-  "authLoginPrompt": "Sign in with your SSO account",
-  "authSsoLogin": "SSO login",
+  "authLoginPrompt": "Sign in with your 그루 account.",
+  "authSsoLogin": "Sign in with 그루",
   "authLoginTitle": "Login",
-  "authLoginFailed": "Login failed",
+  "authLoginFailed": "Could not sign in.",
   "authLoginExpired": "Your sign-in timed out. Please sign in again.",
-  "authLoginError": "Error during login",
-  "authSecurityNotHttps": "Security error: the SSO server is not HTTPS ({url}).",
-  "@authSecurityNotHttps": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
+  "authLoginError": "Could not complete sign-in.",
+  "authSecurityNotHttps": "The connection to the sign-in server is not secure.",
   "authStateMismatch": "Security check failed (state mismatch). Please try again.",
   "authNoAuthCode": "Couldn't get the authorization code. Please try again.",
   "authPageLoadError": "Couldn't load the login page.",

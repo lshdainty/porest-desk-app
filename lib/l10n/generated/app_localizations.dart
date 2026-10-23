@@ -3887,7 +3887,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateSheetFailed.
   ///
   /// In ko, this message translates to:
-  /// **'앱에서 받지 못했어요. 브라우저로 열어 볼게요.'**
+  /// **'앱에서 받지 못했어요. 브라우저로 열어볼게요.'**
   String get updateSheetFailed;
 
   /// No description provided for @updateTitle.
@@ -3899,7 +3899,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateGateTitle.
   ///
   /// In ko, this message translates to:
-  /// **'새 버전 {version} 이 나왔어요'**
+  /// **'새 버전 {version}이 나왔어요'**
   String updateGateTitle(String version);
 
   /// No description provided for @updateGateInstall.
@@ -3911,7 +3911,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateGateForcedCancelBody.
   ///
   /// In ko, this message translates to:
-  /// **'업데이트가 꼭 필요한 내역이 포함되어 있습니다'**
+  /// **'꼭 필요한 업데이트가 들어 있어요.'**
   String get updateGateForcedCancelBody;
 
   /// No description provided for @updateCheckFailedTitle.
@@ -3935,7 +3935,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateCheckFailed.
   ///
   /// In ko, this message translates to:
-  /// **'새 버전을 확인하지 못했어요'**
+  /// **'새 버전을 확인하지 못했어요.'**
   String get updateCheckFailed;
 
   /// No description provided for @updateRequiredDesc.
@@ -4454,12 +4454,6 @@ abstract class AppLocalizations {
   /// **'마일리지'**
   String get cardBenefitTypeMileage;
 
-  /// No description provided for @cardManageTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 관리'**
-  String get cardManageTitle;
-
   /// No description provided for @cardBenefitsTitle.
   ///
   /// In ko, this message translates to:
@@ -4472,24 +4466,6 @@ abstract class AppLocalizations {
   /// **'카드 선택'**
   String get cardSelectTitle;
 
-  /// No description provided for @cardBenefitMappingTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 혜택 매핑'**
-  String get cardBenefitMappingTitle;
-
-  /// No description provided for @cardBenefitMappingTooltip.
-  ///
-  /// In ko, this message translates to:
-  /// **'혜택 매핑'**
-  String get cardBenefitMappingTooltip;
-
-  /// No description provided for @cardSearchHintName.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드명 검색'**
-  String get cardSearchHintName;
-
   /// No description provided for @cardSearchHintFull.
   ///
   /// In ko, this message translates to:
@@ -4501,12 +4477,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'카드명 / 회사 검색'**
   String get cardSearchHintNameCompany;
-
-  /// No description provided for @cardLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 로드 실패'**
-  String get cardLoadError;
 
   /// No description provided for @cardDetailLoadError.
   ///
@@ -4531,12 +4501,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'삭제 실패'**
   String get cardDeleteFailed;
-
-  /// No description provided for @cardMappingLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'매핑 로드 실패'**
-  String get cardMappingLoadError;
 
   /// No description provided for @cardLastMonthPerf.
   ///
@@ -4573,18 +4537,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'유의사항'**
   String get cardCautions;
-
-  /// No description provided for @cardCautionDetailsFallback.
-  ///
-  /// In ko, this message translates to:
-  /// **'세부 사항'**
-  String get cardCautionDetailsFallback;
-
-  /// No description provided for @cardBenefits.
-  ///
-  /// In ko, this message translates to:
-  /// **'혜택'**
-  String get cardBenefits;
 
   /// No description provided for @cardNone.
   ///
@@ -4652,54 +4604,6 @@ abstract class AppLocalizations {
   /// **'남은 {amount}'**
   String cardPerfRemaining(String amount);
 
-  /// No description provided for @cardMappingNew.
-  ///
-  /// In ko, this message translates to:
-  /// **'새 매핑'**
-  String get cardMappingNew;
-
-  /// No description provided for @cardMappingNewDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 혜택 카테고리(예: 카페, 주유)를 가계부 카테고리와 연결하면 거래 입력 시 자동 추천에 활용됩니다.'**
-  String get cardMappingNewDesc;
-
-  /// No description provided for @cardMappingBenefitPlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'혜택 카테고리'**
-  String get cardMappingBenefitPlaceholder;
-
-  /// No description provided for @cardMappingCategoryPlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'가계부 카테고리'**
-  String get cardMappingCategoryPlaceholder;
-
-  /// No description provided for @cardMappingAdd.
-  ///
-  /// In ko, this message translates to:
-  /// **'매핑 추가'**
-  String get cardMappingAdd;
-
-  /// No description provided for @cardMappingRegistered.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 매핑'**
-  String get cardMappingRegistered;
-
-  /// No description provided for @cardMappingEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 매핑이 없습니다'**
-  String get cardMappingEmpty;
-
-  /// No description provided for @cardMappingDefault.
-  ///
-  /// In ko, this message translates to:
-  /// **'기본'**
-  String get cardMappingDefault;
-
   /// No description provided for @cardIncludeDiscontinued.
   ///
   /// In ko, this message translates to:
@@ -4711,12 +4615,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'총 {count}건'**
   String cardTotalCount(int count);
-
-  /// No description provided for @cardEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드가 없습니다'**
-  String get cardEmpty;
 
   /// No description provided for @cardNoResults.
   ///
@@ -4937,13 +4835,13 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginPrompt.
   ///
   /// In ko, this message translates to:
-  /// **'SSO 계정으로 로그인하세요'**
+  /// **'그루 계정으로 로그인해주세요.'**
   String get authLoginPrompt;
 
   /// No description provided for @authSsoLogin.
   ///
   /// In ko, this message translates to:
-  /// **'SSO 로그인'**
+  /// **'그루 계정으로 로그인'**
   String get authSsoLogin;
 
   /// No description provided for @authLoginTitle.
@@ -4955,26 +4853,26 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginFailed.
   ///
   /// In ko, this message translates to:
-  /// **'로그인 실패'**
+  /// **'로그인하지 못했어요.'**
   String get authLoginFailed;
 
   /// No description provided for @authLoginExpired.
   ///
   /// In ko, this message translates to:
-  /// **'로그인 시간이 지났어요. 다시 로그인해 주세요.'**
+  /// **'로그인 시간이 지났어요. 다시 로그인해주세요.'**
   String get authLoginExpired;
 
   /// No description provided for @authLoginError.
   ///
   /// In ko, this message translates to:
-  /// **'로그인 처리 중 오류'**
+  /// **'로그인을 처리하지 못했어요.'**
   String get authLoginError;
 
   /// No description provided for @authSecurityNotHttps.
   ///
   /// In ko, this message translates to:
-  /// **'보안 오류: SSO 서버가 HTTPS 가 아닙니다 ({url}).'**
-  String authSecurityNotHttps(String url);
+  /// **'로그인 서버와 안전하게 연결되지 않았어요.'**
+  String get authSecurityNotHttps;
 
   /// No description provided for @authStateMismatch.
   ///
@@ -12131,13 +12029,13 @@ abstract class AppLocalizations {
   /// No description provided for @updateAutoBlockerPath.
   ///
   /// In ko, this message translates to:
-  /// **'설정 > 보안 및 개인정보 보호 > 자동 차단 에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  /// **'설정 > 보안 및 개인정보 보호 > 자동 차단에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
   String get updateAutoBlockerPath;
 
   /// No description provided for @updateAutoBlockerAfterDirect.
   ///
   /// In ko, this message translates to:
-  /// **'자동 차단을 끄고 돌아와서 받기를 눌러 주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  /// **'자동 차단을 끄고 돌아와서 받기를 눌러주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
   String get updateAutoBlockerAfterDirect;
 
   /// No description provided for @updateAutoBlockerAfterSecurity.

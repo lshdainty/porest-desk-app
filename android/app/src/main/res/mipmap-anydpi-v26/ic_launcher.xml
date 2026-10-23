@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 적응형 아이콘(API 26+). 뒤 = 흰색, 앞 = 시안 나무, 모노크롬 = 한 색 실루엣(테마 아이콘).
+     배치: 108dp 캔버스, 나무는 66dp 안전 원 안(0.3248dp/단위). 26 미만 · 적응형을 안 읽는
+     런처는 mipmap-*dpi/ic_launcher.png 를 쓴다. 생성: ~/qa/design-work/logo-assets/gen-icons.mjs -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
+</adaptive-icon>

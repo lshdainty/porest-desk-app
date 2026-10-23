@@ -218,7 +218,6 @@ class SettingsScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: PSpace.x24),
         children: PScreenBands.children([
           // 내 정보 — 카드 없이 이름 헤더 행 (design ProfileCard 폐기판).
           if (user != null)

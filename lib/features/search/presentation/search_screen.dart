@@ -395,13 +395,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final flags = ref.watch(maskFlagsProvider('etc.search'));
     final groups = _groupByDay(_results);
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: PSpace.x24),
       itemCount: groups.length,
       itemBuilder: (_, i) {
         final g = groups[i];
         return Padding(
-          // 날짜 묶음마다 띠 하나 — 맨 위 · 사이 8 은 회색 바닥(I-01 결정 1B).
-          padding: const EdgeInsets.only(top: kScreenBandGap),
+          // 날짜 묶음마다 띠 하나 — 사이 8 은 회색 바닥(첫 띠 위는 틈 없음, I-05 74).
+          padding: EdgeInsets.only(top: i == 0 ? 0 : kScreenBandGap),
           child: PScreenBand(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
@@ -456,9 +455,9 @@ class _SearchLoadingSkeleton extends StatelessWidget {
     // 실렌더와 같은 날짜 묶음 띠.
     return ListView.builder(
       itemCount: 2,
-      itemBuilder: (_, _) => const Padding(
-        padding: EdgeInsets.only(top: kScreenBandGap),
-        child: PScreenBand(
+      itemBuilder: (_, i) => Padding(
+        padding: EdgeInsets.only(top: i == 0 ? 0 : kScreenBandGap),
+        child: const PScreenBand(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: PSpace.x24),
             child: PDayGroupSkeleton(rows: 3),

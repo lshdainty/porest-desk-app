@@ -235,4 +235,21 @@ void main() {
       reason: '목록이 오면 같은 시세로 다시 계산',
     );
   });
+
+  // I-05 74 — 가계부 묶음 탭 바로 아래 첫 띠(총순자산) 위에 8 틈을 두지 않는다.
+  testWidgets('자산 목록은 맨 위에 틈 없이 시작한다 — 위 패딩 0', (tester) async {
+    await _pump(tester);
+    final list = tester.widget<ListView>(
+      find
+          .descendant(
+            of: find.byType(AssetScreen),
+            matching: find.byType(ListView),
+          )
+          .first,
+    );
+    final padding = (list.padding ?? EdgeInsets.zero).resolve(
+      TextDirection.ltr,
+    );
+    expect(padding.top, 0, reason: '맨 위 8 을 걷었다(74)');
+  });
 }

@@ -188,7 +188,6 @@ const tabQueries = <String, List<ServerQuery>>{
 void invalidateKeepAliveProviders(WidgetRef ref) {
   // 어느 탭도 안 읽는 세션 캐시 — 전체(more) 탭에서 push 로 들어가는 화면들이 읽는다.
   // 그 화면들은 셸에 상주하지 않지만 provider 가 keepAlive 라 값이 굳는다.
-  ref.invalidate(cardBenefitMappingsProvider);
   ref.invalidate(todoTagListProvider);
   ref.invalidate(memoTagListProvider);
   // 카드 청구 — 카드 상세(탭이 아니라 자산 탭에서 여는 시트)가 읽는다. 다른 기기에서
