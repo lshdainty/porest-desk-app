@@ -88,6 +88,8 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                 ],
               ),
             ),
+          // 탭 띠와 본문 첫 띠 사이 8 — 탭이 보일 때만(띠 사이 8, 머리 아래 맨 위는 0)
+          if (connected.length > 1) const SizedBox(height: kScreenBandGap),
           Expanded(child: _body(active)),
         ],
       ),

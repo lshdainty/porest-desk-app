@@ -70,6 +70,7 @@ void main() {
             body: Column(
               children: const [
                 PScreenSection(child: SizedBox(height: 40)),
+                SizedBox(height: kScreenBandGap),
                 Expanded(child: PScreenBandBody(child: SizedBox())),
               ],
             ),
@@ -89,11 +90,11 @@ void main() {
             .color,
         c.bgLayerDefault,
       );
-      // 한 장 띠 — 앞 띠 바로 아래부터 화면 폭 흰 면(틈 0)
+      // 한 장 띠 — 띠 사이 8 만(구역 띠 다음), 화면 폭 흰 면
       final band = tester.getRect(
         find.byKey(const ValueKey('screen-band-body')),
       );
-      expect(band.top - section.bottom, 0);
+      expect(band.top - section.bottom, 8, reason: '띠 사이 8');
       expect(
         tester
             .widget<ColoredBox>(find.byKey(const ValueKey('screen-band-body')))
@@ -102,4 +103,25 @@ void main() {
       );
     });
   }
+
+  testWidgets('한 장 띠는 머리 바로 아래(맨 위)에 틈 0 으로 놓인다', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GrooTheme.light(),
+        home: const Scaffold(
+          body: Column(
+            children: [
+              SizedBox(height: 56),
+              Expanded(child: PScreenBandBody(child: SizedBox())),
+            ],
+          ),
+        ),
+      ),
+    );
+    final band = tester.getRect(find.byKey(const ValueKey('screen-band-body')));
+    expect(band.top, 56, reason: '머리 바로 아래 0');
+  });
 }
