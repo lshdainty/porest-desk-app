@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 적응형 아이콘 뒤 층 — 라이트 · 다크 같다(흰 타일 + 시안 나무). -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>

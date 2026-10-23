@@ -25,3 +25,46 @@ List<(String, String)> readVectorPaths(String xml) {
   );
   return [for (final m in re.allMatches(xml)) (m.group(1)!, m.group(2)!)];
 }
+
+/// M · C · H · Z(절대 좌표)만 있는 path 의 모든 점(끝점 + 제어점).
+List<(double, double)> pathPoints(String d) {
+  final tok = RegExp(
+    r'[MCHZ]|-?\d+(?:\.\d+)?',
+  ).allMatches(d).map((m) => m[0]!).toList();
+  final pts = <(double, double)>[];
+  var i = 0;
+  var cx = 0.0, cy = 0.0;
+  String cmd = '';
+  while (i < tok.length) {
+    final t = tok[i];
+    if (RegExp(r'[MCHZ]').hasMatch(t)) {
+      cmd = t;
+      i++;
+      if (cmd == 'Z') continue;
+    }
+    switch (cmd) {
+      case 'M':
+        cx = double.parse(tok[i]);
+        cy = double.parse(tok[i + 1]);
+        pts.add((cx, cy));
+        i += 2;
+      case 'H':
+        cx = double.parse(tok[i]);
+        pts.add((cx, cy));
+        i += 1;
+      case 'C':
+        for (var k = 0; k < 3; k++) {
+          pts.add((
+            double.parse(tok[i + 2 * k]),
+            double.parse(tok[i + 2 * k + 1]),
+          ));
+        }
+        cx = double.parse(tok[i + 4]);
+        cy = double.parse(tok[i + 5]);
+        i += 6;
+      default:
+        i++;
+    }
+  }
+  return pts;
+}
