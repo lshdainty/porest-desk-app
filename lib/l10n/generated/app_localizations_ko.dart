@@ -2080,21 +2080,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateSheetOpening => '설치 화면을 여는 중이에요';
 
   @override
-  String get updateSheetFailed => '앱에서 받지 못했어요. 브라우저로 열어 볼게요.';
+  String get updateSheetFailed => '앱에서 받지 못했어요. 브라우저로 열어볼게요.';
 
   @override
   String get updateTitle => '업데이트';
 
   @override
   String updateGateTitle(String version) {
-    return '새 버전 $version 이 나왔어요';
+    return '새 버전 $version이 나왔어요';
   }
 
   @override
   String get updateGateInstall => '설치';
 
   @override
-  String get updateGateForcedCancelBody => '업데이트가 꼭 필요한 내역이 포함되어 있습니다';
+  String get updateGateForcedCancelBody => '꼭 필요한 업데이트가 들어 있어요.';
 
   @override
   String get updateCheckFailedTitle => '업데이트를 확인하지 못했어요';
@@ -6619,7 +6619,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get updateAutoBlockerAfterDirect =>
-      '자동 차단을 끄고 돌아와서 받기를 눌러 주세요. 설치가 끝나면 다시 켜도 괜찮아요.';
+      '자동 차단을 끄고 돌아와서 받기를 눌러주세요. 설치가 끝나면 다시 켜도 괜찮아요.';
 
   @override
   String get updateAutoBlockerAfterSecurity =>

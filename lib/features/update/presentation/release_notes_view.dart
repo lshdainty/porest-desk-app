@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 /// 릴리스 노트 — CI(`scripts/release_notes.sh`)가 만든 글을 그린다.
 ///
@@ -27,7 +25,7 @@ class PReleaseNotes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final lines = notes
         .split('\n')
         .map((e) => e.trim())
@@ -39,7 +37,7 @@ class PReleaseNotes extends StatelessWidget {
       if (isItem) {
         children.add(
           Padding(
-            padding: const EdgeInsets.only(bottom: PSpace.x8),
+            padding: const EdgeInsets.only(bottom: PSpacing.x2),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -47,17 +45,16 @@ class PReleaseNotes extends StatelessWidget {
                 // 아래로 파고들지 않게.
                 Text(
                   '· ',
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgTertiary,
-                    height: 1.6,
+                  style: PTypography.articleNote.copyWith(
+                    color: c.fgNeutralSubtle,
                   ),
                 ),
+                // R11 보조(article-note 14 / 22)
                 Expanded(
                   child: Text(
                     line.substring(2),
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgSecondary,
-                      height: 1.6,
+                    style: PTypography.articleNote.copyWith(
+                      color: c.fgNeutralMuted,
                     ),
                   ),
                 ),
@@ -70,14 +67,15 @@ class PReleaseNotes extends StatelessWidget {
           Padding(
             // 첫 제목 위에는 여백을 두지 않는다 — 상자 안쪽 padding 과 겹쳐 뜬다.
             padding: EdgeInsets.only(
-              top: children.isEmpty ? 0 : PSpace.x12,
-              bottom: PSpace.x8,
+              top: children.isEmpty ? 0 : PSpacing.x3,
+              bottom: PSpacing.x2,
             ),
+            // R6 줄 제목 — t4. 굵기는 R6 에 700 이 없어 500
             child: Text(
               line,
-              style: PTypo.bodySm.copyWith(
-                color: t.fgPrimary,
-                fontWeight: PFontWeight.bold,
+              style: PTypography.t4.copyWith(
+                color: c.fgNeutral,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

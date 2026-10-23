@@ -65,6 +65,11 @@ Future<ProviderContainer> _pumpGate(
   return container;
 }
 
+// 띄어쓰기 단위 줄바꿈(keepAll)이 글 사이에 넣는 보이지 않는 글자는 빼고 찾는다.
+Finder _text(String s) => find.byWidgetPredicate(
+  (w) => w is Text && (w.data ?? '').replaceAll('\u2060', '') == s,
+);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -78,7 +83,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 왜 못 넘어가는지 알린다.
-    expect(find.text('업데이트가 꼭 필요한 내역이 포함되어 있습니다'), findsOneWidget);
+    expect(_text('꼭 필요한 업데이트가 들어 있어요.'), findsOneWidget);
     // 그리고 건너뛰기는 안 남는다 — 남으면 다음에 켤 때 게이트가 안 열린다.
     expect(container.read(skippedBuildProvider), isNull);
   });
@@ -100,7 +105,7 @@ void main() {
 
     expect(container.read(skippedBuildProvider), 101);
     // 경고 다이얼로그는 안 뜬다 — 넘어가도 되는 업데이트다. 게이트를 빠져나간다.
-    expect(find.text('업데이트가 꼭 필요한 내역이 포함되어 있습니다'), findsNothing);
+    expect(_text('꼭 필요한 업데이트가 들어 있어요.'), findsNothing);
     expect(find.text('홈'), findsOneWidget);
   });
 }

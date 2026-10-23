@@ -5,19 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/update/apk_installer.dart';
 import 'package:groo_damda_app/core/update/auto_blocker_guide.dart';
 import 'package:groo_damda_app/core/update/app_update.dart';
 import 'package:groo_damda_app/features/update/presentation/release_notes_view.dart';
+import 'package:groo_damda_app/features/update/presentation/update_progress.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_alert.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 업데이트 — 설정에서 들어와 지금 상태를 확인하고, 있으면 여기서 받는다.
@@ -30,21 +28,19 @@ class UpdateScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final statusAsync = ref.watch(updateStatusProvider);
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        backgroundColor: t.bgCanvas,
-        elevation: 0,
-        leading: const PBackButton(),
-        title: Text(
-          l.updateTitle,
-          style: PTypo.bodyLg.copyWith(
-            color: t.fgPrimary,
-            fontWeight: PFontWeight.bold,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다. ← 는 History(앞 화면이 늘 있다)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.updateTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => Navigator.of(context).maybePop(),
           ),
         ),
       ),
@@ -67,7 +63,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final s = status;
     final latest = s?.latest;
@@ -75,93 +71,77 @@ class _Body extends ConsumerWidget {
     // 서버를 못 읽은 것과 "받을 게 없다" 는 다르다. 예전엔 둘을 같이 취급해서 서버가
     // 죽어 있어도 "최신 버전이에요" 라고 안심시켰다 — 업데이트 안내가 조용히 멈췄다.
     final checkFailed = s == null || s.checkFailed;
+    const gutter = EdgeInsets.symmetric(horizontal: PSpacing.x6);
 
     return ListView(
-      padding: const EdgeInsets.all(PSpace.x24),
+      padding: const EdgeInsets.only(bottom: PSpacing.x6),
       children: [
-        // ── 상태 한 줄 — 최신인지 아닌지가 먼저 보여야 한다.
-        Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: hasUpdate ? t.bgBrandSubtle : t.bgMuted,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                hasUpdate
-                    ? LucideIcons.download
-                    : checkFailed
-                    ? LucideIcons.triangleAlert
-                    : LucideIcons.check,
-                size: 20,
-                color: hasUpdate
-                    ? t.fgBrand
-                    : checkFailed
-                    ? t.statusWarningFg
-                    : t.fgSecondary,
-              ),
+        // ── 상태 한 줄 — 최신인지 아닌지가 먼저 보여야 한다(누르지 않는 List 줄).
+        PListItem(
+          prefix: PListTile(
+            background: hasUpdate ? c.bgBrandWeak : c.bgNeutralWeak,
+            color: hasUpdate
+                ? c.fgBrand
+                : checkFailed
+                ? c.fgWarning
+                : c.fgNeutralMuted,
+            child: Icon(
+              hasUpdate
+                  ? LucideIcons.download
+                  : checkFailed
+                  ? LucideIcons.triangleAlert
+                  : LucideIcons.check,
             ),
-            const SizedBox(width: PSpace.x16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    hasUpdate
-                        ? l.updateAvailable(latest!.version)
-                        : checkFailed
-                        ? l.updateCheckFailedTitle
-                        : l.updateUpToDate,
-                    style: PTypo.body.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    // 지금 버전은 서버와 무관하게 알고 있다 — 확인에 실패해도 보여 준다.
-                    checkFailed
-                        ? l.updateCheckFailed
-                        : l.updateCurrentBuild(s.currentBuild.toString()),
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
+          title: hasUpdate
+              ? l.updateAvailable(latest!.version)
+              : checkFailed
+              ? l.updateCheckFailedTitle
+              : l.updateUpToDate,
+          // 지금 버전은 서버와 무관하게 알고 있다 — 확인에 실패해도 보여 준다.
+          detail: checkFailed
+              ? l.updateCheckFailed
+              : l.updateCurrentBuild(s.currentBuild.toString()),
         ),
 
         // ── 바뀐 것
         if (hasUpdate && latest!.notes.trim().isNotEmpty) ...[
-          const SizedBox(height: PSpace.x32),
-          Text(
-            l.updateSheetChanges,
-            style: PTypo.bodySm.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
+          const SizedBox(height: PSpacing.x8),
+          Padding(
+            padding: gutter,
+            // R4 구역 제목
+            child: Text(
+              l.updateSheetChanges,
+              style: PTypography.t5.copyWith(
+                color: c.fgNeutral,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-          const SizedBox(height: PSpace.x12),
-          Container(
-            padding: const EdgeInsets.all(PSpace.x16),
-            decoration: BoxDecoration(
-              color: t.bgMuted,
-              borderRadius: PRadius.brLg,
+          const SizedBox(height: PSpacing.x3),
+          Padding(
+            padding: gutter,
+            child: Container(
+              padding: const EdgeInsets.all(PSpacing.x4),
+              decoration: BoxDecoration(
+                color: c.bgNeutralWeak,
+                borderRadius: BorderRadius.circular(PRounded.r3),
+              ),
+              child: PReleaseNotes(notes: latest.notes),
             ),
-            child: PReleaseNotes(notes: latest.notes),
           ),
         ],
 
         // ── 받기
         if (hasUpdate) ...[
-          const SizedBox(height: PSpace.x32),
+          const SizedBox(height: PSpacing.x8),
           // 삼성 기기는 자동 차단을 끄기 전엔 설치가 막힌다 — 받기 전에 알려 준다.
           // 받고 나서 알면 다운로드가 헛수고가 된다.
-          const _AutoBlockerNotice(),
-          _DownloadButton(release: latest!),
+          const Padding(padding: gutter, child: AutoBlockerNotice()),
+          Padding(
+            padding: gutter,
+            child: _DownloadButton(release: latest!),
+          ),
         ],
       ],
     );
@@ -175,15 +155,21 @@ class _Body extends ConsumerWidget {
 /// 것이라, 끄기 전에는 받아도 설치 화면에서 튕긴다.
 ///
 /// 앱이 스스로 풀 방법은 없다 — 설정으로 데려다주는 것까지가 전부다.
-class _AutoBlockerNotice extends StatefulWidget {
-  const _AutoBlockerNotice();
+class AutoBlockerNotice extends StatefulWidget {
+  const AutoBlockerNotice({
+    super.key,
+    @visibleForTesting this.debugShow = false,
+  });
+
+  /// 시험용 — 기기 판정(삼성 + Android 14)을 건너뛰고 안내를 띄운다.
+  final bool debugShow;
 
   @override
-  State<_AutoBlockerNotice> createState() => _AutoBlockerNoticeState();
+  State<AutoBlockerNotice> createState() => _AutoBlockerNoticeState();
 }
 
-class _AutoBlockerNoticeState extends State<_AutoBlockerNotice> {
-  bool _show = false;
+class _AutoBlockerNoticeState extends State<AutoBlockerNotice> {
+  late bool _show = widget.debugShow;
 
   /// 설정에 다녀온 뒤 안내 문구 — 어디까지 열렸느냐에 따라 남은 걸음이 다르다.
   AutoBlockerTarget? _opened;
@@ -191,7 +177,7 @@ class _AutoBlockerNoticeState extends State<_AutoBlockerNotice> {
   @override
   void initState() {
     super.initState();
-    _check();
+    if (!widget.debugShow) _check();
   }
 
   Future<void> _check() async {
@@ -221,18 +207,14 @@ class _AutoBlockerNoticeState extends State<_AutoBlockerNotice> {
       null => l.updateAutoBlockerDesc,
     };
 
+    // Callout 의 동작은 링크 하나다(callout.md ⓕ) — "설정 열기" 를 링크로 둔다
     return Padding(
-      padding: const EdgeInsets.only(bottom: PSpace.x16),
-      child: PAlert(
+      padding: const EdgeInsets.only(bottom: PSpacing.x4),
+      child: PCallout(
+        tone: PCalloutTone.warning,
         title: l.updateAutoBlockerTitle,
         description: description,
-        variant: PAlertVariant.warning,
-        action: PButton(
-          label: l.updateAutoBlockerOpen,
-          size: PButtonSize.sm,
-          variant: PButtonVariant.secondary,
-          onPressed: _open,
-        ),
+        link: PCalloutLink(label: l.updateAutoBlockerOpen, onPressed: _open),
       ),
     );
   }
@@ -246,45 +228,26 @@ class _DownloadButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final progress = ref.watch(apkInstallerProvider);
 
     if (progress.isBusy) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            progress.stage == ApkStage.opening
-                ? l.updateSheetOpening
-                : l.updateSheetDownloading,
-            style: PTypo.caption.copyWith(color: t.fgSecondary),
-          ),
-          const SizedBox(height: PSpace.x8),
-          ClipRRect(
-            borderRadius: PRadius.brFull,
-            child: LinearProgressIndicator(
-              // 서버가 길이를 안 주면 비율을 모른다 — 그때는 흐르는 표시로.
-              value: progress.ratio,
-              minHeight: 6,
-              backgroundColor: t.bgMuted,
-              color: t.bgBrandSolid,
-            ),
-          ),
-        ],
+      return updateProgressRow(
+        context,
+        label: progress.stage == ApkStage.opening
+            ? l.updateSheetOpening
+            : l.updateSheetDownloading,
+        ratio: progress.ratio,
       );
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: PButton(
-        label: progress.stage == ApkStage.failed
-            ? l.updateSheetRetry
-            : l.updateSheetNow,
-        icon: LucideIcons.download,
-        size: PButtonSize.lg,
-        onPressed: () => _start(context, ref),
-      ),
+    return PButton(
+      label: progress.stage == ApkStage.failed
+          ? l.updateSheetRetry
+          : l.updateSheetNow,
+      prefixIcon: LucideIcons.download,
+      size: PButtonSize.large,
+      onPressed: () => _start(context, ref),
     );
   }
 

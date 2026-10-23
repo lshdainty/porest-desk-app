@@ -3887,7 +3887,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateSheetFailed.
   ///
   /// In ko, this message translates to:
-  /// **'앱에서 받지 못했어요. 브라우저로 열어 볼게요.'**
+  /// **'앱에서 받지 못했어요. 브라우저로 열어볼게요.'**
   String get updateSheetFailed;
 
   /// No description provided for @updateTitle.
@@ -3899,7 +3899,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateGateTitle.
   ///
   /// In ko, this message translates to:
-  /// **'새 버전 {version} 이 나왔어요'**
+  /// **'새 버전 {version}이 나왔어요'**
   String updateGateTitle(String version);
 
   /// No description provided for @updateGateInstall.
@@ -3911,7 +3911,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateGateForcedCancelBody.
   ///
   /// In ko, this message translates to:
-  /// **'업데이트가 꼭 필요한 내역이 포함되어 있습니다'**
+  /// **'꼭 필요한 업데이트가 들어 있어요.'**
   String get updateGateForcedCancelBody;
 
   /// No description provided for @updateCheckFailedTitle.
@@ -12137,7 +12137,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateAutoBlockerAfterDirect.
   ///
   /// In ko, this message translates to:
-  /// **'자동 차단을 끄고 돌아와서 받기를 눌러 주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  /// **'자동 차단을 끄고 돌아와서 받기를 눌러주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
   String get updateAutoBlockerAfterDirect;
 
   /// No description provided for @updateAutoBlockerAfterSecurity.
