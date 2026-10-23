@@ -1592,6 +1592,24 @@
   },
   "categoryAdd": "카테고리 추가",
   "categoryAddAction": "추가",
+  "recurringAddAction": "추가",
+  "presetAddAction": "추가",
+  "categoryListTitleExpense": "지출 카테고리 {count}개",
+  "@categoryListTitleExpense": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryListTitleIncome": "수입 카테고리 {count}개",
+  "@categoryListTitleIncome": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryEdit": "카테고리 편집",
   "categoryNameRequired": "이름을 입력해주세요.",
   "categoryNameTooLong": "이름은 12자 이내로 입력해주세요.",
@@ -3735,7 +3753,7 @@
   },
   "calDetailMemo": "메모",
   "calDetailRepeat": "반복",
-  "categoryReorderEdit": "편집",
+  "categoryReorderEdit": "순서 바꾸기",
   "categoryReorderHint": "핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.",
   "txmSpendSummary": "소비 요약",
   "txmInsightLessPre": "지난달보다 ",

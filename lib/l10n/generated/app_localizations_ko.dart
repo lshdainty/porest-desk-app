@@ -2571,6 +2571,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryAddAction => '추가';
 
   @override
+  String get recurringAddAction => '추가';
+
+  @override
+  String get presetAddAction => '추가';
+
+  @override
+  String categoryListTitleExpense(int count) {
+    return '지출 카테고리 $count개';
+  }
+
+  @override
+  String categoryListTitleIncome(int count) {
+    return '수입 카테고리 $count개';
+  }
+
+  @override
   String get categoryEdit => '카테고리 편집';
 
   @override
@@ -6210,7 +6226,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calDetailRepeat => '반복';
 
   @override
-  String get categoryReorderEdit => '편집';
+  String get categoryReorderEdit => '순서 바꾸기';
 
   @override
   String get categoryReorderHint =>

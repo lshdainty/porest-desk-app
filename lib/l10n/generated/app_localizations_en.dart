@@ -2607,6 +2607,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryAddAction => 'Add';
 
   @override
+  String get recurringAddAction => 'Add';
+
+  @override
+  String get presetAddAction => 'Add';
+
+  @override
+  String categoryListTitleExpense(int count) {
+    return '$count expense categories';
+  }
+
+  @override
+  String categoryListTitleIncome(int count) {
+    return '$count income categories';
+  }
+
+  @override
   String get categoryEdit => 'Edit category';
 
   @override
@@ -6303,7 +6319,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calDetailRepeat => 'Repeat';
 
   @override
-  String get categoryReorderEdit => 'Edit';
+  String get categoryReorderEdit => 'Reorder';
 
   @override
   String get categoryReorderHint =>

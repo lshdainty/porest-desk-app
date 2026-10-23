@@ -12,8 +12,9 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
@@ -54,17 +55,23 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     });
   }
 
-  // 순서 편집 토글 — 디자인 m-subhead__action-btn('편집'↔'완료'). 머리 오른쪽은 "추가" 가 쓴다.
-  Widget _reorderToggle(AppLocalizations l) => PButton(
-    label: _editMode ? l.actionDone : l.categoryReorderEdit,
-    variant: PButtonVariant.ghost,
-    size: PButtonSize.sm,
-    onPressed: () => setState(() {
-      _editMode = !_editMode;
-      // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
-      if (_editMode) _query = '';
-    }),
-  );
+  // 목록 제목(List Header) — "지출 카테고리 {n}개" + 오른쪽 글 버튼 "순서 바꾸기" ↔ "완료"(I-16 S1 · I-20 B 5 의 자리).
+  Widget _listHeader(AppLocalizations l, int? count) {
+    final n = count ?? 0;
+    return PListHeader(
+      title: _tabIndex == 0
+          ? l.categoryListTitleExpense(n)
+          : l.categoryListTitleIncome(n),
+      action: PTextButton(
+        label: _editMode ? l.actionDone : l.categoryReorderEdit,
+        onPressed: () => setState(() {
+          _editMode = !_editMode;
+          // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
+          if (_editMode) _query = '';
+        }),
+      ),
+    );
+  }
 
   void _toggleCollapse(int parentRowId) {
     setState(() {
@@ -155,7 +162,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 expand: true,
               ),
             ),
-            // 편집 모드: 검색·추가 대신 드래그 안내문(디자인 editMode) / 평시: 검색 + 추가 row.
+            // 편집 모드: 검색 대신 드래그 안내문(디자인 editMode) / 평시: 검색 줄.
             if (_editMode)
               Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -164,22 +171,15 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   PSpace.x24,
                   0,
                 ),
-                // 순서 편집 토글 — "추가" 가 머리로 올라간 자리. 목록 제목의 "순서 바꾸기"
-                // (I-20 B 5)가 들어오기 전까지 임시로 본문에 둔다.
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l.categoryReorderHint,
-                        style: PTypo.caption.copyWith(
-                          color: t.fgTertiary,
-                          height: 1.5,
-                        ),
-                      ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    l.categoryReorderHint,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      height: 1.5,
                     ),
-                    const SizedBox(width: PSpace.x8),
-                    _reorderToggle(l),
-                  ],
+                  ),
                 ),
               )
             else
@@ -199,11 +199,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         onChanged: (v) => setState(() => _query = v),
                       ),
                     ),
-                    const SizedBox(width: PSpace.x8),
-                    _reorderToggle(l),
                   ],
                 ),
               ),
+            _listHeader(
+              l,
+              allCats
+                  ?.where(
+                    (c) =>
+                        (c.expenseType ?? 'EXPENSE') == _kindValues[_tabIndex],
+                  )
+                  .length,
+            ),
             Expanded(
               child: categoriesAsync.when(
                 loading: () => ListView(

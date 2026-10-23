@@ -1588,6 +1588,24 @@
   },
   "categoryAdd": "Add category",
   "categoryAddAction": "Add",
+  "recurringAddAction": "Add",
+  "presetAddAction": "Add",
+  "categoryListTitleExpense": "{count} expense categories",
+  "@categoryListTitleExpense": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryListTitleIncome": "{count} income categories",
+  "@categoryListTitleIncome": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryEdit": "Edit category",
   "categoryNameRequired": "Please enter a name.",
   "categoryNameTooLong": "Name must be 12 characters or fewer.",
@@ -3584,7 +3602,7 @@
   "calDetailDurationM": "{m}m",
   "calDetailMemo": "Memo",
   "calDetailRepeat": "Repeat",
-  "categoryReorderEdit": "Edit",
+  "categoryReorderEdit": "Reorder",
   "categoryReorderHint": "Drag the handle to reorder. Parents move among parents; subcategories move within their parent.",
   "txmSpendSummary": "Spending summary",
   "txmInsightLessPre": "Spending ",

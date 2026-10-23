@@ -4760,6 +4760,30 @@ abstract class AppLocalizations {
   /// **'추가'**
   String get categoryAddAction;
 
+  /// No description provided for @recurringAddAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get recurringAddAction;
+
+  /// No description provided for @presetAddAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get presetAddAction;
+
+  /// No description provided for @categoryListTitleExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 카테고리 {count}개'**
+  String categoryListTitleExpense(int count);
+
+  /// No description provided for @categoryListTitleIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 카테고리 {count}개'**
+  String categoryListTitleIncome(int count);
+
   /// No description provided for @categoryEdit.
   ///
   /// In ko, this message translates to:
@@ -11447,7 +11471,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryReorderEdit.
   ///
   /// In ko, this message translates to:
-  /// **'편집'**
+  /// **'순서 바꾸기'**
   String get categoryReorderEdit;
 
   /// No description provided for @categoryReorderHint.
