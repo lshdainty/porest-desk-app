@@ -15,9 +15,13 @@ import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 
-/// 줄 오른쪽 자리 — 화면 여백 24 + ⋮ 자리 32(단추 40 은 오른쪽으로 8 내민다, 웹 `-mr-x2`). 금액 끝은 화면 끝에서 56 이고 ⋮ 글리프는
-/// 27 에 선다. 밀기가 없는 줄(이체 · 시스템 거래)은 이 자리를 **비워** 금액 자리를 맞춘다(Q6 A, 웹 · 앱 한 벌).
-const double kLedgerMoreSlot = PSpacing.globalGutter + PSpacing.x8;
+/// 금액을 오른쪽으로 밀어내는 폭 — ds List 줄이 제 오른쪽 24 를 가지므로 거기에 이 32 를 더해 금액 끝이 화면 끝에서 56 이다. ⋮ 단추(40)는
+/// 화면 끝에서 16 에 놓여(글리프 27) 이 자리 위에 선다(웹 `-mr-x2` 와 같은 자리). 밀기가 없는 줄(이체 · 시스템 거래)도 같은 폭을 **비워**
+/// 금액 자리를 맞춘다(Q6 A, 웹 · 앱 한 벌).
+const double kLedgerMoreSlot = PSpacing.x8;
+
+/// ⋮ 단추 오른쪽 끝이 화면 끝에서 떨어진 거리.
+const double _kMoreFromEdge = PSpacing.x4;
 
 /// 날짜 묶음 하나 — 머리 + 거래 줄 + 이체 줄. 묶음 위 12 · 첫 묶음 4.
 ///
@@ -74,35 +78,37 @@ class LedgerDayGroup extends ConsumerWidget {
                       : assets?.byRowId(e.assetRowId!),
                 );
                 final name = expenseActions.displayNameOf(context, e);
-                // TODO(I-06 머지 뒤): 거래 줄이 ds List 줄(제 좌우 24)이 되면 이 왼쪽 24 를 걷는다(I-07 4).
-                final row = Padding(
-                  padding: const EdgeInsets.only(left: PSpacing.globalGutter),
-                  child: ExpenseRow(
-                    expense: e,
-                    category: e.categoryRowId == null
-                        ? null
-                        : categories.byRowId(e.categoryRowId!),
-                    flags: flags,
-                  ),
+                // 거래 줄은 ds List 줄(제 좌우 24)이다 — 바깥 24 는 없다(I-07 4).
+                final row = ExpenseRow(
+                  expense: e,
+                  category: e.categoryRowId == null
+                      ? null
+                      : categories.byRowId(e.categoryRowId!),
+                  flags: flags,
                 );
                 Widget line = PSwipeActions(
                   actions: actions,
                   rowLabel: name,
-                  child: Row(
+                  child: Stack(
                     children: [
-                      Expanded(child: row),
-                      SizedBox(
-                        width: kLedgerMoreSlot,
-                        child: actions.isEmpty
-                            ? null
-                            : Align(
-                                alignment: AlignmentDirectional.centerStart,
-                                child: PSwipeActionsMore(
-                                  actions: actions,
-                                  rowLabel: name,
-                                ),
-                              ),
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          end: kLedgerMoreSlot,
+                        ),
+                        child: row,
                       ),
+                      if (actions.isNotEmpty)
+                        PositionedDirectional(
+                          top: 0,
+                          bottom: 0,
+                          end: _kMoreFromEdge,
+                          child: Center(
+                            child: PSwipeActionsMore(
+                              actions: actions,
+                              rowLabel: name,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 );
@@ -116,10 +122,8 @@ class LedgerDayGroup extends ConsumerWidget {
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬(내림차순)과 동일한 자리.
           for (final tr in transfers)
             Padding(
-              // 줄 자체가 오른쪽 24 를 가지므로 거래 줄(⋮ 자리만)과 금액 자리가 같게 24 를 덜어 낸다.
-              padding: const EdgeInsetsDirectional.only(
-                end: kLedgerMoreSlot - PSpacing.globalGutter,
-              ),
+              // 거래 줄과 금액 자리가 같게 ⋮ 자리만큼 비운다.
+              padding: const EdgeInsetsDirectional.only(end: kLedgerMoreSlot),
               child: TransferRow(
                 key: ValueKey('t${tr.rowId}'),
                 transfer: tr,
@@ -168,7 +172,7 @@ class LedgerDaySkeleton extends StatelessWidget {
               padding: const EdgeInsetsDirectional.fromSTEB(
                 PSpacing.globalGutter,
                 PSpacing.x3,
-                kLedgerMoreSlot,
+                PSpacing.globalGutter + kLedgerMoreSlot,
                 PSpacing.x3,
               ),
               child: Row(

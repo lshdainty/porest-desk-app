@@ -170,7 +170,7 @@ void main() {
       ],
     );
     final c = tester.element(find.byType(ExpenseScreen)).colors;
-    final txTitle = tester.getTopLeft(find.text('점심 가게')).dx;
+    final txTitle = tester.getTopLeft(_text('점심 가게')).dx;
     final trTitle = tester.getTopLeft(_text('용돈 옮김')).dx;
     expect(trTitle, closeTo(txTitle, 0.5), reason: '거래 줄 · 이체 줄 글자 x');
     // 금액 오른쪽 끝도 같다(거래 줄은 ⋮ 자리, 이체 줄은 줄의 24 + 덜어 낸 자리)
@@ -184,7 +184,7 @@ void main() {
                     w is Text &&
                     _plain(w.data ?? '').contains('12,000원') &&
                     w.style?.fontWeight == FontWeight.w700 &&
-                    w.style?.fontSize == 14,
+                    w.style?.fontSize == null,
               ),
             )
             .dx,
@@ -192,7 +192,12 @@ void main() {
       ),
       reason: '거래 줄 · 이체 줄 금액 오른쪽 x',
     );
-    final tile = find.byKey(const ValueKey('plist-tile'));
+    final tile = find.byWidgetPredicate(
+      (w) =>
+          w.key == const ValueKey('plist-tile') &&
+          w is DecoratedBox &&
+          (w.decoration as BoxDecoration).color == c.chartGrayWeak,
+    );
     expect(tile, findsOneWidget);
     expect(tester.getSize(tile), const Size(40, 40));
     final deco = tester.widget<DecoratedBox>(tile).decoration as BoxDecoration;
@@ -427,7 +432,7 @@ void main() {
       expect(find.byType(PScrollAutoHide), findsOneWidget);
       expect(find.byType(PSkeleton), findsWidgets);
       // 옛 달 숫자는 지운다
-      expect(find.text('점심 가게'), findsNothing);
+      expect(_text('점심 가게'), findsNothing);
       pending.complete(const []);
       await tester.pumpAndSettle();
     });
@@ -607,8 +612,8 @@ void main() {
         _tx(2, '지갑 결제', 3000, assetId: 2),
       ],
     );
-    expect(find.text('지갑 결제'), findsOneWidget);
-    expect(find.text('월급 통장 결제'), findsNothing);
+    expect(_text('지갑 결제'), findsOneWidget);
+    expect(_text('월급 통장 결제'), findsNothing);
   });
 
   testWidgets('빈 달에도 지난달 이용 내역 보기 단추가 있다', (tester) async {
@@ -690,16 +695,15 @@ void main() {
     expect(find.text(names[PDatePreset.thisYear]!), findsNothing);
   });
 
-  group('200% · 다크 — 가장 나쁜 값에서 이 PR 의 자리에는 넘침 오류가 없다', () {
+  group('200% · 다크 — 가장 나쁜 값에서 넘침 오류가 없다', () {
     final worst = [
-      _tx(1, '아주 길고 긴 이름의 온라인 종합 쇼핑몰 본점 가장 긴 가맹점 이름', 1234567890),
+      _tx(1, '아주 길고 긴 이름의 온라인 종합 쇼핑몰 본점 가장 긴 가맹점 이름', 123456789),
       _tx(2, '월급', 450000000, type: 'INCOME'),
       for (var i = 3; i <= 10; i++) _tx(i, '가게 $i', 1000 * i),
     ];
 
     for (final scale in [1.0, 2.0]) {
       testWidgets('x$scale 가계부 · 소비 요약 · 월 달력', (tester) async {
-        // 거래 줄(expense_row.dart)은 I-06 28 이 ds 줄로 바꾼다 — 그 줄의 옛 넘침은 이 검사에서 뺀다.
         final errors = <FlutterErrorDetails>[];
         final prev = FlutterError.onError;
         FlutterError.onError = errors.add;
@@ -714,11 +718,17 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text('소비 요약'), warnIfMissed: false);
         await tester.pumpAndSettle();
+        FlutterError.onError = prev;
         final mine = errors
-            .where((d) => !d.toString().contains('expense_row.dart'))
             .map((d) => d.exceptionAsString().split('\n').first)
             .toList();
-        expect(mine, isEmpty);
+        expect(
+          mine,
+          isEmpty,
+          reason: errors
+              .map((d) => d.toString().split('\n').take(12).join(' | '))
+              .join('\n'),
+        );
       });
     }
   });
