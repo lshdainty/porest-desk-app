@@ -120,8 +120,10 @@ class PProgress extends StatelessWidget {
                 ),
               );
               if (narrow) {
+                // 이름 ↔ 오른쪽 글 2(list.md:148, 웹 gap-x0_5)
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: PSpacing.x0_5,
                   children: [name, statusText],
                 );
               }

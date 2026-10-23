@@ -1,6 +1,6 @@
 // I-06 홈 — 실제 화면을 띄워 지시서 값을 잰다(폰 360, 가장 나쁜 값).
 //
-// 띠 넷 · 틈(0 · 8) · 구역 머리(9 · 10) · 순자산(11 ~ 15) · 이번 달(16) · 도넛(18 ~ 21) · 예산(22) ·
+// 구역마다 띠 · 틈(0 · 8) · 구역 머리(9 · 10) · 순자산(11 ~ 15) · 이번 달(16) · 도넛(18 ~ 21) · 예산(22) ·
 // 일정 · 할 일(24 · 25) · 오늘 쓴 돈(27 · 28) · 실패(33).
 import 'dart:async';
 
@@ -38,6 +38,7 @@ import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import '../../support/plain_text.dart';
 
 String _monthStart() {
@@ -115,6 +116,8 @@ Future<void> _pump(
   Object? rangeError,
   Object? budgetsError,
   bool dashPending = false,
+  bool todayPending = false,
+  List<String>? rangeStarts,
   Object? dashError,
   List<String?>? categoryColors,
   Map<String, int>? reads,
@@ -139,19 +142,23 @@ Future<void> _pump(
           );
     }),
     rangeSummaryProvider.overrideWith((ref, r) async {
+      rangeStarts?.add(r.startDate);
       if (r.startDate == _monthStart()) {
         reads?.update('range', (v) => v + 1, ifAbsent: () => 1);
       }
       if (rangeError != null) throw rangeError;
       return _range(r.startDate, r.endDate, categories: categories);
     }),
-    monthExpensesProvider.overrideWith((ref, key) async => today ?? const []),
+    monthExpensesProvider.overrideWith((ref, key) async {
+      if (todayPending) return Completer<List<Expense>>().future;
+      return today ?? const [];
+    }),
     categoriesProvider.overrideWith(
       (ref) async => [
         for (var i = 0; i < categories; i++)
           ExpenseCategory(
             rowId: i + 1,
-            categoryName: 'c$i',
+            categoryName: i == 0 ? _longCat : 'c$i',
             expenseType: 'EXPENSE',
             color: categoryColors != null && i < categoryColors.length
                 ? categoryColors[i]
@@ -241,8 +248,8 @@ Expense _tx(int id, {String type = 'EXPENSE', int amount = 1234567890}) =>
     );
 
 void main() {
-  group('띠 넷 — 1A · 5 · 6 · 8', () {
-    testWidgets('띠 넷 · 사이 8 셋 · 머리 아래 틈 0 · 마지막 띠 아래 8 없음', (tester) async {
+  group('구역마다 띠 — 5 · 6 · 8', () {
+    testWidgets('일곱 띠 · 사이 8 여섯 · 머리 아래 틈 0 · 마지막 띠 아래 8 없음', (tester) async {
       await _pump(tester, today: [_tx(1)]);
       expect(
         _bandCount(),
@@ -492,7 +499,7 @@ void main() {
       final bars = tester.widgetList<PProgress>(find.byType(PProgress));
       expect(bars, hasLength(2));
       expect(bars.first.label, '전체 예산');
-      expect(bars.last.label, 'c0 예산', reason: '카테고리 이름 + 예산');
+      expect(bars.last.label, '$_longCat 예산', reason: '긴 카테고리 이름 + 예산');
       // 전체 예산은 넘쳤다(3,912,345,678 > 3,000,000)
       expect(find.textContaining('초과'), findsWidgets);
       expect(find.byType(PListTile), findsNothing, reason: '카테고리 타일을 뺀다');
@@ -728,6 +735,67 @@ void main() {
       expect(colors[1], PChartColor.green);
       expect(colors[2], PChartColor.orange);
       expect(colors.toSet().length, 4);
+    });
+  });
+
+  group('불러오는 중 줄 모양 — 웹 한 벌', () {
+    testWidgets('오늘 쓴 돈: 타일 40 · 모서리 12 + 제목 · 설명 두 줄(66)', (tester) async {
+      await _pump(tester, todayPending: true);
+      final tiles = tester
+          .widgetList<PSkeleton>(find.byType(PSkeleton))
+          .where((k) => k.width == 40 && k.height == 40);
+      expect(tiles, hasLength(2));
+      expect(tiles.first.radius, PSkeletonRadius.r12);
+      // 줄 높이 = 위아래 12 + 타일 40 = 64 이상(제목 22 + 설명 18 + 2 = 42 가 타일 40 보다 큼 → 66)
+      final row = find.ancestor(
+        of: find.byWidget(tiles.first),
+        matching: find.byType(Padding),
+      );
+      expect(tester.getSize(row.first).height, 66);
+    });
+  });
+
+  group('월 경계 — 앱이 다시 앞으로 올 때', () {
+    tearDown(() => dashboardNow = DateTime.now);
+
+    testWidgets('말일에 켜 둔 홈이 1일에 resumed 되면 달 · 오늘을 새로 잡는다', (tester) async {
+      dashboardNow = () => DateTime(2026, 1, 31, 23, 0);
+      final starts = <String>[];
+      await _pump(
+        tester,
+        rangeStarts: starts,
+        today: [
+          Expense(
+            rowId: 1,
+            expenseType: 'EXPENSE',
+            amount: 4800,
+            merchant: '모퉁이 커피',
+            expenseDate: '2026-02-01T00:00:00',
+          ),
+        ],
+      );
+      expect(starts, contains('2026-01-01'));
+      expect(findPlain('오늘은 아직 쓴 돈이 없어요'), findsOneWidget, reason: '아직 1월 31일');
+
+      dashboardNow = () => DateTime(2026, 2, 1, 9, 0);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(starts, contains('2026-02-01'), reason: '새 달 기간 합계를 받는다');
+      expect(findPlain('모퉁이 커피'), findsOneWidget, reason: '오늘 쓴 돈이 2월 1일 거래로');
+      expect(findPlain('10월 가계부'), findsNothing);
+      expect(findPlainContaining('2월 가계부'), findsOneWidget);
+    });
+
+    testWidgets('같은 달이면 다시 받지 않는다', (tester) async {
+      dashboardNow = () => DateTime(2026, 1, 15, 9, 0);
+      final starts = <String>[];
+      await _pump(tester, rangeStarts: starts);
+      final n = starts.length;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      expect(starts.length, n);
     });
   });
 }

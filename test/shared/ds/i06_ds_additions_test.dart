@@ -195,6 +195,11 @@ void main() {
       final status = tester.getRect(find.textContaining('초과'));
       expect(status.top, greaterThanOrEqualTo(name.bottom - 1));
       expect(status.left, name.left);
+      expect(
+        status.top - name.bottom,
+        closeTo(2, 0.5),
+        reason: '이름 ↔ 오른쪽 글 2(list.md:148)',
+      );
     });
 
     testWidgets('금액 줄은 쉼표 · " / " 뒤에서만 끊긴다(보호 글자 포함)', (tester) async {

@@ -53,12 +53,40 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  late final DateTime _month = DateTime(
-    DateTime.now().year,
-    DateTime.now().month,
-    1,
-  );
+/// 홈이 보는 "지금" — 시험이 시계를 고정해 월 경계를 재도록 바꿀 수 있다.
+@visibleForTesting
+DateTime Function() dashboardNow = DateTime.now;
+
+DateTime _thisMonth() {
+  final n = dashboardNow();
+  return DateTime(n.year, n.month, 1);
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with WidgetsBindingObserver {
+  // 이번 달 고정(고르기 없음) — 다만 앱이 다시 앞으로 올 때 날짜가 바뀌었으면 새로 잡는다(아래)
+  DateTime _month = _thisMonth();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 홈을 켜 둔 채 달이 바뀌면(말일 → 1일) 다시 앞으로 올 때 달을 새로 잡는다 — 안 그러면 다시 켤 때까지 홈 전체가 지난달로
+  /// 남고 "오늘 쓴 돈" 도 빈다.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final now = _thisMonth();
+    if (now != _month) setState(() => _month = now);
+  }
 
   String get _ymdStart =>
       '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}-01';
@@ -686,8 +714,7 @@ class _MonthSection extends StatelessWidget {
       return _ListSection(
         header: head,
         children: [
-          for (var i = 0; i < 2; i++)
-            const _SkeletonRow(titleWidth: 48, prefix: false),
+          for (var i = 0; i < 2; i++) const _SkeletonRow(_SkeletonKind.plain),
         ],
       );
     }
@@ -695,7 +722,7 @@ class _MonthSection extends StatelessWidget {
     final expense = summary.totalExpense;
     final prevExpense = prevSummary?.totalExpense ?? 0;
 
-    final today = DateTime.now();
+    final today = dashboardNow();
     final isCurMonth = today.year == month.year && today.month == month.month;
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
     final dayOfMonth = isCurMonth ? today.day : daysInMonth;
@@ -1105,12 +1132,15 @@ class _ProgressSkeleton extends StatelessWidget {
 
 // ─── 띠 ③ 일정 · 할 일 ────────────────────────────────────
 
-/// 한 줄 Skeleton — List 한 줄 46(위아래 12 + 글 22).
-class _SkeletonRow extends StatelessWidget {
-  const _SkeletonRow({this.titleWidth = 160, this.prefix = true});
+/// 줄 Skeleton 의 종류(웹 `RowsSkeleton` 과 한 벌) — plain: 글 한 줄(이번 달 가계부 키-값) · dot: 앞 원 + 제목 + 값(일정 · 할 일) ·
+/// tx: 앞 타일 40(모서리 12) + 제목 · 설명 두 줄 + 금액(오늘 쓴 돈).
+enum _SkeletonKind { plain, dot, tx }
 
-  final double titleWidth;
-  final bool prefix;
+/// 실제 줄과 같은 높이의 줄 Skeleton — List 한 줄 46 · 두 줄 66.
+class _SkeletonRow extends StatelessWidget {
+  const _SkeletonRow(this.kind);
+
+  final _SkeletonKind kind;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -1121,19 +1151,42 @@ class _SkeletonRow extends StatelessWidget {
     child: Row(
       spacing: PSpacing.x3,
       children: [
-        if (prefix)
+        if (kind == _SkeletonKind.dot)
           const PSkeleton(
             width: PSpacing.x5,
             height: PSpacing.x5,
             radius: PSkeletonRadius.full,
           ),
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: PSkeleton.text(PTypography.t5, width: titleWidth),
+        if (kind == _SkeletonKind.tx)
+          const PSkeleton(
+            width: PSpacing.x10,
+            height: PSpacing.x10,
+            radius: PSkeletonRadius.r12,
           ),
+        Expanded(
+          child: kind == _SkeletonKind.tx
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: PSpacing.x0_5,
+                  children: [
+                    FractionallySizedBox(
+                      widthFactor: 0.75,
+                      child: PSkeleton.text(PTypography.t5),
+                    ),
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: PSkeleton.text(PTypography.t3),
+                    ),
+                  ],
+                )
+              : FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: kind == _SkeletonKind.plain ? 0.75 : 1,
+                  child: PSkeleton.text(PTypography.t5),
+                ),
         ),
-        PSkeleton.text(PTypography.t5, width: PSpacing.x10),
+        if (kind != _SkeletonKind.plain)
+          PSkeleton.text(PTypography.t5, width: PSpacing.x10),
       ],
     ),
   );
@@ -1150,7 +1203,10 @@ class _SchedulePlaceholder extends StatelessWidget {
   Widget build(BuildContext context) => _ListSection(
     // 틀은 먼저 — 머리와 "전체 보기" 는 실제와 같다
     header: _head(context, title, onAll: onAll),
-    children: const [_SkeletonRow(), _SkeletonRow(titleWidth: 120)],
+    children: const [
+      _SkeletonRow(_SkeletonKind.dot),
+      _SkeletonRow(_SkeletonKind.dot),
+    ],
   );
 }
 
@@ -1285,7 +1341,7 @@ class _TodosSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
-    final now = DateTime.now();
+    final now = dashboardNow();
     final todayStr =
         '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     bool isDone(RecentTodo t) => t.status == 'COMPLETED';
@@ -1401,12 +1457,15 @@ class _TodaySection extends StatelessWidget {
       }
       return _ListSection(
         header: _head(context, l.dashTodaySpend, onAll: onAll),
-        children: const [_SkeletonRow(), _SkeletonRow(titleWidth: 120)],
+        children: const [
+          _SkeletonRow(_SkeletonKind.tx),
+          _SkeletonRow(_SkeletonKind.tx),
+        ],
       );
     }
     final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
 
-    final today = DateTime.now();
+    final today = dashboardNow();
     final todayStr =
         '${today.year.toString().padLeft(4, '0')}-'
         '${today.month.toString().padLeft(2, '0')}-'
