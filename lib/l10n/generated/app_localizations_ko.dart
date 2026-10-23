@@ -1873,7 +1873,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get dashBudgetTotal => '전체 예산';
+  String get dashBudgetTotal => '총 예산';
 
   @override
   String dashCategoryChartLabel(int month, String total) {

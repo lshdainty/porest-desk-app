@@ -498,9 +498,9 @@ void main() {
       await _pump(tester);
       final bars = tester.widgetList<PProgress>(find.byType(PProgress));
       expect(bars, hasLength(2));
-      expect(bars.first.label, '전체 예산');
+      expect(bars.first.label, '총 예산');
       expect(bars.last.label, '$_longCat 예산', reason: '긴 카테고리 이름 + 예산');
-      // 전체 예산은 넘쳤다(3,912,345,678 > 3,000,000)
+      // 총 예산은 넘쳤다(3,912,345,678 > 3,000,000)
       expect(find.textContaining('초과'), findsWidgets);
       expect(find.byType(PListTile), findsNothing, reason: '카테고리 타일을 뺀다');
     });

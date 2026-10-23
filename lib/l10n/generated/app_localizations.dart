@@ -3509,7 +3509,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashBudgetTotal.
   ///
   /// In ko, this message translates to:
-  /// **'전체 예산'**
+  /// **'총 예산'**
   String get dashBudgetTotal;
 
   /// No description provided for @dashCategoryChartLabel.

@@ -1898,7 +1898,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashBudgetTotal => 'Total budget';
+  String get dashBudgetTotal => 'total budget';
 
   @override
   String dashCategoryChartLabel(int month, String total) {

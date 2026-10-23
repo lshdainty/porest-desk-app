@@ -1134,7 +1134,7 @@
       }
     }
   },
-  "dashBudgetTotal": "전체 예산",
+  "dashBudgetTotal": "총 예산",
   "dashCategoryChartLabel": "{month}월 카테고리별 지출, 합계 {total}",
   "@dashCategoryChartLabel": {
     "placeholders": {
