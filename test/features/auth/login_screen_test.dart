@@ -103,6 +103,24 @@ void main() {
         expect(tree.height, 56);
         final name = tester.getRect(find.text('그루 담다'));
         expect(name.left - tree.right, 8, reason: '나무 ↔ 이름 8');
+        // 안내 = t5 · 400 · fg-neutral-muted, 마크 ↔ 안내 8 · 안내 ↔ 버튼 32
+        final promptFinder = find.text('그루 계정으로 로그인해주세요.');
+        final prompt = tester.widget<Text>(promptFinder).style!;
+        expect(prompt.fontSize, 16);
+        expect(prompt.fontWeight, FontWeight.w400);
+        expect(prompt.color, c.fgNeutralMuted);
+        final markBottom = tester.getRect(find.byType(GrooTree)).bottom;
+        expect(
+          tester.getRect(promptFinder).top - markBottom,
+          closeTo(8, 1),
+          reason: '마크 ↔ 안내 8',
+        );
+        expect(
+          tester.getRect(find.byType(PButton)).top -
+              tester.getRect(promptFinder).bottom,
+          32,
+          reason: '안내 ↔ 버튼 32',
+        );
         final button = tester.widget<PButton>(find.byType(PButton));
         expect(button.size, PButtonSize.large);
         expect(button.variant, PButtonVariant.neutralSolid);
