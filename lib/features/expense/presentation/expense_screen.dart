@@ -30,6 +30,7 @@ import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart'
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
@@ -429,6 +430,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         if (!filterActive) ...[
           LedgerTotalRow(
             loading: loading,
+            failed: failed,
             total: loading
                 ? null
                 : krwSigned(
@@ -623,6 +625,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     );
   }
 
+  /// 인사이트 문장 — 낱말 단위로 줄을 바꾼다(큰 글자에서 글자 가운데가 끊기지 않게).
+  static Widget _plainInsight(String text, TextStyle style) =>
+      Text(keepAll(text), semanticsLabel: text, style: style);
+
   /// 인사이트 한 줄 — 지난달 대비(덜/더/비슷) / 없으면 최다 지출 카테고리.
   Widget? _insight(
     AppLocalizations l,
@@ -636,14 +642,14 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       color: c.fgNeutralMuted,
       fontWeight: FontWeight.w400,
     );
-    if (raw.isEmpty) return Text(l.txmInsightNone, style: subStyle);
+    if (raw.isEmpty) return _plainInsight(l.txmInsightNone, subStyle);
     // 이번 달 지출(monthExpense)과 비교하므로 같은 규칙으로 세야 한다.
     final prevOut = expenseSum(prevRaw ?? const <Expense>[]);
     if (prevOut > 0) {
       final diff = prevOut - monthExpense;
       // 5,000원 미만이면 "비슷해요" — 표기와 무관한 제품 문턱이라 그대로 둔다
       // (예전엔 만원 반올림 결과가 0 이냐로 갈랐다. 경계가 같은 5,000 이다).
-      if (diff.abs() < 5000) return Text(l.txmInsightSame, style: subStyle);
+      if (diff.abs() < 5000) return _plainInsight(l.txmInsightSame, subStyle);
       // 축약은 차트 축·도넛 중앙과 같은 함수 하나를 쓴다. 예전엔 여기서 만원으로
       // 반올림해 11,881 을 `1만원` 이라고 했다 — 문장이 실제보다 16% 적게 말했다
       // (QA #38). 이제 `1.2만원` 이다.
@@ -655,17 +661,21 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         TextSpan(
           style: subStyle,
           children: [
-            TextSpan(text: less ? l.txmInsightLessPre : l.txmInsightMorePre),
             TextSpan(
-              text: less
-                  ? l.txmInsightLessHl(amount)
-                  : l.txmInsightMoreHl(amount),
+              text: keepAll(less ? l.txmInsightLessPre : l.txmInsightMorePre),
+            ),
+            TextSpan(
+              text: keepAll(
+                less ? l.txmInsightLessHl(amount) : l.txmInsightMoreHl(amount),
+              ),
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: less ? c.fgBrand : c.fgCritical,
               ),
             ),
-            TextSpan(text: less ? l.txmInsightLessPost : l.txmInsightMorePost),
+            TextSpan(
+              text: keepAll(less ? l.txmInsightLessPost : l.txmInsightMorePost),
+            ),
           ],
         ),
       );
@@ -692,12 +702,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       TextSpan(
         style: subStyle,
         children: [
-          TextSpan(text: l.txmInsightTopCatPre),
+          TextSpan(text: keepAll(l.txmInsightTopCatPre)),
           TextSpan(
-            text: topName,
+            text: keepAll(topName),
             style: TextStyle(fontWeight: FontWeight.w700, color: c.fgBrand),
           ),
-          TextSpan(text: l.txmInsightTopCatPost),
+          TextSpan(text: keepAll(l.txmInsightTopCatPost)),
         ],
       ),
     );

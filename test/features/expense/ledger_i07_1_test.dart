@@ -167,6 +167,25 @@ void main() {
     final txTitle = tester.getTopLeft(find.text('점심 가게')).dx;
     final trTitle = tester.getTopLeft(_text('용돈 옮김')).dx;
     expect(trTitle, closeTo(txTitle, 0.5), reason: '거래 줄 · 이체 줄 글자 x');
+    // 금액 오른쪽 끝도 같다(거래 줄은 ⋮ 자리, 이체 줄은 줄의 24 + 덜어 낸 자리)
+    expect(
+      tester.getTopRight(_text('50,000원', contains: true)).dx,
+      closeTo(
+        tester
+            .getTopRight(
+              find.byWidgetPredicate(
+                (w) =>
+                    w is Text &&
+                    _plain(w.data ?? '').contains('12,000원') &&
+                    w.style?.fontWeight == FontWeight.w700 &&
+                    w.style?.fontSize == 14,
+              ),
+            )
+            .dx,
+        0.5,
+      ),
+      reason: '거래 줄 · 이체 줄 금액 오른쪽 x',
+    );
     final tile = find.byKey(const ValueKey('plist-tile'));
     expect(tile, findsOneWidget);
     expect(tester.getSize(tile), const Size(40, 40));
@@ -532,6 +551,39 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
     });
+  });
+
+  group('200% · 다크 — 가장 나쁜 값에서 이 PR 의 자리에는 넘침 오류가 없다', () {
+    final worst = [
+      _tx(1, '아주 길고 긴 이름의 온라인 종합 쇼핑몰 본점 가장 긴 가맹점 이름', 1234567890),
+      _tx(2, '월급', 450000000, type: 'INCOME'),
+      for (var i = 3; i <= 10; i++) _tx(i, '가게 $i', 1000 * i),
+    ];
+
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('x$scale 가계부 · 소비 요약 · 월 달력', (tester) async {
+        // 거래 줄(expense_row.dart)은 I-06 28 이 ds 줄로 바꾼다 — 그 줄의 옛 넘침은 이 검사에서 뺀다.
+        final errors = <FlutterErrorDetails>[];
+        final prev = FlutterError.onError;
+        FlutterError.onError = errors.add;
+        addTearDown(() => FlutterError.onError = prev);
+        await _pump(
+          tester,
+          expenses: (_) async => worst,
+          textScale: scale,
+          brightness: Brightness.dark,
+        );
+        await tester.tap(find.bySemanticsLabel('월 달력'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('소비 요약'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        final mine = errors
+            .where((d) => !d.toString().contains('expense_row.dart'))
+            .map((d) => d.exceptionAsString().split('\n').first)
+            .toList();
+        expect(mine, isEmpty);
+      });
+    }
   });
 
   testWidgets('13 가계부 묶음 1차 Line 탭은 화면을 내려도 상단에 남는다', (tester) async {

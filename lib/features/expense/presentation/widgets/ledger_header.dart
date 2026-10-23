@@ -12,6 +12,7 @@ import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
 
 /// 가계부 원장 머리 — 달 이동 · 합계 · 인사이트 · 소비 요약 · 주 달력(I-07 7 · 8 · 11).
@@ -109,6 +110,7 @@ class LedgerTotalRow extends StatelessWidget {
     required this.summaryOpen,
     required this.onToggleSummary,
     this.loading = false,
+    this.failed = false,
   });
 
   /// 합계 글 — 로딩 중이면 null.
@@ -121,6 +123,9 @@ class LedgerTotalRow extends StatelessWidget {
 
   /// 숫자 자리만 기다린다(틀은 그대로 그린다).
   final bool loading;
+
+  /// 실패 — 숫자를 그리지 않고 [소비 요약] 은 막는다(자리의 안내는 목록 자리 Result Section 이 맡는다).
+  final bool failed;
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +149,11 @@ class LedgerTotalRow extends StatelessWidget {
                   PSkeleton.text(PTypography.t9, width: 160),
                   const SizedBox(height: PSpacing.x1_5),
                   PSkeleton.text(PTypography.t4, width: 200),
-                ] else ...[
+                ] else if (!failed) ...[
                   Text(
-                    total ?? '',
+                    // 금액은 쉼표 뒤에서만 줄을 바꾼다 — 큰 글자에서 숫자 가운데가 끊기지 않게
+                    keepAllAmount(total ?? ''),
+                    semanticsLabel: total,
                     style: PTypography.t9.copyWith(
                       color: c.fgNeutral,
                       fontWeight: FontWeight.w700,
@@ -170,7 +177,7 @@ class LedgerTotalRow extends StatelessWidget {
               label: l.txmSpendSummary,
               size: PButtonSize.small,
               variant: PButtonVariant.neutralOutline,
-              onPressed: loading ? null : onToggleSummary,
+              onPressed: (loading || failed) ? null : onToggleSummary,
             ),
           ),
         ],
@@ -313,15 +320,15 @@ class LedgerCalendar extends StatelessWidget {
     }
     if (selWeek < 0) selWeek = 0;
 
-    TextStyle amountStyle(Color color, bool bold) => PTypography.t1.copyWith(
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+    TextStyle amountStyle(Color color) => PTypography.t1.copyWith(
+      fontWeight: FontWeight.w700,
       color: color,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
     Widget cell(({int d, String ds})? cellData, int i) {
       if (cellData == null) {
-        return const Expanded(child: SizedBox(height: 56));
+        return const Expanded(child: SizedBox(height: PSpacing.x14));
       }
       final isSel = cellData.ds == selected;
       final data = loading ? null : byDay[cellData.ds];
@@ -338,14 +345,14 @@ class LedgerCalendar extends StatelessWidget {
               '-${flags.of(MaskKind.expense) ? '••••' : krw(data.out)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: amountStyle(c.fgNeutral, isSel),
+              style: amountStyle(c.fgNeutral),
             ),
           if (data.inn > 0)
             Text(
               '+${flags.of(MaskKind.income) ? '••••' : krw(data.inn)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: amountStyle(c.fgBrand, isSel),
+              style: amountStyle(c.fgBrand),
             ),
         ],
       );

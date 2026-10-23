@@ -13861,12 +13861,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{first} 외 {count}개'**
   String expFilterMoreCount(String first, int count);
-
-  /// No description provided for @expFilterNoCategory.
-  ///
-  /// In ko, this message translates to:
-  /// **'카테고리가 없어요'**
-  String get expFilterNoCategory;
 }
 
 class _AppLocalizationsDelegate

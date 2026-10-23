@@ -7841,7 +7841,4 @@ class AppLocalizationsEn extends AppLocalizations {
   String expFilterMoreCount(String first, int count) {
     return '$first +$count more';
   }
-
-  @override
-  String get expFilterNoCategory => 'No categories';
 }

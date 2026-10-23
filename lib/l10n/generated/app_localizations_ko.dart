@@ -7669,7 +7669,4 @@ class AppLocalizationsKo extends AppLocalizations {
   String expFilterMoreCount(String first, int count) {
     return '$first 외 $count개';
   }
-
-  @override
-  String get expFilterNoCategory => '카테고리가 없어요';
 }

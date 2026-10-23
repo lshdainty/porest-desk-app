@@ -4357,6 +4357,5 @@
   "expFilterClearOne": "Clear {name}",
   "@expFilterClearOne": {"placeholders": {"name": {"type": "String"}}},
   "expFilterMoreCount": "{first} +{count} more",
-  "@expFilterMoreCount": {"placeholders": {"first": {"type": "String"}, "count": {"type": "int"}}},
-  "expFilterNoCategory": "No categories"
+  "@expFilterMoreCount": {"placeholders": {"first": {"type": "String"}, "count": {"type": "int"}}}
 }

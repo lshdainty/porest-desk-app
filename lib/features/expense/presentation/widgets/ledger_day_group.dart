@@ -222,7 +222,10 @@ class LedgerDayGroup extends ConsumerWidget {
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬(내림차순)과 동일한 자리.
           for (final tr in transfers)
             Padding(
-              padding: const EdgeInsetsDirectional.only(end: kLedgerMoreSlot),
+              // 줄 자체가 오른쪽 24 를 가지므로 거래 줄(⋮ 자리만)과 금액 자리가 같게 24 를 덜어 낸다.
+              padding: const EdgeInsetsDirectional.only(
+                end: kLedgerMoreSlot - PSpacing.globalGutter,
+              ),
               child: TransferRow(
                 key: ValueKey('t${tr.rowId}'),
                 transfer: tr,
@@ -271,7 +274,7 @@ class LedgerDaySkeleton extends StatelessWidget {
               padding: const EdgeInsetsDirectional.fromSTEB(
                 PSpacing.globalGutter,
                 PSpacing.x3,
-                PSpacing.globalGutter + kLedgerMoreSlot,
+                kLedgerMoreSlot,
                 PSpacing.x3,
               ),
               child: Row(

@@ -4613,6 +4613,5 @@
   "expFilterClearOne": "{name} 지우기",
   "@expFilterClearOne": {"placeholders": {"name": {"type": "String"}}},
   "expFilterMoreCount": "{first} 외 {count}개",
-  "@expFilterMoreCount": {"placeholders": {"first": {"type": "String"}, "count": {"type": "int"}}},
-  "expFilterNoCategory": "카테고리가 없어요"
+  "@expFilterMoreCount": {"placeholders": {"first": {"type": "String"}, "count": {"type": "int"}}}
 }
