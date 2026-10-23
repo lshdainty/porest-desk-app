@@ -42,6 +42,42 @@ const double kCardHeroGlowSize = 240;
 const double kCardHeroGlowRight = -40;
 const double kCardHeroGlowTop = -80;
 
+/// 순자산 면의 장식 빛 — 글자 뒤 맨 아래(`Stack` 안 첫 자식들 가운데). 보조 기술에는 없다. 카드(모서리 16)와 폰 띠(모서리 0 — 화면이
+/// 면을 직접 그린다)가 함께 쓴다.
+class PCardHeroGlow extends StatelessWidget {
+  const PCardHeroGlow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Positioned(
+      key: const ValueKey('card-hero-glow'),
+      right: kCardHeroGlowRight,
+      top: kCardHeroGlowTop,
+      width: kCardHeroGlowSize,
+      height: kCardHeroGlowSize,
+      child: ExcludeSemantics(
+        child: IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                // CSS 의 circle 기본 크기(farthest-corner)는 반지름 120·√2 — 70% 가 투명
+                radius: math.sqrt2 / 2,
+                colors: [
+                  c.staticWhite.withValues(alpha: 0.22),
+                  c.staticWhite.withValues(alpha: 0),
+                ],
+                stops: const [0, 0.7],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Card — 같은 주제의 정보를 한 면으로 묶는다(머리 · 본문 · 목록 · 지표 · 순자산). SEED 에는 카드 컴포넌트가 없다 —
 /// 바닥 위 흰 면 + 1px 테두리 · 그림자 없음 · 누름은 SEED Feedback 을, 머리 · 여백 · 지표 · 순자산 · 증감은 groo 가
 /// 정했다. 수치 원본은 groo-design `specs/components/card.yaml`(값은 `test/fixtures/design_spec/card.json`). 웹(desk-front
@@ -197,33 +233,7 @@ class _PCardState extends State<PCard> {
                 onTap: widget.onTap,
               ),
             ),
-          if (hero)
-            // 장식 빛 — 글자 뒤 맨 아래. 보조 기술에는 없다
-            Positioned(
-              key: const ValueKey('card-hero-glow'),
-              right: kCardHeroGlowRight,
-              top: kCardHeroGlowTop,
-              width: kCardHeroGlowSize,
-              height: kCardHeroGlowSize,
-              child: ExcludeSemantics(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        // CSS 의 circle 기본 크기(farthest-corner)는 반지름 120·√2 — 70% 가 투명
-                        radius: math.sqrt2 / 2,
-                        colors: [
-                          c.staticWhite.withValues(alpha: 0.22),
-                          c.staticWhite.withValues(alpha: 0),
-                        ],
-                        stops: const [0, 0.7],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          if (hero) const PCardHeroGlow(),
           content,
         ],
       );

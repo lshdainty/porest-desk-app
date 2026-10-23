@@ -1,0 +1,17 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// 줄바꿈 보호 글자(U+2060 · 쉼표 뒤 U+200B — keepAll · keepAllAmount)를 뺀 글.
+String plainOf(String s) => s.replaceAll('⁠', '').replaceAll('​', '');
+
+/// 보이지 않는 줄바꿈 글자를 빼고 글이 같은 [Text] — ds 금액 · 제목은 낱말 단위 줄바꿈 글자가 낀다.
+Finder findPlain(String s) => find.byWidgetPredicate(
+  (w) => w is Text && w.data != null && plainOf(w.data!) == s,
+  description: 'Text "$s"',
+);
+
+/// 줄바꿈 글자를 빼고 [part] 를 포함하는 [Text].
+Finder findPlainContaining(String part) => find.byWidgetPredicate(
+  (w) => w is Text && w.data != null && plainOf(w.data!).contains(part),
+  description: 'Text containing "$part"',
+);

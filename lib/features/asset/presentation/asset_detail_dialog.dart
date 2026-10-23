@@ -1390,6 +1390,7 @@ class _RecentExpenses extends StatelessWidget {
           // 가진다(A3). 여기서 따로 그리면 그 표시가 이 화면에서만 빠진다.
           for (final e in entries[gi].value)
             ExpenseRow(
+              gutter: 0,
               expense: e,
               category: null,
               flags: flags,
@@ -3015,6 +3016,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                         children: [
                           for (final e in list)
                             ExpenseRow(
+                              gutter: 0,
                               expense: e,
                               category: null,
                               flags: flags,

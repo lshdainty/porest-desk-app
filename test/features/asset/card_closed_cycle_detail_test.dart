@@ -23,6 +23,7 @@ import 'package:groo_damda_app/features/card/domain/card_performance.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import '../../support/plain_text.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 const _card = Asset(
@@ -466,12 +467,12 @@ void main() {
 
       expect(find.text('환불됨'), findsOneWidget);
       expect(find.text('기록만'), findsOneWidget);
-      final refunded = tester.widget<Text>(find.text('−11,000원'));
+      final refunded = tester.widget<Text>(findPlain('−11,000원'));
       expect(refunded.style?.decoration, TextDecoration.lineThrough);
       // 할부는 보조 줄에 개월 수를 붙인다 — 회차 청구와 행 금액이 왜 다른지.
       expect(find.textContaining('할부 3개월'), findsOneWidget);
       // 환불만 있는 날(8/10)은 일 합계가 없다 — 환불은 합계에서 빠진다.
-      expect(find.text('−11,000원'), findsOneWidget, reason: '행 금액 하나뿐');
+      expect(findPlain('−11,000원'), findsOneWidget, reason: '행 금액 하나뿐');
     });
   });
 

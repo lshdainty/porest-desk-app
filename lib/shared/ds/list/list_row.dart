@@ -219,6 +219,9 @@ class PListRowFrame extends StatefulWidget {
     this.detail,
     this.detailChild,
     this.titleColor,
+    this.titleSuffix,
+    this.titleStrike = false,
+    this.gutter,
     this.prefix,
     this.suffix,
     this.highlighted = false,
@@ -243,6 +246,16 @@ class PListRowFrame extends StatefulWidget {
 
   /// 제목 색을 덮는다 — 합계에 안 드는 줄(예정 · 환불)의 `fg-neutral-subtle`. 막힌 줄은 비활성 색이 이긴다.
   final Color? titleColor;
+
+  /// 제목 글 바로 뒤에 이어 붙는 배지들 — 제목과 함께 줄을 바꾼다(거래 줄의 예정 · 환불 · 고정 배지). 읽는 이름은 제목 글 + 배지 글.
+  final List<Widget>? titleSuffix;
+
+  /// 제목에 취소선 — 완료한 할 일.
+  final bool titleStrike;
+
+  /// **임시 인자** — 줄 좌우 여백 기본 24(list.md). 호스트가 아직 좌우 24 를 쥐고 있을 때만 0 을 준다(글자 자리가 24 로 같게).
+  /// 호스트가 바깥 24 를 걷을 때 함께 걷는다 — 가계부 I-07 4 · 검색 I-08 08-3 · 자산 상세 · 거래 상세(지시서 아직 없음).
+  final double? gutter;
   final Widget? prefix;
   final Widget? suffix;
   final bool highlighted;
@@ -557,15 +570,44 @@ class _PListRowFrameState extends State<PListRowFrame> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: PSpacing.x0_5,
           children: [
-            Text(
-              keepAll(widget.title),
-              key: const ValueKey('plist-title'),
-              semanticsLabel: widget.title,
-              style: PTypography.t5.copyWith(
-                color: titleColor,
-                fontWeight: FontWeight.w400,
+            if (widget.titleSuffix == null || widget.titleSuffix!.isEmpty)
+              Text(
+                keepAll(widget.title),
+                key: const ValueKey('plist-title'),
+                semanticsLabel: widget.title,
+                style: PTypography.t5.copyWith(
+                  color: titleColor,
+                  fontWeight: FontWeight.w400,
+                  decoration: widget.titleStrike
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
+              )
+            else
+              Text.rich(
+                key: const ValueKey('plist-title'),
+                TextSpan(
+                  children: [
+                    TextSpan(text: keepAll(widget.title)),
+                    // 제목 ↔ 배지 6(Card 머리 덧붙임과 같은 값)
+                    for (final b in widget.titleSuffix!)
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: PSpacing.x1_5),
+                          child: b,
+                        ),
+                      ),
+                  ],
+                ),
+                style: PTypography.t5.copyWith(
+                  color: titleColor,
+                  fontWeight: FontWeight.w400,
+                  decoration: widget.titleStrike
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
               ),
-            ),
             if (detail != null)
               Text(
                 keepAll(detail),
@@ -596,7 +638,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
     }
 
     final start = switch (nest) {
-      PListNest.none => PSpacing.globalGutter,
+      PListNest.none => widget.gutter ?? PSpacing.globalGutter,
       PListNest.parent => PSpacing.x1,
       PListNest.child => kPListChildStart,
     };
@@ -607,7 +649,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
     Widget row = Padding(
       padding: EdgeInsetsDirectional.only(
         start: start,
-        end: PSpacing.globalGutter,
+        end: widget.gutter ?? PSpacing.globalGutter,
         top: PSpacing.x3,
         bottom: PSpacing.x3,
       ),

@@ -22,6 +22,7 @@ import 'package:groo_damda_app/features/expense/application/expense_providers.da
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import '../../support/plain_text.dart';
 
 /// 이번 달 1일 (`_DashboardScreenState._ymdStart` 와 같은 규칙).
 String _monthStart() {
@@ -85,36 +86,36 @@ void main() {
     await _pumpHome(tester);
 
     // 옛 코드는 `sign: '-'` 를 무조건 붙여 `-0` 을 냈다.
-    expect(find.text('-0'), findsNothing);
-    expect(find.text('−0'), findsNothing);
+    expect(findPlain('-0원'), findsNothing);
+    expect(findPlain('−0원'), findsNothing);
     // 총자산·총부채·지출 모두 부호 없는 '0'.
-    expect(find.text('0'), findsWidgets);
+    expect(findPlain('0원'), findsWidgets);
   });
 
   testWidgets('부채가 있으면 U+2212 로 찍는다 — ASCII 하이픈이 아니다', (tester) async {
     await _pumpHome(tester, totalAssets: 1000000, totalDebt: 356800);
 
-    expect(find.text('−356,800'), findsOneWidget);
-    expect(find.text('-356,800'), findsNothing);
+    expect(findPlain('−356,800원'), findsOneWidget);
+    expect(findPlain('-356,800원'), findsNothing);
   });
 
   testWidgets('선결제로 총 부채가 음수면 부호를 겹치지 않고 `+` 로 뒤집는다', (tester) async {
     // desk-back #305 이후 `totalDebt = −Σ부채군` 이라 선결제한 카드가 부채를 깎는다.
     await _pumpHome(tester, totalAssets: 1000000, totalDebt: -356800);
 
-    expect(find.text('+356,800'), findsOneWidget);
+    expect(findPlain('+356,800원'), findsOneWidget);
     // 옛 코드는 부호 글자와 값의 부호가 겹쳐 `--356,800` 을 냈다.
-    expect(find.text('--356,800'), findsNothing);
-    expect(find.text('−-356,800'), findsNothing);
+    expect(findPlain('--356,800원'), findsNothing);
+    expect(findPlain('−-356,800원'), findsNothing);
   });
 
   testWidgets('이번 달 지출도 같은 규칙 — 값이 있으면 U+2212', (tester) async {
     await _pumpHome(tester, income: 2000000, expense: 123456);
 
-    expect(find.text('−123,456'), findsOneWidget);
-    expect(find.text('-123,456'), findsNothing);
+    expect(findPlain('−123,456원'), findsOneWidget);
+    expect(findPlain('-123,456원'), findsNothing);
     // 수입은 웹과 같이 늘 `+`.
-    expect(find.text('+2,000,000'), findsOneWidget);
+    expect(findPlain('+2,000,000원'), findsOneWidget);
   });
 
   testWidgets('오늘 쓴 돈 합계도 U+2212 로 찍는다', (tester) async {
@@ -134,8 +135,8 @@ void main() {
 
     // 카드 헤더 합계와 행 금액 — 같은 카드 안 두 자리가 같은 기호를 쓴다
     // (QA #22 는 한 카드에서 `−`/`-` 가 섞여 정렬이 어긋난 걸 잡았다).
-    expect(find.text('−7,560원'), findsNWidgets(2));
-    expect(find.text('-7,560원'), findsNothing);
+    expect(findPlain('−7,560원'), findsNWidgets(2));
+    expect(findPlain('-7,560원'), findsNothing);
   });
 
   // 환불한 거래·카드 이월은 행으로는 보이되(환불은 취소선) 오늘 쓴 돈 합계에는 안 든다
@@ -169,9 +170,9 @@ void main() {
     );
 
     // 헤더 합계 −7,560원 + 그 행 하나. 10,560·507,560 이면 빠뜨린 것이다.
-    expect(find.text('−7,560원'), findsNWidgets(2));
-    expect(find.text('−10,560원'), findsNothing);
-    expect(find.text('−510,560원'), findsNothing);
+    expect(findPlain('−7,560원'), findsNWidgets(2));
+    expect(findPlain('−10,560원'), findsNothing);
+    expect(findPlain('−510,560원'), findsNothing);
   });
 }
 

@@ -127,6 +127,12 @@ final Map<String, ChartPair> _kBaseHexToPair = {
   for (final p in kChartPairs) p.baseHex.toLowerCase(): p,
 };
 
+/// 저장된 hex 가 차트 10색 기본 hex 면 그 색 이름(`blue` …), 아니면 null — 이름표만 읽는다(v110).
+String? chartKeyOfHex(String? raw) {
+  if (raw == null || raw.trim().isEmpty) return null;
+  return _kBaseHexToPair[raw.trim().toLowerCase()]?.key;
+}
+
 /// base/light hex 둘 다 → ChartPair (Color 역조회용).
 final Map<int, ChartPair> _kArgbToPair = {
   for (final p in kChartPairs) ...{p.base.toARGB32(): p, p.light.toARGB32(): p},

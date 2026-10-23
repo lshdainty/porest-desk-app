@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/storage/prefs_provider.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_alert.dart';
@@ -115,8 +116,14 @@ class _SmsClipboardBannerState extends ConsumerState<SmsClipboardBanner>
     if (_changeCount == null) return const SizedBox.shrink();
     final l = AppLocalizations.of(context);
 
+    // 회색 바닥 위에 서는 줄 — 보일 때만 위 8 · 아래 8 · 좌우 24(홈 띠 사이 틈과 같은 값, I-06 6)
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(
+        PSpacing.x6,
+        PSpacing.x2,
+        PSpacing.x6,
+        PSpacing.x2,
+      ),
       child: PAlert(
         title: l.smsClipboardBannerTitle,
         description: l.smsClipboardBannerDesc,

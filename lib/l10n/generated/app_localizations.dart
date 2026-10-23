@@ -1496,12 +1496,6 @@ abstract class AppLocalizations {
   /// **'계좌 상세'**
   String get assetAccountDetail;
 
-  /// No description provided for @assetShowAmount.
-  ///
-  /// In ko, this message translates to:
-  /// **'금액 표시'**
-  String get assetShowAmount;
-
   /// No description provided for @assetHideAmount.
   ///
   /// In ko, this message translates to:
@@ -3353,7 +3347,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashOverdue.
   ///
   /// In ko, this message translates to:
-  /// **'연체 {count}'**
+  /// **'연체 {count}건'**
   String dashOverdue(int count);
 
   /// No description provided for @dashTrendTitle.
@@ -3361,12 +3355,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'최근 6개월'**
   String get dashTrendTitle;
-
-  /// No description provided for @dashSeeMore.
-  ///
-  /// In ko, this message translates to:
-  /// **'자세히'**
-  String get dashSeeMore;
 
   /// No description provided for @dashEmptyTransactions.
   ///
@@ -3410,12 +3398,6 @@ abstract class AppLocalizations {
   /// **'D-{n}'**
   String dashDaysLeft(int n);
 
-  /// No description provided for @dashHideAmount.
-  ///
-  /// In ko, this message translates to:
-  /// **'금액 숨김'**
-  String get dashHideAmount;
-
   /// No description provided for @dashVsLastMonth.
   ///
   /// In ko, this message translates to:
@@ -3433,12 +3415,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{month}월 가계부'**
   String dashMonthLedger(int month);
-
-  /// No description provided for @dashMonthTxError.
-  ///
-  /// In ko, this message translates to:
-  /// **'이번달 거래를 불러오지 못했습니다'**
-  String get dashMonthTxError;
 
   /// No description provided for @dashDailyAvgPrefix.
   ///
@@ -3485,7 +3461,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashNoCategoryData.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리 데이터가 없어요'**
+  /// **'이번 달 지출이 없어요'**
   String get dashNoCategoryData;
 
   /// No description provided for @dashNoBudget.
@@ -3500,17 +3476,113 @@ abstract class AppLocalizations {
   /// **'오늘 쓴 돈'**
   String get dashTodaySpend;
 
-  /// No description provided for @dashTxError.
-  ///
-  /// In ko, this message translates to:
-  /// **'거래를 불러오지 못했습니다'**
-  String get dashTxError;
-
   /// No description provided for @dashNoTodaySpend.
   ///
   /// In ko, this message translates to:
   /// **'오늘은 아직 쓴 돈이 없어요'**
   String get dashNoTodaySpend;
+
+  /// No description provided for @dashViewAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 보기'**
+  String get dashViewAll;
+
+  /// No description provided for @dashHideAmountsSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 가리기 설정'**
+  String get dashHideAmountsSettings;
+
+  /// No description provided for @dashNoLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달 기록 없음'**
+  String get dashNoLastMonth;
+
+  /// No description provided for @dashBudgetOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 예산'**
+  String dashBudgetOf(String name);
+
+  /// No description provided for @dashBudgetTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 예산'**
+  String get dashBudgetTotal;
+
+  /// No description provided for @dashCategoryChartLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 카테고리별 지출, 합계 {total}'**
+  String dashCategoryChartLabel(int month, String total);
+
+  /// No description provided for @dashCategoryOthers.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get dashCategoryOthers;
+
+  /// No description provided for @dashTableShare.
+  ///
+  /// In ko, this message translates to:
+  /// **'비율'**
+  String get dashTableShare;
+
+  /// No description provided for @dashTableAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액'**
+  String get dashTableAmount;
+
+  /// No description provided for @dashFailNetWorth.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산을 불러오지 못했어요'**
+  String get dashFailNetWorth;
+
+  /// No description provided for @dashFailMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 가계부를 불러오지 못했어요'**
+  String get dashFailMonth;
+
+  /// No description provided for @dashFailCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리를 불러오지 못했어요'**
+  String get dashFailCategory;
+
+  /// No description provided for @dashFailBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산을 불러오지 못했어요'**
+  String get dashFailBudget;
+
+  /// No description provided for @dashFailUpcoming.
+  ///
+  /// In ko, this message translates to:
+  /// **'다가오는 일정을 불러오지 못했어요'**
+  String get dashFailUpcoming;
+
+  /// No description provided for @dashFailTodos.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 할 일을 불러오지 못했어요'**
+  String get dashFailTodos;
+
+  /// No description provided for @dashFailToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 쓴 돈을 불러오지 못했어요'**
+  String get dashFailToday;
+
+  /// No description provided for @dashFailDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤 다시 시도해주세요.'**
+  String get dashFailDesc;
 
   /// No description provided for @expTitle.
   ///

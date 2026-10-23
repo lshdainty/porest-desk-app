@@ -23,6 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/dio_provider.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import '../support/plain_text.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
@@ -328,13 +329,13 @@ void main() {
           ),
         ],
       );
-      expect(find.text('점심값'), findsWidgets);
+      expect(findPlain('점심값'), findsWidgets);
 
       final container = _containerOf(tester, find.byType(MaterialApp));
       await _refetch(tester, container, assetBalanceTrendProvider);
       await _refetch(tester, container, expensesByAssetProvider);
 
-      expect(find.text('점심값'), findsWidgets);
+      expect(findPlain('점심값'), findsWidgets);
       expect(find.byType(PSkeleton), findsNothing);
     });
   });

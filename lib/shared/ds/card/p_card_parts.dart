@@ -203,6 +203,7 @@ class PCardHeader extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.headingLevel = 2,
+    this.titleSuffix,
   }) : assert(
          (actionLabel == null) == (onAction == null),
          '동작은 글(actionLabel)과 누를 때(onAction)를 함께 준다',
@@ -214,6 +215,10 @@ class PCardHeader extends StatelessWidget {
 
   /// 제목 단계(웹 `as` — 기본 2, 화면 제목 아래 단계)
   final int headingLevel;
+
+  /// 제목 글 바로 뒤 같은 줄에 붙는 덧붙임(배지 · 합계) — 제목 `Semantics(header)` 밖에 둔다(제목 이름에 섞이지 않게).
+  /// 제목 칸이 좁으면 제목과 함께 다음 줄로 넘어간다(I-06 10 — 화면 몫, 스펙의 "제목 하나" 는 제목 글을 말한다).
+  final Widget? titleSuffix;
 
   @override
   Widget build(BuildContext context) {
@@ -237,6 +242,10 @@ class PCardHeader extends StatelessWidget {
         fontWeight: FontWeight.w700,
       ),
     );
+    final titleNode = scope?.titleNamedByCard == true
+        // 카드 링크가 이 제목을 이름으로 갖는다 — 같은 글을 두 번 읽지 않는다
+        ? ExcludeSemantics(child: titleText)
+        : Semantics(header: true, headingLevel: headingLevel, child: titleText);
     return Padding(
       key: const ValueKey('card-header'),
       padding: padding,
@@ -244,13 +253,13 @@ class PCardHeader extends StatelessWidget {
       child: PHeaderRow(
         gap: PSpacing.x2,
         actionBleed: kTextButtonPaddingX,
-        title: scope?.titleNamedByCard == true
-            // 카드 링크가 이 제목을 이름으로 갖는다 — 같은 글을 두 번 읽지 않는다
-            ? ExcludeSemantics(child: titleText)
-            : Semantics(
-                header: true,
-                headingLevel: headingLevel,
-                child: titleText,
+        title: titleSuffix == null
+            ? titleNode
+            : Wrap(
+                key: const ValueKey('card-title-wrap'),
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: PSpacing.x1_5,
+                children: [titleNode, titleSuffix!],
               ),
         action: actionLabel == null
             ? null

@@ -1354,6 +1354,7 @@ class _DayGroup extends ConsumerWidget {
                               : assets?.byRowId(e.assetRowId!),
                         ),
                         child: ExpenseRow(
+                          gutter: 0,
                           expense: e,
                           category: e.categoryRowId == null
                               ? null

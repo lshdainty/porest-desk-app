@@ -6,6 +6,9 @@ import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
+import 'package:groo_damda_app/shared/ds/list/list_row.dart'
+    show kPListStackBelowEm;
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// Chart 의 부품 — 차트 상자 · 툴팁 · 지표 타일 · 도넛 범례 · 표로 보기. 규칙은 p_chart.dart 머리 설명이다.
 
@@ -545,46 +548,82 @@ class _DonutRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final base = PTypography.t4;
+    final swatch = Container(
+      key: const ValueKey('chart-donut-swatch'),
+      width: PSpacing.x2_5,
+      height: PSpacing.x2_5,
+      decoration: BoxDecoration(
+        color: item.color.of(c),
+        borderRadius: BorderRadius.circular(PRounded.r0_5),
+      ),
+    );
+    final label = Text(
+      keepAll(item.label),
+      semanticsLabel: item.label,
+      key: const ValueKey('chart-donut-label'),
+      style: base.copyWith(color: c.fgNeutral),
+    );
+    final percent = Text(
+      item.percent,
+      key: const ValueKey('chart-donut-percent'),
+      style: base.copyWith(color: c.fgNeutralSubtle, fontFeatures: _tabular),
+    );
+    final amount = Text(
+      item.amount,
+      key: const ValueKey('chart-donut-amount'),
+      style: base.copyWith(
+        color: c.fgNeutral,
+        fontWeight: FontWeight.w700,
+        fontFeatures: _tabular,
+      ),
+    );
+    // 줄 안 폭이 글자 16개(16em)보다 좁으면(큰 글자) 이름이 한 글자 폭이 되지 않게 % · 금액을 이름 아래로 내린다
+    // (List "큰 글자에서 값을 본문 아래로" 와 같은 문턱 — I-06 20, 스펙 보강 질문)
+    final narrowBelow =
+        kPListStackBelowEm *
+        MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!);
     return ConstrainedBox(
       key: const ValueKey('chart-donut-row'),
       constraints: const BoxConstraints(minHeight: kChartDonutRowHeight),
-      child: Row(
-        spacing: PSpacing.x2,
-        children: [
-          Container(
-            key: const ValueKey('chart-donut-swatch'),
-            width: PSpacing.x2_5,
-            height: PSpacing.x2_5,
-            decoration: BoxDecoration(
-              color: item.color.of(c),
-              borderRadius: BorderRadius.circular(PRounded.r0_5),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              item.label,
-              key: const ValueKey('chart-donut-label'),
-              style: base.copyWith(color: c.fgNeutral),
-            ),
-          ),
-          Text(
-            item.percent,
-            key: const ValueKey('chart-donut-percent'),
-            style: base.copyWith(
-              color: c.fgNeutralSubtle,
-              fontFeatures: _tabular,
-            ),
-          ),
-          Text(
-            item.amount,
-            key: const ValueKey('chart-donut-amount'),
-            style: base.copyWith(
-              color: c.fgNeutral,
-              fontWeight: FontWeight.w700,
-              fontFeatures: _tabular,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < narrowBelow) {
+            return Padding(
+              // 줄 위아래는 List 줄과 같은 12, 네모는 첫 글줄 가운데
+              padding: const EdgeInsets.symmetric(vertical: PSpacing.x3),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: PSpacing.x2,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: (base.fontSize! * base.height! - PSpacing.x2_5) / 2,
+                    ),
+                    child: swatch,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        label,
+                        Wrap(spacing: PSpacing.x2, children: [percent, amount]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return Row(
+            spacing: PSpacing.x2,
+            children: [
+              swatch,
+              Expanded(child: label),
+              percent,
+              amount,
+            ],
+          );
+        },
       ),
     );
   }
