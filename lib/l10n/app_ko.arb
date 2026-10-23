@@ -36,7 +36,7 @@
   "stateNoData": "데이터가 없습니다",
   "stateError": "오류가 발생했습니다",
   "stateEmpty": "표시할 항목이 없어요",
-  "nameTooLong": "이름은 {max}자 이내로 입력해 주세요.",
+  "nameTooLong": "이름은 {max}자 이내로 입력해주세요.",
   "@nameTooLong": {
     "description": "이름 길이 상한 안내 — 계좌 별칭·저축목표·프리셋·참여자가 공유한다",
     "placeholders": {
@@ -92,7 +92,7 @@
   "assetTitle": "자산 관리",
   "assetSummaryTotalBalance": "총 자산",
   "assetEmpty": "등록된 자산이 없습니다",
-  "assetCreateFirst": "첫 번째 자산을 등록해 보세요",
+  "assetCreateFirst": "첫 번째 자산을 등록해보세요",
   "assetAdd": "자산 추가",
   "assetEdit": "자산 수정",
   "assetTransferAdd": "이체 추가",
@@ -244,8 +244,8 @@
       }
     }
   },
-  "assetOverdraftHint": "지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.",
-  "assetLoanHint": "아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.",
+  "assetOverdraftHint": "지금 마이너스로 쓰고 있는 금액을 적어주세요. 통장에 돈이 남아 있으면 입출금으로 골라주세요.",
+  "assetLoanHint": "아직 갚지 않은 금액을 적어주세요. 부호는 앱이 알아서 붙여요.",
   "assetCurrency": "통화",
   "assetExchangeRate": "환율",
   "assetExchangeRateHint": "{code} 1당 원화",
@@ -321,7 +321,7 @@
       }
     }
   },
-  "assetCurrentUsageHint": "아직 결제되지 않은 사용액을 적어 주세요.",
+  "assetCurrentUsageHint": "아직 결제되지 않은 사용액을 적어주세요.",
   "assetOutstandingNow": "지금 미결제 잔액 {amount}",
   "@assetOutstandingNow": {
     "placeholders": {
@@ -853,7 +853,7 @@
   "assetStatusSkipped": "건너뜀",
   "todoTitle": "할 일",
   "todoEmpty": "할 일이 없습니다",
-  "todoCreateFirst": "첫 번째 할 일을 만들어 보세요",
+  "todoCreateFirst": "첫 번째 할 일을 만들어보세요",
   "todoQuickAddHint": "+ 빠른 할 일 추가",
   "todoStatusAll": "전체",
   "todoStatusCompleted": "완료",
@@ -1563,8 +1563,8 @@
   },
   "categoryAdd": "카테고리 추가",
   "categoryEdit": "카테고리 편집",
-  "categoryNameRequired": "이름을 입력해 주세요.",
-  "categoryNameTooLong": "이름은 12자 이내로 입력해 주세요.",
+  "categoryNameRequired": "이름을 입력해주세요.",
+  "categoryNameTooLong": "이름은 12자 이내로 입력해주세요.",
   "categoryNameDuplicate": "같은 위치에 같은 이름의 카테고리가 있습니다.",
   "categoryParent": "상위 카테고리",
   "categoryBudgetExceedTitle": "예산 초과 확인",
@@ -1585,7 +1585,7 @@
   "categoryActionFailed": "실패",
   "categoryDeleteTitle": "카테고리 삭제",
   "categoryDeleteBlockedTitle": "삭제 불가",
-  "categoryDeleteHasChildren": "\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.",
+  "categoryDeleteHasChildren": "\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해주세요.",
   "@categoryDeleteHasChildren": {
     "placeholders": {
       "name": {
@@ -1621,7 +1621,7 @@
   },
   "categoryTypeLabel": "구분",
   "categoryOptionalSuffix": " (선택)",
-  "categoryParentMoveHint": "다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨 주세요.",
+  "categoryParentMoveHint": "다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.",
   "categoryMakeRoot": "— 최상위 카테고리로 두기 —",
   "categoryNamePlaceholder": "예: 반려동물, 부수입",
   "categoryIconLabel": "아이콘",
@@ -1632,8 +1632,8 @@
   "authLoginExpired": "로그인 시간이 지났어요. 다시 로그인해주세요.",
   "authLoginError": "로그인을 처리하지 못했어요.",
   "authSecurityNotHttps": "로그인 서버와 안전하게 연결되지 않았어요.",
-  "authStateMismatch": "보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.",
-  "authNoAuthCode": "인가코드를 받지 못했어요. 다시 시도해 주세요.",
+  "authStateMismatch": "보안 검증에 실패했어요 (state 불일치). 다시 시도해주세요.",
+  "authNoAuthCode": "인가코드를 받지 못했어요. 다시 시도해주세요.",
   "authPageLoadError": "로그인 페이지를 불러오지 못했어요.",
   "dutchTitle": "더치페이",
   "dutchCreate": "정산 만들기",
@@ -2268,7 +2268,7 @@
   "accountLoginHistory": "로그인 기록",
   "accountLast30Days": "최근 30일",
   "devicesTitle": "로그인된 기기",
-  "devicesIntro": "이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해 주세요.",
+  "devicesIntro": "이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해주세요.",
   "devicesCurrent": "현재 기기",
   "devicesUnknown": "알 수 없는 기기",
   "devicesLastUsed": "마지막 사용 {when}",
@@ -2377,9 +2377,9 @@
   "withdrawIrreversibleTitle": "되돌릴 수 없어요",
   "withdrawIrreversibleRejoin": "같은 아이디와 이메일로는 다시 가입할 수 없어요.",
   "withdrawIrreversibleData": "해지한 뒤에는 기록을 다시 볼 수 없어요.",
-  "withdrawDataRetention": "가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내 주세요.",
+  "withdrawDataRetention": "가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내주세요.",
   "withdrawReasonLabel": "떠나시는 이유 (선택)",
-  "withdrawReasonPlaceholder": "알려 주시면 다음에 더 낫게 만들게요",
+  "withdrawReasonPlaceholder": "알려주시면 다음에 더 낫게 만들게요",
   "withdrawNext": "계속",
   "withdrawConfirm": "해지하기",
   "withdrawReauthIntro": "본인이 맞는지 한 번만 더 확인할게요.",
@@ -2390,8 +2390,8 @@
   "withdrawSendCode": "코드 받기",
   "withdrawResendCode": "다시 받기",
   "withdrawCodeSent": "메일로 코드를 보냈어요",
-  "withdrawCodeHint": "메일함에 코드가 안 보이면 스팸함도 확인해 주세요.",
-  "withdrawFailed": "해지하지 못했어요. 잠시 뒤 다시 시도해 주세요",
+  "withdrawCodeHint": "메일함에 코드가 안 보이면 스팸함도 확인해주세요.",
+  "withdrawFailed": "해지하지 못했어요. 잠시 뒤 다시 시도해주세요",
   "withdrawBlockedSubscription": "구독이 남아 있어 아직 해지할 수 없어요",
   "withdrawBlockedSubscriptionUntil": "구독이 {date} 까지 남아 있어 아직 해지할 수 없어요",
   "@withdrawBlockedSubscriptionUntil": {
@@ -2967,7 +2967,7 @@
   "stocksMarketClosed": "장마감",
   "stocksMarketKr": "국내",
   "stocksMarketUs": "미국",
-  "stocksConnectPrompt": "증권 계정을 연결해 주세요",
+  "stocksConnectPrompt": "증권 계정을 연결해주세요",
   "stocksConnectDescRealtime": "토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.",
   "stocksConnectInSettings": "설정에서 연결하기",
   "stocksConnectDesc": "토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.",
@@ -4018,9 +4018,9 @@
   "smsPasteAction": "문자 읽기",
   "smsPasteFromClipboard": "클립보드에서 붙여넣기",
   "smsClipboardEmpty": "클립보드에 텍스트가 없어요",
-  "smsNotRecognized": "결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해 주세요.",
-  "smsCancelNotice": "취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해 주세요.",
-  "smsLowConfidence": "일부 항목을 읽지 못했어요. 확인하고 채워 주세요.",
+  "smsNotRecognized": "결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해주세요.",
+  "smsCancelNotice": "취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해주세요.",
+  "smsLowConfidence": "일부 항목을 읽지 못했어요. 확인하고 채워주세요.",
   "smsRememberCard": "이 카드를 기억해서 다음부터 자동으로 연결하기",
   "moreItemSmsPaste": "결제 문자로 기록",
   "moreDescSmsPaste": "카드 결제 문자를 붙여넣어 지출 추가",
@@ -4107,7 +4107,7 @@
   "brokerToss": "토스증권",
   "brokerNamu": "나무증권",
   "stocksBrokerUnsupported": "앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.",
-  "namuSearchPrompt": "종목명이나 코드를 두 글자 이상 입력해 보세요",
+  "namuSearchPrompt": "종목명이나 코드를 두 글자 이상 입력해보세요",
   "namuScopeNotice": "지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.",
   "namuPriceError": "현재가를 불러오지 못했어요",
   "namuPriceEmpty": "현재가가 없는 종목이에요",
@@ -4156,7 +4156,7 @@
   "expClosedCycleLine": "이미 결제가 끝난 회차예요. 기록만 바뀌고 계좌 잔액은 그대로예요.",
   "expClosedCyclePartLine": "지난 회차분은 기록만 남아요.",
   "expFixBalance": "잔액 고치기",
-  "expMoneyLockedNote": "결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요",
+  "expMoneyLockedNote": "결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러주세요",
   "expMoneyLockedPaidOffNote": "결제가 끝난 거래예요. 중도 정리한 할부라 금액·날짜를 바꿀 수 없어요.",
   "expRewrite": "고쳐 쓰기",
   "expRewriteConfirmLead": "원래 거래는 지워지고 새 거래로 바뀌어요.",
@@ -4194,7 +4194,7 @@
       }
     }
   },
-  "assetPaymentDayMissing": "결제일을 넣어 주세요",
+  "assetPaymentDayMissing": "결제일을 넣어주세요",
   "dsProgressCircleLabel": "불러오는 중",
   "@dsProgressCircleLabel": {
     "description": "로딩 원(Progress Circle)의 기본 이름 — 스크린 리더가 읽는다. 기다리는 일을 알면 그 이름을 넘긴다(영수증 사진 올리는 중)"
@@ -4447,7 +4447,7 @@
   "dsDatePresetThisYear": "올해",
   "calMemberMore": "{name} 더보기",
   "@calMemberMore": {"description": "캘린더 공유 멤버 줄 ⋮ 버튼의 이름", "placeholders": {"name": {"type": "String"}}},
-  "apiErrorServer": "요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+  "apiErrorServer": "요청을 처리하지 못했어요. 잠시 뒤 다시 시도해주세요.",
   "dsInfiniteListError": "더 불러오지 못했어요.",
   "@dsInfiniteListError": {"description": "목록 끝(Infinite List)에서 다음 쪽을 못 받았을 때 글 — 이미 받은 줄은 그대로 두고 다시 시도 버튼이 붙는다"},
   "dsInfiniteListEnd": "모두 봤어요.",
@@ -4462,5 +4462,5 @@
   "@cardListLoadFailed": {"description": "카드 혜택 목록 첫 쪽을 못 불러왔을 때 Result Section 제목 — 예외 · 서버 글을 붙이지 않는다"},
   "cardListEnd": "카드를 모두 봤어요.",
   "@cardListEnd": {"description": "카드 혜택 목록 끝 자리의 끝 글(Infinite List) — 한 쪽이 넘게 받았을 때만"},
-  "apiErrorNetwork": "네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요."
+  "apiErrorNetwork": "네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요."
 }

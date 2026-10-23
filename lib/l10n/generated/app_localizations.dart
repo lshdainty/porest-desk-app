@@ -299,7 +299,7 @@ abstract class AppLocalizations {
   /// 이름 길이 상한 안내 — 계좌 별칭·저축목표·프리셋·참여자가 공유한다
   ///
   /// In ko, this message translates to:
-  /// **'이름은 {max}자 이내로 입력해 주세요.'**
+  /// **'이름은 {max}자 이내로 입력해주세요.'**
   String nameTooLong(int max);
 
   /// No description provided for @languageKorean.
@@ -581,7 +581,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCreateFirst.
   ///
   /// In ko, this message translates to:
-  /// **'첫 번째 자산을 등록해 보세요'**
+  /// **'첫 번째 자산을 등록해보세요'**
   String get assetCreateFirst;
 
   /// No description provided for @assetAdd.
@@ -989,13 +989,13 @@ abstract class AppLocalizations {
   /// No description provided for @assetOverdraftHint.
   ///
   /// In ko, this message translates to:
-  /// **'지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.'**
+  /// **'지금 마이너스로 쓰고 있는 금액을 적어주세요. 통장에 돈이 남아 있으면 입출금으로 골라주세요.'**
   String get assetOverdraftHint;
 
   /// No description provided for @assetLoanHint.
   ///
   /// In ko, this message translates to:
-  /// **'아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.'**
+  /// **'아직 갚지 않은 금액을 적어주세요. 부호는 앱이 알아서 붙여요.'**
   String get assetLoanHint;
 
   /// No description provided for @assetCurrency.
@@ -1241,7 +1241,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCurrentUsageHint.
   ///
   /// In ko, this message translates to:
-  /// **'아직 결제되지 않은 사용액을 적어 주세요.'**
+  /// **'아직 결제되지 않은 사용액을 적어주세요.'**
   String get assetCurrentUsageHint;
 
   /// No description provided for @assetOutstandingNow.
@@ -2537,7 +2537,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoCreateFirst.
   ///
   /// In ko, this message translates to:
-  /// **'첫 번째 할 일을 만들어 보세요'**
+  /// **'첫 번째 할 일을 만들어보세요'**
   String get todoCreateFirst;
 
   /// No description provided for @todoQuickAddHint.
@@ -4691,13 +4691,13 @@ abstract class AppLocalizations {
   /// No description provided for @categoryNameRequired.
   ///
   /// In ko, this message translates to:
-  /// **'이름을 입력해 주세요.'**
+  /// **'이름을 입력해주세요.'**
   String get categoryNameRequired;
 
   /// No description provided for @categoryNameTooLong.
   ///
   /// In ko, this message translates to:
-  /// **'이름은 12자 이내로 입력해 주세요.'**
+  /// **'이름은 12자 이내로 입력해주세요.'**
   String get categoryNameTooLong;
 
   /// No description provided for @categoryNameDuplicate.
@@ -4763,7 +4763,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryDeleteHasChildren.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.'**
+  /// **'\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해주세요.'**
   String categoryDeleteHasChildren(String name);
 
   /// No description provided for @categoryDeleteWithBudget.
@@ -4811,7 +4811,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryParentMoveHint.
   ///
   /// In ko, this message translates to:
-  /// **'다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨 주세요.'**
+  /// **'다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.'**
   String get categoryParentMoveHint;
 
   /// No description provided for @categoryMakeRoot.
@@ -4877,13 +4877,13 @@ abstract class AppLocalizations {
   /// No description provided for @authStateMismatch.
   ///
   /// In ko, this message translates to:
-  /// **'보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.'**
+  /// **'보안 검증에 실패했어요 (state 불일치). 다시 시도해주세요.'**
   String get authStateMismatch;
 
   /// No description provided for @authNoAuthCode.
   ///
   /// In ko, this message translates to:
-  /// **'인가코드를 받지 못했어요. 다시 시도해 주세요.'**
+  /// **'인가코드를 받지 못했어요. 다시 시도해주세요.'**
   String get authNoAuthCode;
 
   /// No description provided for @authPageLoadError.
@@ -7223,7 +7223,7 @@ abstract class AppLocalizations {
   /// No description provided for @devicesIntro.
   ///
   /// In ko, this message translates to:
-  /// **'이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해 주세요.'**
+  /// **'이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해주세요.'**
   String get devicesIntro;
 
   /// No description provided for @devicesCurrent.
@@ -7457,7 +7457,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawDataRetention.
   ///
   /// In ko, this message translates to:
-  /// **'가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내 주세요.'**
+  /// **'가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내주세요.'**
   String get withdrawDataRetention;
 
   /// No description provided for @withdrawReasonLabel.
@@ -7469,7 +7469,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawReasonPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'알려 주시면 다음에 더 낫게 만들게요'**
+  /// **'알려주시면 다음에 더 낫게 만들게요'**
   String get withdrawReasonPlaceholder;
 
   /// No description provided for @withdrawNext.
@@ -7535,13 +7535,13 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawCodeHint.
   ///
   /// In ko, this message translates to:
-  /// **'메일함에 코드가 안 보이면 스팸함도 확인해 주세요.'**
+  /// **'메일함에 코드가 안 보이면 스팸함도 확인해주세요.'**
   String get withdrawCodeHint;
 
   /// No description provided for @withdrawFailed.
   ///
   /// In ko, this message translates to:
-  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해 주세요'**
+  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해주세요'**
   String get withdrawFailed;
 
   /// No description provided for @withdrawBlockedSubscription.
@@ -9431,7 +9431,7 @@ abstract class AppLocalizations {
   /// No description provided for @stocksConnectPrompt.
   ///
   /// In ko, this message translates to:
-  /// **'증권 계정을 연결해 주세요'**
+  /// **'증권 계정을 연결해주세요'**
   String get stocksConnectPrompt;
 
   /// No description provided for @stocksConnectDescRealtime.
@@ -11879,19 +11879,19 @@ abstract class AppLocalizations {
   /// No description provided for @smsNotRecognized.
   ///
   /// In ko, this message translates to:
-  /// **'결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해 주세요.'**
+  /// **'결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해주세요.'**
   String get smsNotRecognized;
 
   /// No description provided for @smsCancelNotice.
   ///
   /// In ko, this message translates to:
-  /// **'취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해 주세요.'**
+  /// **'취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해주세요.'**
   String get smsCancelNotice;
 
   /// No description provided for @smsLowConfidence.
   ///
   /// In ko, this message translates to:
-  /// **'일부 항목을 읽지 못했어요. 확인하고 채워 주세요.'**
+  /// **'일부 항목을 읽지 못했어요. 확인하고 채워주세요.'**
   String get smsLowConfidence;
 
   /// No description provided for @smsRememberCard.
@@ -12161,7 +12161,7 @@ abstract class AppLocalizations {
   /// No description provided for @namuSearchPrompt.
   ///
   /// In ko, this message translates to:
-  /// **'종목명이나 코드를 두 글자 이상 입력해 보세요'**
+  /// **'종목명이나 코드를 두 글자 이상 입력해보세요'**
   String get namuSearchPrompt;
 
   /// No description provided for @namuScopeNotice.
@@ -12329,7 +12329,7 @@ abstract class AppLocalizations {
   /// No description provided for @expMoneyLockedNote.
   ///
   /// In ko, this message translates to:
-  /// **'결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요'**
+  /// **'결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러주세요'**
   String get expMoneyLockedNote;
 
   /// No description provided for @expMoneyLockedPaidOffNote.
@@ -12395,7 +12395,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetPaymentDayMissing.
   ///
   /// In ko, this message translates to:
-  /// **'결제일을 넣어 주세요'**
+  /// **'결제일을 넣어주세요'**
   String get assetPaymentDayMissing;
 
   /// 로딩 원(Progress Circle)의 기본 이름 — 스크린 리더가 읽는다. 기다리는 일을 알면 그 이름을 넘긴다(영수증 사진 올리는 중)
@@ -13325,7 +13325,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiErrorServer.
   ///
   /// In ko, this message translates to:
-  /// **'요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.'**
+  /// **'요청을 처리하지 못했어요. 잠시 뒤 다시 시도해주세요.'**
   String get apiErrorServer;
 
   /// 목록 끝(Infinite List)에서 다음 쪽을 못 받았을 때 글 — 이미 받은 줄은 그대로 두고 다시 시도 버튼이 붙는다
@@ -13373,7 +13373,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiErrorNetwork.
   ///
   /// In ko, this message translates to:
-  /// **'네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.'**
+  /// **'네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.'**
   String get apiErrorNetwork;
 }
 

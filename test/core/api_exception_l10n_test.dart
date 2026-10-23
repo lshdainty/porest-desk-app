@@ -17,7 +17,7 @@ void main() {
     Intl.defaultLocale = 'ko';
     final net = ApiException.fromDio(_e());
     expect(net.code, 'NETWORK');
-    expect(net.message, '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.');
+    expect(net.message, '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.');
     final bad = ApiException.fromDio(
       _e(
         res: Response(
@@ -28,7 +28,7 @@ void main() {
       ),
     );
     expect(bad.code, 'HTTP_502');
-    expect(bad.message, '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+    expect(bad.message, '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해주세요.');
     expect(bad.message.contains('502'), isFalse, reason: '코드를 문장에 섞지 않는다');
     final json = ApiException.fromDio(
       _e(

@@ -109,7 +109,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String nameTooLong(int max) {
-    return '이름은 $max자 이내로 입력해 주세요.';
+    return '이름은 $max자 이내로 입력해주세요.';
   }
 
   @override
@@ -253,7 +253,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetEmpty => '등록된 자산이 없습니다';
 
   @override
-  String get assetCreateFirst => '첫 번째 자산을 등록해 보세요';
+  String get assetCreateFirst => '첫 번째 자산을 등록해보세요';
 
   @override
   String get assetAdd => '자산 추가';
@@ -483,10 +483,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetOverdraftHint =>
-      '지금 마이너스로 쓰고 있는 금액을 적어 주세요. 통장에 돈이 남아 있으면 입출금으로 골라 주세요.';
+      '지금 마이너스로 쓰고 있는 금액을 적어주세요. 통장에 돈이 남아 있으면 입출금으로 골라주세요.';
 
   @override
-  String get assetLoanHint => '아직 갚지 않은 금액을 적어 주세요. 부호는 앱이 알아서 붙여요.';
+  String get assetLoanHint => '아직 갚지 않은 금액을 적어주세요. 부호는 앱이 알아서 붙여요.';
 
   @override
   String get assetCurrency => '통화';
@@ -620,7 +620,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetCurrentUsageHint => '아직 결제되지 않은 사용액을 적어 주세요.';
+  String get assetCurrentUsageHint => '아직 결제되지 않은 사용액을 적어주세요.';
 
   @override
   String assetOutstandingNow(String amount) {
@@ -1353,7 +1353,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoEmpty => '할 일이 없습니다';
 
   @override
-  String get todoCreateFirst => '첫 번째 할 일을 만들어 보세요';
+  String get todoCreateFirst => '첫 번째 할 일을 만들어보세요';
 
   @override
   String get todoQuickAddHint => '+ 빠른 할 일 추가';
@@ -2531,10 +2531,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryEdit => '카테고리 편집';
 
   @override
-  String get categoryNameRequired => '이름을 입력해 주세요.';
+  String get categoryNameRequired => '이름을 입력해주세요.';
 
   @override
-  String get categoryNameTooLong => '이름은 12자 이내로 입력해 주세요.';
+  String get categoryNameTooLong => '이름은 12자 이내로 입력해주세요.';
 
   @override
   String get categoryNameDuplicate => '같은 위치에 같은 이름의 카테고리가 있습니다.';
@@ -2570,7 +2570,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String categoryDeleteHasChildren(String name) {
-    return '\"$name\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.';
+    return '\"$name\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해주세요.';
   }
 
   @override
@@ -2602,7 +2602,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get categoryParentMoveHint =>
-      '다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨 주세요.';
+      '다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
 
   @override
   String get categoryMakeRoot => '— 최상위 카테고리로 두기 —';
@@ -2635,10 +2635,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authSecurityNotHttps => '로그인 서버와 안전하게 연결되지 않았어요.';
 
   @override
-  String get authStateMismatch => '보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.';
+  String get authStateMismatch => '보안 검증에 실패했어요 (state 불일치). 다시 시도해주세요.';
 
   @override
-  String get authNoAuthCode => '인가코드를 받지 못했어요. 다시 시도해 주세요.';
+  String get authNoAuthCode => '인가코드를 받지 못했어요. 다시 시도해주세요.';
 
   @override
   String get authPageLoadError => '로그인 페이지를 불러오지 못했어요.';
@@ -3879,7 +3879,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get devicesTitle => '로그인된 기기';
 
   @override
-  String get devicesIntro => '이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해 주세요.';
+  String get devicesIntro => '이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해주세요.';
 
   @override
   String get devicesCurrent => '현재 기기';
@@ -4018,13 +4018,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get withdrawDataRetention =>
-      '가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내 주세요.';
+      '가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내주세요.';
 
   @override
   String get withdrawReasonLabel => '떠나시는 이유 (선택)';
 
   @override
-  String get withdrawReasonPlaceholder => '알려 주시면 다음에 더 낫게 만들게요';
+  String get withdrawReasonPlaceholder => '알려주시면 다음에 더 낫게 만들게요';
 
   @override
   String get withdrawNext => '계속';
@@ -4057,10 +4057,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawCodeSent => '메일로 코드를 보냈어요';
 
   @override
-  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해 주세요.';
+  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해주세요.';
 
   @override
-  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해 주세요';
+  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해주세요';
 
   @override
   String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요';
@@ -5080,7 +5080,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksMarketUs => '미국';
 
   @override
-  String get stocksConnectPrompt => '증권 계정을 연결해 주세요';
+  String get stocksConnectPrompt => '증권 계정을 연결해주세요';
 
   @override
   String get stocksConnectDescRealtime =>
@@ -6483,14 +6483,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsClipboardEmpty => '클립보드에 텍스트가 없어요';
 
   @override
-  String get smsNotRecognized => '결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해 주세요.';
+  String get smsNotRecognized => '결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해주세요.';
 
   @override
   String get smsCancelNotice =>
-      '취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해 주세요.';
+      '취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해주세요.';
 
   @override
-  String get smsLowConfidence => '일부 항목을 읽지 못했어요. 확인하고 채워 주세요.';
+  String get smsLowConfidence => '일부 항목을 읽지 못했어요. 확인하고 채워주세요.';
 
   @override
   String get smsRememberCard => '이 카드를 기억해서 다음부터 자동으로 연결하기';
@@ -6644,7 +6644,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksBrokerUnsupported => '앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.';
 
   @override
-  String get namuSearchPrompt => '종목명이나 코드를 두 글자 이상 입력해 보세요';
+  String get namuSearchPrompt => '종목명이나 코드를 두 글자 이상 입력해보세요';
 
   @override
   String get namuScopeNotice =>
@@ -6735,7 +6735,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFixBalance => '잔액 고치기';
 
   @override
-  String get expMoneyLockedNote => '결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러 주세요';
+  String get expMoneyLockedNote => '결제가 끝난 거래예요. 금액·날짜를 바꾸려면 고쳐 쓰기를 눌러주세요';
 
   @override
   String get expMoneyLockedPaidOffNote =>
@@ -6775,7 +6775,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetPaymentDayMissing => '결제일을 넣어 주세요';
+  String get assetPaymentDayMissing => '결제일을 넣어주세요';
 
   @override
   String get dsProgressCircleLabel => '불러오는 중';
@@ -7300,7 +7300,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get apiErrorServer => '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
+  String get apiErrorServer => '요청을 처리하지 못했어요. 잠시 뒤 다시 시도해주세요.';
 
   @override
   String get dsInfiniteListError => '더 불러오지 못했어요.';
@@ -7324,5 +7324,5 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cardListEnd => '카드를 모두 봤어요.';
 
   @override
-  String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.';
+  String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.';
 }

@@ -6,7 +6,7 @@
 //   ③ 닫힌 회차의 할부 회차분 한 줄("2/3회차 · 원금 … · 기록만"), 정리 버튼 없음
 //   ④ [결제 취소] 는 닫힌 회차·환급 나간 회차의 결제면 숨는다(D6)
 //   ⑤ 이용 내역 행이 가계부와 같은 행 — "환불됨"·"기록만" 배지·취소선(A3)
-//   ⑥ 결제일 없는 카드는 "결제일을 넣어 주세요"(D8)
+//   ⑥ 결제일 없는 카드는 "결제일을 넣어주세요"(D8)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -488,6 +488,6 @@ void main() {
       billing: const CardBilling(cardAssetRowId: 9, upcomingAmount: 125000),
     );
 
-    expect(find.text('결제일을 넣어 주세요'), findsOneWidget);
+    expect(find.text('결제일을 넣어주세요'), findsOneWidget);
   });
 }
