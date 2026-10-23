@@ -2973,7 +2973,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dutchCreated => '정산이 만들어졌어요';
 
   @override
-  String get expLoadError => '거래를 불러오지 못했습니다';
+  String get expLoadError => '거래를 불러오지 못했어요';
 
   @override
   String get expEmptyMonth => '이 달에는 거래가 없습니다';
@@ -3241,7 +3241,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expEndDate => '종료일';
 
   @override
-  String get expDateRangeError => '시작일이 종료일보다 늦을 수 없습니다.';
+  String get expDateRangeError => '시작일이 종료일보다 늦을 수 없어요.';
 
   @override
   String get expTxType => '거래 종류';
@@ -7008,10 +7008,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFilterMatchHint => '조건이 두 개 이상일 때 고를 수 있어요.';
 
   @override
-  String get expFilterAddPeriod => '+ 기간 추가';
+  String get expFilterAddPeriod => '기간 추가';
 
   @override
-  String get expFilterAddAmountRange => '+ 구간 추가';
+  String get expFilterAddAmountRange => '구간 추가';
 
   @override
   String get expFilterPeriodAlwaysAnd => '기간은 항상 함께 적용돼요.';
@@ -7638,4 +7638,41 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String get txmCalendarToggle => '월 달력';
+
+  @override
+  String get expFilteredEmpty => '조건에 맞는 거래가 없어요';
+
+  @override
+  String get expFilteredEmptyDesc => '조건을 바꾸거나 지워 보세요.';
+
+  @override
+  String get expFilterMatchAllDesc => '걸린 조건을 모두 만족하는 거래만';
+
+  @override
+  String get expFilterMatchAnyDesc => '걸린 조건 중 하나라도 만족하면';
+
+  @override
+  String get expFilterModeInclude => '고른 것만';
+
+  @override
+  String get expFilterModeExclude => '고른 것 빼고';
+
+  @override
+  String get expFilterPeriodPick => '기간 선택';
+
+  @override
+  String expFilterClearOne(String name) {
+    return '$name 지우기';
+  }
+
+  @override
+  String expFilterMoreCount(String first, int count) {
+    return '$first 외 $count개';
+  }
+
+  @override
+  String get expFilterNoCategory => '카테고리가 없어요';
 }
