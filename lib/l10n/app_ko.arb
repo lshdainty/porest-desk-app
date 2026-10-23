@@ -1591,6 +1591,7 @@
     }
   },
   "categoryAdd": "카테고리 추가",
+  "categoryAddAction": "추가",
   "categoryEdit": "카테고리 편집",
   "categoryNameRequired": "이름을 입력해주세요.",
   "categoryNameTooLong": "이름은 12자 이내로 입력해주세요.",

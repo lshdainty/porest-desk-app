@@ -2604,6 +2604,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryAdd => 'Add category';
 
   @override
+  String get categoryAddAction => 'Add';
+
+  @override
   String get categoryEdit => 'Edit category';
 
   @override

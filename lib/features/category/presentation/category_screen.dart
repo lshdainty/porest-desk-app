@@ -12,7 +12,7 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
@@ -53,6 +53,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
       if (mounted) ref.invalidate(categoriesProvider);
     });
   }
+
+  // 순서 편집 토글 — 디자인 m-subhead__action-btn('편집'↔'완료'). 머리 오른쪽은 "추가" 가 쓴다.
+  Widget _reorderToggle(AppLocalizations l) => PButton(
+    label: _editMode ? l.actionDone : l.categoryReorderEdit,
+    variant: PButtonVariant.ghost,
+    size: PButtonSize.sm,
+    onPressed: () => setState(() {
+      _editMode = !_editMode;
+      // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
+      if (_editMode) _query = '';
+    }),
+  );
 
   void _toggleCollapse(int parentRowId) {
     setState(() {
@@ -106,47 +118,43 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.categoryManageTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-        actions: [
-          // 순서 편집 토글 — 디자인 m-subhead__action-btn('편집'↔'완료').
-          Padding(
-            padding: const EdgeInsets.only(right: PSpace.x8),
-            child: PButton(
-              label: _editMode ? l.actionDone : l.categoryReorderEdit,
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.sm,
-              onPressed: () => setState(() {
-                _editMode = !_editMode;
-                // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
-                if (_editMode) _query = '';
-              }),
+      // 머리 = ds 상단 바(← + 제목 + 글 버튼 "추가") — 높이 56, 스크롤해도 선이 없다(I-16 14 · 15)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.categoryManageTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+          actions: [
+            PTopNavigationTextButton(
+              label: l.categoryAddAction,
+              onPressed: () => showCategoryEditDialog(
+                context,
+                defaultExpenseType: _kindValues[_tabIndex],
+              ),
             ),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(40),
-          child: PTabs<int>(
-            items: [
-              for (int i = 0; i < _kindValues.length; i++)
-                PTabItem(value: i, label: tabLabel(i)),
-            ],
-            value: _tabIndex,
-            onChanged: (v) => setState(() => _tabIndex = v),
-            variant: PTabsVariant.underline,
-            expand: true,
-          ),
+          ],
         ),
       ),
       body: PScreenBandBody(
         child: Column(
           children: [
+            // 탭(지출 · 수입) — 머리 밖, 본문 맨 위로(I-16 15 · 모양은 그대로, 본문 배치는 I-20 B 4)
+            SizedBox(
+              height: 40,
+              child: PTabs<int>(
+                items: [
+                  for (int i = 0; i < _kindValues.length; i++)
+                    PTabItem(value: i, label: tabLabel(i)),
+                ],
+                value: _tabIndex,
+                onChanged: (v) => setState(() => _tabIndex = v),
+                variant: PTabsVariant.underline,
+                expand: true,
+              ),
+            ),
             // 편집 모드: 검색·추가 대신 드래그 안내문(디자인 editMode) / 평시: 검색 + 추가 row.
             if (_editMode)
               Padding(
@@ -156,15 +164,22 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   PSpace.x24,
                   0,
                 ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    l.categoryReorderHint,
-                    style: PTypo.caption.copyWith(
-                      color: t.fgTertiary,
-                      height: 1.5,
+                // 순서 편집 토글 — "추가" 가 머리로 올라간 자리. 목록 제목의 "순서 바꾸기"
+                // (I-20 B 5)가 들어오기 전까지 임시로 본문에 둔다.
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l.categoryReorderHint,
+                        style: PTypo.caption.copyWith(
+                          color: t.fgTertiary,
+                          height: 1.5,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: PSpace.x8),
+                    _reorderToggle(l),
+                  ],
                 ),
               )
             else
@@ -185,16 +200,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                       ),
                     ),
                     const SizedBox(width: PSpace.x8),
-                    PButton(
-                      label: l.calAdd,
-                      icon: LucideIcons.plus,
-                      variant: PButtonVariant.accent,
-                      size: PButtonSize.sm,
-                      onPressed: () => showCategoryEditDialog(
-                        context,
-                        defaultExpenseType: _kindValues[_tabIndex],
-                      ),
-                    ),
+                    _reorderToggle(l),
                   ],
                 ),
               ),

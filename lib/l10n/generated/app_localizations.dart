@@ -4754,6 +4754,12 @@ abstract class AppLocalizations {
   /// **'카테고리 추가'**
   String get categoryAdd;
 
+  /// No description provided for @categoryAddAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get categoryAddAction;
+
   /// No description provided for @categoryEdit.
   ///
   /// In ko, this message translates to:

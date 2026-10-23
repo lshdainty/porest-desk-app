@@ -2568,6 +2568,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryAdd => '카테고리 추가';
 
   @override
+  String get categoryAddAction => '추가';
+
+  @override
   String get categoryEdit => '카테고리 편집';
 
   @override

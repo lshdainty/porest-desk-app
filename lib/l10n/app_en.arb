@@ -1587,6 +1587,7 @@
     }
   },
   "categoryAdd": "Add category",
+  "categoryAddAction": "Add",
   "categoryEdit": "Edit category",
   "categoryNameRequired": "Please enter a name.",
   "categoryNameTooLong": "Name must be 12 characters or fewer.",
