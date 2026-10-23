@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 한도 · 목표.
 enum PProgressMeaning {
@@ -86,18 +87,19 @@ class PProgress extends StatelessWidget {
       children: [
         // 이름 줄 — 막대가 같은 말을 읽으므로 보조 기술에는 숨긴다
         ExcludeSemantics(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          // 이름 · 오른쪽 글 — 한 줄에 들면 양 끝, 오른쪽 글이 길면(큰 글자 · 큰 "초과" 금액) 아래 줄로 내려
+          // 이름이 한 글자 폭이 되지 않는다(I-06 22 — 스펙 보강 질문)
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             spacing: PSpacing.x2,
+            runSpacing: PSpacing.x0_5,
             children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: PTypography.t4.copyWith(
-                    color: c.fgNeutral,
-                    fontWeight: FontWeight.w500,
-                  ),
+              Text(
+                label,
+                style: PTypography.t4.copyWith(
+                  color: c.fgNeutral,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
@@ -130,7 +132,8 @@ class PProgress extends StatelessWidget {
         ),
         ExcludeSemantics(
           child: Text(
-            '${format(m.current)} / ${format(max)}',
+            // 쉼표 뒤 · " / " 뒤에서만 줄이 바뀐다(I-06 22 — 금액은 낱말 안에서 끊지 않는다)
+            keepAllAmount('${format(m.current)} / ${format(max)}'),
             style: PTypography.t2.copyWith(
               fontFeatures: tabular,
               color: c.fgNeutralSubtle,

@@ -109,6 +109,9 @@ abstract class PListItemBase extends StatelessWidget {
     this.titleColor,
     this.highlighted = false,
     this.align = PListAlign.center,
+    this.titleSuffix,
+    this.titleStrike = false,
+    this.gutter,
   }) : assert(
          detail == null || detailChild == null,
          '설명은 글(detail)이나 위젯(detailChild) 하나만 준다',
@@ -131,6 +134,15 @@ abstract class PListItemBase extends StatelessWidget {
 
   /// 맞춤 — 기본 가운데. 제목이 두 줄을 넘거나 설명이 길면 위. 한 목록 안에서는 줄마다 섞지 않는다.
   final PListAlign align;
+
+  /// 제목 글 뒤에 이어 붙는 배지들(제목과 함께 줄을 바꾼다).
+  final List<Widget>? titleSuffix;
+
+  /// 제목 취소선(완료한 할 일).
+  final bool titleStrike;
+
+  /// 줄 좌우 여백(기본 24) — 좌우 24 를 쥔 옛 호스트 안에서만 0.
+  final double? gutter;
 }
 
 /// 보기만 하는 줄 — 누르지 않는다(눌림 · 포커스가 없다). 키-값 · 안내 줄.
@@ -143,6 +155,9 @@ class PListItem extends PListItemBase {
     super.titleColor,
     super.highlighted,
     super.align,
+    super.titleSuffix,
+    super.titleStrike,
+    super.gutter,
     this.prefix,
     this.suffix,
   });
@@ -159,6 +174,9 @@ class PListItem extends PListItemBase {
     detail: detail,
     detailChild: detailChild,
     titleColor: titleColor,
+    titleSuffix: titleSuffix,
+    titleStrike: titleStrike,
+    gutter: gutter,
     prefix: prefix,
     suffix: suffix,
     highlighted: highlighted,
@@ -180,6 +198,9 @@ class PListButtonItem extends PListItemBase {
     super.titleColor,
     super.highlighted,
     super.align,
+    super.titleSuffix,
+    super.titleStrike,
+    super.gutter,
     this.prefix,
     this.suffix,
     this.focusNode,
@@ -196,6 +217,9 @@ class PListButtonItem extends PListItemBase {
     detail: detail,
     detailChild: detailChild,
     titleColor: titleColor,
+    titleSuffix: titleSuffix,
+    titleStrike: titleStrike,
+    gutter: gutter,
     prefix: prefix,
     suffix: suffix,
     highlighted: highlighted,
