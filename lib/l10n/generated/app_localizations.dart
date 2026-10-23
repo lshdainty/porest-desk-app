@@ -4454,12 +4454,6 @@ abstract class AppLocalizations {
   /// **'마일리지'**
   String get cardBenefitTypeMileage;
 
-  /// No description provided for @cardManageTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 관리'**
-  String get cardManageTitle;
-
   /// No description provided for @cardBenefitsTitle.
   ///
   /// In ko, this message translates to:
@@ -4472,24 +4466,6 @@ abstract class AppLocalizations {
   /// **'카드 선택'**
   String get cardSelectTitle;
 
-  /// No description provided for @cardBenefitMappingTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 혜택 매핑'**
-  String get cardBenefitMappingTitle;
-
-  /// No description provided for @cardBenefitMappingTooltip.
-  ///
-  /// In ko, this message translates to:
-  /// **'혜택 매핑'**
-  String get cardBenefitMappingTooltip;
-
-  /// No description provided for @cardSearchHintName.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드명 검색'**
-  String get cardSearchHintName;
-
   /// No description provided for @cardSearchHintFull.
   ///
   /// In ko, this message translates to:
@@ -4501,12 +4477,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'카드명 / 회사 검색'**
   String get cardSearchHintNameCompany;
-
-  /// No description provided for @cardLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 로드 실패'**
-  String get cardLoadError;
 
   /// No description provided for @cardDetailLoadError.
   ///
@@ -4531,12 +4501,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'삭제 실패'**
   String get cardDeleteFailed;
-
-  /// No description provided for @cardMappingLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'매핑 로드 실패'**
-  String get cardMappingLoadError;
 
   /// No description provided for @cardLastMonthPerf.
   ///
@@ -4573,18 +4537,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'유의사항'**
   String get cardCautions;
-
-  /// No description provided for @cardCautionDetailsFallback.
-  ///
-  /// In ko, this message translates to:
-  /// **'세부 사항'**
-  String get cardCautionDetailsFallback;
-
-  /// No description provided for @cardBenefits.
-  ///
-  /// In ko, this message translates to:
-  /// **'혜택'**
-  String get cardBenefits;
 
   /// No description provided for @cardNone.
   ///
@@ -4652,54 +4604,6 @@ abstract class AppLocalizations {
   /// **'남은 {amount}'**
   String cardPerfRemaining(String amount);
 
-  /// No description provided for @cardMappingNew.
-  ///
-  /// In ko, this message translates to:
-  /// **'새 매핑'**
-  String get cardMappingNew;
-
-  /// No description provided for @cardMappingNewDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 혜택 카테고리(예: 카페, 주유)를 가계부 카테고리와 연결하면 거래 입력 시 자동 추천에 활용됩니다.'**
-  String get cardMappingNewDesc;
-
-  /// No description provided for @cardMappingBenefitPlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'혜택 카테고리'**
-  String get cardMappingBenefitPlaceholder;
-
-  /// No description provided for @cardMappingCategoryPlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'가계부 카테고리'**
-  String get cardMappingCategoryPlaceholder;
-
-  /// No description provided for @cardMappingAdd.
-  ///
-  /// In ko, this message translates to:
-  /// **'매핑 추가'**
-  String get cardMappingAdd;
-
-  /// No description provided for @cardMappingRegistered.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 매핑'**
-  String get cardMappingRegistered;
-
-  /// No description provided for @cardMappingEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 매핑이 없습니다'**
-  String get cardMappingEmpty;
-
-  /// No description provided for @cardMappingDefault.
-  ///
-  /// In ko, this message translates to:
-  /// **'기본'**
-  String get cardMappingDefault;
-
   /// No description provided for @cardIncludeDiscontinued.
   ///
   /// In ko, this message translates to:
@@ -4711,12 +4615,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'총 {count}건'**
   String cardTotalCount(int count);
-
-  /// No description provided for @cardEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드가 없습니다'**
-  String get cardEmpty;
 
   /// No description provided for @cardNoResults.
   ///

@@ -11,7 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 const _alreadyMixed = <String>{
   'lib/features/asset/presentation/asset_screen.dart',
   'lib/features/budget/presentation/budget_screen.dart',
-  'lib/features/card/presentation/card_detail_screen.dart',
   'lib/features/dashboard/presentation/dashboard_screen.dart',
   'lib/features/stats/presentation/fixed_variable_tab.dart',
   'lib/features/stats/presentation/stats_screen.dart',

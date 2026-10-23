@@ -2396,31 +2396,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cardBenefitTypeMileage => '마일리지';
 
   @override
-  String get cardManageTitle => '카드 관리';
-
-  @override
   String get cardBenefitsTitle => '카드 혜택';
 
   @override
   String get cardSelectTitle => '카드 선택';
 
   @override
-  String get cardBenefitMappingTitle => '카드 혜택 매핑';
-
-  @override
-  String get cardBenefitMappingTooltip => '혜택 매핑';
-
-  @override
-  String get cardSearchHintName => '카드명 검색';
-
-  @override
   String get cardSearchHintFull => '카드명, 브랜드, 혜택으로 검색';
 
   @override
   String get cardSearchHintNameCompany => '카드명 / 회사 검색';
-
-  @override
-  String get cardLoadError => '카드 로드 실패';
 
   @override
   String get cardDetailLoadError => '카드 상세 로드 실패';
@@ -2433,9 +2418,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cardDeleteFailed => '삭제 실패';
-
-  @override
-  String get cardMappingLoadError => '매핑 로드 실패';
 
   @override
   String get cardLastMonthPerf => '전월 실적';
@@ -2456,12 +2438,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cardCautions => '유의사항';
-
-  @override
-  String get cardCautionDetailsFallback => '세부 사항';
-
-  @override
-  String get cardBenefits => '혜택';
 
   @override
   String get cardNone => '없음';
@@ -2509,40 +2485,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get cardMappingNew => '새 매핑';
-
-  @override
-  String get cardMappingNewDesc =>
-      '카드 혜택 카테고리(예: 카페, 주유)를 가계부 카테고리와 연결하면 거래 입력 시 자동 추천에 활용됩니다.';
-
-  @override
-  String get cardMappingBenefitPlaceholder => '혜택 카테고리';
-
-  @override
-  String get cardMappingCategoryPlaceholder => '가계부 카테고리';
-
-  @override
-  String get cardMappingAdd => '매핑 추가';
-
-  @override
-  String get cardMappingRegistered => '등록된 매핑';
-
-  @override
-  String get cardMappingEmpty => '등록된 매핑이 없습니다';
-
-  @override
-  String get cardMappingDefault => '기본';
-
-  @override
   String get cardIncludeDiscontinued => '단종 카드 포함';
 
   @override
   String cardTotalCount(int count) {
     return '총 $count건';
   }
-
-  @override
-  String get cardEmpty => '카드가 없습니다';
 
   @override
   String get cardNoResults => '결과가 없어요';
