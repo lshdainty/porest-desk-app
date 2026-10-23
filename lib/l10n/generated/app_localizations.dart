@@ -4937,13 +4937,13 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginPrompt.
   ///
   /// In ko, this message translates to:
-  /// **'SSO 계정으로 로그인하세요'**
+  /// **'그루 계정으로 로그인해주세요.'**
   String get authLoginPrompt;
 
   /// No description provided for @authSsoLogin.
   ///
   /// In ko, this message translates to:
-  /// **'SSO 로그인'**
+  /// **'그루 계정으로 로그인'**
   String get authSsoLogin;
 
   /// No description provided for @authLoginTitle.
@@ -4955,26 +4955,26 @@ abstract class AppLocalizations {
   /// No description provided for @authLoginFailed.
   ///
   /// In ko, this message translates to:
-  /// **'로그인 실패'**
+  /// **'로그인하지 못했어요.'**
   String get authLoginFailed;
 
   /// No description provided for @authLoginExpired.
   ///
   /// In ko, this message translates to:
-  /// **'로그인 시간이 지났어요. 다시 로그인해 주세요.'**
+  /// **'로그인 시간이 지났어요. 다시 로그인해주세요.'**
   String get authLoginExpired;
 
   /// No description provided for @authLoginError.
   ///
   /// In ko, this message translates to:
-  /// **'로그인 처리 중 오류'**
+  /// **'로그인을 처리하지 못했어요.'**
   String get authLoginError;
 
   /// No description provided for @authSecurityNotHttps.
   ///
   /// In ko, this message translates to:
-  /// **'보안 오류: SSO 서버가 HTTPS 가 아닙니다 ({url}).'**
-  String authSecurityNotHttps(String url);
+  /// **'로그인 서버와 안전하게 연결되지 않았어요.'**
+  String get authSecurityNotHttps;
 
   /// No description provided for @authStateMismatch.
   ///

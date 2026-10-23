@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/app/env.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -13,8 +10,9 @@ import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/core/auth/oauth_link_listener.dart';
 import 'package:groo_damda_app/core/auth/pkce.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_progress.dart';
+import 'package:groo_damda_app/shared/brand/groo_wordmark.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 
 /// SSO 로그인 화면 (OAuth 2.0 Authorization Code + PKCE, 시스템 브라우저 — RFC 8252).
 ///
@@ -35,7 +33,7 @@ import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 ///
 /// 원문(`ApiException.toString()`)을 그대로 띄우면 사용자에게
 /// `ApiException(AUTH_003, ...)` 같은 게 보인다. 아는 경우는 이름을 불러 주고,
-/// 나머지도 최소한 서버 메시지만 보여 준다. 화면 밖에 둔 이유는 테스트 때문이다 —
+/// 나머지는 서버 글을 붙이지 않고 "로그인하지 못했어요." 로 말한다. 화면 밖에 둔 이유는 테스트 때문이다 —
 /// 인라인 `switch` 는 로그인 화면을 통째로 띄우지 않으면 확인할 길이 없다.
 String loginErrorMessage(Object? e, AppLocalizations l) => switch (e) {
   // 해지한 계정은 "로그인 실패" 가 아니다 — 다시 눌러도 결과가 같다.
@@ -46,9 +44,8 @@ String loginErrorMessage(Object? e, AppLocalizations l) => switch (e) {
   // 딥링크 코드가 만료됐다 — 다시 누르면 된다. "실패" 라고만 하면 뭘 다시 해야
   // 하는지 알 수 없다.
   ApiException(code: 'AUTH_003') => l.authLoginExpired,
-  ApiException(message: final m) when m.isNotEmpty =>
-    '${l.authLoginFailed}: $m',
-  _ => '${l.authLoginFailed}: ${l.stateError}',
+  // 서버가 준 글은 붙이지 않는다 — 코드 · 영어가 그대로 보이던 자리다(Writing 오류).
+  _ => l.authLoginFailed,
 };
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -68,7 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     // 비-local 환경에서 SSO 가 HTTPS 가 아니면 거부 (자격증명 평문 전송/MITM 방지).
     final ssoOrigin = Uri.tryParse(Env.ssoUrl);
     if (Env.appEnv != 'local' && ssoOrigin?.scheme != 'https') {
-      setState(() => _error = l.authSecurityNotHttps(Env.ssoUrl));
+      setState(() => _error = l.authSecurityNotHttps);
       return;
     }
     setState(() {
@@ -111,27 +108,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // (교환 진행 상태는 authProvider 의 AsyncLoading 이 담당)
       if (!mounted) return;
       setState(() => _busy = false);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _error = '${l.authLoginFailed}: ${e.message}';
+        _error = l.authLoginFailed;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _error = '${l.authLoginError}: $e';
+        _error = l.authLoginError;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
-    // 교환은 딥링크 리스너에서 돈다 — 진행(AsyncLoading)은 버튼 스피너로,
-    // 실패(AsyncError)는 이 화면의 에러 라인으로 흘려보낸다.
+    // 교환은 딥링크 리스너에서 돈다 — 진행(AsyncLoading)은 버튼의 로딩으로,
+    // 실패(AsyncError)는 버튼 위 Callout 으로 흘려보낸다.
     final exchanging = ref.watch(authProvider).isLoading;
     ref.listen(authProvider, (prev, next) {
       if (next.hasError && mounted) {
@@ -143,112 +140,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
     return Scaffold(
-      backgroundColor: t.bgSurface,
+      // 셸 밖 화면은 흰 면 하나(Q11 11B)
+      backgroundColor: c.bgLayerDefault,
       body: SafeArea(
-        child: Stack(
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 마크는 타이틀 좌측 가로 배치(사용자 결정) — web 로그인 정합.
-                    // 마크 56 / gap 0 — 아이콘 확대·간격 축소(사용자 결정).
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const _BrandMark(size: 56),
-                        Text(
-                          '그루 담다',
-                          style: PTypo.displayMd.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    Text(
-                      l.authLoginPrompt,
-                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-                    ),
-                    const SizedBox(height: PSpace.x32),
-                    PButton(
-                      label: l.authSsoLogin,
-                      onPressed: (_busy || exchanging) ? null : _login,
-                      loading: _busy || exchanging,
-                      fullWidth: true,
-                      size: PButtonSize.lg,
-                    ),
-                    if (_error != null) ...[
-                      const SizedBox(height: PSpace.x16),
-                      Material(
-                        color: t.statusDangerSubtle,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(PRadius.md),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(PSpace.x12),
-                          child: Text(
-                            _error!,
-                            style: PTypo.bodySm.copyWith(
-                              color: t.statusDangerFg,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 마크 — 나무 56 + 8 + 이름(5A). 이름이 화면 제목이다(머리말 1단계).
+                const Center(child: GrooWordmark.horizontal(asHeading: true)),
+                const SizedBox(height: PSpacing.x2),
+                Text(
+                  l.authLoginPrompt,
+                  textAlign: TextAlign.center,
+                  style: PTypography.t5.copyWith(color: c.fgNeutralMuted),
                 ),
-              ),
+                const SizedBox(height: PSpacing.x8),
+                if (_error != null) ...[
+                  // 실패는 누른 자리 가까이 — 폼 맨 위 Callout(snackbar.md)
+                  PCallout(
+                    tone: PCalloutTone.critical,
+                    description: _error!,
+                    alert: true,
+                  ),
+                  const SizedBox(height: PSpacing.x4),
+                ],
+                PButton(
+                  label: l.authSsoLogin,
+                  onPressed: (_busy || exchanging) ? null : _login,
+                  loading: _busy || exchanging,
+                  size: PButtonSize.large,
+                ),
+              ],
             ),
-            if (_busy)
-              ColoredBox(
-                color: t.bgCanvas.withValues(alpha: 0.6),
-                child: Center(
-                  child: PCircularProgressIndicator(color: t.fgBrand),
-                ),
-              ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-/// 브랜드 마크 — web `groo-desk-mark.svg`(rect 4단 나무) 미러.
-/// 색은 web 로그인 마크(fg-brand: 라이트 primary / 다크 primary-light) 정합 — 다크에서 밝게.
-class _BrandMark extends StatelessWidget {
-  const _BrandMark({this.size = 64});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.tokens.fgBrand;
-    // svg viewBox 100 기준 좌표를 size 비율로 환산 (행높이 12, 간격 6, 꼬리 11×10).
-    Widget bar(double w, double h) => Container(
-      width: size * w / 100,
-      height: size * h / 100,
-      decoration: BoxDecoration(
-        color: c,
-        borderRadius: BorderRadius.circular(size * 6 / 100),
-      ),
-    );
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          bar(22, 12),
-          SizedBox(height: size * 6 / 100),
-          bar(40, 12),
-          SizedBox(height: size * 6 / 100),
-          bar(58, 12),
-          SizedBox(height: size * 6 / 100),
-          bar(11, 10),
-        ],
       ),
     );
   }

@@ -2703,28 +2703,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryIconLabel => 'Icon';
 
   @override
-  String get authLoginPrompt => 'Sign in with your SSO account';
+  String get authLoginPrompt => 'Sign in with your 그루 account.';
 
   @override
-  String get authSsoLogin => 'SSO login';
+  String get authSsoLogin => 'Sign in with 그루';
 
   @override
   String get authLoginTitle => 'Login';
 
   @override
-  String get authLoginFailed => 'Login failed';
+  String get authLoginFailed => 'Could not sign in.';
 
   @override
   String get authLoginExpired =>
       'Your sign-in timed out. Please sign in again.';
 
   @override
-  String get authLoginError => 'Error during login';
+  String get authLoginError => 'Could not complete sign-in.';
 
   @override
-  String authSecurityNotHttps(String url) {
-    return 'Security error: the SSO server is not HTTPS ($url).';
-  }
+  String get authSecurityNotHttps =>
+      'The connection to the sign-in server is not secure.';
 
   @override
   String get authStateMismatch =>

@@ -1642,20 +1642,13 @@
   "categoryMakeRoot": "— 최상위 카테고리로 두기 —",
   "categoryNamePlaceholder": "예: 반려동물, 부수입",
   "categoryIconLabel": "아이콘",
-  "authLoginPrompt": "SSO 계정으로 로그인하세요",
-  "authSsoLogin": "SSO 로그인",
+  "authLoginPrompt": "그루 계정으로 로그인해주세요.",
+  "authSsoLogin": "그루 계정으로 로그인",
   "authLoginTitle": "로그인",
-  "authLoginFailed": "로그인 실패",
-  "authLoginExpired": "로그인 시간이 지났어요. 다시 로그인해 주세요.",
-  "authLoginError": "로그인 처리 중 오류",
-  "authSecurityNotHttps": "보안 오류: SSO 서버가 HTTPS 가 아닙니다 ({url}).",
-  "@authSecurityNotHttps": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
+  "authLoginFailed": "로그인하지 못했어요.",
+  "authLoginExpired": "로그인 시간이 지났어요. 다시 로그인해주세요.",
+  "authLoginError": "로그인을 처리하지 못했어요.",
+  "authSecurityNotHttps": "로그인 서버와 안전하게 연결되지 않았어요.",
   "authStateMismatch": "보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.",
   "authNoAuthCode": "인가코드를 받지 못했어요. 다시 시도해 주세요.",
   "authPageLoadError": "로그인 페이지를 불러오지 못했어요.",

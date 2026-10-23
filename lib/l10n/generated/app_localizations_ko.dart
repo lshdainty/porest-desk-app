@@ -2666,27 +2666,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryIconLabel => '아이콘';
 
   @override
-  String get authLoginPrompt => 'SSO 계정으로 로그인하세요';
+  String get authLoginPrompt => '그루 계정으로 로그인해주세요.';
 
   @override
-  String get authSsoLogin => 'SSO 로그인';
+  String get authSsoLogin => '그루 계정으로 로그인';
 
   @override
   String get authLoginTitle => '로그인';
 
   @override
-  String get authLoginFailed => '로그인 실패';
+  String get authLoginFailed => '로그인하지 못했어요.';
 
   @override
-  String get authLoginExpired => '로그인 시간이 지났어요. 다시 로그인해 주세요.';
+  String get authLoginExpired => '로그인 시간이 지났어요. 다시 로그인해주세요.';
 
   @override
-  String get authLoginError => '로그인 처리 중 오류';
+  String get authLoginError => '로그인을 처리하지 못했어요.';
 
   @override
-  String authSecurityNotHttps(String url) {
-    return '보안 오류: SSO 서버가 HTTPS 가 아닙니다 ($url).';
-  }
+  String get authSecurityNotHttps => '로그인 서버와 안전하게 연결되지 않았어요.';
 
   @override
   String get authStateMismatch => '보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.';
