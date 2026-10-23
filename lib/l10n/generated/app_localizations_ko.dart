@@ -4162,15 +4162,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해주세요.';
 
   @override
-  String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요';
+  String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요.';
 
   @override
   String withdrawBlockedSubscriptionUntil(String date) {
-    return '구독이 $date까지 남아 있어 아직 해지할 수 없어요';
+    return '구독이 $date까지 남아 있어 아직 해지할 수 없어요.';
   }
 
   @override
-  String get withdrawBlockedOther => '아직 해지할 수 없는 상태예요';
+  String get withdrawBlockedOther => '아직 해지할 수 없는 상태예요.';
 
   @override
   String get withdrawBlockedHint => '구독을 먼저 해지하면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.';
@@ -6116,7 +6116,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importMapDesc => '파일의 열을 가계부 항목에 연결해요. 자동으로 찾은 값을 확인하고 바꿀 수 있어요.';
 
   @override
-  String get importNotMapped => '가져오지 않음';
+  String get importNotMapped => '— 가져오지 않음 —';
 
   @override
   String get importFieldSubcategory => '소분류';
@@ -6343,12 +6343,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawLoadFailedDescription => '잠시 뒤 다시 시도해주세요.';
 
   @override
-  String exportPreviewTotal(int types, int count) {
-    final intl.NumberFormat countNumberFormat =
+  String exportPreviewFooter(int rows, int types, int total) {
+    final intl.NumberFormat rowsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String rowsString = rowsNumberFormat.format(rows);
+    final intl.NumberFormat totalNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
+    final String totalString = totalNumberFormat.format(total);
 
-    return '선택한 $types종 합계 약 $countString건';
+    return '상위 $rowsString행 미리보기 · 선택한 $types종 합계 약 $totalString건';
   }
 
   @override

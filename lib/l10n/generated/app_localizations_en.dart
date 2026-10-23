@@ -4225,15 +4225,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get withdrawBlockedSubscription =>
-      'You still have an active subscription, so you cannot stop using 그루 담다 yet';
+      'You still have an active subscription, so you cannot stop using 그루 담다 yet.';
 
   @override
   String withdrawBlockedSubscriptionUntil(String date) {
-    return 'Your subscription runs until $date, so you cannot stop using 그루 담다 yet';
+    return 'Your subscription runs until $date, so you cannot stop using 그루 담다 yet.';
   }
 
   @override
-  String get withdrawBlockedOther => 'Your account cannot be stopped right now';
+  String get withdrawBlockedOther =>
+      'Your account cannot be stopped right now.';
 
   @override
   String get withdrawBlockedHint =>
@@ -6211,7 +6212,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connect file columns to ledger fields. Review auto-detected values and adjust.';
 
   @override
-  String get importNotMapped => 'Don\'t import';
+  String get importNotMapped => '— Don\'t import —';
 
   @override
   String get importFieldSubcategory => 'Subcategory';
@@ -6443,12 +6444,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawLoadFailedDescription => 'Please try again in a moment.';
 
   @override
-  String exportPreviewTotal(int types, int count) {
-    final intl.NumberFormat countNumberFormat =
+  String exportPreviewFooter(int rows, int types, int total) {
+    final intl.NumberFormat rowsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String rowsString = rowsNumberFormat.format(rows);
+    final intl.NumberFormat totalNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
+    final String totalString = totalNumberFormat.format(total);
 
-    return 'About $countString rows across $types selected types';
+    return 'Top $rowsString rows · $types selected types, about $totalString in total';
   }
 
   @override

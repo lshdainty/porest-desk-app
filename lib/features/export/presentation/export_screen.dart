@@ -724,7 +724,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           PResultSection(
             kind: PResultKind.empty,
             size: PResultSize.medium,
-            icon: LucideIcons.fileSearch,
+            icon: LucideIcons.fileText,
             title: l.exportPreviewEmptyTitle,
             description: l.exportEmpty,
           )
@@ -754,7 +754,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         Padding(
           padding: _gutter,
           child: Text(
-            '${l.exportPreviewRows(active.rows.length)} · ${l.exportPreviewTotal(tables.length, total)}',
+            l.exportPreviewFooter(active.rows.length, _selected.length, total),
             style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
           ),
         ),

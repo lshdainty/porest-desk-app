@@ -17,7 +17,6 @@ import 'package:groo_damda_app/features/import/data/import_repository.dart';
 import 'package:groo_damda_app/features/import/presentation/import_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_input.dart';
-import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
@@ -357,6 +356,13 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      // 바닥 글 = 한 키 · 선택한 종류 수(3) · 합계(표 totalCount 합 1)
+      expect(
+        find.text(_l.exportPreviewFooter(1, 3, 1)),
+        findsNothing,
+        reason: '빈 표 탭에서는 그 탭의 행 수(0)',
+      );
+      expect(find.text(_l.exportPreviewFooter(0, 3, 1)), findsOneWidget);
       final res = tester.widget<PResultSection>(find.byType(PResultSection));
       expect(res.kind, PResultKind.empty);
       expect(res.size, PResultSize.medium);

@@ -2478,8 +2478,8 @@
   "withdrawResendCode": "다시 받기",
   "withdrawCodeSent": "메일로 코드를 보냈어요.",
   "withdrawFailed": "해지하지 못했어요. 잠시 뒤 다시 시도해주세요.",
-  "withdrawBlockedSubscription": "구독이 남아 있어 아직 해지할 수 없어요",
-  "withdrawBlockedSubscriptionUntil": "구독이 {date}까지 남아 있어 아직 해지할 수 없어요",
+  "withdrawBlockedSubscription": "구독이 남아 있어 아직 해지할 수 없어요.",
+  "withdrawBlockedSubscriptionUntil": "구독이 {date}까지 남아 있어 아직 해지할 수 없어요.",
   "@withdrawBlockedSubscriptionUntil": {
     "placeholders": {
       "date": {
@@ -2487,7 +2487,7 @@
       }
     }
   },
-  "withdrawBlockedOther": "아직 해지할 수 없는 상태예요",
+  "withdrawBlockedOther": "아직 해지할 수 없는 상태예요.",
   "withdrawBlockedHint": "구독을 먼저 해지하면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.",
   "withdrawnTitle": "이용 해지가 끝났어요",
   "withdrawnBody": "그동안 그루 담다를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.",
@@ -3645,7 +3645,7 @@
   "importChange": "변경",
   "importMapTitle": "열 매핑",
   "importMapDesc": "파일의 열을 가계부 항목에 연결해요. 자동으로 찾은 값을 확인하고 바꿀 수 있어요.",
-  "importNotMapped": "가져오지 않음",
+  "importNotMapped": "— 가져오지 않음 —",
   "importFieldSubcategory": "소분류",
   "importFieldTime": "시간",
   "importFieldMerchant": "거래처",
@@ -3772,8 +3772,8 @@
   "withdrawCodeHint": "메일함에 코드가 안 보이면 스팸함도 확인해주세요.",
   "withdrawPasswordWrong": "비밀번호가 맞지 않아요. 다시 확인해주세요.",
   "withdrawLoadFailedDescription": "잠시 뒤 다시 시도해주세요.",
-  "exportPreviewTotal": "선택한 {types}종 합계 약 {count}건",
-  "@exportPreviewTotal": {"placeholders": {"types": {"type": "int"}, "count": {"type": "int", "format": "decimalPattern"}}},
+  "exportPreviewFooter": "상위 {rows}행 미리보기 · 선택한 {types}종 합계 약 {total}건",
+  "@exportPreviewFooter": {"placeholders": {"rows": {"type": "int", "format": "decimalPattern"}, "types": {"type": "int"}, "total": {"type": "int", "format": "decimalPattern"}}},
   "exportPreviewEmptyTitle": "미리볼 데이터가 없어요",
   "importCreatedCatTitle": "새로 만든 카테고리 {count}개",
   "@importCreatedCatTitle": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},

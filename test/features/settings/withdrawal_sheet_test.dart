@@ -39,18 +39,12 @@ class _Auth extends AuthNotifier {
 }
 
 class _Repo extends WithdrawalRepository {
-  _Repo({
-    this.check_,
-    this.verifyCode,
-    this.verifyPw,
-    this.sendFails = false,
-    this.failLoad = false,
-  }) : super(Dio());
+  _Repo({this.check_, this.verifyCode, this.verifyPw, this.failLoad = false})
+    : super(Dio());
   final Future<String> Function(String pw)? verifyPw;
   final bool failLoad;
   final WithdrawalCheck? check_;
   final Future<String> Function(String code)? verifyCode;
-  final bool sendFails;
   int sent = 0;
   int withdrawCalls = 0;
   Completer<void>? withdrawGate;
@@ -75,7 +69,6 @@ class _Repo extends WithdrawalRepository {
   @override
   Future<void> sendEmailCode() async {
     sent++;
-    if (sendFails) throw ApiException(code: 'X', message: '');
   }
 
   @override

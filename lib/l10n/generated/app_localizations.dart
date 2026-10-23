@@ -7703,19 +7703,19 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawBlockedSubscription.
   ///
   /// In ko, this message translates to:
-  /// **'구독이 남아 있어 아직 해지할 수 없어요'**
+  /// **'구독이 남아 있어 아직 해지할 수 없어요.'**
   String get withdrawBlockedSubscription;
 
   /// No description provided for @withdrawBlockedSubscriptionUntil.
   ///
   /// In ko, this message translates to:
-  /// **'구독이 {date}까지 남아 있어 아직 해지할 수 없어요'**
+  /// **'구독이 {date}까지 남아 있어 아직 해지할 수 없어요.'**
   String withdrawBlockedSubscriptionUntil(String date);
 
   /// No description provided for @withdrawBlockedOther.
   ///
   /// In ko, this message translates to:
-  /// **'아직 해지할 수 없는 상태예요'**
+  /// **'아직 해지할 수 없는 상태예요.'**
   String get withdrawBlockedOther;
 
   /// No description provided for @withdrawBlockedHint.
@@ -11267,7 +11267,7 @@ abstract class AppLocalizations {
   /// No description provided for @importNotMapped.
   ///
   /// In ko, this message translates to:
-  /// **'가져오지 않음'**
+  /// **'— 가져오지 않음 —'**
   String get importNotMapped;
 
   /// No description provided for @importFieldSubcategory.
@@ -11624,11 +11624,11 @@ abstract class AppLocalizations {
   /// **'잠시 뒤 다시 시도해주세요.'**
   String get withdrawLoadFailedDescription;
 
-  /// No description provided for @exportPreviewTotal.
+  /// No description provided for @exportPreviewFooter.
   ///
   /// In ko, this message translates to:
-  /// **'선택한 {types}종 합계 약 {count}건'**
-  String exportPreviewTotal(int types, int count);
+  /// **'상위 {rows}행 미리보기 · 선택한 {types}종 합계 약 {total}건'**
+  String exportPreviewFooter(int rows, int types, int total);
 
   /// No description provided for @exportPreviewEmptyTitle.
   ///
