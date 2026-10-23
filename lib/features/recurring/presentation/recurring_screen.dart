@@ -112,6 +112,14 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
             label: l.actionBack,
             onPressed: () => context.pop(),
           ),
+          // 글 버튼 "추가" — 빈 화면에서는 두지 않는다(빈 화면의 자기 버튼이 있다 · I-20 D 21). 불러오는 중 · 실패도 없음
+          actions: [
+            if (listAsync.value?.isNotEmpty ?? false)
+              PTopNavigationTextButton(
+                label: l.recurringAddAction,
+                onPressed: () => showRecurringSettingsDialog(context),
+              ),
+          ],
         ),
       ),
       body: PScreenBandBody(
