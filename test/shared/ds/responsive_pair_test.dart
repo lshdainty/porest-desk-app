@@ -69,4 +69,66 @@ void main() {
     expect(PResponsivePair.fitsInRow(312, 150, 100), isTrue);
     expect(PResponsivePair.fitsInRow(312, 155, 100), isFalse);
   });
+
+  test('3:7 몫 판정 — 보조 (폭 − 8) × 0.3 · 주 × 0.7', () {
+    // 312 − 8 = 304 → 보조 91.2 · 주 212.8
+    expect(
+      PResponsivePair.fitsInRow(312, 212, 91, primaryFlex: 7, secondaryFlex: 3),
+      isTrue,
+    );
+    expect(
+      PResponsivePair.fitsInRow(312, 213, 91, primaryFlex: 7, secondaryFlex: 3),
+      isFalse,
+    );
+    expect(
+      PResponsivePair.fitsInRow(312, 212, 92, primaryFlex: 7, secondaryFlex: 3),
+      isFalse,
+    );
+    // 기본 1:1 은 그대로
+    expect(PResponsivePair.fitsInRow(312, 152, 152), isTrue);
+    expect(PResponsivePair.fitsInRow(312, 153, 100), isFalse);
+  });
+
+  testWidgets('3:7 — 한 줄이면 폭이 3 : 7, 200% 에서는 쌓인다', (tester) async {
+    Widget host(double scale) => MaterialApp(
+      theme: GrooTheme.light(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('ko'),
+      home: MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+        child: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 312,
+              child: PResponsivePair(
+                secondaryFlex: 3,
+                primaryFlex: 7,
+                secondary: PButton(
+                  label: '취소',
+                  size: PButtonSize.large,
+                  variant: PButtonVariant.neutralWeak,
+                  onPressed: () {},
+                ),
+                primary: PButton(
+                  label: '설치',
+                  size: PButtonSize.large,
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(host(1));
+    expect(find.byKey(const ValueKey('pair-row')), findsOneWidget);
+    final a = tester.getSize(find.byType(PButton).first);
+    final b = tester.getSize(find.byType(PButton).last);
+    expect(a.width, closeTo(304 * 0.3, 0.01));
+    expect(b.width, closeTo(304 * 0.7, 0.01));
+    await tester.pumpWidget(host(2));
+    expect(find.byKey(const ValueKey('pair-column')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

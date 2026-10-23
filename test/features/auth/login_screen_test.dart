@@ -151,11 +151,25 @@ void main() {
     handle.dispose();
   });
 
-  // 글자 200% 에서는 ds Button 라벨(한 줄 고정, button.yaml)이 폭 360 에서 124 넘친다 — 부품 몫이라 결과표 질문으로 올렸다.
-  testWidgets('글자 130% · 폭 360 — 넘치지 않는다', (tester) async {
-    await _pump(tester, textScale: 1.3);
+  // 글자 200% · 폭 360 — ds Button 라벨은 한 줄 고정이라 버튼보다 넓어질 수 있다. 받아들이되 레이아웃 오류가
+  // 아니어야 하고 라벨은 잘리지 않고 그려진다(I-05 Q-021).
+  testWidgets('글자 200% · 폭 360 — 오류 없이 라벨이 한 줄로 다 그려진다', (tester) async {
+    await _pump(tester, textScale: 2);
     expect(tester.takeException(), isNull);
-    expect(find.text('그루 담다'), findsOneWidget);
+    final label = find.text('그루 계정으로 로그인');
+    expect(label, findsOneWidget);
+    expect(tester.getSize(label).height, lessThan(60), reason: '한 줄');
+    expect(
+      find.descendant(
+        of: find.byType(PButton),
+        matching: find.byType(ClipRect),
+      ),
+      findsNothing,
+      reason: '버튼 안에 잘림 없음',
+    );
+    // 버튼 밖(양옆)으로 그려진다 — 가운데 기준이라 화면 가장자리를 18px 넘는다(받아들인 대가, Q-021 C)
+    final r = tester.getRect(label);
+    expect(r.center.dx, closeTo(180, 1), reason: '가운데에서 양옆으로');
   });
 
   testWidgets('실패는 버튼 위 Callout(critical) — 서버 글을 붙이지 않는다', (tester) async {

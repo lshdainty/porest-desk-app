@@ -16,7 +16,14 @@ class PResponsivePair extends StatelessWidget {
     super.key,
     required this.primary,
     required this.secondary,
+    this.secondaryFlex = 1,
+    this.primaryFlex = 1,
   });
+
+  /// 한 줄일 때 보조 : 주 비율 — 기본 1:1(시트 · 확인창 바닥은 균등). 화면 바닥의 Dismiss + CTA 는 3:7(button.md).
+  /// 쌓임 판정은 각 라벨이 자기 몫(짝 폭 − 8)을 비율로 나눈 값을 넘는지다.
+  final int secondaryFlex;
+  final int primaryFlex;
 
   final PButton primary;
   final PButton secondary;
@@ -26,10 +33,14 @@ class PResponsivePair extends StatelessWidget {
   static bool fitsInRow(
     double pairWidth,
     double primaryWidth,
-    double secondaryWidth,
-  ) {
-    final half = (pairWidth - kResponsivePairGap) / 2;
-    return primaryWidth <= half && secondaryWidth <= half;
+    double secondaryWidth, {
+    int primaryFlex = 1,
+    int secondaryFlex = 1,
+  }) {
+    final room = pairWidth - kResponsivePairGap;
+    final total = primaryFlex + secondaryFlex;
+    return primaryWidth <= room * primaryFlex / total &&
+        secondaryWidth <= room * secondaryFlex / total;
   }
 
   @override
@@ -40,14 +51,16 @@ class PResponsivePair extends StatelessWidget {
           constraints.maxWidth,
           primary.naturalWidth(context),
           secondary.naturalWidth(context),
+          primaryFlex: primaryFlex,
+          secondaryFlex: secondaryFlex,
         );
         if (fits) {
           return Row(
             key: const ValueKey('pair-row'),
             spacing: kResponsivePairGap,
             children: [
-              Expanded(child: secondary),
-              Expanded(child: primary),
+              Expanded(flex: secondaryFlex, child: secondary),
+              Expanded(flex: primaryFlex, child: primary),
             ],
           );
         }

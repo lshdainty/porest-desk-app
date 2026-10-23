@@ -315,4 +315,31 @@ void main() {
       handle.dispose();
     });
   }
+
+  testWidgets('글자 200% · 폭 360 — 바닥 버튼 라벨이 오류 없이 다 그려진다', (tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authProvider.overrideWith(() => _FakeAuth(null))],
+        child: MaterialApp(
+          theme: GrooTheme.light(),
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: const WithdrawnScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text(_l.withdrawnToLogin), findsOneWidget);
+  });
 }
