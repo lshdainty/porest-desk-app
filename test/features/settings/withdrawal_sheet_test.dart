@@ -39,7 +39,15 @@ class _Auth extends AuthNotifier {
 }
 
 class _Repo extends WithdrawalRepository {
-  _Repo({this.check_, this.verifyCode, this.sendFails = false}) : super(Dio());
+  _Repo({
+    this.check_,
+    this.verifyCode,
+    this.verifyPw,
+    this.sendFails = false,
+    this.failLoad = false,
+  }) : super(Dio());
+  final Future<String> Function(String pw)? verifyPw;
+  final bool failLoad;
   final WithdrawalCheck? check_;
   final Future<String> Function(String code)? verifyCode;
   final bool sendFails;
@@ -48,7 +56,12 @@ class _Repo extends WithdrawalRepository {
   Completer<void>? withdrawGate;
 
   @override
-  Future<WithdrawalCheck> check() async =>
+  Future<WithdrawalCheck> check() async {
+    if (failLoad) throw ApiException(code: 'X', message: '');
+    return _checkValue();
+  }
+
+  WithdrawalCheck _checkValue() =>
       check_ ??
       const WithdrawalCheck(
         blocked: [],
@@ -70,7 +83,8 @@ class _Repo extends WithdrawalRepository {
       verifyCode?.call(code) ?? Future.value('ticket');
 
   @override
-  Future<String> verifyPassword(String password) async => 'ticket';
+  Future<String> verifyPassword(String password) =>
+      verifyPw?.call(password) ?? Future.value('ticket');
 
   @override
   Future<void> withdraw({required String reauthToken, String? reason}) async {
@@ -273,7 +287,7 @@ void main() {
   testWidgets('틀린 코드는 서버 글 대신 화면 글 · 덮개는 걷힌다', (tester) async {
     final repo = _Repo(
       verifyCode: (_) async =>
-          throw ApiException(code: 'AUTH', message: 'server raw'),
+          throw ApiException(code: 'AUTH_021', message: 'server raw'),
     );
     await _open(tester, repo);
     await tester.tap(find.text(_l.withdrawNext));
@@ -320,6 +334,71 @@ void main() {
     expect(find.text('DONE'), findsOneWidget);
     expect(find.byType(PBusyScrimLayer), findsNothing);
     sem.dispose();
+  });
+
+  testWidgets('전환 링크는 칸 아래 줄 끝(오른쪽) · 스팸함 안내는 다시 받기 아래', (tester) async {
+    await _open(tester, _Repo());
+    await tester.tap(find.text(_l.withdrawNext));
+    await tester.pumpAndSettle();
+    final link = tester.getRect(
+      find.widgetWithText(PButton, _l.withdrawUseEmailCode),
+    );
+    expect(link.right, greaterThan(360 - 24 - 24), reason: '오른쪽 끝에 붙는다');
+    await tester.tap(find.text(_l.withdrawUseEmailCode));
+    await tester.pumpAndSettle();
+    expect(_t(_l.withdrawCodeHint), findsOneWidget);
+    final resend = tester.getRect(
+      find.widgetWithText(PButton, _l.withdrawSendCode),
+    );
+    expect(
+      tester.getRect(_t(_l.withdrawCodeHint)).top,
+      greaterThan(resend.bottom),
+    );
+    final back = tester.getRect(
+      find.widgetWithText(PButton, _l.withdrawUsePassword),
+    );
+    expect(back.right, greaterThan(360 - 24 - 24));
+  });
+
+  testWidgets('코드 확인 실패는 갈래별 — 틀림은 코드 글, 네트워크는 해지 실패 글', (tester) async {
+    final repo = _Repo(
+      verifyCode: (_) async =>
+          throw ApiException(code: 'NETWORK', message: 'net raw'),
+    );
+    await _open(tester, repo);
+    await tester.tap(find.text(_l.withdrawNext));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.withdrawUseEmailCode));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '123456');
+    await tester.tap(find.text(_l.withdrawConfirm));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.withdrawFailed), findsOneWidget);
+    expect(_t(_l.withdrawCodeWrong), findsNothing);
+    expect(find.text('net raw'), findsNothing);
+  });
+
+  testWidgets('비밀번호 틀림은 화면 글 · 서버 글을 그대로 내지 않는다', (tester) async {
+    final repo = _Repo(
+      verifyPw: (_) async =>
+          throw ApiException(code: 'AUTH_021', message: 'raw pw'),
+    );
+    await _open(tester, repo);
+    await tester.tap(find.text(_l.withdrawNext));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'wrong');
+    await tester.pump();
+    await tester.tap(find.text(_l.withdrawConfirm));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.withdrawPasswordWrong), findsOneWidget);
+    expect(find.text('raw pw'), findsNothing);
+  });
+
+  testWidgets('불러오기 실패 — 제목 + 설명 + 다시 시도', (tester) async {
+    await _open(tester, _Repo(failLoad: true));
+    expect(_t(_l.withdrawLoadFailedTitle), findsOneWidget);
+    expect(_t(_l.withdrawLoadFailedDescription), findsOneWidget);
+    expect(find.widgetWithText(PButton, _l.actionRetry), findsOneWidget);
   });
 
   testWidgets('글자 200% · 다크 — 오류 없이 그려진다', (tester) async {

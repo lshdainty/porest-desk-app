@@ -55,6 +55,9 @@ class _DirtyProbe {
   bool Function() dirty = () => false;
 }
 
+/// 서버 `REAUTH_FAILED`(AUTH_021) — 비밀번호 · 코드가 틀렸거나 지났다.
+const _kReauthFailed = 'AUTH_021';
+
 /// 본인 확인 방법. 비밀번호가 없는 소셜 전용 계정은 코드 말고 길이 없다.
 enum _Method { password, emailCode }
 
@@ -200,10 +203,14 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
       } on ApiException catch (e) {
         if (!mounted) return;
         // 본인 확인 실패는 그 칸의 문제다 — 칸 밑에 붙인다. 코드는 서버 글 대신 화면 글로.
+        // 서버 글은 화면에 내지 않는다(Writing 오류). 틀림 · 지남(AUTH_021)만 그 칸의 글이고,
+        // 네트워크 · 서버 오류는 해지 실패 글이다.
         setState(() {
-          _reauthError = method == _Method.emailCode
-              ? l.withdrawCodeWrong
-              : (e.message.isEmpty ? l.withdrawFailed : e.message);
+          _reauthError = e.code == _kReauthFailed
+              ? (method == _Method.emailCode
+                    ? l.withdrawCodeWrong
+                    : l.withdrawPasswordWrong)
+              : l.withdrawFailed;
           _submitting = false;
         });
         return;
@@ -220,10 +227,10 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
       // 화면이 통째로 사라졌어도 로그아웃은 한다 — 이게 빠지면 이미 없는 계정으로
       // 앱이 계속 돈다.
       auth.logout();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() {
-        _reauthError = e.message.isEmpty ? l.withdrawFailed : e.message;
+        _reauthError = l.withdrawFailed;
         _submitting = false;
       });
     } finally {
@@ -243,11 +250,9 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
       });
       // 알림은 옛 길 그대로(Q7 7A) — ds Snackbar 로 옮기는 것은 셸 PR
       showPSnackBar(context, l.withdrawCodeSent, severity: PSnackSeverity.info);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      setState(() {
-        _reauthError = e.message.isEmpty ? l.withdrawFailed : e.message;
-      });
+      setState(() => _reauthError = l.withdrawFailed);
     }
   }
 
@@ -274,6 +279,7 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
         kind: PResultKind.failure,
         size: PResultSize.medium,
         title: l.withdrawLoadFailedTitle,
+        description: l.withdrawLoadFailedDescription,
         primaryAction: PResultAction(label: l.actionRetry, onPressed: _load),
       );
     } else if (blocked) {
@@ -455,6 +461,14 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
               disabled: _submitting,
             ),
           ),
+          const SizedBox(height: PSpacing.x3),
+          // 메일함에 안 보일 때의 안내 — R9 칸 설명(웹과 같은 자리: 다시 받기 아래)
+          Text(
+            l.withdrawCodeHint,
+            style: PTypography.t4.copyWith(
+              color: context.colors.fgNeutralSubtle,
+            ),
+          ),
           const SizedBox(height: PSpacing.x2),
           _linkButton(
             l.withdrawUsePassword,
@@ -467,7 +481,7 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
 
   /// 칸 아래 줄 끝의 글 버튼(R16, ghost small).
   Widget _linkButton(String label, VoidCallback onPressed) => Align(
-    alignment: AlignmentDirectional.centerStart,
+    alignment: AlignmentDirectional.centerEnd,
     child: PButton(
       label: label,
       variant: PButtonVariant.ghost,
