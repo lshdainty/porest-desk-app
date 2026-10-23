@@ -7,6 +7,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 
 /// 필터가 걸렸을 때 칩 줄 — 걸린 조건마다 입력값 칩 하나 + 뒤 지우기(I-07 9). 한 줄 가로 스크롤 · 양 끝 Scroll Fog 20.
 ///
@@ -62,15 +63,16 @@ class LedgerFilterChips extends ConsumerWidget {
       );
     } else if (f.periods.length == 1) {
       final p = f.periods.first;
-      String md(String d) => d.length < 10
-          ? d
-          : '${int.parse(d.substring(5, 7))}.${int.parse(d.substring(8, 10))}';
-      final label = switch (p.preset) {
-        FilterPeriodPreset.week => l.expPeriodWeek,
-        FilterPeriodPreset.month => l.expThisMonth,
-        FilterPeriodPreset.threeMonth => l.expPeriod3Month,
-        FilterPeriodPreset.custom => '${md(p.start)}~${md(p.end)}',
-      };
+      // 날짜 표기 하나(date-picker.md) — 기간 시트의 입력 칸과 같은 함수(`formatRangeValue`)
+      DateTime? day(String d) {
+        final t = DateTime.tryParse(d);
+        return t == null ? null : DateTime(t.year, t.month, t.day);
+      }
+
+      final label = formatRangeValue(
+        PDateRange(start: day(p.start), end: day(p.end)),
+        DateTime.now(),
+      );
       add(label, () => onChange(f.copyWith(periods: const [])));
     }
     if (f.types.length < 2) {
