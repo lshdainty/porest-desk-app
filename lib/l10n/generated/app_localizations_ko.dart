@@ -3418,7 +3418,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String exportCount(int count) {
-    return '$count건';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString건';
   }
 
   @override

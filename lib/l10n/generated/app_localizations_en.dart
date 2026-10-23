@@ -3469,7 +3469,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String exportCount(int count) {
-    return '$count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString';
   }
 
   @override
