@@ -14,6 +14,7 @@ import 'package:groo_damda_app/features/asset/domain/asset_summary.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'support/plain_text.dart';
 
 void main() {
   // 라벨을 한글로 검증하므로 로케일을 못 박는다. 안 그러면 테스트 환경(en)을 따라가
@@ -54,8 +55,8 @@ void main() {
     expect(find.text('캘린더'), findsAtLeastNWidgets(1));
     expect(find.text('전체'), findsAtLeastNWidgets(1));
     // Dashboard hero
-    expect(find.text('순자산'), findsOneWidget);
-    expect(find.text('자산'), findsAtLeastNWidgets(1));
+    expect(findPlain('순자산'), findsOneWidget);
+    expect(findPlain('자산'), findsAtLeastNWidgets(1));
   });
 }
 

@@ -49,6 +49,7 @@ import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dar
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
+import '../support/plain_text.dart';
 
 const _alice = User(
   rowId: 1,
@@ -228,23 +229,27 @@ void main() {
     // 것이라 Bob 의 응답이 올 때까지 Alice 의 순자산이 Bob 의 홈에 뜬다. 가짜 서버가
     // 곧바로 답하면 그 틈이 안 보이므로 답을 쥐고 있게 한다.
     final h = await _pumpApp(tester, signedInAs: _alice);
-    expect(find.text(_aliceNetWorth), findsWidgets);
+    expect(findPlainContaining(_aliceNetWorth), findsWidgets);
 
     h.server.holdResponses();
     await h.signOut();
     await h.signIn(
       _bob,
       everyFrame: () => expect(
-        find.text(_aliceNetWorth),
+        findPlainContaining(_aliceNetWorth),
         findsNothing,
         reason: 'Bob 의 홈에 Alice 의 순자산이 비쳤다 — 다시 받는 동안 이전 값을 그렸다',
       ),
     );
-    expect(find.text(_bobNetWorth), findsNothing, reason: '아직 서버가 답하지 않았다');
+    expect(
+      findPlainContaining(_bobNetWorth),
+      findsNothing,
+      reason: '아직 서버가 답하지 않았다',
+    );
 
     h.server.releaseResponses();
     await h.settle();
-    expect(find.text(_bobNetWorth), findsWidgets);
+    expect(findPlainContaining(_bobNetWorth), findsWidgets);
   });
 
   testWidgets('앞사람 화면에 떠 있던 토스트도 넘어가지 않는다', (tester) async {

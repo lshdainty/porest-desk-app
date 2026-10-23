@@ -7,6 +7,10 @@
 // 저장 뒤 비우지 않으면 방금 내가 민 눈금이 60초 신선도 규칙이 돌 때까지 게이지에
 // 안 선다 — **무효화는 내가 한 것, 시계는 남이 한 것**.
 //
+// I-06 — 홈은 예산 막대에 경고 색을 쓰지 않아(막대 색은 브랜드 · 위험 둘뿐) 기준을 읽지 않는다. 기준을 아직 쓰는
+// **예산 화면**(I-09 전까지 경고선이 남는다)을 띄워 같은 단언을 잰다. 예산 화면이 경고선을 걷으면 그 화면이 기준을
+// 읽는 값으로 잰다.
+//
 // 화면 색으로 잰다. 78% 쓴 예산의 게이지는 임계값 85 에서 info(일반), 70 으로
 //내리면 warning(경고)이다. 색이 안 바뀌면 경고선이 옛 값에 굳어 있다는 뜻이다.
 //
@@ -28,7 +32,7 @@ import 'package:groo_damda_app/features/budget/application/budget_providers.dart
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
-import 'package:groo_damda_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_screen.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/features/notification/data/user_preferences_repository.dart';
@@ -38,7 +42,7 @@ import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_slider.dart';
 
-/// 이번 달 1일 (`_DashboardScreenState._ymdStart` 와 같은 규칙).
+/// 이번 달 1일 (`_BudgetScreenState._ymdStart` 와 같은 규칙).
 String _monthStart() {
   final n = DateTime.now();
   return '${n.year.toString().padLeft(4, '0')}-'
@@ -97,20 +101,17 @@ class _FakePrefsRepo extends UserPreferencesRepository {
   }
 }
 
-/// 게이지 채움 색 — `_BudgetRow` 의 `stateColor`.
-/// 홈 화면에서 `FractionallySizedBox` 는 이 막대 하나뿐이다.
+/// 게이지 채움 색 — 예산 화면 전체 예산 막대(`LinearProgressIndicator`)의 `color`.
+/// 예산 화면에서 이 막대는 전체 상한 하나뿐이다(카테고리 줄은 따로 그린다).
 Color _gaugeFill(WidgetTester tester) {
-  final box = tester.widget<DecoratedBox>(
-    find.descendant(
-      of: find.byType(FractionallySizedBox),
-      matching: find.byType(DecoratedBox),
-    ),
+  final bar = tester.widget<LinearProgressIndicator>(
+    find.byType(LinearProgressIndicator).first,
   );
-  return (box.decoration as BoxDecoration).color!;
+  return bar.color!;
 }
 
 GrooTokens _tokens(WidgetTester tester) =>
-    tester.element(find.byType(DashboardScreen)).tokens;
+    tester.element(find.byType(BudgetScreen)).tokens;
 
 void main() {
   /// 임계값 provider 가 실제로 **다시 조회된 횟수**.
@@ -159,6 +160,9 @@ void main() {
           assetSummaryProvider.overrideWith(
             (ref, key) async => const AssetSummary(),
           ),
+          budgetComplianceProvider.overrideWith(
+            (ref, months) async => const [],
+          ),
           monthExpensesProvider.overrideWith((ref, key) async => const []),
           categoriesProvider.overrideWith((ref) async => const []),
           dashboardSummaryProvider.overrideWith(
@@ -174,7 +178,7 @@ void main() {
             body: Column(
               children: [
                 // 셸에 상주하는 홈.
-                Expanded(child: DashboardScreen()),
+                Expanded(child: BudgetScreen()),
                 // 그 위로 push 된 설정 화면.
                 Expanded(child: NotificationSettingsScreen()),
               ],

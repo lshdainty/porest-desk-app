@@ -53,6 +53,7 @@ import 'package:groo_damda_app/features/todo/data/todo_repository.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_actions.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import '../../support/plain_text.dart';
 
 /// 이번 달 1일 (`_DashboardScreenState._ymdStart` 와 같은 규칙).
 String _monthStart() {
@@ -125,8 +126,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('−222,222'), findsOneWidget);
-    expect(find.text('−111,111'), findsOneWidget);
+    expect(findPlain('−222,222원'), findsOneWidget);
+    expect(findPlain('−111,111원'), findsOneWidget);
 
     // 서버 값이 바뀌었다(= 거래를 저장했다). 무효화하지 않으면 홈은 못 본다 —
     // 이 provider 들은 autoDispose 도 아니고 홈은 셸에 상주해 dispose 되지도 않는다.
@@ -134,27 +135,27 @@ void main() {
     serverDebt = 333333;
     await tester.pumpAndSettle();
     expect(
-      find.text('−222,222'),
+      findPlain('−222,222원'),
       findsOneWidget,
       reason: '무효화 없이 바뀌면 이 테스트가 아무것도 안 지킨다',
     );
-    expect(find.text('−444,444'), findsNothing);
+    expect(findPlain('−444,444원'), findsNothing);
 
     invalidateAfterExpenseChange(captured!);
     await tester.pumpAndSettle();
 
     expect(
-      find.text('−444,444'),
+      findPlain('−444,444원'),
       findsOneWidget,
       reason: 'rangeSummary 가 묶음에서 빠졌다',
     );
     expect(
-      find.text('−333,333'),
+      findPlain('−333,333원'),
       findsOneWidget,
       reason: 'assetSummary 가 묶음에서 빠졌다',
     );
-    expect(find.text('−222,222'), findsNothing);
-    expect(find.text('−111,111'), findsNothing);
+    expect(findPlain('−222,222원'), findsNothing);
+    expect(findPlain('−111,111원'), findsNothing);
   });
 
   // ─── 2. 묶음이 화면이 읽는 provider 를 다 비운다 ─────────────
