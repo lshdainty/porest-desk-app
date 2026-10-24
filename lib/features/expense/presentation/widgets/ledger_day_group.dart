@@ -7,6 +7,7 @@ import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_actions.dart';
 import 'package:groo_damda_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
@@ -15,13 +16,10 @@ import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 
-/// 금액을 오른쪽으로 밀어내는 폭 — ds List 줄이 제 오른쪽 24 를 가지므로 거기에 이 32 를 더해 금액 끝이 화면 끝에서 56 이다. ⋮ 단추(40)는
-/// 화면 끝에서 16 에 놓여(글리프 27) 이 자리 위에 선다(웹 `-mr-x2` 와 같은 자리). 밀기가 없는 줄(이체 · 시스템 거래)도 같은 폭을 **비워**
-/// 금액 자리를 맞춘다(Q6 A, 웹 · 앱 한 벌).
-const double kLedgerMoreSlot = PSpacing.x8;
-
-/// ⋮ 단추 오른쪽 끝이 화면 끝에서 떨어진 거리.
-const double _kMoreFromEdge = PSpacing.x4;
+/// 줄 끝 ⋮ 자리의 폭 — 줄 끝 뒤 붙이개(웹 swipe-actions `suffixNode` 와 같은 자리)다. 단추 40 은 이 자리 왼쪽에 놓여 오른쪽으로 12 내민다.
+/// 금액 끝은 줄의 24 + 이 28 + 붙이개 사이 4 = 화면 끝에서 56. 밀기가 없는 줄(이체 · 시스템 거래)도 같은 폭을 **비워**
+/// 금액 자리를 맞춘다(Q6 A, 웹 · 앱 한 벌). ⋮ 가 줄 안이라 강조 · 누름 바탕이 ⋮ 까지 이어진다.
+const double kLedgerMoreSlot = PSpacing.x7;
 
 /// 날짜 묶음 하나 — 머리 + 거래 줄 + 이체 줄. 묶음 위 12 · 첫 묶음 4.
 ///
@@ -77,7 +75,7 @@ class LedgerDayGroup extends ConsumerWidget {
                       : assets?.byRowId(e.assetRowId!),
                 );
                 final name = expenseActions.displayNameOf(context, e);
-                // 거래 줄은 ds List 줄(제 좌우 24)이다 — 바깥 24 는 없다(I-07 4).
+                // 거래 줄은 ds List 줄(제 좌우 24)이다 — 바깥 24 는 없다(I-07 4). ⋮ 는 줄의 뒤 붙이개라 강조 바탕이 줄 끝까지 이어진다.
                 final row = ExpenseRow(
                   expense: e,
                   category: e.categoryRowId == null
@@ -85,32 +83,28 @@ class LedgerDayGroup extends ConsumerWidget {
                       : categories.byRowId(e.categoryRowId!),
                   flags: flags,
                   highlighted: isFocus,
-                );
-                Widget line = PSwipeActions(
-                  actions: actions,
-                  rowLabel: name,
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          end: kLedgerMoreSlot,
-                        ),
-                        child: row,
-                      ),
-                      if (actions.isNotEmpty)
-                        PositionedDirectional(
-                          top: 0,
-                          bottom: 0,
-                          end: _kMoreFromEdge,
-                          child: Center(
-                            child: PSwipeActionsMore(
-                              actions: actions,
-                              rowLabel: name,
+                  trailing: actions.isEmpty
+                      ? const SizedBox(width: kLedgerMoreSlot)
+                      : PListAction(
+                          child: SizedBox(
+                            width: kLedgerMoreSlot,
+                            height: PSpacing.x10,
+                            child: OverflowBox(
+                              alignment: AlignmentDirectional.centerStart,
+                              minWidth: 0,
+                              maxWidth: PSpacing.x10,
+                              child: PSwipeActionsMore(
+                                actions: actions,
+                                rowLabel: name,
+                              ),
                             ),
                           ),
                         ),
-                    ],
-                  ),
+                );
+                final line = PSwipeActions(
+                  actions: actions,
+                  rowLabel: name,
+                  child: row,
                 );
                 return KeyedSubtree(key: k, child: line);
               },
@@ -119,7 +113,9 @@ class LedgerDayGroup extends ConsumerWidget {
           for (final tr in transfers)
             Padding(
               // 거래 줄과 금액 자리가 같게 ⋮ 자리만큼 비운다.
-              padding: const EdgeInsetsDirectional.only(end: kLedgerMoreSlot),
+              padding: const EdgeInsetsDirectional.only(
+                end: kLedgerMoreSlot + PSpacing.x1,
+              ),
               child: TransferRow(
                 key: ValueKey('t${tr.rowId}'),
                 transfer: tr,
@@ -168,7 +164,7 @@ class LedgerDaySkeleton extends StatelessWidget {
               padding: const EdgeInsetsDirectional.fromSTEB(
                 PSpacing.globalGutter,
                 PSpacing.x3,
-                PSpacing.globalGutter + kLedgerMoreSlot,
+                PSpacing.globalGutter + kLedgerMoreSlot + PSpacing.x1,
                 PSpacing.x3,
               ),
               child: Row(

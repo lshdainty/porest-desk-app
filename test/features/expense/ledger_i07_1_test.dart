@@ -3,8 +3,11 @@
 // 화면을 실제로 띄워 값을 잰다 — 부품만 검사해 통과시키지 않는다(O 표). 고정한 오늘은 쓰지 않고 오늘 기준 상대 날짜로
 // 데이터를 만든다(고정한 오늘 + 벽시계 = 시한폭탄).
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -153,7 +156,19 @@ Future<void> _pump(
 /// 필터 시트가 돌려준 값 — 시트를 닫은 뒤 본다.
 ExpenseFilter? _result;
 
+/// 실제 글꼴(Pretendard) — 시험 기본 글꼴(Ahem)은 글자마다 폭이 같고 줄바꿈 보호 글자(U+2060)도 폭이 있어 금액 폭 시험이 틀어진다.
+Future<void> _loadRealFonts() async {
+  final bytes = File('assets/fonts/PretendardVariable.ttf').readAsBytesSync();
+  for (final family in ['Pretendard', 'FlutterTest']) {
+    final loader = FontLoader(family)
+      ..addFont(Future.value(ByteData.view(bytes.buffer)));
+    await loader.load();
+  }
+}
+
 void main() {
+  setUpAll(_loadRealFonts);
+
   testWidgets('5 이체 줄 — 거래 줄과 글자 자리가 같고 타일은 회색 40', (tester) async {
     final now = DateTime.now();
     await _pump(
@@ -759,7 +774,7 @@ void main() {
       for (var i = 3; i <= 10; i++) _tx(i, '가게 $i', 1000 * i),
     ];
 
-    testWidgets('360 · 100% 최악값(금액 13자 이상)은 값이 설명 아래로 내려가고 넘치지 않는다', (
+    testWidgets('360 · 100% 최악값 금액은 쉼표 뒤에서 접히고 카테고리는 줄지 않는다(값 길이로 내리지 않는다)', (
       tester,
     ) async {
       await _pump(
@@ -781,19 +796,14 @@ void main() {
             w.style?.fontSize == null,
       );
       expect(amount, findsOneWidget);
+      // 값은 옆에 남고(ds 가 줄 안 폭 16em 미만일 때만 내린다) 쉼표 뒤에서 접힌다
       final title = _text('가게');
-      final category = _text('주거·통신 및 공과금 정기결제', contains: true);
-      // 값이 설명 아래 · 제목과 같은 왼쪽에 선다(03-D 결정 1 B) — 제목이 한 글자 폭으로 접히지 않는다
-      expect(
-        tester.getTopLeft(amount).dy,
-        greaterThan(tester.getBottomLeft(category).dy - 1),
-      );
       expect(
         tester.getTopLeft(amount).dx,
-        closeTo(tester.getTopLeft(title).dx, 1),
+        greaterThan(tester.getTopRight(title).dx - 1),
       );
-      // 설명 첫 태그(카테고리)가 줄 폭을 거의 다 쓴다 — 한 글자로 줄지 않았다
-      expect(tester.getSize(category).width, greaterThan(100));
+      final category = _text('주거·통신 및 공과금 정기결제', contains: true);
+      expect(tester.getSize(category).width, greaterThan(70));
     });
 
     // 가장 나쁜 값 −1,234,567,890원 — 쉼표 뒤에서만 줄을 바꿔 넘치지 않는다(03-D 결정 2 B). 200% 는 줄 안 폭 16em 미만이라

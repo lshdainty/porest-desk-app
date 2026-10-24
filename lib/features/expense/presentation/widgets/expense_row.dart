@@ -39,6 +39,7 @@ class ExpenseRow extends StatelessWidget {
     this.showInstallment = false,
     this.gutter,
     this.highlighted = false,
+    this.trailing,
     super.key,
   });
 
@@ -69,6 +70,9 @@ class ExpenseRow extends StatelessWidget {
 
   /// 알림 · 검색에서 들어온 줄 — ds List `highlighted`(바탕 `bg-brand-weak`, 누름 · 설명 글 보정이 따라온다).
   final bool highlighted;
+
+  /// 줄 끝 뒤 붙이개(금액 뒤) — 줄 끝 ⋮ 단추나 그 자리를 비우는 빈 칸. 줄 안이라 강조 · 누름 바탕이 이 자리까지 이어진다.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -118,24 +122,21 @@ class ExpenseRow extends StatelessWidget {
         ),
     ];
 
-    // 금액이 13자 이상(−128,000,000원 부터)이면 값을 본문 아래로 내린다 — 옆에 두면 제목이 여러 줄로 접히고 설명(분류 · 통장)이
-    // 한 글자로 잘린다(웹 거래 줄과 같은 규칙, 03-D 결정 1 B 의 줄 안 폭 규칙을 금액 길이로도 건다).
-    final stackValue = amountText.length >= 13;
     final title = expense.merchant ?? expense.description ?? cName;
     final detail = PTagGroup(
       size: PTagGroupSize.t3,
       overflow: PTagGroupOverflow.truncate,
       items: [
-        // 카테고리는 줄이지 않는다(shrink 0) — 줄 오른쪽이 ⋮ 자리만큼 좁아져도 자산 이름이 먼저 줄어 "부…" 처럼 한 글자가 되지 않는다.
+        // 줄어드는 정도는 스펙 예 그대로(tag-group.md "줄어드는 정도", 03-E 5 B) — 카테고리 0 · 자산 2 · 할부 0
         PTag(cName, shrink: 0),
-        PTag(expense.assetName ?? '-'),
+        PTag(expense.assetName ?? '-', shrink: 2),
         if (showInstallment && (expense.installmentMonths ?? 1) > 1)
-          PTag(l.assetInstallmentBadge(expense.installmentMonths!)),
+          PTag(l.assetInstallmentBadge(expense.installmentMonths!), shrink: 0),
       ],
     );
     final prefix = PListTile(background: bg, color: fg, child: Icon(icon));
     // 부호는 **손으로** 붙인다 — U+2212 와 tabular figures 정렬(QA #22). 금액은 쉼표 뒤에서만 줄을 바꾼다.
-    final suffix = PListValue.amount(
+    final amountNode = PListValue.amount(
       amountText,
       style: TextStyle(
         color: amountColor,
@@ -146,6 +147,10 @@ class ExpenseRow extends StatelessWidget {
         decorationColor: refunded ? c.fgNeutralSubtle : null,
       ),
     );
+    // 줄 끝 뒤 붙이개 — 금액은 값, 이 자리는 조작 요소라 좁은 줄에서도 줄 끝에 남는다(ds 가 가른다)
+    final suffix = trailing == null
+        ? amountNode
+        : PListSuffix(children: [amountNode, trailing!]);
     final titleColor = excluded ? c.fgNeutralSubtle : null;
 
     if (!interactive) {
@@ -154,7 +159,6 @@ class ExpenseRow extends StatelessWidget {
         titleSuffix: badges,
         titleColor: titleColor,
         gutter: gutter,
-        stackValue: stackValue,
         highlighted: highlighted,
         detailChild: detail,
         prefix: prefix,
@@ -166,7 +170,6 @@ class ExpenseRow extends StatelessWidget {
       titleSuffix: badges,
       titleColor: titleColor,
       gutter: gutter,
-      stackValue: stackValue,
       highlighted: highlighted,
       detailChild: detail,
       prefix: prefix,

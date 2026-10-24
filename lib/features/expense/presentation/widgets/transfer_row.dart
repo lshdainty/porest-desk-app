@@ -75,12 +75,13 @@ class TransferRow extends StatelessWidget {
       size: PTagGroupSize.t3,
       overflow: PTagGroupOverflow.truncate,
       items: [
-        PTag(route),
+        PTag(route, shrink: 2),
         if (fee > 0)
           PTag(
             '${l.transferFeePrefix} ${krwSigned(fee, flags.of(MaskKind.transfer))}',
+            shrink: 0,
           ),
-        if (hhmm.isNotEmpty && hhmm != '00:00') PTag(hhmm),
+        if (hhmm.isNotEmpty && hhmm != '00:00') PTag(hhmm, shrink: 0),
       ],
     );
     // 이체도 미래 날짜로 넣을 수 있다 — 거래와 같은 "예정" 배지. 합계에 안 드는 줄은 제목 · 금액만 옅게.

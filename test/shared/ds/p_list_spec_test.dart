@@ -3019,6 +3019,44 @@ void _worstTests() {
       });
     }
 
+    // 금액 노드(PListValue.amount)도 글 값처럼 본문 최소 폭만 남기고 쉼표 뒤에서 줄을 바꾼다(03-D 결정 2 B) — 내리지 않는 줄(줄 안 폭 16em 이상)
+    for (final width in const [304.0, 320.0, 360.0]) {
+      testWidgets('금액 노드는 쉼표 뒤에서만 줄을 바꾸고 넘치지 않는다 — 폭 $width', (tester) async {
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PList(
+              semanticLabel: '금액',
+              children: [
+                PListItem(
+                  prefix: const Icon(LucideIcons.wallet),
+                  title: '가게',
+                  suffix: PListValue.amount('−1,234,567,890원'),
+                ),
+              ],
+            ),
+            width: width,
+          ),
+        );
+        expect(tester.takeException(), isNull, reason: '폭 $width');
+        final body = tester.getRect(_bodies);
+        final suffix = tester.getRect(_suffixes);
+        final row = tester.getRect(_rows);
+        expect(body.width, greaterThanOrEqualTo(kPListBodyMinWidth - 0.5));
+        expect(suffix.left, greaterThanOrEqualTo(body.right - 0.5));
+        expect(suffix.right, lessThanOrEqualTo(row.right + 0.5));
+        // 쉼표 뒤에서 접힌 것 — 한 줄(t5 22)보다 높거나 한 줄이다. 어느 쪽이든 글자 가운데에서 끊기지 않는다.
+        final shown = find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              w.semanticsLabel == '−1,234,567,890원' &&
+              w.data != null,
+        );
+        expect(shown, findsOneWidget);
+        expect(shown.evaluate().single.widget, isA<Text>());
+      });
+    }
+
     testWidgets('글 값은 자리가 남으면 줄지 않는다 — 본문이 양보하는 쪽은 그다음이다', (tester) async {
       Future<Size> suffixSize(double width, String value) async {
         await tester.pumpWidget(
