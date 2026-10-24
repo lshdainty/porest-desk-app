@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/core/auth/user.dart';
@@ -20,6 +21,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations_en.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 import 'package:groo_damda_app/shared/ds/input_otp/p_input_otp.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/widgets/p_busy_scrim.dart';
@@ -339,17 +341,21 @@ void main() {
     expect(link.right, greaterThan(360 - 24 - 24), reason: '오른쪽 끝에 붙는다');
     await tester.tap(find.text(_l.withdrawUseEmailCode));
     await tester.pumpAndSettle();
+    // 사용자 결정(10-24) 05-2 Q1 A — 스팸함 안내는 코드를 보낸 뒤에만 보인다
+    expect(_t(_l.withdrawCodeHint), findsNothing, reason: '보내기 전엔 없다');
+    await tester.tap(find.text(_l.withdrawSendCode));
+    await tester.pumpAndSettle();
     expect(_t(_l.withdrawCodeHint), findsOneWidget);
     final resend = tester.getRect(
-      find.widgetWithText(PButton, _l.withdrawSendCode),
+      find.widgetWithText(PButton, _l.withdrawResendCooldown(60)),
     );
-    expect(
-      tester.getRect(_t(_l.withdrawCodeHint)).top,
-      greaterThan(resend.bottom),
-    );
+    final hint = tester.getRect(_t(_l.withdrawCodeHint));
+    expect(hint.top - resend.bottom, closeTo(PSpacing.x3, 1), reason: '12');
     final back = tester.getRect(
       find.widgetWithText(PButton, _l.withdrawUsePassword),
     );
+    // [비밀번호로 확인하기] 위 틈 = 16(웹 gap-x4 와 같은 값)
+    expect(back.top - hint.bottom, greaterThanOrEqualTo(PSpacing.x4 - 1));
     expect(back.right, greaterThan(360 - 24 - 24));
   });
 
@@ -379,6 +385,11 @@ void main() {
     await _open(tester, repo);
     await tester.tap(find.text(_l.withdrawNext));
     await tester.pumpAndSettle();
+    // 비밀번호 칸 자리 글 = 웹과 같은 글
+    expect(
+      tester.widget<PInput>(find.byType(PInput).first).placeholder,
+      _l.withdrawPasswordPlaceholder,
+    );
     await tester.enterText(find.byType(TextField).first, 'wrong');
     await tester.pump();
     await tester.tap(find.text(_l.withdrawConfirm));

@@ -424,12 +424,12 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
             child: PInput(
               controller: _passwordCtrl,
               obscureText: true,
-              placeholder: l.passwordCurrent,
+              placeholder: l.withdrawPasswordPlaceholder,
               autofillHints: const [AutofillHints.password],
               onChanged: (_) => setState(() => _reauthError = null),
             ),
           ),
-          const SizedBox(height: PSpacing.x2),
+          const SizedBox(height: PSpacing.x4),
           _linkButton(
             l.withdrawUseEmailCode,
             () => _setMethod(_Method.emailCode),
@@ -461,15 +461,19 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
               disabled: _submitting,
             ),
           ),
-          const SizedBox(height: PSpacing.x3),
-          // 메일함에 안 보일 때의 안내 — R9 칸 설명(웹과 같은 자리: 다시 받기 아래)
-          Text(
-            l.withdrawCodeHint,
-            style: PTypography.t4.copyWith(
-              color: context.colors.fgNeutralSubtle,
+          // 스팸함 안내 — 사용자 결정(10-24) 05-2 Q1 A: 남긴다. 코드를 **보낸 뒤에만** 보인다(보내기 전엔 찾을 메일이 없다).
+          // [코드 받기] 아래 12 · t4 fg-neutral-subtle, 오류 때도 남는다.
+          if (_codeSentAt != null) ...[
+            const SizedBox(height: PSpacing.x3),
+            Text(
+              l.withdrawCodeHint,
+              style: PTypography.t4.copyWith(
+                color: context.colors.fgNeutralSubtle,
+              ),
             ),
-          ),
-          const SizedBox(height: PSpacing.x2),
+          ],
+          // [비밀번호로 확인하기] 위 16(웹 gap-x4 와 같은 값 — migration/i05-2-q 그림)
+          const SizedBox(height: PSpacing.x4),
           _linkButton(
             l.withdrawUsePassword,
             () => _setMethod(_Method.password),

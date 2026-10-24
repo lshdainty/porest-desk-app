@@ -11594,6 +11594,12 @@ abstract class AppLocalizations {
   /// **'가져오는 중'**
   String get importBusy;
 
+  /// No description provided for @withdrawPasswordPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호를 입력해주세요'**
+  String get withdrawPasswordPlaceholder;
+
   /// No description provided for @importStepUploadDesc.
   ///
   /// In ko, this message translates to:

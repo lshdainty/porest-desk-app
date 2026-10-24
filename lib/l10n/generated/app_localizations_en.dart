@@ -6426,6 +6426,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importBusy => 'Importing';
 
   @override
+  String get withdrawPasswordPlaceholder => 'Enter your current password';
+
+  @override
   String get importStepUploadDesc => 'Choose the app and the file to import.';
 
   @override

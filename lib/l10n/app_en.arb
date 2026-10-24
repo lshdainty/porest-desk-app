@@ -3654,6 +3654,7 @@
   "importStepMeta": "Step {current} of {total}",
   "@importStepMeta": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "importBusy": "Importing",
+  "withdrawPasswordPlaceholder": "Enter your current password",
   "importStepUploadDesc": "Choose the app and the file to import.",
   "importStepMappingDesc": "Check the columns and review the transactions before importing.",
   "withdrawCodeHint": "If you do not see it, check your spam folder.",

@@ -6328,6 +6328,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importBusy => '가져오는 중';
 
   @override
+  String get withdrawPasswordPlaceholder => '현재 비밀번호를 입력해주세요';
+
+  @override
   String get importStepUploadDesc => '가져올 앱과 파일을 골라주세요.';
 
   @override

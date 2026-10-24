@@ -3767,6 +3767,7 @@
   "importStepMeta": "{current} / {total}단계",
   "@importStepMeta": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "importBusy": "가져오는 중",
+  "withdrawPasswordPlaceholder": "현재 비밀번호를 입력해주세요",
   "importStepUploadDesc": "가져올 앱과 파일을 골라주세요.",
   "importStepMappingDesc": "열이 맞는지 확인하고 가져올 거래를 점검해주세요.",
   "withdrawCodeHint": "메일함에 코드가 안 보이면 스팸함도 확인해주세요.",
