@@ -358,14 +358,45 @@ void main() {
       await tester.pumpAndSettle();
       // 바닥 글 = 한 키 · 선택한 종류 수(3) · 합계(표 totalCount 합 1)
       expect(
-        find.text(_l.exportPreviewFooter(1, 3, 1)),
+        find.text(_l.exportPreviewFooter(1, 3, 123459)),
         findsNothing,
         reason: '빈 표 탭에서는 그 탭의 행 수(0)',
       );
-      expect(find.text(_l.exportPreviewFooter(0, 3, 1)), findsOneWidget);
+      // 합계 = 고른 종류(거래 내역 · 자산 · 예산)의 건수 합 — 예산은 건수가 없어 0, 미리보기 표 건수(1)가 아니다
+      expect(find.text(_l.exportPreviewFooter(0, 3, 123459)), findsOneWidget);
       final res = tester.widget<PResultSection>(find.byType(PResultSection));
       expect(res.kind, PResultKind.empty);
       expect(res.size, PResultSize.medium);
+    });
+
+    testWidgets('바닥 글 합계 — 고른 종류가 비면 0, 미리보기 표 건수가 아니다', (tester) async {
+      final repo = _ExportRepo(
+        tables: const [
+          ExportPreviewTable(
+            type: 'BUDGET',
+            displayName: '예산 설정',
+            headers: ['이름'],
+            rows: [
+              ['식비'],
+            ],
+            totalCount: 99,
+          ),
+        ],
+      );
+      await _pump(
+        tester,
+        const ExportScreen(),
+        overrides: [exportRepositoryProvider.overrideWith((ref) async => repo)],
+      );
+      await tester.pumpAndSettle();
+      // 거래 내역 · 자산을 풀어 건수가 없는 예산(빈 종류) 하나만 남긴다
+      await tester.tap(_t(_l.exportTypeExpense));
+      await tester.tap(_t(_l.exportTypeAsset));
+      await tester.pump();
+      await tester.tap(find.widgetWithText(PButton, _l.exportPreview));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.exportPreviewFooter(1, 1, 0)), findsOneWidget);
+      expect(find.text(_l.exportPreviewFooter(1, 1, 99)), findsNothing);
     });
 
     for (final stall in [true, false]) {

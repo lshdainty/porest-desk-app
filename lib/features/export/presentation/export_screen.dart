@@ -701,7 +701,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             ),
     );
     final amountAt = _amountColumn(active.headers);
-    final total = tables.fold<int>(0, (a, t) => a + t.totalCount);
+    // 합계 = 고른 종류의 건수 합(빈 종류는 0) — 미리보기 표 건수가 아니다. 웹과 같은 셈
+    final total = _selected.fold<int>(
+      0,
+      (a, name) => a + (_counts[_slugOf(name)] ?? 0),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
