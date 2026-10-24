@@ -114,32 +114,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       onRetry: retryCompliance,
     );
 
-    // 구역 하나 — 실패하면 제 머리 아래 실패, 불러오는 중이면 틀 그대로 Skeleton, 아니면 값
-    Widget section({
-      required String title,
-      required String failTitle,
-      required Widget skeleton,
-      required Widget Function() build,
-      double topPadding = PSpacing.x6,
-      bool list = false,
-    }) {
-      if (ready) return build();
-      if (failed) {
-        final fail = BudgetFailure(title: failTitle, onRetry: retry);
-        return list
-            ? BudgetListSection(
-                header: BudgetHead(title: title),
-                children: [fail],
-              )
-            : BudgetSection(
-                topPadding: topPadding,
-                header: title.isEmpty ? null : BudgetHead(title: title),
-                children: [fail],
-              );
-      }
-      return skeleton;
-    }
-
     final bands = <Widget>[];
     Budget? overallBudget;
     final categoryBudgets = <Budget>[];
@@ -153,7 +127,19 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final hasNoData =
         budgets != null && overallBudget == null && categoryBudgets.isEmpty;
 
-    if (hasNoData) {
+    if (failed && !hasNoData) {
+      // 질의 하나 = 상자 하나 — 예산 · 요약 질의 실패는 띠 ① 에 상자 하나, 띠 ② 는 없다. 이행률은 제 실패를 따로 둔다
+      bands.add(
+        budgetBand([
+          monthRow,
+          BudgetSection(
+            topPadding: PSpacing.x3,
+            children: [BudgetFailure(title: l.dashFailBudget, onRetry: retry)],
+          ),
+        ]),
+      );
+      bands.add(budgetBand([compliance]));
+    } else if (hasNoData) {
       // Q3 B — 달 줄 + 빈 결과 + 버튼. 이행률은 상한이 있는 달이 있을 때만 남는다
       bands.add(
         budgetBand([
@@ -231,62 +217,45 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       bands.add(
         budgetBand([
           monthRow,
-          section(
-            title: '',
-            failTitle: l.budgetFailHeader,
-            topPadding: PSpacing.x3,
-            skeleton: const _TotalSkeleton(),
-            build: () => _TotalSection(
-              month: _month.month,
-              overallBudget: overallBudget,
-              totalSpent: totalExpense,
-              overallLimit: overallLimit,
-              categoryLimitSum: categoryLimitSum,
-              pct: pct,
-              allocable: allocable,
-              overAllocated: overAllocated,
-              masked: headerMasked,
-            ),
-          ),
-          section(
-            title: l.budgetSpendingPace,
-            failTitle: l.budgetFailPace,
-            skeleton: const _PaceSkeleton(),
-            build: () => _PaceSection(
-              pct: pct,
-              daysElapsedPct: daysElapsedPct,
-              dailyActual: dailyActual,
-              dailyTarget: dailyTarget,
-              onTrack: onTrack,
-              masked: paceMasked,
-            ),
-          ),
+          ready
+              ? _TotalSection(
+                  month: _month.month,
+                  overallBudget: overallBudget,
+                  totalSpent: totalExpense,
+                  overallLimit: overallLimit,
+                  categoryLimitSum: categoryLimitSum,
+                  pct: pct,
+                  allocable: allocable,
+                  overAllocated: overAllocated,
+                  masked: headerMasked,
+                )
+              : const _TotalSkeleton(),
+          ready
+              ? _PaceSection(
+                  pct: pct,
+                  daysElapsedPct: daysElapsedPct,
+                  dailyActual: dailyActual,
+                  dailyTarget: dailyTarget,
+                  onTrack: onTrack,
+                  masked: paceMasked,
+                )
+              : const _PaceSkeleton(),
         ]),
       );
       bands.add(
         budgetBand([
-          section(
-            title: l.budgetStatusTitle,
-            failTitle: l.budgetFailStatus,
-            skeleton: const _StatusSkeleton(),
-            build: () => _StatusSection(
-              overCount: overCount,
-              healthyCount: healthyCount,
-            ),
-          ),
-          section(
-            title: l.budgetByCategory,
-            failTitle: l.budgetFailCategories,
-            list: true,
-            skeleton: const _ListSkeleton(),
-            build: () => _CategoryListSection(
-              budgets: categoryBudgets,
-              categories: categories,
-              spentByCategory: spentByCategory,
-              masked: categoriesMasked,
-              onGoSettings: () => context.push('/budget/settings'),
-            ),
-          ),
+          ready
+              ? _StatusSection(overCount: overCount, healthyCount: healthyCount)
+              : const _StatusSkeleton(),
+          ready
+              ? _CategoryListSection(
+                  budgets: categoryBudgets,
+                  categories: categories,
+                  spentByCategory: spentByCategory,
+                  masked: categoriesMasked,
+                  onGoSettings: () => context.push('/budget/settings'),
+                )
+              : const _ListSkeleton(),
         ]),
       );
       bands.add(budgetBand([compliance]));
@@ -385,7 +354,7 @@ class _TotalSection extends StatelessWidget {
         children: [
           ...head,
           const _Gap(PSpacing.x3),
-          PCallout(description: l.budgetOverallCapEmptyHint, hideIcon: true),
+          PCallout(description: l.budgetOverallCapEmptyHint),
           if (categoryLimitSum > 0) ...[
             const _Gap(PSpacing.x2),
             Text(

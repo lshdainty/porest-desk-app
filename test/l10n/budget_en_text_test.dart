@@ -17,11 +17,9 @@ void main() {
     );
   });
 
-  test('구역 실패 글 다섯 · 월 눈썹 · 예산 0 글', () {
-    expect(l.budgetFailHeader, "Couldn't load the total budget");
-    expect(l.budgetFailPace, "Couldn't load the spending pace");
-    expect(l.budgetFailStatus, "Couldn't load the budget status");
-    expect(l.budgetFailCategories, "Couldn't load the category budgets");
+  test('이행률 실패 글 · 월 눈썹 · 예산 0 글', () {
+    // 폰 예산 실패 글은 홈과 같은 키 — 복수라 the 없음
+    expect(l.dashFailBudget, "Couldn't load budgets");
     expect(l.budgetFailCompliance, "Couldn't load the budget compliance");
     expect(l.budgetMonthOverallCap(10), 'Month 10 total budget');
     expect(l.budgetEmptyMonthTitle(10), 'No budget for month 10 yet');

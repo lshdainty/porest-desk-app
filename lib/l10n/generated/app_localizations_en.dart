@@ -2318,18 +2318,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Set a budget to see what you spent and what is left at a glance.';
 
   @override
-  String get budgetFailHeader => 'Couldn\'t load the total budget';
-
-  @override
-  String get budgetFailPace => 'Couldn\'t load the spending pace';
-
-  @override
-  String get budgetFailStatus => 'Couldn\'t load the budget status';
-
-  @override
-  String get budgetFailCategories => 'Couldn\'t load the category budgets';
-
-  @override
   String get budgetFailCompliance => 'Couldn\'t load the budget compliance';
 
   @override

@@ -4256,30 +4256,6 @@ abstract class AppLocalizations {
   /// **'예산을 정하면 쓴 돈과 남은 돈을 한눈에 볼 수 있어요.'**
   String get budgetEmptyMonthDesc;
 
-  /// No description provided for @budgetFailHeader.
-  ///
-  /// In ko, this message translates to:
-  /// **'총 예산을 불러오지 못했어요'**
-  String get budgetFailHeader;
-
-  /// No description provided for @budgetFailPace.
-  ///
-  /// In ko, this message translates to:
-  /// **'지출 페이스를 불러오지 못했어요'**
-  String get budgetFailPace;
-
-  /// No description provided for @budgetFailStatus.
-  ///
-  /// In ko, this message translates to:
-  /// **'예산 현황을 불러오지 못했어요'**
-  String get budgetFailStatus;
-
-  /// No description provided for @budgetFailCategories.
-  ///
-  /// In ko, this message translates to:
-  /// **'카테고리별 예산을 불러오지 못했어요'**
-  String get budgetFailCategories;
-
   /// No description provided for @budgetFailCompliance.
   ///
   /// In ko, this message translates to:

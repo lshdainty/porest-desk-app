@@ -260,7 +260,7 @@ void main() {
       expect(item.height, closeTo(8 + 22 + 8, 1.0));
     });
 
-    testWidgets('질의 하나 = 실패 하나 — 요약이 실패해도 띠 ② 는 구역마다 제자리에서 실패한다', (
+    testWidgets('질의 하나 = 상자 하나 — 요약이 실패하면 띠 ① 에 상자 하나, 띠 ② 는 없고 이행률은 제 몫', (
       tester,
     ) async {
       await _pump(
@@ -268,12 +268,12 @@ void main() {
         const BudgetScreen(),
         summaryOf: (r) async => throw Exception('SECRET-RAW-ERROR'),
       );
-      expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(3));
-      expect(find.text('다시 시도'), findsNWidgets(4));
-      expect(_hasText(tester, '총 예산을 불러오지 못했어요'), isTrue);
-      expect(_hasText(tester, '지출 페이스를 불러오지 못했어요'), isTrue);
-      expect(_hasText(tester, '예산 현황을 불러오지 못했어요'), isTrue);
-      expect(_hasText(tester, '카테고리별 예산을 불러오지 못했어요'), isTrue);
+      // 띠 ① 실패 + 띠 ③ 이행률(제 데이터)
+      expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(2));
+      expect(find.text('다시 시도'), findsOneWidget);
+      expect(_hasText(tester, '예산을 불러오지 못했어요'), isTrue);
+      expect(_hasText(tester, '예산 현황'), isFalse);
+      expect(_hasText(tester, '최근 6개월'), isTrue);
       expect(_hasText(tester, 'SECRET-RAW-ERROR'), isFalse);
     });
 

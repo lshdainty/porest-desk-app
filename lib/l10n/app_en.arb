@@ -1363,10 +1363,6 @@
     }
   },
   "budgetEmptyMonthDesc": "Set a budget to see what you spent and what is left at a glance.",
-  "budgetFailHeader": "Couldn't load the total budget",
-  "budgetFailPace": "Couldn't load the spending pace",
-  "budgetFailStatus": "Couldn't load the budget status",
-  "budgetFailCategories": "Couldn't load the category budgets",
   "budgetFailCompliance": "Couldn't load the budget compliance",
   "budgetManagerLoadFailed": "Couldn't load the budgets",
   "budgetCategoryCount": "{count} categories",

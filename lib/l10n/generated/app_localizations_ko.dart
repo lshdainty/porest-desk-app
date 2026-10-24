@@ -2281,18 +2281,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetEmptyMonthDesc => '예산을 정하면 쓴 돈과 남은 돈을 한눈에 볼 수 있어요.';
 
   @override
-  String get budgetFailHeader => '총 예산을 불러오지 못했어요';
-
-  @override
-  String get budgetFailPace => '지출 페이스를 불러오지 못했어요';
-
-  @override
-  String get budgetFailStatus => '예산 현황을 불러오지 못했어요';
-
-  @override
-  String get budgetFailCategories => '카테고리별 예산을 불러오지 못했어요';
-
-  @override
   String get budgetFailCompliance => '예산 이행률을 불러오지 못했어요';
 
   @override

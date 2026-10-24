@@ -213,9 +213,9 @@ class BudgetMonthRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     return Padding(
-      // 화살표 상자 44 안의 아이콘 20 이 화면 가장자리 24 에 서도록 왼쪽 12
+      // 화살표 상자(ds 아이콘 버튼 40 · 아이콘 18) 안 아이콘이 화면 가장자리 24 근처에 서도록 왼쪽 14 — 웹과 같다
       padding: const EdgeInsets.fromLTRB(
-        PSpacing.x3,
+        PSpacing.x3_5,
         // 띠 맨 위 4 + 8
         PSpacing.x3,
         PSpacing.x6,
@@ -251,9 +251,8 @@ class BudgetMonthRow extends StatelessWidget {
                   ),
                   builder: (context, pressed, size) => Container(
                     constraints: const BoxConstraints(minHeight: PTouch.min),
-                    padding: const EdgeInsets.only(
-                      left: 10,
-                      right: PSpacing.x1,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: PSpacing.x2_5,
                     ),
                     decoration: BoxDecoration(
                       color: pressed
