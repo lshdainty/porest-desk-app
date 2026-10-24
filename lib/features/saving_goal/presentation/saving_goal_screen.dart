@@ -118,7 +118,6 @@ class SavingGoalScreen extends ConsumerWidget {
             variant: PListHeaderVariant.boldSolid,
             action: PTextButton(
               label: l.savingGoalAddAction,
-              prefixIcon: LucideIcons.plus,
               onPressed: () => showSavingGoalEditDialog(context),
             ),
           ),
@@ -218,7 +217,6 @@ class _SavingGoalSkeleton extends StatelessWidget {
           variant: PListHeaderVariant.boldSolid,
           action: PTextButton(
             label: l.savingGoalAddAction,
-            prefixIcon: LucideIcons.plus,
             onPressed: () => showSavingGoalEditDialog(context),
           ),
         ),

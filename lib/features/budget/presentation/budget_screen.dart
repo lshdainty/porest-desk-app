@@ -91,11 +91,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       onNext: () =>
           setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
       onPick: _pickMonth,
-      trailing: BudgetMonthAction(
+      // 글 버튼 R16 — 앞 아이콘 없음(스펙 card.yaml headerAction). 설정 버튼 → 예산 설정 페이지 push.
+      trailing: PTextButton(
         label: l.navSettings,
-        icon: LucideIcons.settings,
-        // 웹 정합: 설정 버튼 → 예산 설정 페이지 push (drawer 폐기).
         onPressed: () => context.push('/budget/settings'),
+        bleedEnd: true,
       ),
     );
 

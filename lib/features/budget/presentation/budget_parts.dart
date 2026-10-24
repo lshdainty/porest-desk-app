@@ -16,7 +16,6 @@ import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
-import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 
 // 예산 · 예산 설정 · 저축 목표가 함께 쓰는 틀 — 띠 · 구역 · 머리 · 달 줄 · 큰 숫자 · 키-값 · 카테고리 줄 · 실패 (I-08 공통 값).
@@ -327,28 +326,6 @@ class _Arrow extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 달 줄 오른쪽 글 버튼(앞 아이콘 16) — 줄 끝에서 오른쪽 14 바깥으로.
-class BudgetMonthAction extends StatelessWidget {
-  const BudgetMonthAction({
-    super.key,
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) => PTextButton(
-    label: label,
-    prefixIcon: icon,
-    onPressed: onPressed,
-    bleedEnd: true,
-  );
 }
 
 /// 눈썹 글 "{n}월 총 예산" — t3 13/18 · 700 · fg-brand.

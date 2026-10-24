@@ -312,7 +312,6 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
           variant: PListHeaderVariant.boldSolid,
           action: PTextButton(
             label: l.budgetAdd,
-            prefixIcon: LucideIcons.plus,
             onPressed: addDisabled ? null : () => _addCategory(budgets),
           ),
         ),
@@ -462,7 +461,6 @@ class _TotalSection extends StatelessWidget {
             Expanded(child: BudgetEyebrow(l.budgetMonthTotal(month))),
             PTextButton(
               label: has ? l.actionEdit : l.budgetSetup,
-              prefixIcon: has ? LucideIcons.pencil : LucideIcons.plus,
               onPressed: onEdit,
               bleedEnd: true,
             ),
