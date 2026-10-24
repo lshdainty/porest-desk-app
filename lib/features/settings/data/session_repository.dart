@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:groo_damda_app/features/settings/domain/device_session.dart';
 
 /// "로그인된 기기" — 본인 세션 조회·해지.
@@ -35,7 +36,11 @@ class SessionRepository {
   /// 기기 하나 로그아웃.
   Future<void> revoke(String sessionId) async {
     try {
-      await _dio.delete<void>('/users/me/sessions/$sessionId');
+      // 실패 알림은 화면이 하나만 띄운다(I-12 31) — 전역 그물은 끈다
+      await _dio.delete<void>(
+        '/users/me/sessions/$sessionId',
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -44,7 +49,10 @@ class SessionRepository {
   /// 모든 기기에서 로그아웃 — 지금 이 기기도 포함된다.
   Future<void> revokeAll() async {
     try {
-      await _dio.delete<void>('/users/me/sessions');
+      await _dio.delete<void>(
+        '/users/me/sessions',
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

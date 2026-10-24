@@ -6437,8 +6437,14 @@ abstract class AppLocalizations {
   /// No description provided for @moreItemStats.
   ///
   /// In ko, this message translates to:
-  /// **'통계·분석'**
+  /// **'통계'**
   String get moreItemStats;
+
+  /// No description provided for @moreItemRecurring.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래'**
+  String get moreItemRecurring;
 
   /// No description provided for @moreItemAccountCard.
   ///
@@ -6593,7 +6599,7 @@ abstract class AppLocalizations {
   /// No description provided for @moreSearchEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'검색 결과가 없습니다'**
+  /// **'검색 결과가 없어요'**
   String get moreSearchEmpty;
 
   /// No description provided for @settingsGroupDataMgmt.
@@ -6641,7 +6647,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGroupShare.
   ///
   /// In ko, this message translates to:
-  /// **'공유·소통'**
+  /// **'공유'**
   String get settingsGroupShare;
 
   /// No description provided for @settingsMenuCalendarShare.
@@ -6674,12 +6680,6 @@ abstract class AppLocalizations {
   /// **'데이터'**
   String get settingsGroupData;
 
-  /// No description provided for @settingsMenuStorage.
-  ///
-  /// In ko, this message translates to:
-  /// **'저장공간'**
-  String get settingsMenuStorage;
-
   /// No description provided for @settingsGroupAccount.
   ///
   /// In ko, this message translates to:
@@ -6701,7 +6701,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPrivacyOpenFailed.
   ///
   /// In ko, this message translates to:
-  /// **'처리방침을 열 수 없습니다'**
+  /// **'처리방침을 열지 못했어요.'**
   String get settingsPrivacyOpenFailed;
 
   /// No description provided for @settingsGroupHelp.
@@ -6719,7 +6719,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuideOpenFailed.
   ///
   /// In ko, this message translates to:
-  /// **'설명서를 열 수 없습니다'**
+  /// **'설명서를 열지 못했어요.'**
   String get settingsGuideOpenFailed;
 
   /// No description provided for @appearanceTitle.
@@ -7400,6 +7400,24 @@ abstract class AppLocalizations {
   /// **'기기 목록을 불러오지 못했어요'**
   String get devicesLoadError;
 
+  /// No description provided for @devicesLoadErrorHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤 다시 시도해주세요.'**
+  String get devicesLoadErrorHint;
+
+  /// No description provided for @devicesLogoutLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{device} 로그아웃'**
+  String devicesLogoutLabel(String device);
+
+  /// No description provided for @devicesLogoutFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃하지 못했어요. 잠시 뒤 다시 시도해주세요.'**
+  String get devicesLogoutFailed;
+
   /// No description provided for @devicesLogout.
   ///
   /// In ko, this message translates to:
@@ -7409,14 +7427,14 @@ abstract class AppLocalizations {
   /// No description provided for @devicesLogoutTitle.
   ///
   /// In ko, this message translates to:
-  /// **'이 기기에서 로그아웃'**
-  String get devicesLogoutTitle;
+  /// **'{device}에서 로그아웃할까요?'**
+  String devicesLogoutTitle(String device);
 
   /// No description provided for @devicesLogoutConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'{device} 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.'**
-  String devicesLogoutConfirm(String device);
+  /// **'그 기기는 다시 로그인해야 해요.'**
+  String get devicesLogoutConfirm;
 
   /// No description provided for @devicesLogoutAll.
   ///
@@ -7427,13 +7445,13 @@ abstract class AppLocalizations {
   /// No description provided for @devicesLogoutAllTitle.
   ///
   /// In ko, this message translates to:
-  /// **'모든 기기에서 로그아웃'**
+  /// **'모든 기기에서 로그아웃할까요?'**
   String get devicesLogoutAllTitle;
 
   /// No description provided for @devicesLogoutAllConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'지금 쓰는 기기를 포함해 모두 로그아웃할까요? 다시 로그인해야 해요.'**
+  /// **'지금 쓰는 기기도 로그아웃돼요. 다시 로그인해야 해요.'**
   String get devicesLogoutAllConfirm;
 
   /// No description provided for @accountConnected.
@@ -11873,7 +11891,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsMenuTodoTag.
   ///
   /// In ko, this message translates to:
-  /// **'할일 태그'**
+  /// **'할 일 태그'**
   String get settingsMenuTodoTag;
 
   /// No description provided for @settingsMenuMemoTag.

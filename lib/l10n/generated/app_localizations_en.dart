@@ -3546,7 +3546,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreItemStocks => 'Stocks';
 
   @override
-  String get moreItemStats => 'Stats & Analysis';
+  String get moreItemStats => 'Stats';
+
+  @override
+  String get moreItemRecurring => 'Recurring';
 
   @override
   String get moreItemAccountCard => 'Account & Card Management';
@@ -3648,7 +3651,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsGroupTagsLabels => 'Tags · Labels';
 
   @override
-  String get settingsGroupShare => 'Sharing & Communication';
+  String get settingsGroupShare => 'Sharing';
 
   @override
   String get settingsMenuCalendarShare => 'Calendar Management & Sharing';
@@ -3666,9 +3669,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsGroupData => 'Data';
 
   @override
-  String get settingsMenuStorage => 'Storage';
-
-  @override
   String get settingsGroupAccount => 'Account';
 
   @override
@@ -3678,7 +3678,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMenuPrivacyPolicy => 'Privacy Policy';
 
   @override
-  String get settingsPrivacyOpenFailed => 'Could not open the privacy policy';
+  String get settingsPrivacyOpenFailed => 'Couldn\'t open the privacy policy.';
 
   @override
   String get settingsGroupHelp => 'Help';
@@ -3687,7 +3687,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMenuGuide => 'User guide';
 
   @override
-  String get settingsGuideOpenFailed => 'Could not open the user guide';
+  String get settingsGuideOpenFailed => 'Couldn\'t open the user guide.';
 
   @override
   String get appearanceTitle => 'Display settings';
@@ -4043,25 +4043,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devicesLoadError => 'Couldn\'t load your devices';
 
   @override
+  String get devicesLoadErrorHint => 'Try again in a moment.';
+
+  @override
+  String devicesLogoutLabel(String device) {
+    return 'Log out of $device';
+  }
+
+  @override
+  String get devicesLogoutFailed => 'Couldn\'t log out. Try again in a moment.';
+
+  @override
   String get devicesLogout => 'Log out';
 
   @override
-  String get devicesLogoutTitle => 'Log out this device';
+  String devicesLogoutTitle(String device) {
+    return 'Log out of $device?';
+  }
 
   @override
-  String devicesLogoutConfirm(String device) {
-    return 'Log out of $device? It will need to sign in again.';
-  }
+  String get devicesLogoutConfirm => 'It will need to sign in again.';
 
   @override
   String get devicesLogoutAll => 'Log out all devices';
 
   @override
-  String get devicesLogoutAllTitle => 'Log out all devices';
+  String get devicesLogoutAllTitle => 'Log out of all devices?';
 
   @override
   String get devicesLogoutAllConfirm =>
-      'Log out everywhere, including this device? You\'ll need to sign in again.';
+      'This device will be logged out too. You\'ll need to sign in again.';
 
   @override
   String get accountConnected => 'Connected accounts';

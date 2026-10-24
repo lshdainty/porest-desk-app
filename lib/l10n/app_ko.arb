@@ -2165,7 +2165,8 @@
   "moreGroupPersonal": "개인화",
   "moreGroupSystem": "계정·시스템",
   "moreItemStocks": "증권",
-  "moreItemStats": "통계·분석",
+  "moreItemStats": "통계",
+  "moreItemRecurring": "반복 거래",
   "moreItemAccountCard": "계좌·카드 관리",
   "moreItemCardBenefits": "카드 혜택",
   "moreItemDisplay": "표시 설정",
@@ -2191,7 +2192,7 @@
   "moreDescExport": "CSV · Excel · JSON",
   "moreDescAccount": "프로필 · 보안 · 구독",
   "moreSearchHint": "메뉴 검색",
-  "moreSearchEmpty": "검색 결과가 없습니다",
+  "moreSearchEmpty": "검색 결과가 없어요",
   "settingsGroupDataMgmt": "데이터 관리",
   "settingsMenuCategory": "카테고리 관리",
   "settingsMenuAccountCard": "계좌·카드 관리",
@@ -2199,20 +2200,19 @@
   "settingsMenuRecurring": "반복 거래 관리",
   "settingsMenuPreset": "프리셋 관리",
   "settingsGroupTagsLabels": "태그 · 라벨",
-  "settingsGroupShare": "공유·소통",
+  "settingsGroupShare": "공유",
   "settingsMenuCalendarShare": "캘린더 관리·공유",
   "settingsMenuCalendarLabel": "캘린더 라벨",
   "settingsGroupApp": "앱 환경",
   "settingsMenuAppearance": "표시 설정",
   "settingsGroupData": "데이터",
-  "settingsMenuStorage": "저장공간",
   "settingsGroupAccount": "계정",
   "settingsMenuAccountMgmt": "계정 관리",
   "settingsMenuPrivacyPolicy": "개인정보 처리방침",
-  "settingsPrivacyOpenFailed": "처리방침을 열 수 없습니다",
+  "settingsPrivacyOpenFailed": "처리방침을 열지 못했어요.",
   "settingsGroupHelp": "도움말",
   "settingsMenuGuide": "설명서",
-  "settingsGuideOpenFailed": "설명서를 열 수 없습니다",
+  "settingsGuideOpenFailed": "설명서를 열지 못했어요.",
   "appearanceTitle": "표시 설정",
   "appearanceTheme": "테마",
   "appearanceThemeLight": "라이트",
@@ -2357,19 +2357,29 @@
   },
   "devicesEmpty": "로그인된 기기가 없어요",
   "devicesLoadError": "기기 목록을 불러오지 못했어요",
-  "devicesLogout": "로그아웃",
-  "devicesLogoutTitle": "이 기기에서 로그아웃",
-  "devicesLogoutConfirm": "{device} 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.",
-  "@devicesLogoutConfirm": {
+  "devicesLoadErrorHint": "잠시 뒤 다시 시도해주세요.",
+  "devicesLogoutLabel": "{device} 로그아웃",
+  "@devicesLogoutLabel": {
     "placeholders": {
       "device": {
         "type": "String"
       }
     }
   },
+  "devicesLogoutFailed": "로그아웃하지 못했어요. 잠시 뒤 다시 시도해주세요.",
+  "devicesLogout": "로그아웃",
+  "devicesLogoutTitle": "{device}에서 로그아웃할까요?",
+  "@devicesLogoutTitle": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesLogoutConfirm": "그 기기는 다시 로그인해야 해요.",
   "devicesLogoutAll": "모든 기기에서 로그아웃",
-  "devicesLogoutAllTitle": "모든 기기에서 로그아웃",
-  "devicesLogoutAllConfirm": "지금 쓰는 기기를 포함해 모두 로그아웃할까요? 다시 로그인해야 해요.",
+  "devicesLogoutAllTitle": "모든 기기에서 로그아웃할까요?",
+  "devicesLogoutAllConfirm": "지금 쓰는 기기도 로그아웃돼요. 다시 로그인해야 해요.",
   "accountConnected": "연결된 계정",
   "accountNotConnected": "연결 안 됨",
   "accountConnect": "연결",
@@ -4029,7 +4039,7 @@
       }
     }
   },
-  "settingsMenuTodoTag": "할일 태그",
+  "settingsMenuTodoTag": "할 일 태그",
   "settingsMenuMemoTag": "메모 태그",
   "ttagUsage": "{count}건에 사용 중",
   "calLabelUsage": "{count}건에 사용 중",
