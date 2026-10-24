@@ -25,6 +25,7 @@ import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart
 import 'package:groo_damda_app/features/expense/presentation/filter_dialog.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/filter_bodies.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
@@ -815,6 +816,38 @@ void main() {
     expect(three.start, DateTime(2026, 8, 1), reason: '두 달 전 1일');
     expect(three.end, DateTime(2026, 10, 31));
   });
+
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('요약 줄 · 머리 아래 선 · 목록 줄이 화면 끝(360)까지 간다 — 글자 x$scale', (
+      tester,
+    ) async {
+      await _pump(tester, textScale: scale);
+      await tester.tap(find.text('소비 요약'));
+      await tester.pumpAndSettle();
+      // 요약 줄 셋(수입 · 지출 · 합계)
+      final items = find.descendant(
+        of: find.byType(LedgerSummaryList),
+        matching: find.byType(PListItem),
+      );
+      expect(items, findsNWidgets(3));
+      for (var i = 0; i < 3; i++) {
+        final r = tester.getRect(items.at(i));
+        expect(r.left, 0, reason: '요약 줄 $i 왼쪽');
+        expect(r.right, 360, reason: '요약 줄 $i 오른쪽 = 화면 폭');
+      }
+      // 머리 아래 선
+      final line = tester.getRect(find.byType(LedgerHeaderDivider));
+      expect(line.left, 0);
+      expect(line.right, 360, reason: '머리 아래 선 오른쪽 = 화면 폭');
+      // 목록 줄(거래 줄 · 날짜 머리) — 200% 에서는 요약이 화면을 채워 목록이 아직 만들어지지 않는다
+      if (scale > 1) return;
+      final row = tester.getRect(find.byType(PListButtonItem).first);
+      expect(row.left, 0);
+      expect(row.right, 360, reason: '목록 줄 오른쪽 = 화면 폭');
+      final head = tester.getRect(find.byType(PDayHeader).first);
+      expect(head.right, 360, reason: '날짜 머리 오른쪽 = 화면 폭');
+    });
+  }
 
   group('200% · 다크 — 가장 나쁜 값에서 넘침 오류가 없다', () {
     final worst = [
