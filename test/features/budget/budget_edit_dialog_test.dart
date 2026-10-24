@@ -199,6 +199,17 @@ void main() {
     expect(repo.calls, isEmpty);
   });
 
+  testWidgets('카테고리 줄 오류 글은 줄의 설명으로 읽힌다', (tester) async {
+    final handle = tester.ensureSemantics();
+    await _open(tester);
+    await _press(tester, l.budgetSubmitAdd);
+    final data = tester
+        .getSemantics(find.byType(PListButtonItem))
+        .getSemanticsData();
+    expect(data.hint, contains(l.budgetFormErrCategory));
+    handle.dispose();
+  });
+
   testWidgets('고르기 시트 — 예산 있는 카테고리는 막힌 줄 · 누르면 바로 넣고 닫힌다', (tester) async {
     final repo = await _open(tester, used: {1});
     await tester.tap(_t(l.budgetFormCategoryPlaceholder));
