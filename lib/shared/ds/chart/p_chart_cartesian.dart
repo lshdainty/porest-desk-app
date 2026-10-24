@@ -106,9 +106,15 @@ class PLineChart extends PCartesianChart {
     super.valueFormatter,
     super.axisFormatter,
     this.area = true,
+    this.dots = false,
   });
 
   final bool area;
+
+  /// 데이터 점마다 늘 찍는 점 — 지름 6(r 3) · 계열 색 채움 · 테두리 없음. 기본은 없음(가리킨 자리에만 점이 선다). 점이 적은
+  /// 추이를 영역 채움 없이 선 + 점으로 그릴 때만 켠다(I-05 57 — chart.md 선 줄 "점이 적은 추이는 선 + 점도 된다").
+  /// 가리킨 점은 스펙 그대로(r 3 + 카드 면 색 테두리 2)라 이 점 위에 커져 겹친다.
+  final bool dots;
 
   @override
   State<PLineChart> createState() => _PLineChartState();
@@ -509,7 +515,17 @@ class _PLineChartState extends _CartesianState<PLineChart> {
           preventCurveOverShooting: true,
           color: s.color.of(c),
           barWidth: kChartLineWidth,
-          dotData: const FlDotData(show: false),
+          dotData: widget.dots
+              ? FlDotData(
+                  show: true,
+                  getDotPainter: (spot, percent, bar, index) =>
+                      FlDotCirclePainter(
+                        radius: kChartPointRadius,
+                        color: s.color.of(c),
+                        strokeWidth: 0,
+                      ),
+                )
+              : const FlDotData(show: false),
           showingIndicators: _active == null ? const [] : [_active!],
           belowBarData: widget.area
               ? BarAreaData(
