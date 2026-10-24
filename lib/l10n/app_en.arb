@@ -1856,7 +1856,7 @@
     }
   },
   "dutchCreated": "Settlement created",
-  "expLoadError": "Failed to load transactions",
+  "expLoadError": "Couldn't load transactions",
   "expEmptyMonth": "No transactions this month",
   "expEmptyDay": "No transactions on this day",
   "expTotal": "Total",
@@ -2018,11 +2018,7 @@
       }
     }
   },
-  "expPeriodWeek": "This week",
-  "expPeriod3Month": "3 months",
   "expPeriodCustom": "Custom",
-  "expStartDate": "Start date",
-  "expEndDate": "End date",
   "expDateRangeError": "Start date can't be after end date.",
   "expTxType": "Transaction type",
   "expAmountRange": "Amount range",
@@ -4119,11 +4115,10 @@
   "expFilterMatchAll": "Match all",
   "expFilterMatchAny": "Match any",
   "expFilterMatchHint": "You can choose this once two or more conditions are set.",
-  "expFilterAddPeriod": "+ Add period",
-  "expFilterAddAmountRange": "+ Add range",
+  "expFilterAddPeriod": "Add period",
+  "expFilterAddAmountRange": "Add range",
   "expFilterPeriodAlwaysAnd": "Periods always apply on top of the other conditions.",
   "expFilterRemoveRow": "Remove this row",
-  "expFilterChipLegend": "Tap again to exclude it.",
   "expFilterExcluded": "{count} excluded",
   "@expFilterExcluded": {
     "placeholders": {
@@ -4346,5 +4341,18 @@
   "dsCommonRetry": "Try again",
   "cardListLoadFailed": "Couldn't load cards",
   "cardListEnd": "You've seen all the cards.",
-  "apiErrorNetwork": "The network connection is unstable. Please try again in a moment."
+  "apiErrorNetwork": "The network connection is unstable. Please try again in a moment.",
+  "txmCalendarToggle": "Month calendar",
+  "expFilteredEmpty": "No transactions match",
+  "expFilteredEmptyDesc": "Change or clear the filters.",
+  "expFilterMatchAllDesc": "Only transactions that meet every active filter",
+  "expFilterMatchAnyDesc": "Transactions that meet any active filter",
+  "expFilterModeInclude": "Only selected",
+  "expFilterModeExclude": "All except selected",
+  "expFilterPeriodPick": "Pick a period",
+  "expFilterClearOne": "Clear {name}",
+  "@expFilterClearOne": {"placeholders": {"name": {"type": "String"}}},
+  "expFilterModeGroup": "How to pick {name}",
+  "expLoadErrorDesc": "Please try again in a moment.",
+  "@expFilterModeGroup": {"placeholders": {"name": {"type": "String"}}}
 }

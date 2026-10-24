@@ -3019,6 +3019,94 @@ void _worstTests() {
       });
     }
 
+    // 금액 노드(PListValue.amount)도 글 값처럼 본문 최소 폭만 남기고 쉼표 뒤에서 줄을 바꾼다(03-D 결정 2 B) — 내리지 않는 줄(줄 안 폭 16em 이상)
+    for (final width in const [304.0, 320.0, 360.0]) {
+      testWidgets('금액 노드는 쉼표 뒤에서만 줄을 바꾸고 넘치지 않는다 — 폭 $width', (tester) async {
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PList(
+              semanticLabel: '금액',
+              children: [
+                PListItem(
+                  prefix: const Icon(LucideIcons.wallet),
+                  title: '가게',
+                  suffix: PListValue.amount('−1,234,567,890원'),
+                ),
+              ],
+            ),
+            width: width,
+          ),
+        );
+        expect(tester.takeException(), isNull, reason: '폭 $width');
+        final body = tester.getRect(_bodies);
+        final suffix = tester.getRect(_suffixes);
+        final row = tester.getRect(_rows);
+        expect(body.width, greaterThanOrEqualTo(kPListBodyMinWidth - 0.5));
+        expect(suffix.left, greaterThanOrEqualTo(body.right - 0.5));
+        expect(suffix.right, lessThanOrEqualTo(row.right + 0.5));
+        // 쉼표 뒤에서 접힌 것 — 한 줄(t5 22)보다 높거나 한 줄이다. 어느 쪽이든 글자 가운데에서 끊기지 않는다.
+        final shown = find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              w.semanticsLabel == '−1,234,567,890원' &&
+              w.data != null,
+        );
+        expect(shown, findsOneWidget);
+        expect(shown.evaluate().single.widget, isA<Text>());
+      });
+    }
+
+    testWidgets('금액 노드가 줄 안 값 폭을 넘으면 쉼표 자리에서 두 줄로 접힌다 — 글자 가운데에서 끊기지 않는다', (
+      tester,
+    ) async {
+      const amount = '−1,234,567,890,123,456,789원';
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          PList(
+            semanticLabel: '금액',
+            children: [
+              PListItem(
+                prefix: const Icon(LucideIcons.wallet),
+                title: '가게',
+                suffix: PListValue.amount(amount),
+              ),
+            ],
+          ),
+          width: 304,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final shown = find.byWidgetPredicate(
+        (w) => w is Text && w.semanticsLabel == amount && w.data != null,
+      );
+      expect(shown, findsOneWidget);
+      final text = tester.widget<Text>(shown);
+      // 보이는 글은 쉼표 뒤에만 줄바꿈 자리(U+200B)가 있다 — 읽는 이름(semanticsLabel)에는 없다
+      expect(text.data!.replaceAll('\u2060', '').contains(',\u200B'), isTrue);
+      expect(
+        text.data!.replaceAll('\u2060', '').replaceAll('\u200B', ''),
+        amount,
+      );
+      expect(text.semanticsLabel, amount);
+      // 줄바꿈 자리는 쉼표 바로 뒤에만 있다(U+200B 앞은 늘 쉼표)
+      final visible = text.data!.replaceAll('\u2060', '');
+      expect(
+        RegExp('\u200B')
+            .allMatches(visible)
+            .every((m) => m.start > 0 && visible[m.start - 1] == ','),
+        isTrue,
+      );
+      // 한 줄(t5 22)보다 높다 = 접혔다
+      expect(tester.getSize(shown).height, greaterThan(30));
+      // 접힌 줄은 줄 안 폭을 넘지 않는다
+      expect(
+        tester.getRect(shown).right,
+        lessThanOrEqualTo(tester.getRect(_rows).right + 0.5),
+      );
+    });
+
     testWidgets('글 값은 자리가 남으면 줄지 않는다 — 본문이 양보하는 쪽은 그다음이다', (tester) async {
       Future<Size> suffixSize(double width, String value) async {
         await tester.pumpWidget(

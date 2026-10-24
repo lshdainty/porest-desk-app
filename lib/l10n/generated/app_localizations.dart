@@ -5471,7 +5471,7 @@ abstract class AppLocalizations {
   /// No description provided for @expLoadError.
   ///
   /// In ko, this message translates to:
-  /// **'거래를 불러오지 못했습니다'**
+  /// **'거래를 불러오지 못했어요'**
   String get expLoadError;
 
   /// No description provided for @expEmptyMonth.
@@ -5555,7 +5555,7 @@ abstract class AppLocalizations {
   /// No description provided for @expDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.'**
+  /// **'\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요.'**
   String expDeleteConfirm(String name);
 
   /// No description provided for @expDeleted.
@@ -5924,40 +5924,16 @@ abstract class AppLocalizations {
   /// **'{count}개 선택'**
   String expNSelected(int count);
 
-  /// No description provided for @expPeriodWeek.
-  ///
-  /// In ko, this message translates to:
-  /// **'이번 주'**
-  String get expPeriodWeek;
-
-  /// No description provided for @expPeriod3Month.
-  ///
-  /// In ko, this message translates to:
-  /// **'3개월'**
-  String get expPeriod3Month;
-
   /// No description provided for @expPeriodCustom.
   ///
   /// In ko, this message translates to:
   /// **'직접 선택'**
   String get expPeriodCustom;
 
-  /// No description provided for @expStartDate.
-  ///
-  /// In ko, this message translates to:
-  /// **'시작일'**
-  String get expStartDate;
-
-  /// No description provided for @expEndDate.
-  ///
-  /// In ko, this message translates to:
-  /// **'종료일'**
-  String get expEndDate;
-
   /// No description provided for @expDateRangeError.
   ///
   /// In ko, this message translates to:
-  /// **'시작일이 종료일보다 늦을 수 없습니다.'**
+  /// **'시작일이 종료일보다 늦을 수 없어요.'**
   String get expDateRangeError;
 
   /// No description provided for @expTxType.
@@ -12689,13 +12665,13 @@ abstract class AppLocalizations {
   /// No description provided for @expFilterAddPeriod.
   ///
   /// In ko, this message translates to:
-  /// **'+ 기간 추가'**
+  /// **'기간 추가'**
   String get expFilterAddPeriod;
 
   /// No description provided for @expFilterAddAmountRange.
   ///
   /// In ko, this message translates to:
-  /// **'+ 구간 추가'**
+  /// **'구간 추가'**
   String get expFilterAddAmountRange;
 
   /// No description provided for @expFilterPeriodAlwaysAnd.
@@ -12709,12 +12685,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'이 줄 지우기'**
   String get expFilterRemoveRow;
-
-  /// No description provided for @expFilterChipLegend.
-  ///
-  /// In ko, this message translates to:
-  /// **'한 번 더 누르면 \'빼고\'가 돼요.'**
-  String get expFilterChipLegend;
 
   /// No description provided for @expFilterExcluded.
   ///
@@ -13807,6 +13777,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.'**
   String get apiErrorNetwork;
+
+  /// No description provided for @txmCalendarToggle.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 달력'**
+  String get txmCalendarToggle;
+
+  /// No description provided for @expFilteredEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건에 맞는 거래가 없어요'**
+  String get expFilteredEmpty;
+
+  /// No description provided for @expFilteredEmptyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건을 바꾸거나 지워보세요.'**
+  String get expFilteredEmptyDesc;
+
+  /// No description provided for @expFilterMatchAllDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'걸린 조건을 모두 만족하는 거래만'**
+  String get expFilterMatchAllDesc;
+
+  /// No description provided for @expFilterMatchAnyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'걸린 조건 중 하나라도 만족하면'**
+  String get expFilterMatchAnyDesc;
+
+  /// No description provided for @expFilterModeInclude.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 것만'**
+  String get expFilterModeInclude;
+
+  /// No description provided for @expFilterModeExclude.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 것 빼고'**
+  String get expFilterModeExclude;
+
+  /// No description provided for @expFilterPeriodPick.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 선택'**
+  String get expFilterPeriodPick;
+
+  /// No description provided for @expFilterClearOne.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 지우기'**
+  String expFilterClearOne(String name);
+
+  /// No description provided for @expFilterModeGroup.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 고르는 방식'**
+  String expFilterModeGroup(String name);
+
+  /// No description provided for @expLoadErrorDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤에 다시 시도해주세요.'**
+  String get expLoadErrorDesc;
 }
 
 class _AppLocalizationsDelegate

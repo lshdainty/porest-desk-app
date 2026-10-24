@@ -113,6 +113,7 @@ abstract class PListItemBase extends StatelessWidget {
     this.titleStrike = false,
     this.gutter,
     this.verticalPadding,
+    this.endInset,
   }) : assert(
          detail == null || detailChild == null,
          '설명은 글(detail)이나 위젯(detailChild) 하나만 준다',
@@ -147,6 +148,9 @@ abstract class PListItemBase extends StatelessWidget {
 
   /// 줄 위아래 여백 — 기본 12. 키-값 줄(예산 · 페이스 · 현황 — I-08)이 8 을 준다.
   final double? verticalPadding;
+
+  /// 줄 오른쪽 끝 여백 — 줄 끝 조작 요소(⋮)를 화면 끝 16 에 세울 때. 기본은 [gutter].
+  final double? endInset;
 }
 
 /// 보기만 하는 줄 — 누르지 않는다(눌림 · 포커스가 없다). 키-값 · 안내 줄.
@@ -163,9 +167,14 @@ class PListItem extends PListItemBase {
     super.titleStrike,
     super.gutter,
     super.verticalPadding,
+    super.endInset,
+    this.titleWeight,
     this.prefix,
     this.suffix,
   });
+
+  /// 제목 굵기 덮개 — 화면 값(합계 줄만 700).
+  final FontWeight? titleWeight;
 
   /// 앞 붙이개 — 아이콘 22 · [PListTile] · 로고 타일 · 아바타.
   final Widget? prefix;
@@ -179,10 +188,12 @@ class PListItem extends PListItemBase {
     detail: detail,
     detailChild: detailChild,
     titleColor: titleColor,
+    titleWeight: titleWeight,
     titleSuffix: titleSuffix,
     titleStrike: titleStrike,
     gutter: gutter,
     verticalPadding: verticalPadding,
+    endInset: endInset,
     prefix: prefix,
     suffix: suffix,
     highlighted: highlighted,
@@ -207,6 +218,7 @@ class PListButtonItem extends PListItemBase {
     super.titleSuffix,
     super.titleStrike,
     super.gutter,
+    super.endInset,
     this.prefix,
     this.suffix,
     this.focusNode,
@@ -226,6 +238,7 @@ class PListButtonItem extends PListItemBase {
     titleSuffix: titleSuffix,
     titleStrike: titleStrike,
     gutter: gutter,
+    endInset: endInset,
     prefix: prefix,
     suffix: suffix,
     highlighted: highlighted,

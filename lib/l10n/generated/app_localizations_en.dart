@@ -3017,7 +3017,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutchCreated => 'Settlement created';
 
   @override
-  String get expLoadError => 'Failed to load transactions';
+  String get expLoadError => 'Couldn\'t load transactions';
 
   @override
   String get expEmptyMonth => 'No transactions this month';
@@ -3274,19 +3274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expPeriodWeek => 'This week';
-
-  @override
-  String get expPeriod3Month => '3 months';
-
-  @override
   String get expPeriodCustom => 'Custom';
-
-  @override
-  String get expStartDate => 'Start date';
-
-  @override
-  String get expEndDate => 'End date';
 
   @override
   String get expDateRangeError => 'Start date can\'t be after end date.';
@@ -7126,10 +7114,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can choose this once two or more conditions are set.';
 
   @override
-  String get expFilterAddPeriod => '+ Add period';
+  String get expFilterAddPeriod => 'Add period';
 
   @override
-  String get expFilterAddAmountRange => '+ Add range';
+  String get expFilterAddAmountRange => 'Add range';
 
   @override
   String get expFilterPeriodAlwaysAnd =>
@@ -7137,9 +7125,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expFilterRemoveRow => 'Remove this row';
-
-  @override
-  String get expFilterChipLegend => 'Tap again to exclude it.';
 
   @override
   String expFilterExcluded(int count) {
@@ -7808,4 +7793,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get apiErrorNetwork =>
       'The network connection is unstable. Please try again in a moment.';
+
+  @override
+  String get txmCalendarToggle => 'Month calendar';
+
+  @override
+  String get expFilteredEmpty => 'No transactions match';
+
+  @override
+  String get expFilteredEmptyDesc => 'Change or clear the filters.';
+
+  @override
+  String get expFilterMatchAllDesc =>
+      'Only transactions that meet every active filter';
+
+  @override
+  String get expFilterMatchAnyDesc =>
+      'Transactions that meet any active filter';
+
+  @override
+  String get expFilterModeInclude => 'Only selected';
+
+  @override
+  String get expFilterModeExclude => 'All except selected';
+
+  @override
+  String get expFilterPeriodPick => 'Pick a period';
+
+  @override
+  String expFilterClearOne(String name) {
+    return 'Clear $name';
+  }
+
+  @override
+  String expFilterModeGroup(String name) {
+    return 'How to pick $name';
+  }
+
+  @override
+  String get expLoadErrorDesc => 'Please try again in a moment.';
 }

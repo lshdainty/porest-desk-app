@@ -38,6 +38,7 @@ class ExpenseRow extends StatelessWidget {
     this.onTap,
     this.showInstallment = false,
     this.gutter,
+    this.highlighted = false,
     super.key,
   });
 
@@ -65,6 +66,9 @@ class ExpenseRow extends StatelessWidget {
   /// **임시 인자** — 기본(null)은 ds List 줄의 24(홈이 쓴다). 좌우 24 를 아직 쥐고 있는 호스트(가계부 · 검색 · 자산 상세 · 거래
   /// 상세)는 0 을 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
+
+  /// 알림 · 검색에서 들어온 줄 — ds List `highlighted`(바탕 `bg-brand-weak`, 누름 · 설명 글 보정이 따라온다).
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
@@ -119,15 +123,16 @@ class ExpenseRow extends StatelessWidget {
       size: PTagGroupSize.t3,
       overflow: PTagGroupOverflow.truncate,
       items: [
-        PTag(cName),
-        PTag(expense.assetName ?? '-'),
+        // 줄어드는 정도는 스펙 예 그대로(tag-group.md "줄어드는 정도", 03-E 5 B) — 카테고리 0 · 자산 2 · 할부 0
+        PTag(cName, shrink: 0),
+        PTag(expense.assetName ?? '-', shrink: 2),
         if (showInstallment && (expense.installmentMonths ?? 1) > 1)
-          PTag(l.assetInstallmentBadge(expense.installmentMonths!)),
+          PTag(l.assetInstallmentBadge(expense.installmentMonths!), shrink: 0),
       ],
     );
     final prefix = PListTile(background: bg, color: fg, child: Icon(icon));
     // 부호는 **손으로** 붙인다 — U+2212 와 tabular figures 정렬(QA #22). 금액은 쉼표 뒤에서만 줄을 바꾼다.
-    final suffix = PListValue.amount(
+    final amountNode = PListValue.amount(
       amountText,
       style: TextStyle(
         color: amountColor,
@@ -138,6 +143,7 @@ class ExpenseRow extends StatelessWidget {
         decorationColor: refunded ? c.fgNeutralSubtle : null,
       ),
     );
+    final suffix = amountNode;
     final titleColor = excluded ? c.fgNeutralSubtle : null;
 
     if (!interactive) {
@@ -146,6 +152,7 @@ class ExpenseRow extends StatelessWidget {
         titleSuffix: badges,
         titleColor: titleColor,
         gutter: gutter,
+        highlighted: highlighted,
         detailChild: detail,
         prefix: prefix,
         suffix: suffix,
@@ -156,6 +163,7 @@ class ExpenseRow extends StatelessWidget {
       titleSuffix: badges,
       titleColor: titleColor,
       gutter: gutter,
+      highlighted: highlighted,
       detailChild: detail,
       prefix: prefix,
       suffix: suffix,

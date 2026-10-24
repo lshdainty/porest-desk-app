@@ -53,18 +53,36 @@ const double kSwipeLabelLineHeight = 1.3;
 /// 누름 · 호버 밝기.
 const double kSwipePressedBrightness = 0.88;
 
-/// 동작 하나가 차지하는 폭 — 배지 + 그 앞 간격(첫 칸 56 · 다음부터 48). 간격은 앞에만 둔다(뒤에도 두면 마지막 배지와
-/// 화면 끝이 벌어져 덜 열린 것처럼 보인다).
-double swipeSlotWidth(int index) =>
-    kSwipeBadgeSize + (index == 0 ? kSwipeGapLead : kSwipeGapBetween);
+/// 동작 하나가 차지하는 폭 — 글 자리 + 그 앞 간격(첫 칸 +20 · 다음부터 +12). 글 자리는 배지 36 이 최소이고 라벨이 더 길면
+/// 라벨 폭만큼 넓어진다(영어 "Delete" 가 두 줄로 꺾이지 않게 — 한글 두 글자는 36 안이라 그대로 56 · 48). 간격은 앞에만 둔다(뒤에도
+/// 두면 마지막 배지와 화면 끝이 벌어져 덜 열린 것처럼 보인다).
+double swipeSlotWidth(int index, {double label = 0}) =>
+    math.max(kSwipeBadgeSize, label) +
+    (index == 0 ? kSwipeGapLead : kSwipeGapBetween);
 
-/// 트레이 전체 폭 — 하나 56 · 둘 104 · 셋 152.
-double swipeTrayWidth(int count) {
+/// 트레이 전체 폭 — 라벨이 모두 36 안이면 하나 56 · 둘 104 · 셋 152. [labels] 는 칸 차례(안쪽부터)의 라벨 폭.
+double swipeTrayWidth(int count, {List<double>? labels}) {
   var sum = 0.0;
   for (var i = 0; i < count; i++) {
-    sum += swipeSlotWidth(i);
+    sum += swipeSlotWidth(i, label: labels == null ? 0 : labels[i]);
   }
   return sum;
+}
+
+/// 라벨 한 줄의 폭 — 칸 폭을 정한다(t2 · 700, 글자 크기 설정을 따른다).
+double swipeLabelWidth(BuildContext context, String label) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: label,
+      style: PTypography.t2.copyWith(fontWeight: FontWeight.w700),
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  final width = painter.width.ceilToDouble();
+  painter.dispose();
+  return width;
 }
 
 enum PSwipeAxis { none, x, y }
@@ -224,6 +242,7 @@ class PSwipeActionCell extends StatelessWidget {
     super.key,
     required this.action,
     this.index = 0,
+    this.labelWidth = 0,
     this.rowLabel,
     this.onTap,
     this.previewPressed = false,
@@ -233,6 +252,9 @@ class PSwipeActionCell extends StatelessWidget {
 
   /// 트레이 안 자리 — 0 이 가장 안쪽(화면에서 가장 왼쪽): 앞 간격 20, 다음부터 12.
   final int index;
+
+  /// 라벨 한 줄의 폭 — 36 보다 길면 칸이 그만큼 넓어진다([swipeLabelWidth]).
+  final double labelWidth;
 
   /// 동작 이름에 붙는 줄 제목 — "삭제: 스타벅스".
   final String? rowLabel;
@@ -266,7 +288,7 @@ class PSwipeActionCell extends StatelessWidget {
         final dim = !action.disabled && (pressed || previewPressed);
         Widget body = SizedBox(
           key: ValueKey('swipe-action-${action.label}'),
-          width: swipeSlotWidth(index),
+          width: swipeSlotWidth(index, label: labelWidth),
           child: Padding(
             padding: EdgeInsetsDirectional.only(
               start: index == 0 ? kSwipeGapLead : kSwipeGapBetween,
@@ -482,7 +504,13 @@ class _PSwipeActionsState extends State<PSwipeActions> {
     super.dispose();
   }
 
-  double get _tray => swipeTrayWidth(widget.actions.length);
+  /// 칸 차례(안쪽부터 = 뒤집은 차례)의 라벨 폭.
+  List<double> get _labelWidths => [
+    for (final a in widget.actions.reversed) swipeLabelWidth(context, a.label),
+  ];
+
+  double get _tray =>
+      swipeTrayWidth(widget.actions.length, labels: _labelWidths);
 
   bool get _open => _group != null ? _group!.openId == _id : _localOpen;
 
@@ -532,7 +560,8 @@ class _PSwipeActionsState extends State<PSwipeActions> {
 
     final c = context.colors;
     final open = _open;
-    final tray = _tray;
+    final labelWidths = _labelWidths;
+    final tray = swipeTrayWidth(widget.actions.length, labels: labelWidths);
     final offset = _drag ?? (open ? tray : 0);
     final rtl = _rtl;
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -582,6 +611,7 @@ class _PSwipeActionsState extends State<PSwipeActions> {
                           PSwipeActionCell(
                             action: reversed[i],
                             index: i,
+                            labelWidth: labelWidths[i],
                             rowLabel: widget.rowLabel,
                             // 트레이를 먼저 닫고 실행한다
                             onTap: () {

@@ -2973,7 +2973,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dutchCreated => '정산이 만들어졌어요';
 
   @override
-  String get expLoadError => '거래를 불러오지 못했습니다';
+  String get expLoadError => '거래를 불러오지 못했어요';
 
   @override
   String get expEmptyMonth => '이 달에는 거래가 없습니다';
@@ -3020,7 +3020,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String expDeleteConfirm(String name) {
-    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.';
+    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요.';
   }
 
   @override
@@ -3226,22 +3226,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get expPeriodWeek => '이번 주';
-
-  @override
-  String get expPeriod3Month => '3개월';
-
-  @override
   String get expPeriodCustom => '직접 선택';
 
   @override
-  String get expStartDate => '시작일';
-
-  @override
-  String get expEndDate => '종료일';
-
-  @override
-  String get expDateRangeError => '시작일이 종료일보다 늦을 수 없습니다.';
+  String get expDateRangeError => '시작일이 종료일보다 늦을 수 없어요.';
 
   @override
   String get expTxType => '거래 종류';
@@ -7008,19 +6996,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFilterMatchHint => '조건이 두 개 이상일 때 고를 수 있어요.';
 
   @override
-  String get expFilterAddPeriod => '+ 기간 추가';
+  String get expFilterAddPeriod => '기간 추가';
 
   @override
-  String get expFilterAddAmountRange => '+ 구간 추가';
+  String get expFilterAddAmountRange => '구간 추가';
 
   @override
   String get expFilterPeriodAlwaysAnd => '기간은 항상 함께 적용돼요.';
 
   @override
   String get expFilterRemoveRow => '이 줄 지우기';
-
-  @override
-  String get expFilterChipLegend => '한 번 더 누르면 \'빼고\'가 돼요.';
 
   @override
   String expFilterExcluded(int count) {
@@ -7638,4 +7623,41 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get apiErrorNetwork => '네트워크 연결이 불안정해요. 잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String get txmCalendarToggle => '월 달력';
+
+  @override
+  String get expFilteredEmpty => '조건에 맞는 거래가 없어요';
+
+  @override
+  String get expFilteredEmptyDesc => '조건을 바꾸거나 지워보세요.';
+
+  @override
+  String get expFilterMatchAllDesc => '걸린 조건을 모두 만족하는 거래만';
+
+  @override
+  String get expFilterMatchAnyDesc => '걸린 조건 중 하나라도 만족하면';
+
+  @override
+  String get expFilterModeInclude => '고른 것만';
+
+  @override
+  String get expFilterModeExclude => '고른 것 빼고';
+
+  @override
+  String get expFilterPeriodPick => '기간 선택';
+
+  @override
+  String expFilterClearOne(String name) {
+    return '$name 지우기';
+  }
+
+  @override
+  String expFilterModeGroup(String name) {
+    return '$name 고르는 방식';
+  }
+
+  @override
+  String get expLoadErrorDesc => '잠시 뒤에 다시 시도해주세요.';
 }

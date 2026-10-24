@@ -69,25 +69,35 @@ Future<void> _pumpLedger(
   await tester.pumpAndSettle();
 }
 
+/// 인사이트 문장은 낱말 단위 줄바꿈(keepAll)이 글자 사이에 U+2060 을 넣는다 — 그 글자를 뺀 글로 찾는다.
+Finder _rich(String needle) => find.byWidgetPredicate((w) {
+  if (w is! Text) return false;
+  final raw = (w.data ?? w.textSpan?.toPlainText() ?? '').replaceAll(
+    '\u2060',
+    '',
+  );
+  return raw.contains(needle);
+});
+
 void main() {
   testWidgets('지난달 대비 11,881원 차이를 `1만원` 으로 깎지 않는다', (tester) async {
     await _pumpLedger(tester, thisMonth: 100000, lastMonth: 111881);
 
     // 문장은 Text.rich 라 findRichText 로 본다.
-    expect(find.textContaining('1.2만원', findRichText: true), findsOneWidget);
-    expect(find.textContaining('1만원', findRichText: true), findsNothing);
+    expect(_rich('1.2만원'), findsOneWidget);
+    expect(_rich('1만원'), findsNothing);
   });
 
   testWidgets('1만 아래 차액은 축약 없이 그대로 말한다', (tester) async {
     // 7,000원 차이 — 예전엔 `1만원`(+43%) 이라고 했다.
     await _pumpLedger(tester, thisMonth: 100000, lastMonth: 107000);
 
-    expect(find.textContaining('7,000원', findRichText: true), findsOneWidget);
+    expect(_rich('7,000원'), findsOneWidget);
   });
 
   testWidgets('5,000원 미만이면 "비슷하게" — 문턱은 그대로다', (tester) async {
     await _pumpLedger(tester, thisMonth: 100000, lastMonth: 104999);
 
-    expect(find.textContaining('비슷하게', findRichText: true), findsOneWidget);
+    expect(_rich('비슷하게'), findsOneWidget);
   });
 }

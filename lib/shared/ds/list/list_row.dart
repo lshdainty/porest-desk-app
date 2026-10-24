@@ -219,10 +219,12 @@ class PListRowFrame extends StatefulWidget {
     this.detail,
     this.detailChild,
     this.titleColor,
+    this.titleWeight,
     this.titleSuffix,
     this.titleStrike = false,
     this.gutter,
     this.verticalPadding,
+    this.endInset,
     this.prefix,
     this.suffix,
     this.highlighted = false,
@@ -248,6 +250,9 @@ class PListRowFrame extends StatefulWidget {
   /// 제목 색을 덮는다 — 합계에 안 드는 줄(예정 · 환불)의 `fg-neutral-subtle`. 막힌 줄은 비활성 색이 이긴다.
   final Color? titleColor;
 
+  /// 제목 굵기를 덮는다 — 화면 값(합계 줄만 700). 기본 400.
+  final FontWeight? titleWeight;
+
   /// 제목 글 바로 뒤에 이어 붙는 배지들 — 제목과 함께 줄을 바꾼다(거래 줄의 예정 · 환불 · 고정 배지). 읽는 이름은 제목 글 + 배지 글.
   final List<Widget>? titleSuffix;
 
@@ -260,6 +265,10 @@ class PListRowFrame extends StatefulWidget {
 
   /// 줄 위아래 여백 — 기본 12.
   final double? verticalPadding;
+
+  /// 줄 오른쪽 끝 여백 — 줄 끝 조작 요소(⋮)를 화면 끝에서 16 에 세울 때. 기본은 [gutter](24). 웹의 음수 끝 여백(`-mr-x2`)의 Flutter 판이다.
+  final double? endInset;
+
   final Widget? prefix;
   final Widget? suffix;
   final bool highlighted;
@@ -390,7 +399,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
 
   /// 본문 + 뒤 붙이개(groo-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
   ///   글([Text]로 넘긴 값) — 본문이 최소 폭(1em + 뒤 여백 10)이 된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다.
-  ///   위젯(금액 노드 · 화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다. 큰 금액을 줄이는 건 화면 몫이다.
+  ///   금액 노드([PListValue]) — 글 값처럼 본문 최소 폭만 남기고 쉼표 뒤에서 줄을 바꾼다(글자는 줄이지 않는다).
+  ///   그 밖 위젯(화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다.
   ///
   /// [mergeValue] — 누르는 줄 · 링크 줄은 제목 + 설명 + 값이 한 이름이다(03-D 결정 4 A). 값(글 · [PListValue])만 본문과
   /// 같은 [MergeSemantics] 로 묶고, 화살표 · 작은 버튼 같은 조작 요소는 따로 읽힌다. 읽는 순서는 본문 → 값 → 조작 요소.
@@ -405,7 +415,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
     final parts = splitListSuffix(suffix);
     final merge = mergeValue && parts.values.isNotEmpty;
     final bodyNode = buildBodyNode(container: !merge);
-    final isText = suffix is Text;
+    // 글 값 · 금액 값(PListValue)은 본문 최소 폭만 남기고 줄을 바꾼다 — 금액은 쉼표 뒤에서만(03-D 결정 2 B, keepAllAmount 의 U+200B).
+    final isText = suffix is Text || suffix is PListValue;
     final valueSide = merge
         ? (parts.values.length == 1
               ? parts.values.first
@@ -581,7 +592,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
                 semanticsLabel: widget.title,
                 style: PTypography.t5.copyWith(
                   color: titleColor,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: widget.titleWeight ?? FontWeight.w400,
                   decoration: widget.titleStrike
                       ? TextDecoration.lineThrough
                       : null,
@@ -606,7 +617,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
                 ),
                 style: PTypography.t5.copyWith(
                   color: titleColor,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: widget.titleWeight ?? FontWeight.w400,
                   decoration: widget.titleStrike
                       ? TextDecoration.lineThrough
                       : null,
@@ -653,7 +664,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
     Widget row = Padding(
       padding: EdgeInsetsDirectional.only(
         start: start,
-        end: widget.gutter ?? PSpacing.globalGutter,
+        end: widget.endInset ?? widget.gutter ?? PSpacing.globalGutter,
         top: widget.verticalPadding ?? PSpacing.x3,
         bottom: widget.verticalPadding ?? PSpacing.x3,
       ),

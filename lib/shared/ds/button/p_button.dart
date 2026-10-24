@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
+import 'package:groo_damda_app/shared/ds/overflow_center/p_overflow_center.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 /// 변형 — 한 화면의 강조 버튼(Solid)은 하나.
@@ -427,7 +428,7 @@ class _PButtonState extends State<PButton> {
         if (iconOnly) return glyph(widget.icon!);
         // 라벨은 한 줄이다 — 폭이 모자라도(200% · 좁은 칸) 줄바꿈 · 말줄임 없이 가운데에서 버튼 밖으로
         // 그려지고 레이아웃 오류(RenderFlex overflow)를 내지 않는다(I-05 Q-021, 받아들임).
-        return _OverflowCenter(
+        return POverflowCenter(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: s.gap,
@@ -602,47 +603,5 @@ class _RenderTouchTarget extends RenderProxyBox {
       return true;
     }
     return false;
-  }
-}
-
-/// 자식을 가로 무제한으로 재고, 부모 폭에 들면 그대로 · 넘치면 가운데에서 양옆으로 그린다 — 자르지도 오류를 내지도 않는다.
-class _OverflowCenter extends SingleChildRenderObjectWidget {
-  const _OverflowCenter({required Widget child}) : super(child: child);
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderOverflowCenter();
-}
-
-class _RenderOverflowCenter extends RenderShiftedBox {
-  _RenderOverflowCenter() : super(null);
-
-  @override
-  Size computeDryLayout(BoxConstraints constraints) {
-    final child = this.child;
-    if (child == null) return constraints.smallest;
-    return constraints.constrain(
-      child.getDryLayout(
-        constraints.copyWith(minWidth: 0, maxWidth: double.infinity),
-      ),
-    );
-  }
-
-  @override
-  void performLayout() {
-    final child = this.child;
-    if (child == null) {
-      size = constraints.smallest;
-      return;
-    }
-    child.layout(
-      constraints.copyWith(minWidth: 0, maxWidth: double.infinity),
-      parentUsesSize: true,
-    );
-    size = constraints.constrain(child.size);
-    (child.parentData! as BoxParentData).offset = Offset(
-      (size.width - child.size.width) / 2,
-      (size.height - child.size.height) / 2,
-    );
   }
 }

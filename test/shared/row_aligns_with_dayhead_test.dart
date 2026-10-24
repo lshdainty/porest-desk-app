@@ -86,6 +86,7 @@ void main() {
             date: DateTime(2026, 9, 12),
             items: [_e()],
             flags: const MaskFlags.cardOnly(false),
+            gutter: 0,
           ),
           ExpenseRow(
             gutter: 0,
@@ -103,7 +104,7 @@ void main() {
   });
 
   testWidgets('스켈레톤도 같은 지점 — 데이터가 와도 행이 안 튄다', (tester) async {
-    await _pump(tester, const PDayGroupSkeleton(rows: 2));
+    await _pump(tester, const PDayGroupSkeleton(rows: 2, gutter: 0));
     final skeletonRow = tester
         .getRect(
           find
@@ -212,6 +213,7 @@ void main() {
             date: DateTime(2026, 9, 12),
             items: [_e()],
             flags: const MaskFlags.cardOnly(false),
+            gutter: 0,
           ),
           ExpenseRow(
             gutter: 0,
