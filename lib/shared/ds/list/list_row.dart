@@ -224,6 +224,7 @@ class PListRowFrame extends StatefulWidget {
     this.titleStrike = false,
     this.gutter,
     this.verticalPadding,
+    this.stackValue = false,
     this.prefix,
     this.suffix,
     this.highlighted = false,
@@ -264,6 +265,8 @@ class PListRowFrame extends StatefulWidget {
 
   /// 줄 위아래 여백 — 기본 12.
   final double? verticalPadding;
+  /// 값(금액)을 줄 안 폭과 상관없이 본문 아래로 내린다 — 금액이 너무 길어 설명이 한 글자로 줄 때(화면 값, 거래 줄: 금액 13자 이상).
+  final bool stackValue;
   final Widget? prefix;
   final Widget? suffix;
   final bool highlighted;
@@ -665,7 +668,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final narrow = constraints.maxWidth < stackBelow;
+          final narrow = widget.stackValue || constraints.maxWidth < stackBelow;
           return Row(
             key: const ValueKey('plist-row'),
             crossAxisAlignment: narrow || widget.align == PListAlign.top

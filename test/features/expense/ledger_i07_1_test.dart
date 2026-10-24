@@ -679,8 +679,8 @@ void main() {
       expenses: (key) async =>
           key == cur ? [_tx(1, '이번 달 가게', 100000)] : [_tx(2, '지난달 가게', 400000)],
     );
-    // 줄여 쓴 금액의 가림 점은 4개(krw.dart 와 한 벌)
-    expect(_text('••••', contains: true), findsWidgets);
+    // 가림 점은 krw.dart 기본 마스크 6개
+    expect(_text('••••••', contains: true), findsWidgets);
     expect(_text('만원', contains: true), findsNothing);
   });
 
@@ -759,8 +759,19 @@ void main() {
       for (var i = 3; i <= 10; i++) _tx(i, '가게 $i', 1000 * i),
     ];
 
-    testWidgets('360 · 100% 최악값 금액은 쉼표 뒤에서 두 줄이 되고 넘치지 않는다', (tester) async {
-      await _pump(tester, expenses: (_) async => worst);
+    testWidgets('360 · 100% 최악값(금액 13자 이상)은 값이 설명 아래로 내려가고 넘치지 않는다', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        expenses: (_) async => [
+          _tx(1, '가게', 1234567890).copyWith(
+            categoryRowId: null,
+            categoryName: '주거·통신 및 공과금 정기결제',
+            assetName: '하늘은행 월급 통장',
+          ),
+        ],
+      );
       expect(tester.takeException(), isNull);
       final amount = find.byWidgetPredicate(
         (w) =>
@@ -770,8 +781,19 @@ void main() {
             w.style?.fontSize == null,
       );
       expect(amount, findsOneWidget);
-      // 한 줄(t5 22)보다 크다 = 쉼표 뒤에서 접혔다
-      expect(tester.getSize(amount).height, greaterThan(30));
+      final title = _text('가게');
+      final category = _text('주거·통신 및 공과금 정기결제', contains: true);
+      // 값이 설명 아래 · 제목과 같은 왼쪽에 선다(03-D 결정 1 B) — 제목이 한 글자 폭으로 접히지 않는다
+      expect(
+        tester.getTopLeft(amount).dy,
+        greaterThan(tester.getBottomLeft(category).dy - 1),
+      );
+      expect(
+        tester.getTopLeft(amount).dx,
+        closeTo(tester.getTopLeft(title).dx, 1),
+      );
+      // 설명 첫 태그(카테고리)가 줄 폭을 거의 다 쓴다 — 한 글자로 줄지 않았다
+      expect(tester.getSize(category).width, greaterThan(100));
     });
 
     // 가장 나쁜 값 −1,234,567,890원 — 쉼표 뒤에서만 줄을 바꿔 넘치지 않는다(03-D 결정 2 B). 200% 는 줄 안 폭 16em 미만이라

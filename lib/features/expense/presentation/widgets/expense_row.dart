@@ -118,6 +118,9 @@ class ExpenseRow extends StatelessWidget {
         ),
     ];
 
+    // 금액이 13자 이상(−128,000,000원 부터)이면 값을 본문 아래로 내린다 — 옆에 두면 제목이 여러 줄로 접히고 설명(분류 · 통장)이
+    // 한 글자로 잘린다(웹 거래 줄과 같은 규칙, 03-D 결정 1 B 의 줄 안 폭 규칙을 금액 길이로도 건다).
+    final stackValue = amountText.length >= 13;
     final title = expense.merchant ?? expense.description ?? cName;
     final detail = PTagGroup(
       size: PTagGroupSize.t3,
@@ -151,6 +154,7 @@ class ExpenseRow extends StatelessWidget {
         titleSuffix: badges,
         titleColor: titleColor,
         gutter: gutter,
+        stackValue: stackValue,
         highlighted: highlighted,
         detailChild: detail,
         prefix: prefix,
@@ -162,6 +166,7 @@ class ExpenseRow extends StatelessWidget {
       titleSuffix: badges,
       titleColor: titleColor,
       gutter: gutter,
+      stackValue: stackValue,
       highlighted: highlighted,
       detailChild: detail,
       prefix: prefix,
