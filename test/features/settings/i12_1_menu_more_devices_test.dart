@@ -547,11 +547,40 @@ void main() {
           findsOneWidget,
           reason: '${e.key} ${e.value}',
         );
+        expect(findPlain('Windows 11 · Chrome에서 로그아웃할까요?'), findsOneWidget);
         await tester.tap(find.widgetWithText(PButton, '취소'));
         await _go(tester);
         await _go(tester);
         expect(find.byType(PAlertDialogView), findsNothing);
       }
+      // 아니어야 할 점 — 오른쪽 밖 · 위아래 5 · 보이는 버튼 왼쪽 밖
+      final nots = {
+        '오른쪽 밖': Offset(r.right + 1, r.center.dy),
+        '위 5': Offset(r.center.dx, r.top - 5),
+        '아래 5': Offset(r.center.dx, r.bottom + 5),
+        '왼쪽 밖': Offset(r.left - 7, r.center.dy),
+      };
+      for (final e in nots.entries) {
+        await tester.tapAt(e.value);
+        await _go(tester);
+        expect(
+          find.byType(PAlertDialogView),
+          findsNothing,
+          reason: '${e.key} ${e.value}',
+        );
+      }
+      // 이웃 줄 — 다음 줄 버튼의 위 끝은 그 줄의 기기를 끊는다(침범 없음)
+      final next = tester.getRect(
+        find.descendant(
+          of: find.byType(PListItem).at(2),
+          matching: find.byType(PButton),
+        ),
+      );
+      await tester.tapAt(Offset(next.center.dx, next.top - 3.5));
+      await _go(tester);
+      expect(findPlain('macOS 15 · Firefox에서 로그아웃할까요?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(PButton, '취소'));
+      await _go(tester);
     });
 
     testWidgets('[로그아웃] 누르는 동안 눌림 바탕', (tester) async {
@@ -586,6 +615,7 @@ void main() {
           .evaluate()
           .isNotEmpty;
       expect(pressed.a, greaterThan(0));
+      expect(hasColor(const Color(0x00000000)), isTrue, reason: '누르기 전은 바탕 없음');
       final g = await tester.startGesture(tester.getCenter(btn));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));

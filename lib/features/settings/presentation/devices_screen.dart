@@ -20,6 +20,7 @@ import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -157,7 +158,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                 PSpacing.x2,
               ),
               child: Text(
-                l.devicesIntro,
+                keepAll(l.devicesIntro),
                 key: const ValueKey('devices-intro'),
                 style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
               ),
@@ -305,6 +306,7 @@ class _DeviceRow extends StatelessWidget {
     final when = _relativeTime(l, device.activeAt, now);
     final name = device.deviceLabel ?? l.devicesUnknown;
 
+    // 임시 — ds List 차례에 PListRowFrame 스코프로 걷는다(spec-cleanup-pending). 블리드 버튼의 밖을 이어 준다.
     return PTouchTargetScope(
       child: PListItem(
         // 이름이 두 줄을 넘는다 — 위에 맞춘다
@@ -323,16 +325,17 @@ class _DeviceRow extends StatelessWidget {
         prefix: ExcludeSemantics(child: Icon(_icon)),
         // 오른쪽 14 블리드 — 글 끝이 화면 끝 24 에 선다. 누르는 영역은 44 까지.
         suffix: PListAction(
-          child: Semantics(
-            container: true,
-            button: true,
-            excludeSemantics: true,
-            label: l.devicesLogoutLabel(name),
-            onTap: busy ? null : onRevoke,
-            // 보이는 36 · 블리드 14 밖(위아래 4 · 오른쪽 14)까지 누르는 영역을 넓힌다. 블리드로 부모 줄 상자 밖에
-            // 나간 자리는 부모가 거절하므로 줄 위에서 PTouchTargetScope 가 이어 준다(Card 머리 동작과 같은 짝).
-            child: _BleedTarget(
-              bleed: kTextButtonPaddingX,
+          // 보이는 36 · 블리드 14 밖(위아래 4 · 오른쪽 14)까지 누르는 영역을 넓힌다. 블리드로 부모 줄 상자 밖에
+          // 나간 자리는 부모가 거절하므로 줄 위에서 PTouchTargetScope 가 이어 준다(Card 머리 동작과 같은 짝).
+          // 임시 — ds List 차례에 PButton 누르는 영역 · PListRowFrame 스코프로 걷는다(spec-cleanup-pending).
+          child: _BleedTarget(
+            bleed: kTextButtonPaddingX,
+            child: Semantics(
+              container: true,
+              button: true,
+              excludeSemantics: true,
+              label: l.devicesLogoutLabel(name),
+              onTap: busy ? null : onRevoke,
               child: PButton(
                 label: l.devicesLogout,
                 variant: PButtonVariant.ghost,
@@ -377,7 +380,8 @@ class _RenderBleedTarget extends RenderProxyBox implements PTouchExtendable {
   @override
   Rect get touchArea {
     final dy = math.max(0.0, (PTouch.min - size.height) / 2);
-    return Rect.fromLTRB(0, -dy, size.width + bleed, size.height + dy);
+    // 보이는 상자(bleed 오른쪽)에서 모자란 만큼만 — 왼쪽은 보이는 버튼 왼쪽에서 시작한다
+    return Rect.fromLTRB(bleed, -dy, size.width + bleed, size.height + dy);
   }
 
   @override
