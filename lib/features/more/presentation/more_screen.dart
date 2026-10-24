@@ -1,17 +1,20 @@
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/sms/data/sms_android.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
-import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 class _NavItem {
   const _NavItem({
@@ -71,7 +74,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
           onTap: (c) => c.go(MoneyTab.stats.location),
         ),
         _NavItem(
-          label: l.navRecurring,
+          label: l.moreItemRecurring,
           desc: l.moreDescRecurring,
           onTap: (c) => c.push('/recurring'),
         ),
@@ -140,7 +143,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
         _NavItem(
           label: l.moreItemDisplay,
           desc: l.moreDescDisplay,
-          onTap: (c) => c.push('/settings'),
+          onTap: (c) => c.push('/settings/appearance'),
         ),
       ],
     ),
@@ -172,10 +175,10 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
   ];
 }
 
-/// 모바일 전용 "전체" 탭 — design chrome.jsx MoreScreen (K뱅크 톤) 미러.
+/// 모바일 전용 "전체" 탭 — 흰 화면 하나(I-12 2-B · 2-2A).
 ///
-/// 검색 인풋 + 그룹 라벨(16/700) + **카드 없이 2열 텍스트 링크 그리드**(15/500),
-/// 그룹 사이 1px 헤어라인. 아이콘·설명·chevron 행 폐기 — 텍스트만으로 시원하게.
+/// 메뉴 검색(Input 밑줄) → 묶음 넷(목록 제목 + 2열 글 칸) → 탭 바 자리. 검색은 화면 전체를 거르는 줄이라 첫 묶음과
+/// 한 덩어리다(틈 0). 검색칸은 목록과 함께 흐른다(Q2 B). 칸은 목적지로 가는 버튼이고 눌림은 바탕 + 2px 축소다.
 class MoreScreen extends ConsumerStatefulWidget {
   const MoreScreen({super.key});
 
@@ -197,7 +200,6 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final hasSecurities = ref.watch(hasSecuritiesProvider);
     final groups = _buildGroups(context, hasSecurities: hasSecurities);
@@ -224,149 +226,171 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           ]
         : groups;
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            // 하단 — 플로팅 탭바 보상. 좌우 여백 24 는 띠 안에서 준다(띠는 화면 폭).
-            padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
-            children: PScreenBands.children([
-              // 검색 인풋
-              PScreenBand(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    PSpace.x24,
-                    PSpace.x4,
-                    PSpace.x24,
-                    PSpace.x4,
-                  ),
-                  child: PSearchField(
-                    hint: l.moreSearchHint,
-                    controller: _ctrl,
-                    focusNode: _searchFocus,
-                    onChanged: (v) => setState(() => _query = v),
-                  ),
+    return ColoredBox(
+      key: const ValueKey('more-face'),
+      // 흰 화면 하나 — 셸 바닥 위를 남은 높이까지 채운다
+      color: context.colors.bgLayerDefault,
+      child: ListView(
+        // 하단 — 플로팅 탭바 자리는 흰 면 안(T7)
+        padding: EdgeInsets.only(bottom: bottomNavigationInset(context)),
+        children: [
+          // 메뉴 검색 — 밑줄 40, 좌우 24, 위 4(T4)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpacing.globalGutter,
+              PSpacing.x1,
+              PSpacing.globalGutter,
+              0,
+            ),
+            child: PInput(
+              variant: PInputVariant.underline,
+              placeholder: l.moreSearchHint,
+              semanticLabel: l.moreSearchHint,
+              prefixIcon: LucideIcons.search,
+              clearable: true,
+              controller: _ctrl,
+              focusNode: _searchFocus,
+              textInputAction: TextInputAction.search,
+              onChanged: (v) => setState(() => _query = v),
+            ),
+          ),
+          if (isSearching && visible.isEmpty)
+            PResultSection(
+              size: PResultSize.medium,
+              icon: LucideIcons.searchX300,
+              title: l.moreSearchEmpty,
+            )
+          else
+            for (int gi = 0; gi < visible.length; gi++)
+              // 첫 묶음 위 8(검색과 한 덩어리) · 나머지 위 16 (T5 · T6)
+              Padding(
+                padding: EdgeInsets.only(
+                  top: gi == 0 ? PSpacing.x2 : PSpacing.x4,
                 ),
-              ),
-              if (isSearching && visible.isEmpty)
-                PScreenBand(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 60),
-                      child: Text(
-                        l.moreSearchEmpty,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: PFontSize.body,
-                          color: t.fgTertiary,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    PListHeader(
+                      title: visible[gi].label,
+                      variant: PListHeaderVariant.boldSolid,
+                    ),
+                    Semantics(
+                      container: true,
+                      explicitChildNodes: true,
+                      label: visible[gi].label,
+                      child: Padding(
+                        // 격자 좌우 12 + 칸 안 12 = 글 시작 24
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: PSpacing.x3,
+                        ),
+                        child: Column(
+                          children: [
+                            for (
+                              int r = 0;
+                              r < visible[gi].items.length;
+                              r += 2
+                            )
+                              // 같은 행 두 칸은 높은 쪽에 맞춘다
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: _GridCell(
+                                        item: visible[gi].items[r],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: r + 1 < visible[gi].items.length
+                                          ? _GridCell(
+                                              item: visible[gi].items[r + 1],
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                )
-              else
-                // 그룹마다 화면 폭 흰 띠 하나
-                for (int gi = 0; gi < visible.length; gi++)
-                  PScreenBand(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 그룹 라벨 — design 16/700
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10, bottom: 2),
-                            child: Text(
-                              visible[gi].label,
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontSize: 16,
-                                fontWeight: PFontWeight.bold,
-                                letterSpacing: -0.16,
-                                color: t.fgPrimary,
-                              ),
-                            ),
-                          ),
-                          // 2열 텍스트 링크 그리드 — columnGap 16
-                          Padding(
-                            padding: const EdgeInsets.only(top: 6, bottom: 4),
-                            child: Column(
-                              children: [
-                                for (
-                                  int r = 0;
-                                  r < visible[gi].items.length;
-                                  r += 2
-                                )
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _TextLink(
-                                          item: visible[gi].items[r],
-                                        ),
-                                      ),
-                                      const SizedBox(width: PSpace.x16),
-                                      Expanded(
-                                        child: r + 1 < visible[gi].items.length
-                                            ? _TextLink(
-                                                item: visible[gi].items[r + 1],
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-            ]),
-          ),
-        ),
-      ],
+                  ],
+                ),
+              ),
+        ],
+      ),
     );
   }
 }
 
-/// K뱅크 톤 텍스트 링크 — 15/500, 세로 13 padding, 탭 중 opacity 피드백 (design 정합).
-class _TextLink extends StatefulWidget {
-  const _TextLink({required this.item});
+/// 2열 격자의 칸 — 글 t5 · 400, 줄바꿈(말줄임 없음). 누르면 칸 전체가 눌림 바탕(모서리 10)이 되고 내용이 2px 줄어든다.
+/// 불투명도로 누름을 알리지 않는다.
+class _GridCell extends StatefulWidget {
+  const _GridCell({required this.item});
   final _NavItem item;
 
   @override
-  State<_TextLink> createState() => _TextLinkState();
+  State<_GridCell> createState() => _GridCellState();
 }
 
-class _TextLinkState extends State<_TextLink> {
+class _GridCellState extends State<_GridCell> {
   bool _pressed = false;
+  double _basis = 24;
+
+  void _set(bool v) {
+    if (_pressed == v) return;
+    if (v) {
+      final size = context.size;
+      if (size != null) {
+        _basis = math.max(size.height, math.max(size.width / 4, 24));
+      }
+    }
+    setState(() => _pressed = v);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTapUp: (_) => setState(() => _pressed = false),
+    final c = context.colors;
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return Semantics(
+      button: true,
+      container: true,
+      label: widget.item.label,
       onTap: () => widget.item.onTap(context),
-      child: AnimatedOpacity(
-        opacity: _pressed ? 0.55 : 1,
-        duration: const Duration(milliseconds: 80),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 13),
-          child: Text(
-            widget.item.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: 15,
-              fontWeight: PFontWeight.medium,
-              letterSpacing: -0.15,
-              color: t.fgPrimary,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => _set(true),
+          onTapUp: (_) => _set(false),
+          onTapCancel: () => _set(false),
+          onTap: () => widget.item.onTap(context),
+          child: AnimatedContainer(
+            duration: PDuration.colorTransition,
+            curve: PEasing.easing,
+            decoration: BoxDecoration(
+              color: _pressed
+                  ? c.bgLayerDefaultPressed
+                  : const Color(0x00000000),
+              borderRadius: BorderRadius.circular(PRounded.r2_5),
+            ),
+            child: AnimatedScale(
+              scale: _pressed && !reduce ? (_basis - 2) / _basis : 1,
+              duration: PDuration.pressedScale,
+              curve: PEasing.pressedScale,
+              child: Padding(
+                padding: const EdgeInsets.all(PSpacing.x3),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    keepAll(widget.item.label),
+                    style: PTypography.t5.copyWith(
+                      color: c.fgNeutral,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

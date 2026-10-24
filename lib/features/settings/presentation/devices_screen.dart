@@ -1,34 +1,37 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/now_tick.dart';
-import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/features/settings/application/session_providers.dart';
 import 'package:groo_damda_app/features/settings/domain/device_session.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_badge.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_divider.dart';
-import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
-/// "로그인된 기기" — 계정 > 보안에서 들어온다.
+/// "로그인된 기기" — 계정 > 보안에서 들어온다. 흰 화면 하나(I-12 3-A).
 ///
 /// 이 계정으로 살아 있는 세션을 기기별로 보여 주고, 낯선 기기를 끊게 한다.
 /// 목록·해지 모두 desk 백엔드만 부른다(SSO 왕복 없음) — desk 가 로그인마다 자기
 /// 세션 테이블에 한 행을 남기기 때문이다.
+///
+/// 안내 글 → 기기 줄(선 없음) → 위 24 → [모든 기기에서 로그아웃]. 기기가 없거나 못 불러오면 버튼은 없다.
 class DevicesScreen extends ConsumerStatefulWidget {
   const DevicesScreen({super.key});
 
@@ -41,63 +44,80 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
   /// 이어서 끊으려던 손이 멈춘다.
   String? _revoking;
 
+  void _failed() {
+    if (!mounted) return;
+    showPSnackBar(
+      context,
+      AppLocalizations.of(context).devicesLogoutFailed,
+      severity: PSnackSeverity.error,
+    );
+  }
+
   Future<void> _revoke(DeviceSession device) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    var failed = false;
+    final ok = await PAlertDialog.show(
       context,
-      title: l.devicesLogoutTitle,
-      message: l.devicesLogoutConfirm(device.deviceLabel ?? l.devicesUnknown),
-      confirmLabel: l.devicesLogout,
+      title: l.devicesLogoutTitle(device.deviceLabel ?? l.devicesUnknown),
+      description: l.devicesLogoutConfirm,
+      cancelLabel: l.actionCancel,
+      actionLabel: l.devicesLogout,
       destructive: true,
+      // 실패해도 확인창은 닫는다 — 아래에서 알림 하나만 띄운다
+      onAction: () async {
+        if (mounted) setState(() => _revoking = device.sessionId);
+        try {
+          final repo = await ref.read(sessionRepositoryProvider.future);
+          await repo.revoke(device.sessionId);
+        } catch (_) {
+          failed = true;
+        }
+      },
     );
-    if (!ok || !mounted) return;
-
-    setState(() => _revoking = device.sessionId);
-    try {
-      final repo = await ref.read(sessionRepositoryProvider.future);
-      await repo.revoke(device.sessionId);
-      if (!mounted) return;
-      // 지금 이 기기를 끊었으면 여기 머물 이유가 없다 — 로그인 화면으로 보낸다.
-      if (device.current) {
-        await ref.read(authProvider.notifier).logout();
-        return;
-      }
-      ref.invalidate(deviceSessionListProvider);
-    } on ApiException {
-      // 서버 메시지는 전역 인터셉터가 띄운다.
-    } finally {
-      if (mounted) setState(() => _revoking = null);
+    if (mounted) setState(() => _revoking = null);
+    if (!mounted) return;
+    if (failed) return _failed();
+    if (!ok) return;
+    // 지금 이 기기를 끊었으면 여기 머물 이유가 없다 — 로그인 화면으로 보낸다.
+    if (device.current) {
+      await ref.read(authProvider.notifier).logout();
+      return;
     }
+    ref.invalidate(deviceSessionListProvider);
   }
 
   Future<void> _revokeAll() async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    var failed = false;
+    final ok = await PAlertDialog.show(
       context,
       title: l.devicesLogoutAllTitle,
-      message: l.devicesLogoutAllConfirm,
-      confirmLabel: l.devicesLogoutAll,
+      description: l.devicesLogoutAllConfirm,
+      cancelLabel: l.actionCancel,
+      actionLabel: l.devicesLogoutAll,
       destructive: true,
+      onAction: () async {
+        try {
+          final repo = await ref.read(sessionRepositoryProvider.future);
+          await repo.revokeAll();
+        } catch (_) {
+          failed = true;
+        }
+      },
     );
-    if (!ok || !mounted) return;
-
-    try {
-      final repo = await ref.read(sessionRepositoryProvider.future);
-      await repo.revokeAll();
-      if (!mounted) return;
-      // 전부 끊었으니 이 기기도 끊겼다. 화면에 남겨 두면 다음 요청마다 401 이 난다.
-      //
-      // 성공 토스트는 띄우지 않는다 — 확인 다이얼로그에서 "다시 로그인해야 해요" 라고
-      // 이미 말했고, 로그인 화면으로 떨어지는 것 자체가 결과다.
-      await ref.read(authProvider.notifier).logout();
-    } on ApiException {
-      // 서버 메시지는 전역 인터셉터가 띄운다.
-    }
+    if (!mounted) return;
+    if (failed) return _failed();
+    if (!ok) return;
+    // 전부 끊었으니 이 기기도 끊겼다. 화면에 남겨 두면 다음 요청마다 401 이 난다.
+    //
+    // 성공 알림은 띄우지 않는다 — 확인창에서 "다시 로그인해야 해요" 라고
+    // 이미 말했고, 로그인 화면으로 떨어지는 것 자체가 결과다.
+    await ref.read(authProvider.notifier).logout();
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(deviceSessionListProvider);
     // 상대시각의 기준점 — 화면을 열어 둔 채로도 흐르게 한다(웹 `useNow` 정합).
@@ -105,7 +125,8 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     final now = ref.watch(nowTickProvider);
 
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
+      // 흰 화면 하나 — 띠 · 회색 바닥이 없다(T8 ~ T11)
+      backgroundColor: c.bgLayerDefault,
       // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
@@ -117,83 +138,153 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
           ),
         ),
       ),
-      body: PScreenBandBody(
-        child: PPullToRefresh(
-          onRefresh: () async {
-            ref.invalidate(deviceSessionListProvider);
-            await ref.read(deviceSessionListProvider.future);
-          },
-          child: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x24,
-              vertical: PSpace.x24,
-            ),
-            children: [
-              Text(
-                l.devicesIntro,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5),
-              ),
-              const SizedBox(height: PSpace.x24),
-              listAsync.when(
-                loading: () => const PListSkeleton(rows: 3, showAvatar: true),
-                error: (e, _) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                  child: Text(
-                    '${l.devicesLoadError}\n$e',
-                    style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-                  ),
-                ),
-                data: (devices) => devices.isEmpty
-                    ? PEmptyState(
-                        icon: LucideIcons.monitorOff,
-                        message: l.devicesEmpty,
-                      )
-                    : Column(
-                        children: [
-                          for (var i = 0; i < devices.length; i++) ...[
-                            if (i > 0) const PDivider(),
-                            _DeviceRow(
-                              device: devices[i],
-                              tokens: t,
-                              now: now,
-                              busy: _revoking == devices[i].sessionId,
-                              onRevoke: () => _revoke(devices[i]),
-                            ),
-                          ],
-                          const SizedBox(height: PSpace.x32),
-                          // 비상 버튼이라 목록 아래에 둔다 — 위에 두면 기기 하나만
-                          // 끊으려던 손이 먼저 닿는다.
-                          PButton(
-                            label: l.devicesLogoutAll,
-                            variant: PButtonVariant.dangerSoft,
-                            size: PButtonSize.md,
-                            fullWidth: true,
-                            onPressed: _revokeAll,
-                          ),
-                        ],
-                      ),
-              ),
-              const SizedBox(height: PSpace.x32),
-            ],
+      body: PPullToRefresh(
+        onRefresh: () async {
+          ref.invalidate(deviceSessionListProvider);
+          await ref.read(deviceSessionListProvider.future);
+        },
+        child: ListView(
+          key: const ValueKey('devices-body'),
+          padding: EdgeInsets.only(
+            bottom: PSpacing.x6 + MediaQuery.paddingOf(context).bottom,
           ),
+          children: [
+            // 안내 — 위 16 · 좌우 24 · 아래 8 (T8 · T9)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpacing.globalGutter,
+                PSpacing.x4,
+                PSpacing.globalGutter,
+                PSpacing.x2,
+              ),
+              child: Text(
+                keepAll(l.devicesIntro),
+                key: const ValueKey('devices-intro'),
+                style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+              ),
+            ),
+            listAsync.when(
+              loading: () => const _DevicesSkeleton(),
+              error: (e, _) => PResultSection(
+                kind: PResultKind.failure,
+                size: PResultSize.medium,
+                // 오류 원문은 화면에 내지 않는다
+                title: l.devicesLoadError,
+                description: l.devicesLoadErrorHint,
+                primaryAction: PResultAction(
+                  label: l.actionRetry,
+                  onPressed: () => ref.invalidate(deviceSessionListProvider),
+                ),
+              ),
+              data: (devices) => devices.isEmpty
+                  ? PResultSection(
+                      size: PResultSize.medium,
+                      icon: LucideIcons.monitorOff300,
+                      title: l.devicesEmpty,
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        PList(
+                          semanticLabel: l.devicesTitle,
+                          children: [
+                            for (final d in devices)
+                              _DeviceRow(
+                                device: d,
+                                now: now,
+                                busy: _revoking == d.sessionId,
+                                onRevoke: () => _revoke(d),
+                              ),
+                          ],
+                        ),
+                        // 비상 버튼이라 목록 아래에 둔다 — 위에 두면 기기 하나만
+                        // 끊으려던 손이 먼저 닿는다. 위 24 · 좌우 24 (T11)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            PSpacing.globalGutter,
+                            PSpacing.x6,
+                            PSpacing.globalGutter,
+                            0,
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: PButton(
+                              label: l.devicesLogoutAll,
+                              variant: PButtonVariant.ghost,
+                              ghostColor: PButtonGhostColor.critical,
+                              size: PButtonSize.large,
+                              onPressed: _revokeAll,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-/// 기기 한 줄 — 아이콘 + 이름(+현재 기기) + 마지막 사용 + [로그아웃].
+/// 불러오는 중 — 줄 모양 Skeleton 셋(앞 22 사각 · 제목 40% · 설명 25%, 줄 위아래 12 · 좌우 24).
+class _DevicesSkeleton extends StatelessWidget {
+  const _DevicesSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      key: const ValueKey('devices-skeleton'),
+      children: [
+        for (var i = 0; i < 3; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.globalGutter,
+              vertical: PSpacing.x3,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PSkeleton(
+                  width: 22,
+                  height: 22,
+                  radius: PSkeletonRadius.r4,
+                ),
+                const SizedBox(width: PSpacing.x3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FractionallySizedBox(
+                        widthFactor: 0.4,
+                        child: PSkeleton.text(PTypography.t5),
+                      ),
+                      const SizedBox(height: PSpacing.x0_5),
+                      FractionallySizedBox(
+                        widthFactor: 0.25,
+                        child: PSkeleton.text(PTypography.t3),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// 기기 한 줄 — 보기 줄(줄 자체는 누르지 않는다). 아이콘 22 + 이름(+현재 기기 배지) + 마지막 사용 + 뒤 [로그아웃].
 class _DeviceRow extends StatelessWidget {
   const _DeviceRow({
     required this.device,
-    required this.tokens,
     required this.now,
     required this.busy,
     required this.onRevoke,
   });
 
   final DeviceSession device;
-  final GrooTokens tokens;
 
   /// 상대시각의 기준점 — 호출부에서 `nowTickProvider` 로 받아 내린다.
   /// 기본값을 두지 않는 이유는 [_relativeTime] 주석 참고.
@@ -211,75 +302,111 @@ class _DeviceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
     final l = AppLocalizations.of(context);
     final when = _relativeTime(l, device.activeAt, now);
+    final name = device.deviceLabel ?? l.devicesUnknown;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: t.bgMuted,
-              borderRadius: PRadius.brMd,
-            ),
-            alignment: Alignment.center,
-            child: Icon(_icon, size: 18, color: t.fgSecondary),
-          ),
-          const SizedBox(width: PSpace.x12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        device.deviceLabel ?? l.devicesUnknown,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: PTypo.body.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.semi,
-                        ),
-                      ),
-                    ),
-                    if (device.current) ...[
-                      const SizedBox(width: 6),
-                      PBadge(
-                        label: l.devicesCurrent,
-                        variant: PBadgeVariant.outlineSuccess,
-                      ),
-                    ],
-                  ],
+    // 임시 — ds List 차례에 PListRowFrame 스코프로 걷는다(spec-cleanup-pending). 블리드 버튼의 밖을 이어 준다.
+    return PTouchTargetScope(
+      child: PListItem(
+        // 이름이 두 줄을 넘는다 — 위에 맞춘다
+        align: PListAlign.top,
+        title: name,
+        titleSuffix: device.current
+            ? [
+                PBadge(
+                  label: l.devicesCurrent,
+                  variant: PBadgeVariant.outline,
+                  tone: PBadgeTone.positive,
                 ),
-                if (when != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    l.devicesLastUsed(when),
-                    style: PTypo.caption.copyWith(
-                      color: t.fgTertiary,
-                      fontWeight: PFontWeight.regular,
-                    ),
-                  ),
-                ],
-              ],
+              ]
+            : null,
+        detail: when == null ? null : l.devicesLastUsed(when),
+        prefix: ExcludeSemantics(child: Icon(_icon)),
+        // 오른쪽 14 블리드 — 글 끝이 화면 끝 24 에 선다. 누르는 영역은 44 까지.
+        suffix: PListAction(
+          // 보이는 36 · 블리드 14 밖(위아래 4 · 오른쪽 14)까지 누르는 영역을 넓힌다. 블리드로 부모 줄 상자 밖에
+          // 나간 자리는 부모가 거절하므로 줄 위에서 PTouchTargetScope 가 이어 준다(Card 머리 동작과 같은 짝).
+          // 임시 — ds List 차례에 PButton 누르는 영역 · PListRowFrame 스코프로 걷는다(spec-cleanup-pending).
+          child: _BleedTarget(
+            bleed: kTextButtonPaddingX,
+            child: Semantics(
+              container: true,
+              button: true,
+              excludeSemantics: true,
+              label: l.devicesLogoutLabel(name),
+              onTap: busy ? null : onRevoke,
+              child: PButton(
+                label: l.devicesLogout,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.small,
+                loading: busy,
+                onPressed: onRevoke,
+              ),
             ),
           ),
-          const SizedBox(width: PSpace.x8),
-          PButton(
-            label: l.devicesLogout,
-            variant: PButtonVariant.ghost,
-            size: PButtonSize.sm,
-            loading: busy,
-            onPressed: onRevoke,
-          ),
-        ],
+        ),
       ),
     );
+  }
+}
+
+/// 버튼을 오른쪽으로 [bleed] 내어 그리고(레이아웃 자리는 그대로), 보이는 36 상자 밖 위아래 4 · 블리드까지 누르는 영역을
+/// 44 로 넓힌다. [PTouchTargetScope] 가 찾는 [PTouchExtendable] 이다 — PTouchTarget 은 정사각 minSize 라 가로 블리드를
+/// 못 받는다.
+class _BleedTarget extends SingleChildRenderObjectWidget {
+  const _BleedTarget({required this.bleed, required super.child});
+
+  final double bleed;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderBleedTarget(bleed);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderBleedTarget renderObject,
+  ) {
+    renderObject.bleed = bleed;
+  }
+}
+
+class _RenderBleedTarget extends RenderProxyBox implements PTouchExtendable {
+  _RenderBleedTarget(this.bleed);
+
+  double bleed;
+
+  @override
+  Rect get touchArea {
+    final dy = math.max(0.0, (PTouch.min - size.height) / 2);
+    // 보이는 상자(bleed 오른쪽)에서 모자란 만큼만 — 왼쪽은 보이는 버튼 왼쪽에서 시작한다
+    return Rect.fromLTRB(bleed, -dy, size.width + bleed, size.height + dy);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child != null) context.paintChild(child!, offset + Offset(bleed, 0));
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (!touchArea.contains(position)) return false;
+    // 보이는 상자는 레이아웃 상자보다 bleed 오른쪽 — 밖의 점은 상자 가운데를 누른 것으로 친다
+    final visible = Rect.fromLTWH(bleed, 0, size.width, size.height);
+    final inside = visible.contains(position) ? position : visible.center;
+    final hit = result.addWithPaintOffset(
+      offset: Offset(bleed, 0),
+      position: inside,
+      hitTest: (r, p) => child?.hitTest(r, position: p) ?? false,
+    );
+    if (hit) result.add(BoxHitTestEntry(this, position));
+    return hit;
+  }
+
+  @override
+  void applyPaintTransform(RenderObject child, Matrix4 transform) {
+    transform.translateByDouble(bleed, 0, 0, 1);
   }
 }
 

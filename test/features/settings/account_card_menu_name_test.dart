@@ -21,6 +21,9 @@ void main() {
     // 그 화면의 제목도 같다.
     expect(l.assetManageTitle, l.settingsMenuAccountCard);
 
+    // 설정 목록의 계정 줄 = 계정 화면의 제목(I-12 11) — 전체의 "계정" 칸도 같다.
+    expect(l.moreItemAccount, l.accountTitle);
+
     // 빈 상태 안내는 사용자가 실제로 누를 메뉴 이름을 그대로 부른다.
     expect(l.assetEmptyHint, contains(l.settingsMenuAccountCard));
   });

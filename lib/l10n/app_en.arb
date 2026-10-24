@@ -2148,7 +2148,8 @@
   "moreGroupPersonal": "Personalization",
   "moreGroupSystem": "Account & System",
   "moreItemStocks": "Stocks",
-  "moreItemStats": "Stats & Analysis",
+  "moreItemStats": "Stats",
+  "moreItemRecurring": "Recurring",
   "moreItemAccountCard": "Account & Card Management",
   "moreItemCardBenefits": "Card Benefits",
   "moreItemDisplay": "Display",
@@ -2182,20 +2183,19 @@
   "settingsMenuRecurring": "Recurring Management",
   "settingsMenuPreset": "Preset Management",
   "settingsGroupTagsLabels": "Tags · Labels",
-  "settingsGroupShare": "Sharing & Communication",
+  "settingsGroupShare": "Sharing",
   "settingsMenuCalendarShare": "Calendar Management & Sharing",
   "settingsMenuCalendarLabel": "Calendar Labels",
   "settingsGroupApp": "App Environment",
   "settingsMenuAppearance": "Display settings",
   "settingsGroupData": "Data",
-  "settingsMenuStorage": "Storage",
   "settingsGroupAccount": "Account",
   "settingsMenuAccountMgmt": "Account Management",
   "settingsMenuPrivacyPolicy": "Privacy Policy",
-  "settingsPrivacyOpenFailed": "Could not open the privacy policy",
+  "settingsPrivacyOpenFailed": "Couldn't open the privacy policy.",
   "settingsGroupHelp": "Help",
   "settingsMenuGuide": "User guide",
-  "settingsGuideOpenFailed": "Could not open the user guide",
+  "settingsGuideOpenFailed": "Couldn't open the user guide.",
   "appearanceTitle": "Display settings",
   "appearanceTheme": "Theme",
   "appearanceThemeLight": "Light",
@@ -2340,19 +2340,29 @@
   },
   "devicesEmpty": "No devices are signed in",
   "devicesLoadError": "Couldn't load your devices",
-  "devicesLogout": "Log out",
-  "devicesLogoutTitle": "Log out this device",
-  "devicesLogoutConfirm": "Log out of {device}? It will need to sign in again.",
-  "@devicesLogoutConfirm": {
+  "devicesLoadErrorHint": "Try again in a moment.",
+  "devicesLogoutLabel": "Log out of {device}",
+  "@devicesLogoutLabel": {
     "placeholders": {
       "device": {
         "type": "String"
       }
     }
   },
+  "devicesLogoutFailed": "Couldn't log out. Try again in a moment.",
+  "devicesLogout": "Log out",
+  "devicesLogoutTitle": "Log out of {device}?",
+  "@devicesLogoutTitle": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "devicesLogoutConfirm": "It will need to sign in again.",
   "devicesLogoutAll": "Log out all devices",
-  "devicesLogoutAllTitle": "Log out all devices",
-  "devicesLogoutAllConfirm": "Log out everywhere, including this device? You'll need to sign in again.",
+  "devicesLogoutAllTitle": "Log out of all devices?",
+  "devicesLogoutAllConfirm": "This device will be logged out too. You'll need to sign in again.",
   "accountConnected": "Connected accounts",
   "accountNotConnected": "Not connected",
   "accountConnect": "Connect",

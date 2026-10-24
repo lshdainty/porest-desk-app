@@ -3494,7 +3494,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moreItemStocks => '증권';
 
   @override
-  String get moreItemStats => '통계·분석';
+  String get moreItemStats => '통계';
+
+  @override
+  String get moreItemRecurring => '반복 거래';
 
   @override
   String get moreItemAccountCard => '계좌·카드 관리';
@@ -3572,7 +3575,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moreSearchHint => '메뉴 검색';
 
   @override
-  String get moreSearchEmpty => '검색 결과가 없습니다';
+  String get moreSearchEmpty => '검색 결과가 없어요';
 
   @override
   String get settingsGroupDataMgmt => '데이터 관리';
@@ -3596,7 +3599,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsGroupTagsLabels => '태그 · 라벨';
 
   @override
-  String get settingsGroupShare => '공유·소통';
+  String get settingsGroupShare => '공유';
 
   @override
   String get settingsMenuCalendarShare => '캘린더 관리·공유';
@@ -3614,9 +3617,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsGroupData => '데이터';
 
   @override
-  String get settingsMenuStorage => '저장공간';
-
-  @override
   String get settingsGroupAccount => '계정';
 
   @override
@@ -3626,7 +3626,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsMenuPrivacyPolicy => '개인정보 처리방침';
 
   @override
-  String get settingsPrivacyOpenFailed => '처리방침을 열 수 없습니다';
+  String get settingsPrivacyOpenFailed => '처리방침을 열지 못했어요.';
 
   @override
   String get settingsGroupHelp => '도움말';
@@ -3635,7 +3635,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsMenuGuide => '설명서';
 
   @override
-  String get settingsGuideOpenFailed => '설명서를 열 수 없습니다';
+  String get settingsGuideOpenFailed => '설명서를 열지 못했어요.';
 
   @override
   String get appearanceTitle => '표시 설정';
@@ -3987,25 +3987,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String get devicesLoadError => '기기 목록을 불러오지 못했어요';
 
   @override
+  String get devicesLoadErrorHint => '잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String devicesLogoutLabel(String device) {
+    return '$device 로그아웃';
+  }
+
+  @override
+  String get devicesLogoutFailed => '로그아웃하지 못했어요. 잠시 뒤 다시 시도해주세요.';
+
+  @override
   String get devicesLogout => '로그아웃';
 
   @override
-  String get devicesLogoutTitle => '이 기기에서 로그아웃';
+  String devicesLogoutTitle(String device) {
+    return '$device에서 로그아웃할까요?';
+  }
 
   @override
-  String devicesLogoutConfirm(String device) {
-    return '$device 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.';
-  }
+  String get devicesLogoutConfirm => '그 기기는 다시 로그인해야 해요.';
 
   @override
   String get devicesLogoutAll => '모든 기기에서 로그아웃';
 
   @override
-  String get devicesLogoutAllTitle => '모든 기기에서 로그아웃';
+  String get devicesLogoutAllTitle => '모든 기기에서 로그아웃할까요?';
 
   @override
-  String get devicesLogoutAllConfirm =>
-      '지금 쓰는 기기를 포함해 모두 로그아웃할까요? 다시 로그인해야 해요.';
+  String get devicesLogoutAllConfirm => '지금 쓰는 기기도 로그아웃돼요. 다시 로그인해야 해요.';
 
   @override
   String get accountConnected => '연결된 계정';
@@ -6482,7 +6492,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get settingsMenuTodoTag => '할일 태그';
+  String get settingsMenuTodoTag => '할 일 태그';
 
   @override
   String get settingsMenuMemoTag => '메모 태그';
