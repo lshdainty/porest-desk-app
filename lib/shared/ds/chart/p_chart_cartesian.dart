@@ -31,6 +31,9 @@ class PChartSeries {
 /// 차트 맨 위 여백 — 맨 위 눈금 글자(15)의 윗 절반이 잘리지 않게.
 const double kChartTopPad = 8;
 
+/// 막대 위 값 글을 둘 때 더하는 맨 위 자리 — 글 16 + 사이 4.
+const double _kBarLabelRoom = 20;
+
 /// 아래 눈금(가로축) 자리 — 눈금 15 + 눈금과 그리는 자리 사이 8.
 const double kChartBottomReserved = 15 + kChartTickMargin;
 
@@ -124,7 +127,32 @@ class PBarChart extends PCartesianChart {
     super.headFormatter,
     super.valueFormatter,
     super.axisFormatter,
+    this.barColor,
+    this.barLabel,
+    this.referenceLines = const [],
+    this.showValueAxis = true,
+    this.emphasizedIndex,
+    this.tooltipFooter,
   });
+
+  /// 막대마다 색 — 주면 그 칸의 막대를 이 색으로 칠한다(null 이면 계열 색). 예산 이행률: 넘음 · 이번 달 · 지난 달.
+  final Color? Function(int category, PColors colors)? barColor;
+
+  /// 막대 위 값 글(t2 · 700 · fg-neutral) — 글이 null 이면 그 칸은 글 없음. 맨 위에 글 자리 20 을 더 둔다.
+  final String? Function(int category, double value)? barLabel;
+
+  /// 가로 기준선 값들 — 점선 3 · 3 stroke-neutral-weak 1px(예산 이행률 100%). 눈금 범위에 든다.
+  final List<double> referenceLines;
+
+  /// 세로축 눈금 글 · 가로 점선 격자를 둔다(기본). false 면 둘 다 없다 — 값은 막대 위 글이 말한다.
+  final bool showValueAxis;
+
+  /// 강조할 가로축 칸(이번 달) — 글 700 · fg-neutral.
+  final int? emphasizedIndex;
+
+  /// 툴팁 덧줄(글만, 색 네모 없음) — 지출 · 한도처럼 계열 밖 값.
+  final List<({String name, String value})> Function(int category)?
+  tooltipFooter;
 
   @override
   State<PBarChart> createState() => _PBarChartState();
@@ -165,6 +193,12 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
   int? _active;
   Offset? _touch;
 
+  /// 맨 위 여백 · 세로축 · 강조 칸 · 기준선 — 막대 차트가 덮어쓴다.
+  double get _topPad => kChartTopPad;
+  bool get _valueAxis => true;
+  int? get _emphasized => null;
+  List<double> get _referenceValues => const [];
+
   String _axisText(double v) => (widget.axisFormatter ?? formatAxisWon)(v);
   String _valueText(double v) => (widget.valueFormatter ?? formatWon)(v);
 
@@ -195,6 +229,10 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
           hi = hi == null ? v : math.max(hi, v);
         }
       }
+      for (final v in _referenceValues) {
+        lo = lo == null ? v : math.min(lo, v);
+        hi = hi == null ? v : math.max(hi, v);
+      }
       return niceChartAxis(lo ?? 0, hi ?? 0);
     }
 
@@ -218,7 +256,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       return w;
     }
 
-    final leftW = widest(l.step) + kChartTickMargin;
+    final leftW = _valueAxis ? widest(l.step) + kChartTickMargin : 0.0;
     final rightW = r == null ? 0.0 : widest(r.step) + kChartTickMargin;
     var labelW = 0.0;
     for (final cat in widget.categories) {
@@ -270,7 +308,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       topTitles: const AxisTitles(),
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
-          showTitles: true,
+          showTitles: _valueAxis,
           reservedSize: p.leftWidth,
           interval: 1,
           getTitlesWidget: (v, meta) => side(v, meta, p.stepLeft, leftColor),
@@ -309,7 +347,12 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
               child: Text(
                 widget.categories[i],
                 maxLines: 1,
-                style: chartTickStyle(c),
+                style: i == _emphasized
+                    ? chartTickStyle(c).copyWith(
+                        color: c.fgNeutral,
+                        fontWeight: FontWeight.w700,
+                      )
+                    : chartTickStyle(c),
               ),
             );
           },
@@ -320,6 +363,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
 
   /// 가로 점선 격자만 — 세로 격자 · 축 선은 긋지 않는다.
   FlGridData _grid(PColors c) => FlGridData(
+    show: _valueAxis,
     drawVerticalLine: false,
     horizontalInterval: 1,
     getDrawingHorizontalLine: (_) => FlLine(
@@ -361,8 +405,9 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
           ),
     ];
     if (rows.isEmpty) return const SizedBox.shrink();
+    rows.addAll(_tipFooter(i));
     final cat = widget.categories[i];
-    final dy = (_touch?.dy ?? plotHeight / 2) + kChartTopPad;
+    final dy = (_touch?.dy ?? plotHeight / 2) + _topPad;
     return PChartTipLayer(
       anchor: Offset(_xOf(i, p), dy),
       side: PChartTipSide.beside,
@@ -382,6 +427,9 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     double progress,
   );
 
+  /// 툴팁 덧줄 — 막대 차트만.
+  List<PChartTooltipRow> _tipFooter(int index) => const [];
+
   /// 막대는 그림 위에 가리킴 선을 따로 그린다.
   Widget? _overlay(PColors c, _Plan p, double h) => null;
 
@@ -400,7 +448,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
         builder: (context, progress) => LayoutBuilder(
           builder: (context, constraints) {
             final p = _plan(constraints.maxWidth, c);
-            final h = math.max(1.0, widget.height - kChartTopPad);
+            final h = math.max(1.0, widget.height - _topPad);
             final overlay = _overlay(c, p, h);
             return TapRegion(
               // 다른 곳을 누르면 닫는다 — 손을 떼도 남는다
@@ -409,7 +457,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
                 clipBehavior: Clip.none,
                 children: [
                   Positioned.fill(
-                    top: kChartTopPad,
+                    top: _topPad,
                     child: _chart(context, c, p, h, progress),
                   ),
                   ?overlay,
@@ -548,6 +596,27 @@ class _RevealClipper extends CustomClipper<Rect> {
 
 class _PBarChartState extends _CartesianState<PBarChart> {
   @override
+  double get _topPad =>
+      kChartTopPad + (widget.barLabel == null ? 0 : _kBarLabelRoom);
+
+  @override
+  bool get _valueAxis => widget.showValueAxis;
+
+  @override
+  int? get _emphasized => widget.emphasizedIndex;
+
+  @override
+  List<double> get _referenceValues => widget.referenceLines;
+
+  @override
+  List<PChartTooltipRow> _tipFooter(int index) {
+    final footer = widget.tooltipFooter?.call(index) ?? const [];
+    return [
+      for (final r in footer) PChartTooltipRow(name: r.name, value: r.value),
+    ];
+  }
+
+  @override
   double _xOf(int index, _Plan p) =>
       p.plotLeft + (index + 0.5) / widget.categories.length * p.plotWidth;
 
@@ -559,20 +628,62 @@ class _PBarChartState extends _CartesianState<PBarChart> {
 
   @override
   Widget? _overlay(PColors c, _Plan p, double h) {
-    if (_active == null) return null;
-    // 가리킴 선 — 그 칸의 가운데에 세로 점선(그림 위)
-    return Positioned(
-      left: _xOf(_active!, p) - 0.5,
-      top: kChartTopPad,
-      height: h - kChartBottomReserved,
-      width: 1,
-      child: IgnorePointer(
-        child: CustomPaint(
-          key: const ValueKey('chart-crosshair'),
-          painter: PChartCrosshairPainter(c.strokeNeutralWeak),
+    final parts = <Widget>[];
+    final label = widget.barLabel;
+    if (label != null) {
+      final visible = _visible;
+      final plotH = h - kChartBottomReserved;
+      final range = p.maxY - p.minY;
+      for (var i = 0; i < widget.categories.length; i++) {
+        for (final s in visible) {
+          final v = i < s.values.length ? s.values[i] : null;
+          if (v == null) continue;
+          final text = label(i, v);
+          if (text == null) continue;
+          // 막대 윗끝(음수는 쓰지 않는다) 바로 위 — 글 높이 16 · 사이 4
+          final top = _topPad + (p.maxY - _y(s, v, p)) / range * plotH - 20;
+          parts.add(
+            Positioned(
+              key: ValueKey('chart-bar-label-$i'),
+              left: _xOf(i, p) - 40,
+              width: 80,
+              top: top,
+              child: IgnorePointer(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  style: PTypography.t2.copyWith(
+                    color: c.fgNeutral,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      }
+    }
+    if (_active != null) {
+      // 가리킴 선 — 그 칸의 가운데에 세로 점선(그림 위)
+      parts.add(
+        Positioned(
+          left: _xOf(_active!, p) - 0.5,
+          top: _topPad,
+          height: h - kChartBottomReserved,
+          width: 1,
+          child: IgnorePointer(
+            child: CustomPaint(
+              key: const ValueKey('chart-crosshair'),
+              painter: PChartCrosshairPainter(c.strokeNeutralWeak),
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    }
+    if (parts.isEmpty) return null;
+    return Positioned.fill(child: Stack(children: parts));
   }
 
   @override
@@ -605,7 +716,7 @@ class _PBarChartState extends _CartesianState<PBarChart> {
                     return BarChartRodData(
                       toY: y,
                       width: width,
-                      color: s.color.of(c),
+                      color: widget.barColor?.call(i, c) ?? s.color.of(c),
                       // 위 두 모서리만 4 — 음수 막대는 아래 두 모서리
                       borderRadius: y == 0
                           ? BorderRadius.zero
@@ -624,6 +735,17 @@ class _PBarChartState extends _CartesianState<PBarChart> {
         gridData: _grid(c),
         borderData: FlBorderData(show: false),
         titlesData: _titles(c, p, dual: false),
+        extraLinesData: ExtraLinesData(
+          horizontalLines: [
+            for (final v in widget.referenceLines)
+              HorizontalLine(
+                y: _y(visible.first, v, p),
+                color: c.strokeNeutralWeak,
+                strokeWidth: 1,
+                dashArray: kChartDash,
+              ),
+          ],
+        ),
         barTouchData: BarTouchData(
           handleBuiltInTouches: false,
           // 막대 위 · 아래 빈자리와 묶음 사이도 그 칸으로 친다

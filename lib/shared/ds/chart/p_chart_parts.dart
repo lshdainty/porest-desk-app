@@ -113,12 +113,13 @@ class PChartFrame extends StatelessWidget {
 class PChartTooltipRow extends StatelessWidget {
   const PChartTooltipRow({
     super.key,
-    required this.swatch,
+    this.swatch,
     required this.name,
     required this.value,
   });
 
-  final Color swatch;
+  /// 색 네모 — 없으면(지출 · 한도 같은 덧줄) 네모 없이 글만.
+  final Color? swatch;
   final String name;
   final String value;
 
@@ -128,16 +129,18 @@ class PChartTooltipRow extends StatelessWidget {
     return Row(
       key: const ValueKey('chart-tooltip-row'),
       children: [
-        Container(
-          key: const ValueKey('chart-tooltip-swatch'),
-          width: PSpacing.x2,
-          height: PSpacing.x2,
-          decoration: BoxDecoration(
-            color: swatch,
-            borderRadius: BorderRadius.circular(PRounded.r0_5),
+        if (swatch != null) ...[
+          Container(
+            key: const ValueKey('chart-tooltip-swatch'),
+            width: PSpacing.x2,
+            height: PSpacing.x2,
+            decoration: BoxDecoration(
+              color: swatch,
+              borderRadius: BorderRadius.circular(PRounded.r0_5),
+            ),
           ),
-        ),
-        const SizedBox(width: PSpacing.x1_5),
+          const SizedBox(width: PSpacing.x1_5),
+        ],
         Text(
           name,
           key: const ValueKey('chart-tooltip-label'),
