@@ -1346,7 +1346,7 @@
   "budgetMonthlyLimitField": "Monthly limit (KRW)",
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
-  "budgetMonthOverallCap": "Overall cap · {month}",
+  "budgetMonthOverallCap": "Total budget · {month}",
   "@budgetMonthOverallCap": {
     "placeholders": {
       "month": {
@@ -1355,7 +1355,7 @@
     }
   },
   "budgetOverallCapDesc": "The cap for this month's total spending (including spending without a category budget).",
-  "budgetOverallCapEmptyHint": "No overall cap set yet. Use the settings button at the top right to set this month's maximum spending limit.",
+  "budgetOverallCapEmptyHint": "No total budget yet. Use the settings button at the top right to set this month's maximum spending limit.",
   "budgetCurrentCategorySum": "Current category limit total",
   "budgetPercentUsed": "{pct}% used",
   "@budgetPercentUsed": {
@@ -1381,10 +1381,10 @@
       }
     }
   },
-  "budgetOverallCapLabel": "Overall cap",
+  "budgetOverallCapLabel": "Total budget",
   "budgetCategoryAllocated": "Category allocated",
   "budgetAllocatable": "Allocatable",
-  "budgetOverAllocatedWarning": "Category limits exceed the overall cap by {amount}. Raise the overall cap or lower category limits.",
+  "budgetOverAllocatedWarning": "Category limits exceed the total budget by {amount}. Raise the total budget or lower category limits.",
   "@budgetOverAllocatedWarning": {
     "placeholders": {
       "amount": {
@@ -1393,6 +1393,14 @@
     }
   },
   "budgetSpendingPace": "Spending pace",
+  "budgetPaceBarName": "Spending pace this month",
+  "budgetPaceBarValue": "{used}% used · {elapsed}% of the month passed",
+  "@budgetPaceBarValue": {
+    "placeholders": {
+      "used": {"type": "String"},
+      "elapsed": {"type": "String"}
+    }
+  },
   "budgetPaceOnTrack": "On pace",
   "budgetPaceFast": "Too fast",
   "budgetMonthElapsed": "{pct}% of month elapsed ↑",
@@ -2685,6 +2693,7 @@
     }
   },
   "savingGoalLoadError": "Failed to load saving goals",
+  "savingGoalFailTitle": "Couldn't load saving goals",
   "savingGoalOverallProgress": "Overall progress",
   "savingGoalListCount": "Goals · {n}",
   "@savingGoalListCount": {

@@ -4229,7 +4229,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetMonthOverallCap.
   ///
   /// In ko, this message translates to:
-  /// **'{month}월 전체 상한'**
+  /// **'{month}월 총 예산'**
   String budgetMonthOverallCap(int month);
 
   /// No description provided for @budgetOverallCapDesc.
@@ -4241,7 +4241,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetOverallCapEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'전체 상한이 아직 설정되지 않았어요. 우측 상단 설정 버튼으로 이번 달 최대 지출 한도를 지정할 수 있어요.'**
+  /// **'총 예산이 아직 없어요. 오른쪽 위 설정 버튼에서 이번 달 최대 지출 한도를 정할 수 있어요.'**
   String get budgetOverallCapEmptyHint;
 
   /// No description provided for @budgetCurrentCategorySum.
@@ -4271,7 +4271,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetOverallCapLabel.
   ///
   /// In ko, this message translates to:
-  /// **'전체 상한'**
+  /// **'총 예산'**
   String get budgetOverallCapLabel;
 
   /// No description provided for @budgetCategoryAllocated.
@@ -4289,7 +4289,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetOverAllocatedWarning.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리 한도 합이 전체 상한을 {amount} 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.'**
+  /// **'카테고리 한도 합이 총 예산을 {amount} 초과했어요. 총 예산을 올리거나 카테고리 한도를 줄여주세요.'**
   String budgetOverAllocatedWarning(String amount);
 
   /// No description provided for @budgetSpendingPace.
@@ -4297,6 +4297,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지출 페이스'**
   String get budgetSpendingPace;
+
+  /// No description provided for @budgetPaceBarName.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 지출 페이스'**
+  String get budgetPaceBarName;
+
+  /// No description provided for @budgetPaceBarValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{used}% 사용 · 이번 달 {elapsed}% 지남'**
+  String budgetPaceBarValue(String used, String elapsed);
 
   /// No description provided for @budgetPaceOnTrack.
   ///
@@ -4409,13 +4421,13 @@ abstract class AppLocalizations {
   /// No description provided for @budgetEmptyMonth.
   ///
   /// In ko, this message translates to:
-  /// **'이 달 예산이 없습니다'**
+  /// **'이 기간에는 예산이 없어요'**
   String get budgetEmptyMonth;
 
   /// No description provided for @budgetEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'전체 상한 또는 카테고리 예산을 설정하세요'**
+  /// **'총 예산이나 카테고리 예산을 설정해보세요.'**
   String get budgetEmptyHint;
 
   /// No description provided for @budgetSetup.
@@ -8569,6 +8581,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'저축 목표 로드 실패'**
   String get savingGoalLoadError;
+
+  /// No description provided for @savingGoalFailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저축 목표를 불러오지 못했어요'**
+  String get savingGoalFailTitle;
 
   /// No description provided for @savingGoalOverallProgress.
   ///

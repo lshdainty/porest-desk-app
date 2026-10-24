@@ -1350,7 +1350,7 @@
   "budgetMonthlyLimitField": "월 한도 (원)",
   "budgetLoadError": "예산을 불러오지 못했습니다",
   "budgetSelectMonth": "월 선택",
-  "budgetMonthOverallCap": "{month}월 전체 상한",
+  "budgetMonthOverallCap": "{month}월 총 예산",
   "@budgetMonthOverallCap": {
     "placeholders": {
       "month": {
@@ -1359,7 +1359,7 @@
     }
   },
   "budgetOverallCapDesc": "이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).",
-  "budgetOverallCapEmptyHint": "전체 상한이 아직 설정되지 않았어요. 우측 상단 설정 버튼으로 이번 달 최대 지출 한도를 지정할 수 있어요.",
+  "budgetOverallCapEmptyHint": "총 예산이 아직 없어요. 오른쪽 위 설정 버튼에서 이번 달 최대 지출 한도를 정할 수 있어요.",
   "budgetCurrentCategorySum": "현재 카테고리 한도 합계",
   "budgetPercentUsed": "{pct}% 사용",
   "@budgetPercentUsed": {
@@ -1385,10 +1385,10 @@
       }
     }
   },
-  "budgetOverallCapLabel": "전체 상한",
+  "budgetOverallCapLabel": "총 예산",
   "budgetCategoryAllocated": "카테고리 할당",
   "budgetAllocatable": "할당 가능",
-  "budgetOverAllocatedWarning": "카테고리 한도 합이 전체 상한을 {amount} 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.",
+  "budgetOverAllocatedWarning": "카테고리 한도 합이 총 예산을 {amount} 초과했어요. 총 예산을 올리거나 카테고리 한도를 줄여주세요.",
   "@budgetOverAllocatedWarning": {
     "placeholders": {
       "amount": {
@@ -1397,6 +1397,14 @@
     }
   },
   "budgetSpendingPace": "지출 페이스",
+  "budgetPaceBarName": "이번 달 지출 페이스",
+  "budgetPaceBarValue": "{used}% 사용 · 이번 달 {elapsed}% 지남",
+  "@budgetPaceBarValue": {
+    "placeholders": {
+      "used": {"type": "String"},
+      "elapsed": {"type": "String"}
+    }
+  },
   "budgetPaceOnTrack": "정상 속도",
   "budgetPaceFast": "빠른 속도",
   "budgetMonthElapsed": "이번 달 {pct}% 경과 ↑",
@@ -1436,8 +1444,8 @@
   "budgetNoComplianceData": "아직 이행률 데이터가 없어요",
   "budgetVsLimit": "한도 대비",
   "budgetLimit": "한도",
-  "budgetEmptyMonth": "이 달 예산이 없습니다",
-  "budgetEmptyHint": "전체 상한 또는 카테고리 예산을 설정하세요",
+  "budgetEmptyMonth": "이 기간에는 예산이 없어요",
+  "budgetEmptyHint": "총 예산이나 카테고리 예산을 설정해보세요.",
   "budgetSetup": "예산 설정",
   "budgetCopyLastMonth": "지난달 예산 복사",
   "budgetCopyConfirmMessage": "{from} 예산 한도({count}개)를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.",
@@ -2702,6 +2710,7 @@
     }
   },
   "savingGoalLoadError": "저축 목표 로드 실패",
+  "savingGoalFailTitle": "저축 목표를 불러오지 못했어요",
   "savingGoalOverallProgress": "전체 진행률",
   "savingGoalListCount": "목표 목록 · {n}개",
   "@savingGoalListCount": {
