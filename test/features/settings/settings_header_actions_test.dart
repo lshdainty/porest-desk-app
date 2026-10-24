@@ -2,6 +2,8 @@
 //
 //  - 카테고리: 머리 "추가" 하나 · 순서 바꾸기 ↔ 완료 는 목록 제목(List Header) 오른쪽
 //  - 반복 거래 · 프리셋: 머리 "추가" 는 목록이 비어 있지 않을 때만(빈 화면 · 불러오는 중에는 숨김)
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -134,6 +136,37 @@ void main() {
       find.descendant(of: header, matching: find.text('순서 바꾸기')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('카테고리 — 불러오는 중 · 실패에서는 "0개" 를 그리지 않는다', (tester) async {
+    // 끝나지 않는 조회(불러오는 중)
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          categoriesProvider.overrideWith(
+            (ref) => Completer<List<ExpenseCategory>>().future,
+          ),
+        ],
+        child: MaterialApp(
+          theme: GrooTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ko'),
+          home: const CategoryScreen(),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(PListHeader), findsNothing);
+    expect(find.textContaining('0개'), findsNothing);
+  });
+
+  testWidgets('카테고리 — 조회 실패에서도 "0개" 를 그리지 않는다', (tester) async {
+    await _pump(tester, const CategoryScreen(), [
+      categoriesProvider.overrideWith((ref) async => throw Exception('x')),
+    ]);
+    expect(find.byType(PListHeader), findsNothing);
+    expect(find.textContaining('0개'), findsNothing);
   });
 
   testWidgets('반복 거래 — 머리 "추가" 는 목록이 있을 때만', (tester) async {

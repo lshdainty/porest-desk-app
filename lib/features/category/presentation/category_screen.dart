@@ -57,7 +57,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
   // 목록 제목(List Header) — "지출 카테고리 {n}개" + 오른쪽 글 버튼 "순서 바꾸기" ↔ "완료"(I-16 S1 · I-20 B 5 의 자리).
   Widget _listHeader(AppLocalizations l, int? count) {
-    final n = count ?? 0;
+    // 불러오는 중 · 실패에서는 개수를 모른다 — "0개" 로 그리지 않고 목록 제목을 두지 않는다.
+    if (count == null) return const SizedBox.shrink();
+    final n = count;
     return PListHeader(
       title: _tabIndex == 0
           ? l.categoryListTitleExpense(n)
