@@ -214,12 +214,11 @@ class BudgetMonthRow extends StatelessWidget {
         PSpacing.x6,
         0,
       ),
-      // 한 줄에 안 들어가면(좁은 폭 · 큰 글자) 오른쪽 동작이 아래 줄 오른쪽 끝으로 내려간다
+      // 한 줄에 안 들어가면(좁은 폭 · 큰 글자) 오른쪽 동작이 아래 줄로 내려간다(글 버튼은 왼쪽 맞춤 — 바깥 14 만큼 24 선에 선다)
       child: OverflowBar(
         alignment: MainAxisAlignment.spaceBetween,
-        overflowAlignment: OverflowBarAlignment.end,
+        overflowAlignment: OverflowBarAlignment.start,
         overflowSpacing: 0,
-        spacing: PSpacing.x2,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -284,7 +283,8 @@ class BudgetMonthRow extends StatelessWidget {
               ),
             ],
           ),
-          trailing,
+          // 글 버튼은 가운데 맞춤 상자라 폭을 다 채우려 한다 — 제 폭만 쓰게 푼다
+          UnconstrainedBox(child: trailing),
         ],
       ),
     );
