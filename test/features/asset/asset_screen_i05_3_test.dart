@@ -413,7 +413,7 @@ void main() {
       expect(rs.size, PResultSize.large);
       expect(rs.primaryAction?.label, '계좌 추가');
       expect(findPlain('아직 등록된 자산이 없어요'), findsOneWidget);
-      expect(findPlain('설정 → 계좌·카드 관리에서 추가할 수 있어요'), findsOneWidget);
+      expect(findPlain('설정 → 계좌·카드 관리에서 추가할 수 있어요.'), findsOneWidget);
       expect(_bands, findsOneWidget);
     });
   });

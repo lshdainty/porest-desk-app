@@ -115,12 +115,12 @@
   "assetSubtypeOverdraft": "마이너스통장",
   "assetLoadError": "자산을 불러오지 못했습니다",
   "assetEmptyState": "아직 등록된 자산이 없어요",
-  "assetEmptyHint": "설정 → 계좌·카드 관리에서 추가할 수 있어요",
+  "assetEmptyHint": "설정 → 계좌·카드 관리에서 추가할 수 있어요.",
   "assetSummaryColAccounts": "계좌·예금",
   "assetSummaryColCards": "카드값",
   "assetTotalNetWorth": "총 순자산",
   "assetVsLastMonth": "지난달 대비",
-  "assetGroupEmpty": "등록된 항목이 없어요",
+  "assetGroupEmpty": "등록된 항목이 없어요.",
   "assetPaymentDayInfo": "{day}일 결제",
   "@assetPaymentDayInfo": {
     "placeholders": {
@@ -178,7 +178,7 @@
   "assetIncludeInTotal": "전체 자산 합계에 포함",
   "assetIncludeInTotalDesc": "순자산·총자산 계산에 반영됩니다",
   "assetTrendLoadError": "추이 데이터를 불러오지 못했어요",
-  "assetTrendEmpty": "추이 데이터가 없어요",
+  "assetTrendEmpty": "추이 데이터가 없어요.",
   "assetNetWorth": "순자산",
   "assetCardLimitName": "{name} 한도",
   "@assetCardLimitName": {
@@ -2787,7 +2787,7 @@
     }
   },
   "savingGoalAddAction": "목표 추가",
-  "savingGoalManagePrompt": "설정에서 저축 목표를 추가해보세요",
+  "savingGoalManagePrompt": "설정에서 저축 목표를 추가해보세요.",
   "savingGoalManageLink": "관리",
   "savingGoalNoDeadline": "기한 없음",
   "savingGoalCurrentLabel": "현재 모은 금액",

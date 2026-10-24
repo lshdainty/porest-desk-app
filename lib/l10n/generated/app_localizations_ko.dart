@@ -322,7 +322,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetEmptyState => '아직 등록된 자산이 없어요';
 
   @override
-  String get assetEmptyHint => '설정 → 계좌·카드 관리에서 추가할 수 있어요';
+  String get assetEmptyHint => '설정 → 계좌·카드 관리에서 추가할 수 있어요.';
 
   @override
   String get assetSummaryColAccounts => '계좌·예금';
@@ -337,7 +337,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetVsLastMonth => '지난달 대비';
 
   @override
-  String get assetGroupEmpty => '등록된 항목이 없어요';
+  String get assetGroupEmpty => '등록된 항목이 없어요.';
 
   @override
   String assetPaymentDayInfo(int day) {
@@ -397,7 +397,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetTrendLoadError => '추이 데이터를 불러오지 못했어요';
 
   @override
-  String get assetTrendEmpty => '추이 데이터가 없어요';
+  String get assetTrendEmpty => '추이 데이터가 없어요.';
 
   @override
   String get assetNetWorth => '순자산';
@@ -4740,7 +4740,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get savingGoalAddAction => '목표 추가';
 
   @override
-  String get savingGoalManagePrompt => '설정에서 저축 목표를 추가해보세요';
+  String get savingGoalManagePrompt => '설정에서 저축 목표를 추가해보세요.';
 
   @override
   String get savingGoalManageLink => '관리';

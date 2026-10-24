@@ -326,7 +326,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetEmptyHint =>
-      'You can add one from Settings → Account & Card Management';
+      'You can add one from Settings → Account & Card Management.';
 
   @override
   String get assetSummaryColAccounts => 'Accounts';
@@ -341,7 +341,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetVsLastMonth => 'vs last month';
 
   @override
-  String get assetGroupEmpty => 'No items yet';
+  String get assetGroupEmpty => 'No items registered.';
 
   @override
   String assetPaymentDayInfo(int day) {
@@ -403,7 +403,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetTrendLoadError => 'Couldn\'t load trend data';
 
   @override
-  String get assetTrendEmpty => 'No trend data';
+  String get assetTrendEmpty => 'No trend data.';
 
   @override
   String get assetNetWorth => 'Net worth';
@@ -4820,7 +4820,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalAddAction => 'Add goal';
 
   @override
-  String get savingGoalManagePrompt => 'Add saving goals in Settings';
+  String get savingGoalManagePrompt => 'Add saving goals in Settings.';
 
   @override
   String get savingGoalManageLink => 'Manage';
