@@ -16,6 +16,7 @@ import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
@@ -323,13 +324,15 @@ class _DeviceRow extends StatelessWidget {
           excludeSemantics: true,
           label: l.devicesLogoutLabel(name),
           onTap: busy ? null : onRevoke,
-          child: PButton(
-            label: l.devicesLogout,
-            variant: PButtonVariant.ghost,
-            size: PButtonSize.small,
-            flush: PButtonFlush.right,
-            loading: busy,
-            onPressed: onRevoke,
+          child: Transform.translate(
+            offset: const Offset(kTextButtonPaddingX, 0),
+            child: PButton(
+              label: l.devicesLogout,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.small,
+              loading: busy,
+              onPressed: onRevoke,
+            ),
           ),
         ),
       ),

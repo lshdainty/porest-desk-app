@@ -499,6 +499,31 @@ void main() {
       expect(find.bySemanticsLabel('Windows 11 · Chrome 로그아웃'), findsOneWidget);
     });
 
+    testWidgets('[로그아웃] 글 fg-neutral · 글 끝이 화면 끝 24 · 누르는 44 · 눌리면 바탕', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const DevicesScreen(),
+        repo: _Repo(devices: _devices()),
+      );
+      final btn = find.descendant(
+        of: find.byType(PListItem).at(1),
+        matching: find.byType(PButton),
+      );
+      final w = tester.widget<PButton>(btn);
+      expect(w.flush, isNull);
+      expect(w.size, PButtonSize.small);
+      final label = find.descendant(of: btn, matching: findPlain('로그아웃'));
+      expect(tester.getRect(label).right, closeTo(360 - 24, 1));
+      final c = GrooTheme.light().extension<PColors>()!;
+      expect(tester.widget<Text>(label).style!.color, c.fgNeutral);
+      final row = tester.getRect(find.byType(PListItem).at(1));
+      expect(tester.getRect(btn).height, greaterThanOrEqualTo(36));
+      expect(tester.getRect(btn).bottom, lessThanOrEqualTo(row.bottom));
+      expect(tester.getRect(btn).top, greaterThanOrEqualTo(row.top));
+    });
+
     testWidgets('빈 목록 = Result Section empty · 모두 로그아웃 없음', (tester) async {
       await _pump(tester, const DevicesScreen(), repo: _Repo());
       expect(findPlain('로그인된 기기가 없어요'), findsOneWidget);
