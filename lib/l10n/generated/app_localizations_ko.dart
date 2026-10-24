@@ -2208,16 +2208,49 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expSummaryBalance => '잔액';
 
   @override
-  String get budgetOverallCapNew => '월 전체 상한 설정';
-
-  @override
   String get budgetCategoryAdd => '카테고리 예산 추가';
 
   @override
-  String get budgetOverallCapEdit => '월 전체 상한 수정';
+  String get budgetCategoryEdit => '카테고리 예산 수정';
 
   @override
-  String get budgetCategoryEdit => '카테고리 예산 수정';
+  String get budgetSubmitAdd => '추가';
+
+  @override
+  String get budgetFormAmountLabel => '예산';
+
+  @override
+  String get budgetFormCategoryPlaceholder => '카테고리 선택';
+
+  @override
+  String get budgetFormQuickAmounts => '빠른 금액';
+
+  @override
+  String get budgetFormErrCategory => '카테고리를 골라주세요.';
+
+  @override
+  String get budgetFormErrTotal => '총 예산을 입력해주세요.';
+
+  @override
+  String get budgetFormErrAmount => '예산을 입력해주세요.';
+
+  @override
+  String get amountTooLarge => '금액은 100억원까지 입력할 수 있어요.';
+
+  @override
+  String get budgetPickUsed => '이번 달 예산이 있어요';
+
+  @override
+  String get budgetPickAllBudgeted => '모든 지출 카테고리에 이미 예산이 있어요.';
+
+  @override
+  String get budgetPickNoCategory => '예산을 줄 지출 카테고리가 없어요.';
+
+  @override
+  String get budgetPickLoadFailTitle => '카테고리를 불러오지 못했어요';
+
+  @override
+  String get budgetPickLoadFailDesc => '잠시 뒤 다시 시도해주세요.';
 
   @override
   String get budgetUpdated => '예산이 수정되었습니다';
@@ -2240,19 +2273,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetDeleteFailed => '삭제 실패';
 
   @override
-  String get budgetOverallCap => '월 전체 상한';
-
-  @override
-  String get budgetCategoryLoadError => '카테고리 로드 실패';
-
-  @override
   String get budgetMonthlyLimit => '월 예산 한도';
-
-  @override
-  String get budgetLimitPreview => '월 한도';
-
-  @override
-  String get budgetMonthlyLimitField => '월 한도 (원)';
 
   @override
   String get budgetLoadError => '예산을 불러오지 못했습니다';
@@ -4738,7 +4759,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get savingGoalNameLabel => '목표 이름';
 
   @override
-  String get savingGoalNameHint => '예: 비상금';
+  String get savingGoalNameHint => '예: 유럽 여행';
 
   @override
   String get savingGoalNameDuplicate => '같은 이름의 목표가 이미 있어요.';
@@ -4747,13 +4768,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get savingGoalAmountLabel => '목표 금액';
 
   @override
-  String get savingGoalDeadlineLabel => '마감일 (선택)';
+  String get savingGoalDeadlineLabel => '목표일';
 
   @override
-  String get savingGoalDeadlineHint => '미설정';
+  String get savingGoalDeadlineHint => '없음';
 
   @override
   String get savingGoalColorLabel => '색상';
+
+  @override
+  String get savingGoalErrName => '목표 이름을 입력해주세요.';
+
+  @override
+  String savingGoalErrNameTooLong(int max) {
+    return '목표 이름은 $max자 이내로 입력해주세요.';
+  }
+
+  @override
+  String get savingGoalErrAmount => '목표 금액을 입력해주세요.';
+
+  @override
+  String get savingGoalErrAmountTooLarge => '목표 금액은 100억원까지 입력할 수 있어요.';
+
+  @override
+  String get savingGoalErrCurrentExceeds => '현재 모은 금액이 목표 금액보다 클 수 없어요.';
+
+  @override
+  String get savingGoalDeadlineClear => '목표일 지우기';
 
   @override
   String get searchAdvancedFilter => '고급 필터';

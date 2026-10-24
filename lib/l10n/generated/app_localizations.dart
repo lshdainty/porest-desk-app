@@ -4124,29 +4124,95 @@ abstract class AppLocalizations {
   /// **'잔액'**
   String get expSummaryBalance;
 
-  /// No description provided for @budgetOverallCapNew.
-  ///
-  /// In ko, this message translates to:
-  /// **'월 전체 상한 설정'**
-  String get budgetOverallCapNew;
-
   /// No description provided for @budgetCategoryAdd.
   ///
   /// In ko, this message translates to:
   /// **'카테고리 예산 추가'**
   String get budgetCategoryAdd;
 
-  /// No description provided for @budgetOverallCapEdit.
-  ///
-  /// In ko, this message translates to:
-  /// **'월 전체 상한 수정'**
-  String get budgetOverallCapEdit;
-
   /// No description provided for @budgetCategoryEdit.
   ///
   /// In ko, this message translates to:
   /// **'카테고리 예산 수정'**
   String get budgetCategoryEdit;
+
+  /// No description provided for @budgetSubmitAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get budgetSubmitAdd;
+
+  /// No description provided for @budgetFormAmountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산'**
+  String get budgetFormAmountLabel;
+
+  /// No description provided for @budgetFormCategoryPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 선택'**
+  String get budgetFormCategoryPlaceholder;
+
+  /// No description provided for @budgetFormQuickAmounts.
+  ///
+  /// In ko, this message translates to:
+  /// **'빠른 금액'**
+  String get budgetFormQuickAmounts;
+
+  /// No description provided for @budgetFormErrCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리를 골라주세요.'**
+  String get budgetFormErrCategory;
+
+  /// No description provided for @budgetFormErrTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 예산을 입력해주세요.'**
+  String get budgetFormErrTotal;
+
+  /// No description provided for @budgetFormErrAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산을 입력해주세요.'**
+  String get budgetFormErrAmount;
+
+  /// No description provided for @amountTooLarge.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액은 100억원까지 입력할 수 있어요.'**
+  String get amountTooLarge;
+
+  /// No description provided for @budgetPickUsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 예산이 있어요'**
+  String get budgetPickUsed;
+
+  /// No description provided for @budgetPickAllBudgeted.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 지출 카테고리에 이미 예산이 있어요.'**
+  String get budgetPickAllBudgeted;
+
+  /// No description provided for @budgetPickNoCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산을 줄 지출 카테고리가 없어요.'**
+  String get budgetPickNoCategory;
+
+  /// No description provided for @budgetPickLoadFailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리를 불러오지 못했어요'**
+  String get budgetPickLoadFailTitle;
+
+  /// No description provided for @budgetPickLoadFailDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤 다시 시도해주세요.'**
+  String get budgetPickLoadFailDesc;
 
   /// No description provided for @budgetUpdated.
   ///
@@ -4184,35 +4250,11 @@ abstract class AppLocalizations {
   /// **'삭제 실패'**
   String get budgetDeleteFailed;
 
-  /// No description provided for @budgetOverallCap.
-  ///
-  /// In ko, this message translates to:
-  /// **'월 전체 상한'**
-  String get budgetOverallCap;
-
-  /// No description provided for @budgetCategoryLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'카테고리 로드 실패'**
-  String get budgetCategoryLoadError;
-
   /// No description provided for @budgetMonthlyLimit.
   ///
   /// In ko, this message translates to:
   /// **'월 예산 한도'**
   String get budgetMonthlyLimit;
-
-  /// No description provided for @budgetLimitPreview.
-  ///
-  /// In ko, this message translates to:
-  /// **'월 한도'**
-  String get budgetLimitPreview;
-
-  /// No description provided for @budgetMonthlyLimitField.
-  ///
-  /// In ko, this message translates to:
-  /// **'월 한도 (원)'**
-  String get budgetMonthlyLimitField;
 
   /// No description provided for @budgetLoadError.
   ///
@@ -8777,7 +8819,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalNameHint.
   ///
   /// In ko, this message translates to:
-  /// **'예: 비상금'**
+  /// **'예: 유럽 여행'**
   String get savingGoalNameHint;
 
   /// No description provided for @savingGoalNameDuplicate.
@@ -8795,13 +8837,13 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalDeadlineLabel.
   ///
   /// In ko, this message translates to:
-  /// **'마감일 (선택)'**
+  /// **'목표일'**
   String get savingGoalDeadlineLabel;
 
   /// No description provided for @savingGoalDeadlineHint.
   ///
   /// In ko, this message translates to:
-  /// **'미설정'**
+  /// **'없음'**
   String get savingGoalDeadlineHint;
 
   /// No description provided for @savingGoalColorLabel.
@@ -8809,6 +8851,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'색상'**
   String get savingGoalColorLabel;
+
+  /// No description provided for @savingGoalErrName.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 이름을 입력해주세요.'**
+  String get savingGoalErrName;
+
+  /// No description provided for @savingGoalErrNameTooLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 이름은 {max}자 이내로 입력해주세요.'**
+  String savingGoalErrNameTooLong(int max);
+
+  /// No description provided for @savingGoalErrAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 금액을 입력해주세요.'**
+  String get savingGoalErrAmount;
+
+  /// No description provided for @savingGoalErrAmountTooLarge.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 금액은 100억원까지 입력할 수 있어요.'**
+  String get savingGoalErrAmountTooLarge;
+
+  /// No description provided for @savingGoalErrCurrentExceeds.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 모은 금액이 목표 금액보다 클 수 없어요.'**
+  String get savingGoalErrCurrentExceeds;
+
+  /// No description provided for @savingGoalDeadlineClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일 지우기'**
+  String get savingGoalDeadlineClear;
 
   /// No description provided for @searchAdvancedFilter.
   ///

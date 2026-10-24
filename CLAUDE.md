@@ -19,6 +19,7 @@
 - **스펙대로인지는 위젯 테스트가 잰다** — `test/shared/ds/p_<name>_spec_test.dart` 가 스펙 JSON 을
   `test/support/design_spec.dart` 로 풀어(웹 검사기 · 사이트와 같은 방식) 변형 × 크기 × 상태 × 라이트 · 다크를
   모두 돈다. 위젯을 만들면 이 테스트를 같이 쓴다.
+- `lib/shared/forms/` — 여러 폼이 쓰는 줄 조각(스펙 부품 아님, ds 를 조합) — `PickerRow` · `PickerDot`. I-09 · I-15 · I-17 도 쓴다.
 - `lib/shared/widgets/p_<name>.dart` — **옛 위젯**. 화면을 하나씩 `shared/ds` 로 옮기는 동안만 남는다 — 새로 쓰지
   않는다. 옮기는 순서는 "먼저 라이브러리를 다 만들고, 화면은 나중에 화면 단위로" 다.
 - `lib/app/theme/groo_tokens.g.dart` · `test/fixtures/design_spec/*.json` — groo-design 이 내보낸 파일.

@@ -222,12 +222,16 @@ class PListButtonItem extends PListItemBase {
     this.prefix,
     this.suffix,
     this.focusNode,
+    this.semanticHint,
   });
 
   final VoidCallback? onTap;
   final Widget? prefix;
   final Widget? suffix;
   final FocusNode? focusNode;
+
+  /// 줄을 읽을 때 이름 뒤에 붙는 설명 — 폼의 고르는 줄이 오류 글을 잇는다(웹 aria-describedby).
+  final String? semanticHint;
 
   @override
   Widget build(BuildContext context) => PListRowFrame(
@@ -246,7 +250,7 @@ class PListButtonItem extends PListItemBase {
     interactive: true,
     onActivate: onTap,
     focusNode: focusNode,
-    semantics: const PListRowSemantics(button: true),
+    semantics: PListRowSemantics(button: true, hint: semanticHint),
   );
 }
 

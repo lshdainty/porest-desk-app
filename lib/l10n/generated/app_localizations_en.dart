@@ -2243,16 +2243,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expSummaryBalance => 'Balance';
 
   @override
-  String get budgetOverallCapNew => 'Set overall monthly cap';
-
-  @override
   String get budgetCategoryAdd => 'Add category budget';
 
   @override
-  String get budgetOverallCapEdit => 'Edit overall monthly cap';
+  String get budgetCategoryEdit => 'Edit category budget';
 
   @override
-  String get budgetCategoryEdit => 'Edit category budget';
+  String get budgetSubmitAdd => 'Add';
+
+  @override
+  String get budgetFormAmountLabel => 'Budget';
+
+  @override
+  String get budgetFormCategoryPlaceholder => 'Select category';
+
+  @override
+  String get budgetFormQuickAmounts => 'Quick amounts';
+
+  @override
+  String get budgetFormErrCategory => 'Select a category.';
+
+  @override
+  String get budgetFormErrTotal => 'Enter the total budget.';
+
+  @override
+  String get budgetFormErrAmount => 'Enter the budget.';
+
+  @override
+  String get amountTooLarge => 'Enter an amount up to 10 billion won.';
+
+  @override
+  String get budgetPickUsed => 'Already has a budget this month';
+
+  @override
+  String get budgetPickAllBudgeted =>
+      'Every expense category already has a budget.';
+
+  @override
+  String get budgetPickNoCategory =>
+      'There are no expense categories to budget.';
+
+  @override
+  String get budgetPickLoadFailTitle => 'Couldn\'t load the categories';
+
+  @override
+  String get budgetPickLoadFailDesc => 'Please try again in a moment.';
 
   @override
   String get budgetUpdated => 'Budget updated';
@@ -2275,19 +2310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetDeleteFailed => 'Delete failed';
 
   @override
-  String get budgetOverallCap => 'Overall monthly cap';
-
-  @override
-  String get budgetCategoryLoadError => 'Failed to load categories';
-
-  @override
   String get budgetMonthlyLimit => 'Monthly budget limit';
-
-  @override
-  String get budgetLimitPreview => 'Monthly limit';
-
-  @override
-  String get budgetMonthlyLimitField => 'Monthly limit (KRW)';
 
   @override
   String get budgetLoadError => 'Couldn\'t load budget';
@@ -4816,7 +4839,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalNameLabel => 'Goal name';
 
   @override
-  String get savingGoalNameHint => 'e.g. Emergency fund';
+  String get savingGoalNameHint => 'e.g. Trip to Europe';
 
   @override
   String get savingGoalNameDuplicate => 'A goal with this name already exists.';
@@ -4825,13 +4848,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalAmountLabel => 'Target amount';
 
   @override
-  String get savingGoalDeadlineLabel => 'Deadline (optional)';
+  String get savingGoalDeadlineLabel => 'Target date';
 
   @override
-  String get savingGoalDeadlineHint => 'Not set';
+  String get savingGoalDeadlineHint => 'None';
 
   @override
   String get savingGoalColorLabel => 'Color';
+
+  @override
+  String get savingGoalErrName => 'Enter a goal name.';
+
+  @override
+  String savingGoalErrNameTooLong(int max) {
+    return 'Goal name can be up to $max characters.';
+  }
+
+  @override
+  String get savingGoalErrAmount => 'Enter the target amount.';
+
+  @override
+  String get savingGoalErrAmountTooLarge =>
+      'The target amount can be up to 10 billion won.';
+
+  @override
+  String get savingGoalErrCurrentExceeds =>
+      'The amount saved can\'t be more than the target amount.';
+
+  @override
+  String get savingGoalDeadlineClear => 'Clear target date';
 
   @override
   String get searchAdvancedFilter => 'Advanced filter';
