@@ -392,13 +392,13 @@ void main() {
       await pump(tester, serveCompliance: false);
       await tester.pump();
 
-      expect(find.byType(PSkeleton), findsWidgets);
+      expect(find.byType(dsskel.PSkeleton), findsWidgets);
     });
 
     testWidgets('재조회 중에도 빈 상태 문구가 그대로 — 스켈레톤이 끼어들지 않는다', (tester) async {
       await pump(tester, serveCompliance: true);
       await tester.pumpAndSettle();
-      expect(find.text('아직 이행률 데이터가 없어요'), findsOneWidget);
+      expect(findPlain('아직 이행률 데이터가 없어요'), findsOneWidget);
 
       await _refetch(
         tester,
@@ -406,8 +406,8 @@ void main() {
         budgetComplianceProvider,
       );
 
-      expect(find.text('아직 이행률 데이터가 없어요'), findsOneWidget);
-      expect(find.byType(PSkeleton), findsNothing);
+      expect(findPlain('아직 이행률 데이터가 없어요'), findsOneWidget);
+      expect(find.byType(dsskel.PSkeleton), findsNothing);
     });
   });
 
