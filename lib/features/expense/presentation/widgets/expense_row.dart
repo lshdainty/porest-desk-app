@@ -38,6 +38,7 @@ class ExpenseRow extends StatelessWidget {
     this.onTap,
     this.showInstallment = false,
     this.gutter,
+    this.endGutter,
     this.highlighted = false,
     this.trailing,
     super.key,
@@ -67,6 +68,9 @@ class ExpenseRow extends StatelessWidget {
   /// **임시 인자** — 기본(null)은 ds List 줄의 24(홈이 쓴다). 좌우 24 를 아직 쥐고 있는 호스트(가계부 · 검색 · 자산 상세 · 거래
   /// 상세)는 0 을 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
+
+  /// **임시 인자** — 오른쪽 끝 여백만 따로(가계부: 줄 끝 ⋮ 가 화면 끝에서 16 에 서도록 16).
+  final double? endGutter;
 
   /// 알림 · 검색에서 들어온 줄 — ds List `highlighted`(바탕 `bg-brand-weak`, 누름 · 설명 글 보정이 따라온다).
   final bool highlighted;
@@ -159,6 +163,7 @@ class ExpenseRow extends StatelessWidget {
         titleSuffix: badges,
         titleColor: titleColor,
         gutter: gutter,
+        endGutter: endGutter,
         highlighted: highlighted,
         detailChild: detail,
         prefix: prefix,
@@ -170,6 +175,7 @@ class ExpenseRow extends StatelessWidget {
       titleSuffix: badges,
       titleColor: titleColor,
       gutter: gutter,
+      endGutter: endGutter,
       highlighted: highlighted,
       detailChild: detail,
       prefix: prefix,

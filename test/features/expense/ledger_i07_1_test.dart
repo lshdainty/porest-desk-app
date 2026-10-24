@@ -4,7 +4,6 @@
 // 데이터를 만든다(고정한 오늘 + 벽시계 = 시한폭탄).
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +35,7 @@ import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -729,6 +729,61 @@ void main() {
       reason: '좌우 4 + 글 폭 이상',
     );
     expect(tester.getSize(circle).width, greaterThanOrEqualTo(36));
+    // 글자를 줄이지 않는다 — 크기를 줄이는 FittedBox · Transform 이 원 위에 없다(웹처럼 넘치기만 한다)
+    expect(
+      find.ancestor(of: circle, matching: find.byType(FittedBox)),
+      findsNothing,
+    );
+    expect(
+      tester.getSize(text).height,
+      greaterThan(35),
+      reason: '글자는 200% 크기 그대로(t5 16 → 32)',
+    );
+    // ignore: avoid_print
+    print(
+      'MEASURE 날 숫자 200% 원 ${tester.getSize(circle)} 글 ${tester.getSize(text)}',
+    );
+  });
+
+  testWidgets('줄 끝 ⋮ — 40 전체가 ⋮ 로 눌린다(오른쪽 끝 · 왼쪽 겹침 조각 포함) · 금액 끝 56', (
+    tester,
+  ) async {
+    await _pump(tester, expenses: (_) async => [_tx(1, '점심 가게', 12000)]);
+    final more = find.byType(PSwipeActionsMore);
+    final rect = tester.getRect(more);
+    expect(rect.width, 40);
+    // 화면 끝에서 16 ~ 56(글리프 가운데 36)
+    expect(rect.right, closeTo(360 - 16, 0.5));
+    expect(rect.left, closeTo(360 - 56, 0.5));
+    final amount = tester.getRect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            _plain(w.data ?? '') == '−12,000원' &&
+            w.style?.fontWeight == FontWeight.w700 &&
+            w.style?.fontSize == null,
+      ),
+    );
+    expect(amount.right, closeTo(360 - 56, 0.5), reason: '금액 끝 56');
+    // ignore: avoid_print
+    print('MEASURE ⋮ $rect 금액 $amount');
+    for (final dx in [-2.0, 2.0, 20.0, 38.0]) {
+      // 상자 안쪽 가장자리 두 군데(오른쪽 끝 −2 · 왼쪽 겹침 +2) 와 가운데
+      final pos = Offset(
+        dx < 0 ? rect.right + dx : rect.left + dx,
+        rect.center.dy,
+      );
+      await tester.tapAt(pos);
+      await tester.pumpAndSettle();
+      expect(
+        find.byType(PMenuSheetContent),
+        findsOneWidget,
+        reason: 'x=$pos 를 눌러도 ⋮ 메뉴',
+      );
+      await tester.tapAt(const Offset(180, 20));
+      await tester.pumpAndSettle();
+      expect(find.byType(PMenuSheetContent), findsNothing);
+    }
   });
 
   testWidgets('줄이 ⋮ 자리만큼 좁아도 카테고리는 줄지 않는다(자산 이름이 먼저 준다)', (tester) async {
