@@ -5,7 +5,7 @@ import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 
 /// 글 버튼(SEED Text Button) — 카드 머리 "전체 보기" · 모두 펼치기 · 결과 둘째 버튼 · 목록 제목 동작의 모양.
 /// 수치 원본은 card.yaml `headerAction`(2026-10-16 사용자 결정, 글자 역할 D2): 보이는 상자 높이 36 · 좌우 14 · 모서리 8,
-/// 글 14/19 · 700 · `fg-neutral-muted`, 아이콘 · 꺾쇠 없음. 누르는 영역은 위아래로 넓혀 44(보이는 자리는 그대로)이고,
+/// 글 14/19 · 700 · `fg-neutral-muted`, 꺾쇠 없음(앞 아이콘 16 은 [prefixIcon] — 화면 이관 I-08 이 정한 자리에만). 누르는 영역은 위아래로 넓혀 44(보이는 자리는 그대로)이고,
 /// 누르면 바탕 `bg-layer-default-pressed` + 2px 거리 축소다. 이름은 [semanticLabel] (없으면 글 그대로).
 ///
 /// [bleedEnd] 면 줄 끝에서 오른쪽 14 만큼 바깥으로 내어 글자 끝이 부모 여백에 선다(머리 줄의 오른쪽 끝).
@@ -16,12 +16,16 @@ class PTextButton extends StatefulWidget {
     required this.onPressed,
     this.semanticLabel,
     this.bleedEnd = false,
+    this.prefixIcon,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final String? semanticLabel;
   final bool bleedEnd;
+
+  /// 글 앞 아이콘 16(예산 "설정" · 목록 제목 "예산 추가" — I-08 7 · 21). 글과 같은 색, 사이 4.
+  final IconData? prefixIcon;
 
   @override
   State<PTextButton> createState() => _PTextButtonState();
@@ -42,6 +46,26 @@ class _PTextButtonState extends State<PTextButton> {
       if (size != null) _basis = cardPressBasis(size);
     }
     setState(() => _pressed = value);
+  }
+
+  Widget _label(Color color) {
+    final text = Text(
+      widget.label,
+      key: const ValueKey('text-button-label'),
+      maxLines: 1,
+      softWrap: false,
+      style: PTypography.t4.copyWith(color: color, fontWeight: FontWeight.w700),
+    );
+    final icon = widget.prefixIcon;
+    if (icon == null) return text;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: PSpacing.x1,
+      children: [
+        ExcludeSemantics(child: Icon(icon, size: 16, color: color)),
+        text,
+      ],
+    );
   }
 
   @override
@@ -68,16 +92,7 @@ class _PTextButtonState extends State<PTextButton> {
         ),
         child: child,
       ),
-      child: Text(
-        widget.label,
-        key: const ValueKey('text-button-label'),
-        maxLines: 1,
-        softWrap: false,
-        style: PTypography.t4.copyWith(
-          color: active ? c.fgNeutralMuted : c.fgDisabled,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
+      child: _label(active ? c.fgNeutralMuted : c.fgDisabled),
     );
     final button = PTouchTarget(
       minSize: PTouch.min,
