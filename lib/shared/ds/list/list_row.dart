@@ -222,6 +222,7 @@ class PListRowFrame extends StatefulWidget {
     this.titleSuffix,
     this.titleStrike = false,
     this.gutter,
+    this.verticalPadding,
     this.prefix,
     this.suffix,
     this.highlighted = false,
@@ -256,6 +257,9 @@ class PListRowFrame extends StatefulWidget {
   /// **임시 인자** — 줄 좌우 여백 기본 24(list.md). 호스트가 아직 좌우 24 를 쥐고 있을 때만 0 을 준다(글자 자리가 24 로 같게).
   /// 호스트가 바깥 24 를 걷을 때 함께 걷는다 — 가계부 I-07 4 · 검색 I-08 08-3 · 자산 상세 · 거래 상세(지시서 아직 없음).
   final double? gutter;
+
+  /// 줄 위아래 여백 — 기본 12.
+  final double? verticalPadding;
   final Widget? prefix;
   final Widget? suffix;
   final bool highlighted;
@@ -650,8 +654,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
       padding: EdgeInsetsDirectional.only(
         start: start,
         end: widget.gutter ?? PSpacing.globalGutter,
-        top: PSpacing.x3,
-        bottom: PSpacing.x3,
+        top: widget.verticalPadding ?? PSpacing.x3,
+        bottom: widget.verticalPadding ?? PSpacing.x3,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
