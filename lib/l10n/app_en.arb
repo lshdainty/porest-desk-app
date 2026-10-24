@@ -176,6 +176,28 @@
   "assetTrendLoadError": "Couldn't load trend data",
   "assetTrendEmpty": "No trend data",
   "assetNetWorth": "Net worth",
+  "assetCardLimitName": "{name} limit",
+  "@assetCardLimitName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "assetChartNetWorthName": "Net worth over the last 12 months — this month {amount}",
+  "@assetChartNetWorthName": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetChartTableMonth": "Month",
+  "assetLoadFailedSummary": "Couldn't load net worth",
+  "assetLoadFailedTrend": "Couldn't load the net worth trend",
+  "assetLoadFailedAssets": "Couldn't load your assets",
+  "assetLoadFailedGoals": "Couldn't load saving goals",
+  "assetEmptyCta": "Add account",
   "assetAccountAdd": "Add account",
   "assetAccountEdit": "Edit account",
   "assetAccountAdded": "Account added",

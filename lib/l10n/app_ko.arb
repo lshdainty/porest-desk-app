@@ -180,6 +180,28 @@
   "assetTrendLoadError": "추이 데이터를 불러오지 못했어요",
   "assetTrendEmpty": "추이 데이터가 없어요",
   "assetNetWorth": "순자산",
+  "assetCardLimitName": "{name} 한도",
+  "@assetCardLimitName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "assetChartNetWorthName": "최근 12개월 순자산 추이 — 이번 달 {amount}",
+  "@assetChartNetWorthName": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetChartTableMonth": "달",
+  "assetLoadFailedSummary": "순자산을 불러오지 못했어요",
+  "assetLoadFailedTrend": "순자산 추이를 불러오지 못했어요",
+  "assetLoadFailedAssets": "자산을 불러오지 못했어요",
+  "assetLoadFailedGoals": "저축 목표를 불러오지 못했어요",
+  "assetEmptyCta": "계좌 추가",
   "assetAccountAdd": "계좌 추가",
   "assetAccountEdit": "계좌 편집",
   "assetAccountAdded": "계좌가 추가되었습니다",

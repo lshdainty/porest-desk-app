@@ -854,6 +854,54 @@ abstract class AppLocalizations {
   /// **'순자산'**
   String get assetNetWorth;
 
+  /// No description provided for @assetCardLimitName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 한도'**
+  String assetCardLimitName(String name);
+
+  /// No description provided for @assetChartNetWorthName.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 12개월 순자산 추이 — 이번 달 {amount}'**
+  String assetChartNetWorthName(String amount);
+
+  /// No description provided for @assetChartTableMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'달'**
+  String get assetChartTableMonth;
+
+  /// No description provided for @assetLoadFailedSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산을 불러오지 못했어요'**
+  String get assetLoadFailedSummary;
+
+  /// No description provided for @assetLoadFailedTrend.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산 추이를 불러오지 못했어요'**
+  String get assetLoadFailedTrend;
+
+  /// No description provided for @assetLoadFailedAssets.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산을 불러오지 못했어요'**
+  String get assetLoadFailedAssets;
+
+  /// No description provided for @assetLoadFailedGoals.
+  ///
+  /// In ko, this message translates to:
+  /// **'저축 목표를 불러오지 못했어요'**
+  String get assetLoadFailedGoals;
+
+  /// No description provided for @assetEmptyCta.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 추가'**
+  String get assetEmptyCta;
+
   /// No description provided for @assetAccountAdd.
   ///
   /// In ko, this message translates to:

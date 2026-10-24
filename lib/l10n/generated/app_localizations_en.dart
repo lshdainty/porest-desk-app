@@ -409,6 +409,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetNetWorth => 'Net worth';
 
   @override
+  String assetCardLimitName(String name) {
+    return '$name limit';
+  }
+
+  @override
+  String assetChartNetWorthName(String amount) {
+    return 'Net worth over the last 12 months — this month $amount';
+  }
+
+  @override
+  String get assetChartTableMonth => 'Month';
+
+  @override
+  String get assetLoadFailedSummary => 'Couldn\'t load net worth';
+
+  @override
+  String get assetLoadFailedTrend => 'Couldn\'t load the net worth trend';
+
+  @override
+  String get assetLoadFailedAssets => 'Couldn\'t load your assets';
+
+  @override
+  String get assetLoadFailedGoals => 'Couldn\'t load saving goals';
+
+  @override
+  String get assetEmptyCta => 'Add account';
+
+  @override
   String get assetAccountAdd => 'Add account';
 
   @override

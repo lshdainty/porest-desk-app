@@ -403,6 +403,34 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetNetWorth => '순자산';
 
   @override
+  String assetCardLimitName(String name) {
+    return '$name 한도';
+  }
+
+  @override
+  String assetChartNetWorthName(String amount) {
+    return '최근 12개월 순자산 추이 — 이번 달 $amount';
+  }
+
+  @override
+  String get assetChartTableMonth => '달';
+
+  @override
+  String get assetLoadFailedSummary => '순자산을 불러오지 못했어요';
+
+  @override
+  String get assetLoadFailedTrend => '순자산 추이를 불러오지 못했어요';
+
+  @override
+  String get assetLoadFailedAssets => '자산을 불러오지 못했어요';
+
+  @override
+  String get assetLoadFailedGoals => '저축 목표를 불러오지 못했어요';
+
+  @override
+  String get assetEmptyCta => '계좌 추가';
+
+  @override
   String get assetAccountAdd => '계좌 추가';
 
   @override
