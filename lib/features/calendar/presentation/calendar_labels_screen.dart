@@ -12,7 +12,6 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
@@ -24,6 +23,7 @@ import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 /// 설정 진입 — 캘린더 라벨 관리 (전 캘린더 공용).
 ///
@@ -58,14 +58,16 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.calLabelsTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.calLabelsTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
       body: PScreenBandBody(
         child: PPullToRefresh(

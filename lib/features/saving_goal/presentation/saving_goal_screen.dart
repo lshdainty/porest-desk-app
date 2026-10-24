@@ -14,7 +14,6 @@ import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -26,6 +25,7 @@ import 'package:groo_damda_app/features/saving_goal/application/saving_goal_prov
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 /// 저축 목표 관리 (설정 > 저축 목표) — design GoalManager 미러 (웹 SavingGoalManager 정합).
 ///
@@ -57,14 +57,16 @@ class SavingGoalScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.navSavingGoals),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.navSavingGoals,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
       body: PScreenBandBody(
         child: PPullToRefresh(

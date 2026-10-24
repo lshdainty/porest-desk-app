@@ -16,7 +16,6 @@ import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
@@ -34,6 +33,7 @@ import 'package:groo_damda_app/features/recurring/presentation/recurring_setting
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 enum _Filter { all, expense, income, transfer, paused }
 
@@ -103,15 +103,24 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.navRecurring),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.navRecurring,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+          // 글 버튼 "추가" — 빈 화면에서는 두지 않는다(빈 화면의 자기 버튼이 있다 · I-20 D 21). 불러오는 중 · 실패도 없음
+          actions: [
+            if (listAsync.value?.isNotEmpty ?? false)
+              PTopNavigationTextButton(
+                label: l.recurringAddAction,
+                onPressed: () => showRecurringSettingsDialog(context),
+              ),
+          ],
+        ),
       ),
       body: PScreenBandBody(
         child: PPullToRefresh(

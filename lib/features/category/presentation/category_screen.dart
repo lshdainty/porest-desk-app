@@ -12,8 +12,9 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
 import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
@@ -52,6 +53,26 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     Future.microtask(() {
       if (mounted) ref.invalidate(categoriesProvider);
     });
+  }
+
+  // 목록 제목(List Header) — "지출 카테고리 {n}개" + 오른쪽 글 버튼 "순서 바꾸기" ↔ "완료"(I-16 S1 · I-20 B 5 의 자리).
+  Widget _listHeader(AppLocalizations l, int? count) {
+    // 불러오는 중 · 실패에서는 개수를 모른다 — "0개" 로 그리지 않고 목록 제목을 두지 않는다.
+    if (count == null) return const SizedBox.shrink();
+    final n = count;
+    return PListHeader(
+      title: _tabIndex == 0
+          ? l.categoryListTitleExpense(n)
+          : l.categoryListTitleIncome(n),
+      action: PTextButton(
+        label: _editMode ? l.actionDone : l.categoryReorderEdit,
+        onPressed: () => setState(() {
+          _editMode = !_editMode;
+          // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
+          if (_editMode) _query = '';
+        }),
+      ),
+    );
   }
 
   void _toggleCollapse(int parentRowId) {
@@ -106,48 +127,44 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.categoryManageTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-        actions: [
-          // 순서 편집 토글 — 디자인 m-subhead__action-btn('편집'↔'완료').
-          Padding(
-            padding: const EdgeInsets.only(right: PSpace.x8),
-            child: PButton(
-              label: _editMode ? l.actionDone : l.categoryReorderEdit,
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.sm,
-              onPressed: () => setState(() {
-                _editMode = !_editMode;
-                // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
-                if (_editMode) _query = '';
-              }),
+      // 머리 = ds 상단 바(← + 제목 + 글 버튼 "추가") — 높이 56, 스크롤해도 선이 없다(I-16 14 · 15)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.categoryManageTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+          actions: [
+            PTopNavigationTextButton(
+              label: l.categoryAddAction,
+              onPressed: () => showCategoryEditDialog(
+                context,
+                defaultExpenseType: _kindValues[_tabIndex],
+              ),
             ),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(40),
-          child: PTabs<int>(
-            items: [
-              for (int i = 0; i < _kindValues.length; i++)
-                PTabItem(value: i, label: tabLabel(i)),
-            ],
-            value: _tabIndex,
-            onChanged: (v) => setState(() => _tabIndex = v),
-            variant: PTabsVariant.underline,
-            expand: true,
-          ),
+          ],
         ),
       ),
       body: PScreenBandBody(
         child: Column(
           children: [
-            // 편집 모드: 검색·추가 대신 드래그 안내문(디자인 editMode) / 평시: 검색 + 추가 row.
+            // 탭(지출 · 수입) — 머리 밖, 본문 맨 위로(I-16 15 · 모양은 그대로, 본문 배치는 I-20 B 4)
+            SizedBox(
+              height: 40,
+              child: PTabs<int>(
+                items: [
+                  for (int i = 0; i < _kindValues.length; i++)
+                    PTabItem(value: i, label: tabLabel(i)),
+                ],
+                value: _tabIndex,
+                onChanged: (v) => setState(() => _tabIndex = v),
+                variant: PTabsVariant.underline,
+                expand: true,
+              ),
+            ),
+            // 편집 모드: 검색 대신 드래그 안내문(디자인 editMode) / 평시: 검색 줄.
             if (_editMode)
               Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -184,20 +201,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         onChanged: (v) => setState(() => _query = v),
                       ),
                     ),
-                    const SizedBox(width: PSpace.x8),
-                    PButton(
-                      label: l.calAdd,
-                      icon: LucideIcons.plus,
-                      variant: PButtonVariant.accent,
-                      size: PButtonSize.sm,
-                      onPressed: () => showCategoryEditDialog(
-                        context,
-                        defaultExpenseType: _kindValues[_tabIndex],
-                      ),
-                    ),
                   ],
                 ),
               ),
+            _listHeader(
+              l,
+              allCats
+                  ?.where(
+                    (c) =>
+                        (c.expenseType ?? 'EXPENSE') == _kindValues[_tabIndex],
+                  )
+                  .length,
+            ),
             Expanded(
               child: categoriesAsync.when(
                 loading: () => ListView(

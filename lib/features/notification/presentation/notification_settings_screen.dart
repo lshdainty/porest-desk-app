@@ -11,7 +11,6 @@ import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
 import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
@@ -24,6 +23,7 @@ import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
 import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/features/notification/data/user_preferences_repository.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 /// 알림 "설정" 화면 — 6개 섹션 (푸시 마스터 / 알림 종류 / 예산 임계값 /
 /// 방해 금지 / 소리·진동 / 이메일). 각 컨트롤 변경 시 즉시 부분 PATCH(낙관적).
@@ -41,14 +41,16 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.notiSettings),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.notiSettings,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
       body: PScreenBandBody(
         child: prefsAsync.when(

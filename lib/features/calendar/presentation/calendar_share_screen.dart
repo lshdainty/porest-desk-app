@@ -13,7 +13,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -58,21 +58,17 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => Navigator.of(context).maybePop()),
-        title: Text(l.calManageShareTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-        actions: [
-          PButton.icon(
-            icon: LucideIcons.userPlus,
-            tooltip: l.calJoinByCode,
-            onPressed: () => _showJoinDialog(context, ref),
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다. 초대 코드 참여(⊕)는 머리에서
+      // 걷었다 — 본문 _JoinCard 가 같은 일을 한다(I-16 14 · 16, Q5-A)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.calManageShareTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => Navigator.of(context).maybePop(),
           ),
-        ],
+        ),
       ),
       body: PScreenBandBody(
         child: PPullToRefresh(
