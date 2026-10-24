@@ -2270,7 +2270,46 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get budgetOverallCapEmptyHint =>
-      '총 예산이 아직 없어요. 오른쪽 위 설정 버튼에서 이번 달 최대 지출 한도를 정할 수 있어요.';
+      '총 예산이 아직 없어요. 설정에서 이번 달 최대 지출 한도를 정할 수 있어요.';
+
+  @override
+  String budgetEmptyMonthTitle(int month) {
+    return '$month월 예산이 아직 없어요';
+  }
+
+  @override
+  String get budgetEmptyMonthDesc => '예산을 정하면 쓴 돈과 남은 돈을 한눈에 볼 수 있어요.';
+
+  @override
+  String get budgetFailHeader => '총 예산을 불러오지 못했어요';
+
+  @override
+  String get budgetFailPace => '지출 페이스를 불러오지 못했어요';
+
+  @override
+  String get budgetFailStatus => '예산 현황을 불러오지 못했어요';
+
+  @override
+  String get budgetFailCategories => '카테고리별 예산을 불러오지 못했어요';
+
+  @override
+  String get budgetFailCompliance => '예산 이행률을 불러오지 못했어요';
+
+  @override
+  String get budgetManagerLoadFailed => '예산을 불러오지 못했어요';
+
+  @override
+  String budgetCategoryCount(int count) {
+    return '$count 카테고리';
+  }
+
+  @override
+  String budgetOverLimit(String amount) {
+    return '한도 초과 $amount';
+  }
+
+  @override
+  String get budgetTableMonth => '달';
 
   @override
   String get budgetCurrentCategorySum => '현재 카테고리 한도 합계';
@@ -2353,7 +2392,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetNoCategoryBudgets => '카테고리별 예산이 없어요';
 
   @override
-  String get budgetGoToSettings => '예산 설정하러 가기 →';
+  String get budgetGoToSettings => '예산 설정하러 가기';
 
   @override
   String budgetCategoryFallback(int id) {
@@ -2374,12 +2413,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get budgetLimit => '한도';
-
-  @override
-  String get budgetEmptyMonth => '이 기간에는 예산이 없어요';
-
-  @override
-  String get budgetEmptyHint => '총 예산이나 카테고리 예산을 설정해보세요.';
 
   @override
   String get budgetSetup => '예산 설정';
@@ -2409,7 +2442,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get budgetNotSet => '설정되지 않음';
+  String get budgetNotSet => '설정 안 됨';
 
   @override
   String get budgetUsed => '사용';
@@ -4660,7 +4693,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get savingGoalActionFailed => '실패';
 
   @override
-  String get savingGoalAchieved => '달성!';
+  String get savingGoalAchieved => '달성';
 
   @override
   String get savingGoalAdd => '저축 목표 추가';

@@ -4241,8 +4241,74 @@ abstract class AppLocalizations {
   /// No description provided for @budgetOverallCapEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'총 예산이 아직 없어요. 오른쪽 위 설정 버튼에서 이번 달 최대 지출 한도를 정할 수 있어요.'**
+  /// **'총 예산이 아직 없어요. 설정에서 이번 달 최대 지출 한도를 정할 수 있어요.'**
   String get budgetOverallCapEmptyHint;
+
+  /// No description provided for @budgetEmptyMonthTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 예산이 아직 없어요'**
+  String budgetEmptyMonthTitle(int month);
+
+  /// No description provided for @budgetEmptyMonthDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산을 정하면 쓴 돈과 남은 돈을 한눈에 볼 수 있어요.'**
+  String get budgetEmptyMonthDesc;
+
+  /// No description provided for @budgetFailHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 예산을 불러오지 못했어요'**
+  String get budgetFailHeader;
+
+  /// No description provided for @budgetFailPace.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 페이스를 불러오지 못했어요'**
+  String get budgetFailPace;
+
+  /// No description provided for @budgetFailStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 현황을 불러오지 못했어요'**
+  String get budgetFailStatus;
+
+  /// No description provided for @budgetFailCategories.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 예산을 불러오지 못했어요'**
+  String get budgetFailCategories;
+
+  /// No description provided for @budgetFailCompliance.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 이행률을 불러오지 못했어요'**
+  String get budgetFailCompliance;
+
+  /// No description provided for @budgetManagerLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산을 불러오지 못했어요'**
+  String get budgetManagerLoadFailed;
+
+  /// No description provided for @budgetCategoryCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count} 카테고리'**
+  String budgetCategoryCount(int count);
+
+  /// No description provided for @budgetOverLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 초과 {amount}'**
+  String budgetOverLimit(String amount);
+
+  /// No description provided for @budgetTableMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'달'**
+  String get budgetTableMonth;
 
   /// No description provided for @budgetCurrentCategorySum.
   ///
@@ -4379,7 +4445,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetGoToSettings.
   ///
   /// In ko, this message translates to:
-  /// **'예산 설정하러 가기 →'**
+  /// **'예산 설정하러 가기'**
   String get budgetGoToSettings;
 
   /// No description provided for @budgetCategoryFallback.
@@ -4417,18 +4483,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'한도'**
   String get budgetLimit;
-
-  /// No description provided for @budgetEmptyMonth.
-  ///
-  /// In ko, this message translates to:
-  /// **'이 기간에는 예산이 없어요'**
-  String get budgetEmptyMonth;
-
-  /// No description provided for @budgetEmptyHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'총 예산이나 카테고리 예산을 설정해보세요.'**
-  String get budgetEmptyHint;
 
   /// No description provided for @budgetSetup.
   ///
@@ -4475,7 +4529,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetNotSet.
   ///
   /// In ko, this message translates to:
-  /// **'설정되지 않음'**
+  /// **'설정 안 됨'**
   String get budgetNotSet;
 
   /// No description provided for @budgetUsed.
@@ -8651,7 +8705,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalAchieved.
   ///
   /// In ko, this message translates to:
-  /// **'달성!'**
+  /// **'달성'**
   String get savingGoalAchieved;
 
   /// No description provided for @savingGoalAdd.

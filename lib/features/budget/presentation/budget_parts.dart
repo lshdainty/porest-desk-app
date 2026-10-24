@@ -8,6 +8,7 @@ import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
@@ -124,6 +125,7 @@ class BudgetHead extends StatelessWidget {
     super.key,
     required this.title,
     this.note,
+    this.trailing,
     this.suffix,
     this.actionLabel,
     this.onAction,
@@ -134,14 +136,17 @@ class BudgetHead extends StatelessWidget {
   /// 오른쪽 보조 글(t3 · fg-neutral-subtle).
   final String? note;
 
-  /// 제목 바로 뒤 덧붙임(Badge).
+  /// 머리 오른쪽 끝 위젯(페이스 Badge).
+  final Widget? trailing;
+
+  /// 제목 바로 뒤 덧붙임.
   final Widget? suffix;
   final String? actionLabel;
   final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
-    if (note == null) {
+    if (note == null && trailing == null) {
       return PCardHeader(
         title: title,
         titleSuffix: suffix,
@@ -175,10 +180,12 @@ class BudgetHead extends StatelessWidget {
             ),
           ),
         ),
-        action: Text(
-          keepAll(note!),
-          style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
-        ),
+        action:
+            trailing ??
+            Text(
+              keepAll(note!),
+              style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+            ),
       ),
     );
   }
@@ -209,7 +216,8 @@ class BudgetMonthRow extends StatelessWidget {
       // 화살표 상자 44 안의 아이콘 20 이 화면 가장자리 24 에 서도록 왼쪽 12
       padding: const EdgeInsets.fromLTRB(
         PSpacing.x3,
-        PSpacing.x1,
+        // 띠 맨 위 4 + 8
+        PSpacing.x3,
         PSpacing.x6,
         0,
       ),
@@ -222,10 +230,11 @@ class BudgetMonthRow extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _Arrow(
+              PButton.icon(
                 icon: LucideIcons.chevronLeft,
-                label: l.actionPrev,
-                onTap: onPrev,
+                semanticLabel: l.actionPrev,
+                variant: PButtonVariant.ghost,
+                onPressed: onPrev,
               ),
               Flexible(
                 child: PressArea(
@@ -275,54 +284,17 @@ class BudgetMonthRow extends StatelessWidget {
                   ),
                 ),
               ),
-              _Arrow(
+              PButton.icon(
                 icon: LucideIcons.chevronRight,
-                label: l.actionNext,
-                onTap: onNext,
+                semanticLabel: l.actionNext,
+                variant: PButtonVariant.ghost,
+                onPressed: onNext,
               ),
             ],
           ),
           // 글 버튼은 가운데 맞춤 상자라 폭을 다 채우려 한다 — 제 폭만 쓰게 푼다
           UnconstrainedBox(child: trailing),
         ],
-      ),
-    );
-  }
-}
-
-class _Arrow extends StatelessWidget {
-  const _Arrow({required this.icon, required this.label, required this.onTap});
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return PressArea(
-      enabled: true,
-      onTap: onTap,
-      touchMin: 0,
-      semantics: (child, enabled, onTap) => Semantics(
-        container: true,
-        button: true,
-        label: label,
-        onTap: onTap,
-        excludeSemantics: true,
-        child: child,
-      ),
-      builder: (context, pressed, size) => Container(
-        width: PTouch.min,
-        height: PTouch.min,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: pressed
-              ? c.bgLayerDefaultPressed
-              : c.bgLayerDefaultPressed.withValues(alpha: 0),
-          borderRadius: BorderRadius.circular(PRounded.r2),
-        ),
-        child: Icon(icon, size: 20, color: c.fgNeutral),
       ),
     );
   }
@@ -492,6 +464,7 @@ Widget budgetKvList(BuildContext context, List<BudgetKv> rows) {
         for (final r in rows)
           PListItem(
             title: r.name,
+            verticalPadding: PSpacing.x2,
             suffix: PListValue.amount(
               r.value,
               style: TextStyle(

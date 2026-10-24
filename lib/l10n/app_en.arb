@@ -1346,7 +1346,7 @@
   "budgetMonthlyLimitField": "Monthly limit (KRW)",
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
-  "budgetMonthOverallCap": "Total budget · {month}",
+  "budgetMonthOverallCap": "Month {month} total budget",
   "@budgetMonthOverallCap": {
     "placeholders": {
       "month": {
@@ -1355,7 +1355,33 @@
     }
   },
   "budgetOverallCapDesc": "The cap for this month's total spending (including spending without a category budget).",
-  "budgetOverallCapEmptyHint": "No total budget yet. Use the settings button at the top right to set this month's maximum spending limit.",
+  "budgetOverallCapEmptyHint": "There is no total budget yet. You can set this month's spending limit in settings.",
+  "budgetEmptyMonthTitle": "No budget for month {month} yet",
+  "@budgetEmptyMonthTitle": {
+    "placeholders": {
+      "month": {"type": "int"}
+    }
+  },
+  "budgetEmptyMonthDesc": "Set a budget to see what you spent and what is left at a glance.",
+  "budgetFailHeader": "Couldn't load the total budget",
+  "budgetFailPace": "Couldn't load the spending pace",
+  "budgetFailStatus": "Couldn't load the budget status",
+  "budgetFailCategories": "Couldn't load the category budgets",
+  "budgetFailCompliance": "Couldn't load the budget compliance",
+  "budgetManagerLoadFailed": "Couldn't load the budgets",
+  "budgetCategoryCount": "{count} categories",
+  "@budgetCategoryCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "budgetOverLimit": "Over limit by {amount}",
+  "@budgetOverLimit": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "budgetTableMonth": "Month",
   "budgetCurrentCategorySum": "Current category limit total",
   "budgetPercentUsed": "{pct}% used",
   "@budgetPercentUsed": {
@@ -1384,7 +1410,7 @@
   "budgetOverallCapLabel": "Total budget",
   "budgetCategoryAllocated": "Category allocated",
   "budgetAllocatable": "Allocatable",
-  "budgetOverAllocatedWarning": "Category limits exceed the total budget by {amount}. Raise the total budget or lower category limits.",
+  "budgetOverAllocatedWarning": "Category limits exceed the total budget by {amount}. Raise the total budget or lower the category limits.",
   "@budgetOverAllocatedWarning": {
     "placeholders": {
       "amount": {
@@ -1426,7 +1452,7 @@
     }
   },
   "budgetNoCategoryBudgets": "No category budgets",
-  "budgetGoToSettings": "Go to budget settings →",
+  "budgetGoToSettings": "Go set a budget",
   "budgetCategoryFallback": "Category #{id}",
   "@budgetCategoryFallback": {
     "placeholders": {
@@ -1440,8 +1466,6 @@
   "budgetNoComplianceData": "No compliance data yet",
   "budgetVsLimit": "vs limit",
   "budgetLimit": "Limit",
-  "budgetEmptyMonth": "No budget for this month",
-  "budgetEmptyHint": "Set an overall cap or category budgets",
   "budgetSetup": "Budget settings",
   "budgetCopyLastMonth": "Copy last month's budget",
   "budgetCopyConfirmMessage": "{from} budget limits ({count}) will be copied to {to}. Budgets that already exist this month will be overwritten.",
@@ -1468,7 +1492,7 @@
     }
   },
   "budgetCopyLastMonthBtn": "Copy last month",
-  "budgetMonthTotal": "Total budget · {month}",
+  "budgetMonthTotal": "Month {month} Total Budget",
   "@budgetMonthTotal": {
     "placeholders": {
       "month": {
@@ -2693,7 +2717,7 @@
     }
   },
   "savingGoalLoadError": "Failed to load saving goals",
-  "savingGoalFailTitle": "Couldn't load saving goals",
+  "savingGoalFailTitle": "Couldn't load the saving goals",
   "savingGoalOverallProgress": "Overall progress",
   "savingGoalListCount": "Goals · {n}",
   "@savingGoalListCount": {
@@ -2711,7 +2735,7 @@
   "savingGoalIconLabel": "Icon",
   "savingGoalEmpty": "No saving goals yet. Start with ‘Add goal’.",
   "savingGoalActionFailed": "Failed",
-  "savingGoalAchieved": "Achieved!",
+  "savingGoalAchieved": "Achieved",
   "savingGoalAdd": "Add saving goal",
   "savingGoalEdit": "Edit saving goal",
   "savingGoalSubmitAdd": "Add",

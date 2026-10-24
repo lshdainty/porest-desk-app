@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +19,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
-import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
@@ -28,7 +27,6 @@ import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
 
 export 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart'
     show showMonthPickerSheet;
@@ -99,56 +97,94 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       ),
     );
 
-    final bands = <Widget>[];
-    if (!ready) {
-      // 질의가 실패해도 0원으로 그리지 않는다 — 그 구역 안에서 알리고 그 질의만 다시 받는다(I-08 17)
-      final failed = budgetsFailed || summaryFailed;
-      void retry() {
-        if (budgetsFailed) retryBudgets();
-        if (summaryFailed) retrySummary();
-      }
+    final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
+    final failed = budgetsFailed || summaryFailed;
+    // 질의 하나 = 실패 하나 — 실패한 질의만 다시 받는다(I-08 17)
+    void retry() {
+      if (budgetsFailed) retryBudgets();
+      if (summaryFailed) retrySummary();
+    }
 
+    final complianceMasked = ref.watch(hideCardProvider('budget.compliance'));
+    final compliance = _ComplianceSection(
+      async: complianceAsync,
+      currentYear: _month.year,
+      currentMonth: _month.month,
+      masked: complianceMasked,
+      onRetry: retryCompliance,
+    );
+
+    // 구역 하나 — 실패하면 제 머리 아래 실패, 불러오는 중이면 틀 그대로 Skeleton, 아니면 값
+    Widget section({
+      required String title,
+      required String failTitle,
+      required Widget skeleton,
+      required Widget Function() build,
+      double topPadding = PSpacing.x6,
+      bool list = false,
+    }) {
+      if (ready) return build();
+      if (failed) {
+        final fail = BudgetFailure(title: failTitle, onRetry: retry);
+        return list
+            ? BudgetListSection(
+                header: BudgetHead(title: title),
+                children: [fail],
+              )
+            : BudgetSection(
+                topPadding: topPadding,
+                header: title.isEmpty ? null : BudgetHead(title: title),
+                children: [fail],
+              );
+      }
+      return skeleton;
+    }
+
+    final bands = <Widget>[];
+    Budget? overallBudget;
+    final categoryBudgets = <Budget>[];
+    for (final b in budgets ?? const <Budget>[]) {
+      if (b.categoryRowId == null) {
+        overallBudget = b;
+      } else {
+        categoryBudgets.add(b);
+      }
+    }
+    final hasNoData =
+        budgets != null && overallBudget == null && categoryBudgets.isEmpty;
+
+    if (hasNoData) {
+      // Q3 B — 달 줄 + 빈 결과 + 버튼. 이행률은 상한이 있는 달이 있을 때만 남는다
       bands.add(
         budgetBand([
           monthRow,
-          if (failed)
-            BudgetSection(
-              topPadding: PSpacing.x3,
-              children: [
-                BudgetFailure(title: l.dashFailBudget, onRetry: retry),
-              ],
-            )
-          else ...const [_TotalSkeleton(), _PaceSkeleton()],
-        ]),
-      );
-      if (!failed) {
-        bands.add(budgetBand(const [_StatusSkeleton(), _ListSkeleton()]));
-      }
-      bands.add(
-        budgetBand([
-          _ComplianceSection(
-            async: complianceAsync,
-            currentYear: _month.year,
-            currentMonth: _month.month,
-            masked: ref.watch(hideCardProvider('budget.compliance')),
-            onRetry: retryCompliance,
+          BudgetSection(
+            topPadding: PSpacing.x3,
+            children: [
+              PResultSection(
+                kind: PResultKind.empty,
+                size: PResultSize.medium,
+                icon: LucideIcons.wallet,
+                title: l.budgetEmptyMonthTitle(_month.month),
+                description: l.budgetEmptyMonthDesc,
+                headingLevel: 2,
+                placement: PResultPlacement.card,
+                primaryAction: PResultAction(
+                  label: l.budgetSetup,
+                  onPressed: () => context.push('/budget/settings'),
+                ),
+              ),
+            ],
           ),
         ]),
       );
-    } else {
-      final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
-      final spentByCategory = _spentByCategoryFromSummary(summary);
-      final totalExpense = summary.totalExpense;
-
-      Budget? overallBudget;
-      final categoryBudgets = <Budget>[];
-      for (final b in budgets) {
-        if (b.categoryRowId == null) {
-          overallBudget = b;
-        } else {
-          categoryBudgets.add(b);
-        }
+      final list = complianceAsync.value;
+      if (list == null || list.any((r) => r.totalLimit > 0)) {
+        bands.add(budgetBand([compliance]));
       }
+    } else {
+      final spentByCategory = _spentByCategoryFromSummary(summary);
+      final totalExpense = summary?.totalExpense ?? 0;
       final categoryLimitSum = categoryBudgets.fold<int>(
         0,
         (s, b) => s + b.budgetAmount,
@@ -158,7 +194,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       final allocable = overallLimit - categoryLimitSum;
       final overAllocated =
           overallBudget != null && categoryLimitSum > overallLimit;
-      final hasNoData = overallBudget == null && categoryBudgets.isEmpty;
 
       final today = DateTime.now();
       final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
@@ -192,57 +227,16 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       final headerMasked = ref.watch(hideCardProvider('budget.header'));
       final paceMasked = ref.watch(hideCardProvider('budget.pace'));
       final categoriesMasked = ref.watch(hideCardProvider('budget.categories'));
-      final complianceMasked = ref.watch(hideCardProvider('budget.compliance'));
 
-      final complianceList = complianceAsync.value;
-      final complianceHasLimit =
-          complianceList?.any((r) => r.totalLimit > 0) ?? false;
-
-      if (hasNoData) {
-        // Q3 B — 달 줄 + 빈 결과 + 버튼. 이행률은 상한이 있는 달이 있을 때만 남는다
-        bands.add(
-          budgetBand([
-            monthRow,
-            BudgetSection(
-              topPadding: PSpacing.x3,
-              children: [
-                PResultSection(
-                  kind: PResultKind.empty,
-                  size: PResultSize.medium,
-                  icon: LucideIcons.target,
-                  title: l.budgetEmptyMonth,
-                  description: l.budgetEmptyHint,
-                  headingLevel: 3,
-                  placement: PResultPlacement.card,
-                  primaryAction: PResultAction(
-                    label: l.budgetSetup,
-                    onPressed: () => context.push('/budget/settings'),
-                  ),
-                ),
-              ],
-            ),
-          ]),
-        );
-        if (complianceAsync.isLoading && !complianceAsync.hasValue ||
-            complianceAsync.hasError && !complianceAsync.hasValue ||
-            complianceHasLimit) {
-          bands.add(
-            budgetBand([
-              _ComplianceSection(
-                async: complianceAsync,
-                currentYear: _month.year,
-                currentMonth: _month.month,
-                masked: complianceMasked,
-                onRetry: retryCompliance,
-              ),
-            ]),
-          );
-        }
-      } else {
-        bands.add(
-          budgetBand([
-            monthRow,
-            _TotalSection(
+      bands.add(
+        budgetBand([
+          monthRow,
+          section(
+            title: '',
+            failTitle: l.budgetFailHeader,
+            topPadding: PSpacing.x3,
+            skeleton: const _TotalSkeleton(),
+            build: () => _TotalSection(
               month: _month.month,
               overallBudget: overallBudget,
               totalSpent: totalExpense,
@@ -253,7 +247,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               overAllocated: overAllocated,
               masked: headerMasked,
             ),
-            _PaceSection(
+          ),
+          section(
+            title: l.budgetSpendingPace,
+            failTitle: l.budgetFailPace,
+            skeleton: const _PaceSkeleton(),
+            build: () => _PaceSection(
               pct: pct,
               daysElapsedPct: daysElapsedPct,
               dailyActual: dailyActual,
@@ -261,32 +260,36 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               onTrack: onTrack,
               masked: paceMasked,
             ),
-          ]),
-        );
-        bands.add(
-          budgetBand([
-            _StatusSection(overCount: overCount, healthyCount: healthyCount),
-            _CategoryListSection(
+          ),
+        ]),
+      );
+      bands.add(
+        budgetBand([
+          section(
+            title: l.budgetStatusTitle,
+            failTitle: l.budgetFailStatus,
+            skeleton: const _StatusSkeleton(),
+            build: () => _StatusSection(
+              overCount: overCount,
+              healthyCount: healthyCount,
+            ),
+          ),
+          section(
+            title: l.budgetByCategory,
+            failTitle: l.budgetFailCategories,
+            list: true,
+            skeleton: const _ListSkeleton(),
+            build: () => _CategoryListSection(
               budgets: categoryBudgets,
               categories: categories,
               spentByCategory: spentByCategory,
               masked: categoriesMasked,
               onGoSettings: () => context.push('/budget/settings'),
             ),
-          ]),
-        );
-        bands.add(
-          budgetBand([
-            _ComplianceSection(
-              async: complianceAsync,
-              currentYear: _month.year,
-              currentMonth: _month.month,
-              masked: complianceMasked,
-              onRetry: retryCompliance,
-            ),
-          ]),
-        );
-      }
+          ),
+        ]),
+      );
+      bands.add(budgetBand([compliance]));
     }
 
     return Scaffold(
@@ -382,7 +385,7 @@ class _TotalSection extends StatelessWidget {
         children: [
           ...head,
           const _Gap(PSpacing.x3),
-          PCallout(description: l.budgetOverallCapEmptyHint),
+          PCallout(description: l.budgetOverallCapEmptyHint, hideIcon: true),
           if (categoryLimitSum > 0) ...[
             const _Gap(PSpacing.x2),
             Text(
@@ -465,7 +468,8 @@ class _PaceSection extends StatelessWidget {
     return BudgetSection(
       header: BudgetHead(
         title: l.budgetSpendingPace,
-        suffix: PBadge(
+        // 머리 오른쪽 끝
+        trailing: PBadge(
           label: onTrack ? l.budgetPaceOnTrack : l.budgetPaceFast,
           tone: onTrack ? PBadgeTone.positive : PBadgeTone.warning,
         ),
@@ -544,12 +548,12 @@ class _StatusSection extends StatelessWidget {
         budgetKvList(context, [
           BudgetKv(
             l.budgetOver,
-            '$overCount ${l.expCategory}',
+            l.budgetCategoryCount(overCount),
             color: overCount > 0 ? c.fgCritical : c.fgNeutral,
           ),
           BudgetKv(
             l.budgetHealthy,
-            '$healthyCount ${l.expCategory}',
+            l.budgetCategoryCount(healthyCount),
             color: c.fgBrand,
           ),
         ]),
@@ -629,30 +633,89 @@ class _ComplianceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final list = async.value;
-    final Widget body;
+    final head = BudgetHead(
+      title: l.budgetComplianceTitle,
+      note: l.budgetComplianceSubtitle,
+    );
     if (list == null) {
-      body = async.hasError
-          ? BudgetFailure(title: l.dashFailBudget, onRetry: onRetry)
-          : const PSkeleton(width: double.infinity, height: 200);
-    } else if (list.isEmpty) {
-      body = BudgetEmptyLine(l.budgetNoComplianceData);
-    } else {
-      body = SizedBox(
-        height: 200,
-        child: _ComplianceBarChart(
-          rows: list,
-          currentYear: currentYear,
-          currentMonth: currentMonth,
-          masked: masked,
-        ),
+      return BudgetSection(
+        header: head,
+        children: [
+          async.hasError
+              ? BudgetFailure(title: l.budgetFailCompliance, onRetry: onRetry)
+              : const PSkeleton(width: double.infinity, height: 180),
+        ],
       );
     }
+    if (list.isEmpty) {
+      return BudgetSection(
+        header: head,
+        children: [BudgetEmptyLine(l.budgetNoComplianceData)],
+      );
+    }
+    final name = l.budgetComplianceTitle;
+    final active = list.indexWhere(
+      (r) => r.year == currentYear && r.month == currentMonth,
+    );
+    String won(int n) => budgetWon(n, masked);
     return BudgetSection(
-      header: BudgetHead(
-        title: l.budgetComplianceTitle,
-        note: l.budgetComplianceSubtitle,
-      ),
-      children: [body],
+      header: head,
+      children: [
+        // ds 막대 — 막대마다 색(넘음 red · 이번 달 blue · 지난 달 blue weak) · 위 % · 100% 점선 · 세로축 없음
+        PBarChart(
+          label: name,
+          height: 180,
+          categories: [
+            for (final r in list) monthOnly(DateTime(2000, r.month)),
+          ],
+          series: [
+            PChartSeries(
+              key: 'percent',
+              label: l.budgetVsLimit,
+              color: PChartColor.blue,
+              // 한도가 없는 달은 0% 막대 대신 빈 자리(Q3)
+              values: [
+                for (final r in list)
+                  r.totalLimit > 0 ? r.compliancePercent : null,
+              ],
+            ),
+          ],
+          barColor: (i, c) {
+            final r = list[i];
+            if (r.compliancePercent > 100) return c.chartRed;
+            return i == active ? c.chartBlue : c.chartBlueWeak;
+          },
+          barLabel: (i, v) => '${v.round()}%',
+          referenceLines: const [100],
+          showValueAxis: false,
+          emphasizedIndex: active < 0 ? null : active,
+          valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
+          tooltipFooter: (i) => [
+            (name: l.expSummaryExpense, value: won(list[i].totalSpent)),
+            (name: l.budgetLimit, value: won(list[i].totalLimit)),
+          ],
+        ),
+        PChartDataTable(
+          caption: name,
+          columns: [
+            PChartDataColumn(l.budgetTableMonth),
+            PChartDataColumn(l.budgetVsLimit),
+            PChartDataColumn(l.expSummaryExpense),
+            PChartDataColumn(l.budgetLimit),
+          ],
+          rows: [
+            for (final r in list)
+              [
+                monthOnly(DateTime(2000, r.month)),
+                r.totalLimit > 0
+                    ? '${r.compliancePercent.toStringAsFixed(1)}%'
+                    : '-',
+                won(r.totalSpent),
+                won(r.totalLimit),
+              ],
+          ],
+        ),
+      ],
     );
   }
 }
@@ -759,206 +822,6 @@ class _ListSkeleton extends StatelessWidget {
                   radius: PSkeletonRadius.full,
                 ),
               ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── 이행률 차트 — 지금 차트 그대로(I-08 13: ds 막대가 막대별 색 · 막대 위 글 · 기준선을 못 받아 질문 대기) ───
-
-class _ComplianceBarChart extends StatefulWidget {
-  const _ComplianceBarChart({
-    required this.rows,
-    required this.currentYear,
-    required this.currentMonth,
-    required this.masked,
-  });
-  final List<BudgetComplianceMonth> rows;
-  final int currentYear;
-  final int currentMonth;
-  final bool masked;
-
-  @override
-  State<_ComplianceBarChart> createState() => _ComplianceBarChartState();
-}
-
-class _ComplianceBarChartState extends State<_ComplianceBarChart> {
-  int? _touchedIdx;
-  Offset? _touchPos;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = widget.rows;
-    final c = context.colors;
-    final currentYear = widget.currentYear;
-    final currentMonth = widget.currentMonth;
-    final masked = widget.masked;
-    final l = AppLocalizations.of(context);
-    final maxY = rows.fold<double>(
-      100,
-      (m, r) => r.compliancePercent > m ? r.compliancePercent : m,
-    );
-    // 상한을 두면 안 된다 — 이행률은 한도 대비 지출이라 2,855% 같은 값이 실제로 나온다.
-    // ×1.15 는 막대 위 % 라벨 자리.
-    final yMax = maxY * 1.15;
-
-    final chart = BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: yMax,
-        minY: 0,
-        barTouchData: BarTouchData(
-          enabled: true,
-          handleBuiltInTouches: false,
-          touchCallback: (event, response) {
-            if (event is FlTapUpEvent ||
-                event is FlPanEndEvent ||
-                event is FlPanCancelEvent ||
-                event is FlLongPressEnd ||
-                event is FlPointerExitEvent) {
-              return;
-            }
-            final i = response?.spot?.touchedBarGroupIndex;
-            if (i == null) {
-              if (_touchedIdx != null) {
-                setState(() => _touchedIdx = null);
-              }
-              return;
-            }
-            final pos = event.localPosition;
-            if (i >= 0 &&
-                i < rows.length &&
-                (i != _touchedIdx || pos != _touchPos)) {
-              setState(() {
-                _touchedIdx = i;
-                if (pos != null) _touchPos = pos;
-              });
-            }
-          },
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (_) => Colors.transparent,
-            tooltipPadding: EdgeInsets.zero,
-            tooltipMargin: 4,
-            getTooltipItem: (group, groupIdx, rod, rodIdx) => BarTooltipItem(
-              '${rod.toY.toStringAsFixed(0)}%',
-              PTypography.t2.copyWith(
-                color: c.fgNeutral,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (_) => FlLine(
-            color: c.strokeNeutralSubtle,
-            strokeWidth: 1,
-            dashArray: const [4, 4],
-          ),
-        ),
-        borderData: FlBorderData(show: false),
-        titlesData: FlTitlesData(
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 22,
-              getTitlesWidget: (v, meta) {
-                final i = v.toInt();
-                if (i < 0 || i >= rows.length) {
-                  return const SizedBox.shrink();
-                }
-                final r = rows[i];
-                final last = r.year == currentYear && r.month == currentMonth;
-                return Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    monthOnly(DateTime(2000, r.month)),
-                    style: PTypography.t2.copyWith(
-                      color: last ? c.fgNeutral : c.fgNeutralSubtle,
-                      fontWeight: last ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        barGroups: [
-          for (int i = 0; i < rows.length; i++)
-            BarChartGroupData(
-              x: i,
-              // 한도가 없는 달은 0% 막대로 그리지 않는다(Q3) — % 글도 없다
-              showingTooltipIndicators: rows[i].totalLimit > 0
-                  ? const [0]
-                  : const [],
-              barRods: [
-                BarChartRodData(
-                  toY: rows[i].totalLimit > 0 ? rows[i].compliancePercent : 0,
-                  // 초과 차트 red / 이번 달 차트 blue / 지난 달 stroke-neutral-solid(옛 border-strong)
-                  color: rows[i].compliancePercent > 100
-                      ? PChartColor.red.of(c)
-                      : (rows[i].year == currentYear &&
-                            rows[i].month == currentMonth)
-                      ? PChartColor.blue.of(c)
-                      : c.strokeNeutralSolid,
-                  width: 28,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(6),
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-
-    return Stack(
-      children: [
-        ClipRect(child: chart),
-        if (_touchedIdx != null &&
-            _touchedIdx! < rows.length &&
-            _touchPos != null)
-          PChartTooltipLayer(
-            anchor: _touchPos!,
-            child: Builder(
-              builder: (_) {
-                final r = rows[_touchedIdx!];
-                final over = r.compliancePercent > 100;
-                return PChartTooltipBox(
-                  title: monthOnly(DateTime(2000, r.month)),
-                  labelWidth: 56,
-                  rows: [
-                    PChartTooltipRowData(
-                      color: over ? c.fgCritical : c.fgBrand,
-                      label: l.budgetVsLimit,
-                      amount: '${r.compliancePercent.toStringAsFixed(1)}%',
-                      amountColor: over ? c.fgCritical : c.fgNeutral,
-                    ),
-                  ],
-                  footer: [
-                    PChartTooltipFooterRowData(
-                      label: l.expSummaryExpense,
-                      value: budgetWon(r.totalSpent, masked),
-                    ),
-                    PChartTooltipFooterRowData(
-                      label: l.budgetLimit,
-                      value: budgetWon(r.totalLimit, masked),
-                    ),
-                  ],
-                );
-              },
             ),
           ),
       ],

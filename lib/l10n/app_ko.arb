@@ -1359,7 +1359,33 @@
     }
   },
   "budgetOverallCapDesc": "이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).",
-  "budgetOverallCapEmptyHint": "총 예산이 아직 없어요. 오른쪽 위 설정 버튼에서 이번 달 최대 지출 한도를 정할 수 있어요.",
+  "budgetOverallCapEmptyHint": "총 예산이 아직 없어요. 설정에서 이번 달 최대 지출 한도를 정할 수 있어요.",
+  "budgetEmptyMonthTitle": "{month}월 예산이 아직 없어요",
+  "@budgetEmptyMonthTitle": {
+    "placeholders": {
+      "month": {"type": "int"}
+    }
+  },
+  "budgetEmptyMonthDesc": "예산을 정하면 쓴 돈과 남은 돈을 한눈에 볼 수 있어요.",
+  "budgetFailHeader": "총 예산을 불러오지 못했어요",
+  "budgetFailPace": "지출 페이스를 불러오지 못했어요",
+  "budgetFailStatus": "예산 현황을 불러오지 못했어요",
+  "budgetFailCategories": "카테고리별 예산을 불러오지 못했어요",
+  "budgetFailCompliance": "예산 이행률을 불러오지 못했어요",
+  "budgetManagerLoadFailed": "예산을 불러오지 못했어요",
+  "budgetCategoryCount": "{count} 카테고리",
+  "@budgetCategoryCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "budgetOverLimit": "한도 초과 {amount}",
+  "@budgetOverLimit": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "budgetTableMonth": "달",
   "budgetCurrentCategorySum": "현재 카테고리 한도 합계",
   "budgetPercentUsed": "{pct}% 사용",
   "@budgetPercentUsed": {
@@ -1430,7 +1456,7 @@
     }
   },
   "budgetNoCategoryBudgets": "카테고리별 예산이 없어요",
-  "budgetGoToSettings": "예산 설정하러 가기 →",
+  "budgetGoToSettings": "예산 설정하러 가기",
   "budgetCategoryFallback": "카테고리 #{id}",
   "@budgetCategoryFallback": {
     "placeholders": {
@@ -1444,8 +1470,6 @@
   "budgetNoComplianceData": "아직 이행률 데이터가 없어요",
   "budgetVsLimit": "한도 대비",
   "budgetLimit": "한도",
-  "budgetEmptyMonth": "이 기간에는 예산이 없어요",
-  "budgetEmptyHint": "총 예산이나 카테고리 예산을 설정해보세요.",
   "budgetSetup": "예산 설정",
   "budgetCopyLastMonth": "지난달 예산 복사",
   "budgetCopyConfirmMessage": "{from} 예산 한도({count}개)를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.",
@@ -1480,7 +1504,7 @@
       }
     }
   },
-  "budgetNotSet": "설정되지 않음",
+  "budgetNotSet": "설정 안 됨",
   "budgetUsed": "사용",
   "budgetAllocated": "할당됨",
   "budgetByCategoryCount": "카테고리별 예산 · {count}개",
@@ -2728,7 +2752,7 @@
   "savingGoalIconLabel": "아이콘",
   "savingGoalEmpty": "아직 저축 목표가 없어요. ‘목표 추가’로 시작해보세요.",
   "savingGoalActionFailed": "실패",
-  "savingGoalAchieved": "달성!",
+  "savingGoalAchieved": "달성",
   "savingGoalAdd": "저축 목표 추가",
   "savingGoalEdit": "저축 목표 수정",
   "savingGoalSubmitAdd": "추가",
