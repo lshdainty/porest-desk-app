@@ -690,6 +690,40 @@ class _PIconPickerPanelState extends State<PIconPickerPanel> {
   }
 }
 
+/// 아이콘 고르기 시트 — 트리거가 Input Button 이 아닌 자리(폼 안 "아이콘" 줄)가 같은 시트를 연다. 고르면 [onChanged] 를
+/// 부르고 바로 닫는다("완료" 없음). 고르지 않고 닫으면 부르지 않는다. 세트 밖 저장 값은 고른 칸이 없다.
+Future<void> showPIconPickerSheet(
+  BuildContext context, {
+  required String? value,
+  required ValueChanged<String> onChanged,
+  PIconPickerTexts? texts,
+}) {
+  final stored = value?.trim() ?? '';
+  final entry = findCategoryIcon(stored);
+  final selectedId =
+      entry?.id ?? (stored.isEmpty ? kDefaultCategoryIcon : null);
+  final t = texts ?? PIconPickerTexts.of(context);
+  return PBottomSheet.show<void>(
+    context,
+    builder: (sheetContext) => PBottomSheetContent(
+      title: t.title,
+      closeLabel: t.closeLabel,
+      flushBody: true,
+      body: SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * 0.6,
+        child: PIconPickerPanel(
+          selectedId: selectedId,
+          texts: t,
+          onSelect: (id) {
+            onChanged(id);
+            PBottomSheet.of(sheetContext).close();
+          },
+        ),
+      ),
+    ),
+  );
+}
+
 /// Icon Picker — 카테고리 · 저축 목표에 붙일 아이콘을 고르는 칸. 세트는 groo-design `specs/components/category-icons.yaml`
 /// (148개 · 13 묶음 — `category_icons.g.dart` 가 JSON 에서 만든다), 수치 원본은 `icon-picker.yaml`(값은
 /// `test/fixtures/design_spec/icon-picker.json`). SEED 에는 아이콘 고르기 부품이 없다 — 세트 · 칸 · 고른 표시 · 키보드 · 한국어
@@ -745,29 +779,12 @@ class _PIconPickerState extends State<PIconPicker> {
   }
 
   Future<void> _openSheet() async {
-    final stored = widget.value?.trim() ?? '';
-    final entry = findCategoryIcon(stored);
-    final selectedId =
-        entry?.id ?? (stored.isEmpty ? kDefaultCategoryIcon : null);
     setState(() => _open = true);
-    await PBottomSheet.show<void>(
+    await showPIconPickerSheet(
       context,
-      builder: (sheetContext) => PBottomSheetContent(
-        title: (widget.texts ?? PIconPickerTexts.of(context)).title,
-        closeLabel: (widget.texts ?? PIconPickerTexts.of(context)).closeLabel,
-        flushBody: true,
-        body: SizedBox(
-          height: MediaQuery.sizeOf(sheetContext).height * 0.6,
-          child: PIconPickerPanel(
-            selectedId: selectedId,
-            texts: widget.texts ?? PIconPickerTexts.of(context),
-            onSelect: (id) {
-              widget.onChanged?.call(id);
-              PBottomSheet.of(sheetContext).close();
-            },
-          ),
-        ),
-      ),
+      value: widget.value,
+      texts: widget.texts,
+      onChanged: (id) => widget.onChanged?.call(id),
     );
     if (!mounted) return;
     setState(() => _open = false);
