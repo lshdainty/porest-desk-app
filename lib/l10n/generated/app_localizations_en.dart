@@ -6429,6 +6429,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawPasswordPlaceholder => 'Enter your current password';
 
   @override
+  String get withdrawLocked =>
+      'You got it wrong 5 times. Please request a new code.';
+
+  @override
   String get importStepUploadDesc => 'Choose the app and the file to import.';
 
   @override

@@ -11600,6 +11600,12 @@ abstract class AppLocalizations {
   /// **'현재 비밀번호를 입력해주세요'**
   String get withdrawPasswordPlaceholder;
 
+  /// No description provided for @withdrawLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'5번 틀렸어요. 코드를 다시 받아주세요.'**
+  String get withdrawLocked;
+
   /// No description provided for @importStepUploadDesc.
   ///
   /// In ko, this message translates to:

@@ -58,6 +58,9 @@ class _DirtyProbe {
 /// 서버 `REAUTH_FAILED`(AUTH_021) — 비밀번호 · 코드가 틀렸거나 지났다.
 const _kReauthFailed = 'AUTH_021';
 
+/// 서버 `REAUTH_LOCKED`(AUTH_022, 429) — 5번 틀려 잠겼다. 코드를 다시 받아야 풀린다.
+const _kReauthLocked = 'AUTH_022';
+
 /// 본인 확인 방법. 비밀번호가 없는 소셜 전용 계정은 코드 말고 길이 없다.
 enum _Method { password, emailCode }
 
@@ -206,7 +209,9 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
         // 서버 글은 화면에 내지 않는다(Writing 오류). 틀림 · 지남(AUTH_021)만 그 칸의 글이고,
         // 네트워크 · 서버 오류는 해지 실패 글이다.
         setState(() {
-          _reauthError = e.code == _kReauthFailed
+          _reauthError = e.code == _kReauthLocked
+              ? l.withdrawLocked
+              : e.code == _kReauthFailed
               ? (method == _Method.emailCode
                     ? l.withdrawCodeWrong
                     : l.withdrawPasswordWrong)

@@ -6331,6 +6331,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawPasswordPlaceholder => '현재 비밀번호를 입력해주세요';
 
   @override
+  String get withdrawLocked => '5번 틀렸어요. 코드를 다시 받아주세요.';
+
+  @override
   String get importStepUploadDesc => '가져올 앱과 파일을 골라주세요.';
 
   @override

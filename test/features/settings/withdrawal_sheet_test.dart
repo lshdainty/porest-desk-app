@@ -355,7 +355,7 @@ void main() {
       find.widgetWithText(PButton, _l.withdrawUsePassword),
     );
     // [비밀번호로 확인하기] 위 틈 = 16(웹 gap-x4 와 같은 값)
-    expect(back.top - hint.bottom, greaterThanOrEqualTo(PSpacing.x4 - 1));
+    expect(back.top - hint.bottom, closeTo(PSpacing.x4, 1));
     expect(back.right, greaterThan(360 - 24 - 24));
   });
 
@@ -397,6 +397,36 @@ void main() {
     expect(find.text(_l.withdrawPasswordWrong), findsOneWidget);
     expect(find.text('raw pw'), findsNothing);
   });
+
+  for (final code in [true, false]) {
+    testWidgets('5번 틀려 잠기면(AUTH_022) ${code ? "코드" : "비밀번호"} 방식 모두 같은 글', (
+      tester,
+    ) async {
+      final locked = ApiException(code: 'AUTH_022', message: 'raw lock');
+      final repo = _Repo(
+        verifyCode: (_) async => throw locked,
+        verifyPw: (_) async => throw locked,
+      );
+      await _open(tester, repo);
+      await tester.tap(find.text(_l.withdrawNext));
+      await tester.pumpAndSettle();
+      if (code) {
+        await tester.tap(find.text(_l.withdrawUseEmailCode));
+        await tester.pumpAndSettle();
+      }
+      await tester.enterText(
+        find.byType(TextField).first,
+        code ? '123456' : 'secret',
+      );
+      await tester.pump();
+      await tester.tap(find.text(_l.withdrawConfirm));
+      await tester.pumpAndSettle();
+      expect(_has(_l.withdrawLocked), findsWidgets);
+      expect(_l.withdrawLocked, '5번 틀렸어요. 코드를 다시 받아주세요.');
+      expect(find.text('raw lock'), findsNothing);
+      expect(find.text(_l.withdrawFailed), findsNothing);
+    });
+  }
 
   testWidgets('불러오기 실패 — 제목 + 설명 + 다시 시도', (tester) async {
     await _open(tester, _Repo(failLoad: true));

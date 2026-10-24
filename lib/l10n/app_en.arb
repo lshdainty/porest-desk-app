@@ -3655,6 +3655,7 @@
   "@importStepMeta": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "importBusy": "Importing",
   "withdrawPasswordPlaceholder": "Enter your current password",
+  "withdrawLocked": "You got it wrong 5 times. Please request a new code.",
   "importStepUploadDesc": "Choose the app and the file to import.",
   "importStepMappingDesc": "Check the columns and review the transactions before importing.",
   "withdrawCodeHint": "If you do not see it, check your spam folder.",
