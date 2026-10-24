@@ -2321,7 +2321,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetFailCompliance => 'Couldn\'t load the budget compliance';
 
   @override
-  String get budgetManagerLoadFailed => 'Couldn\'t load the budgets';
+  String get budgetManagerLoadFailed => 'Couldn\'t load budgets';
 
   @override
   String budgetCategoryCount(int count) {

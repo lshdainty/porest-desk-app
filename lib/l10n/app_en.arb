@@ -1364,7 +1364,7 @@
   },
   "budgetEmptyMonthDesc": "Set a budget to see what you spent and what is left at a glance.",
   "budgetFailCompliance": "Couldn't load the budget compliance",
-  "budgetManagerLoadFailed": "Couldn't load the budgets",
+  "budgetManagerLoadFailed": "Couldn't load budgets",
   "budgetCategoryCount": "{count} categories",
   "@budgetCategoryCount": {
     "placeholders": {

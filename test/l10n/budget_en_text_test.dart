@@ -1,5 +1,5 @@
 // I-08 53 — 예산 · 저축 목표 en 글은 웹과 한 벌이다. 판정(2026-10-24): 영문 실패 · 안내 글에 "the" 를 넣는다
-// (Couldn't load the budgets · the saving goals · lower the category limits), 월 눈썹은 "Month {n} total budget".
+// (Couldn't load budgets(복수라 the 없음) · the saving goals · lower the category limits), 월 눈썹은 "Month {n} total budget".
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/l10n/generated/app_localizations_en.dart';
@@ -8,7 +8,7 @@ void main() {
   final l = AppLocalizationsEn();
 
   test('"the" 가 든 세 글', () {
-    expect(l.budgetManagerLoadFailed, "Couldn't load the budgets");
+    expect(l.budgetManagerLoadFailed, "Couldn't load budgets");
     expect(l.savingGoalFailTitle, "Couldn't load the saving goals");
     expect(
       l.budgetOverAllocatedWarning('₩1'),
