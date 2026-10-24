@@ -165,7 +165,7 @@ void main() {
     final tabs = tester.widget<PTabs<MoneyTab>>(find.byType(PTabs<MoneyTab>));
     expect(tabs.value, MoneyTab.assets);
     expect(tabs.size, PTabsSize.medium);
-    expect(tabs.items.map((t) => t.label), ['가계부', '자산', '통계·분석', '예산']);
+    expect(tabs.items.map((t) => t.label), ['가계부', '자산', '통계', '예산']);
     expect(
       tester.widget<PTopNavigation>(find.byType(PTopNavigation)).title,
       '가계부',
@@ -193,7 +193,7 @@ void main() {
     await tester.pump();
     expect(find.text('expense:1'), findsOneWidget);
 
-    await tester.tap(find.text('통계·분석').first);
+    await tester.tap(find.text('통계').first);
     await tester.pumpAndSettle();
     await tester.tap(
       find.descendant(
