@@ -29,6 +29,7 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_head
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/transfer_row.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
@@ -583,6 +584,21 @@ void main() {
       expect(activeConditionCount(_result!), 0);
     });
 
+    testWidgets('조건 본문의 List 줄이 시트 폭(360) 끝까지 간다', (tester) async {
+      await open(tester);
+      final rows = find.descendant(
+        of: find.byType(PBottomSheetContent),
+        matching: find.byWidgetPredicate((w) => w is PListItemBase),
+      );
+      // ignore: avoid_print
+      print('EDGE filter rows=${rows.evaluate().length}');
+      for (var i = 0; i < rows.evaluate().length; i++) {
+        final r = tester.getRect(rows.at(i));
+        expect(r.left, 0, reason: '조건 줄 $i 왼쪽');
+        expect(r.right, 360, reason: '조건 줄 $i 오른쪽 = 화면 폭');
+      }
+    });
+
     testWidgets('본문이 넘치면 본문만 스크롤하고 200% 에서도 넘침 오류가 없다', (tester) async {
       await open(tester, textScale: 2, brightness: Brightness.dark);
       expect(tester.takeException(), isNull);
@@ -848,6 +864,61 @@ void main() {
       expect(head.right, 360, reason: '날짜 머리 오른쪽 = 화면 폭');
     });
   }
+
+  testWidgets('이체 줄 · 밀어 연 줄도 화면 끝(360)까지 간다 — 거래 줄과 같다', (tester) async {
+    final now = DateTime.now();
+    await _pump(
+      tester,
+      transfers: [
+        AssetTransfer(
+          rowId: 9,
+          fromAssetRowId: 1,
+          fromAssetName: '월급 통장',
+          toAssetRowId: 2,
+          toAssetName: '지갑',
+          amount: 50000,
+          description: '용돈 옮김',
+          transferDate: '${_ymd(DateTime(now.year, now.month, 1))}T00:00:00',
+        ),
+      ],
+    );
+    final tr = tester.getRect(find.byType(TransferRow));
+    expect(tr.left, 0, reason: '이체 줄 왼쪽');
+    expect(tr.right, 360, reason: '이체 줄 오른쪽 = 화면 폭');
+    final trItem = tester.getRect(
+      find
+          .descendant(
+            of: find.byType(TransferRow),
+            matching: find.byWidgetPredicate((w) => w is PListItemBase),
+          )
+          .first,
+    );
+    expect(trItem.left, 0);
+    expect(trItem.right, 360, reason: '이체 ds List 줄 오른쪽 = 화면 폭');
+    final tx = tester.getRect(find.byType(PListButtonItem).first);
+    expect(trItem.right, tx.right, reason: '거래 줄과 같은 끝');
+    // 금액 오른쪽 끝(거래 줄 ⋮ 자리 56 과 같다)
+    final amount = tester.getTopRight(_text('50,000원', contains: true)).dx;
+    // ignore: avoid_print
+    print('EDGE transfer row right=${tr.right} amount.right=$amount');
+    expect(
+      amount,
+      closeTo(360 - 56, 0.5),
+      reason: '이체 금액 끝 = 거래 줄과 같은 56(⋮ 자리)',
+    );
+    // 밀어 연 거래 줄: 밀기 틀이 화면 폭을 채운다(열어도 틀은 그대로)
+    final swipe = find.byType(PSwipeActions).first;
+    expect(tester.getRect(swipe).left, 0);
+    expect(tester.getRect(swipe).right, 360, reason: '밀기 틀(닫힘)');
+    await tester.drag(
+      find.byType(PListButtonItem).first,
+      const Offset(-200, 0),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(tester.getRect(swipe).left, 0);
+    expect(tester.getRect(swipe).right, 360, reason: '밀기 틀(열림)');
+  });
 
   group('200% · 다크 — 가장 나쁜 값에서 넘침 오류가 없다', () {
     final worst = [

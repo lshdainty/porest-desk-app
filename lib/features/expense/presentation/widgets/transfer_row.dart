@@ -36,6 +36,7 @@ class TransferRow extends StatelessWidget {
     this.perspectiveAssetRowId,
     this.onTap,
     this.gutter,
+    this.endInset,
     super.key,
   });
 
@@ -48,6 +49,9 @@ class TransferRow extends StatelessWidget {
 
   /// **임시 인자** — 기본(null)은 ds List 줄의 24. 좌우 24 를 아직 쥐고 있는 호스트는 0.
   final double? gutter;
+
+  /// 줄 오른쪽 끝 여백 — 줄은 화면 끝(폭)까지 가고 금액만 이 값만큼 안쪽에서 끝난다(가계부: 거래 줄 ⋮ 자리와 같게 56).
+  final double? endInset;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +105,7 @@ class TransferRow extends StatelessWidget {
           : l.expTypeTransfer,
       titleColor: scheduled ? c.fgNeutralSubtle : null,
       gutter: gutter,
+      endInset: endInset,
       detailChild: detail,
       prefix: PListTile(
         background: c.chartGrayWeak,

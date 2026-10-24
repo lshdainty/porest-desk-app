@@ -188,17 +188,13 @@ class LedgerDayGroup extends ConsumerWidget {
             ),
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬(내림차순)과 동일한 자리.
           for (final tr in transfers)
-            Padding(
-              // 거래 줄과 금액 자리가 같게 ⋮ 자리만큼 비운다.
-              padding: const EdgeInsetsDirectional.only(
-                end: kLedgerAmountEnd - PSpacing.globalGutter,
-              ),
-              child: TransferRow(
-                key: ValueKey('t${tr.rowId}'),
-                transfer: tr,
-                flags: flags,
-                onTap: () => showTransferDetailSheet(context, tr),
-              ),
+            // 줄은 화면 끝(폭)까지, 금액만 거래 줄 ⋮ 자리만큼 안쪽에서 끝난다.
+            TransferRow(
+              key: ValueKey('t${tr.rowId}'),
+              transfer: tr,
+              flags: flags,
+              endInset: kLedgerAmountEnd,
+              onTap: () => showTransferDetailSheet(context, tr),
             ),
         ],
       ),
