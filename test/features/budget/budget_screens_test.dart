@@ -310,6 +310,29 @@ void main() {
       expect(data.titlesData.leftTitles.sideTitles.showTitles, isFalse);
     });
 
+    testWidgets('이행률 가장 큰 막대(2,855%) 위 % 글이 차트 위로 잘리지 않는다', (tester) async {
+      final now = DateTime.now();
+      await _pump(
+        tester,
+        const BudgetScreen(),
+        compliance: [
+          BudgetComplianceMonth(
+            year: now.year,
+            month: now.month,
+            totalLimit: 1000,
+            totalSpent: 28550,
+            compliancePercent: 2855,
+          ),
+        ],
+      );
+      final chart = tester.getRect(find.byType(PBarChart));
+      final label = tester.getRect(
+        find.byKey(const ValueKey('chart-bar-label-0')),
+      );
+      expect(label.top, greaterThanOrEqualTo(chart.top));
+      expect(label.bottom, lessThan(chart.bottom));
+    });
+
     testWidgets('막대 — 넘치면 위험 색, 85~100% 경고 색 없음, 테두리 상자 0', (tester) async {
       await _pump(tester, const BudgetScreen());
       final c = tester.element(find.byType(BudgetScreen)).colors;
