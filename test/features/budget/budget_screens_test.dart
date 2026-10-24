@@ -24,7 +24,14 @@ import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_scr
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import '../../support/plain_text.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 
@@ -88,6 +95,8 @@ Future<void> _pump(
   Brightness brightness = Brightness.light,
   Future<List<Budget>> Function(BudgetMonthKey key)? budgets,
   List<BudgetComplianceMonth>? compliance,
+  Future<RangeSummary> Function(({String startDate, String endDate}) range)?
+  summaryOf,
 }) async {
   tester.view.physicalSize = const Size(360, 3200);
   tester.view.devicePixelRatio = 1.0;
@@ -103,7 +112,9 @@ Future<void> _pump(
               : Future.value(_budgets(key.year, key.month)),
         ),
         rangeSummaryProvider.overrideWith(
-          (ref, r) async => _summary(r.startDate, r.endDate),
+          (ref, r) => summaryOf != null
+              ? summaryOf(r)
+              : Future.value(_summary(r.startDate, r.endDate)),
         ),
         categoriesProvider.overrideWith((ref) async => _cats),
         budgetComplianceProvider.overrideWith(
@@ -197,6 +208,108 @@ void main() {
       expect(r0.top, 0);
     });
 
+    testWidgets('띠 ① = 달 줄 + 구역 둘(총 예산 · 페이스), 달 줄 위 12', (tester) async {
+      await _pump(tester, const BudgetScreen());
+      final band0 = find.byKey(const ValueKey('screen-section')).first;
+      expect(
+        find.descendant(of: band0, matching: find.byType(BudgetMonthRow)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: band0, matching: find.byType(BudgetSection)),
+        findsNWidgets(2),
+      );
+      // 띠 맨 위 4 + 8 = 12 아래에 달 줄(위 24 · 아이콘 상자 자리 포함)
+      final row = tester.getRect(find.byType(BudgetMonthRow));
+      expect(row.top, 0);
+      final arrow = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(BudgetMonthRow),
+              matching: find.byType(PButton),
+            )
+            .first,
+      );
+      expect(arrow.top - row.top, greaterThanOrEqualTo(12));
+    });
+
+    testWidgets('페이스: 배지는 머리 오른쪽 끝, 막대 8 · 표시선 2 × 14 (막대 위로 3)', (
+      tester,
+    ) async {
+      await _pump(tester, const BudgetScreen());
+      final marker = tester.getRect(find.byKey(const ValueKey('pace-marker')));
+      expect(marker.width, 2);
+      expect(marker.height, 14);
+      final bar = tester.getRect(find.byType(PProgressBar).at(1));
+      expect(bar.height, 8);
+      expect(bar.top - marker.top, 3);
+      // 배지 오른쪽 끝 = 구역 오른쪽 가장자리 24 안쪽
+      final badge = tester.getRect(find.byType(PBadge).first);
+      expect(360 - badge.right, 24);
+      final widget = tester.widget<PBadge>(find.byType(PBadge).first);
+      expect(widget.variant, PBadgeVariant.weak);
+      expect(widget.size, PBadgeSize.medium);
+    });
+
+    testWidgets('키-값 줄 위아래 8 · 글자 왼쪽 24', (tester) async {
+      await _pump(tester, const BudgetScreen());
+      final eyebrow = tester.getRect(find.byType(BudgetEyebrow));
+      expect(eyebrow.left, 24);
+      final item = tester.getRect(find.byType(PListItem).first);
+      // 줄 높이 = 위아래 8 + 글 한 줄(22)
+      expect(item.height, closeTo(8 + 22 + 8, 1.0));
+    });
+
+    testWidgets('질의 하나 = 실패 하나 — 요약이 실패해도 띠 ② 는 구역마다 제자리에서 실패한다', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const BudgetScreen(),
+        summaryOf: (r) async => throw Exception('SECRET-RAW-ERROR'),
+      );
+      expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(3));
+      expect(find.text('다시 시도'), findsNWidgets(4));
+      expect(_hasText(tester, '총 예산을 불러오지 못했어요'), isTrue);
+      expect(_hasText(tester, '지출 페이스를 불러오지 못했어요'), isTrue);
+      expect(_hasText(tester, '예산 현황을 불러오지 못했어요'), isTrue);
+      expect(_hasText(tester, '카테고리별 예산을 불러오지 못했어요'), isTrue);
+      expect(_hasText(tester, 'SECRET-RAW-ERROR'), isFalse);
+    });
+
+    testWidgets('이행률은 ds 막대 — 넘음 red · 이번 달 blue · 지난 달 blue weak · 100% 점선', (
+      tester,
+    ) async {
+      final now = DateTime.now();
+      await _pump(
+        tester,
+        const BudgetScreen(),
+        compliance: [
+          BudgetComplianceMonth(
+            year: now.year,
+            month: now.month - 1 == 0 ? 12 : now.month - 1,
+            totalLimit: 100,
+            totalSpent: 50,
+            compliancePercent: 50,
+          ),
+          BudgetComplianceMonth(
+            year: now.year,
+            month: now.month,
+            totalLimit: 100,
+            totalSpent: 60,
+            compliancePercent: 60,
+          ),
+        ],
+      );
+      expect(find.byType(PBarChart), findsOneWidget);
+      final c = tester.element(find.byType(BudgetScreen)).colors;
+      final data = tester.widget<BarChart>(find.byType(BarChart)).data;
+      expect(data.barGroups[0].barRods.first.color, c.chartBlueWeak);
+      expect(data.barGroups[1].barRods.first.color, c.chartBlue);
+      expect(data.extraLinesData.horizontalLines, hasLength(1));
+      expect(data.titlesData.leftTitles.sideTitles.showTitles, isFalse);
+    });
+
     testWidgets('막대 — 넘치면 위험 색, 85~100% 경고 색 없음, 테두리 상자 0', (tester) async {
       await _pump(tester, const BudgetScreen());
       final c = tester.element(find.byType(BudgetScreen)).colors;
@@ -251,6 +364,25 @@ void main() {
   });
 
   group('예산 설정', () {
+    testWidgets('글자 왼쪽 24 · 설정 줄 이름 말줄임 0 · 넘침 설명 "한도 초과"', (tester) async {
+      await _pump(tester, const BudgetSettingsScreen());
+      expect(tester.getRect(find.byType(BudgetEyebrow)).left, 24);
+      final name = tester
+          .widgetList<Text>(find.byType(Text))
+          .firstWhere((t) => plainOf(t.data ?? '') == _longName);
+      expect(name.overflow, isNot(TextOverflow.ellipsis));
+      expect(name.maxLines, isNull);
+      expect(
+        tester
+            .widgetList<Text>(find.byType(Text))
+            .any((t) => plainOf(t.data ?? '').contains('한도 초과 1,233,767,890원')),
+        isTrue,
+      );
+      // 눈썹 줄 높이는 눈썹(18)이다 — 글 버튼 36 이 늘리지 않는다
+      final eyebrow = tester.getRect(find.byType(BudgetEyebrow));
+      expect(eyebrow.height, closeTo(18, 1));
+    });
+
     testWidgets('글자 200% 다크 — 넘침 0', (tester) async {
       await _pump(
         tester,

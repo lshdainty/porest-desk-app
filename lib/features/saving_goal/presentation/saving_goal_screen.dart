@@ -111,8 +111,8 @@ class SavingGoalScreen extends ConsumerWidget {
                 ),
               ],
             ),
-          // 목록 제목 위: 앞 구역 아래 24 + 16 = 보이는 40
-          const SizedBox(height: PSpacing.x4),
+          // 목록 제목 위: 앞 구역 아래 24 + 8 + 제목 위 8 = 보이는 40
+          const SizedBox(height: PSpacing.x2),
           PListHeader(
             title: l.savingGoalListCount(items.length),
             variant: PListHeaderVariant.boldSolid,
@@ -210,7 +210,7 @@ class _SavingGoalSkeleton extends StatelessWidget {
             PSkeleton.text(PTypography.t9, width: 200),
           ],
         ),
-        const SizedBox(height: PSpacing.x4),
+        const SizedBox(height: PSpacing.x2),
         // 목록 제목의 동작은 정적 UI 라 로딩에도 진짜를 쓴다.
         PListHeader(
           title: l.savingGoalListCount(0),

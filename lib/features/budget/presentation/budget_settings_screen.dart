@@ -19,6 +19,7 @@ import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
@@ -252,7 +253,9 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       children.add(
         BudgetSection(
           topPadding: PSpacing.x3,
-          children: [BudgetFailure(title: l.dashFailBudget, onRetry: retry)],
+          children: [
+            BudgetFailure(title: l.budgetManagerLoadFailed, onRetry: retry),
+          ],
         ),
       );
     } else if (budgets == null || summary == null) {
@@ -304,8 +307,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
           onEdit: () => _editOverall(overallBudget),
         ),
       );
-      // 목록 제목 위: 앞 구역 아래 24 + 16 = 보이는 40
-      children.add(const SizedBox(height: PSpacing.x4));
+      // 목록 제목 위: 앞 구역 아래 24 + 8 + 제목 위 8 = 보이는 40
+      children.add(const SizedBox(height: PSpacing.x2));
       children.add(
         PListHeader(
           title: l.budgetByCategoryCount(categoryBudgets.length),
@@ -355,6 +358,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                         spent: spentByCategory[b.categoryRowId] ?? 0,
                         masked: masked,
                         onTap: () => _editCategory(b, budgets),
+                        overText: l.budgetOverLimit,
                       ),
                     ),
                 ],
@@ -455,16 +459,26 @@ class _TotalSection extends StatelessWidget {
     return BudgetSection(
       topPadding: PSpacing.x3,
       children: [
-        // 첫 줄: 눈썹 + 오른쪽 글 버튼(수정 · 설정)
-        Row(
-          children: [
-            Expanded(child: BudgetEyebrow(l.budgetMonthTotal(month))),
-            PTextButton(
-              label: has ? l.actionEdit : l.budgetSetup,
-              onPressed: onEdit,
-              bleedEnd: true,
+        // 첫 줄: 눈썹 + 오른쪽 글 버튼(수정 · 설정). 글 버튼(36)이 줄을 늘리지 않게 줄 높이는 눈썹(18)이고, 버튼은 위아래로 내민다
+        PTouchTargetScope(
+          slack: 9,
+          child: SizedBox(
+            height: 18,
+            child: OverflowBox(
+              minHeight: kTextButtonHeight,
+              maxHeight: kTextButtonHeight,
+              child: Row(
+                children: [
+                  Expanded(child: BudgetEyebrow(l.budgetMonthTotal(month))),
+                  PTextButton(
+                    label: has ? l.actionEdit : l.budgetSetup,
+                    onPressed: onEdit,
+                    bleedEnd: true,
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
         const _Gap(PSpacing.x3),
         if (has)
