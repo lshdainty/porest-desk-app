@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -14,6 +13,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/overflow_center/p_overflow_center.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_parts.dart';
@@ -402,7 +402,7 @@ class LedgerCalendar extends StatelessWidget {
               children: [
                 // 원이 칸보다 넓어지면(글자 200%) 가운데 기준으로 이웃 쪽으로 넘친다 — 글자는 줄이지 않고(웹 `LedgerCellNum` 과 같다)
                 // 숫자는 한 줄로 둔다(maxLines 1 · softWrap false)
-                _CenterOverflow(
+                POverflowCenter(
                   child: Container(
                     // 최소 36 · 좌우 4 — 글자 200% 에서 두 자리 날이 잘리지 않게 글을 따라 늘어난다(웹 `min-w-x9 px-x1`)
                     constraints: const BoxConstraints(
@@ -581,50 +581,6 @@ class LedgerCellTooltip extends StatelessWidget {
       ),
       decoration: const BoxDecoration(color: Colors.transparent),
       child: child,
-    );
-  }
-}
-
-/// 자식을 칸 폭에 묶지 않고(폭 무제한) 가운데에 놓는다 — 자식이 칸보다 넓으면 양쪽으로 똑같이 넘친다. 크기는 칸 폭 × 자식 높이.
-class _CenterOverflow extends SingleChildRenderObjectWidget {
-  const _CenterOverflow({required super.child});
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderCenterOverflow();
-}
-
-class _RenderCenterOverflow extends RenderShiftedBox {
-  _RenderCenterOverflow() : super(null);
-
-  @override
-  void performLayout() {
-    final c = child;
-    if (c == null) {
-      size = constraints.smallest;
-      return;
-    }
-    c.layout(
-      BoxConstraints(maxHeight: constraints.maxHeight),
-      parentUsesSize: true,
-    );
-    final w = constraints.hasBoundedWidth ? constraints.maxWidth : c.size.width;
-    size = constraints.constrain(Size(w, c.size.height));
-    (c.parentData! as BoxParentData).offset = Offset(
-      (size.width - c.size.width) / 2,
-      0,
-    );
-  }
-
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    final c = child;
-    if (c == null) return false;
-    final offset = (c.parentData! as BoxParentData).offset;
-    return result.addWithPaintOffset(
-      offset: offset,
-      position: position,
-      hitTest: (r, p) => c.hitTest(r, position: p),
     );
   }
 }

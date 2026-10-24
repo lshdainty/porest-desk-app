@@ -739,10 +739,6 @@ void main() {
       greaterThan(35),
       reason: '글자는 200% 크기 그대로(t5 16 → 32)',
     );
-    // ignore: avoid_print
-    print(
-      'MEASURE 날 숫자 200% 원 ${tester.getSize(circle)} 글 ${tester.getSize(text)}',
-    );
   });
 
   testWidgets('줄 끝 ⋮ — 40 전체가 ⋮ 로 눌린다(오른쪽 끝 · 왼쪽 겹침 조각 포함) · 금액 끝 56', (
@@ -765,8 +761,6 @@ void main() {
       ),
     );
     expect(amount.right, closeTo(360 - 56, 0.5), reason: '금액 끝 56');
-    // ignore: avoid_print
-    print('MEASURE ⋮ $rect 금액 $amount');
     for (final dx in [-2.0, 2.0, 20.0, 38.0]) {
       // 상자 안쪽 가장자리 두 군데(오른쪽 끝 −2 · 왼쪽 겹침 +2) 와 가운데
       final pos = Offset(

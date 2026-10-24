@@ -23,11 +23,11 @@ import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 const double kLedgerMoreSlot = PSpacing.x9;
 
 /// 줄 오른쪽 여백(줄 끝 단추가 화면 끝에서 16 에 선다).
-const double kLedgerRowEndGutter = PSpacing.x4;
+const double kLedgerRowEndInset = PSpacing.x4;
 
 /// 금액 끝이 화면 끝에서 떨어진 거리 — 이체 줄 · 스켈레톤이 거래 줄과 맞춘다.
 const double kLedgerAmountEnd =
-    kLedgerRowEndGutter + kLedgerMoreSlot + PSpacing.x1;
+    kLedgerRowEndInset + kLedgerMoreSlot + PSpacing.x1;
 
 /// 자리(폭 [kLedgerMoreSlot])보다 [overhang] 만큼 왼쪽으로 넓은 자식을 놓고, **그 바깥도 눌리게** 한다 — Flutter 는 기본으로 부모 크기
 /// 밖을 누르면 받지 않아 OverflowBox · Transform 으로 내민 단추의 바깥 조각이 줄 누름이 된다(웹은 음수 여백이라 40 전체가 눌린다).
@@ -164,7 +164,7 @@ class LedgerDayGroup extends ConsumerWidget {
                       : categories.byRowId(e.categoryRowId!),
                   flags: flags,
                   highlighted: isFocus,
-                  endGutter: kLedgerRowEndGutter,
+                  endInset: kLedgerRowEndInset,
                   trailing: actions.isEmpty
                       ? const SizedBox(width: kLedgerMoreSlot)
                       : _HangLeft(

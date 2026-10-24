@@ -3090,6 +3090,14 @@ void _worstTests() {
         amount,
       );
       expect(text.semanticsLabel, amount);
+      // 줄바꿈 자리는 쉼표 바로 뒤에만 있다(U+200B 앞은 늘 쉼표)
+      final visible = text.data!.replaceAll('\u2060', '');
+      expect(
+        RegExp('\u200B')
+            .allMatches(visible)
+            .every((m) => m.start > 0 && visible[m.start - 1] == ','),
+        isTrue,
+      );
       // 한 줄(t5 22)보다 높다 = 접혔다
       expect(tester.getSize(shown).height, greaterThan(30));
       // 접힌 줄은 줄 안 폭을 넘지 않는다

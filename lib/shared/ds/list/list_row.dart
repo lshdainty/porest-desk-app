@@ -224,7 +224,7 @@ class PListRowFrame extends StatefulWidget {
     this.titleStrike = false,
     this.gutter,
     this.verticalPadding,
-    this.endGutter,
+    this.endInset,
     this.prefix,
     this.suffix,
     this.highlighted = false,
@@ -265,8 +265,9 @@ class PListRowFrame extends StatefulWidget {
 
   /// 줄 위아래 여백 — 기본 12.
   final double? verticalPadding;
-  /// **임시 인자** — 줄 오른쪽 끝 여백만 따로(기본은 [gutter] · 24). 줄 끝 단추가 화면 끝에서 16 에 서야 하는 거래 줄이 쓴다.
-  final double? endGutter;
+
+  /// 줄 오른쪽 끝 여백 — 줄 끝 조작 요소(⋮)를 화면 끝에서 16 에 세울 때. 기본은 [gutter](24). 웹의 음수 끝 여백(`-mr-x2`)의 Flutter 판이다.
+  final double? endInset;
 
   final Widget? prefix;
   final Widget? suffix;
@@ -663,9 +664,9 @@ class _PListRowFrameState extends State<PListRowFrame> {
     Widget row = Padding(
       padding: EdgeInsetsDirectional.only(
         start: start,
+        end: widget.endInset ?? widget.gutter ?? PSpacing.globalGutter,
         top: widget.verticalPadding ?? PSpacing.x3,
         bottom: widget.verticalPadding ?? PSpacing.x3,
-        end: widget.endGutter ?? widget.gutter ?? PSpacing.globalGutter,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
