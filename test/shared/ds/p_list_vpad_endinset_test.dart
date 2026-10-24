@@ -52,4 +52,18 @@ void main() {
       expect(t.getRect(find.byType(PListItem)).right, 360, reason: '줄은 화면 끝까지');
     },
   );
+
+  testWidgets('PListButtonItem 통로도 endInset 이 끝 여백을 정하고 줄은 화면 끝까지 간다', (
+    t,
+  ) async {
+    const mark = SizedBox(key: ValueKey('end'), width: 40, height: 20);
+    await _pump(
+      t,
+      PListButtonItem(title: '누르는 줄', suffix: mark, endInset: 16, onTap: () {}),
+    );
+    expect(t.getRect(find.byType(PListButtonItem)).right, 360);
+    expect(t.getTopRight(find.byKey(const ValueKey('end'))).dx, 360 - 16);
+    await _pump(t, PListButtonItem(title: '기본', suffix: mark, onTap: () {}));
+    expect(t.getTopRight(find.byKey(const ValueKey('end'))).dx, 360 - 24);
+  });
 }

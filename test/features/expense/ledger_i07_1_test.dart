@@ -590,8 +590,7 @@ void main() {
         of: find.byType(PBottomSheetContent),
         matching: find.byWidgetPredicate((w) => w is PListItemBase),
       );
-      // ignore: avoid_print
-      print('EDGE filter rows=${rows.evaluate().length}');
+      expect(rows, findsWidgets, reason: '조건 줄이 있어야 잰다');
       for (var i = 0; i < rows.evaluate().length; i++) {
         final r = tester.getRect(rows.at(i));
         expect(r.left, 0, reason: '조건 줄 $i 왼쪽');
@@ -899,24 +898,49 @@ void main() {
     expect(trItem.right, tx.right, reason: '거래 줄과 같은 끝');
     // 금액 오른쪽 끝(거래 줄 ⋮ 자리 56 과 같다)
     final amount = tester.getTopRight(_text('50,000원', contains: true)).dx;
-    // ignore: avoid_print
-    print('EDGE transfer row right=${tr.right} amount.right=$amount');
     expect(
       amount,
       closeTo(360 - 56, 0.5),
       reason: '이체 금액 끝 = 거래 줄과 같은 56(⋮ 자리)',
     );
-    // 밀어 연 거래 줄: 밀기 틀이 화면 폭을 채운다(열어도 틀은 그대로)
+    // 밀어 연 거래 줄: 틀은 화면 폭 그대로, 열린 행동 칸이 보이고 그 오른쪽 끝이 화면 끝(360)
     final swipe = find.byType(PSwipeActions).first;
     expect(tester.getRect(swipe).left, 0);
     expect(tester.getRect(swipe).right, 360, reason: '밀기 틀(닫힘)');
-    await tester.drag(
-      find.byType(PListButtonItem).first,
-      const Offset(-200, 0),
-    );
+    final row = find
+        .descendant(
+          of: swipe,
+          matching: find.byKey(const ValueKey('swipe-row')),
+        )
+        .first;
+    final content = find
+        .descendant(of: swipe, matching: find.byType(PListButtonItem))
+        .first;
+    expect(tester.getRect(content).left, 0, reason: '닫힌 줄은 제자리');
+    final g = await tester.startGesture(tester.getCenter(row));
+    for (var i = 0; i < 8; i++) {
+      await g.moveBy(const Offset(-30, 0));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await g.up();
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    expect(tester.getRect(swipe).left, 0);
+    expect(tester.getRect(content).left, lessThan(0), reason: '줄이 밀려 열렸다');
+    final tray = tester.getRect(
+      find
+          .descendant(
+            of: swipe,
+            matching: find.byKey(const ValueKey('swipe-tray')),
+          )
+          .first,
+    );
+    expect(tray.width, greaterThan(0), reason: '열린 행동 칸이 보인다');
+    expect(tray.right, 360, reason: '열린 행동 칸 오른쪽 끝 = 화면 끝');
+    expect(
+      tester.getRect(content).right,
+      closeTo(tray.left, 1),
+      reason: '밀린 줄의 끝이 행동 칸 시작',
+    );
     expect(tester.getRect(swipe).right, 360, reason: '밀기 틀(열림)');
   });
 
