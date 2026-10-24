@@ -37,7 +37,6 @@ import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
-import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
@@ -192,7 +191,7 @@ void main() {
     final txTitle = tester.getTopLeft(_text('점심 가게')).dx;
     final trTitle = tester.getTopLeft(_text('용돈 옮김')).dx;
     expect(trTitle, closeTo(txTitle, 0.5), reason: '거래 줄 · 이체 줄 글자 x');
-    // 금액 오른쪽 끝도 같다(거래 줄은 ⋮ 자리, 이체 줄은 줄의 24 + 덜어 낸 자리)
+    // 금액 오른쪽 끝도 같다(둘 다 줄 끝 24)
     expect(
       tester.getTopRight(_text('50,000원', contains: true)).dx,
       closeTo(
@@ -222,11 +221,11 @@ void main() {
     final deco = tester.widget<DecoratedBox>(tile).decoration as BoxDecoration;
     expect(deco.color, c.chartGrayWeak);
     expect(deco.borderRadius, BorderRadius.circular(12));
-    // 이체 줄은 밀기 · ⋮ 로 감싸지 않는다 — ⋮ 는 거래 줄 둘뿐
-    expect(find.byIcon(LucideIcons.ellipsisVertical), findsNWidgets(2));
+    // 줄 끝에 ⋮ 가 없다(이체 줄도 거래 줄도)
+    expect(find.byIcon(LucideIcons.ellipsisVertical), findsNothing);
   });
 
-  testWidgets('6 줄 끝 ⋮ → 메뉴 시트 [수정, 삭제] · 시스템 거래는 ⋮ 없음', (tester) async {
+  testWidgets('6 줄 끝에 ⋮ 가 없다 — 수정 · 삭제 길은 밀기(시스템 거래는 밀기도 없다)', (tester) async {
     await _pump(
       tester,
       expenses: (_) async => [
@@ -234,11 +233,13 @@ void main() {
         _tx(2, '매도 손익', 90000, type: 'INCOME', auto: 'TRADE_PNL'),
       ],
     );
-    expect(find.byIcon(LucideIcons.ellipsisVertical), findsOneWidget);
-    await tester.tap(find.byIcon(LucideIcons.ellipsisVertical));
-    await tester.pumpAndSettle();
-    expect(find.text('수정'), findsWidgets);
-    expect(find.text('삭제'), findsWidgets);
+    expect(find.byIcon(LucideIcons.ellipsisVertical), findsNothing);
+    expect(find.byType(PSwipeActionsMore), findsNothing);
+    // 밀기 틀은 일반 거래에만 — 시스템 거래는 없다
+    expect(
+      find.byWidgetPredicate((w) => w is PSwipeActions && w.actions.isNotEmpty),
+      findsOneWidget,
+    );
   });
 
   testWidgets('6 알림에서 들어온 줄은 bg-brand-weak 로 강조한다', (tester) async {
@@ -270,6 +271,8 @@ void main() {
       (w) => w is PListButtonItem && w.highlighted,
     );
     expect(row, findsOneWidget);
+    expect(tester.getRect(row).left, 0);
+    expect(tester.getRect(row).right, 360, reason: '강조 바탕이 줄 끝(360)까지');
     final c = tester.element(find.byType(ExpenseScreen)).colors;
     expect(
       find.byWidgetPredicate(
@@ -757,16 +760,12 @@ void main() {
     );
   });
 
-  testWidgets('줄 끝 ⋮ — 40 전체가 ⋮ 로 눌린다(오른쪽 끝 · 왼쪽 겹침 조각 포함) · 금액 끝 56', (
-    tester,
-  ) async {
+  testWidgets('거래 줄 — ⋮ 없음 · 금액 끝 336(줄 끝 24) · 줄 0~360', (tester) async {
     await _pump(tester, expenses: (_) async => [_tx(1, '점심 가게', 12000)]);
-    final more = find.byType(PSwipeActionsMore);
-    final rect = tester.getRect(more);
-    expect(rect.width, 40);
-    // 화면 끝에서 16 ~ 56(글리프 가운데 36)
-    expect(rect.right, closeTo(360 - 16, 0.5));
-    expect(rect.left, closeTo(360 - 56, 0.5));
+    expect(find.byIcon(LucideIcons.ellipsisVertical), findsNothing);
+    final row = tester.getRect(find.byType(PListButtonItem).first);
+    expect(row.left, 0);
+    expect(row.right, 360);
     final amount = tester.getRect(
       find.byWidgetPredicate(
         (w) =>
@@ -776,27 +775,10 @@ void main() {
             w.style?.fontSize == null,
       ),
     );
-    expect(amount.right, closeTo(360 - 56, 0.5), reason: '금액 끝 56');
-    for (final dx in [-2.0, 2.0, 20.0, 38.0]) {
-      // 상자 안쪽 가장자리 두 군데(오른쪽 끝 −2 · 왼쪽 겹침 +2) 와 가운데
-      final pos = Offset(
-        dx < 0 ? rect.right + dx : rect.left + dx,
-        rect.center.dy,
-      );
-      await tester.tapAt(pos);
-      await tester.pumpAndSettle();
-      expect(
-        find.byType(PMenuSheetContent),
-        findsOneWidget,
-        reason: 'x=$pos 를 눌러도 ⋮ 메뉴',
-      );
-      await tester.tapAt(const Offset(180, 20));
-      await tester.pumpAndSettle();
-      expect(find.byType(PMenuSheetContent), findsNothing);
-    }
+    expect(amount.right, closeTo(360 - 24, 0.5), reason: '금액 끝 = 줄 끝 24');
   });
 
-  testWidgets('줄이 ⋮ 자리만큼 좁아도 카테고리는 줄지 않는다(자산 이름이 먼저 준다)', (tester) async {
+  testWidgets('자산 이름이 길어도 카테고리는 줄지 않는다(자산 이름이 먼저 준다)', (tester) async {
     await _pump(
       tester,
       expenses: (_) async => [
@@ -896,13 +878,9 @@ void main() {
     expect(trItem.right, 360, reason: '이체 ds List 줄 오른쪽 = 화면 폭');
     final tx = tester.getRect(find.byType(PListButtonItem).first);
     expect(trItem.right, tx.right, reason: '거래 줄과 같은 끝');
-    // 금액 오른쪽 끝(거래 줄 ⋮ 자리 56 과 같다)
+    // 금액 오른쪽 끝(거래 줄과 같이 줄 끝 24)
     final amount = tester.getTopRight(_text('50,000원', contains: true)).dx;
-    expect(
-      amount,
-      closeTo(360 - 56, 0.5),
-      reason: '이체 금액 끝 = 거래 줄과 같은 56(⋮ 자리)',
-    );
+    expect(amount, closeTo(360 - 24, 0.5), reason: '이체 금액 끝 = 거래 줄과 같은 24');
     // 밀어 연 거래 줄: 틀은 화면 폭 그대로, 열린 행동 칸이 보이고 그 오른쪽 끝이 화면 끝(360)
     final swipe = find.byType(PSwipeActions).first;
     expect(tester.getRect(swipe).left, 0);

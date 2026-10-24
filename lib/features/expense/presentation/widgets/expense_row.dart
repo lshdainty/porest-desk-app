@@ -38,9 +38,7 @@ class ExpenseRow extends StatelessWidget {
     this.onTap,
     this.showInstallment = false,
     this.gutter,
-    this.endInset,
     this.highlighted = false,
-    this.trailing,
     super.key,
   });
 
@@ -69,14 +67,8 @@ class ExpenseRow extends StatelessWidget {
   /// 상세)는 0 을 넘겨 글자 자리가 24 로 같게 한다. 그 화면이 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
 
-  /// 줄 끝 조작 요소(⋮)를 화면 끝 16 에 세울 때의 오른쪽 여백 — 기본은 [gutter].
-  final double? endInset;
-
   /// 알림 · 검색에서 들어온 줄 — ds List `highlighted`(바탕 `bg-brand-weak`, 누름 · 설명 글 보정이 따라온다).
   final bool highlighted;
-
-  /// 줄 끝 뒤 붙이개(금액 뒤) — 줄 끝 ⋮ 단추나 그 자리를 비우는 빈 칸. 줄 안이라 강조 · 누름 바탕이 이 자리까지 이어진다.
-  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -151,10 +143,7 @@ class ExpenseRow extends StatelessWidget {
         decorationColor: refunded ? c.fgNeutralSubtle : null,
       ),
     );
-    // 줄 끝 뒤 붙이개 — 금액은 값, 이 자리는 조작 요소라 좁은 줄에서도 줄 끝에 남는다(ds 가 가른다)
-    final suffix = trailing == null
-        ? amountNode
-        : PListSuffix(children: [amountNode, trailing!]);
+    final suffix = amountNode;
     final titleColor = excluded ? c.fgNeutralSubtle : null;
 
     if (!interactive) {
@@ -163,7 +152,6 @@ class ExpenseRow extends StatelessWidget {
         titleSuffix: badges,
         titleColor: titleColor,
         gutter: gutter,
-        endInset: endInset,
         highlighted: highlighted,
         detailChild: detail,
         prefix: prefix,
@@ -175,7 +163,6 @@ class ExpenseRow extends StatelessWidget {
       titleSuffix: badges,
       titleColor: titleColor,
       gutter: gutter,
-      endInset: endInset,
       highlighted: highlighted,
       detailChild: detail,
       prefix: prefix,
