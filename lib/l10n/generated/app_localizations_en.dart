@@ -3404,7 +3404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get exportSuccess => 'Export complete';
+  String get exportSuccess => 'Exported.';
 
   @override
   String get exportTypeExpense => 'Transactions';
@@ -3428,7 +3428,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportTypeTodo => 'To-dos';
 
   @override
-  String get exportFormatCsvDesc => 'Excel & Google Sheets';
+  String get exportFormatCsvDesc => 'Excel · Google Sheets';
 
   @override
   String get exportFormatExcelDesc => 'Microsoft Excel';
@@ -3469,7 +3469,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String exportCount(int count) {
-    return '$count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString';
   }
 
   @override
@@ -4115,7 +4119,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutDesc => 'This device only';
 
   @override
-  String get accountWithdraw => 'Stop using desk';
+  String get accountWithdraw => 'Stop using 그루 담다';
 
   @override
   String get accountWithdrawDesc => 'Cannot be undone';
@@ -4137,11 +4141,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutConfirm => 'Are you sure you want to log out?';
 
   @override
-  String get accountWithdrawTitle => 'Stop using desk';
+  String get accountWithdrawTitle => 'Stop using 그루 담다';
 
   @override
   String get withdrawIntro =>
-      'Stopping desk signs you out immediately and cannot be undone.';
+      'Stopping 그루 담다 signs you out immediately and cannot be undone.';
 
   @override
   String withdrawImpactCalendarsOwned(int count) {
@@ -4179,7 +4183,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your records are kept and then destroyed under our privacy policy. Export anything you need before you stop.';
 
   @override
-  String get withdrawReasonLabel => 'Why are you leaving? (optional)';
+  String get withdrawReasonLabel => 'Why are you leaving?';
 
   @override
   String get withdrawReasonPlaceholder =>
@@ -4189,7 +4193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawNext => 'Continue';
 
   @override
-  String get withdrawConfirm => 'Stop using desk';
+  String get withdrawConfirm => 'Stop using 그루 담다';
 
   @override
   String get withdrawReauthIntro => 'Just once more, let us confirm it is you.';
@@ -4213,41 +4217,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawResendCode => 'Send again';
 
   @override
-  String get withdrawCodeSent => 'We sent a code to your email';
-
-  @override
-  String get withdrawCodeHint =>
-      'If you do not see it, check your spam folder.';
+  String get withdrawCodeSent => 'We sent a code to your email.';
 
   @override
   String get withdrawFailed =>
-      'Could not stop your desk account. Please try again shortly';
+      'Could not stop your 그루 담다 account. Please try again shortly.';
 
   @override
   String get withdrawBlockedSubscription =>
-      'You still have an active subscription, so you cannot stop desk yet';
+      'You still have an active subscription, so you cannot stop using 그루 담다 yet.';
 
   @override
   String withdrawBlockedSubscriptionUntil(String date) {
-    return 'Your subscription runs until $date, so you cannot stop desk yet';
+    return 'Your subscription runs until $date, so you cannot stop using 그루 담다 yet.';
   }
 
   @override
-  String get withdrawBlockedOther => 'Your account cannot be stopped right now';
+  String get withdrawBlockedOther =>
+      'Your account cannot be stopped right now.';
 
   @override
   String get withdrawBlockedHint =>
-      'Cancel your subscription first — you can stop desk once the paid period ends.';
+      'Cancel your subscription first — you can stop using 그루 담다 once the paid period ends.';
 
   @override
-  String get withdrawnTitle => 'Your desk account is closed';
+  String get withdrawnTitle => 'Your 그루 담다 account is closed';
 
   @override
   String get withdrawnBody =>
-      'Thank you for using desk. Remaining data is kept and then destroyed under our privacy policy.';
+      'Thank you for using 그루 담다. Remaining data is kept and then destroyed under our privacy policy.';
 
   @override
   String get withdrawnToLogin => 'Go to sign in';
+
+  @override
+  String get withdrawCodeDescription =>
+      'Enter it within 10 minutes · after 5 wrong tries, request a new one.';
+
+  @override
+  String get withdrawCodeIncomplete => 'Enter the 6-digit verification code.';
+
+  @override
+  String get withdrawCodeWrong =>
+      'The code is wrong or has expired. Check it or request a new one.';
+
+  @override
+  String withdrawResendCooldown(int seconds) {
+    return 'Send again (${seconds}s)';
+  }
+
+  @override
+  String get withdrawBusy => 'Closing your account';
+
+  @override
+  String get withdrawLoadFailedTitle => 'Couldn\'t load your account details';
+
+  @override
+  String get sheetLeaveTitle => 'Your changes will be lost';
+
+  @override
+  String get sheetLeaveDescription =>
+      'If you leave, what you entered won\'t be saved.';
+
+  @override
+  String get sheetLeaveStay => 'Keep editing';
+
+  @override
+  String get sheetLeaveLeave => 'Leave';
 
   @override
   String get notiUnreadPrefix => '';
@@ -6101,10 +6137,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick your previous app and we\'ll auto-map the columns';
 
   @override
-  String get importSourceGroo => '담다 백업';
+  String get importSourceGroo => '그루 담다';
 
   @override
-  String get importSourceGrooDesc => 'Re-import an export file';
+  String get importSourceGrooDesc => 'File exported from 그루 담다';
 
   @override
   String get importSourceEasybudget => 'EasyBudget · Money Manager';
@@ -6155,7 +6191,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importRowsDetected(int total, int valid) {
-    return '$total rows · $valid valid';
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat validNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String validString = validNumberFormat.format(valid);
+
+    return '$totalString rows · $validString valid';
   }
 
   @override
@@ -6166,10 +6209,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importMapDesc =>
-      'Connect file columns to ledger fields. Adjust the auto-detected values.';
+      'Connect file columns to ledger fields. Review auto-detected values and adjust.';
 
   @override
-  String get importNotMapped => 'Don\'t import';
+  String get importNotMapped => '— Don\'t import —';
 
   @override
   String get importFieldSubcategory => 'Subcategory';
@@ -6190,7 +6233,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importBlockedDesc =>
-      'Rows using it will fail. Move its transactions into a subcategory or change the category in the file';
+      'Rows using it will fail. Move its transactions into a subcategory or change the category in the file.';
 
   @override
   String get categoryMoveTxAction => 'Move';
@@ -6265,7 +6308,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importPreviewDesc(int dup) {
-    return '$dup possible duplicates';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return '$dupString possible duplicates';
   }
 
   @override
@@ -6285,7 +6333,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importOptDupSkipDesc(int dup) {
-    return 'Excludes $dup rows with same date, amount and content';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return 'Excludes $dupString rows with the same date, amount, and content.';
   }
 
   @override
@@ -6293,14 +6346,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importOptAutoCatDesc =>
-      'Missing categories are created automatically';
+      'Missing categories are created automatically.';
 
   @override
   String get importPrev => 'Back';
 
   @override
   String importDoImport(int count) {
-    return 'Import $count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Import $countString';
   }
 
   @override
@@ -6308,12 +6365,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importDoneCount(int count) {
-    return 'Imported $count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Imported $countString transactions';
   }
 
   @override
   String importDoneDetail(int skipped, int failed) {
-    return '$skipped skipped · $failed failed';
+    final intl.NumberFormat skippedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String skippedString = skippedNumberFormat.format(skipped);
+    final intl.NumberFormat failedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String failedString = failedNumberFormat.format(failed);
+
+    return '$skippedString skipped · $failedString not imported.';
   }
 
   @override
@@ -6327,6 +6395,157 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importStepDone => 'Done';
+
+  @override
+  String get exportTabsLabel => 'Export and import data';
+
+  @override
+  String get exportSelectAll => 'All';
+
+  @override
+  String get exportCountsFailed => 'Couldn\'t load the counts.';
+
+  @override
+  String get exportRangePlaceholder => 'Select a range';
+
+  @override
+  String get exportStalled => 'The download stopped.';
+
+  @override
+  String get exportFailed => 'Couldn\'t export.';
+
+  @override
+  String get exportPreviewTabsLabel => 'Preview data type';
+
+  @override
+  String importStepMeta(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get importBusy => 'Importing';
+
+  @override
+  String get withdrawPasswordPlaceholder => 'Enter your current password';
+
+  @override
+  String get withdrawLocked =>
+      'You got it wrong 5 times. Please request a new code.';
+
+  @override
+  String get importStepUploadDesc => 'Choose the app and the file to import.';
+
+  @override
+  String get importStepMappingDesc =>
+      'Check the columns and review the transactions before importing.';
+
+  @override
+  String get withdrawCodeHint =>
+      'If you do not see it, check your spam folder.';
+
+  @override
+  String get withdrawPasswordWrong =>
+      'The password is wrong. Please check it again.';
+
+  @override
+  String get withdrawLoadFailedDescription => 'Please try again in a moment.';
+
+  @override
+  String exportPreviewFooter(int rows, int types, int total) {
+    final intl.NumberFormat rowsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String rowsString = rowsNumberFormat.format(rows);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return 'Top $rowsString rows · $types selected types, about $totalString in total';
+  }
+
+  @override
+  String get exportPreviewEmptyTitle => 'Nothing to preview';
+
+  @override
+  String importCreatedCatTitle(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString categories created';
+  }
+
+  @override
+  String importNewCatMore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '+$countString more';
+  }
+
+  @override
+  String importFailuresTitle(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString failed rows';
+  }
+
+  @override
+  String importFailureLine(int line) {
+    return 'Line $line';
+  }
+
+  @override
+  String importFailuresCapped(int total, int shown) {
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat shownNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String shownString = shownNumberFormat.format(shown);
+
+    return 'Showing the first $shownString of $totalString failures.';
+  }
+
+  @override
+  String get importFailReasonDate => 'Couldn\'t read the date';
+
+  @override
+  String get importFailReasonAmount => 'Couldn\'t read the amount';
+
+  @override
+  String get importFailReasonType => 'Couldn\'t tell income from expense';
+
+  @override
+  String get importFailReasonParentHasTx =>
+      'This category has its own transactions so no subcategory can be created';
+
+  @override
+  String get importFailReasonResolve => 'Couldn\'t match the category or asset';
+
+  @override
+  String get importFailReasonSave => 'Something went wrong while saving';
+
+  @override
+  String get importFailReasonUnknown => 'Failed for an unknown reason';
+
+  @override
+  String get importFileTooLarge => 'Files up to 10MB can be uploaded.';
+
+  @override
+  String get importFileInvalid => 'Only CSV or Excel files can be uploaded.';
+
+  @override
+  String get importBadgeError => 'Error';
+
+  @override
+  String get importBadgeDup => 'Duplicate';
+
+  @override
+  String get importGoExpense => 'Go to ledger';
 
   @override
   String get calDetailDday => 'D-DAY';

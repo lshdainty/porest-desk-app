@@ -6179,7 +6179,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportSuccess.
   ///
   /// In ko, this message translates to:
-  /// **'내보내기를 완료했어요'**
+  /// **'내보냈어요.'**
   String get exportSuccess;
 
   /// No description provided for @exportTypeExpense.
@@ -6191,7 +6191,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportTypeAsset.
   ///
   /// In ko, this message translates to:
-  /// **'자산·계좌'**
+  /// **'자산 · 계좌'**
   String get exportTypeAsset;
 
   /// No description provided for @exportTypeBudget.
@@ -6227,7 +6227,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportFormatCsvDesc.
   ///
   /// In ko, this message translates to:
-  /// **'엑셀·구글시트'**
+  /// **'엑셀 · 구글 시트'**
   String get exportFormatCsvDesc;
 
   /// No description provided for @exportFormatExcelDesc.
@@ -6239,7 +6239,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportFormatJsonDesc.
   ///
   /// In ko, this message translates to:
-  /// **'개발자·백업'**
+  /// **'개발자 · 백업'**
   String get exportFormatJsonDesc;
 
   /// No description provided for @exportPeriodThisMonth.
@@ -6293,7 +6293,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportTypesDesc.
   ///
   /// In ko, this message translates to:
-  /// **'내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.'**
+  /// **'내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶어요.'**
   String get exportTypesDesc;
 
   /// No description provided for @exportCount.
@@ -6311,7 +6311,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportMaskLabel.
   ///
   /// In ko, this message translates to:
-  /// **'민감 정보 가리기 (잔액·금액·기관)'**
+  /// **'민감 정보 가리기 (잔액 · 금액 · 기관)'**
   String get exportMaskLabel;
 
   /// No description provided for @exportPreview.
@@ -7529,7 +7529,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdraw.
   ///
   /// In ko, this message translates to:
-  /// **'desk 이용 해지'**
+  /// **'그루 담다 이용 해지'**
   String get accountWithdraw;
 
   /// No description provided for @accountWithdrawDesc.
@@ -7565,7 +7565,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdrawTitle.
   ///
   /// In ko, this message translates to:
-  /// **'desk 이용 해지'**
+  /// **'그루 담다 이용 해지'**
   String get accountWithdrawTitle;
 
   /// No description provided for @withdrawIntro.
@@ -7625,13 +7625,13 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawReasonLabel.
   ///
   /// In ko, this message translates to:
-  /// **'떠나시는 이유 (선택)'**
+  /// **'떠나는 이유'**
   String get withdrawReasonLabel;
 
   /// No description provided for @withdrawReasonPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'알려주시면 다음에 더 낫게 만들게요'**
+  /// **'알려주면 다음에 더 낫게 만들게요'**
   String get withdrawReasonPlaceholder;
 
   /// No description provided for @withdrawNext.
@@ -7655,7 +7655,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawUseEmailCode.
   ///
   /// In ko, this message translates to:
-  /// **'비밀번호가 없으신가요? 메일로 코드 받기'**
+  /// **'비밀번호가 없다면 메일로 코드 받기'**
   String get withdrawUseEmailCode;
 
   /// No description provided for @withdrawUsePassword.
@@ -7691,43 +7691,37 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawCodeSent.
   ///
   /// In ko, this message translates to:
-  /// **'메일로 코드를 보냈어요'**
+  /// **'메일로 코드를 보냈어요.'**
   String get withdrawCodeSent;
-
-  /// No description provided for @withdrawCodeHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'메일함에 코드가 안 보이면 스팸함도 확인해주세요.'**
-  String get withdrawCodeHint;
 
   /// No description provided for @withdrawFailed.
   ///
   /// In ko, this message translates to:
-  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해주세요'**
+  /// **'해지하지 못했어요. 잠시 뒤 다시 시도해주세요.'**
   String get withdrawFailed;
 
   /// No description provided for @withdrawBlockedSubscription.
   ///
   /// In ko, this message translates to:
-  /// **'구독이 남아 있어 아직 해지할 수 없어요'**
+  /// **'구독이 남아 있어 아직 해지할 수 없어요.'**
   String get withdrawBlockedSubscription;
 
   /// No description provided for @withdrawBlockedSubscriptionUntil.
   ///
   /// In ko, this message translates to:
-  /// **'구독이 {date} 까지 남아 있어 아직 해지할 수 없어요'**
+  /// **'구독이 {date}까지 남아 있어 아직 해지할 수 없어요.'**
   String withdrawBlockedSubscriptionUntil(String date);
 
   /// No description provided for @withdrawBlockedOther.
   ///
   /// In ko, this message translates to:
-  /// **'아직 해지할 수 없는 상태예요'**
+  /// **'아직 해지할 수 없는 상태예요.'**
   String get withdrawBlockedOther;
 
   /// No description provided for @withdrawBlockedHint.
   ///
   /// In ko, this message translates to:
-  /// **'구독을 먼저 해지하시면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.'**
+  /// **'구독을 먼저 해지하면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.'**
   String get withdrawBlockedHint;
 
   /// No description provided for @withdrawnTitle.
@@ -7739,7 +7733,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawnBody.
   ///
   /// In ko, this message translates to:
-  /// **'그동안 desk 를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
+  /// **'그동안 그루 담다를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.'**
   String get withdrawnBody;
 
   /// No description provided for @withdrawnToLogin.
@@ -7747,6 +7741,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'로그인 화면으로'**
   String get withdrawnToLogin;
+
+  /// No description provided for @withdrawCodeDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'10분 안에 입력해주세요 · 5번 틀리면 다시 받아요.'**
+  String get withdrawCodeDescription;
+
+  /// No description provided for @withdrawCodeIncomplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증 코드 6자리를 입력해주세요.'**
+  String get withdrawCodeIncomplete;
+
+  /// No description provided for @withdrawCodeWrong.
+  ///
+  /// In ko, this message translates to:
+  /// **'코드가 맞지 않거나 시간이 지났어요. 확인하거나 다시 받아주세요.'**
+  String get withdrawCodeWrong;
+
+  /// No description provided for @withdrawResendCooldown.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 받기({seconds}초)'**
+  String withdrawResendCooldown(int seconds);
+
+  /// No description provided for @withdrawBusy.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지하는 중'**
+  String get withdrawBusy;
+
+  /// No description provided for @withdrawLoadFailedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지 정보를 불러오지 못했어요'**
+  String get withdrawLoadFailedTitle;
+
+  /// No description provided for @sheetLeaveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'작성한 내용이 사라져요'**
+  String get sheetLeaveTitle;
+
+  /// No description provided for @sheetLeaveDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'나가면 입력한 내용이 저장되지 않아요.'**
+  String get sheetLeaveDescription;
+
+  /// No description provided for @sheetLeaveStay.
+  ///
+  /// In ko, this message translates to:
+  /// **'계속 작성'**
+  String get sheetLeaveStay;
+
+  /// No description provided for @sheetLeaveLeave.
+  ///
+  /// In ko, this message translates to:
+  /// **'나가기'**
+  String get sheetLeaveLeave;
 
   /// No description provided for @notiUnreadPrefix.
   ///
@@ -11081,19 +11135,19 @@ abstract class AppLocalizations {
   /// No description provided for @importSourceDesc.
   ///
   /// In ko, this message translates to:
-  /// **'기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요'**
+  /// **'기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰요.'**
   String get importSourceDesc;
 
   /// No description provided for @importSourceGroo.
   ///
   /// In ko, this message translates to:
-  /// **'담다 백업'**
+  /// **'그루 담다'**
   String get importSourceGroo;
 
   /// No description provided for @importSourceGrooDesc.
   ///
   /// In ko, this message translates to:
-  /// **'내보내기 파일 다시 가져오기'**
+  /// **'그루 담다에서 내보낸 파일'**
   String get importSourceGrooDesc;
 
   /// No description provided for @importSourceEasybudget.
@@ -11141,7 +11195,7 @@ abstract class AppLocalizations {
   /// No description provided for @importSourceCustomDesc.
   ///
   /// In ko, this message translates to:
-  /// **'CSV·Excel 직접 연결'**
+  /// **'CSV · Excel 직접 연결'**
   String get importSourceCustomDesc;
 
   /// No description provided for @importUploadTitle.
@@ -11171,13 +11225,13 @@ abstract class AppLocalizations {
   /// No description provided for @importAnalyzing.
   ///
   /// In ko, this message translates to:
-  /// **'파일 분석 중…'**
+  /// **'파일을 분석하는 중'**
   String get importAnalyzing;
 
   /// No description provided for @importNotice.
   ///
   /// In ko, this message translates to:
-  /// **'가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.'**
+  /// **'가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복 · 오류를 확인할 수 있어요.'**
   String get importNotice;
 
   /// No description provided for @importFileTitle.
@@ -11207,13 +11261,13 @@ abstract class AppLocalizations {
   /// No description provided for @importMapDesc.
   ///
   /// In ko, this message translates to:
-  /// **'파일의 열을 가계부 항목에 연결하세요. 자동 감지값을 바꿀 수 있어요.'**
+  /// **'파일의 열을 가계부 항목에 연결해요. 자동으로 찾은 값을 확인하고 바꿀 수 있어요.'**
   String get importMapDesc;
 
   /// No description provided for @importNotMapped.
   ///
   /// In ko, this message translates to:
-  /// **'가져오지 않음'**
+  /// **'— 가져오지 않음 —'**
   String get importNotMapped;
 
   /// No description provided for @importFieldSubcategory.
@@ -11249,7 +11303,7 @@ abstract class AppLocalizations {
   /// No description provided for @importBlockedDesc.
   ///
   /// In ko, this message translates to:
-  /// **'해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요'**
+  /// **'해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요.'**
   String get importBlockedDesc;
 
   /// No description provided for @categoryMoveTxAction.
@@ -11351,7 +11405,7 @@ abstract class AppLocalizations {
   /// No description provided for @importFieldType.
   ///
   /// In ko, this message translates to:
-  /// **'수입/지출'**
+  /// **'수입 · 지출'**
   String get importFieldType;
 
   /// No description provided for @importFieldAmount.
@@ -11369,7 +11423,7 @@ abstract class AppLocalizations {
   /// No description provided for @importFieldAsset.
   ///
   /// In ko, this message translates to:
-  /// **'자산·결제수단'**
+  /// **'자산 · 결제수단'**
   String get importFieldAsset;
 
   /// No description provided for @importFieldMemo.
@@ -11417,7 +11471,7 @@ abstract class AppLocalizations {
   /// No description provided for @importOptDupSkipDesc.
   ///
   /// In ko, this message translates to:
-  /// **'날짜·금액·내용이 같은 {dup}건을 제외해요'**
+  /// **'날짜 · 금액 · 내용이 같은 {dup}건을 제외해요.'**
   String importOptDupSkipDesc(int dup);
 
   /// No description provided for @importOptAutoCat.
@@ -11429,7 +11483,7 @@ abstract class AppLocalizations {
   /// No description provided for @importOptAutoCatDesc.
   ///
   /// In ko, this message translates to:
-  /// **'없는 카테고리는 자동으로 만들어요'**
+  /// **'없는 카테고리는 자동으로 만들어요.'**
   String get importOptAutoCatDesc;
 
   /// No description provided for @importPrev.
@@ -11459,7 +11513,7 @@ abstract class AppLocalizations {
   /// No description provided for @importDoneDetail.
   ///
   /// In ko, this message translates to:
-  /// **'건너뜀 {skipped} · 실패 {failed}'**
+  /// **'건너뛴 거래 {skipped}건 · 못 가져온 거래 {failed}건.'**
   String importDoneDetail(int skipped, int failed);
 
   /// No description provided for @importAnother.
@@ -11485,6 +11539,216 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'완료'**
   String get importStepDone;
+
+  /// No description provided for @exportTabsLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 내보내기 · 가져오기'**
+  String get exportTabsLabel;
+
+  /// No description provided for @exportSelectAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두'**
+  String get exportSelectAll;
+
+  /// No description provided for @exportCountsFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'건수를 불러오지 못했어요.'**
+  String get exportCountsFailed;
+
+  /// No description provided for @exportRangePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 선택'**
+  String get exportRangePlaceholder;
+
+  /// No description provided for @exportStalled.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일을 받는 중에 멈췄어요.'**
+  String get exportStalled;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내지 못했어요.'**
+  String get exportFailed;
+
+  /// No description provided for @exportPreviewTabsLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기 데이터 종류'**
+  String get exportPreviewTabsLabel;
+
+  /// No description provided for @importStepMeta.
+  ///
+  /// In ko, this message translates to:
+  /// **'{current} / {total}단계'**
+  String importStepMeta(int current, int total);
+
+  /// No description provided for @importBusy.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오는 중'**
+  String get importBusy;
+
+  /// No description provided for @withdrawPasswordPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호를 입력해주세요'**
+  String get withdrawPasswordPlaceholder;
+
+  /// No description provided for @withdrawLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'5번 틀렸어요. 코드를 다시 받아주세요.'**
+  String get withdrawLocked;
+
+  /// No description provided for @importStepUploadDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져올 앱과 파일을 골라주세요.'**
+  String get importStepUploadDesc;
+
+  /// No description provided for @importStepMappingDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'열이 맞는지 확인하고 가져올 거래를 점검해주세요.'**
+  String get importStepMappingDesc;
+
+  /// No description provided for @withdrawCodeHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일함에 코드가 안 보이면 스팸함도 확인해주세요.'**
+  String get withdrawCodeHint;
+
+  /// No description provided for @withdrawPasswordWrong.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 맞지 않아요. 다시 확인해주세요.'**
+  String get withdrawPasswordWrong;
+
+  /// No description provided for @withdrawLoadFailedDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤 다시 시도해주세요.'**
+  String get withdrawLoadFailedDescription;
+
+  /// No description provided for @exportPreviewFooter.
+  ///
+  /// In ko, this message translates to:
+  /// **'상위 {rows}행 미리보기 · 선택한 {types}종 합계 약 {total}건'**
+  String exportPreviewFooter(int rows, int types, int total);
+
+  /// No description provided for @exportPreviewEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리볼 데이터가 없어요'**
+  String get exportPreviewEmptyTitle;
+
+  /// No description provided for @importCreatedCatTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 만든 카테고리 {count}개'**
+  String importCreatedCatTitle(int count);
+
+  /// No description provided for @importNewCatMore.
+  ///
+  /// In ko, this message translates to:
+  /// **'외 {count}개'**
+  String importNewCatMore(int count);
+
+  /// No description provided for @importFailuresTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패한 행 {count}건'**
+  String importFailuresTitle(int count);
+
+  /// No description provided for @importFailureLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'{line}행'**
+  String importFailureLine(int line);
+
+  /// No description provided for @importFailuresCapped.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패 {total}건 중 앞의 {shown}건만 보여줘요.'**
+  String importFailuresCapped(int total, int shown);
+
+  /// No description provided for @importFailReasonDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜를 읽을 수 없어요'**
+  String get importFailReasonDate;
+
+  /// No description provided for @importFailReasonAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액을 읽을 수 없어요'**
+  String get importFailReasonAmount;
+
+  /// No description provided for @importFailReasonType.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 · 지출 구분을 읽을 수 없어요'**
+  String get importFailReasonType;
+
+  /// No description provided for @importFailReasonParentHasTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카테고리에는 거래가 직접 달려 있어 하위 분류를 만들 수 없어요'**
+  String get importFailReasonParentHasTx;
+
+  /// No description provided for @importFailReasonResolve.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리나 자산을 찾지 못했어요'**
+  String get importFailReasonResolve;
+
+  /// No description provided for @importFailReasonSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하는 중에 오류가 나서 가져오지 못했어요'**
+  String get importFailReasonSave;
+
+  /// No description provided for @importFailReasonUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 이유로 가져오지 못했어요'**
+  String get importFailReasonUnknown;
+
+  /// No description provided for @importFileTooLarge.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일은 10MB까지 올릴 수 있어요.'**
+  String get importFileTooLarge;
+
+  /// No description provided for @importFileInvalid.
+  ///
+  /// In ko, this message translates to:
+  /// **'CSV 또는 Excel 파일만 올릴 수 있어요.'**
+  String get importFileInvalid;
+
+  /// No description provided for @importBadgeError.
+  ///
+  /// In ko, this message translates to:
+  /// **'오류'**
+  String get importBadgeError;
+
+  /// No description provided for @importBadgeDup.
+  ///
+  /// In ko, this message translates to:
+  /// **'중복'**
+  String get importBadgeDup;
+
+  /// No description provided for @importGoExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부로 가기'**
+  String get importGoExpense;
 
   /// No description provided for @calDetailDday.
   ///

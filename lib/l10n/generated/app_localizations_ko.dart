@@ -3355,13 +3355,13 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get exportSuccess => '내보내기를 완료했어요';
+  String get exportSuccess => '내보냈어요.';
 
   @override
   String get exportTypeExpense => '거래 내역';
 
   @override
-  String get exportTypeAsset => '자산·계좌';
+  String get exportTypeAsset => '자산 · 계좌';
 
   @override
   String get exportTypeBudget => '예산 설정';
@@ -3379,13 +3379,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportTypeTodo => '할 일';
 
   @override
-  String get exportFormatCsvDesc => '엑셀·구글시트';
+  String get exportFormatCsvDesc => '엑셀 · 구글 시트';
 
   @override
   String get exportFormatExcelDesc => 'Microsoft Excel';
 
   @override
-  String get exportFormatJsonDesc => '개발자·백업';
+  String get exportFormatJsonDesc => '개발자 · 백업';
 
   @override
   String get exportPeriodThisMonth => '이번 달';
@@ -3414,18 +3414,22 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get exportTypesDesc => '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.';
+  String get exportTypesDesc => '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶어요.';
 
   @override
   String exportCount(int count) {
-    return '$count건';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString건';
   }
 
   @override
   String get exportFormatTitle => '파일 형식';
 
   @override
-  String get exportMaskLabel => '민감 정보 가리기 (잔액·금액·기관)';
+  String get exportMaskLabel => '민감 정보 가리기 (잔액 · 금액 · 기관)';
 
   @override
   String get exportPreview => '미리보기';
@@ -4058,7 +4062,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutDesc => '이 기기에서만';
 
   @override
-  String get accountWithdraw => 'desk 이용 해지';
+  String get accountWithdraw => '그루 담다 이용 해지';
 
   @override
   String get accountWithdrawDesc => '복구할 수 없어요';
@@ -4080,7 +4084,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutConfirm => '정말 로그아웃 하시겠어요?';
 
   @override
-  String get accountWithdrawTitle => 'desk 이용 해지';
+  String get accountWithdrawTitle => '그루 담다 이용 해지';
 
   @override
   String get withdrawIntro => '이용을 해지하면 바로 로그인이 막히고 되돌릴 수 없어요.';
@@ -4119,10 +4123,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '가계부 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요. 필요한 자료는 해지 전에 내보내주세요.';
 
   @override
-  String get withdrawReasonLabel => '떠나시는 이유 (선택)';
+  String get withdrawReasonLabel => '떠나는 이유';
 
   @override
-  String get withdrawReasonPlaceholder => '알려주시면 다음에 더 낫게 만들게요';
+  String get withdrawReasonPlaceholder => '알려주면 다음에 더 낫게 만들게요';
 
   @override
   String get withdrawNext => '계속';
@@ -4134,7 +4138,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawReauthIntro => '본인이 맞는지 한 번만 더 확인할게요.';
 
   @override
-  String get withdrawUseEmailCode => '비밀번호가 없으신가요? 메일로 코드 받기';
+  String get withdrawUseEmailCode => '비밀번호가 없다면 메일로 코드 받기';
 
   @override
   String get withdrawUsePassword => '비밀번호로 확인하기';
@@ -4152,37 +4156,66 @@ class AppLocalizationsKo extends AppLocalizations {
   String get withdrawResendCode => '다시 받기';
 
   @override
-  String get withdrawCodeSent => '메일로 코드를 보냈어요';
+  String get withdrawCodeSent => '메일로 코드를 보냈어요.';
 
   @override
-  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해주세요.';
+  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해주세요.';
 
   @override
-  String get withdrawFailed => '해지하지 못했어요. 잠시 뒤 다시 시도해주세요';
-
-  @override
-  String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요';
+  String get withdrawBlockedSubscription => '구독이 남아 있어 아직 해지할 수 없어요.';
 
   @override
   String withdrawBlockedSubscriptionUntil(String date) {
-    return '구독이 $date 까지 남아 있어 아직 해지할 수 없어요';
+    return '구독이 $date까지 남아 있어 아직 해지할 수 없어요.';
   }
 
   @override
-  String get withdrawBlockedOther => '아직 해지할 수 없는 상태예요';
+  String get withdrawBlockedOther => '아직 해지할 수 없는 상태예요.';
 
   @override
-  String get withdrawBlockedHint => '구독을 먼저 해지하시면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.';
+  String get withdrawBlockedHint => '구독을 먼저 해지하면 남은 기간이 끝난 뒤에 이용 해지를 할 수 있어요.';
 
   @override
   String get withdrawnTitle => '이용 해지가 끝났어요';
 
   @override
   String get withdrawnBody =>
-      '그동안 desk 를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.';
+      '그동안 그루 담다를 써 주셔서 감사했습니다. 남은 데이터는 개인정보 처리방침에 따라 보관 후 파기돼요.';
 
   @override
   String get withdrawnToLogin => '로그인 화면으로';
+
+  @override
+  String get withdrawCodeDescription => '10분 안에 입력해주세요 · 5번 틀리면 다시 받아요.';
+
+  @override
+  String get withdrawCodeIncomplete => '인증 코드 6자리를 입력해주세요.';
+
+  @override
+  String get withdrawCodeWrong => '코드가 맞지 않거나 시간이 지났어요. 확인하거나 다시 받아주세요.';
+
+  @override
+  String withdrawResendCooldown(int seconds) {
+    return '다시 받기($seconds초)';
+  }
+
+  @override
+  String get withdrawBusy => '해지하는 중';
+
+  @override
+  String get withdrawLoadFailedTitle => '해지 정보를 불러오지 못했어요';
+
+  @override
+  String get sheetLeaveTitle => '작성한 내용이 사라져요';
+
+  @override
+  String get sheetLeaveDescription => '나가면 입력한 내용이 저장되지 않아요.';
+
+  @override
+  String get sheetLeaveStay => '계속 작성';
+
+  @override
+  String get sheetLeaveLeave => '나가기';
 
   @override
   String get notiUnreadPrefix => '읽지 않은 알림 ';
@@ -6006,13 +6039,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importSourceTitle => '어떤 앱에서 가져오나요?';
 
   @override
-  String get importSourceDesc => '기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요';
+  String get importSourceDesc => '기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰요.';
 
   @override
-  String get importSourceGroo => '담다 백업';
+  String get importSourceGroo => '그루 담다';
 
   @override
-  String get importSourceGrooDesc => '내보내기 파일 다시 가져오기';
+  String get importSourceGrooDesc => '그루 담다에서 내보낸 파일';
 
   @override
   String get importSourceEasybudget => '편한가계부·머니매니저';
@@ -6036,7 +6069,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importSourceCustom => '직접 매핑';
 
   @override
-  String get importSourceCustomDesc => 'CSV·Excel 직접 연결';
+  String get importSourceCustomDesc => 'CSV · Excel 직접 연결';
 
   @override
   String get importUploadTitle => '파일 업로드';
@@ -6052,18 +6085,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importDropHint => '.csv · .xlsx · .xls 지원';
 
   @override
-  String get importAnalyzing => '파일 분석 중…';
+  String get importAnalyzing => '파일을 분석하는 중';
 
   @override
   String get importNotice =>
-      '가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.';
+      '가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복 · 오류를 확인할 수 있어요.';
 
   @override
   String get importFileTitle => '가져올 파일';
 
   @override
   String importRowsDetected(int total, int valid) {
-    return '$total개 행 · 유효 $valid건';
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat validNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String validString = validNumberFormat.format(valid);
+
+    return '$totalString개 행 · 유효 $validString건';
   }
 
   @override
@@ -6073,10 +6113,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importMapTitle => '열 매핑';
 
   @override
-  String get importMapDesc => '파일의 열을 가계부 항목에 연결하세요. 자동 감지값을 바꿀 수 있어요.';
+  String get importMapDesc => '파일의 열을 가계부 항목에 연결해요. 자동으로 찾은 값을 확인하고 바꿀 수 있어요.';
 
   @override
-  String get importNotMapped => '가져오지 않음';
+  String get importNotMapped => '— 가져오지 않음 —';
 
   @override
   String get importFieldSubcategory => '소분류';
@@ -6097,7 +6137,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importBlockedDesc =>
-      '해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요';
+      '해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요.';
 
   @override
   String get categoryMoveTxAction => '옮기기';
@@ -6155,7 +6195,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importFieldDate => '날짜';
 
   @override
-  String get importFieldType => '수입/지출';
+  String get importFieldType => '수입 · 지출';
 
   @override
   String get importFieldAmount => '금액';
@@ -6164,14 +6204,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importFieldCategory => '카테고리';
 
   @override
-  String get importFieldAsset => '자산·결제수단';
+  String get importFieldAsset => '자산 · 결제수단';
 
   @override
   String get importFieldMemo => '메모';
 
   @override
   String importPreviewDesc(int dup) {
-    return '중복 의심 $dup건';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return '중복 의심 $dupString건';
   }
 
   @override
@@ -6191,21 +6236,30 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importOptDupSkipDesc(int dup) {
-    return '날짜·금액·내용이 같은 $dup건을 제외해요';
+    final intl.NumberFormat dupNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dupString = dupNumberFormat.format(dup);
+
+    return '날짜 · 금액 · 내용이 같은 $dupString건을 제외해요.';
   }
 
   @override
   String get importOptAutoCat => '새 카테고리 자동 생성';
 
   @override
-  String get importOptAutoCatDesc => '없는 카테고리는 자동으로 만들어요';
+  String get importOptAutoCatDesc => '없는 카테고리는 자동으로 만들어요.';
 
   @override
   String get importPrev => '이전';
 
   @override
   String importDoImport(int count) {
-    return '$count건 가져오기';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString건 가져오기';
   }
 
   @override
@@ -6213,12 +6267,23 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String importDoneCount(int count) {
-    return '$count건을 가져왔어요';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString건을 가져왔어요';
   }
 
   @override
   String importDoneDetail(int skipped, int failed) {
-    return '건너뜀 $skipped · 실패 $failed';
+    final intl.NumberFormat skippedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String skippedString = skippedNumberFormat.format(skipped);
+    final intl.NumberFormat failedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String failedString = failedNumberFormat.format(failed);
+
+    return '건너뛴 거래 $skippedString건 · 못 가져온 거래 $failedString건.';
   }
 
   @override
@@ -6232,6 +6297,153 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importStepDone => '완료';
+
+  @override
+  String get exportTabsLabel => '데이터 내보내기 · 가져오기';
+
+  @override
+  String get exportSelectAll => '모두';
+
+  @override
+  String get exportCountsFailed => '건수를 불러오지 못했어요.';
+
+  @override
+  String get exportRangePlaceholder => '기간 선택';
+
+  @override
+  String get exportStalled => '파일을 받는 중에 멈췄어요.';
+
+  @override
+  String get exportFailed => '내보내지 못했어요.';
+
+  @override
+  String get exportPreviewTabsLabel => '미리보기 데이터 종류';
+
+  @override
+  String importStepMeta(int current, int total) {
+    return '$current / $total단계';
+  }
+
+  @override
+  String get importBusy => '가져오는 중';
+
+  @override
+  String get withdrawPasswordPlaceholder => '현재 비밀번호를 입력해주세요';
+
+  @override
+  String get withdrawLocked => '5번 틀렸어요. 코드를 다시 받아주세요.';
+
+  @override
+  String get importStepUploadDesc => '가져올 앱과 파일을 골라주세요.';
+
+  @override
+  String get importStepMappingDesc => '열이 맞는지 확인하고 가져올 거래를 점검해주세요.';
+
+  @override
+  String get withdrawCodeHint => '메일함에 코드가 안 보이면 스팸함도 확인해주세요.';
+
+  @override
+  String get withdrawPasswordWrong => '비밀번호가 맞지 않아요. 다시 확인해주세요.';
+
+  @override
+  String get withdrawLoadFailedDescription => '잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String exportPreviewFooter(int rows, int types, int total) {
+    final intl.NumberFormat rowsNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String rowsString = rowsNumberFormat.format(rows);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '상위 $rowsString행 미리보기 · 선택한 $types종 합계 약 $totalString건';
+  }
+
+  @override
+  String get exportPreviewEmptyTitle => '미리볼 데이터가 없어요';
+
+  @override
+  String importCreatedCatTitle(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '새로 만든 카테고리 $countString개';
+  }
+
+  @override
+  String importNewCatMore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '외 $countString개';
+  }
+
+  @override
+  String importFailuresTitle(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '실패한 행 $countString건';
+  }
+
+  @override
+  String importFailureLine(int line) {
+    return '$line행';
+  }
+
+  @override
+  String importFailuresCapped(int total, int shown) {
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+    final intl.NumberFormat shownNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String shownString = shownNumberFormat.format(shown);
+
+    return '실패 $totalString건 중 앞의 $shownString건만 보여줘요.';
+  }
+
+  @override
+  String get importFailReasonDate => '날짜를 읽을 수 없어요';
+
+  @override
+  String get importFailReasonAmount => '금액을 읽을 수 없어요';
+
+  @override
+  String get importFailReasonType => '수입 · 지출 구분을 읽을 수 없어요';
+
+  @override
+  String get importFailReasonParentHasTx =>
+      '이 카테고리에는 거래가 직접 달려 있어 하위 분류를 만들 수 없어요';
+
+  @override
+  String get importFailReasonResolve => '카테고리나 자산을 찾지 못했어요';
+
+  @override
+  String get importFailReasonSave => '저장하는 중에 오류가 나서 가져오지 못했어요';
+
+  @override
+  String get importFailReasonUnknown => '알 수 없는 이유로 가져오지 못했어요';
+
+  @override
+  String get importFileTooLarge => '파일은 10MB까지 올릴 수 있어요.';
+
+  @override
+  String get importFileInvalid => 'CSV 또는 Excel 파일만 올릴 수 있어요.';
+
+  @override
+  String get importBadgeError => '오류';
+
+  @override
+  String get importBadgeDup => '중복';
+
+  @override
+  String get importGoExpense => '가계부로 가기';
 
   @override
   String get calDetailDday => 'D-DAY';

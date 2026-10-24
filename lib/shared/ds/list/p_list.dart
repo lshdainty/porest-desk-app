@@ -364,9 +364,14 @@ class PListCheckItem extends PListItemBase {
     super.align,
     this.prefix,
     this.markPosition = PListMarkPosition.prefix,
+    this.suffixValue,
     this.tone = PCheckboxTone.neutral,
     this.focusNode,
   }) : assert(
+         markPosition == PListMarkPosition.suffix || suffixValue == null,
+         '뒤 값은 체크를 뒤(suffix)에 둘 때만 — 값 → 체크 순으로 한 덩어리로 선다',
+       ),
+       assert(
          markPosition == PListMarkPosition.suffix || prefix == null,
          '체크를 앞에 두면 앞 붙이개를 같이 쓸 수 없다 — 체크를 뒤(suffix)에 두거나 앞 붙이개를 뺀다',
        );
@@ -378,6 +383,10 @@ class PListCheckItem extends PListItemBase {
   final ValueChanged<bool>? onChanged;
   final Widget? prefix;
   final PListMarkPosition markPosition;
+
+  /// 체크 앞의 값(개수 · 금액) — 글([Text]) 또는 기다리는 자리([PSkeleton])를 준다. 값 → 체크 순으로 한 덩어리로 서고
+  /// 사이는 [PListSuffix] 의 4(list.yaml suffix.gap). 글은 값 글자(뒤 16 · 옅은 색)를 줄이 입힌다. 웹 `suffixValue` 와 같은 이름.
+  final Widget? suffixValue;
   final PCheckboxTone tone;
   final FocusNode? focusNode;
 
@@ -402,7 +411,18 @@ class PListCheckItem extends PListItemBase {
       detailChild: detailChild,
       titleColor: titleColor,
       prefix: markPosition == PListMarkPosition.prefix ? mark : prefix,
-      suffix: markPosition == PListMarkPosition.suffix ? mark : null,
+      suffix: markPosition == PListMarkPosition.suffix
+          ? (suffixValue == null
+                ? mark
+                : PListSuffix(
+                    children: [
+                      suffixValue is Text
+                          ? PListValue(child: suffixValue!)
+                          : suffixValue!,
+                      mark,
+                    ],
+                  ))
+          : null,
       highlighted: highlighted,
       align: align,
       interactive: true,
