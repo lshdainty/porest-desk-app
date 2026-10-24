@@ -4,40 +4,33 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
-import 'package:groo_damda_app/core/format/format_locale.dart';
-import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
-import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_card.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_edit_dialog.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
+import 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
-import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
-import 'package:groo_damda_app/features/budget/domain/budget.dart';
-import 'package:groo_damda_app/features/budget/presentation/budget_edit_dialog.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
-import 'package:groo_damda_app/features/budget/presentation/budget_screen.dart'
-    show showMonthPickerSheet;
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-
-/// 카테고리별 예산 상태 경고 임계값 — 웹 `BudgetManager.tsx` 정합 (관리 화면은 고정 85%).
-/// (개요 화면 `BudgetScreen` 은 사용자 설정 임계값을 따름.)
-const double _warnThreshold = 85;
+import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 예산 설정 화면 — 웹 `BudgetManager.tsx`(설정 > 예산 설정) 미러.
 ///
@@ -197,8 +190,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
+    final c = context.colors;
     final budgetsAsync = ref.watch(monthBudgetsProvider(_key));
     final summaryAsync = ref.watch(
       rangeSummaryProvider((startDate: _monthStartStr, endDate: _monthEndStr)),
@@ -212,9 +205,170 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     final prevBudgets = prevBudgetsAsync.value ?? const <Budget>[];
     final curBudgets = budgetsAsync.value ?? const <Budget>[];
     final copyEnabled = prevBudgets.isNotEmpty;
+    final budgets = budgetsAsync.value;
+    final summary = summaryAsync.value;
+    final masked = ref.watch(hideCardProvider('budget.manage'));
+
+    void retry() {
+      if (budgetsAsync.hasError) ref.invalidate(monthBudgetsProvider(_key));
+      if (summaryAsync.hasError) {
+        ref.invalidate(
+          rangeSummaryProvider((
+            startDate: _monthStartStr,
+            endDate: _monthEndStr,
+          )),
+        );
+      }
+    }
+
+    final failed =
+        (budgetsAsync.hasError && budgets == null) ||
+        (summaryAsync.hasError && summary == null);
+
+    final children = <Widget>[
+      // 달 줄 + 지난달 복사 — 흰 면 맨 위 4 + 한 줄(웹 BudgetManager 모바일 헤더 정합)
+      BudgetMonthRow(
+        month: _month,
+        onPrev: () =>
+            setState(() => _month = DateTime(_month.year, _month.month - 1, 1)),
+        onNext: () =>
+            setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
+        onPick: () async {
+          final picked = await showMonthPickerSheet(context, _month);
+          if (picked != null) setState(() => _month = picked);
+        },
+        trailing: PButton(
+          label: l.budgetCopyLastMonthBtn,
+          prefixIcon: LucideIcons.copy,
+          variant: PButtonVariant.neutralWeak,
+          size: PButtonSize.small,
+          onPressed: copyEnabled
+              ? () => _confirmCopyFromPreviousMonth(prevBudgets, curBudgets)
+              : null,
+        ),
+      ),
+    ];
+
+    if (failed) {
+      children.add(
+        BudgetSection(
+          topPadding: PSpacing.x3,
+          children: [
+            BudgetFailure(title: l.budgetManagerLoadFailed, onRetry: retry),
+          ],
+        ),
+      );
+    } else if (budgets == null || summary == null) {
+      children.addAll(const [_TotalSkeleton(), _ListSkeleton()]);
+    } else {
+      final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
+      final spentByCategory = _spentByCategoryFromSummary(summary);
+
+      Budget? overallBudget;
+      final categoryBudgets = <Budget>[];
+      for (final b in budgets) {
+        if (b.categoryRowId == null) {
+          overallBudget = b;
+        } else {
+          categoryBudgets.add(b);
+        }
+      }
+      final monthlyLimit = overallBudget?.budgetAmount ?? 0;
+      final categoryLimitSum = categoryBudgets.fold<int>(
+        0,
+        (s, b) => s + b.budgetAmount,
+      );
+      // 할당 가능 = 월 총 예산 − 카테고리 한도 합 (음수면 초과 할당).
+      final remaining = monthlyLimit - categoryLimitSum;
+
+      // 예산 추가 가능 카테고리 = EXPENSE 최상위(부모)만 — 전부 보유 시 비활성화.
+      final usedIds = categoryBudgets
+          .map((b) => b.categoryRowId)
+          .whereType<int>()
+          .toSet();
+      final selectable = categories
+          .where((c) => c.expenseType == 'EXPENSE' && c.parentRowId == null)
+          .toList();
+      final allBudgeted =
+          selectable.isNotEmpty &&
+          selectable.every((c) => usedIds.contains(c.rowId));
+      // 웹 정합: 카테고리 로딩 중에도 추가 비활성(빈 칩 다이얼로그 방지).
+      final addDisabled = allBudgeted || categoriesAsync.isLoading;
+
+      children.add(
+        _TotalSection(
+          month: _month.month,
+          overallBudget: overallBudget,
+          monthlyLimit: monthlyLimit,
+          totalSpent: summary.totalExpense,
+          categoryLimitSum: categoryLimitSum,
+          remaining: remaining,
+          masked: masked,
+          onEdit: () => _editOverall(overallBudget),
+        ),
+      );
+      // 목록 제목 위: 앞 구역 아래 24 + 8 + 제목 위 8 = 보이는 40
+      children.add(const SizedBox(height: PSpacing.x2));
+      children.add(
+        PListHeader(
+          title: l.budgetByCategoryCount(categoryBudgets.length),
+          variant: PListHeaderVariant.boldSolid,
+          action: PTextButton(
+            label: l.budgetAdd,
+            onPressed: addDisabled ? null : () => _addCategory(budgets),
+          ),
+        ),
+      );
+      children.add(
+        categoryBudgets.isEmpty
+            ? BudgetEmptyLine(l.budgetNoCategorySet)
+            : PList(
+                children: [
+                  for (final b in categoryBudgets)
+                    // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 수정으로 — 스와이프는
+                    // 지름길이지 유일한 경로가 아니다(spec swipe-actions.md · WCAG 2.1.1).
+                    PSwipeActions(
+                      key: ValueKey('budget-${b.rowId}'),
+                      groupTag: 'budget-settings-list',
+                      actions: [
+                        PSwipeAction(
+                          label: l.actionEdit,
+                          icon: LucideIcons.pencil,
+                          kind: PSwipeKind.primary,
+                          onSelect: () => _editCategory(b, budgets),
+                        ),
+                        PSwipeAction(
+                          label: l.actionDelete,
+                          icon: LucideIcons.trash2,
+                          kind: PSwipeKind.destructive,
+                          confirmTitle: l.budgetDeleteTitle,
+                          confirmMessage: l.budgetDeleteConfirm(
+                            budgetRowName(
+                              l,
+                              categories.byRowId(b.categoryRowId!),
+                              b,
+                            ),
+                          ),
+                          onSelect: () => _deleteCategory(b),
+                        ),
+                      ],
+                      child: BudgetCategoryRow(
+                        budget: b,
+                        category: categories.byRowId(b.categoryRowId!),
+                        spent: spentByCategory[b.categoryRowId] ?? 0,
+                        masked: masked,
+                        onTap: () => _editCategory(b, budgets),
+                        overText: l.budgetOverLimit,
+                      ),
+                    ),
+                ],
+              ),
+      );
+      children.add(const SizedBox(height: PSpacing.x3));
+    }
 
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
+      backgroundColor: c.bgLayerBasement,
       // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
@@ -226,6 +380,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
           ),
         ),
       ),
+      // 흰 면 하나 — 카드 · 줄 사이 선 없음. 구역과 줄이 제 좌우 24 를 갖는다(I-08 18)
       body: PScreenBandBody(
         child: PPullToRefresh(
           onRefresh: () async {
@@ -238,108 +393,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
             );
             await ref.read(monthBudgetsProvider(_key).future);
           },
-          child: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x24,
-              vertical: PSpace.x24,
-            ),
-            children: [
-              // 월 선택 + 지난달 복사 (웹 BudgetManager 모바일 헤더 정합).
-              _MonthBar(
-                month: _month,
-                onPrev: () => setState(
-                  () => _month = DateTime(_month.year, _month.month - 1, 1),
-                ),
-                onNext: () => setState(
-                  () => _month = DateTime(_month.year, _month.month + 1, 1),
-                ),
-                onPickMonth: (m) => setState(() => _month = m),
-                copyEnabled: copyEnabled,
-                onCopyPrev: () =>
-                    _confirmCopyFromPreviousMonth(prevBudgets, curBudgets),
-              ),
-              const SizedBox(height: PSpace.x12),
-              budgetsAsync.when(
-                loading: () => const _LoadingSkeleton(),
-                error: (e, _) => _ErrorBox(
-                  message: '${l.budgetLoadError}\n$e',
-                  onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
-                ),
-                data: (budgets) {
-                  final categories = categoriesAsync.value ?? const [];
-                  final summary = summaryAsync.value;
-                  final spentByCategory = _spentByCategoryFromSummary(summary);
-                  final totalSpent = summary?.totalExpense ?? 0;
-
-                  Budget? overallBudget;
-                  final categoryBudgets = <Budget>[];
-                  for (final b in budgets) {
-                    if (b.categoryRowId == null) {
-                      overallBudget = b;
-                    } else {
-                      categoryBudgets.add(b);
-                    }
-                  }
-
-                  final monthlyLimit = overallBudget?.budgetAmount ?? 0;
-                  final categoryLimitSum = categoryBudgets.fold<int>(
-                    0,
-                    (s, b) => s + b.budgetAmount,
-                  );
-                  // 할당 가능 = 월 전체 상한 − 카테고리 한도 합 (음수면 초과 할당).
-                  final remaining = monthlyLimit - categoryLimitSum;
-
-                  // 예산 추가 가능 카테고리 = EXPENSE 최상위(부모)만 — 전부 보유 시 비활성화.
-                  final usedIds = categoryBudgets
-                      .map((b) => b.categoryRowId)
-                      .whereType<int>()
-                      .toSet();
-                  final selectable = categories
-                      .where(
-                        (c) =>
-                            c.expenseType == 'EXPENSE' && c.parentRowId == null,
-                      )
-                      .toList();
-                  final allBudgeted =
-                      selectable.isNotEmpty &&
-                      selectable.every((c) => usedIds.contains(c.rowId));
-
-                  return Column(
-                    children: [
-                      _TotalBudgetCard(
-                        month: _month.month,
-                        overallBudget: overallBudget,
-                        monthlyLimit: monthlyLimit,
-                        totalSpent: totalSpent,
-                        categoryLimitSum: categoryLimitSum,
-                        remaining: remaining,
-                        masked: ref.watch(hideCardProvider('budget.manage')),
-                        tokens: t,
-                        onEdit: () => _editOverall(overallBudget),
-                      ),
-                      const SizedBox(height: PSpace.x16),
-                      _CategoryListCard(
-                        budgets: categoryBudgets,
-                        categories: categories,
-                        spentByCategory: spentByCategory,
-                        masked: ref.watch(hideCardProvider('budget.manage')),
-                        // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
-                        // 스켈레톤은 첫 로딩만.
-                        firstLoading:
-                            summaryAsync.isLoading && !summaryAsync.hasValue,
-                        // 웹 정합: 카테고리 로딩 중에도 추가 비활성(빈 칩 다이얼로그 방지).
-                        addDisabled: allBudgeted || categoriesAsync.isLoading,
-                        tokens: t,
-                        onAdd: () => _addCategory(budgets),
-                        onTap: (b) => _editCategory(b, budgets),
-                        onDelete: _deleteCategory,
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
+          child: ListView(padding: EdgeInsets.zero, children: children),
         ),
       ),
     );
@@ -365,84 +419,19 @@ Map<int, int> _spentByCategoryFromSummary(RangeSummary? summary) {
 String _ymd(int y, int m, int d) =>
     '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
 
-/// 월 선택 bar — prev/picker/next + 지난달 복사 버튼.
-class _MonthBar extends StatelessWidget {
-  const _MonthBar({
-    required this.month,
-    required this.onPrev,
-    required this.onNext,
-    required this.onPickMonth,
-    required this.copyEnabled,
-    required this.onCopyPrev,
-  });
-  final DateTime month;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  final ValueChanged<DateTime> onPickMonth;
-  final bool copyEnabled;
-  final VoidCallback onCopyPrev;
+class _Gap extends StatelessWidget {
+  const _Gap(this.height);
+
+  final double height;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    return Row(
-      children: [
-        PButton.icon(
-          tooltip: AppLocalizations.of(context).actionPrev,
-          icon: LucideIcons.chevronLeft,
-          size: PButtonSize.sm,
-          onPressed: onPrev,
-        ),
-        InkWell(
-          borderRadius: PRadius.brMd,
-          onTap: () async {
-            final picked = await showMonthPickerSheet(context, month);
-            if (picked != null) onPickMonth(picked);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x4,
-              vertical: PSpace.x4,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  yearMonth(month),
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: PSpace.x4),
-                Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
-              ],
-            ),
-          ),
-        ),
-        PButton.icon(
-          tooltip: AppLocalizations.of(context).actionNext,
-          icon: LucideIcons.chevronRight,
-          size: PButtonSize.sm,
-          onPressed: onNext,
-        ),
-        const Spacer(),
-        PButton(
-          label: l.budgetCopyLastMonthBtn,
-          icon: LucideIcons.copy,
-          variant: PButtonVariant.secondary,
-          size: PButtonSize.sm,
-          onPressed: copyEnabled ? onCopyPrev : null,
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) =>
+      BudgetFull(child: SizedBox(height: height));
 }
 
-/// 월 총 예산 카드 — 웹 BudgetManager 상단 카드 정합 (brand-tint, 수정 버튼, 3 통계).
-class _TotalBudgetCard extends StatelessWidget {
-  const _TotalBudgetCard({
+/// 월 총 예산 구역 — 눈썹 + 글 버튼, 큰 숫자, 막대(넘치면 fg-critical), 키-값 줄 셋, 초과 할당 안내.
+class _TotalSection extends StatelessWidget {
+  const _TotalSection({
     required this.month,
     required this.overallBudget,
     required this.monthlyLimit,
@@ -450,7 +439,6 @@ class _TotalBudgetCard extends StatelessWidget {
     required this.categoryLimitSum,
     required this.remaining,
     required this.masked,
-    required this.tokens,
     required this.onEdit,
   });
   final int month;
@@ -460,586 +448,138 @@ class _TotalBudgetCard extends StatelessWidget {
   final int categoryLimitSum;
   final int remaining;
   final bool masked;
-  final GrooTokens tokens;
   final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
-    final pct = monthlyLimit > 0 ? (totalSpent / monthlyLimit) * 100 : 0.0;
     final l = AppLocalizations.of(context);
-    // 가계부 취합 카드 정합(사용자 결정) — raised(surfaceRaised + shadowLg) 히어로.
-    return PCard(
-      variant: PCardVariant.raised,
-      padding: const EdgeInsets.all(PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.budgetMonthTotal(month),
-                      style: PTypo.caption.copyWith(
-                        color: tokens.fgBrandStrong,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    if (overallBudget != null)
-                      // 금액 web 정합 — h2(24)→display-md(32), '원' 유닛만 bodyLg(16) 축소
-                      // (en 은 web wonPre 정합으로 '₩' 접두 통짜).
-                      Text.rich(
-                        TextSpan(
-                          style: PTypo.displayMd.copyWith(
-                            color: tokens.fgPrimary,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: masked
-                                  ? '••••'
-                                  : (localeIsEn()
-                                        ? '₩${krw(monthlyLimit)}'
-                                        : krw(monthlyLimit)),
-                            ),
-                            if (!masked && !localeIsEn())
-                              TextSpan(
-                                text: ' 원',
-                                style: PTypo.bodyLg.copyWith(
-                                  color: tokens.fgPrimary,
-                                  fontWeight: PFontWeight.bold,
-                                ),
-                              ),
-                          ],
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    else
-                      Text(
-                        l.budgetNotSet,
-                        style: PTypo.bodyLg.copyWith(
-                          color: tokens.fgTertiary,
-                          fontWeight: PFontWeight.semi,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              PButton(
-                label: overallBudget != null ? l.actionEdit : l.budgetSetup,
-                icon: overallBudget != null
-                    ? LucideIcons.pencil
-                    : LucideIcons.plus,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.sm,
-                onPressed: onEdit,
-              ),
-            ],
-          ),
-          if (overallBudget != null) ...[
-            const SizedBox(height: PSpace.x12),
-            LinearProgressIndicator(
-              borderRadius: PRadius.brFull,
-              value: (pct / 100).clamp(0, 1).toDouble(),
-              minHeight: 10,
-              backgroundColor: tokens.bgTrack,
-              // 웹 BudgetManager 상단 카드 진행바는 상태 클래스 없이 base
-              // `.budget-bar__fill`(--status-info-fg) 고정 — 초과해도 색 안 바뀜.
-              color: tokens.statusInfoFg,
-            ),
-          ],
-          const SizedBox(height: PSpace.x12),
-          Container(
-            padding: const EdgeInsets.only(top: PSpace.x12),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: tokens.borderSubtle)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _MiniStat(
-                    label: l.budgetUsed,
-                    value: krwMasked(totalSpent, masked, mask: '••••'),
-                    color: tokens.fgPrimary,
-                    tokens: tokens,
-                  ),
-                ),
-                Expanded(
-                  child: _MiniStat(
-                    label: l.budgetAllocated,
-                    value: krwMasked(categoryLimitSum, masked, mask: '••••'),
-                    color: tokens.fgPrimary,
-                    tokens: tokens,
-                  ),
-                ),
-                Expanded(
-                  child: _MiniStat(
-                    label: l.budgetAllocatable,
-                    value: krwSigned(
-                      remaining.abs(),
-                      masked,
-                      sign: remaining >= 0 ? '+' : '−',
-                      mask: '••••',
-                    ),
-                    color: remaining < 0
-                        ? tokens.statusDangerFg
-                        : tokens.fgIncome,
-                    tokens: tokens,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (overallBudget != null && remaining < 0) ...[
-            const SizedBox(height: PSpace.x8),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x12,
-                vertical: PSpace.x8,
-              ),
-              decoration: BoxDecoration(
-                color: tokens.statusDangerSubtle,
-                borderRadius: PRadius.brMd,
-                border: Border.all(
-                  color: tokens.fgExpense.withValues(alpha: 0.3),
-                ),
-              ),
+    final c = context.colors;
+    String won(int n, {String sign = ''}) => budgetWon(n, masked, sign: sign);
+    final has = overallBudget != null;
+    return BudgetSection(
+      topPadding: PSpacing.x3,
+      children: [
+        // 첫 줄: 눈썹 + 오른쪽 글 버튼(수정 · 설정). 글 버튼(36)이 줄을 늘리지 않게 줄 높이는 눈썹(18)이고, 버튼은 위아래로 내민다
+        PTouchTargetScope(
+          slack: 9,
+          child: SizedBox(
+            height: 18,
+            child: OverflowBox(
+              minHeight: kTextButtonHeight,
+              maxHeight: kTextButtonHeight,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    LucideIcons.alertTriangle,
-                    size: 14,
-                    color: tokens.statusDangerFg,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      masked
-                          ? l.budgetOverAllocatedWarning(
-                              krwMasked(-remaining, masked, mask: '••••'),
-                            )
-                          : l.budgetOverAllocatedWarning(
-                              krwSigned(-remaining, false, unit: true),
-                            ),
-                      style: PTypo.caption.copyWith(
-                        color: tokens.statusDangerFg,
-                      ),
-                    ),
+                  Expanded(child: BudgetEyebrow(l.budgetMonthTotal(month))),
+                  PTextButton(
+                    label: has ? l.actionEdit : l.budgetSetup,
+                    onPressed: onEdit,
+                    bleedEnd: true,
                   ),
                 ],
               ),
             ),
-          ],
+          ),
+        ),
+        const _Gap(PSpacing.x3),
+        if (has)
+          BudgetBigAmount(amount: won(monthlyLimit))
+        else
+          Text(
+            l.budgetNotSet,
+            style: PTypography.t5.copyWith(color: c.fgNeutralSubtle),
+          ),
+        if (has) ...[
+          const _Gap(PSpacing.x4),
+          // 넘치면 fg-critical — 써서 넘쳐도 파랑이던 것을 고친다
+          BudgetBar(
+            value: totalSpent.toDouble(),
+            max: monthlyLimit.toDouble(),
+            label: l.budgetMonthTotal(month),
+            meaning: PProgressMeaning.limit,
+          ),
         ],
-      ),
-    );
-  }
-}
-
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.tokens,
-  });
-  final String label;
-  final String value;
-  final Color color;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: PTypo.micro.copyWith(
-            color: tokens.fgTertiary,
-            fontWeight: PFontWeight.medium,
+        const _Gap(PSpacing.x3),
+        budgetKvList(context, [
+          BudgetKv(l.budgetUsed, won(totalSpent)),
+          BudgetKv(l.budgetAllocated, won(categoryLimitSum)),
+          BudgetKv(
+            l.budgetAllocatable,
+            won(remaining.abs(), sign: remaining >= 0 ? '+' : '−'),
+            color: remaining < 0 ? c.fgCritical : c.fgBrand,
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          // 앱(13)·웹(16) 중간 → 토큰 스냅 14(body) — 웹 body-sm(14)과 동값(사용자 결정).
-          style: PTypo.body.copyWith(
-            color: color,
-            fontWeight: PFontWeight.bold,
+        ]),
+        if (has && remaining < 0) ...[
+          const _Gap(PSpacing.x3),
+          PCallout(
+            tone: PCalloutTone.critical,
+            description: l.budgetOverAllocatedWarning(won(-remaining)),
           ),
-          overflow: TextOverflow.ellipsis,
-        ),
+        ],
       ],
     );
   }
 }
 
-/// 카테고리별 예산 리스트 — 헤더(개수 + 예산 추가) + 행 리스트(탭하여 수정/삭제).
-/// 예산이 걸린 카테고리 이름 — 행 표시(`_CategoryRow`)와 삭제 확인창이 같은 규칙을 쓴다.
-/// 확인창이 대상을 이름으로 불러야 한다(spec alert-dialog).
-String _budgetName(
-  AppLocalizations l,
-  List<ExpenseCategory> categories,
-  Budget b,
-) =>
-    categories.byRowId(b.categoryRowId!)?.categoryName ??
-    b.categoryName ??
-    l.budgetCategoryFallback(b.categoryRowId!);
-
-class _CategoryListCard extends StatelessWidget {
-  const _CategoryListCard({
-    required this.budgets,
-    required this.categories,
-    required this.spentByCategory,
-    required this.masked,
-    required this.firstLoading,
-    required this.addDisabled,
-    required this.tokens,
-    required this.onAdd,
-    required this.onTap,
-    required this.onDelete,
-  });
-  final List<Budget> budgets;
-  final List<ExpenseCategory> categories;
-  final Map<int, int> spentByCategory;
-  final bool masked;
-
-  /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
-  final bool firstLoading;
-  final bool addDisabled;
-  final GrooTokens tokens;
-  final VoidCallback onAdd;
-  final void Function(Budget) onTap;
-  final Future<void> Function(Budget) onDelete;
+/// 로딩 스켈레톤 — 총 예산 구역 + 목록 제목 + 줄 3.
+class _TotalSkeleton extends StatelessWidget {
+  const _TotalSkeleton();
 
   @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => BudgetSection(
+    topPadding: PSpacing.x3,
+    children: [
+      PSkeleton.text(PTypography.t3, width: 96),
+      const _Gap(PSpacing.x3),
+      PSkeleton.text(PTypography.t9, width: 160),
+      const _Gap(PSpacing.x4),
+      const PSkeleton(
+        height: PProgressBar.height,
+        radius: PSkeletonRadius.full,
+      ),
+      const _Gap(PSpacing.x3),
+      for (var i = 0; i < 3; i++)
+        PSkeleton.text(PTypography.t5, width: double.infinity),
+    ],
+  );
+}
+
+class _ListSkeleton extends StatelessWidget {
+  const _ListSkeleton();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: PSpacing.x6),
+    child: Column(
       children: [
-        Row(
-          children: [
-            Text(
-              l.budgetByCategoryCount(budgets.length),
-              style: PTypo.body.copyWith(
-                color: tokens.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
+        for (var i = 0; i < 3; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.x6,
+              vertical: PSpacing.x3,
             ),
-            const Spacer(),
-            PButton(
-              label: l.budgetAdd,
-              icon: LucideIcons.plus,
-              variant: PButtonVariant.accent,
-              size: PButtonSize.sm,
-              onPressed: addDisabled ? null : onAdd,
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x8),
-        // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (firstLoading && budgets.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                child: Column(
+            child: Column(
+              spacing: PSpacing.x4,
+              children: [
+                Row(
+                  spacing: PSpacing.x3,
                   children: [
-                    for (var i = 0; i < 3; i++) ...[
-                      if (i > 0) const SizedBox(height: PSpace.x16),
-                      Row(
-                        children: const [
-                          PSkeleton.line(width: 96, height: 13),
-                          Spacer(),
-                          PSkeleton.line(width: 80, height: 13),
-                        ],
-                      ),
-                      const SizedBox(height: PSpace.x8),
-                      PSkeleton(height: 6, borderRadius: PRadius.brFull),
-                    ],
+                    const PSkeleton(
+                      width: 40,
+                      height: 40,
+                      radius: PSkeletonRadius.r12,
+                    ),
+                    Expanded(child: PSkeleton.text(PTypography.t5)),
+                    PSkeleton.text(PTypography.t5, width: 72),
                   ],
                 ),
-              )
-            else if (budgets.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Center(
-                  child: Text(
-                    l.budgetNoCategorySet,
-                    style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                  ),
-                ),
-              )
-            else
-              for (int i = 0; i < budgets.length; i++) ...[
-                if (i > 0) ...[
-                  const SizedBox(height: PSpace.x12),
-                  Divider(height: 1, thickness: 1, color: tokens.borderSubtle),
-                  const SizedBox(height: PSpace.x12),
-                ],
-                // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 수정으로 — 스와이프는
-                // 지름길이지 유일한 경로가 아니다(spec swipe-actions.md · WCAG 2.1.1).
-                PSwipeActions(
-                  key: ValueKey('budget-${budgets[i].rowId}'),
-                  groupTag: 'budget-settings-list',
-                  actions: [
-                    PSwipeAction(
-                      label: l.actionEdit,
-                      icon: LucideIcons.pencil,
-                      kind: PSwipeKind.primary,
-                      onSelect: () => onTap(budgets[i]),
-                    ),
-                    PSwipeAction(
-                      label: l.actionDelete,
-                      icon: LucideIcons.trash2,
-                      kind: PSwipeKind.destructive,
-                      confirmTitle: l.budgetDeleteTitle,
-                      confirmMessage: l.budgetDeleteConfirm(
-                        _budgetName(l, categories, budgets[i]),
-                      ),
-                      onSelect: () => onDelete(budgets[i]),
-                    ),
-                  ],
-                  child: _CategoryRow(
-                    budget: budgets[i],
-                    category: categories.byRowId(budgets[i].categoryRowId!),
-                    spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
-                    masked: masked,
-                    tokens: tokens,
-                    onTap: () => onTap(budgets[i]),
-                  ),
+                const PSkeleton(
+                  height: PProgressBar.height,
+                  radius: PSkeletonRadius.full,
                 ),
               ],
-          ],
-        ),
+            ),
+          ),
       ],
-    );
-  }
-}
-
-class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({
-    required this.budget,
-    required this.category,
-    required this.spent,
-    required this.masked,
-    required this.tokens,
-    required this.onTap,
-  });
-  final Budget budget;
-  final ExpenseCategory? category;
-  final int spent;
-  final bool masked;
-  final GrooTokens tokens;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final limit = budget.budgetAmount;
-    final p = limit > 0 ? (spent / limit) * 100 : 0.0;
-    final over = p > 100;
-    final warn = p > _warnThreshold && !over;
-    final stateColor = over
-        ? tokens.statusDangerFg
-        : warn
-        ? tokens.statusWarningFg
-        : tokens.statusInfoFg;
-    final fg = resolveChartColor(
-      context,
-      category?.color,
-      fallback: tokens.fgBrand,
-    );
-    final bg = softBg(context, fg);
-    final name =
-        category?.categoryName ??
-        budget.categoryName ??
-        l.budgetCategoryFallback(budget.categoryRowId!);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brSm,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: PRadius.tile(36),
-                ),
-                child: Icon(lucideByName(category?.icon), size: 18, color: fg),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: PTypo.body.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      over
-                          ? l.budgetOverBy(
-                              masked
-                                  ? krwMasked(
-                                      spent - limit,
-                                      masked,
-                                      mask: '••••',
-                                    )
-                                  : krwSigned(spent - limit, false, unit: true),
-                            )
-                          : l.budgetRemaining(
-                              masked
-                                  ? krwMasked(
-                                      (limit - spent).clamp(0, limit),
-                                      masked,
-                                      mask: '••••',
-                                    )
-                                  : krwSigned(
-                                      (limit - spent).clamp(0, limit),
-                                      false,
-                                      unit: true,
-                                    ),
-                            ),
-                      style: PTypo.caption.copyWith(
-                        color: over ? tokens.statusDangerFg : tokens.fgTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    krwMasked(spent, masked, mask: '••••'),
-                    style: PTypo.body.copyWith(
-                      color: over ? tokens.statusDangerFg : tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '/ ${krwMasked(limit, masked, mask: '••••')}',
-                    style: PTypo.micro.copyWith(
-                      color: tokens.fgTertiary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x8),
-          LinearProgressIndicator(
-            borderRadius: PRadius.brFull,
-            value: (p / 100).clamp(0, 1).toDouble(),
-            minHeight: 7,
-            backgroundColor: tokens.bgTrack,
-            color: stateColor,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 로딩 스켈레톤 — 월 총 예산 카드 + 카테고리 리스트 3행.
-class _LoadingSkeleton extends StatelessWidget {
-  const _LoadingSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        PCard(
-          padding: const EdgeInsets.all(PSpace.x16),
-          variant: PCardVariant.shadow,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              PSkeleton.line(width: 72, height: 12),
-              SizedBox(height: PSpace.x8),
-              PSkeleton.line(width: 160, height: 28),
-              SizedBox(height: PSpace.x12),
-              PSkeleton(height: 10, borderRadius: PRadius.brFull),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x16),
-        const PSkeleton.line(width: 140, height: 16),
-        const SizedBox(height: PSpace.x8),
-        // 카드 다이어트 — 리스트 스켈레톤 플랫.
-        Column(
-          children: [
-            for (var i = 0; i < 3; i++) ...[
-              if (i > 0) const SizedBox(height: PSpace.x16),
-              Row(
-                children: const [
-                  PSkeleton.line(width: 96, height: 13),
-                  Spacer(),
-                  PSkeleton.line(width: 80, height: 13),
-                ],
-              ),
-              const SizedBox(height: PSpace.x8),
-              const PSkeleton(height: 6, borderRadius: PRadius.brFull),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ErrorBox extends StatelessWidget {
-  const _ErrorBox({required this.message, required this.onRetry});
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    // 카드 다이어트 — 에러 상태 플랫 (카드 셸 제거).
-    return Padding(
-      padding: const EdgeInsets.all(PSpace.x16),
-      child: Column(
-        children: [
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-          ),
-          const SizedBox(height: PSpace.x12),
-          PButton(
-            label: l.actionRetry,
-            icon: LucideIcons.refreshCw,
-            variant: PButtonVariant.secondary,
-            size: PButtonSize.sm,
-            onPressed: onRetry,
-          ),
-        ],
-      ),
-    );
-  }
+    ),
+  );
 }

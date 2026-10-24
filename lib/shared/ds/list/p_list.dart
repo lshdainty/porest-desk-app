@@ -112,6 +112,7 @@ abstract class PListItemBase extends StatelessWidget {
     this.titleSuffix,
     this.titleStrike = false,
     this.gutter,
+    this.verticalPadding,
   }) : assert(
          detail == null || detailChild == null,
          '설명은 글(detail)이나 위젯(detailChild) 하나만 준다',
@@ -143,6 +144,9 @@ abstract class PListItemBase extends StatelessWidget {
 
   /// **임시 인자** — 줄 좌우 여백(기본 24). 좌우 24 를 쥔 옛 호스트 안에서만 0, 호스트가 바깥 24 를 걷을 때 함께 걷는다.
   final double? gutter;
+
+  /// 줄 위아래 여백 — 기본 12. 키-값 줄(예산 · 페이스 · 현황 — I-08)이 8 을 준다.
+  final double? verticalPadding;
 }
 
 /// 보기만 하는 줄 — 누르지 않는다(눌림 · 포커스가 없다). 키-값 · 안내 줄.
@@ -158,6 +162,7 @@ class PListItem extends PListItemBase {
     super.titleSuffix,
     super.titleStrike,
     super.gutter,
+    super.verticalPadding,
     this.prefix,
     this.suffix,
   });
@@ -177,6 +182,7 @@ class PListItem extends PListItemBase {
     titleSuffix: titleSuffix,
     titleStrike: titleStrike,
     gutter: gutter,
+    verticalPadding: verticalPadding,
     prefix: prefix,
     suffix: suffix,
     highlighted: highlighted,

@@ -2297,7 +2297,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String budgetMonthOverallCap(int month) {
-    return 'Overall cap · $month';
+    return 'Month $month total budget';
   }
 
   @override
@@ -2306,7 +2306,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetOverallCapEmptyHint =>
-      'No overall cap set yet. Use the settings button at the top right to set this month\'s maximum spending limit.';
+      'There is no total budget yet. You can set this month\'s spending limit in settings.';
+
+  @override
+  String budgetEmptyMonthTitle(int month) {
+    return 'No budget for month $month yet';
+  }
+
+  @override
+  String get budgetEmptyMonthDesc =>
+      'Set a budget to see what you spent and what is left at a glance.';
+
+  @override
+  String get budgetFailCompliance => 'Couldn\'t load the budget compliance';
+
+  @override
+  String get budgetManagerLoadFailed => 'Couldn\'t load budgets';
+
+  @override
+  String budgetCategoryCount(int count) {
+    return '$count categories';
+  }
+
+  @override
+  String budgetOverLimit(String amount) {
+    return 'Over limit by $amount';
+  }
+
+  @override
+  String get budgetTableMonth => 'Month';
 
   @override
   String get budgetCurrentCategorySum => 'Current category limit total';
@@ -2327,7 +2355,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get budgetOverallCapLabel => 'Overall cap';
+  String get budgetOverallCapLabel => 'Total budget';
 
   @override
   String get budgetCategoryAllocated => 'Category allocated';
@@ -2337,11 +2365,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String budgetOverAllocatedWarning(String amount) {
-    return 'Category limits exceed the overall cap by $amount. Raise the overall cap or lower category limits.';
+    return 'Category limits exceed the total budget by $amount. Raise the total budget or lower the category limits.';
   }
 
   @override
   String get budgetSpendingPace => 'Spending pace';
+
+  @override
+  String get budgetPaceBarName => 'Spending pace this month';
+
+  @override
+  String budgetPaceBarValue(String used, String elapsed) {
+    return '$used% used · $elapsed% of the month passed';
+  }
 
   @override
   String get budgetPaceOnTrack => 'On pace';
@@ -2381,7 +2417,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetNoCategoryBudgets => 'No category budgets';
 
   @override
-  String get budgetGoToSettings => 'Go to budget settings →';
+  String get budgetGoToSettings => 'Go set a budget';
 
   @override
   String budgetCategoryFallback(int id) {
@@ -2402,12 +2438,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetLimit => 'Limit';
-
-  @override
-  String get budgetEmptyMonth => 'No budget for this month';
-
-  @override
-  String get budgetEmptyHint => 'Set an overall cap or category budgets';
 
   @override
   String get budgetSetup => 'Budget settings';
@@ -2433,7 +2463,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String budgetMonthTotal(int month) {
-    return 'Total budget · $month';
+    return 'Month $month Total Budget';
   }
 
   @override
@@ -4690,6 +4720,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalLoadError => 'Failed to load saving goals';
 
   @override
+  String get savingGoalFailTitle => 'Couldn\'t load the saving goals';
+
+  @override
   String get savingGoalOverallProgress => 'Overall progress';
 
   @override
@@ -4722,7 +4755,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalActionFailed => 'Failed';
 
   @override
-  String get savingGoalAchieved => 'Achieved!';
+  String get savingGoalAchieved => 'Achieved';
 
   @override
   String get savingGoalAdd => 'Add saving goal';

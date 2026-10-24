@@ -24,6 +24,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/dio_provider.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import '../support/plain_text.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart' as dsskel;
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
@@ -149,15 +150,15 @@ void main() {
       await tester.pump();
 
       // 스켈레톤은 무한 애니메이션이라 pumpAndSettle 이 아니라 pump 로 본다.
-      expect(find.byType(PSkeleton), findsWidgets);
+      expect(find.byType(dsskel.PSkeleton), findsWidgets);
     });
 
     testWidgets('빈 목록은 스켈레톤이 아니라 빈 상태 문구다', (tester) async {
       await pump(tester, serveSummary: true);
       await tester.pumpAndSettle();
 
-      expect(find.text('설정된 카테고리 예산이 없어요'), findsOneWidget);
-      expect(find.byType(PSkeleton), findsNothing);
+      expect(findPlain('설정된 카테고리 예산이 없어요'), findsOneWidget);
+      expect(find.byType(dsskel.PSkeleton), findsNothing);
     });
 
     testWidgets('재조회 중에도 빈 상태 문구가 그대로 — 스켈레톤이 끼어들지 않는다', (tester) async {
@@ -170,8 +171,8 @@ void main() {
         rangeSummaryProvider,
       );
 
-      expect(find.text('설정된 카테고리 예산이 없어요'), findsOneWidget);
-      expect(find.byType(PSkeleton), findsNothing);
+      expect(findPlain('설정된 카테고리 예산이 없어요'), findsOneWidget);
+      expect(find.byType(dsskel.PSkeleton), findsNothing);
     });
   });
 

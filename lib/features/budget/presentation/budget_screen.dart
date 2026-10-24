@@ -1,37 +1,35 @@
-import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
-import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
-import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/shared/widgets/p_badge.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_flat_section.dart';
-import 'package:groo_damda_app/shared/widgets/p_chart_tooltip.dart';
-import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
+import 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
-import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
-import 'package:groo_damda_app/features/budget/domain/budget.dart';
-import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
+
+export 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart'
+    show showMonthPickerSheet;
 
 const double _warnThreshold = 85;
 
@@ -54,222 +52,231 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     DateTime(_month.year, _month.month + 1, 0).day,
   );
 
+  ({String startDate, String endDate}) get _rangeKey =>
+      (startDate: _monthStartStr, endDate: _monthEndStr);
+
+  Future<void> _pickMonth() async {
+    final picked = await showMonthPickerSheet(context, _month);
+    if (picked != null) setState(() => _month = picked);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
+    final c = context.colors;
     final budgetsAsync = ref.watch(monthBudgetsProvider(_key));
-    final summaryAsync = ref.watch(
-      rangeSummaryProvider((startDate: _monthStartStr, endDate: _monthEndStr)),
-    );
+    final summaryAsync = ref.watch(rangeSummaryProvider(_rangeKey));
     final categoriesAsync = ref.watch(categoriesProvider);
     final complianceAsync = ref.watch(budgetComplianceProvider(6));
-    // 경고 게이지 임계값 — 사용자 설정값(웹 정합). 미설정/로딩 시 _warnThreshold(85).
+    // 알림 기준 — 막대 색이 아니라 "여유" 카테고리 수를 셀 때만 쓴다(I-08 14). 미설정/로딩 시 85.
     final warnThreshold =
         ref.watch(budgetAlertThresholdProvider).value?.toDouble() ??
         _warnThreshold;
 
+    final budgets = budgetsAsync.value;
+    final summary = summaryAsync.value;
+    void retryBudgets() => ref.invalidate(monthBudgetsProvider(_key));
+    void retrySummary() => ref.invalidate(rangeSummaryProvider(_rangeKey));
+    void retryCompliance() => ref.invalidate(budgetComplianceProvider(6));
+    final budgetsFailed = budgetsAsync.hasError && budgets == null;
+    final summaryFailed = summaryAsync.hasError && summary == null;
+    final ready = budgets != null && summary != null;
+
+    final monthRow = BudgetMonthRow(
+      month: _month,
+      onPrev: () =>
+          setState(() => _month = DateTime(_month.year, _month.month - 1, 1)),
+      onNext: () =>
+          setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
+      onPick: _pickMonth,
+      // 글 버튼 R16 — 앞 아이콘 없음(스펙 card.yaml headerAction). 설정 버튼 → 예산 설정 페이지 push.
+      trailing: PTextButton(
+        label: l.navSettings,
+        onPressed: () => context.push('/budget/settings'),
+        bleedEnd: true,
+      ),
+    );
+
+    final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
+    final failed = budgetsFailed || summaryFailed;
+    // 질의 하나 = 실패 하나 — 실패한 질의만 다시 받는다(I-08 17)
+    void retry() {
+      if (budgetsFailed) retryBudgets();
+      if (summaryFailed) retrySummary();
+    }
+
+    final complianceMasked = ref.watch(hideCardProvider('budget.compliance'));
+    final compliance = _ComplianceSection(
+      async: complianceAsync,
+      currentYear: _month.year,
+      currentMonth: _month.month,
+      masked: complianceMasked,
+      onRetry: retryCompliance,
+    );
+
+    final bands = <Widget>[];
+    Budget? overallBudget;
+    final categoryBudgets = <Budget>[];
+    for (final b in budgets ?? const <Budget>[]) {
+      if (b.categoryRowId == null) {
+        overallBudget = b;
+      } else {
+        categoryBudgets.add(b);
+      }
+    }
+    final hasNoData =
+        budgets != null && overallBudget == null && categoryBudgets.isEmpty;
+
+    if (failed && !hasNoData) {
+      // 질의 하나 = 상자 하나 — 예산 · 요약 질의 실패는 띠 ① 에 상자 하나, 띠 ② 는 없다. 이행률은 제 실패를 따로 둔다
+      bands.add(
+        budgetBand([
+          monthRow,
+          BudgetSection(
+            topPadding: PSpacing.x3,
+            children: [BudgetFailure(title: l.dashFailBudget, onRetry: retry)],
+          ),
+        ]),
+      );
+      bands.add(budgetBand([compliance]));
+    } else if (hasNoData) {
+      // Q3 B — 달 줄 + 빈 결과 + 버튼. 이행률은 상한이 있는 달이 있을 때만 남는다
+      bands.add(
+        budgetBand([
+          monthRow,
+          BudgetSection(
+            topPadding: PSpacing.x3,
+            children: [
+              PResultSection(
+                kind: PResultKind.empty,
+                size: PResultSize.medium,
+                icon: LucideIcons.wallet,
+                title: l.budgetEmptyMonthTitle(_month.month),
+                description: l.budgetEmptyMonthDesc,
+                headingLevel: 2,
+                placement: PResultPlacement.card,
+                primaryAction: PResultAction(
+                  label: l.budgetSetup,
+                  onPressed: () => context.push('/budget/settings'),
+                ),
+              ),
+            ],
+          ),
+        ]),
+      );
+      final list = complianceAsync.value;
+      if (list == null || list.any((r) => r.totalLimit > 0)) {
+        bands.add(budgetBand([compliance]));
+      }
+    } else {
+      final spentByCategory = _spentByCategoryFromSummary(summary);
+      final totalExpense = summary?.totalExpense ?? 0;
+      final categoryLimitSum = categoryBudgets.fold<int>(
+        0,
+        (s, b) => s + b.budgetAmount,
+      );
+      final overallLimit = overallBudget?.budgetAmount ?? 0;
+      final pct = overallLimit > 0 ? (totalExpense / overallLimit) * 100 : 0.0;
+      final allocable = overallLimit - categoryLimitSum;
+      final overAllocated =
+          overallBudget != null && categoryLimitSum > overallLimit;
+
+      final today = DateTime.now();
+      final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
+      final dayOfMonth =
+          (today.year == _month.year && today.month == _month.month)
+          ? today.day
+          : daysInMonth;
+      final daysElapsedPct = (dayOfMonth / daysInMonth) * 100;
+      final daysRemaining = (daysInMonth - dayOfMonth)
+          .clamp(1, daysInMonth)
+          .toInt();
+      final dailyActual = (totalExpense / dayOfMonth.clamp(1, daysInMonth))
+          .round();
+      final dailyTarget =
+          ((overallLimit - totalExpense).clamp(0, double.infinity).toDouble() /
+                  daysRemaining)
+              .round();
+      final onTrack = pct <= daysElapsedPct + 5;
+
+      final overCount = categoryBudgets.where((b) {
+        final spent = spentByCategory[b.categoryRowId] ?? 0;
+        return spent > b.budgetAmount;
+      }).length;
+      // "여유" 의 셈은 알림 기준 이하인 카테고리 수 그대로 — 막대 색에서 기준을 걷어도 남는다
+      final healthyCount = categoryBudgets.where((b) {
+        final spent = spentByCategory[b.categoryRowId] ?? 0;
+        return b.budgetAmount > 0 &&
+            (spent / b.budgetAmount) * 100 <= warnThreshold;
+      }).length;
+
+      final headerMasked = ref.watch(hideCardProvider('budget.header'));
+      final paceMasked = ref.watch(hideCardProvider('budget.pace'));
+      final categoriesMasked = ref.watch(hideCardProvider('budget.categories'));
+
+      bands.add(
+        budgetBand([
+          monthRow,
+          ready
+              ? _TotalSection(
+                  month: _month.month,
+                  overallBudget: overallBudget,
+                  totalSpent: totalExpense,
+                  overallLimit: overallLimit,
+                  categoryLimitSum: categoryLimitSum,
+                  pct: pct,
+                  allocable: allocable,
+                  overAllocated: overAllocated,
+                  masked: headerMasked,
+                )
+              : const _TotalSkeleton(),
+          ready
+              ? _PaceSection(
+                  pct: pct,
+                  daysElapsedPct: daysElapsedPct,
+                  dailyActual: dailyActual,
+                  dailyTarget: dailyTarget,
+                  onTrack: onTrack,
+                  masked: paceMasked,
+                )
+              : const _PaceSkeleton(),
+        ]),
+      );
+      bands.add(
+        budgetBand([
+          ready
+              ? _StatusSection(overCount: overCount, healthyCount: healthyCount)
+              : const _StatusSkeleton(),
+          ready
+              ? _CategoryListSection(
+                  budgets: categoryBudgets,
+                  categories: categories,
+                  spentByCategory: spentByCategory,
+                  masked: categoriesMasked,
+                  onGoSettings: () => context.push('/budget/settings'),
+                )
+              : const _ListSkeleton(),
+        ]),
+      );
+      bands.add(budgetBand([compliance]));
+    }
+
     return Scaffold(
-      // 카드 화면 — 회색 바닥(basement) 위 카드(02-005 / Q-019-3)
-      backgroundColor: context.colors.bgLayerBasement,
-      // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='예산' +
-      // actions(theme/eye/bell/search) 일관 표시.
+      // 폰 구역 화면 — 띠 셋, 사이 8 은 회색 바닥(I-08 5). 머리 바로 아래 첫 띠에 틈이 없다.
+      backgroundColor: c.bgLayerBasement,
       body: PPullToRefresh(
         onRefresh: () async {
           ref.invalidate(monthBudgetsProvider(_key));
-          ref.invalidate(
-            rangeSummaryProvider((
-              startDate: _monthStartStr,
-              endDate: _monthEndStr,
-            )),
-          );
+          ref.invalidate(rangeSummaryProvider(_rangeKey));
           ref.invalidate(budgetComplianceProvider(6));
           await ref.read(monthBudgetsProvider(_key).future);
         },
-        // 폰 구역 화면 — 기간 고르기 · 요약 · 구역마다 화면 폭 흰 띠(PScreenSection), 사이 8 은
-        // 회색 바닥(I-01 결정 3). 띠가 화면 폭이라 목록은 좌우 여백을 두지 않는다.
         child: ListView(
           padding: EdgeInsets.only(
             // 떠 있는 하단 바 보상
             bottom: bottomNavigationInset(context),
           ),
-          children: [
-            PScreenSection(
-              child: _MonthBar(
-                month: _month,
-                onPrev: () => setState(
-                  () => _month = DateTime(_month.year, _month.month - 1, 1),
-                ),
-                onNext: () => setState(
-                  () => _month = DateTime(_month.year, _month.month + 1, 1),
-                ),
-                onPickMonth: (m) => setState(() => _month = m),
-                // 웹 정합: 설정 버튼 → 예산 설정 페이지 push (drawer 폐기).
-                onSettings: () => context.push('/budget/settings'),
-              ),
-            ),
-            const SizedBox(height: PSpacing.x2),
-            budgetsAsync.when(
-              loading: () => const _BudgetLoadingSkeleton(),
-              error: (e, _) => PScreenSection(
-                child: _ErrorBox(
-                  message: '${l.budgetLoadError}\n$e',
-                  onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
-                ),
-              ),
-              data: (budgets) {
-                final categories = categoriesAsync.value ?? const [];
-                final summary = summaryAsync.value;
-                final spentByCategory = _spentByCategoryFromSummary(summary);
-                final totalExpense = summary?.totalExpense ?? 0;
-
-                Budget? overallBudget;
-                final categoryBudgets = <Budget>[];
-                for (final b in budgets) {
-                  if (b.categoryRowId == null) {
-                    overallBudget = b;
-                  } else {
-                    categoryBudgets.add(b);
-                  }
-                }
-
-                final categoryLimitSum = categoryBudgets.fold<int>(
-                  0,
-                  (s, b) => s + b.budgetAmount,
-                );
-                final overallLimit = overallBudget?.budgetAmount ?? 0;
-                final totalLimit = overallBudget != null
-                    ? overallLimit
-                    : categoryLimitSum;
-                final pct = totalLimit > 0
-                    ? (totalExpense / totalLimit) * 100
-                    : 0.0;
-                final allocable = overallLimit - categoryLimitSum;
-                final overAllocated =
-                    overallBudget != null && categoryLimitSum > overallLimit;
-
-                final today = DateTime.now();
-                final daysInMonth = DateTime(
-                  _month.year,
-                  _month.month + 1,
-                  0,
-                ).day;
-                final dayOfMonth =
-                    (today.year == _month.year && today.month == _month.month)
-                    ? today.day
-                    : daysInMonth;
-                final daysElapsedPct = (dayOfMonth / daysInMonth) * 100;
-                final daysRemaining = (daysInMonth - dayOfMonth)
-                    .clamp(1, daysInMonth)
-                    .toInt();
-                final dailyActual =
-                    (totalExpense / dayOfMonth.clamp(1, daysInMonth)).round();
-                final dailyTarget =
-                    ((totalLimit - totalExpense)
-                                .clamp(0, double.infinity)
-                                .toDouble() /
-                            daysRemaining)
-                        .round();
-                final onTrack = pct <= daysElapsedPct + 5;
-
-                final overList = categoryBudgets.where((b) {
-                  final cid = b.categoryRowId;
-                  if (cid == null) return false;
-                  final spent = spentByCategory[cid] ?? 0;
-                  return spent > b.budgetAmount;
-                }).toList();
-                final healthyList = categoryBudgets.where((b) {
-                  final cid = b.categoryRowId;
-                  if (cid == null) return false;
-                  final spent = spentByCategory[cid] ?? 0;
-                  return b.budgetAmount > 0 &&
-                      (spent / b.budgetAmount) * 100 <= warnThreshold;
-                }).toList();
-
-                final hasNoData =
-                    overallBudget == null && categoryBudgets.isEmpty;
-
-                return Column(
-                  children: [
-                    _HeaderCard(
-                      month: _month.month,
-                      overallBudget: overallBudget,
-                      totalSpent: totalExpense,
-                      totalLimit: totalLimit,
-                      overallLimit: overallLimit,
-                      categoryLimitSum: categoryLimitSum,
-                      pct: pct,
-                      warnThreshold: warnThreshold,
-                      allocable: allocable,
-                      overAllocated: overAllocated,
-                      masked: ref.watch(hideCardProvider('budget.header')),
-                      tokens: t,
-                    ),
-                    if (hasNoData) ...[
-                      const SizedBox(height: PSpacing.x2),
-                      PScreenSection(
-                        child: _EmptyState(
-                          tokens: t,
-                          onAdd: () => context.push('/budget/settings'),
-                        ),
-                      ),
-                    ] else ...[
-                      const SizedBox(height: PSpacing.x2),
-                      PScreenSection(
-                        child: _PaceCard(
-                          pct: pct,
-                          daysElapsedPct: daysElapsedPct,
-                          dailyActual: dailyActual,
-                          dailyTarget: dailyTarget,
-                          onTrack: onTrack,
-                          masked: ref.watch(hideCardProvider('budget.pace')),
-                          tokens: t,
-                        ),
-                      ),
-                      const SizedBox(height: PSpacing.x2),
-                      PScreenSection(
-                        child: _StatusTiles(
-                          overCount: overList.length,
-                          healthyCount: healthyList.length,
-                          tokens: t,
-                        ),
-                      ),
-                      const SizedBox(height: PSpacing.x2),
-                      PScreenSection(
-                        child: _CategoryListCard(
-                          budgets: categoryBudgets,
-                          categories: categories,
-                          spentByCategory: spentByCategory,
-                          warnThreshold: warnThreshold,
-                          masked: ref.watch(
-                            hideCardProvider('budget.categories'),
-                          ),
-                          // 다시 받는 중이어도 값이 있으면 그 값을 그린다 —
-                          // 스켈레톤은 첫 로딩만.
-                          firstLoading:
-                              summaryAsync.isLoading && !summaryAsync.hasValue,
-                          tokens: t,
-                          onGoSettings: () => context.push('/budget/settings'),
-                        ),
-                      ),
-                      const SizedBox(height: PSpacing.x2),
-                      PScreenSection(
-                        child: _ComplianceCard(
-                          async: complianceAsync,
-                          currentYear: _month.year,
-                          currentMonth: _month.month,
-                          tokens: t,
-                          masked: ref.watch(
-                            hideCardProvider('budget.compliance'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
-          ],
+          children: PScreenBands.children(bands),
         ),
       ),
     );
@@ -295,499 +302,107 @@ Map<int, int> _spentByCategoryFromSummary(RangeSummary? summary) {
 String _ymd(int y, int m, int d) =>
     '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
 
-class _MonthBar extends StatelessWidget {
-  const _MonthBar({
-    required this.month,
-    required this.onPrev,
-    required this.onNext,
-    required this.onSettings,
-    required this.onPickMonth,
-  });
-  final DateTime month;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  final VoidCallback onSettings;
-  final ValueChanged<DateTime> onPickMonth;
+/// 간격 한 칸 — [BudgetSection] 이 좌우 24 를 주지 않는다.
+class _Gap extends StatelessWidget {
+  const _Gap(this.height);
+
+  final double height;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    return Row(
-      children: [
-        PButton.icon(
-          tooltip: AppLocalizations.of(context).actionPrev,
-          icon: LucideIcons.chevronLeft,
-          size: PButtonSize.sm,
-          onPressed: onPrev,
-        ),
-        InkWell(
-          borderRadius: PRadius.brMd,
-          onTap: () async {
-            final picked = await showMonthPickerSheet(context, month);
-            if (picked != null) onPickMonth(picked);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x4,
-              vertical: PSpace.x4,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  yearMonth(month),
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: PSpace.x4),
-                Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
-              ],
-            ),
-          ),
-        ),
-        PButton.icon(
-          tooltip: AppLocalizations.of(context).actionNext,
-          icon: LucideIcons.chevronRight,
-          size: PButtonSize.sm,
-          onPressed: onNext,
-        ),
-        const Spacer(),
-        PButton(
-          label: l.navSettings,
-          icon: LucideIcons.settings,
-          variant: PButtonVariant.accent,
-          size: PButtonSize.sm,
-          onPressed: onSettings,
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) =>
+      BudgetFull(child: SizedBox(height: height));
 }
 
-/// Month picker bottom drawer — 디자이너 정합 (year header prev/next + 12 month grid + 오늘로/닫기).
-/// mobile drawer 패턴 — showPSheet (공통 layout). desktop/tablet dialog 는 follow-up.
-Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
-  final l = AppLocalizations.of(context);
-  return showPSheet<DateTime>(
-    context,
-    title: l.budgetSelectMonth,
-    shrinkWrap: true,
-    contentBuilder: (sheetCtx, _) {
-      final t = sheetCtx.tokens;
-      final now = DateTime.now();
-      int viewYear = initial.year;
-      final selectedYear = initial.year;
-      final selectedMonth = initial.month;
-      return StatefulBuilder(
-        builder: (ctx, setSheet) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.xl,
-              PSpace.x4,
-              PSpace.xl,
-              PSpace.x20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // year header — prev / year text / next
-                Row(
-                  children: [
-                    PButton.icon(
-                      tooltip: AppLocalizations.of(context).actionPrev,
-                      icon: LucideIcons.chevronLeft,
-                      onPressed: () => setSheet(() => viewYear -= 1),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          yearOnly(DateTime(viewYear)),
-                          style: PTypo.bodyLg.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    PButton.icon(
-                      tooltip: AppLocalizations.of(context).actionNext,
-                      icon: LucideIcons.chevronRight,
-                      onPressed: () => setSheet(() => viewYear += 1),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x16),
-                // 4x3 month grid (1월 ~ 12월)
-                GridView.count(
-                  crossAxisCount: 4,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 2.0,
-                  mainAxisSpacing: PSpace.x8,
-                  crossAxisSpacing: PSpace.x8,
-                  children: [
-                    for (int m = 1; m <= 12; m++)
-                      _MonthGridButton(
-                        label: monthOnly(DateTime(viewYear, m)),
-                        selected:
-                            viewYear == selectedYear && m == selectedMonth,
-                        onTap: () =>
-                            Navigator.of(ctx).pop(DateTime(viewYear, m, 1)),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x12),
-                // footer: 오늘로 + 닫기 — 화면 폭을 반씩 나눠 갖는다
-                // (spec drawer.md "flex:1 평등 분배"). Spacer 로 양끝에 붙이면
-                // 구석의 작은 알약이 돼 한 손으로 누를 폭이 안 나온다.
-                Row(
-                  children: [
-                    Expanded(
-                      child: PButton(
-                        label: l.calGoToToday,
-                        icon: LucideIcons.locateFixed,
-                        variant: PButtonVariant.ghost,
-                        size: PButtonSize.sm,
-                        fullWidth: true,
-                        onPressed: () => Navigator.of(
-                          ctx,
-                        ).pop(DateTime(now.year, now.month, 1)),
-                      ),
-                    ),
-                    const SizedBox(width: PSpace.x8),
-                    Expanded(
-                      child: PButton(
-                        label: l.actionClose,
-                        variant: PButtonVariant.ghost,
-                        size: PButtonSize.sm,
-                        fullWidth: true,
-                        onPressed: () => Navigator.of(ctx).pop(),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+// ─── 띠 ① 총 예산 · 지출 페이스 ───────────────────────────
 
-class _MonthGridButton extends StatelessWidget {
-  const _MonthGridButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Material(
-      // 선택 월 = 채움(흰 글씨) 버튼 → primary 고정(bgBrandSolid). 캘린더 월그리드(calendar_screen bgBrandSolid) 정합. bgBrand(다크 light)는 fill 부적합.
-      color: selected ? t.bgBrandSolid : Colors.transparent,
-      borderRadius: PRadius.brMd,
-      child: InkWell(
-        borderRadius: PRadius.brMd,
-        onTap: onTap,
-        child: Center(
-          child: Text(
-            label,
-            style: PTypo.bodySm.copyWith(
-              color: selected ? t.fgOnBrand : t.fgPrimary,
-              fontWeight: selected ? PFontWeight.bold : PFontWeight.medium,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({
+class _TotalSection extends StatelessWidget {
+  const _TotalSection({
     required this.month,
     required this.overallBudget,
     required this.totalSpent,
-    required this.totalLimit,
     required this.overallLimit,
     required this.categoryLimitSum,
     required this.pct,
     required this.allocable,
     required this.overAllocated,
     required this.masked,
-    required this.tokens,
-    this.warnThreshold = _warnThreshold,
   });
+
   final int month;
   final Budget? overallBudget;
   final int totalSpent;
-  final int totalLimit;
   final int overallLimit;
   final int categoryLimitSum;
   final double pct;
   final int allocable;
   final bool overAllocated;
   final bool masked;
-  final GrooTokens tokens;
-  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
-    // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
-    // *Fg 토큰은 dark에서 light variant 자동 분기.
-    final color = pct > 100
-        ? tokens.statusDangerFg
-        : pct > warnThreshold
-        ? tokens.statusWarningFg
-        : tokens.statusInfoFg;
     final l = AppLocalizations.of(context);
-
-    // 조회 전용 (web BudgetPage hero 정합) — 상한 수정은 예산 설정 페이지에서.
-    // 폰에서는 카드가 아니라 구역 띠다(I-01 결정 3).
-    return PScreenSection(
-      child: overallBudget == null
-          ? _emptyOverall(context, l)
-          : _filledOverall(color, l),
-    );
-  }
-
-  Widget _emptyOverall(BuildContext context, AppLocalizations l) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l.budgetMonthOverallCap(month),
-          style: PTypo.caption.copyWith(
-            color: tokens.fgBrandStrong,
-            fontWeight: PFontWeight.semi,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l.budgetOverallCapDesc,
-          style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-        ),
-        const SizedBox(height: PSpace.x12),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12,
-            vertical: PSpace.x8,
-          ),
-          decoration: BoxDecoration(
-            color: tokens.bgSurface,
-            borderRadius: PRadius.brMd,
-            border: Border.all(color: tokens.borderSubtle),
-          ),
-          child: Row(
-            children: [
-              Icon(LucideIcons.target, size: 14, color: tokens.fgBrand),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  l.budgetOverallCapEmptyHint,
-                  style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (categoryLimitSum > 0) ...[
-          const SizedBox(height: PSpace.x8),
-          Text(
-            masked
-                ? '${l.budgetCurrentCategorySum}: ${krwMasked(categoryLimitSum, masked, mask: '••••')}'
-                : '${l.budgetCurrentCategorySum}: ${krwSigned(categoryLimitSum, false, unit: true)}',
-            style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-          ),
+    final c = context.colors;
+    String won(int n, {String sign = ''}) => budgetWon(n, masked, sign: sign);
+    final head = <Widget>[
+      BudgetEyebrow(l.budgetMonthOverallCap(month)),
+      const _Gap(PSpacing.x1),
+      BudgetDesc(l.budgetOverallCapDesc),
+    ];
+    if (overallBudget == null) {
+      return BudgetSection(
+        topPadding: PSpacing.x3,
+        children: [
+          ...head,
+          const _Gap(PSpacing.x3),
+          PCallout(description: l.budgetOverallCapEmptyHint),
+          if (categoryLimitSum > 0) ...[
+            const _Gap(PSpacing.x2),
+            Text(
+              '${l.budgetCurrentCategorySum}: ${won(categoryLimitSum)}',
+              style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+            ),
+          ],
         ],
-      ],
-    );
-  }
-
-  Widget _filledOverall(Color color, AppLocalizations l) {
-    final remaining = totalLimit - totalSpent;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      );
+    }
+    final remaining = overallLimit - totalSpent;
+    return BudgetSection(
+      topPadding: PSpacing.x3,
       children: [
-        Text(
-          l.budgetMonthOverallCap(month),
-          style: PTypo.caption.copyWith(
-            color: tokens.fgBrandStrong,
-            fontWeight: PFontWeight.semi,
+        ...head,
+        const _Gap(PSpacing.x3),
+        BudgetBigAmount(amount: won(totalSpent), limit: won(overallLimit)),
+        const _Gap(PSpacing.x4),
+        BudgetBar(
+          value: totalSpent.toDouble(),
+          max: overallLimit.toDouble(),
+          label: l.budgetMonthOverallCap(month),
+        ),
+        const _Gap(PSpacing.x2),
+        BudgetBarCaption(
+          left: l.budgetPercentUsed(pct.toStringAsFixed(0)),
+          right: remaining >= 0
+              ? l.budgetRemaining(won(remaining))
+              : l.budgetOverBy(won(-remaining)),
+          rightColor: remaining < 0 ? c.fgCritical : null,
+          rightBold: remaining < 0,
+        ),
+        const _Gap(PSpacing.x3),
+        budgetKvList(context, [
+          BudgetKv(l.budgetOverallCapLabel, won(overallLimit)),
+          BudgetKv(l.budgetCategoryAllocated, won(categoryLimitSum)),
+          BudgetKv(
+            l.budgetAllocatable,
+            won(allocable.abs(), sign: overAllocated ? '−' : '+'),
+            color: overAllocated ? c.fgCritical : c.fgBrand,
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l.budgetOverallCapDesc,
-          style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-        ),
-        const SizedBox(height: PSpace.x12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Text(
-                krwMasked(totalSpent, masked, mask: '••••'),
-                style: PTypo.h2.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                masked
-                    ? ' / ${krwMasked(totalLimit, masked, mask: '••••')}'
-                    : ' / ${krwSigned(totalLimit, false, unit: true)}',
-                style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x12),
-        LinearProgressIndicator(
-          borderRadius: PRadius.brFull,
-          value: (pct / 100).clamp(0, 1).toDouble(),
-          minHeight: 10,
-          backgroundColor: tokens.bgTrack,
-          color: color,
-        ),
-        const SizedBox(height: PSpace.x8),
-        Row(
-          children: [
-            Text(
-              l.budgetPercentUsed(pct.toStringAsFixed(0)),
-              style: PTypo.caption.copyWith(color: tokens.fgSecondary),
-            ),
-            const Spacer(),
-            Text(
-              remaining >= 0
-                  ? l.budgetRemaining(
-                      masked
-                          ? krwMasked(remaining, masked, mask: '••••')
-                          : krwSigned(remaining, false, unit: true),
-                    )
-                  : l.budgetOverBy(
-                      masked
-                          ? krwMasked(-remaining, masked, mask: '••••')
-                          : krwSigned(-remaining, false, unit: true),
-                    ),
-              style: PTypo.caption.copyWith(
-                color: remaining >= 0
-                    ? tokens.fgSecondary
-                    : tokens.statusDangerFg,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x12),
-        Container(
-          padding: const EdgeInsets.only(top: PSpace.x12),
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: tokens.borderSubtle)),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: _MiniStat(
-                  label: l.budgetOverallCapLabel,
-                  value: krwSigned(
-                    overallLimit,
-                    masked,
-                    unit: true,
-                    mask: '••••',
-                  ),
-                  color: tokens.fgPrimary,
-                  tokens: tokens,
-                ),
-              ),
-              Expanded(
-                child: _MiniStat(
-                  label: l.budgetCategoryAllocated,
-                  value: krwSigned(
-                    categoryLimitSum,
-                    masked,
-                    unit: true,
-                    mask: '••••',
-                  ),
-                  color: tokens.fgPrimary,
-                  tokens: tokens,
-                ),
-              ),
-              Expanded(
-                child: _MiniStat(
-                  label: l.budgetAllocatable,
-                  value: krwSigned(
-                    allocable.abs(),
-                    masked,
-                    sign: overAllocated ? '−' : '+',
-                    unit: true,
-                    mask: '••••',
-                  ),
-                  color: overAllocated
-                      ? tokens.statusDangerFg
-                      : tokens.fgIncome,
-                  tokens: tokens,
-                ),
-              ),
-            ],
-          ),
-        ),
+        ]),
         if (overAllocated) ...[
-          const SizedBox(height: PSpace.x8),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x12,
-              vertical: PSpace.x8,
-            ),
-            decoration: BoxDecoration(
-              color: tokens.statusDangerSubtle,
-              borderRadius: PRadius.brMd,
-              border: Border.all(
-                color: tokens.statusDangerFg.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  LucideIcons.alertTriangle,
-                  size: 14,
-                  color: tokens.statusDangerFg,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    masked
-                        ? l.budgetOverAllocatedWarning(
-                            krwMasked(
-                              categoryLimitSum - overallLimit,
-                              masked,
-                              mask: '••••',
-                            ),
-                          )
-                        : l.budgetOverAllocatedWarning(
-                            krwSigned(
-                              categoryLimitSum - overallLimit,
-                              false,
-                              unit: true,
-                            ),
-                          ),
-                    style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
-                  ),
-                ),
-              ],
+          const _Gap(PSpacing.x3),
+          PCallout(
+            tone: PCalloutTone.critical,
+            description: l.budgetOverAllocatedWarning(
+              won(categoryLimitSum - overallLimit),
             ),
           ),
         ],
@@ -796,1136 +411,389 @@ class _HeaderCard extends StatelessWidget {
   }
 }
 
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.tokens,
-  });
-  final String label;
-  final String value;
-  final Color color;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: PTypo.micro.copyWith(
-            color: tokens.fgTertiary,
-            fontWeight: PFontWeight.medium,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: PTypo.bodySm.copyWith(
-            color: color,
-            fontWeight: PFontWeight.bold,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-}
-
-class _PaceCard extends StatelessWidget {
-  const _PaceCard({
+class _PaceSection extends StatelessWidget {
+  const _PaceSection({
     required this.pct,
     required this.daysElapsedPct,
     required this.dailyActual,
     required this.dailyTarget,
     required this.onTrack,
     required this.masked,
-    required this.tokens,
   });
+
   final double pct;
   final double daysElapsedPct;
   final int dailyActual;
   final int dailyTarget;
   final bool onTrack;
   final bool masked;
-  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // 카드 다이어트 — 플랫 섹션 (헤드 + 콘텐츠 inset 10).
-    return PFlatSection(
-      title: l.budgetSpendingPace,
-      trailing: PBadge(
-        label: onTrack ? l.budgetPaceOnTrack : l.budgetPaceFast,
-        variant: onTrack
-            ? PBadgeVariant.softSuccess
-            : PBadgeVariant.softWarning,
+    final c = context.colors;
+    final used = pct.toStringAsFixed(0);
+    final elapsed = daysElapsedPct.toStringAsFixed(0);
+    return BudgetSection(
+      header: BudgetHead(
+        title: l.budgetSpendingPace,
+        // 머리 오른쪽 끝
+        trailing: PBadge(
+          label: onTrack ? l.budgetPaceOnTrack : l.budgetPaceFast,
+          tone: onTrack ? PBadgeTone.positive : PBadgeTone.warning,
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LayoutBuilder(
-            builder: (ctx, c) {
-              final w = c.maxWidth;
-              return SizedBox(
-                height: 18,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 3,
-                      child: LinearProgressIndicator(
-                        borderRadius: PRadius.brFull,
-                        value: (pct / 100).clamp(0, 1).toDouble(),
-                        minHeight: 12,
-                        backgroundColor: tokens.bgTrack,
-                        color: pct > 100
-                            ? tokens.statusDangerFg
-                            : tokens.fgBrand,
-                      ),
+      children: [
+        // 막대 8 + 오늘 표시선 2 × 14(막대 위로 3 — 장식)
+        SizedBox(
+          height: 14,
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final w = box.maxWidth;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 3,
+                    child: BudgetBar(
+                      value: pct,
+                      max: 100,
+                      label: l.budgetPaceBarName,
+                      valueText: l.budgetPaceBarValue(used, elapsed),
                     ),
-                    Positioned(
-                      left: ((daysElapsedPct / 100).clamp(0, 1) * w) - 1,
-                      top: 0,
+                  ),
+                  Positioned(
+                    left: ((daysElapsedPct / 100).clamp(0, 1) * w) - 1,
+                    top: 0,
+                    child: ExcludeSemantics(
                       child: Container(
+                        key: const ValueKey('pace-marker'),
                         width: 2,
-                        height: 18,
+                        height: 14,
                         decoration: BoxDecoration(
-                          color: tokens.fgPrimary,
-                          borderRadius: PRadius.brXs,
+                          color: c.fgNeutral,
+                          borderRadius: BorderRadius.circular(1),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             },
           ),
-          const SizedBox(height: PSpace.x8),
-          Row(
-            children: [
-              Text(
-                l.budgetPercentUsed(pct.toStringAsFixed(0)),
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-              ),
-              const Spacer(),
-              Text(
-                l.budgetMonthElapsed(daysElapsedPct.toStringAsFixed(0)),
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-          Container(
-            padding: const EdgeInsets.only(top: PSpace.x12),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: tokens.borderSubtle)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _PaceStat(
-                    label: l.budgetDailyAvg,
-                    amount: dailyActual,
-                    color: tokens.fgPrimary,
-                    masked: masked,
-                    tokens: tokens,
-                  ),
-                ),
-                Expanded(
-                  child: _PaceStat(
-                    label: l.budgetDailyRecommended,
-                    amount: dailyTarget,
-                    color: tokens.fgBrandStrong,
-                    masked: masked,
-                    tokens: tokens,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaceStat extends StatelessWidget {
-  const _PaceStat({
-    required this.label,
-    required this.amount,
-    required this.color,
-    required this.masked,
-    required this.tokens,
-  });
-  final String label;
-  final int amount;
-  final Color color;
-  final bool masked;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: PTypo.micro.copyWith(
-            color: tokens.fgTertiary,
-            fontWeight: PFontWeight.medium,
-          ),
         ),
-        const SizedBox(height: 4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Text(
-                krwMasked(amount, masked, mask: '••••'),
-                style: PTypo.h4.copyWith(
-                  color: color,
-                  fontWeight: PFontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (!masked) ...[
-              const SizedBox(width: 2),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 2),
-                child: Text(
-                  wonUnit(),
-                  style: PTypo.caption.copyWith(
-                    color: tokens.fgTertiary,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-              ),
-            ],
-          ],
+        const _Gap(PSpacing.x2),
+        BudgetBarCaption(
+          left: l.budgetPercentUsed(used),
+          right: l.budgetMonthElapsed(elapsed),
         ),
+        const _Gap(PSpacing.x3),
+        budgetKvList(context, [
+          BudgetKv(l.budgetDailyAvg, budgetWon(dailyActual, masked)),
+          BudgetKv(l.budgetDailyRecommended, budgetWon(dailyTarget, masked)),
+        ]),
       ],
     );
   }
 }
 
-class _StatusTiles extends StatelessWidget {
-  const _StatusTiles({
-    required this.overCount,
-    required this.healthyCount,
-    required this.tokens,
-  });
+// ─── 띠 ② 예산 현황 · 카테고리별 예산 ─────────────────────
+
+class _StatusSection extends StatelessWidget {
+  const _StatusSection({required this.overCount, required this.healthyCount});
+
   final int overCount;
   final int healthyCount;
-  final GrooTokens tokens;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // 카드 다이어트 — 플랫 섹션.
-    return PFlatSection(
-      title: l.budgetStatusTitle,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _StatusBox(
-                  icon: LucideIcons.alertTriangle,
-                  label: l.budgetOver,
-                  count: overCount,
-                  active: overCount > 0,
-                  activeColor: tokens.fgExpense,
-                  bg: tokens.statusDangerSubtle,
-                  tokens: tokens,
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Expanded(
-                child: _StatusBox(
-                  icon: LucideIcons.checkCircle2,
-                  label: l.budgetHealthy,
-                  count: healthyCount,
-                  active: true,
-                  activeColor: tokens.fgIncome,
-                  bg: tokens.bgSurface,
-                  tokens: tokens,
-                ),
-              ),
-            ],
+    final c = context.colors;
+    return BudgetSection(
+      header: BudgetHead(title: l.budgetStatusTitle),
+      children: [
+        budgetKvList(context, [
+          BudgetKv(
+            l.budgetOver,
+            l.budgetCategoryCount(overCount),
+            color: overCount > 0 ? c.fgCritical : c.fgNeutral,
           ),
-        ],
-      ),
+          BudgetKv(
+            l.budgetHealthy,
+            l.budgetCategoryCount(healthyCount),
+            color: c.fgBrand,
+          ),
+        ]),
+      ],
     );
   }
 }
 
-class _StatusBox extends StatelessWidget {
-  const _StatusBox({
-    required this.icon,
-    required this.label,
-    required this.count,
-    required this.active,
-    required this.activeColor,
-    required this.bg,
-    required this.tokens,
-  });
-  final IconData icon;
-  final String label;
-  final int count;
-  final bool active;
-  final Color activeColor;
-  final Color bg;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = active ? activeColor : tokens.fgTertiary;
-    final l = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(PSpace.x12),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: PRadius.brLg,
-        border: Border.all(
-          color: active && bg != tokens.bgSurface
-              ? activeColor.withValues(alpha: 0.3)
-              : tokens.borderSubtle,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 13, color: fg),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: PTypo.caption.copyWith(
-                  color: fg,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x4),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$count',
-                style: PTypo.h2.copyWith(
-                  color: count > 0 ? activeColor : tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  l.expCategory,
-                  style: PTypo.bodySm.copyWith(
-                    color: tokens.fgTertiary,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 카테고리별 예산 카드 — 웹 BudgetPage `ListCard` 정합.
-///
-/// 개요 페이지는 조회 전용: 헤더는 카드 안('카테고리별 예산' + 'N개 설정됨'),
-/// '예산 추가' 버튼·행 탭 편집 없음 — 관리는 상단 설정 버튼 → 예산 설정 페이지에서.
-class _CategoryListCard extends StatelessWidget {
-  const _CategoryListCard({
+/// 카테고리별 예산 — 조회 전용(관리는 위 설정 버튼 → 예산 설정). 줄 = 타일 · 이름(줄바꿈) · 남은 예산 · 쓴 돈 / 한도 + 막대.
+class _CategoryListSection extends StatelessWidget {
+  const _CategoryListSection({
     required this.budgets,
     required this.categories,
     required this.spentByCategory,
     required this.masked,
-    required this.firstLoading,
-    required this.tokens,
     required this.onGoSettings,
-    this.warnThreshold = _warnThreshold,
   });
+
   final List<Budget> budgets;
   final List<ExpenseCategory> categories;
   final Map<int, int> spentByCategory;
-  final double warnThreshold;
   final bool masked;
-
-  /// 이전 값이 아직 **없는** 첫 로딩만 참 — 재조회 중에는 거짓이다.
-  final bool firstLoading;
-  final GrooTokens tokens;
   final VoidCallback onGoSettings;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // 카드 다이어트 — design 카테고리별 예산: 플랫 섹션(헤드 gap 14) + budget-row 리듬.
-    return PFlatSection(
-      title: l.budgetByCategory,
-      // 홈 예산 섹션과 같은 간격으로 둔다(사용자 결정 번복 — 이전엔 0 이었다).
-      // 홈은 headGap 14 위에 _BudgetRow 자체 상단 14 가 얹혀 합 28 이 된다.
-      // 여기 _CategoryRow 는 세로 패딩이 없어(행 사이만 x16), 헤드가 28 을 다 쥔다.
-      headGap: 28,
-      trailing: Text(
-        l.budgetCountSet(budgets.length),
-        style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+    return BudgetListSection(
+      header: BudgetHead(
+        title: l.budgetByCategory,
+        note: l.budgetCountSet(budgets.length),
       ),
-      // 좌우 inset 없음 — 라벨도 행도 페이지 여백(24)에서 시작한다.
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (firstLoading && budgets.isEmpty)
-            // 예산 list placeholder — 3 rows (label + progress).
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-              child: Column(
-                children: [
-                  for (var i = 0; i < 3; i++) ...[
-                    if (i > 0) const SizedBox(height: PSpace.x16),
-                    Row(
-                      children: const [
-                        PSkeleton.line(width: 96, height: 13),
-                        Spacer(),
-                        PSkeleton.line(width: 80, height: 13),
-                      ],
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    PSkeleton(height: 6, borderRadius: PRadius.brFull),
-                  ],
-                ],
-              ),
-            )
-          else if (budgets.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-              child: Column(
-                children: [
-                  Text(
-                    l.budgetNoCategoryBudgets,
-                    style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                  ),
-                  const SizedBox(height: PSpace.x8),
-                  // 웹은 ghost + fg-brand-strong override — 앱은 brand quiet 의
-                  // 정규 변형인 accent 사용 (fgBrand = fgBrandStrong, 같은 값).
-                  PButton(
-                    label: l.budgetGoToSettings,
-                    variant: PButtonVariant.accent,
-                    size: PButtonSize.sm,
-                    onPressed: onGoSettings,
-                  ),
-                ],
-              ),
-            )
-          else
-            // 행 리스트 — 구분선 없이 간격 분리 (web rows gap 18 → x16 토큰 보정).
-            for (int i = 0; i < budgets.length; i++) ...[
-              if (i > 0) const SizedBox(height: PSpace.x16),
-              _CategoryRow(
-                budget: budgets[i],
-                category: categories.byRowId(budgets[i].categoryRowId!),
-                spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
-                masked: masked,
-                tokens: tokens,
-                warnThreshold: warnThreshold,
-              ),
-            ],
-        ],
-      ),
-    );
-  }
-}
-
-class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({
-    required this.budget,
-    required this.category,
-    required this.spent,
-    required this.masked,
-    required this.tokens,
-    this.warnThreshold = _warnThreshold,
-  });
-  final Budget budget;
-  final ExpenseCategory? category;
-  final int spent;
-  final bool masked;
-  final GrooTokens tokens;
-  final double warnThreshold;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final limit = budget.budgetAmount;
-    final p = limit > 0 ? (spent / limit) * 100 : 0.0;
-    final over = p > 100;
-    final warn = p > warnThreshold && !over;
-    // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
-    // *Fg 토큰은 dark에서 light variant 자동 분기.
-    final stateColor = over
-        ? tokens.statusDangerFg
-        : warn
-        ? tokens.statusWarningFg
-        : tokens.statusInfoFg;
-    final iconRaw = category?.icon;
-    final colorRaw = category?.color;
-    final fg = resolveChartColor(context, colorRaw, fallback: tokens.fgBrand);
-    final bg = softBg(context, fg);
-    final name =
-        category?.categoryName ??
-        budget.categoryName ??
-        l.budgetCategoryFallback(budget.categoryRowId!);
-
-    // 조회 전용 행 (web BudgetPage 정합) — 편집은 예산 설정 페이지에서.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: PRadius.tile(36),
-              ),
-              child: Icon(lucideByName(iconRaw), size: 18, color: fg),
+        if (budgets.isEmpty) ...[
+          BudgetEmptyLine(l.budgetNoCategoryBudgets),
+          Center(
+            child: PTextButton(
+              label: l.budgetGoToSettings,
+              onPressed: onGoSettings,
             ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: PTypo.body.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    over
-                        ? l.budgetOverBy(
-                            masked
-                                ? krwMasked(spent - limit, masked, mask: '••••')
-                                : krwSigned(spent - limit, false, unit: true),
-                          )
-                        : l.budgetRemaining(
-                            masked
-                                ? krwMasked(
-                                    (limit - spent).clamp(0, limit),
-                                    masked,
-                                    mask: '••••',
-                                  )
-                                : krwSigned(
-                                    (limit - spent).clamp(0, limit),
-                                    false,
-                                    unit: true,
-                                  ),
-                          ),
-                    style: PTypo.caption.copyWith(
-                      color: over ? tokens.statusDangerFg : tokens.fgTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: PSpace.x8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  krwMasked(spent, masked, mask: '••••'),
-                  style: PTypo.body.copyWith(
-                    color: over ? tokens.statusDangerFg : tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
+          ),
+        ] else
+          PList(
+            children: [
+              for (final b in budgets)
+                BudgetCategoryRow(
+                  budget: b,
+                  category: categories.byRowId(b.categoryRowId!),
+                  spent: spentByCategory[b.categoryRowId] ?? 0,
+                  masked: masked,
                 ),
-                Text(
-                  '/ ${krwMasked(limit, masked, mask: '••••')}',
-                  style: PTypo.micro.copyWith(
-                    color: tokens.fgTertiary,
-                    fontWeight: PFontWeight.medium,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x8),
-        LinearProgressIndicator(
-          borderRadius: PRadius.brFull,
-          value: (p / 100).clamp(0, 1).toDouble(),
-          minHeight: 7,
-          backgroundColor: tokens.bgTrack,
-          color: stateColor,
-        ),
+            ],
+          ),
       ],
     );
   }
 }
 
-class _ComplianceCard extends StatelessWidget {
-  const _ComplianceCard({
+// ─── 띠 ③ 최근 6개월 이행률 ──────────────────────────────
+
+class _ComplianceSection extends StatelessWidget {
+  const _ComplianceSection({
     required this.async,
     required this.currentYear,
     required this.currentMonth,
-    required this.tokens,
     required this.masked,
+    required this.onRetry,
   });
+
   final AsyncValue<List<BudgetComplianceMonth>> async;
   final int currentYear;
   final int currentMonth;
-  final GrooTokens tokens;
   final bool masked;
-
-  @override
-  Widget build(BuildContext context) {
-    final list = async.value ?? const <BudgetComplianceMonth>[];
-    final l = AppLocalizations.of(context);
-    // 카드 다이어트 — 플랫 섹션.
-    return PFlatSection(
-      title: l.budgetComplianceTitle,
-      headGap: 16,
-      trailing: Text(
-        l.budgetComplianceSubtitle,
-        style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 빈 목록도 받아 온 값이다 — 스켈레톤은 값이 아예 없을 때만.
-          if (async.isLoading && !async.hasValue)
-            const PSkeleton(width: double.infinity, height: 200)
-          else if (list.isEmpty)
-            SizedBox(
-              height: 80,
-              child: Center(
-                child: Text(
-                  l.budgetNoComplianceData,
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                ),
-              ),
-            )
-          else
-            SizedBox(
-              height: 200,
-              child: _ComplianceBarChart(
-                rows: list,
-                currentYear: currentYear,
-                currentMonth: currentMonth,
-                tokens: tokens,
-                masked: masked,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ComplianceBarChart extends StatefulWidget {
-  const _ComplianceBarChart({
-    required this.rows,
-    required this.currentYear,
-    required this.currentMonth,
-    required this.tokens,
-    required this.masked,
-  });
-  final List<BudgetComplianceMonth> rows;
-  final int currentYear;
-  final int currentMonth;
-  final GrooTokens tokens;
-  final bool masked;
-
-  @override
-  State<_ComplianceBarChart> createState() => _ComplianceBarChartState();
-}
-
-class _ComplianceBarChartState extends State<_ComplianceBarChart> {
-  int? _touchedIdx;
-  Offset? _touchPos;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = widget.rows;
-    final tokens = widget.tokens;
-    final currentYear = widget.currentYear;
-    final currentMonth = widget.currentMonth;
-    final masked = widget.masked;
-    final l = AppLocalizations.of(context);
-    final maxY = rows.fold<double>(
-      100,
-      (m, r) => r.compliancePercent > m ? r.compliancePercent : m,
-    );
-    // 상한을 두면 안 된다 — 이행률은 한도 대비 지출이라 2,855% 같은 값이 실제로 나온다.
-    // 상한(1000)에 걸리면 toY 가 maxY 를 넘어 막대가 차트 밖으로 그려지고, 위 목록을 덮는다.
-    // web YAxis domain=[0, max(100, dmax)] 정합 — 하한 100 만 두고 위로는 열어 둔다.
-    // ×1.15 는 막대 위 % 라벨 자리(web LabelList 는 Recharts 가 알아서 잡아 준다).
-    // 하한 100 은 위 fold 의 seed 가 이미 보장한다.
-    final yMax = maxY * 1.15;
-
-    final chart = BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: yMax,
-        minY: 0,
-        // % 라벨을 각 막대 바로 위에 상시 표시 — web LabelList(position top) 정합.
-        // 툴팁 메커니즘은 상시 라벨에 사용하고(handleBuiltInTouches:false 로 터치가
-        // 라벨을 덮지 않게), 터치 상세는 touchCallback → Stack 위 PChartTooltipBox.
-        barTouchData: BarTouchData(
-          enabled: true,
-          handleBuiltInTouches: false,
-          touchCallback: (event, response) {
-            // tap-up 등 종료 이벤트로 닫으면 탭 직후 바로 사라져 안 보임 →
-            // 종료 이벤트는 무시하고, 막대 탭이면 표시 유지 / 빈 영역 탭이면 닫기.
-            if (event is FlTapUpEvent ||
-                event is FlPanEndEvent ||
-                event is FlPanCancelEvent ||
-                event is FlLongPressEnd ||
-                event is FlPointerExitEvent) {
-              return;
-            }
-            final i = response?.spot?.touchedBarGroupIndex;
-            if (i == null) {
-              if (_touchedIdx != null) {
-                setState(() => _touchedIdx = null);
-              }
-              return;
-            }
-            final pos = event.localPosition;
-            if (i >= 0 &&
-                i < rows.length &&
-                (i != _touchedIdx || pos != _touchPos)) {
-              setState(() {
-                _touchedIdx = i;
-                if (pos != null) _touchPos = pos;
-              });
-            }
-          },
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (_) => Colors.transparent,
-            tooltipPadding: EdgeInsets.zero,
-            tooltipMargin: 4,
-            getTooltipItem: (group, groupIdx, rod, rodIdx) => BarTooltipItem(
-              '${rod.toY.toStringAsFixed(0)}%',
-              PTypo.micro.copyWith(
-                color: tokens.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (_) => FlLine(
-            color: tokens.borderSubtle,
-            strokeWidth: 1,
-            dashArray: const [4, 4],
-          ),
-        ),
-        borderData: FlBorderData(show: false),
-        titlesData: FlTitlesData(
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          // % 라벨은 막대 위 상시 툴팁으로 이동 (web 정합) — 고정 top 행 제거.
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 22,
-              getTitlesWidget: (v, meta) {
-                final i = v.toInt();
-                if (i < 0 || i >= rows.length) {
-                  return const SizedBox.shrink();
-                }
-                final r = rows[i];
-                final last = r.year == currentYear && r.month == currentMonth;
-                return Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    monthOnly(DateTime(2000, r.month)),
-                    style: PTypo.micro.copyWith(
-                      color: last ? tokens.fgPrimary : tokens.fgTertiary,
-                      fontWeight: last ? PFontWeight.bold : PFontWeight.medium,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        barGroups: [
-          for (int i = 0; i < rows.length; i++)
-            BarChartGroupData(
-              x: i,
-              // 상시 % 라벨 (위 barTouchData 투명 툴팁)
-              showingTooltipIndicators: const [0],
-              barRods: [
-                BarChartRodData(
-                  toY: rows[i].compliancePercent,
-                  // web Cell 정합 — 초과 fg-expense / 이번 달 bg-brand / 과거 border-strong
-                  color: rows[i].compliancePercent > 100
-                      ? tokens.statusDangerFg
-                      : (rows[i].year == currentYear &&
-                            rows[i].month == currentMonth)
-                      ? tokens.fgBrand
-                      : tokens.borderStrong,
-                  // web bar round([6,6,0,0] 리터럴) 정합 — 두께는 모바일 시각 보정 28
-                  width: 28,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(6),
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-
-    // 터치 상세 툴팁 — web ComplianceTooltip 미러 (한도 대비 % + 지출/한도).
-    // 위치는 터치 좌표 기준 동적 배치 (PChartTooltipLayer — 화면 밖 clamp/flip).
-    return Stack(
-      children: [
-        // 툴팁은 화면 밖으로 나가야 하므로 차트만 클립한다.
-        ClipRect(child: chart),
-        if (_touchedIdx != null &&
-            _touchedIdx! < rows.length &&
-            _touchPos != null)
-          PChartTooltipLayer(
-            anchor: _touchPos!,
-            child: Builder(
-              builder: (_) {
-                final r = rows[_touchedIdx!];
-                final over = r.compliancePercent > 100;
-                return PChartTooltipBox(
-                  title: monthOnly(DateTime(2000, r.month)),
-                  labelWidth: 56,
-                  rows: [
-                    PChartTooltipRowData(
-                      color: over ? tokens.statusDangerFg : tokens.fgBrand,
-                      label: l.budgetVsLimit,
-                      amount: '${r.compliancePercent.toStringAsFixed(1)}%',
-                      amountColor: over
-                          ? tokens.statusDangerFg
-                          : tokens.fgPrimary,
-                    ),
-                  ],
-                  footer: [
-                    PChartTooltipFooterRowData(
-                      label: l.expSummaryExpense,
-                      value: masked
-                          ? '••••'
-                          : krwSigned(r.totalSpent, false, unit: true),
-                    ),
-                    PChartTooltipFooterRowData(
-                      label: l.budgetLimit,
-                      value: masked
-                          ? '••••'
-                          : krwSigned(r.totalLimit, false, unit: true),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.tokens, required this.onAdd});
-  final GrooTokens tokens;
-  final VoidCallback onAdd;
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    // 카드 다이어트 — 빈 상태 플랫 (카드 셸 제거).
-    return PEmptyState(
-      icon: LucideIcons.target,
-      message: l.budgetEmptyMonth,
-      subMessage: l.budgetEmptyHint,
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x16,
-        vertical: PSpace.x32,
-      ),
-      action: FilledButton.tonalIcon(
-        onPressed: onAdd,
-        icon: const Icon(LucideIcons.settings, size: 16),
-        label: Text(l.budgetSetup),
-        style: FilledButton.styleFrom(
-          backgroundColor: tokens.bgBrandSubtle,
-          foregroundColor: tokens.fgBrandStrong,
-        ),
-      ),
-    );
-  }
-}
-
-/// 예산 로딩 skeleton — 로딩-후 실제 렌더 구조(_HeaderCard → _PaceCard →
-/// _StatusTiles → _CategoryListCard → _ComplianceCard)와 1:1 정합.
-/// 상한 카드(brand)만 카드, 나머지는 플랫 섹션 — 회색 박스는 PSkeleton 프리미티브.
-class _BudgetLoadingSkeleton extends StatelessWidget {
-  const _BudgetLoadingSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    // 껍데기는 실렌더와 같은 구역 띠(PScreenSection) — 다르면 데이터가 오는 순간 행이 좌우로 튄다.
-    // 띠 사이는 gap(SizedBox x2 = 8)이 맡는다.
-    return Column(
-      children: [
-        // _HeaderCard — 실렌더와 같은 구역 띠.
-        PScreenSection(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // title caption
-              const PSkeleton.line(width: 96, height: 13),
-              const SizedBox(height: 6),
-              // description line
-              PSkeleton.line(width: double.infinity, height: 12),
-              const SizedBox(height: PSpace.x12),
-              // 큰 금액 / 상한 (h2 baseline)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  PSkeleton.line(width: 132, height: 28),
-                  SizedBox(width: 8),
-                  PSkeleton.line(width: 80, height: 14),
-                ],
-              ),
-              const SizedBox(height: PSpace.x12),
-              // progress (minHeight 10)
-              PSkeleton(height: 10, borderRadius: PRadius.brFull),
-              const SizedBox(height: PSpace.x8),
-              // %/남은 예산 행
-              Row(
-                children: const [
-                  PSkeleton.line(width: 64, height: 12),
-                  Spacer(),
-                  PSkeleton.line(width: 96, height: 12),
-                ],
-              ),
-              const SizedBox(height: PSpace.x12),
-              // 3-column MiniStat (전체 상한 / 카테고리 할당 / 할당 가능)
-              Container(
-                padding: const EdgeInsets.only(top: PSpace.x12),
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: t.borderSubtle)),
-                ),
-                child: Row(
-                  children: [
-                    for (int i = 0; i < 3; i++) ...[
-                      if (i > 0) const SizedBox(width: PSpace.x8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            PSkeleton.line(width: 48, height: 10),
-                            SizedBox(height: 4),
-                            PSkeleton.line(width: 64, height: 14),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpacing.x2),
-        // _PaceCard — 실렌더와 같은 PFlatSection SoT. 제목은 정적이라 진짜를 쓴다.
-        PScreenSection(
-          child: PFlatSection(
-            title: l.budgetSpendingPace,
-            trailing: const PSkeleton.line(width: 64, height: 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 페이스 게이지 (minHeight 12)
-                PSkeleton(height: 12, borderRadius: PRadius.brFull),
-                const SizedBox(height: PSpace.x8),
-                Row(
-                  children: const [
-                    PSkeleton.line(width: 56, height: 12),
-                    Spacer(),
-                    PSkeleton.line(width: 112, height: 12),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x12),
-                Container(
-                  padding: const EdgeInsets.only(top: PSpace.x12),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: t.borderSubtle)),
-                  ),
-                  child: Row(
-                    children: [
-                      for (int i = 0; i < 2; i++) ...[
-                        if (i > 0) const SizedBox(width: PSpace.x8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              PSkeleton.line(width: 72, height: 10),
-                              SizedBox(height: 4),
-                              PSkeleton.line(width: 88, height: 20),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: PSpacing.x2),
-        // _StatusTiles — 실렌더와 같은 PFlatSection SoT.
-        PScreenSection(
-          child: PFlatSection(
-            title: l.budgetStatusTitle,
-            child: Row(
-              children: [
-                for (int i = 0; i < 2; i++) ...[
-                  if (i > 0) const SizedBox(width: PSpace.x8),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(PSpace.x12),
-                      decoration: BoxDecoration(
-                        color: t.bgSurface,
-                        borderRadius: PRadius.brLg,
-                        border: Border.all(color: t.borderSubtle),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          PSkeleton.line(width: 48, height: 12),
-                          SizedBox(height: PSpace.x4),
-                          PSkeleton.line(width: 64, height: 24),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: PSpacing.x2),
-        // _CategoryListCard — 실렌더와 같은 PFlatSection SoT.
-        // headGap 은 실렌더(28)를 그대로 — 16 으로 두면 데이터가 오는 순간 목록이 내려앉는다.
-        PScreenSection(
-          child: PFlatSection(
-            title: l.budgetByCategory,
-            headGap: 28,
-            trailing: const PSkeleton.line(width: 56, height: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (int i = 0; i < 4; i++) ...[
-                  if (i > 0) const SizedBox(height: PSpace.x16),
-                  // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
-                  Row(
-                    children: [
-                      const PSkeleton(width: 36, height: 36),
-                      const SizedBox(width: PSpace.x12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            PSkeleton.line(width: 96, height: 14),
-                            SizedBox(height: 2),
-                            PSkeleton.line(width: 72, height: 12),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: PSpace.x8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          PSkeleton.line(width: 56, height: 14),
-                          SizedBox(height: 2),
-                          PSkeleton.line(width: 40, height: 10),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: PSpace.x8),
-                  PSkeleton(height: 7, borderRadius: PRadius.brFull),
-                ],
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: PSpacing.x2),
-        // _ComplianceCard — 실렌더와 같은 PFlatSection SoT(headGap 16).
-        PScreenSection(
-          child: PFlatSection(
-            title: l.budgetComplianceTitle,
-            headGap: 16,
-            trailing: const PSkeleton.line(width: 80, height: 12),
-            child: const PSkeleton(width: double.infinity, height: 200),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ErrorBox extends StatelessWidget {
-  const _ErrorBox({required this.message, required this.onRetry});
-  final String message;
   final VoidCallback onRetry;
+
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: t.statusDangerSubtle,
-        borderRadius: PRadius.brLg,
-      ),
-      child: Column(
+    final list = async.value;
+    final head = BudgetHead(
+      title: l.budgetComplianceTitle,
+      note: l.budgetComplianceSubtitle,
+    );
+    if (list == null) {
+      return BudgetSection(
+        header: head,
         children: [
-          Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
-          const SizedBox(height: PSpace.x8),
-          PButton(
-            label: l.actionRetry,
-            variant: PButtonVariant.outline,
-            onPressed: onRetry,
-          ),
+          async.hasError
+              ? BudgetFailure(title: l.budgetFailCompliance, onRetry: onRetry)
+              : const PSkeleton(width: double.infinity, height: 180),
         ],
+      );
+    }
+    if (list.isEmpty) {
+      return BudgetSection(
+        header: head,
+        children: [BudgetEmptyLine(l.budgetNoComplianceData)],
+      );
+    }
+    final name = l.budgetComplianceTitle;
+    final active = list.indexWhere(
+      (r) => r.year == currentYear && r.month == currentMonth,
+    );
+    String won(int n) => budgetWon(n, masked);
+    return BudgetSection(
+      header: head,
+      children: [
+        // ds 막대 — 막대마다 색(넘음 red · 이번 달 blue · 지난 달 blue weak) · 위 % · 100% 점선 · 세로축 없음
+        PBarChart(
+          label: name,
+          height: 180,
+          categories: [
+            for (final r in list) monthOnly(DateTime(2000, r.month)),
+          ],
+          series: [
+            PChartSeries(
+              key: 'percent',
+              label: l.budgetVsLimit,
+              color: PChartColor.blue,
+              // 한도가 없는 달은 0% 막대 대신 빈 자리(Q3)
+              values: [
+                for (final r in list)
+                  r.totalLimit > 0 ? r.compliancePercent : null,
+              ],
+            ),
+          ],
+          barColor: (i, c) {
+            final r = list[i];
+            if (r.compliancePercent > 100) return c.chartRed;
+            return i == active ? c.chartBlue : c.chartBlueWeak;
+          },
+          barLabel: (i, v) => '${v.round()}%',
+          referenceLines: const [100],
+          showValueAxis: false,
+          emphasizedIndex: active < 0 ? null : active,
+          valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
+          tooltipFooter: (i) => [
+            (name: l.expSummaryExpense, value: won(list[i].totalSpent)),
+            (name: l.budgetLimit, value: won(list[i].totalLimit)),
+          ],
+        ),
+        PChartDataTable(
+          caption: name,
+          columns: [
+            PChartDataColumn(l.budgetTableMonth),
+            PChartDataColumn(l.budgetVsLimit),
+            PChartDataColumn(l.expSummaryExpense),
+            PChartDataColumn(l.budgetLimit),
+          ],
+          rows: [
+            for (final r in list)
+              [
+                monthOnly(DateTime(2000, r.month)),
+                r.totalLimit > 0
+                    ? '${r.compliancePercent.toStringAsFixed(1)}%'
+                    : '-',
+                won(r.totalSpent),
+                won(r.totalLimit),
+              ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// ─── 불러오는 중 — 실제 구역과 같은 틀 ────────────────────
+
+class _TotalSkeleton extends StatelessWidget {
+  const _TotalSkeleton();
+
+  @override
+  Widget build(BuildContext context) => BudgetSection(
+    topPadding: PSpacing.x3,
+    children: [
+      PSkeleton.text(PTypography.t3, width: 96),
+      const _Gap(PSpacing.x1),
+      PSkeleton.text(PTypography.t3),
+      const _Gap(PSpacing.x3),
+      PSkeleton.text(PTypography.t9, width: 160),
+      const _Gap(PSpacing.x4),
+      const PSkeleton(
+        height: PProgressBar.height,
+        radius: PSkeletonRadius.full,
       ),
+      const _Gap(PSpacing.x2),
+      PSkeleton.text(PTypography.t3, width: 120),
+      const _Gap(PSpacing.x3),
+      for (var i = 0; i < 3; i++)
+        PSkeleton.text(PTypography.t5, width: double.infinity),
+    ],
+  );
+}
+
+class _PaceSkeleton extends StatelessWidget {
+  const _PaceSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return BudgetSection(
+      header: BudgetHead(title: l.budgetSpendingPace),
+      children: [
+        const PSkeleton(
+          height: PProgressBar.height,
+          radius: PSkeletonRadius.full,
+        ),
+        const _Gap(PSpacing.x2),
+        PSkeleton.text(PTypography.t3, width: 140),
+        const _Gap(PSpacing.x3),
+        for (var i = 0; i < 2; i++)
+          PSkeleton.text(PTypography.t5, width: double.infinity),
+      ],
+    );
+  }
+}
+
+class _StatusSkeleton extends StatelessWidget {
+  const _StatusSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return BudgetSection(
+      header: BudgetHead(title: l.budgetStatusTitle),
+      children: [
+        for (var i = 0; i < 2; i++)
+          PSkeleton.text(PTypography.t5, width: double.infinity),
+      ],
+    );
+  }
+}
+
+class _ListSkeleton extends StatelessWidget {
+  const _ListSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return BudgetListSection(
+      header: BudgetHead(title: l.budgetByCategory),
+      children: [
+        for (var i = 0; i < 3; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.x6,
+              vertical: PSpacing.x3,
+            ),
+            child: Column(
+              spacing: PSpacing.x4,
+              children: [
+                Row(
+                  spacing: PSpacing.x3,
+                  children: [
+                    const PSkeleton(
+                      width: 40,
+                      height: 40,
+                      radius: PSkeletonRadius.r12,
+                    ),
+                    Expanded(child: PSkeleton.text(PTypography.t5)),
+                    PSkeleton.text(PTypography.t5, width: 72),
+                  ],
+                ),
+                const PSkeleton(
+                  height: PProgressBar.height,
+                  radius: PSkeletonRadius.full,
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
