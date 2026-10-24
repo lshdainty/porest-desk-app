@@ -399,28 +399,36 @@ class LedgerCalendar extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0, PSpacing.x1, 0, PSpacing.x2),
             child: Column(
               children: [
-                Container(
-                  // 최소 36 · 좌우 4 — 글자 200% 에서 두 자리 날이 잘리지 않게 글을 따라 늘어난다(웹 `min-w-x9 px-x1`)
-                  constraints: const BoxConstraints(
-                    minWidth: dayCircle,
-                    minHeight: dayCircle,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
-                  decoration: isSel
-                      ? BoxDecoration(
-                          color: c.bgBrandSolid,
-                          borderRadius: BorderRadius.circular(PRounded.full),
-                        )
-                      : null,
-                  child: Center(
-                    widthFactor: 1,
-                    heightFactor: 1,
-                    child: Text(
-                      '${cellData.d}',
-                      style: PTypography.t5.copyWith(
-                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                        color: numColor,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                // 칸 폭보다 넓어지면(글자 200%) 원째 줄여 맞춘다 — 숫자가 두 줄로 꺾이지 않는다
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Container(
+                    // 최소 36 · 좌우 4 — 글자 200% 에서 두 자리 날이 잘리지 않게 글을 따라 늘어난다(웹 `min-w-x9 px-x1`)
+                    constraints: const BoxConstraints(
+                      minWidth: dayCircle,
+                      minHeight: dayCircle,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: PSpacing.x1,
+                    ),
+                    decoration: isSel
+                        ? BoxDecoration(
+                            color: c.bgBrandSolid,
+                            borderRadius: BorderRadius.circular(PRounded.full),
+                          )
+                        : null,
+                    child: Center(
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: Text(
+                        '${cellData.d}',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: PTypography.t5.copyWith(
+                          fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                          color: numColor,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                       ),
                     ),
                   ),
