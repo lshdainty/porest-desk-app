@@ -102,13 +102,14 @@ class PickerRow extends StatelessWidget {
             suffix: suffix,
             onTap: onTap,
             focusNode: focusNode,
+            // 오류 글은 줄의 설명으로도 읽힌다(웹 aria-describedby)
+            semanticHint: errorMessage,
           );
     if (errorMessage == null) return row;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 오류 글은 줄의 설명으로도 읽힌다(웹 aria-describedby) — 낭독기가 줄을 읽을 때 같이 읽는다
-        Semantics(hint: errorMessage, child: row),
+        row,
         Padding(
           padding: const EdgeInsets.fromLTRB(
             PSpacing.globalGutter,

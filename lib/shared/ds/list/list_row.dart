@@ -646,6 +646,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
         container: container,
         button: sem.button ? true : null,
         link: sem.link ? true : null,
+        hint: sem.hint,
         enabled: widget.interactive ? !disabled : null,
         onTap: widget.interactive && !disabled ? widget.onActivate : null,
         child: body,

@@ -203,10 +203,12 @@ void main() {
     final handle = tester.ensureSemantics();
     await _open(tester);
     await _press(tester, l.budgetSubmitAdd);
-    final data = tester
-        .getSemantics(find.byType(PListButtonItem))
-        .getSemanticsData();
-    expect(data.hint, contains(l.budgetFormErrCategory));
+    // 이름이 "카테고리…" 이고 버튼인 노드 — 낭독기가 읽는 그 노드에 오류가 붙어야 한다
+    final nodes = find.semantics.byPredicate(
+      (n) => n.label.startsWith('카테고리') && n.flagsCollection.isButton,
+    );
+    expect(nodes, findsOneWidget);
+    expect(nodes.evaluate().single.hint, contains(l.budgetFormErrCategory));
     handle.dispose();
   });
 
