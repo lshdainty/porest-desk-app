@@ -1,150 +1,316 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/core/format/amount_input_formatter.dart';
 import 'package:groo_damda_app/core/format/amount_limits.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/core/format/color_parse.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
-import 'package:groo_damda_app/shared/widgets/p_icon_picker.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
-import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
+import 'package:groo_damda_app/shared/ds/color_swatch/p_color_swatch.dart';
+import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/p_icon_picker.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/forms/picker_row.dart';
 
+/// 이름 길이 상한 — 웹 `GOAL_NAME_MAX` · 카테고리와 같은 값(QA #52).
+const _kNameMax = 12;
+
+/// 저축 목표 폼 — 추가 · 수정을 한 시트로(I-19 D). 치는 값(이름 · 금액 둘)은 칸, 고르는 값(목표일 · 아이콘 · 색)은 줄.
+/// 바깥 · 끌기로 닫히지 않고, 바뀐 값이 있으면 닫기 전에 묻는다.
 void showSavingGoalEditDialog(BuildContext context, {SavingGoal? edit}) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  final probe = _DirtyProbe();
+  PBottomSheet.show<void>(
     context,
-    title: edit == null ? l.savingGoalAdd : l.savingGoalEdit,
-    contentBuilder: (ctx, scrollCtrl) =>
-        _Body(edit: edit, scrollController: scrollCtrl, controller: controller),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: edit == null ? l.savingGoalSubmitAdd : l.actionEdit,
+    form: true,
+    isDirty: () => probe.dirty(),
+    leaveCopy: PLeaveConfirmCopy(
+      title: l.sheetLeaveTitle,
+      description: l.sheetLeaveDescription,
+      stayLabel: l.sheetLeaveStay,
+      leaveLabel: l.sheetLeaveLeave,
     ),
+    builder: (_) => _GoalForm(edit: edit, probe: probe),
   );
 }
 
-class _Body extends ConsumerStatefulWidget {
-  const _Body({
-    this.edit,
-    required this.scrollController,
-    required this.controller,
-  });
-  final SavingGoal? edit;
-  final ScrollController scrollController;
-  final PSheetController controller;
-  @override
-  ConsumerState<_Body> createState() => _BodyState();
+class _DirtyProbe {
+  bool Function() dirty = () => false;
 }
 
-class _BodyState extends ConsumerState<_Body> {
+class _GoalForm extends ConsumerStatefulWidget {
+  const _GoalForm({this.edit, required this.probe});
+  final SavingGoal? edit;
+  final _DirtyProbe probe;
+
+  @override
+  ConsumerState<_GoalForm> createState() => _GoalFormState();
+}
+
+class _GoalFormState extends ConsumerState<_GoalForm> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _amountCtrl;
   late final TextEditingController _currentCtrl;
+  final _titleFocus = FocusNode();
+  final _amountFocus = FocusNode();
+  final _currentFocus = FocusNode();
+
+  late final String _initialTitle;
+  late final String _initialAmount;
+  late final String _initialCurrent;
+  late final DateTime? _initialDeadline;
+  late final String _initialIcon;
+  late final String _initialColor;
+
   DateTime? _deadline;
   late String _icon;
+
+  /// 저장할 색 — 팔레트 색이면 그 색의 저장 hex, 팔레트 밖이면 저장된 값 그대로(고르지 않으면 바꾸지 않는다).
   late String _color;
+
+  /// 고치는 항목이 팔레트 밖 색을 들고 있으면 그 값 — "지금 색" 칸이 된다.
+  String? _foreignColor;
+
   bool _submitting = false;
-  bool _touched = false;
+  String? _nameError;
+  String? _amountError;
+  String? _currentError;
+
   bool get _isEdit => widget.edit != null;
 
-  /// 이름 길이 상한 — 웹 `GOAL_NAME_MAX` · 카테고리와 같은 값(QA #52).
-  static const _kNameMax = 12;
+  @override
+  void initState() {
+    super.initState();
+    final e = widget.edit;
+    _initialTitle = e?.title ?? '';
+    _initialAmount = e == null ? '' : formatAmountInput(e.targetAmount);
+    _initialCurrent = e == null || e.currentAmount == 0
+        ? ''
+        : formatAmountInput(e.currentAmount);
+    _titleCtrl = TextEditingController(text: _initialTitle);
+    _amountCtrl = TextEditingController(text: _initialAmount);
+    _currentCtrl = TextEditingController(text: _initialCurrent);
+    _initialDeadline = e?.deadlineDate == null
+        ? null
+        : DateTime.tryParse(e!.deadlineDate!);
+    _deadline = _initialDeadline;
+    // 저장된 이름을 그대로 존중한다 — 세트 밖 이름은 "지금 아이콘" 으로 보인다.
+    final editIcon = e?.icon;
+    _icon = editIcon != null && editIcon.isNotEmpty ? editIcon : 'piggy-bank';
+    _initialIcon = _icon;
+
+    final stored = e?.color?.trim();
+    if (stored != null && stored.isNotEmpty) {
+      final key = chartKeyOfHex(stored);
+      if (key == null) {
+        _foreignColor = stored;
+        _color = stored;
+      } else {
+        _color = _hexOf(PChartColor.values.byName(key));
+      }
+    } else {
+      _color = _hexOf(_firstUnused());
+    }
+    _initialColor = _color;
+
+    widget.probe.dirty = () =>
+        _titleCtrl.text != _initialTitle ||
+        _amountCtrl.text != _initialAmount ||
+        _currentCtrl.text != _initialCurrent ||
+        _deadline != _initialDeadline ||
+        _icon != _initialIcon ||
+        _color != _initialColor;
+  }
+
+  /// 같은 목록(저축 목표)이 아직 쓰지 않은 첫 색(v110 배정 순서).
+  PChartColor _firstUnused() {
+    final goals = ref.read(savingGoalListProvider).value ?? const [];
+    final used = <PChartColor?>[
+      for (final g in goals)
+        if (chartKeyOfHex(g.color) != null)
+          PChartColor.values.byName(chartKeyOfHex(g.color)!),
+    ];
+    return pFirstUnusedColor(used);
+  }
+
+  static String _hexOf(PChartColor c) =>
+      kChartPairs.firstWhere((p) => p.key == c.name).baseHex;
+
+  @override
+  void dispose() {
+    widget.probe.dirty = () => false;
+    _titleCtrl.dispose();
+    _amountCtrl.dispose();
+    _currentCtrl.dispose();
+    _titleFocus.dispose();
+    _amountFocus.dispose();
+    _currentFocus.dispose();
+    super.dispose();
+  }
 
   String get _titleTrim => _titleCtrl.text.trim();
 
-  /// 같은 이름 목표가 둘이면 목록·알림에서 어느 쪽인지 알 수 없다.
-  /// 목록 캐시가 비어 있으면 못 잡는다 — 최종 게이트는 서버다.
+  /// 같은 이름 목표가 둘이면 목록 · 알림에서 어느 쪽인지 알 수 없다. 목록 캐시가 비어 있으면 못 잡는다 — 최종 게이트는 서버다.
   bool get _duplicate =>
       _titleTrim.isNotEmpty &&
       (ref.read(savingGoalListProvider).value ?? const <SavingGoal>[]).any(
         (g) => g.title.trim() == _titleTrim && g.rowId != widget.edit?.rowId,
       );
 
-  /// 카테고리 다이얼로그와 같은 규칙 — touched 전에는 에러를 안 보여 준다.
-  /// 100자로 저장된 기존 목표를 열자마자 빨개지면 안 된다.
-  String? get _nameError {
-    if (!_touched) return null;
-    final l = AppLocalizations.of(context);
-    if (_titleTrim.length > _kNameMax) return l.nameTooLong(_kNameMax);
-    if (_duplicate) return l.savingGoalNameDuplicate;
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _titleCtrl = TextEditingController(text: widget.edit?.title ?? '');
-    _amountCtrl = TextEditingController(
-      text: widget.edit?.targetAmount.toString() ?? '',
-    );
-    _currentCtrl = TextEditingController(
-      text: widget.edit == null || widget.edit!.currentAmount == 0
-          ? ''
-          : widget.edit!.currentAmount.toString(),
-    );
-    _deadline = widget.edit?.deadlineDate == null
-        ? null
-        : DateTime.tryParse(widget.edit!.deadlineDate!);
-    // 전체 아이콘 픽커 도입으로 저장된 이름을 그대로 존중한다(10종 강제 대체 제거).
-    final editIcon = widget.edit?.icon;
-    _icon = editIcon != null && editIcon.isNotEmpty ? editIcon : 'piggy-bank';
-    final editColor = widget.edit?.color?.toLowerCase();
-    _color = editColor != null && kChartBaseHexes.contains(editColor)
-        ? editColor
-        : kChartBaseHexes.first;
-    widget.controller.onSubmit = _submit;
-  }
-
-  void _setSubmitting(bool v) {
-    setState(() => _submitting = v);
-    widget.controller.setSubmitting(v);
-  }
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _amountCtrl.dispose();
-    _currentCtrl.dispose();
-    super.dispose();
-  }
-
   String _fmtDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  int get _current => int.tryParse(_currentCtrl.text.replaceAll(',', '')) ?? 0;
-
-  bool get _canSubmit {
-    if (_submitting) return false;
-    if (_titleTrim.isEmpty) return false;
-    // 카테고리와 같은 흐름 — touched 전엔 막지 않는다. 100자로 저장된 기존 목표를
-    // 열자마자 저장이 죽으면 왜 안 되는지 알 길이 없다(QA #55 와 같은 실패다).
-    if (_touched && (_titleTrim.length > _kNameMax || _duplicate)) return false;
-    final amt = int.tryParse(_amountCtrl.text.replaceAll(',', ''));
-    if (amt == null || amt <= 0) return false;
-    // 웹 SavingGoalAddDialog 정합 — 현재 모은 금액은 목표 금액을 넘을 수 없다.
-    return _current <= amt;
+  String _dateText(BuildContext context, DateTime d) {
+    if (Localizations.localeOf(context).languageCode == 'en') {
+      return DateFormat.yMMMd('en').format(d);
+    }
+    return '${d.year}년 ${d.month}월 ${d.day}일';
   }
 
-  Future<void> _submit() async {
-    _setSubmitting(true);
+  PColorSwatchValue get _swatchValue {
+    final key = chartKeyOfHex(_color);
+    return key == null
+        ? const PColorSwatchValue.current()
+        : PColorSwatchValue.color(PChartColor.values.byName(key));
+  }
+
+  Future<void> _pickDate() async {
+    FocusScope.of(context).unfocus();
+    final picked = await PBottomSheet.show<DateTime>(
+      context,
+      builder: (sheetContext) {
+        DateTime? draft = _deadline;
+        return StatefulBuilder(
+          builder: (ctx, setSheet) {
+            final l = AppLocalizations.of(ctx);
+            return PBottomSheetContent(
+              title: l.savingGoalDeadlineLabel,
+              closeLabel: l.actionClose,
+              flushBody: true,
+              body: PDatePicker.single(
+                labels: PDatePickerLabels.of(ctx),
+                semanticLabel: l.savingGoalDeadlineLabel,
+                value: draft,
+                onChanged: (v) => setSheet(() => draft = v),
+              ),
+              footer: [
+                PButton(
+                  label: l.actionDone,
+                  size: PButtonSize.large,
+                  onPressed: draft == null
+                      ? null
+                      : () => PBottomSheet.of(ctx).close(draft),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _deadline = DateTime(picked.year, picked.month, picked.day));
+  }
+
+  Future<void> _pickIcon() async {
+    FocusScope.of(context).unfocus();
+    await showPIconPickerSheet(
+      context,
+      value: _icon,
+      onChanged: (id) => setState(() => _icon = id),
+    );
+  }
+
+  Future<void> _pickColor() async {
+    FocusScope.of(context).unfocus();
+    final picked = await PBottomSheet.show<PColorSwatchValue>(
+      context,
+      builder: (sheetContext) {
+        final l = AppLocalizations.of(sheetContext);
+        return PBottomSheetContent(
+          title: l.savingGoalColorLabel,
+          closeLabel: l.actionClose,
+          body: Padding(
+            padding: const EdgeInsets.only(bottom: PSpacing.x4),
+            child: PColorSwatchGroup(
+              value: _swatchValue,
+              semanticLabel: l.savingGoalColorLabel,
+              currentColor: _foreignColor == null
+                  ? null
+                  : parseColor(
+                      _foreignColor,
+                      fallback: const Color(0xFF9E9E9E),
+                    ),
+              onChanged: (v) => PBottomSheet.of(sheetContext).close(v),
+            ),
+          ),
+        );
+      },
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      // 지금 색 칸을 고르면 저장된 값을 그대로 둔다 — 몰래 바꾸지 않는다.
+      _color = picked.isCurrent
+          ? (_foreignColor ?? _color)
+          : _hexOf(picked.color!);
+    });
+  }
+
+  Future<void> _onSubmit() async {
+    if (_submitting) return;
+    final l = AppLocalizations.of(context);
+    String? nameErr;
+    if (_titleTrim.isEmpty) {
+      nameErr = l.savingGoalErrName;
+    } else if (_titleTrim.length > _kNameMax) {
+      nameErr = l.savingGoalErrNameTooLong(_kNameMax);
+    } else if (_duplicate) {
+      nameErr = l.savingGoalNameDuplicate;
+    }
+    final target = parseAmountInput(_amountCtrl.text);
+    final current = parseAmountInput(_currentCtrl.text) ?? 0;
+    String? amountErr;
+    if (target == null || target <= 0) {
+      amountErr = l.savingGoalErrAmount;
+    } else if (target > kAmountMax) {
+      amountErr = l.savingGoalErrAmountTooLarge;
+    }
+    String? currentErr;
+    if (amountErr == null && current > target!) {
+      currentErr = l.savingGoalErrCurrentExceeds;
+    }
+    if (nameErr != null || amountErr != null || currentErr != null) {
+      setState(() {
+        _nameError = nameErr;
+        _amountError = amountErr;
+        _currentError = currentErr;
+      });
+      if (nameErr != null) {
+        _titleFocus.requestFocus();
+      } else if (amountErr != null) {
+        _amountFocus.requestFocus();
+      } else {
+        _currentFocus.requestFocus();
+      }
+      return;
+    }
+    final amt = target!;
+    setState(() => _submitting = true);
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
-      final amt = int.parse(_amountCtrl.text.replaceAll(',', ''));
-      final color = _color;
-      // 현재 모은 금액은 update/create 필드가 아니라 contribute API 로 차액 반영
-      // (웹 SavingGoalAddDialog 동일 로직).
+      // 현재 모은 금액은 update/create 필드가 아니라 contribute API 로 차액 반영(웹 동일 로직).
       if (_isEdit) {
         await repo.update(
           id: widget.edit!.rowId,
@@ -154,10 +320,10 @@ class _BodyState extends ConsumerState<_Body> {
           deadlineDate: Patch.set(
             _deadline == null ? null : _fmtDate(_deadline!),
           ),
-          color: color,
+          color: _color,
           icon: _icon,
         );
-        final diff = _current - widget.edit!.currentAmount;
+        final diff = current - widget.edit!.currentAmount;
         if (diff != 0) {
           await repo.contribute(widget.edit!.rowId, amount: diff);
         }
@@ -166,258 +332,150 @@ class _BodyState extends ConsumerState<_Body> {
           title: _titleTrim,
           targetAmount: amt,
           deadlineDate: _deadline == null ? null : _fmtDate(_deadline!),
-          color: color,
+          color: _color,
           icon: _icon,
         );
-        if (_current > 0) {
-          await repo.contribute(created.rowId, amount: _current);
+        if (current > 0) {
+          await repo.contribute(created.rowId, amount: current);
         }
       }
       ref.invalidate(savingGoalListProvider);
       if (!mounted) return;
-      Navigator.of(context).pop();
+      PBottomSheet.of(context).close();
     } on ApiException {
+      // 표면이 닫히지 않고 쓴 값이 남는다 — 알림은 옛 길 그대로
       if (!mounted) return;
     } finally {
-      if (mounted) _setSubmitting(false);
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.controller.setCanSubmit(_canSubmit);
-    });
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
-      children: [
-        // 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview 정합.
-        // 이름·금액 PTextInput 의 onChanged setState 가 있어 별도 리스너 없이 갱신된다.
-        _Preview(
-          title: _titleCtrl.text.trim(),
-          deadline: _deadline,
-          icon: _icon,
-          colorHex: _color,
-          current: _current,
-          target: int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0,
-        ),
-        const SizedBox(height: PSpace.x16),
-        Text(
-          l.savingGoalNameLabel,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: _titleCtrl,
-          placeholder: l.savingGoalNameHint,
-          onChanged: (_) => setState(() => _touched = true),
-        ),
-        const SizedBox(height: PSpace.x4),
-        // 카운터 N/12 또는 에러 — 카테고리 다이얼로그와 같은 모양.
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            _nameError ?? '${_titleTrim.length}/$_kNameMax',
-            style: PTypo.micro.copyWith(
-              color: _nameError != null ? t.statusDangerFg : t.fgTertiary,
+    final c = context.colors;
+    final names = pColorSwatchNamesOf(context);
+    final colorKey = chartKeyOfHex(_color);
+    final colorName = colorKey == null
+        ? l.dsColorCurrent
+        : names[PChartColor.values.byName(colorKey)]!;
+    final iconEntry = findCategoryIcon(_icon);
+    final iconName =
+        iconEntry?.name ?? PIconPickerTexts.of(context).currentIconName;
+
+    const gutter = EdgeInsets.symmetric(horizontal: PSpacing.globalGutter);
+    return PBottomSheetContent(
+      title: _isEdit ? l.savingGoalEdit : l.savingGoalAdd,
+      closeLabel: l.actionClose,
+      flushBody: true,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: gutter,
+            child: PField(
+              label: l.savingGoalNameLabel,
+              maxGraphemeCount: _kNameMax,
+              invalid: _nameError != null,
+              errorMessage: _nameError,
+              child: PInput(
+                controller: _titleCtrl,
+                focusNode: _titleFocus,
+                autofocus: true,
+                placeholder: l.savingGoalNameHint,
+                onChanged: (_) {
+                  if (_nameError != null) setState(() => _nameError = null);
+                },
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: PSpace.x8),
-        // 목표 금액 / 현재 모은 금액 — design GoalEditDialog 2열 grid 정합.
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.savingGoalAmountLabel,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary),
-                  ),
-                  const SizedBox(height: PSpace.x4),
-                  PTextInput(
-                    controller: _amountCtrl,
-                    numbersOnly: true,
-                    amountMax: kAmountMax,
-                    placeholder: '0',
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ],
-              ),
+          const SizedBox(height: PSpacing.x6),
+          Padding(
+            padding: gutter,
+            child: PField(
+              label: l.savingGoalAmountLabel,
+              invalid: _amountError != null,
+              errorMessage: _amountError,
+              child: _amountInput(_amountCtrl, _amountFocus, () {
+                if (_amountError != null || _currentError != null) {
+                  setState(() {
+                    _amountError = null;
+                    _currentError = null;
+                  });
+                }
+              }),
             ),
-            const SizedBox(width: PSpace.x8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l.savingGoalCurrentLabel,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary),
-                  ),
-                  const SizedBox(height: PSpace.x4),
-                  PTextInput(
-                    controller: _currentCtrl,
-                    numbersOnly: true,
-                    amountMax: kAmountMax,
-                    placeholder: '0',
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: PSpacing.x6),
+          Padding(
+            padding: gutter,
+            child: PField(
+              label: l.savingGoalCurrentLabel,
+              indicator: PFieldIndicator.optional,
+              invalid: _currentError != null,
+              errorMessage: _currentError,
+              child: _amountInput(_currentCtrl, _currentFocus, () {
+                if (_currentError != null) setState(() => _currentError = null);
+              }),
             ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x12),
-        Text(
-          l.savingGoalDeadlineLabel,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x4),
-        PDateInput(
-          value: _deadline,
-          onChanged: (d) => setState(() => _deadline = d),
-          firstDate: DateTime(2020),
-          lastDate: DateTime(2030),
-          placeholder: l.savingGoalDeadlineHint,
-          allowClear: true,
-        ),
-        const SizedBox(height: PSpace.x16),
-        Text(
-          l.savingGoalIconLabel,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x8),
-        // 전체 아이콘 검색·선택 — 웹 SavingGoalAddDialog 와 동일한 공통 픽커.
-        // '없음' 선택은 저축 목표 기본 아이콘(piggy-bank)으로 대체(웹 정합).
-        PIconPicker(
-          value: _icon,
-          onChanged: (v) =>
-              setState(() => _icon = v.isEmpty ? 'piggy-bank' : v),
-        ),
-        const SizedBox(height: PSpace.x16),
-        Text(
-          l.savingGoalColorLabel,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x8),
-        PColorPicker(
-          selected: _color,
-          onChanged: (hex) => setState(() => _color = hex),
+          ),
+          const SizedBox(height: PSpacing.x3),
+          PickerRow(
+            title: l.savingGoalDeadlineLabel,
+            value: _deadline == null
+                ? l.savingGoalDeadlineHint
+                : _dateText(context, _deadline!),
+            onTap: _pickDate,
+            onClear: _deadline == null
+                ? null
+                : () => setState(() => _deadline = null),
+            clearLabel: l.savingGoalDeadlineClear,
+          ),
+          PickerRow(
+            title: l.savingGoalIconLabel,
+            value: iconName,
+            leading: Icon(
+              categoryGlyph(_icon),
+              size: 20,
+              color: c.fgNeutralMuted,
+            ),
+            onTap: _pickIcon,
+          ),
+          PickerRow(
+            title: l.savingGoalColorLabel,
+            value: colorName,
+            leading: PickerDot(
+              size: 12,
+              color: resolveChartColor(context, _color, fallback: c.fgBrand),
+            ),
+            onTap: _pickColor,
+          ),
+          const SizedBox(height: PSpacing.x2),
+        ],
+      ),
+      footer: [
+        PButton(
+          label: _isEdit ? l.actionSave : l.savingGoalSubmitAdd,
+          size: PButtonSize.large,
+          loading: _submitting,
+          onPressed: _submitting ? null : _onSubmit,
         ),
       ],
     );
   }
-}
 
-/// 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview(bg-canvas 박스) 미러.
-/// 아이콘 타일·게이지는 목록 화면 `_GoalCard` 와 같은 다크 스왑 팔레트를 쓴다.
-class _Preview extends StatelessWidget {
-  const _Preview({
-    required this.title,
-    required this.deadline,
-    required this.icon,
-    required this.colorHex,
-    required this.current,
-    required this.target,
-  });
-  final String title;
-  final DateTime? deadline;
-  final String icon;
-  final String colorHex;
-  final int current;
-  final int target;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final color = resolveChartColor(context, colorHex, fallback: t.fgBrand);
-    final bg = softBg(context, color);
-    final progress = target > 0 ? (current / target).clamp(0.0, 1.0) : 0.0;
-    final pct = target > 0 ? (current / target * 100).round() : 0;
-    final deadlineLabel = deadline == null
-        ? l.savingGoalNoDeadline
-        : '${deadline!.year}.${deadline!.month.toString().padLeft(2, '0')}';
-
-    return Container(
-      padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: t.bgCanvas,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: t.borderSubtle),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: PRadius.tile(36),
-                ),
-                alignment: Alignment.center,
-                child: Icon(lucideByName(icon), size: 17, color: color),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title.isEmpty ? l.savingGoalNameLabel : title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      deadlineLabel,
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '$pct%',
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '${krw(current)} / ${krw(target)}',
-                    style: PTypo.micro.copyWith(color: t.fgTertiary),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-          ClipRRect(
-            borderRadius: PRadius.brXs,
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: t.bgTrack,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _amountInput(
+    TextEditingController ctrl,
+    FocusNode focus,
+    VoidCallback onEdited,
+  ) => PInput(
+    controller: ctrl,
+    focusNode: focus,
+    placeholder: '0',
+    suffixText: wonUnit(),
+    tabularFigures: true,
+    keyboardType: TextInputType.number,
+    inputFormatters: const [AmountInputFormatter()],
+    onChanged: (_) => onEdited(),
+  );
 }
