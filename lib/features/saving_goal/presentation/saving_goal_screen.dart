@@ -4,32 +4,30 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
-import 'package:groo_damda_app/core/format/krw.dart';
-import 'package:groo_damda_app/core/settings/settings_notifier.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_badge.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_card.dart';
-import 'package:groo_damda_app/shared/widgets/p_divider.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
 import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 저축 목표 관리 (설정 > 저축 목표) — design GoalManager 미러 (웹 SavingGoalManager 정합).
 ///
-/// 전체 진행률 요약(keep 카드) + 목표 목록(카드 탭 = 편집). 자산 화면은 조회 전용.
+/// 전체 진행률 구역 + 목표 목록(줄 탭 = 편집)이 한 흰 면이다 — 카드 · 줄 사이 선 없음(I-08 24). 자산 화면은 조회 전용.
 class SavingGoalScreen extends ConsumerWidget {
   const SavingGoalScreen({super.key});
 
@@ -51,12 +49,126 @@ class SavingGoalScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
+    final c = context.colors;
     final listAsync = ref.watch(savingGoalListProvider);
+    final masked = ref.watch(hideCardProvider('asset.savingGoals'));
+
+    Widget content;
+    final items = listAsync.value;
+    if (items == null) {
+      content = listAsync.hasError
+          ? BudgetSection(
+              children: [
+                BudgetFailure(
+                  title: l.savingGoalFailTitle,
+                  onRetry: () => ref.invalidate(savingGoalListProvider),
+                ),
+              ],
+            )
+          : const _SavingGoalSkeleton();
+    } else {
+      final totalTarget = items.fold<int>(0, (s, g) => s + g.targetAmount);
+      final totalCurrent = items.fold<int>(0, (s, g) => s + g.currentAmount);
+      final totalPct = totalTarget > 0
+          ? (totalCurrent / totalTarget * 100)
+          : 0.0;
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 전체 진행률 — 띠 안 위 4 + 16 에서 라벨, 아래 24
+          if (items.isNotEmpty)
+            BudgetSection(
+              topPadding: PSpacing.x5,
+              children: [
+                Text(
+                  keepAll(l.savingGoalOverallProgress),
+                  style: PTypography.t3.copyWith(
+                    color: c.fgNeutralSubtle,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const BudgetFull(child: SizedBox(height: PSpacing.x1)),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: BudgetBigAmount(
+                        amount: budgetWon(totalCurrent, masked),
+                        limit: budgetWon(totalTarget, masked),
+                      ),
+                    ),
+                    const SizedBox(width: PSpacing.x2),
+                    Text(
+                      '${totalPct.toStringAsFixed(0)}%',
+                      style: PTypography.t9.copyWith(
+                        color: c.fgBrand,
+                        fontWeight: FontWeight.w700,
+                        fontFeatures: tabularFigures,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          // 목록 제목 위: 앞 구역 아래 24 + 16 = 보이는 40
+          const SizedBox(height: PSpacing.x4),
+          PListHeader(
+            title: l.savingGoalListCount(items.length),
+            variant: PListHeaderVariant.boldSolid,
+            action: PTextButton(
+              label: l.savingGoalAddAction,
+              prefixIcon: LucideIcons.plus,
+              onPressed: () => showSavingGoalEditDialog(context),
+            ),
+          ),
+          if (items.isEmpty)
+            BudgetEmptyLine(l.savingGoalEmpty)
+          else
+            PList(
+              children: [
+                for (final goal in items)
+                  // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 수정으로 —
+                  // 스와이프는 지름길이지 유일한 경로가 아니다
+                  // (spec swipe-actions.md · WCAG 2.1.1).
+                  PSwipeActions(
+                    key: ValueKey('saving-goal-${goal.rowId}'),
+                    groupTag: 'saving-goal-list',
+                    actions: [
+                      PSwipeAction(
+                        label: l.actionEdit,
+                        icon: LucideIcons.pencil,
+                        kind: PSwipeKind.primary,
+                        onSelect: () =>
+                            showSavingGoalEditDialog(context, edit: goal),
+                      ),
+                      PSwipeAction(
+                        label: l.actionDelete,
+                        icon: LucideIcons.trash2,
+                        kind: PSwipeKind.destructive,
+                        // 수정 시트의 삭제와 같은 문구 — 같은 삭제인데 경로에
+                        // 따라 다른 말이 나오면 안 된다.
+                        confirmTitle: l.savingGoalDeleteTitle,
+                        confirmMessage: l.savingGoalDeleteConfirm(goal.title),
+                        onSelect: () => _deleteGoal(context, ref, goal),
+                      ),
+                    ],
+                    child: _GoalRow(
+                      goal: goal,
+                      masked: masked,
+                      onEdit: () =>
+                          showSavingGoalEditDialog(context, edit: goal),
+                    ),
+                  ),
+              ],
+            ),
+          const SizedBox(height: PSpacing.x3),
+        ],
+      );
+    }
 
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
+      backgroundColor: c.bgLayerBasement,
       // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
@@ -74,282 +186,83 @@ class SavingGoalScreen extends ConsumerWidget {
             ref.invalidate(savingGoalListProvider);
             await ref.read(savingGoalListProvider.future);
           },
-          child: listAsync.when(
-            loading: () => const _SavingGoalSkeleton(),
-            error: (e, _) => Padding(
-              padding: const EdgeInsets.all(PSpace.x16),
-              child: Text(
-                '${l.savingGoalLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-              ),
-            ),
-            data: (items) {
-              final totalTarget = items.fold<int>(
-                0,
-                (s, g) => s + g.targetAmount,
-              );
-              final totalCurrent = items.fold<int>(
-                0,
-                (s, g) => s + g.currentAmount,
-              );
-              final totalPct = totalTarget > 0
-                  ? (totalCurrent / totalTarget * 100)
-                  : 0.0;
-              return ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x24,
-                  vertical: PSpace.x24,
-                ),
-                children: [
-                  // 전체 진행률 — design GoalManager p-card--keep.
-                  if (items.isNotEmpty) ...[
-                    PCard(
-                      variant: PCardVariant.raised,
-                      padding: const EdgeInsets.all(PSpace.x16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l.savingGoalOverallProgress,
-                                  style: PTypo.caption.copyWith(
-                                    color: t.fgTertiary,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text.rich(
-                                  TextSpan(
-                                    text: krwMasked(
-                                      totalCurrent,
-                                      ref.watch(
-                                        hideCardProvider('asset.savingGoals'),
-                                      ),
-                                      mask: '••••',
-                                    ),
-                                    style: PTypo.h4.copyWith(
-                                      color: t.fgPrimary,
-                                      fontWeight: PFontWeight.bold,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text:
-                                            ' / ${krwSigned(totalTarget, ref.watch(hideCardProvider('asset.savingGoals')), unit: true, mask: '••••')}',
-                                        style: PTypo.bodySm.copyWith(
-                                          color: t.fgTertiary,
-                                          fontWeight: PFontWeight.semi,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '${totalPct.toStringAsFixed(0)}%',
-                            style: PTypo.h3.copyWith(
-                              color: t.fgBrand,
-                              fontWeight: PFontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: PSpace.x16),
-                  ],
-
-                  // 목록 라벨 + 추가 — design '목표 목록 · N개' + ghost 목표 추가.
-                  Row(
-                    children: [
-                      Text(
-                        l.savingGoalListCount(items.length),
-                        style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      // accent = 라벨·아이콘 모두 fgBrand (recurring_screen 추가 버튼 정합).
-                      // ghost + iconColor 조합은 아이콘만 브랜드색이라 웹과 어긋났다.
-                      PButton(
-                        label: l.savingGoalAddAction,
-                        icon: LucideIcons.plus,
-                        variant: PButtonVariant.accent,
-                        size: PButtonSize.sm,
-                        onPressed: () => showSavingGoalEditDialog(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: PSpace.x8),
-
-                  if (items.isEmpty)
-                    // 카드 다이어트(recurring_screen _EmptyState 정합) — 아이콘·카드 없이 중앙 단문.
-                    Padding(
-                      padding: const EdgeInsets.all(PSpace.x40),
-                      child: Center(
-                        child: Text(
-                          l.savingGoalEmpty,
-                          textAlign: TextAlign.center,
-                          style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                        ),
-                      ),
-                    )
-                  else
-                    for (int i = 0; i < items.length; i++) ...[
-                      if (i > 0) const PDivider(),
-                      // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 수정으로 —
-                      // 스와이프는 지름길이지 유일한 경로가 아니다
-                      // (spec swipe-actions.md · WCAG 2.1.1).
-                      PSwipeActions(
-                        key: ValueKey('saving-goal-${items[i].rowId}'),
-                        groupTag: 'saving-goal-list',
-                        actions: [
-                          PSwipeAction(
-                            label: l.actionEdit,
-                            icon: LucideIcons.pencil,
-                            kind: PSwipeKind.primary,
-                            onSelect: () => showSavingGoalEditDialog(
-                              context,
-                              edit: items[i],
-                            ),
-                          ),
-                          PSwipeAction(
-                            label: l.actionDelete,
-                            icon: LucideIcons.trash2,
-                            kind: PSwipeKind.destructive,
-                            // 수정 시트의 삭제와 같은 문구 — 같은 삭제인데 경로에
-                            // 따라 다른 말이 나오면 안 된다.
-                            confirmTitle: l.savingGoalDeleteTitle,
-                            confirmMessage: l.savingGoalDeleteConfirm(
-                              items[i].title,
-                            ),
-                            onSelect: () => _deleteGoal(context, ref, items[i]),
-                          ),
-                        ],
-                        child: _GoalCard(
-                          goal: items[i],
-                          masked: ref.watch(
-                            hideCardProvider('asset.savingGoals'),
-                          ),
-                          tokens: t,
-                          onEdit: () =>
-                              showSavingGoalEditDialog(context, edit: items[i]),
-                        ),
-                      ),
-                    ],
-                ],
-              );
-            },
-          ),
+          child: ListView(padding: EdgeInsets.zero, children: [content]),
         ),
       ),
     );
   }
 }
 
-/// 저축 목표 skeleton — keep 카드 + 카드 다이어트 목록(행 + PDivider).
-///
-/// 예전엔 목록도 카드 3장(118, brLg)이었는데 b4b29e4 로 실렌더가 카드를 벗고
-/// divider 로만 나뉘는 플랫 행이 됐다. 카드를 그대로 두면 데이터가 오는 순간
-/// 목록 전체가 다른 모양으로 바뀐다.
+/// 저축 목표 skeleton — 실제 구역과 같은 틀(전체 진행률 + 목록 제목 + 줄 3).
 class _SavingGoalSkeleton extends StatelessWidget {
   const _SavingGoalSkeleton();
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x24,
-        vertical: PSpace.x24,
-      ),
-      physics: const NeverScrollableScrollPhysics(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PSkeleton(
-          width: double.infinity,
-          height: 74,
-          borderRadius: PRadius.brLg,
-        ),
-        const SizedBox(height: PSpace.x16),
-        // 라벨행 — '추가' 버튼은 정적 UI라 로딩에도 진짜를 쓴다.
-        Row(
+        BudgetSection(
+          topPadding: PSpacing.x5,
           children: [
-            const PSkeleton.line(width: 120),
-            const Spacer(),
-            PButton(
-              label: l.savingGoalAddAction,
-              icon: LucideIcons.plus,
-              variant: PButtonVariant.accent,
-              size: PButtonSize.sm,
-              onPressed: () => showSavingGoalEditDialog(context),
-            ),
+            PSkeleton.text(PTypography.t3, width: 80),
+            const BudgetFull(child: SizedBox(height: PSpacing.x1)),
+            PSkeleton.text(PTypography.t9, width: 200),
           ],
         ),
-        const SizedBox(height: PSpace.x8),
-        for (int i = 0; i < 3; i++) ...[
-          if (i > 0) const PDivider(),
-          const Padding(
-            // 실제 _GoalCard 와 같은 여백 — 좌우 4 / 상하 12.
-            padding: EdgeInsets.symmetric(
-              horizontal: PSpace.x4,
-              vertical: PSpace.x12,
+        const SizedBox(height: PSpacing.x4),
+        // 목록 제목의 동작은 정적 UI 라 로딩에도 진짜를 쓴다.
+        PListHeader(
+          title: l.savingGoalListCount(0),
+          variant: PListHeaderVariant.boldSolid,
+          action: PTextButton(
+            label: l.savingGoalAddAction,
+            prefixIcon: LucideIcons.plus,
+            onPressed: () => showSavingGoalEditDialog(context),
+          ),
+        ),
+        for (var i = 0; i < 3; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.x6,
+              vertical: PSpacing.x3,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: PSpacing.x3,
               children: [
                 Row(
+                  spacing: PSpacing.x3,
                   children: [
-                    PSkeleton(
+                    const PSkeleton(
                       width: 40,
                       height: 40,
-                      borderRadius: PRadius.brLg,
+                      radius: PSkeletonRadius.r12,
                     ),
-                    SizedBox(width: PSpace.x12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PSkeleton.line(width: 120, height: 14),
-                          SizedBox(height: 1),
-                          PSkeleton.line(width: 72, height: 11),
-                        ],
-                      ),
-                    ),
-                    PSkeleton(width: 18, height: 18),
+                    Expanded(child: PSkeleton.text(PTypography.t5)),
                   ],
                 ),
-                SizedBox(height: PSpace.x12),
-                Row(
-                  children: [
-                    PSkeleton.line(width: 140, height: 11),
-                    Spacer(),
-                    PSkeleton.line(width: 32, height: 13),
-                  ],
+                const PSkeleton(
+                  height: PProgressBar.height,
+                  radius: PSkeletonRadius.full,
                 ),
-                SizedBox(height: 6),
-                PSkeleton(height: 6, borderRadius: PRadius.brXs),
               ],
             ),
           ),
-        ],
       ],
     );
   }
 }
 
-/// 목표 카드 — design GoalManager 모바일 카드: 탭 = 편집, chevron.
-class _GoalCard extends StatelessWidget {
-  const _GoalCard({
+/// 목표 줄 — 누르면 수정. 앞 타일 40(목표 색 옅은 바탕) · 제목(줄바꿈) + 달성 배지 · 기한, 아래 한 줄 + 막대(fg-brand 한 색).
+class _GoalRow extends StatelessWidget {
+  const _GoalRow({
     required this.goal,
     required this.masked,
-    required this.tokens,
     required this.onEdit,
   });
   final SavingGoal goal;
   final bool masked;
-  final GrooTokens tokens;
   final VoidCallback onEdit;
 
   String? _deadlineLabel() {
@@ -363,119 +276,81 @@ class _GoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final color = resolveChartColor(
-      context,
-      goal.color,
-      fallback: tokens.fgBrand,
-    );
-    final bg = softBg(context, color);
+    final c = context.colors;
+    // 목표 색은 타일에만 남는다 — 막대 · % 는 fg-brand 한 색
+    final color = resolveChartColor(context, goal.color, fallback: c.fgBrand);
     final pct = (goal.progress * 100).round();
-    // 카드 다이어트(recurring_screen 정합) — 항목마다 카드를 두지 않고 행 사이 PDivider 로만
-    // 구분한다. 페이지 배경 위에 카드가 겹겹이 쌓이면 keep 카드(요약)의 위계가 죽는다.
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onEdit,
-        child: Padding(
-          // 좌우 0 — 라벨·추가 버튼과 같은 지점에서 시작한다(설정 리스트 공통 규칙).
-          padding: const EdgeInsets.symmetric(
-            horizontal: 0,
-            vertical: PSpace.x12,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PListButtonItem(
+          title: goal.title,
+          detail: _deadlineLabel() ?? l.savingGoalNoDeadline,
+          titleSuffix: goal.achieved
+              ? [PBadge(label: l.savingGoalAchieved, tone: PBadgeTone.positive)]
+              : null,
+          prefix: PListTile(
+            background: softBg(context, color),
+            color: color,
+            child: Icon(
+              lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
+            ),
           ),
-          child: Column(
+          onTap: onEdit,
+        ),
+        // 줄 아래 10 에 한 줄(좌우 24): 왼쪽 "모은 돈 / 목표", 오른쪽 "{n}%"
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PSpacing.x6,
+            0,
+            PSpacing.x6,
+            PSpacing.x1_5,
+          ),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: bg,
-                      borderRadius: PRadius.tile(40),
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
-                      size: 19,
-                      color: color,
-                    ),
+              Expanded(
+                child: Text(
+                  keepAllAmount(
+                    '${budgetWon(goal.currentAmount, masked)} / ${budgetWon(goal.targetAmount, masked)}',
                   ),
-                  const SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                goal.title,
-                                overflow: TextOverflow.ellipsis,
-                                style: PTypo.body.copyWith(
-                                  color: tokens.fgPrimary,
-                                  fontWeight: PFontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (goal.achieved) ...[
-                              const SizedBox(width: 6),
-                              PBadge(
-                                label: l.savingGoalAchieved,
-                                variant: PBadgeVariant.softSuccess,
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          _deadlineLabel() ?? l.savingGoalNoDeadline,
-                          style: PTypo.caption.copyWith(
-                            color: tokens.fgTertiary,
-                          ),
-                        ),
-                      ],
-                    ),
+                  semanticsLabel:
+                      '${budgetWon(goal.currentAmount, masked)} / ${budgetWon(goal.targetAmount, masked)}',
+                  style: PTypography.t3.copyWith(
+                    color: c.fgNeutralSubtle,
+                    fontWeight: FontWeight.w500,
+                    fontFeatures: tabularFigures,
                   ),
-                  // chevron 을 두지 않는다 — 밀면 수정·삭제가 나오고 탭하면 수정으로
-                  // 가는데, 화살표가 있으면 '들어가서 보는 상세'가 따로 있는 것처럼
-                  // 읽힌다(사용자 결정).
-                ],
+                ),
               ),
-              const SizedBox(height: PSpace.x12),
-              Row(
-                children: [
-                  Text(
-                    '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwSigned(goal.targetAmount, masked, unit: true, mask: '••••')}',
-                    style: PTypo.caption.copyWith(
-                      color: tokens.fgSecondary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '$pct%',
-                    style: PTypo.bodySm.copyWith(
-                      color: color,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: PRadius.brXs,
-                child: LinearProgressIndicator(
-                  value: goal.progress,
-                  minHeight: 6,
-                  backgroundColor: tokens.bgTrack,
-                  color: color,
+              const SizedBox(width: PSpacing.x2),
+              Text(
+                '$pct%',
+                style: PTypography.t4.copyWith(
+                  color: c.fgBrand,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: tabularFigures,
                 ),
               ),
             ],
           ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PSpacing.x6,
+            0,
+            PSpacing.x6,
+            PSpacing.x3,
+          ),
+          child: BudgetBar(
+            value: goal.currentAmount.toDouble(),
+            max: goal.targetAmount.toDouble(),
+            meaning: PProgressMeaning.goal,
+            label: goal.title,
+            valueText: '$pct%',
+          ),
+        ),
+      ],
     );
   }
 }
