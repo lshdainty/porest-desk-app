@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -12,6 +15,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
@@ -301,42 +305,104 @@ class _DeviceRow extends StatelessWidget {
     final when = _relativeTime(l, device.activeAt, now);
     final name = device.deviceLabel ?? l.devicesUnknown;
 
-    return PListItem(
-      // 이름이 두 줄을 넘는다 — 위에 맞춘다
-      align: PListAlign.top,
-      title: name,
-      titleSuffix: device.current
-          ? [
-              PBadge(
-                label: l.devicesCurrent,
-                variant: PBadgeVariant.outline,
-                tone: PBadgeTone.positive,
+    return PTouchTargetScope(
+      child: PListItem(
+        // 이름이 두 줄을 넘는다 — 위에 맞춘다
+        align: PListAlign.top,
+        title: name,
+        titleSuffix: device.current
+            ? [
+                PBadge(
+                  label: l.devicesCurrent,
+                  variant: PBadgeVariant.outline,
+                  tone: PBadgeTone.positive,
+                ),
+              ]
+            : null,
+        detail: when == null ? null : l.devicesLastUsed(when),
+        prefix: ExcludeSemantics(child: Icon(_icon)),
+        // 오른쪽 14 블리드 — 글 끝이 화면 끝 24 에 선다. 누르는 영역은 44 까지.
+        suffix: PListAction(
+          child: Semantics(
+            container: true,
+            button: true,
+            excludeSemantics: true,
+            label: l.devicesLogoutLabel(name),
+            onTap: busy ? null : onRevoke,
+            // 보이는 36 · 블리드 14 밖(위아래 4 · 오른쪽 14)까지 누르는 영역을 넓힌다. 블리드로 부모 줄 상자 밖에
+            // 나간 자리는 부모가 거절하므로 줄 위에서 PTouchTargetScope 가 이어 준다(Card 머리 동작과 같은 짝).
+            child: _BleedTarget(
+              bleed: kTextButtonPaddingX,
+              child: PButton(
+                label: l.devicesLogout,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.small,
+                loading: busy,
+                onPressed: onRevoke,
               ),
-            ]
-          : null,
-      detail: when == null ? null : l.devicesLastUsed(when),
-      prefix: ExcludeSemantics(child: Icon(_icon)),
-      // 오른쪽 14 블리드 — 글 끝이 화면 끝 24 에 선다. 누르는 영역은 44 까지.
-      suffix: PListAction(
-        child: Semantics(
-          container: true,
-          button: true,
-          excludeSemantics: true,
-          label: l.devicesLogoutLabel(name),
-          onTap: busy ? null : onRevoke,
-          child: Transform.translate(
-            offset: const Offset(kTextButtonPaddingX, 0),
-            child: PButton(
-              label: l.devicesLogout,
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.small,
-              loading: busy,
-              onPressed: onRevoke,
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// 버튼을 오른쪽으로 [bleed] 내어 그리고(레이아웃 자리는 그대로), 보이는 36 상자 밖 위아래 4 · 블리드까지 누르는 영역을
+/// 44 로 넓힌다. [PTouchTargetScope] 가 찾는 [PTouchExtendable] 이다 — PTouchTarget 은 정사각 minSize 라 가로 블리드를
+/// 못 받는다.
+class _BleedTarget extends SingleChildRenderObjectWidget {
+  const _BleedTarget({required this.bleed, required super.child});
+
+  final double bleed;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderBleedTarget(bleed);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderBleedTarget renderObject,
+  ) {
+    renderObject.bleed = bleed;
+  }
+}
+
+class _RenderBleedTarget extends RenderProxyBox implements PTouchExtendable {
+  _RenderBleedTarget(this.bleed);
+
+  double bleed;
+
+  @override
+  Rect get touchArea {
+    final dy = math.max(0.0, (PTouch.min - size.height) / 2);
+    return Rect.fromLTRB(0, -dy, size.width + bleed, size.height + dy);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child != null) context.paintChild(child!, offset + Offset(bleed, 0));
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (!touchArea.contains(position)) return false;
+    // 보이는 상자는 레이아웃 상자보다 bleed 오른쪽 — 밖의 점은 상자 가운데를 누른 것으로 친다
+    final visible = Rect.fromLTWH(bleed, 0, size.width, size.height);
+    final inside = visible.contains(position) ? position : visible.center;
+    final hit = result.addWithPaintOffset(
+      offset: Offset(bleed, 0),
+      position: inside,
+      hitTest: (r, p) => child?.hitTest(r, position: p) ?? false,
+    );
+    if (hit) result.add(BoxHitTestEntry(this, position));
+    return hit;
+  }
+
+  @override
+  void applyPaintTransform(RenderObject child, Matrix4 transform) {
+    transform.translateByDouble(bleed, 0, 0, 1);
   }
 }
 

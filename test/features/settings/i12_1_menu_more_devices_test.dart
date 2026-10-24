@@ -499,7 +499,7 @@ void main() {
       expect(find.bySemanticsLabel('Windows 11 · Chrome 로그아웃'), findsOneWidget);
     });
 
-    testWidgets('[로그아웃] 글 fg-neutral · 글 끝이 화면 끝 24 · 누르는 44 · 눌리면 바탕', (
+    testWidgets('[로그아웃] 글 fg-neutral · 글 끝이 화면 끝 24 · flush 없음', (
       tester,
     ) async {
       await _pump(
@@ -518,10 +518,81 @@ void main() {
       expect(tester.getRect(label).right, closeTo(360 - 24, 1));
       final c = GrooTheme.light().extension<PColors>()!;
       expect(tester.widget<Text>(label).style!.color, c.fgNeutral);
-      final row = tester.getRect(find.byType(PListItem).at(1));
-      expect(tester.getRect(btn).height, greaterThanOrEqualTo(36));
-      expect(tester.getRect(btn).bottom, lessThanOrEqualTo(row.bottom));
-      expect(tester.getRect(btn).top, greaterThanOrEqualTo(row.top));
+    });
+
+    testWidgets('[로그아웃] 누르는 영역 — 블리드 끝 · 위 · 아래 44 가 onPressed 에 닿는다', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const DevicesScreen(),
+        repo: _Repo(devices: _devices()),
+      );
+      final btn = find.descendant(
+        of: find.byType(PListItem).at(1),
+        matching: find.byType(PButton),
+      );
+      final r = tester.getRect(btn);
+      expect(r.height, 36);
+      final points = {
+        '블리드 끝': Offset(r.right - 2, r.center.dy),
+        '위 끝(36 밖 4)': Offset(r.center.dx, r.top - 3.5),
+        '아래 끝(36 밖 4)': Offset(r.center.dx, r.bottom + 3.5),
+      };
+      for (final e in points.entries) {
+        await tester.tapAt(e.value);
+        await _go(tester);
+        expect(
+          find.byType(PAlertDialogView),
+          findsOneWidget,
+          reason: '${e.key} ${e.value}',
+        );
+        await tester.tap(find.widgetWithText(PButton, '취소'));
+        await _go(tester);
+        await _go(tester);
+        expect(find.byType(PAlertDialogView), findsNothing);
+      }
+    });
+
+    testWidgets('[로그아웃] 누르는 동안 눌림 바탕', (tester) async {
+      await _pump(
+        tester,
+        const DevicesScreen(),
+        repo: _Repo(devices: _devices()),
+      );
+      final btn = find.descendant(
+        of: find.byType(PListItem).at(1),
+        matching: find.byType(PButton),
+      );
+      final c = GrooTheme.light().extension<PColors>()!;
+      final pressed = resolvePButtonColors(
+        c,
+        variant: PButtonVariant.ghost,
+        state: PButtonState.pressed,
+      ).background;
+      bool hasColor(Color col) => find
+          .descendant(
+            of: btn,
+            matching: find.byWidgetPredicate(
+              (w) =>
+                  (w is DecoratedBox &&
+                      w.decoration is BoxDecoration &&
+                      (w.decoration as BoxDecoration).color == col) ||
+                  (w is AnimatedContainer &&
+                      w.decoration is BoxDecoration &&
+                      (w.decoration as BoxDecoration).color == col),
+            ),
+          )
+          .evaluate()
+          .isNotEmpty;
+      expect(pressed.a, greaterThan(0));
+      final g = await tester.startGesture(tester.getCenter(btn));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(hasColor(pressed), isTrue);
+      await g.up();
+      await _go(tester);
     });
 
     testWidgets('빈 목록 = Result Section empty · 모두 로그아웃 없음', (tester) async {
