@@ -12,7 +12,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
+import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/shared/icons/filled_star.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_screen.dart';
 import 'package:groo_damda_app/features/todo/presentation/widgets/todo_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -396,6 +399,36 @@ void main() {
         findsNothing,
       );
     });
+  });
+
+  testWidgets('★ 표시 — 수집한 날 · 키운 별자리는 채운 별(PFilledStar) 10 · 별자리 색', (
+    tester,
+  ) async {
+    final n = DateTime.now();
+    if (n.day < 3) return;
+    final grown = SkyDay(
+      date: thisMonth(n.day - 1),
+      status: 'GROWN',
+      constellationKey: 'lyra',
+      colorKey: 'violet',
+      points: 5,
+      guardUsed: false,
+    );
+    await pumpApp(
+      tester,
+      const TodoScreen(),
+      overrides: todoOverrides(todos: _basic(), skyDays: [grown]),
+    );
+    // 월 달력을 펼쳐 지난 날을 본다
+    await tester.tap(find.byIcon(LucideIcons.chevronDown));
+    await tester.pumpAndSettle();
+    final stars = find.byType(PFilledStar);
+    expect(stars, findsOneWidget);
+    expect(tester.getSize(stars), const Size(10, 10));
+    expect(
+      tester.widget<PFilledStar>(stars).color,
+      constellationColor(tester.element(stars), 'violet'),
+    );
   });
 
   group('12 · 13 할 일 줄', () {

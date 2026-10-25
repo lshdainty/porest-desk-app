@@ -23,6 +23,7 @@ import 'package:groo_damda_app/features/todo/presentation/widgets/todo_filter_sh
 import 'package:groo_damda_app/features/todo/presentation/widgets/todo_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/icons/filled_star.dart';
 import 'package:groo_damda_app/shared/ds/floating_action_button/p_floating_action_button.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
@@ -572,8 +573,7 @@ class _CellMark extends StatelessWidget {
     final Widget? child = switch (mark) {
       _ when loading => null,
       TodoCellCollected(:final colorKey) ||
-      TodoCellGrown(:final colorKey) => Icon(
-        LucideIcons.star,
+      TodoCellGrown(:final colorKey) => PFilledStar(
         size: iconSize,
         color: constellationColor(context, colorKey),
       ),
