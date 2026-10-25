@@ -11,6 +11,59 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart' as ds;
 
+/// 날짜 묶음 머리의 틀 — 글 + 오른쪽 자리(슬롯). 가계부 · 검색([PDayHeader])과 할 일(날짜 오른쪽 "2/5 완료")이 같이 쓴다.
+///
+/// List Header `mediumWeak`(t4 14 / 19 · 500 · `fg-neutral-subtle` · 좌우 24 · 위아래 8 · gap 10). 오른쪽 자리가 머리 폭의 절반을
+/// 넘으면 제목 아래 줄 오른쪽 끝으로 내려간다([PHeaderRow]). 머리말 `headingLevel: 2`.
+class PDayHeaderRow extends StatelessWidget {
+  const PDayHeaderRow({
+    super.key,
+    required this.text,
+    this.trailing,
+    this.gutter,
+  });
+
+  /// 날짜 글 — `"26. 10. 22(목) · 오늘"` · `"10월 22일 (수) · 어제"`.
+  final String text;
+
+  /// 오른쪽 자리 — 합계(거래) · "2/5 완료"(할 일). 없으면 비운다.
+  final Widget? trailing;
+
+  /// **임시 인자** — 좌우 여백 기본 24. 바깥 24 를 아직 쥔 호스트(검색)만 0 을 준다.
+  final double? gutter;
+
+  /// 머리 글자 — t4 · 500 · `fg-neutral-subtle` · 고정폭. 오른쪽 자리 글도 이 모양에서 색만 바꾼다.
+  static TextStyle textStyle(PColors c) => PTypography.t4.copyWith(
+    color: c.fgNeutralSubtle,
+    fontWeight: FontWeight.w500,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Padding(
+      key: const ValueKey('day-header'),
+      padding: EdgeInsets.symmetric(
+        horizontal: gutter ?? PSpacing.globalGutter,
+        vertical: PSpacing.x2,
+      ),
+      child: PHeaderRow(
+        gap: PSpacing.x2_5,
+        expandTitle: true,
+        title: Semantics(
+          header: true,
+          headingLevel: 2,
+          container: true,
+          label: text,
+          child: ExcludeSemantics(child: Text(text, style: textStyle(c))),
+        ),
+        action: trailing,
+      ),
+    );
+  }
+}
+
 /// 날짜 묶음 머리 — List Header `mediumWeak`(t4 14 / 19 · 500 · `fg-neutral-subtle` · 좌우 24 · 위아래 8 · gap 10) 값이다(I-07 14).
 ///
 /// 글 `"26. 10. 22(목) · 오늘"` + 그날 합계(지출 `fg-neutral` · 수입 `fg-brand` + "+" · t4 500 고정폭). 합계가 머리 폭의 절반을
@@ -53,11 +106,7 @@ class PDayHeader extends StatelessWidget {
     final label = formatDay(date);
     final text =
         '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})${rel == null ? '' : ' · $rel'}';
-    final style = PTypography.t4.copyWith(
-      color: c.fgNeutralSubtle,
-      fontWeight: FontWeight.w500,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
+    final style = PDayHeaderRow.textStyle(c);
     final dayExpense = expenseSum(items);
     final dayIncome = incomeSum(items);
     final sums = (dayExpense > 0 || dayIncome > 0)
@@ -88,25 +137,7 @@ class PDayHeader extends StatelessWidget {
             ],
           )
         : null;
-    return Padding(
-      key: const ValueKey('day-header'),
-      padding: EdgeInsets.symmetric(
-        horizontal: gutter ?? PSpacing.globalGutter,
-        vertical: PSpacing.x2,
-      ),
-      child: PHeaderRow(
-        gap: PSpacing.x2_5,
-        expandTitle: true,
-        title: Semantics(
-          header: true,
-          headingLevel: 2,
-          container: true,
-          label: text,
-          child: ExcludeSemantics(child: Text(text, style: style)),
-        ),
-        action: sums,
-      ),
-    );
+    return PDayHeaderRow(text: text, trailing: sums, gutter: gutter);
   }
 
   static String _ymd(DateTime d) =>

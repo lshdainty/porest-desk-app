@@ -25,9 +25,13 @@ class PListHeader extends StatelessWidget {
     required this.title,
     this.variant = PListHeaderVariant.mediumWeak,
     this.action,
+    this.headingLevel = 2,
   });
 
   final String title;
+
+  /// 머리말 단계 — 기본 2. 대화상자 · 시트 안의 목록 제목은 한 단계 낮춰 3 으로 준다(제목은 화면 머리말의 아래다).
+  final int headingLevel;
   final PListHeaderVariant variant;
 
   /// 오른쪽 글 버튼([PTextButton]) — 있을 때만(전체 보기).
@@ -58,7 +62,7 @@ class PListHeader extends StatelessWidget {
           expandTitle: false,
           title: Semantics(
             header: true,
-            headingLevel: 2,
+            headingLevel: headingLevel,
             container: true,
             label: title,
             child: ExcludeSemantics(

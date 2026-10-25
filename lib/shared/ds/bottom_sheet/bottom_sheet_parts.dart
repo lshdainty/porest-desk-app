@@ -184,6 +184,7 @@ class PBottomSheetContent extends StatelessWidget {
     this.onClose,
     required this.body,
     this.footer = const [],
+    this.footerRow,
     this.scrollFog = false,
     this.flushBody = false,
     this.closePressed = false,
@@ -192,6 +193,10 @@ class PBottomSheetContent extends StatelessWidget {
          '닫기 버튼의 이름(closeLabel)이 필요하다',
        ),
        assert(footer.length <= 2, '바닥 버튼은 하나 또는 둘이다'),
+       assert(
+         footerRow == null || footer.isEmpty,
+         '바닥 줄(footerRow)을 직접 주면 바닥 버튼(footer)은 비운다',
+       ),
        assert(
          footer.every((b) => b.size == PButtonSize.large),
          '바닥 버튼은 Button large 48 이다',
@@ -216,6 +221,10 @@ class PBottomSheetContent extends StatelessWidget {
 
   /// 바닥 버튼 — 입력 폼은 저장 하나, 고르기는 초기화(왼쪽) + 적용(오른쪽).
   final List<PButton> footer;
+
+  /// 바닥 줄을 직접 그린다 — 스펙의 바닥(버튼 하나 · 둘)에 없는 짜임(수정 폼 왼쪽 [삭제] + [저장], I-10 태그)에만. [footer] 와 같은
+  /// 여백(위 12 · 좌우 24 · 아래 16) 안에 놓인다.
+  final Widget? footerRow;
 
   /// 끝 흐림 — 넘칠 수 있는 본문에만.
   final bool scrollFog;
@@ -303,7 +312,9 @@ class PBottomSheetContent extends StatelessWidget {
             key: const ValueKey('p-bottom-sheet-body'),
             controller: controller?.bodyController,
             // 바닥이 없어 본문이 맨 끝이면 아래 16(바닥의 아래 여백)
-            padding: EdgeInsets.only(bottom: footer.isEmpty ? PSpacing.x4 : 0),
+            padding: EdgeInsets.only(
+              bottom: footer.isEmpty && footerRow == null ? PSpacing.x4 : 0,
+            ),
             child: padded,
           );
     final bodyBox = ScrollConfiguration(
@@ -335,7 +346,7 @@ class PBottomSheetContent extends StatelessWidget {
                 fit: fills ? FlexFit.tight : FlexFit.loose,
                 child: bodyBox,
               ),
-              if (footer.isNotEmpty)
+              if (footer.isNotEmpty || footerRow != null)
                 Padding(
                   key: const ValueKey('p-bottom-sheet-footer'),
                   padding: const EdgeInsets.fromLTRB(
@@ -345,7 +356,9 @@ class PBottomSheetContent extends StatelessWidget {
                     PSpacing.x4,
                   ),
                   // 둘이면 짝 버튼 — 라벨이 반 폭을 넘으면 세로로 쌓는다(주 버튼이 위, 03A-013)
-                  child: footer.length == 2
+                  child: footerRow != null
+                      ? footerRow!
+                      : footer.length == 2
                       ? PResponsivePair(
                           secondary: footer.first,
                           primary: footer.last,

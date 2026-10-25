@@ -129,6 +129,7 @@ class PBadge extends StatelessWidget {
     this.variant = PBadgeVariant.weak,
     this.tone = PBadgeTone.neutral,
     this.size = PBadgeSize.medium,
+    this.disabled = false,
   });
 
   final String label;
@@ -137,9 +138,19 @@ class PBadge extends StatelessWidget {
   final PBadgeTone tone;
   final PBadgeSize size;
 
+  /// 끝낸 줄 안의 배지 — 바탕 `bg-disabled` · 글 `fg-disabled`(List 의 비활성과 같은 색, 흐리게 하지 않는다). 변형 · 톤은 무시한다
+  /// (웹 할 일 줄이 `bg-bg-disabled text-fg-disabled` 로 덮는 것과 같다).
+  final bool disabled;
+
   @override
   Widget build(BuildContext context) {
-    final colors = resolvePBadgeColors(context.colors, variant, tone);
+    final colors = disabled
+        ? (
+            background: context.colors.bgDisabled,
+            foreground: context.colors.fgDisabled,
+            border: null,
+          )
+        : resolvePBadgeColors(context.colors, variant, tone);
     final large = size == PBadgeSize.large;
     final radius = BorderRadius.circular(large ? PRounded.r1_5 : PRounded.r1);
     final weight = variant == PBadgeVariant.weak

@@ -10,7 +10,8 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 enum PTagGroupSize { t2, t3, t4 }
 
 /// 톤 — neutralSubtle(흐린 글자, 기본) · neutral(본문 글자 — 앞세울 항목) · brand(아껴 쓴다).
-enum PTagTone { neutralSubtle, neutral, brand }
+/// `disabled` — 끝낸 줄 안의 설명(`fg-disabled`). 막힌 줄 안의 Tag Group 규칙(tag-group.md "비활성")을 줄이 막히지 않은 끝낸 할 일에도 쓴다.
+enum PTagTone { neutralSubtle, neutral, brand, disabled }
 
 /// 굵기 — regular 400(기본) · bold 700(앞세울 항목 하나).
 enum PTagWeight { regular, bold }
@@ -89,6 +90,7 @@ class PTagGroup extends StatelessWidget {
       PTagTone.neutralSubtle => c.fgNeutralSubtle,
       PTagTone.neutral => c.fgNeutral,
       PTagTone.brand => c.fgBrand,
+      PTagTone.disabled => c.fgDisabled,
     };
     TextStyle itemStyle(PTag item) => m.style.copyWith(
       color: colorOf(item.tone ?? tone),

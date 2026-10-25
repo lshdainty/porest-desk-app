@@ -1,0 +1,231 @@
+// I-10 10-1 에서 가계부 · 검색과 함께 쓰도록 넓힌 공용 부품 — 거래 쪽 겉모습은 그대로이고 할 일이 쓰는 자리만 더해졌다.
+//   · PDayHeaderRow — 날짜 글 + 오른쪽 자리(슬롯). 거래는 합계, 할 일은 "2/5 완료"
+//   · LedgerMonthNav — 추가 단추 없이 · 거르기 알림 점
+//   · LedgerCalendarGrid — 칸 이름(cellLabel)
+//   · PBadge.disabled · PTagTone.disabled — 끝낸 줄 안의 모양
+//   · PListHeader.headingLevel · PBottomSheetContent.footerRow · PFormDeleteFooter
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
+import 'package:groo_damda_app/shared/forms/form_delete_footer.dart';
+import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
+import '../features/todo/todo_test_support.dart';
+import '../support/plain_text.dart';
+
+void main() {
+  setUpAll(loadRealFonts);
+
+  testWidgets(
+    'PDayHeaderRow — 글 t4 500 fg-neutral-subtle · 좌우 24 위아래 8 · 머리말 2 · 오른쪽 자리',
+    (tester) async {
+      await pumpApp(
+        tester,
+        const Scaffold(
+          body: PDayHeaderRow(text: '10월 21일 (수)', trailing: Text('2/5 완료')),
+        ),
+      );
+      final c = tester.element(find.byType(PDayHeaderRow)).colors;
+      final handle = tester.ensureSemantics();
+      final text = tester.widget<Text>(findPlain('10월 21일 (수)'));
+      expect(text.style!.fontSize, 14);
+      expect(text.style!.fontWeight, FontWeight.w500);
+      expect(text.style!.color, c.fgNeutralSubtle);
+      final box = tester.getRect(find.byType(PDayHeaderRow));
+      expect(tester.getTopLeft(findPlain('10월 21일 (수)')).dx, 24);
+      expect(tester.getTopRight(find.text('2/5 완료')).dx, 360 - 24);
+      // 위 8 — 글 줄 높이가 머리 높이의 가운데에 선다
+      expect(
+        tester.getTopLeft(findPlain('10월 21일 (수)')).dy - box.top,
+        closeTo(8, 1.5),
+      );
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('10월 21일 (수)'))
+            .getSemanticsData()
+            .headingLevel,
+        2,
+      );
+      handle.dispose();
+    },
+  );
+
+  testWidgets(
+    'LedgerMonthNav — 추가 단추를 비우면 없다 · filterOn 이면 알림 점 하나 · 이름 "필터, 조건 걸림"',
+    (tester) async {
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: LedgerMonthNav(
+            label: '10월',
+            onPrev: () {},
+            onNext: () {},
+            onOpenFilter: () {},
+            filterOn: true,
+          ),
+        ),
+      );
+      final handle = tester.ensureSemantics();
+      expect(find.byIcon(LucideIcons.plus), findsNothing);
+      expect(find.bySemanticsLabel('필터, 조건 걸림'), findsOneWidget);
+      expect(find.byKey(const ValueKey('notification-badge')), findsOneWidget);
+      handle.dispose();
+
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: LedgerMonthNav(
+            label: '10월',
+            onPrev: () {},
+            onNext: () {},
+            onOpenFilter: () {},
+            onAddTx: () {},
+          ),
+        ),
+      );
+      expect(find.byIcon(LucideIcons.plus), findsOneWidget);
+      expect(find.byKey(const ValueKey('notification-badge')), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'LedgerCalendarGrid — cellLabel 을 주면 칸이 그 이름 하나로 읽히고 표시는 읽히지 않는다',
+    (tester) async {
+      final n = DateTime.now();
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: LedgerCalendarGrid(
+            month: DateTime(n.year, n.month, 1),
+            selected: ymd(n),
+            expanded: false,
+            onSelect: (_) {},
+            onToggleExpand: () {},
+            markBuilder: (context, ds) => const SizedBox(height: 15),
+            cellLabel: (context, ds) => ds == ymd(n) ? '오늘 칸' : null,
+          ),
+        ),
+      );
+      final handle = tester.ensureSemantics();
+      expect(find.bySemanticsLabel('오늘 칸'), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
+  testWidgets('PBadge.disabled — bg-disabled · fg-disabled(톤 · 변형은 무시)', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      const Scaffold(
+        body: PBadge(label: '중요', tone: PBadgeTone.critical, disabled: true),
+      ),
+    );
+    final c = tester.element(find.byType(PBadge)).colors;
+    final box = tester.widget<Container>(
+      find
+          .descendant(of: find.byType(PBadge), matching: find.byType(Container))
+          .first,
+    );
+    expect((box.decoration! as BoxDecoration).color, c.bgDisabled);
+    expect(tester.widget<Text>(find.text('중요')).style!.color, c.fgDisabled);
+  });
+
+  testWidgets('PTagTone.disabled — 항목 글이 fg-disabled', (tester) async {
+    await pumpApp(
+      tester,
+      const Scaffold(
+        body: PTagGroup(
+          size: PTagGroupSize.t3,
+          items: [PTag('업무', tone: PTagTone.disabled)],
+        ),
+      ),
+    );
+    final c = tester.element(find.byType(PTagGroup)).colors;
+    final t = tester.widget<Text>(find.byType(Text).first);
+    final span = (t.textSpan! as TextSpan).children!.first as TextSpan;
+    expect(span.style!.color, c.fgDisabled);
+  });
+
+  testWidgets('PListHeader.headingLevel — 기본 2 · 3 으로 낮출 수 있다', (tester) async {
+    await pumpApp(
+      tester,
+      const Scaffold(
+        body: Column(
+          children: [
+            PListHeader(title: '둘'),
+            PListHeader(title: '셋', headingLevel: 3),
+          ],
+        ),
+      ),
+    );
+    final handle = tester.ensureSemantics();
+    int level(String label) => tester
+        .getSemantics(find.bySemanticsLabel(label))
+        .getSemanticsData()
+        .headingLevel;
+    expect(level('둘'), 2);
+    expect(level('셋'), 3);
+    handle.dispose();
+  });
+
+  testWidgets(
+    'PBottomSheetContent.footerRow — 바닥 여백(위 12 · 좌우 24) 안에 직접 그린 줄 · footer 와 함께 못 준다',
+    (tester) async {
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: PBottomSheetContent(
+            title: '제목',
+            closeLabel: '닫기',
+            body: const SizedBox(height: 40),
+            footerRow: PFormDeleteFooter(
+              deleteLabel: '삭제',
+              onDelete: () {},
+              save: PButton(
+                label: '저장',
+                size: PButtonSize.large,
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      final footer = find.byKey(const ValueKey('p-bottom-sheet-footer'));
+      expect(footer, findsOneWidget);
+      final del = find.byWidgetPredicate(
+        (w) => w is PButton && w.label == '삭제',
+      );
+      final save = find.byWidgetPredicate(
+        (w) => w is PButton && w.label == '저장',
+      );
+      expect(tester.getRect(del).left, 24);
+      expect(tester.getRect(save).right, 360 - 24);
+      expect(tester.getSize(del).height, 36);
+      expect(tester.getSize(save).height, 48);
+      final d = tester.widget<PButton>(del);
+      expect(d.ghostColor, PButtonGhostColor.critical);
+      expect(d.variant, PButtonVariant.ghost);
+      expect(d.flush, isNull);
+      expect(
+        () => PBottomSheetContent(
+          title: '제목',
+          closeLabel: '닫기',
+          body: const SizedBox(),
+          footer: [
+            PButton(label: '가', size: PButtonSize.large, onPressed: () {}),
+          ],
+          footerRow: const SizedBox(),
+        ),
+        throwsAssertionError,
+      );
+    },
+  );
+}

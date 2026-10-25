@@ -13,6 +13,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
 import 'package:groo_damda_app/shared/ds/overflow_center/p_overflow_center.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
@@ -28,6 +29,8 @@ String ledgerYmd(DateTime d) =>
     '${d.day.toString().padLeft(2, '0')}';
 
 /// 달 이동 줄 — ‹ M월 › + 오른쪽 거르기 · 거래 추가. 단추는 Button ghost medium iconOnly(보이는 40 · 아이콘 18 · 누르는 44).
+///
+/// 할 일도 같이 쓴다 — 추가는 떠 있는 [+] 가 맡아 [onAddTx] 를 비우고, 걸린 조건은 개수 대신 거르기 단추의 알림 점([filterOn])이 말한다.
 class LedgerMonthNav extends StatelessWidget {
   const LedgerMonthNav({
     super.key,
@@ -35,8 +38,9 @@ class LedgerMonthNav extends StatelessWidget {
     required this.onPrev,
     required this.onNext,
     required this.onOpenFilter,
-    required this.onAddTx,
+    this.onAddTx,
     this.showMonth = true,
+    this.filterOn = false,
   });
 
   final String label;
@@ -44,7 +48,12 @@ class LedgerMonthNav extends StatelessWidget {
   final VoidCallback onPrev;
   final VoidCallback onNext;
   final VoidCallback onOpenFilter;
-  final VoidCallback onAddTx;
+
+  /// 오른쪽 [+] — 비우면 두지 않는다(할 일은 떠 있는 [+] 가 맡는다).
+  final VoidCallback? onAddTx;
+
+  /// 걸린 조건이 있다 — 거르기 단추에 알림 점 하나(숫자 없음). 이름은 "필터, 조건 걸림".
+  final bool filterOn;
 
   // 단추 40 의 안쪽 아이콘이 화면 여백 24 에 서도록 여백을 단추 안쪽 여백만큼 덜어 낸다.
   static const double _bleed = (PSpacing.x10 - PSpacing.x4_5) / 2;
@@ -85,26 +94,42 @@ class LedgerMonthNav extends StatelessWidget {
             ),
           ],
           const Spacer(),
-          // 걸린 조건의 개수는 배지로 말하지 않는다 — 아래 칩 줄이 말한다.
-          PButton.icon(
-            icon: LucideIcons.slidersHorizontal,
-            semanticLabel: l.expFilter,
-            variant: PButtonVariant.ghost,
-            onPressed: onOpenFilter,
+          // 걸린 조건의 개수는 배지로 말하지 않는다 — 가계부는 아래 칩 줄이, 할 일은 알림 점 하나가 말한다.
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              PButton.icon(
+                icon: LucideIcons.slidersHorizontal,
+                semanticLabel: filterOn ? l.tdmFilterOn : l.expFilter,
+                variant: PButtonVariant.ghost,
+                onPressed: onOpenFilter,
+              ),
+              if (filterOn)
+                const Positioned.fill(
+                  child: IgnorePointer(
+                    child: Center(
+                      child: PNotificationBadge(
+                        child: SizedBox.square(dimension: PSpacing.x4_5),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          PButton.icon(
-            icon: LucideIcons.plus,
-            semanticLabel: l.expAdd,
-            variant: PButtonVariant.ghost,
-            onPressed: onAddTx,
-          ),
+          if (onAddTx != null)
+            PButton.icon(
+              icon: LucideIcons.plus,
+              semanticLabel: l.expAdd,
+              variant: PButtonVariant.ghost,
+              onPressed: onAddTx,
+            ),
         ],
       ),
     );
   }
 }
 
-/// 이달 지출 합계(R13 지표 t9) + 인사이트 한 줄 + [소비 요약] 단추.
+/// 이달 지출 합계(R13 지표 t9) + 인사이트 한 줄 + [소비 요약] 단추. 할 일은 "오늘 할 일 3개" + 별빛 한 줄 + [밤하늘] 로 같이 쓴다.
 class LedgerTotalRow extends StatelessWidget {
   const LedgerTotalRow({
     super.key,
@@ -114,7 +139,15 @@ class LedgerTotalRow extends StatelessWidget {
     required this.onToggleSummary,
     this.loading = false,
     this.failed = false,
+    this.buttonLabel,
+    this.buttonIcon,
   });
+
+  /// 오른쪽 단추 글 — 비우면 "소비 요약"(가계부). 할 일은 "밤하늘".
+  final String? buttonLabel;
+
+  /// 오른쪽 단추 앞 아이콘 — 할 일 [밤하늘] 의 sparkles.
+  final IconData? buttonIcon;
 
   /// 합계 글 — 로딩 중이면 null.
   final String? total;
@@ -143,11 +176,13 @@ class LedgerTotalRow extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, box) {
+          final label = buttonLabel ?? l.txmSpendSummary;
           final button = Semantics(
             container: true,
             expanded: summaryOpen,
             child: PButton(
-              label: l.txmSpendSummary,
+              label: label,
+              prefixIcon: buttonIcon,
               size: PButtonSize.small,
               variant: PButtonVariant.neutralOutline,
               onPressed: (loading || failed) ? null : onToggleSummary,
@@ -181,7 +216,8 @@ class LedgerTotalRow extends StatelessWidget {
           );
           // 단추가 폭의 절반을 넘게 차지하면(큰 글자 · 영어) 합계가 글자 하나씩 꺾이므로 단추를 아래 줄로 내린다(웹 flex-wrap).
           final wide = PButton(
-            label: l.txmSpendSummary,
+            label: label,
+            prefixIcon: buttonIcon,
             size: PButtonSize.small,
             onPressed: null,
           ).naturalWidth(context);
@@ -287,7 +323,7 @@ String _tooltipHead(String ds) {
       : '${d.month}월 ${d.day}일 ($dow)';
 }
 
-/// 접이식 캘린더 — 접힘: 선택 주 1줄 / 펼침: 월 전체. 요일 t2 · 날 숫자 t5 · 칸 금액 t1.
+/// 접이식 캘린더 — 가계부 칸 아래는 금액(t1)이다. 격자는 [LedgerCalendarGrid] 가 그린다.
 class LedgerCalendar extends StatelessWidget {
   const LedgerCalendar({
     super.key,
@@ -313,6 +349,85 @@ class LedgerCalendar extends StatelessWidget {
 
   /// 칸 금액 자리만 기다린다(요일 · 날 숫자는 그대로).
   final bool loading;
+
+  /// 날 숫자 원 — 눈금 36.
+  static const double dayCircle = LedgerCalendarGrid.dayCircle;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    TextStyle amountStyle(Color color) => PTypography.t1.copyWith(
+      fontWeight: FontWeight.w700,
+      color: color,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    return LedgerCalendarGrid(
+      month: month,
+      selected: selected,
+      expanded: expanded,
+      onSelect: onSelect,
+      onToggleExpand: onToggleExpand,
+      markBuilder: (context, ds) {
+        if (loading) return PSkeleton.text(PTypography.t1, width: 32);
+        final data = byDay[ds];
+        if (data == null) return const SizedBox(height: PSpacing.x3);
+        return LedgerCellTooltip(
+          title: _tooltipHead(ds),
+          out: data.out,
+          inn: data.inn,
+          flags: flags,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (data.out > 0)
+                Text(
+                  '−${flags.of(MaskKind.expense) ? '••' : krw(data.out)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: amountStyle(c.fgNeutral),
+                ),
+              if (data.inn > 0)
+                Text(
+                  '+${flags.of(MaskKind.income) ? '••' : krw(data.inn)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: amountStyle(c.fgBrand),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// 접이식 캘린더의 격자 — 접힘: 선택 주 1줄 / 펼침: 월 전체. 요일 t2 · 날 숫자 t5. 칸 아래 표시는 쓰는 화면이 채운다
+/// ([markBuilder] — 가계부 = 금액, 할 일 = 남은 수 · ★ · 구름 · ✓). 가계부 · 할 일 폰 원장이 같이 쓴다.
+///
+/// [cellLabel] 을 주면 칸 하나가 그 이름 하나로 읽힌다(표시는 장식이 되어 읽지 않는다) — 할 일은 "10월 22일, 남은 할 일 3개".
+class LedgerCalendarGrid extends StatelessWidget {
+  const LedgerCalendarGrid({
+    super.key,
+    required this.month,
+    required this.selected,
+    required this.expanded,
+    required this.onSelect,
+    required this.onToggleExpand,
+    required this.markBuilder,
+    this.cellLabel,
+  });
+
+  final DateTime month;
+  final String? selected;
+  final bool expanded;
+  final ValueChanged<String> onSelect;
+  final VoidCallback onToggleExpand;
+
+  /// 날 숫자 아래 표시 — 없으면 빈 자리를 돌려준다.
+  final Widget Function(BuildContext context, String ds) markBuilder;
+
+  /// 칸의 읽는 이름 — 없으면 이름을 달지 않는다(가계부).
+  final String? Function(BuildContext context, String ds)? cellLabel;
 
   /// 날 숫자 원 — 눈금 36.
   static const double dayCircle = PSpacing.x9;
@@ -351,18 +466,11 @@ class LedgerCalendar extends StatelessWidget {
     }
     if (selWeek < 0) selWeek = 0;
 
-    TextStyle amountStyle(Color color) => PTypography.t1.copyWith(
-      fontWeight: FontWeight.w700,
-      color: color,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-
     Widget cell(({int d, String ds})? cellData, int i) {
       if (cellData == null) {
         return const Expanded(child: SizedBox(height: PSpacing.x14));
       }
       final isSel = cellData.ds == selected;
-      final data = loading ? null : byDay[cellData.ds];
       final future = cellData.ds.compareTo(todayStr) > 0;
       // 오는 날은 불투명도로 흐리지 않고 옅은 글자색 역할로 말한다(v106).
       // 일 = 치명 · 토 = 브랜드(옛 뜻 그대로 — 색 이름만 새것)
@@ -373,85 +481,63 @@ class LedgerCalendar extends StatelessWidget {
           : (i % 7 == 0
                 ? c.fgCritical
                 : (i % 7 == 6 ? c.fgBrand : c.fgNeutral));
-      Widget amounts() => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (data!.out > 0)
-            Text(
-              '−${flags.of(MaskKind.expense) ? '••' : krw(data.out)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: amountStyle(c.fgNeutral),
-            ),
-          if (data.inn > 0)
-            Text(
-              '+${flags.of(MaskKind.income) ? '••' : krw(data.inn)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: amountStyle(c.fgBrand),
-            ),
-        ],
-      );
-      return Expanded(
-        child: InkWell(
-          onTap: () => onSelect(cellData.ds),
-          borderRadius: BorderRadius.circular(PRounded.r3),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, PSpacing.x1, 0, PSpacing.x2),
-            child: Column(
-              children: [
-                // 원이 칸보다 넓어지면(글자 200%) 가운데 기준으로 이웃 쪽으로 넘친다 — 글자는 줄이지 않고(웹 `LedgerCellNum` 과 같다)
-                // 숫자는 한 줄로 둔다(maxLines 1 · softWrap false)
-                POverflowCenter(
-                  child: Container(
-                    // 최소 36 · 좌우 4 — 글자 200% 에서 두 자리 날이 잘리지 않게 글을 따라 늘어난다(웹 `min-w-x9 px-x1`)
-                    constraints: const BoxConstraints(
-                      minWidth: dayCircle,
-                      minHeight: dayCircle,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: PSpacing.x1,
-                    ),
-                    decoration: isSel
-                        ? BoxDecoration(
-                            color: c.bgBrandSolid,
-                            borderRadius: BorderRadius.circular(PRounded.full),
-                          )
-                        : null,
-                    child: Center(
-                      widthFactor: 1,
-                      heightFactor: 1,
-                      child: Text(
-                        '${cellData.d}',
-                        maxLines: 1,
-                        softWrap: false,
-                        style: PTypography.t5.copyWith(
-                          fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                          color: numColor,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
+      final label = cellLabel?.call(context, cellData.ds);
+      Widget inner = InkWell(
+        onTap: () => onSelect(cellData.ds),
+        borderRadius: BorderRadius.circular(PRounded.r3),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, PSpacing.x1, 0, PSpacing.x2),
+          child: Column(
+            children: [
+              // 원이 칸보다 넓어지면(글자 200%) 가운데 기준으로 이웃 쪽으로 넘친다 — 글자는 줄이지 않고(웹 `LedgerCellNum` 과 같다)
+              // 숫자는 한 줄로 둔다(maxLines 1 · softWrap false)
+              POverflowCenter(
+                child: Container(
+                  // 최소 36 · 좌우 4 — 글자 200% 에서 두 자리 날이 잘리지 않게 글을 따라 늘어난다(웹 `min-w-x9 px-x1`)
+                  constraints: const BoxConstraints(
+                    minWidth: dayCircle,
+                    minHeight: dayCircle,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
+                  decoration: isSel
+                      ? BoxDecoration(
+                          color: c.bgBrandSolid,
+                          borderRadius: BorderRadius.circular(PRounded.full),
+                        )
+                      : null,
+                  child: Center(
+                    widthFactor: 1,
+                    heightFactor: 1,
+                    child: Text(
+                      '${cellData.d}',
+                      maxLines: 1,
+                      softWrap: false,
+                      style: PTypography.t5.copyWith(
+                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                        color: numColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: PSpacing.x1),
-                if (loading)
-                  PSkeleton.text(PTypography.t1, width: 32)
-                else if (data != null)
-                  LedgerCellTooltip(
-                    title: _tooltipHead(cellData.ds),
-                    out: data.out,
-                    inn: data.inn,
-                    flags: flags,
-                    child: amounts(),
-                  )
-                else
-                  const SizedBox(height: PSpacing.x3),
-              ],
-            ),
+              ),
+              const SizedBox(height: PSpacing.x1),
+              markBuilder(context, cellData.ds),
+            ],
           ),
         ),
       );
+      if (label != null) {
+        inner = Semantics(
+          container: true,
+          button: true,
+          label: label,
+          excludeSemantics: true,
+          onTap: () => onSelect(cellData.ds),
+          child: inner,
+        );
+      }
+      return Expanded(child: inner);
     }
 
     final dows = weekdayLabels();
@@ -494,7 +580,7 @@ class LedgerCalendar extends StatelessWidget {
           ),
           for (final w in expanded ? weeks : [weeks[selWeek]])
             Row(
-              // 금액 줄 수가 달라도 날짜 숫자 y 고정.
+              // 표시 줄 수가 달라도 날짜 숫자 y 고정.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [for (var i = 0; i < 7; i++) cell(w[i], i)],
             ),
