@@ -86,7 +86,15 @@ class _CalendarFilterSheet extends ConsumerWidget {
                   if (cal.isDefault)
                     PListItem(
                       title: cal.calendarName,
-                      prefix: _Dot(chartToneOf(context, cal.color).solid),
+                      // 체크 자리(24)를 비워 이름이 체크 줄과 한 세로선에 선다
+                      prefix: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: PSpacing.x3,
+                        children: [
+                          const SizedBox(width: PSpacing.x6),
+                          _Dot(chartToneOf(context, cal.color).solid),
+                        ],
+                      ),
                       titleSuffix: [PBadge(label: l.calDefault)],
                     )
                   else
@@ -95,7 +103,6 @@ class _CalendarFilterSheet extends ConsumerWidget {
                       checked: cal.isVisible,
                       onChanged: (_) => toggle(cal),
                       prefix: _Dot(chartToneOf(context, cal.color).solid),
-                      markPosition: PListMarkPosition.suffix,
                     ),
               ],
             ),
@@ -118,7 +125,6 @@ class _CalendarFilterSheet extends ConsumerWidget {
                     color: chartToneOfKey(context, 'red').solid,
                   ),
                 ),
-                markPosition: PListMarkPosition.suffix,
               ),
             ],
           ),
@@ -152,10 +158,17 @@ class _Dot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: Container(
-      width: PSpacing.x2_5,
-      height: PSpacing.x2_5,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    // 공휴일 줄 flag(16) 와 이름이 한 세로선에 서도록 점(10)을 16 칸 가운데에 둔다
+    child: SizedBox(
+      key: const ValueKey('calendar-filter-row-dot'),
+      width: PSpacing.x4,
+      child: Center(
+        child: Container(
+          width: PSpacing.x2_5,
+          height: PSpacing.x2_5,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+      ),
     ),
   );
 }

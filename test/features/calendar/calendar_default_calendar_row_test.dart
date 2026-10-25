@@ -26,6 +26,7 @@ import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import '../../support/plain_text.dart';
 
@@ -179,6 +180,27 @@ void main() {
 
       // 관리 화면·웹이 쓰는 것과 같은 배지 — 스위치가 왜 없는지를 남긴다.
       expect(find.text(l.calDefault), findsOneWidget);
+    });
+
+    testWidgets('체크는 앞 — 기본 캘린더 줄은 체크 자리를 비워 이름이 한 세로선에 선다', (tester) async {
+      await pump(tester, calendars: const [_default, _normal]);
+      await openFilterSheet(tester, count: 3);
+
+      final check = tester.getRect(find.byType(PCheckmark).first);
+      final dot = tester.getRect(
+        find.descendant(
+          of: find.ancestor(
+            of: findPlain('회사캘린더'),
+            matching: find.byType(PListCheckItem),
+          ),
+          matching: find.byKey(const ValueKey('calendar-filter-row-dot')),
+        ),
+      );
+      expect(check.width, 24);
+      expect(check.right, lessThan(dot.left), reason: '체크가 점 앞이다');
+      final normalTitle = tester.getTopLeft(findPlain('회사캘린더')).dx;
+      final defaultTitle = tester.getTopLeft(_defaultTitle()).dx;
+      expect(defaultTitle, normalTitle, reason: '기본 줄 이름이 체크 줄과 한 세로선');
     });
 
     testWidgets('일반 캘린더 행은 그대로 토글된다', (tester) async {
