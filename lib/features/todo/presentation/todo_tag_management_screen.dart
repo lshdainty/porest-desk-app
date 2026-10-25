@@ -205,7 +205,8 @@ class _BodyState extends ConsumerState<_Body> {
               description: l.ttagDesc,
             ),
           ),
-          const SizedBox(height: PSpacing.x2),
+          // 안내 상자 ↔ 목록 제목: 면 안 8(위 Callout 아래) + 16(T6)
+          const SizedBox(height: PSpacing.x4),
           ...tagsAsync.when(
             loading: () => [
               header(null),
