@@ -1722,7 +1722,7 @@
   },
   "categoryTypeLabel": "Type",
   "categoryOptionalSuffix": " (optional)",
-  "categoryParentMoveHint": "You can move it under a different parent. To make it top-level, create a new top-level category and move the transactions.",
+  "categoryParentMoveHint": "To make it top level, create a new top-level category and move its transactions.",
   "categoryMakeRoot": "— Keep as top-level category —",
   "categoryNamePlaceholder": "e.g., Pets, Side income",
   "categoryIconLabel": "Icon",
@@ -3626,7 +3626,7 @@
   "categoryMoveTxTitle": "Move transactions",
   "categoryMoveTxEntry": "Move transactions",
   "categoryMoveTxEntryDesc": "A category with transactions cannot have subcategories. Move them to enable it",
-  "categoryMoveTxDesc": "Moves all transactions, recurring and splits from {name}",
+  "categoryMoveTxDesc": "Moves all transactions, recurring transactions and split transactions from {name}.",
   "@categoryMoveTxDesc": {
     "placeholders": {
       "name": {
@@ -3636,9 +3636,10 @@
   },
   "categoryMoveTxModeNew": "Create subcategory",
   "categoryMoveTxModeExisting": "Move to existing",
+  "categoryMoveTxMode": "How to move",
   "categoryMoveTxChildName": "New subcategory name",
   "categoryMoveTxChildPlaceholder": "e.g. Lectures",
-  "categoryMoveTxNewHint": "Creates it under {name} and moves all transactions there, so you can add more subcategories",
+  "categoryMoveTxNewHint": "Creates it under {name} and moves all transactions there, so you can add more subcategories.",
   "@categoryMoveTxNewHint": {
     "placeholders": {
       "name": {
@@ -3647,9 +3648,11 @@
     }
   },
   "categoryMoveTxTarget": "Target category",
-  "categoryMoveTxTargetPlaceholder": "Select a category",
-  "categoryMoveTxHint": "Only leaf categories of the same type can be selected",
-  "categoryMoveTxNoTarget": "No target available — create one first",
+  "categoryMoveTxTargetPlaceholder": "Choose a category",
+  "categoryMoveTxHint": "Only bottom-level categories of the same type can be chosen.",
+  "categoryMoveTxNoTarget": "No category to move to. Please create one first.",
+  "categoryMoveTxErrChildName": "Please enter a name for the new subcategory.",
+  "categoryMoveTxErrTarget": "Please choose a category to move to.",
   "categoryMoveTxDone": "Moved {count} items",
   "@categoryMoveTxDone": {
     "placeholders": {

@@ -2779,7 +2779,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryParentMoveHint =>
-      'You can move it under a different parent. To make it top-level, create a new top-level category and move the transactions.';
+      'To make it top level, create a new top-level category and move its transactions.';
 
   @override
   String get categoryMakeRoot => '— Keep as top-level category —';
@@ -6312,7 +6312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryMoveTxDesc(String name) {
-    return 'Moves all transactions, recurring and splits from $name';
+    return 'Moves all transactions, recurring transactions and split transactions from $name.';
   }
 
   @override
@@ -6322,6 +6322,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryMoveTxModeExisting => 'Move to existing';
 
   @override
+  String get categoryMoveTxMode => 'How to move';
+
+  @override
   String get categoryMoveTxChildName => 'New subcategory name';
 
   @override
@@ -6329,21 +6332,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryMoveTxNewHint(String name) {
-    return 'Creates it under $name and moves all transactions there, so you can add more subcategories';
+    return 'Creates it under $name and moves all transactions there, so you can add more subcategories.';
   }
 
   @override
   String get categoryMoveTxTarget => 'Target category';
 
   @override
-  String get categoryMoveTxTargetPlaceholder => 'Select a category';
+  String get categoryMoveTxTargetPlaceholder => 'Choose a category';
 
   @override
   String get categoryMoveTxHint =>
-      'Only leaf categories of the same type can be selected';
+      'Only bottom-level categories of the same type can be chosen.';
 
   @override
-  String get categoryMoveTxNoTarget => 'No target available — create one first';
+  String get categoryMoveTxNoTarget =>
+      'No category to move to. Please create one first.';
+
+  @override
+  String get categoryMoveTxErrChildName =>
+      'Please enter a name for the new subcategory.';
+
+  @override
+  String get categoryMoveTxErrTarget => 'Please choose a category to move to.';
 
   @override
   String categoryMoveTxDone(int count) {

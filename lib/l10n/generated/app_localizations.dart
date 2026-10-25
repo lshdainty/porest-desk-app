@@ -5045,7 +5045,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryParentMoveHint.
   ///
   /// In ko, this message translates to:
-  /// **'다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.'**
+  /// **'최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.'**
   String get categoryParentMoveHint;
 
   /// No description provided for @categoryMakeRoot.
@@ -11435,7 +11435,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryMoveTxDesc.
   ///
   /// In ko, this message translates to:
-  /// **'{name} 에 달린 거래·반복거래·분할을 모두 옮겨요'**
+  /// **'{name}에 달린 거래 · 반복 거래 · 나눈 거래를 모두 옮겨요.'**
   String categoryMoveTxDesc(String name);
 
   /// No description provided for @categoryMoveTxModeNew.
@@ -11449,6 +11449,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기존 카테고리로'**
   String get categoryMoveTxModeExisting;
+
+  /// No description provided for @categoryMoveTxMode.
+  ///
+  /// In ko, this message translates to:
+  /// **'옮기는 방법'**
+  String get categoryMoveTxMode;
 
   /// No description provided for @categoryMoveTxChildName.
   ///
@@ -11465,7 +11471,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryMoveTxNewHint.
   ///
   /// In ko, this message translates to:
-  /// **'{name} 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요'**
+  /// **'{name} 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요.'**
   String categoryMoveTxNewHint(String name);
 
   /// No description provided for @categoryMoveTxTarget.
@@ -11477,20 +11483,32 @@ abstract class AppLocalizations {
   /// No description provided for @categoryMoveTxTargetPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리 선택'**
+  /// **'카테고리 고르기'**
   String get categoryMoveTxTargetPlaceholder;
 
   /// No description provided for @categoryMoveTxHint.
   ///
   /// In ko, this message translates to:
-  /// **'같은 유형의 말단 카테고리만 고를 수 있어요'**
+  /// **'같은 종류의 맨 아래 카테고리만 고를 수 있어요.'**
   String get categoryMoveTxHint;
 
   /// No description provided for @categoryMoveTxNoTarget.
   ///
   /// In ko, this message translates to:
-  /// **'옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요'**
+  /// **'옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요.'**
   String get categoryMoveTxNoTarget;
+
+  /// No description provided for @categoryMoveTxErrChildName.
+  ///
+  /// In ko, this message translates to:
+  /// **'만들 하위 이름을 입력해주세요.'**
+  String get categoryMoveTxErrChildName;
+
+  /// No description provided for @categoryMoveTxErrTarget.
+  ///
+  /// In ko, this message translates to:
+  /// **'옮길 카테고리를 골라주세요.'**
+  String get categoryMoveTxErrTarget;
 
   /// No description provided for @categoryMoveTxDone.
   ///

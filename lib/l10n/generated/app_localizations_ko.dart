@@ -2738,8 +2738,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryOptionalSuffix => ' (선택)';
 
   @override
-  String get categoryParentMoveHint =>
-      '다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
+  String get categoryParentMoveHint => '최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
 
   @override
   String get categoryMakeRoot => '— 최상위 카테고리로 두기 —';
@@ -6213,7 +6212,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String categoryMoveTxDesc(String name) {
-    return '$name 에 달린 거래·반복거래·분할을 모두 옮겨요';
+    return '$name에 달린 거래 · 반복 거래 · 나눈 거래를 모두 옮겨요.';
   }
 
   @override
@@ -6223,6 +6222,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMoveTxModeExisting => '기존 카테고리로';
 
   @override
+  String get categoryMoveTxMode => '옮기는 방법';
+
+  @override
   String get categoryMoveTxChildName => '만들 하위 이름';
 
   @override
@@ -6230,20 +6232,26 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String categoryMoveTxNewHint(String name) {
-    return '$name 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요';
+    return '$name 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요.';
   }
 
   @override
   String get categoryMoveTxTarget => '옮길 카테고리';
 
   @override
-  String get categoryMoveTxTargetPlaceholder => '카테고리 선택';
+  String get categoryMoveTxTargetPlaceholder => '카테고리 고르기';
 
   @override
-  String get categoryMoveTxHint => '같은 유형의 말단 카테고리만 고를 수 있어요';
+  String get categoryMoveTxHint => '같은 종류의 맨 아래 카테고리만 고를 수 있어요.';
 
   @override
-  String get categoryMoveTxNoTarget => '옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요';
+  String get categoryMoveTxNoTarget => '옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요.';
+
+  @override
+  String get categoryMoveTxErrChildName => '만들 하위 이름을 입력해주세요.';
+
+  @override
+  String get categoryMoveTxErrTarget => '옮길 카테고리를 골라주세요.';
 
   @override
   String categoryMoveTxDone(int count) {
