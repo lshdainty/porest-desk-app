@@ -292,6 +292,34 @@ void main() {
     });
   });
 
+  testWidgets('글자 200% 에서 [밤하늘] 안 두 단추가 넘치지 않고 세로로 쌓인다', (tester) async {
+    await pumpApp(
+      tester,
+      const TodoScreen(),
+      overrides: todoOverrides(todos: _basic()),
+      textScale: 2,
+    );
+    await tester.tap(find.text('밤하늘'));
+    await tester.pumpAndSettle();
+    // 히어로(NightSkyHero — 밤하늘 배치 몫)는 200% 에서 main 도 42px 넘친다 — 이 시험은 두 단추만 본다
+    tester.takeException();
+    final a = tester.getRect(
+      find.byWidgetPredicate((w) => w is PButton && w.label == '관측 리포트'),
+    );
+    final b = tester.getRect(
+      find
+          .byWidgetPredicate(
+            (w) =>
+                w is PButton &&
+                w.label == '밤하늘' &&
+                w.prefixIcon == LucideIcons.sparkles,
+          )
+          .last,
+    );
+    expect(a.right, lessThanOrEqualTo(360));
+    expect(b.right, lessThanOrEqualTo(360));
+  });
+
   group('9 주 달력 · 칸 표시', () {
     testWidgets('오늘 칸 이름은 "N월 D일, 남은 할 일 N개" · 표시는 장식 · 높이 15', (tester) async {
       await pumpApp(

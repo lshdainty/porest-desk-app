@@ -379,28 +379,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                       .length,
                 ),
                 const SizedBox(height: PSpacing.x2),
-                Row(
-                  spacing: PSpacing.x2,
-                  children: [
-                    Expanded(
-                      child: PButton(
-                        label: l.forestReportTitle,
-                        prefixIcon: LucideIcons.telescope,
-                        variant: PButtonVariant.neutralOutline,
-                        size: PButtonSize.small,
-                        onPressed: () => context.push('/forest-report'),
-                      ),
-                    ),
-                    Expanded(
-                      child: PButton(
-                        label: l.nightSkyTitle,
-                        prefixIcon: LucideIcons.sparkles,
-                        variant: PButtonVariant.neutralOutline,
-                        size: PButtonSize.small,
-                        onPressed: () => context.push('/night-sky'),
-                      ),
-                    ),
-                  ],
+                _SkyLinks(
+                  reportLabel: l.forestReportTitle,
+                  skyLabel: l.nightSkyTitle,
+                  onReport: () => context.push('/forest-report'),
+                  onSky: () => context.push('/night-sky'),
                 ),
               ],
             ),
@@ -621,6 +604,61 @@ class _CellMark extends StatelessWidget {
         height: height,
         child: Center(child: child),
       ),
+    );
+  }
+}
+
+/// [밤하늘] 안의 두 진입 단추 — 한 줄에 반씩, 글자가 커져 한 칸에 안 들어가면 세로로 쌓는다(웹 `flex-wrap`).
+class _SkyLinks extends StatelessWidget {
+  const _SkyLinks({
+    required this.reportLabel,
+    required this.skyLabel,
+    required this.onReport,
+    required this.onSky,
+  });
+
+  final String reportLabel;
+  final String skyLabel;
+  final VoidCallback onReport;
+  final VoidCallback onSky;
+
+  @override
+  Widget build(BuildContext context) {
+    final report = PButton(
+      label: reportLabel,
+      prefixIcon: LucideIcons.telescope,
+      variant: PButtonVariant.neutralOutline,
+      size: PButtonSize.small,
+      onPressed: onReport,
+    );
+    final sky = PButton(
+      label: skyLabel,
+      prefixIcon: LucideIcons.sparkles,
+      variant: PButtonVariant.neutralOutline,
+      size: PButtonSize.small,
+      onPressed: onSky,
+    );
+    return LayoutBuilder(
+      builder: (context, box) {
+        final half = (box.maxWidth - PSpacing.x2) / 2;
+        final fits =
+            report.naturalWidth(context) <= half &&
+            sky.naturalWidth(context) <= half;
+        if (fits) {
+          return Row(
+            spacing: PSpacing.x2,
+            children: [
+              Expanded(child: report),
+              Expanded(child: sky),
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: PSpacing.x2,
+          children: [report, sky],
+        );
+      },
     );
   }
 }
