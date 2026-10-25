@@ -16,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // `Override` 는 flutter_riverpod 본체가 아니라 misc 에서 나온다.
 import 'package:flutter_riverpod/misc.dart' show Override, ProviderOrFamily;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -36,6 +35,7 @@ import 'package:groo_damda_app/features/calendar/application/calendar_providers.
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_grid.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/features/dashboard/domain/dashboard_summary.dart';
@@ -437,7 +437,7 @@ void main() {
         ]),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(TableCalendar<CalendarEvent>), findsOneWidget);
+      expect(find.byType(CalendarMonthGrid), findsOneWidget);
 
       await _refetch(
         tester,
@@ -445,7 +445,7 @@ void main() {
         monthEventsProvider,
       );
 
-      expect(find.byType(TableCalendar<CalendarEvent>), findsOneWidget);
+      expect(find.byType(CalendarMonthGrid), findsOneWidget);
       expect(find.byType(PSkeleton), findsNothing);
     });
   });
