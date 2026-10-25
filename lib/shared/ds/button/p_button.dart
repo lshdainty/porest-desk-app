@@ -68,6 +68,7 @@ class PButton extends StatefulWidget {
     this.suffixIcon,
     this.flush,
     this.loading = false,
+    this.labelLines = 1,
   }) : assert(
          prefixIcon == null || suffixIcon == null,
          '앞 · 뒤 아이콘은 하나만 쓴다(button.yaml layout withText)',
@@ -86,6 +87,7 @@ class PButton extends StatefulWidget {
     this.ghostColor = PButtonGhostColor.neutral,
     this.loading = false,
   }) : label = null,
+       labelLines = 1,
        prefixIcon = null,
        suffixIcon = null,
        flush = null;
@@ -107,6 +109,10 @@ class PButton extends StatefulWidget {
 
   /// 누름 색 위 로딩 원 + 누르기 막기.
   final bool loading;
+
+  /// 라벨 줄 수 — 기본 1(한 줄, 줄바꿈 · 말줄임 없음). 2 이상이면 글에 넣은 줄바꿈(`\n`)에서만 줄을 바꾼다(통계 기간 버튼의
+  /// 다른 해 직접 기간 "2025-01-01 ~ / 2026-03-31"). 버튼 높이는 글을 따라 자란다(최소 높이는 그대로).
+  final int labelLines;
 
   bool get _iconOnly => icon != null;
 
@@ -436,8 +442,9 @@ class _PButtonState extends State<PButton> {
               if (widget.prefixIcon != null) glyph(widget.prefixIcon!),
               Text(
                 widget.label!,
-                maxLines: 1,
+                maxLines: widget.labelLines,
                 softWrap: false,
+                textAlign: TextAlign.center,
                 style: s.text.copyWith(color: fg, fontWeight: FontWeight.w700),
               ),
               if (widget.suffixIcon != null) glyph(widget.suffixIcon!),

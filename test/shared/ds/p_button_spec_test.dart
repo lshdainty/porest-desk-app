@@ -536,4 +536,41 @@ void main() {
     final outline = await width(PButtonVariant.neutralOutline);
     expect(outline - solid, 2);
   });
+
+  testWidgets(
+    '라벨 두 줄(labelLines 2) — 글에 넣은 줄바꿈에서만 바뀌고 버튼이 따라 자란다, 한 줄 버튼은 그대로 36',
+    (tester) async {
+      await tester.pumpWidget(
+        _host(
+          Brightness.light,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PButton(
+                label: '2025-01-01 ~\n2026-03-31',
+                labelLines: 2,
+                size: PButtonSize.small,
+                variant: PButtonVariant.neutralOutline,
+                suffixIcon: LucideIcons.chevronDown,
+                onPressed: () {},
+              ),
+              const SizedBox(height: 8),
+              PButton(
+                label: '2026년 10월',
+                size: PButtonSize.small,
+                variant: PButtonVariant.neutralOutline,
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+      );
+      final sizes = [
+        for (final e in find.byType(PButton).evaluate())
+          tester.getSize(find.byElementPredicate((x) => x == e)),
+      ];
+      expect(sizes[0].height, greaterThan(36));
+      expect(sizes[1].height, 36);
+    },
+  );
 }
