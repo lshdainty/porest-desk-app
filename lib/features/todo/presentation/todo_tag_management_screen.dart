@@ -4,31 +4,32 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
 import 'package:groo_damda_app/features/todo/domain/todo_tag.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_card.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
-import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/forms/form_delete_footer.dart';
+import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
 
-/// 할일 태그 관리 — design settings-todo-tags.jsx TodoTagManager 미러.
+/// 할 일 태그 관리(I-10 5A) — 설정 하위 풀스크린 화면. **흰 면 하나**: 안내(Callout · 흰 면 위 예외) · 목록 제목 "할 일 태그 · N" +
+/// 오른쪽 글 버튼 "태그 추가" · 줄(색 타일 + 이름 + "N건에 사용 중"). 사용 건수는 서버 집계(`usageCount`)다.
 ///
-/// 설정 하위 풀스크린 화면(캘린더 라벨 화면 셸 정합). 태그 리스트(아이콘
-/// 틴트 타일 + "할 일 N건에 사용 중" + 삭제) + 행 탭 → 이름+8 tone 스와치
-/// 편집 시트, 하단 고스트 '새 태그' 행. 사용 건수는 category=태그명 클라 집계.
+/// 줄 끝에 ⋮ 를 두지 않는다(사용자 10-25). 줄을 누르면 수정 시트로 들어가고, 거기서 [삭제] 로 지운다(키보드 · 낭독기로도 닿는다).
+/// 밀면 [수정, 삭제] 가 나온다(손가락 지름길). 삭제 확인은 한 번만 묻는다.
 class TodoTagManagementScreen extends StatefulWidget {
   const TodoTagManagementScreen({super.key});
 
@@ -50,7 +51,8 @@ class _TodoTagManagementScreenState extends State<TodoTagManagementScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
+      // 흰 면 하나 — 띠 · 카드 없이 화면 전체가 흰 층이다
+      backgroundColor: context.colors.bgLayerDefault,
       // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-16 14)
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
@@ -62,7 +64,7 @@ class _TodoTagManagementScreenState extends State<TodoTagManagementScreen> {
           ),
         ),
       ),
-      body: PScreenBandBody(child: _Body(scrollController: _scrollCtrl)),
+      body: _Body(scrollController: _scrollCtrl),
     );
   }
 }
@@ -129,13 +131,15 @@ class _BodyState extends ConsumerState<_Body> {
     }
   }
 
+  /// 삭제 — 확인은 여기서 한 번만 묻는다(밀기 · 수정 시트의 [삭제] 둘 다 이 길이다).
   Future<void> _delete(TodoTag tag, int usage) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.todoDeleteTagTitle,
-      message: l.todoDeleteTagConfirm(tag.tagName, usage),
-      confirmLabel: l.actionDelete,
+      description: l.todoDeleteTagConfirm(tag.tagName, usage),
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted || _busy) return;
@@ -156,198 +160,172 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _openEdit(TodoTag? tag) async {
     final result = await showTodoTagEditSheet(context, tag: tag);
-    if (result != null) {
-      await _save(tag, result.name, result.color);
+    switch (result) {
+      case TodoTagSaved(:final name, :final color):
+        await _save(tag, name, color);
+      case TodoTagDeleteRequested():
+        if (tag != null && mounted) await _delete(tag, tag.usageCount);
+      case null:
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final tagsAsync = ref.watch(todoTagListProvider);
 
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x20),
-      children: [
-        // 안내 카드 — 캘린더 라벨 _IntroCard 정합(제목+설명).
-        _TagIntroCard(tokens: t),
-        const SizedBox(height: PSpace.x32),
-        tagsAsync.when(
-          // 추가 버튼은 정적 UI라 로딩에도 진짜를 쓴다 — 개수 텍스트와 행만
-          // 데이터 자리. 범용 PListSkeleton(아이콘 없는 2줄)은 실제 태그 행
-          // (타일 34 + 이름/사용 수 + 휴지통 + chevron)과 달라 걷어냈다.
-          loading: () => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const PSkeleton.line(width: 96, height: 14),
-                  PButton(
-                    label: l.todoNewTag,
-                    icon: LucideIcons.plus,
-                    variant: PButtonVariant.accent,
-                    size: PButtonSize.sm,
-                    onPressed: _busy ? null : () => _openEdit(null),
-                  ),
-                ],
+    // 목록 제목의 동작은 정적 UI 라 불러오는 동안에도 진짜를 쓴다 — 수만 기다린다.
+    Widget header(int? count) => PListHeader(
+      title: count == null ? l.ttagTitle : '${l.ttagTitle} · $count',
+      variant: PListHeaderVariant.boldSolid,
+      action: PTextButton(
+        label: l.ttagAddCta,
+        onPressed: _busy ? null : () => _openEdit(null),
+      ),
+    );
+
+    return PSwipeActionsProvider(
+      child: ListView(
+        key: const ValueKey('todo-tags-body'),
+        controller: widget.scrollController,
+        padding: const EdgeInsets.only(bottom: PSpacing.screenBottom),
+        children: [
+          // 안내 — Callout informative(흰 면 위 예외) · 제목 없음. 위 16 · 아래 8 · 좌우 24.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpacing.globalGutter,
+              PSpacing.x4,
+              PSpacing.globalGutter,
+              PSpacing.x2,
+            ),
+            child: PCallout(
+              tone: PCalloutTone.informative,
+              icon: LucideIcons.tag,
+              description: l.ttagDesc,
+            ),
+          ),
+          const SizedBox(height: PSpacing.x2),
+          ...tagsAsync.when(
+            loading: () => [
+              header(null),
+              for (var i = 0; i < 4; i++) const _TagRowSkeleton(),
+            ],
+            error: (e, _) => [
+              header(null),
+              // 질의 하나 = 실패 상자 하나 — 원문을 그리지 않는다.
+              PResultSection(
+                kind: PResultKind.failure,
+                size: PResultSize.medium,
+                title: l.todoTagLoadError,
+                description: l.tdmLoadFailedDesc,
+                primaryAction: PResultAction(
+                  label: l.actionRetry,
+                  onPressed: () => ref.invalidate(todoTagListProvider),
+                ),
               ),
-              for (int i = 0; i < 4; i++)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: BoxDecoration(
-                    border: i == 0
-                        ? null
-                        : Border(top: BorderSide(color: t.borderSubtle)),
-                  ),
-                  child: const Row(
-                    children: [
-                      PSkeleton(
-                        width: 34,
-                        height: 34,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PSkeleton.line(width: 120, height: 15),
-                            SizedBox(height: 2),
-                            PSkeleton.line(width: 72, height: 12),
-                          ],
+            ],
+            data: (tags) => [
+              header(tags.length),
+              if (tags.isEmpty)
+                PResultSection(
+                  size: PResultSize.medium,
+                  icon: LucideIcons.tags,
+                  title: l.ttagEmpty,
+                  description: l.ttagEmptyHint("'${l.ttagAddCta}'"),
+                )
+              else
+                PList(
+                  semanticLabel: l.ttagTitle,
+                  children: [
+                    for (final tag in tags)
+                      // 밀면 수정·삭제 — 손가락 지름길이다. 줄을 누르면 수정 시트로 들어가고 거기에 [삭제] 가 있다(WCAG 2.1.1).
+                      PSwipeActions(
+                        key: ValueKey('todo-tag-${tag.rowId}'),
+                        enabled: !_busy,
+                        rowLabel: tag.tagName,
+                        actions: [
+                          PSwipeAction(
+                            label: l.actionEdit,
+                            icon: LucideIcons.pencil,
+                            kind: PSwipeActionKind.primary,
+                            onSelect: () => _openEdit(tag),
+                          ),
+                          PSwipeAction(
+                            label: l.actionDelete,
+                            icon: LucideIcons.trash2,
+                            kind: PSwipeActionKind.destructive,
+                            // _delete 가 자체 확인을 띄운다 — 여기서 또 주면 두 번 뜬다.
+                            onSelect: () => _delete(tag, tag.usageCount),
+                          ),
+                        ],
+                        child: _TagRow(
+                          tag: tag,
+                          busy: _busy,
+                          onTap: () => _openEdit(tag),
                         ),
                       ),
-                      PSkeleton(
-                        width: 32,
-                        height: 32,
-                        borderRadius: PRadius.brMd,
-                      ),
-                      SizedBox(width: PSpace.x4),
-                      PSkeleton(width: 15, height: 15),
-                    ],
-                  ),
+                  ],
                 ),
             ],
           ),
-          error: (e, _) => Text(
-            '${l.todoTagLoadError}: $e',
-            style: PTypo.caption.copyWith(color: t.statusDangerFg),
-          ),
-          data: (tags) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // label·list 한 묶음 gap 0 — 캘린더 라벨 카운트 라벨 정합.
-              // 라벨행 우측 텍스트(accent) 추가 버튼 — 프리셋 정합(filled 안내카드 버튼 폐기)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${l.ttagTitle} · ${tags.length}',
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                  PButton(
-                    label: l.todoNewTag,
-                    icon: LucideIcons.plus,
-                    variant: PButtonVariant.accent,
-                    size: PButtonSize.sm,
-                    onPressed: _busy ? null : () => _openEdit(null),
-                  ),
-                ],
-              ),
-              if (tags.isEmpty)
-                // 캘린더 라벨 화면과 같은 PEmptyState — 자체로 그리면 부모가 start 정렬이라
-                // 아이콘·문구가 왼쪽에 붙는다(사용자 제보).
-                PEmptyState(icon: LucideIcons.tags, message: l.ttagEmpty)
-              else
-                for (var i = 0; i < tags.length; i++)
-                  // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이 비제스처 경로다
-                  // (spec swipe-actions.md · WCAG 2.1.1).
-                  PSwipeActions(
-                    key: ValueKey('todo-tag-${tags[i].rowId}'),
-                    groupTag: 'todo-tag-list',
-                    enabled: !_busy,
-                    actions: [
-                      PSwipeAction(
-                        label: AppLocalizations.of(context).actionEdit,
-                        icon: LucideIcons.pencil,
-                        kind: PSwipeKind.primary,
-                        onSelect: () => _openEdit(tags[i]),
-                      ),
-                      PSwipeAction(
-                        label: AppLocalizations.of(context).actionDelete,
-                        icon: LucideIcons.trash2,
-                        kind: PSwipeKind.destructive,
-                        // _delete 가 자체 확인을 띄운다 — 여기서 또 주면 두 번 뜬다.
-                        onSelect: () => _delete(tags[i], tags[i].usageCount),
-                      ),
-                    ],
-                    child: _TagRow(
-                      tag: tags[i],
-                      // 서버 GROUP BY 집계 — 클라 전체 할일 로드 제거.
-                      usage: tags[i].usageCount,
-                      first: i == 0,
-                      busy: _busy,
-                      onTap: () => _openEdit(tags[i]),
-                      t: t,
-                    ),
-                  ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-/// 태그 행 — 아이콘 틴트 타일 + 이름/"할 일 N건에 사용 중" + 삭제 + chevron.
-/// 안내 카드 — 캘린더 라벨 _IntroCard 미러(제목·설명).
-class _TagIntroCard extends StatelessWidget {
-  const _TagIntroCard({required this.tokens});
-  final GrooTokens tokens;
+/// 태그 줄 — 앞 타일 40(그 색의 옅은 바탕 + 태그 아이콘) · 이름(줄바꿈) · "N건에 사용 중". 줄 사이 선 없음.
+class _TagRow extends StatelessWidget {
+  const _TagRow({required this.tag, required this.busy, required this.onTap});
+  final TodoTag tag;
+  final bool busy;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
-    return PCard(
-      variant: PCardVariant.brand,
-      padding: const EdgeInsets.all(PSpace.x16),
+    final color = resolveChartColor(context, tag.color, fallback: c.fgBrand);
+    return PListButtonItem(
+      title: tag.tagName,
+      detail: l.ttagUsage(tag.usageCount),
+      onTap: busy ? null : onTap,
+      prefix: PListTile(
+        background: softBg(context, color),
+        color: color,
+        child: const Icon(LucideIcons.tag),
+      ),
+    );
+  }
+}
+
+/// 불러오는 동안의 줄 — 실제 줄과 같은 여백(타일 40 · 제목 t5 · 설명 t3).
+class _TagRowSkeleton extends StatelessWidget {
+  const _TagRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpacing.globalGutter,
+        vertical: PSpacing.x3,
+      ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              // fill 은 다크에서도 primary 고정(bgBrandSolid) — web --bg-brand 정합.
-              color: t.bgBrandSolid,
-              borderRadius: PRadius.brMd,
-            ),
-            alignment: Alignment.center,
-            child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
+          const PSkeleton(
+            width: PListTile.size,
+            height: PListTile.size,
+            radius: PSkeletonRadius.r12,
           ),
-          const SizedBox(width: PSpace.x12),
+          const SizedBox(width: PSpacing.x3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: PSpacing.x0_5,
               children: [
-                Text(
-                  l.ttagTitle,
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l.ttagDesc,
-                  style: PTypo.caption.copyWith(color: t.fgSecondary),
-                ),
+                PSkeleton.text(PTypography.t5, width: 120),
+                PSkeleton.text(PTypography.t3, width: 72),
               ],
             ),
           ),
@@ -357,201 +335,160 @@ class _TagIntroCard extends StatelessWidget {
   }
 }
 
-class _TagRow extends StatelessWidget {
-  const _TagRow({
-    required this.tag,
-    required this.usage,
-    required this.first,
-    required this.busy,
-    required this.onTap,
-    required this.t,
-  });
-  final TodoTag tag;
-  final int usage;
-  final bool first;
-  final bool busy;
-  final VoidCallback onTap;
-  final GrooTokens t;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final color = solidSwatchColor(context, tag.color, fallback: t.fgBrand);
-    return InkWell(
-      onTap: busy ? null : onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 13),
-        decoration: BoxDecoration(
-          border: first ? null : Border(top: BorderSide(color: t.borderSubtle)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: Color.alphaBlend(
-                  color.withValues(alpha: 0.14),
-                  t.bgSurface,
-                ),
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              alignment: Alignment.center,
-              child: Icon(LucideIcons.tag, size: 15, color: color),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tag.tagName,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: 15,
-                      fontWeight: PFontWeight.semi,
-                      letterSpacing: -0.15,
-                      color: t.fgPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l.ttagUsage(usage),
-                    style: PTypo.caption.copyWith(
-                      color: t.fgTertiary,
-                      fontSize: 12.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // 🗑·> 를 두지 않는다 — 밀면 수정·삭제, 탭하면 편집(사용자 결정).
-          ],
-        ),
-      ),
-    );
-  }
+/// 태그 편집 시트가 돌려주는 것 — 저장(이름 + hex 색) 또는 삭제 요청(수정일 때만).
+sealed class TodoTagEditResult {
+  const TodoTagEditResult();
 }
 
-/// 편집 시트 결과 — 이름 + hex 색.
-typedef TodoTagDraft = ({String name, String color});
+class TodoTagSaved extends TodoTagEditResult {
+  const TodoTagSaved({required this.name, required this.color});
+  final String name;
+  final String color;
+}
 
-/// 태그 편집 시트 — 캘린더 라벨 편집 시트와 동일 구성(미리보기 카드 +
-/// 이름 + 스와치 + 취소/저장 푸터). 팔레트만 태그 8 tone.
-Future<TodoTagDraft?> showTodoTagEditSheet(
+/// [삭제] 를 눌렀다 — 시트는 닫히고 확인(Alert Dialog)은 부른 화면이 한 번 묻는다.
+class TodoTagDeleteRequested extends TodoTagEditResult {
+  const TodoTagDeleteRequested();
+}
+
+/// 태그 편집 시트(I-10 37) — ds Bottom Sheet 입력 폼. 바깥 · 끌기로 닫히지 않고, 바뀐 값이 있으면 닫기 전에 묻는다.
+/// 미리보기 카드 · 이름 · 색 고르기는 그대로고 표면만 ds 다. 바닥은 새 태그면 [추가] 하나, 수정이면 왼쪽 [삭제] + [저장].
+Future<TodoTagEditResult?> showTodoTagEditSheet(
   BuildContext context, {
   TodoTag? tag,
 }) {
   final l = AppLocalizations.of(context);
-  final nameCtrl = TextEditingController(text: tag?.tagName ?? '');
-  final controller = PSheetController();
-  controller.setCanSubmit((tag?.tagName ?? '').trim().isNotEmpty);
-  String selectedColor = () {
-    final c = tag?.color;
-    return (c != null && c.isNotEmpty) ? c : kPDefaultPalette.first;
-  }();
-
-  controller.onSubmit = () async {
-    final name = nameCtrl.text.trim();
-    if (name.isEmpty) return;
-    if (!context.mounted) return;
-    // 시트는 root navigator 에 떠 있음(p_modal useRootNavigator) — 외부
-    // context 로 branch nav 를 pop 하면 화면이 닫히므로 root 명시.
-    Navigator.of(
-      context,
-      rootNavigator: true,
-    ).pop((name: name, color: selectedColor));
-  };
-
-  return showPSheet<TodoTagDraft>(
+  final probe = _TagDirtyProbe();
+  return PBottomSheet.show<TodoTagEditResult>(
     context,
-    title: tag == null ? l.todoNewTag : l.ttagEditTitle,
-    shrinkWrap: true,
-    contentBuilder: (ctx, _) => _TagEditBody(
-      nameController: nameCtrl,
-      initialColor: selectedColor,
-      controller: controller,
-      fallbackName: l.todoNewTag,
-      onColorChanged: (c) => selectedColor = c,
+    form: true,
+    isDirty: () => probe.dirty(),
+    leaveCopy: PLeaveConfirmCopy(
+      title: l.sheetLeaveTitle,
+      description: l.sheetLeaveDescription,
+      stayLabel: l.sheetLeaveStay,
+      leaveLabel: l.sheetLeaveLeave,
     ),
-    footerBuilder: (ctx) =>
-        PSheetFooter(controller: controller, submitLabel: l.actionSave),
+    builder: (_) => _TagEditSheet(tag: tag, probe: probe),
   );
 }
 
-class _TagEditBody extends StatefulWidget {
-  const _TagEditBody({
-    required this.nameController,
-    required this.initialColor,
-    required this.controller,
-    required this.fallbackName,
-    required this.onColorChanged,
-  });
-  final TextEditingController nameController;
-  final String initialColor;
-  final PSheetController controller;
-  final String fallbackName;
-  final ValueChanged<String> onColorChanged;
-
-  @override
-  State<_TagEditBody> createState() => _TagEditBodyState();
+class _TagDirtyProbe {
+  bool Function() dirty = () => false;
 }
 
-class _TagEditBodyState extends State<_TagEditBody> {
-  late String _color = widget.initialColor;
+class _TagEditSheet extends StatefulWidget {
+  const _TagEditSheet({this.tag, required this.probe});
+  final TodoTag? tag;
+  final _TagDirtyProbe probe;
+
+  @override
+  State<_TagEditSheet> createState() => _TagEditSheetState();
+}
+
+class _TagEditSheetState extends State<_TagEditSheet> {
+  late final TextEditingController _nameCtrl;
+  final _nameFocus = FocusNode();
+  late final String _initialName;
+  late final String _initialColor;
+  late String _color;
+  String? _nameError;
+
+  bool get _isEdit => widget.tag != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialName = widget.tag?.tagName ?? '';
+    final c = widget.tag?.color;
+    _initialColor = (c != null && c.isNotEmpty) ? c : kPDefaultPalette.first;
+    _nameCtrl = TextEditingController(text: _initialName);
+    _color = _initialColor;
+    widget.probe.dirty = () =>
+        _nameCtrl.text != _initialName || _color != _initialColor;
+  }
+
+  @override
+  void dispose() {
+    widget.probe.dirty = () => false;
+    _nameCtrl.dispose();
+    _nameFocus.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final l = AppLocalizations.of(context);
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) {
+      setState(() => _nameError = l.ttagNameRequired);
+      _nameFocus.requestFocus();
+      return;
+    }
+    PBottomSheet.of(context).close(TodoTagSaved(name: name, color: _color));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
-    final swatch = solidSwatchColor(context, _color, fallback: t.fgBrand);
-    final preview = widget.nameController.text.trim();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
-      child: Column(
+    final swatch = resolveChartColor(context, _color, fallback: c.fgBrand);
+    final preview = _nameCtrl.text.trim();
+    final save = PButton(
+      label: _isEdit ? l.actionSave : l.calAdd,
+      size: PButtonSize.large,
+      onPressed: _save,
+    );
+    return PBottomSheetContent(
+      title: _isEdit ? l.ttagEditTitle : l.todoNewTag,
+      closeLabel: l.actionClose,
+      scrollFog: true,
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: PSpacing.x4,
         children: [
-          // 미리보기 — 캘린더 라벨 편집 카드와 동일 구성.
+          // 미리보기 — 캘린더 라벨 편집 카드와 같은 구성(색 타일 + 이름).
           Container(
-            padding: const EdgeInsets.all(PSpace.x16),
+            padding: const EdgeInsets.all(PSpacing.x4),
             decoration: BoxDecoration(
               color: softBg(context, swatch),
-              borderRadius: PRadius.brMd,
+              borderRadius: BorderRadius.circular(PRounded.r3),
             ),
             child: Row(
+              spacing: PSpacing.x3,
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: PSpacing.x10,
+                  height: PSpacing.x10,
                   decoration: BoxDecoration(
                     color: swatch,
-                    borderRadius: PRadius.brMd,
+                    borderRadius: BorderRadius.circular(PRounded.r3),
                   ),
                   alignment: Alignment.center,
-                  child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
+                  child: Icon(
+                    LucideIcons.tag,
+                    size: PSpacing.x4_5,
+                    color: c.staticWhite,
+                  ),
                 ),
-                const SizedBox(width: PSpace.x12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: PSpacing.x0_5,
                     children: [
                       Text(
                         l.calPreview,
-                        style: PTypo.micro.copyWith(
-                          color: t.fgTertiary,
-                          fontWeight: PFontWeight.semi,
-                          letterSpacing: 0.22,
+                        style: PTypography.t2.copyWith(
+                          color: c.fgNeutralSubtle,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 2),
                       Text(
-                        preview.isEmpty ? widget.fallbackName : preview,
+                        preview.isEmpty ? l.todoNewTag : preview,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: PTypo.bodyLg.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.bold,
+                        style: PTypography.t6.copyWith(
+                          color: c.fgNeutral,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -560,40 +497,40 @@ class _TagEditBodyState extends State<_TagEditBody> {
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x16),
-
-          // 이름
-          Text(
-            l.ttagNameLabel,
-            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          PField(
+            label: l.ttagNameLabel,
+            indicator: PFieldIndicator.required,
+            required: true,
+            invalid: _nameError != null,
+            errorMessage: _nameError,
+            child: PInput(
+              controller: _nameCtrl,
+              focusNode: _nameFocus,
+              placeholder: l.todoTagNamePlaceholder,
+              onChanged: (_) => setState(() => _nameError = null),
+            ),
           ),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: widget.nameController,
-            placeholder: l.todoTagNamePlaceholder,
-            onChanged: (v) {
-              widget.controller.setCanSubmit(v.trim().isNotEmpty);
-              setState(() {});
-            },
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 색상
-          Text(
-            l.ttagColorLabel,
-            style: PTypo.caption.copyWith(color: t.fgSecondary),
-          ),
-          const SizedBox(height: PSpace.x8),
-          // 공통 색상 선택기 — 캘린더 라벨과 동일(기본 팔레트).
-          PColorPicker(
-            selected: _color,
-            onChanged: (c) {
-              setState(() => _color = c);
-              widget.onColorChanged(c);
-            },
+          PField(
+            label: l.ttagColorLabel,
+            // 공통 색상 선택기 — 캘린더 라벨과 같다(기본 팔레트).
+            child: PColorPicker(
+              selected: _color,
+              onChanged: (v) => setState(() => _color = v),
+            ),
           ),
         ],
       ),
+      footer: _isEdit ? const [] : [save],
+      footerRow: _isEdit
+          ? PFormDeleteFooter(
+              deleteLabel: l.actionDelete,
+              // 시트를 닫고 확인이 한 번 묻는다 — 쓰던 값은 버려도 되니 묻지 않고 닫는다.
+              onDelete: () => PBottomSheet.of(
+                context,
+              ).close(const TodoTagDeleteRequested()),
+              save: save,
+            )
+          : null,
     );
   }
 }
