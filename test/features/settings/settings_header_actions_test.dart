@@ -127,7 +127,11 @@ void main() {
       find.descendant(of: header, matching: find.text('완료')),
       findsOneWidget,
     );
-    expect(find.textContaining('핸들을 잡고'), findsOneWidget, reason: '편집 모드 안내 줄');
+    expect(
+      find.textContaining('손잡이를 끌어'),
+      findsOneWidget,
+      reason: '편집 모드 안내 줄',
+    );
     await tester.tap(
       find.descendant(of: header, matching: find.byType(PTextButton)),
     );

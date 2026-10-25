@@ -2668,18 +2668,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryLoadError => 'Failed to load categories';
 
   @override
-  String get categoryNoResults => 'No search results';
+  String get categoryNoResults => 'No matching categories.';
 
   @override
-  String get categoryEmpty => 'No categories';
-
-  @override
-  String get categoryEmptyHint => 'Add one with the \'Add\' button above';
-
-  @override
-  String categoryHasSubcategories(String type) {
-    return '$type · Has subcategories';
-  }
+  String get categoryEmpty => 'No categories yet.';
 
   @override
   String get categoryAdd => 'Add category';
@@ -2714,7 +2706,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryNameDuplicate =>
-      'A category with this name already exists in this location.';
+      'A category with this name already exists in this spot.';
 
   @override
   String get categoryParent => 'Parent category';
@@ -2724,7 +2716,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryBudgetExceedMessage(String parent, String amount) {
-    return 'Moving will exceed the \"$parent\" budget by $amount. Move anyway?';
+    return 'Moving it will put \"$parent\" $amount over budget. Move anyway?';
   }
 
   @override
@@ -2740,19 +2732,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryActionFailed => 'Failed';
 
   @override
-  String get categoryDeleteTitle => 'Delete category';
-
-  @override
-  String get categoryDeleteBlockedTitle => 'Cannot delete';
+  String get categoryDeleteBlockedTitle => 'Can\'t delete';
 
   @override
   String categoryDeleteHasChildren(String name) {
     return 'The \"$name\" category has subcategories and cannot be deleted. Clear them first.';
-  }
-
-  @override
-  String categoryDeleteWithBudget(String name) {
-    return 'This category has a budget set. Deleting it will also delete the budget. Delete the \"$name\" category?';
   }
 
   @override
@@ -2764,31 +2748,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDeleteFailed => 'Delete failed';
 
   @override
-  String get categoryNew => 'New category';
-
-  @override
-  String categoryPreview(String type) {
-    return '$type category · Preview';
-  }
-
-  @override
-  String get categoryTypeLabel => 'Type';
-
-  @override
-  String get categoryOptionalSuffix => ' (optional)';
-
-  @override
   String get categoryParentMoveHint =>
       'To make it top level, create a new top-level category and move its transactions.';
 
   @override
-  String get categoryMakeRoot => '— Keep as top-level category —';
+  String get categoryMakeRoot => 'Top level';
 
   @override
   String get categoryNamePlaceholder => 'e.g., Pets, Side income';
 
   @override
   String get categoryIconLabel => 'Icon';
+
+  @override
+  String get categoryLoadFailed => 'Couldn\'t load the categories';
+
+  @override
+  String get categoryDeleteMessage =>
+      'Recorded transactions stay as they are. Budgets set for this category are deleted too.';
+
+  @override
+  String categoryDeleteRecurring(int count) {
+    return '$count recurring transactions that use this category keep being recorded under it.';
+  }
+
+  @override
+  String categoryExpandOf(String name) {
+    return '$name subcategories';
+  }
+
+  @override
+  String categoryMoreOf(String name) {
+    return 'More for $name';
+  }
+
+  @override
+  String categoryDragReorderOf(String name) {
+    return 'Reorder $name';
+  }
+
+  @override
+  String get categoryKindLabel => 'Type';
+
+  @override
+  String get categorySubmitAdd => 'Add';
+
+  @override
+  String get categoryAddSub => 'Add subcategory';
 
   @override
   String get authLoginPrompt => 'Sign in with your 그루 account.';
@@ -6305,10 +6311,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryMoveTxEntry => 'Move transactions';
-
-  @override
-  String get categoryMoveTxEntryDesc =>
-      'A category with transactions cannot have subcategories. Move them to enable it';
 
   @override
   String categoryMoveTxDesc(String name) {

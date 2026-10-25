@@ -4859,26 +4859,14 @@ abstract class AppLocalizations {
   /// No description provided for @categoryNoResults.
   ///
   /// In ko, this message translates to:
-  /// **'검색 결과가 없어요'**
+  /// **'찾는 카테고리가 없어요.'**
   String get categoryNoResults;
 
   /// No description provided for @categoryEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리가 없습니다'**
+  /// **'카테고리가 없어요.'**
   String get categoryEmpty;
-
-  /// No description provided for @categoryEmptyHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'상단 \'추가\' 버튼으로 추가하세요'**
-  String get categoryEmptyHint;
-
-  /// No description provided for @categoryHasSubcategories.
-  ///
-  /// In ko, this message translates to:
-  /// **'{type} · 하위 카테고리 있음'**
-  String categoryHasSubcategories(String type);
 
   /// No description provided for @categoryAdd.
   ///
@@ -4919,7 +4907,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryEdit.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리 편집'**
+  /// **'카테고리 수정'**
   String get categoryEdit;
 
   /// No description provided for @categoryNameRequired.
@@ -4937,7 +4925,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryNameDuplicate.
   ///
   /// In ko, this message translates to:
-  /// **'같은 위치에 같은 이름의 카테고리가 있습니다.'**
+  /// **'같은 자리에 같은 이름의 카테고리가 있어요.'**
   String get categoryNameDuplicate;
 
   /// No description provided for @categoryParent.
@@ -4955,13 +4943,13 @@ abstract class AppLocalizations {
   /// No description provided for @categoryBudgetExceedMessage.
   ///
   /// In ko, this message translates to:
-  /// **'이동하면 \"{parent}\" 예산을 {amount} 초과합니다. 그래도 이동할까요?'**
+  /// **'옮기면 \"{parent}\" 예산을 {amount} 넘어요. 그래도 옮길까요?'**
   String categoryBudgetExceedMessage(String parent, String amount);
 
   /// No description provided for @categoryMove.
   ///
   /// In ko, this message translates to:
-  /// **'이동'**
+  /// **'옮기기'**
   String get categoryMove;
 
   /// No description provided for @categoryUpdated.
@@ -4982,16 +4970,10 @@ abstract class AppLocalizations {
   /// **'실패'**
   String get categoryActionFailed;
 
-  /// No description provided for @categoryDeleteTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'카테고리 삭제'**
-  String get categoryDeleteTitle;
-
   /// No description provided for @categoryDeleteBlockedTitle.
   ///
   /// In ko, this message translates to:
-  /// **'삭제 불가'**
+  /// **'삭제할 수 없어요'**
   String get categoryDeleteBlockedTitle;
 
   /// No description provided for @categoryDeleteHasChildren.
@@ -4999,12 +4981,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해주세요.'**
   String categoryDeleteHasChildren(String name);
-
-  /// No description provided for @categoryDeleteWithBudget.
-  ///
-  /// In ko, this message translates to:
-  /// **'예산이 설정되어 있는 카테고리입니다. 삭제하면 예산도 함께 삭제됩니다. \"{name}\" 카테고리를 삭제할까요?'**
-  String categoryDeleteWithBudget(String name);
 
   /// No description provided for @categoryDeleteConfirm.
   ///
@@ -5018,30 +4994,6 @@ abstract class AppLocalizations {
   /// **'삭제 실패'**
   String get categoryDeleteFailed;
 
-  /// No description provided for @categoryNew.
-  ///
-  /// In ko, this message translates to:
-  /// **'새 카테고리'**
-  String get categoryNew;
-
-  /// No description provided for @categoryPreview.
-  ///
-  /// In ko, this message translates to:
-  /// **'{type} 카테고리 · 미리보기'**
-  String categoryPreview(String type);
-
-  /// No description provided for @categoryTypeLabel.
-  ///
-  /// In ko, this message translates to:
-  /// **'구분'**
-  String get categoryTypeLabel;
-
-  /// No description provided for @categoryOptionalSuffix.
-  ///
-  /// In ko, this message translates to:
-  /// **' (선택)'**
-  String get categoryOptionalSuffix;
-
   /// No description provided for @categoryParentMoveHint.
   ///
   /// In ko, this message translates to:
@@ -5051,7 +5003,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryMakeRoot.
   ///
   /// In ko, this message translates to:
-  /// **'— 최상위 카테고리로 두기 —'**
+  /// **'최상위'**
   String get categoryMakeRoot;
 
   /// No description provided for @categoryNamePlaceholder.
@@ -5065,6 +5017,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'아이콘'**
   String get categoryIconLabel;
+
+  /// No description provided for @categoryLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리를 불러오지 못했어요'**
+  String get categoryLoadFailed;
+
+  /// No description provided for @categoryDeleteMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 기록된 거래는 지워지지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 지워져요.'**
+  String get categoryDeleteMessage;
+
+  /// No description provided for @categoryDeleteRecurring.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카테고리를 쓰는 반복 거래 {count}개는 계속 이 카테고리로 기록돼요.'**
+  String categoryDeleteRecurring(int count);
+
+  /// No description provided for @categoryExpandOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 하위 카테고리'**
+  String categoryExpandOf(String name);
+
+  /// No description provided for @categoryMoreOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 더보기'**
+  String categoryMoreOf(String name);
+
+  /// No description provided for @categoryDragReorderOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 순서 바꾸기'**
+  String categoryDragReorderOf(String name);
+
+  /// No description provided for @categoryKindLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'종류'**
+  String get categoryKindLabel;
+
+  /// No description provided for @categorySubmitAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get categorySubmitAdd;
+
+  /// No description provided for @categoryAddSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'하위 카테고리 추가'**
+  String get categoryAddSub;
 
   /// No description provided for @authLoginPrompt.
   ///
@@ -11426,12 +11432,6 @@ abstract class AppLocalizations {
   /// **'거래 옮기기'**
   String get categoryMoveTxEntry;
 
-  /// No description provided for @categoryMoveTxEntryDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'거래가 달린 카테고리는 하위 분류를 만들 수 없어요. 거래를 옮기면 만들 수 있어요'**
-  String get categoryMoveTxEntryDesc;
-
   /// No description provided for @categoryMoveTxDesc.
   ///
   /// In ko, this message translates to:
@@ -11927,7 +11927,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryReorderHint.
   ///
   /// In ko, this message translates to:
-  /// **'핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.'**
+  /// **'손잡이를 끌어 순서를 바꿔요. 상위는 상위끼리, 하위는 같은 상위 안에서 옮겨요.'**
   String get categoryReorderHint;
 
   /// No description provided for @txmSpendSummary.
