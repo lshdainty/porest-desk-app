@@ -5169,18 +5169,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsLastMonthShort => 'Last month';
 
   @override
-  String statsWeekdayInsightDown(String day, String amount) {
-    return '$day spending dropped by $amount vs last month.';
+  String statsWeekdayInsightDown(String prev, String day, String amount) {
+    return '$day spending dropped by $amount vs $prev.';
   }
 
   @override
-  String statsWeekdayInsightUp(String day, String amount) {
-    return '$day spending rose by $amount vs last month.';
+  String statsWeekdayInsightUp(String prev, String day, String amount) {
+    return '$day spending rose by $amount vs $prev.';
   }
 
   @override
-  String get statsWeekdayInsightSame =>
-      'Weekday spending is similar to last month.';
+  String statsWeekdayInsightSame(String prev) {
+    return 'Similar to $prev.';
+  }
 
   @override
   String statsVsLastPrefix(String prev) {

@@ -560,31 +560,18 @@ class _StatsCompareWeekdaySectionState
     final sumPrev = prev.fold<int>(0, (a, b) => a + b);
     final name = l.statsChartWeekdayName(nowName);
 
-    // 인사이트 — 감소폭 최대 요일 우선, 없으면 증가폭 최대.
-    String insight;
-    var bestDrop = 0, dropIdx = -1;
-    for (var i = 0; i < 7; i++) {
-      final drop = prev[i] - now[i];
-      if (drop > bestDrop) {
-        bestDrop = drop;
-        dropIdx = i;
-      }
-    }
-    if (dropIdx >= 0) {
-      insight = l.statsWeekdayInsightDown(days[dropIdx], money(bestDrop));
-    } else {
-      var bestRise = 0, riseIdx = -1;
-      for (var i = 0; i < 7; i++) {
-        final rise = now[i] - prev[i];
-        if (rise > bestRise) {
-          bestRise = rise;
-          riseIdx = i;
-        }
-      }
-      insight = riseIdx >= 0
-          ? l.statsWeekdayInsightUp(days[riseIdx], money(bestRise))
-          : l.statsWeekdayInsightSame;
-    }
+    // 인사이트 — 변화의 절댓값이 가장 큰 요일 하나(웹과 한 벌). 줄어든 요일을 먼저 말하지 않는다. 변화가 없으면 "{기간}과 비슷해요."
+    final big = weekdayBiggestChange(now, prev);
+    final prevText = periodInSentence(prevName);
+    final insight = big.index < 0
+        ? l.statsWeekdayInsightSame(periodWithJosa(prevName))
+        : big.delta < 0
+        ? l.statsWeekdayInsightDown(
+            prevText,
+            days[big.index],
+            money(big.delta.abs()),
+          )
+        : l.statsWeekdayInsightUp(prevText, days[big.index], money(big.delta));
     return statsSection(
       header: head,
       children: [

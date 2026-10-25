@@ -9437,20 +9437,20 @@ abstract class AppLocalizations {
   /// No description provided for @statsWeekdayInsightDown.
   ///
   /// In ko, this message translates to:
-  /// **'{day}요일 지출이 지난 달보다 {amount} 줄었어요.'**
-  String statsWeekdayInsightDown(String day, String amount);
+  /// **'{day}요일 지출이 {prev}보다 {amount} 줄었어요.'**
+  String statsWeekdayInsightDown(String prev, String day, String amount);
 
   /// No description provided for @statsWeekdayInsightUp.
   ///
   /// In ko, this message translates to:
-  /// **'{day}요일 지출이 지난 달보다 {amount} 늘었어요.'**
-  String statsWeekdayInsightUp(String day, String amount);
+  /// **'{day}요일 지출이 {prev}보다 {amount} 늘었어요.'**
+  String statsWeekdayInsightUp(String prev, String day, String amount);
 
   /// No description provided for @statsWeekdayInsightSame.
   ///
   /// In ko, this message translates to:
-  /// **'요일별 지출이 지난 달과 비슷해요.'**
-  String get statsWeekdayInsightSame;
+  /// **'{prev} 비슷해요.'**
+  String statsWeekdayInsightSame(String prev);
 
   /// No description provided for @statsVsLastPrefix.
   ///

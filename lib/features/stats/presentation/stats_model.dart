@@ -393,3 +393,30 @@ String heatRowLabel(AppLocalizations l, int i) => switch (i) {
   4 => l.statsTimeLateNight,
   _ => l.statsTimeDawn,
 };
+
+/// 문장 속 기간 이름 — 영어는 소문자("last month"), 한국어는 그대로("지난 달").
+String periodInSentence(String name) =>
+    localeIsEn() ? name.toLowerCase() : name;
+
+/// "{기간}과 비슷해요" 의 앞 — 한국어는 받침에 따라 과 · 와("지난 달과" · "지난 분기와"), 영어는 그대로.
+String periodWithJosa(String name) {
+  if (localeIsEn() || name.isEmpty) return periodInSentence(name);
+  final last = name.runes.last;
+  final hasBatchim =
+      last >= 0xAC00 && last <= 0xD7A3 && (last - 0xAC00) % 28 != 0;
+  return '$name${hasBatchim ? '과' : '와'}';
+}
+
+/// 요일별 지출 비교에서 말할 요일 — 변화(이번 − 지난)의 절댓값이 가장 큰 요일(웹과 같은 규칙, 같으면 앞 요일). 모두 0 이면 -1.
+({int index, int delta}) weekdayBiggestChange(List<int> now, List<int> prev) {
+  var idx = -1;
+  var best = 0;
+  for (var i = 0; i < 7; i++) {
+    final d = now[i] - prev[i];
+    if (d.abs() > best.abs()) {
+      best = d;
+      idx = i;
+    }
+  }
+  return (index: idx, delta: best);
+}

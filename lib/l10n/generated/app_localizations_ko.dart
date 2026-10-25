@@ -5086,17 +5086,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsLastMonthShort => '지난 달';
 
   @override
-  String statsWeekdayInsightDown(String day, String amount) {
-    return '$day요일 지출이 지난 달보다 $amount 줄었어요.';
+  String statsWeekdayInsightDown(String prev, String day, String amount) {
+    return '$day요일 지출이 $prev보다 $amount 줄었어요.';
   }
 
   @override
-  String statsWeekdayInsightUp(String day, String amount) {
-    return '$day요일 지출이 지난 달보다 $amount 늘었어요.';
+  String statsWeekdayInsightUp(String prev, String day, String amount) {
+    return '$day요일 지출이 $prev보다 $amount 늘었어요.';
   }
 
   @override
-  String get statsWeekdayInsightSame => '요일별 지출이 지난 달과 비슷해요.';
+  String statsWeekdayInsightSame(String prev) {
+    return '$prev 비슷해요.';
+  }
 
   @override
   String statsVsLastPrefix(String prev) {

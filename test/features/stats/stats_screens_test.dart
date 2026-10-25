@@ -21,6 +21,8 @@ import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/expense/domain/expense.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_compare_parts.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_model.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_parts.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
@@ -467,5 +469,135 @@ void main() {
   test('음수 금액의 빼기는 U+2212 다', () {
     expect(statsWon(-1254726333, false), '−1,254,726,333원');
     expect(statsWon(-5, true), '••••');
+  });
+
+  group('요일 인사이트 — 변화 절댓값이 가장 큰 요일 하나', () {
+    test('줄어든 요일이 있어도 훨씬 크게 늘어난 요일을 말한다', () {
+      // 월 −1,000 · 토 +500,000
+      final now = [0, 0, 0, 0, 0, 500000, 0];
+      final prev = [1000, 0, 0, 0, 0, 0, 0];
+      final big = weekdayBiggestChange(now, prev);
+      expect(big.index, 5);
+      expect(big.delta, 500000);
+    });
+
+    test('같으면 앞 요일 · 모두 0 이면 없음', () {
+      expect(
+        weekdayBiggestChange(
+          [5, 5, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0],
+        ).index,
+        0,
+      );
+      expect(
+        weekdayBiggestChange(
+          [1, 2, 3, 4, 5, 6, 7],
+          [1, 2, 3, 4, 5, 6, 7],
+        ).index,
+        -1,
+      );
+    });
+
+    test('기간 이름 + 조사(과 · 와)', () {
+      expect(periodWithJosa('지난 달'), '지난 달과');
+      expect(periodWithJosa('지난 분기'), '지난 분기와');
+      expect(periodWithJosa('지난 해'), '지난 해와');
+      expect(periodWithJosa('이전 기간'), '이전 기간과');
+    });
+
+    testWidgets('변화가 하나도 없으면 "{기간}과 비슷해요." 줄을 보인다', (tester) async {
+      tester.view.physicalSize = const Size(360, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: GrooTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ko'),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: StatsCompareWeekdaySection(
+                period: StatsPeriod.thisMonth().ofSeg(StatsSeg.quarter),
+                nowExpenses: const [],
+                prevExpenses: const [],
+                masked: false,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(findRichPlain('지난 분기와 비슷해요.'), findsOneWidget);
+    });
+
+    for (final seg in [StatsSeg.month, StatsSeg.quarter, StatsSeg.year]) {
+      testWidgets('글에 맞는 기간 이름이 들어가고 마침표로 끝난다 — ${seg.name}', (tester) async {
+        final now = DateTime.now();
+        // 이번 기간: 토요일만 · 지난 기간: 월요일만(작게) — 월 −1,000 · 토 +500,000 꼴
+        final period = StatsPeriod.thisMonth().ofSeg(seg);
+        String iso(DateTime d) => '${ymd(d)}T00:00:00';
+        DateTime firstWeekday(DateTime from, int weekday) {
+          var d = from;
+          while (d.weekday != weekday) {
+            d = d.add(const Duration(days: 1));
+          }
+          return d;
+        }
+
+        final sat = firstWeekday(period.from, DateTime.saturday);
+        final mon = firstWeekday(period.prev.from, DateTime.monday);
+        tester.view.physicalSize = const Size(360, 3000);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: GrooTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: StatsCompareWeekdaySection(
+                  period: period,
+                  nowExpenses: [
+                    Expense(
+                      rowId: 1,
+                      expenseType: 'EXPENSE',
+                      amount: 500000,
+                      expenseDate: iso(
+                        sat.isAfter(now)
+                            ? sat.subtract(const Duration(days: 7 * 52))
+                            : sat,
+                      ),
+                    ),
+                  ],
+                  prevExpenses: [
+                    Expense(
+                      rowId: 2,
+                      expenseType: 'EXPENSE',
+                      amount: 1000,
+                      expenseDate: iso(mon),
+                    ),
+                  ],
+                  masked: false,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final prevName = switch (seg) {
+          StatsSeg.month => '지난 달',
+          StatsSeg.quarter => '지난 분기',
+          _ => '지난 해',
+        };
+        expect(
+          findRichPlain('토요일 지출이 $prevName보다 500,000원 늘었어요.'),
+          findsOneWidget,
+        );
+        expect(findRichPlain('월요일'), findsNothing);
+      });
+    }
   });
 }
