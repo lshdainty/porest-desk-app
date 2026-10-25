@@ -231,14 +231,14 @@ void main() {
       await pump(tester, serveRange: false);
       await tester.pump();
 
-      expect(find.byType(PSkeleton), findsWidgets);
+      expect(find.byType(dsskel.PSkeleton), findsWidgets);
     });
 
     testWidgets('재조회 중에도 이전 카테고리가 그대로 보인다', (tester) async {
       await pump(tester, serveRange: true);
       await tester.pumpAndSettle();
-      expect(find.text('식비'), findsWidgets);
-      expect(find.byType(PSkeleton), findsNothing);
+      expect(findPlain('식비'), findsWidgets);
+      expect(find.byType(dsskel.PSkeleton), findsNothing);
 
       await _refetch(
         tester,
@@ -246,8 +246,8 @@ void main() {
         rangeSummaryProvider,
       );
 
-      expect(find.text('식비'), findsWidgets);
-      expect(find.byType(PSkeleton), findsNothing);
+      expect(findPlain('식비'), findsWidgets);
+      expect(find.byType(dsskel.PSkeleton), findsNothing);
     });
   });
 
