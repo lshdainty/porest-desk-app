@@ -10199,7 +10199,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{title}\" 할 일을 삭제할까요? 이 작업은 되돌릴 수 없습니다.'**
+  /// **'\"{title}\" 할 일을 삭제할까요? 되돌릴 수 없어요.'**
   String todoDeleteConfirm(String title);
 
   /// No description provided for @todoDetail.
@@ -10229,7 +10229,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoTitleRequired.
   ///
   /// In ko, this message translates to:
-  /// **'제목을 입력해주세요'**
+  /// **'제목을 입력해주세요.'**
   String get todoTitleRequired;
 
   /// No description provided for @todoDueDate.
@@ -10283,7 +10283,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoContentLabel.
   ///
   /// In ko, this message translates to:
-  /// **'상세 내용 (선택)'**
+  /// **'메모'**
   String get todoContentLabel;
 
   /// No description provided for @todoContentPlaceholder.
@@ -10307,7 +10307,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoNoContent.
   ///
   /// In ko, this message translates to:
-  /// **'내용 없음'**
+  /// **'없음'**
   String get todoNoContent;
 
   /// No description provided for @todoEmptyToday.
@@ -10475,7 +10475,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoLoadError.
   ///
   /// In ko, this message translates to:
-  /// **'할 일 로드 실패'**
+  /// **'할 일을 불러오지 못했어요'**
   String get todoLoadError;
 
   /// No description provided for @todoProjectLoadError.
@@ -10487,7 +10487,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoTagLoadError.
   ///
   /// In ko, this message translates to:
-  /// **'태그 로드 실패'**
+  /// **'태그를 불러오지 못했어요'**
   String get todoTagLoadError;
 
   /// No description provided for @subManageTitle.
@@ -11183,7 +11183,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoDetailContent.
   ///
   /// In ko, this message translates to:
-  /// **'상세 내용'**
+  /// **'메모'**
   String get todoDetailContent;
 
   /// No description provided for @memoDetailTitle.
@@ -12089,7 +12089,7 @@ abstract class AppLocalizations {
   /// No description provided for @tdmEmptyFilterDesc.
   ///
   /// In ko, this message translates to:
-  /// **'필터를 조정하거나 초기화해보세요.'**
+  /// **'조건을 바꾸거나 지워보세요.'**
   String get tdmEmptyFilterDesc;
 
   /// No description provided for @tdmStarToastGain.
@@ -12293,13 +12293,13 @@ abstract class AppLocalizations {
   /// No description provided for @ttagTitle.
   ///
   /// In ko, this message translates to:
-  /// **'할일 태그'**
+  /// **'할 일 태그'**
   String get ttagTitle;
 
   /// No description provided for @ttagDesc.
   ///
   /// In ko, this message translates to:
-  /// **'할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.'**
+  /// **'할 일에 붙이는 태그예요. 할 일 화면의 거르기와 태그별 개수에 쓰여요. 태그를 지우면 그 할 일은 \'태그 없음\'으로 남아요.'**
   String get ttagDesc;
 
   /// No description provided for @ttagAddCta.
@@ -14119,6 +14119,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'통계 보기'**
   String get statsTabsAria;
+
+  /// No description provided for @tdmFilterOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'필터, 조건 걸림'**
+  String get tdmFilterOn;
+
+  /// No description provided for @todoCheckName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{title} 완료'**
+  String todoCheckName(String title);
+
+  /// No description provided for @todoCheckNameOverdue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{title} 완료, 마감 지남'**
+  String todoCheckNameOverdue(String title);
+
+  /// No description provided for @todoMemoTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get todoMemoTag;
+
+  /// No description provided for @tdmCellLeft.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 남은 할 일 {count}개'**
+  String tdmCellLeft(String date, int count);
+
+  /// No description provided for @tdmCellCollected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 별자리 수집'**
+  String tdmCellCollected(String date);
+
+  /// No description provided for @tdmCellMissed.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 놓친 날'**
+  String tdmCellMissed(String date);
+
+  /// No description provided for @tdmCellDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 다 끝냄'**
+  String tdmCellDone(String date);
+
+  /// No description provided for @tdmLoadFailedDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 후 다시 시도해주세요.'**
+  String get tdmLoadFailedDesc;
+
+  /// No description provided for @todoToggleFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료로 바꾸지 못했어요. 잠시 후 다시 시도해주세요.'**
+  String get todoToggleFailed;
+
+  /// No description provided for @todoDetailOverdue.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감 지남'**
+  String get todoDetailOverdue;
+
+  /// No description provided for @todoDueDatePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감일 선택'**
+  String get todoDueDatePlaceholder;
+
+  /// No description provided for @todoTagEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그는 설정 › 할 일 태그에서 만들어요.'**
+  String get todoTagEmptyHint;
+
+  /// No description provided for @ttagEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'{label} 버튼으로 첫 태그를 만들어보세요.'**
+  String ttagEmptyHint(String label);
 }
 
 class _AppLocalizationsDelegate
