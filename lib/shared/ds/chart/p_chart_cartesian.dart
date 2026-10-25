@@ -380,7 +380,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
             if (v != i.toDouble() || i < 0 || i >= widget.categories.length) {
               return const SizedBox();
             }
-            // fl_chart 는 간격에 안 맞아도 마지막 눈금을 더 찍는다 — 앞 글자와 겹쳐 "11월12월" 이 된다
+            // fl_chart 는 간격에 안 맞아도 마지막 눈금을 더 찍는다 — 앞 글자와 겹쳐 "11월12월" 이 된다(막대 차트는 interval 을 아예 따르지 않아 칸마다 부른다 — 간격 칸만 그린다)
             if (i % p.labelInterval != 0) return const SizedBox();
             return SideTitleWidget(
               meta: meta,

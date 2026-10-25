@@ -243,8 +243,10 @@ class _PHeatmapState extends State<PHeatmap> {
               cell >= widget.textMinCellWidth &&
               _widestValue(context, fmt, max) <= cell - kHeatCellTextPadding;
           // 줄 높이 — 칸(정사각형)과 시간대 라벨(13 + 11) 중 큰 쪽
-          final rowH = math.max(cell, hasSub ? 33.0 : 18.0);
-          const headH = 16.0;
+          // 글자 크기 설정을 키우면 라벨 두 줄도 자라 칸 줄이 따라 자란다(200% 에서 라벨이 줄 밖으로 넘치지 않게)
+          final scaler = MediaQuery.textScalerOf(context);
+          final rowH = math.max(cell, scaler.scale(hasSub ? 33.0 : 18.0));
+          final headH = scaler.scale(16.0);
           double cellLeft(int col) =>
               kHeatLabelColumn + kHeatGap + col * (cell + kHeatGap);
           double cellTop(int row) => headH + kHeatGap + row * (rowH + kHeatGap);
