@@ -20,6 +20,10 @@ const double kBottomSheetMaxHeightFactor = 0.9;
 const double _closeCircle = 28;
 const double _closeIcon = 14;
 const double _handleWidth = 36;
+
+/// 머리 오른쪽 동작([PBottomSheetContent.headerAction]) — 보이는 단추 36, 닫기 원 왼쪽 사이 4.
+const double kBottomSheetHeaderActionSize = 36;
+const double kBottomSheetHeaderActionGap = 4;
 const double _handleHeight = 4;
 
 /// 시트 안에서 시트를 닫는 길 — 바닥 버튼 · 닫기 버튼이 부른다(`PBottomSheet.of(context)`).
@@ -188,6 +192,7 @@ class PBottomSheetContent extends StatelessWidget {
     this.scrollFog = false,
     this.flushBody = false,
     this.closePressed = false,
+    this.headerAction,
   }) : assert(
          !showCloseButton || closeLabel != null,
          '닫기 버튼의 이름(closeLabel)이 필요하다',
@@ -235,6 +240,11 @@ class PBottomSheetContent extends StatelessWidget {
   /// 닫기 버튼을 눌린 모습으로 그린다 — 카탈로그의 정지한 견본.
   final bool closePressed;
 
+  /// 머리 오른쪽 동작 자리 — 닫기 원 왼쪽 사이 4 에 서는 단추 하나(Button ghost 아이콘만 36 · "{항목 이름} 더보기").
+  /// 들어간 시트 안에서 동작이 여럿일 때 ⋮ 를 둔다(줄 끝 ⋮ 를 두지 않는 원칙, 2026-10-25). 제목은 남은 폭에서 줄을
+  /// 바꾸고(겹치지 않는다) 초점 차례는 제목 → 동작 → 닫기다. 닫기 버튼이 없으면 오른쪽 끝(화면 여백 24)에 선다.
+  final Widget? headerAction;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -254,7 +264,15 @@ class PBottomSheetContent extends StatelessWidget {
         children: [
           Padding(
             // 닫기 버튼 자리 — 24 + 원 28 + 12 = 64 중 화면 여백 24 를 뺀 40
-            padding: EdgeInsets.only(right: showCloseButton ? PSpacing.x10 : 0),
+            padding: EdgeInsets.only(
+              right:
+                  (showCloseButton ? PSpacing.x10 : 0) +
+                  (headerAction == null
+                      ? 0
+                      : kBottomSheetHeaderActionSize +
+                            kBottomSheetHeaderActionGap +
+                            (showCloseButton ? 0 : PSpacing.x2)),
+            ),
             // 제목은 시트의 이름이 읽는다 — 다시 읽지 않는다
             child: ExcludeSemantics(
               child: Text(
@@ -281,6 +299,25 @@ class PBottomSheetContent extends StatelessWidget {
     final headerBox = Stack(
       children: [
         header,
+        if (headerAction != null)
+          Positioned(
+            key: const ValueKey('p-bottom-sheet-header-action'),
+            // 보이는 단추 36 은 닫기 원(위 24 · 높이 28)과 가운데를 맞추고 원 왼쪽 끝에서 4 떨어진다.
+            // 누르는 영역은 사방 4 넓은 44 — 닫기의 누르는 영역과 겹치는 자리는 닫기가 이긴다(뒤에 그려진다)
+            top:
+                PSpacing.x6 +
+                (_closeCircle - kBottomSheetHeaderActionSize) / 2 -
+                (PTouch.min - kBottomSheetHeaderActionSize) / 2,
+            right:
+                PSpacing.globalGutter +
+                (showCloseButton
+                    ? _closeCircle + kBottomSheetHeaderActionGap
+                    : 0) -
+                (PTouch.min - kBottomSheetHeaderActionSize) / 2,
+            width: PTouch.min,
+            height: PTouch.min,
+            child: Center(child: headerAction!),
+          ),
         if (showCloseButton)
           Positioned(
             // 원 28 의 자리는 위 24 · 오른쪽 24 — 누르는 영역 44 는 사방 8 넓다
