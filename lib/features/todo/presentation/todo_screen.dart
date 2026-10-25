@@ -600,8 +600,9 @@ class _CellMark extends StatelessWidget {
       null => null,
     };
     return ExcludeSemantics(
-      child: SizedBox(
-        height: height,
+      // 높이 15 는 100% 의 값 — 글자가 커지면 칸이 글을 따라 늘고 잘리지 않는다(I-10 9)
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: height),
         child: Center(child: child),
       ),
     );

@@ -220,6 +220,30 @@ void main() {
     });
   });
 
+  testWidgets('글자 200% — 칸 표시가 잘리지 않고 칸이 글을 따라 늘어난다', (tester) async {
+    await pumpApp(
+      tester,
+      const TodoScreen(),
+      overrides: todoOverrides(todos: _basic()),
+      textScale: 2,
+    );
+    final mark = find.descendant(
+      of: find.byType(LedgerCalendarGrid),
+      matching: find.text('1건'),
+    );
+    final box = find.ancestor(
+      of: mark,
+      matching: find.byWidgetPredicate(
+        (w) => w is ConstrainedBox && w.constraints.minHeight == 15,
+      ),
+    );
+    expect(tester.getSize(box).height, greaterThan(15));
+    expect(
+      tester.getSize(box).height,
+      greaterThanOrEqualTo(tester.getSize(mark).height),
+    );
+  });
+
   group('11 원장 머리 숨기기(Scroll Auto Hide) · 18 달 이동', () {
     List<Todo> many() => [
       for (var i = 0; i < 24; i++)
@@ -342,13 +366,15 @@ void main() {
         find.ancestor(of: mark, matching: find.byType(ExcludeSemantics)),
         findsWidgets,
       );
+      // 표시 높이 15 — 100% 의 값이다
       final box = find.ancestor(
         of: mark,
         matching: find.byWidgetPredicate(
-          (w) => w is SizedBox && w.height == 15,
+          (w) => w is ConstrainedBox && w.constraints.minHeight == 15,
         ),
       );
       expect(box, findsOneWidget);
+      expect(tester.getSize(box).height, 15);
       handle.dispose();
     });
 
