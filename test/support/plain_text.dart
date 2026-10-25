@@ -15,3 +15,9 @@ Finder findPlainContaining(String part) => find.byWidgetPredicate(
   (w) => w is Text && w.data != null && plainOf(w.data!).contains(part),
   description: 'Text containing "$part"',
 );
+
+/// 줄바꿈 글자를 빼고 [part] 를 포함하는 글(Text · Text.rich 모두).
+Finder findRichPlain(String part) => find.byWidgetPredicate(
+  (w) => w is RichText && plainOf(w.text.toPlainText()).contains(part),
+  description: 'RichText containing "$part"',
+);
