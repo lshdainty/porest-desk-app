@@ -4,7 +4,11 @@
 // ② 도넛 180 · 두께 24 · 가운데 글 없음 · 합계 줄 원까지 · 상위 9 + 기타 ③ 금액을 가리면 차트 눈금 · 값 모두 점
 // ④ 폰은 질의 하나 = 실패 상자 하나(같은 질의를 먹는 뒤 띠는 그리지 않는다) · 오류 원문 0 ⑤ 요일 비교 지난 기간 = 옅은 파랑
 // ⑥ 비율 막대 안 % 글 대비 4.5 이상 ⑦ 지난 기간과 같으면 "지난 기간과 같아요." ⑧ 고정 정리 = 페이지(시트 아님) · 실패 갈래.
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +23,7 @@ import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_model.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_parts.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_trend_parts.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
@@ -123,11 +128,7 @@ void main() {
           tester,
         ) async {
           await _pump(tester, tab: tab, scale: scale, height: 9000);
-          // 추이 탭 200% 는 저축률 고리 가운데 글(t9 24)이 고리 108 을 넘는다 — 사용자 결정 대기라 웹 지금 값 그대로 두고 결과표에 적는다
-          final ex = tester.takeException();
-          if (!(tab == StatsTab.trend && scale == 2.0)) {
-            expect(ex, isNull, reason: '넘침 0');
-          }
+          expect(tester.takeException(), isNull, reason: '넘침 0');
           final bands = _bands(tester);
           // 합계 · 거래는 한 달이라 추이 탭은 카테고리 월별 추이 띠가 없다 → 셋
           final want = tab == StatsTab.trend ? 3 : expectedBands[tab]!;
@@ -227,14 +228,65 @@ void main() {
   });
 
   group('추이 탭', () {
-    testWidgets('저축률 가운데 %는 t9(24) · 지출 · 저축 줄 이름에 비율', (tester) async {
-      await _pump(tester, tab: StatsTab.trend);
-      final pct = tester
-          .widgetList<Text>(find.byType(Text))
-          .firstWhere(
-            (t) => (t.data ?? '').endsWith('%') && (t.data ?? '').contains('.'),
+    for (final scale in [1.0, 2.0]) {
+      testWidgets(
+        '저축률 고리 — 크기 = 배율 × 108, 가운데 글은 t9 정수 "100%" 이고 안쪽 지름에 든다(${(scale * 100).round()}%)',
+        (tester) async {
+          await tester.runAsync(() async {
+            final bytes = File(
+              'assets/fonts/PretendardVariable.ttf',
+            ).readAsBytesSync();
+            final loader = FontLoader('Pretendard')
+              ..addFont(Future.value(ByteData.view(bytes.buffer)));
+            await loader.load();
+          });
+          tester.view.physicalSize = const Size(360, 900);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.reset);
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: GrooTheme.light(),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: const Locale('ko'),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(scale)),
+                child: child!,
+              ),
+              home: const Scaffold(
+                body: Center(child: StatsSavingsRing(rate: 100)),
+              ),
+            ),
           );
-      expect(pct.style!.fontSize, PTypography.t9.fontSize);
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          final ring = tester.getSize(find.byType(StatsSavingsRing));
+          expect(ring.width, closeTo(108 * scale, 0.01));
+          expect(ring.height, closeTo(108 * scale, 0.01));
+          final value = find.byKey(const ValueKey('savings-ring-value'));
+          final text = tester.widget<Text>(value);
+          expect(text.data, '100%', reason: '소수 없이 정수');
+          expect(text.style!.fontSize, PTypography.t9.fontSize);
+          // 안쪽 지름 = 2 × (반지름 48 − 선 두께 절반 5) × 비율
+          final inner = 2 * (48 - 5) * scale;
+          final w = tester.getSize(value).width;
+          expect(
+            w,
+            lessThanOrEqualTo(inner),
+            reason: '가운데 글 폭 $w ≤ 안쪽 지름 $inner',
+          );
+        },
+      );
+    }
+
+    testWidgets('추이 탭 저축률 가운데 글은 소수 없는 정수다', (tester) async {
+      await _pump(tester, tab: StatsTab.trend);
+      final v = tester.widget<Text>(
+        find.byKey(const ValueKey('savings-ring-value')),
+      );
+      expect(RegExp(r'^\d+%$').hasMatch(v.data!), isTrue);
     });
 
     testWidgets('월별 순저축은 음수 막대를 빨강으로 그린다', (tester) async {

@@ -233,49 +233,30 @@ class StatsSavingsRateSection extends StatelessWidget {
     );
     return statsSection(
       children: [
-        Row(
-          spacing: PSpacing.x4,
-          children: [
-            SizedBox(
-              width: 108,
-              height: 108,
-              child: Stack(
-                alignment: Alignment.center,
+        // 고리 크기 = 글자 배율 × 108 — 크게 보면 고리도 같이 커져 가운데 글이 안쪽에 든다(사용자 결정 10-25). 고리가 커서
+        // 문장 자리가 모자라면 문장을 고리 아래로 내린다
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final ring = StatsSavingsRing(rate: saveRate);
+            final size = savingsRingSize(context);
+            if (size + PSpacing.x4 + 120 > constraints.maxWidth) {
+              return Column(
+                spacing: PSpacing.x4,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomPaint(
-                    size: const Size(108, 108),
-                    painter: SavingsRingPainter(
-                      rate: saveRate,
-                      track: c.bgNeutralWeak,
-                      progress: c.fgBrand,
-                    ),
-                  ),
-                  // 고리 안 글 — t9 24 · 값 글(사용자 결정 대기 중이라 웹 지금 값 그대로, 넘침은 결과표에 숫자로 적는다)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l.statsSavingsRate,
-                        style: PTypography.t2.copyWith(
-                          color: c.fgNeutralSubtle,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '${saveRate.toStringAsFixed(1)}%',
-                        style: PTypography.t9.copyWith(
-                          color: c.fgNeutral,
-                          fontWeight: FontWeight.w700,
-                          fontFeatures: tabularFigures,
-                        ),
-                      ),
-                    ],
-                  ),
+                  Center(child: ring),
+                  insight,
                 ],
-              ),
-            ),
-            Expanded(child: insight),
-          ],
+              );
+            }
+            return Row(
+              spacing: PSpacing.x4,
+              children: [
+                ring,
+                Expanded(child: insight),
+              ],
+            );
+          },
         ),
         const SizedBox(height: PSpacing.x5),
         // 장식 막대 — 값은 아래 글이 말한다
@@ -360,6 +341,65 @@ class StatsSavingsRateSection extends StatelessWidget {
   }
 }
 
+/// 저축률 고리 한 변 — 글자 배율 × 108(100% 108 · 200% 216).
+double savingsRingSize(BuildContext context) =>
+    MediaQuery.textScalerOf(context).scale(kSavingsRingBase);
+
+const double kSavingsRingBase = 108;
+
+/// 저축률 고리 + 가운데 글(라벨 t2 · 값 t9 700, 정수 "100%"). 고리의 선 두께 · 반지름도 같은 비율로 커진다.
+class StatsSavingsRing extends StatelessWidget {
+  const StatsSavingsRing({super.key, required this.rate});
+
+  /// 0 ~ 100
+  final double rate;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final size = savingsRingSize(context);
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: Size(size, size),
+            painter: SavingsRingPainter(
+              rate: rate,
+              track: c.bgNeutralWeak,
+              progress: c.fgBrand,
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l.statsSavingsRate,
+                style: PTypography.t2.copyWith(
+                  color: c.fgNeutralSubtle,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '${rate.round()}%',
+                key: const ValueKey('savings-ring-value'),
+                style: PTypography.t9.copyWith(
+                  color: c.fgNeutral,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: tabularFigures,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// 저축률 고리 — 트랙 전체 원 + 진행 호(맨 위에서 시작 · 끝 둥글게).
 class SavingsRingPainter extends CustomPainter {
   SavingsRingPainter({
@@ -374,8 +414,10 @@ class SavingsRingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const stroke = 10.0;
-    const r = 48.0;
+    // 그림 108 기준 값을 크기 비율로 키운다
+    final k = size.width / kSavingsRingBase;
+    final stroke = 10.0 * k;
+    final r = 48.0 * k;
     final center = Offset(size.width / 2, size.height / 2);
     canvas.drawCircle(
       center,
