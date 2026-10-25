@@ -250,20 +250,10 @@ class _Overview extends StatelessWidget {
             children: [
               for (final f in figures)
                 PListItem(
-                  title: f.label,
+                  // 비율은 제목 글에 붙인다 — 제목 뒤 붙이개(WidgetSpan)는 큰 글자에서 글자 배율이 두 번 먹어 제목보다 커진다
+                  title: f.sub == null ? f.label : '${f.label} ${f.sub}',
                   verticalPadding: PSpacing.x2,
                   prefix: f.swatch == null ? null : _Swatch(color: f.swatch!),
-                  titleSuffix: f.sub == null
-                      ? null
-                      : [
-                          Text(
-                            f.sub!,
-                            style: TextStyle(
-                              color: c.fgNeutralSubtle,
-                              fontFeatures: tabularFigures,
-                            ),
-                          ),
-                        ],
                   suffix: PListValue.amount(
                     statsWon(f.value, masked),
                     style: TextStyle(
