@@ -404,6 +404,9 @@ class BudgetBar extends StatelessWidget {
 }
 
 /// 막대 아래 한 줄 — 왼쪽 · 오른쪽 t3(오른쪽만 색을 줄 수 있다).
+///
+/// 오른쪽 글(예: "N원 초과")은 제 폭만 쓰고 줄 끝에 선다. 왼쪽 글이 남은 폭을 다 쓰며, 숫자는 쉼표 뒤에서만 꺾인다.
+/// [right] 가 비면 오른쪽 칸을 두지 않는다 — 왼쪽 글이 줄 폭을 다 쓴다.
 class BudgetBarCaption extends StatelessWidget {
   const BudgetBarCaption({
     super.key,
@@ -425,23 +428,33 @@ class BudgetBarCaption extends StatelessWidget {
       color: c.fgNeutralSubtle,
       fontFeatures: tabularFigures,
     );
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Flexible(child: Text(keepAll(left), style: base)),
-        const SizedBox(width: PSpacing.x2),
-        Flexible(
-          child: Text(
-            keepAllAmount(right),
-            semanticsLabel: right,
-            textAlign: TextAlign.end,
-            style: base.copyWith(
-              color: rightColor,
-              fontWeight: rightBold ? FontWeight.w700 : null,
+    final leftText = Text(
+      keepAllAmount(left),
+      semanticsLabel: left,
+      style: base,
+    );
+    if (right.isEmpty) return leftText;
+    return LayoutBuilder(
+      builder: (context, box) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: leftText),
+          const SizedBox(width: PSpacing.x2),
+          // 제 폭만(줄 폭의 60% 까지) — 왼쪽이 나머지를 쓴다
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: box.maxWidth * 0.6),
+            child: Text(
+              keepAllAmount(right),
+              semanticsLabel: right,
+              textAlign: TextAlign.end,
+              style: base.copyWith(
+                color: rightColor,
+                fontWeight: rightBold ? FontWeight.w700 : null,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
