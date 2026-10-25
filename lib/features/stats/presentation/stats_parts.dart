@@ -32,8 +32,10 @@ String statsChangeRate(num now, num prev, {int fractionDigits = 0}) {
 }
 
 /// 금액 글 — 원까지, 가리면 점.
-String statsWon(int n, bool masked, {String sign = ''}) =>
-    budgetWon(n, masked, sign: sign);
+String statsWon(int n, bool masked, {String sign = ''}) => n < 0 && sign.isEmpty
+    // 빼기는 U+2212 — ASCII 하이픈을 쓰지 않는다
+    ? budgetWon(n.abs(), masked, sign: kChartMinus)
+    : budgetWon(n, masked, sign: sign);
 
 /// 차트 글 가림 — 가리면 눈금 · 툴팁 값도 점(null 이면 ds 기본).
 String Function(double)? maskFormatter(bool masked) =>

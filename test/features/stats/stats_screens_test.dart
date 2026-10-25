@@ -448,4 +448,9 @@ void main() {
     expect(statsChangeRate(1234, 1000, fractionDigits: 1), '23.4%');
     expect(statsChangeRate(5, 0), '—');
   });
+
+  test('음수 금액의 빼기는 U+2212 다', () {
+    expect(statsWon(-1254726333, false), '−1,254,726,333원');
+    expect(statsWon(-5, true), '••••');
+  });
 }
