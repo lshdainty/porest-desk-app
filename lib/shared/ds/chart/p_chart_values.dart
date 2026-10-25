@@ -180,10 +180,16 @@ TextStyle chartTickStyle(PColors c, {PChartColor? color}) =>
     );
 
 /// 눈금 하나의 폭을 잰다 — 세로축의 폭은 가장 긴 글자("−3,000만")가 잘리지 않게 잡는다.
-double measureText(String text, TextStyle style) {
+/// 글자는 화면의 글자 배율로 그려지므로 [scaler] 로 같은 배율을 넣어 잰다(안 넣으면 1배 — 200% 에서 눈금이 잘린다).
+double measureText(
+  String text,
+  TextStyle style, {
+  TextScaler scaler = TextScaler.noScaling,
+}) {
   final p = TextPainter(
     text: TextSpan(text: text, style: style),
     textDirection: TextDirection.ltr,
+    textScaler: scaler,
     maxLines: 1,
   )..layout();
   final w = p.width;

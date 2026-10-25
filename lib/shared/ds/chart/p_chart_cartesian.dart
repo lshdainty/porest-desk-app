@@ -176,6 +176,7 @@ class _Plan {
     required this.labelInterval,
     required this.plotLeft,
     required this.plotWidth,
+    required this.bottomReserved,
   });
 
   /// 0 아래 · 위로 눈금이 몇 칸인가.
@@ -190,6 +191,9 @@ class _Plan {
   final int labelInterval;
   final double plotLeft;
   final double plotWidth;
+
+  /// 아래 눈금(가로축) 자리 — 글자 배율을 곱한 눈금 높이 + 사이 8.
+  final double bottomReserved;
 
   double get minY => -below.toDouble();
   double get maxY => above.toDouble();
@@ -216,7 +220,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
   bool get _dual => widget.series.any((s) => s.onRight);
 
   /// 눈금을 정한다 — 숨긴 계열도 포함해 정한다(지표 타일을 눌러도 축이 흔들리지 않는다).
-  _Plan _plan(double width, PColors c) {
+  _Plan _plan(double width, PColors c, TextScaler scaler) {
     final leftSeries = [
       for (final s in widget.series)
         if (!s.onRight) s,
@@ -257,7 +261,10 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     double widest(double step) {
       var w = 0.0;
       for (var t = -below; t <= aboveFix; t++) {
-        w = math.max(w, measureText(_axisText(t * step), tickStyle));
+        w = math.max(
+          w,
+          measureText(_axisText(t * step), tickStyle, scaler: scaler),
+        );
       }
       return w;
     }
@@ -266,7 +273,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     final rightW = r == null ? 0.0 : widest(r.step) + kChartTickMargin;
     var labelW = 0.0;
     for (final cat in widget.categories) {
-      labelW = math.max(labelW, measureText(cat, tickStyle));
+      labelW = math.max(labelW, measureText(cat, tickStyle, scaler: scaler));
     }
     // 가로축 끝 글자가 반쯤 삐져나가므로 오른쪽 축이 없으면 그만큼 비워 둔다
     final rightPad = r == null ? math.max(PSpacing.x2, labelW / 2) : rightW;
@@ -283,6 +290,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       labelInterval: interval,
       plotLeft: leftW,
       plotWidth: plotW,
+      bottomReserved: scaler.scale(15) + kChartTickMargin,
     );
   }
 
@@ -340,7 +348,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: kChartBottomReserved,
+          reservedSize: p.bottomReserved,
           interval: p.labelInterval.toDouble(),
           getTitlesWidget: (v, meta) {
             final i = v.round();
@@ -455,7 +463,11 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       child: PChartDrawIn(
         builder: (context, progress) => LayoutBuilder(
           builder: (context, constraints) {
-            final p = _plan(constraints.maxWidth, c);
+            final p = _plan(
+              constraints.maxWidth,
+              c,
+              MediaQuery.textScalerOf(context),
+            );
             final h = math.max(1.0, widget.height - _topPad);
             final overlay = _overlay(c, p, h);
             return TapRegion(
@@ -650,7 +662,7 @@ class _PBarChartState extends _CartesianState<PBarChart> {
     final label = widget.barLabel;
     if (label != null) {
       final visible = _visible;
-      final plotH = h - kChartBottomReserved;
+      final plotH = h - p.bottomReserved;
       final range = p.maxY - p.minY;
       for (var i = 0; i < widget.categories.length; i++) {
         for (final s in visible) {
@@ -689,7 +701,7 @@ class _PBarChartState extends _CartesianState<PBarChart> {
         Positioned(
           left: _xOf(_active!, p) - 0.5,
           top: _topPad,
-          height: h - kChartBottomReserved,
+          height: h - p.bottomReserved,
           width: 1,
           child: IgnorePointer(
             child: CustomPaint(
