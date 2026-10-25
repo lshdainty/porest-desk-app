@@ -13,6 +13,7 @@ import 'package:groo_damda_app/features/calendar/application/calendar_providers.
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
@@ -131,7 +132,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     // 색 우선순위: label > calendar > event (일별 시트 색 바와 동일 규칙)
     final color = solidSwatchColor(
       context,
-      e.labelColor ?? e.calendarColor ?? e.color,
+      eventColorHex(e),
       fallback: t.fgBrand,
     );
     final bg = softBg(context, color);

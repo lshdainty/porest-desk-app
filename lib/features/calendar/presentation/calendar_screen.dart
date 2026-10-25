@@ -26,6 +26,7 @@ import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
@@ -911,15 +912,11 @@ class _CellEventLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = solidSwatchColor(
-      context,
-      event.labelColor ?? event.calendarColor ?? event.color,
-      fallback: tokens.fgBrand,
-    );
+    final tone = eventTone(context, event);
     // 멀티데이 연속 바: 시작=좌측만 round, 종료=우측만 round, 중간=square + full-bleed
     // (인접 셀과 이어지도록 연결 변은 가로 inset 0). 제목은 시작(first)/단일(none) 만(웹 정합).
-    // 색은 dark-aware(solidSwatchColor: 체크박스와 동일 base) + 불투명(chipFill/chipText).
-    // 이웃 달 셀의 일정도 이번 달과 같은 색이다(흐리게 하지 않는다). 웹은 동일하게 getPaletteByColor 한 함수로 통일.
+    // 색은 역할 색 chart-*-weak(바탕) · chart-*-contrast(글) — 섞어 만든 색이 아니다(I-09 5).
+    // 이웃 달 셀의 일정도 이번 달과 같은 색이다(흐리게 하지 않는다).
     const r = Radius.circular(PRadius.sm);
     final radius = switch (position) {
       _SegPos.none => PRadius.brSm,
@@ -963,10 +960,7 @@ class _CellEventLabel extends StatelessWidget {
           horizontal: PSpace.x4,
           vertical: PSpace.x0,
         ),
-        decoration: BoxDecoration(
-          color: chipFill(context, base),
-          borderRadius: radius,
-        ),
+        decoration: BoxDecoration(color: tone.weak, borderRadius: radius),
         child: isRowSegEnd
             ? Stack(
                 clipBehavior: Clip.none,
@@ -997,7 +991,7 @@ class _CellEventLabel extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 softWrap: false,
                                 style: PTypo.micro.copyWith(
-                                  color: chipText(context, base),
+                                  color: tone.contrast,
                                   fontWeight: PFontWeight.semi,
                                 ),
                               ),
@@ -1015,7 +1009,7 @@ class _CellEventLabel extends StatelessWidget {
                 overflow: TextOverflow.clip,
                 softWrap: false,
                 style: PTypo.micro.copyWith(
-                  color: chipText(context, base),
+                  color: tone.contrast,
                   fontWeight: PFontWeight.semi,
                 ),
               ),
@@ -1031,24 +1025,21 @@ class _CellHolidayLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = tokens.statusDanger;
-    // 이벤트 칩과 동일 톤: 불투명 bg + 적응형 텍스트 · border 없음 · radius-sm.
+    final tone = holidayTone(context);
+    // 이벤트 칩과 같은 모양 · 색은 chart-red-weak / chart-red-contrast.
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x4,
         vertical: PSpace.x0,
       ),
-      decoration: BoxDecoration(
-        color: chipFill(context, base),
-        borderRadius: PRadius.brSm,
-      ),
+      decoration: BoxDecoration(color: tone.weak, borderRadius: PRadius.brSm),
       child: Text(
         name,
         maxLines: 1,
         overflow: TextOverflow.clip,
         softWrap: false,
         style: PTypo.micro.copyWith(
-          color: chipText(context, base),
+          color: tone.contrast,
           fontWeight: PFontWeight.semi,
         ),
       ),
@@ -1203,11 +1194,7 @@ class _DaySheetEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    final color = solidSwatchColor(
-      context,
-      event.labelColor ?? event.calendarColor ?? event.color,
-      fallback: t.fgBrand,
-    );
+    final color = eventTone(context, event).solid;
     final timeLabel = event.isAllDayBool ? l.calAllDay : _hhmm(event.start);
     return InkWell(
       onTap: onTap,

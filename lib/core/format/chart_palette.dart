@@ -175,6 +175,66 @@ Color chartWeakOf(PColors c, String key) => switch (key) {
   _ => c.chartGrayWeak,
 };
 
+/// 차트 10색 키 → 글자·아이콘용 짙은 색(`chart-*-contrast`) — 옅은 바탕(`chart-*-weak`) 위 칩 글.
+Color chartContrastOf(PColors c, String key) => switch (key) {
+  'red' => c.chartRedContrast,
+  'orange' => c.chartOrangeContrast,
+  'yellow' => c.chartYellowContrast,
+  'green' => c.chartGreenContrast,
+  'blue' => c.chartBlueContrast,
+  'indigo' => c.chartIndigoContrast,
+  'violet' => c.chartVioletContrast,
+  'pink' => c.chartPinkContrast,
+  'brown' => c.chartBrownContrast,
+  _ => c.chartGrayContrast,
+};
+
+/// 차트 10색 키 → 점 · 아이콘 색(`chart-*`, 라이트 700 · 다크 800-dark).
+Color chartSolidOf(PColors c, String key) => switch (key) {
+  'red' => c.chartRed,
+  'orange' => c.chartOrange,
+  'yellow' => c.chartYellow,
+  'green' => c.chartGreen,
+  'blue' => c.chartBlue,
+  'indigo' => c.chartIndigo,
+  'violet' => c.chartViolet,
+  'pink' => c.chartPink,
+  'brown' => c.chartBrown,
+  _ => c.chartGray,
+};
+
+/// 칩 · 줄 타일의 색 한 벌 — 옅은 바탕([weak]) · 점 · 아이콘([solid]) · 칩 글([contrast]).
+/// 섞어 만든 색이 아니라 역할 색이다(DESIGN.desk.md "캘린더 칩", v110·v111).
+typedef ChartTone = ({Color weak, Color solid, Color contrast});
+
+/// 차트 10색 키로 [ChartTone] 을 만든다 — 라이트 · 다크는 테마를 따른다.
+ChartTone chartToneOfKey(BuildContext context, String key) {
+  final c = Theme.of(context).brightness == Brightness.dark
+      ? PColors.dark
+      : PColors.light;
+  return (
+    weak: chartWeakOf(c, key),
+    solid: chartSolidOf(c, key),
+    contrast: chartContrastOf(c, key),
+  );
+}
+
+/// 저장된 색(hex 는 이름표 — v110)으로 [ChartTone] 을 만든다. 차트 10색이 아닌 옛 색은 그 색을 짙은 색 · 글로
+/// 쓰고 옅은 바탕만 [softBg] 로 만든다. 색이 없으면 [fallbackKey].
+ChartTone chartToneOf(
+  BuildContext context,
+  String? rawHex, {
+  String fallbackKey = 'blue',
+}) {
+  final key = chartKeyOfHex(rawHex);
+  if (key != null) return chartToneOfKey(context, key);
+  if (rawHex == null || rawHex.trim().isEmpty) {
+    return chartToneOfKey(context, fallbackKey);
+  }
+  final solid = resolveChartColor(context, rawHex);
+  return (weak: softBg(context, solid), solid: solid, contrast: solid);
+}
+
 /// 카테고리 fg Color 결정 — 라이트/다크 자동 분기.
 ///
 /// - hex 가 chart palette base hex 이면 다크모드일 때 light variant 반환
