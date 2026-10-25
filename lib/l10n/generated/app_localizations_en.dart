@@ -1634,12 +1634,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calDatePicker => 'Go to date';
 
   @override
+  String calFilterChipName(int count) {
+    return 'Showing $count calendars';
+  }
+
+  @override
+  String calMoreEvents(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get calEventsLoadFailed => 'Couldn\'t load events';
+
+  @override
   String calCalendarChipCount(int count) {
     return '$count';
   }
 
   @override
-  String get calNoCalendars => 'No calendars';
+  String get calNoCalendars => 'No calendars.';
 
   @override
   String get calOtherSources => 'Other sources';
@@ -1651,7 +1664,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calManageShareSettings => 'Manage & share calendars';
 
   @override
-  String get calNoEventsThisDay => 'No events on this day';
+  String get calNoEventsThisDay => 'No events on this day.';
 
   @override
   String calEventTotalCount(int count) {

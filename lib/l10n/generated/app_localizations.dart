@@ -3026,6 +3026,24 @@ abstract class AppLocalizations {
   /// **'날짜 이동'**
   String get calDatePicker;
 
+  /// No description provided for @calFilterChipName.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 {count}개 보는 중'**
+  String calFilterChipName(int count);
+
+  /// No description provided for @calMoreEvents.
+  ///
+  /// In ko, this message translates to:
+  /// **'+{count}개'**
+  String calMoreEvents(int count);
+
+  /// No description provided for @calEventsLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정을 불러오지 못했어요'**
+  String get calEventsLoadFailed;
+
   /// No description provided for @calCalendarChipCount.
   ///
   /// In ko, this message translates to:
@@ -3035,7 +3053,7 @@ abstract class AppLocalizations {
   /// No description provided for @calNoCalendars.
   ///
   /// In ko, this message translates to:
-  /// **'캘린더가 없습니다'**
+  /// **'캘린더가 없어요.'**
   String get calNoCalendars;
 
   /// No description provided for @calOtherSources.
@@ -3059,7 +3077,7 @@ abstract class AppLocalizations {
   /// No description provided for @calNoEventsThisDay.
   ///
   /// In ko, this message translates to:
-  /// **'이날 이벤트가 없습니다'**
+  /// **'이 날에 일정이 없어요.'**
   String get calNoEventsThisDay;
 
   /// No description provided for @calEventTotalCount.

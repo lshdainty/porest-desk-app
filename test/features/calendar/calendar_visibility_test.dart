@@ -148,11 +148,14 @@ void main() {
       expect(find.text('숨긴일정'), findsNothing);
     });
 
-    /// 헤더 필터 칩의 7×7 색 점 — 셀의 "오늘" 원(24×24)과 크기로 갈린다.
-    Finder headerDots() => find.byWidgetPredicate(
-      (w) =>
-          w is Container &&
-          w.constraints == const BoxConstraints.tightFor(width: 7, height: 7),
+    /// 달 줄 필터 칩의 8×8 색 점 — 칩 앞 점 묶음 안의 점이다.
+    Finder headerDots() => find.descendant(
+      of: find.byKey(const ValueKey('calendar-filter-dots')),
+      matching: find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            w.constraints == const BoxConstraints.tightFor(width: 8, height: 8),
+      ),
     );
 
     testWidgets('헤더 색 점도 표시 중인 캘린더만 찍는다', (tester) async {

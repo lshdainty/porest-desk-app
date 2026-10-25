@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
-import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
-import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/forms/month_row.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 
 // 예산 · 예산 설정 · 저축 목표가 함께 쓰는 틀 — 띠 · 구역 · 머리 · 달 줄 · 큰 숫자 · 키-값 · 카테고리 줄 · 실패 (I-08 공통 값).
@@ -200,7 +197,7 @@ class BudgetHead extends StatelessWidget {
   }
 }
 
-/// 달 줄 — ← 달 → 와 오른쪽 동작. 띠 맨 위 4 + 한 줄(44). 달 글을 누르면 달 고르기.
+/// 달 줄 — ← 달 → 와 오른쪽 동작. 띠 맨 위 4 + 한 줄(44). 달 글을 누르면 달 고르기. 줄 조각은 캘린더와 같은 [MonthRow].
 class BudgetMonthRow extends StatelessWidget {
   const BudgetMonthRow({
     super.key,
@@ -218,94 +215,22 @@ class BudgetMonthRow extends StatelessWidget {
   final Widget trailing;
 
   @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final c = context.colors;
-    return Padding(
-      // 화살표 상자(ds 아이콘 버튼 40 · 아이콘 18) 안 아이콘이 화면 가장자리 24 근처에 서도록 왼쪽 14 — 웹과 같다
-      padding: const EdgeInsets.fromLTRB(
-        PSpacing.x3_5,
-        // 띠 맨 위 4 + 8
-        PSpacing.x3,
-        PSpacing.x6,
-        0,
-      ),
-      // 한 줄에 안 들어가면(좁은 폭 · 큰 글자) 오른쪽 동작이 아래 줄로 내려간다(글 버튼은 왼쪽 맞춤 — 바깥 14 만큼 24 선에 선다)
-      child: OverflowBar(
-        alignment: MainAxisAlignment.spaceBetween,
-        overflowAlignment: OverflowBarAlignment.start,
-        overflowSpacing: 0,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PButton.icon(
-                icon: LucideIcons.chevronLeft,
-                semanticLabel: l.actionPrev,
-                variant: PButtonVariant.ghost,
-                onPressed: onPrev,
-              ),
-              Flexible(
-                child: PressArea(
-                  enabled: true,
-                  onTap: onPick,
-                  touchMin: 0,
-                  semantics: (child, enabled, onTap) => Semantics(
-                    container: true,
-                    button: true,
-                    label: yearMonth(month),
-                    onTap: onTap,
-                    excludeSemantics: true,
-                    child: child,
-                  ),
-                  builder: (context, pressed, size) => Container(
-                    constraints: const BoxConstraints(minHeight: PTouch.min),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: PSpacing.x2_5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: pressed
-                          ? c.bgLayerDefaultPressed
-                          : c.bgLayerDefaultPressed.withValues(alpha: 0),
-                      borderRadius: BorderRadius.circular(PRounded.r2),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: PSpacing.x1,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            yearMonth(month),
-                            style: PTypography.t5.copyWith(
-                              color: c.fgNeutral,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          LucideIcons.chevronDown,
-                          size: 16,
-                          color: c.fgNeutralSubtle,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              PButton.icon(
-                icon: LucideIcons.chevronRight,
-                semanticLabel: l.actionNext,
-                variant: PButtonVariant.ghost,
-                onPressed: onNext,
-              ),
-            ],
-          ),
-          // 글 버튼은 가운데 맞춤 상자라 폭을 다 채우려 한다 — 제 폭만 쓰게 푼다
-          UnconstrainedBox(child: trailing),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MonthRow(
+    month: month,
+    onPrev: onPrev,
+    onNext: onNext,
+    onPick: onPick,
+    trailing: trailing,
+    // 화살표 상자(ds 아이콘 버튼 40 · 아이콘 18) 안 아이콘이 화면 가장자리 24 근처에 서도록 왼쪽 14 — 웹과 같다
+    padding: const EdgeInsets.fromLTRB(
+      PSpacing.x3_5,
+      // 띠 맨 위 4 + 8
+      PSpacing.x3,
+      PSpacing.x6,
+      0,
+    ),
+    labelStyle: PTypography.t5,
+  );
 }
 
 /// 눈썹 글 "{n}월 총 예산" — t3 13/18 · 700 · fg-brand.

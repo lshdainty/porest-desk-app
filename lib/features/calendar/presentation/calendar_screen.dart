@@ -14,7 +14,6 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/format_locale.dart';
-import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
@@ -26,9 +25,9 @@ import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_filter_sheet.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_month_row.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
-import 'package:groo_damda_app/core/network/api_exception.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -66,7 +65,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final dotColors = calendars
         .where((c) => c.isVisible)
         .take(3)
-        .map((c) => solidSwatchColor(context, c.color, fallback: t.fgBrand))
+        .map((c) => chartToneOf(context, c.color).solid)
         .toList();
 
     final lastDay = DateTime(_key.year, _key.month + 1, 0).day;
@@ -96,19 +95,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       color: context.colors.bgLayerDefault,
       child: Column(
         children: [
-          _MonthHeader(
-            focused: _focused,
+          CalendarMonthRow(
+            month: _focused,
             onPrev: () => setState(
               () => _focused = DateTime(_focused.year, _focused.month - 1),
             ),
             onNext: () => setState(
               () => _focused = DateTime(_focused.year, _focused.month + 1),
             ),
-            onDateTap: _showMonthYearPicker,
+            onPick: _showMonthYearPicker,
             calendarCount: visibleCount,
             dotColors: dotColors,
             onFilterTap: _showFilterSheet,
-            tokens: t,
           ),
           if (firstLoading)
             Expanded(
@@ -244,17 +242,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _showFilterSheet() {
-    showPSheet<void>(
+    showCalendarFilterSheet(
       context,
-      // 필터 시트 제목은 화면 이름이 아니라 '필터' — 가계부·할일 필터와 같은 꼴.
-      title: AppLocalizations.of(context).expFilter,
-      shrinkWrap: true, // 컨텐츠 높이에 맞춤(아래 빈 공간 제거)
-      contentBuilder: (ctx, _) => _CalendarFilterSheetBody(
-        onManage: () {
-          Navigator.of(context, rootNavigator: true).pop();
-          context.push('/settings/calendar-share');
-        },
-      ),
+      onManage: () => context.push('/settings/calendar-share'),
     );
   }
 
@@ -318,337 +308,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       final ee = e.end;
       return !(ee.isBefore(dayStart) || s.isAfter(dayEnd));
     }).toList()..sort((a, b) => a.start.compareTo(b.start));
-  }
-}
-
-// ─── 커스텀 월 헤더 ────────────────────────────────────────────────────────────
-
-class _MonthHeader extends StatelessWidget {
-  const _MonthHeader({
-    required this.focused,
-    required this.onPrev,
-    required this.onNext,
-    required this.onDateTap,
-    required this.calendarCount,
-    required this.dotColors,
-    required this.onFilterTap,
-    required this.tokens,
-  });
-
-  final DateTime focused;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  final VoidCallback onDateTap;
-  final int calendarCount;
-  final List<Color> dotColors;
-  final VoidCallback onFilterTap;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    final l = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.x4,
-        PSpace.x8,
-        PSpace.x16,
-        PSpace.x4,
-      ),
-      child: Row(
-        children: [
-          // 이전 달 버튼
-          PButton.icon(
-            icon: LucideIcons.chevronLeft,
-            onPressed: onPrev,
-            tooltip: AppLocalizations.of(context).actionPrev,
-          ),
-          // 년월 텍스트 → 월/년 picker sheet
-          GestureDetector(
-            onTap: onDateTap,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  yearMonth(focused),
-                  style: PTypo.body.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: PSpace.x4),
-                Icon(LucideIcons.chevronDown, size: 14, color: t.fgTertiary),
-              ],
-            ),
-          ),
-          // 다음 달 버튼
-          PButton.icon(
-            icon: LucideIcons.chevronRight,
-            onPressed: onNext,
-            tooltip: AppLocalizations.of(context).actionNext,
-          ),
-          const Spacer(),
-          // 캘린더 필터 칩
-          GestureDetector(
-            onTap: onFilterTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x8,
-                vertical: PSpace.x4,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: t.borderSubtle),
-                borderRadius: PRadius.brFull,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 캘린더 색상 도트 (최대 3개)
-                  for (int i = 0; i < dotColors.length; i++) ...[
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: dotColors[i],
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    if (i < dotColors.length - 1) const SizedBox(width: 2),
-                  ],
-                  if (dotColors.isNotEmpty) const SizedBox(width: PSpace.x4),
-                  Text(
-                    l.calCalendarChipCount(calendarCount),
-                    style: PTypo.caption.copyWith(
-                      color: t.fgSecondary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(LucideIcons.chevronDown, size: 11, color: t.fgTertiary),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── 캘린더 필터 sheet ────────────────────────────────────────────────────────
-
-class _CalendarFilterSheetBody extends ConsumerWidget {
-  const _CalendarFilterSheetBody({required this.onManage});
-  final VoidCallback onManage;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final async = ref.watch(userCalendarListProvider);
-    final calendars = async.value ?? const <UserCalendar>[];
-    final holidayVisible = ref.watch(holidayVisibleProvider);
-
-    Widget sectionLabel(String text) => Padding(
-      padding: const EdgeInsets.only(top: PSpace.x8, bottom: PSpace.x8),
-      child: Text(
-        text,
-        style: PTypo.caption.copyWith(
-          color: t.fgTertiary,
-          fontWeight: PFontWeight.semi,
-          letterSpacing: 0.3,
-        ),
-      ),
-    );
-
-    // 컨텐츠 높이에 맞춰 wrap (showPSheet shrinkWrap 모드) → Column 사용.
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.xl,
-        PSpace.x4,
-        PSpace.xl,
-        PSpace.x24,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 내 캘린더 섹션
-          sectionLabel(l.calMyCalendars),
-          if (calendars.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-              child: Text(
-                l.calNoCalendars,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-              ),
-            )
-          else
-            for (final cal in calendars)
-              _FilterRow(
-                colorHex: cal.color,
-                name: cal.calendarName,
-                checked: cal.isVisible,
-                // 기본 캘린더는 표시를 끌 수 없다 — 서버가 이 토글을 400 으로
-                // 막는다. 스위치를 남기면 누르는 순간 에러만 뜨므로 **아예 안
-                // 그린다**(회색 체크박스로 두면 "왜 안 되지" 만 남는다).
-                // 대신 '기본' 표식으로 왜 이 행만 다른지를 남긴다 — 캘린더 관리
-                // 화면·웹이 쓰는 것과 같은 배지다.
-                onToggle: cal.isDefault
-                    ? null
-                    : () async {
-                        try {
-                          final repo = await ref.read(
-                            userCalendarRepositoryProvider.future,
-                          );
-                          await repo.toggleVisibility(cal.rowId);
-                          ref.invalidate(userCalendarListProvider);
-                        } on ApiException {
-                          // 서버 에러는 ErrorToastInterceptor 가 띄운다.
-                        } catch (_) {
-                          // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
-                          if (context.mounted) {
-                            showPSnackBar(
-                              context,
-                              l.calUpdateFailed,
-                              severity: PSnackSeverity.error,
-                            );
-                          }
-                        }
-                      },
-                trailing: cal.isDefault
-                    ? PBadge(
-                        label: l.calDefault,
-                        variant: PBadgeVariant.secondary,
-                      )
-                    : null,
-                tokens: t,
-              ),
-          const SizedBox(height: PSpace.x8),
-          PDivider(),
-          // 기타 소스 섹션 — 공휴일 on/off (웹 정합)
-          sectionLabel(l.calOtherSources),
-          _FilterRow(
-            colorHex: '#c73838',
-            name: l.calHolidays,
-            checked: holidayVisible,
-            onToggle: () => ref.read(holidayVisibleProvider.notifier).toggle(),
-            tokens: t,
-          ),
-          const SizedBox(height: PSpace.x8),
-          PDivider(),
-          // 관리 버튼
-          InkWell(
-            onTap: onManage,
-            borderRadius: PRadius.brMd,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-              child: Row(
-                children: [
-                  Icon(LucideIcons.settings2, size: 15, color: t.fgBrand),
-                  const SizedBox(width: PSpace.x8),
-                  Text(
-                    l.calManageShareSettings,
-                    style: PTypo.body.copyWith(
-                      color: t.fgBrand,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 캘린더/기타소스 공용 필터 행 — 체크박스(색 채움) + 색 점 + 이름. 웹 정합.
-class _FilterRow extends StatelessWidget {
-  const _FilterRow({
-    required this.colorHex,
-    required this.name,
-    required this.checked,
-    required this.onToggle,
-    this.trailing,
-    required this.tokens,
-  });
-  final String? colorHex;
-  final String name;
-  final bool checked;
-
-  /// null 이면 **끌 수 없는 행** — 체크박스도 탭도 안 붙인다(기본 캘린더).
-  final VoidCallback? onToggle;
-
-  /// 이름 오른쪽 표식(기본 캘린더의 '기본' 배지). 없으면 안 그린다.
-  final Widget? trailing;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    final color = solidSwatchColor(context, colorHex, fallback: t.fgBrand);
-    // light fill(다크모드 light variant) 위에서도 체크가 보이도록 fill 명도 기준 대비 색.
-    final checkColor =
-        ThemeData.estimateBrightnessForColor(color) == Brightness.dark
-        ? PColors.light.staticWhite
-        : PColors.light.fgNeutral;
-    final locked = onToggle == null;
-    final row = Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-      child: Row(
-        children: [
-          // 체크박스 (checked 상태). 끌 수 없는 행은 빈 칸으로 두고 폭만
-          // 지킨다 — 목록에서 이름·색 점이 다른 행과 어긋나지 않게.
-          if (locked)
-            const SizedBox(width: 20, height: 20)
-          else
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: checked ? color : Colors.transparent,
-                border: Border.all(
-                  color: checked ? color : t.borderSubtle,
-                  width: 1.5,
-                ),
-                borderRadius: PRadius.brSm,
-              ),
-              child: checked
-                  ? Icon(LucideIcons.check, size: 13, color: checkColor)
-                  : null,
-            ),
-          const SizedBox(width: PSpace.x12),
-          // 색 점 (웹 정합)
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: PSpace.x8),
-          // 이름
-          Expanded(
-            child: Text(
-              name,
-              style: PTypo.body.copyWith(
-                color: checked ? t.fgPrimary : t.fgTertiary,
-              ),
-            ),
-          ),
-          if (trailing != null) ...[
-            const SizedBox(width: PSpace.x8),
-            trailing!,
-          ],
-        ],
-      ),
-    );
-    // 끌 수 없는 행은 InkWell 도 안 씌운다 — 눌러도 아무 일 없는 잉크가 번지면
-    // 사용자는 눌린 줄 알고 다시 누른다.
-    return locked
-        ? row
-        : InkWell(onTap: onToggle, borderRadius: PRadius.brMd, child: row);
   }
 }
 

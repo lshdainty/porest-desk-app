@@ -200,6 +200,7 @@ class ChipVisual extends StatelessWidget {
     this.suffixIcon,
     this.icon,
     this.afterLabel,
+    this.leading,
   }) : assert(
          (label == null) != (icon == null),
          '글이 있는 칩은 label, 아이콘만 있는 칩은 icon 하나만 준다',
@@ -220,6 +221,9 @@ class ChipVisual extends StatelessWidget {
 
   /// 글 뒤에 6 을 두고 놓는 것 — Chip Tabs 의 알림 점.
   final Widget? afterLabel;
+
+  /// 글 앞에 6 을 두고 놓는 것 — 아이콘 대신 색 점처럼 화면이 그린 표식(앞 아이콘과 같이 쓰지 않는다).
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -274,6 +278,7 @@ class ChipVisual extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           spacing: PSpacing.x1_5,
                           children: [
+                            ?leading,
                             if (prefixIcon != null)
                               _icon(prefixIcon!, m.prefixIcon, fg),
                             // 줄바꿈하지 않는다 — 글만큼 넓어지다가 줄 폭에 닿으면 글 끝만 말줄임한다(아이콘은 남는다)
@@ -334,6 +339,7 @@ class PChip extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.semanticLabel,
+    this.leading,
   }) : icon = null;
 
   /// 아이콘만 있는 칩 — 원, 이름([semanticLabel])이 반드시 있다("필터 지우기").
@@ -347,7 +353,8 @@ class PChip extends StatelessWidget {
     this.selected = false,
   }) : label = null,
        prefixIcon = null,
-       suffixIcon = null;
+       suffixIcon = null,
+       leading = null;
 
   final String? label;
   final IconData? icon;
@@ -363,6 +370,9 @@ class PChip extends StatelessWidget {
 
   /// 뒤 아이콘 — 여는 칩의 아래 화살표([LucideIcons.chevronDown]).
   final IconData? suffixIcon;
+
+  /// 앞 표식 위젯 — 캘린더 색 점처럼 아이콘이 아닌 것. 앞 아이콘과 같이 쓰지 않는다. 읽는 이름은 [semanticLabel] 이 말한다.
+  final Widget? leading;
 
   /// 읽는 이름 — 글이 없는 칩은 필수, 글이 있으면 글 대신 읽는다.
   final String? semanticLabel;
@@ -392,6 +402,7 @@ class PChip extends StatelessWidget {
         icon: icon,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        leading: leading,
       ),
     );
   }

@@ -1611,12 +1611,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calDatePicker => '날짜 이동';
 
   @override
+  String calFilterChipName(int count) {
+    return '캘린더 $count개 보는 중';
+  }
+
+  @override
+  String calMoreEvents(int count) {
+    return '+$count개';
+  }
+
+  @override
+  String get calEventsLoadFailed => '일정을 불러오지 못했어요';
+
+  @override
   String calCalendarChipCount(int count) {
     return '$count개';
   }
 
   @override
-  String get calNoCalendars => '캘린더가 없습니다';
+  String get calNoCalendars => '캘린더가 없어요.';
 
   @override
   String get calOtherSources => '기타 소스';
@@ -1628,7 +1641,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calManageShareSettings => '캘린더 관리 · 공유 설정';
 
   @override
-  String get calNoEventsThisDay => '이날 이벤트가 없습니다';
+  String get calNoEventsThisDay => '이 날에 일정이 없어요.';
 
   @override
   String calEventTotalCount(int count) {
