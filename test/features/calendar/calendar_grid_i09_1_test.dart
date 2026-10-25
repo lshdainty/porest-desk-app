@@ -183,4 +183,18 @@ void main() {
     expect(buttons.evaluate().length, greaterThanOrEqualTo(28));
     handle.dispose();
   });
+
+  testWidgets('이웃 달 칸을 누르면 달은 그대로 두고 그 날 시트를 연다(옛 앱 · 옛 웹과 같다)', (
+    tester,
+  ) async {
+    await pump(tester);
+    final cells = tester
+        .widgetList<CalendarDayCell>(find.byType(CalendarDayCell))
+        .toList();
+    final outside = cells.firstWhere((c) => c.isOutside);
+    await tester.tap(find.byWidget(outside));
+    await tester.pumpAndSettle();
+    expect(find.text('${now.year}년 ${now.month}월'), findsOneWidget);
+    expect(find.text('일정 추가'), findsOneWidget, reason: '그 날 시트가 열렸다');
+  });
 }
