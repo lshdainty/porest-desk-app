@@ -469,7 +469,7 @@ void main() {
       );
       expect(legend, isNotEmpty);
       for (final t in legend) {
-        expect(t.data, '••••');
+        expect(plainOf(t.data!), '••••');
       }
     });
 

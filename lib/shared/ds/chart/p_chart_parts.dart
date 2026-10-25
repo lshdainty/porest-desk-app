@@ -475,7 +475,9 @@ class _LegendTile extends StatelessWidget {
               ),
               const SizedBox(height: PSpacing.x0_5),
               Text(
-                item.total,
+                // 금액은 쉼표 뒤에서만 줄을 바꾼다 — 숫자 가운데 · "원" 앞에서 꺾지 않는다(v114)
+                keepAllAmount(item.total),
+                semanticsLabel: item.total,
                 key: const ValueKey('chart-legend-total'),
                 style: PTypography.t5.copyWith(
                   color: c.fgNeutral,
@@ -578,7 +580,8 @@ class _DonutRow extends StatelessWidget {
       style: base.copyWith(color: c.fgNeutralSubtle, fontFeatures: _tabular),
     );
     final amount = Text(
-      item.amount,
+      keepAllAmount(item.amount),
+      semanticsLabel: item.amount,
       key: const ValueKey('chart-donut-amount'),
       style: base.copyWith(
         color: c.fgNeutral,
