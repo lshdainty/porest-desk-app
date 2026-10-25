@@ -899,7 +899,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetEmptyCta.
   ///
   /// In ko, this message translates to:
-  /// **'계좌 추가'**
+  /// **'계좌·카드 관리로 가기'**
   String get assetEmptyCta;
 
   /// No description provided for @assetAccountAdd.

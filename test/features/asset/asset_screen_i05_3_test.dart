@@ -25,6 +25,7 @@ import 'package:groo_damda_app/features/saving_goal/application/saving_goal_prov
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
@@ -135,6 +136,7 @@ Future<void> _pump(
   Future<AssetSummary> Function()? summary,
   Future<List<NetWorthPoint>> Function()? trend,
   Future<List<SavingGoal>> Function()? goals,
+  Map<int, InvestmentValuation> valuation = const {},
   Set<String> hidden = const {},
 }) async {
   tester.view.physicalSize = Size(width * 2, 6000 * 2);
@@ -161,7 +163,7 @@ Future<void> _pump(
         netWorthTrendProvider.overrideWith(
           (ref, months) => (trend ?? () async => _trend())(),
         ),
-        investmentValuationMapProvider.overrideWith((ref) async => const {}),
+        investmentValuationMapProvider.overrideWith((ref) async => valuation),
         savingGoalListProvider.overrideWith(
           (ref) => (goals ?? () async => _goals)(),
         ),
@@ -373,6 +375,60 @@ void main() {
     });
   });
 
+  group('56 · 한도 넘침 캡션 · 투자 등락 가림', () {
+    testWidgets('넘친 카드 — 왼쪽 글이 남은 폭을 다 쓰고 "N원 초과" 가 줄 끝(336)에 선다', (
+      tester,
+    ) async {
+      await _pump(tester);
+      final left = findPlain('12,345,678원 / 10,000,000원');
+      expect(left, findsOneWidget);
+      final right = findPlain('2,345,678원 초과');
+      expect(
+        tester.getRect(right).right,
+        336,
+        reason: '오른쪽 글은 줄 끝에 선다(왼쪽 글 바로 뒤가 아니다)',
+      );
+      expect(
+        tester.getRect(left).right,
+        lessThan(tester.getRect(right).left),
+        reason: '둘이 겹치지 않는다',
+      );
+      // 왼쪽 글은 오른쪽 글을 뺀 남은 폭을 다 쓴다 — 폭 절반에 갇히지 않는다(시험 글꼴은 넓어 한 줄 여부는 렌더로 본다)
+      expect(
+        tester.getSize(left).width,
+        closeTo(312 - 8 - tester.getSize(right).width, 0.5),
+        reason: '왼쪽 = 줄 폭 − 간격 8 − 오른쪽 글 폭',
+      );
+    });
+
+    final val = {7: (value: 3500000, changeAmt: 123456)};
+    String? deltaValue(WidgetTester t) =>
+        t.widget<PDelta>(find.byKey(const ValueKey('asset-delta-7'))).value;
+
+    testWidgets('가림 꺼짐 — 등락 줄이 보이고 값은 % (±금액)', (tester) async {
+      await _pump(tester, valuation: val);
+      expect(deltaValue(tester), contains('%'));
+      expect(deltaValue(tester), contains('123,456원'));
+    });
+
+    testWidgets('투자 카드 가림 — 줄은 두고 값만 •••', (tester) async {
+      await _pump(tester, valuation: val, hidden: {'asset.investments'});
+      expect(find.byKey(const ValueKey('asset-delta-7')), findsOneWidget);
+      expect(deltaValue(tester), '•••');
+    });
+
+    testWidgets('이 자산만 가림 — 줄은 두고 값만 •••', (tester) async {
+      await _pump(
+        tester,
+        valuation: val,
+        assets: () async => [
+          _a(7, '주식 계좌', 'INVESTMENT', balance: 3000000, hidden: 'Y'),
+        ],
+      );
+      expect(deltaValue(tester), '•••');
+    });
+  });
+
   group('57 · 순자산 추이 — 선 + 점, 채움 없음', () {
     testWidgets('점 12 · 영역 없음 · 계열 색 · 축 글자 U+2212', (tester) async {
       await _pump(tester);
@@ -411,12 +467,14 @@ void main() {
   });
 
   group('61 · 빈 화면', () {
-    testWidgets('Result Section empty large + 첫 버튼 "계좌 추가"', (tester) async {
+    testWidgets('Result Section empty large + 첫 버튼 "계좌·카드 관리로 가기"', (
+      tester,
+    ) async {
       await _pump(tester, assets: () async => const []);
       final rs = tester.widget<PResultSection>(find.byType(PResultSection));
       expect(rs.kind, PResultKind.empty);
       expect(rs.size, PResultSize.large);
-      expect(rs.primaryAction?.label, '계좌 추가');
+      expect(rs.primaryAction?.label, '계좌·카드 관리로 가기');
       expect(findPlain('아직 등록된 자산이 없어요'), findsOneWidget);
       expect(findPlain('설정 → 계좌·카드 관리에서 추가할 수 있어요.'), findsOneWidget);
       expect(_bands, findsOneWidget);

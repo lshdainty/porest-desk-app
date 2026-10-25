@@ -201,7 +201,7 @@
   "assetLoadFailedTrend": "순자산 추이를 불러오지 못했어요",
   "assetLoadFailedAssets": "자산을 불러오지 못했어요",
   "assetLoadFailedGoals": "저축 목표를 불러오지 못했어요",
-  "assetEmptyCta": "계좌 추가",
+  "assetEmptyCta": "계좌·카드 관리로 가기",
   "assetAccountAdd": "계좌 추가",
   "assetAccountEdit": "계좌 편집",
   "assetAccountAdded": "계좌가 추가되었습니다",

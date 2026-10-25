@@ -386,19 +386,21 @@ class AssetRow extends StatelessWidget {
                   textAlign: TextAlign.end,
                   style: small,
                 ),
-              // 투자 행 등락 — 오름 · 내림 방향 색은 Delta 가 정한다. 가리면 금액이 들어 있어 걷는다
-              if (!masked && val != null && change != null)
+              // 투자 행 등락 — 오름 · 내림 방향 색은 Delta 가 정한다. 가려도 줄은 두고 값만 점이다(웹 `▲ •••`)
+              if (val != null && change != null)
                 Builder(
                   builder: (context) {
                     final base = val.value - change;
                     final pct = base == 0 ? 0.0 : change / base * 100;
                     return PDelta(
+                      key: ValueKey('asset-delta-${asset.rowId}'),
                       direction: change >= 0
                           ? PDeltaDirection.up
                           : PDeltaDirection.down,
-                      value:
-                          '${pct.abs().toStringAsFixed(1)}% '
-                          '(${change >= 0 ? '+' : kMinus}${assetWon(change.abs(), false)})',
+                      value: masked
+                          ? '•••'
+                          : '${pct.abs().toStringAsFixed(1)}% '
+                                '(${change >= 0 ? '+' : kMinus}${assetWon(change.abs(), false)})',
                     );
                   },
                 ),

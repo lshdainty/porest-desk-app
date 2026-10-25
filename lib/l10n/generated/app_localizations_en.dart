@@ -434,7 +434,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetLoadFailedGoals => 'Couldn\'t load saving goals';
 
   @override
-  String get assetEmptyCta => 'Add account';
+  String get assetEmptyCta => 'Go to manage accounts & cards';
 
   @override
   String get assetAccountAdd => 'Add account';

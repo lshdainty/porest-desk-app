@@ -197,7 +197,7 @@
   "assetLoadFailedTrend": "Couldn't load the net worth trend",
   "assetLoadFailedAssets": "Couldn't load your assets",
   "assetLoadFailedGoals": "Couldn't load saving goals",
-  "assetEmptyCta": "Add account",
+  "assetEmptyCta": "Go to manage accounts & cards",
   "assetAccountAdd": "Add account",
   "assetAccountEdit": "Edit account",
   "assetAccountAdded": "Account added",

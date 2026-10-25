@@ -428,7 +428,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetLoadFailedGoals => '저축 목표를 불러오지 못했어요';
 
   @override
-  String get assetEmptyCta => '계좌 추가';
+  String get assetEmptyCta => '계좌·카드 관리로 가기';
 
   @override
   String get assetAccountAdd => '계좌 추가';
