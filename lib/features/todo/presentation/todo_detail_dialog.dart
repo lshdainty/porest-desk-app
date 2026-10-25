@@ -1,329 +1,187 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_ledger.dart';
 import 'package:groo_damda_app/features/todo/domain/todo_meta.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_actions.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_edit_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
 import 'package:groo_damda_app/shared/widgets/markdown_preview.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
-/// 할 일 상세 시트 — 행 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
-/// tx_detail_dialog(웹 TxDetailDialog) 패턴 미러: hero + field rows + 뷰 footer.
-void showTodoDetailDialog(BuildContext context, Todo todo) {
-  final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+enum _DetailAction { edit }
+
+/// 할 일 상세(I-10 21) — ds Bottom Sheet 조회. 행을 누르면 읽기 전용 상세가 열리고, 바깥 누름 · 끌어내림으로 닫힌다.
+///
+/// 맨 위는 할 일 제목(t6 · 700 · 줄바꿈, 끝냈으면 취소선 + `fg-disabled`)이고 우선순위 틴트 머리 카드 · 원 아이콘 · 가운데 맞춤은 없다.
+/// 그 아래 보기만 하는 List 줄(마감일 · 태그 · 우선순위 · 상태 · 완료 일시), 메모는 줄 아래 따로 둔다. 바닥은 [삭제] · [수정].
+/// [수정] 은 상세를 닫고 수정 폼을 연다. [삭제] 는 확인(Alert Dialog)을 거쳐 지운 뒤 상세를 닫는다.
+Future<void> showTodoDetailDialog(BuildContext context, Todo todo) async {
+  final action = await PBottomSheet.show<_DetailAction>(
     context,
-    title: l.todoDetailTitle,
-    contentBuilder: (ctx, scrollCtrl) => _DetailBody(
-      todo: todo,
-      scrollController: scrollCtrl,
-      controller: controller,
-    ),
-    footerBuilder: (ctx) => _DetailFooter(todo: todo, controller: controller),
-  ).whenComplete(controller.dispose);
-}
-
-class _DetailFooter extends StatelessWidget {
-  const _DetailFooter({required this.todo, required this.controller});
-  final Todo todo;
-  final PSheetController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (ctx, _) {
-        final busy = controller.submitting;
-        return PViewFooter(
-          onDelete: controller.onDelete,
-          deleting: busy,
-          onEdit: busy
-              ? null
-              : () {
-                  Navigator.of(ctx).pop();
-                  showTodoEditDialog(ctx, edit: todo);
-                },
-        );
-      },
-    );
+    builder: (_) => _TodoDetailSheet(todo: todo),
+  );
+  if (action == _DetailAction.edit && context.mounted) {
+    showTodoEditDialog(context, edit: todo);
   }
 }
 
-class _DetailBody extends ConsumerStatefulWidget {
-  const _DetailBody({
-    required this.todo,
-    required this.scrollController,
-    required this.controller,
-  });
+class _TodoDetailSheet extends ConsumerStatefulWidget {
+  const _TodoDetailSheet({required this.todo});
   final Todo todo;
-  final ScrollController scrollController;
-  final PSheetController controller;
 
   @override
-  ConsumerState<_DetailBody> createState() => _DetailBodyState();
+  ConsumerState<_TodoDetailSheet> createState() => _TodoDetailSheetState();
 }
 
-class _DetailBodyState extends ConsumerState<_DetailBody> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.onDelete = _delete;
-  }
+class _TodoDetailSheetState extends ConsumerState<_TodoDetailSheet> {
+  bool _deleting = false;
 
   Future<void> _delete() async {
+    if (_deleting) return;
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: todoActions.deleteConfirmTitle(context, widget.todo),
-      message: todoActions.deleteConfirmMessage(context, widget.todo),
-      confirmLabel: l.actionDelete,
+      description: todoActions.deleteConfirmMessage(context, widget.todo),
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
-    widget.controller.setSubmitting(true);
+    setState(() => _deleting = true);
     try {
-      // 삭제는 todoActions 가 한다 — 목록 행(스와이프)도 같은 것을 부른다.
+      // 삭제는 todoActions 가 한다 — 목록 줄(밀기)도 같은 것을 부른다.
       final deleted = await todoActions.delete(context, ref, widget.todo);
-      if (deleted && mounted) Navigator.of(context).pop();
+      if (deleted && mounted) PBottomSheet.of(context).close();
     } finally {
-      if (mounted) widget.controller.setSubmitting(false);
+      if (mounted) setState(() => _deleting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final todo = widget.todo;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final prio = todoPrioOf(todo.priority);
-    final prioColor = prio.color(context);
-    final prioBg = prio.bg(context);
     final overdue = !todo.done && isTodoOverdue(todo.due, today);
-    final overdueColor = todoOverdueColor(context);
     final content = (todo.content ?? '').trim();
-    // completedAt 은 서버 `[UTC]` — 잘라 쓰면 UTC 벽시계가 그대로 나와 KST(+9)에서
-    // 9시간 전으로, 자정 근처면 날짜까지 하루 어긋나 보였다. 웹 TodoPage 상세와 같은
-    // 모양(yyyy-MM-dd HH:mm)으로 파싱해 찍고, 못 읽는 값만 원문을 그대로 둔다.
+    // completedAt 은 서버 `[UTC]` — 잘라 쓰면 UTC 벽시계가 그대로 나와 KST(+9)에서 9시간 전으로, 자정 근처면 날짜까지 하루 어긋나
+    // 보였다. 웹 TodoPage 상세와 같은 모양(yyyy-MM-dd HH:mm)으로 파싱해 찍고, 못 읽는 값만 원문을 그대로 둔다.
     final completedAt = localDateTime(todo.completedAt) ?? todo.completedAt;
+    final due = todo.due;
 
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
-      children: [
-        // Hero — 우선순위 틴트
-        Container(
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [prioBg, t.bgSurface],
-              stops: const [0.0, 0.85],
+    Widget value(String text, {Color? color, FontWeight? weight}) => Text(
+      text,
+      style: TextStyle(color: color, fontWeight: weight),
+    );
+
+    return PBottomSheetContent(
+      title: l.todoDetailTitle,
+      closeLabel: l.actionClose,
+      flushBody: true,
+      scrollFog: true,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.globalGutter,
             ),
-            border: Border.all(color: prioColor.withValues(alpha: 0.2)),
-            borderRadius: PRadius.brXl,
+            child: Text(
+              todo.title,
+              key: const ValueKey('todo-detail-title'),
+              style: PTypography.t6.copyWith(
+                color: todo.done ? c.fgDisabled : c.fgNeutral,
+                fontWeight: FontWeight.w700,
+                decoration: todo.done ? TextDecoration.lineThrough : null,
+                decorationColor: todo.done ? c.fgDisabled : null,
+              ),
+            ),
           ),
-          child: Column(
+          const SizedBox(height: PSpacing.x2),
+          PList(
+            semanticLabel: l.todoDetailTitle,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: prioBg,
-                  borderRadius: PRadius.tile(40),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  todo.done ? LucideIcons.checkCheck : LucideIcons.circleDot,
-                  size: 20,
-                  color: prioColor,
+              PListItem(
+                title: l.todoDueDate,
+                // 지난 마감이면 값 글자를 빨갛게 하고 ", 마감 지남" 을 덧붙인다 — 색만으로 알리지 않는다.
+                suffix: value(
+                  due == null
+                      ? l.todoNoDue
+                      : '${monthDayDow(due)}${overdue ? ', ${l.todoDetailOverdue}' : ''}',
+                  color: overdue ? c.fgCritical : null,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                todo.title,
-                textAlign: TextAlign.center,
-                style: PTypo.h4.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.3,
-                  decoration: todo.done ? TextDecoration.lineThrough : null,
+              PListItem(
+                title: l.todoTag,
+                suffix: value(todoTagLabel(l, todoTagOf(todo))),
+              ),
+              PListItem(
+                title: l.todoPriorityLabel,
+                suffix: PBadge(
+                  label: todoPrioLabel(l, todo.priority),
+                  tone: todo.priority == 'HIGH'
+                      ? PBadgeTone.critical
+                      : PBadgeTone.neutral,
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                todoRelativeDate(l, todo.due, today),
-                style: PTypo.caption.copyWith(
-                  color: overdue ? overdueColor : t.fgTertiary,
-                  fontWeight: overdue ? PFontWeight.semi : PFontWeight.regular,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        // Field rows
-        Container(
-          decoration: BoxDecoration(
-            color: t.borderSubtle,
-            border: Border.all(color: t.borderSubtle),
-            borderRadius: PRadius.brLg,
-          ),
-          child: Column(
-            children: [
-              _FieldRow(
-                label: l.todoDueDate,
-                tokens: t,
-                isFirst: true,
-                child: Text(
-                  todo.dueDate ?? l.todoNoDue,
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.medium,
-                  ),
-                ),
-              ),
-              _FieldRow(
-                label: l.todoTag,
-                tokens: t,
-                child: Text(
-                  todoTagLabel(l, todoTagKey(todo.category)),
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.medium,
-                  ),
-                ),
-              ),
-              _FieldRow(
-                label: l.todoPriorityLabel,
-                tokens: t,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: prioBg,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    todoPrioLabel(l, todo.priority),
-                    style: PTypo.micro.copyWith(
-                      color: prioColor,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                ),
-              ),
-              _FieldRow(
-                label: l.todoDetailStatus,
-                tokens: t,
-                isLast: todo.completedAt == null || !todo.done,
-                child: Text(
+              PListItem(
+                title: l.todoDetailStatus,
+                suffix: value(
                   todo.done ? l.todoStatusCompleted : l.todoStatusPending,
-                  style: PTypo.bodySm.copyWith(
-                    color: todo.done ? t.fgBrand : t.fgSecondary,
-                    fontWeight: PFontWeight.semi,
-                  ),
                 ),
               ),
               if (todo.done && completedAt != null)
-                _FieldRow(
-                  label: l.todoDetailCompletedAt,
-                  tokens: t,
-                  isLast: true,
-                  child: Text(
-                    completedAt,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
+                PListItem(
+                  title: l.todoDetailCompletedAt,
+                  suffix: value(completedAt),
                 ),
             ],
           ),
-        ),
-        const SizedBox(height: 18),
-        // 상세 내용 (markdown)
-        Text(
-          l.todoDetailContent,
-          style: PTypo.caption.copyWith(
-            color: t.fgTertiary,
-            fontWeight: PFontWeight.semi,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(PSpace.x16),
-          decoration: BoxDecoration(
-            color: t.bgSurface,
-            border: Border.all(color: t.borderSubtle),
-            borderRadius: PRadius.brLg,
-          ),
-          child: content.isEmpty
-              ? Text(
-                  l.todoNoContent,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                )
-              : MarkdownPreview(content),
-        ),
-      ],
-    );
-  }
-}
-
-class _FieldRow extends StatelessWidget {
-  const _FieldRow({
-    required this.label,
-    required this.child,
-    required this.tokens,
-    this.isFirst = false,
-    this.isLast = false,
-  });
-  final String label;
-  final Widget child;
-  final GrooTokens tokens;
-  final bool isFirst;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: BorderRadius.vertical(
-          top: isFirst ? const Radius.circular(PRadius.lg) : Radius.zero,
-          bottom: isLast ? const Radius.circular(PRadius.lg) : Radius.zero,
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: 14),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 72,
-            child: Text(
-              label,
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+          const SizedBox(height: PSpacing.x2),
+          // 메모는 키-값 줄 값으로 두지 않고 줄 아래 따로 — 긴 메모가 값 칸에 들지 않는다.
+          PListHeader(title: l.todoContentLabel, headingLevel: 3),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpacing.globalGutter,
             ),
+            child: content.isEmpty
+                ? Text(
+                    l.todoNoContent,
+                    style: PTypography.t5.copyWith(color: c.fgNeutralSubtle),
+                  )
+                : MarkdownPreview(content),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Align(alignment: Alignment.centerRight, child: child),
-          ),
+          const SizedBox(height: PSpacing.x2),
         ],
       ),
+      footer: [
+        PButton(
+          label: l.actionDelete,
+          size: PButtonSize.large,
+          variant: PButtonVariant.neutralWeak,
+          loading: _deleting,
+          onPressed: _deleting ? null : _delete,
+        ),
+        PButton(
+          label: l.actionEdit,
+          size: PButtonSize.large,
+          onPressed: _deleting
+              ? null
+              : () => PBottomSheet.of(context).close(_DetailAction.edit),
+        ),
+      ],
     );
   }
 }

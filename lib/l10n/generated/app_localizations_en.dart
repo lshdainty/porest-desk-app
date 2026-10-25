@@ -5595,7 +5595,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String todoDeleteConfirm(String title) {
-    return 'Delete the \"$title\" todo? This action cannot be undone.';
+    return 'Delete the \"$title\" to-do? This can\'t be undone.';
   }
 
   @override
@@ -5611,7 +5611,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoTitlePlaceholder => 'Write a todo';
 
   @override
-  String get todoTitleRequired => 'Please enter a title';
+  String get todoTitleRequired => 'Title is required.';
 
   @override
   String get todoDueDate => 'Due date';
@@ -5638,7 +5638,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoPriorityRelaxed => 'Low';
 
   @override
-  String get todoContentLabel => 'Details (optional)';
+  String get todoContentLabel => 'Note';
 
   @override
   String get todoContentPlaceholder =>
@@ -5651,7 +5651,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoPreview => 'Preview';
 
   @override
-  String get todoNoContent => 'No content';
+  String get todoNoContent => 'None';
 
   @override
   String get todoEmptyToday => 'Nothing due today';
@@ -5739,13 +5739,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoMoveFailed => 'Move failed';
 
   @override
-  String get todoLoadError => 'Failed to load todos';
+  String get todoLoadError => 'Couldn\'t load your to-dos';
 
   @override
   String get todoProjectLoadError => 'Failed to load projects';
 
   @override
-  String get todoTagLoadError => 'Failed to load tags';
+  String get todoTagLoadError => 'Couldn\'t load tags';
 
   @override
   String get subManageTitle => 'Manage subscription';
@@ -6168,7 +6168,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoDetailCompletedAt => 'Completed at';
 
   @override
-  String get todoDetailContent => 'Details';
+  String get todoDetailContent => 'Note';
 
   @override
   String get memoDetailTitle => 'Memo details';
@@ -6761,7 +6761,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tdmEmptyFilter => 'No to-dos match the filters';
 
   @override
-  String get tdmEmptyFilterDesc => 'Adjust or reset the filters.';
+  String get tdmEmptyFilterDesc => 'Change or clear the conditions.';
 
   @override
   String tdmStarToastGain(int gain, int left) {
@@ -6898,7 +6898,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttagDesc =>
-      'Tags you attach to to-dos. Used for list filters and tag breakdowns.';
+      'Tags you attach to to-dos. They are used for filtering and counts on the to-do screen. If you delete a tag, its to-dos stay as \'No tag\'.';
 
   @override
   String get ttagAddCta => 'Add tag';
@@ -7999,4 +7999,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsTabsAria => 'Statistics views';
+
+  @override
+  String get tdmFilterOn => 'Filter, applied';
+
+  @override
+  String todoCheckName(String title) {
+    return 'Complete $title';
+  }
+
+  @override
+  String todoCheckNameOverdue(String title) {
+    return 'Complete $title, overdue';
+  }
+
+  @override
+  String get todoMemoTag => 'Note';
+
+  @override
+  String tdmCellLeft(String date, int count) {
+    return '$date, $count to do';
+  }
+
+  @override
+  String tdmCellCollected(String date) {
+    return '$date, constellation collected';
+  }
+
+  @override
+  String tdmCellMissed(String date) {
+    return '$date, missed day';
+  }
+
+  @override
+  String tdmCellDone(String date) {
+    return '$date, all done';
+  }
+
+  @override
+  String get tdmLoadFailedDesc => 'Please try again in a moment.';
+
+  @override
+  String get todoToggleFailed =>
+      'Couldn\'t update the to-do. Please try again in a moment.';
+
+  @override
+  String get todoDetailOverdue => 'Overdue';
+
+  @override
+  String get todoDueDatePlaceholder => 'Select due date';
+
+  @override
+  String get todoTagEmptyHint => 'Create tags in Settings › Todo tags.';
+
+  @override
+  String ttagEmptyHint(String label) {
+    return 'Create your first tag with $label.';
+  }
+
+  @override
+  String get todoDueClear => 'Clear due date';
+
+  @override
+  String get ttagNameRequired => 'Please enter a name.';
+
+  @override
+  String get ttagNameTooLong => 'Keep the name under 12 characters.';
+
+  @override
+  String get ttagNameDuplicate => 'A tag with that name already exists.';
 }

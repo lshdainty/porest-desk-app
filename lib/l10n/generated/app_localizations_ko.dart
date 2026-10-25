@@ -5505,7 +5505,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String todoDeleteConfirm(String title) {
-    return '\"$title\" 할 일을 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
+    return '\"$title\" 할 일을 삭제할까요? 되돌릴 수 없어요.';
   }
 
   @override
@@ -5521,7 +5521,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoTitlePlaceholder => '할 일을 적어주세요';
 
   @override
-  String get todoTitleRequired => '제목을 입력해주세요';
+  String get todoTitleRequired => '제목을 입력해주세요.';
 
   @override
   String get todoDueDate => '마감일';
@@ -5548,7 +5548,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoPriorityRelaxed => '여유';
 
   @override
-  String get todoContentLabel => '상세 내용 (선택)';
+  String get todoContentLabel => '메모';
 
   @override
   String get todoContentPlaceholder => '예: # 제목 / **굵게** / - 항목 / - [ ] 체크';
@@ -5560,7 +5560,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoPreview => '미리보기';
 
   @override
-  String get todoNoContent => '내용 없음';
+  String get todoNoContent => '없음';
 
   @override
   String get todoEmptyToday => '오늘 할 일이 없어요';
@@ -5648,13 +5648,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoMoveFailed => '이동 실패';
 
   @override
-  String get todoLoadError => '할 일 로드 실패';
+  String get todoLoadError => '할 일을 불러오지 못했어요';
 
   @override
   String get todoProjectLoadError => '프로젝트 로드 실패';
 
   @override
-  String get todoTagLoadError => '태그 로드 실패';
+  String get todoTagLoadError => '태그를 불러오지 못했어요';
 
   @override
   String get subManageTitle => '구독 관리';
@@ -6071,7 +6071,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoDetailCompletedAt => '완료 일시';
 
   @override
-  String get todoDetailContent => '상세 내용';
+  String get todoDetailContent => '메모';
 
   @override
   String get memoDetailTitle => '메모 상세';
@@ -6655,7 +6655,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tdmEmptyFilter => '조건에 맞는 할 일이 없어요';
 
   @override
-  String get tdmEmptyFilterDesc => '필터를 조정하거나 초기화해보세요.';
+  String get tdmEmptyFilterDesc => '조건을 바꾸거나 지워보세요.';
 
   @override
   String tdmStarToastGain(int gain, int left) {
@@ -6787,10 +6787,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get ttagTitle => '할일 태그';
+  String get ttagTitle => '할 일 태그';
 
   @override
-  String get ttagDesc => '할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.';
+  String get ttagDesc =>
+      '할 일에 붙이는 태그예요. 할 일 화면의 거르기와 태그별 개수에 쓰여요. 태그를 지우면 그 할 일은 \'태그 없음\'으로 남아요.';
 
   @override
   String get ttagAddCta => '태그 추가';
@@ -7822,4 +7823,72 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get statsTabsAria => '통계 보기';
+
+  @override
+  String get tdmFilterOn => '필터, 조건 걸림';
+
+  @override
+  String todoCheckName(String title) {
+    return '$title 완료';
+  }
+
+  @override
+  String todoCheckNameOverdue(String title) {
+    return '$title 완료, 마감 지남';
+  }
+
+  @override
+  String get todoMemoTag => '메모';
+
+  @override
+  String tdmCellLeft(String date, int count) {
+    return '$date, 남은 할 일 $count개';
+  }
+
+  @override
+  String tdmCellCollected(String date) {
+    return '$date, 별자리 수집';
+  }
+
+  @override
+  String tdmCellMissed(String date) {
+    return '$date, 놓친 날';
+  }
+
+  @override
+  String tdmCellDone(String date) {
+    return '$date, 다 끝냄';
+  }
+
+  @override
+  String get tdmLoadFailedDesc => '잠시 후 다시 시도해주세요.';
+
+  @override
+  String get todoToggleFailed => '완료로 바꾸지 못했어요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get todoDetailOverdue => '마감 지남';
+
+  @override
+  String get todoDueDatePlaceholder => '마감일 선택';
+
+  @override
+  String get todoTagEmptyHint => '태그는 설정 › 할 일 태그에서 만들어요.';
+
+  @override
+  String ttagEmptyHint(String label) {
+    return '$label 버튼으로 첫 태그를 만들어보세요.';
+  }
+
+  @override
+  String get todoDueClear => '마감일 지우기';
+
+  @override
+  String get ttagNameRequired => '이름을 입력해주세요.';
+
+  @override
+  String get ttagNameTooLong => '이름은 12자 이내로 입력해주세요.';
+
+  @override
+  String get ttagNameDuplicate => '같은 이름의 태그가 이미 있어요.';
 }

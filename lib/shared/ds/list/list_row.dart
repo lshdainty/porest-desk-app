@@ -586,41 +586,49 @@ class _PListRowFrameState extends State<PListRowFrame> {
           spacing: PSpacing.x0_5,
           children: [
             if (widget.titleSuffix == null || widget.titleSuffix!.isEmpty)
-              Text(
-                keepAll(widget.title),
-                key: const ValueKey('plist-title'),
-                semanticsLabel: widget.title,
-                style: PTypography.t5.copyWith(
-                  color: titleColor,
-                  fontWeight: widget.titleWeight ?? FontWeight.w400,
-                  decoration: widget.titleStrike
-                      ? TextDecoration.lineThrough
-                      : null,
+              _titleColorAnimated(
+                reduceMotion: reduceMotion,
+                color: titleColor,
+                builder: (color) => Text(
+                  keepAll(widget.title),
+                  key: const ValueKey('plist-title'),
+                  semanticsLabel: widget.title,
+                  style: PTypography.t5.copyWith(
+                    color: color,
+                    fontWeight: widget.titleWeight ?? FontWeight.w400,
+                    decoration: widget.titleStrike
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
                 ),
               )
             else
-              Text.rich(
-                key: const ValueKey('plist-title'),
-                TextSpan(
-                  children: [
-                    TextSpan(text: keepAll(widget.title)),
-                    // 제목 ↔ 배지 6(Card 머리 덧붙임과 같은 값)
-                    for (final b in widget.titleSuffix!)
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.middle,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: PSpacing.x1_5),
-                          child: b,
+              _titleColorAnimated(
+                reduceMotion: reduceMotion,
+                color: titleColor,
+                builder: (color) => Text.rich(
+                  key: const ValueKey('plist-title'),
+                  TextSpan(
+                    children: [
+                      TextSpan(text: keepAll(widget.title)),
+                      // 제목 ↔ 배지 6(Card 머리 덧붙임과 같은 값)
+                      for (final b in widget.titleSuffix!)
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: PSpacing.x1_5),
+                            child: b,
+                          ),
                         ),
-                      ),
-                  ],
-                ),
-                style: PTypography.t5.copyWith(
-                  color: titleColor,
-                  fontWeight: widget.titleWeight ?? FontWeight.w400,
-                  decoration: widget.titleStrike
-                      ? TextDecoration.lineThrough
-                      : null,
+                    ],
+                  ),
+                  style: PTypography.t5.copyWith(
+                    color: color,
+                    fontWeight: widget.titleWeight ?? FontWeight.w400,
+                    decoration: widget.titleStrike
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
                 ),
               ),
             if (detail != null)
@@ -889,5 +897,21 @@ class PListSuffix extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     spacing: PSpacing.x1,
     children: children,
+  );
+}
+
+/// 제목 색이 바뀌면 `motion-duration-color-transition` × `motion-ease-easing` 으로 옮긴다(끝낸 할 일 줄이 취소선 + 비활성 색으로
+/// 바뀌는 순간 — DESIGN.desk 3965). 모션 줄이기면 바로 바뀐다. 처음 그릴 때는 모션이 없다.
+Widget _titleColorAnimated({
+  required bool reduceMotion,
+  required Color color,
+  required Widget Function(Color color) builder,
+}) {
+  if (reduceMotion) return builder(color);
+  return TweenAnimationBuilder<Color?>(
+    tween: ColorTween(end: color),
+    duration: PDuration.colorTransition,
+    curve: PEasing.easing,
+    builder: (context, value, _) => builder(value ?? color),
   );
 }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/api_response.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
 import 'package:groo_damda_app/features/todo/domain/todo_stats.dart';
@@ -102,6 +103,9 @@ class TodoRepository {
       final res = await _dio.patch<Map<String, dynamic>>(
         '/todo/$id/status',
         data: {'status': status},
+        // 전역 오류 알림(서버 원문)을 끄고 화면이 새 글 하나를 띄운다 — 완료 체크는 누르는 순간 바뀌는 낙관 갱신이라 실패하면
+        // 되돌리고 "완료로 바꾸지 못했어요" 를 한 번 말한다(I-10 14).
+        options: Options(extra: {kSilentErrorToast: true}),
       );
       final data = res.data?['data'];
       if (data is Map<String, dynamic>) {

@@ -33,8 +33,9 @@ import 'package:groo_damda_app/features/todo/domain/todo.dart';
 import 'package:groo_damda_app/features/todo/domain/todo_tag.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_tag_management_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 
 /// 할 일 화면이 실제로 보는 필터 — `TodoScreen._allFilter` 와 같은 값.
 const TodoFilter _allFilter = (status: null, priority: null);
@@ -69,12 +70,10 @@ class _SlowRepo extends TodoTagRepository {
   }
 }
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
+Finder _field() => find.byType(PInput).first;
 
 Finder _button(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+    find.byWidgetPredicate((w) => w is PButton && w.label == label);
 
 void main() {
   late AppLocalizations l;
@@ -143,11 +142,12 @@ void main() {
   testWidgets('저장이 끝나기 전에 화면을 닫아도 목록이 새 이름으로 걷힌다', (tester) async {
     await open(tester);
 
-    await tester.tap(_button(l.todoNewTag));
+    // 목록 제목의 글 버튼 "태그 추가" — 새 태그 폼이 시트로 뜬다.
+    await tester.tap(find.text(l.ttagAddCta));
     await tester.pumpAndSettle();
-    await tester.enterText(_field(l.todoTagNamePlaceholder), '개인');
+    await tester.enterText(_field(), '개인');
     await tester.pumpAndSettle();
-    await tester.tap(_button(l.actionSave));
+    await tester.tap(_button(l.calAdd));
     // 저장이 나갔고 서버는 아직 대답하지 않았다.
     await tester.pumpAndSettle();
 
@@ -188,12 +188,7 @@ void main() {
     actions.last.onSelect();
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.widgetWithText(PButton, l.actionDelete),
-      ),
-    );
+    await tester.tap(_button(l.actionDelete).last);
     await tester.pumpAndSettle();
 
     await closeScreen(tester);
