@@ -40,6 +40,8 @@ class PListParentItem extends StatefulWidget {
     this.align = PListAlign.center,
     this.prefix,
     this.suffix,
+    this.endInset,
+    this.readOnly = false,
     this.collapsible = true,
     this.expandLabel,
     this.open,
@@ -72,6 +74,14 @@ class PListParentItem extends StatefulWidget {
   final PListAlign align;
   final Widget? prefix;
   final Widget? suffix;
+
+  /// 줄 오른쪽 끝 여백 — 줄 끝 조작 요소(끄는 손잡이)를 화면 끝에서 안쪽으로 세울 때(기본은 좌우 여백 24). [PListItem] 의
+  /// `endInset` 과 같은 이름 · 같은 뜻이다.
+  final double? endInset;
+
+  /// 보기만 하는 줄 — 줄을 누르지 못하고(눌림 · 포커스 없음) 글 · 타일 색은 보통 줄 그대로다. [onTap] 이 없어서 막힌 줄
+  /// (비활성 색)과 다르다. 꺾쇠 단추는 따로 눌린다. 순서 바꾸기 모드의 부모 줄이 쓴다.
+  final bool readOnly;
 
   /// 줄을 누르면 하는 일(편집) — 없으면 줄이 막힌다.
   final VoidCallback? onTap;
@@ -128,6 +138,7 @@ class _PListParentItemState extends State<PListParentItem> {
           titleColor: widget.titleColor,
           prefix: widget.prefix,
           suffix: widget.suffix,
+          endInset: widget.endInset,
           highlighted: widget.highlighted,
           align: widget.align,
           nest: PListNest.parent,
@@ -139,10 +150,12 @@ class _PListParentItemState extends State<PListParentItem> {
                   onToggle: _toggle,
                 )
               : null,
-          interactive: true,
-          onActivate: widget.onTap,
+          interactive: !widget.readOnly,
+          onActivate: widget.readOnly ? null : widget.onTap,
           focusNode: widget.focusNode,
-          semantics: const PListRowSemantics(button: true),
+          semantics: widget.readOnly
+              ? const PListRowSemantics()
+              : const PListRowSemantics(button: true),
         ),
         if (widget.children.isNotEmpty)
           _PListSubList(id: _subId, open: open, children: widget.children),
