@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
@@ -25,6 +26,7 @@ import 'package:groo_damda_app/features/stats/presentation/stats_parts.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_trend_parts.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
@@ -153,6 +155,17 @@ void main() {
       final label = tester.getRect(findPlain('가장 많이 쓴 카테고리'));
       expect(label.top - bands.last.top, closeTo(24 + 4, 4));
       expect(label.left, closeTo(24, 0.01));
+    });
+  });
+
+  group('기간 버튼 — 뒤 꺾쇠 하나', () {
+    testWidgets('neutralOutline small · 뒤 꺾쇠만(앞 달력 없음)', (tester) async {
+      await _pump(tester);
+      final b = tester.widget<PButton>(find.byType(PButton).first);
+      expect(b.variant, PButtonVariant.neutralOutline);
+      expect(b.size, PButtonSize.small);
+      expect(b.prefixIcon, isNull);
+      expect(b.suffixIcon, LucideIcons.chevronDown);
     });
   });
 

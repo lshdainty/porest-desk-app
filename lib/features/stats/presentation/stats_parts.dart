@@ -52,9 +52,8 @@ CatIndex catIndex(List<ExpenseCategory>? list) => {
   for (final c in list ?? const <ExpenseCategory>[]) c.rowId: c,
 };
 
-/// 기간 버튼(31) — ds Button neutralOutline small 36 · 앞 달력 · 글 t4 · 700.
-/// 버튼은 앞 · 뒤 아이콘 하나만 받는다(button.yaml) — 뒤 꺾쇠는 두지 않는다. 글은 한 줄이라 긴 직접 기간은 머리 줄이 알아서
-/// 제목 아래로 내려 준다.
+/// 기간 버튼(31) — ds Button neutralOutline small 36 · 글 t4 · 700 · 뒤 꺾쇠 하나(button.md:67 "앞 · 뒤 아이콘을 함께 쓰지 않는다" —
+/// 예산 "2026년 10월 ⌄" 와 같은 꼴, 앞 달력 아이콘은 두지 않는다). 글은 한 줄이라 긴 직접 기간은 머리 줄이 알아서 제목 아래로 내려 준다.
 class StatsPeriodButton extends StatelessWidget {
   const StatsPeriodButton({
     super.key,
@@ -79,7 +78,7 @@ class StatsPeriodButton extends StatelessWidget {
         label: text,
         variant: PButtonVariant.neutralOutline,
         size: PButtonSize.small,
-        prefixIcon: LucideIcons.calendar,
+        suffixIcon: LucideIcons.chevronDown,
         onPressed: onPressed,
       ),
     );
