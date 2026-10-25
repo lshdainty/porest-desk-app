@@ -10,18 +10,17 @@ import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
-import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_visibility.dart';
 import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_day_sheet.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_filter_sheet.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_grid.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_month_row.dart';
-import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
@@ -196,26 +195,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               .where((h) => h.holidayDate == dayKey)
               .toList()
         : const <Holiday>[];
-    final title = localeIsEn()
-        ? '${formatDay(day).md}, ${formatDay(day).dow}'
-        : '${formatDay(day).md} ${formatDay(day).dow}요일';
-    showPSheet<void>(
+    showCalendarDaySheet(
       context,
-      title: title,
-      contentBuilder: (ctx, scrollCtrl) => _DayEventsSheetBody(
-        day: day,
-        events: dayEvents,
-        holidays: dayHolidays,
-        scrollController: scrollCtrl,
-        onAdd: () {
-          Navigator.of(context, rootNavigator: true).pop();
-          showCalendarEventDialog(context, defaultDate: day);
-        },
-        onTapEvent: (e) {
-          Navigator.of(context, rootNavigator: true).pop();
-          showCalendarEventDetailDialog(context, e);
-        },
-      ),
+      day: day,
+      events: dayEvents,
+      holidays: dayHolidays,
+      calendars:
+          ref.read(userCalendarListProvider).value ?? const <UserCalendar>[],
+      onAdd: () => showCalendarEventDialog(context, defaultDate: day),
+      onTapEvent: (e) => showCalendarEventDetailDialog(context, e),
     );
   }
 }
@@ -282,223 +270,6 @@ class _CalendarGridSkeleton extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-// ─── 날짜 클릭 → 일별 이벤트 sheet ───────────────────────────────────────────
-
-class _DayEventsSheetBody extends StatelessWidget {
-  const _DayEventsSheetBody({
-    required this.day,
-    required this.events,
-    required this.holidays,
-    required this.scrollController,
-    required this.onAdd,
-    required this.onTapEvent,
-  });
-  final DateTime day;
-  final List<CalendarEvent> events;
-  final List<Holiday> holidays;
-  final ScrollController scrollController;
-  final VoidCallback onAdd;
-  final void Function(CalendarEvent) onTapEvent;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final total = holidays.length + events.length;
-    return ListView(
-      controller: scrollController,
-      // 하단 — 플로팅 탭바 보상.
-      padding: EdgeInsets.fromLTRB(
-        PSpace.xl,
-        PSpace.x24,
-        PSpace.xl,
-        bottomNavigationInset(context),
-      ),
-      children: [
-        Row(
-          children: [
-            Text(
-              l.calEventTotalCount(total),
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            ),
-            const Spacer(),
-            PButton.icon(
-              icon: LucideIcons.plus,
-              iconColor: t.fgPrimary,
-              tooltip: l.calEventAdd,
-              onPressed: onAdd,
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x4),
-        if (total == 0)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-            child: Center(
-              child: Text(
-                l.calNoEventsThisDay,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-              ),
-            ),
-          )
-        else ...[
-          // 공휴일(종일) 먼저 — 웹 상세 정합.
-          for (int i = 0; i < holidays.length; i++) ...[
-            _DaySheetHolidayRow(holiday: holidays[i], tokens: t),
-            if (i < holidays.length - 1 || events.isNotEmpty) PDivider(),
-          ],
-          for (int i = 0; i < events.length; i++) ...[
-            _DaySheetEventRow(
-              event: events[i],
-              day: day,
-              tokens: t,
-              onTap: () => onTapEvent(events[i]),
-            ),
-            if (i < events.length - 1) PDivider(),
-          ],
-        ],
-      ],
-    );
-  }
-}
-
-// 공휴일 행 — 종일 + 빨강(fgExpense) 바 + 이름 (_DaySheetEventRow 스타일 정합).
-class _DaySheetHolidayRow extends StatelessWidget {
-  const _DaySheetHolidayRow({required this.holiday, required this.tokens});
-  final Holiday holiday;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    final l = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: PSpace.x40,
-            child: Text(
-              l.calAllDay,
-              style: PTypo.caption.copyWith(color: t.fgSecondary),
-            ),
-          ),
-          const SizedBox(width: PSpace.x8),
-          Container(
-            width: PSpace.x4,
-            height: PSpace.x24,
-            decoration: BoxDecoration(
-              color: t.statusDangerFg,
-              borderRadius: PRadius.brXs,
-            ),
-          ),
-          const SizedBox(width: PSpace.x12),
-          Expanded(
-            child: Text(
-              holiday.holidayName,
-              style: PTypo.body.copyWith(
-                color: t.fgPrimary,
-                fontWeight: PFontWeight.semi,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DaySheetEventRow extends StatelessWidget {
-  const _DaySheetEventRow({
-    required this.event,
-    required this.day,
-    required this.tokens,
-    required this.onTap,
-  });
-  final CalendarEvent event;
-  final DateTime day;
-  final GrooTokens tokens;
-  final VoidCallback onTap;
-
-  String _hhmm(DateTime d) => timeOfDay12(d);
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    final l = AppLocalizations.of(context);
-    final color = eventTone(context, event).solid;
-    final timeLabel = event.isAllDayBool ? l.calAllDay : _hhmm(event.start);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: PSpace.x40,
-              child: Text(
-                timeLabel,
-                style: PTypo.caption.copyWith(color: t.fgSecondary),
-              ),
-            ),
-            const SizedBox(width: PSpace.x8),
-            Container(
-              width: PSpace.x4,
-              height: PSpace.x24,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: PRadius.brXs,
-              ),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    event.title,
-                    style: PTypo.body.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if ((event.location ?? '').isNotEmpty ||
-                      event.labelName != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: PSpace.x4),
-                      child: Text(
-                        [
-                          if ((event.location ?? '').isNotEmpty)
-                            event.location!,
-                          if (event.labelName != null) event.labelName!,
-                        ].join(' · '),
-                        style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Icon(
-              LucideIcons.chevronRight,
-              size: PSpace.x16,
-              color: t.fgTertiary,
-            ),
-          ],
-        ),
       ),
     );
   }
