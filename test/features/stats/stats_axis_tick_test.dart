@@ -81,8 +81,8 @@ Future<void> _pumpTrend(WidgetTester tester, int expenseAmount) async {
   );
   await tester.pumpAndSettle();
 
-  // 카테고리 → 추이
-  await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
+  // 카테고리 → 추이(칩 탭은 눌러서만 바뀐다)
+  await tester.tap(find.text('추이'));
   await tester.pumpAndSettle();
 }
 

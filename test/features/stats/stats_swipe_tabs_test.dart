@@ -1,18 +1,19 @@
-// 통계·분석 4탭(카테고리/추이/비교/고정·변동)을 좌우 스와이프로 넘길 수 있는지.
+// 통계 4탭(카테고리/추이/비교/고정·변동) — 칩 탭(2차 탭)은 눌러서만 바뀌고 좌우로 밀어도 넘어가지 않는다.
 //
-// 칩 탭으로만 넘어가던 걸 PageView 로 바꿨다. 칩과 스와이프가 같은 인덱스를 공유해야
-// 하므로 양방향(칩→본문 / 스와이프→칩)을 모두 확인한다.
+// Tabs 7A(2026-10-16 사용자 결정): "폰 1차만 밀어 넘김" — 통계 안의 2차 밀어 넘기기(PageView)는 걷었다(I-08 30, 10-25 고침).
+// 1차 탭(가계부 묶음)의 밀어 넘기기는 셸 몫이라 여기서 다루지 않는다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_model.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 
 Future<void> _pumpStats(WidgetTester tester) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -52,82 +53,57 @@ Future<void> _pumpStats(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-int _pageIndex(WidgetTester tester) {
-  final pv = tester.widget<PageView>(find.byType(PageView));
-  return (pv.controller!.page ?? pv.controller!.initialPage.toDouble()).round();
-}
-
-/// 칩이 선택 상태인지 — _StatsChipTab 은 active 일 때 글자를 semi 굵기로 그린다.
-bool _chipSelected(WidgetTester tester, String label) {
-  final texts = tester.widgetList<Text>(find.text(label));
-  return texts.any((t) => t.style?.fontWeight == PFontWeight.semi);
-}
+/// 지금 고른 칩 탭의 값(PChipTabs 의 value).
+StatsTab _selected(WidgetTester tester) =>
+    tester.widget<PChipTabs<StatsTab>>(find.byType(PChipTabs<StatsTab>)).value;
 
 void main() {
-  testWidgets('좌우로 밀면 탭이 넘어간다', (tester) async {
+  testWidgets('칩 탭은 solid · large 이고 PageView 가 없다 — 본문이 옆으로 밀리지 않는다', (
+    tester,
+  ) async {
     await _pumpStats(tester);
-    expect(_pageIndex(tester), 0, reason: '처음엔 카테고리 탭');
-
-    // 왼쪽으로 밀기 → 다음 탭(추이)
-    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
-    await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 1);
-
-    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
-    await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 2, reason: '비교 탭');
-
-    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
-    await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 3, reason: '고정·변동 탭까지');
-
-    // 마지막에서 더 밀어도 넘어가지 않는다(순환 없음)
-    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
-    await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 3);
-
-    // 오른쪽으로 밀기 → 이전 탭
-    await tester.fling(find.byType(PageView), const Offset(400, 0), 1200);
-    await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 2);
+    final tabs = tester.widget<PChipTabs<StatsTab>>(
+      find.byType(PChipTabs<StatsTab>),
+    );
+    expect(tabs.variant, PChipTabsVariant.solid);
+    expect(tabs.size, PChipTabsSize.large);
+    expect(tabs.items.length, 4);
+    expect(find.byType(PageView), findsNothing);
   });
 
-  testWidgets('스와이프로 넘어가면 칩 선택 상태도 따라온다', (tester) async {
+  testWidgets('좌우로 밀어도 탭이 넘어가지 않는다', (tester) async {
     await _pumpStats(tester);
-    final l = await AppLocalizations.delegate.load(const Locale('ko'));
+    final before = _selected(tester);
 
-    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
+    await tester.fling(
+      find.byType(ListView).first,
+      const Offset(-400, 0),
+      1200,
+    );
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 1);
+    expect(_selected(tester), before, reason: '왼쪽으로 밀어도 그대로');
 
-    // 칩은 선택되면 글자가 semi 굵기로 바뀐다(_StatsChipTab). 본문만 넘어가고
-    // 칩이 그대로면 사용자는 지금 어느 탭인지 알 수 없다.
-    expect(
-      _chipSelected(tester, l.statsTabTrend),
-      isTrue,
-      reason: '추이 칩이 선택돼야',
-    );
-    expect(
-      _chipSelected(tester, l.expCategory),
-      isFalse,
-      reason: '카테고리 칩은 풀려야',
-    );
+    await tester.fling(find.byType(ListView).first, const Offset(400, 0), 1200);
+    await tester.pumpAndSettle();
+    expect(_selected(tester), before, reason: '오른쪽으로 밀어도 그대로');
   });
 
-  testWidgets('칩을 누르면 본문도 같이 넘어간다', (tester) async {
+  testWidgets('칩을 누르면 탭이 바뀐다 — 눌러서만', (tester) async {
     await _pumpStats(tester);
     final l = await AppLocalizations.delegate.load(const Locale('ko'));
+    final first = _selected(tester);
 
     await tester.tap(find.text(l.statsTabCompare));
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 2);
+    final compare = _selected(tester);
+    expect(compare, isNot(first));
 
     await tester.tap(find.text(l.statsTabFixed));
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 3);
+    expect(_selected(tester), isNot(compare));
 
     await tester.tap(find.text(l.expCategory).first);
     await tester.pumpAndSettle();
-    expect(_pageIndex(tester), 0);
+    expect(_selected(tester), first);
   });
 }

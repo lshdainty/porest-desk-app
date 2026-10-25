@@ -1,10 +1,5 @@
-// 히트맵 셀 라벨 — 도넛 중앙·차트 축과 **같은 함수**로 줄이는가.
-//
-// 셀만 1만 아래를 `5천` 으로 한 번 더 줄이고 있었다. 칸이 좁아서였는데, `천` 은
-// 합의한 단위가 아니다 — 만·억·조 뿐이고 1만 미만은 `4,900` 처럼 천단위 콤마
-// 정수로 낸다(QA #73). 같은 화면에서 도넛 중앙이 `4,900`, 그 아래 히트맵이 `5천`
-// 이면 같은 값이 두 글자로 보인다. 칸 폭은 셀의 FittedBox 가 글자를 줄여 해결한다.
-//
+// 열지도 칸 글 규칙(I-08 34 · chart.md:110) — 칸 폭이 112 미만이면 칸에 글이 없고(세기 색만), 값은 칸을 누르면 뜨는 툴팁에서
+// 원까지 읽는다. 좁다고 금액을 줄여 쓰지 않는다(옛 `5천` · `1.2만` 줄임 글을 걷었다 — 03E-006 사용자 결정).
 // 에뮬레이터를 못 쓰는 환경이라(QA #23) 화면을 띄워 글자를 읽는다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +11,7 @@ import 'package:groo_damda_app/features/expense/application/expense_providers.da
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
+import '../../support/plain_text.dart';
 
 /// 히트맵이 있는 '카테고리' 탭(기본 탭)을 띄우고 히트맵 카드까지 스크롤한다.
 Future<void> _pumpHeatmap(WidgetTester tester, int cellAmount) async {
@@ -57,7 +53,7 @@ Future<void> _pumpHeatmap(WidgetTester tester, int cellAmount) async {
   await tester.pumpAndSettle();
 
   await tester.scrollUntilVisible(
-    find.text('요일·시간대 지출 패턴'),
+    findPlain('요일·시간대 지출 패턴'),
     300,
     scrollable: find
         .descendant(
@@ -70,16 +66,29 @@ Future<void> _pumpHeatmap(WidgetTester tester, int cellAmount) async {
 }
 
 void main() {
-  testWidgets('1만 아래 셀은 `5천` 이 아니라 `4,900` 이다', (tester) async {
+  testWidgets('칸 폭 112 미만(폰) — 칸에 글이 없다, 줄임 글(5천 · 1.2만)도 없다', (tester) async {
     await _pumpHeatmap(tester, 4900);
 
-    expect(find.text('5천'), findsNothing);
-    expect(find.text('4,900'), findsWidgets);
+    final heat = find.byKey(const ValueKey('chart-heatmap'));
+    expect(heat, findsOneWidget);
+    // 열지도 안에는 금액 글이 하나도 없다 — 라벨(아침 · 06~10시)과 요일만
+    for (final amountLike in ['5천', '4,900', '4,900원', '—']) {
+      expect(
+        find.descendant(of: heat, matching: find.text(amountLike)),
+        findsNothing,
+        reason: "칸 글 \"$amountLike\" 이 남아 있다",
+      );
+    }
   });
 
-  testWidgets('1만 위 셀은 예전과 같은 만 단위 축약', (tester) async {
+  testWidgets('칸을 누르면 툴팁이 원까지 값을 읽어 준다 — 줄이지 않는다', (tester) async {
     await _pumpHeatmap(tester, 11881);
 
-    expect(find.text('1.2만'), findsWidgets);
+    // 월요일 12시 = 둘째 줄(10~14시) · 첫 칸
+    await tester.tap(find.byKey(const ValueKey('chart-heatmap-cell-1-0')));
+    await tester.pump();
+    expect(find.text('11,881원'), findsOneWidget);
+    expect(find.text('1.2만'), findsNothing);
+    expect(findPlainContaining('월 점심'), findsWidgets);
   });
 }

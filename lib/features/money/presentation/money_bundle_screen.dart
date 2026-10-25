@@ -114,7 +114,7 @@ class _MoneyBundleScreenState extends State<MoneyBundleScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final labels = [l.navExpense, l.navAsset, l.moreItemStats, l.navBudget];
+    final labels = [l.navExpense, l.navAsset, l.navStats, l.navBudget];
     return Column(
       children: [
         PTabs<MoneyTab>(

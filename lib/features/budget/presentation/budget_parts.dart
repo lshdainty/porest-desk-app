@@ -129,9 +129,16 @@ class BudgetHead extends StatelessWidget {
     this.suffix,
     this.actionLabel,
     this.onAction,
-  });
+    this.titleChild,
+  }) : assert(
+         titleChild == null || note != null || trailing != null,
+         '제목을 위젯으로 줄 때는 오른쪽 보조 글 · 위젯과 함께 쓴다(통계 도넛의 "카테고리별 지출 › 부모")',
+       );
 
   final String title;
+
+  /// 제목 글 대신 두는 위젯(눌러서 되돌아가는 제목) — [title] 은 읽는 이름으로 남는다.
+  final Widget? titleChild;
 
   /// 오른쪽 보조 글(t3 · fg-neutral-subtle).
   final String? note;
@@ -171,14 +178,16 @@ class BudgetHead extends StatelessWidget {
         title: Semantics(
           header: true,
           headingLevel: 2,
-          child: Text(
-            keepAll(title),
-            semanticsLabel: title,
-            style: PTypography.t5.copyWith(
-              color: c.fgNeutral,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          child:
+              titleChild ??
+              Text(
+                keepAll(title),
+                semanticsLabel: title,
+                style: PTypography.t5.copyWith(
+                  color: c.fgNeutral,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
         ),
         action:
             trailing ??

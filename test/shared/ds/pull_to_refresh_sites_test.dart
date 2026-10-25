@@ -25,7 +25,7 @@ void main() {
         i = s.indexOf('PPullToRefresh(', i + 1);
       }
     }
-    expect(sites, 22);
+    expect(sites, 20);
     expect(bad, isEmpty);
   });
 }

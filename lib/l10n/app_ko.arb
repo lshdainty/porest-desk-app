@@ -2863,7 +2863,7 @@
   "statsSegQuarter": "분기",
   "statsSegYear": "년",
   "statsSegCustom": "직접",
-  "statsNoData": "데이터가 없습니다",
+  "statsNoData": "데이터가 없어요.",
   "statsNoDataShort": "데이터 없음",
   "statsUnassigned": "미지정",
   "statsCategoryDetail": "{name} 세부",
@@ -2883,9 +2883,9 @@
     }
   },
   "statsSpendingByCategory": "카테고리별 지출",
-  "statsNoCategoryData": "카테고리 데이터가 없습니다",
+  "statsNoCategoryData": "카테고리 데이터가 없어요.",
   "statsTopMerchantsTitle": "많이 쓴 가맹점 TOP 5",
-  "statsNoMerchantData": "가맹점 데이터가 없습니다",
+  "statsNoMerchantData": "가맹점 데이터가 없어요.",
   "statsNoName": "(이름 없음)",
   "statsTimeMorning": "아침",
   "statsTimeLunch": "점심",
@@ -2895,7 +2895,7 @@
   "statsTimeDawn": "새벽",
   "statsPatternTitle": "요일·시간대 지출 패턴",
   "statsPatternDesc": "색이 진할수록 지출이 많은 시간대예요 (단위: 원)",
-  "statsTooFewTx": "이번 달 거래가 아직 적어요",
+  "statsTooFewTx": "이번 달 거래가 아직 적어요.",
   "statsLegendLow": "적음",
   "statsLegendHigh": "많음",
   "statsTotalPrefix": "총",
@@ -2912,7 +2912,7 @@
   "statsTopCategory": "가장 많이 쓴 카테고리",
   "statsTopMerchant": "가장 많이 쓴 가맹점",
   "statsIncomeExpenseTrend": "수입·지출 추이",
-  "statsNoTrendData": "추이 데이터가 없습니다",
+  "statsNoTrendData": "추이 데이터가 없어요.",
   "statsAvgIncome": "평균 수입",
   "statsAvgExpense": "평균 지출",
   "statsNetSavings": "순저축",
@@ -2949,13 +2949,16 @@
   },
   "statsCategoryDelta": "카테고리별 증감",
   "statsSortByChange": "변화 큰 순",
-  "statsNoCompareData": "비교할 데이터가 없습니다",
+  "statsNoCompareData": "비교할 데이터가 없어요.",
   "statsWeekdayTitle": "요일별 지출 비교",
   "statsThisMonthShort": "이번 달",
   "statsLastMonthShort": "지난 달",
-  "statsWeekdayInsightDown": "{day}요일 지출이 지난 달보다 {amount} 줄었어요.",
+  "statsWeekdayInsightDown": "{day}요일 지출이 {prev}보다 {amount} 줄었어요.",
   "@statsWeekdayInsightDown": {
     "placeholders": {
+      "prev": {
+        "type": "String"
+      },
       "day": {
         "type": "String"
       },
@@ -2964,9 +2967,12 @@
       }
     }
   },
-  "statsWeekdayInsightUp": "{day}요일 지출이 지난 달보다 {amount} 늘었어요.",
+  "statsWeekdayInsightUp": "{day}요일 지출이 {prev}보다 {amount} 늘었어요.",
   "@statsWeekdayInsightUp": {
     "placeholders": {
+      "prev": {
+        "type": "String"
+      },
       "day": {
         "type": "String"
       },
@@ -2975,7 +2981,8 @@
       }
     }
   },
-  "statsWeekdayInsightSame": "요일별 지출이 지난 달과 비슷해요.",
+  "statsWeekdayInsightSame": "{prev} 비슷해요.",
+  "@statsWeekdayInsightSame": {"placeholders": {"prev": {"type": "String"}}},
   "statsVsLastPrefix": "{prev}보다",
   "@statsVsLastPrefix": {
     "placeholders": {
@@ -4451,8 +4458,8 @@
   "statsDonutCenterFixed": "고정 지출",
   "statsFixedExpenseTitle": "지출 — 고정과 변동",
   "statsFixedIncomeTitle": "수입 — 고정과 변동",
-  "statsFixedExpenseNone": "이 기간에는 지출이 없어요",
-  "statsFixedIncomeNone": "이 기간에는 수입이 없어요",
+  "statsFixedExpenseNone": "이 기간에는 지출이 없어요.",
+  "statsFixedIncomeNone": "이 기간에는 수입이 없어요.",
   "statsFixedTotalExpense": "전체 지출",
   "statsFixedTotalIncome": "전체 수입",
   "statsFixedFixedExpense": "고정 지출",
@@ -4466,7 +4473,7 @@
   "statsFixedInsightIncome": "수입의 {pct}%가 고정이에요. 고정을 뺀 수입은",
   "@statsFixedInsightIncome": {"placeholders": {"pct": {"type": "int"}}},
   "statsFixedInsightTail": "이에요.",
-  "statsFixedEmptyDesc": "월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요",
+  "statsFixedEmptyDesc": "월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요.",
   "statsFixedManage": "거래를 고정으로 정리하기",
   "statsFixedManageHint": "매달 같은 이름으로 나가는 돈은 한 번에 정리할 수 있어요",
   "statsFixedTrendTitle": "월별 고정·변동 추이",
@@ -4491,7 +4498,7 @@
   "statsFixedBulkBadgeAll": "고정",
   "statsFixedBulkBadgeSome": "고정 {fixed}/{count}",
   "@statsFixedBulkBadgeSome": {"placeholders": {"fixed": {"type": "int"}, "count": {"type": "int"}}},
-  "statsFixedBulkEmpty": "이 기간에는 정리할 거래가 없어요",
+  "statsFixedBulkEmpty": "이 기간에는 정리할 거래가 없어요.",
   "statsFixedBulkApply": "{count}건 적용",
   "@statsFixedBulkApply": {"placeholders": {"count": {"type": "int"}}},
   "statsFixedBulkDoneFixed": "{count}건을 고정으로 바꿨어요",
@@ -4652,5 +4659,38 @@
   "@expFilterClearOne": {"placeholders": {"name": {"type": "String"}}},
   "expFilterModeGroup": "{name} 고르는 방식",
   "expLoadErrorDesc": "잠시 뒤에 다시 시도해주세요.",
-  "@expFilterModeGroup": {"placeholders": {"name": {"type": "String"}}}
+  "@expFilterModeGroup": {"placeholders": {"name": {"type": "String"}}},
+  "statsNoMonthlyData": "월별 데이터가 없어요.",
+  "statsLoadFailedCategory": "카테고리별 지출을 불러오지 못했어요",
+  "statsLoadFailedMerchant": "가맹점 순위를 불러오지 못했어요",
+  "statsLoadFailedHeatmap": "요일 · 시간대 지출을 불러오지 못했어요",
+  "statsLoadFailedHighlights": "요약을 불러오지 못했어요",
+  "statsLoadFailedTrend": "추이를 불러오지 못했어요",
+  "statsLoadFailedCompare": "비교할 내용을 불러오지 못했어요",
+  "statsLoadFailedWeekday": "요일별 지출을 불러오지 못했어요",
+  "statsLoadFailedFixed": "고정 · 변동 내용을 불러오지 못했어요",
+  "statsFixedBulkLoadFailed": "거래를 불러오지 못했어요",
+  "statsCompareSame": "지난 기간과 같아요.",
+  "statsChartDonutName": "{period} 카테고리별 지출, 합계 {total}",
+  "@statsChartDonutName": {"placeholders": {"period": {"type": "String"}, "total": {"type": "String"}}},
+  "statsChartHeatName": "{period} 요일 · 시간대별 지출, 합계 {total}",
+  "@statsChartHeatName": {"placeholders": {"period": {"type": "String"}, "total": {"type": "String"}}},
+  "statsChartHeatValue": "지출",
+  "statsChartTrendName": "{period} 수입 · 지출 추이, 수입 {income} · 지출 {expense}",
+  "@statsChartTrendName": {"placeholders": {"period": {"type": "String"}, "income": {"type": "String"}, "expense": {"type": "String"}}},
+  "statsChartSavingsName": "{period} {unit}",
+  "@statsChartSavingsName": {"placeholders": {"period": {"type": "String"}, "unit": {"type": "String"}}},
+  "statsChartCatTrendName": "{period} 주요 카테고리 월별 지출 추이",
+  "@statsChartCatTrendName": {"placeholders": {"period": {"type": "String"}}},
+  "statsChartWeekdayName": "{period} 요일별 지출 비교",
+  "@statsChartWeekdayName": {"placeholders": {"period": {"type": "String"}}},
+  "statsChartFixedName": "{kind} 월별 고정 · 변동 추이",
+  "@statsChartFixedName": {"placeholders": {"kind": {"type": "String"}}},
+  "statsTableDate": "날짜",
+  "statsTableMonth": "월",
+  "statsTableTime": "시간대",
+  "statsTableWeekday": "요일",
+  "statsPeriodButtonAria": "기간 {period} 바꾸기",
+  "@statsPeriodButtonAria": {"placeholders": {"period": {"type": "String"}}},
+  "statsTabsAria": "통계 보기"
 }

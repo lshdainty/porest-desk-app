@@ -15,10 +15,18 @@ import 'package:groo_damda_app/features/expense/application/expense_providers.da
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
+import 'package:groo_damda_app/features/stats/presentation/fixed_bulk_page.dart';
 import 'package:groo_damda_app/features/stats/presentation/fixed_variable_tab.dart';
+import 'package:groo_damda_app/features/stats/presentation/stats_model.dart';
+import '../../support/plain_text.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 const _range = (startDate: '2026-10-01', endDate: '2026-10-31');
+final _period = StatsPeriod(
+  seg: StatsSeg.month,
+  from: DateTime(2026, 10, 1),
+  to: DateTime(2026, 10, 31),
+);
 
 RangeSummary _summary({
   int scale = 1,
@@ -92,14 +100,15 @@ Future<void> _pump(
           ],
         ),
         hideCardProvider.overrideWith((ref, card) => false),
+        rangeExpensesProvider.overrideWith((ref, key) async => const []),
       ],
       child: MaterialApp(
         theme: dark ? GrooTheme.dark() : GrooTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),
-        home: const Scaffold(
-          body: FixedVariableTab(range: _range, periodTrigger: Text('기간')),
+        home: Scaffold(
+          body: FixedVariableTab(period: _period, onPickPeriod: () {}),
         ),
       ),
     ),
@@ -112,16 +121,16 @@ void main() {
     await _pump(tester, _summary());
 
     // 지출: 전체 1,432,000 = 고정 892,000(62%) + 변동 540,000(38%)
-    expect(find.text('1,432,000원'), findsOneWidget);
-    expect(find.text('892,000원'), findsOneWidget);
-    expect(find.text('고정 지출'), findsOneWidget);
-    expect(find.text('고정 제외 지출'), findsOneWidget);
-    expect(find.text('62%'), findsWidgets);
+    expect(findPlain('1,432,000원'), findsOneWidget);
+    expect(findPlain('892,000원'), findsOneWidget);
+    expect(findRichPlain('고정 지출'), findsWidgets);
+    expect(findRichPlain('고정 제외 지출'), findsWidgets);
+    expect(findPlain('62%'), findsWidgets);
     // 수입은 전부 고정
-    expect(find.text('3,200,000원'), findsWidgets);
-    expect(find.text('고정 제외 수입'), findsOneWidget);
+    expect(findPlain('3,200,000원'), findsWidgets);
+    expect(findRichPlain('고정 제외 수입'), findsWidgets);
     // 한 줄 해설
-    expect(find.textContaining('지출의 62%가 고정이에요'), findsOneWidget);
+    expect(findRichPlain('지출의 62%가 고정이에요'), findsOneWidget);
   });
 
   testWidgets('폭 360 · 14억대 금액 · 긴 카테고리 이름에서도 넘치지 않는다 (라이트)', (tester) async {
@@ -133,7 +142,7 @@ void main() {
       ),
     );
     expect(tester.takeException(), isNull);
-    expect(find.text('1,432,000,000원'), findsOneWidget);
+    expect(findPlain('1,432,000,000원'), findsOneWidget);
   });
 
   testWidgets('다크에서도 넘치지 않는다', (tester) async {
@@ -144,13 +153,21 @@ void main() {
   testWidgets('고정이 하나도 없으면 안내와 정리 버튼이 나온다', (tester) async {
     await _pump(tester, _summary(fixedExpense: 0));
 
-    expect(find.textContaining('고정으로 표시하면 여기서 따로 볼 수 있어요'), findsWidgets);
+    expect(findPlainContaining('고정으로 표시하면 여기서 따로 볼 수 있어요'), findsWidgets);
     expect(find.text('거래를 고정으로 정리하기'), findsWidgets);
-    expect(find.textContaining('지출의 0%가 고정이에요'), findsNothing);
+    expect(findRichPlain('지출의 0%가 고정이에요'), findsNothing);
   });
 
   testWidgets('한 달만 고른 기간은 최근 6개월 추이를 쓴다', (tester) async {
     await _pump(tester, _summary());
-    expect(find.text('최근 6개월'), findsOneWidget);
+    expect(findPlain('최근 6개월'), findsOneWidget);
+  });
+
+  testWidgets('"거래를 고정으로 정리하기" 는 시트가 아니라 페이지를 연다', (tester) async {
+    await _pump(tester, _summary(fixedExpense: 0));
+    await tester.tap(find.text('거래를 고정으로 정리하기').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(FixedBulkPage), findsOneWidget);
+    expect(find.byType(DraggableScrollableSheet), findsNothing);
   });
 }

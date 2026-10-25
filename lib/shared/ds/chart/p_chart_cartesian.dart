@@ -16,6 +16,7 @@ class PChartSeries {
     required this.color,
     required this.values,
     this.onRight = false,
+    this.weak = false,
   });
 
   final String key;
@@ -26,6 +27,11 @@ class PChartSeries {
   /// 오른쪽 축 — 두 계열의 크기가 열 배 넘게 다를 때(수입 0 ~ 400만 · 지출 0 ~ 40만). 이 축이 맡은 계열의 눈금 글자는 그
   /// 계열의 색이다. 계열이 셋 이상이거나 단위가 같은 두 계열은 축 하나다.
   final bool onRight;
+
+  /// 같은 색의 옅은 단계로 그린다 — 강조하지 않는 비교 계열(지난 기간). 선 · 막대 · 툴팁 네모 모두.
+  final bool weak;
+
+  Color colorOf(PColors c) => weak ? color.weakOf(c) : color.of(c);
 }
 
 /// 차트 맨 위 여백 — 맨 위 눈금 글자(15)의 윗 절반이 잘리지 않게.
@@ -139,6 +145,7 @@ class PBarChart extends PCartesianChart {
     this.showValueAxis = true,
     this.emphasizedIndex,
     this.tooltipFooter,
+    this.stacked = false,
   });
 
   /// 막대마다 색 — 주면 그 칸의 막대를 이 색으로 칠한다(null 이면 계열 색). 예산 이행률: 넘음 · 이번 달 · 지난 달.
@@ -159,6 +166,10 @@ class PBarChart extends PCartesianChart {
   /// 툴팁 덧줄(글만, 색 네모 없음) — 지출 · 한도처럼 계열 밖 값.
   final List<({String name, String value})> Function(int category)?
   tooltipFooter;
+
+  /// 계열을 칸 하나에 쌓는다(양수만 — 고정 · 변동, 카테고리 월별 추이). 막대는 칸마다 하나이고 맨 위 계열만 위 두 모서리가
+  /// 둥글다. 눈금은 쌓은 합으로 정한다.
+  final bool stacked;
 
   @override
   State<PBarChart> createState() => _PBarChartState();
@@ -208,6 +219,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
   bool get _valueAxis => true;
   int? get _emphasized => null;
   List<double> get _referenceValues => const [];
+  bool get _stacked => false;
 
   String _axisText(double v) => (widget.axisFormatter ?? formatAxisWon)(v);
   String _valueText(double v) => (widget.valueFormatter ?? formatWon)(v);
@@ -232,11 +244,24 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     PChartAxis axisOf(List<PChartSeries> list) {
       double? lo;
       double? hi;
-      for (final s in list) {
-        for (final v in s.values) {
-          if (v == null) continue;
-          lo = lo == null ? v : math.min(lo, v);
-          hi = hi == null ? v : math.max(hi, v);
+      if (_stacked) {
+        // 쌓은 막대 — 칸마다 계열을 더한 합으로 눈금을 정한다
+        for (var i = 0; i < widget.categories.length; i++) {
+          var sum = 0.0;
+          for (final s in list) {
+            final v = i < s.values.length ? s.values[i] : null;
+            if (v != null && v > 0) sum += v;
+          }
+          lo = 0;
+          hi = hi == null ? sum : math.max(hi, sum);
+        }
+      } else {
+        for (final s in list) {
+          for (final v in s.values) {
+            if (v == null) continue;
+            lo = lo == null ? v : math.min(lo, v);
+            hi = hi == null ? v : math.max(hi, v);
+          }
         }
       }
       for (final v in _referenceValues) {
@@ -355,7 +380,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
             if (v != i.toDouble() || i < 0 || i >= widget.categories.length) {
               return const SizedBox();
             }
-            // fl_chart 는 간격에 안 맞아도 마지막 눈금을 더 찍는다 — 앞 글자와 겹쳐 "11월12월" 이 된다
+            // fl_chart 는 간격에 안 맞아도 마지막 눈금을 더 찍는다 — 앞 글자와 겹쳐 "11월12월" 이 된다(막대 차트는 interval 을 아예 따르지 않아 칸마다 부른다 — 간격 칸만 그린다)
             if (i % p.labelInterval != 0) return const SizedBox();
             return SideTitleWidget(
               meta: meta,
@@ -415,7 +440,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       for (final s in _visible)
         if (i < s.values.length && s.values[i] != null)
           PChartTooltipRow(
-            swatch: s.color.of(c),
+            swatch: s.colorOf(c),
             name: s.label,
             value: _valueText(s.values[i]!),
           ),
@@ -527,7 +552,7 @@ class _PLineChartState extends _CartesianState<PLineChart> {
           isCurved: true,
           // monotone — 값 사이에서 선이 넘치지 않는다
           preventCurveOverShooting: true,
-          color: s.color.of(c),
+          color: s.colorOf(c),
           barWidth: kChartLineWidth,
           dotData: widget.dots
               ? FlDotData(
@@ -548,8 +573,8 @@ class _PLineChartState extends _CartesianState<PLineChart> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      s.color.of(c).withValues(alpha: 0.25),
-                      s.color.of(c).withValues(alpha: 0),
+                      s.colorOf(c).withValues(alpha: 0.25),
+                      s.colorOf(c).withValues(alpha: 0),
                     ],
                   ),
                 )
@@ -639,6 +664,9 @@ class _PBarChartState extends _CartesianState<PBarChart> {
   List<double> get _referenceValues => widget.referenceLines;
 
   @override
+  bool get _stacked => widget.stacked;
+
+  @override
   List<PChartTooltipRow> _tipFooter(int index) {
     final footer = widget.tooltipFooter?.call(index) ?? const [];
     return [
@@ -654,6 +682,35 @@ class _PBarChartState extends _CartesianState<PBarChart> {
     final slot = p.plotWidth / math.max(1, widget.categories.length);
     final room = slot * 0.8 - kChartBarGap * (count - 1);
     return math.max(2.0, math.min(kChartBarMaxWidth, room / count));
+  }
+
+  /// 쌓은 막대 한 칸 — 보이는 계열을 아래부터 쌓고, 맨 위 계열만 위 두 모서리가 둥글다.
+  BarChartRodData _stackedRod(
+    PColors c,
+    _Plan p,
+    int i,
+    List<PChartSeries> visible,
+    double width,
+    double progress,
+  ) {
+    final items = <BarChartRodStackItem>[];
+    var from = 0.0;
+    for (final s in visible) {
+      final v = i < s.values.length ? s.values[i] : null;
+      if (v == null || v <= 0) continue;
+      final to = from + _y(s, v, p) * progress;
+      items.add(BarChartRodStackItem(from, to, s.colorOf(c)));
+      from = to;
+    }
+    return BarChartRodData(
+      toY: from,
+      width: width,
+      color: c.fgNeutral,
+      rodStackItems: items,
+      borderRadius: from == 0
+          ? BorderRadius.zero
+          : const BorderRadius.vertical(top: Radius.circular(kChartBarRadius)),
+    );
   }
 
   @override
@@ -726,7 +783,7 @@ class _PBarChartState extends _CartesianState<PBarChart> {
   ) {
     final visible = _visible;
     if (visible.isEmpty) return const SizedBox.shrink();
-    final width = _barWidth(p, visible.length);
+    final width = _barWidth(p, widget.stacked ? 1 : visible.length);
     final slot = p.plotWidth / math.max(1, widget.categories.length);
     final chart = BarChart(
       BarChartData(
@@ -738,28 +795,30 @@ class _PBarChartState extends _CartesianState<PBarChart> {
             BarChartGroupData(
               x: i,
               barsSpace: kChartBarGap,
-              barRods: [
-                for (final s in visible)
-                  () {
-                    final v = i < s.values.length ? s.values[i] : null;
-                    final y = v == null ? 0.0 : _y(s, v, p) * progress;
-                    return BarChartRodData(
-                      toY: y,
-                      width: width,
-                      color: widget.barColor?.call(i, c) ?? s.color.of(c),
-                      // 위 두 모서리만 4 — 음수 막대는 아래 두 모서리
-                      borderRadius: y == 0
-                          ? BorderRadius.zero
-                          : y > 0
-                          ? const BorderRadius.vertical(
-                              top: Radius.circular(kChartBarRadius),
-                            )
-                          : const BorderRadius.vertical(
-                              bottom: Radius.circular(kChartBarRadius),
-                            ),
-                    );
-                  }(),
-              ],
+              barRods: widget.stacked
+                  ? [_stackedRod(c, p, i, visible, width, progress)]
+                  : [
+                      for (final s in visible)
+                        () {
+                          final v = i < s.values.length ? s.values[i] : null;
+                          final y = v == null ? 0.0 : _y(s, v, p) * progress;
+                          return BarChartRodData(
+                            toY: y,
+                            width: width,
+                            color: widget.barColor?.call(i, c) ?? s.colorOf(c),
+                            // 위 두 모서리만 4 — 음수 막대는 아래 두 모서리
+                            borderRadius: y == 0
+                                ? BorderRadius.zero
+                                : y > 0
+                                ? const BorderRadius.vertical(
+                                    top: Radius.circular(kChartBarRadius),
+                                  )
+                                : const BorderRadius.vertical(
+                                    bottom: Radius.circular(kChartBarRadius),
+                                  ),
+                          );
+                        }(),
+                    ],
             ),
         ],
         gridData: _grid(c),
