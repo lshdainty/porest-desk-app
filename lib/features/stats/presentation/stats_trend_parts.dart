@@ -181,7 +181,7 @@ class StatsSavingsRateSection extends StatelessWidget {
                     const SizedBox(height: PSpacing.x3),
                     const PSkeleton(
                       width: double.infinity,
-                      height: 8,
+                      height: PSpacing.x2,
                       radius: PSkeletonRadius.full,
                     ),
                   ],
@@ -262,7 +262,7 @@ class StatsSavingsRateSection extends StatelessWidget {
         // 장식 막대 — 값은 아래 글이 말한다
         ExcludeSemantics(
           child: SizedBox(
-            height: 8,
+            height: PSpacing.x2,
             child: Row(
               spacing: PSpacing.x0_5,
               children: [
@@ -303,8 +303,8 @@ class StatsSavingsRateSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 8,
-                      height: 8,
+                      width: PSpacing.x2,
+                      height: PSpacing.x2,
                       decoration: BoxDecoration(
                         color: r.dot,
                         shape: BoxShape.circle,
@@ -609,8 +609,8 @@ class StatsCatTrendSection extends StatelessWidget {
                 spacing: PSpacing.x1_5,
                 children: [
                   Container(
-                    width: 8,
-                    height: 8,
+                    width: PSpacing.x2,
+                    height: PSpacing.x2,
                     decoration: BoxDecoration(
                       color: t.color.of(c),
                       shape: BoxShape.circle,

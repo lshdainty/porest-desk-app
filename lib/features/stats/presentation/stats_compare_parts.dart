@@ -72,7 +72,7 @@ class _CompareBar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(PRounded.full),
         child: SizedBox(
-          height: 8,
+          height: PSpacing.x2,
           child: Align(
             alignment: Alignment.centerLeft,
             child: FractionallySizedBox(
@@ -171,13 +171,13 @@ class StatsCompareSummarySection extends StatelessWidget {
           const SizedBox(height: PSpacing.x4),
           const PSkeleton(
             width: double.infinity,
-            height: 8,
+            height: PSpacing.x2,
             radius: PSkeletonRadius.full,
           ),
           const SizedBox(height: PSpacing.x2_5),
           const PSkeleton(
             width: double.infinity,
-            height: 8,
+            height: PSpacing.x2,
             radius: PSkeletonRadius.full,
           ),
         ],
@@ -376,8 +376,8 @@ class StatsCompareCategorySection extends StatelessWidget {
                 spacing: PSpacing.x3,
                 children: [
                   const PSkeleton(
-                    width: 40,
-                    height: 40,
+                    width: PSpacing.x10,
+                    height: PSpacing.x10,
                     radius: PSkeletonRadius.r12,
                   ),
                   Expanded(

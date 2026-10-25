@@ -216,7 +216,7 @@ class StatsDecoBar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(PRounded.full),
         child: SizedBox(
-          height: 8,
+          height: PSpacing.x2,
           child: ColoredBox(
             color: c.bgNeutralWeak,
             child: LayoutBuilder(
@@ -226,7 +226,7 @@ class StatsDecoBar extends StatelessWidget {
                     if (s.ratio > 0)
                       SizedBox(
                         width: constraints.maxWidth * s.ratio.clamp(0.0, 1.0),
-                        height: 8,
+                        height: PSpacing.x2,
                         child: ColoredBox(color: s.color),
                       ),
                 ],
@@ -526,7 +526,7 @@ class StatsMerchantsSection extends StatelessWidget {
                       ),
                       const PSkeleton(
                         width: double.infinity,
-                        height: 8,
+                        height: PSpacing.x2,
                         radius: PSkeletonRadius.full,
                       ),
                     ],
@@ -702,7 +702,7 @@ class StatsHeatmapSection extends StatelessWidget {
                   for (var i = 0; i < kHeatMix.length; i++)
                     Container(
                       width: PSpacing.x4,
-                      height: 10,
+                      height: PSpacing.x2_5,
                       decoration: BoxDecoration(
                         color: heatStepColor(c, i),
                         borderRadius: BorderRadius.circular(PRounded.r1),
@@ -809,7 +809,11 @@ class StatsHighlightsSection extends StatelessWidget {
       child: Row(
         spacing: PSpacing.x3,
         children: [
-          const PSkeleton(width: 40, height: 40, radius: PSkeletonRadius.r12),
+          const PSkeleton(
+            width: PSpacing.x10,
+            height: PSpacing.x10,
+            radius: PSkeletonRadius.r12,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

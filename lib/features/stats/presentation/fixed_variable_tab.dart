@@ -153,8 +153,8 @@ class _Swatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: Container(
-      width: 10,
-      height: 10,
+      width: PSpacing.x2_5,
+      height: PSpacing.x2_5,
       decoration: BoxDecoration(
         color: color.of(context.colors),
         borderRadius: BorderRadius.circular(2),
@@ -193,7 +193,7 @@ class _Overview extends StatelessWidget {
         children: const [
           PSkeleton(
             width: double.infinity,
-            height: 28,
+            height: PSpacing.x7,
             radius: PSkeletonRadius.r8,
           ),
           SizedBox(height: PSpacing.x4),
@@ -354,7 +354,7 @@ class _RatioBar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(PRounded.r2),
         child: SizedBox(
-          height: 28,
+          height: PSpacing.x7,
           child: ColoredBox(
             color: c.bgNeutralWeak,
             child: Row(
