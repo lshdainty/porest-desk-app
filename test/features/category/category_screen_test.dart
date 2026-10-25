@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
@@ -12,6 +13,10 @@ import 'package:groo_damda_app/features/category/presentation/category_screen.da
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/data/expense_repository.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
+import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/budget/domain/budget.dart';
+import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
+import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/features/recurring/application/recurring_providers.dart';
 import 'package:groo_damda_app/features/recurring/domain/recurring_transaction.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -140,6 +145,7 @@ Future<_FakeRepo> _open(
   List<RecurringTransaction>? recurring,
   double scale = 1,
   Future<List<ExpenseCategory>> Function()? loader,
+  List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(360 * 3, 780 * 3);
   tester.view.devicePixelRatio = 3.0;
@@ -155,6 +161,7 @@ Future<_FakeRepo> _open(
         recurringListProvider.overrideWith(
           (ref) async => recurring ?? <RecurringTransaction>[],
         ),
+        ...extra,
       ],
       child: MaterialApp(
         theme: GrooTheme.light(),
@@ -596,5 +603,63 @@ void main() {
     expect(tester.takeException(), isNull);
     await _openEditOf(tester, '카페·간식·디저트 모임');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('하위를 예산이 걸린 다른 부모로 옮기면 넘음 확인 — 버튼 "옮기기" · 취소하면 요청 없음', (
+    tester,
+  ) async {
+    final repo = await _open(
+      tester,
+      extra: [
+        monthBudgetsProvider.overrideWith(
+          (ref, key) async => [
+            Budget(
+              rowId: 1,
+              categoryRowId: 4,
+              budgetAmount: 100,
+              budgetYear: key.year,
+              budgetMonth: key.month,
+            ),
+          ],
+        ),
+        rangeSummaryProvider.overrideWith(
+          (ref, range) async => RangeSummary(
+            startDate: range.startDate,
+            endDate: range.endDate,
+            categoryBreakdown: const [
+              CategoryBreakdown(categoryRowId: 4, totalAmount: 90),
+              CategoryBreakdown(
+                categoryRowId: 2,
+                parentCategoryRowId: 1,
+                totalAmount: 50,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    await _openEditOf(tester, '점심');
+    await tester.tap(_t('상위 카테고리'));
+    await tester.pumpAndSettle();
+    await tester.tap(_t('교통').last);
+    await tester.pumpAndSettle();
+    await _tapButton(tester, '저장');
+    expect(_t('예산 초과 확인'), findsOneWidget);
+    expect(_t('옮기면 "교통" 예산을 40원 넘어요. 그래도 옮길까요?'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(PButton), matching: _t('옮기기')),
+      findsOneWidget,
+    );
+    await tester.tap(_t('취소'));
+    await tester.pumpAndSettle();
+    expect(repo.calls, isEmpty);
+    // 다시 저장해서 [옮기기] 를 누르면 요청이 나간다
+    await _tapButton(tester, '저장');
+    await tester.tap(
+      find.descendant(of: find.byType(PButton), matching: _t('옮기기')),
+    );
+    await tester.pumpAndSettle();
+    expect(repo.calls.single, startsWith('update:2:점심:'));
+    expect(repo.calls.single, endsWith(':EXPENSE:4'));
   });
 }
