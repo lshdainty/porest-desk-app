@@ -6,7 +6,6 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/amount_input_formatter.dart';
 import 'package:groo_damda_app/core/format/amount_limits.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
-import 'package:groo_damda_app/core/format/color_parse.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
@@ -16,13 +15,12 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
-import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
-import 'package:groo_damda_app/shared/ds/color_swatch/p_color_swatch.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.dart';
 import 'package:groo_damda_app/shared/ds/icon_picker/p_icon_picker.dart';
 import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/forms/color_pick.dart';
 import 'package:groo_damda_app/shared/forms/picker_row.dart';
 
 /// 이름 길이 상한 — 웹 `GOAL_NAME_MAX` · 카테고리와 같은 값(QA #52).
@@ -114,15 +112,15 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
 
     final stored = e?.color?.trim();
     if (stored != null && stored.isNotEmpty) {
-      final key = chartKeyOfHex(stored);
-      if (key == null) {
+      final color = chartColorOfHex(stored);
+      if (color == null) {
         _foreignColor = stored;
         _color = stored;
       } else {
-        _color = _hexOf(PChartColor.values.byName(key));
+        _color = chartHexOf(color);
       }
     } else {
-      _color = _hexOf(_firstUnused());
+      _color = _firstUnused();
     }
     _initialColor = _color;
 
@@ -136,18 +134,10 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   }
 
   /// 같은 목록(저축 목표)이 아직 쓰지 않은 첫 색(v110 배정 순서).
-  PChartColor _firstUnused() {
+  String _firstUnused() {
     final goals = ref.read(savingGoalListProvider).value ?? const [];
-    final used = <PChartColor?>[
-      for (final g in goals)
-        if (chartKeyOfHex(g.color) != null)
-          PChartColor.values.byName(chartKeyOfHex(g.color)!),
-    ];
-    return pFirstUnusedColor(used);
+    return firstUnusedHex([for (final g in goals) g.color]);
   }
-
-  static String _hexOf(PChartColor c) =>
-      kChartPairs.firstWhere((p) => p.key == c.name).baseHex;
 
   @override
   void dispose() {
@@ -178,13 +168,6 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
       return DateFormat.yMMMd('en').format(d);
     }
     return '${d.year}년 ${d.month}월 ${d.day}일';
-  }
-
-  PColorSwatchValue get _swatchValue {
-    final key = chartKeyOfHex(_color);
-    return key == null
-        ? const PColorSwatchValue.current()
-        : PColorSwatchValue.color(PChartColor.values.byName(key));
   }
 
   Future<void> _pickDate() async {
@@ -235,37 +218,14 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
 
   Future<void> _pickColor() async {
     FocusScope.of(context).unfocus();
-    final picked = await PBottomSheet.show<PColorSwatchValue>(
+    final picked = await showColorPickSheet(
       context,
-      builder: (sheetContext) {
-        final l = AppLocalizations.of(sheetContext);
-        return PBottomSheetContent(
-          title: l.savingGoalColorLabel,
-          closeLabel: l.actionClose,
-          body: Padding(
-            padding: const EdgeInsets.only(bottom: PSpacing.x4),
-            child: PColorSwatchGroup(
-              value: _swatchValue,
-              semanticLabel: l.savingGoalColorLabel,
-              currentColor: _foreignColor == null
-                  ? null
-                  : parseColor(
-                      _foreignColor,
-                      fallback: const Color(0xFF9E9E9E),
-                    ),
-              onChanged: (v) => PBottomSheet.of(sheetContext).close(v),
-            ),
-          ),
-        );
-      },
+      title: AppLocalizations.of(context).savingGoalColorLabel,
+      hex: _color,
+      foreignHex: _foreignColor,
     );
     if (picked == null || !mounted) return;
-    setState(() {
-      // 지금 색 칸을 고르면 저장된 값을 그대로 둔다 — 몰래 바꾸지 않는다.
-      _color = picked.isCurrent
-          ? (_foreignColor ?? _color)
-          : _hexOf(picked.color!);
-    });
+    setState(() => _color = picked);
   }
 
   Future<void> _onSubmit() async {
@@ -354,11 +314,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    final names = pColorSwatchNamesOf(context);
-    final colorKey = chartKeyOfHex(_color);
-    final colorName = colorKey == null
-        ? l.dsColorCurrent
-        : names[PChartColor.values.byName(colorKey)]!;
+    final colorName = colorPickName(context, _color);
     final iconEntry = findCategoryIcon(_icon);
     final iconName =
         iconEntry?.name ?? PIconPickerTexts.of(context).currentIconName;
