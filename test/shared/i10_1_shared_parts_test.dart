@@ -13,6 +13,7 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_head
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
 import 'package:groo_damda_app/shared/ds/tag_group/p_tag_group.dart';
 import 'package:groo_damda_app/shared/forms/form_delete_footer.dart';
@@ -228,4 +229,49 @@ void main() {
       );
     },
   );
+
+  testWidgets('PList 제목 색 — 바뀌면 150ms 로 옮겨 가고, 모션 줄이기면 바로 바뀐다', (tester) async {
+    final off = ValueNotifier<bool>(false);
+    Future<void> pumpRow({bool reduce = false}) => pumpApp(
+      tester,
+      Scaffold(
+        body: ValueListenableBuilder<bool>(
+          valueListenable: off,
+          builder: (context, v, _) => PList(
+            children: [
+              PListItem(
+                title: '제목',
+                titleColor: v ? context.colors.fgDisabled : null,
+                titleStrike: v,
+              ),
+            ],
+          ),
+        ),
+      ),
+      disableAnimations: reduce,
+    );
+    await pumpRow();
+    final c = tester.element(find.byType(PList)).colors;
+    Color color() => tester.widget<Text>(findPlain('제목')).style!.color!;
+    expect(color(), c.fgNeutral);
+    off.value = true;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    expect(color(), isNot(c.fgNeutral));
+    expect(color(), isNot(c.fgDisabled));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(color(), c.fgDisabled);
+    // 취소선은 색과 달리 옮겨 가지 않는다(바로)
+    expect(
+      tester.widget<Text>(findPlain('제목')).style!.decoration,
+      TextDecoration.lineThrough,
+    );
+
+    off.value = false;
+    await pumpRow(reduce: true);
+    expect(color(), c.fgNeutral);
+    off.value = true;
+    await tester.pump();
+    expect(color(), c.fgDisabled, reason: '모션 줄이기');
+  });
 }
