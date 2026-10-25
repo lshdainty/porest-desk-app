@@ -14215,6 +14215,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'이름을 입력해주세요.'**
   String get ttagNameRequired;
+
+  /// No description provided for @ttagNameTooLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름은 12자 이내로 입력해주세요.'**
+  String get ttagNameTooLong;
+
+  /// No description provided for @ttagNameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 이름의 태그가 이미 있어요.'**
+  String get ttagNameDuplicate;
 }
 
 class _AppLocalizationsDelegate

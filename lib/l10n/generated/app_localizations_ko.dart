@@ -7885,4 +7885,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ttagNameRequired => '이름을 입력해주세요.';
+
+  @override
+  String get ttagNameTooLong => '이름은 12자 이내로 입력해주세요.';
+
+  @override
+  String get ttagNameDuplicate => '같은 이름의 태그가 이미 있어요.';
 }

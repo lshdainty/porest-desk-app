@@ -23,6 +23,7 @@ import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/forms/form_delete_footer.dart';
+import 'package:groo_damda_app/shared/forms/name_policy.dart';
 import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
 
 /// 할 일 태그 관리(I-10 5A) — 설정 하위 풀스크린 화면. **흰 면 하나**: 안내(Callout · 흰 면 위 예외) · 목록 제목 "할 일 태그 · N" +
@@ -159,7 +160,11 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _openEdit(TodoTag? tag) async {
-    final result = await showTodoTagEditSheet(context, tag: tag);
+    final result = await showTodoTagEditSheet(
+      context,
+      tag: tag,
+      existing: ref.read(todoTagListProvider).value ?? const [],
+    );
     switch (result) {
       case TodoTagSaved(:final name, :final color):
         await _save(tag, name, color);
@@ -354,9 +359,12 @@ class TodoTagDeleteRequested extends TodoTagEditResult {
 
 /// 태그 편집 시트(I-10 37) — ds Bottom Sheet 입력 폼. 바깥 · 끌기로 닫히지 않고, 바뀐 값이 있으면 닫기 전에 묻는다.
 /// 미리보기 카드 · 이름 · 색 고르기는 그대로고 표면만 ds 다. 바닥은 새 태그면 [추가] 하나, 수정이면 왼쪽 [삭제] + [저장].
+///
+/// 이름은 12자까지이고 같은 이름이 있으면 칸 아래에 오류가 선다 — [existing] 은 지금 있는 태그들이다(웹 `TagEditDialog` 와 같은 규칙 · 글).
 Future<TodoTagEditResult?> showTodoTagEditSheet(
   BuildContext context, {
   TodoTag? tag,
+  List<TodoTag> existing = const [],
 }) {
   final l = AppLocalizations.of(context);
   final probe = _TagDirtyProbe();
@@ -370,7 +378,7 @@ Future<TodoTagEditResult?> showTodoTagEditSheet(
       stayLabel: l.sheetLeaveStay,
       leaveLabel: l.sheetLeaveLeave,
     ),
-    builder: (_) => _TagEditSheet(tag: tag, probe: probe),
+    builder: (_) => _TagEditSheet(tag: tag, existing: existing, probe: probe),
   );
 }
 
@@ -379,8 +387,9 @@ class _TagDirtyProbe {
 }
 
 class _TagEditSheet extends StatefulWidget {
-  const _TagEditSheet({this.tag, required this.probe});
+  const _TagEditSheet({this.tag, required this.existing, required this.probe});
   final TodoTag? tag;
+  final List<TodoTag> existing;
   final _TagDirtyProbe probe;
 
   @override
@@ -393,7 +402,24 @@ class _TagEditSheetState extends State<_TagEditSheet> {
   late final String _initialName;
   late final String _initialColor;
   late String _color;
-  String? _nameError;
+  bool _touched = false;
+
+  /// 이름 이름표 길이 상한 — 웹과 같다.
+  static const int _nameMax = 12;
+
+  NameIssue? get _issue => nameIssue(_nameCtrl.text, _nameMax, [
+    for (final t in widget.existing)
+      if (t.rowId != widget.tag?.rowId) t.tagName,
+  ]);
+
+  String? _errorOf(AppLocalizations l) => !_touched
+      ? null
+      : switch (_issue) {
+          NameIssue.required => l.ttagNameRequired,
+          NameIssue.tooLong => l.ttagNameTooLong,
+          NameIssue.duplicate => l.ttagNameDuplicate,
+          null => null,
+        };
 
   bool get _isEdit => widget.tag != null;
 
@@ -418,14 +444,14 @@ class _TagEditSheetState extends State<_TagEditSheet> {
   }
 
   void _save() {
-    final l = AppLocalizations.of(context);
-    final name = _nameCtrl.text.trim();
-    if (name.isEmpty) {
-      setState(() => _nameError = l.ttagNameRequired);
+    setState(() => _touched = true);
+    if (_issue != null) {
       _nameFocus.requestFocus();
       return;
     }
-    PBottomSheet.of(context).close(TodoTagSaved(name: name, color: _color));
+    PBottomSheet.of(
+      context,
+    ).close(TodoTagSaved(name: _nameCtrl.text.trim(), color: _color));
   }
 
   @override
@@ -434,6 +460,7 @@ class _TagEditSheetState extends State<_TagEditSheet> {
     final l = AppLocalizations.of(context);
     final swatch = resolveChartColor(context, _color, fallback: c.fgBrand);
     final preview = _nameCtrl.text.trim();
+    final nameError = _errorOf(l);
     final save = PButton(
       label: _isEdit ? l.actionSave : l.calAdd,
       size: PButtonSize.large,
@@ -502,13 +529,15 @@ class _TagEditSheetState extends State<_TagEditSheet> {
             label: l.ttagNameLabel,
             indicator: PFieldIndicator.required,
             required: true,
-            invalid: _nameError != null,
-            errorMessage: _nameError,
+            maxGraphemeCount: _nameMax,
+            invalid: nameError != null,
+            errorMessage: nameError,
             child: PInput(
               controller: _nameCtrl,
               focusNode: _nameFocus,
               placeholder: l.todoTagNamePlaceholder,
-              onChanged: (_) => setState(() => _nameError = null),
+              // 웹처럼 치기 시작하면 바로 검사한다(touched)
+              onChanged: (_) => setState(() => _touched = true),
             ),
           ),
           PField(

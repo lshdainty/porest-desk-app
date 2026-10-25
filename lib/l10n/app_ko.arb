@@ -4715,5 +4715,7 @@
   "ttagEmptyHint": "{label} 버튼으로 첫 태그를 만들어보세요.",
   "@ttagEmptyHint": {"placeholders": {"label": {"type": "String"}}},
   "todoDueClear": "마감일 지우기",
-  "ttagNameRequired": "이름을 입력해주세요."
+  "ttagNameRequired": "이름을 입력해주세요.",
+  "ttagNameTooLong": "이름은 12자 이내로 입력해주세요.",
+  "ttagNameDuplicate": "같은 이름의 태그가 이미 있어요."
 }

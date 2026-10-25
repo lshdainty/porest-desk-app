@@ -325,6 +325,94 @@ void main() {
     });
   });
 
+  group('이름 12자 · 겹침 검사 (웹과 같은 규칙 · 글)', () {
+    testWidgets('같은 이름이면 칸 아래 오류가 서고 저장하지 않는다', (tester) async {
+      final repo = _Repo();
+      await pumpApp(
+        tester,
+        const TodoTagManagementScreen(),
+        overrides: [..._overrides(repo)].cast(),
+      );
+      await tester.tap(find.text('태그 추가'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(PInput).first, '업무');
+      await tester.pumpAndSettle();
+      expect(find.text('같은 이름의 태그가 이미 있어요.'), findsOneWidget);
+      await tester.tap(_button('추가'));
+      await tester.pumpAndSettle();
+      expect(repo.saved, isEmpty);
+      expect(find.text('같은 이름의 태그가 이미 있어요.'), findsOneWidget);
+    });
+
+    testWidgets('고칠 때 자기 이름은 겹침이 아니다', (tester) async {
+      final repo = _Repo();
+      await pumpApp(
+        tester,
+        const TodoTagManagementScreen(),
+        overrides: [..._overrides(repo)].cast(),
+      );
+      await tester.tap(_tagRow('업무'));
+      await tester.pumpAndSettle();
+      await tester.tap(_button('저장'));
+      await tester.pumpAndSettle();
+      expect(repo.saved.single.id, 1);
+      expect(repo.saved.single.name, '업무');
+    });
+
+    testWidgets('12자 넘는 옛 이름은 저장이 막히고 "이름은 12자 이내로 입력해주세요." 가 선다', (
+      tester,
+    ) async {
+      final repo = _Repo();
+      await pumpApp(
+        tester,
+        const TodoTagManagementScreen(),
+        overrides: [
+          ..._overrides(repo, tags: [tagOf(1, '아주아주긴옛태그이름열세자', usage: 2)]),
+        ].cast(),
+      );
+      await tester.tap(_tagRow('아주아주긴옛태그이름열세자'));
+      await tester.pumpAndSettle();
+      await tester.tap(_button('저장'));
+      await tester.pumpAndSettle();
+      expect(repo.saved, isEmpty);
+      expect(find.text('이름은 12자 이내로 입력해주세요.'), findsOneWidget);
+    });
+
+    testWidgets('입력은 12자에서 멈추고 칸 아래에 n/12 가 보인다', (tester) async {
+      await pumpApp(
+        tester,
+        const TodoTagManagementScreen(),
+        overrides: [..._overrides(_Repo())].cast(),
+      );
+      await tester.tap(find.text('태그 추가'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(PInput).first, '가나다라마바사아자차카타파하');
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<PInput>(find.byType(PInput).first)
+            .controller!
+            .text
+            .length,
+        12,
+      );
+      expect(find.text('12/12'), findsOneWidget);
+    });
+
+    testWidgets('이름이 비면 "이름을 입력해주세요." — 서버 원문은 없다', (tester) async {
+      await pumpApp(
+        tester,
+        const TodoTagManagementScreen(),
+        overrides: [..._overrides(_Repo())].cast(),
+      );
+      await tester.tap(find.text('태그 추가'));
+      await tester.pumpAndSettle();
+      await tester.tap(_button('추가'));
+      await tester.pumpAndSettle();
+      expect(find.text('이름을 입력해주세요.'), findsOneWidget);
+    });
+  });
+
   for (final scale in [1.0, 2.0]) {
     for (final dark in [false, true]) {
       testWidgets('x$scale ${dark ? "다크" : "라이트"} — 가장 나쁜 값에서 넘침 오류 0', (

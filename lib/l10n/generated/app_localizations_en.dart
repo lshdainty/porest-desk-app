@@ -8062,4 +8062,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttagNameRequired => 'Please enter a name.';
+
+  @override
+  String get ttagNameTooLong => 'Keep the name under 12 characters.';
+
+  @override
+  String get ttagNameDuplicate => 'A tag with that name already exists.';
 }

@@ -4452,5 +4452,7 @@
   "ttagEmptyHint": "Create your first tag with {label}.",
   "@ttagEmptyHint": {"placeholders": {"label": {"type": "String"}}},
   "todoDueClear": "Clear due date",
-  "ttagNameRequired": "Please enter a name."
+  "ttagNameRequired": "Please enter a name.",
+  "ttagNameTooLong": "Keep the name under 12 characters.",
+  "ttagNameDuplicate": "A tag with that name already exists."
 }
