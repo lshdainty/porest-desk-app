@@ -26,6 +26,7 @@ import 'package:groo_damda_app/shared/ds/list/p_list_parent_item.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
@@ -266,10 +267,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         : allCats
               .where((e) => (e.expenseType ?? 'EXPENSE') == _kindValues[i])
               .length;
-    String tabLabel(int i) {
-      final name = i == 0 ? l.expTypeExpense : l.expTypeIncome;
-      return allCats == null ? name : '$name ${countOf(i)}';
-    }
+    // 탭 글은 이름만 — 개수는 바로 아래 목록 제목이 말한다(tabs.md)
+    String tabLabel(int i) => i == 0 ? l.expTypeExpense : l.expTypeIncome;
 
     final Widget body;
     if (allCats != null) {
@@ -354,7 +353,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   PSpacing.x2,
                 ),
                 child: Text(
-                  l.categoryReorderHint,
+                  keepAll(l.categoryReorderHint),
+                  semanticsLabel: l.categoryReorderHint,
                   style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
                 ),
               )
@@ -557,7 +557,10 @@ class _CategoryList extends StatelessWidget {
             collapsible: false,
             title: e.parent.categoryName,
             prefix: categoryTile(ctx, e.parent),
+            // 누름만 막는다 — 글 · 타일은 보통 색(막힌 줄의 비활성 색이 아니다)
+            readOnly: true,
             onTap: null,
+            endInset: _kGripEndInset,
             suffix: _Grip(index: pi, name: e.parent.categoryName),
             children: [
               if (e.children.isNotEmpty)
@@ -576,6 +579,7 @@ class _CategoryList extends StatelessWidget {
                         key: ValueKey('c-${c.rowId}'),
                         title: c.categoryName,
                         prefix: categoryTile(ctx, c),
+                        endInset: _kGripEndInset,
                         suffix: _Grip(index: ci, name: c.categoryName),
                       );
                     },
@@ -589,6 +593,9 @@ class _CategoryList extends StatelessWidget {
   ];
 }
 
+/// 손잡이가 줄 끝에서 안쪽으로 서는 거리 — 줄 끝 여백 24 중 12 를 단추가 쓴다(웹 `-mr-x3`).
+const double _kGripEndInset = PSpacing.x3;
+
 /// 끄는 손잡이 — grip-vertical 20 · `fg-neutral-subtle` · 누르는 44 · 이름 "{이름} 순서 바꾸기". 줄 끝에서 12 안쪽에 선다.
 class _Grip extends StatelessWidget {
   const _Grip({required this.index, required this.name});
@@ -600,17 +607,13 @@ class _Grip extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return ReorderableDragStartListener(
       index: index,
-      child: Transform.translate(
-        // 줄 끝 여백 24 중 12 를 단추가 쓴다(웹 -mr-x3)
-        offset: const Offset(PSpacing.x3, 0),
-        child: PButton.icon(
-          icon: LucideIcons.gripVertical,
-          semanticLabel: l.categoryDragReorderOf(name),
-          variant: PButtonVariant.ghost,
-          ghostColor: PButtonGhostColor.neutralSubtle,
-          size: PButtonSize.medium,
-          onPressed: () {},
-        ),
+      child: PButton.icon(
+        icon: LucideIcons.gripVertical,
+        semanticLabel: l.categoryDragReorderOf(name),
+        variant: PButtonVariant.ghost,
+        ghostColor: PButtonGhostColor.neutralSubtle,
+        size: PButtonSize.medium,
+        onPressed: () {},
       ),
     );
   }

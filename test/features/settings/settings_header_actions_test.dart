@@ -22,6 +22,7 @@ import 'package:groo_damda_app/features/recurring/domain/recurring_transaction.d
 import 'package:groo_damda_app/features/recurring/presentation/recurring_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
@@ -128,7 +129,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.textContaining('손잡이를 끌어'),
+      find.textContaining(keepAll('손잡이를 끌어')),
       findsOneWidget,
       reason: '편집 모드 안내 줄',
     );

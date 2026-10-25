@@ -22,7 +22,11 @@ import 'package:groo_damda_app/features/recurring/domain/recurring_transaction.d
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_parent_item.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import '../../support/line_breaks.dart';
 
 class _FakeRepo extends ExpenseRepository {
   _FakeRepo() : super(Dio());
@@ -209,8 +213,12 @@ String? _focusLabel() => FocusManager.instance.primaryFocus?.debugLabel;
 void main() {
   testWidgets('목록 — 탭 개수 · 목록 제목 · 줄 어디에도 ⋮ 가 없고 꺾쇠 단추 이름은 고정', (tester) async {
     await _open(tester);
-    expect(_t('지출 5'), findsOneWidget);
-    expect(_t('수입 1'), findsOneWidget);
+    // 탭 글은 이름만 — 개수는 목록 제목이 말한다
+    final tabs = find.byType(PTabs<int>);
+    expect(find.descendant(of: tabs, matching: _t('지출')), findsOneWidget);
+    expect(find.descendant(of: tabs, matching: _t('수입')), findsOneWidget);
+    expect(_t('지출 5'), findsNothing);
+    expect(_t('수입 1'), findsNothing);
     expect(_t('지출 카테고리 5개'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('더보기')), findsNothing);
     expect(find.bySemanticsLabel('식비 하위 카테고리'), findsOneWidget);
@@ -661,5 +669,91 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.calls.single, startsWith('update:2:점심:'));
     expect(repo.calls.single, endsWith(':EXPENSE:4'));
+  });
+
+  testWidgets('순서 모드 — 부모 줄 글 · 타일은 보기 줄과 같은 색, 누름만 막힌다', (tester) async {
+    await _open(tester);
+    Color titleColor(String name) => tester
+        .widget<Text>(
+          find
+              .descendant(
+                of: find.ancestor(
+                  of: _t(name),
+                  matching: find.byType(PListParentItem),
+                ),
+                matching: find.byKey(const ValueKey('plist-title')),
+              )
+              .first,
+        )
+        .style!
+        .color!;
+    Color tileBg(String name) =>
+        tester
+                .widget<DecoratedBox>(
+                  find
+                      .descendant(
+                        of: find.ancestor(
+                          of: _t(name),
+                          matching: find.byType(PListParentItem),
+                        ),
+                        matching: find.byKey(const ValueKey('plist-tile')),
+                      )
+                      .first,
+                )
+                .decoration
+                .runtimeType ==
+            BoxDecoration
+        ? (tester
+                      .widget<DecoratedBox>(
+                        find
+                            .descendant(
+                              of: find.ancestor(
+                                of: _t(name),
+                                matching: find.byType(PListParentItem),
+                              ),
+                              matching: find.byKey(
+                                const ValueKey('plist-tile'),
+                              ),
+                            )
+                            .first,
+                      )
+                      .decoration
+                  as BoxDecoration)
+              .color!
+        : Colors.transparent;
+    final viewTitle = titleColor('교통');
+    final viewTile = tileBg('교통');
+    await tester.tap(_t('순서 바꾸기'));
+    await tester.pumpAndSettle();
+    expect(titleColor('교통'), viewTitle);
+    expect(tileBg('교통'), viewTile);
+    // 누르면 수정 시트가 열리지 않는다
+    await tester.tap(_t('교통'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(_t('카테고리 수정'), findsNothing);
+  });
+
+  testWidgets('순서 모드 — 손잡이는 줄 끝에서 12 안쪽(부모 · 하위 같음)', (tester) async {
+    await _open(tester);
+    await tester.tap(_t('순서 바꾸기'));
+    await tester.pumpAndSettle();
+    for (final name in ['식비', '점심']) {
+      final grip = tester.getRect(find.bySemanticsLabel('$name 순서 바꾸기'));
+      // 보이는 단추 40 의 오른쪽 끝 = 360 − 12 (누르는 영역 44 는 사방 2 넓다)
+      expect(grip.right, anyOf(360 - 12, 360 - 12 + 2), reason: name);
+    }
+  });
+
+  testWidgets('순서 모드 안내 줄은 낱말 단위로 줄을 바꾼다 — 글자 200% 에서도 낱말 중간 줄바꿈 0', (
+    tester,
+  ) async {
+    await _open(tester, scale: 2);
+    await tester.tap(_t('순서 바꾸기'));
+    await tester.pumpAndSettle();
+    final hint = find.text(
+      keepAll('손잡이를 끌어 순서를 바꿔요. 상위는 상위끼리, 하위는 같은 상위 안에서 옮겨요.'),
+    );
+    expect(hint, findsOneWidget);
+    expect(midWordBreaks(tester, hint), isEmpty);
   });
 }
