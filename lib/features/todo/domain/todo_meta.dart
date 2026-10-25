@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
-import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
 /// 할일 화면/다이얼로그 공유 메타 — 태그 묶음 키, 우선순위 색/라벨, 상대시간·overdue.
@@ -104,27 +103,4 @@ DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 bool isTodoOverdue(DateTime? due, DateTime today) {
   if (due == null) return false;
   return dateOnly(due).isBefore(dateOnly(today));
-}
-
-/// 상대시간 — 오늘/내일/어제/N일 후/N일 전(±7), 그 외 'M월 D일'.
-/// 웹 `lifeRelativeDate` 미러. [l] 로케일 라우팅(ko 회귀 0, en 은 date.dart 스켈레톤).
-String todoRelativeDate(AppLocalizations l, DateTime? due, DateTime today) {
-  if (due == null) return l.todoNoDue;
-  final d = dateOnly(due);
-  final base = dateOnly(today);
-  final diff = d.difference(base).inDays;
-  if (diff == 0) return l.dateToday;
-  if (diff == 1) return l.dateTomorrow;
-  if (diff == -1) return l.dateYesterday;
-  if (diff > 1 && diff <= 7) return l.dateInDays(diff);
-  if (diff < -1 && diff >= -7) return l.dateDaysAgo(-diff);
-  return formatDay(d).md;
-}
-
-/// 그룹 헤더 라벨 — '5월 19일 (월) · N건'.
-/// 상대날짜·M월D일·요일·건을 한 함수에서 통째 처리(부분전환 시 en 혼용 방지). [l] 로케일 라우팅.
-String todoGroupLabel(AppLocalizations l, DateTime? due, int count) {
-  if (due == null) return l.todoGroupLabel(l.todoNoDue, count);
-  final day = formatDay(dateOnly(due));
-  return l.todoGroupLabel('${day.md} (${day.dow})', count);
 }

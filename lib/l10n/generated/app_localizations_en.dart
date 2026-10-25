@@ -8056,4 +8056,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String ttagEmptyHint(String label) {
     return 'Create your first tag with $label.';
   }
+
+  @override
+  String get todoDueClear => 'Clear due date';
+
+  @override
+  String get ttagNameRequired => 'Please enter a name.';
 }

@@ -14203,6 +14203,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{label} 버튼으로 첫 태그를 만들어보세요.'**
   String ttagEmptyHint(String label);
+
+  /// No description provided for @todoDueClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감일 지우기'**
+  String get todoDueClear;
+
+  /// No description provided for @ttagNameRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름을 입력해주세요.'**
+  String get ttagNameRequired;
 }
 
 class _AppLocalizationsDelegate

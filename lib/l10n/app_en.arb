@@ -4450,5 +4450,7 @@
   "todoDueDatePlaceholder": "Select due date",
   "todoTagEmptyHint": "Create tags in Settings › Todo tags.",
   "ttagEmptyHint": "Create your first tag with {label}.",
-  "@ttagEmptyHint": {"placeholders": {"label": {"type": "String"}}}
+  "@ttagEmptyHint": {"placeholders": {"label": {"type": "String"}}},
+  "todoDueClear": "Clear due date",
+  "ttagNameRequired": "Please enter a name."
 }

@@ -7879,4 +7879,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String ttagEmptyHint(String label) {
     return '$label 버튼으로 첫 태그를 만들어보세요.';
   }
+
+  @override
+  String get todoDueClear => '마감일 지우기';
+
+  @override
+  String get ttagNameRequired => '이름을 입력해주세요.';
 }

@@ -4713,5 +4713,7 @@
   "todoDueDatePlaceholder": "마감일 선택",
   "todoTagEmptyHint": "태그는 설정 › 할 일 태그에서 만들어요.",
   "ttagEmptyHint": "{label} 버튼으로 첫 태그를 만들어보세요.",
-  "@ttagEmptyHint": {"placeholders": {"label": {"type": "String"}}}
+  "@ttagEmptyHint": {"placeholders": {"label": {"type": "String"}}},
+  "todoDueClear": "마감일 지우기",
+  "ttagNameRequired": "이름을 입력해주세요."
 }
