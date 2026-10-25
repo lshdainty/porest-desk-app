@@ -74,7 +74,8 @@ class StatsPeriodButton extends StatelessWidget {
       onTap: onPressed,
       excludeSemantics: true,
       child: PButton(
-        label: text,
+        label: period.buttonLabel(),
+        labelLines: period.spansYears ? 2 : 1,
         variant: PButtonVariant.neutralOutline,
         size: PButtonSize.small,
         suffixIcon: LucideIcons.chevronDown,

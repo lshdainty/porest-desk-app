@@ -30,6 +30,7 @@ import 'package:groo_damda_app/features/stats/presentation/stats_trend_parts.dar
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
+import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 
@@ -168,6 +169,62 @@ void main() {
       expect(b.size, PButtonSize.small);
       expect(b.prefixIcon, isNull);
       expect(b.suffixIcon, LucideIcons.chevronDown);
+    });
+  });
+
+  group('기간 버튼 — 다른 해 직접 기간은 ~ 뒤 두 줄', () {
+    Future<void> pumpButton(
+      WidgetTester tester,
+      StatsPeriod p, {
+      double scale = 1,
+    }) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: GrooTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ko'),
+          builder: (context, c) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(scale)),
+            child: c!,
+          ),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: StatsPeriodButton(period: p, onPressed: () {}),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('다른 해에 걸친 직접 기간은 "~" 뒤에서만 줄이 바뀐 두 줄', (tester) async {
+      final p = StatsPeriod(
+        seg: StatsSeg.custom,
+        from: DateTime(2025, 1, 1),
+        to: DateTime(2026, 3, 31),
+      );
+      await pumpButton(tester, p);
+      expect(tester.takeException(), isNull);
+      final b = tester.widget<PButton>(find.byType(PButton));
+      expect(b.label, '2025-01-01 ~\n2026-03-31');
+      expect(b.labelLines, 2);
+      // 두 줄이라 한 줄 버튼(36)보다 높다
+      expect(tester.getSize(find.byType(PButton)).height, greaterThan(36));
+    });
+
+    testWidgets('같은 해 · 월은 한 줄', (tester) async {
+      await pumpButton(tester, StatsPeriod.thisMonth());
+      final b = tester.widget<PButton>(find.byType(PButton));
+      expect(b.label!.contains('\n'), isFalse);
+      expect(b.labelLines, 1);
+      expect(tester.getSize(find.byType(PButton)).height, closeTo(36, 0.5));
     });
   });
 
@@ -354,6 +411,29 @@ void main() {
   });
 
   group('고정·변동 탭', () {
+    testWidgets('월별 추이의 지출 · 수입 Segmented 는 머리 오른쪽에 있다(제목과 같은 줄)', (
+      tester,
+    ) async {
+      await _pump(tester, tab: StatsTab.fixed, scenario: fx.Scenario.normal);
+      final title = tester.getRect(findPlain('월별 고정·변동 추이'));
+      final seg = tester.getRect(
+        find
+            .byWidgetPredicate(
+              (w) => w.runtimeType.toString().startsWith('PSegmentedControl'),
+            )
+            .first,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (w) => w.runtimeType.toString().startsWith('PSegmentedControl'),
+        ),
+        findsWidgets,
+      );
+      expect(seg.right, closeTo(336, 1), reason: '머리 오른쪽 끝(화면 360 − 24)');
+      expect(seg.width, lessThan(200));
+      expect((seg.center.dy - title.center.dy).abs(), lessThan(20));
+    });
+
     testWidgets('두 계열 색 = 고정 파랑 · 변동 초록, 쌓은 막대 · 지표 타일', (tester) async {
       await _pump(tester, tab: StatsTab.fixed);
       final bar = tester.widget<PBarChart>(find.byType(PBarChart));

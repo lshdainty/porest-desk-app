@@ -114,6 +114,9 @@ class StatsPeriod {
 
   int get days => to.difference(from).inDays + 1;
 
+  /// 기간 버튼 글 — 다른 해에 걸친 직접 기간은 "~" 뒤에서만 줄을 바꾼 두 줄("2025-01-01 ~ ⏎ 2026-03-31").
+  String buttonLabel() => spansYears ? '${ymd(from)} ~\n${ymd(to)}' : label();
+
   String label() {
     switch (seg) {
       case StatsSeg.month:

@@ -34,6 +34,9 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 /// 색만으로 가르지 않는다 — 막대 옆에는 늘 이름과 숫자가 붙는다.
 enum _Kind { expense, income }
 
+/// 월별 추이 머리 오른쪽 Segmented 의 폭(칸 둘) — 폰 360 의 머리 폭 312 에서 제목이 50% 를 지키고도 한 줄에 드는 가장 넓은 값(144 + 간격 8 + 156 ≤ 312).
+const double _kSegmentedWidth = 144;
+
 const _fixedColor = PChartColor.blue;
 const _variableColor = PChartColor.green;
 
@@ -428,7 +431,6 @@ class _MonthlyStackState extends ConsumerState<_MonthlyStack> {
     final l = AppLocalizations.of(context);
     final masked = widget.masked;
     final s = widget.summary;
-    final head = BudgetHead(title: l.statsFixedTrendTitle);
     final segmented = PSegmentedControl<_Kind>(
       value: _kind,
       semanticLabel: l.statsFixedTrendKindAria,
@@ -438,14 +440,15 @@ class _MonthlyStackState extends ConsumerState<_MonthlyStack> {
         PSegmentedItem(value: _Kind.income, label: l.statsFixedKindIncome),
       ],
     );
+    // 머리 오른쪽(지시서 38) — 트랙은 놓인 자리 폭을 채우므로 자리에 폭을 준다. 모자라면 머리 줄이 제목 아래 오른쪽 끝으로 내린다
+    final head = BudgetHead(
+      title: l.statsFixedTrendTitle,
+      trailing: SizedBox(width: _kSegmentedWidth, child: segmented),
+    );
     if (s == null) {
       return statsSection(
         header: head,
-        children: [
-          segmented,
-          const SizedBox(height: PSpacing.x4),
-          const StatsChartSkeleton(height: 200),
-        ],
+        children: [const StatsChartSkeleton(height: 200)],
       );
     }
     // 한 달만 고른 기간이면 막대가 하나뿐이라 의미가 없다 — 그때는 최근 6개월을 보여 준다
@@ -483,17 +486,13 @@ class _MonthlyStackState extends ConsumerState<_MonthlyStack> {
     if (loading) {
       return statsSection(
         header: head,
-        children: [
-          segmented,
-          const SizedBox(height: PSpacing.x4),
-          const StatsChartSkeleton(height: 200),
-        ],
+        children: [const StatsChartSkeleton(height: 200)],
       );
     }
     if (!rows.any((r) => r.total > 0)) {
       return statsSection(
         header: head,
-        children: [segmented, BudgetEmptyLine(l.statsNoTrendData)],
+        children: [BudgetEmptyLine(l.statsNoTrendData)],
       );
     }
     final sumFixed = rows.fold<int>(0, (a, r) => a + r.fixed);
@@ -506,8 +505,6 @@ class _MonthlyStackState extends ConsumerState<_MonthlyStack> {
     return statsSection(
       header: head,
       children: [
-        segmented,
-        const SizedBox(height: PSpacing.x4),
         if (!useRange) ...[
           BudgetDesc(l.statsFixedTrendRecent),
           const SizedBox(height: PSpacing.x2),
