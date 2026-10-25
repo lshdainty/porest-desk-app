@@ -457,15 +457,14 @@ class AssetRow extends StatelessWidget {
                 masked: masked,
               ),
               const SizedBox(height: PSpacing.x2),
-              BudgetBarCaption(
+              _BarCaption(
                 left: masked
                     ? kBudgetMask
                     : '${assetWon(used, false)} / ${assetWon(limit, false)}',
+                // 넘침 글이 없으면 왼쪽 글이 줄 폭을 다 쓴다(빈 오른쪽 칸이 반을 먹지 않는다)
                 right: over
                     ? l.dsProgressOver(assetWon(used - limit, masked))
-                    : '',
-                rightColor: over ? c.fgCritical : null,
-                rightBold: over,
+                    : null,
               ),
             ],
           ),
@@ -772,6 +771,48 @@ class AssetEmpty extends StatelessWidget {
           onPressed: () => context.push('/account-card-manage'),
         ),
       ),
+    );
+  }
+}
+
+/// 막대 아래 한 줄(t3) — 왼쪽 "사용 / 한도", 넘치면 오른쪽 "N원 초과"(fg-critical · 700).
+class _BarCaption extends StatelessWidget {
+  const _BarCaption({required this.left, this.right});
+
+  final String left;
+  final String? right;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final base = PTypography.t3.copyWith(
+      color: c.fgNeutralSubtle,
+      fontFeatures: tabularFigures,
+    );
+    final leftText = Text(
+      keepAllAmount(left),
+      semanticsLabel: left,
+      style: base,
+    );
+    final r = right;
+    if (r == null) return leftText;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Flexible(child: leftText),
+        const SizedBox(width: PSpacing.x2),
+        Flexible(
+          child: Text(
+            keepAllAmount(r),
+            semanticsLabel: r,
+            textAlign: TextAlign.end,
+            style: base.copyWith(
+              color: c.fgCritical,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

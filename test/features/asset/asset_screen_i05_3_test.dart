@@ -320,6 +320,11 @@ void main() {
           reason: '막대 이름 "{카드} 한도 {한도} 중 {사용}"',
         );
         expect(findPlain('7,500,000원 / 10,000,000원'), findsOneWidget);
+        expect(
+          tester.getSize(findPlain('7,500,000원 / 10,000,000원')).height,
+          lessThan(24),
+          reason: '넘치지 않으면 "사용 / 한도" 는 한 줄 — 빈 오른쪽 칸이 폭을 먹지 않는다',
+        );
         handle.dispose();
       },
     );
