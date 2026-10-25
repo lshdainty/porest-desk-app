@@ -201,11 +201,7 @@ class StatsCompareSummarySection extends StatelessWidget {
           delta: hasPrev
               ? PDelta(
                   direction: deltaDirection(diff),
-                  value: statsChangeRate(
-                    totalNow,
-                    totalPrev,
-                    fractionDigits: 1,
-                  ),
+                  value: statsChangeRate(totalNow, totalPrev),
                 )
               : null,
         ),

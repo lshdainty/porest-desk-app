@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
@@ -25,11 +26,9 @@ import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 // 구역 틀은 예산과 같은 `budget_parts.dart`(띠 안 구역 사이 48 · 머리 위 24 · 머리 ↔ 본문 8)를 쓴다.
 // 금액은 원까지, 가리면 점. 눈금 글자만 줄여 쓴다(`formatAxisWon` — ds 기본).
 
-/// 등락 % 를 한 곳에서 만든다 — 05-3(`formatChangeRate`, 소수 둘째 자리)가 머지되면 이 함수 하나만 바꾼다.
-String statsChangeRate(num now, num prev, {int fractionDigits = 0}) {
-  if (prev == 0) return '—';
-  return '${((now - prev).abs() / prev * 100).toStringAsFixed(fractionDigits)}%';
-}
+/// 등락 % 를 한 곳에서 만든다 — 크기만(방향은 옆 ▲ ▼ 가 말한다), 어디서나 소수 둘째 자리(`formatChangeRateAbs`, 사용자 결정 10-25).
+String statsChangeRate(num now, num prev) =>
+    prev == 0 ? '—' : formatChangeRateAbs((now - prev) / prev * 100);
 
 /// 금액 글 — 원까지, 가리면 점.
 String statsWon(int n, bool masked, {String sign = ''}) => n < 0 && sign.isEmpty

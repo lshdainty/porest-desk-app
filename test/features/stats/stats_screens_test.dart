@@ -456,9 +456,11 @@ void main() {
   });
 
   test('등락 % 는 한 곳(statsChangeRate)에서 만든다', () {
-    expect(statsChangeRate(110, 100), '10%');
-    expect(statsChangeRate(90, 100), '10%');
-    expect(statsChangeRate(1234, 1000, fractionDigits: 1), '23.4%');
+    // 소수 둘째 자리(formatChangeRate) — 크기만, 방향은 화살표가 말한다
+    expect(statsChangeRate(110, 100), '10.00%');
+    expect(statsChangeRate(90, 100), '10.00%');
+    expect(statsChangeRate(1234, 1000), '23.40%');
+    expect(statsChangeRate(1000, 1000), '0.00%');
     expect(statsChangeRate(5, 0), '—');
   });
 
