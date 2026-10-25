@@ -172,6 +172,36 @@ void main() {
     });
   });
 
+  testWidgets('Segmented 자리 폭은 글자 배율과 무관하다 — (가장 긴 칸 글 + 24) × 칸 수 + 8', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+    final w = statsSegmentedWidth(['지출', '수입']);
+    // 칸 글 둘이 같은 폭 → 칸 폭 = 글 + 24, 둘 + 8
+    expect((w - 8) / 2, greaterThan(24));
+    expect(statsSegmentedWidth(['지출', '수입']), w);
+    expect(statsSegmentedWidth(['지출', '아주 긴 칸 글']), greaterThan(w));
+    // 배율을 키운 호스트에서도 같다
+    late double scaled;
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: Builder(
+          builder: (context) {
+            scaled = statsSegmentedWidth(['지출', '수입']);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    expect(scaled, w);
+  });
+
   group('기간 버튼 — 다른 해 직접 기간은 ~ 뒤 두 줄', () {
     Future<void> pumpButton(
       WidgetTester tester,
@@ -430,7 +460,9 @@ void main() {
         findsWidgets,
       );
       expect(seg.right, closeTo(336, 1), reason: '머리 오른쪽 끝(화면 360 − 24)');
-      expect(seg.width, lessThan(200));
+      // 자리 폭 = (가장 긴 칸 글 + 좌우 24) × 칸 수 + 8 — 칸 글은 배율을 따르지 않아 배율과 무관
+      expect(seg.width, closeTo(statsSegmentedWidth(['지출', '수입']), 0.5));
+      expect(seg.width, lessThan(156), reason: '제목이 머리 폭 312 의 50% 를 지키는 한 줄');
       expect((seg.center.dy - title.center.dy).abs(), lessThan(20));
     });
 

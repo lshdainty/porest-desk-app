@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -29,6 +31,27 @@ import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 /// 등락 % 를 한 곳에서 만든다 — 크기만(방향은 옆 ▲ ▼ 가 말한다), 어디서나 소수 둘째 자리(`formatChangeRateAbs`, 사용자 결정 10-25).
 String statsChangeRate(num now, num prev) =>
     prev == 0 ? '—' : formatChangeRateAbs((now - prev) / prev * 100);
+
+/// 머리 오른쪽에 두는 Segmented 의 자리 폭 — (가장 긴 칸 글 + 좌우 24) × 칸 수 + 8. 칸 글은 글자 배율을 따르지 않으므로(t5 700,
+/// 배율 고정) 폭도 배율과 무관하다. 웹은 `w-max` + `max-w-[50%]` 로 같은 규칙이고, 머리 줄은 제목이 50% 를 못 지키면 이 Segmented 를
+/// 제목 아래 오른쪽 끝으로 내린다. "지출 · 수입" 이면 약 120.
+double statsSegmentedWidth(List<String> labels) {
+  var widest = 0.0;
+  for (final label in labels) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: PTypography.t5.copyWith(fontWeight: FontWeight.w700),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: TextScaler.noScaling,
+      maxLines: 1,
+    )..layout();
+    widest = math.max(widest, painter.width);
+    painter.dispose();
+  }
+  return (widest + PSpacing.x6) * labels.length + PSpacing.x2;
+}
 
 /// 금액 글 — 원까지, 가리면 점.
 String statsWon(int n, bool masked, {String sign = ''}) => n < 0 && sign.isEmpty
