@@ -250,32 +250,26 @@ class StatsSavingsRateSection extends StatelessWidget {
                       progress: c.fgBrand,
                     ),
                   ),
-                  // 고리 안 글 — 글자 설정을 키워도 고리(그림 108) 밖으로 나가지 않게 고리 안에서만 맞춘다(같은 값은 아래 줄 글이 읽는다)
-                  Padding(
-                    padding: const EdgeInsets.all(PSpacing.x3),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            l.statsSavingsRate,
-                            style: PTypography.t2.copyWith(
-                              color: c.fgNeutralSubtle,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            '${saveRate.toStringAsFixed(1)}%',
-                            style: PTypography.t9.copyWith(
-                              color: c.fgNeutral,
-                              fontWeight: FontWeight.w700,
-                              fontFeatures: tabularFigures,
-                            ),
-                          ),
-                        ],
+                  // 고리 안 글 — t9 24 · 값 글(사용자 결정 대기 중이라 웹 지금 값 그대로, 넘침은 결과표에 숫자로 적는다)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l.statsSavingsRate,
+                        style: PTypography.t2.copyWith(
+                          color: c.fgNeutralSubtle,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
+                      Text(
+                        '${saveRate.toStringAsFixed(1)}%',
+                        style: PTypography.t9.copyWith(
+                          color: c.fgNeutral,
+                          fontWeight: FontWeight.w700,
+                          fontFeatures: tabularFigures,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

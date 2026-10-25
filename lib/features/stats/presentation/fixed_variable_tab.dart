@@ -314,7 +314,7 @@ class _Overview extends StatelessWidget {
   }
 }
 
-/// 한 줄 비율 막대 — 왼쪽이 고정(파랑), 오른쪽이 변동(초록). 폭은 전체에 대한 비율이다. 안의 % 글은 바탕 면 색(테마를 따라간다 —
+/// 한 줄 비율 막대 — 왼쪽이 고정(파랑), 오른쪽이 변동(초록). 폭은 전체에 대한 비율이다. 안의 % 글은 차트 색 위 글자색 fg-neutral-inverted(chart.md:446 — 테마를 따라가고
 /// 막대 색 위 4.5 이상).
 class _RatioBar extends StatelessWidget {
   const _RatioBar({required this.split, required this.semanticLabel});
@@ -337,7 +337,7 @@ class _RatioBar extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.clip,
                 style: PTypography.t2.copyWith(
-                  color: c.bgLayerDefault,
+                  color: c.fgNeutralInverted,
                   fontWeight: FontWeight.w700,
                 ),
               ),
