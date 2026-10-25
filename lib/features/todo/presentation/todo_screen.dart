@@ -6,42 +6,42 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
+import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
 import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
-import 'package:groo_damda_app/features/todo/presentation/todo_actions.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
+import 'package:groo_damda_app/features/todo/domain/todo_ledger.dart';
 import 'package:groo_damda_app/features/todo/domain/todo_meta.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_detail_dialog.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_edit_dialog.dart';
+import 'package:groo_damda_app/features/todo/presentation/widgets/todo_filter_sheet.dart';
+import 'package:groo_damda_app/features/todo/presentation/widgets/todo_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_progress.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_badge.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_floating_action_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/floating_action_button/p_floating_action_button.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/scroll_auto_hide/p_scroll_auto_hide.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/scroll/hold_ids.dart';
+import 'package:groo_damda_app/shared/scroll/scroll_to_keyed.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
-/// 할일 — 모바일 원장 (design todo-mobile.jsx TodoMobileLedger 미러).
+/// 같은 줄의 두 번째 완료 누름을 무시하는 시간 — 따닥 막기(웹 `DOUBLE_CLICK_GUARD_MS`). 붙들기([kListHold] 700)보다 짧아야 한다.
+const Duration kTodoDoubleTapGuard = Duration(milliseconds: 600);
+
+/// 할 일 — 폰 원장(I-10 1A · 2B). 흰 화면 하나에 머리(달 이동 · 오늘 할 일 · 주 달력)와 날짜 묶음 목록이 끝까지 선 하나로 이어진다.
 ///
-/// 상단 고정: 월 네비+필터 / 오늘 남은 할 일+별빛 인사이트+[밤하늘] 토글 /
-/// 접이식 캘린더(선택 주 1줄 ↔ 월 전체, 셀에 별자리★·구름·건수 마크).
-/// 아래: 일별 그룹 리스트 — 스크롤 스파이 ↔ 캘린더 선택 동기화.
-/// 밤하늘 게임 요소는 [밤하늘] 패널 + 전용 화면(/night-sky, /forest-report)으로 분리.
+/// 머리는 ds Scroll Auto Hide 가 통째로 숨긴다(가계부와 같은 부품 — [LedgerMonthNav] · [LedgerTotalRow] · [LedgerCalendarGrid]).
+/// 묶음 안은 남은 일 위 · 끝낸 일 아래이고, 누른 줄은 700ms 제자리에 남았다가 내려간다(QA #29). 완료는 누르는 순간 바뀐다(낙관 갱신).
+/// 밤하늘 게임 요소는 [밤하늘] 패널 + 전용 화면(/night-sky, /forest-report)으로 분리 — 들어가는 길만 이 화면이 잇는다.
 class TodoScreen extends ConsumerStatefulWidget {
   const TodoScreen({super.key});
   @override
@@ -56,28 +56,31 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   String? _selected;
   bool _expanded = false;
   bool _skyOpen = false;
-  bool _compact = false; // 스크롤 시 상태 영역 접힘 (design txm-pin--compact)
-
-  // 필터 시트 상태 — 태그·우선순위 다중 + 완료 숨김.
-  Set<String> _fTags = {};
-  Set<String> _fPrios = {};
-  bool _hideDone = false;
-  bool get _filterActive =>
-      _fTags.isNotEmpty || _fPrios.isNotEmpty || _hideDone;
+  TodoFilterState _filter = TodoFilterState.empty;
 
   final Map<String, GlobalKey> _dayKeys = {};
   final ScrollController _scrollCtrl = ScrollController();
-  final GlobalKey _collapseKey = GlobalKey();
   final GlobalKey _listKey = GlobalKey();
+
+  /// 숨는 머리(Scroll Auto Hide)의 높이 — 목록 맨 위 여백이자 스크롤 스파이가 기준으로 삼는 선.
+  double _headerH = 0;
   bool _lock = false;
   Timer? _lockTimer;
+
+  /// 낙관 갱신 — 누른 줄의 끝냄 여부를 서버 응답 전에 먼저 바꿔 그린다. 실패하면 지워 되돌린다.
+  final Map<int, bool> _optimisticDone = {};
+  final Map<int, int> _optimisticToken = {};
+  final Map<int, DateTime> _lastToggleAt = {};
+
+  /// 방금 끝냄을 누른 줄 — 700ms 제자리에 남긴다(정렬 · 완료 숨기기 둘 다).
+  final HoldIds _hold = HoldIds();
 
   @override
   void initState() {
     super.initState();
-    final today = DateTime.now();
-    _selected = _ymd(today);
+    _selected = todoYmd(DateTime.now());
     _scrollCtrl.addListener(_onScroll);
+    _hold.addListener(_onHoldChanged);
   }
 
   @override
@@ -85,15 +88,15 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     _lockTimer?.cancel();
     _scrollCtrl.removeListener(_onScroll);
     _scrollCtrl.dispose();
+    _hold
+      ..removeListener(_onHoldChanged)
+      ..dispose();
     super.dispose();
   }
 
-  static String _ymd(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-  /// 태그 묶음 키 — 서버 태그명 그대로, 태그가 없으면 '태그 없음' sentinel.
-  /// 그리기 전에 [todoTagLabel] 로 문구를 씌운다.
-  static String _tagOf(Todo x) => todoTagKey(x.category);
+  void _onHoldChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _lockFor(int ms) {
     _lock = true;
@@ -101,25 +104,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     _lockTimer = Timer(Duration(milliseconds: ms), () => _lock = false);
   }
 
-  /// 스크롤 스파이 — compact 히스테리시스(72/24) + 맨 위 그룹 → 선택일 동기.
+  /// 스크롤 스파이 — 맨 위 날짜 그룹을 선택일로 동기. 머리 숨기기는 Scroll Auto Hide 가 맡는다.
   void _onScroll() {
-    if (!_scrollCtrl.hasClients) return;
-    final st = _scrollCtrl.offset;
-    // 콘텐츠가 짧으면 접힘(−collapse 높이) 순간 offset이 maxScrollExtent에
-    // clamp돼 해제 임계 아래로 떨어지며 접힘↔펼침 무한 플리커 — 접힌 뒤에도
-    // 진입 임계(72) 위에 남을 스크롤 여유가 있을 때만 진입.
-    final collapseH = _compact
-        ? 0.0
-        : (_collapseKey.currentContext?.size?.height ?? 0.0);
-    final canStay = _scrollCtrl.position.maxScrollExtent - collapseH > 72;
-    final next = _compact ? st > 24 : st > 72 && canStay;
-    if (next != _compact) {
-      setState(() {
-        _compact = next;
-        if (next) _expanded = false;
-      });
-    }
-    if (_lock) return;
+    if (!_scrollCtrl.hasClients || _lock) return;
     final listBox = _listKey.currentContext?.findRenderObject() as RenderBox?;
     if (listBox == null) return;
     final listTop = listBox.localToGlobal(Offset.zero).dy;
@@ -129,7 +116,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       final box = e.value.currentContext?.findRenderObject() as RenderBox?;
       if (box == null) continue;
       final top = box.localToGlobal(Offset.zero).dy - listTop;
-      if (top <= 28 && top > best) {
+      if (top <= _headerH + 28 && top > best) {
         best = top;
         cur = e.key;
       }
@@ -146,7 +133,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       _month = next;
       _expanded = false;
       _selected = (today.year == next.year && today.month == next.month)
-          ? _ymd(today)
+          ? todoYmd(today)
           : null;
     });
     _lockFor(800);
@@ -159,18 +146,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     }
   }
 
-  /// [order] 는 리스트에 **그려진 순서 그대로**의 그룹 목록이다(가계부와 같은 이유로
-  /// 필드가 아니라 인자다 — `expense_screen` 의 같은 함수 주석 참고).
+  /// [order] 는 리스트에 **그려진 순서 그대로**의 그룹 목록이다(가계부와 같은 이유로 필드가 아니라 인자다).
   void _scrollToDay(String ds, List<String> order) {
     // 여러 프레임에 걸쳐 뛰므로 스크롤 스파이를 그동안 재운다.
     _lockFor(1200);
-    setState(() {
-      _expanded = false;
-      _compact = true;
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      // 가계부와 같은 자리다 — 먼 날짜는 아직 안 만들어져 있어 순번이 있어야 간다.
       scrollToKeyedItem(
         controller: _scrollCtrl,
         key: _dayKeys[ds],
@@ -180,38 +161,41 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     });
   }
 
-  // 완료 토글 진행 중인 항목 — 체크 자리에 스피너, 탭 잠금. 통신이 느리면 눌렀는지
-  // 알 수 없어 다시 누르게 됐다(사용자 신고).
-  final _pendingToggle = <int>{};
-
-  Future<void> _toggleDone(Todo x) async {
-    if (_pendingToggle.contains(x.rowId)) return;
-    setState(() => _pendingToggle.add(x.rowId));
-    try {
-      await _toggleDoneInner(x);
-    } finally {
-      if (mounted) setState(() => _pendingToggle.remove(x.rowId));
-    }
+  /// 서버 값에 낙관 갱신을 덮은 할 일.
+  Todo _effective(Todo x) {
+    final done = _optimisticDone[x.rowId];
+    if (done == null || done == x.done) return x;
+    return x.copyWith(status: done ? 'COMPLETED' : 'PENDING');
   }
 
-  Future<void> _toggleDoneInner(Todo x) async {
+  /// 완료 누름 — 누르는 순간 바뀌고(스피너 · 막힘 없음), 실패하면 되돌리고 그 자리에서 한 번 알린다.
+  ///
+  /// 따닥 막기는 그대로다 — 같은 줄 600ms 안의 두 번째 누름은 무시한다. 그 뒤 다시 누르면(앞 요청이 아직 안 끝났어도) 그 뒤 상태로 다시
+  /// 보낸다(줄마다 토큰을 두어 앞 요청이 늦게 끝나도 뒤 낙관 값을 지우지 않는다).
+  Future<void> _toggleDone(Todo x) async {
+    final now = DateTime.now();
+    final last = _lastToggleAt[x.rowId];
+    if (last != null && now.difference(last) < kTodoDoubleTapGuard) return;
+    _lastToggleAt[x.rowId] = now;
+    final nextDone = !x.done;
+    final token = (_optimisticToken[x.rowId] ?? 0) + 1;
+    _optimisticToken[x.rowId] = token;
+    setState(() => _optimisticDone[x.rowId] = nextDone);
+    _hold.hold(x.rowId);
     final l = AppLocalizations.of(context);
-    final wasDone = x.done;
     try {
       final repo = await ref.read(todoRepositoryProvider.future);
       // 서버가 이번 토글의 실제 적립량을 돌려준다 — 낙관 예측으로 띄우면 평생 1회
       // 정책에 걸려 적립이 0 이어도 "+N" 이 떠서 거짓말이 된다(웹 TodoPage 정합).
       final gain = await repo.setStatus(
         x.rowId,
-        wasDone ? 'PENDING' : 'COMPLETED',
+        nextDone ? 'COMPLETED' : 'PENDING',
       );
       ref.invalidate(todoListProvider);
       // 별빛 적립/회수 부수효과 — 별자리 상태 일괄 갱신.
       final constToday = ref.read(constellationTodayProvider).value;
       invalidateConstellation(ref);
-      if (!mounted) return;
-      // 완료 전환 시 별빛 토스트 (design starToast).
-      if (gain > 0 && constToday != null && !constToday.collected) {
+      if (mounted && gain > 0 && constToday != null && !constToday.collected) {
         final left = constToday.goal - (constToday.points + gain);
         showPSnackBar(
           context,
@@ -221,1386 +205,417 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           severity: PSnackSeverity.success,
         );
       }
+      // 새 목록이 올 때까지 낙관 값을 쥐고 있는다 — 먼저 걷으면 옛 서버 값으로 한 번 되돌아가 깜빡인다.
+      try {
+        await ref.read(todoListProvider(_allFilter).future);
+      } on Object {
+        // 목록을 다시 못 받아도 저장은 끝났다 — 화면은 이전 목록을 그대로 둔다.
+      }
     } on ApiException {
-      if (!mounted) return;
+      // 서버 원문을 띄우지 않는다(전역 오류 알림은 이 요청에서 껐다) — 되돌리고 새 글 한 번.
+      if (mounted) {
+        showPSnackBar(
+          context,
+          l.todoToggleFailed,
+          severity: PSnackSeverity.error,
+        );
+      }
+    } finally {
+      if (_optimisticToken[x.rowId] == token) {
+        _optimisticToken.remove(x.rowId);
+        if (mounted) {
+          setState(() => _optimisticDone.remove(x.rowId));
+        } else {
+          _optimisticDone.remove(x.rowId);
+        }
+      }
     }
   }
 
-  Future<void> _openFilter(List<Todo> all) async {
-    // 서버 태그 마스터 ∪ 사용 중 묶음 키 — 웹 TodoPage 병합 정합.
-    // '태그 없음' 은 그런 할 일이 실제로 있을 때만 칩이 된다(`_tagOf` 가 그때만
-    // sentinel 을 내놓는다). U+FFFF 라 정렬하면 늘 맨 뒤다.
+  /// 거르기 시트의 태그 칩 — 설정 태그 차례 → 할 일에만 남은 이름 → "태그 없음"(그런 할 일이 있을 때만, 맨 뒤).
+  List<String> _tagChoices(List<Todo> all) {
     final server = ref.read(todoTagListProvider).value ?? const [];
-    final tags = <String>{
-      for (final t in server) t.tagName,
-      for (final x in all) _tagOf(x),
-    }.toList()..sort();
-    await showPSheet<void>(
-      context,
-      title: AppLocalizations.of(context).expFilter,
-      shrinkWrap: true,
-      contentBuilder: (ctx, _) => _FilterSheetBody(
-        allTags: tags,
-        tags: _fTags,
-        prios: _fPrios,
-        hideDone: _hideDone,
-        onApply: (tags, prios, hideDone) {
-          setState(() {
-            _fTags = tags;
-            _fPrios = prios;
-            _hideDone = hideDone;
-          });
-        },
-      ),
-    );
+    final names = <String>[for (final t in server) t.tagName];
+    var hasNone = false;
+    for (final x in all) {
+      final key = todoTagOf(x);
+      if (key == kTodoNoTagKey) {
+        hasNone = true;
+      } else if (!names.contains(key)) {
+        names.add(key);
+      }
+    }
+    return [...names, if (hasNone) kTodoNoTagKey];
   }
 
+  Future<void> _openFilter(List<Todo> all) => showTodoFilterSheet(
+    context,
+    initial: _filter,
+    allTags: _tagChoices(all),
+    onApply: (f) => setState(() => _filter = f),
+  );
+
+  /// 흰 화면 — 상단 바 아래가 끝까지 흰 면 하나다(1A). 띠 · 테두리 카드 · 그림자 카드를 두지 않는다.
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(todoListProvider(_allFilter));
-
+    // 다시 받는 동안에도 이전 목록을 그대로 둔다 — 완료 누름 뒤 스켈레톤으로 돌아가지 않는다.
+    final all = listAsync.hasValue ? listAsync.requireValue : null;
+    final failed = all == null && listAsync.hasError;
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.todoTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-      ),
-      floatingActionButton: PFloatingActionButton(
-        icon: LucideIcons.plus,
-        tooltip: l.todoAdd,
-        onPressed: () => showTodoEditDialog(context),
-      ),
-      body: PScreenBandBody(
-        child: listAsync.when(
-          loading: () => const _LedgerSkeleton(),
-          error: (e, _) => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x24,
-              PSpace.x16,
-              PSpace.x24,
-              PSpace.x16,
-            ),
-            children: [
-              Text(
-                '${l.todoLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDangerFg),
-              ),
-            ],
+      backgroundColor: c.bgLayerDefault,
+      // 머리 = ds 상단 바(← + "할 일") — 높이 56, 스크롤해도 선이 없다
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.todoTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
           ),
-          data: (all) => _buildBody(context, t, l, all),
         ),
+      ),
+      body: Stack(
+        key: const ValueKey('todo-white-screen'),
+        children: [
+          PSwipeActionsProvider(
+            child: _layout(
+              all: all == null ? null : [for (final x in all) _effective(x)],
+              failed: failed,
+            ),
+          ),
+          // 떠 있는 [+] — 추가 시트를 연다(빠른 입력칸은 두지 않는다, 09-08).
+          PFloatingActionButton(
+            icon: LucideIcons.plus500,
+            label: l.todoAdd,
+            onPressed: () => showTodoEditDialog(context),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildBody(
-    BuildContext context,
-    GrooTokens t,
-    AppLocalizations l,
-    List<Todo> all,
-  ) {
+  Widget _layout({required List<Todo>? all, required bool failed}) {
+    final l = AppLocalizations.of(context);
+    final loading = all == null && !failed;
     final constToday = ref.watch(constellationTodayProvider).value;
     final sky = ref.watch(constellationSkyProvider).value ?? const <SkyDay>[];
     final skyByDate = {for (final d in sky) d.date: d};
 
     final today = DateTime.now();
-    final todayYmd = _ymd(today);
-    final ymPrefix =
+    final todayYmd = todoYmd(today);
+    final ym =
         '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}';
 
-    bool passFilter(Todo x) =>
-        (_fTags.isEmpty || _fTags.contains(_tagOf(x))) &&
-        (_fPrios.isEmpty || _fPrios.contains(x.priority ?? 'MEDIUM')) &&
-        (!_hideDone || !x.done);
-
-    // 이 달 할일(마감일 기준) + 마감일 없는 할일(맨 아래 별도 그룹 — 유실 방지).
-    final monthTodos = all
-        .where((x) => x.due != null && _ymd(x.due!).startsWith(ymPrefix))
-        .where(passFilter)
-        .toList();
-    final noDue = all.where((x) => x.due == null).where(passFilter).toList();
-
-    // 일별 그룹 (asc) — 캘린더 마크·리스트 공유.
-    final byDay = <String, List<Todo>>{};
-    for (final x in monthTodos) {
-      (byDay[_ymd(x.due!)] ??= <Todo>[]).add(x);
-    }
-    final dayKeysSorted = byDay.keys.toList()..sort();
-    for (final g in byDay.values) {
-      g.sort((a, b) {
-        final pr = todoPrioRank(b.priority).compareTo(todoPrioRank(a.priority));
-        if (pr != 0) return pr;
-        return (a.due ?? today).compareTo(b.due ?? today);
-      });
-    }
-    _dayKeys.removeWhere((k, _) => !byDay.containsKey(k) && k != _kNoDueGroup);
-    for (final k in dayKeysSorted) {
+    // 이 달 할 일(마감일 기준) + 마감일 없는 할 일(맨 아래 별도 묶음 — 유실 방지). 묶음 안은 남은 일 위 · 끝낸 일 아래.
+    final byDay = all == null
+        ? const <String, List<Todo>>{}
+        : groupByDay(
+            monthTodos(all, ym, _filter, held: _hold.ids),
+            held: _hold.ids,
+          );
+    final groupKeys = byDay.keys.toList();
+    _dayKeys.removeWhere((k, _) => !byDay.containsKey(k));
+    for (final k in groupKeys) {
       _dayKeys.putIfAbsent(k, () => GlobalKey());
     }
-    if (noDue.isNotEmpty) {
-      _dayKeys.putIfAbsent(_kNoDueGroup, () => GlobalKey());
-    }
+    final left = all == null ? 0 : todayLeft(all, todayYmd);
 
-    final todayLeft = all
-        .where((x) => !x.done && x.due != null && _ymd(x.due!) == todayYmd)
-        .length;
-
-    // ── 상단 고정(pin) ──
-    final pin = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 10),
-        _MonthNav(
+        const SizedBox(height: PSpacing.x2),
+        LedgerMonthNav(
           label: monthOnly(_month),
           onPrev: () => _goMonth(-1),
           onNext: () => _goMonth(1),
-          filterActive: _filterActive,
-          filterCount: _fTags.length + _fPrios.length + (_hideDone ? 1 : 0),
-          onOpenFilter: () => _openFilter(all),
-          tokens: t,
+          onOpenFilter: () => _openFilter(all ?? const []),
+          filterOn: _filter.active,
         ),
-        // 오늘 상태 + [밤하늘] 토글 — 스크롤 시 접힘.
-        ClipRect(
-          key: _collapseKey,
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
-            alignment: Alignment.topCenter,
-            child: _compact
-                ? const SizedBox(width: double.infinity)
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          PSpace.x24,
-                          8,
-                          PSpace.x24,
-                          0,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    todayLeft > 0
-                                        ? l.tdmTodayLeft(todayLeft)
-                                        : l.tdmTodayDone,
-                                    style: TextStyle(
-                                      fontFamily: PTypo.sans,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.56,
-                                      height: 1.15,
-                                      color: t.fgPrimary,
-                                      fontFeatures: const [
-                                        FontFeature.tabularFigures(),
-                                      ],
-                                    ),
-                                  ),
-                                  if (constToday != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 7),
-                                      child: _StarlightHint(
-                                        today: constToday,
-                                        t: t,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: PSpace.x12),
-                            _SkyToggleBtn(
-                              on: _skyOpen,
-                              label: l.tdmNightSkyBtn,
-                              onTap: () =>
-                                  // 월 전체 캘린더와 동시 열면 고정 pin이
-                                  // 화면 초과 — 상호 배타(가계부 정합).
-                                  setState(() {
-                                    _skyOpen = !_skyOpen;
-                                    if (_skyOpen) _expanded = false;
-                                  }),
-                              tokens: t,
-                            ),
-                          ],
-                        ),
+        // 오늘 할 일 + 별빛 한 줄 + [밤하늘]. [밤하늘] 과 월 달력은 하나만 펼친다.
+        LedgerTotalRow(
+          loading: loading,
+          failed: failed,
+          total: loading
+              ? null
+              : (left > 0 ? l.tdmTodayLeft(left) : l.tdmTodayDone),
+          insight: loading || failed || constToday == null
+              ? null
+              : _StarlightHint(today: constToday),
+          summaryOpen: _skyOpen,
+          buttonLabel: l.tdmNightSkyBtn,
+          buttonIcon: LucideIcons.sparkles,
+          onToggleSummary: () => setState(() {
+            _skyOpen = !_skyOpen;
+            if (_skyOpen) _expanded = false;
+          }),
+        ),
+        // 밤하늘 패널 — 히어로 + 관측 리포트/도감 진입 (들어가는 길만 — 안은 밤하늘 배치).
+        if (_skyOpen && constToday != null && all != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpacing.globalGutter,
+              PSpacing.x3_5,
+              PSpacing.globalGutter,
+              0,
+            ),
+            child: Column(
+              children: [
+                NightSkyHero(
+                  today: constToday,
+                  // completedAt 은 서버 `[UTC]` — 자르면 UTC 날짜가 나와 로컬 '오늘'(todayYmd)과 어긋난다.
+                  doneToday: all
+                      .where(
+                        (x) =>
+                            x.done && localDateKey(x.completedAt) == todayYmd,
+                      )
+                      .length,
+                ),
+                const SizedBox(height: PSpacing.x2),
+                Row(
+                  spacing: PSpacing.x2,
+                  children: [
+                    Expanded(
+                      child: PButton(
+                        label: l.forestReportTitle,
+                        prefixIcon: LucideIcons.telescope,
+                        variant: PButtonVariant.neutralOutline,
+                        size: PButtonSize.small,
+                        onPressed: () => context.push('/forest-report'),
                       ),
-                      // 밤하늘 패널 — 히어로 + 관측 리포트/도감 진입 (design .tdm-sky).
-                      if (_skyOpen && constToday != null)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                            PSpace.x24,
-                            14,
-                            PSpace.x24,
-                            0,
-                          ),
-                          child: Column(
-                            children: [
-                              NightSkyHero(
-                                today: constToday,
-                                // completedAt 은 서버 `[UTC]` — 자르면 UTC 날짜가
-                                // 나와 로컬 '오늘'(todayYmd)과 어긋난다. KST 새벽
-                                // 0~9시 완료가 전날로 밀려 히어로가 0건을 띄웠다.
-                                doneToday: all
-                                    .where(
-                                      (x) =>
-                                          x.done &&
-                                          localDateKey(x.completedAt) ==
-                                              todayYmd,
-                                    )
-                                    .length,
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: PButton(
-                                      label: l.forestReportTitle,
-                                      icon: LucideIcons.telescope,
-                                      variant: PButtonVariant.outline,
-                                      size: PButtonSize.sm,
-                                      onPressed: () =>
-                                          context.push('/forest-report'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: PButton(
-                                      label: l.nightSkyTitle,
-                                      icon: LucideIcons.sparkles,
-                                      variant: PButtonVariant.outline,
-                                      size: PButtonSize.sm,
-                                      onPressed: () =>
-                                          context.push('/night-sky'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
+                    ),
+                    Expanded(
+                      child: PButton(
+                        label: l.nightSkyTitle,
+                        prefixIcon: LucideIcons.sparkles,
+                        variant: PButtonVariant.neutralOutline,
+                        size: PButtonSize.small,
+                        onPressed: () => context.push('/night-sky'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-        // 접이식 캘린더 — 셀 마크: 수집★/구름/남은 건수/완료 체크.
-        _LedgerCalendar(
+        // 접이식 캘린더 — 칸 아래 표시: 수집 ★ / 남은 수 / 키운 별자리 ★ / 놓친 날 구름 / 다 끝냄 ✓.
+        LedgerCalendarGrid(
           month: _month,
           selected: _selected,
           expanded: _expanded,
-          byDay: byDay,
-          skyByDate: skyByDate,
-          constToday: constToday,
+          cellLabel: (context, ds) =>
+              _cellLabel(context, ds, todayYmd, byDay, skyByDate, constToday),
+          markBuilder: (context, ds) => _CellMark(
+            mark: all == null
+                ? null
+                : todoCellMarkOf(
+                    ds,
+                    todayYmd,
+                    byDay,
+                    skyByDate,
+                    constToday: constToday,
+                  ),
+            loading: loading,
+          ),
           onSelect: (ds) {
             setState(() => _selected = ds);
-            if (byDay.containsKey(ds)) {
-              _scrollToDay(ds, [
-                ...dayKeysSorted,
-                if (noDue.isNotEmpty) _kNoDueGroup,
-              ]);
-            }
+            if (byDay.containsKey(ds)) _scrollToDay(ds, groupKeys);
           },
           onToggleExpand: () => setState(() {
             _expanded = !_expanded;
             if (_expanded) _skyOpen = false;
           }),
-          tokens: t,
         ),
-        Container(height: 1, color: t.borderDefault),
+        const LedgerHeaderDivider(),
       ],
     );
 
-    // ── 일별 리스트 ──
-    final listChildren = <Widget>[
-      if (dayKeysSorted.isEmpty && noDue.isEmpty)
-        Padding(
-          // 좌우는 바깥 ListView 가 쥔다(24) — 여기서 또 얹으면 48 이 된다.
-          padding: const EdgeInsets.fromLTRB(0, 56, 0, 20),
-          child: Center(
-            child: Column(
-              children: [
-                Icon(
-                  _filterActive ? LucideIcons.filterX : LucideIcons.checkCheck,
-                  size: 36,
-                  color: t.fgTertiary,
+    Widget buildList(
+      BuildContext ctx,
+      ScrollController controller,
+      double headerHeight,
+    ) {
+      _headerH = headerHeight;
+      final children = <Widget>[];
+      if (failed) {
+        // 질의 하나 = 실패 상자 하나 — 원문을 그리지 않는다.
+        children.add(
+          PResultSection(
+            kind: PResultKind.failure,
+            title: l.todoLoadError,
+            description: l.tdmLoadFailedDesc,
+            primaryAction: PResultAction(
+              label: l.actionRetry,
+              onPressed: () => ref.invalidate(todoListProvider(_allFilter)),
+            ),
+          ),
+        );
+      } else if (loading) {
+        children.addAll(const [
+          TodoDaySkeleton(rows: 3, first: true),
+          TodoDaySkeleton(rows: 2),
+        ]);
+      } else if (groupKeys.isEmpty) {
+        // 걸러서 0건 ↔ 이 달 0건 — 갈래가 다르다. 버튼은 두지 않는다(추가는 [+] 가 맡는다).
+        children.add(
+          _filter.active
+              ? PResultSection(
+                  title: l.tdmEmptyFilter,
+                  description: l.tdmEmptyFilterDesc,
+                  icon: LucideIcons.funnelX,
+                )
+              : PResultSection(
+                  title: l.tdmEmptyMonth(monthOnly(_month)),
+                  description: l.tdmEmptyMonthDesc,
+                  icon: LucideIcons.listChecks,
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  _filterActive
-                      ? l.tdmEmptyFilter
-                      : l.tdmEmptyMonth(monthOnly(_month)),
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _filterActive ? l.tdmEmptyFilterDesc : l.tdmEmptyMonthDesc,
-                  textAlign: TextAlign.center,
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                ),
-              ],
+        );
+      } else {
+        for (var i = 0; i < groupKeys.length; i++) {
+          final key = groupKeys[i];
+          children.add(
+            KeyedSubtree(
+              key: _dayKeys[key],
+              child: TodoDayGroup(
+                ymd: key == kTodoNoDueKey ? null : key,
+                items: byDay[key]!,
+                today: today,
+                first: i == 0,
+                onToggle: _toggleDone,
+                onOpen: (x) => showTodoDetailDialog(context, x),
+              ),
             ),
-          ),
-        )
-      else ...[
-        for (final key in dayKeysSorted)
-          KeyedSubtree(
-            key: _dayKeys[key],
-            child: _DayGroup(
-              ymd: key,
-              items: byDay[key]!,
-              today: today,
-              onToggle: _toggleDone,
-              pendingIds: _pendingToggle,
-              onTap: (x) => showTodoDetailDialog(context, x),
-            ),
-          ),
-        if (noDue.isNotEmpty)
-          KeyedSubtree(
-            key: _dayKeys[_kNoDueGroup],
-            child: _DayGroup(
-              ymd: null,
-              items: noDue,
-              today: today,
-              onToggle: _toggleDone,
-              pendingIds: _pendingToggle,
-              onTap: (x) => showTodoDetailDialog(context, x),
-            ),
-          ),
-      ],
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        pin,
-        Expanded(
-          child: PPullToRefresh(
-            onRefresh: () async {
-              ref.invalidate(todoListProvider(_allFilter));
-              invalidateConstellation(ref);
-              await ref.read(todoListProvider(_allFilter).future);
-            },
-            child: ListView(
-              key: _listKey,
-              controller: _scrollCtrl,
-              padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 96),
-              children: listChildren,
-            ),
-          ),
+          );
+        }
+      }
+      return PPullToRefresh(
+        onRefresh: () async {
+          ref.invalidate(todoListProvider(_allFilter));
+          invalidateConstellation(ref);
+          await ref.read(todoListProvider(_allFilter).future);
+        },
+        child: ListView(
+          key: _listKey,
+          controller: controller,
+          // 위 — 숨는 머리 높이 / 아래 — 떠 있는 [+] 가 마지막 줄을 가리지 않게 96(흰 면 안이다).
+          padding: EdgeInsets.fromLTRB(0, headerHeight, 0, 96),
+          children: children,
         ),
-      ],
+      );
+    }
+
+    return PScrollAutoHide(
+      controller: _scrollCtrl,
+      header: header,
+      builder: buildList,
     );
+  }
+
+  /// 칸의 읽는 이름 — "10월 22일, 남은 할 일 3개" · "10월 19일, 별자리 수집" · "10월 20일, 놓친 날" · "10월 18일, 다 끝냄".
+  /// 표시가 없는 칸은 이름을 달지 않는다(날 숫자 글이 그대로 읽힌다).
+  String? _cellLabel(
+    BuildContext context,
+    String ds,
+    String todayYmd,
+    Map<String, List<Todo>> byDay,
+    Map<String, SkyDay> skyByDate,
+    ConstellationToday? constToday,
+  ) {
+    final mark = todoCellMarkOf(
+      ds,
+      todayYmd,
+      byDay,
+      skyByDate,
+      constToday: constToday,
+    );
+    if (mark == null) return null;
+    final l = AppLocalizations.of(context);
+    final date = monthDay(DateTime.parse(ds));
+    return switch (mark) {
+      TodoCellLeft(:final count) => l.tdmCellLeft(date, count),
+      TodoCellCollected() || TodoCellGrown() => l.tdmCellCollected(date),
+      TodoCellMissed() => l.tdmCellMissed(date),
+      TodoCellDone() => l.tdmCellDone(date),
+    };
   }
 }
 
-const _kNoDueGroup = '__no_due__';
-
-/// 별빛 인사이트 한 줄 — "별빛 l/g · N개 더 모으면 {별자리} 수집" / 수집 완료.
+/// 별빛 인사이트 한 줄 — "별빛 l/g · N개 더 모으면 {별자리} 수집" / 수집 완료. t4 400 `fg-neutral-muted`, 낱말 단위 줄바꿈.
 class _StarlightHint extends StatelessWidget {
-  const _StarlightHint({required this.today, required this.t});
+  const _StarlightHint({required this.today});
   final ConstellationToday today;
-  final GrooTokens t;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final c = context.colors;
     final name = constellationName(today.constellation);
     final lit = today.points > today.goal ? today.goal : today.points;
     final text = today.collected
         ? l.tdmCollectedHint(name, today.streak)
         : l.tdmStarlightHint(lit, today.goal, today.goal - lit, name);
-    // 하이라이트(별빛 n/g · 별자리명)는 문장 통짜 색 대신 브랜드 굵게 — l10n 어순 안전.
-    return Text(text, style: PTypo.bodySm.copyWith(color: t.fgSecondary));
-  }
-}
-
-/// 월 네비 — ‹ M월 › + 우측 필터 (design .txm-monthnav, 할일은 추가 버튼 없음 — FAB 담당).
-class _MonthNav extends StatelessWidget {
-  const _MonthNav({
-    required this.label,
-    required this.onPrev,
-    required this.onNext,
-    required this.filterActive,
-    required this.filterCount,
-    required this.onOpenFilter,
-    required this.tokens,
-  });
-  final String label;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  final bool filterActive;
-  final int filterCount;
-  final VoidCallback onOpenFilter;
-  final GrooTokens tokens;
-
-  Widget _btn(
-    IconData icon,
-    VoidCallback onTap, {
-    Color? bg,
-    Color? fg,
-    Widget? badge,
-  }) {
-    return Material(
-      color: bg ?? Colors.transparent,
-      borderRadius: const BorderRadius.all(Radius.circular(10)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              Icon(icon, size: 19, color: fg ?? tokens.fgSecondary),
-              if (badge != null) Positioned(right: -2, top: -2, child: badge),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
-      child: Row(
-        children: [
-          _btn(LucideIcons.chevronLeft, onPrev),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontFamily: PTypo.sans,
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.17,
-                color: t.fgPrimary,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ),
-          _btn(LucideIcons.chevronRight, onNext),
-          const Spacer(),
-          _btn(
-            LucideIcons.slidersHorizontal,
-            onOpenFilter,
-            bg: filterActive ? t.bgBrandSubtle : null,
-            fg: filterActive ? t.fgBrandStrong : t.fgSecondary,
-            badge: filterActive && filterCount > 0
-                ? PBadge(label: '$filterCount', variant: PBadgeVariant.primary)
-                : null,
-          ),
-        ],
+    return Text(
+      keepAll(text),
+      semanticsLabel: text,
+      style: PTypography.t4.copyWith(
+        color: c.fgNeutralMuted,
+        fontWeight: FontWeight.w400,
       ),
     );
   }
 }
 
-/// [밤하늘] 토글 버튼 (design .txm-sumbtn 재사용 + sparkles).
-class _SkyToggleBtn extends StatelessWidget {
-  const _SkyToggleBtn({
-    required this.on,
-    required this.label,
-    required this.onTap,
-    required this.tokens,
-  });
-  final bool on;
-  final String label;
-  final VoidCallback onTap;
-  final GrooTokens tokens;
+/// 달력 칸 아래 표시 — 높이 15(t1 11 / 15). 장식이다(뜻은 칸 이름이 읽는다).
+/// 오늘의 남은 수는 `fg-brand` 700, 그 밖 남은 수는 `fg-neutral-subtle` 400, ★ 는 별자리 색, 구름은 `fg-neutral-subtle`, ✓ 는 `fg-positive`.
+class _CellMark extends StatelessWidget {
+  const _CellMark({required this.mark, required this.loading});
+  final TodoCellMark? mark;
+  final bool loading;
+
+  static const double height = 15;
+  static const double iconSize = 10;
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
-    return Material(
-      color: on ? t.bgBrandSubtle : Colors.transparent,
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          decoration: BoxDecoration(
-            border: Border.all(color: on ? t.borderBrand : t.borderDefault),
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                LucideIcons.sparkles,
-                size: 13,
-                color: on ? t.fgBrandStrong : t.fgPrimary,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: PTypo.bodySm.copyWith(
-                  color: on ? t.fgBrandStrong : t.fgPrimary,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 접이식 캘린더 — 접힘: 선택 주 1줄 / 펼침: 월 전체 (design .txm-cal + 할일 마크).
-class _LedgerCalendar extends StatelessWidget {
-  const _LedgerCalendar({
-    required this.month,
-    required this.selected,
-    required this.expanded,
-    required this.byDay,
-    required this.skyByDate,
-    required this.constToday,
-    required this.onSelect,
-    required this.onToggleExpand,
-    required this.tokens,
-  });
-  final DateTime month;
-  final String? selected;
-  final bool expanded;
-  final Map<String, List<Todo>> byDay;
-  final Map<String, SkyDay> skyByDate;
-  final ConstellationToday? constToday;
-  final ValueChanged<String> onSelect;
-  final VoidCallback onToggleExpand;
-  final GrooTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
-    final today = DateTime.now();
-    final todayStr = _TodoScreenState._ymd(today);
-    final firstDow = DateTime(month.year, month.month, 1).weekday % 7;
-    final dim = DateTime(month.year, month.month + 1, 0).day;
-    final cells = <({int d, String ds})?>[];
-    for (var i = 0; i < firstDow; i++) {
-      cells.add(null);
-    }
-    for (var d = 1; d <= dim; d++) {
-      cells.add((
-        d: d,
-        ds: '${month.year}-${month.month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}',
-      ));
-    }
-    while (cells.length % 7 != 0) {
-      cells.add(null);
-    }
-    final weeks = <List<({int d, String ds})?>>[];
-    for (var i = 0; i < cells.length; i += 7) {
-      weeks.add(cells.sublist(i, i + 7));
-    }
-    var selWeek = weeks.indexWhere(
-      (w) => w.any((c) => c != null && c.ds == selected),
-    );
-    if (selWeek < 0) {
-      selWeek = weeks.indexWhere(
-        (w) => w.any((c) => c != null && c.ds == todayStr),
-      );
-    }
-    if (selWeek < 0) selWeek = 0;
-
-    Color numColor(String ds, int dow) {
-      if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
-      // 일요일 — 캘린더 화면 정합(fgExpense, 사용자 결정)
-      if (dow == 0) return t.statusDangerFg;
-      if (dow == 6) return t.fgBrand;
-      return t.fgPrimary;
-    }
-
-    /// 셀 아래 마크 — 오늘: 수집★/남은 N건, 과거: 수집★·구름, 그 외: N건/완료 체크.
-    Widget mark(String ds) {
-      final items = byDay[ds];
-      final left = items == null ? 0 : items.where((x) => !x.done).length;
-      final isToday = ds == todayStr;
-      final sky = skyByDate[ds];
-
-      if (isToday) {
-        if (constToday?.collected == true) {
-          return Icon(
-            LucideIcons.star,
-            size: 10,
-            color: constellationColor(
-              context,
-              constToday!.constellation.colorKey,
-            ),
-          );
-        }
-        if (left > 0) {
-          return Text(
-            l.frpTileDoneVal(left),
-            style: TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: 10,
-              fontWeight: PFontWeight.bold,
-              color: t.fgBrand,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      }
-      if (sky != null && sky.isGrown && sky.colorKey != null) {
-        return Icon(
-          LucideIcons.star,
-          size: 10,
-          color: constellationColor(context, sky.colorKey!),
-        );
-      }
-      if (sky != null && sky.isWithered) {
-        return Icon(LucideIcons.cloudy, size: 10, color: t.fgTertiary);
-      }
-      if (items != null) {
-        return left > 0
-            ? Text(
-                l.frpTileDoneVal(left),
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 10,
-                  fontWeight: PFontWeight.semi,
-                  color: t.fgTertiary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              )
-            : Icon(
-                LucideIcons.check,
-                size: 10,
-                color: constellationColor(context, 'green'),
-              );
-      }
-      return const SizedBox.shrink();
-    }
-
-    Widget cell(({int d, String ds})? c, int i) {
-      if (c == null) return const Expanded(child: SizedBox(height: 56));
-      final isSel = c.ds == selected;
-      final future = c.ds.compareTo(todayStr) > 0;
-      return Expanded(
-        child: InkWell(
-          onTap: () => onSelect(c.ds),
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
-            child: Column(
-              children: [
-                Container(
-                  width: 33,
-                  height: 33,
-                  alignment: Alignment.center,
-                  decoration: isSel
-                      ? BoxDecoration(
-                          color: t.bgBrandSolid,
-                          shape: BoxShape.circle,
-                        )
-                      : null,
-                  child: Opacity(
-                    opacity: !isSel && future ? 0.55 : 1,
-                    child: Text(
-                      '${c.d}',
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.bodyMd,
-                        fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
-                        color: isSel ? t.fgOnBrand : numColor(c.ds, i % 7),
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                SizedBox(height: 12, child: Center(child: mark(c.ds))),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    final dows = weekdayLabels();
-    return Padding(
-      // 가계부 _TxmCalendar 와 같은 값으로 둔다 — 캘린더는 페이지 여백 규칙에서 빼고
-      // 두 화면이 같은 격자를 쓴다(사용자 결정).
-      padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              for (var i = 0; i < 7; i++)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 8),
-                    child: Text(
-                      dows[i],
-                      textAlign: TextAlign.center,
-                      // 일=날짜와 동일(fgExpense)·토=fgBrand·평일=일반 텍스트색(사용자 결정)
-                      style: PTypo.caption.copyWith(
-                        fontWeight: PFontWeight.semi,
-                        color: i == 0
-                            ? t.statusDangerFg
-                            : i == 6
-                            ? t.fgBrand
-                            : t.fgPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          for (final w in expanded ? weeks : [weeks[selWeek]])
-            Row(
-              // 금액 줄 수가 달라도 날짜 숫자 y 고정 — Row 기본 center 가
-              // 낮은 셀을 세로 중앙으로 밀던 문제(토스 정렬 정합).
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [for (var i = 0; i < 7; i++) cell(w[i], i)],
-            ),
-          InkWell(
-            onTap: onToggleExpand,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 2, 0, 10),
-              child: Center(
-                child: Icon(
-                  expanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
-                  size: 20,
-                  color: t.fgTertiary,
-                ),
-              ),
-            ),
-          ),
-        ],
+    final Widget? child = switch (mark) {
+      _ when loading => null,
+      TodoCellCollected(:final colorKey) ||
+      TodoCellGrown(:final colorKey) => Icon(
+        LucideIcons.star,
+        size: iconSize,
+        color: constellationColor(context, colorKey),
       ),
-    );
-  }
-}
-
-/// 일별 그룹 — 날짜 헤더("yy. m. d(dow) · 오늘" + N/N 완료) + tdm 행.
-class _DayGroup extends ConsumerWidget {
-  const _DayGroup({
-    required this.ymd,
-    required this.items,
-    required this.today,
-    required this.onToggle,
-    required this.onTap,
-    required this.pendingIds,
-  });
-
-  /// null = 마감일 없음 그룹.
-  final String? ymd;
-  final List<Todo> items;
-
-  /// 완료 토글 진행 중인 항목 id.
-  final Set<int> pendingIds;
-  final DateTime today;
-  final ValueChanged<Todo> onToggle;
-  final ValueChanged<Todo> onTap;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final doneN = items.where((x) => x.done).length;
-
-    String head;
-    String? rel;
-    if (ymd == null) {
-      head = l.todoNoDue;
-    } else {
-      final d = DateTime.parse(ymd!);
-      head = '${d.year % 100}. ${d.month}. ${d.day}(${formatDay(d).dow})';
-      final diff = dateOnly(d).difference(dateOnly(today)).inDays;
-      rel = diff == 0
-          ? l.dateToday
-          : diff == 1
-          ? l.dateTomorrow
-          : diff == -1
-          ? l.dateYesterday
-          : null;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(top: PSpace.x24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                head,
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgSecondary,
-                  fontWeight: PFontWeight.semi,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              if (rel != null)
-                Text(
-                  ' · $rel',
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                ),
-              const Spacer(),
-              Text(
-                l.tdmDoneRatio(doneN, items.length),
-                style: PTypo.caption.copyWith(
-                  fontSize: 12.5,
-                  fontWeight: PFontWeight.semi,
-                  color: doneN == items.length
-                      ? constellationColor(context, 'green')
-                      : t.fgTertiary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-          for (var i = 0; i < items.length; i++)
-            // 밀면 편집·삭제가 바로 나온다. 탭은 그대로 상세로.
-            // 삭제는 todoActions 가 한다(상세 시트와 같은 것).
-            PSwipeActions(
-              key: ValueKey('todo-${items[i].rowId}'),
-              groupTag: 'todo-list',
-              actions: [
-                PSwipeAction(
-                  label: l.actionEdit,
-                  icon: LucideIcons.pencil,
-                  kind: PSwipeKind.primary,
-                  onSelect: () => todoActions.edit(context, ref, items[i]),
-                ),
-                PSwipeAction(
-                  label: l.actionDelete,
-                  icon: LucideIcons.trash2,
-                  kind: PSwipeKind.destructive,
-                  confirmTitle: todoActions.deleteConfirmTitle(
-                    context,
-                    items[i],
-                  ),
-                  confirmMessage: todoActions.deleteConfirmMessage(
-                    context,
-                    items[i],
-                  ),
-                  onSelect: () => todoActions.delete(context, ref, items[i]),
-                ),
-              ],
-              child: _TodoRow(
-                todo: items[i],
-                today: today,
-                last: i == items.length - 1,
-                onToggle: () => onToggle(items[i]),
-                onTap: () => onTap(items[i]),
-                pending: pendingIds.contains(items[i].rowId),
-              ),
-            ),
-        ],
+      TodoCellMissed() => Icon(
+        LucideIcons.cloudy,
+        size: iconSize,
+        color: c.fgNeutralSubtle,
       ),
-    );
-  }
-}
-
-/// 할일 행 (design .tdm-row) — 체크(24, 연체 빨강 테두리) + 제목/메타 + 우선순위 pill.
-class _TodoRow extends StatelessWidget {
-  const _TodoRow({
-    required this.todo,
-    required this.today,
-    required this.last,
-    required this.onToggle,
-    required this.onTap,
-    this.pending = false,
-  });
-  final Todo todo;
-  final DateTime today;
-  final bool last;
-  final VoidCallback onToggle;
-  final VoidCallback onTap;
-
-  /// 완료 토글 요청 진행 중 — 체크 자리에 스피너, 탭 잠금.
-  final bool pending;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final overdue = !todo.done && isTodoOverdue(todo.due, today);
-    final overdueColor = todoOverdueColor(context);
-    final prio = todoPrioOf(todo.priority);
-    final l = AppLocalizations.of(context);
-    final tag = todoTagLabel(l, _TodoScreenState._tagOf(todo));
-    final hasNote = (todo.content ?? '').trim().isNotEmpty;
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          border: last
-              ? null
-              : Border(bottom: BorderSide(color: t.borderSubtle)),
-        ),
-        child: Opacity(
-          opacity: todo.done ? 0.55 : 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 13),
-            child: Row(
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: pending ? null : onToggle,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: todo.done ? t.bgBrandSolid : Colors.transparent,
-                      shape: BoxShape.circle,
-                      border: todo.done
-                          ? null
-                          : Border.all(
-                              color: overdue ? overdueColor : t.borderStrong,
-                              width: 2,
-                            ),
-                    ),
-                    child: pending
-                        ? Center(
-                            child: PCircularProgressIndicator(
-                              size: 14,
-                              strokeWidth: 2,
-                              color: todo.done ? Colors.white : t.fgTertiary,
-                            ),
-                          )
-                        : todo.done
-                        ? const Icon(
-                            LucideIcons.check,
-                            size: 13,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        todo.title,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: 15,
-                          fontWeight: PFontWeight.semi,
-                          letterSpacing: -0.15,
-                          color: t.fgPrimary,
-                          decoration: todo.done
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Text(
-                            tag,
-                            style: PTypo.caption.copyWith(
-                              color: t.fgTertiary,
-                              fontSize: 12.5,
-                            ),
-                          ),
-                          if (hasNote) ...[
-                            _MetaDot(t: t),
-                            Icon(
-                              LucideIcons.alignLeft,
-                              size: 11,
-                              color: t.fgTertiary,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: prio.bg(context),
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    todoPrioLabel(l, todo.priority),
-                    style: PTypo.micro.copyWith(
-                      color: prio.color(context),
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: 0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+      TodoCellLeft(:final count, :final today) => Text(
+        l.frpTileDoneVal(count),
+        maxLines: 1,
+        softWrap: false,
+        style: PTypography.t1.copyWith(
+          color: today ? c.fgBrand : c.fgNeutralSubtle,
+          fontWeight: today ? FontWeight.w700 : FontWeight.w400,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),
-    );
-  }
-}
-
-/// 메타 구분 dot (2px).
-class _MetaDot extends StatelessWidget {
-  const _MetaDot({required this.t});
-  final GrooTokens t;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 7),
-      child: Container(
-        width: 2,
-        height: 2,
-        decoration: BoxDecoration(
-          color: t.borderStrong,
-          shape: BoxShape.circle,
-        ),
+      TodoCellDone() => Icon(
+        LucideIcons.check,
+        size: iconSize,
+        color: c.fgPositive,
       ),
-    );
-  }
-}
-
-/// 필터 시트 — 태그·우선순위 칩 + 완료 숨김 + 초기화/완료 (design 필터 시트).
-class _FilterSheetBody extends StatefulWidget {
-  const _FilterSheetBody({
-    required this.allTags,
-    required this.tags,
-    required this.prios,
-    required this.hideDone,
-    required this.onApply,
-  });
-  final List<String> allTags;
-  final Set<String> tags;
-  final Set<String> prios;
-  final bool hideDone;
-  final void Function(Set<String>, Set<String>, bool) onApply;
-
-  @override
-  State<_FilterSheetBody> createState() => _FilterSheetBodyState();
-}
-
-class _FilterSheetBodyState extends State<_FilterSheetBody> {
-  late Set<String> _tags = {...widget.tags};
-  late Set<String> _prios = {...widget.prios};
-  late bool _hideDone = widget.hideDone;
-
-  bool get _active => _tags.isNotEmpty || _prios.isNotEmpty || _hideDone;
-
-  /// 변경 즉시 반영(시트 밖 리스트도 갱신) — 완료 버튼은 닫기만.
-  void _sync() => widget.onApply({..._tags}, {..._prios}, _hideDone);
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            l.tdmFilterTag,
-            style: PTypo.caption.copyWith(
-              fontSize: 12.5,
-              fontWeight: PFontWeight.bold,
-              color: t.fgTertiary,
-            ),
-          ),
-          const SizedBox(height: 9),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final tag in widget.allTags)
-                _FilterChip(
-                  // sentinel 은 문구로 바꿔 그린다 — 그대로 그리면 안 보이는
-                  // 글자 하나가 칩 안에 남는다.
-                  label: todoTagLabel(l, tag),
-                  on: _tags.contains(tag),
-                  onTap: () => setState(() {
-                    _tags.contains(tag) ? _tags.remove(tag) : _tags.add(tag);
-                    _sync();
-                  }),
-                  t: t,
-                ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Text(
-            l.todoPriorityLabel,
-            style: PTypo.caption.copyWith(
-              fontSize: 12.5,
-              fontWeight: PFontWeight.bold,
-              color: t.fgTertiary,
-            ),
-          ),
-          const SizedBox(height: 9),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final p in kTodoPrios)
-                _FilterChip(
-                  label: todoPrioLabel(l, p.code),
-                  dotColor: p.color(context),
-                  on: _prios.contains(p.code),
-                  onTap: () => setState(() {
-                    _prios.contains(p.code)
-                        ? _prios.remove(p.code)
-                        : _prios.add(p.code);
-                    _sync();
-                  }),
-                  t: t,
-                ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          _FilterChip(
-            label: l.tdmHideDone,
-            icon: LucideIcons.check,
-            on: _hideDone,
-            onTap: () => setState(() {
-              _hideDone = !_hideDone;
-              _sync();
-            }),
-            t: t,
-          ),
-          const SizedBox(height: 20),
-          // footer 액션은 화면 폭을 반씩 나눠 갖는다 — 한 손으로 누를 폭을 확보한다
-          // (spec drawer.md "flex:1 평등 분배", dialog.md 모바일 footer).
-          // 가계부 필터 시트(search_screen)와 같은 배치다.
-          Row(
-            children: [
-              Expanded(
-                child: PButton(
-                  label: l.actionReset,
-                  variant: PButtonVariant.outline,
-                  fullWidth: true,
-                  onPressed: !_active
-                      ? null
-                      : () => setState(() {
-                          _tags = {};
-                          _prios = {};
-                          _hideDone = false;
-                          _sync();
-                        }),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: PButton(
-                  label: l.actionDone,
-                  fullWidth: true,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ],
-          ),
-        ],
+      null => null,
+    };
+    return ExcludeSemantics(
+      child: SizedBox(
+        height: height,
+        child: Center(child: child),
       ),
-    );
-  }
-}
-
-/// 필터 칩 (design .tdm-chip) — 선택 시 brand 틴트.
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.on,
-    required this.onTap,
-    required this.t,
-    this.dotColor,
-    this.icon,
-  });
-  final String label;
-  final bool on;
-  final VoidCallback onTap;
-  final GrooTokens t;
-  final Color? dotColor;
-  final IconData? icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: on ? t.bgBrandSubtle : Colors.transparent,
-      borderRadius: PRadius.brFull,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: PRadius.brFull,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          decoration: BoxDecoration(
-            border: Border.all(color: on ? t.borderBrand : t.borderDefault),
-            borderRadius: PRadius.brFull,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (dotColor != null) ...[
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-              ],
-              if (icon != null) ...[
-                Icon(icon, size: 12, color: on ? t.fgBrandStrong : t.fgPrimary),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                label,
-                style: PTypo.bodySm.copyWith(
-                  fontSize: 13.5,
-                  fontWeight: PFontWeight.semi,
-                  color: on ? t.fgBrandStrong : t.fgPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 원장 skeleton — 정적 틀(월네비·요일 헤더) 실렌더, 데이터 영역만 placeholder.
-class _LedgerSkeleton extends StatelessWidget {
-  const _LedgerSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final dows = weekdayLabels();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 10),
-        _MonthNav(
-          label: monthOnly(DateTime.now()),
-          onPrev: () {},
-          onNext: () {},
-          filterActive: false,
-          filterCount: 0,
-          onOpenFilter: () {},
-          tokens: t,
-        ),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PSkeleton.line(width: 180, height: 32),
-              SizedBox(height: 8),
-              PSkeleton.line(width: 220, height: 16),
-            ],
-          ),
-        ),
-        Padding(
-          // 실렌더 _LedgerCalendar 와 같은 여백.
-          padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
-          child: Row(
-            children: [
-              for (var i = 0; i < 7; i++)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 8),
-                    child: Text(
-                      dows[i],
-                      textAlign: TextAlign.center,
-                      // 일=날짜와 동일(fgExpense)·토=fgBrand·평일=일반 텍스트색(사용자 결정)
-                      style: PTypo.caption.copyWith(
-                        fontWeight: PFontWeight.semi,
-                        color: i == 0
-                            ? t.statusDangerFg
-                            : i == 6
-                            ? t.fgBrand
-                            : t.fgPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, 10),
-          child: Row(
-            children: [
-              for (var i = 0; i < 7; i++)
-                const Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                    child: PSkeleton(width: 33, height: 33),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        Container(height: 1, color: t.borderDefault),
-        Expanded(
-          child: ListView(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(PSpace.x24, 24, PSpace.x24, 28),
-            children: [
-              const PSkeleton.line(width: 140, height: 13),
-              const SizedBox(height: 8),
-              for (final w in const [160.0, 120.0, 184.0, 104.0, 148.0])
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  child: Row(
-                    children: [
-                      PSkeleton.circle(size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PSkeleton.line(width: w),
-                            const SizedBox(height: 4),
-                            const PSkeleton.line(width: 80, height: 12),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const PSkeleton(width: 40, height: 20),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
