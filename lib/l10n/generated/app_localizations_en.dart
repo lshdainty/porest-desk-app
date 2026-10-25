@@ -7905,4 +7905,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expLoadErrorDesc => 'Please try again in a moment.';
+
+  @override
+  String get statsNoMonthlyData => 'No monthly data';
+
+  @override
+  String get statsLoadFailedCategory => 'Couldn\'t load spending by category';
+
+  @override
+  String get statsLoadFailedMerchant => 'Couldn\'t load top merchants';
+
+  @override
+  String get statsLoadFailedHeatmap =>
+      'Couldn\'t load spending by day and time';
+
+  @override
+  String get statsLoadFailedHighlights => 'Couldn\'t load the summary';
+
+  @override
+  String get statsLoadFailedTrend => 'Couldn\'t load the trend';
+
+  @override
+  String get statsLoadFailedCompare => 'Couldn\'t load the comparison';
+
+  @override
+  String get statsLoadFailedWeekday => 'Couldn\'t load spending by weekday';
+
+  @override
+  String get statsLoadFailedFixed =>
+      'Couldn\'t load fixed and variable spending';
+
+  @override
+  String get statsFixedBulkLoadFailed => 'Couldn\'t load transactions';
+
+  @override
+  String get statsCompareSame => 'Same as the previous period.';
+
+  @override
+  String statsChartDonutName(String period, String total) {
+    return '$period spending by category, total $total';
+  }
+
+  @override
+  String statsChartHeatName(String period, String total) {
+    return '$period spending by day and time, total $total';
+  }
+
+  @override
+  String get statsChartHeatValue => 'Spending';
+
+  @override
+  String statsChartTrendName(String period, String income, String expense) {
+    return '$period income and spending trend, income $income · spending $expense';
+  }
+
+  @override
+  String statsChartSavingsName(String period, String unit) {
+    return '$period $unit';
+  }
+
+  @override
+  String statsChartCatTrendName(String period) {
+    return '$period monthly spending of top categories';
+  }
+
+  @override
+  String statsChartWeekdayName(String period) {
+    return '$period spending by weekday compared';
+  }
+
+  @override
+  String statsChartFixedName(String kind) {
+    return 'Monthly fixed and variable $kind';
+  }
+
+  @override
+  String get statsTableDate => 'Date';
+
+  @override
+  String get statsTableMonth => 'Month';
+
+  @override
+  String get statsTableTime => 'Time of day';
+
+  @override
+  String get statsTableWeekday => 'Weekday';
+
+  @override
+  String statsPeriodButtonAria(String period) {
+    return 'Change period ($period)';
+  }
+
+  @override
+  String get statsTabsAria => 'Statistics views';
 }

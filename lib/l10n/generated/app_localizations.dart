@@ -9149,7 +9149,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsNoData.
   ///
   /// In ko, this message translates to:
-  /// **'데이터가 없습니다'**
+  /// **'데이터가 없어요.'**
   String get statsNoData;
 
   /// No description provided for @statsNoDataShort.
@@ -9185,7 +9185,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsNoCategoryData.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리 데이터가 없습니다'**
+  /// **'카테고리 데이터가 없어요.'**
   String get statsNoCategoryData;
 
   /// No description provided for @statsTopMerchantsTitle.
@@ -9197,7 +9197,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsNoMerchantData.
   ///
   /// In ko, this message translates to:
-  /// **'가맹점 데이터가 없습니다'**
+  /// **'가맹점 데이터가 없어요.'**
   String get statsNoMerchantData;
 
   /// No description provided for @statsNoName.
@@ -9257,7 +9257,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsTooFewTx.
   ///
   /// In ko, this message translates to:
-  /// **'이번 달 거래가 아직 적어요'**
+  /// **'이번 달 거래가 아직 적어요.'**
   String get statsTooFewTx;
 
   /// No description provided for @statsLegendLow.
@@ -9317,7 +9317,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsNoTrendData.
   ///
   /// In ko, this message translates to:
-  /// **'추이 데이터가 없습니다'**
+  /// **'추이 데이터가 없어요.'**
   String get statsNoTrendData;
 
   /// No description provided for @statsAvgIncome.
@@ -9413,7 +9413,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsNoCompareData.
   ///
   /// In ko, this message translates to:
-  /// **'비교할 데이터가 없습니다'**
+  /// **'비교할 데이터가 없어요.'**
   String get statsNoCompareData;
 
   /// No description provided for @statsWeekdayTitle.
@@ -13097,13 +13097,13 @@ abstract class AppLocalizations {
   /// No description provided for @statsFixedExpenseNone.
   ///
   /// In ko, this message translates to:
-  /// **'이 기간에는 지출이 없어요'**
+  /// **'이 기간에는 지출이 없어요.'**
   String get statsFixedExpenseNone;
 
   /// No description provided for @statsFixedIncomeNone.
   ///
   /// In ko, this message translates to:
-  /// **'이 기간에는 수입이 없어요'**
+  /// **'이 기간에는 수입이 없어요.'**
   String get statsFixedIncomeNone;
 
   /// No description provided for @statsFixedTotalExpense.
@@ -13169,7 +13169,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsFixedEmptyDesc.
   ///
   /// In ko, this message translates to:
-  /// **'월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요'**
+  /// **'월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요.'**
   String get statsFixedEmptyDesc;
 
   /// No description provided for @statsFixedManage.
@@ -13295,7 +13295,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsFixedBulkEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'이 기간에는 정리할 거래가 없어요'**
+  /// **'이 기간에는 정리할 거래가 없어요.'**
   String get statsFixedBulkEmpty;
 
   /// No description provided for @statsFixedBulkApply.
@@ -13969,6 +13969,156 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'잠시 뒤에 다시 시도해주세요.'**
   String get expLoadErrorDesc;
+
+  /// No description provided for @statsNoMonthlyData.
+  ///
+  /// In ko, this message translates to:
+  /// **'월별 데이터가 없어요.'**
+  String get statsNoMonthlyData;
+
+  /// No description provided for @statsLoadFailedCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 지출을 불러오지 못했어요'**
+  String get statsLoadFailedCategory;
+
+  /// No description provided for @statsLoadFailedMerchant.
+  ///
+  /// In ko, this message translates to:
+  /// **'가맹점 순위를 불러오지 못했어요'**
+  String get statsLoadFailedMerchant;
+
+  /// No description provided for @statsLoadFailedHeatmap.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일 · 시간대 지출을 불러오지 못했어요'**
+  String get statsLoadFailedHeatmap;
+
+  /// No description provided for @statsLoadFailedHighlights.
+  ///
+  /// In ko, this message translates to:
+  /// **'요약을 불러오지 못했어요'**
+  String get statsLoadFailedHighlights;
+
+  /// No description provided for @statsLoadFailedTrend.
+  ///
+  /// In ko, this message translates to:
+  /// **'추이를 불러오지 못했어요'**
+  String get statsLoadFailedTrend;
+
+  /// No description provided for @statsLoadFailedCompare.
+  ///
+  /// In ko, this message translates to:
+  /// **'비교할 내용을 불러오지 못했어요'**
+  String get statsLoadFailedCompare;
+
+  /// No description provided for @statsLoadFailedWeekday.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일별 지출을 불러오지 못했어요'**
+  String get statsLoadFailedWeekday;
+
+  /// No description provided for @statsLoadFailedFixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 · 변동 내용을 불러오지 못했어요'**
+  String get statsLoadFailedFixed;
+
+  /// No description provided for @statsFixedBulkLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래를 불러오지 못했어요'**
+  String get statsFixedBulkLoadFailed;
+
+  /// No description provided for @statsCompareSame.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 기간과 같아요.'**
+  String get statsCompareSame;
+
+  /// No description provided for @statsChartDonutName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 카테고리별 지출, 합계 {total}'**
+  String statsChartDonutName(String period, String total);
+
+  /// No description provided for @statsChartHeatName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 요일 · 시간대별 지출, 합계 {total}'**
+  String statsChartHeatName(String period, String total);
+
+  /// No description provided for @statsChartHeatValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출'**
+  String get statsChartHeatValue;
+
+  /// No description provided for @statsChartTrendName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 수입 · 지출 추이, 수입 {income} · 지출 {expense}'**
+  String statsChartTrendName(String period, String income, String expense);
+
+  /// No description provided for @statsChartSavingsName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} {unit}'**
+  String statsChartSavingsName(String period, String unit);
+
+  /// No description provided for @statsChartCatTrendName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 주요 카테고리 월별 지출 추이'**
+  String statsChartCatTrendName(String period);
+
+  /// No description provided for @statsChartWeekdayName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 요일별 지출 비교'**
+  String statsChartWeekdayName(String period);
+
+  /// No description provided for @statsChartFixedName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{kind} 월별 고정 · 변동 추이'**
+  String statsChartFixedName(String kind);
+
+  /// No description provided for @statsTableDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜'**
+  String get statsTableDate;
+
+  /// No description provided for @statsTableMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get statsTableMonth;
+
+  /// No description provided for @statsTableTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'시간대'**
+  String get statsTableTime;
+
+  /// No description provided for @statsTableWeekday.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일'**
+  String get statsTableWeekday;
+
+  /// No description provided for @statsPeriodButtonAria.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 {period} 바꾸기'**
+  String statsPeriodButtonAria(String period);
+
+  /// No description provided for @statsTabsAria.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계 보기'**
+  String get statsTabsAria;
 }
 
 class _AppLocalizationsDelegate

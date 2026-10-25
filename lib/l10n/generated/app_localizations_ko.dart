@@ -4930,7 +4930,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsSegCustom => '직접';
 
   @override
-  String get statsNoData => '데이터가 없습니다';
+  String get statsNoData => '데이터가 없어요.';
 
   @override
   String get statsNoDataShort => '데이터 없음';
@@ -4952,13 +4952,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsSpendingByCategory => '카테고리별 지출';
 
   @override
-  String get statsNoCategoryData => '카테고리 데이터가 없습니다';
+  String get statsNoCategoryData => '카테고리 데이터가 없어요.';
 
   @override
   String get statsTopMerchantsTitle => '많이 쓴 가맹점 TOP 5';
 
   @override
-  String get statsNoMerchantData => '가맹점 데이터가 없습니다';
+  String get statsNoMerchantData => '가맹점 데이터가 없어요.';
 
   @override
   String get statsNoName => '(이름 없음)';
@@ -4988,7 +4988,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsPatternDesc => '색이 진할수록 지출이 많은 시간대예요 (단위: 원)';
 
   @override
-  String get statsTooFewTx => '이번 달 거래가 아직 적어요';
+  String get statsTooFewTx => '이번 달 거래가 아직 적어요.';
 
   @override
   String get statsLegendLow => '적음';
@@ -5020,7 +5020,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsIncomeExpenseTrend => '수입·지출 추이';
 
   @override
-  String get statsNoTrendData => '추이 데이터가 없습니다';
+  String get statsNoTrendData => '추이 데이터가 없어요.';
 
   @override
   String get statsAvgIncome => '평균 수입';
@@ -5074,7 +5074,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsSortByChange => '변화 큰 순';
 
   @override
-  String get statsNoCompareData => '비교할 데이터가 없습니다';
+  String get statsNoCompareData => '비교할 데이터가 없어요.';
 
   @override
   String get statsWeekdayTitle => '요일별 지출 비교';
@@ -7236,10 +7236,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsFixedIncomeTitle => '수입 — 고정과 변동';
 
   @override
-  String get statsFixedExpenseNone => '이 기간에는 지출이 없어요';
+  String get statsFixedExpenseNone => '이 기간에는 지출이 없어요.';
 
   @override
-  String get statsFixedIncomeNone => '이 기간에는 수입이 없어요';
+  String get statsFixedIncomeNone => '이 기간에는 수입이 없어요.';
 
   @override
   String get statsFixedTotalExpense => '전체 지출';
@@ -7279,7 +7279,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get statsFixedEmptyDesc =>
-      '월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요';
+      '월세·통신비·월급처럼 매달 정해진 거래를 고정으로 표시하면 여기서 따로 볼 수 있어요.';
 
   @override
   String get statsFixedManage => '거래를 고정으로 정리하기';
@@ -7350,7 +7350,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get statsFixedBulkEmpty => '이 기간에는 정리할 거래가 없어요';
+  String get statsFixedBulkEmpty => '이 기간에는 정리할 거래가 없어요.';
 
   @override
   String statsFixedBulkApply(int count) {
@@ -7729,4 +7729,95 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expLoadErrorDesc => '잠시 뒤에 다시 시도해주세요.';
+
+  @override
+  String get statsNoMonthlyData => '월별 데이터가 없어요.';
+
+  @override
+  String get statsLoadFailedCategory => '카테고리별 지출을 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedMerchant => '가맹점 순위를 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedHeatmap => '요일 · 시간대 지출을 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedHighlights => '요약을 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedTrend => '추이를 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedCompare => '비교할 내용을 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedWeekday => '요일별 지출을 불러오지 못했어요';
+
+  @override
+  String get statsLoadFailedFixed => '고정 · 변동 내용을 불러오지 못했어요';
+
+  @override
+  String get statsFixedBulkLoadFailed => '거래를 불러오지 못했어요';
+
+  @override
+  String get statsCompareSame => '지난 기간과 같아요.';
+
+  @override
+  String statsChartDonutName(String period, String total) {
+    return '$period 카테고리별 지출, 합계 $total';
+  }
+
+  @override
+  String statsChartHeatName(String period, String total) {
+    return '$period 요일 · 시간대별 지출, 합계 $total';
+  }
+
+  @override
+  String get statsChartHeatValue => '지출';
+
+  @override
+  String statsChartTrendName(String period, String income, String expense) {
+    return '$period 수입 · 지출 추이, 수입 $income · 지출 $expense';
+  }
+
+  @override
+  String statsChartSavingsName(String period, String unit) {
+    return '$period $unit';
+  }
+
+  @override
+  String statsChartCatTrendName(String period) {
+    return '$period 주요 카테고리 월별 지출 추이';
+  }
+
+  @override
+  String statsChartWeekdayName(String period) {
+    return '$period 요일별 지출 비교';
+  }
+
+  @override
+  String statsChartFixedName(String kind) {
+    return '$kind 월별 고정 · 변동 추이';
+  }
+
+  @override
+  String get statsTableDate => '날짜';
+
+  @override
+  String get statsTableMonth => '월';
+
+  @override
+  String get statsTableTime => '시간대';
+
+  @override
+  String get statsTableWeekday => '요일';
+
+  @override
+  String statsPeriodButtonAria(String period) {
+    return '기간 $period 바꾸기';
+  }
+
+  @override
+  String get statsTabsAria => '통계 보기';
 }
