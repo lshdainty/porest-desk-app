@@ -2629,18 +2629,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryLoadError => '카테고리 로드 실패';
 
   @override
-  String get categoryNoResults => '검색 결과가 없어요';
+  String get categoryNoResults => '찾는 카테고리가 없어요.';
 
   @override
-  String get categoryEmpty => '카테고리가 없습니다';
-
-  @override
-  String get categoryEmptyHint => '상단 \'추가\' 버튼으로 추가하세요';
-
-  @override
-  String categoryHasSubcategories(String type) {
-    return '$type · 하위 카테고리 있음';
-  }
+  String get categoryEmpty => '카테고리가 없어요.';
 
   @override
   String get categoryAdd => '카테고리 추가';
@@ -2665,7 +2657,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get categoryEdit => '카테고리 편집';
+  String get categoryEdit => '카테고리 수정';
 
   @override
   String get categoryNameRequired => '이름을 입력해주세요.';
@@ -2674,7 +2666,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryNameTooLong => '이름은 12자 이내로 입력해주세요.';
 
   @override
-  String get categoryNameDuplicate => '같은 위치에 같은 이름의 카테고리가 있습니다.';
+  String get categoryNameDuplicate => '같은 자리에 같은 이름의 카테고리가 있어요.';
 
   @override
   String get categoryParent => '상위 카테고리';
@@ -2684,11 +2676,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String categoryBudgetExceedMessage(String parent, String amount) {
-    return '이동하면 \"$parent\" 예산을 $amount 초과합니다. 그래도 이동할까요?';
+    return '옮기면 \"$parent\" 예산을 $amount 넘어요. 그래도 옮길까요?';
   }
 
   @override
-  String get categoryMove => '이동';
+  String get categoryMove => '옮기기';
 
   @override
   String get categoryUpdated => '카테고리가 수정되었습니다';
@@ -2700,19 +2692,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryActionFailed => '실패';
 
   @override
-  String get categoryDeleteTitle => '카테고리 삭제';
-
-  @override
-  String get categoryDeleteBlockedTitle => '삭제 불가';
+  String get categoryDeleteBlockedTitle => '삭제할 수 없어요';
 
   @override
   String categoryDeleteHasChildren(String name) {
     return '\"$name\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해주세요.';
-  }
-
-  @override
-  String categoryDeleteWithBudget(String name) {
-    return '예산이 설정되어 있는 카테고리입니다. 삭제하면 예산도 함께 삭제됩니다. \"$name\" 카테고리를 삭제할까요?';
   }
 
   @override
@@ -2724,31 +2708,52 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryDeleteFailed => '삭제 실패';
 
   @override
-  String get categoryNew => '새 카테고리';
+  String get categoryParentMoveHint => '최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
 
   @override
-  String categoryPreview(String type) {
-    return '$type 카테고리 · 미리보기';
-  }
-
-  @override
-  String get categoryTypeLabel => '구분';
-
-  @override
-  String get categoryOptionalSuffix => ' (선택)';
-
-  @override
-  String get categoryParentMoveHint =>
-      '다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
-
-  @override
-  String get categoryMakeRoot => '— 최상위 카테고리로 두기 —';
+  String get categoryMakeRoot => '최상위';
 
   @override
   String get categoryNamePlaceholder => '예: 반려동물, 부수입';
 
   @override
   String get categoryIconLabel => '아이콘';
+
+  @override
+  String get categoryLoadFailed => '카테고리를 불러오지 못했어요';
+
+  @override
+  String get categoryDeleteMessage =>
+      '이미 기록된 거래는 지워지지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 지워져요.';
+
+  @override
+  String categoryDeleteRecurring(int count) {
+    return '이 카테고리를 쓰는 반복 거래 $count개는 계속 이 카테고리로 기록돼요.';
+  }
+
+  @override
+  String categoryExpandOf(String name) {
+    return '$name 하위 카테고리';
+  }
+
+  @override
+  String categoryMoreOf(String name) {
+    return '$name 더보기';
+  }
+
+  @override
+  String categoryDragReorderOf(String name) {
+    return '$name 순서 바꾸기';
+  }
+
+  @override
+  String get categoryKindLabel => '종류';
+
+  @override
+  String get categorySubmitAdd => '추가';
+
+  @override
+  String get categoryAddSub => '하위 카테고리 추가';
 
   @override
   String get authLoginPrompt => '그루 계정으로 로그인해주세요.';
@@ -6208,12 +6213,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMoveTxEntry => '거래 옮기기';
 
   @override
-  String get categoryMoveTxEntryDesc =>
-      '거래가 달린 카테고리는 하위 분류를 만들 수 없어요. 거래를 옮기면 만들 수 있어요';
-
-  @override
   String categoryMoveTxDesc(String name) {
-    return '$name 에 달린 거래·반복거래·분할을 모두 옮겨요';
+    return '$name에 달린 거래 · 반복 거래 · 나눈 거래를 모두 옮겨요.';
   }
 
   @override
@@ -6223,6 +6224,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryMoveTxModeExisting => '기존 카테고리로';
 
   @override
+  String get categoryMoveTxMode => '옮기는 방법';
+
+  @override
   String get categoryMoveTxChildName => '만들 하위 이름';
 
   @override
@@ -6230,20 +6234,26 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String categoryMoveTxNewHint(String name) {
-    return '$name 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요';
+    return '$name 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요.';
   }
 
   @override
   String get categoryMoveTxTarget => '옮길 카테고리';
 
   @override
-  String get categoryMoveTxTargetPlaceholder => '카테고리 선택';
+  String get categoryMoveTxTargetPlaceholder => '카테고리 고르기';
 
   @override
-  String get categoryMoveTxHint => '같은 유형의 말단 카테고리만 고를 수 있어요';
+  String get categoryMoveTxHint => '같은 종류의 맨 아래 카테고리만 고를 수 있어요.';
 
   @override
-  String get categoryMoveTxNoTarget => '옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요';
+  String get categoryMoveTxNoTarget => '옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요.';
+
+  @override
+  String get categoryMoveTxErrChildName => '만들 하위 이름을 입력해주세요.';
+
+  @override
+  String get categoryMoveTxErrTarget => '옮길 카테고리를 골라주세요.';
 
   @override
   String categoryMoveTxDone(int count) {
@@ -6543,7 +6553,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get categoryReorderHint =>
-      '핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.';
+      '손잡이를 끌어 순서를 바꿔요. 상위는 상위끼리, 하위는 같은 상위 안에서 옮겨요.';
 
   @override
   String get txmSpendSummary => '소비 요약';

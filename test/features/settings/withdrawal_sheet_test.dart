@@ -16,6 +16,7 @@ import 'package:groo_damda_app/features/settings/application/withdrawal_provider
 import 'package:groo_damda_app/features/settings/data/withdrawal_repository.dart';
 import 'package:groo_damda_app/features/settings/domain/withdrawal_check.dart';
 import 'package:groo_damda_app/features/settings/presentation/withdrawal_sheet.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_en.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
@@ -251,7 +252,7 @@ void main() {
 
     await tester.tap(find.text(_l.withdrawUseEmailCode));
     await tester.pumpAndSettle();
-    expect(find.text(_l.withdrawCodeDescription), findsOneWidget);
+    expect(find.text(keepAll(_l.withdrawCodeDescription)), findsOneWidget);
     expect(find.byType(PInputOtp), findsOneWidget);
 
     // 코드를 보내기 전 — [코드 받기]
@@ -275,7 +276,7 @@ void main() {
     expect(confirm.onPressed, isNotNull, reason: '6자리 전에도 켜 둔다');
     await tester.tap(find.text(_l.withdrawConfirm));
     await tester.pumpAndSettle();
-    expect(find.text(_l.withdrawCodeIncomplete), findsOneWidget);
+    expect(find.text(keepAll(_l.withdrawCodeIncomplete)), findsOneWidget);
     expect(repo.withdrawCalls, 0);
   });
 
@@ -292,7 +293,7 @@ void main() {
     await tester.enterText(find.byType(TextField).first, '123456');
     await tester.tap(find.text(_l.withdrawConfirm));
     await tester.pumpAndSettle();
-    expect(find.text(_l.withdrawCodeWrong), findsOneWidget);
+    expect(find.text(keepAll(_l.withdrawCodeWrong)), findsOneWidget);
     expect(find.text('server raw'), findsNothing);
     expect(find.byType(PBusyScrimLayer), findsNothing);
     expect(find.byType(PProgressCircle), findsNothing);
@@ -372,7 +373,7 @@ void main() {
     await tester.enterText(find.byType(TextField).first, '123456');
     await tester.tap(find.text(_l.withdrawConfirm));
     await tester.pumpAndSettle();
-    expect(find.text(_l.withdrawFailed), findsOneWidget);
+    expect(find.text(keepAll(_l.withdrawFailed)), findsOneWidget);
     expect(_t(_l.withdrawCodeWrong), findsNothing);
     expect(find.text('net raw'), findsNothing);
   });
@@ -394,7 +395,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text(_l.withdrawConfirm));
     await tester.pumpAndSettle();
-    expect(find.text(_l.withdrawPasswordWrong), findsOneWidget);
+    expect(find.text(keepAll(_l.withdrawPasswordWrong)), findsOneWidget);
     expect(find.text('raw pw'), findsNothing);
   });
 
@@ -424,7 +425,7 @@ void main() {
       expect(_has(_l.withdrawLocked), findsWidgets);
       expect(_l.withdrawLocked, '5번 틀렸어요. 코드를 다시 받아주세요.');
       expect(find.text('raw lock'), findsNothing);
-      expect(find.text(_l.withdrawFailed), findsNothing);
+      expect(find.text(keepAll(_l.withdrawFailed)), findsNothing);
     });
   }
 

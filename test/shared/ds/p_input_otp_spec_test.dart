@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
@@ -221,11 +222,11 @@ void main() {
             if (want['description.content'] != text) {
               k.fail('description.content: 스펙 ${want['description.content']}');
             }
-            final desc = tester.widget<Text>(find.text(text)).style!;
+            final desc = tester.widget<Text>(find.text(keepAll(text))).style!;
             k.typo('description.typography', desc);
             k.color('description.foreground', desc.color!);
             expect(
-              find.text(state == 'invalid' ? _description : _error),
+              find.text(keepAll(state == 'invalid' ? _description : _error)),
               findsNothing,
             );
 

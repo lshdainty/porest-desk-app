@@ -2,149 +2,191 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
-import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_color_picker.dart';
-import 'package:groo_damda_app/shared/widgets/p_icon_picker.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
-import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
-import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
+import 'package:groo_damda_app/features/category/presentation/category_tile.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
-import 'package:groo_damda_app/features/category/presentation/category_move_tx_sheet.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/category_icons.dart';
+import 'package:groo_damda_app/shared/ds/icon_picker/p_icon_picker.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
+import 'package:groo_damda_app/shared/forms/color_pick.dart';
+import 'package:groo_damda_app/shared/forms/pick_list.dart';
+import 'package:groo_damda_app/shared/forms/picker_row.dart';
 
-/// 카테고리 추가/편집 시트 — 웹 `CategoryEditDialog.tsx` 미러.
+/// 카테고리 이름 상한 — 목록 줄 한 칸에 들어가는 길이(서버 상한은 더 넓다).
+const int kCategoryNameMax = 12;
+
+/// 수정 시트 머리 ⋮ 의 동작 — 시트를 닫은 뒤 부르는 쪽(목록 화면)이 새 폼 · 옮기기 시트 · 확인창을 연다
+/// (폼 위에 폼이 겹치지 않는다). 줄 끝 ⋮ 는 두지 않는다(2026-10-25 원칙).
+enum CategoryEditAction { addChild, moveTx, delete }
+
+/// 상위 카테고리 고르기의 "최상위" 줄 값 — rowId 는 1부터 시작한다.
+const int _kRootParent = 0;
+
+/// 카테고리 추가 · 수정 폼 — 웹 `CategoryEditDialog.tsx` 미러(I-20 B 12). 입력 폼 시트: 맨 위 한 줄에 미리보기 타일 + 이름 칸,
+/// 그 아래 고르는 값 넷(종류 · 상위 · 색상 · 아이콘)은 줄이다. 바닥 주 버튼 하나(추가 · 저장)는 켜 두고 누를 때 칸 아래에 알린다.
 ///
-/// 섹션 순서(웹 정합): 미리보기 카드 → 구분(지출/수입, 편집 시에도 변경 가능) →
-/// 상위 카테고리(선택) → 이름(카운터 N/12 + 에러) → 색상 → 아이콘(34종).
-void showCategoryEditDialog(
+/// 고치는 카테고리는 머리 오른쪽 ⋮ 에 [하위 카테고리 추가](최상위만) · [거래 옮기기](하위가 없을 때만) · [삭제](맨 아래 묶음)가
+/// 있고, 고른 동작은 시트를 닫으며 [CategoryEditAction] 으로 돌려준다 — 바뀐 값이 있으면 닫을 때와 같은 "작성한 내용이 사라져요"
+/// 를 먼저 묻는다. 저장하거나 그냥 닫으면 null.
+Future<CategoryEditAction?> showCategoryEditDialog(
   BuildContext context, {
   ExpenseCategory? edit,
   String defaultExpenseType = 'EXPENSE',
+  int? defaultParentRowId,
 }) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  final probe = _DirtyProbe();
+  return PBottomSheet.show<CategoryEditAction>(
     context,
-    title: edit == null ? l.categoryAdd : l.categoryEdit,
-    contentBuilder: (ctx, scrollCtrl) => _CategoryEditBody(
+    form: true,
+    isDirty: () => probe.dirty(),
+    leaveCopy: _leaveCopy(l),
+    builder: (_) => _CategoryForm(
       edit: edit,
       defaultExpenseType: defaultExpenseType,
-      scrollController: scrollCtrl,
-      controller: controller,
-    ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: edit == null ? l.calAdd : l.actionSave,
+      defaultParentRowId: defaultParentRowId,
+      probe: probe,
     ),
   );
 }
 
-/// 상위 카테고리 PSelect 의 "최상위" 항목 sentinel (rowId 는 1부터 시작).
-const int _kRootParent = 0;
+PLeaveConfirmCopy _leaveCopy(AppLocalizations l) => PLeaveConfirmCopy(
+  title: l.sheetLeaveTitle,
+  description: l.sheetLeaveDescription,
+  stayLabel: l.sheetLeaveStay,
+  leaveLabel: l.sheetLeaveLeave,
+);
 
-class _CategoryEditBody extends ConsumerStatefulWidget {
-  const _CategoryEditBody({
+class _DirtyProbe {
+  bool Function() dirty = () => false;
+}
+
+class _CategoryForm extends ConsumerStatefulWidget {
+  const _CategoryForm({
     this.edit,
     required this.defaultExpenseType,
-    required this.scrollController,
-    required this.controller,
+    this.defaultParentRowId,
+    required this.probe,
   });
   final ExpenseCategory? edit;
   final String defaultExpenseType;
-  final ScrollController scrollController;
-  final PSheetController controller;
+  final int? defaultParentRowId;
+  final _DirtyProbe probe;
 
   @override
-  ConsumerState<_CategoryEditBody> createState() => _CategoryEditBodyState();
+  ConsumerState<_CategoryForm> createState() => _CategoryFormState();
 }
 
-class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
+class _CategoryFormState extends ConsumerState<_CategoryForm> {
   late final TextEditingController _nameCtrl;
-  late String _expenseType;
+  final _nameFocus = FocusNode();
+
+  late final String _initialName;
+  late final String _initialKind;
+  late final int? _initialParent;
+  late final String _initialColor;
+  late final String _initialIcon;
+
+  late String _kind;
+  int? _parentRowId;
+
+  /// 고른 색 — 새 카테고리는 색을 고르기 전까지 고른 종류의 첫 안 쓴 색을 따라간다(null).
+  String? _pickedColor;
+
+  /// 고치는 카테고리가 팔레트 밖 색을 들고 있으면 그 값 — "지금 색" 칸이 된다.
+  String? _foreignColor;
   late String _icon;
-  late String _color;
-  late int? _parentRowId;
-  bool _touched = false;
+  String? _nameError;
   bool _submitting = false;
 
   bool get _isEdit => widget.edit != null;
 
+  List<ExpenseCategory> get _categories =>
+      ref.read(categoriesProvider).value ?? const [];
+
   @override
   void initState() {
     super.initState();
-    final c = widget.edit;
-    _nameCtrl = TextEditingController(text: c?.categoryName ?? '');
-    _expenseType = c?.expenseType ?? widget.defaultExpenseType;
-    _icon = c?.icon ?? 'tag';
-    // 웹 정합 — 팔레트에 없는(레거시/커스텀) 색은 첫 색으로 정규화.
-    // kChartBaseHexes 는 소문자라 비교 전 lower 정규화 (picker 도 정확 비교).
-    final rawColor = c?.color?.trim().toLowerCase();
-    _color = (rawColor != null && kChartBaseHexes.contains(rawColor))
-        ? rawColor
-        : kChartBaseHexes.first;
-    _parentRowId = widget.edit?.parentRowId;
-    widget.controller.onSubmit = _submit;
-    if (_isEdit) widget.controller.onDelete = _delete;
-  }
-
-  void _setSubmitting(bool v) {
-    setState(() => _submitting = v);
-    widget.controller.setSubmitting(v);
+    final e = widget.edit;
+    _initialName = e?.categoryName ?? '';
+    _initialKind = e?.expenseType ?? widget.defaultExpenseType;
+    _initialParent = e?.parentRowId ?? widget.defaultParentRowId;
+    _initialIcon = e?.icon == null || e!.icon!.isEmpty ? 'tag' : e.icon!;
+    // 고치는 카테고리는 저장된 색을 그대로 — 팔레트 밖 색도 빨강으로 바꾸지 않는다
+    _initialColor = e?.color?.trim().isNotEmpty == true
+        ? e!.color!.trim()
+        : _nextColor(_initialKind);
+    if (e != null && chartColorOfHex(_initialColor) == null) {
+      _foreignColor = _initialColor;
+    }
+    _nameCtrl = TextEditingController(text: _initialName);
+    _kind = _initialKind;
+    _parentRowId = _initialParent;
+    _icon = _initialIcon;
+    widget.probe.dirty = () => _dirty;
   }
 
   @override
   void dispose() {
+    widget.probe.dirty = () => false;
     _nameCtrl.dispose();
+    _nameFocus.dispose();
     super.dispose();
   }
 
-  List<ExpenseCategory> get _categories =>
-      ref.read(categoriesProvider).value ?? const [];
+  /// 같은 종류 카테고리가 아직 쓰지 않은 첫 색(color-swatch.md) — 늘 빨강으로 시작하지 않는다.
+  String _nextColor(String kind) => firstUnusedHex([
+    for (final c in _categories)
+      if (c.expenseType == kind) c.color,
+  ]);
+
+  String get _color =>
+      _pickedColor ?? (_isEdit ? _initialColor : _nextColor(_kind));
 
   String get _nameTrim => _nameCtrl.text.trim();
 
-  /// 이름 중복 — 서버 규칙과 동일 범위: 같은 상위(부모) · 같은 타입 안에서만 금지.
-  /// (지출 '이자'와 수입 '이자', '생활>관리비'와 '주거>관리비' 처럼 위치·타입이 다르면 허용)
-  bool get _duplicate => _categories.any(
-    (c) =>
-        c.categoryName == _nameTrim &&
-        c.rowId != widget.edit?.rowId &&
-        c.expenseType == _expenseType &&
-        c.parentRowId == _parentRowId,
-  );
+  bool get _dirty =>
+      _nameCtrl.text != _initialName ||
+      _kind != _initialKind ||
+      _parentRowId != _initialParent ||
+      (_isEdit ? _color != _initialColor : _pickedColor != null) ||
+      _icon != _initialIcon;
 
-  bool get _valid =>
-      _nameTrim.isNotEmpty && _nameTrim.length <= 12 && !_duplicate;
-
-  /// 웹과 동일한 에러 문구 (touched 후에만 노출).
-  String? get _nameError {
-    if (!_touched || _valid) return null;
-    final l = AppLocalizations.of(context);
-    if (_nameTrim.isEmpty) return l.categoryNameRequired;
-    if (_nameTrim.length > 12) return l.categoryNameTooLong;
-    if (_duplicate) return l.categoryNameDuplicate;
-    return null;
-  }
-
-  /// 본인이 이미 자식을 가진 부모면 상위 변경 불가 (깊이 2+ 방지 — 웹 정합).
   bool get _selfHasChildren =>
-      _isEdit && _categories.any((c) => c.parentRowId == widget.edit!.rowId);
+      _isEdit &&
+      (widget.edit!.hasChildren ||
+          _categories.any((c) => c.parentRowId == widget.edit!.rowId));
 
-  /// 웹 정합 — 저장 버튼은 touched 전엔 활성(눌러서 에러를 노출하는 플로우),
-  /// touched 후엔 valid 일 때만 활성.
-  bool get _canSubmit => !_submitting && (!_touched || _valid);
+  /// 이름 검사 — 같은 상위 · 같은 종류 안에서만 겹치면 안 된다(서버 규칙과 같다).
+  String? _nameIssue(AppLocalizations l) {
+    final name = _nameTrim;
+    if (name.isEmpty) return l.categoryNameRequired;
+    if (name.characters.length > kCategoryNameMax) {
+      return l.categoryNameTooLong;
+    }
+    final taken = _categories.any(
+      (c) =>
+          c.rowId != widget.edit?.rowId &&
+          c.expenseType == _kind &&
+          c.parentRowId == _parentRowId &&
+          c.categoryName == name,
+    );
+    return taken ? l.categoryNameDuplicate : null;
+  }
 
   /// 카테고리 변경(특히 상위 재배치) 후 집계 캐시 무효화 — 웹 expenseKeys.all 정합.
   ///
@@ -157,7 +199,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     ref.invalidate(dashboardSummaryProvider);
   }
 
-  /// 자식 이동 시 새 부모 예산 초과 확인 — 초과면 다이얼로그 1회(승인=true) (룰3).
+  /// 자식 이동 시 새 부모 예산 초과 확인 — 초과면 확인창 1회(승인=true) (룰3).
   /// 예산 없음·미초과면 true(그대로 진행), 사용자가 취소하면 false.
   Future<bool> _confirmMoveIfExceedsBudget(int newParentRowId) async {
     final now = DateTime.now();
@@ -200,20 +242,27 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
             .map((c) => c.categoryName)
             .firstOrNull ??
         l.categoryParent;
-    return showPConfirmDialog(
+    return PAlertDialog.show(
       context,
       title: l.categoryBudgetExceedTitle,
-      message: l.categoryBudgetExceedMessage(
+      description: l.categoryBudgetExceedMessage(
         parentName,
         krwSigned(projected - parentBudget, false, unit: true),
       ),
-      confirmLabel: l.categoryMove,
+      cancelLabel: l.actionCancel,
+      actionLabel: l.categoryMove,
     );
   }
 
   Future<void> _submit() async {
-    setState(() => _touched = true);
-    if (_submitting || !_valid) return;
+    if (_submitting) return;
+    final l = AppLocalizations.of(context);
+    final issue = _nameIssue(l);
+    if (issue != null) {
+      setState(() => _nameError = issue);
+      _nameFocus.requestFocus();
+      return;
+    }
     final name = _nameTrim;
     final parentDisabled = _selfHasChildren;
 
@@ -226,7 +275,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       if (!ok || !mounted) return;
     }
 
-    _setSubmitting(true);
+    setState(() => _submitting = true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       if (_isEdit) {
@@ -235,7 +284,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           categoryName: name,
           icon: _icon,
           color: _color,
-          expenseType: _expenseType,
+          expenseType: _kind,
           // 웹 정합 — parentRowId 는 항상 포함(null = 최상위). 자식 보유 시 기존 유지.
           includeParentRowId: true,
           parentRowId: parentDisabled ? widget.edit!.parentRowId : _parentRowId,
@@ -245,278 +294,325 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           categoryName: name,
           icon: _icon,
           color: _color,
-          expenseType: _expenseType,
+          expenseType: _kind,
           parentRowId: _parentRowId,
         );
       }
       _invalidateAggregates();
       if (!mounted) return;
-      Navigator.of(context).pop();
+      PBottomSheet.of(context).close();
     } on ApiException {
+      // 표면이 닫히지 않고 쓴 값이 남는다 — 알림은 옛 길 그대로
       if (!mounted) return;
     } finally {
-      if (mounted) _setSubmitting(false);
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
-  Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
-    // 웹 정합 — 하위 카테고리가 있으면 삭제 차단 안내.
-    if (_selfHasChildren) {
-      // 고를 것이 없는 차단 통지 — 확인 하나(spec alert-dialog.md · acknowledge).
-      await showPConfirmDialog(
+  /// 머리 ⋮ 의 동작은 수정 시트를 떠난다 — 바뀐 값이 있으면 닫을 때와 같은 "작성한 내용이 사라져요" 를 먼저 묻는다.
+  Future<void> _act(CategoryEditAction action) async {
+    if (_dirty) {
+      final leave = await PAlertDialog.confirmLeave(
         context,
-        title: l.categoryDeleteBlockedTitle,
-        message: l.categoryDeleteHasChildren(widget.edit!.categoryName),
-        acknowledge: true,
+        _leaveCopy(AppLocalizations.of(context)),
       );
-      return;
+      if (!leave || !mounted) return;
     }
-    // 예산이 걸린 카테고리면 함께 삭제됨을 안내 (백엔드 cascade).
-    final now = DateTime.now();
-    final budgets = await ref.read(
-      monthBudgetsProvider((year: now.year, month: now.month)).future,
+    PBottomSheet.of(context).close(action);
+  }
+
+  Widget _headerAction(AppLocalizations l) {
+    final cat = widget.edit!;
+    return PButton.icon(
+      icon: LucideIcons.ellipsisVertical,
+      semanticLabel: l.categoryMoreOf(cat.categoryName),
+      variant: PButtonVariant.ghost,
+      ghostColor: PButtonGhostColor.neutralSubtle,
+      size: PButtonSize.small,
+      onPressed: () => PMenuSheet.show(
+        context,
+        title: cat.categoryName,
+        groups: [
+          PMenuSheetGroup([
+            // 2단계까지 — 하위 줄에는 하위 추가를 두지 않는다
+            if (cat.parentRowId == null)
+              PMenuSheetItem(
+                label: l.categoryAddSub,
+                icon: LucideIcons.plus,
+                onSelect: () => _act(CategoryEditAction.addChild),
+              ),
+            // 하위가 있는 부모에는 거래가 달릴 수 없어 옮길 것이 0 이다
+            if (!_selfHasChildren)
+              PMenuSheetItem(
+                label: l.categoryMoveTxEntry,
+                icon: LucideIcons.arrowRightLeft,
+                onSelect: () => _act(CategoryEditAction.moveTx),
+              ),
+          ]),
+          PMenuSheetGroup([
+            PMenuSheetItem(
+              label: l.actionDelete,
+              icon: LucideIcons.trash2,
+              tone: PMenuSheetTone.critical,
+              onSelect: () => _act(CategoryEditAction.delete),
+            ),
+          ]),
+        ],
+      ),
     );
-    if (!mounted) return;
-    final hasBudget = budgets.any((b) => b.categoryRowId == widget.edit!.rowId);
-    final ok = await showPConfirmDialog(
+  }
+
+  String _kindText(AppLocalizations l, String kind) =>
+      kind == 'EXPENSE' ? l.expTypeExpense : l.expTypeIncome;
+
+  Future<void> _pickKind() async {
+    FocusScope.of(context).unfocus();
+    final picked = await PBottomSheet.show<String>(
       context,
-      title: l.categoryDeleteTitle,
-      message: hasBudget
-          ? l.categoryDeleteWithBudget(widget.edit!.categoryName)
-          : l.categoryDeleteConfirm(widget.edit!.categoryName),
-      confirmLabel: l.actionDelete,
-      destructive: true,
+      builder: (sheetContext) {
+        final l = AppLocalizations.of(sheetContext);
+        return PBottomSheetContent(
+          title: l.categoryKindLabel,
+          closeLabel: l.actionClose,
+          flushBody: true,
+          body: PickList<String>(
+            label: l.categoryKindLabel,
+            selected: _kind,
+            items: [
+              PickItem(value: 'EXPENSE', title: l.expTypeExpense),
+              PickItem(value: 'INCOME', title: l.expTypeIncome),
+            ],
+          ),
+        );
+      },
     );
-    if (!ok || !mounted) return;
-    _setSubmitting(true);
-    try {
-      final repo = await ref.read(expenseRepositoryProvider.future);
-      await repo.deleteCategory(widget.edit!.rowId);
-      _invalidateAggregates();
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException {
-      if (!mounted) return;
-    } finally {
-      if (mounted) _setSubmitting(false);
-    }
+    if (picked == null || !mounted || picked == _kind) return;
+    setState(() {
+      _kind = picked;
+      // 다른 종류의 상위가 남으면 서버가 거절한다 — 최상위로 되돌린다
+      _parentRowId = null;
+    });
+  }
+
+  Future<void> _pickParent(List<ExpenseCategory> options) async {
+    FocusScope.of(context).unfocus();
+    final picked = await PBottomSheet.show<int>(
+      context,
+      builder: (sheetContext) {
+        final l = AppLocalizations.of(sheetContext);
+        final c = sheetContext.colors;
+        return PBottomSheetContent(
+          title: l.categoryParent,
+          closeLabel: l.actionClose,
+          flushBody: true,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 하위의 수정 — 최상위로 올리는 길을 알린다(서버도 승격을 막는다)
+              if (_isEdit)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpacing.globalGutter,
+                    vertical: PSpacing.x3,
+                  ),
+                  child: Text(
+                    l.categoryParentMoveHint,
+                    style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                ),
+              PickList<int>(
+                label: l.categoryParent,
+                selected: _parentRowId ?? _kRootParent,
+                items: [
+                  if (!_isEdit)
+                    PickItem(
+                      value: _kRootParent,
+                      title: l.categoryMakeRoot,
+                      // 다른 줄과 같은 40 타일 — 중립 바탕 + 나무 위 아이콘(제목이 한 세로선에 선다)
+                      prefix: PListTile(
+                        background: c.chartGrayWeak,
+                        color: c.chartGray,
+                        child: const Icon(LucideIcons.listTree),
+                      ),
+                    ),
+                  for (final o in options)
+                    PickItem(
+                      value: o.rowId,
+                      title: o.categoryName,
+                      prefix: categoryTile(sheetContext, o),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _parentRowId = picked == _kRootParent ? null : picked);
+  }
+
+  Future<void> _pickColor() async {
+    FocusScope.of(context).unfocus();
+    final picked = await showColorPickSheet(
+      context,
+      title: AppLocalizations.of(context).calFieldColor,
+      hex: _color,
+      foreignHex: _foreignColor,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _pickedColor = picked);
+  }
+
+  Future<void> _pickIcon() async {
+    FocusScope.of(context).unfocus();
+    await showPIconPickerSheet(
+      context,
+      value: _icon,
+      onChanged: (id) => setState(() => _icon = id),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final previewFg = resolveChartColor(context, _color, fallback: t.fgBrand);
-    final previewBg = softBg(context, previewFg);
-    final categories = ref.watch(categoriesProvider).value ?? const [];
-    final err = _nameError;
+    final c = context.colors;
+    ref.watch(categoriesProvider);
 
-    // 상위 카테고리 후보 — 같은 구분의 최상위만, 자기 자신 제외 (웹 정합).
-    final parentOptions = categories
-        .where(
-          (c) =>
-              c.expenseType == _expenseType &&
-              c.parentRowId == null &&
-              c.rowId != widget.edit?.rowId,
-        )
-        .toList();
+    // 상위 후보: 같은 종류의 최상위, 본인 제외
+    final parentOptions = [
+      for (final o in _categories)
+        if (o.expenseType == _kind &&
+            o.parentRowId == null &&
+            o.rowId != widget.edit?.rowId)
+          o,
+    ];
+    final parent = _parentRowId == null
+        ? null
+        : _categories.where((o) => o.rowId == _parentRowId).firstOrNull;
+    // 최상위의 수정: 강등 금지 — 보기만 "최상위". 하위의 수정: 다른 최상위로만(승격 금지)
+    final parentReadOnly = _isEdit && widget.edit!.parentRowId == null;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.controller.setCanSubmit(_canSubmit);
-    });
+    final color = _color;
+    final previewFg = resolveChartColor(context, color, fallback: c.fgBrand);
+    final iconEntry = findCategoryIcon(_icon);
+    final iconName =
+        iconEntry?.name ?? PIconPickerTexts.of(context).currentIconName;
 
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
-      children: [
-        // 미리보기 카드 — 웹: bg-muted + 아이콘 타일(44) + 이름 + 캡션, 실시간 반영.
-        Container(
-          padding: const EdgeInsets.all(14), // web 14px 정합
-          decoration: BoxDecoration(
-            color: t.bgMuted,
-            borderRadius: PRadius.brLg,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: previewBg,
-                  borderRadius: PRadius.brLg,
-                ),
-                child: Icon(lucideByName(_icon), size: 20, color: previewFg),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _nameTrim.isEmpty ? l.categoryNew : _nameTrim,
-                      style: PTypo.body.copyWith(
-                        fontSize: PFontSize.bodyMd,
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l.categoryPreview(
-                        _expenseType == 'EXPENSE'
-                            ? l.expTypeExpense
-                            : l.expTypeIncome,
-                      ),
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x20),
-
-        // 구분 — 웹 정합: 편집 모드에서도 변경 가능.
-        Text(
-          l.categoryTypeLabel,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x8),
-        PTabs<String>(
-          value: _expenseType,
-          variant: PTabsVariant.container,
-          size: PTabsSize.sm,
-          expand: true,
-          items: [
-            PTabItem(value: 'EXPENSE', label: l.expTypeExpense),
-            PTabItem(value: 'INCOME', label: l.expTypeIncome),
-          ],
-          onChanged: (v) => setState(() => _expenseType = v),
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        // 상위 카테고리 정책 (웹 정합):
-        //  - 신규: 최상위 또는 특정 부모 아래로 생성(루트 옵션 포함).
-        //  - 자식 편집: 다른 부모로만 이동(승격='최상위로 두기' 금지 → 루트 옵션 제거).
-        //  - 최상위 편집: 강등 불가 → 필드 숨김.
-        if (!_isEdit || widget.edit!.parentRowId != null) ...[
-          Text.rich(
-            TextSpan(
-              text: l.categoryParent,
-              style: PTypo.caption.copyWith(color: t.fgSecondary),
-              children: [
-                if (!_isEdit)
-                  TextSpan(
-                    text: l.categoryOptionalSuffix,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  ),
-              ],
+    return PBottomSheetContent(
+      title: _isEdit ? l.categoryEdit : l.categoryAdd,
+      closeLabel: l.actionClose,
+      flushBody: true,
+      headerAction: _isEdit ? _headerAction(l) : null,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 맨 위 줄 — 미리보기 타일 52 + 이름 칸(좌우 24 · 아래 8 · 사이 12)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpacing.globalGutter,
+              0,
+              PSpacing.globalGutter,
+              PSpacing.x2,
             ),
-          ),
-          const SizedBox(height: PSpace.x8),
-          PSelect<int>(
-            value: _parentRowId ?? _kRootParent,
-            title: l.categoryParent,
-            enabled: parentOptions.isNotEmpty,
-            helperText: _isEdit ? l.categoryParentMoveHint : null,
-            items: [
-              if (!_isEdit)
-                PSelectItem(value: _kRootParent, label: l.categoryMakeRoot),
-              for (final p in parentOptions)
-                PSelectItem(value: p.rowId, label: p.categoryName),
-            ],
-            onChanged: (v) => setState(
-              () => _parentRowId = (v == null || v == _kRootParent) ? null : v,
-            ),
-          ),
-          const SizedBox(height: PSpace.x16),
-        ],
-
-        // 이름 — 카운터 N/12 또는 에러 (웹 정합).
-        Text(
-          l.calFieldName,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: _nameCtrl,
-          placeholder: l.categoryNamePlaceholder,
-          autofocus: !_isEdit,
-          onChanged: (_) => setState(() => _touched = true),
-        ),
-        const SizedBox(height: PSpace.x4),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            err ?? '${_nameTrim.length}/12',
-            style: PTypo.micro.copyWith(
-              color: err != null ? t.statusDangerFg : t.fgTertiary,
-            ),
-          ),
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 색상
-        Text(
-          l.calFieldColor,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x8),
-        PColorPicker(
-          selected: _color,
-          onChanged: (hex) => setState(() => _color = hex),
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        // 아이콘 — 전체 검색·선택, 웹 CategoryEditDialog 와 동일한 공통 픽커.
-        Text(
-          l.categoryIconLabel,
-          style: PTypo.caption.copyWith(color: t.fgSecondary),
-        ),
-        const SizedBox(height: PSpace.x8),
-        PIconPicker(value: _icon, onChanged: (v) => setState(() => _icon = v)),
-
-        // 거래 옮기기 — 거래가 직접 달린 카테고리는 하위 분류를 만들 수 없다.
-        // 그걸 푸는 유일한 방법이라 편집 화면에서 바로 갈 수 있게 둔다(web 정합).
-        if (_isEdit) ...[
-          const SizedBox(height: PSpace.x20),
-          Divider(height: 1, color: t.borderSubtle),
-          const SizedBox(height: PSpace.x16),
-          InkWell(
-            onTap: () {
-              final all = ref.read(categoriesProvider).value ?? const [];
-              Navigator.of(context).pop();
-              showCategoryMoveTxSheet(
-                context,
-                source: widget.edit!,
-                categories: all,
-              );
-            },
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: PSpacing.x3,
               children: [
-                Icon(LucideIcons.arrowRightLeft, size: 14, color: t.fgBrand),
-                const SizedBox(width: PSpace.x4),
-                Text(
-                  l.categoryMoveTxEntry,
-                  style: PTypo.caption.copyWith(
-                    color: t.fgBrand,
-                    fontWeight: PFontWeight.semi,
+                ExcludeSemantics(
+                  child: SizedBox.square(
+                    key: const ValueKey('category-preview-tile'),
+                    dimension: PSpacing.x13,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: softBg(context, previewFg),
+                        borderRadius: BorderRadius.circular(PRounded.r4),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          categoryGlyph(_icon),
+                          size: PSpacing.x5,
+                          color: previewFg,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: PField(
+                    maxGraphemeCount: kCategoryNameMax,
+                    invalid: _nameError != null,
+                    errorMessage: _nameError,
+                    child: PInput(
+                      controller: _nameCtrl,
+                      focusNode: _nameFocus,
+                      autofocus: !_isEdit,
+                      semanticLabel: l.calFieldName,
+                      placeholder: l.categoryNamePlaceholder,
+                      onChanged: (_) => setState(() => _nameError = null),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x4),
-          Text(
-            l.categoryMoveTxEntryDesc,
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          // 종류 — 추가에서만 고른다(수정은 보기만)
+          PickerRow(
+            title: l.categoryKindLabel,
+            prefix: const Icon(LucideIcons.folder),
+            value: _kindText(l, _kind),
+            onTap: _isEdit ? null : _pickKind,
           ),
+          parentReadOnly
+              ? PickerRow(
+                  title: l.categoryParent,
+                  prefix: const Icon(LucideIcons.tags),
+                  value: l.categoryMakeRoot,
+                  onTap: null,
+                )
+              : PickerRow(
+                  title: l.categoryParent,
+                  prefix: const Icon(LucideIcons.tags),
+                  value: parent?.categoryName ?? l.categoryMakeRoot,
+                  leading: parent == null
+                      ? null
+                      : PickerDot(
+                          color: resolveChartColor(
+                            context,
+                            parent.color,
+                            fallback: c.fgBrand,
+                          ),
+                        ),
+                  onTap: () => _pickParent(parentOptions),
+                ),
+          PickerRow(
+            title: l.calFieldColor,
+            prefix: const Icon(LucideIcons.palette),
+            value: colorPickName(context, color),
+            leading: PickerDot(size: 12, color: previewFg),
+            onTap: _pickColor,
+          ),
+          PickerRow(
+            title: l.categoryIconLabel,
+            prefix: const Icon(LucideIcons.tag),
+            value: iconName,
+            leading: Icon(
+              categoryGlyph(_icon),
+              size: 20,
+              color: c.fgNeutralMuted,
+            ),
+            onTap: _pickIcon,
+          ),
+          const SizedBox(height: PSpacing.x2),
         ],
+      ),
+      footer: [
+        PButton(
+          label: _isEdit ? l.actionSave : l.categorySubmitAdd,
+          size: PButtonSize.large,
+          loading: _submitting,
+          onPressed: _submitting ? null : _submit,
+        ),
       ],
     );
   }

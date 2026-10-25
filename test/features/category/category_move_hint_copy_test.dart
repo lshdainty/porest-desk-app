@@ -9,15 +9,18 @@
 // `l.categoryParentMoveHint` 로만 비교하면 arb 가 무슨 말로 바뀌든 따라가서 아무것도 안
 // 지킨다. 웹은 `tests/category-move-hint-copy.test.ts` 에서 같은 전문을 잠근다 — 한쪽만
 // 바뀌면 그쪽 테스트가 깨진다(subscription_feature_table_test 와 같은 방식).
+//
+// I-20 B 12(2026-10-25): 상위 줄을 고르기 시트로 옮기면서 안내는 고르기 맨 위 한 문장이 됐다 — 앞 문장
+// "다른 상위 카테고리로 이동할 수 있어요." 는 고르는 목록이 말하므로 걷었다. 웹 B 12 새 글과 전문이 같다.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
-const _ko = '다른 상위 카테고리로 이동할 수 있어요. 최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
+const _ko = '최상위로 올리려면 새 최상위를 만들어 거래를 옮겨주세요.';
 const _en =
-    'You can move it under a different parent. To make it top-level, '
-    'create a new top-level category and move the transactions.';
+    'To make it top level, create a new top-level category and move its '
+    'transactions.';
 
 void main() {
   test('ko — 웹과 같은 전문', () async {

@@ -1632,17 +1632,8 @@
   "categoryManageTitle": "Manage categories",
   "categorySearchHint": "Search categories",
   "categoryLoadError": "Failed to load categories",
-  "categoryNoResults": "No search results",
-  "categoryEmpty": "No categories",
-  "categoryEmptyHint": "Add one with the 'Add' button above",
-  "categoryHasSubcategories": "{type} · Has subcategories",
-  "@categoryHasSubcategories": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
+  "categoryNoResults": "No matching categories.",
+  "categoryEmpty": "No categories yet.",
   "categoryAdd": "Add category",
   "categoryAddAction": "Add",
   "recurringAddAction": "Add",
@@ -1666,10 +1657,10 @@
   "categoryEdit": "Edit category",
   "categoryNameRequired": "Please enter a name.",
   "categoryNameTooLong": "Name must be 12 characters or fewer.",
-  "categoryNameDuplicate": "A category with this name already exists in this location.",
+  "categoryNameDuplicate": "A category with this name already exists in this spot.",
   "categoryParent": "Parent category",
   "categoryBudgetExceedTitle": "Budget exceeded",
-  "categoryBudgetExceedMessage": "Moving will exceed the \"{parent}\" budget by {amount}. Move anyway?",
+  "categoryBudgetExceedMessage": "Moving it will put \"{parent}\" {amount} over budget. Move anyway?",
   "@categoryBudgetExceedMessage": {
     "placeholders": {
       "parent": {
@@ -1684,18 +1675,9 @@
   "categoryUpdated": "Category updated",
   "categoryAdded": "Category added",
   "categoryActionFailed": "Failed",
-  "categoryDeleteBlockedTitle": "Cannot delete",
-  "categoryDeleteTitle": "Delete category",
+  "categoryDeleteBlockedTitle": "Can't delete",
   "categoryDeleteHasChildren": "The \"{name}\" category has subcategories and cannot be deleted. Clear them first.",
   "@categoryDeleteHasChildren": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "categoryDeleteWithBudget": "This category has a budget set. Deleting it will also delete the budget. Delete the \"{name}\" category?",
-  "@categoryDeleteWithBudget": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -1711,21 +1693,47 @@
     }
   },
   "categoryDeleteFailed": "Delete failed",
-  "categoryNew": "New category",
-  "categoryPreview": "{type} category · Preview",
-  "@categoryPreview": {
+  "categoryParentMoveHint": "To make it top level, create a new top-level category and move its transactions.",
+  "categoryMakeRoot": "Top level",
+  "categoryNamePlaceholder": "e.g., Pets, Side income",
+  "categoryIconLabel": "Icon",
+  "categoryLoadFailed": "Couldn't load the categories",
+  "categoryDeleteMessage": "Recorded transactions stay as they are. Budgets set for this category are deleted too.",
+  "categoryDeleteRecurring": "{count} recurring transactions that use this category keep being recorded under it.",
+  "@categoryDeleteRecurring": {
     "placeholders": {
-      "type": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryExpandOf": "{name} subcategories",
+  "@categoryExpandOf": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }
   },
-  "categoryTypeLabel": "Type",
-  "categoryOptionalSuffix": " (optional)",
-  "categoryParentMoveHint": "You can move it under a different parent. To make it top-level, create a new top-level category and move the transactions.",
-  "categoryMakeRoot": "— Keep as top-level category —",
-  "categoryNamePlaceholder": "e.g., Pets, Side income",
-  "categoryIconLabel": "Icon",
+  "categoryMoreOf": "More for {name}",
+  "@categoryMoreOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryDragReorderOf": "Reorder {name}",
+  "@categoryDragReorderOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryKindLabel": "Type",
+  "categorySubmitAdd": "Add",
+  "categoryAddSub": "Add subcategory",
   "authLoginPrompt": "Sign in with your 그루 account.",
   "authSsoLogin": "Sign in with 그루",
   "authLoginTitle": "Login",
@@ -3625,8 +3633,7 @@
   "categoryMoveTxAction": "Move",
   "categoryMoveTxTitle": "Move transactions",
   "categoryMoveTxEntry": "Move transactions",
-  "categoryMoveTxEntryDesc": "A category with transactions cannot have subcategories. Move them to enable it",
-  "categoryMoveTxDesc": "Moves all transactions, recurring and splits from {name}",
+  "categoryMoveTxDesc": "Moves all transactions, recurring transactions and split transactions from {name}.",
   "@categoryMoveTxDesc": {
     "placeholders": {
       "name": {
@@ -3636,9 +3643,10 @@
   },
   "categoryMoveTxModeNew": "Create subcategory",
   "categoryMoveTxModeExisting": "Move to existing",
+  "categoryMoveTxMode": "How to move",
   "categoryMoveTxChildName": "New subcategory name",
   "categoryMoveTxChildPlaceholder": "e.g. Lectures",
-  "categoryMoveTxNewHint": "Creates it under {name} and moves all transactions there, so you can add more subcategories",
+  "categoryMoveTxNewHint": "Creates it under {name} and moves all transactions there, so you can add more subcategories.",
   "@categoryMoveTxNewHint": {
     "placeholders": {
       "name": {
@@ -3647,9 +3655,11 @@
     }
   },
   "categoryMoveTxTarget": "Target category",
-  "categoryMoveTxTargetPlaceholder": "Select a category",
-  "categoryMoveTxHint": "Only leaf categories of the same type can be selected",
-  "categoryMoveTxNoTarget": "No target available — create one first",
+  "categoryMoveTxTargetPlaceholder": "Choose a category",
+  "categoryMoveTxHint": "Only bottom-level categories of the same type can be chosen.",
+  "categoryMoveTxNoTarget": "No category to move to. Please create one first.",
+  "categoryMoveTxErrChildName": "Please enter a name for the new subcategory.",
+  "categoryMoveTxErrTarget": "Please choose a category to move to.",
   "categoryMoveTxDone": "Moved {count} items",
   "@categoryMoveTxDone": {
     "placeholders": {

@@ -23,6 +23,7 @@ import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import '../../support/plain_text.dart';
 import 'todo_test_support.dart';
 
@@ -309,7 +310,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(_button('추가'));
       await tester.pumpAndSettle();
-      expect(find.text('이름을 입력해주세요.'), findsOneWidget);
+      expect(find.text(keepAll('이름을 입력해주세요.')), findsOneWidget);
       expect(repo.saved, isEmpty);
       await tester.enterText(find.byType(PInput).first, '새 태그');
       await tester.pumpAndSettle();
@@ -337,11 +338,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(PInput).first, '업무');
       await tester.pumpAndSettle();
-      expect(find.text('같은 이름의 태그가 이미 있어요.'), findsOneWidget);
+      expect(find.text(keepAll('같은 이름의 태그가 이미 있어요.')), findsOneWidget);
       await tester.tap(_button('추가'));
       await tester.pumpAndSettle();
       expect(repo.saved, isEmpty);
-      expect(find.text('같은 이름의 태그가 이미 있어요.'), findsOneWidget);
+      expect(find.text(keepAll('같은 이름의 태그가 이미 있어요.')), findsOneWidget);
     });
 
     testWidgets('고칠 때 자기 이름은 겹침이 아니다', (tester) async {
@@ -375,7 +376,7 @@ void main() {
       await tester.tap(_button('저장'));
       await tester.pumpAndSettle();
       expect(repo.saved, isEmpty);
-      expect(find.text('이름은 12자 이내로 입력해주세요.'), findsOneWidget);
+      expect(find.text(keepAll('이름은 12자 이내로 입력해주세요.')), findsOneWidget);
     });
 
     testWidgets('입력은 12자에서 멈추고 칸 아래에 n/12 가 보인다', (tester) async {
@@ -409,7 +410,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(_button('추가'));
       await tester.pumpAndSettle();
-      expect(find.text('이름을 입력해주세요.'), findsOneWidget);
+      expect(find.text(keepAll('이름을 입력해주세요.')), findsOneWidget);
     });
   });
 

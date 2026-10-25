@@ -5,6 +5,7 @@
 // 본다 — Textarea 의 maxHeight("자리마다") · resize(손잡이 없음). Field 의 form(사이 24 · 16 · 열)은 Field 를 쌓는
 // 화면의 값이라 재지 않는다(웹 검사기도 같다).
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,8 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import '../../support/line_breaks.dart';
 import 'package:groo_damda_app/shared/ds/field/field_demo.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/input/input_demo.dart';
@@ -1083,10 +1086,11 @@ void main() {
                     description,
                     LucideIcons.info,
                   );
-            if (invalid && find.text(description).evaluate().isNotEmpty) {
+            if (invalid &&
+                find.text(keepAll(description)).evaluate().isNotEmpty) {
               k.fail('오류가 설명을 대신하지 않았다');
             }
-            final message = find.text(text);
+            final message = find.text(keepAll(text));
             final messageStyle = tester.widget<Text>(message).style!;
             k.typo('$slot.typography', messageStyle);
             k.color('$slot.foreground', messageStyle.color!);
@@ -1328,7 +1332,7 @@ void main() {
       await tester.pumpWidget(field('이름을 입력해주세요.'));
       expect(said, isEmpty);
       expect(
-        tester.getSemantics(find.text('이름을 입력해주세요.')),
+        tester.getSemantics(find.text(keepAll('이름을 입력해주세요.'))),
         containsSemantics(label: '이름을 입력해주세요.', isLiveRegion: true),
       );
       semantics.dispose();
@@ -1693,13 +1697,84 @@ void main() {
       await tester.ensureVisible(submit);
       await tester.tap(submit);
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('제목을 입력해주세요.'), findsOneWidget);
-      expect(find.text('휴가 사유를 입력해주세요.'), findsOneWidget);
+      expect(find.text(keepAll('제목을 입력해주세요.')), findsOneWidget);
+      expect(find.text(keepAll('휴가 사유를 입력해주세요.')), findsOneWidget);
       final title = find.ancestor(
-        of: find.text('제목을 입력해주세요.'),
+        of: find.text(keepAll('제목을 입력해주세요.')),
         matching: find.byType(PField),
       );
       expect(_editable(tester, title).focusNode.hasFocus, isTrue);
     });
+  });
+
+  testWidgets(
+    'Field 메시지(도움말 · 오류)는 낱말 단위로 줄을 바꾼다 — 글자 200% 에서도 낱말 중간에서 끊기지 않는다',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 760);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      const help = '교통 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요.';
+      const error = '같은 자리에 같은 이름의 카테고리가 있어요.';
+      for (final invalid in [false, true]) {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: GrooTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!,
+            ),
+            home: Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.all(24),
+                child: PField(
+                  label: '이름',
+                  description: help,
+                  invalid: invalid,
+                  errorMessage: error,
+                  child: const PInput(),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final shown = invalid ? error : help;
+        final finder = find.text(keepAll(shown));
+        expect(finder, findsOneWidget);
+        expect(tester.widget<Text>(finder).semanticsLabel, shown);
+        final lines = tester.renderObject<RenderParagraph>(
+          find.descendant(of: finder, matching: find.byType(RichText)).first,
+        );
+        expect(lines.size.height, greaterThan(40), reason: '200% 에서 여러 줄');
+        expect(midWordBreaks(tester, finder), isEmpty);
+      }
+    },
+  );
+
+  testWidgets('낱말 중간 줄바꿈 점검기가 keepAll 없는 글은 잡는다(음성 대조)', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 200,
+            child: Text(
+              '교통 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요.',
+              key: ValueKey('plain'),
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(
+      midWordBreaks(tester, find.byKey(const ValueKey('plain'))),
+      isNotEmpty,
+    );
   });
 }

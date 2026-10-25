@@ -1,69 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/category/presentation/category_tile.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
-import 'package:groo_damda_app/shared/widgets/p_segmented.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
+import 'package:groo_damda_app/shared/forms/pick_list.dart';
+import 'package:groo_damda_app/shared/forms/picker_row.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
-import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 
-/// 카테고리에 달린 거래를 다른 카테고리로 옮긴다 (web `CategoryMoveTxDialog` 미러).
+/// 새 하위 이름 상한 — 카테고리 이름과 같은 12자(I-20 B 11).
+const int kCategoryChildNameMax = 12;
+
+/// 카테고리에 달린 거래를 다른 카테고리로 옮긴다 (web `CategoryMoveTxDialog` 미러, I-20 B 11).
 ///
 /// 거래가 직접 달린 카테고리는 하위 분류를 만들 수 없다(거래는 말단에만 달 수 있어서).
 /// 그런데 옮길 하위가 없으면 거래도 못 옮기는 교착이 생기므로,
 /// "새 하위 만들기" 는 생성과 이동을 서버에서 한 트랜잭션으로 처리한다.
-void showCategoryMoveTxSheet(
+/// 입력 폼 시트 — 수정 시트 머리 ⋮ 의 "거래 옮기기" 에서 수정 시트를 닫고 연다. 닫힐 때까지 기다린다.
+Future<void> showCategoryMoveTxSheet(
   BuildContext context, {
   required ExpenseCategory source,
   required List<ExpenseCategory> categories,
 }) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  final probe = _DirtyProbe();
+  return PBottomSheet.show<void>(
     context,
-    title: l.categoryMoveTxTitle,
-    contentBuilder: (ctx, scrollCtrl) => _MoveTxBody(
-      source: source,
-      categories: categories,
-      scrollController: scrollCtrl,
-      controller: controller,
+    form: true,
+    isDirty: () => probe.dirty(),
+    leaveCopy: PLeaveConfirmCopy(
+      title: l.sheetLeaveTitle,
+      description: l.sheetLeaveDescription,
+      stayLabel: l.sheetLeaveStay,
+      leaveLabel: l.sheetLeaveLeave,
     ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: l.categoryMoveTxAction,
-    ),
-  ).whenComplete(controller.dispose);
+    builder: (_) =>
+        _MoveTxForm(source: source, categories: categories, probe: probe),
+  );
 }
 
-class _MoveTxBody extends ConsumerStatefulWidget {
-  const _MoveTxBody({
+class _DirtyProbe {
+  bool Function() dirty = () => false;
+}
+
+enum _Mode { newChild, existing }
+
+class _MoveTxForm extends ConsumerStatefulWidget {
+  const _MoveTxForm({
     required this.source,
     required this.categories,
-    required this.scrollController,
-    required this.controller,
+    required this.probe,
   });
   final ExpenseCategory source;
   final List<ExpenseCategory> categories;
-  final ScrollController scrollController;
-  final PSheetController controller;
+  final _DirtyProbe probe;
 
   @override
-  ConsumerState<_MoveTxBody> createState() => _MoveTxBodyState();
+  ConsumerState<_MoveTxForm> createState() => _MoveTxFormState();
 }
 
-class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
+class _MoveTxFormState extends ConsumerState<_MoveTxForm> {
   final _nameCtrl = TextEditingController();
+  final _nameFocus = FocusNode();
+  final _targetFocus = FocusNode();
   int? _targetRowId;
-  late bool _newMode;
+  late _Mode _mode;
+  bool _showNameError = false;
+  bool _showTargetError = false;
+  bool _submitting = false;
 
   /// 하위가 없는 최상위만 "새 하위 만들기" 대상 — 교착이 생기는 자리가 정확히 여기다.
   /// 하위 카테고리엔 또 하위를 만들 수 없다(최대 2단계).
@@ -71,7 +86,7 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
       widget.source.parentRowId == null &&
       !widget.categories.any((c) => c.parentRowId == widget.source.rowId);
 
-  /// 옮길 수 있는 곳 = 같은 유형이고, 자기 자신이 아니고, 자식이 없는 말단.
+  /// 옮길 수 있는 곳 = 같은 종류이고, 자기 자신이 아니고, 자식이 없는 말단.
   /// 서버도 같은 규칙으로 거부하므로 미리 걸러 고를 수 없게 한다.
   List<ExpenseCategory> get _options {
     final parentIds = widget.categories
@@ -88,49 +103,96 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
         .toList();
   }
 
+  String get _nameTrim => _nameCtrl.text.trim();
+
   @override
   void initState() {
     super.initState();
-    _newMode = _canSplit;
-    widget.controller.onSubmit = _submit;
-    // 초기엔 아무것도 안 고른 상태 — 제출 버튼을 잠가둔다.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _syncCanSubmit());
-  }
-
-  /// 모드에 따라 제출 가능 조건이 다르다 — 새 하위는 이름, 기존 이동은 대상 선택.
-  void _syncCanSubmit() {
-    final ok = _newMode
-        ? _nameCtrl.text.trim().isNotEmpty
-        : _targetRowId != null;
-    widget.controller.setCanSubmit(ok);
-    if (mounted) setState(() {});
+    _mode = _canSplit ? _Mode.newChild : _Mode.existing;
+    widget.probe.dirty = () => _nameTrim.isNotEmpty || _targetRowId != null;
   }
 
   @override
   void dispose() {
+    widget.probe.dirty = () => false;
     _nameCtrl.dispose();
+    _nameFocus.dispose();
+    _targetFocus.dispose();
     super.dispose();
   }
 
-  /// 이름이 같은 말단이 여럿일 수 있어 부모 경로를 함께 보여준다.
-  String _label(ExpenseCategory c) {
-    if (c.parentRowId == null) return c.categoryName;
-    final parent = widget.categories
-        .where((p) => p.rowId == c.parentRowId)
-        .map((p) => p.categoryName)
-        .firstOrNull;
-    return parent == null ? c.categoryName : '$parent > ${c.categoryName}';
+  String? _parentNameOf(ExpenseCategory c) {
+    if (c.parentRowId == null) return null;
+    for (final p in widget.categories) {
+      if (p.rowId == c.parentRowId) return p.categoryName;
+    }
+    return null;
+  }
+
+  Future<void> _pickTarget() async {
+    FocusScope.of(context).unfocus();
+    final picked = await PBottomSheet.show<int>(
+      context,
+      builder: (sheetContext) {
+        final l = AppLocalizations.of(sheetContext);
+        final c = sheetContext.colors;
+        final options = _options;
+        return PBottomSheetContent(
+          title: l.categoryMoveTxTarget,
+          closeLabel: l.actionClose,
+          flushBody: true,
+          body: options.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpacing.globalGutter,
+                    vertical: PSpacing.x3,
+                  ),
+                  child: Text(
+                    l.categoryMoveTxNoTarget,
+                    style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                )
+              : PickList<int>(
+                  label: l.categoryMoveTxTarget,
+                  selected: _targetRowId,
+                  items: [
+                    for (final o in options)
+                      PickItem<int>(
+                        value: o.rowId,
+                        title: o.categoryName,
+                        detail: _parentNameOf(o),
+                        prefix: categoryTile(sheetContext, o),
+                      ),
+                  ],
+                ),
+        );
+      },
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _targetRowId = picked;
+      _showTargetError = false;
+    });
   }
 
   Future<void> _submit() async {
+    if (_submitting) return;
+    final name = _nameTrim;
+    if (_mode == _Mode.newChild && name.isEmpty) {
+      setState(() => _showNameError = true);
+      _nameFocus.requestFocus();
+      return;
+    }
+    if (_mode == _Mode.existing && _targetRowId == null) {
+      setState(() => _showTargetError = true);
+      _targetFocus.requestFocus();
+      return;
+    }
     final l = AppLocalizations.of(context);
-    final name = _nameCtrl.text.trim();
-    if (_newMode ? name.isEmpty : _targetRowId == null) return;
-
-    widget.controller.setSubmitting(true);
+    setState(() => _submitting = true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
-      final moved = _newMode
+      final moved = _mode == _Mode.newChild
           ? await repo.splitCategoryIntoChild(
               widget.source.rowId,
               childName: name,
@@ -147,79 +209,116 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
       ref.invalidate(monthExpensesProvider);
       invalidateAfterExpenseChange(ref);
       if (!mounted) return;
-      Navigator.of(context).pop();
+      // 알림은 옛 길 그대로 — 시트가 아직 있는 동안 띄우고 닫는다
       showPSnackBar(
         context,
         l.categoryMoveTxDone(moved),
         severity: PSnackSeverity.success,
       );
+      PBottomSheet.of(context).close();
     } on ApiException {
+      // 표면이 닫히지 않고 쓴 값이 남는다 — 알림은 옛 길 그대로
       if (!mounted) return;
     } finally {
-      if (mounted) widget.controller.setSubmitting(false);
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
+    final c = context.colors;
+    const gutter = EdgeInsets.symmetric(horizontal: PSpacing.globalGutter);
+    final target = _options.where((o) => o.rowId == _targetRowId).firstOrNull;
 
-    return ListView(
-      controller: widget.scrollController,
-      children: [
-        Text(
-          l.categoryMoveTxDesc(widget.source.categoryName),
-          style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+    return PBottomSheetContent(
+      title: l.categoryMoveTxTitle,
+      description: l.categoryMoveTxDesc(widget.source.categoryName),
+      closeLabel: l.actionClose,
+      flushBody: true,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_canSplit)
+            Padding(
+              padding: gutter.copyWith(bottom: PSpacing.x6),
+              child: PSegmentedControl<_Mode>(
+                semanticLabel: l.categoryMoveTxMode,
+                value: _mode,
+                onChanged: (v) => setState(() => _mode = v),
+                items: [
+                  PSegmentedItem(
+                    value: _Mode.newChild,
+                    label: l.categoryMoveTxModeNew,
+                  ),
+                  PSegmentedItem(
+                    value: _Mode.existing,
+                    label: l.categoryMoveTxModeExisting,
+                  ),
+                ],
+              ),
+            ),
+          if (_mode == _Mode.newChild)
+            Padding(
+              padding: gutter,
+              child: PField(
+                label: l.categoryMoveTxChildName,
+                maxGraphemeCount: kCategoryChildNameMax,
+                description: l.categoryMoveTxNewHint(
+                  widget.source.categoryName,
+                ),
+                invalid: _showNameError && _nameTrim.isEmpty,
+                errorMessage: l.categoryMoveTxErrChildName,
+                child: PInput(
+                  controller: _nameCtrl,
+                  focusNode: _nameFocus,
+                  autofocus: true,
+                  placeholder: l.categoryMoveTxChildPlaceholder,
+                  onChanged: (_) => setState(() => _showNameError = false),
+                ),
+              ),
+            )
+          else ...[
+            PickerRow(
+              title: l.categoryMoveTxTarget,
+              value: target?.categoryName,
+              placeholder: l.categoryMoveTxTargetPlaceholder,
+              semanticValue: target?.categoryName ?? l.expNone,
+              leading: target == null
+                  ? null
+                  : PickerDot(
+                      color: resolveChartColor(
+                        context,
+                        target.color,
+                        fallback: c.fgBrand,
+                      ),
+                    ),
+              errorMessage: _showTargetError && _targetRowId == null
+                  ? l.categoryMoveTxErrTarget
+                  : null,
+              focusNode: _targetFocus,
+              onTap: _pickTarget,
+            ),
+            Padding(
+              padding: gutter.copyWith(top: PSpacing.x1_5),
+              child: Text(
+                _options.isEmpty
+                    ? l.categoryMoveTxNoTarget
+                    : l.categoryMoveTxHint,
+                style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+              ),
+            ),
+          ],
+          const SizedBox(height: PSpacing.x2),
+        ],
+      ),
+      footer: [
+        PButton(
+          label: l.categoryMoveTxAction,
+          size: PButtonSize.large,
+          loading: _submitting,
+          onPressed: _submitting ? null : _submit,
         ),
-        const SizedBox(height: PSpace.x16),
-        if (_canSplit) ...[
-          PSegmented<bool>(
-            value: _newMode,
-            onChanged: (v) => setState(() {
-              _newMode = v;
-              _syncCanSubmit();
-            }),
-            options: [
-              PSegmentOption(value: true, label: l.categoryMoveTxModeNew),
-              PSegmentOption(value: false, label: l.categoryMoveTxModeExisting),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
-        ],
-        if (_newMode) ...[
-          PSectionLabel(l.categoryMoveTxChildName),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: _nameCtrl,
-            placeholder: l.categoryMoveTxChildPlaceholder,
-            onChanged: (_) => _syncCanSubmit(),
-          ),
-          const SizedBox(height: PSpace.x4),
-          Text(
-            l.categoryMoveTxNewHint(widget.source.categoryName),
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-          ),
-        ] else ...[
-          PSectionLabel(l.categoryMoveTxTarget),
-          const SizedBox(height: PSpace.x4),
-          PSelect<int>(
-            value: _targetRowId,
-            enabled: _options.isNotEmpty,
-            placeholder: l.categoryMoveTxTargetPlaceholder,
-            helperText: _options.isEmpty
-                ? l.categoryMoveTxNoTarget
-                : l.categoryMoveTxHint,
-            items: [
-              for (final c in _options)
-                PSelectItem(value: c.rowId, label: _label(c)),
-            ],
-            onChanged: (v) => setState(() {
-              _targetRowId = v;
-              _syncCanSubmit();
-            }),
-          ),
-        ],
       ],
     );
   }

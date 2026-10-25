@@ -18,6 +18,7 @@ class PickerRow extends StatelessWidget {
     this.placeholder,
     this.semanticValue,
     this.leading,
+    this.prefix,
     this.errorMessage,
     this.onClear,
     this.clearLabel,
@@ -36,6 +37,10 @@ class PickerRow extends StatelessWidget {
 
   /// 값 앞 그림(점 · 아이콘) — 값 글과 함께 줄바꿈한다.
   final Widget? leading;
+
+  /// 줄 앞 아이콘(22 · `fg-neutral`) — 제목 앞에 서서 줄 칸의 뜻을 돕는다(카테고리 폼의 종류 · 상위 · 색상 · 아이콘 줄). 값 앞
+  /// 그림은 [leading] 이다.
+  final Widget? prefix;
   final String? errorMessage;
 
   /// 값 끝 지우기 버튼 — 값이 있을 때만 보인다. 누르면 값만 비우고 고르기를 열지 않는다.
@@ -96,9 +101,10 @@ class PickerRow extends StatelessWidget {
       );
     }
     final row = onTap == null
-        ? PListItem(title: title, suffix: suffix)
+        ? PListItem(title: title, prefix: prefix, suffix: suffix)
         : PListButtonItem(
             title: title,
+            prefix: prefix,
             suffix: suffix,
             onTap: onTap,
             focusNode: focusNode,

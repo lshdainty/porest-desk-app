@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_input.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
@@ -1701,7 +1702,7 @@ void main() {
         );
         expect(label.left - field.left, 26);
         final description = tester.getRect(
-          find.text('사진 · PDF 를 10MB 까지 올려요.'),
+          find.text(keepAll('사진 · PDF 를 10MB 까지 올려요.')),
         );
         expect(description.left - field.left, 26);
       },
