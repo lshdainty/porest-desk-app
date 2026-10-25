@@ -57,13 +57,17 @@ class TodoRow extends StatelessWidget {
         titleStrike: done,
         titleColor: done ? c.fgDisabled : null,
         onTap: onOpen,
-        detailChild: PTagGroup(
-          size: PTagGroupSize.t3,
-          overflow: PTagGroupOverflow.truncate,
-          items: [
-            PTag(todoTagLabel(l, todoTagOf(todo)), tone: tone),
-            if (hasNote) PTag(l.todoMemoTag, tone: tone, shrink: 0),
-          ],
+        detailChild: _ColorFade(
+          // 끝냄 ↔ 안 끝냄이 바뀌면 설명 색이 옮겨 간다(제목 색은 List 가 같은 시간 · 곡선으로 옮긴다)
+          stateKey: done,
+          child: PTagGroup(
+            size: PTagGroupSize.t3,
+            overflow: PTagGroupOverflow.truncate,
+            items: [
+              PTag(todoTagLabel(l, todoTagOf(todo)), tone: tone),
+              if (hasNote) PTag(l.todoMemoTag, tone: tone, shrink: 0),
+            ],
+          ),
         ),
         prefix: PListAction(
           child: _TodoCheck(
@@ -73,14 +77,43 @@ class TodoRow extends StatelessWidget {
             onToggle: onToggle,
           ),
         ),
-        suffix: PBadge(
-          label: todoPrioLabel(l, todo.priority),
-          tone: todo.priority == 'HIGH'
-              ? PBadgeTone.critical
-              : PBadgeTone.neutral,
-          disabled: done,
+        suffix: _ColorFade(
+          stateKey: done,
+          child: PBadge(
+            label: todoPrioLabel(l, todo.priority),
+            tone: todo.priority == 'HIGH'
+                ? PBadgeTone.critical
+                : PBadgeTone.neutral,
+            disabled: done,
+          ),
         ),
       ),
+    );
+  }
+}
+
+/// 색이 바뀌는 순간의 모션 — `motion-duration-color-transition`(150ms) × `motion-ease-easing`, 모션 줄이기면 바로 바뀐다(I-10 13).
+///
+/// 글자 색이 조각마다 정해지는 부품(Tag Group · Badge)은 색 하나를 옮길 수 없어, 같은 자리에 같은 크기로 서는 앞뒤 모습을
+/// 서로 비춰 보인다(웹 `transition-colors` 와 같은 시간 · 곡선). [stateKey] 가 바뀔 때만 움직인다.
+class _ColorFade extends StatelessWidget {
+  const _ColorFade({required this.stateKey, required this.child});
+
+  final bool stateKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return AnimatedSwitcher(
+      duration: reduce ? Duration.zero : PDuration.colorTransition,
+      switchInCurve: PEasing.easing,
+      switchOutCurve: PEasing.easing,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: AlignmentDirectional.topStart,
+        children: [...previous, ?current],
+      ),
+      child: KeyedSubtree(key: ValueKey(stateKey), child: child),
     );
   }
 }

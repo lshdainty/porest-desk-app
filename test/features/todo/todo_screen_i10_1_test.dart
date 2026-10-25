@@ -552,6 +552,86 @@ void main() {
     });
   });
 
+  group('13 끝낸 줄 색 전환 모션', () {
+    Color titleColor(WidgetTester tester) =>
+        tester.widget<Text>(findPlain('보고서 마무리')).style!.color!;
+
+    testWidgets(
+      '150ms × motion-ease-easing 으로 fg-disabled 로 옮겨 간다 — 중간에는 둘 다 아니다',
+      (tester) async {
+        await pumpApp(
+          tester,
+          const TodoScreen(),
+          overrides: todoOverrides(
+            todos: _basic(),
+            repo: FakeTodoRepo()..gate = Completer<int>(),
+          ),
+        );
+        final c = tester.element(find.byType(TodoScreen)).colors;
+        expect(titleColor(tester), c.fgNeutral);
+        await tester.tap(_checkOf('보고서 마무리'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 60));
+        final mid = titleColor(tester);
+        expect(mid, isNot(c.fgNeutral));
+        expect(mid, isNot(c.fgDisabled));
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(titleColor(tester), c.fgDisabled);
+      },
+    );
+
+    testWidgets('설명 · 배지도 같은 시간 안에 비춰 바뀐다(끝나면 하나만 남는다)', (tester) async {
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: todoOverrides(
+          todos: _basic(),
+          repo: FakeTodoRepo()..gate = Completer<int>(),
+        ),
+      );
+      PBadge badgeCount() => tester.widget<PBadge>(
+        find
+            .descendant(of: _row('보고서 마무리'), matching: find.byType(PBadge))
+            .first,
+      );
+      expect(badgeCount().disabled, isFalse);
+      await tester.tap(_checkOf('보고서 마무리'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(
+        find.descendant(of: _row('보고서 마무리'), matching: find.byType(PBadge)),
+        findsNWidgets(2),
+        reason: '앞뒤 모습이 겹쳐 비친다',
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(
+        find.descendant(of: _row('보고서 마무리'), matching: find.byType(PBadge)),
+        findsOneWidget,
+      );
+      expect(badgeCount().disabled, isTrue);
+    });
+
+    testWidgets('모션 줄이기면 바로 바뀐다', (tester) async {
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: todoOverrides(
+          todos: _basic(),
+          repo: FakeTodoRepo()..gate = Completer<int>(),
+        ),
+        disableAnimations: true,
+      );
+      final c = tester.element(find.byType(TodoScreen)).colors;
+      await tester.tap(_checkOf('보고서 마무리'));
+      await tester.pump();
+      expect(titleColor(tester), c.fgDisabled);
+      expect(
+        find.descendant(of: _row('보고서 마무리'), matching: find.byType(PBadge)),
+        findsOneWidget,
+      );
+    });
+  });
+
   group('14 · 15 완료 누름 · 묶음 안 차례', () {
     testWidgets('누르는 순간 바뀐다 — 요청 전에 체크가 서고 스피너 · 막힘이 없다', (tester) async {
       final repo = FakeTodoRepo()..gate = Completer<int>();
