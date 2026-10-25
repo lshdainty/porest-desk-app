@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -146,7 +147,7 @@ class AssetSummarySection extends StatelessWidget {
             : (changeAmount > 0 ? PDeltaDirection.up : PDeltaDirection.down),
         value: changeAmount == 0
             ? null
-            : '${changePercent.abs().toStringAsFixed(1)}%'
+            : '${formatChangeRateAbs(changePercent)}'
                   '${masked ? '' : ' (${assetWon(changeAmount.abs(), false)})'}',
         text: l.assetVsLastMonth,
       );
@@ -399,7 +400,7 @@ class AssetRow extends StatelessWidget {
                           : PDeltaDirection.down,
                       value: masked
                           ? '•••'
-                          : '${pct.abs().toStringAsFixed(1)}% '
+                          : '${formatChangeRateAbs(pct)} '
                                 '(${change >= 0 ? '+' : kMinus}${assetWon(change.abs(), false)})',
                     );
                   },

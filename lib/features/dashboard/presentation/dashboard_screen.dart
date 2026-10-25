@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -504,7 +505,7 @@ class _NetWorthBand extends StatelessWidget {
                       : (changePct < 0
                             ? PDeltaDirection.down
                             : PDeltaDirection.flat),
-                  value: '${changePct.abs().toStringAsFixed(1)}%',
+                  value: formatChangeRateAbs(changePct),
                   text: l.dashVsLastMonth,
                 ),
               ),
@@ -806,7 +807,7 @@ class _MonthSection extends StatelessWidget {
                   if (prevExpense > 0) ...[
                     TextSpan(text: keepAll(l.dashVsPrevPrefix), style: note),
                     TextSpan(
-                      text: '${savingsPct.abs().toStringAsFixed(0)}%',
+                      text: formatChangeRateAbs(savingsPct),
                       style: strong,
                     ),
                     TextSpan(

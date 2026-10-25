@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -245,7 +246,10 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
                                   ),
                                   const SizedBox(height: 1),
                                   Text(
-                                    '${h.profitLossRateValue >= 0 ? '+' : ''}${h.profitLossRateValue.toStringAsFixed(2)}%',
+                                    formatChangeRate(
+                                      h.profitLossRateValue,
+                                      signed: true,
+                                    ),
                                     style: TextStyle(
                                       fontFamily: PTypo.sans,
                                       fontFeatures: _tnum,
@@ -852,7 +856,7 @@ class _PctBadge extends StatelessWidget {
         ),
         const SizedBox(width: 2),
         Text(
-          '${up ? '+' : ''}${pct.toStringAsFixed(2)}%',
+          formatChangeRate(pct, signed: true),
           style: TextStyle(
             fontFamily: PTypo.sans,
             fontFeatures: _tnum,
@@ -1651,7 +1655,7 @@ class _HoldingDetailCard extends StatelessWidget {
       (l.stocksQuantityHeld, qtyLabel, t.fgPrimary),
       (
         l.stocksReturnRate,
-        '${pnlPct >= 0 ? '+' : ''}${pnlPct.toStringAsFixed(2)}%',
+        formatChangeRate(pnlPct, signed: true),
         _trendColor(t, pnl.toDouble()),
       ),
       (l.stocksDayPnl, moneySigned(dayPnl), _trendColor(t, dayPnl.toDouble())),
@@ -2810,7 +2814,7 @@ class _DailyQuoteTable extends ConsumerWidget {
                       weight: PFontWeight.semi,
                     ),
                     cell(
-                      '${r.chg >= 0 ? '+' : ''}${r.chg.toStringAsFixed(2)}%',
+                      formatChangeRate(r.chg, signed: true),
                       10,
                       TextAlign.right,
                       _trendColor(t, r.chg),

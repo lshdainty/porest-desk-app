@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -444,7 +445,7 @@ class _InvChangeLine extends ConsumerWidget {
       child: Row(
         children: [
           Text(
-            '${up ? '+' : ''}${pct.toStringAsFixed(1)}%',
+            formatChangeRate(pct, signed: true),
             style: PTypo.bodySm.copyWith(
               color: color,
               fontWeight: PFontWeight.bold,
@@ -819,7 +820,7 @@ class _HoldingRow extends ConsumerWidget {
                 if (pct != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    '${pct >= 0 ? '+' : ''}${pct.toStringAsFixed(2)}%',
+                    formatChangeRate(pct, signed: true),
                     style: PTypo.micro.copyWith(
                       color: pct >= 0 ? t.statusDangerFg : t.fgBrand,
                       fontWeight: PFontWeight.semi,

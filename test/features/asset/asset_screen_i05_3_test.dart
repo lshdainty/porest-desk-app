@@ -401,14 +401,14 @@ void main() {
       );
     });
 
-    final val = {7: (value: 3500000, changeAmt: 123456)};
+    final val = {7: (value: 3500000, changeAmt: 12345)};
     String? deltaValue(WidgetTester t) =>
         t.widget<PDelta>(find.byKey(const ValueKey('asset-delta-7'))).value;
 
     testWidgets('가림 꺼짐 — 등락 줄이 보이고 값은 % (±금액)', (tester) async {
       await _pump(tester, valuation: val);
       expect(deltaValue(tester), contains('%'));
-      expect(deltaValue(tester), contains('123,456원'));
+      expect(deltaValue(tester), contains('12,345원'));
     });
 
     testWidgets('투자 카드 가림 — 줄은 두고 값만 •••', (tester) async {
