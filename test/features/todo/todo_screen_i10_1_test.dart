@@ -220,6 +220,78 @@ void main() {
     });
   });
 
+  group('11 원장 머리 숨기기(Scroll Auto Hide) · 18 달 이동', () {
+    List<Todo> many() => [
+      for (var i = 0; i < 24; i++)
+        todo(100 + i, '많은 할 일 ${i + 1}번', due: thisMonth(1 + i % 20)),
+    ];
+
+    testWidgets('내리면 머리가 위로 숨고, 모션 줄이기면 숨기지 않는다', (tester) async {
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: todoOverrides(todos: many()),
+      );
+      final nav = find.byType(LedgerMonthNav);
+      final before = tester.getTopLeft(nav).dy;
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -500));
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(nav).dy, lessThan(before - 20));
+    });
+
+    testWidgets('모션 줄이기면 머리가 늘 보인다', (tester) async {
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: todoOverrides(todos: many()),
+        disableAnimations: true,
+      );
+      final nav = find.byType(LedgerMonthNav);
+      final before = tester.getTopLeft(nav).dy;
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -500));
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(nav).dy, before);
+    });
+
+    testWidgets('달을 옮겨도 목록 요청이 없다 — 한 번 받은 목록으로 달만 바꾼다', (tester) async {
+      final repo = FakeTodoRepo();
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: todoOverrides(todos: _basic(), repo: repo),
+      );
+      final reads = repo.listReads;
+      final handle = tester.ensureSemantics();
+      await tester.tap(find.bySemanticsLabel('다음 달'));
+      await tester.pumpAndSettle();
+      expect(repo.listReads, reads);
+      final next = DateTime(_now.year, _now.month + 1, 1);
+      expect(find.text('${next.month}월'), findsOneWidget);
+      handle.dispose();
+    });
+  });
+
+  group('틈 표 T1 ~ T4', () {
+    testWidgets('T1 0 · T2 끝까지 선 · T3 16 · T4 흰 면이 끝까지 · 첫 묶음 8', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: todoOverrides(todos: _basic()),
+      );
+      final bar = tester.getRect(find.byType(PTopNavigation));
+      final face = tester.getRect(
+        find.byKey(const ValueKey('todo-white-screen')),
+      );
+      expect(face.top - bar.bottom, 0, reason: 'T1');
+      final divider = tester.getRect(find.byType(LedgerHeaderDivider));
+      expect(divider.left, 0, reason: 'T2 선이 화면 끝까지');
+      expect(divider.right, 360);
+      expect(face.bottom, 780, reason: 'T4');
+    });
+  });
+
   group('9 주 달력 · 칸 표시', () {
     testWidgets('오늘 칸 이름은 "N월 D일, 남은 할 일 N개" · 표시는 장식 · 높이 15', (tester) async {
       await pumpApp(
@@ -411,6 +483,28 @@ void main() {
       expect(tester.widget<PCheckmark>(_checkOf('보고서 마무리')).enabled, isTrue);
       repo.gate!.complete(0);
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('응답이 오기 전에 화면이 닫혀도 터지지 않는다', (tester) async {
+      final repo = FakeTodoRepo()..gate = Completer<int>();
+      final show = ValueNotifier<bool>(true);
+      await pumpApp(
+        tester,
+        ValueListenableBuilder<bool>(
+          valueListenable: show,
+          builder: (_, v, _) => v ? const TodoScreen() : const Scaffold(),
+        ),
+        overrides: todoOverrides(todos: _basic(), repo: repo),
+      );
+      await tester.tap(_checkOf('보고서 마무리'));
+      await tester.pump();
+      // 화면을 닫는다 — 컨테이너(앱)는 그대로다
+      show.value = false;
+      await tester.pump();
+      expect(find.byType(TodoScreen), findsNothing);
+      repo.gate!.complete(0);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('같은 줄 600ms 안의 두 번째 누름은 무시한다 · 다른 줄은 완료시키지 않는다', (

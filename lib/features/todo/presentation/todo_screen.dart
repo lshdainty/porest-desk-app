@@ -183,18 +183,23 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     setState(() => _optimisticDone[x.rowId] = nextDone);
     _hold.hold(x.rowId);
     final l = AppLocalizations.of(context);
+    // 요청이 끝나기 전에 화면이 닫혀도 목록을 비울 수 있게 컨테이너를 미리 잡는다(`ref` 는 unmount 뒤에 던진다 — 태그 화면과 같다).
+    final container = ProviderScope.containerOf(context, listen: false);
     try {
-      final repo = await ref.read(todoRepositoryProvider.future);
+      final repo = await container.read(todoRepositoryProvider.future);
       // 서버가 이번 토글의 실제 적립량을 돌려준다 — 낙관 예측으로 띄우면 평생 1회
       // 정책에 걸려 적립이 0 이어도 "+N" 이 떠서 거짓말이 된다(웹 TodoPage 정합).
       final gain = await repo.setStatus(
         x.rowId,
         nextDone ? 'COMPLETED' : 'PENDING',
       );
-      ref.invalidate(todoListProvider);
+      container.invalidate(todoListProvider);
       // 별빛 적립/회수 부수효과 — 별자리 상태 일괄 갱신.
-      final constToday = ref.read(constellationTodayProvider).value;
-      invalidateConstellation(ref);
+      final constToday = container.read(constellationTodayProvider).value;
+      container
+        ..invalidate(constellationTodayProvider)
+        ..invalidate(constellationSkyProvider)
+        ..invalidate(constellationCollectionProvider);
       if (mounted && gain > 0 && constToday != null && !constToday.collected) {
         final left = constToday.goal - (constToday.points + gain);
         showPSnackBar(
@@ -207,7 +212,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       }
       // 새 목록이 올 때까지 낙관 값을 쥐고 있는다 — 먼저 걷으면 옛 서버 값으로 한 번 되돌아가 깜빡인다.
       try {
-        await ref.read(todoListProvider(_allFilter).future);
+        await container.read(todoListProvider(_allFilter).future);
       } on Object {
         // 목록을 다시 못 받아도 저장은 끝났다 — 화면은 이전 목록을 그대로 둔다.
       }
