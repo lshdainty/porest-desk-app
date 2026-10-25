@@ -367,7 +367,7 @@ class PListSwitchItem extends PListItemBase {
 /// 체크 줄 — 여럿 고르기. 체크 24 를 앞(기본)이나 뒤에. 저장해야 적용되는 선택에 쓴다. 줄 어디를 눌러도 바뀐다(Enter 는
 /// 누르지 않는다 — 폼 제출에 둔다). [onChanged] 가 없으면 막힌 줄.
 ///
-/// 체크를 앞에 두면 그 자리를 차지해 [prefix] 를 같이 줄 수 없다.
+/// 체크를 앞에 두고 [prefix] 를 같이 주면 체크 → 앞 붙이개(점 · 타일 · 아이콘) 차례로 서고 사이는 12(웹 ListCheckItem 과 같다).
 class PListCheckItem extends PListItemBase {
   const PListCheckItem({
     super.key,
@@ -387,10 +387,6 @@ class PListCheckItem extends PListItemBase {
   }) : assert(
          markPosition == PListMarkPosition.suffix || suffixValue == null,
          '뒤 값은 체크를 뒤(suffix)에 둘 때만 — 값 → 체크 순으로 한 덩어리로 선다',
-       ),
-       assert(
-         markPosition == PListMarkPosition.suffix || prefix == null,
-         '체크를 앞에 두면 앞 붙이개를 같이 쓸 수 없다 — 체크를 뒤(suffix)에 두거나 앞 붙이개를 뺀다',
        );
 
   /// true 선택 · false 선택 안 됨 · null 일부 선택.
@@ -427,7 +423,15 @@ class PListCheckItem extends PListItemBase {
       detail: detail,
       detailChild: detailChild,
       titleColor: titleColor,
-      prefix: markPosition == PListMarkPosition.prefix ? mark : prefix,
+      prefix: markPosition == PListMarkPosition.prefix
+          ? (prefix == null
+                ? mark
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: PSpacing.x3,
+                    children: [mark, prefix!],
+                  ))
+          : prefix,
       suffix: markPosition == PListMarkPosition.suffix
           ? (suffixValue == null
                 ? mark
