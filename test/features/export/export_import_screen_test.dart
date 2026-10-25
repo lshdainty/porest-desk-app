@@ -15,6 +15,7 @@ import 'package:groo_damda_app/features/export/data/export_repository.dart';
 import 'package:groo_damda_app/features/export/presentation/export_screen.dart';
 import 'package:groo_damda_app/features/import/data/import_repository.dart';
 import 'package:groo_damda_app/features/import/presentation/import_view.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/attachment_input/p_attachment_input.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
@@ -438,7 +439,7 @@ void main() {
         ],
       );
       await tester.pumpAndSettle();
-      expect(find.text(_l.exportCountsFailed), findsOneWidget);
+      expect(find.text(keepAll(_l.exportCountsFailed)), findsOneWidget);
       expect(find.text(_l.actionRetry), findsOneWidget);
       expect(find.text('…'), findsNothing);
     });
@@ -538,7 +539,7 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('attachment-pick')));
       await tester.pumpAndSettle();
-      expect(find.text(_l.importFileTooLarge), findsOneWidget);
+      expect(find.text(keepAll(_l.importFileTooLarge)), findsOneWidget);
       expect(find.text(_l.importStepMeta(2, 3)), findsNothing);
     });
 

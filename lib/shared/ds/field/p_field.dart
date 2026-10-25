@@ -10,6 +10,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
     show PTouchTargetScope;
 
@@ -574,7 +575,10 @@ class _FooterMessage extends StatelessWidget {
                 child: Icon(icon, size: _messageIconSize, color: color),
               ),
             ),
-          Flexible(child: Text(text, style: style)),
+          // 낱말 단위 줄바꿈(v114) — 읽는 글은 원래 글
+          Flexible(
+            child: Text(keepAll(text), semanticsLabel: text, style: style),
+          ),
         ],
       ),
     );
