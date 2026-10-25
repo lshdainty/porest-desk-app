@@ -86,12 +86,27 @@ class _CalendarFilterSheet extends ConsumerWidget {
                   if (cal.isDefault)
                     PListItem(
                       title: cal.calendarName,
-                      // 체크 자리(24)를 비워 이름이 체크 줄과 한 세로선에 선다
+                      // 체크 자리(24)에 늘 켜진 표식(캘린더 색 체크 16) — 끌 수 없는 줄이고 이름이 체크 줄과 한 세로선에 선다(웹과 같다)
                       prefix: Row(
                         mainAxisSize: MainAxisSize.min,
                         spacing: PSpacing.x3,
                         children: [
-                          const SizedBox(width: PSpacing.x6),
+                          ExcludeSemantics(
+                            child: SizedBox(
+                              key: const ValueKey(
+                                'calendar-filter-default-mark',
+                              ),
+                              width: PSpacing.x6,
+                              height: PSpacing.x6,
+                              child: Center(
+                                child: Icon(
+                                  LucideIcons.check,
+                                  size: PSpacing.x4,
+                                  color: chartToneOf(context, cal.color).solid,
+                                ),
+                              ),
+                            ),
+                          ),
                           _Dot(chartToneOf(context, cal.color).solid),
                         ],
                       ),

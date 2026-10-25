@@ -16,6 +16,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
@@ -197,6 +198,19 @@ void main() {
         ),
       );
       expect(check.width, 24);
+      // 기본 줄은 체크 자리 24 에 늘 켜진 표식(체크 아이콘)이 있다
+      final mark = tester.getRect(
+        find.byKey(const ValueKey('calendar-filter-default-mark')),
+      );
+      expect(mark.width, 24);
+      expect(mark.left, check.left, reason: '표식이 체크 줄 체크와 같은 자리');
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('calendar-filter-default-mark')),
+          matching: find.byIcon(LucideIcons.check),
+        ),
+        findsOneWidget,
+      );
       expect(check.right, lessThan(dot.left), reason: '체크가 점 앞이다');
       final normalTitle = tester.getTopLeft(findPlain('회사캘린더')).dx;
       final defaultTitle = tester.getTopLeft(_defaultTitle()).dx;
