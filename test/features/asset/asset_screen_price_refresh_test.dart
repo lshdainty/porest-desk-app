@@ -29,6 +29,8 @@ import 'package:groo_damda_app/features/subscription/data/subscription_repositor
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/mobile_scaffold.dart';
 
+import '../../support/plain_text.dart';
+
 const _tick = Duration(seconds: 10);
 
 /// 시세 저장소 대역. 부를 때마다 100원 오른다. [delay] 만큼 늦게 답한다(다시 받는 동안을 보려고).
@@ -185,7 +187,7 @@ void main() {
     final (prices, _) = await _pump(tester);
     expect(prices.calls, 1, reason: '들어오면 한 번은 받는다');
     expect(
-      find.textContaining('701,000'),
+      findPlainContaining('701,000'),
       findsWidgets,
       reason: '70,100 × 10주',
     );
@@ -196,11 +198,11 @@ void main() {
       2,
       reason: '10초가 지났는데 시세를 다시 안 받았다 — 평가 맵만 밀면 받아 둔 시세로 다시 계산할 뿐이다',
     );
-    expect(find.textContaining('702,000'), findsWidgets);
+    expect(findPlainContaining('702,000'), findsWidgets);
 
     await _advance(tester, _tick);
     expect(prices.calls, 3);
-    expect(find.textContaining('703,000'), findsWidgets);
+    expect(findPlainContaining('703,000'), findsWidgets);
   });
 
   // 시세를 새로 받는 동안은 원래도 안 깜빡였다 — 직접 무효화한 provider 는 riverpod 이
@@ -212,7 +214,7 @@ void main() {
     tester,
   ) async {
     final (_, assets) = await _pump(tester);
-    expect(find.textContaining('701,000'), findsWidgets);
+    expect(findPlainContaining('701,000'), findsWidgets);
 
     assets.delay = const Duration(seconds: 2); // 목록 응답이 2초 걸린다
     ProviderScope.containerOf(
@@ -221,16 +223,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500)); // 아직 응답 전
 
     expect(
-      find.textContaining('701,000'),
+      findPlainContaining('701,000'),
       findsWidgets,
       reason: '받는 동안 앞 평가액이 보여야 한다 — asData 로 읽으면 이때 비어 서버 잔액이 보인다',
     );
-    expect(find.textContaining('500,000'), findsNothing);
+    expect(findPlainContaining('500,000'), findsNothing);
 
     await _settle(tester);
     await _settle(tester);
     expect(
-      find.textContaining('701,000'),
+      findPlainContaining('701,000'),
       findsWidgets,
       reason: '목록이 오면 같은 시세로 다시 계산',
     );

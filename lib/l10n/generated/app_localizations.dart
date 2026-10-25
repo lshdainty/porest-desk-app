@@ -719,7 +719,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'설정 → 계좌·카드 관리에서 추가할 수 있어요'**
+  /// **'설정 → 계좌·카드 관리에서 추가할 수 있어요.'**
   String get assetEmptyHint;
 
   /// No description provided for @assetSummaryColAccounts.
@@ -749,7 +749,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetGroupEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'등록된 항목이 없어요'**
+  /// **'등록된 항목이 없어요.'**
   String get assetGroupEmpty;
 
   /// No description provided for @assetPaymentDayInfo.
@@ -845,7 +845,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetTrendEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'추이 데이터가 없어요'**
+  /// **'추이 데이터가 없어요.'**
   String get assetTrendEmpty;
 
   /// No description provided for @assetNetWorth.
@@ -853,6 +853,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'순자산'**
   String get assetNetWorth;
+
+  /// No description provided for @assetCardLimitName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 한도'**
+  String assetCardLimitName(String name);
+
+  /// No description provided for @assetChartNetWorthName.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 12개월 순자산 추이 — 이번 달 {amount}'**
+  String assetChartNetWorthName(String amount);
+
+  /// No description provided for @assetChartTableMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'달'**
+  String get assetChartTableMonth;
+
+  /// No description provided for @assetLoadFailedSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산을 불러오지 못했어요'**
+  String get assetLoadFailedSummary;
+
+  /// No description provided for @assetLoadFailedTrend.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산 추이를 불러오지 못했어요'**
+  String get assetLoadFailedTrend;
+
+  /// No description provided for @assetLoadFailedAssets.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산을 불러오지 못했어요'**
+  String get assetLoadFailedAssets;
+
+  /// No description provided for @assetLoadFailedGoals.
+  ///
+  /// In ko, this message translates to:
+  /// **'저축 목표를 불러오지 못했어요'**
+  String get assetLoadFailedGoals;
+
+  /// No description provided for @assetEmptyCta.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드 관리로 가기'**
+  String get assetEmptyCta;
 
   /// No description provided for @assetAccountAdd.
   ///
@@ -8729,7 +8777,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalManagePrompt.
   ///
   /// In ko, this message translates to:
-  /// **'설정에서 저축 목표를 추가해보세요'**
+  /// **'설정에서 저축 목표를 추가해보세요.'**
   String get savingGoalManagePrompt;
 
   /// No description provided for @savingGoalManageLink.

@@ -326,7 +326,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetEmptyHint =>
-      'You can add one from Settings → Account & Card Management';
+      'You can add one from Settings → Account & Card Management.';
 
   @override
   String get assetSummaryColAccounts => 'Accounts';
@@ -341,7 +341,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetVsLastMonth => 'vs last month';
 
   @override
-  String get assetGroupEmpty => 'No items yet';
+  String get assetGroupEmpty => 'No items registered.';
 
   @override
   String assetPaymentDayInfo(int day) {
@@ -403,10 +403,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetTrendLoadError => 'Couldn\'t load trend data';
 
   @override
-  String get assetTrendEmpty => 'No trend data';
+  String get assetTrendEmpty => 'No trend data.';
 
   @override
   String get assetNetWorth => 'Net worth';
+
+  @override
+  String assetCardLimitName(String name) {
+    return '$name limit';
+  }
+
+  @override
+  String assetChartNetWorthName(String amount) {
+    return 'Net worth over the last 12 months — this month $amount';
+  }
+
+  @override
+  String get assetChartTableMonth => 'Month';
+
+  @override
+  String get assetLoadFailedSummary => 'Couldn\'t load net worth';
+
+  @override
+  String get assetLoadFailedTrend => 'Couldn\'t load the net worth trend';
+
+  @override
+  String get assetLoadFailedAssets => 'Couldn\'t load your assets';
+
+  @override
+  String get assetLoadFailedGoals => 'Couldn\'t load saving goals';
+
+  @override
+  String get assetEmptyCta => 'Go to manage accounts & cards';
 
   @override
   String get assetAccountAdd => 'Add account';
@@ -4792,7 +4820,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalAddAction => 'Add goal';
 
   @override
-  String get savingGoalManagePrompt => 'Add saving goals in Settings';
+  String get savingGoalManagePrompt => 'Add saving goals in Settings.';
 
   @override
   String get savingGoalManageLink => 'Manage';

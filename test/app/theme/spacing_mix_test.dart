@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 /// 아래 [_alreadyMixed] 는 이 테스트를 넣기 전에 이미 섞여 있던 파일이다(I-01 이 카드 · 띠 틀을
 /// 새 이름으로 짜면서 생겼다). 화면 이관 때 파일을 통째로 옮기며 목록에서 뺀다. 더 늘리지 않는다.
 const _alreadyMixed = <String>{
-  'lib/features/asset/presentation/asset_screen.dart',
   'lib/features/stats/presentation/fixed_variable_tab.dart',
   'lib/features/stats/presentation/stats_screen.dart',
   'lib/features/stocks/presentation/stocks_screen.dart',

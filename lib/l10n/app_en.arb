@@ -111,12 +111,12 @@
   "assetSubtypeOverdraft": "Overdraft",
   "assetLoadError": "Couldn't load assets",
   "assetEmptyState": "No assets yet",
-  "assetEmptyHint": "You can add one from Settings → Account & Card Management",
+  "assetEmptyHint": "You can add one from Settings → Account & Card Management.",
   "assetSummaryColAccounts": "Accounts",
   "assetSummaryColCards": "Card debt",
   "assetTotalNetWorth": "Total net worth",
   "assetVsLastMonth": "vs last month",
-  "assetGroupEmpty": "No items yet",
+  "assetGroupEmpty": "No items registered.",
   "assetPaymentDayInfo": "Pays on day {day}",
   "@assetPaymentDayInfo": {
     "placeholders": {
@@ -174,8 +174,30 @@
   "assetIncludeInTotal": "Include in total assets",
   "assetIncludeInTotalDesc": "Counts toward net worth and total assets",
   "assetTrendLoadError": "Couldn't load trend data",
-  "assetTrendEmpty": "No trend data",
+  "assetTrendEmpty": "No trend data.",
   "assetNetWorth": "Net worth",
+  "assetCardLimitName": "{name} limit",
+  "@assetCardLimitName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "assetChartNetWorthName": "Net worth over the last 12 months — this month {amount}",
+  "@assetChartNetWorthName": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetChartTableMonth": "Month",
+  "assetLoadFailedSummary": "Couldn't load net worth",
+  "assetLoadFailedTrend": "Couldn't load the net worth trend",
+  "assetLoadFailedAssets": "Couldn't load your assets",
+  "assetLoadFailedGoals": "Couldn't load saving goals",
+  "assetEmptyCta": "Go to manage accounts & cards",
   "assetAccountAdd": "Add account",
   "assetAccountEdit": "Edit account",
   "assetAccountAdded": "Account added",
@@ -2748,7 +2770,7 @@
     }
   },
   "savingGoalAddAction": "Add goal",
-  "savingGoalManagePrompt": "Add saving goals in Settings",
+  "savingGoalManagePrompt": "Add saving goals in Settings.",
   "savingGoalManageLink": "Manage",
   "savingGoalNoDeadline": "No deadline",
   "savingGoalCurrentLabel": "Amount saved",

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -227,7 +228,7 @@ class _HoldingsPanel extends ConsumerWidget {
           const SizedBox(height: 2),
           Text(
             '${h.totalProfitLossValue >= 0 ? '+' : ''}${_fmt(h.totalProfitLossValue)} '
-            '(${h.profitRateValue.toStringAsFixed(2)}%)',
+            '(${formatChangeRate(h.profitRateValue)})',
             style: PTypo.bodySm.copyWith(
               color: h.totalProfitLossValue >= 0
                   ? t.statusSuccessFg

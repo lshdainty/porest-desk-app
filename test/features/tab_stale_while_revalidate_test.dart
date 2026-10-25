@@ -328,13 +328,13 @@ void main() {
       await pump(tester, serveGoals: false);
       await tester.pump();
 
-      expect(find.byType(PSkeleton), findsWidgets);
+      expect(find.byType(dsskel.PSkeleton), findsWidgets);
     });
 
     testWidgets('재조회 중에도 빈 상태 문구가 그대로 — 스켈레톤이 끼어들지 않는다', (tester) async {
       await pump(tester, serveGoals: true);
       await tester.pumpAndSettle();
-      expect(find.text('설정에서 저축 목표를 추가해보세요'), findsOneWidget);
+      expect(findPlain('설정에서 저축 목표를 추가해보세요.'), findsOneWidget);
 
       await _refetch(
         tester,
@@ -342,8 +342,8 @@ void main() {
         savingGoalListProvider,
       );
 
-      expect(find.text('설정에서 저축 목표를 추가해보세요'), findsOneWidget);
-      expect(find.byType(PSkeleton), findsNothing);
+      expect(findPlain('설정에서 저축 목표를 추가해보세요.'), findsOneWidget);
+      expect(find.byType(dsskel.PSkeleton), findsNothing);
     });
   });
 

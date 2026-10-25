@@ -106,9 +106,15 @@ class PLineChart extends PCartesianChart {
     super.valueFormatter,
     super.axisFormatter,
     this.area = true,
+    this.dots = false,
   });
 
   final bool area;
+
+  /// 데이터 점마다 늘 찍는 점 — 지름 6(r 3) · 계열 색 채움 · 테두리 없음. 기본은 없음(가리킨 자리에만 점이 선다). 점이 적은
+  /// 추이를 영역 채움 없이 선 + 점으로 그릴 때만 켠다(I-05 57 — chart.md 선 줄 "점이 적은 추이는 선 + 점도 된다").
+  /// 가리킨 점은 스펙 그대로(r 3 + 카드 면 색 테두리 2)라 이 점 위에 커져 겹친다.
+  final bool dots;
 
   @override
   State<PLineChart> createState() => _PLineChartState();
@@ -170,6 +176,7 @@ class _Plan {
     required this.labelInterval,
     required this.plotLeft,
     required this.plotWidth,
+    required this.bottomReserved,
   });
 
   /// 0 아래 · 위로 눈금이 몇 칸인가.
@@ -184,6 +191,9 @@ class _Plan {
   final int labelInterval;
   final double plotLeft;
   final double plotWidth;
+
+  /// 아래 눈금(가로축) 자리 — 글자 배율을 곱한 눈금 높이 + 사이 8.
+  final double bottomReserved;
 
   double get minY => -below.toDouble();
   double get maxY => above.toDouble();
@@ -210,7 +220,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
   bool get _dual => widget.series.any((s) => s.onRight);
 
   /// 눈금을 정한다 — 숨긴 계열도 포함해 정한다(지표 타일을 눌러도 축이 흔들리지 않는다).
-  _Plan _plan(double width, PColors c) {
+  _Plan _plan(double width, PColors c, TextScaler scaler) {
     final leftSeries = [
       for (final s in widget.series)
         if (!s.onRight) s,
@@ -251,7 +261,10 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     double widest(double step) {
       var w = 0.0;
       for (var t = -below; t <= aboveFix; t++) {
-        w = math.max(w, measureText(_axisText(t * step), tickStyle));
+        w = math.max(
+          w,
+          measureText(_axisText(t * step), tickStyle, scaler: scaler),
+        );
       }
       return w;
     }
@@ -260,7 +273,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     final rightW = r == null ? 0.0 : widest(r.step) + kChartTickMargin;
     var labelW = 0.0;
     for (final cat in widget.categories) {
-      labelW = math.max(labelW, measureText(cat, tickStyle));
+      labelW = math.max(labelW, measureText(cat, tickStyle, scaler: scaler));
     }
     // 가로축 끝 글자가 반쯤 삐져나가므로 오른쪽 축이 없으면 그만큼 비워 둔다
     final rightPad = r == null ? math.max(PSpacing.x2, labelW / 2) : rightW;
@@ -277,6 +290,7 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       labelInterval: interval,
       plotLeft: leftW,
       plotWidth: plotW,
+      bottomReserved: scaler.scale(15) + kChartTickMargin,
     );
   }
 
@@ -334,13 +348,15 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: kChartBottomReserved,
+          reservedSize: p.bottomReserved,
           interval: p.labelInterval.toDouble(),
           getTitlesWidget: (v, meta) {
             final i = v.round();
             if (v != i.toDouble() || i < 0 || i >= widget.categories.length) {
               return const SizedBox();
             }
+            // fl_chart 는 간격에 안 맞아도 마지막 눈금을 더 찍는다 — 앞 글자와 겹쳐 "11월12월" 이 된다
+            if (i % p.labelInterval != 0) return const SizedBox();
             return SideTitleWidget(
               meta: meta,
               space: kChartTickMargin,
@@ -447,7 +463,11 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
       child: PChartDrawIn(
         builder: (context, progress) => LayoutBuilder(
           builder: (context, constraints) {
-            final p = _plan(constraints.maxWidth, c);
+            final p = _plan(
+              constraints.maxWidth,
+              c,
+              MediaQuery.textScalerOf(context),
+            );
             final h = math.max(1.0, widget.height - _topPad);
             final overlay = _overlay(c, p, h);
             return TapRegion(
@@ -509,7 +529,17 @@ class _PLineChartState extends _CartesianState<PLineChart> {
           preventCurveOverShooting: true,
           color: s.color.of(c),
           barWidth: kChartLineWidth,
-          dotData: const FlDotData(show: false),
+          dotData: widget.dots
+              ? FlDotData(
+                  show: true,
+                  getDotPainter: (spot, percent, bar, index) =>
+                      FlDotCirclePainter(
+                        radius: kChartPointRadius,
+                        color: s.color.of(c),
+                        strokeWidth: 0,
+                      ),
+                )
+              : const FlDotData(show: false),
           showingIndicators: _active == null ? const [] : [_active!],
           belowBarData: widget.area
               ? BarAreaData(
@@ -632,7 +662,7 @@ class _PBarChartState extends _CartesianState<PBarChart> {
     final label = widget.barLabel;
     if (label != null) {
       final visible = _visible;
-      final plotH = h - kChartBottomReserved;
+      final plotH = h - p.bottomReserved;
       final range = p.maxY - p.minY;
       for (var i = 0; i < widget.categories.length; i++) {
         for (final s in visible) {
@@ -671,7 +701,7 @@ class _PBarChartState extends _CartesianState<PBarChart> {
         Positioned(
           left: _xOf(_active!, p) - 0.5,
           top: _topPad,
-          height: h - kChartBottomReserved,
+          height: h - p.bottomReserved,
           width: 1,
           child: IgnorePointer(
             child: CustomPaint(
