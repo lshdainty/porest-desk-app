@@ -239,7 +239,13 @@ class StatsSavingsRateSection extends StatelessWidget {
           builder: (context, constraints) {
             final ring = StatsSavingsRing(rate: saveRate);
             final size = savingsRingSize(context);
-            if (size + PSpacing.x4 + 120 > constraints.maxWidth) {
+            // 문장 칸 = 띠 폭 − 고리 − 간격. 글자 크기 기준 8em(= t5 16 × 배율 × 8)보다 좁으면 낱말이 칸보다 길어져 낱말 가운데서
+            // 꺾이므로(v114 단어 단위) 문장을 고리 아래로 내린다 — 100% 360 은 188 이라 옆에 선다
+            final em = MediaQuery.textScalerOf(
+              context,
+            ).scale(PTypography.t5.fontSize!);
+            final sentenceWidth = constraints.maxWidth - size - PSpacing.x4;
+            if (sentenceWidth < kSavingsSentenceMinEm * em) {
               return Column(
                 spacing: PSpacing.x4,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,6 +352,9 @@ double savingsRingSize(BuildContext context) =>
     MediaQuery.textScalerOf(context).scale(kSavingsRingBase);
 
 const double kSavingsRingBase = 108;
+
+/// 고리 옆 문장 칸의 최소 폭(글자 크기 em) — 이보다 좁으면 문장을 고리 아래로 내린다.
+const double kSavingsSentenceMinEm = 8;
 
 /// 저축률 고리 + 가운데 글(라벨 t2 · 값 t9 700, 정수 "100%"). 고리의 선 두께 · 반지름도 같은 비율로 커진다.
 class StatsSavingsRing extends StatelessWidget {

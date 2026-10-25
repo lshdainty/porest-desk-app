@@ -202,6 +202,97 @@ void main() {
     expect(scaled, w);
   });
 
+  group('저축률 띠 — 옆 문장이 낱말 가운데서 꺾이지 않는다', () {
+    for (final scale in [1.0, 1.3, 1.5, 2.0]) {
+      testWidgets('글자 ${(scale * 100).round()}%', (tester) async {
+        await tester.runAsync(() async {
+          final bytes = File(
+            'assets/fonts/PretendardVariable.ttf',
+          ).readAsBytesSync();
+          final loader = FontLoader('Pretendard')
+            ..addFont(Future.value(ByteData.view(bytes.buffer)));
+          await loader.load();
+        });
+        tester.view.physicalSize = const Size(360, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: GrooTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(scale)),
+              child: child!,
+            ),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: StatsSavingsRateSection(
+                  period: StatsPeriod.thisMonth(),
+                  buckets: const [
+                    RangeMonthlyBucket(
+                      year: 2026,
+                      month: 10,
+                      totalIncome: 1000,
+                      totalExpense: 400,
+                    ),
+                  ],
+                  masked: false,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        final ring = tester.getRect(find.byType(StatsSavingsRing));
+        final sentence = findPlainContaining('저축하고 있어요');
+        final text = tester.getRect(sentence);
+        final plain = plainOf(tester.widget<Text>(sentence).data!);
+        // 문장 칸의 폭이 가장 긴 낱말보다 좁지 않다 — 낱말 가운데서 꺾이지 않는다
+        var widest = 0.0;
+        for (final w in plain.split(' ')) {
+          final tp = TextPainter(
+            text: TextSpan(
+              text: w,
+              style: PTypography.t5.copyWith(fontWeight: FontWeight.w700),
+            ),
+            textDirection: TextDirection.ltr,
+            textScaler: TextScaler.linear(scale),
+          )..layout();
+          if (tp.width > widest) widest = tp.width;
+        }
+        expect(
+          text.width,
+          greaterThanOrEqualTo(widest),
+          reason: '문장 칸 ${text.width} ≥ 가장 긴 낱말 $widest',
+        );
+        // 줄 수 — 글 높이가 줄 높이의 정수배(낱말 단위 줄바꿈만, 한 줄 높이 = t5 24/16 × 배율)
+        final lineH = PTypography.t5.height! * PTypography.t5.fontSize! * scale;
+        expect(
+          (text.height / lineH - (text.height / lineH).round()).abs(),
+          lessThan(0.05),
+        );
+        if (scale == 1.0) {
+          expect(
+            text.left,
+            greaterThanOrEqualTo(ring.right),
+            reason: '100% 360 은 고리 옆',
+          );
+        } else if (scale >= 1.3) {
+          expect(
+            text.top,
+            greaterThanOrEqualTo(ring.bottom),
+            reason: '큰 글자는 고리 아래',
+          );
+        }
+      });
+    }
+  });
+
   group('기간 버튼 — 다른 해 직접 기간은 ~ 뒤 두 줄', () {
     Future<void> pumpButton(
       WidgetTester tester,
