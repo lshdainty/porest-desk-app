@@ -274,4 +274,40 @@ void main() {
     await tester.pump();
     expect(color(), c.fgDisabled, reason: '모션 줄이기');
   });
+
+  testWidgets('PList 제목 색 — 처음 그릴 때(새로 만들어진 줄 포함)는 모션 없이 최종 색이다', (
+    tester,
+  ) async {
+    final key = ValueNotifier<int>(0);
+    await pumpApp(
+      tester,
+      Scaffold(
+        body: ValueListenableBuilder<int>(
+          valueListenable: key,
+          builder: (context, k, _) => PList(
+            children: [
+              // 끝낸 줄처럼 처음부터 비활성 색인 줄 — 줄이 새로 만들어질 때마다(key) 다시 처음 그림이다
+              PListItem(
+                key: ValueKey(k),
+                title: '제목',
+                titleColor: context.colors.fgDisabled,
+                titleStrike: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+      settle: false,
+    );
+    final c = tester.element(find.byType(PList)).colors;
+    Color color() => tester.widget<Text>(findPlain('제목')).style!.color!;
+    // 첫 프레임 == 최종 색(보간 없음)
+    expect(color(), c.fgDisabled);
+    // 줄이 다시 만들어져도(스크롤로 목록이 새로 들어오는 때와 같다) 첫 프레임이 최종 색이다
+    key.value = 1;
+    await tester.pump();
+    expect(color(), c.fgDisabled);
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(color(), c.fgDisabled, reason: '깜빡이듯 옮겨 가지 않는다');
+  });
 }
