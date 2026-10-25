@@ -39,6 +39,20 @@ enum PChartColor {
     PChartColor.gray => c.chartGray,
   };
 
+  /// 같은 계열 색의 옅은 단계(weak) — 강조하지 않는 비교 계열(지난 달 · 지난 기간).
+  Color weakOf(PColors c) => switch (this) {
+    PChartColor.blue => c.chartBlueWeak,
+    PChartColor.green => c.chartGreenWeak,
+    PChartColor.orange => c.chartOrangeWeak,
+    PChartColor.violet => c.chartVioletWeak,
+    PChartColor.pink => c.chartPinkWeak,
+    PChartColor.indigo => c.chartIndigoWeak,
+    PChartColor.red => c.chartRedWeak,
+    PChartColor.yellow => c.chartYellowWeak,
+    PChartColor.brown => c.chartBrownWeak,
+    PChartColor.gray => c.chartGrayWeak,
+  };
+
   /// 넓은 면 옅은 바탕(v111 subtle) — 켠 지표 타일.
   Color subtleOf(PColors c) => switch (this) {
     PChartColor.blue => c.chartBlueSubtle,

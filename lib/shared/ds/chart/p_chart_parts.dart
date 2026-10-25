@@ -293,6 +293,7 @@ class PChartLegendItem {
     required this.label,
     required this.color,
     required this.total,
+    this.weak = false,
   });
 
   final String key;
@@ -301,6 +302,9 @@ class PChartLegendItem {
 
   /// 합계 — 원까지 만든 글("4,200,000원").
   final String total;
+
+  /// 같은 색의 옅은 단계 — 강조하지 않는 비교 계열의 점. 켠 타일 바탕은 그 색의 옅은 바탕 그대로다.
+  final bool weak;
 }
 
 /// 지표 타일 높이 — 위 10 + 이름 18 + 2 + 합계 22 + 아래 10.
@@ -452,7 +456,9 @@ class _LegendTile extends StatelessWidget {
                     height: PSpacing.x2,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: item.color.of(c),
+                      color: item.weak
+                          ? item.color.weakOf(c)
+                          : item.color.of(c),
                     ),
                   ),
                   const SizedBox(width: PSpacing.x1_5),
