@@ -183,6 +183,8 @@ List<Override> todoOverrides({
   ConstellationToday? sky,
   List<SkyDay> skyDays = const [],
   bool tagsError = false,
+  bool skyError = false,
+  bool skyDaysError = false,
 }) {
   final r = repo ?? FakeTodoRepo();
   r.todos = todos;
@@ -210,7 +212,11 @@ List<Override> todoOverrides({
       }
       return tags;
     }),
-    constellationTodayProvider.overrideWith((ref) async => sky ?? constToday()),
-    constellationSkyProvider.overrideWith((ref) async => skyDays),
+    constellationTodayProvider.overrideWith(
+      (ref) async => skyError ? throw 'x' : (sky ?? constToday()),
+    ),
+    constellationSkyProvider.overrideWith(
+      (ref) async => skyDaysError ? throw 'x' : skyDays,
+    ),
   ];
 }
