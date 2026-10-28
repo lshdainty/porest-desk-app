@@ -6045,11 +6045,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get constCollectionTodayBadge => '오늘의 목표';
 
   @override
-  String constCollectionStarCount(int count) {
-    return '별 $count개';
-  }
-
-  @override
   String constCollectionTimes(int count) {
     return '$count회';
   }
@@ -6058,20 +6053,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get constCollectionNotCollected => '미수집';
 
   @override
-  String get constDetailTitle => '별자리 도감';
-
-  @override
   String get constDetailNotMet => '아직 만나지 못한 별자리예요';
-
-  @override
-  String constDetailCollectedTimes(int count) {
-    return '지금까지 $count번 수집했어요';
-  }
-
-  @override
-  String constDetailHint(int count) {
-    return '하루에 별빛 $count개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요';
-  }
 
   @override
   String get todoDetailTitle => '할 일 상세';
@@ -6884,9 +6866,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get frpFuture => '아직 오지 않은 밤이에요';
-
-  @override
   String frpAsOf(String ts) {
     return '$ts 기준';
   }
@@ -6909,11 +6888,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ttagEditTitle => '태그 수정';
-
-  @override
-  String fcolOwnBadge(int count) {
-    return '수집 $count회';
-  }
 
   @override
   String get ttagTitle => '할 일 태그';

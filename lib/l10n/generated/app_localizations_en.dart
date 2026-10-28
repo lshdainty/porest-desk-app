@@ -6143,11 +6143,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constCollectionTodayBadge => 'Today\'s goal';
 
   @override
-  String constCollectionStarCount(int count) {
-    return '$count stars';
-  }
-
-  @override
   String constCollectionTimes(int count) {
     return '$count×';
   }
@@ -6156,20 +6151,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constCollectionNotCollected => 'Not yet';
 
   @override
-  String get constDetailTitle => 'Constellation collection';
-
-  @override
   String get constDetailNotMet => 'A constellation you haven\'t met yet';
-
-  @override
-  String constDetailCollectedTimes(int count) {
-    return 'Collected $count times so far';
-  }
-
-  @override
-  String constDetailHint(int count) {
-    return 'Gather $count starlight in a day to collect · a new target rises daily';
-  }
 
   @override
   String get todoDetailTitle => 'Todo details';
@@ -6995,9 +6977,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get frpFuture => 'That night hasn\'t come yet';
-
-  @override
   String frpAsOf(String ts) {
     return 'as of $ts';
   }
@@ -7020,11 +6999,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttagEditTitle => 'Edit tag';
-
-  @override
-  String fcolOwnBadge(int count) {
-    return 'Collected ×$count';
-  }
 
   @override
   String get ttagTitle => 'Todo tags';

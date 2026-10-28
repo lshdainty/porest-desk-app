@@ -3562,14 +3562,6 @@
   },
   "constCollectionSubtitle": "Gather starlight equal to the stars to collect",
   "constCollectionTodayBadge": "Today's goal",
-  "constCollectionStarCount": "{count} stars",
-  "@constCollectionStarCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "constCollectionTimes": "{count}×",
   "@constCollectionTimes": {
     "placeholders": {
@@ -3579,24 +3571,7 @@
     }
   },
   "constCollectionNotCollected": "Not yet",
-  "constDetailTitle": "Constellation collection",
   "constDetailNotMet": "A constellation you haven't met yet",
-  "constDetailCollectedTimes": "Collected {count} times so far",
-  "@constDetailCollectedTimes": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "constDetailHint": "Gather {count} starlight in a day to collect · a new target rises daily",
-  "@constDetailHint": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "todoDetailTitle": "Todo details",
   "todoDetailStatus": "Status",
   "todoStatusPending": "Pending",
@@ -4037,7 +4012,6 @@
       }
     }
   },
-  "frpFuture": "That night hasn't come yet",
   "frpAsOf": "as of {ts}",
   "@frpAsOf": {
     "placeholders": {
@@ -4063,14 +4037,6 @@
     }
   },
   "ttagEditTitle": "Edit tag",
-  "fcolOwnBadge": "Collected ×{count}",
-  "@fcolOwnBadge": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ttagTitle": "Todo tags",
   "ttagDesc": "Tags you attach to to-dos. They are used for filtering and counts on the to-do screen. If you delete a tag, its to-dos stay as 'No tag'.",
   "ttagAddCta": "Add tag",

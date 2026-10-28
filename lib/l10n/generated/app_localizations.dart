@@ -11132,12 +11132,6 @@ abstract class AppLocalizations {
   /// **'오늘의 목표'**
   String get constCollectionTodayBadge;
 
-  /// No description provided for @constCollectionStarCount.
-  ///
-  /// In ko, this message translates to:
-  /// **'별 {count}개'**
-  String constCollectionStarCount(int count);
-
   /// No description provided for @constCollectionTimes.
   ///
   /// In ko, this message translates to:
@@ -11150,29 +11144,11 @@ abstract class AppLocalizations {
   /// **'미수집'**
   String get constCollectionNotCollected;
 
-  /// No description provided for @constDetailTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'별자리 도감'**
-  String get constDetailTitle;
-
   /// No description provided for @constDetailNotMet.
   ///
   /// In ko, this message translates to:
   /// **'아직 만나지 못한 별자리예요'**
   String get constDetailNotMet;
-
-  /// No description provided for @constDetailCollectedTimes.
-  ///
-  /// In ko, this message translates to:
-  /// **'지금까지 {count}번 수집했어요'**
-  String constDetailCollectedTimes(int count);
-
-  /// No description provided for @constDetailHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'하루에 별빛 {count}개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요'**
-  String constDetailHint(int count);
 
   /// No description provided for @todoDetailTitle.
   ///
@@ -12434,12 +12410,6 @@ abstract class AppLocalizations {
   /// **'{count}개'**
   String frpMissedCount(int count);
 
-  /// No description provided for @frpFuture.
-  ///
-  /// In ko, this message translates to:
-  /// **'아직 오지 않은 밤이에요'**
-  String get frpFuture;
-
   /// No description provided for @frpAsOf.
   ///
   /// In ko, this message translates to:
@@ -12475,12 +12445,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'태그 수정'**
   String get ttagEditTitle;
-
-  /// No description provided for @fcolOwnBadge.
-  ///
-  /// In ko, this message translates to:
-  /// **'수집 {count}회'**
-  String fcolOwnBadge(int count);
 
   /// No description provided for @ttagTitle.
   ///

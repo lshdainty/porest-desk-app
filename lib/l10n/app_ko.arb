@@ -3634,14 +3634,6 @@
   },
   "constCollectionSubtitle": "별 개수만큼 별빛을 모으면 수집돼요",
   "constCollectionTodayBadge": "오늘의 목표",
-  "constCollectionStarCount": "별 {count}개",
-  "@constCollectionStarCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "constCollectionTimes": "{count}회",
   "@constCollectionTimes": {
     "placeholders": {
@@ -3651,24 +3643,7 @@
     }
   },
   "constCollectionNotCollected": "미수집",
-  "constDetailTitle": "별자리 도감",
   "constDetailNotMet": "아직 만나지 못한 별자리예요",
-  "constDetailCollectedTimes": "지금까지 {count}번 수집했어요",
-  "@constDetailCollectedTimes": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "constDetailHint": "하루에 별빛 {count}개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요",
-  "@constDetailHint": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "todoDetailTitle": "할 일 상세",
   "todoDetailStatus": "상태",
   "todoStatusPending": "대기",
@@ -4195,7 +4170,6 @@
       }
     }
   },
-  "frpFuture": "아직 오지 않은 밤이에요",
   "frpAsOf": "{ts} 기준",
   "@frpAsOf": {
     "placeholders": {
@@ -4221,14 +4195,6 @@
     }
   },
   "ttagEditTitle": "태그 수정",
-  "fcolOwnBadge": "수집 {count}회",
-  "@fcolOwnBadge": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "ttagTitle": "할 일 태그",
   "ttagDesc": "할 일에 붙이는 태그예요. 할 일 화면의 거르기와 태그별 개수에 쓰여요. 태그를 지우면 그 할 일은 '태그 없음'으로 남아요.",
   "ttagAddCta": "태그 추가",
