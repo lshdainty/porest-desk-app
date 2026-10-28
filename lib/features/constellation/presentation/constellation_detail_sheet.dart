@@ -48,45 +48,53 @@ class ConstellationDetailSheet extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(
-            image: true,
-            label: l.constDetailSkyName(name),
-            child: ExcludeSemantics(
-              child: Container(
-                key: const ValueKey('constellation-detail-sky'),
-                height: 240,
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(PRounded.r4),
-                  gradient: skyGradient(c, three: true),
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: ConstellationIcon(
-                        info: info,
-                        color: skyInk(c, collected ? 0xFF : 0x66),
-                        size: 180,
-                        lit: collected ? null : 0,
-                        glow: collected,
+          Container(
+            key: const ValueKey('constellation-detail-sky'),
+            height: 240,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(PRounded.r4),
+              gradient: skyGradient(c, three: true),
+            ),
+            child: Stack(
+              children: [
+                // 그림(잔별 · 선 · 점등 별)은 이름 붙은 이미지 하나, 안내 글은 그 밖의 글이라 읽힌다.
+                Positioned.fill(
+                  child: Semantics(
+                    image: true,
+                    label: l.constDetailSkyName(name),
+                    child: ExcludeSemantics(
+                      child: Stack(
+                        children: [
+                          const _DimStars(),
+                          Center(
+                            child: ConstellationIcon(
+                              info: info,
+                              color: skyInk(c, collected ? 0xFF : 0x66),
+                              size: 180,
+                              lit: collected ? null : 0,
+                              glow: collected,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    if (!collected)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: PSpacing.x3_5,
-                        child: Text(
-                          keepAll(l.constDetailNotMet),
-                          textAlign: TextAlign.center,
-                          style: PTypography.t3.copyWith(
-                            color: c.fgNeutralInverted,
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
+                if (!collected)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: PSpacing.x3_5,
+                    child: Text(
+                      keepAll(l.constDetailNotMet),
+                      textAlign: TextAlign.center,
+                      style: PTypography.t3.copyWith(
+                        color: c.fgNeutralInverted,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           if (desc.isNotEmpty)
@@ -127,6 +135,52 @@ class ConstellationDetailSheet extends StatelessWidget {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 하늘 패널 잔별 14 — 웹 `SKY_DIM_STARS` 와 같은 좌표(장식, 투명도 30%).
+class _DimStars extends StatelessWidget {
+  const _DimStars();
+
+  static const _stars = <(double, double)>[
+    (5, 18),
+    (11, 72),
+    (17, 30),
+    (22, 84),
+    (28, 12),
+    (33, 52),
+    (38, 88),
+    (45, 8),
+    (55, 90),
+    (62, 10),
+    (68, 86),
+    (75, 20),
+    (83, 78),
+    (90, 14),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return LayoutBuilder(
+      builder: (context, box) => Stack(
+        children: [
+          for (var i = 0; i < _stars.length; i++)
+            Positioned(
+              left: box.maxWidth * _stars[i].$1 / 100,
+              top: box.maxHeight * _stars[i].$2 / 100,
+              child: Container(
+                width: i % 3 == 0 ? 2.5 : 1.5,
+                height: i % 3 == 0 ? 2.5 : 1.5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: skyInk(c, 0x4D),
+                ),
+              ),
+            ),
         ],
       ),
     );
