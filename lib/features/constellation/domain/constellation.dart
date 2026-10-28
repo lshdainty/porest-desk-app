@@ -202,3 +202,19 @@ class ConstellationCollectionData {
     );
   }
 }
+
+/// 도감 'NEW' — 모은 별자리 가운데 `lastCollectedDate` 가 가장 늦은 하나(횟수와 무관, 웹 `newestKeyOf` 와 같다).
+String? newestCollectedKey(List<CollectionEntry> entries) {
+  String? key;
+  var latest = '';
+  for (final e in entries) {
+    if (!e.collected) continue;
+    final d = e.lastCollectedDate ?? '';
+    if (d.isEmpty) continue;
+    if (d.compareTo(latest) > 0) {
+      latest = d;
+      key = e.constellation.constellationKey;
+    }
+  }
+  return key;
+}
