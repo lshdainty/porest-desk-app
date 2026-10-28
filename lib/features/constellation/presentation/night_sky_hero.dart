@@ -179,10 +179,15 @@ class _Meta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 글이 두 줄이 되어도 아이콘은 첫 줄에 맞춘다(줄 높이 18 − 아이콘 14 의 절반 2).
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: PSpacing.x3_5, color: style.color),
+        Padding(
+          padding: const EdgeInsets.only(top: PSpacing.x0_5),
+          child: Icon(icon, size: PSpacing.x3_5, color: style.color),
+        ),
         const SizedBox(width: PSpacing.x1),
         Flexible(child: Text(keepAll(text), style: style)),
       ],
