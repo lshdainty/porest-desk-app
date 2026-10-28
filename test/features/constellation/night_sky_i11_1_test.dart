@@ -321,13 +321,21 @@ void main() {
           expect(tester.takeException(), isNull);
           expect(find.bySemanticsLabel('$streak일째 연속 관측'), findsOneWidget);
           final circle = tester.getRect(
-            find.byWidgetPredicate(
-              (w) => w is Container && w.constraints?.maxWidth == 72,
-            ),
+            find.byKey(const ValueKey('report-stamp')),
+          );
+          expect(
+            tester
+                .renderObject<RenderBox>(
+                  find.byKey(const ValueKey('report-stamp')),
+                )
+                .size
+                .width,
+            closeTo(72 * scale, 0.5),
+            reason: '원이 글자 배율을 따른다',
           );
           for (final t in ['$streak일째', '연속 관측!']) {
             final r = tester.getRect(find.text(t));
-            const radius = 36.0;
+            final radius = 36.0 * scale;
             for (final corner in [
               r.topLeft,
               r.topRight,

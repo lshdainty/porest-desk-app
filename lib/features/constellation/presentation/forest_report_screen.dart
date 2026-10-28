@@ -783,15 +783,22 @@ class _ResultLine extends StatelessWidget {
 }
 
 /// 연속 관측 도장 — 지름 72 · 안쪽 2px · −8° 기울임. 줄 안 오른쪽에 자리를 가져 글과 겹치지 않는다.
+///
+/// 글을 줄여 맞추지 않는다 — 사용자가 키운 글자 크기를 화면이 다시 줄이는 꼴이라서, 원이 글자 배율을 따라 커진다
+/// (72 × 배율, 안쪽 여백 12 도 같은 비율. 저축률 고리와 같은 방식). 글 상자는 원에 내접한다.
 class _Stamp extends StatelessWidget {
   const _Stamp({required this.streak});
 
   final int streak;
 
+  static const double base = 72;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
+    final k = MediaQuery.textScalerOf(context).scale(1);
+    final size = base * k;
     return Semantics(
       container: true,
       label: l.frpStampName(streak),
@@ -799,27 +806,25 @@ class _Stamp extends StatelessWidget {
         child: Transform.rotate(
           angle: -8 * math.pi / 180,
           child: Container(
-            width: 72,
-            height: 72,
+            key: const ValueKey('report-stamp'),
+            width: size,
+            height: size,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: c.bgCriticalWeak,
               border: Border.all(color: c.strokeCriticalSolid, width: 2),
             ),
-            // 안쪽 여백 약 15% 로 내접시킨 뒤 넘치면 줄여 맞춘다 — 200% · 네 자리 연속에서도 글이 테두리 안에 든다.
             child: Padding(
-              padding: const EdgeInsets.all(PSpacing.x3),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
+              padding: EdgeInsets.all(PSpacing.x3 * k),
+              child: OverflowBox(
+                maxWidth: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       l.frpStampDays(streak),
-                      textScaler: MediaQuery.textScalerOf(
-                        context,
-                      ).clamp(maxScaleFactor: 1.2),
+                      softWrap: false,
                       style: PTypography.t4.copyWith(
                         color: c.fgCriticalContrast,
                         fontWeight: FontWeight.w700,
@@ -827,9 +832,7 @@ class _Stamp extends StatelessWidget {
                     ),
                     Text(
                       l.frpStampLabel,
-                      textScaler: MediaQuery.textScalerOf(
-                        context,
-                      ).clamp(maxScaleFactor: 1.2),
+                      softWrap: false,
                       style: PTypography.t1.copyWith(
                         color: c.fgCriticalContrast,
                         fontWeight: FontWeight.w700,
