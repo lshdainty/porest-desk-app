@@ -54,13 +54,6 @@ class NightSkyScreen extends ConsumerWidget {
     final sky = skyQ.hasValue ? skyQ.requireValue : null;
     final collection = collectionQ.hasValue ? collectionQ.requireValue : null;
 
-    Future<void> refresh() async {
-      ref.invalidate(constellationTodayProvider);
-      ref.invalidate(constellationSkyProvider);
-      ref.invalidate(constellationCollectionProvider);
-      await ref.read(constellationTodayProvider.future);
-    }
-
     final Widget body;
     if (today == null && todayQ.hasError) {
       body = ListView(
@@ -159,7 +152,15 @@ class NightSkyScreen extends ConsumerWidget {
           ),
         ),
       ),
-      body: PPullToRefresh(onRefresh: refresh, child: body),
+      body: PPullToRefresh(
+        onRefresh: () async {
+          ref.invalidate(constellationTodayProvider);
+          ref.invalidate(constellationSkyProvider);
+          ref.invalidate(constellationCollectionProvider);
+          await ref.read(constellationTodayProvider.future);
+        },
+        child: body,
+      ),
     );
   }
 }
