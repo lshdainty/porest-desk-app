@@ -793,6 +793,7 @@ class _Stamp extends StatelessWidget {
     final c = context.colors;
     final l = AppLocalizations.of(context);
     return Semantics(
+      container: true,
       label: l.frpStampName(streak),
       child: ExcludeSemantics(
         child: Transform.rotate(
@@ -806,30 +807,37 @@ class _Stamp extends StatelessWidget {
               color: c.bgCriticalWeak,
               border: Border.all(color: c.strokeCriticalSolid, width: 2),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l.frpStampDays(streak),
-                  textScaler: MediaQuery.textScalerOf(
-                    context,
-                  ).clamp(maxScaleFactor: 1.2),
-                  style: PTypography.t4.copyWith(
-                    color: c.fgCriticalContrast,
-                    fontWeight: FontWeight.w700,
-                  ),
+            // 안쪽 여백 약 15% 로 내접시킨 뒤 넘치면 줄여 맞춘다 — 200% · 네 자리 연속에서도 글이 테두리 안에 든다.
+            child: Padding(
+              padding: const EdgeInsets.all(PSpacing.x3),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l.frpStampDays(streak),
+                      textScaler: MediaQuery.textScalerOf(
+                        context,
+                      ).clamp(maxScaleFactor: 1.2),
+                      style: PTypography.t4.copyWith(
+                        color: c.fgCriticalContrast,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      l.frpStampLabel,
+                      textScaler: MediaQuery.textScalerOf(
+                        context,
+                      ).clamp(maxScaleFactor: 1.2),
+                      style: PTypography.t1.copyWith(
+                        color: c.fgCriticalContrast,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  l.frpStampLabel,
-                  textScaler: MediaQuery.textScalerOf(
-                    context,
-                  ).clamp(maxScaleFactor: 1.2),
-                  style: PTypography.t1.copyWith(
-                    color: c.fgCriticalContrast,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
