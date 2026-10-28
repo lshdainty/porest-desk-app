@@ -41,7 +41,12 @@ import 'todo_test_support.dart';
 final _now = DateTime.now();
 
 /// 오늘과 다른 같은 달의 날 — 오늘이 1 일이면 다음 날.
-String get _other => thisMonth(_now.day > 1 ? _now.day - 1 : _now.day + 1);
+String get _other => ymd(otherDayOf(_now));
+
+/// 오늘과 **다른 주**의 같은 달 날 — 오늘 주 달력 한 줄에 같이 들어와 "1건" 표시가 둘이 되지 않게 7 일 떨어뜨린다(어느 날 돌려도
+/// 같은 달 안이다: 8 일 이후면 7 일 전, 7 일 이전이면 7 일 뒤 = 최대 14 일). 시험이 날짜에 기대는 자리는 이 함수 하나다.
+DateTime otherDayOf(DateTime now) =>
+    DateTime(now.year, now.month, now.day > 7 ? now.day - 7 : now.day + 7);
 
 Finder _row(String title) =>
     find.ancestor(of: findPlain(title), matching: find.byType(PListButtonItem));
@@ -61,6 +66,24 @@ List<Todo> _basic() => [
 
 void main() {
   setUpAll(loadRealFonts);
+
+  test('시험 날짜 규칙 — 어느 날 돌려도 같은 달 · 오늘과 다른 주 · 달 안(말일 · 첫날 포함)', () {
+    for (
+      var d = DateTime(2026, 1, 1);
+      d.year < 2029;
+      d = d.add(const Duration(days: 1))
+    ) {
+      final o = otherDayOf(d);
+      expect(o.month, d.month, reason: '$d');
+      expect(o.year, d.year, reason: '$d');
+      expect(o.day, inInclusiveRange(1, 28), reason: '$d — 28 일까지만(짧은 달)');
+      final startOfWeek = d.subtract(Duration(days: d.weekday % 7));
+      final inWeek =
+          !o.isBefore(startOfWeek) &&
+          o.isBefore(startOfWeek.add(const Duration(days: 7)));
+      expect(inWeek, isFalse, reason: '$d — 오늘 주 달력 줄 밖');
+    }
+  });
 
   group('5 · 6 흰 화면 · 상단 바', () {
     testWidgets(
