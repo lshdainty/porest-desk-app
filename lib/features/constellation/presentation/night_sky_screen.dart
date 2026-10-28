@@ -394,6 +394,11 @@ class _ReportRow extends StatelessWidget {
                 color: c.fgNeutralInverted,
               ),
             ),
+            suffix: Icon(
+              LucideIcons.chevronRight,
+              size: PSpacing.x4_5,
+              color: c.fgNeutralSubtle,
+            ),
             titleSuffix: [
               PBadge(
                 label: name,
