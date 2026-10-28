@@ -4,11 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-
-import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
@@ -16,18 +11,23 @@ import 'package:groo_damda_app/features/constellation/presentation/collection_ca
 import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/constellation/presentation/my_sky_card.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
+import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
 import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
-/// 밤하늘 화면 — 성장·수집 전용 공간 (design forest-report.jsx NightSkyPage 미러).
+/// 밤하늘 화면(I-11 7 ~ 12) — 상단 바 + 띠 셋: ① 오늘(하늘 그림 + 관측 리포트 줄) ② 나의 밤하늘 ③ 별자리 도감.
 ///
-/// 히어로 + 관측 리포트 진입(ForestWeekEntry) + 나의 밤하늘 + 별자리 도감 v2.
-/// 할일 화면에서는 [밤하늘] 토글 패널의 '도감 · 기록' 버튼으로 진입.
+/// 할 일 화면에서는 [밤하늘] 패널의 "밤하늘" 단추로 들어온다. 질의 하나 = 실패 상자 하나 — 오늘이 실패하면 화면 전체,
+/// 나의 밤하늘 · 도감은 자기 띠 안에서만(서버 오류 원문은 그리지 않는다).
 class NightSkyScreen extends ConsumerWidget {
   const NightSkyScreen({super.key});
 
@@ -35,86 +35,323 @@ class NightSkyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
-    final today = ref.watch(constellationTodayProvider).value;
-    final sky = ref.watch(constellationSkyProvider).value;
-    final collection = ref.watch(constellationCollectionProvider).value;
+    final todayQ = ref.watch(constellationTodayProvider);
+    final skyQ = ref.watch(constellationSkyProvider);
+    final collectionQ = ref.watch(constellationCollectionProvider);
     final todos = ref.watch(todoListProvider(_allFilter)).value;
 
     final now = DateTime.now();
     final todayIso =
         '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    // completedAt 은 서버가 준 `[UTC]` 라 문자열을 자르면 UTC 날짜가 나온다 —
-    // todayIso 는 로컬 달력으로 만든 '오늘' 이라, KST(+9) 새벽 0~9시에 켠 별이 전날로
-    // 밀려 0건으로 보였다. 웹(TodoPage)과 같은 규칙으로 로컬 날짜끼리 맞춘다.
+    // completedAt 은 서버가 준 `[UTC]` 라 로컬 날짜로 바꿔 비교한다(KST 새벽 완료가 전날로 밀리지 않게).
     final doneToday = (todos ?? const [])
         .where((x) => x.done && localDateKey(x.completedAt) == todayIso)
         .length;
 
-    // 띠 화면(I-01 결정 1B) — 회색 바닥 위 구역마다 화면 폭 흰 띠. 하늘 그림은 띠 안의 그림이다.
+    final today = todayQ.hasValue ? todayQ.requireValue : null;
+    final sky = skyQ.hasValue ? skyQ.requireValue : null;
+    final collection = collectionQ.hasValue ? collectionQ.requireValue : null;
+
+    Future<void> refresh() async {
+      ref.invalidate(constellationTodayProvider);
+      ref.invalidate(constellationSkyProvider);
+      ref.invalidate(constellationCollectionProvider);
+      await ref.read(constellationTodayProvider.future);
+    }
+
+    final Widget body;
+    if (today == null && todayQ.hasError) {
+      body = ListView(
+        children: [
+          PScreenSection(
+            padding: EdgeInsets.zero,
+            child: PResultSection(
+              kind: PResultKind.failure,
+              title: l.constFailToday,
+              description: l.constLoadFailedDesc,
+              primaryAction: PResultAction(
+                label: l.actionRetry,
+                onPressed: () {
+                  ref.invalidate(constellationTodayProvider);
+                  ref.invalidate(constellationSkyProvider);
+                  ref.invalidate(constellationCollectionProvider);
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      body = ListView(
+        children: PScreenBands.children([
+          PScreenSection(
+            padding: EdgeInsets.zero,
+            child: today == null
+                ? const _TodaySkeleton()
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          PSpacing.x6,
+                          PSpacing.x6,
+                          PSpacing.x6,
+                          0,
+                        ),
+                        child: NightSkyHero(today: today, doneToday: doneToday),
+                      ),
+                      const SizedBox(height: PSpacing.x4),
+                      _ReportRow(
+                        today: today,
+                        sky: sky ?? const [],
+                        onOpen: () => context.push('/forest-report'),
+                      ),
+                      const SizedBox(height: PSpacing.x2),
+                    ],
+                  ),
+          ),
+          if (sky == null || today == null) ...[
+            PScreenSection(
+              child: _SkyBand(
+                today: today,
+                sky: sky,
+                entries: const [],
+                failed: skyQ.hasError && sky == null,
+                onRetry: () => ref.invalidate(constellationSkyProvider),
+              ),
+            ),
+          ] else
+            PScreenSection(
+              child: MySkyCard(
+                sky: sky,
+                today: today,
+                entries: collection?.entries ?? const [],
+              ),
+            ),
+          PScreenSection(
+            padding: EdgeInsets.zero,
+            child: collection == null
+                ? _CollectionBand(
+                    failed: collectionQ.hasError,
+                    onRetry: () =>
+                        ref.invalidate(constellationCollectionProvider),
+                  )
+                : CollectionCard(
+                    collection: collection,
+                    todayKey: today?.constellation.constellationKey ?? '',
+                  ),
+          ),
+        ]),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.nightSkyTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-      ),
-      body: PPullToRefresh(
-        onRefresh: () async {
-          ref.invalidate(constellationTodayProvider);
-          ref.invalidate(constellationSkyProvider);
-          ref.invalidate(constellationCollectionProvider);
-          await ref.read(constellationTodayProvider.future);
-        },
-        child: ListView(
-          children: [
-            if (today == null)
-              const _NightSkySkeleton()
-            else
-              ...PScreenBands.children([
-                PScreenSection(
-                  child: NightSkyHero(today: today, doneToday: doneToday),
-                ),
-                // 관측 리포트로 가는 줄 — 줄이 띠 폭 전체를 누른다
-                PScreenSection(
-                  padding: EdgeInsets.zero,
-                  child: _ForestWeekEntry(
-                    today: today,
-                    sky: sky ?? const [],
-                    onOpen: () => context.push('/forest-report'),
-                  ),
-                ),
-                if (sky != null && collection != null)
-                  PScreenSection(
-                    child: MySkyCard(
-                      sky: sky,
-                      today: today,
-                      entries: collection.entries,
-                    ),
-                  ),
-                if (collection != null)
-                  PScreenSection(
-                    child: CollectionCard(
-                      collection: collection,
-                      todayKey: today.constellation.constellationKey,
-                    ),
-                  ),
-              ]),
-          ],
+      backgroundColor: c.bgLayerBasement,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.nightSkyTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
         ),
+      ),
+      body: PPullToRefresh(onRefresh: refresh, child: body),
+    );
+  }
+}
+
+/// 띠 ② — 실패면 자기 띠 안 실패 상자, 아직이면 머리 + 칸 스켈레톤. (오늘 · 도감이 아직 없을 때도 이 자리를 쓴다.)
+class _SkyBand extends StatelessWidget {
+  const _SkyBand({
+    required this.today,
+    required this.sky,
+    required this.entries,
+    required this.failed,
+    required this.onRetry,
+  });
+
+  final ConstellationToday? today;
+  final List<SkyDay>? sky;
+  final List<CollectionEntry> entries;
+  final bool failed;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          headingLevel: 2,
+          child: Text(
+            keepAll(l.constMySkyTitle),
+            style: PTypography.t5.copyWith(
+              color: c.fgNeutral,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(height: PSpacing.x3),
+        if (failed)
+          PResultSection(
+            kind: PResultKind.failure,
+            size: PResultSize.medium,
+            placement: PResultPlacement.card,
+            title: l.constFailSky,
+            description: l.constLoadFailedDesc,
+            primaryAction: PResultAction(
+              label: l.actionRetry,
+              onPressed: onRetry,
+            ),
+          )
+        else
+          Column(
+            children: [
+              for (var r = 0; r < 2; r++) ...[
+                if (r > 0) const SizedBox(height: PSpacing.x2),
+                Row(
+                  children: [
+                    for (var i = 0; i < 7; i++) ...[
+                      if (i > 0) const SizedBox(width: PSpacing.x1_5),
+                      const Expanded(
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: PSkeleton(radius: PSkeletonRadius.r8),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// 띠 ③ 도감 — 실패 상자 또는 머리 + 줄 스켈레톤 다섯.
+class _CollectionBand extends StatelessWidget {
+  const _CollectionBand({required this.failed, required this.onRetry});
+
+  final bool failed;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PSpacing.x6,
+            PSpacing.x6,
+            PSpacing.x6,
+            PSpacing.x1,
+          ),
+          child: Semantics(
+            header: true,
+            headingLevel: 2,
+            child: Text(
+              keepAll(l.constCollectionTitle),
+              style: PTypography.t5.copyWith(
+                color: c.fgNeutral,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+        if (failed)
+          PResultSection(
+            kind: PResultKind.failure,
+            size: PResultSize.medium,
+            placement: PResultPlacement.listCard,
+            title: l.constFailCollection,
+            description: l.constLoadFailedDesc,
+            primaryAction: PResultAction(
+              label: l.actionRetry,
+              onPressed: onRetry,
+            ),
+          )
+        else
+          for (var i = 0; i < 5; i++) const _RowSkeleton(),
+      ],
+    );
+  }
+}
+
+/// List 줄 자리 스켈레톤 — 타일 40 + 두 줄.
+class _RowSkeleton extends StatelessWidget {
+  const _RowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpacing.x6,
+        vertical: PSpacing.x3,
+      ),
+      child: Row(
+        children: [
+          const PSkeleton(
+            width: PSpacing.x10,
+            height: PSpacing.x10,
+            radius: PSkeletonRadius.r6,
+          ),
+          const SizedBox(width: PSpacing.x3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PSkeleton.text(PTypography.t5, width: 140),
+                const SizedBox(height: PSpacing.x1_5),
+                PSkeleton.text(PTypography.t3),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// 관측 리포트 진입 카드 — 최근 7일 도트 (design ForestWeekEntry / .frp-entry).
-class _ForestWeekEntry extends StatelessWidget {
-  const _ForestWeekEntry({
+/// 띠 ① 불러오는 중 — 하늘 그림 자리(모서리 16 · 높이 168) + 리포트 줄 자리.
+class _TodaySkeleton extends StatelessWidget {
+  const _TodaySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(
+            PSpacing.x6,
+            PSpacing.x6,
+            PSpacing.x6,
+            PSpacing.x4,
+          ),
+          child: PSkeleton(height: 168, radius: PSkeletonRadius.r16),
+        ),
+        const _RowSkeleton(),
+        const SizedBox(height: PSpacing.x2),
+      ],
+    );
+  }
+}
+
+/// 관측 리포트로 가는 줄(I-11 9) — 앞 하늘 타일 40 + 제목 + 오늘의 목표 배지, 아래 6 에 최근 7일 점.
+class _ReportRow extends StatelessWidget {
+  const _ReportRow({
     required this.today,
     required this.sky,
     required this.onOpen,
@@ -124,195 +361,122 @@ class _ForestWeekEntry extends StatelessWidget {
   final List<SkyDay> sky;
   final VoidCallback onOpen;
 
-  IconData _stageIcon(int points) {
-    if (points >= 5) return LucideIcons.star;
-    if (points >= 3) return LucideIcons.sparkles;
-    if (points >= 1) return LucideIcons.sparkle;
-    return LucideIcons.moon;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
-    // 최근 7일 — sky 끝(오늘)에서 7개.
     final days = sky.length > 7 ? sky.sublist(sky.length - 7) : sky;
     final todayDate = sky.isNotEmpty ? sky.last.date : '';
     final name = constellationName(today.constellation);
 
-    return InkWell(
+    return Semantics(
+      button: true,
+      label: l.frpRowName(name),
       onTap: onOpen,
-      child: Padding(
-        // 띠 안 줄 — 좌우 24 · 위아래 16(design .frp-entry gap 13).
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpacing.x6,
-          vertical: PSpacing.x4,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(14)),
-                gradient: skyGradient(context.colors),
-              ),
+      excludeSemantics: true,
+      child: PList(
+        children: [
+          PListButtonItem(
+            title: l.forestReportTitle,
+            onTap: onOpen,
+            prefix: Container(
+              width: PListTile.size,
+              height: PListTile.size,
               alignment: Alignment.center,
-              child: ConstellationIcon(
-                info: today.constellation,
-                color: skyInk(context.colors, 0xFF),
-                size: 30,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(PRounded.r3),
+                gradient: skyGradient(c),
+              ),
+              child: Icon(
+                LucideIcons.telescope,
+                size: PSpacing.x5,
+                color: c.fgNeutralInverted,
               ),
             ),
-            const SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            titleSuffix: [
+              PBadge(
+                label: name,
+                prefixIcon: LucideIcons.star,
+                variant: PBadgeVariant.solid,
+                tone: PBadgeTone.brand,
+              ),
+            ],
+            detailChild: Padding(
+              padding: const EdgeInsets.only(top: PSpacing.x1_5),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        l.forestReportTitle,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: 15,
-                          fontWeight: PFontWeight.bold,
-                          letterSpacing: -0.15,
-                          color: t.fgPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      // rep 뱃지 — 오늘의 목표 별자리명 (design .fcol-badge--rep).
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.bgBrandSolid,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(LucideIcons.star, size: 9, color: t.fgOnBrand),
-                            const SizedBox(width: 3),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: t.fgOnBrand,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 7),
-                  Row(
-                    children: [
-                      for (var i = 0; i < days.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 5),
-                        _WeekDot(
-                          day: days[i],
-                          isToday: days[i].date == todayDate,
-                          stageIcon: _stageIcon(today.points),
-                          t: t,
-                        ),
-                      ],
-                    ],
-                  ),
+                  for (var i = 0; i < days.length; i++) ...[
+                    if (i > 0) const SizedBox(width: PSpacing.x1 + 1),
+                    _WeekDot(
+                      day: days[i],
+                      isToday: days[i].date == todayDate,
+                      stageIcon: skyStageIcon(today.points),
+                    ),
+                  ],
                 ],
               ),
             ),
-            Icon(LucideIcons.chevronRight, size: 17, color: t.fgTertiary),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// 주간 도트 (22px) — 오늘=단계 아이콘(brand), 수집=★(별자리색 틴트), 흐린 밤=구름, 그 외=요일.
+/// 주간 점(지름 22) — 오늘 = 단계 아이콘(brand 채움), 수집 = 별(차트 옅은 바탕), 흐린 밤 = 구름, 쉰 날 = 점 4.
 class _WeekDot extends StatelessWidget {
   const _WeekDot({
     required this.day,
     required this.isToday,
     required this.stageIcon,
-    required this.t,
   });
 
   final SkyDay day;
   final bool isToday;
   final IconData stageIcon;
-  final GrooTokens t;
+
+  static const double size = 22;
+  static const double iconSize = 12;
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final grown = day.isGrown && day.colorKey != null;
-    final color = grown ? constellationColor(context, day.colorKey!) : null;
-    final dowIdx = DateTime.tryParse(day.date)?.weekday; // 1=월..7=일
-    final dows = weekdayLabels(mondayFirst: true);
+    final colors = constellationRoleColors(c, day.colorKey ?? 'gray');
 
     final Color bg;
-    final Color fg;
+    final Widget glyph;
     if (isToday) {
-      bg = t.bgBrandSolid;
-      fg = t.fgOnBrand;
+      bg = c.bgBrandSolid;
+      glyph = Icon(stageIcon, size: iconSize, color: c.staticWhite);
     } else if (grown) {
-      bg = Color.alphaBlend(color!.withValues(alpha: 0.16), t.bgSurface);
-      fg = color;
+      bg = colors.weak;
+      glyph = Icon(LucideIcons.star, size: iconSize, color: colors.strong);
+    } else if (day.isWithered) {
+      bg = c.bgNeutralWeak;
+      glyph = Icon(
+        LucideIcons.cloudy,
+        size: iconSize,
+        color: c.fgNeutralSubtle,
+      );
     } else {
-      bg = t.bgMuted;
-      fg = t.fgTertiary;
+      bg = c.bgNeutralWeak;
+      glyph = Container(
+        width: PSpacing.x1,
+        height: PSpacing.x1,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: c.strokeNeutralSolid,
+        ),
+      );
     }
 
     return Container(
-      width: 22,
-      height: 22,
+      width: size,
+      height: size,
       decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
       alignment: Alignment.center,
-      child: isToday
-          ? Icon(stageIcon, size: 11, color: fg)
-          : grown
-          ? Icon(LucideIcons.star, size: 10, color: fg)
-          : day.isWithered
-          ? Icon(LucideIcons.cloudy, size: 11, color: fg)
-          : Text(
-              dowIdx == null ? '' : dows[dowIdx - 1],
-              style: TextStyle(
-                fontFamily: PTypo.sans,
-                fontSize: 10,
-                fontWeight: PFontWeight.semi,
-                color: fg,
-              ),
-            ),
-    );
-  }
-}
-
-/// 로딩 스켈레톤 — 히어로 프레임 + 진입 행 + 그리드 placeholder.
-class _NightSkySkeleton extends StatelessWidget {
-  const _NightSkySkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    // 실렌더와 같은 띠 넷 — 하늘 · 리포트 줄 · 내 하늘 · 모음.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: PScreenBands.children([
-        for (final h in const [168.0, 46.0, 180.0, 320.0])
-          PScreenSection(
-            child: PSkeleton(
-              width: double.infinity,
-              height: h,
-              borderRadius: PRadius.brLg,
-            ),
-          ),
-      ]),
+      child: glyph,
     );
   }
 }

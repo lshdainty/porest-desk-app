@@ -147,18 +147,23 @@ class _DayCell extends StatelessWidget {
         color: c.fgBrand,
       );
       name = l.constMySkyCellToday(dateLabel);
-    } else if (day.isGrown && entry != null) {
+    } else if (day.isGrown) {
+      // 도감이 아직 없거나 못 받았으면 별자리 선 대신 별 하나로 — 칸의 뜻(수집)은 그대로다.
       bg = colors.weak;
-      glyph = ConstellationIcon(
-        info: entry!.constellation,
-        color: colors.strong,
-        size: 22,
-        linesOnly: true,
-      );
-      name = l.constMySkyCellCollected(
-        dateLabel,
-        constellationName(entry!.constellation),
-      );
+      glyph = entry == null
+          ? Icon(LucideIcons.star, size: PSpacing.x4, color: colors.strong)
+          : ConstellationIcon(
+              info: entry!.constellation,
+              color: colors.strong,
+              size: 22,
+              linesOnly: true,
+            );
+      name = entry == null
+          ? dateLabel
+          : l.constMySkyCellCollected(
+              dateLabel,
+              constellationName(entry!.constellation),
+            );
     } else if (day.isWithered) {
       bg = c.bgNeutralWeak;
       glyph = Icon(
