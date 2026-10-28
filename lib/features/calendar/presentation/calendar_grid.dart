@@ -4,6 +4,7 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_month_model.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
@@ -29,6 +30,7 @@ const double _chipPadX = 3;
 
 /// 칸 위 선 1px 아래 여백 1 — 위 2(선 포함)에서 날 숫자가 시작한다.
 const double kCalendarCellTopPad = 1;
+const double _cellBorder = 1;
 
 /// 칸 안 날 숫자 원 — 글자가 커지면 따라 커진다.
 const double kCalendarDayCircle = 26;
@@ -94,7 +96,29 @@ class CalendarWeekdayRow extends StatelessWidget {
   }
 }
 
+/// 칸 안 날 숫자 원의 한 변 — 글자가 커지면 따라 커진다.
+double calendarNumberBox(TextScaler s) => s
+    .scale(PTypography.t4.fontSize! * PTypography.t4.height!)
+    .clamp(kCalendarDayCircle, double.infinity);
+
+/// 칸 안 칩 한 줄 높이 — 글자 크기를 곱한다.
+double calendarChipHeight(TextScaler s) =>
+    s.scale(kCalendarChipHeight).clamp(kCalendarChipHeight, double.infinity);
+
+/// 칸 안 칩 자리의 실측 — (칸 높이 − 위 2 − 날 숫자 − 사이 2) · 칩 · "+N개" · 줄 사이 2.
+ChipMetrics calendarChipMetrics(TextScaler s) => ChipMetrics(
+  avail:
+      kCalendarCellHeight -
+      PSpacing.x0_5 -
+      calendarNumberBox(s) -
+      kCalendarChipGap,
+  chip: calendarChipHeight(s),
+  more: s.scale(16).clamp(16, double.infinity),
+  gap: kCalendarChipGap,
+);
+
 /// 달 격자 — 주마다 칸 7개. 칸 전체가 그날 시트를 여는 누르는 자리 하나다.
+/// 칩 줄은 일정마다 달 전체에서 한 번 정한다(웹과 같은 규칙 — `calendar_month_model.dart`).
 class CalendarMonthGrid extends StatelessWidget {
   const CalendarMonthGrid({
     super.key,
@@ -114,96 +138,149 @@ class CalendarMonthGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final days = calendarGridDays(month);
+    final items = [
+      for (final e in events) CalendarGridItem.ofEvent(e),
+      for (final h in holidays.entries)
+        CalendarGridItem.ofHoliday(h.key, h.value),
+    ];
+    final scaler = MediaQuery.textScalerOf(context);
+    final metrics = calendarChipMetrics(scaler);
+    final positions = calculateMonthPositions(items, month);
+    final model = buildMonthModel(days, month, items, positions, metrics);
+    final numberBox = calendarNumberBox(scaler);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kCalendarGridInset),
-      child: Column(
-        children: [
-          for (var w = 0; w < days.length ~/ 7; w++)
-            SizedBox(
-              height: kCalendarCellHeight,
-              child: Row(
-                children: [
-                  for (var d = 0; d < 7; d++)
-                    Expanded(
-                      child: CalendarDayCell(
-                        day: days[w * 7 + d],
-                        isOutside: days[w * 7 + d].month != month.month,
-                        events: eventsOnDay(events, days[w * 7 + d]),
-                        holidayName: holidays[calendarDateKey(days[w * 7 + d])],
-                        onTap: () => onDayTap(days[w * 7 + d]),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cellW = constraints.maxWidth / 7;
+          return Column(
+            children: [
+              for (var w = 0; w < days.length ~/ 7; w++)
+                SizedBox(
+                  height: kCalendarCellHeight,
+                  child: Stack(
+                    children: [
+                      Row(
+                        children: [
+                          for (var d = 0; d < 7; d++)
+                            Expanded(
+                              child: CalendarDayCell(
+                                cell: model[w * 7 + d],
+                                metrics: metrics,
+                                isHoliday: holidays.containsKey(
+                                  calendarDateKey(days[w * 7 + d]),
+                                ),
+                                onTap: () => onDayTap(days[w * 7 + d]),
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                ],
-              ),
+                      // 이어지는 일정의 제목 — 이웃 조각 위로 넘쳐 그려야 해서 칸 위 한 겹에 따로 둔다
+                      for (var d = 0; d < 7; d++)
+                        for (var i = 0; i < model[w * 7 + d].slots.length; i++)
+                          if (model[w * 7 + d].slots[i] case final slot?
+                              when slot.labelDays > 0)
+                            _bandLabel(
+                              context,
+                              slot: slot,
+                              col: d,
+                              row: i,
+                              cellW: cellW,
+                              numberBox: numberBox,
+                              metrics: metrics,
+                            ),
+                    ],
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _bandLabel(
+    BuildContext context, {
+    required ChipSlot slot,
+    required int col,
+    required int row,
+    required double cellW,
+    required double numberBox,
+    required ChipMetrics metrics,
+  }) {
+    final tone = slot.item.isHoliday
+        ? holidayTone(context)
+        : eventTone(context, slot.item.event!);
+    final leftInset = slot.part == ChipPart.first ? kCalendarCellInset : 0.0;
+    // 띠가 이 일정의 끝 칸까지 이어지면 끝 칸 오른쪽 안쪽 1 이 빈다
+    final rightInset = slot.labelReachesEnd ? kCalendarCellInset : 0.0;
+    // 칸 위 선 1 + 위 여백 1 + 날 숫자 + 사이 2 + 줄마다
+    final top =
+        _cellBorder +
+        kCalendarCellTopPad +
+        numberBox +
+        kCalendarChipGap +
+        row * (metrics.chip + kCalendarChipGap);
+    return Positioned(
+      key: ValueKey('calendar-band-label-${slot.item.key}-$col'),
+      left: col * cellW + leftInset,
+      top: top,
+      width: slot.labelDays * cellW - leftInset - rightInset,
+      height: metrics.chip,
+      child: IgnorePointer(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
+            child: Text(
+              slot.item.title,
+              maxLines: 1,
+              softWrap: false,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: _chipStyle(tone),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
 }
 
-/// 이벤트가 한 날짜 칸에서 차지하는 멀티데이 바 위치 — 단일/시작/중간/종료.
-enum _SegPos { none, first, middle, last }
+const BorderRadius _chipRadius = BorderRadius.all(Radius.circular(PRounded.r1));
 
-bool _isMulti(CalendarEvent e) {
-  final sd = DateTime(e.start.year, e.start.month, e.start.day);
-  final ed = DateTime(e.end.year, e.end.month, e.end.day);
-  return ed.isAfter(sd);
-}
+/// 칩 글 — t2 12 · 500, 줄 높이 18.
+TextStyle _chipStyle(ChartTone tone) => PTypography.t2.copyWith(
+  height: kCalendarChipHeight / 12,
+  fontWeight: FontWeight.w500,
+  color: tone.contrast,
+);
 
-_SegPos _segPos(CalendarEvent e, DateTime day) {
-  final sd = DateTime(e.start.year, e.start.month, e.start.day);
-  final ed = DateTime(e.end.year, e.end.month, e.end.day);
-  if (!ed.isAfter(sd)) return _SegPos.none;
-  final d = DateTime(day.year, day.month, day.day);
-  if (d == sd) return _SegPos.first;
-  if (d == ed) return _SegPos.last;
-  return _SegPos.middle;
-}
-
-/// 칸 하나 — 위 1px 선 · 날 숫자 원 · 글자 칩 · "+N개".
+/// 칸 하나 — 위 1px 선 · 날 숫자 원 · 줄 번호 자리의 글자 칩 · "+N개".
 class CalendarDayCell extends StatelessWidget {
   const CalendarDayCell({
     super.key,
-    required this.day,
-    required this.isOutside,
-    required this.events,
+    required this.cell,
+    required this.metrics,
+    required this.isHoliday,
     required this.onTap,
-    this.holidayName,
   });
 
-  final DateTime day;
-  final bool isOutside;
-  final List<CalendarEvent> events;
-  final String? holidayName;
+  final CellModel cell;
+  final ChipMetrics metrics;
+
+  /// 이 날이 공휴일인가 — 날 숫자 색.
+  final bool isHoliday;
   final VoidCallback onTap;
-
-  /// 칸 안에 칩이 들어갈 수 있는 줄 수 — (칸 높이 − 위 2 − 날 숫자 − 사이 2) ÷ (칩 + 사이). 글자 크기를 곱해 실제 크기로 잰다.
-  static int slotsFor(TextScaler scaler) {
-    final number = _numberBox(scaler);
-    final chip = _chipHeight(scaler);
-    final avail =
-        kCalendarCellHeight - PSpacing.x0_5 - number - kCalendarChipGap;
-    if (avail <= 0) return 0;
-    return ((avail + kCalendarChipGap) / (chip + kCalendarChipGap)).floor();
-  }
-
-  static double _numberBox(TextScaler s) => s
-      .scale(PTypography.t4.fontSize! * PTypography.t4.height!)
-      .clamp(kCalendarDayCircle, double.infinity);
-
-  static double _chipHeight(TextScaler s) =>
-      s.scale(kCalendarChipHeight).clamp(kCalendarChipHeight, double.infinity);
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
-    final scaler = MediaQuery.textScalerOf(context);
+    final day = cell.day;
     final now = DateTime.now();
     final isToday =
         now.year == day.year && now.month == day.month && now.day == day.day;
-    final isHoliday = holidayName != null && !isOutside;
+    final isOutside = cell.isOutside;
 
     final Color dayColor;
     if (isOutside) {
@@ -217,30 +294,7 @@ class CalendarDayCell extends StatelessWidget {
       dayColor = c.fgNeutral;
     }
 
-    // 멀티데이 우선 · 시작 · 기간 차례로 안정 정렬해 상단 줄을 고정 — 이웃 칸에서 같은 줄에 선다.
-    final ordered = [...events]
-      ..sort((a, b) {
-        final am = _isMulti(a), bm = _isMulti(b);
-        if (am != bm) return am ? -1 : 1;
-        final cmp = a.start.compareTo(b.start);
-        if (cmp != 0) return cmp;
-        return b.end.difference(b.start).compareTo(a.end.difference(a.start));
-      });
-
-    final slots = slotsFor(scaler);
-    final total = ordered.length + (isHoliday ? 1 : 0);
-    final overflow = total > slots;
-    // 넘치면 마지막 줄을 "+N개" 가 차지한다
-    final shown = overflow ? (slots - 1).clamp(0, slots) : total;
-    final holidayShown = isHoliday && shown > 0;
-    final eventShown = (shown - (holidayShown ? 1 : 0)).clamp(
-      0,
-      ordered.length,
-    );
-    final visible = ordered.take(eventShown).toList();
-    final hidden = total - (holidayShown ? 1 : 0) - visible.length;
-
-    final numberBox = _numberBox(scaler);
+    final numberBox = calendarNumberBox(MediaQuery.textScalerOf(context));
     final dayNumber = Container(
       width: numberBox,
       height: numberBox,
@@ -263,7 +317,7 @@ class CalendarDayCell extends StatelessWidget {
       container: true,
       button: true,
       excludeSemantics: true,
-      label: '${monthDayDow(day)}, ${l.calEventTotalCount(total)}',
+      label: '${monthDayDow(day)}, ${l.calEventTotalCount(cell.total)}',
       onTap: onTap,
       child: Material(
         type: MaterialType.transparency,
@@ -281,22 +335,12 @@ class CalendarDayCell extends StatelessWidget {
                 children: [
                   Center(child: dayNumber),
                   const SizedBox(height: kCalendarChipGap),
-                  if (holidayShown)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: kCalendarCellInset,
-                        right: kCalendarCellInset,
-                        bottom: kCalendarChipGap,
-                      ),
-                      child: _ChipBar(
-                        text: holidayName!,
-                        tone: holidayTone(context),
-                        radius: _chipRadius,
-                      ),
-                    ),
-                  for (final ev in visible)
-                    _EventChip(event: ev, day: day, position: _segPos(ev, day)),
-                  if (overflow && hidden > 0)
+                  for (final slot in cell.slots)
+                    slot == null
+                        // 띠가 줄을 맞추려고 남긴 빈 줄 — 칩과 같은 높이
+                        ? SizedBox(height: metrics.chip + metrics.gap)
+                        : _EventChip(slot: slot, height: metrics.chip),
+                  if (cell.hidden > 0)
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: _chipPadX,
@@ -306,7 +350,7 @@ class CalendarDayCell extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          l.calMoreEvents(hidden),
+                          l.calMoreEvents(cell.hidden),
                           maxLines: 1,
                           softWrap: false,
                           style: PTypography.t2.copyWith(
@@ -326,94 +370,29 @@ class CalendarDayCell extends StatelessWidget {
   }
 }
 
-const BorderRadius _chipRadius = BorderRadius.all(Radius.circular(PRounded.r1));
-
-/// 칩 한 줄 — 높이 18(글자 크기를 곱한다) · 모서리 4 · 좌우 3 · t2 500 · 한 줄 끝 말줄임.
-class _ChipBar extends StatelessWidget {
-  const _ChipBar({
-    required this.text,
-    required this.tone,
-    required this.radius,
-  });
-
-  final String text;
-  final ChartTone tone;
-  final BorderRadius radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        minHeight: CalendarDayCell._chipHeight(
-          MediaQuery.textScalerOf(context),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: _chipPadX),
-      alignment: Alignment.centerLeft,
-      decoration: BoxDecoration(color: tone.weak, borderRadius: radius),
-      child: Text(
-        text,
-        maxLines: 1,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
-        style: _chipStyle(tone),
-      ),
-    );
-  }
-}
-
-/// 칩 글 — t2 12 · 500, 줄 높이 18.
-TextStyle _chipStyle(ChartTone tone) => PTypography.t2.copyWith(
-  height: kCalendarChipHeight / 12,
-  fontWeight: FontWeight.w500,
-  color: tone.contrast,
-);
-
+/// 칩 한 줄 — 높이 18(글자 크기를 곱한다) · 모서리 4 · 한 줄 끝 말줄임. 이어지는 일정은 첫 · 사이 · 끝 조각이 이웃 칸으로
+/// 이어지고(연결 변은 안쪽 0) 제목은 주마다 한 번 위 겹(`CalendarMonthGrid._bandLabel`)에 그린다.
 class _EventChip extends StatelessWidget {
-  const _EventChip({
-    required this.event,
-    required this.day,
-    required this.position,
-  });
+  const _EventChip({required this.slot, required this.height});
 
-  final CalendarEvent event;
-  final DateTime day;
-  final _SegPos position;
+  final ChipSlot slot;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    final tone = eventTone(context, event);
-    // 멀티데이 연속 바: 시작=좌측만 round, 종료=우측만 round, 중간=square + 칸 끝까지
-    // (인접 칸과 이어지도록 연결 변은 가로 inset 0). 이어지는 일정의 띠 모양은 지금 그대로(사용자 결정).
+    final tone = slot.item.isHoliday
+        ? holidayTone(context)
+        : eventTone(context, slot.item.event!);
     const r = Radius.circular(PRounded.r1);
-    final radius = switch (position) {
-      _SegPos.none => _chipRadius,
-      _SegPos.first => const BorderRadius.horizontal(left: r),
-      _SegPos.last => const BorderRadius.horizontal(right: r),
-      _SegPos.middle => BorderRadius.zero,
+    final part = slot.part;
+    final radius = switch (part) {
+      ChipPart.none => _chipRadius,
+      ChipPart.first => const BorderRadius.horizontal(left: r),
+      ChipPart.last => const BorderRadius.horizontal(right: r),
+      ChipPart.middle => BorderRadius.zero,
     };
-    final showText = position == _SegPos.none;
-    final leftInset = position == _SegPos.none || position == _SegPos.first;
-    final rightInset = position == _SegPos.none || position == _SegPos.last;
-
-    // 이 칸이 "이 주(행)에서 바가 끝나는 칸" 인가 — 이벤트 마지막 날이거나 주의 끝(토).
-    // 라벨은 행마다 한 번, 이 칸에서 왼쪽으로 넘치게 그린다. Flutter 는 z-index 가 없어 나중에 그려지는(오른쪽)
-    // 칸이 위에 오므로, 끝 칸에서 왼쪽으로 뻗어야 이웃 조각의 배경에 글자가 가려지지 않는다.
-    final d = DateTime(day.year, day.month, day.day);
-    final isRowSegEnd =
-        position != _SegPos.none &&
-        (position == _SegPos.last || d.weekday == DateTime.saturday);
-    final int rowSegDays;
-    if (isRowSegEnd) {
-      final weekStart = d.subtract(Duration(days: d.weekday % 7));
-      final sd = DateTime(event.start.year, event.start.month, event.start.day);
-      final segStart = sd.isAfter(weekStart) ? sd : weekStart;
-      rowSegDays = d.difference(segStart).inDays + 1;
-    } else {
-      rowSegDays = 0;
-    }
-    final style = _chipStyle(tone);
-    final h = CalendarDayCell._chipHeight(MediaQuery.textScalerOf(context));
+    final leftInset = part == ChipPart.none || part == ChipPart.first;
+    final rightInset = part == ChipPart.none || part == ChipPart.last;
     return Padding(
       padding: EdgeInsets.only(
         left: leftInset ? kCalendarCellInset : 0,
@@ -421,37 +400,21 @@ class _EventChip extends StatelessWidget {
         bottom: kCalendarChipGap,
       ),
       child: Container(
-        height: h,
-        padding: const EdgeInsets.symmetric(horizontal: _chipPadX),
+        height: height,
+        padding: part == ChipPart.none
+            ? const EdgeInsets.symmetric(horizontal: _chipPadX)
+            : EdgeInsets.zero,
         decoration: BoxDecoration(color: tone.weak, borderRadius: radius),
         alignment: Alignment.centerLeft,
-        child: isRowSegEnd
-            ? LayoutBuilder(
-                builder: (context, c) {
-                  // 칸 폭 균등 + 조각 사이 여백 0 — 칸 수 × 현재 폭으로 스팬을 근사한다
-                  final spanW = c.maxWidth * rowSegDays;
-                  return OverflowBox(
-                    alignment: Alignment.centerRight,
-                    minWidth: spanW,
-                    maxWidth: spanW,
-                    child: Text(
-                      event.title,
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      style: style,
-                    ),
-                  );
-                },
-              )
-            : Text(
-                showText ? event.title : '',
+        child: part == ChipPart.none
+            ? Text(
+                slot.item.title,
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
-                style: style,
-              ),
+                style: _chipStyle(tone),
+              )
+            : null,
       ),
     );
   }

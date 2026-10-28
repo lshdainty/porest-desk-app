@@ -130,8 +130,15 @@ void main() {
 
   testWidgets('오늘 = 옅은 원 bg-neutral-weak + 700', (tester) async {
     await pump(tester);
+    // 이웃 달 칸에 같은 숫자가 있을 수 있어 오늘 칸(이번 달)을 먼저 찾는다
+    final todayCell = find.byWidgetPredicate(
+      (w) =>
+          w is CalendarDayCell &&
+          !w.cell.isOutside &&
+          w.cell.day == DateTime(now.year, now.month, now.day),
+    );
     final todayText = find.descendant(
-      of: find.byType(CalendarDayCell),
+      of: todayCell,
       matching: find.text('${now.day}'),
     );
     final text = tester.widget<Text>(todayText.first);
@@ -191,7 +198,7 @@ void main() {
     final cells = tester
         .widgetList<CalendarDayCell>(find.byType(CalendarDayCell))
         .toList();
-    final outside = cells.firstWhere((c) => c.isOutside);
+    final outside = cells.firstWhere((c) => c.cell.isOutside);
     await tester.tap(find.byWidget(outside));
     await tester.pumpAndSettle();
     expect(find.text('${now.year}년 ${now.month}월'), findsOneWidget);
