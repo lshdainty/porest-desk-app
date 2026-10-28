@@ -12134,6 +12134,168 @@ abstract class AppLocalizations {
   /// **'별빛 +{gain} · 오늘의 별자리 수집!'**
   String tdmStarToastCollected(int gain);
 
+  /// No description provided for @constHeroLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 목표 별자리 {name} {lit}/{goal} 별빛'**
+  String constHeroLabel(String name, int lit, int goal);
+
+  /// No description provided for @constFailToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'밤하늘을 불러오지 못했어요'**
+  String get constFailToday;
+
+  /// No description provided for @constFailSky.
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 밤하늘을 불러오지 못했어요'**
+  String get constFailSky;
+
+  /// No description provided for @constFailCollection.
+  ///
+  /// In ko, this message translates to:
+  /// **'별자리 도감을 불러오지 못했어요'**
+  String get constFailCollection;
+
+  /// No description provided for @constLoadFailedDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 뒤 다시 시도해주세요.'**
+  String get constLoadFailedDesc;
+
+  /// No description provided for @frpLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'관측 리포트를 불러오지 못했어요'**
+  String get frpLoadFailed;
+
+  /// No description provided for @frpRowName.
+  ///
+  /// In ko, this message translates to:
+  /// **'관측 리포트, 오늘의 목표 {name}'**
+  String frpRowName(String name);
+
+  /// No description provided for @constMySkyCellToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 오늘'**
+  String constMySkyCellToday(String date);
+
+  /// No description provided for @constMySkyCellCollected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 수집 {name}'**
+  String constMySkyCellCollected(String date, String name);
+
+  /// No description provided for @constMySkyCellCloudy.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 흐린 밤'**
+  String constMySkyCellCloudy(String date);
+
+  /// No description provided for @constMySkyCellRest.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}, 쉰 밤'**
+  String constMySkyCellRest(String date);
+
+  /// No description provided for @constCollectionBadgeNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'NEW'**
+  String get constCollectionBadgeNew;
+
+  /// No description provided for @constCollectionViewOwnedNamed.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 감상하기'**
+  String constCollectionViewOwnedNamed(String name);
+
+  /// No description provided for @constCollectionViewLockedNamed.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 미리보기'**
+  String constCollectionViewLockedNamed(String name);
+
+  /// No description provided for @constDetailSkyName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 별자리 그림'**
+  String constDetailSkyName(String name);
+
+  /// No description provided for @constDetailStarCountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'별 개수'**
+  String get constDetailStarCountLabel;
+
+  /// No description provided for @constDetailStarCountValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String constDetailStarCountValue(int count);
+
+  /// No description provided for @constDetailCollectLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'수집'**
+  String get constDetailCollectLabel;
+
+  /// No description provided for @constDetailCollectValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}번'**
+  String constDetailCollectValue(int count);
+
+  /// No description provided for @frpPrevWeek.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 주'**
+  String get frpPrevWeek;
+
+  /// No description provided for @frpNextWeek.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 주'**
+  String get frpNextWeek;
+
+  /// No description provided for @frpObsWitheredGuard.
+  ///
+  /// In ko, this message translates to:
+  /// **'흐린 밤 · 구름 보호로 스트릭 유지'**
+  String get frpObsWitheredGuard;
+
+  /// No description provided for @frpPctBang.
+  ///
+  /// In ko, this message translates to:
+  /// **'{pct}% 달성!'**
+  String frpPctBang(int pct);
+
+  /// No description provided for @frpMissedWeight.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 +{count}'**
+  String frpMissedWeight(int count);
+
+  /// No description provided for @frpLegendMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 별빛'**
+  String get frpLegendMemo;
+
+  /// No description provided for @frpBarsName.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일별 별빛'**
+  String get frpBarsName;
+
+  /// No description provided for @frpStampName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}일째 연속 관측'**
+  String frpStampName(int count);
+
   /// No description provided for @nightSkyTitle.
   ///
   /// In ko, this message translates to:
@@ -12167,7 +12329,7 @@ abstract class AppLocalizations {
   /// No description provided for @frpObsResult.
   ///
   /// In ko, this message translates to:
-  /// **'관측 결과 :'**
+  /// **'관측 결과'**
   String get frpObsResult;
 
   /// No description provided for @frpObsToday.
@@ -12185,7 +12347,7 @@ abstract class AppLocalizations {
   /// No description provided for @frpObsWithered.
   ///
   /// In ko, this message translates to:
-  /// **'흐린 밤 · 구름 보호로 스트릭 유지'**
+  /// **'흐린 밤'**
   String get frpObsWithered;
 
   /// No description provided for @frpObsRest.
@@ -12251,7 +12413,7 @@ abstract class AppLocalizations {
   /// No description provided for @frpLegendItem.
   ///
   /// In ko, this message translates to:
-  /// **'{label} 완료: {count}'**
+  /// **'{label} 완료 {count}'**
   String frpLegendItem(String label, int count);
 
   /// No description provided for @frpMissed.

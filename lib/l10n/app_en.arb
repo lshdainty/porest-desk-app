@@ -3901,6 +3901,47 @@
       }
     }
   },
+  "constHeroLabel": "Today's constellation {name} {lit}/{goal} starlight",
+  "@constHeroLabel": {"placeholders": {"name": {"type": "String"}, "lit": {"type": "int"}, "goal": {"type": "int"}}},
+  "constFailToday": "Couldn't load the night sky",
+  "constFailSky": "Couldn't load your night sky",
+  "constFailCollection": "Couldn't load the constellation collection",
+  "constLoadFailedDesc": "Please try again in a moment.",
+  "frpLoadFailed": "Couldn't load the observation report",
+  "frpRowName": "Observation report, today's constellation {name}",
+  "@frpRowName": {"placeholders": {"name": {"type": "String"}}},
+  "constMySkyCellToday": "{date}, today",
+  "@constMySkyCellToday": {"placeholders": {"date": {"type": "String"}}},
+  "constMySkyCellCollected": "{date}, collected {name}",
+  "@constMySkyCellCollected": {"placeholders": {"date": {"type": "String"}, "name": {"type": "String"}}},
+  "constMySkyCellCloudy": "{date}, cloudy night",
+  "@constMySkyCellCloudy": {"placeholders": {"date": {"type": "String"}}},
+  "constMySkyCellRest": "{date}, rest night",
+  "@constMySkyCellRest": {"placeholders": {"date": {"type": "String"}}},
+  "constCollectionBadgeNew": "NEW",
+  "constCollectionViewOwnedNamed": "View {name}",
+  "@constCollectionViewOwnedNamed": {"placeholders": {"name": {"type": "String"}}},
+  "constCollectionViewLockedNamed": "Preview {name}",
+  "@constCollectionViewLockedNamed": {"placeholders": {"name": {"type": "String"}}},
+  "constDetailSkyName": "Constellation {name} drawing",
+  "@constDetailSkyName": {"placeholders": {"name": {"type": "String"}}},
+  "constDetailStarCountLabel": "Stars",
+  "constDetailStarCountValue": "{count}",
+  "@constDetailStarCountValue": {"placeholders": {"count": {"type": "int"}}},
+  "constDetailCollectLabel": "Collected",
+  "constDetailCollectValue": "{count} times",
+  "@constDetailCollectValue": {"placeholders": {"count": {"type": "int"}}},
+  "frpPrevWeek": "Previous week",
+  "frpNextWeek": "Next week",
+  "frpObsWitheredGuard": "Cloudy night · streak kept by cloud guard",
+  "frpPctBang": "{pct}% achieved!",
+  "@frpPctBang": {"placeholders": {"pct": {"type": "int"}}},
+  "frpMissedWeight": "Starlight +{count}",
+  "@frpMissedWeight": {"placeholders": {"count": {"type": "int"}}},
+  "frpLegendMemo": "Memo starlight",
+  "frpBarsName": "Starlight by weekday",
+  "frpStampName": "Day {count} of your streak",
+  "@frpStampName": {"placeholders": {"count": {"type": "int"}}},
   "nightSkyTitle": "Night sky",
   "forestReportTitle": "Observation report",
   "fcolViewCta": "View",
@@ -3913,7 +3954,7 @@
       }
     }
   },
-  "frpObsResult": "Observation:",
+  "frpObsResult": "Observation result",
   "frpObsToday": "{name} {lit}/{goal} in progress",
   "@frpObsToday": {
     "placeholders": {
@@ -3936,7 +3977,7 @@
       }
     }
   },
-  "frpObsWithered": "Cloudy night · streak kept by cloud guard",
+  "frpObsWithered": "Cloudy night",
   "frpObsRest": "A restful night",
   "frpStampDays": "Day {count}",
   "@frpStampDays": {
@@ -3975,7 +4016,7 @@
     }
   },
   "frpAnalysis": "Starlight analysis",
-  "frpLegendItem": "{label} done: {count}",
+  "frpLegendItem": "{label} done {count}",
   "@frpLegendItem": {
     "placeholders": {
       "label": {
