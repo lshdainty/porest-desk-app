@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -615,9 +616,19 @@ class _PListRowFrameState extends State<PListRowFrame> {
                       for (final b in widget.titleSuffix!)
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: PSpacing.x1_5),
-                            child: b,
+                          // 간격 6 도 같은 안에 둔다 — 밖에 두면 Flutter 가 곱하는 배율을 받아 200% 에서 12 가 된다
+                          child: _UnscaleBySpan(
+                            scale:
+                                MediaQuery.textScalerOf(
+                                  context,
+                                ).scale(PTypography.t5.fontSize!) /
+                                PTypography.t5.fontSize!,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: PSpacing.x1_5,
+                              ),
+                              child: b,
+                            ),
                           ),
                         ),
                     ],
@@ -914,4 +925,107 @@ Widget _titleColorAnimated({
     curve: PEasing.easing,
     builder: (context, value, _) => builder(value ?? color),
   );
+}
+
+/// WidgetSpan 안 위젯을 글 배율의 역수로 줄여 놓는다. Flutter 는 WidgetSpan 자식의 그려진 크기에 글자 배율을 한 번 더
+/// 곱하는데, 배지는 안의 글자가 이미 배율을 받고 여백은 배율을 따르지 않으므로 배율을 막는 것(withNoTextScaling)으로는
+/// 홀로 둔 배지와 크기가 같아지지 않는다. 자식은 평소 배율 그대로 배치하고, 자리 크기와 그림을 1/배율로 줄이면
+/// Flutter 가 곱하는 배율과 상쇄돼 홀로 둔 배지와 같은 크기로 그려진다. 배율 1 이면 아무것도 바꾸지 않는다.
+class _UnscaleBySpan extends SingleChildRenderObjectWidget {
+  const _UnscaleBySpan({required this.scale, required Widget super.child});
+
+  final double scale;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderUnscaleBySpan(scale);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderUnscaleBySpan renderObject,
+  ) {
+    renderObject.scale = scale;
+  }
+}
+
+class _RenderUnscaleBySpan extends RenderBox
+    with RenderObjectWithChildMixin<RenderBox> {
+  _RenderUnscaleBySpan(this._scale);
+
+  double _scale;
+  set scale(double v) {
+    if (v == _scale) return;
+    _scale = v;
+    markNeedsLayout();
+  }
+
+  // Flutter 는 이 자리에 폭 W/배율 을 준다 — 자식은 그대로 쓰면 W/배율 에서 줄바꿈 · 말줄임이 시작해 그린 뒤 줄 폭의 1/배율이
+  // 상한이 된다. 자식 쪽 폭은 배율을 곱해 W 로 되돌린다.
+  BoxConstraints _childConstraints(BoxConstraints c) => BoxConstraints(
+    maxWidth: c.maxWidth.isFinite ? c.maxWidth * _scale : c.maxWidth,
+  );
+
+  @override
+  void performLayout() {
+    final child = this.child!;
+    child.layout(_childConstraints(constraints), parentUsesSize: true);
+    size = constraints.constrain(child.size / _scale);
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) =>
+      (child?.getMinIntrinsicWidth(height * _scale) ?? 0) / _scale;
+
+  @override
+  double computeMaxIntrinsicWidth(double height) =>
+      (child?.getMaxIntrinsicWidth(height * _scale) ?? 0) / _scale;
+
+  @override
+  double computeMinIntrinsicHeight(double width) =>
+      (child?.getMinIntrinsicHeight(width * _scale) ?? 0) / _scale;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) =>
+      (child?.getMaxIntrinsicHeight(width * _scale) ?? 0) / _scale;
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) => constraints.constrain(
+    (child?.getDryLayout(_childConstraints(constraints)) ?? Size.zero) / _scale,
+  );
+
+  @override
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
+    final d = child?.getDistanceToActualBaseline(baseline);
+    return d == null ? null : d / _scale;
+  }
+
+  Matrix4 get _transform => Matrix4.diagonal3Values(1 / _scale, 1 / _scale, 1);
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final child = this.child;
+    if (child == null) return;
+    layer = context.pushTransform(
+      needsCompositing,
+      offset,
+      _transform,
+      child.paint,
+      oldLayer: layer as TransformLayer?,
+    );
+  }
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    transform.multiply(_transform);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      result.addWithPaintTransform(
+        transform: _transform,
+        position: position,
+        hitTest: (result, position) =>
+            child!.hitTest(result, position: position),
+      );
 }
