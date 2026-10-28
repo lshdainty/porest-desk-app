@@ -171,7 +171,7 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(
               PSpacing.x6,
-              PSpacing.x2,
+              PSpacing.x3,
               PSpacing.x6,
               0,
             ),
@@ -920,10 +920,7 @@ class _Legend extends StatelessWidget {
         Flexible(
           child: Text(
             keepAll(label),
-            style: PTypography.t4.copyWith(
-              color: c.fgNeutral,
-              fontWeight: FontWeight.w500,
-            ),
+            style: PTypography.t4.copyWith(color: c.fgNeutral),
           ),
         ),
         const SizedBox(width: PSpacing.x2),
@@ -994,8 +991,15 @@ class _Bars extends StatelessWidget {
                 Container(height: 1, color: c.strokeNeutralSubtle),
                 const SizedBox(height: PSpacing.x2),
                 Container(
-                  width: PSpacing.x7,
-                  height: PSpacing.x7,
+                  // 최소 28 — 글자가 커지면 원도 따라 커진다(200% 글이 28 상자에 갇히지 않는다)
+                  width: math.max(
+                    PSpacing.x7,
+                    MediaQuery.textScalerOf(context).scale(18),
+                  ),
+                  height: math.max(
+                    PSpacing.x7,
+                    MediaQuery.textScalerOf(context).scale(18),
+                  ),
                   alignment: Alignment.center,
                   decoration: ymd(days[i]) == sel
                       ? BoxDecoration(
