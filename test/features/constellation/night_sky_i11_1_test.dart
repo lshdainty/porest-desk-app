@@ -136,6 +136,31 @@ Finder _has(String sub) => find.byWidgetPredicate(
 void main() {
   setUpAll(loadRealFonts);
 
+  group('막대 조각 최소 2', () {
+    double sum(List<double> l) => l.fold(0, (a, b) => a + b);
+
+    test('주 최대 200 · 합 16 · 각 1건짜리 조각 — 가장 작은 조각 2, 합 = 막대 높이', () {
+      // 합 16 → 막대 높이 120 × 16 / 200 = 9.6, 값 [1, 1, 14]
+      final h = barPieceHeights([1, 1, 14], 9.6);
+      expect(h.reduce(math.min), 2);
+      expect(sum(h), closeTo(9.6, 1e-9));
+      expect(h[2], closeTo(5.6, 1e-9));
+    });
+
+    test('조각이 하나뿐이면 막대 높이 그대로', () {
+      expect(barPieceHeights([5], 9.6), [9.6]);
+    });
+
+    test('0 인 조각은 그리지 않는다 — 값 0 은 높이 0', () {
+      expect(barPieceHeights([0, 0], 9.6), [0.0, 0.0]);
+    });
+
+    test('넉넉하면 비율 그대로', () {
+      final h = barPieceHeights([1, 2, 3], 60);
+      expect(h, [10.0, 20.0, 30.0]);
+    });
+  });
+
   test('NEW — lastCollectedDate 가 가장 늦은 하나(횟수 무관)', () {
     expect(newestCollectedKey(_entries()), 'cas');
     expect(newestCollectedKey([_entry('a', 'A', 0, null)]), isNull);

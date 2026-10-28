@@ -1042,6 +1042,7 @@ class _Bar extends StatelessWidget {
     if (total == 0) return const SizedBox.shrink();
     final frac = weekMax <= 0 ? 0.0 : (total / weekMax).clamp(0.0, 1.0);
     final h = _Bars.areaHeight * (frac < 0.08 ? 0.08 : frac);
+    final heights = barPieceHeights([for (final e in segs) e.$2], h);
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(
         top: Radius.circular(PRounded.r1),
@@ -1052,17 +1053,34 @@ class _Bar extends StatelessWidget {
         child: Column(
           // 첫 조각이 맨 아래 — 위에서부터 거꾸로 그린다.
           children: [
-            for (final s in segs.reversed)
-              Expanded(
-                flex: math.max(1, s.$2),
-                child: ColoredBox(
-                  color: s.$1,
-                  child: const SizedBox(width: double.infinity),
-                ),
+            for (var k = segs.length - 1; k >= 0; k--)
+              SizedBox(
+                width: _Bars.barWidth,
+                height: heights[k],
+                child: ColoredBox(color: segs[k].$1),
               ),
           ],
         ),
       ),
     );
   }
+}
+
+/// 조각 높이(px) — 0 이 아닌 조각마다 max(2, 비율 높이), 막대 전체 높이 [total] 은 그대로 두고 넘친 만큼을 가장 큰 조각에서 뺀다
+/// (고른 그림 `.stk i{min-height:2px}` — 범례에 있는 색이 막대에서 사라지지 않게). 합이 [total] 보다 작을 수는 없다.
+@visibleForTesting
+List<double> barPieceHeights(List<int> values, double total) {
+  final sum = values.fold<int>(0, (s, v) => s + v);
+  if (sum <= 0) return [for (final _ in values) 0.0];
+  const minPiece = 2.0;
+  final out = [for (final v in values) math.max(minPiece, total * v / sum)];
+  final over = out.fold<double>(0, (s, v) => s + v) - total;
+  if (over > 0) {
+    var big = 0;
+    for (var k = 1; k < out.length; k++) {
+      if (out[k] > out[big]) big = k;
+    }
+    out[big] = math.max(minPiece, out[big] - over);
+  }
+  return out;
 }
