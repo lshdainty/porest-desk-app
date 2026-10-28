@@ -88,6 +88,7 @@ class ConstellationDetailSheet extends StatelessWidget {
                     bottom: PSpacing.x3_5,
                     child: Text(
                       keepAll(l.constDetailNotMet),
+                      semanticsLabel: l.constDetailNotMet,
                       textAlign: TextAlign.center,
                       style: PTypography.t3.copyWith(
                         color: c.fgNeutralInverted,
