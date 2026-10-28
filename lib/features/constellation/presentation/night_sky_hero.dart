@@ -9,7 +9,8 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 밤하늘 히어로 — 오늘의 목표 별자리가 별빛만큼 점등.
-/// 밤 장면이라 라이트/다크 공통 고정 다크 팔레트(웹 NightSkyHero 미러, 커스텀 hero 영역).
+/// 하늘은 역할 색 그라디언트(01-033 C — 라이트는 짙은 하늘, 다크는 밝은 하늘), 글 · 아이콘은 `fg-neutral-inverted` 하나(웹 NightSkyHero 와 같다).
+/// 글은 흐르는 차례로 쌓아 겹치지 않고, 장식(달빛 · 잔별 · 별자리 그림)만 투명도를 남긴다.
 class NightSkyHero extends StatelessWidget {
   const NightSkyHero({super.key, required this.today, required this.doneToday});
 
