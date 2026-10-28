@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 
-import 'package:groo_damda_app/app/theme/colors.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 
-/// colorKey(blue/violet/...) → 차트 팔레트 색. 다크모드는 light variant
-/// (웹 --color-cat-* 별칭 = resolveChartColor 정합, chart palette 는 raw 인용 허용 영역).
-Color constellationColor(BuildContext context, String colorKey) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return switch (colorKey) {
-    'red' => isDark ? GrooPalette.chartRedLight : GrooPalette.chartRed,
-    'orange' => isDark ? GrooPalette.chartOrangeLight : GrooPalette.chartOrange,
-    'yellow' => isDark ? GrooPalette.chartYellowLight : GrooPalette.chartYellow,
-    'green' => isDark ? GrooPalette.chartGreenLight : GrooPalette.chartGreen,
-    'blue' => isDark ? GrooPalette.chartBlueLight : GrooPalette.chartBlue,
-    'indigo' => isDark ? GrooPalette.chartIndigoLight : GrooPalette.chartIndigo,
-    'violet' => isDark ? GrooPalette.chartVioletLight : GrooPalette.chartViolet,
-    'pink' => isDark ? GrooPalette.chartPinkLight : GrooPalette.chartPink,
-    'brown' => isDark ? GrooPalette.chartBrownLight : GrooPalette.chartBrown,
-    _ => isDark ? GrooPalette.chartGrayLight : GrooPalette.chartGray,
-  };
-}
+/// colorKey(blue/violet/...) → 차트 역할 색 `chart-{색}`. 다크는 토큰이 바꾼다(v110) — 라이트 · 다크 분기를 두지 않는다.
+Color constellationColor(BuildContext context, String colorKey) =>
+    constellationRoleColors(context.colors, colorKey).strong;
+
+/// colorKey → 차트 역할 색 한 쌍 — 선 · 아이콘 `chart-{색}`, 옅은 바탕 `chart-{색}-weak`(v110 · v111).
+({Color strong, Color weak}) constellationRoleColors(
+  PColors c,
+  String colorKey,
+) => switch (colorKey) {
+  'red' => (strong: c.chartRed, weak: c.chartRedWeak),
+  'orange' => (strong: c.chartOrange, weak: c.chartOrangeWeak),
+  'yellow' => (strong: c.chartYellow, weak: c.chartYellowWeak),
+  'green' => (strong: c.chartGreen, weak: c.chartGreenWeak),
+  'blue' => (strong: c.chartBlue, weak: c.chartBlueWeak),
+  'indigo' => (strong: c.chartIndigo, weak: c.chartIndigoWeak),
+  'violet' => (strong: c.chartViolet, weak: c.chartVioletWeak),
+  'pink' => (strong: c.chartPink, weak: c.chartPinkWeak),
+  'brown' => (strong: c.chartBrown, weak: c.chartBrownWeak),
+  _ => (strong: c.chartGray, weak: c.chartGrayWeak),
+};
 
 /// 별자리 페인터 — 0-100 정규 좌표를 캔버스에 스케일해 연결선+별을 그린다.
 /// [lit]: 켜진 별 개수(그 인덱스 미만 점등, null=전부). [dim]: 미수집 실루엣 톤.
