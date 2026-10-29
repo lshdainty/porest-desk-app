@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/features/constellation/presentation/constellation_detail_sheet.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/constellation/presentation/forest_report_screen.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_screen.dart';
@@ -771,6 +772,31 @@ void main() {
       });
       expect(children, 0);
       handle.dispose();
+    });
+
+    testWidgets('도감 줄 타일 — 타일 40 안에 그림 30(기하 파일 collection-tile-30 의 패널)', (
+      tester,
+    ) async {
+      await pumpApp(tester, const NightSkyScreen(), overrides: _ov().cast());
+      await tester.scrollUntilVisible(
+        _t('카시오페이아'),
+        400,
+        scrollable: find.byType(Scrollable).first,
+      );
+      final icon = find.byWidgetPredicate(
+        (w) =>
+            w is ConstellationIcon &&
+            w.info.constellationKey == 'cass' &&
+            w.size == 30,
+      );
+      expect(tester.getSize(icon.first), const Size(30, 30));
+      final tile = find.ancestor(
+        of: icon.first,
+        matching: find.byWidgetPredicate(
+          (w) => w is Container && w.decoration is BoxDecoration,
+        ),
+      );
+      expect(tester.getSize(tile.first), const Size(40, 40));
     });
   });
 }
