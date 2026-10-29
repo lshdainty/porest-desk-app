@@ -101,6 +101,10 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
   late List<_EditRow> _rows;
   bool _submitting = false;
 
+  /// [추가] · [저장] 을 한 번이라도 눌렀나 — 필수 칸(별칭)의 안내는 이때부터 보인다.
+  bool _showErrors = false;
+  final _nameFocus = FocusNode();
+
   /// 같은 시트가 "금액 보기 인증" 단계인가 — 칸에 쓴 값은 이 State 가 그대로 쥐고 있다.
   bool _unlocking = false;
 
@@ -115,12 +119,14 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
   void initState() {
     super.initState();
     final e = widget.edit;
-    _brand = e?.institution != null && e!.institution!.isNotEmpty
+    // 기관이 없는 자산은 비워 둔다 — 첫 기관으로 채우면 고치기만 해도 엉뚱한 기관이 저장된다. 새 자산만 첫 항목이 기본이다.
+    final inst = e?.institution;
+    _brand = e != null && (inst == null || inst.isEmpty)
+        ? ''
+        : inst != null
         ? _investBrands
               .firstWhere(
-                (b) =>
-                    b.name == e.institution ||
-                    b.aliases.contains(e.institution),
+                (b) => b.name == inst || b.aliases.contains(inst),
                 orElse: () => _investBrands.first,
               )
               .name
@@ -189,6 +195,7 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
   void dispose() {
     if (widget.probe.dirty == _dirtyProbe) widget.probe.dirty = () => false;
     _nameCtrl.dispose();
+    _nameFocus.dispose();
     _memoCtrl.dispose();
     _cashCtrl.dispose();
     _fxRateCtrl.dispose();
@@ -393,6 +400,11 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
   /// 단계로 바뀐다(I-17 21) — 확인하기 전에는 요청이 나가지 않고, ←(취소)면 저장도 안 한다.
   Future<void> _submit() async {
     if (_submitting) return;
+    if (_nameCtrl.text.trim().isEmpty) {
+      setState(() => _showErrors = true);
+      _nameFocus.requestFocus();
+      return;
+    }
     if (assetUnhideNeedsConfirm(
       wasHidden: widget.edit?.isAmountHidden == 'Y',
       nowHidden: _hideAmount,
@@ -411,10 +423,9 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
   Future<void> _save() async {
     if (_submitting) return;
     final brand = _brand;
-    // 별칭이 있으면 그것이 자산명이다 — 비웠을 때만 웹과 같은 fallback 을 쓴다.
-    final resolvedName = _nameCtrl.text.trim().isNotEmpty
-        ? _nameCtrl.text.trim()
-        : '$brand 투자';
+    // 별칭은 필수다 — 비어 있으면 _submit 이 막는다.
+    final resolvedName = _nameCtrl.text.trim();
+    final institution = brand.isEmpty ? null : brand;
     final memo = _memoCtrl.text.trim();
     // 추가만 하고 이름을 안 채운 미연동 행은 버린다 — 이름 빈 미연동은 서버가 400 으로 막는다.
     // 순서는 이 목록의 순서 그대로다 — 서버가 배열 인덱스로 sortOrder 를 매긴다(QA #91).
@@ -451,7 +462,7 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
           balance: balance,
           currency: _currency,
           exchangeRate: Patch.set(fxRate),
-          institution: brand,
+          institution: institution,
           memo: Patch.set(memo.isEmpty ? null : memo),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           isAmountHidden: _hideAmount ? 'Y' : 'N',
@@ -466,7 +477,7 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
           balance: balance,
           currency: _currency,
           exchangeRate: fxRate,
-          institution: brand,
+          institution: institution,
           memo: memo.isEmpty ? null : memo,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           isAmountHidden: _hideAmount ? 'Y' : 'N',
@@ -517,13 +528,16 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
         PickerField(
           label: l.assetBrokerExchange,
           placeholder: l.assetInstitutionPlaceholder,
-          value: _brand,
+          value: _brand.isEmpty ? null : _brand,
           onOpen: _pickBrand,
         ),
         AssetNameField(
           controller: _nameCtrl,
           placeholder: l.assetProductPlaceholder,
-          errorMessage: null,
+          errorMessage: _showErrors && _nameCtrl.text.trim().isEmpty
+              ? l.assetNicknameRequired
+              : null,
+          focusNode: _nameFocus,
         ),
         _HoldingsEditor(
           rows: _rows,

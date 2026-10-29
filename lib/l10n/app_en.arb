@@ -216,6 +216,7 @@
   "assetBankSearchHint": "Search institution name",
   "assetNickname": "Nickname",
   "assetNicknamePlaceholder": "e.g. Living expenses account",
+  "assetNicknameRequired": "Enter a nickname.",
   "assetNicknameDuplicate": "An asset with this alias already exists.",
   "assetBalanceLabel": "Balance",
   "assetBalanceEditHint": "Changing the balance treats everything before now as already included. Only later transactions are added.",

@@ -968,6 +968,12 @@ abstract class AppLocalizations {
   /// **'예: 생활비 통장'**
   String get assetNicknamePlaceholder;
 
+  /// No description provided for @assetNicknameRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'별칭을 입력해주세요.'**
+  String get assetNicknameRequired;
+
   /// No description provided for @assetNicknameDuplicate.
   ///
   /// In ko, this message translates to:

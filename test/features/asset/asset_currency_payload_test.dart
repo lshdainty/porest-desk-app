@@ -356,6 +356,7 @@ void main() {
     testWidgets('신규는 고른 통화를 싣는다', (tester) async {
       final repo = await _host(tester, showInvestmentAddDialog);
       await _pickCurrency(tester, '\$ USD');
+      await typeInto(tester, l.assetNickname, 'QA 별칭');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 

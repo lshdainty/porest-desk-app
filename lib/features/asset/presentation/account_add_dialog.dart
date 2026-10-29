@@ -79,6 +79,9 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   bool _submitting = false;
   bool _touched = false;
 
+  /// [추가] · [저장] 을 한 번이라도 눌렀나 — 필수 칸(별칭)의 안내는 이때부터 보인다.
+  bool _showErrors = false;
+
   /// 같은 시트가 "금액 보기 인증" 단계인가 — 칸에 쓴 값은 이 State 가 그대로 쥐고 있다.
   bool _unlocking = false;
 
@@ -92,8 +95,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
 
   String get _nicknameTrim => _nicknameCtrl.text.trim();
 
-  /// 같은 별칭이 둘이면 거래 입력의 계좌 선택에서 어느 쪽인지 알 수 없다.
-  /// 별칭은 선택 입력이라 비어 있으면 중복을 안 본다 — 자동 이름은 서로 같아도 된다.
+  /// 같은 별칭이 둘이면 거래 입력의 계좌 선택에서 어느 쪽인지 알 수 없다. 별칭은 필수다(카드만 선택).
   bool get _nicknameDuplicate =>
       _nicknameTrim.isNotEmpty &&
       (ref.read(assetsProvider).value ?? const <Asset>[]).any(
@@ -105,8 +107,9 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   /// 카테고리 다이얼로그와 같은 규칙 — touched 전에는 빨갛게 만들지 않는다.
   /// 기존에 100자로 저장된 별칭을 편집하려고 열자마자 에러가 뜨면 안 된다.
   String? get _nicknameError {
-    if (!_touched) return null;
     final l = AppLocalizations.of(context);
+    if (_showErrors && _nicknameTrim.isEmpty) return l.assetNicknameRequired;
+    if (!_touched) return null;
     if (_nicknameTrim.length > kAssetNameMax) {
       return l.nameTooLong(kAssetNameMax);
     }
@@ -118,20 +121,22 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
       _nicknameTrim.length <= kAssetNameMax && !_nicknameDuplicate;
 
   /// 웹과 같은 흐름 — touched 전엔 눌러서 에러를 노출하고, 그 뒤엔 valid 일 때만 저장한다. 단추는 늘 켜 두고 누르면 알린다.
-  bool get _blocked => _touched && !_nicknameValid;
+  bool get _blocked => _nicknameTrim.isEmpty || (_touched && !_nicknameValid);
 
   @override
   void initState() {
     super.initState();
     final e = widget.edit;
     _kind = widget.initialKind;
-    // 편집 모드: institution 으로 brand 추론, 없으면 첫 항목.
-    _brand = e?.institution != null && e!.institution!.isNotEmpty
+    // 편집 모드: institution 으로 brand 추론. 기관이 없는 자산(현금 · 대출)은 비워 둔다 —
+    // 첫 은행으로 채우면 고치기만 해도 엉뚱한 은행이 저장된다. 새 자산만 첫 항목이 기본이다.
+    final inst = e?.institution;
+    _brand = e != null && (inst == null || inst.isEmpty)
+        ? ''
+        : inst != null
         ? bankEntries
               .firstWhere(
-                (b) =>
-                    b.name == e.institution ||
-                    b.aliases.contains(e.institution),
+                (b) => b.name == inst || b.aliases.contains(inst),
                 orElse: () => bankEntries.first,
               )
               .name
@@ -197,6 +202,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   void _attempt() {
     if (_submitting) return;
     if (_blocked) {
+      setState(() => _showErrors = true);
       _nameFocus.requestFocus();
       return;
     }
@@ -224,10 +230,11 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   /// 저장 본문 · 요청 · 무효화 — 이 폼이 처음부터 해 온 그대로다.
   Future<void> _save() async {
     if (_submitting) return;
-    final l = AppLocalizations.of(context);
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
-    final name = nickname.isEmpty ? '$brand ${_kind.label(l)}' : nickname;
+    final name = nickname;
+    // 기관이 없는 자산은 키를 보내지 않는다 — 빈 문자열이 서버에 기관으로 남지 않게.
+    final institution = brand.isEmpty ? null : brand;
     // 환율은 외화일 때만 보낸다. 비우면 서버가 1로 잡아 환산 없이 더해진다.
     final fxRate = isForeignCurrency(_currency)
         ? double.tryParse(_fxRateCtrl.text.replaceAll(',', ''))
@@ -266,7 +273,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
           balance: balance,
           currency: _currency,
           exchangeRate: Patch.set(fxRate),
-          institution: brand,
+          institution: institution,
           memo: Patch.set(memoForApi),
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           isAmountHidden: _hideAmount ? 'Y' : 'N',
@@ -280,7 +287,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
           balance: balance,
           currency: _currency,
           exchangeRate: fxRate,
-          institution: brand,
+          institution: institution,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
           isAmountHidden: _hideAmount ? 'Y' : 'N',
@@ -365,7 +372,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
         PickerField(
           label: l.assetInstitutionBrand,
           placeholder: l.assetInstitutionPlaceholder,
-          value: _brand,
+          value: _brand.isEmpty ? null : _brand,
           onOpen: _pickBrand,
         ),
         AssetNameField(

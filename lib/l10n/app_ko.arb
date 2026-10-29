@@ -220,6 +220,7 @@
   "assetBankSearchHint": "기관 이름 검색",
   "assetNickname": "별칭",
   "assetNicknamePlaceholder": "예: 생활비 통장",
+  "assetNicknameRequired": "별칭을 입력해주세요.",
   "assetNicknameDuplicate": "같은 별칭의 자산이 이미 있어요.",
   "assetBalanceLabel": "잔액",
   "assetBalanceEditHint": "잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.",

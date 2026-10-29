@@ -472,6 +472,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetNicknamePlaceholder => 'e.g. Living expenses account';
 
   @override
+  String get assetNicknameRequired => 'Enter a nickname.';
+
+  @override
   String get assetNicknameDuplicate =>
       'An asset with this alias already exists.';
 

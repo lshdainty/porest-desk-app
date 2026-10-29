@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:groo_damda_app/shared/brand/bank_colors.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
@@ -96,6 +97,7 @@ class _CapturingRepo extends AssetRepository {
       'creditLimit': creditLimit,
       'isOverdraft': isOverdraft,
       'memo': memo,
+      'institution': institution,
     };
     return _fake();
   }
@@ -123,6 +125,7 @@ class _CapturingRepo extends AssetRepository {
     int? dueCarryoverAmount,
   }) async {
     captured = {
+      'institution': institution,
       'assetName': assetName,
       'assetType': assetType,
       'balance': balance,
@@ -216,6 +219,7 @@ void main() {
     expect(fieldWithLabel(l.assetBalanceLabel), findsNothing);
 
     await typeInto(tester, l.assetOverdraftUsedLabel, '50000');
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await _tapSubmit(tester, l.calAdd);
 
     expect(repo.captured?['assetType'], 'BANK_ACCOUNT');
@@ -226,6 +230,7 @@ void main() {
   testWidgets('입출금은 같은 값을 양수로 저장한다', (tester) async {
     final repo = await _open(tester);
     await typeInto(tester, l.assetBalanceLabel, '50000');
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await _tapSubmit(tester, l.calAdd);
 
     expect(repo.captured?['balance'], 50000);
@@ -236,6 +241,7 @@ void main() {
     final repo = await _open(tester, kind: AssetKind.loan);
     expect(fieldWithLabel(l.assetLoanRemainingLabel), findsOneWidget);
     await typeInto(tester, l.assetLoanRemainingLabel, '3000000');
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await _tapSubmit(tester, l.calAdd);
 
     expect(repo.captured?['assetType'], 'LOAN');
@@ -310,16 +316,63 @@ void main() {
     expect(repo.captured, isNull);
   });
 
-  testWidgets('별칭을 비우면 중복 검사를 안 탄다 — 자동 이름 경로', (tester) async {
+  testWidgets('별칭은 필수다 — 비우고 누르면 안내가 뜨고 요청은 안 나간다(자동 이름은 없다)', (tester) async {
     final repo = await _open(tester);
-    // 한 번 쳤다 지운다(touched 상태로 만든다).
-    await typeInto(tester, l.assetNickname, 'QA 주거래');
-    await typeInto(tester, l.assetNickname, '');
-    expect(findRichPlain(l.assetNicknameDuplicate), findsNothing);
+    expect(findRichPlain(l.assetNicknameRequired), findsNothing);
     await _tapSubmit(tester, l.calAdd);
-    // 비면 '브랜드 종류' 로 자동 생성된다.
-    expect(repo.captured?['assetName'], isNot('QA 주거래'));
-    expect((repo.captured?['assetName'] as String).isNotEmpty, isTrue);
+    expect(findRichPlain(l.assetNicknameRequired), findsOneWidget);
+    expect(repo.captured, isNull, reason: '"{기관} {종류}" 자동 이름으로 저장되면 안 된다');
+    // 쓰면 저장된다.
+    await typeInto(tester, l.assetNickname, 'QA 생활비');
+    await _tapSubmit(tester, l.calAdd);
+    expect(repo.captured?['assetName'], 'QA 생활비');
+  });
+
+  testWidgets('편집에서 별칭을 비우고 저장해도 막힌다', (tester) async {
+    final repo = await _open(tester, edit: _existing);
+    await typeInto(tester, l.assetNickname, '');
+    await _tapSubmit(tester, l.actionSave);
+    expect(findRichPlain(l.assetNicknameRequired), findsOneWidget);
+    expect(repo.captured, isNull);
+  });
+
+  // 기관이 없는 자산(현금 · 대출)을 고치면 첫 은행이 채워져 저장되던 결함 — 비워 둔 채 두고 키도 안 보낸다.
+  testWidgets('기관이 없는 자산을 고치면 기관을 비워 두고 institution 을 안 보낸다', (tester) async {
+    const cash = Asset(
+      rowId: 12,
+      assetName: '지갑',
+      assetType: 'CASH',
+      balance: 30000,
+      isIncludedInTotal: 'Y',
+    );
+    final repo = await _open(tester, edit: cash, assets: const [cash]);
+    expect(findPlain(l.assetInstitutionPlaceholder), findsWidgets);
+    expect(findPlain(bankEntries.first.name), findsNothing);
+    await _tapSubmit(tester, l.actionSave);
+    expect(repo.captured, isNotNull);
+    expect(repo.captured?['institution'], isNull);
+  });
+
+  testWidgets('기관이 있는 자산은 그대로 싣고, 새 자산은 첫 은행이 기본이다', (tester) async {
+    final last = bankEntries.last.name;
+    final withBank = Asset(
+      rowId: 13,
+      assetName: '주거래',
+      assetType: 'BANK_ACCOUNT',
+      balance: 1000,
+      institution: last,
+      isIncludedInTotal: 'Y',
+    );
+    final edit = await _open(tester, edit: withBank, assets: [withBank]);
+    await _tapSubmit(tester, l.actionSave);
+    expect(edit.captured?['institution'], last);
+  });
+
+  testWidgets('새 자산의 기관 기본값은 첫 은행이다', (tester) async {
+    final repo = await _open(tester);
+    await typeInto(tester, l.assetNickname, 'QA 새 계좌');
+    await _tapSubmit(tester, l.calAdd);
+    expect(repo.captured?['institution'], bankEntries.first.name);
   });
 
   // 메모를 지우고 저장하면 **지워져야** 한다. 종전엔 null 인 칸을 키째 빼서
@@ -346,6 +399,7 @@ void main() {
     expect(fieldWithLabel(l.assetMemo), findsOneWidget);
     expect(fieldWithLabel('계좌번호'), findsNothing);
     await typeInto(tester, l.assetMemo, '110-***-123456');
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await _tapSubmit(tester, l.calAdd);
     expect(repo.captured?['memo'], '110-***-123456');
   });
@@ -379,6 +433,7 @@ void main() {
     await typeInto(tester, l.assetOverdraftUsedLabel, '300000');
     await typeInto(tester, l.assetOverdraftLimitLabel, '100000');
     expect(findRichPlain('한도보다'), findsOneWidget);
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await _tapSubmit(tester, l.calAdd);
     expect(repo.captured?['balance'], -300000);
     expect(repo.captured?['creditLimit'], 100000);

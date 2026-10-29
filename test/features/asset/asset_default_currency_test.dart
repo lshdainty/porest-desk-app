@@ -226,6 +226,7 @@ void main() {
       );
 
       expect(findPlain('\$ USD'), findsOneWidget);
+      await typeInto(tester, l.assetNickname, 'QA 별칭');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -256,6 +257,7 @@ void main() {
         showInvestmentAddDialog,
         defaultCurrency: 'USD',
       );
+      await typeInto(tester, l.assetNickname, 'QA 별칭');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -264,6 +266,7 @@ void main() {
 
     testWidgets('설정이 원화면 종전 그대로 원화다', (tester) async {
       final repo = await _host(tester, showAccountAddDialog);
+      await typeInto(tester, l.assetNickname, 'QA 별칭');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -281,6 +284,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(findPlain('¥ JPY').last);
       await tester.pumpAndSettle();
+      await typeInto(tester, l.assetNickname, 'QA 별칭');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -340,6 +344,7 @@ void main() {
       findsOneWidget,
       reason: '열 때 한 번만 읽어 굳히면 첫 렌더의 원화에 잠긴다',
     );
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await tester.tap(_submitButton(l.calAdd));
     await tester.pumpAndSettle();
     expect(repo.created!['currency'], 'USD');

@@ -22,6 +22,7 @@ import 'package:groo_damda_app/features/subscription/data/subscription_repositor
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 
+import '../../support/plain_text.dart';
 import 'asset_form_test_helpers.dart';
 
 const _invest = Asset(
@@ -64,7 +65,7 @@ class _CapturingRepo extends AssetRepository {
     List<AssetHolding>? holdings,
     int? dueCarryoverAmount,
   }) async {
-    created = {'memo': memo};
+    created = {'memo': memo, 'institution': institution, 'name': assetName};
     return _fake();
   }
 
@@ -90,7 +91,11 @@ class _CapturingRepo extends AssetRepository {
     int? carryoverAmount,
     int? dueCarryoverAmount,
   }) async {
-    updated = {'memoPresent': memo.present, 'memo': memo.value};
+    updated = {
+      'memoPresent': memo.present,
+      'memo': memo.value,
+      'institution': institution,
+    };
     return _fake();
   }
 }
@@ -143,6 +148,7 @@ void main() {
   testWidgets('투자 신규는 적어 넣은 메모를 실어 보낸다', (tester) async {
     final repo = await _host(tester, showInvestmentAddDialog);
     await typeInto(tester, l.assetMemo, '연금저축 계좌');
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await tester.tap(_submitButton(l.calAdd));
     await tester.pumpAndSettle();
 
@@ -156,6 +162,7 @@ void main() {
 
   testWidgets('비워 두면 메모 키를 빼 서버 기본값에 맡긴다', (tester) async {
     final repo = await _host(tester, showInvestmentAddDialog);
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await tester.tap(_submitButton(l.calAdd));
     await tester.pumpAndSettle();
 
@@ -176,5 +183,40 @@ void main() {
     expect(repo.updated, isNotNull, reason: '저장이 안 불렸다');
     expect(repo.updated!['memoPresent'], isTrue);
     expect(repo.updated!['memo'], isNull);
+  });
+
+  testWidgets('투자 별칭은 필수다 — 비우고 누르면 안내가 뜨고 요청은 안 나간다', (tester) async {
+    final repo = await _host(tester, showInvestmentAddDialog);
+    await tester.tap(_submitButton(l.calAdd));
+    await tester.pumpAndSettle();
+    expect(findRichPlain(l.assetNicknameRequired), findsOneWidget);
+    expect(repo.created, isNull, reason: '"{기관} 투자" 자동 이름으로 저장되면 안 된다');
+    await typeInto(tester, l.assetNickname, 'QA 연금');
+    await tester.tap(_submitButton(l.calAdd));
+    await tester.pumpAndSettle();
+    expect(repo.created!['name'], 'QA 연금');
+    expect(
+      (repo.created!['institution'] as String).isNotEmpty,
+      isTrue,
+      reason: '새 자산은 첫 기관이 기본이다',
+    );
+  });
+
+  testWidgets('기관이 없는 투자 자산을 고치면 기관을 비워 두고 안 보낸다', (tester) async {
+    const gold = Asset(
+      rowId: 14,
+      assetName: '금 현물',
+      assetType: 'INVESTMENT',
+      balance: 100,
+      isIncludedInTotal: 'Y',
+    );
+    final repo = await _host(
+      tester,
+      (ctx) => showInvestmentEditDialog(ctx, gold),
+    );
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.updated, isNotNull);
+    expect(repo.updated!['institution'], isNull);
   });
 }

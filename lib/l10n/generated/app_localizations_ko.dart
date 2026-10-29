@@ -466,6 +466,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetNicknamePlaceholder => '예: 생활비 통장';
 
   @override
+  String get assetNicknameRequired => '별칭을 입력해주세요.';
+
+  @override
   String get assetNicknameDuplicate => '같은 별칭의 자산이 이미 있어요.';
 
   @override
