@@ -7000,7 +7000,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsPasteFromClipboard => 'Paste from clipboard';
 
   @override
-  String get smsClipboardEmpty => 'No text in the clipboard';
+  String get smsClipboardEmpty => 'No text in the clipboard.';
 
   @override
   String get smsParseFailed =>

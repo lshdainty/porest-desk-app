@@ -12431,7 +12431,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsPasteDesc.
   ///
   /// In ko, this message translates to:
-  /// **'카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.'**
+  /// **'카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워드려요. 저장 전에 확인할 수 있어요.'**
   String get smsPasteDesc;
 
   /// No description provided for @smsPasteFieldLabel.
@@ -12461,7 +12461,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsClipboardEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'클립보드에 텍스트가 없어요'**
+  /// **'클립보드에 텍스트가 없어요.'**
   String get smsClipboardEmpty;
 
   /// No description provided for @smsParseFailed.

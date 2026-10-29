@@ -6878,7 +6878,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get smsPasteDesc =>
-      '카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.';
+      '카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워드려요. 저장 전에 확인할 수 있어요.';
 
   @override
   String get smsPasteFieldLabel => '결제 문자';
@@ -6894,7 +6894,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsPasteFromClipboard => '클립보드에서 붙여넣기';
 
   @override
-  String get smsClipboardEmpty => '클립보드에 텍스트가 없어요';
+  String get smsClipboardEmpty => '클립보드에 텍스트가 없어요.';
 
   @override
   String get smsParseFailed => '문자를 읽지 못했어요. 잠시 뒤 다시 시도해주세요.';

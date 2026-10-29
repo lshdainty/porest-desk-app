@@ -8,9 +8,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/plain_text.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
@@ -103,6 +105,27 @@ PField _field(WidgetTester tester) =>
     tester.widget<PField>(find.byType(PField));
 
 void main() {
+  testWidgets('문구(M 52 · 55) — 설명은 "채워드려요" · 빈 클립보드 알림은 마침표로 끝난다', (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(findRichPlain('지출 폼을 채워드려요. 저장 전에'), findsOneWidget);
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async => call.method == 'Clipboard.getData' ? {'text': ''} : null,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    await tester.tap(find.text('클립보드에서 붙여넣기'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('클립보드에 텍스트가 없어요.'), findsOneWidget);
+  });
+
   testWidgets('흰 화면 하나 · 머리는 Top Navigation · 옛 띠 · 경고 상자가 없다', (tester) async {
     await _pump(tester);
     final c = Theme.of(

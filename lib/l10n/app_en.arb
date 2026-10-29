@@ -4004,7 +4004,7 @@
   "smsPastePlaceholder": "[Web발신]\n숲빛카드(1234) 승인\n5,500원 일시불\n10/22 13:22\n골목찻집",
   "smsPasteAction": "Read text",
   "smsPasteFromClipboard": "Paste from clipboard",
-  "smsClipboardEmpty": "No text in the clipboard",
+  "smsClipboardEmpty": "No text in the clipboard.",
   "smsParseFailed": "We could not read the text. Please try again in a moment.",
   "smsNotRecognized": "This doesn't look like a payment text. Please check that the whole message was pasted.",
   "smsCancelNotice": "This is a cancellation text. Automatic recording is not supported — find the original expense and record it as a refund.",
