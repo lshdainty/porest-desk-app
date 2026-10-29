@@ -262,11 +262,41 @@ void main() {
       await tester.pumpAndSettle();
       expect(findPlain(l.assetSearchFailed), findsOneWidget);
       expect(findPlain(l.assetSearchEmpty('가나')), findsNothing);
+      // 실패해도 손으로 더할 길 — 맨 아래 직접 추가 줄(지시서 20)
+      expect(findPlain(l.assetHoldingAddManual('가나')), findsOneWidget);
       fail = false;
       await tester.tap(findPlain(l.actionRetry));
       await tester.pumpAndSettle();
       expect(findPlain(l.assetSearchFailed), findsNothing);
       expect(find.byType(PSearchableListItem), findsWidgets);
+    });
+
+    testWidgets('다시 시도하는 동안은 실패 안내를 두고 스켈레톤으로 안 바뀐다', (tester) async {
+      final gate = Completer<List<StockMasterItem>>();
+      var fail = true;
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: const {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith((ref, q) {
+            if (q.isEmpty) return Future.value(<StockMasterItem>[]);
+            if (fail) throw Exception('x');
+            return gate.future;
+          }),
+        ],
+      );
+      await tester.enterText(find.byType(TextField), '가나');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      expect(findPlain(l.assetSearchFailed), findsOneWidget);
+      fail = false;
+      await tester.tap(findPlain(l.actionRetry));
+      await tester.pump();
+      await tester.pump();
+      expect(findPlain(l.assetSearchFailed), findsOneWidget);
+      expect(find.byType(PSearchableListSkeleton), findsNothing);
+      gate.complete(const []);
+      await tester.pumpAndSettle();
     });
 
     testWidgets('받는 동안은 스켈레톤 다섯 줄이다', (tester) async {
@@ -396,6 +426,46 @@ void main() {
       expect(sheet.height, lessThanOrEqualTo(760 * 0.9 + 0.5));
     });
   }
+
+  // bottom-sheet.md:81 — 시트 높이는 내용만큼, 0건 · 실패 · 불러오는 중에도 90% 로 서지 않는다
+  group('시트 높이', () {
+    final sheet = find.byKey(const ValueKey('p-bottom-sheet-root'));
+
+    testWidgets('기관 0건 안내는 내용만큼이다', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showInstitutionPicker(
+          ctx,
+          invest: false,
+          current: null,
+        ).then((_) {}),
+      );
+      final full = tester.getRect(sheet).height;
+      await tester.enterText(find.byType(TextField), '없는기관');
+      await tester.pumpAndSettle();
+      final none = tester.getRect(sheet).height;
+      expect(none, lessThan(full));
+      expect(none, lessThan(760 * 0.6));
+    });
+
+    testWidgets('종목 실패 · 불러오는 중은 내용만큼이다', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: const {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith((ref, q) async {
+            if (q.isEmpty) return [];
+            throw Exception('x');
+          }),
+        ],
+      );
+      await tester.enterText(find.byType(TextField), '가나');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      expect(findPlain(l.assetSearchFailed), findsOneWidget);
+      expect(tester.getRect(sheet).height, lessThan(760 * 0.7));
+    });
+  });
 
   // bottom-sheet.md — 길어질 수 있는 목록은 늘 끝 흐림을 건다(위 20 · 아래 80). 검색칸은 목록 밖이라 흐리지 않는다.
   group('끝 흐림', () {

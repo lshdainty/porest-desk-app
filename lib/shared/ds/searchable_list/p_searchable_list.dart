@@ -787,12 +787,16 @@ class PSearchableListEmpty extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     final scope = _PSearchableListScope.of(context, 'PSearchableListEmpty');
-    return PResultSection(
-      kind: PResultKind.empty,
-      size: PResultSize.medium,
-      icon: LucideIcons.searchX,
-      title: title ?? titleBuilder!(scope.query.trim()),
-      description: description,
+    // 결과 상자가 남는 높이를 다 차지하지 않게(Center) 높이를 풀어 내용만큼 서게 한다 — 시트가 내용만큼 서는 자리에서 빈 시트가 90% 로 안 선다
+    return UnconstrainedBox(
+      constrainedAxis: Axis.horizontal,
+      child: PResultSection(
+        kind: PResultKind.empty,
+        size: PResultSize.medium,
+        icon: LucideIcons.searchX,
+        title: title ?? titleBuilder!(scope.query.trim()),
+        description: description,
+      ),
     );
   }
 }
@@ -823,15 +827,19 @@ class PSearchableListError extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     _PSearchableListScope.of(context, 'PSearchableListError');
-    return PResultSection(
-      kind: PResultKind.failure,
-      size: PResultSize.medium,
-      title: title,
-      description: description,
-      primaryAction: PResultAction(
-        label: retryLabel,
-        onPressed: onRetry,
-        loading: retrying,
+    // 높이를 풀어 내용만큼 서게 한다(0건과 같다)
+    return UnconstrainedBox(
+      constrainedAxis: Axis.horizontal,
+      child: PResultSection(
+        kind: PResultKind.failure,
+        size: PResultSize.medium,
+        title: title,
+        description: description,
+        primaryAction: PResultAction(
+          label: retryLabel,
+          onPressed: onRetry,
+          loading: retrying,
+        ),
       ),
     );
   }

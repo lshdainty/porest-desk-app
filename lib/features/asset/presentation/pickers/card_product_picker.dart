@@ -118,8 +118,9 @@ class _CardProductSheetState extends ConsumerState<CardProductSheet> {
       title: l.assetPickCardTitle,
       closeLabel: l.actionClose,
       flushBody: true,
-      body: SizedBox(
-        height: pickerBodyHeight(context),
+      // 내용만큼 서고 시트가 낼 수 있는 높이에서 멈춘다(bottom-sheet.md — 0건 · 적은 결과에서 빈 시트가 90% 로 서지 않는다)
+      body: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: pickerBodyHeight(context)),
         child: PSearchableList(
           focusNode: widget.searchFocus,
           defaultValue: widget.currentRowId?.toString(),

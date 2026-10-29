@@ -65,21 +65,22 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
       for (final s in async.value ?? const <StockMasterItem>[])
         if (!widget.excludeSymbols.contains(s.symbol)) s,
     ].take(6).toList();
-    final fetching = async.isLoading && results.isEmpty;
-    // 실패는 0건이 아니다 — 앞 결과가 없을 때 실패 갈래(다시 시도)를 보인다(searchable-list.md 실패)
-    final failed = async.hasError && !async.isLoading && results.isEmpty;
+    // 실패는 0건이 아니다 — 앞 결과가 없을 때 실패 갈래(다시 시도)를 보인다(searchable-list.md 실패).
+    // 다시 시도하는 동안에도 실패 안내를 두고 버튼만 로딩이다(카드 상품 시트와 같다)
+    final failed = async.hasError && results.isEmpty;
+    final retrying = failed && async.isLoading;
+    final fetching = async.isLoading && !async.hasError && results.isEmpty;
 
     // 검색어가 없으면 줄이 없다. 0건 안내가 먼저, 직접 추가 줄은 늘 맨 아래(I-17 20)
     Widget? body;
+    final manualRow = PSearchableListItem(
+      value: _manual,
+      title: l.assetHoldingAddManual(query),
+      prefix: const Icon(LucideIcons.plus, size: 20),
+    );
     if (query.isNotEmpty) {
       body = fetching
           ? const PSearchableListSkeleton()
-          : failed
-          ? PSearchableListError(
-              title: l.assetSearchFailed,
-              retryLabel: l.actionRetry,
-              onRetry: () => ref.invalidate(stockSearchProvider(_sent)),
-            )
           : PSearchableListResults(
               scrollFog: true,
               semanticLabel: l.assetHoldings,
@@ -90,11 +91,7 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
                     title: s.nameKr,
                     detail: '${s.symbol} · ${s.marketCode}',
                   ),
-                PSearchableListItem(
-                  value: _manual,
-                  title: l.assetHoldingAddManual(query),
-                  prefix: const Icon(LucideIcons.plus, size: 20),
-                ),
+                manualRow,
               ],
             );
     }
@@ -126,7 +123,15 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
               placeholder: l.assetHoldingSearchHint,
               semanticLabel: l.actionSearch,
             ),
-            if (query.isNotEmpty && results.isEmpty && !fetching && !failed)
+            // 실패해도 손으로 더할 길(맨 아래 직접 추가 줄)은 남긴다(지시서 20)
+            if (query.isNotEmpty && failed)
+              PSearchableListError(
+                title: l.assetSearchFailed,
+                retryLabel: l.actionRetry,
+                retrying: retrying,
+                onRetry: () => ref.invalidate(stockSearchProvider(_sent)),
+              )
+            else if (query.isNotEmpty && results.isEmpty && !fetching)
               PSearchableListEmpty(titleBuilder: (q) => l.assetSearchEmpty(q)),
             ?body,
           ],
