@@ -444,6 +444,57 @@ void main() {
     });
   });
 
+  // 틈 표 — 잰 값(I-17 T13 · T14). 웹 measure-t 와 같은 자리 · 같은 값이다.
+  group('틈 (T13 · T14)', () {
+    testWidgets('T13 묶음 제목 위 16 · 아래 8 · 열 사이 12 · 줄 사이 12 · 상자 좌우 24', (
+      tester,
+    ) async {
+      await _host(tester, showAssetAddFlow);
+      final titles = [
+        for (final e
+            in find.byKey(const ValueKey('plist-header-title')).evaluate())
+          tester.getRect(find.byElementPredicate((x) => x == e)),
+      ];
+      expect(titles.length, closeTo(3, 0.01));
+      final boxes = [
+        for (final e in find.byType(PRadioSelectBox<AssetKind>).evaluate())
+          tester.getRect(find.byElementPredicate((x) => x == e)),
+      ];
+      // 묶음 제목 아래 → 첫 상자 8 (제목 줄 아래 여백 8)
+      expect(boxes[0].top - titles[0].bottom, closeTo(8, 0.01));
+      // 앞 묶음 마지막 상자 아래 → 다음 묶음 제목 위 16
+      expect(titles[1].top - boxes[5].bottom, closeTo(16, 0.01));
+      expect(titles[2].top - boxes[7].bottom, closeTo(16, 0.01));
+      // 열 사이 12 · 줄 사이 12
+      expect(boxes[1].left - boxes[0].right, closeTo(12, 0.01));
+      expect(boxes[2].top - boxes[0].bottom, closeTo(12, 0.01));
+      // 상자 좌우 24 에서 시작 · 폭이 같다
+      expect(boxes[0].left, closeTo(24, 0.01));
+      expect(boxes[0].width, boxes[1].width);
+      expect(boxes[1].right, 360 - 24);
+    });
+
+    testWidgets('T14 마지막 칸 ↔ 체크 줄 16 · 체크 줄 폭 = 본문 폭 · 칸 사이 24', (
+      tester,
+    ) async {
+      await _host(tester, (c) => showAssetKindForm(c, AssetKind.checking));
+      final rows = find.byWidgetPredicate(
+        (w) => w.runtimeType.toString() == 'PListRowFrame',
+      );
+      expect(rows, findsNWidgets(2));
+      final firstRow = tester.getRect(rows.first);
+      expect(firstRow.left, closeTo(0, 0.01));
+      expect(firstRow.right, closeTo(360, 0.01));
+      // 마지막 칸 = 통화 Field
+      final currency = tester.getRect(fieldWithLabel(l.assetCurrency));
+      expect(firstRow.top - currency.bottom, closeTo(16, 0.01));
+      // 칸 사이 24 — 기관 → 별칭
+      final inst = tester.getRect(fieldWithLabel(l.assetInstitutionBrand));
+      final name = tester.getRect(fieldWithLabel(l.assetNickname));
+      expect(name.top - inst.bottom, closeTo(24, 0.01));
+    });
+  });
+
   for (final scale in [1.0, 2.0]) {
     testWidgets(
       '360 폭 글자 ${(scale * 100).toInt()}% 에서 넘침 없이 그려진다 — 종류 고르기와 신용카드',
