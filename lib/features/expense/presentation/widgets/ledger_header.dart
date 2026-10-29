@@ -72,6 +72,8 @@ class LedgerMonthNav extends StatelessWidget {
         children: [
           if (showMonth)
             Flexible(
+              // 오른쪽 빈자리(Spacer)와 남는 폭을 반반 나누지 않게 달 글이 먼저 폭을 가져간다
+              flex: 100,
               child: PressArea(
                 enabled: true,
                 onTap: onPick,

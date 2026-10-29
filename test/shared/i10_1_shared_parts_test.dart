@@ -84,6 +84,8 @@ void main() {
         } else {
           // 200% 에서도 한 줄 — 높이가 한 줄(100% 높이)의 2배 안쪽(글자를 줄여 담아도 두 줄이 되지 않는다)
           expect(text.height, lessThan(oneLine! * 2.2));
+          // 글자를 크게 줄이지 않는다 — 200% 에서 100% 글자보다 확실히 크다(1.5배 넘게)
+          expect(text.height, greaterThan(oneLine * 1.5));
         }
         expect(
           tester.getRect(find.byIcon(LucideIcons.slidersHorizontal)).right,
