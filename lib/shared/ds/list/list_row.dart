@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 // List 의 줄 틀 — 줄의 종류(보기만 · 누르는 · 링크 · 컨트롤 · 부모)가 함께 쓰는 짜임. 화면에서 직접 쓰지 않는다 —
@@ -64,7 +65,8 @@ class PListValue extends StatelessWidget {
 /// 뒤 붙이개를 값(글 · [PListValue])과 조작 요소로 가른다 — 좁은 줄에서 값만 내리기 위해서다.
 @visibleForTesting
 ({List<Widget> values, List<Widget> controls}) splitListSuffix(Widget? suffix) {
-  bool isValue(Widget w) => w is Text || w is PListValue;
+  // 배지는 누르지 않는 표시(값)라 좁은 줄에서 설명 아래로 내려간다(list.yaml stackBelow — 누르는 것만 줄 끝에 남는다)
+  bool isValue(Widget w) => w is Text || w is PListValue || w is PBadge;
   if (suffix == null) return (values: const [], controls: const []);
   final parts = suffix is PListSuffix ? suffix.children : [suffix];
   return (
