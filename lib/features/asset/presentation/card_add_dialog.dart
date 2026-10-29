@@ -31,6 +31,7 @@ import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_sign.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_currency_fields.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/features/asset/presentation/include_in_total_card.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
@@ -56,20 +57,16 @@ void showCardEditDialog(BuildContext context, Asset asset) =>
 
 void _open(BuildContext context, {required Asset? edit}) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  showAssetFormSurface(
     context,
     title: edit == null ? l.assetCardAdd : l.assetCardEdit,
-    contentBuilder: (ctx, scrollCtrl) => _CardAddBody(
+    submitLabel: edit != null ? l.actionSave : l.calAdd,
+    builder: (ctx, scrollCtrl, controller) => _CardAddBody(
       edit: edit,
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: edit != null ? l.actionSave : l.calAdd,
-    ),
-  ).whenComplete(controller.dispose);
+  );
 }
 
 enum _CardType { credit, check }

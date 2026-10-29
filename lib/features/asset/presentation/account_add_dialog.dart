@@ -23,6 +23,7 @@ import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_sign.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_currency_fields.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
 import 'package:groo_damda_app/features/asset/presentation/include_in_total_card.dart';
 
 /// 계좌 추가/편집 다이얼로그 — front `AssetAddDialog` / `AssetEditDialog` 미러.
@@ -52,21 +53,17 @@ void _open(
   required _SubType initialSubType,
 }) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  showAssetFormSurface(
     context,
     title: edit == null ? l.assetAccountAdd : l.assetAccountEdit,
-    contentBuilder: (ctx, scrollCtrl) => _AccountAddBody(
+    submitLabel: edit != null ? l.actionSave : l.calAdd,
+    builder: (ctx, scrollCtrl, controller) => _AccountAddBody(
       edit: edit,
       initialSubType: initialSubType,
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: edit != null ? l.actionSave : l.calAdd,
-    ),
-  ).whenComplete(controller.dispose);
+  );
 }
 
 /// 마이너스통장에는 별도 `AssetType` 이 없다 — `BANK_ACCOUNT` + 음수 잔액이 그 표시다.

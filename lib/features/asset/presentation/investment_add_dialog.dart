@@ -25,6 +25,7 @@ import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_currency_fields.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/features/asset/presentation/holding_format.dart';
 import 'package:groo_damda_app/features/asset/presentation/include_in_total_card.dart';
@@ -48,20 +49,16 @@ void showInvestmentEditDialog(BuildContext context, Asset asset) {
 
 void _open(BuildContext context, {required Asset? edit}) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  showAssetFormSurface(
     context,
     title: edit == null ? l.assetInvestAdd : l.assetInvestEdit,
-    contentBuilder: (ctx, scrollCtrl) => _InvestmentAddBody(
+    submitLabel: edit != null ? l.actionSave : l.calAdd,
+    builder: (ctx, scrollCtrl, controller) => _InvestmentAddBody(
       edit: edit,
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: edit != null ? l.actionSave : l.calAdd,
-    ),
-  ).whenComplete(controller.dispose);
+  );
 }
 
 /// 투자에 노출되는 브랜드만 평탄화 (증권사 + 가상자산거래소).
