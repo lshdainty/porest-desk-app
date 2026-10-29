@@ -6889,6 +6889,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get constDetailTodayDesc => 'Today\'s constellation';
+
+  @override
+  String get constDetailTodayProgress => 'Starlight gathered today';
+
+  @override
+  String constDetailTodayPct(int pct) {
+    return '$pct%';
+  }
+
+  @override
+  String constDetailTodayRemain(int lit, int goal, int count) {
+    return '$lit/$goal starlight · $count to go';
+  }
+
+  @override
+  String constDetailTodayAll(int lit, int goal) {
+    return '$lit/$goal starlight';
+  }
+
+  @override
+  String constDetailProgressName(int lit, int goal) {
+    return 'Starlight gathered today $lit/$goal';
+  }
+
+  @override
   String get nightSkyTitle => 'Night sky';
 
   @override

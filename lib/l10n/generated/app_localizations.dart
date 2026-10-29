@@ -12272,6 +12272,42 @@ abstract class AppLocalizations {
   /// **'{count}일째 연속 관측'**
   String frpStampName(int count);
 
+  /// No description provided for @constDetailTodayDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 목표 별자리'**
+  String get constDetailTodayDesc;
+
+  /// No description provided for @constDetailTodayProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 모은 별빛'**
+  String get constDetailTodayProgress;
+
+  /// No description provided for @constDetailTodayPct.
+  ///
+  /// In ko, this message translates to:
+  /// **'{pct}%'**
+  String constDetailTodayPct(int pct);
+
+  /// No description provided for @constDetailTodayRemain.
+  ///
+  /// In ko, this message translates to:
+  /// **'{lit}/{goal} 별빛 · {count}별 남음'**
+  String constDetailTodayRemain(int lit, int goal, int count);
+
+  /// No description provided for @constDetailTodayAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'{lit}/{goal} 별빛'**
+  String constDetailTodayAll(int lit, int goal);
+
+  /// No description provided for @constDetailProgressName.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 모은 별빛 {lit}/{goal}'**
+  String constDetailProgressName(int lit, int goal);
+
   /// No description provided for @nightSkyTitle.
   ///
   /// In ko, this message translates to:

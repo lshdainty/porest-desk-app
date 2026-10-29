@@ -6779,6 +6779,32 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get constDetailTodayDesc => '오늘의 목표 별자리';
+
+  @override
+  String get constDetailTodayProgress => '오늘 모은 별빛';
+
+  @override
+  String constDetailTodayPct(int pct) {
+    return '$pct%';
+  }
+
+  @override
+  String constDetailTodayRemain(int lit, int goal, int count) {
+    return '$lit/$goal 별빛 · $count별 남음';
+  }
+
+  @override
+  String constDetailTodayAll(int lit, int goal) {
+    return '$lit/$goal 별빛';
+  }
+
+  @override
+  String constDetailProgressName(int lit, int goal) {
+    return '오늘 모은 별빛 $lit/$goal';
+  }
+
+  @override
   String get nightSkyTitle => '밤하늘';
 
   @override
