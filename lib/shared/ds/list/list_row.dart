@@ -235,6 +235,7 @@ class PListRowFrame extends StatefulWidget {
     this.interactive = false,
     this.onActivate,
     this.activateOnEnter = true,
+    this.locked = false,
     this.focusNode,
     this.semantics = const PListRowSemantics(),
   }) : assert(
@@ -286,6 +287,10 @@ class PListRowFrame extends StatefulWidget {
 
   /// 누르면 하는 일 — interactive 인데 null 이면 막힌 줄이다.
   final VoidCallback? onActivate;
+
+  /// 끌 수 없는 켬 — 줄은 누르지 못하고 포커스에서 빠지지만(막힌 줄과 같다) 제목 · 앞 붙이개 · 배지는 보통 색이다. 줄 전체를
+  /// 막는 disabled 와 달리 "꺼진 것" 으로 읽히지 않는다(list.md "끌 수 없는 켬 — 칸만 막는다").
+  final bool locked;
 
   /// Enter 로도 누른다(누르는 줄 · 스위치). 체크 · 라디오의 Enter 는 폼 제출에 둔다.
   final bool activateOnEnter;
@@ -550,21 +555,21 @@ class _PListRowFrameState extends State<PListRowFrame> {
     final scope = PListScope.of(context);
     final nest = widget.nest ?? scope.nest;
     final disabled = _disabled;
+    // 글 · 아이콘 색을 죽이는 막힘 — locked 는 누르지만 못 할 뿐 색은 보통이다
+    final dim = disabled && !widget.locked;
     final pressed = (_pressed || _preview) && !disabled;
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     // 강조 줄을 누르는 동안 — 짙은 강조 바탕 위라 설명 · 값 글자만 한 단계 짙다(화살표 · 제목은 그대로)
     final muted = widget.highlighted && pressed;
 
-    final titleColor = disabled
-        ? c.fgDisabled
-        : (widget.titleColor ?? c.fgNeutral);
-    final detailColor = disabled
+    final titleColor = dim ? c.fgDisabled : (widget.titleColor ?? c.fgNeutral);
+    final detailColor = dim
         ? c.fgDisabled
         : muted
         ? c.fgNeutralMuted
         : c.fgNeutralSubtle;
-    final iconColor = disabled ? c.fgDisabled : c.fgNeutral;
-    final arrowColor = disabled ? c.fgDisabled : c.fgNeutralSubtle;
+    final iconColor = dim ? c.fgDisabled : c.fgNeutral;
+    final arrowColor = dim ? c.fgDisabled : c.fgNeutralSubtle;
 
     final detailStyle = PTypography.t3.copyWith(color: detailColor);
     final detail = widget.detail;
@@ -866,7 +871,7 @@ class _PListRowFrameState extends State<PListRowFrame> {
 
     return PListRowScope(
       pressed: pressed,
-      disabled: disabled,
+      disabled: dim,
       tracker: _tracker,
       child: result,
     );

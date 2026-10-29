@@ -379,10 +379,12 @@ class PListCheckItem extends PListItemBase {
     super.titleColor,
     super.highlighted,
     super.align,
+    super.titleSuffix,
     this.prefix,
     this.markPosition = PListMarkPosition.prefix,
     this.suffixValue,
     this.tone = PCheckboxTone.neutral,
+    this.locked = false,
     this.focusNode,
   }) : assert(
          markPosition == PListMarkPosition.suffix || suffixValue == null,
@@ -401,11 +403,16 @@ class PListCheckItem extends PListItemBase {
   /// 사이는 [PListSuffix] 의 4(list.yaml suffix.gap). 글은 값 글자(뒤 16 · 옅은 색)를 줄이 입힌다. 웹 `suffixValue` 와 같은 이름.
   final Widget? suffixValue;
   final PCheckboxTone tone;
+
+  /// 끌 수 없는 켬(숨길 수 없는 기본 캘린더) — 칸만 막힌 켬(선택 + 막힘, 포커스에서 빠진다)이고 줄은 누르지 못하지만 제목 ·
+  /// 앞 붙이개(색 점 · 타일) · 배지는 보통 색 그대로다. 줄 전체를 막는 것([onChanged] 없음)과 달리 "꺼진 것" 으로 읽히지 않는다.
+  /// 끌 수 없는 까닭은 배지가 말한다. 켠 채([checked] true)로 쓴다.
+  final bool locked;
   final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
-    final onChanged = this.onChanged;
+    final onChanged = locked ? null : this.onChanged;
     final enabled = onChanged != null;
     final mark = _PressedMark(
       (pressed) => PCheckmark(
@@ -423,6 +430,7 @@ class PListCheckItem extends PListItemBase {
       detail: detail,
       detailChild: detailChild,
       titleColor: titleColor,
+      titleSuffix: titleSuffix,
       prefix: markPosition == PListMarkPosition.prefix
           ? (prefix == null
                 ? mark
@@ -450,6 +458,7 @@ class PListCheckItem extends PListItemBase {
       onActivate: enabled ? () => onChanged(checked != true) : null,
       // 체크 줄의 Enter 는 폼 제출에 둔다 — 누르지 않는다(Space 만)
       activateOnEnter: false,
+      locked: locked,
       focusNode: focusNode,
       semantics: PListRowSemantics(
         wholeRow: true,
