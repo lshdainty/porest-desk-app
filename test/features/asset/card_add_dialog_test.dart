@@ -401,6 +401,18 @@ void main() {
       expect(repo.updated, isFalse);
     });
 
+    testWidgets('새로 추가할 때는 자리 글이고, 없음을 고르면 칸에 그 글이 남는다', (tester) async {
+      await openAdd(tester);
+      expect(findPlain(l.assetPaymentAccountSelect), findsOneWidget);
+      expect(findPlain(l.assetNoPaymentAccount), findsNothing);
+      await tester.tap(find.byType(PSelect<int>).last);
+      await tester.pumpAndSettle();
+      await tester.tap(findPlain(l.assetNoPaymentAccount).last);
+      await tester.pumpAndSettle();
+      expect(findPlain(l.assetNoPaymentAccount), findsOneWidget);
+      expect(findPlain(l.assetPaymentAccountSelect), findsNothing);
+    });
+
     testWidgets('결제일을 고르면 그 안내가 저절로 걷힌다', (tester) async {
       await openAdd(tester);
       await tester.tap(_submitButton(l.calAdd));
@@ -429,6 +441,17 @@ void main() {
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
     expect(repo.paymentAssetRowId.present, isTrue);
+    expect(repo.paymentAssetRowId.value, isNull);
+  });
+
+  testWidgets('저장된 카드의 결제 출금계좌가 null 이면 처음부터 "없음" 이 보이고 안 바꾸면 그대로 null 이다', (
+    tester,
+  ) async {
+    final repo = await _openEdit(tester, _credit, assets: [_credit, _other]);
+    expect(findPlain(l.assetNoPaymentAccount), findsOneWidget);
+    expect(findPlain(l.assetPaymentAccountSelect), findsNothing);
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
     expect(repo.paymentAssetRowId.value, isNull);
   });
 }

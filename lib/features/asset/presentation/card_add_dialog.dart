@@ -94,6 +94,10 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
   CardCatalogSummary? _selected;
   int? _paymentDay; // 결제일 1~31
   int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
+
+  /// "없음" 을 골랐나 — 저장된 값은 null 하나라 "안 고름" 과 "없다고 답함" 을 못 가른다. 저장된 카드를 열면 null 은 없다고 답한 것이고,
+  /// 새로 추가할 때만 안 고른 상태(자리 글)다(select.md "'없음' 을 고르면 값을 고른 것"). 저장 본문은 어느 쪽이든 null.
+  bool _noAccountChosen = false;
   bool _submitting = false;
   bool _touched = false;
 
@@ -218,6 +222,7 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
     );
     _paymentDay = e?.paymentDay;
     _paymentAssetRowId = e?.paymentAssetRowId;
+    _noAccountChosen = e != null && e.paymentAssetRowId == null;
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     // 새 자산은 가리지 않는다 — 만들자마자 금액이 안 보이면 잘못 만든 줄 안다.
     _hideAmount = e != null && e.isAmountHidden == 'Y';
@@ -252,6 +257,7 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
     _currencyPick ?? '',
     _paymentDay ?? '',
     _paymentAssetRowId ?? '',
+    _noAccountChosen,
     _includeInTotal,
     _hideAmount,
   ].join('\u0001');
@@ -668,16 +674,19 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
                 ],
               ),
             ],
-            value: _paymentAssetRowId,
+            value: _noAccountChosen && bankAccounts.isNotEmpty
+                ? _kNoAccount
+                : _paymentAssetRowId,
             placeholder: bankAccounts.isEmpty
                 ? l.assetNoBankAccounts
                 : (isCredit
                       ? l.assetPaymentAccountSelect
                       : l.assetLinkedAccountSelect),
             disabled: bankAccounts.isEmpty,
-            onChanged: (v) => setState(
-              () => _paymentAssetRowId = v == _kNoAccount ? null : v,
-            ),
+            onChanged: (v) => setState(() {
+              _noAccountChosen = v == _kNoAccount;
+              _paymentAssetRowId = v == _kNoAccount ? null : v;
+            }),
           ),
         ),
       ],
