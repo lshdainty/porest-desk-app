@@ -2249,12 +2249,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetActionFailed => 'Failed';
 
   @override
-  String get budgetDeleteTitle => 'Delete budget';
+  String budgetDeleteTitle(String name) {
+    return 'Delete the \"$name\" budget?';
+  }
 
   @override
-  String budgetDeleteConfirm(String name) {
-    return 'Delete the budget for the \"$name\" category?';
-  }
+  String get budgetDeleteConfirm => 'A deleted budget can\'t be restored.';
 
   @override
   String get budgetDeleteFailed => 'Delete failed';
@@ -2416,7 +2416,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetSetup => 'Budget settings';
 
   @override
-  String get budgetCopyLastMonth => 'Copy last month\'s budget';
+  String get budgetCopyLastMonth => 'Copy last month\'s budget?';
 
   @override
   String budgetCopyConfirmMessage(String from, int count, String to) {
@@ -4781,12 +4781,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalSubmitAdd => 'Add';
 
   @override
-  String get savingGoalDeleteTitle => 'Delete saving goal';
+  String savingGoalDeleteTitle(String title) {
+    return 'Delete the \"$title\" goal?';
+  }
 
   @override
-  String savingGoalDeleteConfirm(String title) {
-    return 'Delete the \"$title\" goal? This can\'t be undone.';
-  }
+  String get savingGoalDeleteConfirm =>
+      'A deleted saving goal can\'t be restored.';
 
   @override
   String get savingGoalDeleteFailed => 'Delete failed';

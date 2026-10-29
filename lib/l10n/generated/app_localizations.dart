@@ -4163,14 +4163,14 @@ abstract class AppLocalizations {
   /// No description provided for @budgetDeleteTitle.
   ///
   /// In ko, this message translates to:
-  /// **'예산 삭제'**
-  String get budgetDeleteTitle;
+  /// **'\"{name}\" 예산을 삭제할까요?'**
+  String budgetDeleteTitle(String name);
 
   /// No description provided for @budgetDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 카테고리 예산을 삭제할까요?'**
-  String budgetDeleteConfirm(String name);
+  /// **'삭제한 예산은 되돌릴 수 없어요.'**
+  String get budgetDeleteConfirm;
 
   /// No description provided for @budgetDeleteFailed.
   ///
@@ -4439,13 +4439,13 @@ abstract class AppLocalizations {
   /// No description provided for @budgetCopyLastMonth.
   ///
   /// In ko, this message translates to:
-  /// **'지난달 예산 복사'**
+  /// **'지난달 예산을 복사할까요?'**
   String get budgetCopyLastMonth;
 
   /// No description provided for @budgetCopyConfirmMessage.
   ///
   /// In ko, this message translates to:
-  /// **'{from} 예산 한도({count}개)를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.'**
+  /// **'{from} 예산 한도 {count}개를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써져요.'**
   String budgetCopyConfirmMessage(String from, int count, String to);
 
   /// No description provided for @budgetCopyFailed.
@@ -8729,14 +8729,14 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalDeleteTitle.
   ///
   /// In ko, this message translates to:
-  /// **'저축 목표 삭제'**
-  String get savingGoalDeleteTitle;
+  /// **'\"{title}\" 목표를 삭제할까요?'**
+  String savingGoalDeleteTitle(String title);
 
   /// No description provided for @savingGoalDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{title}\" 목표를 삭제할까요? 이 작업은 되돌릴 수 없어요.'**
-  String savingGoalDeleteConfirm(String title);
+  /// **'삭제한 저축 목표는 되돌릴 수 없어요.'**
+  String get savingGoalDeleteConfirm;
 
   /// No description provided for @savingGoalDeleteFailed.
   ///

@@ -1297,15 +1297,15 @@
   "budgetUpdated": "Budget updated",
   "budgetAdded": "Budget added",
   "budgetActionFailed": "Failed",
-  "budgetDeleteTitle": "Delete budget",
-  "budgetDeleteConfirm": "Delete the budget for the \"{name}\" category?",
-  "@budgetDeleteConfirm": {
+  "budgetDeleteTitle": "Delete the \"{name}\" budget?",
+  "@budgetDeleteTitle": {
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
+  "budgetDeleteConfirm": "A deleted budget can't be restored.",
   "budgetDeleteFailed": "Delete failed",
   "budgetMonthlyLimit": "Monthly budget limit",
   "budgetLoadError": "Couldn't load budget",
@@ -1427,7 +1427,7 @@
   "budgetVsLimit": "vs limit",
   "budgetLimit": "Limit",
   "budgetSetup": "Budget settings",
-  "budgetCopyLastMonth": "Copy last month's budget",
+  "budgetCopyLastMonth": "Copy last month's budget?",
   "budgetCopyConfirmMessage": "{from} budget limits ({count}) will be copied to {to}. Budgets that already exist this month will be overwritten.",
   "@budgetCopyConfirmMessage": {
     "placeholders": {
@@ -2724,15 +2724,15 @@
   "savingGoalAdd": "Add saving goal",
   "savingGoalEdit": "Edit saving goal",
   "savingGoalSubmitAdd": "Add",
-  "savingGoalDeleteTitle": "Delete saving goal",
-  "savingGoalDeleteConfirm": "Delete the \"{title}\" goal? This can't be undone.",
-  "@savingGoalDeleteConfirm": {
+  "savingGoalDeleteTitle": "Delete the \"{title}\" goal?",
+  "@savingGoalDeleteTitle": {
     "placeholders": {
       "title": {
         "type": "String"
       }
     }
   },
+  "savingGoalDeleteConfirm": "A deleted saving goal can't be restored.",
   "savingGoalDeleteFailed": "Delete failed",
   "savingGoalNameLabel": "Goal name",
   "savingGoalNameHint": "e.g. Trip to Europe",

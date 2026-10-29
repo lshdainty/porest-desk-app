@@ -12,6 +12,7 @@ import 'package:groo_damda_app/features/saving_goal/application/saving_goal_prov
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
@@ -31,7 +32,24 @@ import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 class SavingGoalScreen extends ConsumerWidget {
   const SavingGoalScreen({super.key});
 
-  /// 스와이프 삭제 — 확인은 PSwipeActions 가 이미 받았으므로 여기서 다시 묻지 않는다.
+  /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
+  Future<void> _confirmDeleteGoal(
+    BuildContext context,
+    WidgetRef ref,
+    SavingGoal goal,
+  ) async {
+    final l = AppLocalizations.of(context);
+    final ok = await PAlertDialog.show(
+      context,
+      title: l.savingGoalDeleteTitle(goal.title),
+      description: l.savingGoalDeleteConfirm,
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (ok && context.mounted) await _deleteGoal(context, ref, goal);
+  }
+
   /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다(문구도 같은 키).
   Future<void> _deleteGoal(
     BuildContext context,
@@ -145,11 +163,8 @@ class SavingGoalScreen extends ConsumerWidget {
                         label: l.actionDelete,
                         icon: LucideIcons.trash2,
                         kind: PSwipeKind.destructive,
-                        // 수정 시트의 삭제와 같은 문구 — 같은 삭제인데 경로에
-                        // 따라 다른 말이 나오면 안 된다.
-                        confirmTitle: l.savingGoalDeleteTitle,
-                        confirmMessage: l.savingGoalDeleteConfirm(goal.title),
-                        onSelect: () => _deleteGoal(context, ref, goal),
+                        // 확인은 ds 확인창이 받는다(같은 삭제는 어디서 불러도 같은 글).
+                        onSelect: () => _confirmDeleteGoal(context, ref, goal),
                       ),
                     ],
                     child: _GoalRow(

@@ -17,6 +17,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
@@ -28,7 +29,6 @@ import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
@@ -68,9 +68,9 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
 
   /// 지난달 예산 복사 — 웹 BudgetManager `copyFromLastMonth` 정합.
   ///
-  /// 클릭 즉시(이미 로드된 [prevBudgets] 사용, 재조회 없음) 확인 다이얼로그를 띄우고,
-  /// 확인 버튼에 스피너를 표시한 채 [_runCopyFromPreviousMonth] 를 실행한다(다이얼로그
-  /// 유지, 완료 시 닫힘 — 웹 ConfirmDialog loading 정합).
+  /// 클릭 즉시(이미 로드된 [prevBudgets] 사용, 재조회 없음) ds 확인창(Alert Dialog)을 띄우고,
+  /// 확정 버튼을 로딩으로 둔 채 [_runCopyFromPreviousMonth] 를 실행한다(끝나면 닫힘, 실패하면
+  /// 그대로 둔다). 지우기가 아니라 neutralSolid + 동작 이름 "복사".
   void _confirmCopyFromPreviousMonth(
     List<Budget> prevBudgets,
     List<Budget> curBudgets,
@@ -78,16 +78,19 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     if (prevBudgets.isEmpty) return; // 버튼이 비활성이라 도달 불가 — 방어.
     final l = AppLocalizations.of(context);
     final prevMonth = DateTime(_month.year, _month.month - 1, 1);
-    showPConfirmDialog(
+    PAlertDialog.show(
       context,
       title: l.budgetCopyLastMonth,
-      message: l.budgetCopyConfirmMessage(
+      description: l.budgetCopyConfirmMessage(
         yearMonth(prevMonth),
         prevBudgets.length,
         yearMonth(DateTime(_key.year, _key.month)),
       ),
-      confirmLabel: l.calCopy,
-      onConfirm: () => _runCopyFromPreviousMonth(prevBudgets, curBudgets),
+      cancelLabel: l.actionCancel,
+      actionLabel: l.calCopy,
+      onAction: () => _runCopyFromPreviousMonth(prevBudgets, curBudgets),
+      // 실패하면 창을 그대로 두고 스피너만 푼다(예전 확인창과 같다 — 오류 알림은 이 자리에서 따로 띄우지 않는다).
+      onActionError: (_) {},
     );
   }
 
@@ -118,7 +121,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         }
       }
     } on ApiException {
-      rethrow; // 다이얼로그 유지 (showPConfirmDialog 가 catch).
+      rethrow; // 확인창 유지 (PAlertDialog 의 onActionError 가 받는다).
     }
     ref.invalidate(monthBudgetsProvider(_key));
     ref.invalidate(budgetComplianceProvider(6));
@@ -161,8 +164,21 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     );
   }
 
-  /// 스와이프 삭제 — 확인은 PSwipeActions 가 이미 받았으므로 여기서 다시 묻지 않는다.
+  /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
   /// 수정 시트가 쓰던 저장소·무효화 경로를 그대로 쓴다(문구도 같은 키).
+  Future<void> _confirmDeleteCategory(Budget budget, String name) async {
+    final l = AppLocalizations.of(context);
+    final ok = await PAlertDialog.show(
+      context,
+      title: l.budgetDeleteTitle(name),
+      description: l.budgetDeleteConfirm,
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (ok && mounted) await _deleteCategory(budget);
+  }
+
   Future<void> _deleteCategory(Budget budget) async {
     try {
       final repo = await ref.read(budgetRepositoryProvider.future);
@@ -337,15 +353,15 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                           label: l.actionDelete,
                           icon: LucideIcons.trash2,
                           kind: PSwipeKind.destructive,
-                          confirmTitle: l.budgetDeleteTitle,
-                          confirmMessage: l.budgetDeleteConfirm(
+                          // 확인은 ds 확인창이 받는다 — 트레이를 먼저 닫은 뒤 화면 context 로 띄운다.
+                          onSelect: () => _confirmDeleteCategory(
+                            b,
                             budgetRowName(
                               l,
                               categories.byRowId(b.categoryRowId!),
                               b,
                             ),
                           ),
-                          onSelect: () => _deleteCategory(b),
                         ),
                       ],
                       child: BudgetCategoryRow(
