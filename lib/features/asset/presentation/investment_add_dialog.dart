@@ -613,8 +613,10 @@ class _HoldingsEditor extends StatelessWidget {
       headerTrailing: Text(
         keepAll(l.assetHoldingsSummary(rows.length, krw(total))),
         textAlign: TextAlign.end,
-        style: PTypography.t4.copyWith(
-          color: c.fgNeutralSubtle,
+        // 머리 값 글 — slider.yaml headerValue(t5 · 700 · fg-neutral · 고른 숫자 모양)
+        style: PTypography.t5.copyWith(
+          color: c.fgNeutral,
+          fontWeight: FontWeight.w700,
           fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),

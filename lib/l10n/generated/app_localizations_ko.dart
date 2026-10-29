@@ -509,7 +509,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '순자산은 잔액 × 환율로 환산해요. 비워 두면 환산 없이 그대로 더해져요.';
 
   @override
-  String get assetMemoPlaceholder => '계좌번호 뒷자리, 결제일, 한도 등을 적어 둘 수 있어요.';
+  String get assetMemoPlaceholder => '예: 계좌번호 뒷자리 1234';
 
   @override
   String get assetCreditLimitLabel => '신용한도';

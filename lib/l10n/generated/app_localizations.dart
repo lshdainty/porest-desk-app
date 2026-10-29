@@ -1049,7 +1049,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetMemoPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'계좌번호 뒷자리, 결제일, 한도 등을 적어 둘 수 있어요.'**
+  /// **'예: 계좌번호 뒷자리 1234'**
   String get assetMemoPlaceholder;
 
   /// No description provided for @assetCreditLimitLabel.

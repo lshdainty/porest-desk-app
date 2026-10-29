@@ -236,7 +236,7 @@
     }
   },
   "assetExchangeRateDesc": "Net worth converts balance × rate. Left empty it is added without conversion.",
-  "assetMemoPlaceholder": "Note the last digits of the account number, payment day, limit, etc.",
+  "assetMemoPlaceholder": "e.g. Last digits 1234",
   "assetCreditLimitLabel": "Credit limit",
   "assetPaymentDayLabel": "Payment day",
   "assetPaymentDaySelect": "Select payment day",

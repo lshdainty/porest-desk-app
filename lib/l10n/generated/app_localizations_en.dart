@@ -517,8 +517,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Net worth converts balance × rate. Left empty it is added without conversion.';
 
   @override
-  String get assetMemoPlaceholder =>
-      'Note the last digits of the account number, payment day, limit, etc.';
+  String get assetMemoPlaceholder => 'e.g. Last digits 1234';
 
   @override
   String get assetCreditLimitLabel => 'Credit limit';

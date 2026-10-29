@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
@@ -523,6 +524,25 @@ void main() {
     );
     final summary = tester.getRect(findPlain(l.assetHoldingsSummary(1, '0')));
     expect(summary.top, greaterThanOrEqualTo(label.bottom));
+  });
+
+  testWidgets('보유 종목 머리 값 글은 slider.yaml headerValue(t5 · 700 · 진한 글)다', (
+    tester,
+  ) async {
+    await _host(
+      tester,
+      (c) => showAssetEditForm(c, _invest),
+      assets: const [_bank, _invest],
+    );
+    final text = tester.widget<Text>(findPlain(l.assetHoldingsSummary(1, '0')));
+    expect(text.style?.fontSize, PTypography.t5.fontSize);
+    expect(text.style?.fontWeight, FontWeight.w700);
+  });
+
+  testWidgets('메모 자리 글은 안내 문장이 아니라 예시다(field.md)', (tester) async {
+    await _host(tester, (c) => showAssetKindForm(c, AssetKind.checking));
+    expect(findPlain(l.assetMemoPlaceholder), findsWidgets);
+    expect(l.assetMemoPlaceholder.startsWith('예:'), isTrue);
   });
 
   for (final scale in [1.0, 2.0]) {
