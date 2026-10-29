@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/month_picker/p_month_picker.dart';
 import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 
@@ -114,5 +115,36 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     expect(find.text('완료'), findsOneWidget);
+  });
+
+  testWidgets('선택 띠는 휠 끝에서 16 들여 x 40~320 (100% · 200%)', (tester) async {
+    for (final scale in [1.0, 2.0]) {
+      await _open(tester, scale: scale);
+      final root = tester.getRect(find.byKey(const ValueKey('wheel-root')));
+      final band = tester.getRect(
+        find.byKey(const ValueKey('wheel-indicator')),
+      );
+      // 시트 본문 좌우 24 → 휠 24~336, 띠는 휠 끝에서 16 → 40~320
+      expect(root.left, 24);
+      expect(root.right, 336);
+      expect(band.left, 40);
+      expect(band.right, 320);
+      await tester.tapAt(const Offset(180, 20));
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('아래로 끌어도 값 없이 닫힌다', (tester) async {
+    await _open(tester);
+    // 열린 뒤 0.5초가 지나야 끌린다(스펙) — 그 뒤에 끈다
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.fling(
+      find.byType(PBottomSheetContent),
+      const Offset(0, 500),
+      2000,
+    );
+    await tester.pumpAndSettle();
+    expect(_closed, isTrue);
+    expect(_result, isNull);
   });
 }

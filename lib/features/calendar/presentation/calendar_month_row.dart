@@ -6,7 +6,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
 import 'package:groo_damda_app/shared/forms/month_row.dart';
 
-/// 달 줄 — 흰 면 맨 위(I-09 6). 높이 52 · 왼쪽 6 · 오른쪽 16, ← 달 → 와 오른쪽 캘린더 고르기 칩.
+/// 달 줄 — 흰 면 맨 위(I-09 6). 높이 52 · 왼쪽 달 글이 화면 여백 24 · 오른쪽 16, 달 글 + 꺾쇠(‹ › 없음)와 오른쪽 캘린더 고르기 칩.
 class CalendarMonthRow extends StatelessWidget {
   const CalendarMonthRow({
     super.key,

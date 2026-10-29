@@ -7412,12 +7412,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dsSliderMax => '최대';
 
   @override
-  String get actionPrev => '이전';
-
-  @override
-  String get actionNext => '다음';
-
-  @override
   String dsAttachLifted(int n) {
     return '$n번째 항목을 들었어요.';
   }

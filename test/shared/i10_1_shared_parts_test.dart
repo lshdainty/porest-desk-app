@@ -87,9 +87,11 @@ void main() {
           // 글자를 크게 줄이지 않는다 — 200% 에서 100% 글자보다 확실히 크다(1.5배 넘게)
           expect(text.height, greaterThan(oneLine * 1.5));
         }
+        // [+] 는 늘 오른쪽 끝(화면 여백 24 → 336) — 달 글 바로 뒤에 붙지 않는다
+        expect(tester.getRect(find.byIcon(LucideIcons.plus)).right, 336);
         expect(
           tester.getRect(find.byIcon(LucideIcons.slidersHorizontal)).right,
-          lessThanOrEqualTo(360),
+          lessThan(tester.getRect(find.byIcon(LucideIcons.plus)).left),
         );
       }
     },

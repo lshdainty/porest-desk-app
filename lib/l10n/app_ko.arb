@@ -4559,8 +4559,6 @@
   "@dsSliderMax": {
     "description": "Slider 범위 — 큰 손잡이의 기본 이름"
   },
-  "actionPrev": "이전",
-  "actionNext": "다음",
   "dsAttachLifted": "{n}번째 항목을 들었어요.",
   "@dsAttachLifted": {"description": "ds 컴포넌트 문구", "placeholders": {"n": {"type": "int"}}},
   "dsAttachAddedPhotos": "사진 {n}장을 붙였어요.",

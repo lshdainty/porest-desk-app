@@ -147,7 +147,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Future<void> _showMonthYearPicker() async {
-    // 달 고르기(I-27) — 연 | 월 휠 + 완료. 고른 달의 1일로 옮긴다(옛 4×3 격자의 "오늘로"는 스펙에 없어 걷었다).
+    // 달 고르기(I-27) — 연 | 월 휠 + 완료. 고른 달의 1일로 옮긴다("오늘로" · 4×3 격자는 스펙에 없어 걷었다).
     final picked = await showPMonthPicker(
       context,
       initial: _focused,

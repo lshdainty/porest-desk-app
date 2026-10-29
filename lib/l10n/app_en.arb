@@ -4319,8 +4319,6 @@
   "dsQuantityIncrease": "Increase",
   "dsSliderMin": "Minimum",
   "dsSliderMax": "Maximum",
-  "actionPrev": "Previous",
-  "actionNext": "Next",
   "dsAttachLifted": "Picked up item {n}.",
   "dsAttachAddedPhotos": "Attached {n, plural, =1{1 photo} other{{n} photos}}.",
   "dsAttachAddedFiles": "Attached {n, plural, =1{1 file} other{{n} files}}.",

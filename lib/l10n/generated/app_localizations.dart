@@ -13388,18 +13388,6 @@ abstract class AppLocalizations {
   /// **'최대'**
   String get dsSliderMax;
 
-  /// No description provided for @actionPrev.
-  ///
-  /// In ko, this message translates to:
-  /// **'이전'**
-  String get actionPrev;
-
-  /// No description provided for @actionNext.
-  ///
-  /// In ko, this message translates to:
-  /// **'다음'**
-  String get actionNext;
-
   /// ds 컴포넌트 문구
   ///
   /// In ko, this message translates to:
