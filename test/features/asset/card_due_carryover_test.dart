@@ -29,7 +29,13 @@ import 'package:groo_damda_app/features/card/domain/card_catalog.dart';
 import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
 import 'package:groo_damda_app/features/expense/domain/card_cycle.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 /// 오늘 — 9월 3일. 결제일 7일이면 8월분이 9월 7일을 기다린다. (결제일 목록은 드롭다운이라
 /// 아래쪽 날짜는 스크롤해야 만들어진다 — 위쪽 날짜만 쓴다.)
@@ -177,12 +183,23 @@ Finder get _dueInput => find.descendant(
 );
 
 /// 금액 칸들(placeholder `0`) — 청구분 칸이 있으면 첫째가 청구분, 마지막이 그 뒤 쓴 금액이다.
-Finder get _amountFields => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == '0',
+/// 결제 대기 청구분 칸 — 라벨이 "{날짜}에 결제될 금액" 이다.
+Finder get _dueField => find.byWidgetPredicate(
+  (w) => w is PField && (w.label ?? '').contains('에 결제될 금액'),
+  description: '결제 대기 청구분 칸',
 );
 
-Finder _submitButton(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+Finder _submitButton(String label) => buttonLabeled(label);
+
+/// 첫 Select 가 결제일이다(둘째는 결제 출금계좌) — 31줄 목록이라 보이는 자리까지 굴려서 고른다.
+Future<void> _pickDay(WidgetTester tester, int day) async {
+  await tester.tap(find.byType(PSelect<int>).first);
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(findPlain('$day일').last);
+  await tester.pumpAndSettle();
+  await tester.tap(findPlain('$day일').last);
+  await tester.pumpAndSettle();
+}
 
 Future<_Repo> _host(
   WidgetTester tester,
@@ -318,41 +335,33 @@ void main() {
   });
 
   group('새 카드', () {
-    Future<void> pickCard(WidgetTester tester) async {
-      await tester.tap(find.text('QA 신용카드').last);
-      await tester.pumpAndSettle();
-    }
+    Future<void> pickCard(WidgetTester tester) =>
+        pickCardProduct(tester, l.assetCardProduct, 'QA 신용카드');
 
-    Future<void> pickDay(WidgetTester tester, int day, {int? from}) async {
-      await tester.tap(
-        find.text(from == null ? l.assetPaymentDaySelect : l.dayN(from)),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.dayN(day)).last);
-      await tester.pumpAndSettle();
-    }
+    Future<void> pickDay(WidgetTester tester, int day, {int? from}) =>
+        _pickDay(tester, day);
 
     testWidgets('결제일을 고르기 전에는 칸이 하나다', (tester) async {
       await _host(tester, showCardAddDialog);
-      expect(find.byKey(const ValueKey('due-carryover-label')), findsNothing);
-      expect(find.text('이전 미결제 사용액 (원)'), findsOneWidget);
+      expect(_dueField, findsNothing);
+      expect(fieldWithLabel(l.assetCurrentUsage), findsOneWidget);
     });
 
     testWidgets('결제일 전이면 두 칸 — 두 결제일이 칸 이름·안내에 들어간다', (tester) async {
       await _host(tester, showCardAddDialog);
       await pickDay(tester, 7);
 
-      expect(find.text('${_md('2026-09-07')}에 결제될 금액 (원)'), findsOneWidget);
+      expect(fieldWithLabel('${_md('2026-09-07')}에 결제될 금액'), findsOneWidget);
       expect(
-        find.text("카드사 앱에 '결제 예정 금액'으로 보이는 금액이에요. 그날 결제계좌에서 빠져요."),
+        findRichPlain("카드사 앱에 '결제 예정 금액'으로 보이는 금액이에요. 그날 결제계좌에서 빠져요."),
         findsOneWidget,
       );
-      expect(find.text('그 뒤 쓴 금액 (원)'), findsOneWidget);
+      expect(fieldWithLabel('그 뒤 쓴 금액'), findsOneWidget);
       expect(
-        find.text('지난 청구 뒤로 쓴 금액이에요. ${_md('2026-10-07')}에 결제돼요.'),
+        findRichPlain('지난 청구 뒤로 쓴 금액이에요. ${_md('2026-10-07')}에 결제돼요.'),
         findsOneWidget,
       );
-      expect(find.text('이전 미결제 사용액 (원)'), findsNothing);
+      expect(fieldWithLabel(l.assetCurrentUsage), findsNothing);
     });
 
     testWidgets('저장하면 청구분은 dueCarryoverAmount, 그 뒤 쓴 금액은 balance 로 간다', (
@@ -362,8 +371,7 @@ void main() {
       await pickCard(tester);
       await pickDay(tester, 7);
       await tester.enterText(_dueInput, '300000');
-      await tester.enterText(_amountFields.last, '50000');
-      await tester.pumpAndSettle();
+      await typeInto(tester, l.assetCarryoverAfterLabel, '50000');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -377,8 +385,7 @@ void main() {
       final repo = await _host(tester, showCardAddDialog);
       await pickCard(tester);
       await pickDay(tester, 7);
-      await tester.enterText(_amountFields.last, '50000');
-      await tester.pumpAndSettle();
+      await typeInto(tester, l.assetCarryoverAfterLabel, '50000');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -395,11 +402,10 @@ void main() {
 
       // 9월 2일은 이미 지났다 — 8월분은 결제가 끝났다.
       await pickDay(tester, 2, from: 7);
-      expect(find.byKey(const ValueKey('due-carryover-label')), findsNothing);
-      expect(find.text('이전 미결제 사용액 (원)'), findsOneWidget);
+      expect(_dueField, findsNothing);
+      expect(fieldWithLabel(l.assetCurrentUsage), findsOneWidget);
 
-      await tester.enterText(_amountFields, '50000');
-      await tester.pumpAndSettle();
+      await typeInto(tester, l.assetCurrentUsage, '50000');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -410,7 +416,7 @@ void main() {
     testWidgets('결제일 당일에 등록하면 한 칸이다(D2)', (tester) async {
       await _host(tester, showCardAddDialog, today: DateTime(2026, 9, 7, 9));
       await pickDay(tester, 7);
-      expect(find.byKey(const ValueKey('due-carryover-label')), findsNothing);
+      expect(_dueField, findsNothing);
     });
   });
 
@@ -418,14 +424,11 @@ void main() {
     testWidgets('서버가 칸을 주면 채워서 연다 — 그 뒤 쓴 금액 안내엔 날짜가 없다', (tester) async {
       await _host(tester, (ctx) => showCardEditDialog(ctx, _credit));
 
-      expect(find.text('${_md('2026-09-25')}에 결제될 금액 (원)'), findsOneWidget);
-      expect(tester.widget<TextField>(_dueInput).controller!.text, '120000');
-      expect(
-        tester.widget<TextField>(_amountFields.last).controller!.text,
-        '9000',
-      );
-      expect(find.text('그 뒤 쓴 금액 (원)'), findsOneWidget);
-      expect(find.text('지난 청구 뒤로 쓴 금액이에요.'), findsOneWidget);
+      expect(fieldWithLabel('${_md('2026-09-25')}에 결제될 금액'), findsOneWidget);
+      expect(tester.widget<TextField>(_dueInput).controller!.text, '120,000');
+      expect(textOf(tester, l.assetCarryoverAfterLabel), '9,000');
+      expect(fieldWithLabel('그 뒤 쓴 금액'), findsOneWidget);
+      expect(findRichPlain('지난 청구 뒤로 쓴 금액이에요.'), findsOneWidget);
     });
 
     testWidgets('그대로 저장하면 같은 값을 싣는다', (tester) async {
@@ -466,11 +469,13 @@ void main() {
         (ctx) => showCardEditDialog(ctx, locked),
       );
 
-      expect(tester.widget<TextField>(_dueInput).enabled, isFalse);
       expect(
-        find.byKey(const ValueKey('due-carryover-locked-note')),
-        findsOneWidget,
+        tester
+            .widget<PInput>(find.byKey(const ValueKey('due-carryover-input')))
+            .readOnly,
+        isTrue,
       );
+      expect(findRichPlain(l.assetCarryoverLocked), findsOneWidget);
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
       expect(repo.updated!['dueCarryoverAmount'], isNull);
@@ -481,8 +486,8 @@ void main() {
         tester,
         (ctx) => showCardEditDialog(ctx, _credit.copyWith(dueCarryover: null)),
       );
-      expect(find.byKey(const ValueKey('due-carryover-label')), findsNothing);
-      expect(find.text('이전 미결제 사용액 (원)'), findsOneWidget);
+      expect(_dueField, findsNothing);
+      expect(fieldWithLabel(l.assetCurrentUsage), findsOneWidget);
 
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
@@ -494,9 +499,9 @@ void main() {
         tester,
         (ctx) => showCardEditDialog(ctx, _credit),
       );
-      await tester.tap(find.text(l.assetTypeCheckCard));
+      await tester.tap(findPlain(l.assetTypeCheckCard));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('due-carryover-label')), findsNothing);
+      expect(_dueField, findsNothing);
 
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
@@ -509,13 +514,10 @@ void main() {
   group('12월 — 결제일 문장에 연도가 없다', () {
     testWidgets('새 카드 안내: 그다음 결제일이 내년 1월이어도 "1월 7일"', (tester) async {
       await _host(tester, showCardAddDialog, today: DateTime(2026, 12, 3, 9));
-      await tester.tap(find.text(l.assetPaymentDaySelect));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.dayN(7)).last);
-      await tester.pumpAndSettle();
+      await _pickDay(tester, 7);
 
-      expect(find.text('12월 7일에 결제될 금액 (원)'), findsOneWidget);
-      expect(find.text('지난 청구 뒤로 쓴 금액이에요. 1월 7일에 결제돼요.'), findsOneWidget);
+      expect(fieldWithLabel('12월 7일에 결제될 금액'), findsOneWidget);
+      expect(findRichPlain('지난 청구 뒤로 쓴 금액이에요. 1월 7일에 결제돼요.'), findsOneWidget);
       expect(find.textContaining('2027년'), findsNothing);
     });
 
@@ -529,15 +531,12 @@ void main() {
         ),
         today: DateTime(2026, 12, 28, 9),
       );
-      await tester.tap(find.text(l.dayN(25)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.dayN(5)).last);
-      await tester.pumpAndSettle();
+      await _pickDay(tester, 5);
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
 
       expect(
-        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 12월분은 1월 25일에 결제돼요'),
+        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 12월분은 1월 25일에 결제돼요.'),
         findsOneWidget,
       );
     });

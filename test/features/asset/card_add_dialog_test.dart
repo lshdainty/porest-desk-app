@@ -9,11 +9,15 @@ import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
-import 'package:groo_damda_app/features/asset/presentation/card_add_dialog.dart';
 import 'package:groo_damda_app/features/card/application/card_providers.dart';
 import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/features/asset/presentation/card_add_dialog.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 /// 지금 총 미결제 잔액 500,000 · 그 가운데 카드를 만들 때 적은 이월 9,000.
 const _credit = Asset(
@@ -92,12 +96,7 @@ class _CapturingRepo extends AssetRepository {
   }
 }
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _submitButton(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+Finder _submitButton(String label) => buttonLabeled(label);
 
 Future<_CapturingRepo> _openEdit(
   WidgetTester tester,
@@ -105,7 +104,7 @@ Future<_CapturingRepo> _openEdit(
   List<Asset> assets = const [_credit, _other],
 }) async {
   final repo = _CapturingRepo();
-  // 시트 본문은 ListView 다 — 좁은 화면에서는 사용액 칸이 아예 안 만들어진다.
+  // 시트 본문은 스크롤이다 — 좁은 화면에서는 사용액 칸이 아예 안 만들어진다.
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -148,22 +147,21 @@ void main() {
   // (QA 23차 1 — 출시 차단). 잔액은 옆에 읽기 전용으로만 보인다.
   testWidgets('신용카드 편집은 이월 금액으로 채우고, 지금 잔액은 옆에 읽기 전용', (tester) async {
     await _openEdit(tester, _credit);
-    expect(find.text('9000'), findsOneWidget);
-    expect(find.text('500000'), findsNothing);
-    expect(find.text('-500000'), findsNothing);
-    expect(find.text('지금 미결제 잔액 500,000원'), findsOneWidget);
+    expect(textOf(tester, l.assetCurrentUsage), '9,000');
+    expect(findPlain('500,000'), findsNothing);
+    expect(findPlain('-500,000'), findsNothing);
+    expect(findRichPlain('지금 미결제 잔액 500,000원'), findsOneWidget);
   });
 
   testWidgets('이월 금액이 없는 카드(옛 서버 포함)는 0 으로 연다', (tester) async {
     await _openEdit(tester, _credit.copyWith(carryoverAmount: null));
-    expect(tester.widget<TextField>(_field('0')).controller!.text, '0');
-    expect(find.text('500000'), findsNothing);
+    expect(textOf(tester, l.assetCurrentUsage), '0');
+    expect(findPlain('500,000'), findsNothing);
   });
 
   testWidgets('저장하면 carryoverAmount 키로 보내고 balance 는 안 싣는다', (tester) async {
     final repo = await _openEdit(tester, _credit);
-    await tester.enterText(_field('0'), '32000');
-    await tester.pumpAndSettle();
+    await typeInto(tester, l.assetCurrentUsage, '32000');
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
     expect(repo.updated, isTrue);
@@ -173,8 +171,7 @@ void main() {
 
   testWidgets('이름만 고쳐 저장해도 이월은 그대로 실린다 — 빚이 늘지 않는다', (tester) async {
     final repo = await _openEdit(tester, _credit);
-    await tester.enterText(_field(l.assetCardNicknamePlaceholder), '생활비 카드');
-    await tester.pumpAndSettle();
+    await typeInto(tester, l.assetNickname, '생활비 카드');
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
     expect(repo.carryoverAmount, 9000);
@@ -194,9 +191,8 @@ void main() {
 
     testWidgets('칸이 읽기 전용이고 이유를 말한다', (tester) async {
       await _openEdit(tester, locked);
-      final input = tester.widget<TextField>(_field('0'));
-      expect(input.enabled, isFalse);
-      expect(find.text('결제가 끝나 고칠 수 없어요'), findsOneWidget);
+      expect(readOnlyOf(tester, l.assetCurrentUsage), isTrue);
+      expect(findRichPlain('결제가 끝나 고칠 수 없어요'), findsOneWidget);
     });
 
     testWidgets('저장해도 이월 키를 안 싣는다 — 값이 같아도', (tester) async {
@@ -211,9 +207,13 @@ void main() {
 
   group('결제일 변경은 다음 회차부터(D5)', () {
     Future<void> pickDay(WidgetTester tester, int day) async {
-      await tester.tap(find.text(l.dayN(14)));
+      // 첫 Select 가 결제일이다(둘째는 결제 출금계좌)
+      await tester.tap(find.byType(PSelect<int>).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l.dayN(day)).last);
+      // 목록은 칸 아래에 붙고 31줄이라 보이는 자리까지 굴린다
+      await tester.ensureVisible(findPlain(l.dayN(day)).last);
+      await tester.pumpAndSettle();
+      await tester.tap(findPlain(l.dayN(day)).last);
       await tester.pumpAndSettle();
     }
 
@@ -226,7 +226,7 @@ void main() {
       // 8월까지 닫혔다 → 9월분은 옛 결제일(14일)인 10월 14일에 결제된다.
       expect(find.text('결제일 변경'), findsOneWidget);
       expect(
-        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 9월분은 10월 14일에 결제돼요'),
+        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 9월분은 10월 14일에 결제돼요.'),
         findsOneWidget,
       );
       expect(repo.updated, isFalse, reason: '확인 전에는 보내지 않는다');
@@ -252,7 +252,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 8월분은 9월 25일에 결제돼요'),
+        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 8월분은 9월 25일에 결제돼요.'),
         findsOneWidget,
       );
     });
@@ -278,17 +278,15 @@ void main() {
 
   testWidgets('사용액 칸에 `-` 는 타이핑되지 않는다', (tester) async {
     await _openEdit(tester, _credit);
-    await tester.enterText(_field('0'), '-320000');
-    await tester.pumpAndSettle();
-    expect(find.text('-320000'), findsNothing);
-    expect(find.text('320000'), findsOneWidget);
+    await typeInto(tester, l.assetCurrentUsage, '-320000');
+    expect(textOf(tester, l.assetCurrentUsage), '320,000');
   });
 
   // 카드를 신용에서 체크로 바꾸면 한도·결제일이 **실제로 지워져야** 청구 사이클이
   // 남지 않는다. 종전엔 null 인 칸을 키째 빼서 서버가 옛 한도·결제일을 지켰다(QA #99).
   testWidgets('신용→체크로 바꿔 저장하면 한도·결제일이 명시적 null 로 실린다', (tester) async {
     final repo = await _openEdit(tester, _credit);
-    await tester.tap(find.text(l.assetTypeCheckCard));
+    await tester.tap(findPlain(l.assetTypeCheckCard));
     await tester.pumpAndSettle();
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
@@ -314,28 +312,27 @@ void main() {
   });
 
   testWidgets('별칭 30자 초과·중복은 안내가 뜨고 저장이 막힌다', (tester) async {
-    await _openEdit(tester, _credit);
-    final nickname = _field(l.assetCardNicknamePlaceholder);
-    await tester.enterText(nickname, 'ㄱ' * 31);
-    await tester.pumpAndSettle();
-    expect(find.text(l.nameTooLong(30)), findsOneWidget);
+    // 30자를 넘어 저장돼 있던 옛 별칭 — 입력은 30자에서 멈추므로 옛 값으로 연다
+    final longName = _credit.copyWith(assetName: 'ㄱ' * 31);
+    await _openEdit(tester, longName, assets: [longName, _other]);
+    await typeInto(tester, l.assetNickname, 'ㄱ' * 31);
+    expect(findRichPlain(l.nameTooLong(30)), findsOneWidget);
     expect(
       tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
       isNull,
     );
 
-    await tester.enterText(nickname, 'QA 주거래');
-    await tester.pumpAndSettle();
-    expect(find.text(l.assetNicknameDuplicate), findsOneWidget);
+    await typeInto(tester, l.assetNickname, 'QA 주거래');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsOneWidget);
     expect(
       tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
       isNull,
     );
 
     // 자기 이름은 중복이 아니다.
-    await tester.enterText(nickname, '신한 Deep Dream');
-    await tester.pumpAndSettle();
-    expect(find.text(l.assetNicknameDuplicate), findsNothing);
+    await typeInto(tester, l.assetNickname, 'ㄱ' * 31);
+    await typeInto(tester, l.assetNickname, '신한 Deep Dream');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsNothing);
     expect(
       tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
       isNotNull,

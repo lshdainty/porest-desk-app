@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
-import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 통화·환율 칸 — 계좌·카드·투자 편집 폼이 함께 쓴다.
 ///
@@ -16,6 +16,9 @@ import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 ///
 /// **환율은 통화가 KRW 가 아닐 때만 뜬다.** 원화에 1 을 적게 하는 칸은 의미가 없고,
 /// 서버도 KRW 의 환산율은 1 로 정규화한다(`Asset.normalizeRate`).
+///
+/// 두 칸을 나란히 둔다(라벨과 값이 짧을 때만 — field.yaml). 안내 글은 칸 아래 한 줄이다. 글자가 커지면(150% 넘게) 환율 칸은 아래
+/// 줄로 내려 값이 가려지지 않게 한다.
 class AssetCurrencyFields extends StatelessWidget {
   const AssetCurrencyFields({
     super.key,
@@ -35,81 +38,65 @@ class AssetCurrencyFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
+    final c = context.colors;
     final l = AppLocalizations.of(context);
     final foreign = isForeignCurrency(currency);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _Label(l.assetCurrency),
-                  const SizedBox(height: PSpace.x8),
-                  PSelect<String>(
-                    value: currency,
-                    items: [
-                      for (final c in kCurrencies)
-                        PSelectItem(
-                          value: c.code,
-                          label: '${c.symbol} ${c.code}',
-                        ),
-                    ],
-                    onChanged: (v) => onCurrencyChanged(v ?? kDefaultCurrency),
-                  ),
-                ],
-              ),
-            ),
-            if (foreign) ...[
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _Label(l.assetExchangeRate),
-                    const SizedBox(height: PSpace.x8),
-                    PTextInput(
-                      controller: rateController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      placeholder: l.assetExchangeRateHint(currency),
-                    ),
-                  ],
-                ),
-              ),
+    final currencyField = PField(
+      label: l.assetCurrency,
+      child: PSelect<String>(
+        groups: [
+          PSelectGroup(
+            items: [
+              for (final o in kCurrencies)
+                PSelectItem(value: o.code, label: '${o.symbol} ${o.code}'),
             ],
-          ],
-        ),
-        if (foreign) ...[
-          const SizedBox(height: PSpace.x8),
-          Text(
-            l.assetExchangeRateDesc,
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
           ),
         ],
-      ],
-    );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(
-      text,
-      style: PTypo.caption.copyWith(
-        color: t.fgPrimary,
-        fontWeight: PFontWeight.medium,
+        value: currency,
+        placeholder: l.assetCurrency,
+        onChanged: onCurrencyChanged,
       ),
+    );
+    final rateField = PField(
+      label: l.assetExchangeRate,
+      child: PInput(
+        controller: rateController,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        placeholder: l.assetExchangeRateHint(currency),
+        tabularFigures: true,
+      ),
+    );
+    final wide = MediaQuery.textScalerOf(context).scale(16) <= 24;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: PSpacing.x2,
+      children: [
+        if (!foreign)
+          currencyField
+        else if (wide)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: PSpacing.x3,
+            children: [
+              Expanded(child: currencyField),
+              Expanded(child: rateField),
+            ],
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: PSpacing.x3,
+            children: [currencyField, rateField],
+          ),
+        if (foreign)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x0_5),
+            child: Text(
+              keepAll(l.assetExchangeRateDesc),
+              style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+            ),
+          ),
+      ],
     );
   }
 }

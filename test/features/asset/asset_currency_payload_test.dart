@@ -25,6 +25,8 @@ import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_kind.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
 import 'package:groo_damda_app/features/asset/presentation/account_add_dialog.dart';
 import 'package:groo_damda_app/features/asset/presentation/card_add_dialog.dart';
 import 'package:groo_damda_app/features/asset/presentation/investment_add_dialog.dart';
@@ -34,8 +36,11 @@ import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 /// 웹에서 USD 로 만든 해외 카드.
 const _usdCard = Asset(
@@ -156,14 +161,13 @@ class _CapturingRepo extends AssetRepository {
   }
 }
 
-Finder _submitButton(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+Finder _submitButton(String label) => buttonLabeled(label);
 
 /// 통화 select 를 펼쳐 코드를 고른다 — 세 폼 다 `PSelect<String>` 은 통화 하나뿐이다.
 Future<void> _pickCurrency(WidgetTester tester, String label) async {
   await tester.tap(find.byType(PSelect<String>));
   await tester.pumpAndSettle();
-  await tester.tap(find.text(label).last);
+  await tester.tap(findPlain(label).last);
   await tester.pumpAndSettle();
 }
 
@@ -173,7 +177,7 @@ Future<_CapturingRepo> _host(
   List<Asset> assets = const [_krwAccount],
 }) async {
   final repo = _CapturingRepo();
-  // 시트 본문은 ListView 다 — 좁은 화면에서는 아래쪽 칸이 아예 안 만들어진다.
+  // 시트 본문은 스크롤이다 — 좁은 화면에서는 아래쪽 칸이 아예 안 만들어진다.
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -220,10 +224,10 @@ void main() {
         assets: const [_usdCard, _krwAccount],
       );
 
-      expect(find.text('\$ USD'), findsOneWidget);
+      expect(findPlain('\$ USD'), findsOneWidget);
       expect(
-        find.widgetWithText(TextField, '1380'),
-        findsOneWidget,
+        textOf(tester, l.assetExchangeRate),
+        '1380',
         reason: '환율을 안 채우면 그대로 저장할 때 빈 값이 실려 환산이 사라진다',
       );
     });
@@ -268,24 +272,20 @@ void main() {
     testWidgets('환율 칸은 외화일 때만 보인다', (tester) async {
       await _host(tester, showCardAddDialog);
 
-      expect(find.text(l.assetExchangeRate), findsNothing);
+      expect(fieldWithLabel(l.assetExchangeRate), findsNothing);
       await _pickCurrency(tester, '\$ USD');
-      expect(find.text(l.assetExchangeRate), findsOneWidget);
+      expect(fieldWithLabel(l.assetExchangeRate), findsOneWidget);
     });
 
     testWidgets('신규는 고른 통화를 싣는다', (tester) async {
-      final repo = await _host(tester, showCardAddDialog);
-      // 체크카드로 바꾸면 결제일 없이도 저장이 열린다(신용은 결제일이 필수).
-      await tester.tap(find.text(l.assetTypeCheckCard));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('QA 체크카드').last);
-      await tester.pumpAndSettle();
-      await _pickCurrency(tester, '\$ USD');
-      await tester.enterText(
-        find.widgetWithText(TextField, l.assetExchangeRateHint('USD')),
-        '1400',
+      // 체크카드는 결제일 없이도 저장이 열린다(신용은 결제일이 필수).
+      final repo = await _host(
+        tester,
+        (c) => showAssetKindForm(c, AssetKind.check),
       );
-      await tester.pumpAndSettle();
+      await pickCardProduct(tester, l.assetCardProduct, 'QA 체크카드');
+      await _pickCurrency(tester, '\$ USD');
+      await typeInto(tester, l.assetExchangeRate, '1400');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -295,11 +295,11 @@ void main() {
     });
 
     testWidgets('안 건드리면 원화다 — 기본값은 한 군데서만 정한다', (tester) async {
-      final repo = await _host(tester, showCardAddDialog);
-      await tester.tap(find.text(l.assetTypeCheckCard));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('QA 체크카드').last);
-      await tester.pumpAndSettle();
+      final repo = await _host(
+        tester,
+        (c) => showAssetKindForm(c, AssetKind.check),
+      );
+      await pickCardProduct(tester, l.assetCardProduct, 'QA 체크카드');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -316,8 +316,8 @@ void main() {
         assets: const [_usdInvest, _krwAccount],
       );
 
-      expect(find.text('\$ USD'), findsOneWidget);
-      expect(find.widgetWithText(TextField, '1380'), findsOneWidget);
+      expect(findPlain('\$ USD'), findsOneWidget);
+      expect(textOf(tester, l.assetExchangeRate), '1380');
     });
 
     testWidgets('그대로 저장하면 USD 가 USD 로 남는다', (tester) async {

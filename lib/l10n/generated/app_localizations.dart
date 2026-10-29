@@ -701,7 +701,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetSubtypeOverdraft.
   ///
   /// In ko, this message translates to:
-  /// **'마이너스통장'**
+  /// **'마이너스 통장'**
   String get assetSubtypeOverdraft;
 
   /// No description provided for @assetLoadError.
@@ -773,13 +773,13 @@ abstract class AppLocalizations {
   /// No description provided for @assetHideThisAmount.
   ///
   /// In ko, this message translates to:
-  /// **'금액 숨기기'**
+  /// **'금액 가리기'**
   String get assetHideThisAmount;
 
   /// No description provided for @assetHideThisAmountDesc.
   ///
   /// In ko, this message translates to:
-  /// **'이 자산의 금액만 가려요. 합계는 그대로 보여요'**
+  /// **'이 자산의 금액만 가려요. 합계는 그대로 보여요.'**
   String get assetHideThisAmountDesc;
 
   /// No description provided for @assetManageTitle.
@@ -833,7 +833,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetIncludeInTotalDesc.
   ///
   /// In ko, this message translates to:
-  /// **'순자산·총자산 계산에 반영됩니다'**
+  /// **'순자산 · 총자산 계산에 반영돼요.'**
   String get assetIncludeInTotalDesc;
 
   /// No description provided for @assetTrendLoadError.
@@ -902,18 +902,6 @@ abstract class AppLocalizations {
   /// **'계좌·카드 관리로 가기'**
   String get assetEmptyCta;
 
-  /// No description provided for @assetAccountAdd.
-  ///
-  /// In ko, this message translates to:
-  /// **'계좌 추가'**
-  String get assetAccountAdd;
-
-  /// No description provided for @assetAccountEdit.
-  ///
-  /// In ko, this message translates to:
-  /// **'계좌 편집'**
-  String get assetAccountEdit;
-
   /// No description provided for @assetAccountAdded.
   ///
   /// In ko, this message translates to:
@@ -962,12 +950,6 @@ abstract class AppLocalizations {
   /// **'기관'**
   String get assetInstitutionBrand;
 
-  /// No description provided for @assetTotalEntries.
-  ///
-  /// In ko, this message translates to:
-  /// **'총 {count}개'**
-  String assetTotalEntries(int count);
-
   /// No description provided for @assetBankSearchHint.
   ///
   /// In ko, this message translates to:
@@ -983,7 +965,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetNicknamePlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'예: 신한 주거래'**
+  /// **'예: 생활비 통장'**
   String get assetNicknamePlaceholder;
 
   /// No description provided for @assetNicknameDuplicate.
@@ -992,23 +974,11 @@ abstract class AppLocalizations {
   /// **'같은 별칭의 자산이 이미 있어요.'**
   String get assetNicknameDuplicate;
 
-  /// No description provided for @assetAccountType.
-  ///
-  /// In ko, this message translates to:
-  /// **'계좌 종류'**
-  String get assetAccountType;
-
-  /// No description provided for @assetAccountNumber.
-  ///
-  /// In ko, this message translates to:
-  /// **'계좌번호'**
-  String get assetAccountNumber;
-
   /// No description provided for @assetBalanceLabel.
   ///
   /// In ko, this message translates to:
-  /// **'잔액 ({unit})'**
-  String assetBalanceLabel(String unit);
+  /// **'잔액'**
+  String get assetBalanceLabel;
 
   /// No description provided for @assetBalanceEditHint.
   ///
@@ -1019,31 +989,31 @@ abstract class AppLocalizations {
   /// No description provided for @assetOverdraftUsedLabel.
   ///
   /// In ko, this message translates to:
-  /// **'사용 중인 금액 ({unit})'**
-  String assetOverdraftUsedLabel(String unit);
+  /// **'사용 중인 금액'**
+  String get assetOverdraftUsedLabel;
 
   /// No description provided for @assetLoanRemainingLabel.
   ///
   /// In ko, this message translates to:
-  /// **'남은 대출 금액 ({unit})'**
-  String assetLoanRemainingLabel(String unit);
+  /// **'남은 대출 금액'**
+  String get assetLoanRemainingLabel;
 
   /// No description provided for @assetOverdraftLimitLabel.
   ///
   /// In ko, this message translates to:
-  /// **'마이너스 한도 ({unit}, 선택)'**
-  String assetOverdraftLimitLabel(String unit);
+  /// **'약정 한도'**
+  String get assetOverdraftLimitLabel;
 
   /// No description provided for @assetOverdraftHint.
   ///
   /// In ko, this message translates to:
-  /// **'지금 마이너스로 쓰고 있는 금액을 적어주세요. 통장에 돈이 남아 있으면 입출금으로 골라주세요.'**
+  /// **'쓴 만큼을 양수로 넣어주세요. 빚으로 계산돼요.'**
   String get assetOverdraftHint;
 
   /// No description provided for @assetLoanHint.
   ///
   /// In ko, this message translates to:
-  /// **'아직 갚지 않은 금액을 적어주세요. 부호는 앱이 알아서 붙여요.'**
+  /// **'아직 갚지 않은 금액을 적어주세요.'**
   String get assetLoanHint;
 
   /// No description provided for @assetCurrency.
@@ -1067,14 +1037,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetExchangeRateDesc.
   ///
   /// In ko, this message translates to:
-  /// **'순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.'**
+  /// **'순자산은 잔액 × 환율로 환산해요. 비워 두면 환산 없이 그대로 더해져요.'**
   String get assetExchangeRateDesc;
-
-  /// No description provided for @assetMemoOptional.
-  ///
-  /// In ko, this message translates to:
-  /// **'메모 (선택)'**
-  String get assetMemoOptional;
 
   /// No description provided for @assetMemoPlaceholder.
   ///
@@ -1085,20 +1049,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetCreditLimitLabel.
   ///
   /// In ko, this message translates to:
-  /// **'신용한도 ({unit}, 선택)'**
-  String assetCreditLimitLabel(String unit);
-
-  /// No description provided for @assetCreditLimitPlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'예: 5,000,000'**
-  String get assetCreditLimitPlaceholder;
-
-  /// No description provided for @assetCreditLimitHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'한도를 입력하면 사용률 게이지가 표시됩니다.'**
-  String get assetCreditLimitHint;
+  /// **'신용한도'**
+  String get assetCreditLimitLabel;
 
   /// No description provided for @assetPaymentDayLabel.
   ///
@@ -1117,12 +1069,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결제일'**
   String get assetPaymentDay;
-
-  /// No description provided for @assetLinkedAccount.
-  ///
-  /// In ko, this message translates to:
-  /// **'연결 계좌'**
-  String get assetLinkedAccount;
 
   /// No description provided for @assetLinkedAccountLabel.
   ///
@@ -1145,7 +1091,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetPaymentAccountLabel.
   ///
   /// In ko, this message translates to:
-  /// **'결제 출금계좌 (선택)'**
+  /// **'결제 출금계좌'**
   String get assetPaymentAccountLabel;
 
   /// No description provided for @assetNoBankAccounts.
@@ -1157,56 +1103,20 @@ abstract class AppLocalizations {
   /// No description provided for @assetPaymentAccountSelect.
   ///
   /// In ko, this message translates to:
-  /// **'결제계좌 선택'**
+  /// **'결제 출금계좌 선택'**
   String get assetPaymentAccountSelect;
-
-  /// No description provided for @assetPaymentAccount.
-  ///
-  /// In ko, this message translates to:
-  /// **'결제 출금계좌'**
-  String get assetPaymentAccount;
 
   /// No description provided for @assetPaymentAccountHint.
   ///
   /// In ko, this message translates to:
-  /// **'결제일에 이 계좌에서 청구액이 출금됩니다.'**
+  /// **'결제일에 이 계좌에서 청구액이 빠져요.'**
   String get assetPaymentAccountHint;
-
-  /// No description provided for @assetNewAccount.
-  ///
-  /// In ko, this message translates to:
-  /// **'새 계좌'**
-  String get assetNewAccount;
-
-  /// No description provided for @assetPreview.
-  ///
-  /// In ko, this message translates to:
-  /// **'미리보기'**
-  String get assetPreview;
-
-  /// No description provided for @assetNoSearchResults.
-  ///
-  /// In ko, this message translates to:
-  /// **'검색 결과가 없어요'**
-  String get assetNoSearchResults;
-
-  /// No description provided for @assetCardAdd.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 추가'**
-  String get assetCardAdd;
 
   /// No description provided for @assetCardAdded.
   ///
   /// In ko, this message translates to:
   /// **'카드가 추가되었습니다'**
   String get assetCardAdded;
-
-  /// No description provided for @assetCardEdit.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 편집'**
-  String get assetCardEdit;
 
   /// No description provided for @assetCardUpdated.
   ///
@@ -1232,12 +1142,6 @@ abstract class AppLocalizations {
   /// **'카드가 삭제되었습니다'**
   String get assetCardDeleted;
 
-  /// No description provided for @assetCardType.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 종류'**
-  String get assetCardType;
-
   /// No description provided for @assetCardProduct.
   ///
   /// In ko, this message translates to:
@@ -1250,41 +1154,23 @@ abstract class AppLocalizations {
   /// **'단종 카드도 보기'**
   String get assetIncludeDiscontinued;
 
-  /// No description provided for @assetTotalItems.
-  ///
-  /// In ko, this message translates to:
-  /// **'총 {count}건'**
-  String assetTotalItems(int count);
-
-  /// No description provided for @assetTotalLoading.
-  ///
-  /// In ko, this message translates to:
-  /// **'총 …'**
-  String get assetTotalLoading;
-
   /// No description provided for @assetCardSearchHint.
   ///
   /// In ko, this message translates to:
   /// **'카드 이름 검색'**
   String get assetCardSearchHint;
 
-  /// No description provided for @assetNicknameOptional.
-  ///
-  /// In ko, this message translates to:
-  /// **'별칭 (선택)'**
-  String get assetNicknameOptional;
-
   /// No description provided for @assetCardNicknamePlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'예: 신한 Deep Dream'**
+  /// **'예: 생활 카드'**
   String get assetCardNicknamePlaceholder;
 
   /// No description provided for @assetCurrentUsage.
   ///
   /// In ko, this message translates to:
-  /// **'이전 미결제 사용액 ({unit})'**
-  String assetCurrentUsage(String unit);
+  /// **'이전 미결제 사용액'**
+  String get assetCurrentUsage;
 
   /// No description provided for @assetCurrentUsageHint.
   ///
@@ -1307,8 +1193,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetDueCarryoverLabel.
   ///
   /// In ko, this message translates to:
-  /// **'{date}에 결제될 금액 ({unit})'**
-  String assetDueCarryoverLabel(String date, String unit);
+  /// **'{date}에 결제될 금액'**
+  String assetDueCarryoverLabel(String date);
 
   /// No description provided for @assetDueCarryoverHint.
   ///
@@ -1319,8 +1205,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetCarryoverAfterLabel.
   ///
   /// In ko, this message translates to:
-  /// **'그 뒤 쓴 금액 ({unit})'**
-  String assetCarryoverAfterLabel(String unit);
+  /// **'그 뒤 쓴 금액'**
+  String get assetCarryoverAfterLabel;
 
   /// No description provided for @assetCarryoverAfterHint.
   ///
@@ -1343,7 +1229,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetPaymentDayChangeConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요'**
+  /// **'바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요.'**
   String assetPaymentDayChangeConfirm(int month, String date);
 
   /// No description provided for @assetNewCard.
@@ -1351,12 +1237,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'새 카드'**
   String get assetNewCard;
-
-  /// No description provided for @assetCatalogLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'카탈로그 로드 실패'**
-  String get assetCatalogLoadError;
 
   /// No description provided for @assetAnnualFee.
   ///
@@ -1381,18 +1261,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'단종'**
   String get assetDiscontinued;
-
-  /// No description provided for @assetInvestAdd.
-  ///
-  /// In ko, this message translates to:
-  /// **'투자 추가'**
-  String get assetInvestAdd;
-
-  /// No description provided for @assetInvestEdit.
-  ///
-  /// In ko, this message translates to:
-  /// **'투자 편집'**
-  String get assetInvestEdit;
 
   /// No description provided for @assetInvestAdded.
   ///
@@ -1435,12 +1303,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'증권사 이름 검색'**
   String get assetInvestSearchHint;
-
-  /// No description provided for @assetProductName.
-  ///
-  /// In ko, this message translates to:
-  /// **'별칭'**
-  String get assetProductName;
 
   /// No description provided for @assetProductPlaceholder.
   ///
@@ -1928,12 +1790,6 @@ abstract class AppLocalizations {
   /// **'예수금'**
   String get assetCashBalance;
 
-  /// No description provided for @assetCashBalanceHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'매수 대기 자금이에요. 보유 종목을 팔면 이 금액으로 남아요.'**
-  String get assetCashBalanceHint;
-
   /// No description provided for @assetHoldingBalance.
   ///
   /// In ko, this message translates to:
@@ -1997,7 +1853,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetHoldingsEmptyManual.
   ///
   /// In ko, this message translates to:
-  /// **'위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력합니다.'**
+  /// **'위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력해요.'**
   String get assetHoldingsEmptyManual;
 
   /// No description provided for @assetHoldingsEmptyDetail.
@@ -14461,6 +14317,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'종목 추가'**
   String get assetAddStock;
+
+  /// No description provided for @assetFormFirstTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'무엇을 추가할까요?'**
+  String get assetFormFirstTitle;
+
+  /// No description provided for @assetFormPickKindError.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가할 종류를 골라주세요.'**
+  String get assetFormPickKindError;
+
+  /// No description provided for @assetFormTitleAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'{kind} 추가'**
+  String assetFormTitleAdd(String kind);
+
+  /// No description provided for @assetFormTitleEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'{kind} 수정'**
+  String assetFormTitleEdit(String kind);
+
+  /// No description provided for @assetFormKindLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'종류'**
+  String get assetFormKindLabel;
+
+  /// No description provided for @assetFormRulesGroup.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시 설정'**
+  String get assetFormRulesGroup;
+
+  /// No description provided for @assetMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get assetMemo;
+
+  /// No description provided for @assetOverLimitHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도보다 {amount} 많아요. 저장은 되지만 한도나 사용액을 다시 확인해주세요.'**
+  String assetOverLimitHelp(String amount);
+
+  /// No description provided for @assetBalanceAutoHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목 합계로 자동 계산돼요. 연동 종목은 시세 확보 시 반영돼요.'**
+  String get assetBalanceAutoHelp;
+
+  /// No description provided for @assetHoldingQuantity.
+  ///
+  /// In ko, this message translates to:
+  /// **'수량'**
+  String get assetHoldingQuantity;
+
+  /// No description provided for @assetHoldingValueLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액'**
+  String get assetHoldingValueLabel;
+
+  /// No description provided for @assetHoldingItemName.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목 이름'**
+  String get assetHoldingItemName;
+
+  /// No description provided for @assetHoldingRemoveOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 지우기'**
+  String assetHoldingRemoveOf(String name);
 }
 
 class _AppLocalizationsDelegate

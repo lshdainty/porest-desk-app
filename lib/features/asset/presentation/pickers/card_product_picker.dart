@@ -12,6 +12,7 @@ import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/image_frame/p_card_art.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/searchable_list/p_searchable_list.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 카드 상품 고르기(I-17 19) — 칸의 Input Button 이 여는 검색 시트.
 ///
@@ -167,7 +168,7 @@ class _Detail extends StatelessWidget {
       runSpacing: PSpacing.x0_5,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(text),
+        Text(keepAll(text)),
         if (item.isDiscontinued == 'Y') PBadge(label: l.assetDiscontinued),
       ],
     );

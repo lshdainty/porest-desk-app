@@ -1,7 +1,8 @@
 // 자산 편집 진입점이 유형별로 맞는 폼을 여는지 — 카드를 계좌 폼으로 보내던 회귀 방지.
 //
 // 카드 자산을 계좌 폼에 넣으면 은행 브랜드 목록·계좌번호가 뜨고 카드 상품을 못 바꾼다.
-// 게다가 `_SubType` 에 카드 매핑이 없어 저장 시 유형이 바뀔 위험까지 있었다.
+// 게다가 계좌 종류에 카드 매핑이 없어 저장 시 유형이 바뀔 위험까지 있었다.
+// I-17 부터 수정은 종류를 자산에서 재서 그 종류의 2단계로 바로 열린다 — 제목이 "{종류} 수정" 이다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,9 @@ import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dar
 import 'package:groo_damda_app/features/card/application/card_providers.dart';
 import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 const _card = Asset(
   rowId: 7,
@@ -80,42 +84,48 @@ Future<void> _pumpAndOpen(WidgetTester tester, Asset asset) async {
 
 void main() {
   testWidgets('카드 편집은 카드 폼을 연다', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpAndOpen(_card);
 
     final l = await AppLocalizations.delegate.load(const Locale('ko'));
-    expect(find.text(l.assetCardEdit), findsOneWidget);
-    expect(find.text(l.assetCardType), findsOneWidget);
-    expect(find.text(l.assetCardProduct), findsOneWidget);
+    expect(
+      findPlain(l.assetFormTitleEdit(l.assetTypeCreditCard)),
+      findsOneWidget,
+    );
+    // 수정의 종류 칸은 카드 둘(신용 · 체크) 칩이다
+    expect(fieldWithLabel(l.assetFormKindLabel), findsOneWidget);
+    expect(findPlain(l.assetTypeCheckCard), findsOneWidget);
+    expect(fieldWithLabel(l.assetCardProduct), findsOneWidget);
     // 계좌 폼이 열렸다면 나왔을 것들.
-    expect(find.text(l.assetAccountEdit), findsNothing);
-    expect(find.text(l.assetInstitutionBrand), findsNothing);
-    // 기존 값이 채워져 있어야 한다 — 청구 사이클은 폼 아래쪽이라 스크롤해서 확인.
-    //
-    // **걸음을 작게 둔다.** 240 씩 끌면 남은 스크롤이 그보다 적을 때 한 번에 바닥까지
-    // 가면서 찾는 항목을 지나쳐 버린다 — 그러면 아무리 되풀이해도 못 찾는다
-    // (2026-09-17, 폼에 토글이 하나 늘어 남은 거리가 줄자 드러났다).
-    expect(find.text('신한 Deep Dream'), findsWidgets);
-    await tester.dragUntilVisible(
-      find.text('5000000'),
-      find.byType(ListView).first,
-      const Offset(0, -240),
+    expect(
+      findPlain(l.assetFormTitleEdit(l.assetTypeBankAccount)),
+      findsNothing,
     );
-    expect(find.text('5000000'), findsOneWidget);
-    await tester.dragUntilVisible(
-      find.text(l.dayN(14)),
-      find.byType(ListView).first,
-      const Offset(0, -60),
-    );
-    expect(find.text(l.dayN(14)), findsOneWidget);
+    expect(fieldWithLabel(l.assetInstitutionBrand), findsNothing);
+    // 기존 값이 채워져 있어야 한다.
+    expect(findPlain('신한 Deep Dream'), findsWidgets);
+    expect(textOf(tester, l.assetCreditLimitLabel), '5,000,000');
+    expect(findPlain(l.dayN(14)), findsOneWidget);
   });
 
   testWidgets('계좌 편집은 그대로 계좌 폼을 연다', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpAndOpen(_account);
 
     final l = await AppLocalizations.delegate.load(const Locale('ko'));
-    expect(find.text(l.assetAccountEdit), findsOneWidget);
-    expect(find.text(l.assetInstitutionBrand), findsOneWidget);
-    expect(find.text(l.assetCardEdit), findsNothing);
+    expect(
+      findPlain(l.assetFormTitleEdit(l.assetTypeBankAccount)),
+      findsOneWidget,
+    );
+    expect(fieldWithLabel(l.assetInstitutionBrand), findsOneWidget);
+    expect(
+      findPlain(l.assetFormTitleEdit(l.assetTypeCreditCard)),
+      findsNothing,
+    );
   });
 }
 

@@ -112,10 +112,12 @@ void main() {
       expect(AppLocalizationsEn().assetHideThisAmountDesc, contains('Totals'));
     });
 
-    // 화면 단위 토글(`assetHideAmount`)과 뜻이 다르므로 키를 갈라 둔다.
-    test('화면 단위 토글 문구와 섞이지 않는다', () {
+    // 화면 단위 토글(`assetHideAmount`)과 뜻이 다르므로 키를 갈라 둔다. 이름은 둘 다 "금액 가리기" 로 맞췄으니(I-17 17, 사용자
+    // 결정 10-23) 뜻은 설명이 가른다 — 이 자산 하나만 가리고 합계는 그대로 보인다.
+    test('화면 단위 토글과 키가 갈리고 설명이 이 자산 하나를 말한다', () {
       final ko = AppLocalizationsKo();
-      expect(ko.assetHideThisAmount, isNot(equals(ko.assetHideAmount)));
+      expect(ko.assetHideThisAmount, '금액 가리기');
+      expect(ko.assetHideThisAmountDesc, contains('이 자산'));
     });
   });
 }

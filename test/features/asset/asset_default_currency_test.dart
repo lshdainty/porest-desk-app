@@ -35,8 +35,12 @@ import 'package:groo_damda_app/features/notification/application/user_preference
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_kind.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 /// 테스트가 손으로 미는 기본 통화 — 늦게 도착하는 상황을 그대로 만든다.
 class _DefaultCurrencyStub extends Notifier<String> {
@@ -152,8 +156,7 @@ class _CapturingRepo extends AssetRepository {
   }
 }
 
-Finder _submitButton(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+Finder _submitButton(String label) => buttonLabeled(label);
 
 Future<_CapturingRepo> _host(
   WidgetTester tester,
@@ -222,7 +225,7 @@ void main() {
         defaultCurrency: 'USD',
       );
 
-      expect(find.text('\$ USD'), findsOneWidget);
+      expect(findPlain('\$ USD'), findsOneWidget);
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -237,13 +240,10 @@ void main() {
     testWidgets('카드 — 고르지 않아도 USD 가 실린다', (tester) async {
       final repo = await _host(
         tester,
-        showCardAddDialog,
+        (c) => showAssetKindForm(c, AssetKind.check),
         defaultCurrency: 'USD',
       );
-      await tester.tap(find.text(l.assetTypeCheckCard));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('QA 체크카드').last);
-      await tester.pumpAndSettle();
+      await pickCardProduct(tester, l.assetCardProduct, 'QA 체크카드');
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
 
@@ -279,7 +279,7 @@ void main() {
       // 계좌 폼의 `PSelect<String>` 은 통화 하나뿐이다.
       await tester.tap(find.byType(PSelect<String>));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('¥ JPY').last);
+      await tester.tap(findPlain('¥ JPY').last);
       await tester.pumpAndSettle();
       await tester.tap(_submitButton(l.calAdd));
       await tester.pumpAndSettle();
@@ -296,7 +296,7 @@ void main() {
         defaultCurrency: 'USD',
       );
 
-      expect(find.text('₩ KRW'), findsOneWidget);
+      expect(findPlain('₩ KRW'), findsOneWidget);
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
 
@@ -315,7 +315,7 @@ void main() {
         assets: const [_legacyAccount],
       );
 
-      expect(find.text('₩ KRW'), findsOneWidget);
+      expect(findPlain('₩ KRW'), findsOneWidget);
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
 
@@ -330,13 +330,13 @@ void main() {
   testWidgets('기본 통화가 폼보다 늦게 와도 반영된다', (tester) async {
     // `/me/preferences` 는 설정 화면을 안 들른 세션에서 이 폼보다 늦게 온다.
     final repo = await _host(tester, showAccountAddDialog);
-    expect(find.text('₩ KRW'), findsOneWidget);
+    expect(findPlain('₩ KRW'), findsOneWidget);
 
     _pushDefault(tester, 'USD');
     await tester.pumpAndSettle();
 
     expect(
-      find.text('\$ USD'),
+      findPlain('\$ USD'),
       findsOneWidget,
       reason: '열 때 한 번만 읽어 굳히면 첫 렌더의 원화에 잠긴다',
     );

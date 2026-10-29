@@ -19,11 +19,13 @@ import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
-import 'package:groo_damda_app/features/asset/presentation/account_add_dialog.dart';
-import 'package:groo_damda_app/features/asset/presentation/include_in_total_card.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_switch.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
+import 'package:groo_damda_app/shared/widgets/p_button.dart' as old;
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 const _hidden = Asset(
   rowId: 8,
@@ -83,7 +85,7 @@ class _CapturingRepo extends AssetRepository {
 
 Future<_CapturingRepo> _open(WidgetTester tester, Asset edit) async {
   final repo = _CapturingRepo();
-  // 폼 본문은 ListView 다 — 기본 800x600 에서는 토글 카드가 아예 안 만들어진다.
+  // 폼 본문은 스크롤이다 — 기본 800x600 에서는 토글 카드가 아예 안 만들어진다.
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -101,7 +103,7 @@ Future<_CapturingRepo> _open(WidgetTester tester, Asset edit) async {
         home: Scaffold(
           body: Builder(
             builder: (ctx) => TextButton(
-              onPressed: () => showAccountEditDialog(ctx, edit),
+              onPressed: () => showAssetEditForm(ctx, edit),
               child: const Text('open'),
             ),
           ),
@@ -114,20 +116,14 @@ Future<_CapturingRepo> _open(WidgetTester tester, Asset edit) async {
   return repo;
 }
 
-Finder _hideSwitch() => find.descendant(
-  of: find.byType(HideAmountCard),
-  matching: find.byType(PSwitch),
-);
-
+/// "금액 가리기" 체크 줄 — 줄 어디를 눌러도 바뀐다.
 Future<void> _toggleHide(WidgetTester tester) async {
-  await tester.tap(_hideSwitch());
+  await tester.tap(findPlain(AppLocalizationsKo().assetHideThisAmount));
   await tester.pumpAndSettle();
 }
 
 Future<void> _tapSave(WidgetTester tester, String label) async {
-  await tester.tap(
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last,
-  );
+  await tester.tap(buttonLabeled(label));
   await tester.pumpAndSettle();
 }
 
@@ -155,7 +151,7 @@ void main() {
       find
           .ancestor(
             of: find.text(l.actionCancel),
-            matching: find.byType(PButton),
+            matching: find.byType(old.PButton),
           )
           .last,
     );

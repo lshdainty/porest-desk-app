@@ -313,7 +313,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetSubtypeDeposit => '예금';
 
   @override
-  String get assetSubtypeOverdraft => '마이너스통장';
+  String get assetSubtypeOverdraft => '마이너스 통장';
 
   @override
   String get assetLoadError => '자산을 불러오지 못했습니다';
@@ -351,10 +351,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetAmountHiddenBadge => '금액 숨김';
 
   @override
-  String get assetHideThisAmount => '금액 숨기기';
+  String get assetHideThisAmount => '금액 가리기';
 
   @override
-  String get assetHideThisAmountDesc => '이 자산의 금액만 가려요. 합계는 그대로 보여요';
+  String get assetHideThisAmountDesc => '이 자산의 금액만 가려요. 합계는 그대로 보여요.';
 
   @override
   String get assetManageTitle => '계좌·카드 관리';
@@ -391,7 +391,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetIncludeInTotal => '전체 자산 합계에 포함';
 
   @override
-  String get assetIncludeInTotalDesc => '순자산·총자산 계산에 반영됩니다';
+  String get assetIncludeInTotalDesc => '순자산 · 총자산 계산에 반영돼요.';
 
   @override
   String get assetTrendLoadError => '추이 데이터를 불러오지 못했어요';
@@ -431,12 +431,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetEmptyCta => '계좌·카드 관리로 가기';
 
   @override
-  String get assetAccountAdd => '계좌 추가';
-
-  @override
-  String get assetAccountEdit => '계좌 편집';
-
-  @override
   String get assetAccountAdded => '계좌가 추가되었습니다';
 
   @override
@@ -463,58 +457,38 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetInstitutionBrand => '기관';
 
   @override
-  String assetTotalEntries(int count) {
-    return '총 $count개';
-  }
-
-  @override
   String get assetBankSearchHint => '기관 이름 검색';
 
   @override
   String get assetNickname => '별칭';
 
   @override
-  String get assetNicknamePlaceholder => '예: 신한 주거래';
+  String get assetNicknamePlaceholder => '예: 생활비 통장';
 
   @override
   String get assetNicknameDuplicate => '같은 별칭의 자산이 이미 있어요.';
 
   @override
-  String get assetAccountType => '계좌 종류';
-
-  @override
-  String get assetAccountNumber => '계좌번호';
-
-  @override
-  String assetBalanceLabel(String unit) {
-    return '잔액 ($unit)';
-  }
+  String get assetBalanceLabel => '잔액';
 
   @override
   String get assetBalanceEditHint =>
       '잔액을 바꾸면 지금 이전의 내역은 이 잔액에 이미 들어 있는 것으로 보고 이후 내역만 더해져요.';
 
   @override
-  String assetOverdraftUsedLabel(String unit) {
-    return '사용 중인 금액 ($unit)';
-  }
+  String get assetOverdraftUsedLabel => '사용 중인 금액';
 
   @override
-  String assetLoanRemainingLabel(String unit) {
-    return '남은 대출 금액 ($unit)';
-  }
+  String get assetLoanRemainingLabel => '남은 대출 금액';
 
   @override
-  String assetOverdraftLimitLabel(String unit) {
-    return '마이너스 한도 ($unit, 선택)';
-  }
+  String get assetOverdraftLimitLabel => '약정 한도';
 
   @override
-  String get assetOverdraftHint =>
-      '지금 마이너스로 쓰고 있는 금액을 적어주세요. 통장에 돈이 남아 있으면 입출금으로 골라주세요.';
+  String get assetOverdraftHint => '쓴 만큼을 양수로 넣어주세요. 빚으로 계산돼요.';
 
   @override
-  String get assetLoanHint => '아직 갚지 않은 금액을 적어주세요. 부호는 앱이 알아서 붙여요.';
+  String get assetLoanHint => '아직 갚지 않은 금액을 적어주세요.';
 
   @override
   String get assetCurrency => '통화';
@@ -529,24 +503,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetExchangeRateDesc =>
-      '순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.';
-
-  @override
-  String get assetMemoOptional => '메모 (선택)';
+      '순자산은 잔액 × 환율로 환산해요. 비워 두면 환산 없이 그대로 더해져요.';
 
   @override
   String get assetMemoPlaceholder => '계좌번호 뒷자리, 결제일, 한도 등 메모하세요';
 
   @override
-  String assetCreditLimitLabel(String unit) {
-    return '신용한도 ($unit, 선택)';
-  }
-
-  @override
-  String get assetCreditLimitPlaceholder => '예: 5,000,000';
-
-  @override
-  String get assetCreditLimitHint => '한도를 입력하면 사용률 게이지가 표시됩니다.';
+  String get assetCreditLimitLabel => '신용한도';
 
   @override
   String get assetPaymentDayLabel => '결제일';
@@ -558,9 +521,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetPaymentDay => '결제일';
 
   @override
-  String get assetLinkedAccount => '연결 계좌';
-
-  @override
   String get assetLinkedAccountLabel => '연결 계좌';
 
   @override
@@ -570,37 +530,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetLinkedAccountHint => '이 카드로 결제하면 이 계좌에서 바로 빠져나가요.';
 
   @override
-  String get assetPaymentAccountLabel => '결제 출금계좌 (선택)';
+  String get assetPaymentAccountLabel => '결제 출금계좌';
 
   @override
   String get assetNoBankAccounts => '등록된 입출금계좌가 없어요';
 
   @override
-  String get assetPaymentAccountSelect => '결제계좌 선택';
+  String get assetPaymentAccountSelect => '결제 출금계좌 선택';
 
   @override
-  String get assetPaymentAccount => '결제 출금계좌';
-
-  @override
-  String get assetPaymentAccountHint => '결제일에 이 계좌에서 청구액이 출금됩니다.';
-
-  @override
-  String get assetNewAccount => '새 계좌';
-
-  @override
-  String get assetPreview => '미리보기';
-
-  @override
-  String get assetNoSearchResults => '검색 결과가 없어요';
-
-  @override
-  String get assetCardAdd => '카드 추가';
+  String get assetPaymentAccountHint => '결제일에 이 계좌에서 청구액이 빠져요.';
 
   @override
   String get assetCardAdded => '카드가 추가되었습니다';
-
-  @override
-  String get assetCardEdit => '카드 편집';
 
   @override
   String get assetCardUpdated => '카드가 수정되었습니다';
@@ -617,35 +559,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCardDeleted => '카드가 삭제되었습니다';
 
   @override
-  String get assetCardType => '카드 종류';
-
-  @override
   String get assetCardProduct => '카드 상품';
 
   @override
   String get assetIncludeDiscontinued => '단종 카드도 보기';
 
   @override
-  String assetTotalItems(int count) {
-    return '총 $count건';
-  }
-
-  @override
-  String get assetTotalLoading => '총 …';
-
-  @override
   String get assetCardSearchHint => '카드 이름 검색';
 
   @override
-  String get assetNicknameOptional => '별칭 (선택)';
+  String get assetCardNicknamePlaceholder => '예: 생활 카드';
 
   @override
-  String get assetCardNicknamePlaceholder => '예: 신한 Deep Dream';
-
-  @override
-  String assetCurrentUsage(String unit) {
-    return '이전 미결제 사용액 ($unit)';
-  }
+  String get assetCurrentUsage => '이전 미결제 사용액';
 
   @override
   String get assetCurrentUsageHint => '아직 결제되지 않은 사용액을 적어주세요.';
@@ -659,8 +585,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요';
 
   @override
-  String assetDueCarryoverLabel(String date, String unit) {
-    return '$date에 결제될 금액 ($unit)';
+  String assetDueCarryoverLabel(String date) {
+    return '$date에 결제될 금액';
   }
 
   @override
@@ -668,9 +594,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '카드사 앱에 \'결제 예정 금액\'으로 보이는 금액이에요. 그날 결제계좌에서 빠져요.';
 
   @override
-  String assetCarryoverAfterLabel(String unit) {
-    return '그 뒤 쓴 금액 ($unit)';
-  }
+  String get assetCarryoverAfterLabel => '그 뒤 쓴 금액';
 
   @override
   String assetCarryoverAfterHint(String date) {
@@ -685,14 +609,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetPaymentDayChangeConfirm(int month, String date) {
-    return '바꾼 결제일은 다음 회차부터 적용돼요. $month월분은 $date에 결제돼요';
+    return '바꾼 결제일은 다음 회차부터 적용돼요. $month월분은 $date에 결제돼요.';
   }
 
   @override
   String get assetNewCard => '새 카드';
-
-  @override
-  String get assetCatalogLoadError => '카탈로그 로드 실패';
 
   @override
   String get assetAnnualFee => '연회비';
@@ -705,12 +626,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetDiscontinued => '단종';
-
-  @override
-  String get assetInvestAdd => '투자 추가';
-
-  @override
-  String get assetInvestEdit => '투자 편집';
 
   @override
   String get assetInvestAdded => '투자가 추가되었습니다';
@@ -734,9 +649,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetInvestSearchHint => '증권사 이름 검색';
-
-  @override
-  String get assetProductName => '별칭';
 
   @override
   String get assetProductPlaceholder => '예: 연금저축, 금 보유분';
@@ -996,9 +908,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCashBalance => '예수금';
 
   @override
-  String get assetCashBalanceHint => '매수 대기 자금이에요. 보유 종목을 팔면 이 금액으로 남아요.';
-
-  @override
   String get assetHoldingBalance => '평가금액';
 
   @override
@@ -1039,7 +948,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetHoldingsEmptyManual =>
-      '위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력합니다.';
+      '위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력해요.';
 
   @override
   String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 수정에서 종목을 추가해보세요.';
@@ -8043,4 +7952,51 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetAddStock => '종목 추가';
+
+  @override
+  String get assetFormFirstTitle => '무엇을 추가할까요?';
+
+  @override
+  String get assetFormPickKindError => '추가할 종류를 골라주세요.';
+
+  @override
+  String assetFormTitleAdd(String kind) {
+    return '$kind 추가';
+  }
+
+  @override
+  String assetFormTitleEdit(String kind) {
+    return '$kind 수정';
+  }
+
+  @override
+  String get assetFormKindLabel => '종류';
+
+  @override
+  String get assetFormRulesGroup => '표시 설정';
+
+  @override
+  String get assetMemo => '메모';
+
+  @override
+  String assetOverLimitHelp(String amount) {
+    return '한도보다 $amount 많아요. 저장은 되지만 한도나 사용액을 다시 확인해주세요.';
+  }
+
+  @override
+  String get assetBalanceAutoHelp => '보유 종목 합계로 자동 계산돼요. 연동 종목은 시세 확보 시 반영돼요.';
+
+  @override
+  String get assetHoldingQuantity => '수량';
+
+  @override
+  String get assetHoldingValueLabel => '평가액';
+
+  @override
+  String get assetHoldingItemName => '항목 이름';
+
+  @override
+  String assetHoldingRemoveOf(String name) {
+    return '$name 지우기';
+  }
 }

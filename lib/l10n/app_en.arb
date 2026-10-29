@@ -108,7 +108,7 @@
   "assetCatAccount": "Account",
   "assetSubtypeInstallment": "Installment",
   "assetSubtypeDeposit": "Deposit",
-  "assetSubtypeOverdraft": "Overdraft",
+  "assetSubtypeOverdraft": "Overdraft account",
   "assetLoadError": "Couldn't load assets",
   "assetEmptyState": "No assets yet",
   "assetEmptyHint": "You can add one from Settings → Account & Card Management.",
@@ -128,7 +128,7 @@
   "assetExcludedFromTotal": "Excluded from total",
   "assetAmountHiddenBadge": "Amount hidden",
   "assetHideThisAmount": "Hide amount",
-  "assetHideThisAmountDesc": "Masks only this asset's balance. Totals stay visible",
+  "assetHideThisAmountDesc": "Masks only this asset's balance. Totals stay visible.",
   "assetManageTitle": "Manage accounts & cards",
   "assetTabAccountsSavings": "Accounts {count}",
   "@assetTabAccountsSavings": {
@@ -172,7 +172,7 @@
     }
   },
   "assetIncludeInTotal": "Include in total assets",
-  "assetIncludeInTotalDesc": "Counts toward net worth and total assets",
+  "assetIncludeInTotalDesc": "Counts toward net worth and total assets.",
   "assetTrendLoadError": "Couldn't load trend data",
   "assetTrendEmpty": "No trend data.",
   "assetNetWorth": "Net worth",
@@ -198,8 +198,6 @@
   "assetLoadFailedAssets": "Couldn't load your assets",
   "assetLoadFailedGoals": "Couldn't load saving goals",
   "assetEmptyCta": "Go to manage accounts & cards",
-  "assetAccountAdd": "Add account",
-  "assetAccountEdit": "Edit account",
   "assetAccountAdded": "Account added",
   "assetAccountUpdated": "Account updated",
   "assetAccountDeleted": "Account deleted",
@@ -215,55 +213,17 @@
   "assetActionFailed": "Failed",
   "assetDeleteFailed": "Delete failed",
   "assetInstitutionBrand": "Institution",
-  "assetTotalEntries": "Total {count}",
-  "@assetTotalEntries": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "assetBankSearchHint": "Search institution name",
   "assetNickname": "Nickname",
-  "assetNicknamePlaceholder": "e.g. Shinhan main",
+  "assetNicknamePlaceholder": "e.g. Living expenses account",
   "assetNicknameDuplicate": "An asset with this alias already exists.",
-  "assetAccountType": "Account type",
-  "assetAccountNumber": "Account number",
-  "assetBalanceLabel": "Balance ({unit})",
-  "@assetBalanceLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
+  "assetBalanceLabel": "Balance",
   "assetBalanceEditHint": "Changing the balance treats everything before now as already included. Only later transactions are added.",
-  "assetOverdraftUsedLabel": "Amount in use ({unit})",
-  "@assetOverdraftUsedLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
-  "assetLoanRemainingLabel": "Remaining loan ({unit})",
-  "@assetLoanRemainingLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
-  "assetOverdraftLimitLabel": "Overdraft limit ({unit}, optional)",
-  "@assetOverdraftLimitLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
-  "assetOverdraftHint": "Enter how much you are currently overdrawn. If money is left in the account, pick Checking instead.",
-  "assetLoanHint": "Enter the amount still owed. The app takes care of the sign.",
+  "assetOverdraftUsedLabel": "Amount used",
+  "assetLoanRemainingLabel": "Remaining loan amount",
+  "assetOverdraftLimitLabel": "Credit line",
+  "assetOverdraftHint": "Enter the amount used as a positive number. It counts as debt.",
+  "assetLoanHint": "Enter the amount you still owe.",
   "assetCurrency": "Currency",
   "assetExchangeRate": "Exchange rate",
   "assetExchangeRateHint": "KRW per 1 {code}",
@@ -275,36 +235,19 @@
     }
   },
   "assetExchangeRateDesc": "Net worth converts balance × rate. Left empty it is added without conversion.",
-  "assetMemoOptional": "Memo (optional)",
   "assetMemoPlaceholder": "Note last digits, payment day, limit, etc.",
-  "assetCreditLimitLabel": "Credit limit ({unit}, optional)",
-  "@assetCreditLimitLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
-  "assetCreditLimitPlaceholder": "e.g. 5,000,000",
-  "assetCreditLimitHint": "Enter a limit to show the usage gauge.",
+  "assetCreditLimitLabel": "Credit limit",
   "assetPaymentDayLabel": "Payment day",
   "assetPaymentDaySelect": "Select payment day",
   "assetPaymentDay": "Payment day",
-  "assetLinkedAccount": "Linked account",
   "assetLinkedAccountLabel": "Linked account",
   "assetLinkedAccountSelect": "Select linked account",
   "assetLinkedAccountHint": "Spending on this card is deducted from this account right away.",
-  "assetPaymentAccountLabel": "Payment account (optional)",
+  "assetPaymentAccountLabel": "Payment account",
   "assetNoBankAccounts": "No checking accounts yet",
   "assetPaymentAccountSelect": "Select payment account",
-  "assetPaymentAccount": "Payment account",
-  "assetPaymentAccountHint": "The billed amount is withdrawn from this account on the payment day.",
-  "assetNewAccount": "New account",
-  "assetPreview": "Preview",
-  "assetNoSearchResults": "No search results",
-  "assetCardAdd": "Add card",
+  "assetPaymentAccountHint": "The bill is withdrawn from this account on the payment day.",
   "assetCardAdded": "Card added",
-  "assetCardEdit": "Edit card",
   "assetCardUpdated": "Card updated",
   "assetCardDelete": "Delete card",
   "assetCardDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
@@ -316,29 +259,11 @@
     }
   },
   "assetCardDeleted": "Card deleted",
-  "assetCardType": "Card type",
   "assetCardProduct": "Card product",
   "assetIncludeDiscontinued": "Show discontinued cards",
-  "assetTotalItems": "Total {count}",
-  "@assetTotalItems": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTotalLoading": "Total …",
   "assetCardSearchHint": "Search card name",
-  "assetNicknameOptional": "Nickname (optional)",
-  "assetCardNicknamePlaceholder": "e.g. Shinhan Deep Dream",
-  "assetCurrentUsage": "Unpaid balance ({unit})",
-  "@assetCurrentUsage": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
+  "assetCardNicknamePlaceholder": "e.g. Everyday card",
+  "assetCurrentUsage": "Unpaid balance",
   "assetCurrentUsageHint": "Enter the amount not yet paid.",
   "assetOutstandingNow": "Unpaid balance now {amount}",
   "@assetOutstandingNow": {
@@ -349,26 +274,16 @@
     }
   },
   "assetCarryoverLocked": "This has already been paid, so it can't be changed",
-  "assetDueCarryoverLabel": "Due on {date} ({unit})",
+  "assetDueCarryoverLabel": "Due on {date}",
   "@assetDueCarryoverLabel": {
     "placeholders": {
       "date": {
-        "type": "String"
-      },
-      "unit": {
         "type": "String"
       }
     }
   },
   "assetDueCarryoverHint": "The amount your card app shows as due. It leaves your payment account that day.",
-  "assetCarryoverAfterLabel": "Spent since then ({unit})",
-  "@assetCarryoverAfterLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
+  "assetCarryoverAfterLabel": "Spent since then",
   "assetCarryoverAfterHint": "Spent after the last statement. Paid on {date}.",
   "@assetCarryoverAfterHint": {
     "placeholders": {
@@ -379,7 +294,7 @@
   },
   "assetCarryoverAfterHintNoDate": "Spent after the last statement.",
   "assetPaymentDayChangeTitle": "Change payment day",
-  "assetPaymentDayChangeConfirm": "The new payment day applies from the next cycle. Month {month} charges are still paid on {date}",
+  "assetPaymentDayChangeConfirm": "The new payment day applies from the next cycle. Month {month} charges are still paid on {date}.",
   "@assetPaymentDayChangeConfirm": {
     "placeholders": {
       "month": {
@@ -391,13 +306,10 @@
     }
   },
   "assetNewCard": "New card",
-  "assetCatalogLoadError": "Failed to load catalog",
   "assetAnnualFee": "Annual fee",
   "assetCardShortCredit": "Credit",
   "assetCardShortCheck": "Check",
   "assetDiscontinued": "Discontinued",
-  "assetInvestAdd": "Add investment",
-  "assetInvestEdit": "Edit investment",
   "assetInvestAdded": "Investment added",
   "assetInvestUpdated": "Investment updated",
   "assetInvestDeleted": "Investment deleted",
@@ -412,7 +324,6 @@
   },
   "assetBrokerExchange": "Brokerage / exchange",
   "assetInvestSearchHint": "Search brokerage name",
-  "assetProductName": "Alias",
   "assetProductPlaceholder": "e.g. Pension savings, Gold holdings",
   "assetValuation": "Valuation (KRW)",
   "assetNewInvestment": "New investment",
@@ -549,7 +460,6 @@
     }
   },
   "assetCashBalance": "Cash",
-  "assetCashBalanceHint": "Cash waiting to be invested. Proceeds from selling holdings land here.",
   "assetHoldingBalance": "Holdings",
   "assetHoldingsSummary": "{count} holdings · ₩{amount}",
   "@assetHoldingsSummary": {
@@ -4517,5 +4427,46 @@
     }
   },
   "assetSearchFailed": "Couldn't load search results",
-  "assetAddStock": "Add stock"
+  "assetAddStock": "Add stock",
+  "assetFormFirstTitle": "What would you like to add?",
+  "assetFormPickKindError": "Choose what to add.",
+  "assetFormTitleAdd": "Add {kind}",
+  "@assetFormTitleAdd": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "assetFormTitleEdit": "Edit {kind}",
+  "@assetFormTitleEdit": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "assetFormKindLabel": "Type",
+  "assetFormRulesGroup": "Display settings",
+  "assetMemo": "Memo",
+  "assetOverLimitHelp": "{amount} over the limit. It still saves — check the limit or the amount.",
+  "@assetOverLimitHelp": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetBalanceAutoHelp": "Calculated from holdings. Linked items reflect live prices when available.",
+  "assetHoldingQuantity": "Quantity",
+  "assetHoldingValueLabel": "Value",
+  "assetHoldingItemName": "Item name",
+  "assetHoldingRemoveOf": "Remove {name}",
+  "@assetHoldingRemoveOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

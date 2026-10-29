@@ -1,21 +1,25 @@
-// 계좌 폼의 입력 정책 — 마이너스통장(QA #17) · 부호(QA #19) · 별칭(QA #16).
+// 계좌 폼의 입력 정책 — 마이너스 통장(QA #17) · 부호(QA #19) · 별칭(QA #16).
 //
-// 에뮬레이터를 쓸 수 없는 환경이라(QA #23) 탭·라벨·저장 페이로드를 전부
-// 위젯 테스트로 고정한다.
+// 에뮬레이터를 쓸 수 없는 환경이라(QA #23) 라벨·저장 페이로드를 전부 위젯 테스트로 고정한다. 칸을 찾는 길만 새 폼(I-17)에 맞췄고
+// 저장 본문(payload)의 기대는 그대로다.
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
-import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/data/asset_repository.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
-import 'package:groo_damda_app/features/asset/presentation/account_add_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_kind.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/select/p_select.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 const _existing = Asset(
   rowId: 8,
@@ -91,6 +95,7 @@ class _CapturingRepo extends AssetRepository {
       'balance': balance,
       'creditLimit': creditLimit,
       'isOverdraft': isOverdraft,
+      'memo': memo,
     };
     return _fake();
   }
@@ -136,6 +141,7 @@ class _CapturingRepo extends AssetRepository {
 Future<_CapturingRepo> _open(
   WidgetTester tester, {
   Asset? edit,
+  AssetKind kind = AssetKind.checking,
   List<Asset> assets = const [_existing],
 }) async {
   final repo = _CapturingRepo();
@@ -159,8 +165,8 @@ Future<_CapturingRepo> _open(
           body: Builder(
             builder: (ctx) => TextButton(
               onPressed: () => edit == null
-                  ? showAccountAddDialog(ctx)
-                  : showAccountEditDialog(ctx, edit),
+                  ? showAssetKindForm(ctx, kind)
+                  : showAssetEditForm(ctx, edit),
               child: const Text('open'),
             ),
           ),
@@ -173,13 +179,7 @@ Future<_CapturingRepo> _open(
   return repo;
 }
 
-/// placeholder 로 입력칸을 찾는다 — 값이 들어가도 안 바뀌는 유일한 표식이다.
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _submitButton(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+Finder _submitButton(String label) => buttonLabeled(label);
 
 Future<void> _tapSubmit(WidgetTester tester, String label) async {
   await tester.tap(_submitButton(label));
@@ -192,23 +192,30 @@ void main() {
     l = await AppLocalizations.delegate.load(const Locale('ko'));
   });
 
-  testWidgets('계좌 종류에 마이너스통장이 있다', (tester) async {
-    await _open(tester);
-    expect(find.text(l.assetSubtypeOverdraft), findsOneWidget);
-    // 자산군 다음, 대출 앞.
-    expect(find.text(l.assetTypeLoan), findsOneWidget);
+  testWidgets('수정의 종류 칸은 계좌 여섯을 낸다 — 마이너스 통장은 띄어 쓴다', (tester) async {
+    await _open(tester, edit: _existing);
+    await tester.tap(find.byType(PSelect<AssetKind>));
+    await tester.pumpAndSettle();
+    for (final k in [
+      AssetKind.checking,
+      AssetKind.deposit,
+      AssetKind.installment,
+      AssetKind.overdraft,
+      AssetKind.cash,
+      AssetKind.loan,
+    ]) {
+      expect(findPlain(k.label(l)), findsWidgets, reason: k.name);
+    }
+    expect(l.assetSubtypeOverdraft, '마이너스 통장');
   });
 
-  testWidgets('마이너스통장은 사용 중인 금액을 양수로 받아 음수로 저장한다', (tester) async {
-    final repo = await _open(tester);
-    await tester.tap(find.text(l.assetSubtypeOverdraft));
-    await tester.pumpAndSettle();
+  testWidgets('마이너스 통장은 사용 중인 금액을 양수로 받아 음수로 저장한다', (tester) async {
+    final repo = await _open(tester, kind: AssetKind.overdraft);
     // 라벨이 '잔액' 이 아니라 '사용 중인 금액' 으로 바뀐다.
-    expect(find.text(l.assetOverdraftUsedLabel(wonUnit())), findsOneWidget);
-    expect(find.text(l.assetBalanceLabel(wonUnit())), findsNothing);
+    expect(fieldWithLabel(l.assetOverdraftUsedLabel), findsOneWidget);
+    expect(fieldWithLabel(l.assetBalanceLabel), findsNothing);
 
-    await tester.enterText(_field('0'), '50000');
-    await tester.pumpAndSettle();
+    await typeInto(tester, l.assetOverdraftUsedLabel, '50000');
     await _tapSubmit(tester, l.calAdd);
 
     expect(repo.captured?['assetType'], 'BANK_ACCOUNT');
@@ -218,8 +225,7 @@ void main() {
 
   testWidgets('입출금은 같은 값을 양수로 저장한다', (tester) async {
     final repo = await _open(tester);
-    await tester.enterText(_field('0'), '50000');
-    await tester.pumpAndSettle();
+    await typeInto(tester, l.assetBalanceLabel, '50000');
     await _tapSubmit(tester, l.calAdd);
 
     expect(repo.captured?['balance'], 50000);
@@ -227,72 +233,76 @@ void main() {
   });
 
   testWidgets('대출은 남은 빚을 양수로 받아 음수로 저장한다', (tester) async {
-    final repo = await _open(tester);
-    await tester.tap(find.text(l.assetTypeLoan));
-    await tester.pumpAndSettle();
-    expect(find.text(l.assetLoanRemainingLabel(wonUnit())), findsOneWidget);
-    await tester.enterText(_field('0'), '3000000');
-    await tester.pumpAndSettle();
+    final repo = await _open(tester, kind: AssetKind.loan);
+    expect(fieldWithLabel(l.assetLoanRemainingLabel), findsOneWidget);
+    await typeInto(tester, l.assetLoanRemainingLabel, '3000000');
     await _tapSubmit(tester, l.calAdd);
 
     expect(repo.captured?['assetType'], 'LOAN');
     expect(repo.captured?['balance'], -3000000);
   });
 
-  testWidgets('잔액칸에 `-` 는 타이핑되지 않는다', (tester) async {
+  testWidgets('잔액칸에 `-` 는 타이핑되지 않고, 쓰는 동안 쉼표가 찍힌다', (tester) async {
     await _open(tester);
-    await tester.enterText(_field('0'), '-50000');
-    await tester.pumpAndSettle();
-    expect(find.text('-50000'), findsNothing);
-    expect(find.text('50000'), findsOneWidget);
+    await typeInto(tester, l.assetBalanceLabel, '-50000');
+    expect(textOf(tester, l.assetBalanceLabel), '50,000');
   });
 
   testWidgets('1,000억을 넘는 잔액은 입력이 막힌다', (tester) async {
     await _open(tester);
     // QA 가 저장했던 99조.
-    await tester.enterText(_field('0'), '99999999999999');
-    await tester.pumpAndSettle();
-    expect(find.text('99999999999999'), findsNothing);
+    await typeInto(tester, l.assetBalanceLabel, '99999999999999');
+    expect(textOf(tester, l.assetBalanceLabel), isNot(contains('99,999,999')));
+    expect(textOf(tester, l.assetBalanceLabel), isEmpty);
   });
 
-  testWidgets('음수 잔액 입출금을 열면 마이너스통장 탭이고 금액이 양수로 보인다', (tester) async {
+  testWidgets('음수 잔액 입출금을 열면 마이너스 통장이고 금액이 양수로 보인다', (tester) async {
     await _open(tester, edit: _overdraft, assets: const [_overdraft]);
-    expect(find.text(l.assetOverdraftUsedLabel(wonUnit())), findsOneWidget);
-    expect(find.text('50000'), findsOneWidget);
-    expect(find.text('-50000'), findsNothing);
+    expect(fieldWithLabel(l.assetOverdraftUsedLabel), findsOneWidget);
+    expect(textOf(tester, l.assetOverdraftUsedLabel), '50,000');
+    expect(findPlain('-50,000'), findsNothing);
   });
 
-  testWidgets('대출 편집도 남은 빚을 양수로 보여 준다', (tester) async {
+  testWidgets('대출 수정도 남은 빚을 양수로 보여 준다', (tester) async {
     await _open(tester, edit: _loan, assets: const [_loan]);
-    expect(find.text(l.assetLoanRemainingLabel(wonUnit())), findsOneWidget);
-    expect(find.text('3000000'), findsOneWidget);
+    expect(fieldWithLabel(l.assetLoanRemainingLabel), findsOneWidget);
+    expect(textOf(tester, l.assetLoanRemainingLabel), '3,000,000');
   });
 
-  testWidgets('별칭 30자 초과는 카운터가 빨개지고 저장이 막힌다', (tester) async {
+  // 별칭은 Field 글자 수가 세고 30자에서 멈춘다.
+  testWidgets('별칭은 30자에서 멈춘다', (tester) async {
     await _open(tester);
-    await tester.enterText(_field(l.assetNicknamePlaceholder), 'ㄱ' * 31);
-    await tester.pumpAndSettle();
-    expect(find.text(l.nameTooLong(30)), findsOneWidget);
-    expect(find.text('31/30'), findsNothing);
-    expect(tester.widget<PButton>(_submitButton(l.calAdd)).onPressed, isNull);
+    await typeInto(tester, l.assetNickname, 'ㄱ' * 31);
+    expect(textOf(tester, l.assetNickname).length, 30);
+  });
+
+  // 30자를 넘어 저장돼 있던 옛 별칭은 열자마자가 아니라 만졌을 때 알린다.
+  testWidgets('넘게 저장된 옛 별칭은 고치면 알리고 저장이 막힌다', (tester) async {
+    final longName = _existing.copyWith(assetName: 'ㄴ' * 31);
+    await _open(tester, edit: longName, assets: [longName]);
+    // 열자마자 빨갛게 하지 않는다
+    expect(findRichPlain(l.nameTooLong(30)), findsNothing);
+    await typeInto(tester, l.assetNickname, 'ㄴ' * 31);
+    expect(findRichPlain(l.nameTooLong(30)), findsOneWidget);
+    expect(
+      tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
+      isNull,
+    );
   });
 
   testWidgets('이미 있는 별칭은 안내가 뜨고 저장이 막힌다', (tester) async {
     await _open(tester);
-    await tester.enterText(_field(l.assetNicknamePlaceholder), 'QA 주거래');
-    await tester.pumpAndSettle();
-    expect(find.text(l.assetNicknameDuplicate), findsOneWidget);
+    await typeInto(tester, l.assetNickname, 'QA 주거래');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsOneWidget);
     expect(tester.widget<PButton>(_submitButton(l.calAdd)).onPressed, isNull);
   });
 
   testWidgets('별칭을 비우면 중복 검사를 안 탄다 — 자동 이름 경로', (tester) async {
     final repo = await _open(tester);
     // 한 번 쳤다 지운다(touched 상태로 만든다).
-    await tester.enterText(_field(l.assetNicknamePlaceholder), 'QA 주거래');
-    await tester.pumpAndSettle();
-    await tester.enterText(_field(l.assetNicknamePlaceholder), '');
-    await tester.pumpAndSettle();
-    expect(find.text(l.assetNicknameDuplicate), findsNothing);
+    await typeInto(tester, l.assetNickname, 'QA 주거래');
+    await typeInto(tester, l.assetNickname, '');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsNothing);
     await _tapSubmit(tester, l.calAdd);
     // 비면 '브랜드 종류' 로 자동 생성된다.
     expect(repo.captured?['assetName'], isNot('QA 주거래'));
@@ -308,14 +318,23 @@ void main() {
       assets: const [_existing, _withMemo],
     );
     // 메모 칸에 기존 값이 실려 있다.
-    expect(find.text('110-123-456789'), findsOneWidget);
-    await tester.enterText(_field(l.assetMemoPlaceholder), '');
-    await tester.pumpAndSettle();
+    expect(textOf(tester, l.assetMemo), '110-123-456789');
+    await typeInto(tester, l.assetMemo, '');
     await _tapSubmit(tester, l.actionSave);
 
     final memo = repo.captured?['memo'] as Patch<String>;
     expect(memo.present, isTrue, reason: '메모 키가 빠지면 옛 메모가 그대로 남는다');
     expect(memo.value, isNull);
+  });
+
+  // 메모 칸은 하나다(Q1 결정 A) — 추가에서도 보이고, 적은 글이 그대로 메모로 저장된다.
+  testWidgets('추가에서도 메모 칸이 하나 보이고 적은 글이 메모로 저장된다', (tester) async {
+    final repo = await _open(tester);
+    expect(fieldWithLabel(l.assetMemo), findsOneWidget);
+    expect(fieldWithLabel('계좌번호'), findsNothing);
+    await typeInto(tester, l.assetMemo, '110-***-123456');
+    await _tapSubmit(tester, l.calAdd);
+    expect(repo.captured?['memo'], '110-***-123456');
   });
 
   // 카드 전용 칸은 이 화면에 없다 — null 로 실으면 카드 화면에서 정해 둔
@@ -333,10 +352,22 @@ void main() {
 
   testWidgets('편집에서 자기 별칭을 그대로 두면 중복이 아니다', (tester) async {
     final repo = await _open(tester, edit: _existing);
-    await tester.enterText(_field(l.assetNicknamePlaceholder), 'QA 주거래');
-    await tester.pumpAndSettle();
-    expect(find.text(l.assetNicknameDuplicate), findsNothing);
+    await typeInto(tester, l.assetNickname, 'QA 주거래');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsNothing);
     await _tapSubmit(tester, l.actionSave);
     expect(repo.captured?['assetName'], 'QA 주거래');
+  });
+
+  testWidgets('마이너스 통장 약정 한도는 선택이고 사용액보다 작으면 안내만 한다(저장은 막지 않는다)', (
+    tester,
+  ) async {
+    final repo = await _open(tester, kind: AssetKind.overdraft);
+    expect(fieldWithLabel(l.assetOverdraftLimitLabel), findsOneWidget);
+    await typeInto(tester, l.assetOverdraftUsedLabel, '300000');
+    await typeInto(tester, l.assetOverdraftLimitLabel, '100000');
+    expect(findRichPlain('한도보다'), findsOneWidget);
+    await _tapSubmit(tester, l.calAdd);
+    expect(repo.captured?['balance'], -300000);
+    expect(repo.captured?['creditLimit'], 100000);
   });
 }
