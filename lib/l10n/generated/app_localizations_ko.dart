@@ -4835,33 +4835,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsPeriodPickerTitle => '기간 선택';
 
   @override
-  String get statsRange7d => '최근 7일';
-
-  @override
-  String get statsRange30d => '최근 30일';
-
-  @override
-  String get statsRange3m => '최근 3개월';
-
-  @override
-  String get statsRange6m => '최근 6개월';
-
-  @override
-  String get statsRange1y => '최근 1년';
-
-  @override
-  String get statsSegMonth => '월';
-
-  @override
-  String get statsSegQuarter => '분기';
-
-  @override
-  String get statsSegYear => '년';
-
-  @override
-  String get statsSegCustom => '직접';
-
-  @override
   String get statsNoData => '데이터가 없어요.';
 
   @override

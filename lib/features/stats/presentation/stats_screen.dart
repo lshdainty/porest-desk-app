@@ -22,6 +22,10 @@ import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 export 'package:groo_damda_app/features/stats/presentation/stats_model.dart'
     show dailyTrendOf, statsExpenseCount, statsWeekdaySums;
 
+/// 통계가 보는 "지금" — 시험 · 렌더 하네스가 오늘을 고정한다(홈의 dashboardNow 와 같은 결).
+@visibleForTesting
+DateTime Function() statsNow = DateTime.now;
+
 /// 통계 화면(I-08 29 ~ 42) — 가계부 묶음 Line 탭 아래 칩 탭(Chip Tabs solid large 40, 위아래 틈 0), 그 아래 구역마다 흰 띠(사이 8).
 /// 칩 탭은 눌러서만 바뀐다(2차 탭은 밀어 넘기지 않는다 — Tabs 7A). 기간 버튼은 첫 띠 머리 오른쪽에 있다(따로 띠를 두지 않는다).
 /// 머리 없는 띠(요약 · 지표 · 저축률)는 위 24 에서 첫 글이 시작한다. 폰은 질의 하나 = 실패 상자 하나 — 같은 질의를 먹는 뒤 띠는
@@ -35,10 +39,14 @@ class StatsScreen extends ConsumerStatefulWidget {
 
 class _StatsScreenState extends ConsumerState<StatsScreen> {
   StatsTab _tab = StatsTab.category;
-  StatsPeriod _period = StatsPeriod.thisMonth();
+  StatsPeriod _period = StatsPeriod.thisMonth(statsNow());
 
   Future<void> _pickRange() async {
-    final picked = await showStatsRangeSheet(context, _period);
+    final picked = await showStatsRangeSheet(
+      context,
+      _period,
+      today: statsNow(),
+    );
     if (picked != null && mounted) setState(() => _period = picked);
   }
 

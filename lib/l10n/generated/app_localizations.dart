@@ -8978,60 +8978,6 @@ abstract class AppLocalizations {
   /// **'기간 선택'**
   String get statsPeriodPickerTitle;
 
-  /// No description provided for @statsRange7d.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 7일'**
-  String get statsRange7d;
-
-  /// No description provided for @statsRange30d.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 30일'**
-  String get statsRange30d;
-
-  /// No description provided for @statsRange3m.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 3개월'**
-  String get statsRange3m;
-
-  /// No description provided for @statsRange6m.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 6개월'**
-  String get statsRange6m;
-
-  /// No description provided for @statsRange1y.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 1년'**
-  String get statsRange1y;
-
-  /// No description provided for @statsSegMonth.
-  ///
-  /// In ko, this message translates to:
-  /// **'월'**
-  String get statsSegMonth;
-
-  /// No description provided for @statsSegQuarter.
-  ///
-  /// In ko, this message translates to:
-  /// **'분기'**
-  String get statsSegQuarter;
-
-  /// No description provided for @statsSegYear.
-  ///
-  /// In ko, this message translates to:
-  /// **'년'**
-  String get statsSegYear;
-
-  /// No description provided for @statsSegCustom.
-  ///
-  /// In ko, this message translates to:
-  /// **'직접'**
-  String get statsSegCustom;
-
   /// No description provided for @statsNoData.
   ///
   /// In ko, this message translates to:

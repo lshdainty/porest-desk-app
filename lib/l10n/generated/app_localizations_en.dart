@@ -4913,33 +4913,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPeriodPickerTitle => 'Select period';
 
   @override
-  String get statsRange7d => 'Last 7 days';
-
-  @override
-  String get statsRange30d => 'Last 30 days';
-
-  @override
-  String get statsRange3m => 'Last 3 months';
-
-  @override
-  String get statsRange6m => 'Last 6 months';
-
-  @override
-  String get statsRange1y => 'Last 1 year';
-
-  @override
-  String get statsSegMonth => 'Month';
-
-  @override
-  String get statsSegQuarter => 'Quarter';
-
-  @override
-  String get statsSegYear => 'Year';
-
-  @override
-  String get statsSegCustom => 'Custom';
-
-  @override
   String get statsNoData => 'No data';
 
   @override
