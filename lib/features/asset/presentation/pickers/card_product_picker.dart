@@ -93,6 +93,7 @@ class _CardProductSheetState extends ConsumerState<CardProductSheet> {
       );
     } else {
       result = PSearchableListResults(
+        scrollFog: true,
         semanticLabel: l.assetCardProduct,
         children: [
           for (final c in shown)

@@ -73,6 +73,7 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
       body = fetching
           ? const PSearchableListSkeleton(rows: 3)
           : PSearchableListResults(
+              scrollFog: true,
               semanticLabel: l.assetHoldings,
               children: [
                 for (final s in results)

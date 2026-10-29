@@ -15,6 +15,7 @@ import 'package:groo_damda_app/features/card/domain/card_catalog_page.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 import 'package:groo_damda_app/shared/ds/searchable_list/p_searchable_list.dart';
 
 import '../../support/plain_text.dart';
@@ -324,4 +325,75 @@ void main() {
       expect(sheet.height, lessThanOrEqualTo(760 * 0.9 + 0.5));
     });
   }
+
+  // bottom-sheet.md — 길어질 수 있는 목록은 늘 끝 흐림을 건다(위 20 · 아래 80). 검색칸은 목록 밖이라 흐리지 않는다.
+  group('끝 흐림', () {
+    Finder fogInResults() => find.descendant(
+      of: find.byType(PSearchableListResults),
+      matching: find.byType(PScrollFogMask),
+    );
+
+    testWidgets('기관 시트의 결과 목록에 끝 흐림이 걸리고 검색칸에는 안 걸린다', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showInstitutionPicker(
+          ctx,
+          invest: false,
+          current: null,
+        ).then((_) {}),
+      );
+      expect(fogInResults(), findsOneWidget);
+      expect(
+        find.ancestor(
+          of: find.byType(TextField),
+          matching: find.byType(PScrollFogMask),
+        ),
+        findsNothing,
+      );
+      final mask = tester.widget<PScrollFogMask>(fogInResults());
+      expect(mask.start, 20);
+      expect(mask.end, 80);
+    });
+
+    testWidgets('카드 상품 시트의 결과 목록에도 걸린다', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showCardProductPicker(
+          ctx,
+          cardType: 'CREDIT',
+          currentRowId: null,
+        ).then((_) {}),
+        overrides: [
+          cardCatalogPageProvider.overrideWith(
+            (ref, key) async => _page([
+              const CardCatalogSummary(
+                rowId: 1,
+                cardName: '예시 카드',
+                cardType: 'CREDIT',
+                company: CardCompany(name: '숲빛카드'),
+                isDiscontinued: 'N',
+              ),
+            ]),
+          ),
+        ],
+      );
+      expect(fogInResults(), findsOneWidget);
+    });
+
+    testWidgets('종목 시트는 결과가 나오면 걸린다', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: const {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith(
+            (ref, q) async => q.isEmpty ? [] : _stocks,
+          ),
+        ],
+      );
+      await tester.enterText(find.byType(TextField), '가나');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      expect(fogInResults(), findsOneWidget);
+    });
+  });
 }

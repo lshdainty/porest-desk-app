@@ -12,6 +12,7 @@ import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
 import 'package:groo_damda_app/shared/ds/radio/p_radio.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
@@ -444,12 +445,17 @@ class PSearchableListResults extends StatelessWidget
     super.key,
     required this.semanticLabel,
     required this.children,
+    this.scrollFog = false,
   });
 
   final String semanticLabel;
 
   /// 줄 · 분류.
   final List<Widget> children;
+
+  /// 시트 · 팝오버 안의 긴 목록은 늘 건다(bottom-sheet.md — 위 20 · 아래 80 이 늘 흐리고, 목록 안 여백도 그만큼).
+  /// 검색칸은 목록 밖에 붙어 있어 흐리지 않는다. 높이가 정해진 자리에서만 뜻이 있다.
+  final bool scrollFog;
 
   @override
   Widget build(BuildContext context) {
@@ -471,7 +477,12 @@ class PSearchableListResults extends StatelessWidget
                 children: children,
               );
               return constraints.hasBoundedHeight
-                  ? SingleChildScrollView(child: list)
+                  ? scrollFog
+                        ? PScrollFog(
+                            use: PScrollFogUse.overlayBody,
+                            child: list,
+                          )
+                        : SingleChildScrollView(child: list)
                   : list;
             },
           ),

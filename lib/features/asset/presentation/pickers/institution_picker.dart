@@ -105,6 +105,7 @@ class _InstitutionSheetState extends State<_InstitutionSheet> {
               PSearchableListEmpty(titleBuilder: (q) => l.assetSearchEmpty(q))
             else
               PSearchableListResults(
+                scrollFog: true,
                 semanticLabel: widget.invest
                     ? l.assetBrokerExchange
                     : l.assetInstitutionBrand,
