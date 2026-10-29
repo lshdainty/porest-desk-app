@@ -34,12 +34,12 @@ class MonthRow extends StatelessWidget {
       constraints: BoxConstraints(minHeight: minHeight),
       child: Padding(
         padding: padding,
-        // 한 줄에 안 들어가면(좁은 폭 · 큰 글자) 오른쪽 동작이 아래 줄로 내려간다(글 버튼은 왼쪽 맞춤)
+        // 한 줄에 안 들어가면(좁은 폭 · 큰 글자) 오른쪽 동작이 아래 줄 오른쪽 끝으로 내려간다(03G-029 A — 웹 `ml-auto` 와 같다)
         child: Align(
           alignment: Alignment.centerLeft,
           child: OverflowBar(
             alignment: MainAxisAlignment.spaceBetween,
-            overflowAlignment: OverflowBarAlignment.start,
+            overflowAlignment: OverflowBarAlignment.end,
             overflowSpacing: 0,
             children: [
               Row(
