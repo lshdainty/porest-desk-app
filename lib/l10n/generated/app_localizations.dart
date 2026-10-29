@@ -4175,7 +4175,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetDeleteFailed.
   ///
   /// In ko, this message translates to:
-  /// **'삭제 실패'**
+  /// **'예산을 삭제하지 못했어요'**
   String get budgetDeleteFailed;
 
   /// No description provided for @budgetMonthlyLimit.
@@ -4442,23 +4442,35 @@ abstract class AppLocalizations {
   /// **'지난달 예산을 복사할까요?'**
   String get budgetCopyLastMonth;
 
-  /// No description provided for @budgetCopyConfirmMessage.
+  /// No description provided for @budgetCopyOverwriteMessage.
   ///
   /// In ko, this message translates to:
-  /// **'{from} 예산 한도 {count}개를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써져요.'**
-  String budgetCopyConfirmMessage(String from, int count, String to);
+  /// **'이번 달 예산 {count}개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.'**
+  String budgetCopyOverwriteMessage(int count);
 
   /// No description provided for @budgetCopyFailed.
   ///
   /// In ko, this message translates to:
-  /// **'복사 실패'**
+  /// **'지난달 예산을 복사하지 못했어요'**
   String get budgetCopyFailed;
 
-  /// No description provided for @budgetCopiedCount.
+  /// No description provided for @budgetCopiedDone.
   ///
   /// In ko, this message translates to:
-  /// **'{count}개 예산을 복사했습니다'**
-  String budgetCopiedCount(int count);
+  /// **'지난달 예산을 가져왔어요'**
+  String get budgetCopiedDone;
+
+  /// No description provided for @budgetCopyUndo.
+  ///
+  /// In ko, this message translates to:
+  /// **'되돌리기'**
+  String get budgetCopyUndo;
+
+  /// No description provided for @budgetCopyUndoFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'되돌리지 못했어요'**
+  String get budgetCopyUndoFailed;
 
   /// No description provided for @budgetCopyLastMonthBtn.
   ///
@@ -8741,7 +8753,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalDeleteFailed.
   ///
   /// In ko, this message translates to:
-  /// **'삭제 실패'**
+  /// **'저축 목표를 삭제하지 못했어요'**
   String get savingGoalDeleteFailed;
 
   /// No description provided for @savingGoalNameLabel.

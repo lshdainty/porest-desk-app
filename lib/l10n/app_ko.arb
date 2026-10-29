@@ -1310,7 +1310,7 @@
     }
   },
   "budgetDeleteConfirm": "삭제한 예산은 되돌릴 수 없어요.",
-  "budgetDeleteFailed": "삭제 실패",
+  "budgetDeleteFailed": "예산을 삭제하지 못했어요",
   "budgetMonthlyLimit": "월 예산 한도",
   "budgetLoadError": "예산을 불러오지 못했습니다",
   "budgetSelectMonth": "월 선택",
@@ -1432,29 +1432,18 @@
   "budgetLimit": "한도",
   "budgetSetup": "예산 설정",
   "budgetCopyLastMonth": "지난달 예산을 복사할까요?",
-  "budgetCopyConfirmMessage": "{from} 예산 한도 {count}개를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써져요.",
-  "@budgetCopyConfirmMessage": {
-    "placeholders": {
-      "from": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      },
-      "to": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetCopyFailed": "복사 실패",
-  "budgetCopiedCount": "{count}개 예산을 복사했습니다",
-  "@budgetCopiedCount": {
+  "budgetCopyOverwriteMessage": "이번 달 예산 {count}개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.",
+  "@budgetCopyOverwriteMessage": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
+  "budgetCopyFailed": "지난달 예산을 복사하지 못했어요",
+  "budgetCopiedDone": "지난달 예산을 가져왔어요",
+  "budgetCopyUndo": "되돌리기",
+  "budgetCopyUndoFailed": "되돌리지 못했어요",
   "budgetCopyLastMonthBtn": "지난달 복사",
   "budgetMonthTotal": "{month}월 총 예산",
   "@budgetMonthTotal": {
@@ -2750,7 +2739,7 @@
     }
   },
   "savingGoalDeleteConfirm": "삭제한 저축 목표는 되돌릴 수 없어요.",
-  "savingGoalDeleteFailed": "삭제 실패",
+  "savingGoalDeleteFailed": "저축 목표를 삭제하지 못했어요",
   "savingGoalNameLabel": "목표 이름",
   "savingGoalNameHint": "예: 유럽 여행",
   "savingGoalNameDuplicate": "같은 이름의 목표가 이미 있어요.",

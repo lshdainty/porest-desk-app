@@ -2257,7 +2257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetDeleteConfirm => 'A deleted budget can\'t be restored.';
 
   @override
-  String get budgetDeleteFailed => 'Delete failed';
+  String get budgetDeleteFailed => 'Couldn\'t delete the budget';
 
   @override
   String get budgetMonthlyLimit => 'Monthly budget limit';
@@ -2419,17 +2419,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetCopyLastMonth => 'Copy last month\'s budget?';
 
   @override
-  String budgetCopyConfirmMessage(String from, int count, String to) {
-    return '$from budget limits ($count) will be copied to $to. Budgets that already exist this month will be overwritten.';
+  String budgetCopyOverwriteMessage(int count) {
+    return '$count budgets this month will be replaced with last month\'s. This can\'t be undone once it\'s changed.';
   }
 
   @override
-  String get budgetCopyFailed => 'Copy failed';
+  String get budgetCopyFailed => 'Couldn\'t copy last month\'s budget';
 
   @override
-  String budgetCopiedCount(int count) {
-    return 'Copied $count budgets';
-  }
+  String get budgetCopiedDone => 'Last month\'s budget was copied';
+
+  @override
+  String get budgetCopyUndo => 'Undo';
+
+  @override
+  String get budgetCopyUndoFailed => 'Couldn\'t undo';
 
   @override
   String get budgetCopyLastMonthBtn => 'Copy last month';
@@ -4790,7 +4794,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'A deleted saving goal can\'t be restored.';
 
   @override
-  String get savingGoalDeleteFailed => 'Delete failed';
+  String get savingGoalDeleteFailed => 'Couldn\'t delete the saving goal';
 
   @override
   String get savingGoalNameLabel => 'Goal name';

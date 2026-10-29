@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
 import 'package:groo_damda_app/features/budget/data/budget_repository.dart';
@@ -46,25 +47,54 @@ class _FakeBudgetRepo extends BudgetRepository {
   final deleted = <int>[];
   final created = <int>[];
   final updated = <int>[];
+
+  /// 다음 delete · update 한 번을 실패시킨다.
+  bool failNext = false;
+  int _nextId = 100;
+
+  void _maybeFail() {
+    if (failNext) {
+      failNext = false;
+      throw ApiException(code: 'X', message: 'boom');
+    }
+  }
+
   @override
-  Future<void> delete(int id) async => deleted.add(id);
+  Future<void> delete(int id) async {
+    _maybeFail();
+    deleted.add(id);
+  }
+
   @override
-  Future<void> create({
+  Future<int?> create({
     int? categoryRowId,
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
-  }) async => created.add(categoryRowId ?? 0);
+  }) async {
+    created.add(categoryRowId ?? 0);
+    return _nextId++;
+  }
+
   @override
-  Future<void> update({required int id, required int budgetAmount}) async =>
-      updated.add(id);
+  Future<void> update({required int id, required int budgetAmount}) async {
+    _maybeFail();
+    updated.add(id);
+  }
 }
 
 class _FakeGoalRepo extends SavingGoalRepository {
   _FakeGoalRepo() : super(Dio());
   final deleted = <int>[];
+  bool failNext = false;
   @override
-  Future<void> delete(int id) async => deleted.add(id);
+  Future<void> delete(int id) async {
+    if (failNext) {
+      failNext = false;
+      throw ApiException(code: 'X', message: 'boom');
+    }
+    deleted.add(id);
+  }
 }
 
 const _longName = '주거·관리비·공과금·통신 요금 자동이체 묶음';
@@ -608,20 +638,33 @@ void main() {
       expect(repo.deleted, isEmpty);
     });
 
-    testWidgets('지난달 복사 — neutralSolid + 동작 이름 "복사", 확정하면 복사하고 닫는다', (
+    Future<void> pumpMonths(
+      WidgetTester tester,
+      _FakeBudgetRepo repo, {
+      required bool curEmpty,
+    }) => _pump(
+      tester,
+      const BudgetSettingsScreen(),
+      budgets: (key) async => curEmpty && key.month == DateTime.now().month
+          ? <Budget>[]
+          : _budgets(key.year, key.month),
+      overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+    );
+
+    testWidgets('지난달 복사 — 덮어쓰면 criticalSolid + "복사", 설명에 사라지는 수 · 되돌릴 수 없음', (
       tester,
     ) async {
       final repo = _FakeBudgetRepo();
-      await _pump(
-        tester,
-        const BudgetSettingsScreen(),
-        overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
-      );
+      await pumpMonths(tester, repo, curEmpty: false);
       await tester.tap(find.text('지난달 복사'));
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsOneWidget);
       expect(findPlain('지난달 예산을 복사할까요?'), findsOneWidget);
-      expect(actionOf(tester).variant, PButtonVariant.neutralSolid);
+      expect(
+        findPlain('이번 달 예산 3개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.'),
+        findsOneWidget,
+      );
+      expect(actionOf(tester).variant, PButtonVariant.criticalSolid);
       expect(actionOf(tester).label, '복사');
       await tester.tap(
         find.descendant(
@@ -631,8 +674,70 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
-      // 이번 달에 같은 key 가 있으므로 모두 덮어쓰기(update) 세 건
-      expect(repo.updated.length + repo.created.length, 3);
+      expect(repo.updated.length, 3);
+      expect(repo.created, isEmpty);
+    });
+
+    testWidgets('지난달 복사 — 비어 있으면 묻지 않고 복사, 되돌리기가 만든 것만 지워 0개로', (tester) async {
+      final repo = _FakeBudgetRepo();
+      await pumpMonths(tester, repo, curEmpty: true);
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(repo.created.length, 3);
+      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      await tester.tap(find.text('되돌리기'));
+      await tester.pumpAndSettle();
+      expect(repo.deleted, [100, 101, 102]);
+    });
+
+    testWidgets('지난달 복사 — 덮어쓰기 실패하면 창을 닫고 critical 스낵바 + 다시 시도는 확인창을 다시 연다', (
+      tester,
+    ) async {
+      final repo = _FakeBudgetRepo()..failNext = true;
+      await pumpMonths(tester, repo, curEmpty: false);
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text('복사'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(findPlain('지난달 예산을 복사하지 못했어요'), findsOneWidget);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsOneWidget);
+    });
+
+    testWidgets('예산 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 같은 삭제를 다시 묻는다', (
+      tester,
+    ) async {
+      final repo = _FakeBudgetRepo()..failNext = true;
+      await _pump(
+        tester,
+        const BudgetSettingsScreen(),
+        overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+      );
+      tester
+          .widgetList<PSwipeActions>(find.byType(PSwipeActions))
+          .first
+          .actions
+          .last
+          .onSelect();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('삭제').last);
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(findPlain('예산을 삭제하지 못했어요'), findsOneWidget);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsOneWidget);
+      await tester.tap(find.text('삭제').last);
+      await tester.pumpAndSettle();
+      expect(repo.deleted, [2]);
     });
 
     testWidgets('저축 목표 삭제 — 제목이 이름을 짚고 확정은 criticalSolid, 확정하면 지운다', (
@@ -676,6 +781,42 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
       expect(repo.deleted, [5]);
+    });
+
+    testWidgets('저축 목표 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도', (tester) async {
+      final repo = _FakeGoalRepo()..failNext = true;
+      final goals = [
+        const SavingGoal(
+          rowId: 5,
+          title: '여행 적금',
+          targetAmount: 1000000,
+          currentAmount: 100000,
+          color: '#3b82f6',
+          isAchieved: 'N',
+        ),
+      ];
+      await _pump(
+        tester,
+        const SavingGoalScreen(),
+        overrides: [
+          savingGoalListProvider.overrideWith((ref) async => goals),
+          savingGoalRepositoryProvider.overrideWith((ref) async => repo),
+        ],
+      );
+      tester
+          .widgetList<PSwipeActions>(find.byType(PSwipeActions))
+          .first
+          .actions
+          .last
+          .onSelect();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('삭제').last);
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(findPlain('저축 목표를 삭제하지 못했어요'), findsOneWidget);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsOneWidget);
     });
   });
 }

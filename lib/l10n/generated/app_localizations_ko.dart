@@ -2225,7 +2225,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetDeleteConfirm => '삭제한 예산은 되돌릴 수 없어요.';
 
   @override
-  String get budgetDeleteFailed => '삭제 실패';
+  String get budgetDeleteFailed => '예산을 삭제하지 못했어요';
 
   @override
   String get budgetMonthlyLimit => '월 예산 한도';
@@ -2385,17 +2385,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetCopyLastMonth => '지난달 예산을 복사할까요?';
 
   @override
-  String budgetCopyConfirmMessage(String from, int count, String to) {
-    return '$from 예산 한도 $count개를 $to로 복사해요. 이번 달에 이미 있는 예산은 덮어써져요.';
+  String budgetCopyOverwriteMessage(int count) {
+    return '이번 달 예산 $count개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.';
   }
 
   @override
-  String get budgetCopyFailed => '복사 실패';
+  String get budgetCopyFailed => '지난달 예산을 복사하지 못했어요';
 
   @override
-  String budgetCopiedCount(int count) {
-    return '$count개 예산을 복사했습니다';
-  }
+  String get budgetCopiedDone => '지난달 예산을 가져왔어요';
+
+  @override
+  String get budgetCopyUndo => '되돌리기';
+
+  @override
+  String get budgetCopyUndoFailed => '되돌리지 못했어요';
 
   @override
   String get budgetCopyLastMonthBtn => '지난달 복사';
@@ -4713,7 +4717,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get savingGoalDeleteConfirm => '삭제한 저축 목표는 되돌릴 수 없어요.';
 
   @override
-  String get savingGoalDeleteFailed => '삭제 실패';
+  String get savingGoalDeleteFailed => '저축 목표를 삭제하지 못했어요';
 
   @override
   String get savingGoalNameLabel => '목표 이름';

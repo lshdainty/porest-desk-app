@@ -5,7 +5,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
-import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
 import 'package:groo_damda_app/features/saving_goal/application/saving_goal_providers.dart';
@@ -24,6 +23,7 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
+import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 저축 목표 관리 (설정 > 저축 목표) — design GoalManager 미러 (웹 SavingGoalManager 정합).
@@ -33,12 +33,14 @@ class SavingGoalScreen extends ConsumerWidget {
   const SavingGoalScreen({super.key});
 
   /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
+  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 같은 삭제를 다시 묻는다.
   Future<void> _confirmDeleteGoal(
     BuildContext context,
     WidgetRef ref,
     SavingGoal goal,
   ) async {
     final l = AppLocalizations.of(context);
+    Object? failure;
     final ok = await PAlertDialog.show(
       context,
       title: l.savingGoalDeleteTitle(goal.title),
@@ -46,23 +48,32 @@ class SavingGoalScreen extends ConsumerWidget {
       cancelLabel: l.actionCancel,
       actionLabel: l.actionDelete,
       destructive: true,
+      onAction: () async {
+        try {
+          await _deleteGoal(ref, goal);
+        } catch (e) {
+          failure = e;
+        }
+      },
     );
-    if (ok && context.mounted) await _deleteGoal(context, ref, goal);
+    if (ok && failure != null && context.mounted) {
+      showPSnackBar(
+        context,
+        l.savingGoalDeleteFailed,
+        severity: PSnackSeverity.error,
+        duration: const Duration(seconds: 6),
+        actionLabel: l.actionRetry,
+        onAction: () => _confirmDeleteGoal(context, ref, goal),
+        replace: true,
+      );
+    }
   }
 
-  /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다(문구도 같은 키).
-  Future<void> _deleteGoal(
-    BuildContext context,
-    WidgetRef ref,
-    SavingGoal goal,
-  ) async {
-    try {
-      final repo = await ref.read(savingGoalRepositoryProvider.future);
-      await repo.delete(goal.rowId);
-      ref.invalidate(savingGoalListProvider);
-    } on ApiException {
-      if (!context.mounted) return;
-    }
+  /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다. 실패하면 던진다.
+  Future<void> _deleteGoal(WidgetRef ref, SavingGoal goal) async {
+    final repo = await ref.read(savingGoalRepositoryProvider.future);
+    await repo.delete(goal.rowId);
+    ref.invalidate(savingGoalListProvider);
   }
 
   @override

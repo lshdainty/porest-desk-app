@@ -1306,7 +1306,7 @@
     }
   },
   "budgetDeleteConfirm": "A deleted budget can't be restored.",
-  "budgetDeleteFailed": "Delete failed",
+  "budgetDeleteFailed": "Couldn't delete the budget",
   "budgetMonthlyLimit": "Monthly budget limit",
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
@@ -1428,29 +1428,18 @@
   "budgetLimit": "Limit",
   "budgetSetup": "Budget settings",
   "budgetCopyLastMonth": "Copy last month's budget?",
-  "budgetCopyConfirmMessage": "{from} budget limits ({count}) will be copied to {to}. Budgets that already exist this month will be overwritten.",
-  "@budgetCopyConfirmMessage": {
-    "placeholders": {
-      "from": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      },
-      "to": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetCopyFailed": "Copy failed",
-  "budgetCopiedCount": "Copied {count} budgets",
-  "@budgetCopiedCount": {
+  "budgetCopyOverwriteMessage": "{count} budgets this month will be replaced with last month's. This can't be undone once it's changed.",
+  "@budgetCopyOverwriteMessage": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
+  "budgetCopyFailed": "Couldn't copy last month's budget",
+  "budgetCopiedDone": "Last month's budget was copied",
+  "budgetCopyUndo": "Undo",
+  "budgetCopyUndoFailed": "Couldn't undo",
   "budgetCopyLastMonthBtn": "Copy last month",
   "budgetMonthTotal": "Month {month} Total Budget",
   "@budgetMonthTotal": {
@@ -2733,7 +2722,7 @@
     }
   },
   "savingGoalDeleteConfirm": "A deleted saving goal can't be restored.",
-  "savingGoalDeleteFailed": "Delete failed",
+  "savingGoalDeleteFailed": "Couldn't delete the saving goal",
   "savingGoalNameLabel": "Goal name",
   "savingGoalNameHint": "e.g. Trip to Europe",
   "savingGoalNameDuplicate": "A goal with this name already exists.",

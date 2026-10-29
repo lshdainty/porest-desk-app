@@ -5,7 +5,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/date.dart';
-import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
@@ -68,70 +67,142 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
 
   /// 지난달 예산 복사 — 웹 BudgetManager `copyFromLastMonth` 정합.
   ///
-  /// 클릭 즉시(이미 로드된 [prevBudgets] 사용, 재조회 없음) ds 확인창(Alert Dialog)을 띄우고,
-  /// 확정 버튼을 로딩으로 둔 채 [_runCopyFromPreviousMonth] 를 실행한다(끝나면 닫힘, 실패하면
-  /// 그대로 둔다). 지우기가 아니라 neutralSolid + 동작 이름 "복사".
-  void _confirmCopyFromPreviousMonth(
+  /// 이미 로드된 [prevBudgets] 를 쓴다(재조회 없음). 이번 달에 같은 key(전체 상한 | 카테고리)의 예산이
+  /// 있어 **덮어써서 잃는** 경우만 ds 확인창으로 묻는다 — 잃는 확정이라 criticalSolid, 글은 "복사"
+  /// (alert-dialog.md:99). 덮어쓸 것이 없으면 묻지 않고 바로 복사하고, 끝나면 스낵바의 "되돌리기"가
+  /// 방금 만든 예산만 지운다(원래 비어 있던 자리라 되돌릴 수 있다 — snackbar.md).
+  Future<void> _confirmCopyFromPreviousMonth(
     List<Budget> prevBudgets,
     List<Budget> curBudgets,
-  ) {
+  ) async {
     if (prevBudgets.isEmpty) return; // 버튼이 비활성이라 도달 불가 — 방어.
     final l = AppLocalizations.of(context);
-    final prevMonth = DateTime(_month.year, _month.month - 1, 1);
-    PAlertDialog.show(
+    final prevKeys = {for (final p in prevBudgets) _budgetKey(p)};
+    final overwrite = curBudgets
+        .where((b) => prevKeys.contains(_budgetKey(b)))
+        .length;
+    if (overwrite == 0) {
+      await _copyNow(prevBudgets, curBudgets);
+      return;
+    }
+    Object? failure;
+    await PAlertDialog.show(
       context,
       title: l.budgetCopyLastMonth,
-      description: l.budgetCopyConfirmMessage(
-        yearMonth(prevMonth),
-        prevBudgets.length,
-        yearMonth(DateTime(_key.year, _key.month)),
-      ),
+      description: l.budgetCopyOverwriteMessage(overwrite),
       cancelLabel: l.actionCancel,
       actionLabel: l.calCopy,
-      onAction: () => _runCopyFromPreviousMonth(prevBudgets, curBudgets),
-      // 실패하면 창을 그대로 두고 스피너만 푼다(예전 확인창과 같다 — 오류 알림은 이 자리에서 따로 띄우지 않는다).
-      onActionError: (_) {},
+      destructive: true,
+      // 실패해도 창은 닫는다 — 알림은 창 위가 아니라 닫힌 뒤 스낵바(critical + 다시 시도)가 맡는다.
+      onAction: () async {
+        try {
+          await _runCopyFromPreviousMonth(prevBudgets, curBudgets);
+        } catch (e) {
+          failure = e;
+        }
+      },
     );
+    if (failure != null && mounted) {
+      showPSnackBar(
+        context,
+        l.budgetCopyFailed,
+        severity: PSnackSeverity.error,
+        duration: const Duration(seconds: 6),
+        actionLabel: l.actionRetry,
+        onAction: () => _confirmCopyFromPreviousMonth(prevBudgets, curBudgets),
+        replace: true,
+      );
+    }
   }
 
-  /// 실제 복사 — 같은 key(전체 상한 | 카테고리)의 이번 달 예산은 **덮어쓰기**(update),
-  /// 없으면 생성(create). 실패 시 스낵바 후 rethrow 하여 다이얼로그를 유지한다.
-  Future<void> _runCopyFromPreviousMonth(
+  String _budgetKey(Budget b) => '${b.categoryRowId ?? 'overall'}';
+
+  /// 덮어쓸 것이 없을 때 — 확인창 없이 복사하고 "되돌리기" 스낵바를 띄운다. 실패하면 "다시 시도" 스낵바.
+  Future<void> _copyNow(
     List<Budget> prevBudgets,
     List<Budget> curBudgets,
   ) async {
     final l = AppLocalizations.of(context);
+    try {
+      final created = await _runCopyFromPreviousMonth(prevBudgets, curBudgets);
+      if (!mounted) return;
+      showPSnackBar(
+        context,
+        l.budgetCopiedDone,
+        severity: PSnackSeverity.success,
+        duration: const Duration(seconds: 6),
+        actionLabel: l.budgetCopyUndo,
+        onAction: () => _undoCopy(created),
+        replace: true,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      showPSnackBar(
+        context,
+        l.budgetCopyFailed,
+        severity: PSnackSeverity.error,
+        duration: const Duration(seconds: 6),
+        actionLabel: l.actionRetry,
+        onAction: () => _confirmCopyFromPreviousMonth(prevBudgets, curBudgets),
+        replace: true,
+      );
+    }
+  }
+
+  /// 되돌리기 — 방금 만든 이번 달 예산을 id 로 지운다(덮어쓴 것은 없다). 일괄 삭제 API 는 없어 하나씩 부른다.
+  Future<void> _undoCopy(List<int> createdIds) async {
+    final l = AppLocalizations.of(context);
+    try {
+      final repo = await ref.read(budgetRepositoryProvider.future);
+      for (final id in createdIds) {
+        await repo.delete(id);
+      }
+    } catch (_) {
+      if (mounted) {
+        showPSnackBar(
+          context,
+          l.budgetCopyUndoFailed,
+          severity: PSnackSeverity.error,
+        );
+      }
+    }
+    ref.invalidate(monthBudgetsProvider(_key));
+    ref.invalidate(budgetComplianceProvider);
+  }
+
+  /// 실제 복사 — 같은 key(전체 상한 | 카테고리)의 이번 달 예산은 **덮어쓰기**(update),
+  /// 없으면 생성(create). 실패하면 던진다 — 알림은 부른 쪽이 닫힌 확인창 뒤 스낵바로 띄운다.
+  /// 새로 만든 예산의 id 를 돌려준다.
+  Future<List<int>> _runCopyFromPreviousMonth(
+    List<Budget> prevBudgets,
+    List<Budget> curBudgets,
+  ) async {
     final repo = await ref.read(budgetRepositoryProvider.future);
-    // 이번 달 기존 예산 key(overall|categoryRowId) → 같은 key 는 덮어쓰기.
     final existingByKey = <String, Budget>{
-      for (final b in curBudgets) '${b.categoryRowId ?? 'overall'}': b,
+      for (final b in curBudgets) _budgetKey(b): b,
     };
+    final created = <int>[];
     try {
       for (final p in prevBudgets) {
-        final existing = existingByKey['${p.categoryRowId ?? 'overall'}'];
+        final existing = existingByKey[_budgetKey(p)];
         if (existing != null) {
           await repo.update(id: existing.rowId, budgetAmount: p.budgetAmount);
         } else {
-          await repo.create(
+          final id = await repo.create(
             categoryRowId: p.categoryRowId,
             budgetAmount: p.budgetAmount,
             budgetYear: _key.year,
             budgetMonth: _key.month,
           );
+          if (id != null) created.add(id);
         }
       }
-    } on ApiException {
-      rethrow; // 확인창 유지 (PAlertDialog 의 onActionError 가 받는다).
+    } finally {
+      // 일부만 됐어도 화면은 서버 값을 다시 읽는다.
+      ref.invalidate(monthBudgetsProvider(_key));
+      ref.invalidate(budgetComplianceProvider(6));
     }
-    ref.invalidate(monthBudgetsProvider(_key));
-    ref.invalidate(budgetComplianceProvider(6));
-    if (mounted) {
-      showPSnackBar(
-        context,
-        l.budgetCopiedCount(prevBudgets.length),
-        severity: PSnackSeverity.success,
-      );
-    }
+    return created;
   }
 
   void _editOverall(Budget? overallBudget) {
@@ -165,9 +236,10 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   }
 
   /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
-  /// 수정 시트가 쓰던 저장소·무효화 경로를 그대로 쓴다(문구도 같은 키).
+  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 같은 삭제를 다시 묻는다.
   Future<void> _confirmDeleteCategory(Budget budget, String name) async {
     final l = AppLocalizations.of(context);
+    Object? failure;
     final ok = await PAlertDialog.show(
       context,
       title: l.budgetDeleteTitle(name),
@@ -175,20 +247,34 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       cancelLabel: l.actionCancel,
       actionLabel: l.actionDelete,
       destructive: true,
+      onAction: () async {
+        try {
+          await _deleteCategory(budget);
+        } catch (e) {
+          failure = e;
+        }
+      },
     );
-    if (ok && mounted) await _deleteCategory(budget);
+    if (ok && failure != null && mounted) {
+      showPSnackBar(
+        context,
+        l.budgetDeleteFailed,
+        severity: PSnackSeverity.error,
+        duration: const Duration(seconds: 6),
+        actionLabel: l.actionRetry,
+        onAction: () => _confirmDeleteCategory(budget, name),
+        replace: true,
+      );
+    }
   }
 
+  /// 수정 시트가 쓰던 저장소·무효화 경로를 그대로 쓴다. 실패하면 던진다.
   Future<void> _deleteCategory(Budget budget) async {
-    try {
-      final repo = await ref.read(budgetRepositoryProvider.future);
-      await repo.delete(budget.rowId);
-      ref.invalidate(monthBudgetsProvider(_key));
-      // 준수율은 keepAlive — 지운 예산이 남아 있으면 달성률이 옛 값으로 굳는다.
-      ref.invalidate(budgetComplianceProvider);
-    } on ApiException {
-      if (!mounted) return;
-    }
+    final repo = await ref.read(budgetRepositoryProvider.future);
+    await repo.delete(budget.rowId);
+    ref.invalidate(monthBudgetsProvider(_key));
+    // 준수율은 keepAlive — 지운 예산이 남아 있으면 달성률이 옛 값으로 굳는다.
+    ref.invalidate(budgetComplianceProvider);
   }
 
   void _editCategory(Budget budget, List<Budget> budgets) {
