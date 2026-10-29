@@ -29,8 +29,8 @@ PDeltaDirection deltaDirection(num d) => d > 0
     ? PDeltaDirection.down
     : PDeltaDirection.flat;
 
-/// 견줌 막대 한 줄 — 기간 이름 44 · 막대 8 · 금액(한 줄 · 고정폭 · 오른쪽 끝). 금액이 길면 막대가 양보하고(최소 64), 그래도
-/// 모자라면 금액이 아래 줄로 내려간다 — 숫자 중간에서 꺾지 않는다.
+/// 견줌 막대 한 줄 — 기간 이름 44 · 막대 8 · 금액(한 줄 · 제 폭 · 오른쪽 끝). 금액이 길면 막대가 양보하고(최소 64), 그래도
+/// 모자라면 막대를 아래 줄로 내린다 — 위 줄은 이름(Expanded · 줄바꿈 가능) + 사이 8 + 금액(자르지 않는다).
 class _CompareBar extends StatelessWidget {
   const _CompareBar({
     required this.label,
@@ -120,17 +120,29 @@ class _CompareBar extends StatelessWidget {
             ],
           );
         }
+        // 좁은 줄 — 이름과 금액은 양 끝, 사이 8 이상. 금액은 제 폭을 다 쓰고(자르지 않는다), 모자라면 이름이 줄을 바꾼다.
+        // 이름의 가장 긴 낱말도 못 들어갈 만큼 금액이 길면 이름 아래 줄로 금액을 내린다(오른쪽 끝).
+        final firstWord = label
+            .split(' ')
+            .fold<double>(0, (m, t) => math.max(m, w(t, labelStyle)));
+        final amountW = w(amount, amountStyle);
+        final stack = constraints.maxWidth - amountW - PSpacing.x2 < firstWord;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: PSpacing.x1,
           children: [
-            Row(
-              children: [
-                labelText,
-                const Spacer(),
-                Flexible(child: amountText),
-              ],
-            ),
+            if (stack) ...[
+              Text(keepAll(label), style: labelStyle),
+              amountText,
+            ] else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: Text(keepAll(label), style: labelStyle)),
+                  const SizedBox(width: PSpacing.x2),
+                  amountText,
+                ],
+              ),
             bar,
           ],
         );
