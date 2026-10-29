@@ -99,12 +99,18 @@ class LedgerMonthNav extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     spacing: PSpacing.x1,
                     children: [
+                      // 큰 글자에서도 한 줄 — 글자 가운데에서 줄이 바뀌지 않게 모자라면 조금 줄여 담는다
                       Flexible(
-                        child: Text(
-                          label,
-                          style: PTypography.t6.copyWith(
-                            color: c.fgNeutral,
-                            fontWeight: FontWeight.w700,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            style: PTypography.t6.copyWith(
+                              color: c.fgNeutral,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),

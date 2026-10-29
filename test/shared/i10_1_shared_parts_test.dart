@@ -61,6 +61,7 @@ void main() {
   testWidgets(
     'LedgerMonthNav — 가장 나쁜 값 "2026년 12월" 글자 200% 360 에서 넘치지 않는다 · 글이 여백 24 에서 시작',
     (tester) async {
+      double? oneLine;
       for (final scale in [1.0, 2.0]) {
         await pumpApp(
           tester,
@@ -77,7 +78,13 @@ void main() {
         );
         expect(tester.takeException(), isNull);
         final text = tester.getRect(find.text('2026년 12월'));
-        if (scale == 1.0) expect(text.left, 24);
+        if (scale == 1.0) {
+          expect(text.left, 24);
+          oneLine = text.height;
+        } else {
+          // 200% 에서도 한 줄 — 높이가 한 줄(100% 높이)의 2배 안쪽(글자를 줄여 담아도 두 줄이 되지 않는다)
+          expect(text.height, lessThan(oneLine! * 2.2));
+        }
         expect(
           tester.getRect(find.byIcon(LucideIcons.slidersHorizontal)).right,
           lessThanOrEqualTo(360),
