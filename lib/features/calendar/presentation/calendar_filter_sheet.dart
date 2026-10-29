@@ -67,10 +67,7 @@ class _CalendarFilterSheet extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          PListHeader(
-            title: l.calMyCalendars,
-            variant: PListHeaderVariant.boldSolid,
-          ),
+          PListHeader(title: l.calMyCalendars),
           if (calendars.isEmpty)
             PList(
               semanticLabel: l.calMyCalendars,
@@ -101,10 +98,7 @@ class _CalendarFilterSheet extends ConsumerWidget {
                     ),
               ],
             ),
-          PListHeader(
-            title: l.calOtherSources,
-            variant: PListHeaderVariant.boldSolid,
-          ),
+          PListHeader(title: l.calOtherSources),
           PListCheckGroup(
             semanticLabel: l.calOtherSources,
             children: [

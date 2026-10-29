@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/user_calendar_repository.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
@@ -207,6 +208,22 @@ void main() {
       final normalTitle = tester.getTopLeft(findPlain('회사캘린더')).dx;
       final defaultTitle = tester.getTopLeft(_defaultTitle()).dx;
       expect(defaultTitle, normalTitle, reason: '기본 줄 이름이 체크 줄과 한 세로선');
+    });
+
+    testWidgets('구역 이름(내 캘린더 · 기타 소스)은 List Header 기본(mediumWeak) — 옅은 500', (
+      tester,
+    ) async {
+      await pump(tester, calendars: const [_default, _normal]);
+      await openFilterSheet(tester, count: 3);
+
+      final titles = tester
+          .widgetList<Text>(find.byKey(const ValueKey('plist-header-title')))
+          .toList();
+      expect(titles.length, 2);
+      for (final t in titles) {
+        expect(t.style?.fontWeight, FontWeight.w500);
+        expect(t.style?.color, PColors.light.fgNeutralSubtle);
+      }
     });
 
     testWidgets('일반 캘린더 행은 그대로 토글된다', (tester) async {
