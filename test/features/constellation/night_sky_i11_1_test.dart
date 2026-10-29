@@ -255,7 +255,7 @@ void main() {
     final first = caret(at);
     final prev = caret(at - 2);
     // 아래 줄로 내려갔으면 맨 앞(0)에서 시작하고, 같은 줄이면 앞 글자 바로 뒤에 붙는다 — 어느 쪽이든 들임 칸은 없다.
-    final wrapped = first.dy > prev.dy + 1;
+    final wrapped = first.dx <= prev.dx;
     if (wrapped) {
       expect(first.dx, 0, reason: '아래 줄 맨 앞 들임 0');
     } else {
@@ -522,17 +522,76 @@ void main() {
       expect(legend.style!.fontWeight, FontWeight.w400);
     });
 
-    semTest('지난주로 넘기면 — 현재 동작 기록: 고른 날은 오늘에 남는다(미정)', (tester) async {
+    semTest('지난주로 넘기면 — 같은 요일이 골라지고 아래가 그날 것이다(10-29 결정 4)', (tester) async {
       await pumpApp(
         tester,
         const ForestReportScreen(),
         overrides: _ov().cast(),
       );
       await tester.tap(find.bySemanticsLabel('이전 주'));
-      await tester.pump(const Duration(milliseconds: 300));
-      // 지난주 날 줄에는 오늘 칸이 없고, 아래 내용(도장 = 오늘 것)은 그대로 오늘이다.
+      await tester.pump(const Duration(milliseconds: 400));
+      // 날 줄에 고른 칸이 하나 있고(오늘 칸은 없다) 날짜 줄이 지난주 같은 요일이다.
       expect(find.bySemanticsLabel(RegExp(r', 오늘$')), findsNothing);
-      expect(find.text('128일째'), findsOneWidget);
+      final want = DateTime.now().subtract(const Duration(days: 7));
+      final selected = tester.getSemantics(
+        find.bySemanticsLabel(monthDayDow(want)),
+      );
+      expect(selected.flagsCollection.isSelected, Tristate.isTrue);
+      // 도장(오늘 것)은 오늘이 아니라 사라진다
+      expect(find.byKey(const ValueKey('report-stamp')), findsNothing);
+      // 다음 주로 돌아오면 오늘
+      await tester.tap(find.bySemanticsLabel('다음 주'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.bySemanticsLabel(RegExp(r', 오늘$')), findsOneWidget);
+    });
+
+    testWidgets('하늘 카드 — 썸네일 88 · 달 아이콘 없음 · 눌러 상세(오늘의 목표 모양)', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpApp(tester, const NightSkyScreen(), overrides: _ov().cast());
+      expect(
+        tester.getSize(find.byKey(const ValueKey('night-sky-thumb'))),
+        const Size(88, 88),
+      );
+      expect(find.byIcon(LucideIcons.moon), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('night-sky-hero')));
+      await tester.pumpAndSettle();
+      expect(_t('오늘의 목표 별자리'), findsWidgets);
+      expect(_t('오늘 모은 별빛'), findsOneWidget);
+      expect(_t('80%'), findsOneWidget);
+      expect(_t('12/15 별빛 · 3별 남음'), findsOneWidget);
+      expect(_t('아직 만나지 못한 별자리예요'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('도감에서 오늘의 목표를 열어도 같은 모양 · 다른 못 모은 별자리는 지금대로', (tester) async {
+      await pumpApp(tester, const NightSkyScreen(), overrides: _ov().cast());
+      await tester.scrollUntilVisible(
+        _t('카시오페이아'),
+        400,
+        scrollable: find.byType(Scrollable).first,
+      );
+      // 오늘의 목표(켄타우루스자리) 줄의 미리보기
+      await tester.tap(find.text('미리보기').first);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('constellation-detail-progress')),
+        findsOneWidget,
+      );
+      expect(_t('12/15 별빛 · 3별 남음'), findsOneWidget);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        _t('거문고자리'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('미리보기').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('constellation-detail-progress')),
+        findsNothing,
+      );
+      expect(_t('아직 만나지 못한 별자리예요'), findsOneWidget);
     });
   });
 }
