@@ -16,7 +16,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
@@ -142,7 +141,9 @@ void main() {
   }
 
   group('필터 시트 — 기본 캘린더 행', () {
-    testWidgets('기본 캘린더 행에는 체크박스가 없고 일반 캘린더 행에는 있다', (tester) async {
+    testWidgets('기본 캘린더 줄은 칸만 켠 채 막힌 체크 줄(locked)이고 일반 줄은 그대로다', (
+      tester,
+    ) async {
       await pump(tester, calendars: const [_default, _normal]);
       // 캘린더 2 + 공휴일 1.
       await openFilterSheet(tester, count: 3);
@@ -150,68 +151,59 @@ void main() {
       expect(_defaultTitle(), findsOneWidget);
       expect(findPlain('회사캘린더'), findsOneWidget);
 
-      // 세 행 중 체크 줄은 둘(회사 캘린더 · 공휴일) — 기본 캘린더 줄에만 없다.
-      expect(checkRows(), findsNWidgets(2), reason: '기본 캘린더 행에도 체크가 그려졌다');
-
-      // 눌러도 아무 일 없는 줄이라 보기만 하는 줄(PListItem)이다.
-      expect(
+      // 세 줄 모두 체크 줄 — 기본 캘린더 줄만 locked(켠 채 막힌 칸, 줄은 보통 색)
+      expect(checkRows(), findsNWidgets(3));
+      final defaultRow = tester.widget<PListCheckItem>(
         find.ancestor(
           of: _defaultTitle(),
           matching: find.byType(PListCheckItem),
         ),
-        findsNothing,
-        reason: '기본 캘린더 행이 여전히 눌린다',
       );
-      expect(
-        find.ancestor(of: _defaultTitle(), matching: find.byType(PListItem)),
-        findsOneWidget,
-      );
-      expect(
+      expect(defaultRow.locked, isTrue);
+      expect(defaultRow.checked, isTrue);
+      final normalRow = tester.widget<PListCheckItem>(
         find.ancestor(
           of: findPlain('회사캘린더'),
           matching: find.byType(PListCheckItem),
         ),
-        findsOneWidget,
       );
+      expect(normalRow.locked, isFalse);
+      // 칸: 기본 줄 칸은 막혀 있고(enabled false) 일반 줄 칸은 눌린다
+      final marks = tester
+          .widgetList<PCheckmark>(find.byType(PCheckmark))
+          .toList();
+      expect(marks.first.enabled, isFalse);
+      expect(marks.first.checked, isTrue);
+      expect(marks[1].enabled, isTrue);
     });
 
     testWidgets("기본 캘린더 행에는 '기본' 표식이 붙는다", (tester) async {
       await pump(tester, calendars: const [_default, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      // 관리 화면·웹이 쓰는 것과 같은 배지 — 스위치가 왜 없는지를 남긴다.
+      // 관리 화면·웹이 쓰는 것과 같은 배지 — 칸이 왜 막혔는지를 남긴다.
       expect(find.text(l.calDefault), findsOneWidget);
     });
 
-    testWidgets('체크는 앞 — 기본 캘린더 줄은 체크 자리를 비워 이름이 한 세로선에 선다', (tester) async {
+    testWidgets('체크는 앞 — 기본 줄도 체크 24 → 색 점 → 이름으로 일반 줄과 한 세로선에 선다', (
+      tester,
+    ) async {
       await pump(tester, calendars: const [_default, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      final check = tester.getRect(find.byType(PCheckmark).first);
-      final dot = tester.getRect(
-        find.descendant(
-          of: find.ancestor(
-            of: findPlain('회사캘린더'),
-            matching: find.byType(PListCheckItem),
-          ),
-          matching: find.byKey(const ValueKey('calendar-filter-row-dot')),
-        ),
-      );
-      expect(check.width, 24);
-      // 기본 줄은 체크 자리 24 에 늘 켜진 표식(체크 아이콘)이 있다
-      final mark = tester.getRect(
-        find.byKey(const ValueKey('calendar-filter-default-mark')),
-      );
-      expect(mark.width, 24);
-      expect(mark.left, check.left, reason: '표식이 체크 줄 체크와 같은 자리');
+      final checks = tester
+          .widgetList<PCheckmark>(find.byType(PCheckmark))
+          .length;
+      expect(checks, 3);
+      final checkRect = tester.getRect(find.byType(PCheckmark).first);
+      final normalCheck = tester.getRect(find.byType(PCheckmark).at(1));
+      expect(checkRect.width, 24);
+      expect(checkRect.left, normalCheck.left, reason: '기본 줄 칸이 일반 줄 칸과 같은 자리');
+      // 상자 없는 파란 체크 표식은 걷었다
       expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('calendar-filter-default-mark')),
-          matching: find.byIcon(LucideIcons.check),
-        ),
-        findsOneWidget,
+        find.byKey(const ValueKey('calendar-filter-default-mark')),
+        findsNothing,
       );
-      expect(check.right, lessThan(dot.left), reason: '체크가 점 앞이다');
       final normalTitle = tester.getTopLeft(findPlain('회사캘린더')).dx;
       final defaultTitle = tester.getTopLeft(_defaultTitle()).dx;
       expect(defaultTitle, normalTitle, reason: '기본 줄 이름이 체크 줄과 한 세로선');
@@ -287,18 +279,15 @@ void main() {
       await pump(tester, calendars: const [_staleHiddenDefault, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      // 꺼진 줄은 체크가 비어 보인다 — 기본 캘린더는 체크 없이 늘 켜진 줄이다.
-      expect(
-        find.ancestor(of: _defaultTitle(), matching: find.byType(PListItem)),
-        findsOneWidget,
-      );
-      expect(
+      // 꺼진 줄은 체크가 비어 보인다 — 기본 캘린더는 늘 켠 채 막힌 칸이다.
+      final row = tester.widget<PListCheckItem>(
         find.ancestor(
           of: _defaultTitle(),
           matching: find.byType(PListCheckItem),
         ),
-        findsNothing,
       );
+      expect(row.checked, isTrue);
+      expect(row.locked, isTrue);
     });
   });
 }

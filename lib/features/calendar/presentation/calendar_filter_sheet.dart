@@ -81,35 +81,15 @@ class _CalendarFilterSheet extends ConsumerWidget {
               semanticLabel: l.calMyCalendars,
               children: [
                 for (final cal in calendars)
-                  // 기본 캘린더는 표시를 끌 수 없다 — 서버가 이 토글을 400 으로 막는다. 체크 없이 늘 켜진 줄로
-                  // 두고 "기본" 배지로 왜 이 줄만 다른지 남긴다(9-09 사용자 결정).
                   if (cal.isDefault)
-                    PListItem(
+                    // 기본 캘린더는 표시를 끌 수 없다 — 서버가 이 토글을 400 으로 막는다. 칸만 켠 채 막고(locked) 줄은 보통 색
+                    // 으로 둔다 — "꺼진 것" 으로 읽히지 않고, 끌 수 없는 까닭은 "기본" 배지가 말한다(9-09 · 10-29 사용자 결정)
+                    PListCheckItem(
                       title: cal.calendarName,
-                      // 체크 자리(24)에 늘 켜진 표식(캘린더 색 체크 16) — 끌 수 없는 줄이고 이름이 체크 줄과 한 세로선에 선다(웹과 같다)
-                      prefix: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: PSpacing.x3,
-                        children: [
-                          ExcludeSemantics(
-                            child: SizedBox(
-                              key: const ValueKey(
-                                'calendar-filter-default-mark',
-                              ),
-                              width: PSpacing.x6,
-                              height: PSpacing.x6,
-                              child: Center(
-                                child: Icon(
-                                  LucideIcons.check,
-                                  size: PSpacing.x4,
-                                  color: chartToneOf(context, cal.color).solid,
-                                ),
-                              ),
-                            ),
-                          ),
-                          _Dot(chartToneOf(context, cal.color).solid),
-                        ],
-                      ),
+                      checked: true,
+                      locked: true,
+                      onChanged: (_) {},
+                      prefix: _Dot(chartToneOf(context, cal.color).solid),
                       titleSuffix: [PBadge(label: l.calDefault)],
                     )
                   else
