@@ -24,6 +24,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_filter.dart';
 import 'package:groo_damda_app/features/expense/presentation/expense_screen.dart';
 import 'package:groo_damda_app/features/expense/presentation/filter_dialog.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/filter_bodies.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -164,6 +165,36 @@ Future<void> _loadRealFonts() async {
     final loader = FontLoader(family)
       ..addFont(Future.value(ByteData.view(bytes.buffer)));
     await loader.load();
+  }
+}
+
+/// 달 줄의 달 글을 눌러 연 | 월 휠 시트를 열고 [target] 달로 옮겨 "완료" 한다(‹ › 는 없다 — 10-29).
+/// [settle] 이 false 면 마지막에 pumpAndSettle 을 쓰지 않는다(불러오는 중 스켈레톤이 계속 도는 화면).
+Future<void> _pickMonth(
+  WidgetTester tester,
+  DateTime from,
+  DateTime target, {
+  bool settle = true,
+}) async {
+  await tester.tap(find.byIcon(LucideIcons.chevronDown).first);
+  await tester.pumpAndSettle();
+  Finder col(String name, String text) => find.descendant(
+    of: find.byWidgetPredicate(
+      (w) => w is PWheelPickerColumn && w.semanticLabel == name,
+    ),
+    matching: find.text(text),
+  );
+  if (target.year != from.year) {
+    await tester.tap(col('연도', '${target.year}년').first);
+    await tester.pumpAndSettle();
+  }
+  await tester.tap(col('월', '${target.month}월').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('완료'));
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump(const Duration(milliseconds: 400));
   }
 }
 
@@ -449,8 +480,7 @@ void main() {
       );
       expect(find.text('${now.month}월'), findsWidgets);
       final prevMonth = DateTime(now.year, now.month - 1, 1);
-      await tester.tap(find.bySemanticsLabel('이전 달'));
-      await tester.pump(const Duration(milliseconds: 50));
+      await _pickMonth(tester, now, prevMonth, settle: false);
       // 달 이름은 바로 바뀌고, 머리 틀(Scroll Auto Hide · 달 이동 줄)은 그대로 있다
       expect(find.text('${prevMonth.month}월'), findsWidgets);
       expect(find.byType(PScrollAutoHide), findsOneWidget);

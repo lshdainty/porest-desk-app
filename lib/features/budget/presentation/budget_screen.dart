@@ -81,10 +81,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
     final monthRow = BudgetMonthRow(
       month: _month,
-      onPrev: () =>
-          setState(() => _month = DateTime(_month.year, _month.month - 1, 1)),
-      onNext: () =>
-          setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
       onPick: _pickMonth,
       // 글 버튼 R16 — 앞 아이콘 없음(스펙 card.yaml headerAction). 설정 버튼 → 예산 설정 페이지 push.
       trailing: PTextButton(

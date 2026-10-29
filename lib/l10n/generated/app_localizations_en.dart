@@ -1672,9 +1672,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get calGoToToday => 'Today';
-
-  @override
   String get calManageShareTitle => 'Manage & share';
 
   @override

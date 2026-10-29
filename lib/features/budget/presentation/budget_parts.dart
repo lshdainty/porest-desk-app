@@ -197,33 +197,27 @@ class BudgetHead extends StatelessWidget {
   }
 }
 
-/// 달 줄 — ← 달 → 와 오른쪽 동작. 띠 맨 위 4 + 한 줄(44). 달 글을 누르면 달 고르기. 줄 조각은 캘린더와 같은 [MonthRow].
+/// 달 줄 — 달 글 + 꺾쇠와 오른쪽 동작. 띠 맨 위 4 + 한 줄(44). 달 글을 누르면 달 고르기. 줄 조각은 캘린더와 같은 [MonthRow].
 class BudgetMonthRow extends StatelessWidget {
   const BudgetMonthRow({
     super.key,
     required this.month,
-    required this.onPrev,
-    required this.onNext,
     required this.onPick,
     required this.trailing,
   });
 
   final DateTime month;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
   final VoidCallback onPick;
   final Widget trailing;
 
   @override
   Widget build(BuildContext context) => MonthRow(
     month: month,
-    onPrev: onPrev,
-    onNext: onNext,
     onPick: onPick,
     trailing: trailing,
-    // 화살표 상자(ds 아이콘 버튼 40 · 아이콘 18) 안 아이콘이 화면 가장자리 24 근처에 서도록 왼쪽 14 — 웹과 같다
+    // 달 글 상자 안 여백 10 만큼 덜어 글이 화면 여백 24 에 선다
     padding: const EdgeInsets.fromLTRB(
-      PSpacing.x3_5,
+      PSpacing.globalGutter - PSpacing.x2_5,
       // 띠 맨 위 4 + 8
       PSpacing.x3,
       PSpacing.x6,

@@ -3,18 +3,14 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/date.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 
-/// 달 줄 — ← 달 → 와 오른쪽 동작(스펙 부품이 아니라 ds 를 조합한 줄 조각). 달 글을 누르면 달 고르기.
+/// 달 줄 — 달 글 + 아래 꺾쇠(‹ › 없음, 10-29 — 연 · 월은 휠로만 옮긴다)와 오른쪽 동작(스펙 부품이 아니라 ds 를 조합한 줄 조각). 달 글을 누르면 달 고르기.
 /// 예산 · 캘린더가 함께 쓰고, 둘레 여백 · 글 크기 · 최소 높이만 화면이 정한다.
 class MonthRow extends StatelessWidget {
   const MonthRow({
     super.key,
     required this.month,
-    required this.onPrev,
-    required this.onNext,
     required this.onPick,
     required this.trailing,
     required this.padding,
@@ -23,8 +19,6 @@ class MonthRow extends StatelessWidget {
   });
 
   final DateTime month;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
   final VoidCallback onPick;
   final Widget trailing;
   final EdgeInsets padding;
@@ -35,7 +29,6 @@ class MonthRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
     final c = context.colors;
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),
@@ -52,12 +45,6 @@ class MonthRow extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  PButton.icon(
-                    icon: LucideIcons.chevronLeft,
-                    semanticLabel: l.actionPrev,
-                    variant: PButtonVariant.ghost,
-                    onPressed: onPrev,
-                  ),
                   Flexible(
                     child: PressArea(
                       enabled: true,
@@ -106,12 +93,6 @@ class MonthRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                  PButton.icon(
-                    icon: LucideIcons.chevronRight,
-                    semanticLabel: l.actionNext,
-                    variant: PButtonVariant.ghost,
-                    onPressed: onNext,
                   ),
                 ],
               ),

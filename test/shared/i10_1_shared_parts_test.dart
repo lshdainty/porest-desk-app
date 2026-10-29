@@ -66,8 +66,7 @@ void main() {
         Scaffold(
           body: LedgerMonthNav(
             label: '10월',
-            onPrev: () {},
-            onNext: () {},
+            onPick: () {},
             onOpenFilter: () {},
             filterOn: true,
           ),
@@ -84,8 +83,7 @@ void main() {
         Scaffold(
           body: LedgerMonthNav(
             label: '10월',
-            onPrev: () {},
-            onNext: () {},
+            onPick: () {},
             onOpenFilter: () {},
             onAddTx: () {},
           ),

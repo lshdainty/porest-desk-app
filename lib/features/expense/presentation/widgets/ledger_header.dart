@@ -8,9 +8,9 @@ import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
 import 'package:groo_damda_app/core/settings/mask_flags.dart';
-import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 import 'package:groo_damda_app/shared/ds/divider/p_divider.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/notification_badge/p_notification_badge.dart';
@@ -35,8 +35,7 @@ class LedgerMonthNav extends StatelessWidget {
   const LedgerMonthNav({
     super.key,
     required this.label,
-    required this.onPrev,
-    required this.onNext,
+    required this.onPick,
     required this.onOpenFilter,
     this.onAddTx,
     this.showMonth = true,
@@ -45,8 +44,9 @@ class LedgerMonthNav extends StatelessWidget {
 
   final String label;
   final bool showMonth;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
+
+  /// 달 글을 누르면 — 연 | 월 휠 시트(‹ › 는 없다, 10-29).
+  final VoidCallback onPick;
   final VoidCallback onOpenFilter;
 
   /// 오른쪽 [+] — 비우면 두지 않는다(할 일은 떠 있는 [+] 가 맡는다).
@@ -55,44 +55,70 @@ class LedgerMonthNav extends StatelessWidget {
   /// 걸린 조건이 있다 — 거르기 단추에 알림 점 하나(숫자 없음). 이름은 "필터, 조건 걸림".
   final bool filterOn;
 
-  // 단추 40 의 안쪽 아이콘이 화면 여백 24 에 서도록 여백을 단추 안쪽 여백만큼 덜어 낸다.
-  static const double _bleed = (PSpacing.x10 - PSpacing.x4_5) / 2;
+  // 달 글 상자 안 여백(10)만큼 덜어 글이 화면 여백 24 에 선다(오른쪽 단추는 40 안 아이콘 18 → 11).
+  static const double _bleedStart = PSpacing.x2_5;
+  static const double _bleedEnd = (PSpacing.x10 - PSpacing.x4_5) / 2;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpacing.globalGutter - _bleed,
+      padding: const EdgeInsets.only(
+        left: PSpacing.globalGutter - _bleedStart,
+        right: PSpacing.globalGutter - _bleedEnd,
       ),
       child: Row(
         children: [
-          if (showMonth) ...[
-            PButton.icon(
-              icon: LucideIcons.chevronLeft,
-              semanticLabel: dsL(context)?.dsDatePrevMonth ?? '이전 달',
-              variant: PButtonVariant.ghost,
-              onPressed: onPrev,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
-              child: Text(
-                label,
-                style: PTypography.t6.copyWith(
-                  color: c.fgNeutral,
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+          if (showMonth)
+            Flexible(
+              child: PressArea(
+                enabled: true,
+                onTap: onPick,
+                touchMin: 0,
+                semantics: (child, enabled, onTap) => Semantics(
+                  container: true,
+                  button: true,
+                  label: label,
+                  onTap: onTap,
+                  excludeSemantics: true,
+                  child: child,
+                ),
+                builder: (context, pressed, size) => Container(
+                  constraints: const BoxConstraints(minHeight: PTouch.min),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpacing.x2_5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: pressed
+                        ? c.bgLayerDefaultPressed
+                        : c.bgLayerDefaultPressed.withValues(alpha: 0),
+                    borderRadius: BorderRadius.circular(PRounded.r2),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: PSpacing.x1,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: PTypography.t6.copyWith(
+                            color: c.fgNeutral,
+                            fontWeight: FontWeight.w700,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        LucideIcons.chevronDown,
+                        size: 16,
+                        color: c.fgNeutralMuted,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            PButton.icon(
-              icon: LucideIcons.chevronRight,
-              semanticLabel: dsL(context)?.dsDateNextMonth ?? '다음 달',
-              variant: PButtonVariant.ghost,
-              onPressed: onNext,
-            ),
-          ],
           const Spacer(),
           // 걸린 조건의 개수는 배지로 말하지 않는다 — 가계부는 아래 칩 줄이, 할 일은 알림 점 하나가 말한다.
           Stack(

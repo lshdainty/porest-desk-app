@@ -96,8 +96,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         children: [
           CalendarMonthRow(
             month: _focused,
-            onPrev: () => _moveMonth(-1),
-            onNext: () => _moveMonth(1),
             onPick: _showMonthYearPicker,
             calendarCount: visibleCount,
             dotColors: dotColors,

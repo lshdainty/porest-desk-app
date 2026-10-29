@@ -1,3 +1,4 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 // I-08-1 — 예산 · 예산 설정 · 저축 목표를 가장 나쁜 값(긴 이름 · 큰 금액)으로 실제 화면을 띄워 잰다.
 //
 // 잰 것: 넘침 오류 0 · 이름 말줄임 0 · 금액 원까지 · 띠 셋 사이 8 · 막대 색(넘침 critical, 경고 구간 색 없음) ·
@@ -222,15 +223,25 @@ void main() {
       // 띠 맨 위 4 + 8 = 12 아래에 달 줄(위 24 · 아이콘 상자 자리 포함)
       final row = tester.getRect(find.byType(BudgetMonthRow));
       expect(row.top, 0);
-      final arrow = tester.getRect(
+      final label = tester.getRect(
         find
             .descendant(
               of: find.byType(BudgetMonthRow),
-              matching: find.byType(PButton),
+              matching: find.byIcon(LucideIcons.chevronDown),
             )
             .first,
       );
-      expect(arrow.top - row.top, greaterThanOrEqualTo(12));
+      expect(label.top - row.top, greaterThanOrEqualTo(12));
+      // ‹ › 는 없다 — 달 글이 화면 여백 24 에서 시작한다(꺾쇠 + 글 상자 안 여백 10 → 글 left 24)
+      final text = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(BudgetMonthRow),
+              matching: find.textContaining('월'),
+            )
+            .first,
+      );
+      expect(text.left, 24);
     });
 
     testWidgets('페이스: 배지는 머리 오른쪽 끝, 막대 8 · 표시선 2 × 14 (막대 위로 3)', (

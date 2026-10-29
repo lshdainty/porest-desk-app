@@ -229,10 +229,6 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       // 달 줄 + 지난달 복사 — 흰 면 맨 위 4 + 한 줄(웹 BudgetManager 모바일 헤더 정합)
       BudgetMonthRow(
         month: _month,
-        onPrev: () =>
-            setState(() => _month = DateTime(_month.year, _month.month - 1, 1)),
-        onNext: () =>
-            setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
         onPick: () async {
           final picked = await showPMonthPicker(context, initial: _month);
           if (picked != null) setState(() => _month = picked);

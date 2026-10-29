@@ -3086,12 +3086,6 @@ abstract class AppLocalizations {
   /// **'{count}건'**
   String calEventTotalCount(int count);
 
-  /// No description provided for @calGoToToday.
-  ///
-  /// In ko, this message translates to:
-  /// **'오늘로'**
-  String get calGoToToday;
-
   /// No description provided for @calManageShareTitle.
   ///
   /// In ko, this message translates to:

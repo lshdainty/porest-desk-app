@@ -1649,9 +1649,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get calGoToToday => '오늘로';
-
-  @override
   String get calManageShareTitle => '캘린더 관리·공유';
 
   @override
