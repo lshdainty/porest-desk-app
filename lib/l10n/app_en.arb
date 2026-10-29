@@ -972,7 +972,7 @@
       }
     }
   },
-  "calDatePicker": "Go to date",
+  "calDatePicker": "Select month",
   "calFilterChipName": "Showing {count} calendars",
   "@calFilterChipName": {
     "placeholders": {

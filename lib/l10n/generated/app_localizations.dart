@@ -3023,7 +3023,7 @@ abstract class AppLocalizations {
   /// No description provided for @calDatePicker.
   ///
   /// In ko, this message translates to:
-  /// **'날짜 이동'**
+  /// **'월 선택'**
   String get calDatePicker;
 
   /// No description provided for @calFilterChipName.

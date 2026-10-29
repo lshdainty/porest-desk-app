@@ -1631,7 +1631,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get calDatePicker => 'Go to date';
+  String get calDatePicker => 'Select month';
 
   @override
   String calFilterChipName(int count) {

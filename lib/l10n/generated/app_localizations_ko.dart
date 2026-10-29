@@ -1608,7 +1608,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get calDatePicker => '날짜 이동';
+  String get calDatePicker => '월 선택';
 
   @override
   String calFilterChipName(int count) {

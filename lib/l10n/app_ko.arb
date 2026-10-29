@@ -976,7 +976,7 @@
       }
     }
   },
-  "calDatePicker": "날짜 이동",
+  "calDatePicker": "월 선택",
   "calFilterChipName": "캘린더 {count}개 보는 중",
   "@calFilterChipName": {
     "placeholders": {
