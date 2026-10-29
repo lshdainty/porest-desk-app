@@ -4,19 +4,30 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
 import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 밤하늘 히어로 — 오늘의 목표 별자리가 별빛만큼 점등.
-/// 밤 장면이라 라이트/다크 공통 고정 다크 팔레트(웹 NightSkyHero 미러, 커스텀 hero 영역).
+/// 하늘은 역할 색 그라디언트(01-033 C — 라이트는 짙은 하늘, 다크는 밝은 하늘), 글 · 아이콘은 `fg-neutral-inverted` 하나(웹 NightSkyHero 와 같다).
+/// 글은 흐르는 차례로 쌓아 겹치지 않고, 장식(달빛 · 잔별 · 별자리 그림)만 투명도를 남긴다.
 class NightSkyHero extends StatelessWidget {
-  const NightSkyHero({super.key, required this.today, required this.doneToday});
+  const NightSkyHero({
+    super.key,
+    required this.today,
+    required this.doneToday,
+    this.onOpen,
+  });
 
   final ConstellationToday today;
   final int doneToday;
+
+  /// 카드 전체 · 썸네일을 누르면 — 오늘의 목표 별자리 상세 시트(P2, 10-29 사용자 결정).
+  final VoidCallback? onOpen;
+
+  /// 오른쪽 위 별자리 썸네일 한 변.
+  static const double thumbSize = 88;
 
   static const _dimStars = <(double, double)>[
     (5, 18),
@@ -59,208 +70,244 @@ class NightSkyHero extends StatelessWidget {
           ].join(' · ')
         : l.constHeroCaptionEmpty;
 
-    return Container(
-      height: 168,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: PRadius.brLg,
-        gradient: skyGradient(context.colors, three: true),
-      ),
-      child: LayoutBuilder(
-        builder: (context, box) {
-          return Stack(
-            children: [
-              // 은은한 달빛
-              Positioned(
-                top: -40,
-                right: -20,
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [skyInk(c, 0x29), Colors.transparent],
-                      stops: [0, 0.65],
+    // 글 · 아이콘 색은 하나다 — 불투명도로 흐리지 않는다(I-11 8). 장식(달빛 · 잔별 · 별자리 그림)만 투명도를 남긴다.
+    final ink = c.fgNeutralInverted;
+    final nameStyle = PTypography.t8.copyWith(
+      color: ink,
+      fontWeight: FontWeight.w700,
+    );
+    final countStyle = PTypography.t4.copyWith(
+      color: ink,
+      fontWeight: FontWeight.w700,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    final smallStyle = PTypography.t3.copyWith(color: ink);
+
+    // 읽는 이름은 단추 하나 — 이름(목표 · 별자리 · 별빛) + 설명(캡션 · 연속 · 보호). 그림 안 글은 한 번 더 읽히지 않게 가린다
+    // (keepAll 의 U+2060 도 읽는 글에 안 들어간다). 웹 aria-label + aria-describedby 와 같다.
+    return Semantics(
+      container: true,
+      button: onOpen != null,
+      onTap: onOpen,
+      label: l.constHeroLabel(name, lit, today.goal),
+      hint: [
+        caption,
+        l.constHeroStreak(today.streak),
+        l.constHeroGuardInfo(today.guardCount),
+      ].join(', '),
+      child: ExcludeSemantics(
+        child: _HeroPress(
+          onTap: onOpen,
+          child: Container(
+            key: const ValueKey('night-sky-hero'),
+            clipBehavior: Clip.antiAlias,
+            constraints: const BoxConstraints(minHeight: 168),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(PRounded.r4),
+              gradient: skyGradient(c, three: true),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ExcludeSemantics(
+                    child: LayoutBuilder(
+                      builder: (context, box) => _Decor(size: box.biggest),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 14,
-                right: 16,
-                child: Icon(LucideIcons.moon, size: 15, color: skyInk(c, 0x8C)),
-              ),
-              // 배경 잔별
-              for (var i = 0; i < _dimStars.length; i++)
-                Positioned(
-                  left: box.maxWidth * _dimStars[i].$1 / 100,
-                  top: box.maxHeight * _dimStars[i].$2 / 100,
-                  child: Container(
-                    width: i % 3 == 0 ? 2.5 : 1.5,
-                    height: i % 3 == 0 ? 2.5 : 1.5,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: skyInk(c, 0x52),
+                Padding(
+                  padding: const EdgeInsets.all(PSpacing.x5),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 168 - 2 * PSpacing.x5,
                     ),
-                  ),
-                ),
-              // 별자리 figure — 중앙 비율 박스 (웹 aspectRatio 1.45 정합)
-              Positioned(
-                top: box.maxHeight * 0.10,
-                bottom: box.maxHeight * 0.24,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: 1.45,
-                    child: CustomPaint(
-                      painter: _HeroFigurePainter(
-                        colors: c,
-                        map: today.constellation.starMap,
-                        lit: lit,
-                        done: done,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // 좌상단: 오늘의 목표
-              Positioned(
-                top: 12,
-                left: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.constHeroTodayTarget,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: 11,
-                        fontWeight: PFontWeight.semi,
-                        letterSpacing: 0.33,
-                        color: skyInk(c, 0x9E),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          done ? l.constHeroCollectedBang(name) : name,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.32,
-                            color: skyInk(c, 0xFF),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          l.constHeroStarlightCount(lit, today.goal),
-                          style: TextStyle(
-                            fontFamily: PTypo.mono,
-                            fontSize: 12.5,
-                            fontWeight: PFontWeight.bold,
-                            color: skyInk(c, 0xD9),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // 아래 줄 — 왼쪽 진행 캡션 · 오른쪽 스트릭 + 보호를 한 줄에 둔다. 따로 띄우면 폰 폭에서 둘이
-              // 겹친다(캡션이 오른쪽 묶음 아래로 파고든다). 캡션이 남은 폭에서 줄을 바꾼다.
-              Positioned(
-                left: 16,
-                right: 14,
-                bottom: 13,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        // 줄은 낱말 사이에서만 바꾼다(줄바꿈 v114) — "2별" 이 "2 / 별" 로 갈리지 않게
-                        keepAll(caption),
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: 11,
-                          color: skyInk(c, 0x8C),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: skyInk(c, 0x17),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                LucideIcons.sparkles,
-                                size: 12,
-                                color: skyInk(c, 0xFF),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      keepAll(l.constHeroTodayTarget),
+                                      style: smallStyle,
+                                    ),
+                                    const SizedBox(height: PSpacing.x0_5),
+                                    Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: keepAll(
+                                              done
+                                                  ? l.constHeroCollectedBang(
+                                                      name,
+                                                    )
+                                                  : name,
+                                            ),
+                                          ),
+                                          // 이름 뒤 › — 마지막 글자와 한 묶음(U+2060), 크기는 글자 배율과 상관없이 20(WidgetSpan 이
+                                          // 자식을 배율만큼 한 번 더 키우므로 나눠 둔다). 카드가 눌린다는 표시(그림 P2).
+                                          const TextSpan(text: '\u2060'),
+                                          WidgetSpan(
+                                            alignment:
+                                                PlaceholderAlignment.middle,
+                                            child: _NameChevron(color: ink),
+                                          ),
+                                          TextSpan(
+                                            text:
+                                                ' ${l.constHeroStarlightCount(lit, today.goal).replaceAll(' ', '\u00A0')}',
+                                            style: countStyle,
+                                          ),
+                                        ],
+                                      ),
+                                      style: nameStyle,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                l.constHeroStreak(today.streak),
-                                style: TextStyle(
-                                  fontFamily: PTypo.sans,
-                                  fontSize: 11.5,
-                                  fontWeight: PFontWeight.bold,
-                                  color: skyInk(c, 0xFF),
+                              const SizedBox(width: PSpacing.x3),
+                              // 별자리 썸네일 88 — 켠 별 밝게 · 남은 별 고리, 오른쪽 위(안 여백에서 −4). 자리는 84 만 잡고
+                              // 위 · 오른쪽 4 는 자리 밖으로 나간다(웹 -mr-x1 -mt-x1 과 같게 — 글과 12, 카드 208).
+                              // 보조 기술에는 숨긴다(카드 이름이 읽는다).
+                              ExcludeSemantics(
+                                child: SizedBox(
+                                  width: thumbSize - PSpacing.x1,
+                                  height: thumbSize - PSpacing.x1,
+                                  child: OverflowBox(
+                                    alignment: Alignment.bottomLeft,
+                                    minWidth: thumbSize,
+                                    maxWidth: thumbSize,
+                                    minHeight: thumbSize,
+                                    maxHeight: thumbSize,
+                                    child: SizedBox(
+                                      key: const ValueKey('night-sky-thumb'),
+                                      width: thumbSize,
+                                      height: thumbSize,
+                                      child: CustomPaint(
+                                        painter: _HeroFigurePainter(
+                                          colors: c,
+                                          map: today.constellation.starMap,
+                                          lit: lit,
+                                          done: done,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              LucideIcons.cloud,
-                              size: 11,
-                              color: skyInk(c, 0xB2),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              l.constHeroGuardInfo(today.guardCount),
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontSize: 10.5,
-                                fontWeight: PFontWeight.semi,
-                                color: skyInk(c, 0xB2),
+                          const Spacer(),
+                          const SizedBox(height: PSpacing.x4),
+                          Text(keepAll(caption), style: smallStyle),
+                          const SizedBox(height: PSpacing.x2),
+                          Wrap(
+                            spacing: PSpacing.x3,
+                            runSpacing: PSpacing.x1_5,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _Meta(
+                                icon: LucideIcons.sparkles,
+                                text: l.constHeroStreak(today.streak),
+                                style: smallStyle.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              _Meta(
+                                icon: LucideIcons.cloud,
+                                text: l.constHeroGuardInfo(today.guardCount),
+                                style: smallStyle,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-/// 히어로 중앙 figure — 점등 별(글로우)과 점선/실선 연결. 박스에 늘림(preserveAspectRatio none 정합).
+/// 아이콘 14 + 사이 4 + 글 — 연속 관측 · 보호 한 조각.
+class _Meta extends StatelessWidget {
+  const _Meta({required this.icon, required this.text, required this.style});
+  final IconData icon;
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    // 글이 두 줄이 되어도 아이콘은 첫 줄에 맞춘다(줄 높이 18 − 아이콘 14 의 절반 2).
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: PSpacing.x0_5),
+          child: Icon(icon, size: PSpacing.x3_5, color: style.color),
+        ),
+        const SizedBox(width: PSpacing.x1),
+        Flexible(child: Text(keepAll(text), style: style)),
+      ],
+    );
+  }
+}
+
+/// 장식 층 — 달빛 · 잔별(보조 기술에 숨김, 투명도 남김). 별자리 그림은 배경이 아니라 오른쪽 위 썸네일이다.
+class _Decor extends StatelessWidget {
+  const _Decor({required this.size});
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Stack(
+      clipBehavior: Clip.hardEdge,
+      children: [
+        Positioned(
+          top: -40,
+          right: -20,
+          child: Container(
+            width: 180,
+            height: 180,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [skyInk(c, 0x29), Colors.transparent],
+                stops: const [0, 0.65],
+              ),
+            ),
+          ),
+        ),
+        for (var i = 0; i < NightSkyHero._dimStars.length; i++)
+          Positioned(
+            left: size.width * NightSkyHero._dimStars[i].$1 / 100,
+            top: size.height * NightSkyHero._dimStars[i].$2 / 100,
+            child: Container(
+              width: i % 3 == 0 ? 2.5 : 1.5,
+              height: i % 3 == 0 ? 2.5 : 1.5,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: skyInk(c, 0x52),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// 히어로 썸네일 figure — 점등 별(글로우)과 점선/실선 연결, 꺼진 별은 고리. 정비율.
 class _HeroFigurePainter extends CustomPainter {
   _HeroFigurePainter({
     required this.map,
@@ -277,9 +324,11 @@ class _HeroFigurePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final sx = size.width / 100;
-    final sy = size.height / 100;
-    Offset at(List<double> p) => Offset(p[0] * sx, p[1] * sy);
+    // 썸네일은 정비율 — 0~100 좌표를 짧은 변에 맞춰 가운데에 놓는다.
+    final unit = size.shortestSide / 100;
+    final ox = (size.width - 100 * unit) / 2;
+    final oy = (size.height - 100 * unit) / 2;
+    Offset at(List<double> p) => Offset(ox + p[0] * unit, oy + p[1] * unit);
 
     final lineColor = done ? skyInk(colors, 0xD9) : skyInk(colors, 0x80);
     final linePaint = Paint()
@@ -310,10 +359,9 @@ class _HeroFigurePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
-    // 별 수 적응형 점 크기 — 밀집 별자리(15별 초과) 겹침 방지
-    final dense = map.pts.length > 15;
-    final rOn = dense ? 2.5 : 3.5;
-    final rOff = dense ? 1.8 : 2.5;
+    // 썸네일은 점 크기가 고정이다 — 켠 별 r 2.5 · 고리 r 1.8(그림 values.md)
+    const rOn = 2.5;
+    const rOff = 1.8;
     for (var i = 0; i < map.pts.length; i++) {
       final c = at(map.pts[i]);
       if (i < lit) {
@@ -345,4 +393,64 @@ class _HeroFigurePainter extends CustomPainter {
       old.lit != lit ||
       old.done != done ||
       old.colors != colors;
+}
+
+/// 하늘 카드 이름 뒤 › — 20 · 앞 2. 글 흐름 안 [WidgetSpan] 이라 글자 배율이 한 번 더 곱해지므로 나눠 눈에 보이는 크기를 20 으로 둔다.
+class _NameChevron extends StatelessWidget {
+  const _NameChevron({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final k = MediaQuery.textScalerOf(context).scale(1);
+    return Padding(
+      padding: EdgeInsets.only(left: PSpacing.x0_5 / k),
+      child: Icon(LucideIcons.chevronRight, size: 20 / k, color: color),
+    );
+  }
+}
+
+/// 하늘 카드 누름 — card.yaml hero 규칙: 그라디언트 면에는 색 짝이 없어 눌린 동안 2px 거리 축소만(모션 줄이기면 안 한다).
+class _HeroPress extends StatefulWidget {
+  const _HeroPress({required this.onTap, required this.child});
+
+  final VoidCallback? onTap;
+  final Widget child;
+
+  @override
+  State<_HeroPress> createState() => _HeroPressState();
+}
+
+class _HeroPressState extends State<_HeroPress> {
+  bool _pressed = false;
+  double _basis = 24;
+
+  void _set(bool v) {
+    if (_pressed == v) return;
+    if (v) {
+      final size = context.size;
+      if (size != null) _basis = cardPressBasis(size);
+    }
+    setState(() => _pressed = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final enabled = widget.onTap != null;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      onTapDown: enabled ? (_) => _set(true) : null,
+      onTapUp: enabled ? (_) => _set(false) : null,
+      onTapCancel: enabled ? () => _set(false) : null,
+      child: AnimatedScale(
+        scale: _pressed && !reduce ? (_basis - 2) / _basis : 1,
+        duration: PDuration.pressedScale,
+        curve: PEasing.pressedScale,
+        child: widget.child,
+      ),
+    );
+  }
 }

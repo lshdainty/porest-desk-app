@@ -6045,11 +6045,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get constCollectionTodayBadge => '오늘의 목표';
 
   @override
-  String constCollectionStarCount(int count) {
-    return '별 $count개';
-  }
-
-  @override
   String constCollectionTimes(int count) {
     return '$count회';
   }
@@ -6058,20 +6053,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get constCollectionNotCollected => '미수집';
 
   @override
-  String get constDetailTitle => '별자리 도감';
-
-  @override
   String get constDetailNotMet => '아직 만나지 못한 별자리예요';
-
-  @override
-  String constDetailCollectedTimes(int count) {
-    return '지금까지 $count번 수집했어요';
-  }
-
-  @override
-  String constDetailHint(int count) {
-    return '하루에 별빛 $count개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요';
-  }
 
   @override
   String get todoDetailTitle => '할 일 상세';
@@ -6688,6 +6670,136 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String constHeroLabel(String name, int lit, int goal) {
+    return '오늘의 목표 별자리 $name $lit/$goal 별빛';
+  }
+
+  @override
+  String get constFailToday => '밤하늘을 불러오지 못했어요';
+
+  @override
+  String get constFailSky => '나의 밤하늘을 불러오지 못했어요';
+
+  @override
+  String get constFailCollection => '별자리 도감을 불러오지 못했어요';
+
+  @override
+  String get constLoadFailedDesc => '잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String get frpLoadFailed => '관측 리포트를 불러오지 못했어요';
+
+  @override
+  String frpRowName(String name) {
+    return '관측 리포트, 오늘의 목표 $name';
+  }
+
+  @override
+  String constMySkyCellToday(String date) {
+    return '$date, 오늘';
+  }
+
+  @override
+  String constMySkyCellCollected(String date, String name) {
+    return '$date, 수집 $name';
+  }
+
+  @override
+  String constMySkyCellCloudy(String date) {
+    return '$date, 흐린 밤';
+  }
+
+  @override
+  String constMySkyCellRest(String date) {
+    return '$date, 쉰 밤';
+  }
+
+  @override
+  String get constCollectionBadgeNew => 'NEW';
+
+  @override
+  String constCollectionViewOwnedNamed(String name) {
+    return '$name 감상하기';
+  }
+
+  @override
+  String constCollectionViewLockedNamed(String name) {
+    return '$name 미리보기';
+  }
+
+  @override
+  String constDetailSkyName(String name) {
+    return '$name 별자리 그림';
+  }
+
+  @override
+  String get constDetailStarCountLabel => '별 개수';
+
+  @override
+  String constDetailStarCountValue(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get constDetailCollectLabel => '수집';
+
+  @override
+  String constDetailCollectValue(int count) {
+    return '$count번';
+  }
+
+  @override
+  String get frpPrevWeek => '이전 주';
+
+  @override
+  String get frpNextWeek => '다음 주';
+
+  @override
+  String get frpObsWitheredGuard => '흐린 밤 · 구름 보호로 스트릭 유지';
+
+  @override
+  String frpPctBang(int pct) {
+    return '$pct% 달성!';
+  }
+
+  @override
+  String frpMissedWeight(int count) {
+    return '별빛 +$count';
+  }
+
+  @override
+  String get frpLegendMemo => '메모 별빛';
+
+  @override
+  String get frpBarsName => '요일별 별빛';
+
+  @override
+  String frpStampName(int count) {
+    return '$count일째 연속 관측';
+  }
+
+  @override
+  String get constDetailTodayDesc => '오늘의 목표 별자리';
+
+  @override
+  String get constDetailTodayProgress => '오늘 모은 별빛';
+
+  @override
+  String constDetailTodayPct(int pct) {
+    return '$pct%';
+  }
+
+  @override
+  String constDetailTodayRemain(int lit, int goal, int count) {
+    return '$lit/$goal 별빛 · $count별 남음';
+  }
+
+  @override
+  String constDetailTodayAll(int lit, int goal) {
+    return '$lit/$goal 별빛';
+  }
+
+  @override
   String get nightSkyTitle => '밤하늘';
 
   @override
@@ -6705,7 +6817,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get frpObsResult => '관측 결과 :';
+  String get frpObsResult => '관측 결과';
 
   @override
   String frpObsToday(String name, int lit, int goal) {
@@ -6718,7 +6830,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get frpObsWithered => '흐린 밤 · 구름 보호로 스트릭 유지';
+  String get frpObsWithered => '흐린 밤';
 
   @override
   String get frpObsRest => '쉬어간 밤';
@@ -6760,7 +6872,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String frpLegendItem(String label, int count) {
-    return '$label 완료: $count';
+    return '$label 완료 $count';
   }
 
   @override
@@ -6773,9 +6885,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String frpMissedCount(int count) {
     return '$count개';
   }
-
-  @override
-  String get frpFuture => '아직 오지 않은 밤이에요';
 
   @override
   String frpAsOf(String ts) {
@@ -6800,11 +6909,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ttagEditTitle => '태그 수정';
-
-  @override
-  String fcolOwnBadge(int count) {
-    return '수집 $count회';
-  }
 
   @override
   String get ttagTitle => '할 일 태그';

@@ -6143,11 +6143,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constCollectionTodayBadge => 'Today\'s goal';
 
   @override
-  String constCollectionStarCount(int count) {
-    return '$count stars';
-  }
-
-  @override
   String constCollectionTimes(int count) {
     return '$count×';
   }
@@ -6156,20 +6151,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constCollectionNotCollected => 'Not yet';
 
   @override
-  String get constDetailTitle => 'Constellation collection';
-
-  @override
   String get constDetailNotMet => 'A constellation you haven\'t met yet';
-
-  @override
-  String constDetailCollectedTimes(int count) {
-    return 'Collected $count times so far';
-  }
-
-  @override
-  String constDetailHint(int count) {
-    return 'Gather $count starlight in a day to collect · a new target rises daily';
-  }
 
   @override
   String get todoDetailTitle => 'Todo details';
@@ -6797,6 +6779,137 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String constHeroLabel(String name, int lit, int goal) {
+    return 'Today\'s constellation $name $lit/$goal starlight';
+  }
+
+  @override
+  String get constFailToday => 'Couldn\'t load the night sky';
+
+  @override
+  String get constFailSky => 'Couldn\'t load your night sky';
+
+  @override
+  String get constFailCollection =>
+      'Couldn\'t load the constellation collection';
+
+  @override
+  String get constLoadFailedDesc => 'Please try again in a moment.';
+
+  @override
+  String get frpLoadFailed => 'Couldn\'t load the observation report';
+
+  @override
+  String frpRowName(String name) {
+    return 'Observation report, today\'s constellation $name';
+  }
+
+  @override
+  String constMySkyCellToday(String date) {
+    return '$date, today';
+  }
+
+  @override
+  String constMySkyCellCollected(String date, String name) {
+    return '$date, collected $name';
+  }
+
+  @override
+  String constMySkyCellCloudy(String date) {
+    return '$date, cloudy night';
+  }
+
+  @override
+  String constMySkyCellRest(String date) {
+    return '$date, rest night';
+  }
+
+  @override
+  String get constCollectionBadgeNew => 'NEW';
+
+  @override
+  String constCollectionViewOwnedNamed(String name) {
+    return 'View $name';
+  }
+
+  @override
+  String constCollectionViewLockedNamed(String name) {
+    return 'Preview $name';
+  }
+
+  @override
+  String constDetailSkyName(String name) {
+    return 'Constellation $name drawing';
+  }
+
+  @override
+  String get constDetailStarCountLabel => 'Stars';
+
+  @override
+  String constDetailStarCountValue(int count) {
+    return '$count';
+  }
+
+  @override
+  String get constDetailCollectLabel => 'Collected';
+
+  @override
+  String constDetailCollectValue(int count) {
+    return '$count times';
+  }
+
+  @override
+  String get frpPrevWeek => 'Previous week';
+
+  @override
+  String get frpNextWeek => 'Next week';
+
+  @override
+  String get frpObsWitheredGuard => 'Cloudy night · streak kept by cloud guard';
+
+  @override
+  String frpPctBang(int pct) {
+    return '$pct% achieved!';
+  }
+
+  @override
+  String frpMissedWeight(int count) {
+    return 'Starlight +$count';
+  }
+
+  @override
+  String get frpLegendMemo => 'Memo starlight';
+
+  @override
+  String get frpBarsName => 'Starlight by weekday';
+
+  @override
+  String frpStampName(int count) {
+    return 'Day $count of your streak';
+  }
+
+  @override
+  String get constDetailTodayDesc => 'Today\'s constellation';
+
+  @override
+  String get constDetailTodayProgress => 'Starlight gathered today';
+
+  @override
+  String constDetailTodayPct(int pct) {
+    return '$pct%';
+  }
+
+  @override
+  String constDetailTodayRemain(int lit, int goal, int count) {
+    return '$lit/$goal starlight · $count to go';
+  }
+
+  @override
+  String constDetailTodayAll(int lit, int goal) {
+    return '$lit/$goal starlight';
+  }
+
+  @override
   String get nightSkyTitle => 'Night sky';
 
   @override
@@ -6814,7 +6927,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get frpObsResult => 'Observation:';
+  String get frpObsResult => 'Observation result';
 
   @override
   String frpObsToday(String name, int lit, int goal) {
@@ -6827,7 +6940,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get frpObsWithered => 'Cloudy night · streak kept by cloud guard';
+  String get frpObsWithered => 'Cloudy night';
 
   @override
   String get frpObsRest => 'A restful night';
@@ -6869,7 +6982,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String frpLegendItem(String label, int count) {
-    return '$label done: $count';
+    return '$label done $count';
   }
 
   @override
@@ -6883,9 +6996,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String frpMissedCount(int count) {
     return '$count';
   }
-
-  @override
-  String get frpFuture => 'That night hasn\'t come yet';
 
   @override
   String frpAsOf(String ts) {
@@ -6910,11 +7020,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttagEditTitle => 'Edit tag';
-
-  @override
-  String fcolOwnBadge(int count) {
-    return 'Collected ×$count';
-  }
 
   @override
   String get ttagTitle => 'Todo tags';

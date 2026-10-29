@@ -1,4 +1,5 @@
-import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 
@@ -20,3 +21,11 @@ LinearGradient skyGradient(PColors c, {bool three = false}) => LinearGradient(
   ],
   stops: three ? const [0, 0.55, 1] : null,
 );
+
+/// 오늘 진행 단계 아이콘 — 별빛 0 달 · 1 반짝 · 3 반짝이 · 5 별(웹 `stageIconOf` 와 같다).
+IconData skyStageIcon(int points) {
+  if (points >= 5) return LucideIcons.star;
+  if (points >= 3) return LucideIcons.sparkles;
+  if (points >= 1) return LucideIcons.sparkle;
+  return LucideIcons.moon;
+}

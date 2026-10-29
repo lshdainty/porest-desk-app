@@ -12,6 +12,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
+import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
@@ -251,6 +252,38 @@ void main() {
       expect(hint.data!.contains('⁠'), isTrue);
       expect(hint.style!.fontSize, 14);
       expect(hint.style!.fontWeight, FontWeight.w400);
+    });
+
+    testWidgets('[밤하늘] 펼침 하늘 카드를 눌러 연 상세에 "수집" 줄이 있다 · 못 모은 목표는 "미수집"', (
+      tester,
+    ) async {
+      final today = constToday();
+      await pumpApp(
+        tester,
+        const TodoScreen(),
+        overrides: [
+          ...todoOverrides(todos: _basic()),
+          constellationCollectionProvider.overrideWith(
+            (ref) async => ConstellationCollectionData(
+              entries: [
+                CollectionEntry(
+                  constellation: today.constellation,
+                  collectCount: 0,
+                  lastCollectedDate: null,
+                ),
+              ],
+              collectedKinds: 0,
+              totalCollected: 0,
+            ),
+          ),
+        ],
+      );
+      await tester.tap(find.text('밤하늘'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('night-sky-hero')));
+      await tester.pumpAndSettle();
+      expect(findPlain('수집'), findsOneWidget);
+      expect(findPlain('미수집'), findsOneWidget);
     });
 
     testWidgets('[밤하늘] ↔ 월 달력은 하나만 펼친다 · 펼침 이름은 "월 달력" 고정', (tester) async {
