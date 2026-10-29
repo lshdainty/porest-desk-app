@@ -6800,11 +6800,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String constDetailProgressName(int lit, int goal) {
-    return '오늘 모은 별빛 $lit/$goal';
-  }
-
-  @override
   String get nightSkyTitle => '밤하늘';
 
   @override

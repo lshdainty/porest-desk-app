@@ -12302,12 +12302,6 @@ abstract class AppLocalizations {
   /// **'{lit}/{goal} 별빛'**
   String constDetailTodayAll(int lit, int goal);
 
-  /// No description provided for @constDetailProgressName.
-  ///
-  /// In ko, this message translates to:
-  /// **'오늘 모은 별빛 {lit}/{goal}'**
-  String constDetailProgressName(int lit, int goal);
-
   /// No description provided for @nightSkyTitle.
   ///
   /// In ko, this message translates to:

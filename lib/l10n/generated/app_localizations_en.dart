@@ -6910,11 +6910,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String constDetailProgressName(int lit, int goal) {
-    return 'Starlight gathered today $lit/$goal';
-  }
-
-  @override
   String get nightSkyTitle => 'Night sky';
 
   @override

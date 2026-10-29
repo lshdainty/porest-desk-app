@@ -83,144 +83,154 @@ class NightSkyHero extends StatelessWidget {
     );
     final smallStyle = PTypography.t3.copyWith(color: ink);
 
+    // 읽는 이름은 단추 하나 — 이름(목표 · 별자리 · 별빛) + 설명(캡션 · 연속 · 보호). 그림 안 글은 한 번 더 읽히지 않게 가린다
+    // (keepAll 의 U+2060 도 읽는 글에 안 들어간다). 웹 aria-label + aria-describedby 와 같다.
     return Semantics(
       container: true,
-      explicitChildNodes: true,
       button: onOpen != null,
       onTap: onOpen,
       label: l.constHeroLabel(name, lit, today.goal),
-      child: _HeroPress(
-        onTap: onOpen,
-        child: Container(
-          key: const ValueKey('night-sky-hero'),
-          clipBehavior: Clip.antiAlias,
-          constraints: const BoxConstraints(minHeight: 168),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(PRounded.r4),
-            gradient: skyGradient(c, three: true),
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ExcludeSemantics(
-                  child: LayoutBuilder(
-                    builder: (context, box) => _Decor(size: box.biggest),
+      hint: [
+        caption,
+        l.constHeroStreak(today.streak),
+        l.constHeroGuardInfo(today.guardCount),
+      ].join(', '),
+      child: ExcludeSemantics(
+        child: _HeroPress(
+          onTap: onOpen,
+          child: Container(
+            key: const ValueKey('night-sky-hero'),
+            clipBehavior: Clip.antiAlias,
+            constraints: const BoxConstraints(minHeight: 168),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(PRounded.r4),
+              gradient: skyGradient(c, three: true),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ExcludeSemantics(
+                    child: LayoutBuilder(
+                      builder: (context, box) => _Decor(size: box.biggest),
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(PSpacing.x5),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: 168 - 2 * PSpacing.x5,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    keepAll(l.constHeroTodayTarget),
-                                    style: smallStyle,
-                                  ),
-                                  const SizedBox(height: PSpacing.x0_5),
-                                  Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: keepAll(
-                                            done
-                                                ? l.constHeroCollectedBang(name)
-                                                : name,
-                                          ),
-                                        ),
-                                        // 이름 뒤 › — 마지막 글자와 한 묶음(U+2060), 크기는 글자 배율과 상관없이 20(WidgetSpan 이
-                                        // 자식을 배율만큼 한 번 더 키우므로 나눠 둔다). 카드가 눌린다는 표시(그림 P2).
-                                        const TextSpan(text: '\u2060'),
-                                        WidgetSpan(
-                                          alignment:
-                                              PlaceholderAlignment.middle,
-                                          child: _NameChevron(color: ink),
-                                        ),
-                                        TextSpan(
-                                          text:
-                                              ' ${l.constHeroStarlightCount(lit, today.goal).replaceAll(' ', '\u00A0')}',
-                                          style: countStyle,
-                                        ),
-                                      ],
+                Padding(
+                  padding: const EdgeInsets.all(PSpacing.x5),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 168 - 2 * PSpacing.x5,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      keepAll(l.constHeroTodayTarget),
+                                      style: smallStyle,
                                     ),
-                                    style: nameStyle,
-                                  ),
-                                ],
+                                    const SizedBox(height: PSpacing.x0_5),
+                                    Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: keepAll(
+                                              done
+                                                  ? l.constHeroCollectedBang(
+                                                      name,
+                                                    )
+                                                  : name,
+                                            ),
+                                          ),
+                                          // 이름 뒤 › — 마지막 글자와 한 묶음(U+2060), 크기는 글자 배율과 상관없이 20(WidgetSpan 이
+                                          // 자식을 배율만큼 한 번 더 키우므로 나눠 둔다). 카드가 눌린다는 표시(그림 P2).
+                                          const TextSpan(text: '\u2060'),
+                                          WidgetSpan(
+                                            alignment:
+                                                PlaceholderAlignment.middle,
+                                            child: _NameChevron(color: ink),
+                                          ),
+                                          TextSpan(
+                                            text:
+                                                ' ${l.constHeroStarlightCount(lit, today.goal).replaceAll(' ', '\u00A0')}',
+                                            style: countStyle,
+                                          ),
+                                        ],
+                                      ),
+                                      style: nameStyle,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: PSpacing.x3),
-                            // 별자리 썸네일 88 — 켠 별 밝게 · 남은 별 고리, 오른쪽 위(안 여백에서 −4). 자리는 84 만 잡고
-                            // 위 · 오른쪽 4 는 자리 밖으로 나간다(웹 -mr-x1 -mt-x1 과 같게 — 글과 12, 카드 208).
-                            // 보조 기술에는 숨긴다(카드 이름이 읽는다).
-                            ExcludeSemantics(
-                              child: SizedBox(
-                                width: thumbSize - PSpacing.x1,
-                                height: thumbSize - PSpacing.x1,
-                                child: OverflowBox(
-                                  alignment: Alignment.bottomLeft,
-                                  minWidth: thumbSize,
-                                  maxWidth: thumbSize,
-                                  minHeight: thumbSize,
-                                  maxHeight: thumbSize,
-                                  child: SizedBox(
-                                    key: const ValueKey('night-sky-thumb'),
-                                    width: thumbSize,
-                                    height: thumbSize,
-                                    child: CustomPaint(
-                                      painter: _HeroFigurePainter(
-                                        colors: c,
-                                        map: today.constellation.starMap,
-                                        lit: lit,
-                                        done: done,
+                              const SizedBox(width: PSpacing.x3),
+                              // 별자리 썸네일 88 — 켠 별 밝게 · 남은 별 고리, 오른쪽 위(안 여백에서 −4). 자리는 84 만 잡고
+                              // 위 · 오른쪽 4 는 자리 밖으로 나간다(웹 -mr-x1 -mt-x1 과 같게 — 글과 12, 카드 208).
+                              // 보조 기술에는 숨긴다(카드 이름이 읽는다).
+                              ExcludeSemantics(
+                                child: SizedBox(
+                                  width: thumbSize - PSpacing.x1,
+                                  height: thumbSize - PSpacing.x1,
+                                  child: OverflowBox(
+                                    alignment: Alignment.bottomLeft,
+                                    minWidth: thumbSize,
+                                    maxWidth: thumbSize,
+                                    minHeight: thumbSize,
+                                    maxHeight: thumbSize,
+                                    child: SizedBox(
+                                      key: const ValueKey('night-sky-thumb'),
+                                      width: thumbSize,
+                                      height: thumbSize,
+                                      child: CustomPaint(
+                                        painter: _HeroFigurePainter(
+                                          colors: c,
+                                          map: today.constellation.starMap,
+                                          lit: lit,
+                                          done: done,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        const SizedBox(height: PSpacing.x4),
-                        Text(keepAll(caption), style: smallStyle),
-                        const SizedBox(height: PSpacing.x2),
-                        Wrap(
-                          spacing: PSpacing.x3,
-                          runSpacing: PSpacing.x1_5,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            _Meta(
-                              icon: LucideIcons.sparkles,
-                              text: l.constHeroStreak(today.streak),
-                              style: smallStyle.copyWith(
-                                fontWeight: FontWeight.w700,
+                            ],
+                          ),
+                          const Spacer(),
+                          const SizedBox(height: PSpacing.x4),
+                          Text(keepAll(caption), style: smallStyle),
+                          const SizedBox(height: PSpacing.x2),
+                          Wrap(
+                            spacing: PSpacing.x3,
+                            runSpacing: PSpacing.x1_5,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _Meta(
+                                icon: LucideIcons.sparkles,
+                                text: l.constHeroStreak(today.streak),
+                                style: smallStyle.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
-                            _Meta(
-                              icon: LucideIcons.cloud,
-                              text: l.constHeroGuardInfo(today.guardCount),
-                              style: smallStyle,
-                            ),
-                          ],
-                        ),
-                      ],
+                              _Meta(
+                                icon: LucideIcons.cloud,
+                                text: l.constHeroGuardInfo(today.guardCount),
+                                style: smallStyle,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

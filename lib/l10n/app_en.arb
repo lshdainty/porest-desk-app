@@ -3925,8 +3925,6 @@
   "@constDetailTodayRemain": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}, "count": {"type": "int"}}},
   "constDetailTodayAll": "{lit}/{goal} starlight",
   "@constDetailTodayAll": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}}},
-  "constDetailProgressName": "Starlight gathered today {lit}/{goal}",
-  "@constDetailProgressName": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}}},
   "nightSkyTitle": "Night sky",
   "forestReportTitle": "Observation report",
   "fcolViewCta": "View",

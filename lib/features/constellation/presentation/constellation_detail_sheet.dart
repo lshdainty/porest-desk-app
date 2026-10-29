@@ -82,9 +82,9 @@ class ConstellationDetailSheet extends StatelessWidget {
     final lit = goalToday == null
         ? 0
         : math.min(goalToday.points, goalToday.goal);
+    // list.yaml 글 값 — t5 · fg-neutral-subtle(굵기 없음), 제목은 fg-neutral(기본)
     final valueStyle = PTypography.t5.copyWith(
-      color: c.fgNeutral,
-      fontWeight: FontWeight.w700,
+      color: c.fgNeutralSubtle,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
@@ -169,7 +169,6 @@ class ConstellationDetailSheet extends StatelessWidget {
             children: [
               PListItem(
                 title: l.constDetailStarCountLabel,
-                titleColor: c.fgNeutralMuted,
                 gutter: 0,
                 suffix: Text(
                   l.constDetailStarCountValue(info.starCount),
@@ -180,7 +179,6 @@ class ConstellationDetailSheet extends StatelessWidget {
               if (showCollectRow)
                 PListItem(
                   title: l.constDetailCollectLabel,
-                  titleColor: c.fgNeutralMuted,
                   gutter: 0,
                   suffix: Text(
                     collected
@@ -300,7 +298,11 @@ class _TodayProgress extends StatelessWidget {
           value: lit.toDouble(),
           max: math.max(goal, 1).toDouble(),
           meaning: PProgressMeaning.goal,
-          semanticsLabel: l.constDetailProgressName(lit, goal),
+          semanticsLabel: l.dsProgressSemantics(
+            l.constDetailTodayProgress,
+            '${math.max(goal, 1)}',
+            '$lit',
+          ),
           semanticsValue: reached
               ? l.dsProgressReached
               : l.constDetailTodayPct(pct),

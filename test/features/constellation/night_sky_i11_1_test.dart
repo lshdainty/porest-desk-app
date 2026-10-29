@@ -14,6 +14,7 @@ import 'package:groo_damda_app/features/constellation/presentation/forest_report
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_screen.dart';
 import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 
@@ -679,7 +680,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(_t('달성'), findsOneWidget);
       expect(_t('100%'), findsNothing);
-      expect(find.bySemanticsLabel(RegExp('오늘 모은 별빛')), findsWidgets);
+      final reached = tester.widget<Text>(_t('달성'));
+      final cc = Theme.of(tester.element(_t('달성'))).extension<PColors>()!;
+      expect(reached.style!.fontWeight, FontWeight.w700);
+      expect(reached.style!.color, cc.fgNeutral);
+      // 막대 이름 "{이름} {목표} 중 {현재}" · 값 "달성"
+      final bar = tester.getSemantics(
+        find.bySemanticsLabel('오늘 모은 별빛 15 중 15'),
+      );
+      expect(bar.value, '달성');
       handle.dispose();
     });
 
@@ -699,6 +708,52 @@ void main() {
       await g.up();
       await tester.pumpAndSettle();
       expect(scaleOf().scale, 1);
+    });
+
+    testWidgets(
+      '상세 키-값 줄 — 제목 fg-neutral · 값 t5 fg-neutral-subtle 400(list.yaml)',
+      (tester) async {
+        await pumpApp(tester, const NightSkyScreen(), overrides: _ov().cast());
+        await tester.tap(find.byKey(const ValueKey('night-sky-hero')));
+        await tester.pumpAndSettle();
+        final cc = Theme.of(
+          tester.element(find.byType(ConstellationDetailSheet)),
+        ).extension<PColors>()!;
+        final value = tester.widget<Text>(_t('5개'));
+        expect(value.style!.color, cc.fgNeutralSubtle);
+        expect(value.style!.fontWeight, isNot(FontWeight.w700));
+        final title = tester.widget<Text>(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Text && (w.data ?? '').replaceAll('\u2060', '') == '별 개수',
+          ),
+        );
+        expect(title.style!.color, cc.fgNeutral);
+      },
+    );
+
+    testWidgets('하늘 카드 읽기 — 단추 하나 · 이름 + 설명, 안 글이 한 번 더 읽히지 않고 U+2060 도 없다', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpApp(tester, const NightSkyScreen(), overrides: _ov().cast());
+      final node = tester.getSemantics(
+        find.byKey(const ValueKey('night-sky-hero')),
+      );
+      expect(node.label, '오늘의 목표 별자리 켄타우루스자리 12/15 별빛');
+      expect(node.hint, contains('연속 관측 128일'));
+      expect(
+        node.label.contains('\u2060') || node.hint.contains('\u2060'),
+        isFalse,
+      );
+      // 그림 안 글(자식 마디)은 없다
+      var children = 0;
+      node.visitChildren((_) {
+        children++;
+        return true;
+      });
+      expect(children, 0);
+      handle.dispose();
     });
   });
 }

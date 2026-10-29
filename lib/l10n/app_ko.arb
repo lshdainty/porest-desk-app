@@ -4083,8 +4083,6 @@
   "@constDetailTodayRemain": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}, "count": {"type": "int"}}},
   "constDetailTodayAll": "{lit}/{goal} 별빛",
   "@constDetailTodayAll": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}}},
-  "constDetailProgressName": "오늘 모은 별빛 {lit}/{goal}",
-  "@constDetailProgressName": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}}},
   "nightSkyTitle": "밤하늘",
   "forestReportTitle": "관측 리포트",
   "fcolViewCta": "감상하기",
