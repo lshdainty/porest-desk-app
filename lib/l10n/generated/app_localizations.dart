@@ -3407,8 +3407,14 @@ abstract class AppLocalizations {
   /// No description provided for @dashOverdue.
   ///
   /// In ko, this message translates to:
-  /// **'연체 {count}건'**
+  /// **'연체 {count}'**
   String dashOverdue(int count);
+
+  /// No description provided for @dashOverdueRead.
+  ///
+  /// In ko, this message translates to:
+  /// **'연체 {count}건'**
+  String dashOverdueRead(int count);
 
   /// No description provided for @dashTrendTitle.
   ///
