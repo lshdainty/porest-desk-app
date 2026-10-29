@@ -959,7 +959,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetInstitutionBrand.
   ///
   /// In ko, this message translates to:
-  /// **'기관·브랜드'**
+  /// **'기관'**
   String get assetInstitutionBrand;
 
   /// No description provided for @assetTotalEntries.
@@ -971,7 +971,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetBankSearchHint.
   ///
   /// In ko, this message translates to:
-  /// **'은행명 또는 증권사 검색'**
+  /// **'기관 이름 검색'**
   String get assetBankSearchHint;
 
   /// No description provided for @assetNickname.
@@ -1247,7 +1247,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetIncludeDiscontinued.
   ///
   /// In ko, this message translates to:
-  /// **'단종 포함'**
+  /// **'단종 카드도 보기'**
   String get assetIncludeDiscontinued;
 
   /// No description provided for @assetTotalItems.
@@ -1265,7 +1265,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCardSearchHint.
   ///
   /// In ko, this message translates to:
-  /// **'카드명 또는 발급사 검색'**
+  /// **'카드 이름 검색'**
   String get assetCardSearchHint;
 
   /// No description provided for @assetNicknameOptional.
@@ -1427,13 +1427,13 @@ abstract class AppLocalizations {
   /// No description provided for @assetBrokerExchange.
   ///
   /// In ko, this message translates to:
-  /// **'증권사·거래소'**
+  /// **'증권사 · 거래소'**
   String get assetBrokerExchange;
 
   /// No description provided for @assetInvestSearchHint.
   ///
   /// In ko, this message translates to:
-  /// **'증권사·가상자산거래소·상품거래소 검색'**
+  /// **'증권사 이름 검색'**
   String get assetInvestSearchHint;
 
   /// No description provided for @assetProductName.
@@ -2009,7 +2009,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetHoldingSearchHint.
   ///
   /// In ko, this message translates to:
-  /// **'종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)'**
+  /// **'종목 이름 검색'**
   String get assetHoldingSearchHint;
 
   /// No description provided for @assetHoldingAddManual.
@@ -14407,6 +14407,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'같은 이름의 태그가 이미 있어요.'**
   String get ttagNameDuplicate;
+
+  /// No description provided for @assetPickInstitutionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기관 고르기'**
+  String get assetPickInstitutionTitle;
+
+  /// No description provided for @assetPickBrokerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사 고르기'**
+  String get assetPickBrokerTitle;
+
+  /// No description provided for @assetInstitutionPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'기관 선택'**
+  String get assetInstitutionPlaceholder;
+
+  /// No description provided for @assetCardPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 선택'**
+  String get assetCardPlaceholder;
+
+  /// No description provided for @assetPickCardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 상품 고르기'**
+  String get assetPickCardTitle;
+
+  /// No description provided for @assetCardEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드사 이름으로도 찾아보세요.'**
+  String get assetCardEmptyHint;
+
+  /// No description provided for @assetSearchEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{query}\'에 대한 검색 결과가 없어요'**
+  String assetSearchEmpty(String query);
+
+  /// No description provided for @assetSearchFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과를 불러오지 못했어요'**
+  String get assetSearchFailed;
+
+  /// No description provided for @assetAddStock.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목 추가'**
+  String get assetAddStock;
 }
 
 class _AppLocalizationsDelegate

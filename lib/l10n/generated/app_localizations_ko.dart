@@ -460,7 +460,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetDeleteFailed => '삭제 실패';
 
   @override
-  String get assetInstitutionBrand => '기관·브랜드';
+  String get assetInstitutionBrand => '기관';
 
   @override
   String assetTotalEntries(int count) {
@@ -468,7 +468,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetBankSearchHint => '은행명 또는 증권사 검색';
+  String get assetBankSearchHint => '기관 이름 검색';
 
   @override
   String get assetNickname => '별칭';
@@ -623,7 +623,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCardProduct => '카드 상품';
 
   @override
-  String get assetIncludeDiscontinued => '단종 포함';
+  String get assetIncludeDiscontinued => '단종 카드도 보기';
 
   @override
   String assetTotalItems(int count) {
@@ -634,7 +634,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetTotalLoading => '총 …';
 
   @override
-  String get assetCardSearchHint => '카드명 또는 발급사 검색';
+  String get assetCardSearchHint => '카드 이름 검색';
 
   @override
   String get assetNicknameOptional => '별칭 (선택)';
@@ -730,10 +730,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetBrokerExchange => '증권사·거래소';
+  String get assetBrokerExchange => '증권사 · 거래소';
 
   @override
-  String get assetInvestSearchHint => '증권사·가상자산거래소·상품거래소 검색';
+  String get assetInvestSearchHint => '증권사 이름 검색';
 
   @override
   String get assetProductName => '별칭';
@@ -1045,7 +1045,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 수정에서 종목을 추가해보세요.';
 
   @override
-  String get assetHoldingSearchHint => '종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)';
+  String get assetHoldingSearchHint => '종목 이름 검색';
 
   @override
   String assetHoldingAddManual(String name) {
@@ -8014,4 +8014,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ttagNameDuplicate => '같은 이름의 태그가 이미 있어요.';
+
+  @override
+  String get assetPickInstitutionTitle => '기관 고르기';
+
+  @override
+  String get assetPickBrokerTitle => '증권사 고르기';
+
+  @override
+  String get assetInstitutionPlaceholder => '기관 선택';
+
+  @override
+  String get assetCardPlaceholder => '카드 선택';
+
+  @override
+  String get assetPickCardTitle => '카드 상품 고르기';
+
+  @override
+  String get assetCardEmptyHint => '카드사 이름으로도 찾아보세요.';
+
+  @override
+  String assetSearchEmpty(String query) {
+    return '\'$query\'에 대한 검색 결과가 없어요';
+  }
+
+  @override
+  String get assetSearchFailed => '검색 결과를 불러오지 못했어요';
+
+  @override
+  String get assetAddStock => '종목 추가';
 }

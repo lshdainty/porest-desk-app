@@ -218,7 +218,7 @@
   },
   "assetActionFailed": "실패",
   "assetDeleteFailed": "삭제 실패",
-  "assetInstitutionBrand": "기관·브랜드",
+  "assetInstitutionBrand": "기관",
   "assetTotalEntries": "총 {count}개",
   "@assetTotalEntries": {
     "placeholders": {
@@ -227,7 +227,7 @@
       }
     }
   },
-  "assetBankSearchHint": "은행명 또는 증권사 검색",
+  "assetBankSearchHint": "기관 이름 검색",
   "assetNickname": "별칭",
   "assetNicknamePlaceholder": "예: 신한 주거래",
   "assetNicknameDuplicate": "같은 별칭의 자산이 이미 있어요.",
@@ -322,7 +322,7 @@
   "assetCardDeleted": "카드가 삭제되었습니다",
   "assetCardType": "카드 종류",
   "assetCardProduct": "카드 상품",
-  "assetIncludeDiscontinued": "단종 포함",
+  "assetIncludeDiscontinued": "단종 카드도 보기",
   "assetTotalItems": "총 {count}건",
   "@assetTotalItems": {
     "placeholders": {
@@ -332,7 +332,7 @@
     }
   },
   "assetTotalLoading": "총 …",
-  "assetCardSearchHint": "카드명 또는 발급사 검색",
+  "assetCardSearchHint": "카드 이름 검색",
   "assetNicknameOptional": "별칭 (선택)",
   "assetCardNicknamePlaceholder": "예: 신한 Deep Dream",
   "assetCurrentUsage": "이전 미결제 사용액 ({unit})",
@@ -414,8 +414,8 @@
       }
     }
   },
-  "assetBrokerExchange": "증권사·거래소",
-  "assetInvestSearchHint": "증권사·가상자산거래소·상품거래소 검색",
+  "assetBrokerExchange": "증권사 · 거래소",
+  "assetInvestSearchHint": "증권사 이름 검색",
   "assetProductName": "별칭",
   "assetProductPlaceholder": "예: 연금저축, 금 보유분",
   "assetValuation": "평가액 (원)",
@@ -603,7 +603,7 @@
   "assetHoldingsEmptyEdit": "검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.",
   "assetHoldingsEmptyManual": "위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력합니다.",
   "assetHoldingsEmptyDetail": "보유 종목이 없어요. 수정에서 종목을 추가해보세요.",
-  "assetHoldingSearchHint": "종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)",
+  "assetHoldingSearchHint": "종목 이름 검색",
   "assetHoldingAddManual": "\"{name}\" 직접 추가 — 평가액 입력",
   "@assetHoldingAddManual": {
     "placeholders": {
@@ -4764,5 +4764,21 @@
   "todoDueClear": "마감일 지우기",
   "ttagNameRequired": "이름을 입력해주세요.",
   "ttagNameTooLong": "이름은 12자 이내로 입력해주세요.",
-  "ttagNameDuplicate": "같은 이름의 태그가 이미 있어요."
+  "ttagNameDuplicate": "같은 이름의 태그가 이미 있어요.",
+  "assetPickInstitutionTitle": "기관 고르기",
+  "assetPickBrokerTitle": "증권사 고르기",
+  "assetInstitutionPlaceholder": "기관 선택",
+  "assetCardPlaceholder": "카드 선택",
+  "assetPickCardTitle": "카드 상품 고르기",
+  "assetCardEmptyHint": "카드사 이름으로도 찾아보세요.",
+  "assetSearchEmpty": "'{query}'에 대한 검색 결과가 없어요",
+  "@assetSearchEmpty": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "assetSearchFailed": "검색 결과를 불러오지 못했어요",
+  "assetAddStock": "종목 추가"
 }

@@ -466,7 +466,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetDeleteFailed => 'Delete failed';
 
   @override
-  String get assetInstitutionBrand => 'Institution / brand';
+  String get assetInstitutionBrand => 'Institution';
 
   @override
   String assetTotalEntries(int count) {
@@ -474,7 +474,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get assetBankSearchHint => 'Search bank or brokerage';
+  String get assetBankSearchHint => 'Search institution name';
 
   @override
   String get assetNickname => 'Nickname';
@@ -634,7 +634,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCardProduct => 'Card product';
 
   @override
-  String get assetIncludeDiscontinued => 'Include discontinued';
+  String get assetIncludeDiscontinued => 'Show discontinued cards';
 
   @override
   String assetTotalItems(int count) {
@@ -645,7 +645,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetTotalLoading => 'Total …';
 
   @override
-  String get assetCardSearchHint => 'Search card or issuer';
+  String get assetCardSearchHint => 'Search card name';
 
   @override
   String get assetNicknameOptional => 'Nickname (optional)';
@@ -745,8 +745,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetBrokerExchange => 'Brokerage / exchange';
 
   @override
-  String get assetInvestSearchHint =>
-      'Search brokerages, crypto & commodity exchanges';
+  String get assetInvestSearchHint => 'Search brokerage name';
 
   @override
   String get assetProductName => 'Alias';
@@ -1063,8 +1062,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetHoldingsEmptyDetail => 'No holdings yet. Add them from Edit.';
 
   @override
-  String get assetHoldingSearchHint =>
-      'Search name/ticker to add (e.g. Samsung, NVDA)';
+  String get assetHoldingSearchHint => 'Search stock name';
 
   @override
   String assetHoldingAddManual(String name) {
@@ -8195,4 +8193,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttagNameDuplicate => 'A tag with that name already exists.';
+
+  @override
+  String get assetPickInstitutionTitle => 'Choose institution';
+
+  @override
+  String get assetPickBrokerTitle => 'Choose brokerage';
+
+  @override
+  String get assetInstitutionPlaceholder => 'Select institution';
+
+  @override
+  String get assetCardPlaceholder => 'Select card';
+
+  @override
+  String get assetPickCardTitle => 'Choose card';
+
+  @override
+  String get assetCardEmptyHint => 'Try searching by issuer name too.';
+
+  @override
+  String assetSearchEmpty(String query) {
+    return 'No results for \'$query\'';
+  }
+
+  @override
+  String get assetSearchFailed => 'Couldn\'t load search results';
+
+  @override
+  String get assetAddStock => 'Add stock';
 }

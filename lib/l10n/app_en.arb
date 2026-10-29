@@ -214,7 +214,7 @@
   },
   "assetActionFailed": "Failed",
   "assetDeleteFailed": "Delete failed",
-  "assetInstitutionBrand": "Institution / brand",
+  "assetInstitutionBrand": "Institution",
   "assetTotalEntries": "Total {count}",
   "@assetTotalEntries": {
     "placeholders": {
@@ -223,7 +223,7 @@
       }
     }
   },
-  "assetBankSearchHint": "Search bank or brokerage",
+  "assetBankSearchHint": "Search institution name",
   "assetNickname": "Nickname",
   "assetNicknamePlaceholder": "e.g. Shinhan main",
   "assetNicknameDuplicate": "An asset with this alias already exists.",
@@ -318,7 +318,7 @@
   "assetCardDeleted": "Card deleted",
   "assetCardType": "Card type",
   "assetCardProduct": "Card product",
-  "assetIncludeDiscontinued": "Include discontinued",
+  "assetIncludeDiscontinued": "Show discontinued cards",
   "assetTotalItems": "Total {count}",
   "@assetTotalItems": {
     "placeholders": {
@@ -328,7 +328,7 @@
     }
   },
   "assetTotalLoading": "Total …",
-  "assetCardSearchHint": "Search card or issuer",
+  "assetCardSearchHint": "Search card name",
   "assetNicknameOptional": "Nickname (optional)",
   "assetCardNicknamePlaceholder": "e.g. Shinhan Deep Dream",
   "assetCurrentUsage": "Unpaid balance ({unit})",
@@ -411,7 +411,7 @@
     }
   },
   "assetBrokerExchange": "Brokerage / exchange",
-  "assetInvestSearchHint": "Search brokerages, crypto & commodity exchanges",
+  "assetInvestSearchHint": "Search brokerage name",
   "assetProductName": "Alias",
   "assetProductPlaceholder": "e.g. Pension savings, Gold holdings",
   "assetValuation": "Valuation (KRW)",
@@ -599,7 +599,7 @@
   "assetHoldingsEmptyEdit": "Search to add holdings. Linked holdings are valued automatically at price × quantity.",
   "assetHoldingsEmptyManual": "Add your holdings with the button above. No live price — enter the value yourself.",
   "assetHoldingsEmptyDetail": "No holdings yet. Add them from Edit.",
-  "assetHoldingSearchHint": "Search name/ticker to add (e.g. Samsung, NVDA)",
+  "assetHoldingSearchHint": "Search stock name",
   "assetHoldingAddManual": "Add \"{name}\" manually — enter value",
   "@assetHoldingAddManual": {
     "placeholders": {
@@ -4501,5 +4501,21 @@
   "todoDueClear": "Clear due date",
   "ttagNameRequired": "Please enter a name.",
   "ttagNameTooLong": "Keep the name under 12 characters.",
-  "ttagNameDuplicate": "A tag with that name already exists."
+  "ttagNameDuplicate": "A tag with that name already exists.",
+  "assetPickInstitutionTitle": "Choose institution",
+  "assetPickBrokerTitle": "Choose brokerage",
+  "assetInstitutionPlaceholder": "Select institution",
+  "assetCardPlaceholder": "Select card",
+  "assetPickCardTitle": "Choose card",
+  "assetCardEmptyHint": "Try searching by issuer name too.",
+  "assetSearchEmpty": "No results for '{query}'",
+  "@assetSearchEmpty": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "assetSearchFailed": "Couldn't load search results",
+  "assetAddStock": "Add stock"
 }
