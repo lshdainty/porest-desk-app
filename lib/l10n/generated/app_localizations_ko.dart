@@ -78,7 +78,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unlockPasswordHint => '비밀번호 입력';
 
   @override
-  String get unlockMismatch => '비밀번호가 일치하지 않습니다.';
+  String get unlockMismatch => '비밀번호가 일치하지 않아요.';
 
   @override
   String get appLockTitle => '앱 잠금';
@@ -7999,4 +7999,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String assetHoldingRemoveOf(String name) {
     return '$name 지우기';
   }
+
+  @override
+  String get unlockVerifyFailed => '확인하지 못했어요. 잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String get unlockViewAmounts => '금액 보기';
 }

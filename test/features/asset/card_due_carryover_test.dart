@@ -536,7 +536,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 12월분은 1월 25일에 결제돼요.'),
+        findRichPlain('바꾼 결제일은 다음 회차부터 적용돼요. 12월분은 1월 25일에 결제돼요.'),
         findsOneWidget,
       );
     });

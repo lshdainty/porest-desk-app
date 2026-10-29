@@ -4468,5 +4468,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "unlockVerifyFailed": "Could not verify. Please try again in a moment.",
+  "unlockViewAmounts": "View amounts"
 }

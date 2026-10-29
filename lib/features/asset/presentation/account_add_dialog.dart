@@ -6,6 +6,7 @@ import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_unlock_dialog.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_unlock_step.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
@@ -76,6 +77,9 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   late bool _hideAmount;
   bool _submitting = false;
   bool _touched = false;
+
+  /// 같은 시트가 "금액 보기 인증" 단계인가 — 칸에 쓴 값은 이 State 가 그대로 쥐고 있다.
+  bool _unlocking = false;
 
   late final String _initialSignature;
   late final bool Function() _dirtyProbe;
@@ -187,19 +191,28 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
     if (picked != null && mounted) setState(() => _brand = picked);
   }
 
+  /// [저장] — 숨김을 푸는 저장은 본인 확인을 거친다(QA 22차 #2). 앱은 생체인증이 먼저고, 안 되면 같은 시트의 "금액 보기 인증"
+  /// 단계로 바뀐다(I-17 21) — 확인하기 전에는 요청이 나가지 않고, ←(취소)면 저장도 안 한다.
   Future<void> _submit() async {
     if (_submitting) return;
-    final l = AppLocalizations.of(context);
-    // 숨김을 푸는 저장은 본인 확인을 거친다 — 취소하면 저장도 안 한다(QA 22차 #2).
-    if (!await confirmAssetAmountUnhide(
-      context,
-      ref,
+    if (assetUnhideNeedsConfirm(
       wasHidden: widget.edit?.isAmountHidden == 'Y',
       nowHidden: _hideAmount,
     )) {
-      return;
+      final ok = await tryHideAmountsBiometric(context, ref);
+      if (!mounted) return;
+      if (!ok) {
+        setState(() => _unlocking = true);
+        return;
+      }
     }
-    if (!mounted) return;
+    await _save();
+  }
+
+  /// 저장 본문 · 요청 · 무효화 — 이 폼이 처음부터 해 온 그대로다.
+  Future<void> _save() async {
+    if (_submitting) return;
+    final l = AppLocalizations.of(context);
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? '$brand ${_kind.label(l)}' : nickname;
@@ -279,6 +292,15 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    if (_unlocking) {
+      return HideAmountsUnlockStep(
+        onBack: () => setState(() => _unlocking = false),
+        onVerified: () {
+          setState(() => _unlocking = false);
+          _save();
+        },
+      );
+    }
     // 설정의 기본 통화가 늦게 도착하면 이 폼을 다시 그린다 — 값은 `_currency` 가
     // 읽는다(고른 값 > 이 자산의 값 > 기본 통화).
     ref.watch(defaultCurrencyProvider);

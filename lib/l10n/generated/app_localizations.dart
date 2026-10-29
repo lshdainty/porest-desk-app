@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @unlockMismatch.
   ///
   /// In ko, this message translates to:
-  /// **'비밀번호가 일치하지 않습니다.'**
+  /// **'비밀번호가 일치하지 않아요.'**
   String get unlockMismatch;
 
   /// No description provided for @appLockTitle.
@@ -14395,6 +14395,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{name} 지우기'**
   String assetHoldingRemoveOf(String name);
+
+  /// No description provided for @unlockVerifyFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인하지 못했어요. 잠시 뒤 다시 시도해주세요.'**
+  String get unlockVerifyFailed;
+
+  /// No description provided for @unlockViewAmounts.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 보기'**
+  String get unlockViewAmounts;
 }
 
 class _AppLocalizationsDelegate

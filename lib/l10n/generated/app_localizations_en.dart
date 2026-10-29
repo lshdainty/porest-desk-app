@@ -8178,4 +8178,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String assetHoldingRemoveOf(String name) {
     return 'Remove $name';
   }
+
+  @override
+  String get unlockVerifyFailed =>
+      'Could not verify. Please try again in a moment.';
+
+  @override
+  String get unlockViewAmounts => 'View amounts';
 }

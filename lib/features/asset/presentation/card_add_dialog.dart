@@ -8,6 +8,7 @@ import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_unlock_dialog.dart';
+import 'package:groo_damda_app/core/settings/hide_amounts_unlock_step.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
@@ -22,10 +23,10 @@ import 'package:groo_damda_app/features/expense/application/expense_providers.da
 import 'package:groo_damda_app/features/expense/domain/card_cycle.dart';
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/select/p_select.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 export 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart'
     show showCardAddDialog, showCardEditDialog;
@@ -92,6 +93,9 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
   int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
   bool _touched = false;
+
+  /// 같은 시트가 "금액 보기 인증" 단계인가 — 칸에 쓴 값은 이 State 가 그대로 쥐고 있다.
+  bool _unlocking = false;
 
   late final String _initialSignature;
   late final bool Function() _dirtyProbe;
@@ -266,19 +270,28 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
     if (picked != null && mounted) setState(() => _selected = picked);
   }
 
+  /// [저장] — 숨김을 푸는 저장은 본인 확인을 거친다(QA 22차 #2). 앱은 생체인증이 먼저고, 안 되면 같은 시트의 "금액 보기 인증"
+  /// 단계로 바뀐다(I-17 21) — 확인하기 전에는 요청이 나가지 않고, ←(취소)면 저장도 안 한다.
   Future<void> _submit() async {
     if (!_canSubmit) return;
-    final l = AppLocalizations.of(context);
-    // 숨김을 푸는 저장은 본인 확인을 거친다 — 취소하면 저장도 안 한다(QA 22차 #2).
-    if (!await confirmAssetAmountUnhide(
-      context,
-      ref,
+    if (assetUnhideNeedsConfirm(
       wasHidden: widget.edit?.isAmountHidden == 'Y',
       nowHidden: _hideAmount,
     )) {
-      return;
+      final ok = await tryHideAmountsBiometric(context, ref);
+      if (!mounted) return;
+      if (!ok) {
+        setState(() => _unlocking = true);
+        return;
+      }
     }
-    if (!mounted) return;
+    await _save();
+  }
+
+  /// 결제일 확인 · 저장 본문 · 요청 · 무효화 — 이 폼이 처음부터 해 온 그대로다.
+  Future<void> _save() async {
+    if (!_canSubmit) return;
+    final l = AppLocalizations.of(context);
     final edit = widget.edit;
     // 결제일을 바꾸면 다음 회차부터다(D5) — 아직 결제 전인 회차는 옛 결제일에 결제된다.
     // 그걸 모르고 바꾸면 이번 달 결제가 사라진 줄 안다. 한 번 알리고 확인받는다.
@@ -415,17 +428,28 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
       nextPaymentDate: edit.nextPaymentDate,
     );
     final date = monthDay(DateTime.parse(pending.paymentDate));
-    return showPConfirmDialog(
+    // 폼 시트 위에 뜨는 확인창(ds Alert Dialog) — 취소 · 저장
+    return PAlertDialog.show(
       context,
       title: l.assetPaymentDayChangeTitle,
-      message: l.assetPaymentDayChangeConfirm(pending.month, date),
-      confirmLabel: l.actionSave,
+      description: l.assetPaymentDayChangeConfirm(pending.month, date),
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionSave,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    if (_unlocking) {
+      return HideAmountsUnlockStep(
+        onBack: () => setState(() => _unlocking = false),
+        onVerified: () {
+          setState(() => _unlocking = false);
+          _save();
+        },
+      );
+    }
     // 설정의 기본 통화가 늦게 도착하면 이 폼을 다시 그린다 — 값은 `_currency` 가
     // 읽는다(고른 값 > 이 자산의 값 > 기본 통화).
     ref.watch(defaultCurrencyProvider);

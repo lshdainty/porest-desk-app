@@ -224,14 +224,20 @@ void main() {
       await tester.pumpAndSettle();
 
       // 8월까지 닫혔다 → 9월분은 옛 결제일(14일)인 10월 14일에 결제된다.
-      expect(find.text('결제일 변경'), findsOneWidget);
+      // 폼 시트 위에 ds 확인창이 뜬다(시트는 그대로 하나)
+      expect(findPlain('결제일 변경'), findsOneWidget);
       expect(
-        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 9월분은 10월 14일에 결제돼요.'),
+        find.byKey(const ValueKey('p-bottom-sheet-root')),
+        findsOneWidget,
+        reason: '확인창은 폼 시트 위에 뜰 뿐 시트를 더하지 않는다',
+      );
+      expect(
+        findRichPlain('바꾼 결제일은 다음 회차부터 적용돼요. 9월분은 10월 14일에 결제돼요.'),
         findsOneWidget,
       );
       expect(repo.updated, isFalse, reason: '확인 전에는 보내지 않는다');
 
-      await tester.tap(find.text(l.actionSave).last);
+      await tester.tap(buttonLabeled(l.actionSave).last);
       await tester.pumpAndSettle();
       expect(repo.updated, isTrue);
       expect(repo.paymentDay.value, 5);
@@ -252,7 +258,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('바꾼 결제일은 다음 회차부터 적용돼요. 8월분은 9월 25일에 결제돼요.'),
+        findRichPlain('바꾼 결제일은 다음 회차부터 적용돼요. 8월분은 9월 25일에 결제돼요.'),
         findsOneWidget,
       );
     });
@@ -262,7 +268,7 @@ void main() {
       await pickDay(tester, 5);
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l.actionCancel).last);
+      await tester.tap(buttonLabeled(l.actionCancel).last);
       await tester.pumpAndSettle();
       expect(repo.updated, isFalse);
     });
@@ -271,7 +277,7 @@ void main() {
       final repo = await _openEdit(tester, _credit);
       await tester.tap(_submitButton(l.actionSave));
       await tester.pumpAndSettle();
-      expect(find.textContaining('다음 회차부터'), findsNothing);
+      expect(findRichPlain('다음 회차부터'), findsNothing);
       expect(repo.updated, isTrue);
     });
   });

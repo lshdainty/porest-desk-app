@@ -39,39 +39,41 @@ Future<bool> confirmHideAmountsUnlock(
   BuildContext context,
   WidgetRef ref,
 ) async {
-  if (ref.read(appLockEnabledProvider)) {
-    final l = AppLocalizations.of(context);
-    final result = await ref
-        .read(appLockAuthProvider)
-        .authenticate(
-          reason: l.unlockBiometricReason,
-          signInTitle: l.unlockTitle,
-          cancelLabel: l.actionCancel,
-        );
-    if (result == AppLockAuthResult.success) return true;
-    if (!context.mounted) return false;
-  }
+  if (await tryHideAmountsBiometric(context, ref)) return true;
+  if (!context.mounted) return false;
   return showHideAmountsUnlockDialog(context);
 }
 
-/// 자산 수정 폼의 "이 자산 금액 숨기기" 를 **끄고 저장**할 때 본인 확인을 거친다.
+/// 생체인증만 시도한다 — 앱 잠금이 켜져 있고 인증이 되면 true. 꺼져 있거나 취소 · 실패 · 수단 없음이면 false(비밀번호로 물러선다).
 ///
-/// 앱은 자산 상세에 이 토글이 없어(사용자 결정) 수정 폼이 **유일한 해제 경로**다.
-/// 여기에 확인이 없으면 "풀 때는 본인 확인" 규칙 자체가 없는 것과 같다 — 스위치를 끄고
-/// 저장만 누르면 그냥 풀렸다(QA 22차 #2).
-///
-/// 켜는 쪽(`false → true`)과 안 건드린 저장은 그냥 통과한다. `true` 를 돌려주면
-/// 저장을 계속하고, `false` 면 저장을 멈춘다 — 폼 스위치는 끈 채로 남지만
-/// 서버 값은 숨김 그대로다.
-Future<bool> confirmAssetAmountUnhide(
+/// 앱 잠금이 꺼져 있으면 프롬프트를 띄우지 않는다 — 켠 적 없는 사람에게 갑자기 Face ID 가 뜨는 건 놀랄 일이다. 비밀번호 칸을
+/// 어디에 보일지(옛 대화상자 · 자산 폼의 같은 시트 단계)는 부르는 쪽이 정한다.
+Future<bool> tryHideAmountsBiometric(
   BuildContext context,
-  WidgetRef ref, {
+  WidgetRef ref,
+) async {
+  if (!ref.read(appLockEnabledProvider)) return false;
+  final l = AppLocalizations.of(context);
+  final result = await ref
+      .read(appLockAuthProvider)
+      .authenticate(
+        reason: l.unlockBiometricReason,
+        signInTitle: l.unlockTitle,
+        cancelLabel: l.actionCancel,
+      );
+  return result == AppLockAuthResult.success;
+}
+
+/// 자산 수정 폼의 "금액 가리기" 를 **끄고 저장**할 때 본인 확인이 필요한가.
+///
+/// 앱은 자산 상세에 이 토글이 없어(사용자 결정) 수정 폼이 **유일한 해제 경로**다. 여기에 확인이 없으면 "풀 때는 본인 확인" 규칙
+/// 자체가 없는 것과 같다 — 스위치를 끄고 저장만 누르면 그냥 풀렸다(QA 22차 #2). 켜는 쪽(`false → true`)과 안 건드린 저장은 확인이
+/// 필요 없다. 폼은 이게 true 면 생체인증([tryHideAmountsBiometric])을 먼저 하고, 안 되면 같은 시트의 비밀번호 단계
+/// (`HideAmountsUnlockStep`)로 넘어간다 — 취소하면 저장도 안 한다(폼의 체크는 끈 채로 남지만 서버 값은 숨김 그대로다).
+bool assetUnhideNeedsConfirm({
   required bool wasHidden,
   required bool nowHidden,
-}) async {
-  if (!wasHidden || nowHidden) return true;
-  return confirmHideAmountsUnlock(context, ref);
-}
+}) => wasHidden && !nowHidden;
 
 /// 카드 묶음 토글 — 켜기는 그냥, 풀기는 본인 확인을 거친다.
 ///
