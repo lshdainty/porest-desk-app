@@ -4001,10 +4001,11 @@
   "smsPasteTitle": "Record from payment text",
   "smsPasteDesc": "Paste a card payment text and we will read the amount, merchant and time to fill in the expense form. You can review it before saving.",
   "smsPasteFieldLabel": "Payment text",
-  "smsPastePlaceholder": "[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남",
+  "smsPastePlaceholder": "[Web발신]\n숲빛카드 5,500원\n골목찻집",
   "smsPasteAction": "Read text",
   "smsPasteFromClipboard": "Paste from clipboard",
-  "smsClipboardEmpty": "No text in the clipboard",
+  "smsClipboardEmpty": "No text in the clipboard.",
+  "smsParseFailed": "We could not read the text. Please try again in a moment.",
   "smsNotRecognized": "This doesn't look like a payment text. Please check that the whole message was pasted.",
   "smsCancelNotice": "This is a cancellation text. Automatic recording is not supported — find the original expense and record it as a refund.",
   "smsLowConfidence": "Some fields could not be read. Please review and fill them in.",
@@ -4018,12 +4019,34 @@
   "smsInboxClear": "Clear",
   "smsInboxEmpty": "No payment notifications yet",
   "smsInboxEmptyDesc": "Detected card payments collect here. Tap one to record it as an expense.",
-  "smsInboxRemoveTitle": "Delete message",
-  "smsInboxRemove": "Remove",
-  "smsInboxRemoveConfirm": "Remove this message from the list? It will not be recorded.",
+  "smsInboxRemoveTitle": "Delete this message?",
+  "smsInboxRemoveConfirm": "{target} will be removed from the list. It won't be recorded.",
+  "@smsInboxRemoveConfirm": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "smsInboxRemoveLabel": "Delete {name}",
+  "@smsInboxRemoveLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "smsInboxClearTitle": "Delete all messages?",
+  "smsInboxClearConfirm": "All {count} messages in the inbox will be removed. They won't be recorded.",
+  "@smsInboxClearConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "smsPermissionOffTitle": "We can't notify you about detected payments",
   "smsPermissionOffDesc": "Turn on the notification permission and we will tell you as soon as a payment is detected. Detection keeps working either way and results collect in the inbox.",
-  "smsPermissionEnable": "Turn on",
   "moreItemSmsInbox": "Payment inbox",
   "moreDescSmsInbox": "Record detected card payments as expenses",
   "smsNotiAccessOffTitle": "Payment detection is off",

@@ -54,7 +54,7 @@ class SmsPreview {
         .replaceAll('[web발신]', '')
         .trim();
     final lines = normalized
-        .split(RegExp(r'\R'))
+        .split(RegExp(r'\r\n|\r|\n'))
         .map((l) => l.trim())
         .where((l) => l.isNotEmpty)
         .toList();

@@ -6878,14 +6878,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get smsPasteDesc =>
-      '카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.';
+      '카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워드려요. 저장 전에 확인할 수 있어요.';
 
   @override
   String get smsPasteFieldLabel => '결제 문자';
 
   @override
-  String get smsPastePlaceholder =>
-      '[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남';
+  String get smsPastePlaceholder => '[Web발신]\n숲빛카드 5,500원\n골목찻집';
 
   @override
   String get smsPasteAction => '문자 읽기';
@@ -6894,7 +6893,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsPasteFromClipboard => '클립보드에서 붙여넣기';
 
   @override
-  String get smsClipboardEmpty => '클립보드에 텍스트가 없어요';
+  String get smsClipboardEmpty => '클립보드에 텍스트가 없어요.';
+
+  @override
+  String get smsParseFailed => '문자를 읽지 못했어요. 잠시 뒤 다시 시도해주세요.';
 
   @override
   String get smsNotRecognized => '결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해주세요.';
@@ -6937,23 +6939,32 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsInboxEmptyDesc => '카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.';
 
   @override
-  String get smsInboxRemoveTitle => '문자 삭제';
+  String get smsInboxRemoveTitle => '문자를 지울까요?';
 
   @override
-  String get smsInboxRemove => '삭제';
+  String smsInboxRemoveConfirm(String target) {
+    return '$target 문자를 목록에서 지워요. 기록으로 남기지 않아요.';
+  }
 
   @override
-  String get smsInboxRemoveConfirm => '이 문자를 목록에서 지울까요? 기록으로 남기지 않고 치웁니다.';
+  String smsInboxRemoveLabel(String name) {
+    return '$name 삭제';
+  }
 
   @override
-  String get smsPermissionOffTitle => '결제를 감지해도 알려 드릴 수 없어요';
+  String get smsInboxClearTitle => '문자를 모두 지울까요?';
+
+  @override
+  String smsInboxClearConfirm(int count) {
+    return '수신함의 문자 $count건을 모두 지워요. 기록으로 남기지 않아요.';
+  }
+
+  @override
+  String get smsPermissionOffTitle => '결제를 감지해도 알려드릴 수 없어요';
 
   @override
   String get smsPermissionOffDesc =>
-      '알림 권한을 켜면 결제가 잡힐 때 바로 알려 드려요. 꺼두셔도 감지는 계속되고 수신함에 쌓여요.';
-
-  @override
-  String get smsPermissionEnable => '켜기';
+      '알림 권한을 켜면 결제가 잡힐 때 바로 알려드려요. 꺼둬도 감지는 계속되고 수신함에 쌓여요.';
 
   @override
   String get moreItemSmsInbox => '결제 알림 수신함';

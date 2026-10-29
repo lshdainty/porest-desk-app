@@ -4157,12 +4157,13 @@
     }
   },
   "smsPasteTitle": "결제 문자로 기록",
-  "smsPasteDesc": "카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.",
+  "smsPasteDesc": "카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워드려요. 저장 전에 확인할 수 있어요.",
   "smsPasteFieldLabel": "결제 문자",
-  "smsPastePlaceholder": "[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남",
+  "smsPastePlaceholder": "[Web발신]\n숲빛카드 5,500원\n골목찻집",
   "smsPasteAction": "문자 읽기",
   "smsPasteFromClipboard": "클립보드에서 붙여넣기",
-  "smsClipboardEmpty": "클립보드에 텍스트가 없어요",
+  "smsClipboardEmpty": "클립보드에 텍스트가 없어요.",
+  "smsParseFailed": "문자를 읽지 못했어요. 잠시 뒤 다시 시도해주세요.",
   "smsNotRecognized": "결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해주세요.",
   "smsCancelNotice": "취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해주세요.",
   "smsLowConfidence": "일부 항목을 읽지 못했어요. 확인하고 채워주세요.",
@@ -4176,12 +4177,34 @@
   "smsInboxClear": "비우기",
   "smsInboxEmpty": "아직 받은 결제 알림이 없어요",
   "smsInboxEmptyDesc": "카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.",
-  "smsInboxRemoveTitle": "문자 삭제",
-  "smsInboxRemove": "삭제",
-  "smsInboxRemoveConfirm": "이 문자를 목록에서 지울까요? 기록으로 남기지 않고 치웁니다.",
-  "smsPermissionOffTitle": "결제를 감지해도 알려 드릴 수 없어요",
-  "smsPermissionOffDesc": "알림 권한을 켜면 결제가 잡힐 때 바로 알려 드려요. 꺼두셔도 감지는 계속되고 수신함에 쌓여요.",
-  "smsPermissionEnable": "켜기",
+  "smsInboxRemoveTitle": "문자를 지울까요?",
+  "smsInboxRemoveConfirm": "{target} 문자를 목록에서 지워요. 기록으로 남기지 않아요.",
+  "@smsInboxRemoveConfirm": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "smsInboxRemoveLabel": "{name} 삭제",
+  "@smsInboxRemoveLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "smsInboxClearTitle": "문자를 모두 지울까요?",
+  "smsInboxClearConfirm": "수신함의 문자 {count}건을 모두 지워요. 기록으로 남기지 않아요.",
+  "@smsInboxClearConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsPermissionOffTitle": "결제를 감지해도 알려드릴 수 없어요",
+  "smsPermissionOffDesc": "알림 권한을 켜면 결제가 잡힐 때 바로 알려드려요. 꺼둬도 감지는 계속되고 수신함에 쌓여요.",
   "moreItemSmsInbox": "결제 알림 수신함",
   "moreDescSmsInbox": "감지된 카드 결제를 지출로 기록",
   "smsNotiAccessOffTitle": "결제 감지가 꺼져 있어요",
