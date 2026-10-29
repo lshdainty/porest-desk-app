@@ -369,6 +369,17 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('고른 날 = 짙은 원(bg-neutral-inverted) · 브랜드 색 채움 없음', (tester) async {
+    await _pump(tester, expenses: (_) async => const []);
+    final c = tester.element(find.byType(ExpenseScreen)).colors;
+    final decos = tester
+        .widgetList<Container>(find.byType(Container))
+        .map((w) => w.decoration)
+        .whereType<BoxDecoration>();
+    expect(decos.any((d) => d.color == c.bgNeutralInverted), isTrue);
+    expect(decos.any((d) => d.color == c.bgBrandSolid), isFalse);
+  });
+
   group('12 원장 머리 숨기기', () {
     final many = [for (var i = 1; i <= 12; i++) _tx(i, '가게 $i', 1000 * i)];
 

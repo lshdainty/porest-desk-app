@@ -514,8 +514,9 @@ class LedgerCalendarGrid extends StatelessWidget {
       final future = cellData.ds.compareTo(todayStr) > 0;
       // 오는 날은 불투명도로 흐리지 않고 옅은 글자색 역할로 말한다(v106).
       // 일 = 치명 · 토 = 브랜드(옛 뜻 그대로 — 색 이름만 새것)
+      final isToday = cellData.ds == todayStr;
       final numColor = isSel
-          ? c.staticWhite
+          ? c.fgNeutralInverted
           : future
           ? c.fgNeutralSubtle
           : (i % 7 == 0
@@ -539,9 +540,15 @@ class LedgerCalendarGrid extends StatelessWidget {
                     minHeight: dayCircle,
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: PSpacing.x1),
+                  // 고른 날 = 짙은 원(bg-neutral-inverted), 오늘 = 옅은 원(bg-neutral-weak) + 700 (date-picker.md)
                   decoration: isSel
                       ? BoxDecoration(
-                          color: c.bgBrandSolid,
+                          color: c.bgNeutralInverted,
+                          borderRadius: BorderRadius.circular(PRounded.full),
+                        )
+                      : isToday
+                      ? BoxDecoration(
+                          color: c.bgNeutralWeak,
                           borderRadius: BorderRadius.circular(PRounded.full),
                         )
                       : null,
@@ -553,7 +560,9 @@ class LedgerCalendarGrid extends StatelessWidget {
                       maxLines: 1,
                       softWrap: false,
                       style: PTypography.t5.copyWith(
-                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: isSel || isToday
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: numColor,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
