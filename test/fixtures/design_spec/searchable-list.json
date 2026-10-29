@@ -3,7 +3,7 @@
   "source": "specs/components/searchable-list.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "a3df9fd00e94"
+    "sha256": "b21bcc4ffd72"
   },
   "slots": {
     "root": "묶음 — 위 검색칸 + 아래 결과. 검색 시트 · 팝오버 안 또는 화면 · 단계 안",
@@ -15,7 +15,7 @@
     "prefix": "앞 붙이개 — Logo Tile 40 · 카드 그림 56 · Avatar",
     "title": "제목 — 16 / 22",
     "detail": "설명 — 13 / 18",
-    "radio": "오른쪽 라디오 — 지금 고른 값",
+    "radio": "오른쪽 라디오 — 지금 고른 값. 누르면 바로 더하는 목록(selectionMark off)에는 없다",
     "status": "결과 없음 · 실패 — Result Section medium",
     "skeleton": "불러오는 줄 — 줄 모양 스켈레톤"
   },
@@ -37,13 +37,18 @@
     "selected": [
       "other",
       "current"
+    ],
+    "selectionMark": [
+      "on",
+      "off"
     ]
   },
   "defaults": {
     "size": "large",
     "placement": "sheet",
     "prefix": "none",
-    "selected": "other"
+    "selected": "other",
+    "selectionMark": "on"
   },
   "states": [
     "enabled",
@@ -77,6 +82,7 @@
           "role": "option",
           "paddingY": 12,
           "paddingX": 24,
+          "minHeight": 48,
           "cursor": "pointer",
           "touchTarget": "줄 전체"
         },
@@ -213,6 +219,19 @@
           "display": "켬"
         }
       }
+    },
+    {
+      "when": {
+        "selectionMark": "off"
+      },
+      "enabled": {
+        "radio": {
+          "display": "없음"
+        },
+        "option": {
+          "press": "더하고 닫는다"
+        }
+      }
     }
   ],
   "motion": {
@@ -318,7 +337,14 @@
       "state": "enabled",
       "slot": "option",
       "prop": "paddingY",
-      "note": "List 줄 그대로 — 좌우 24. 높이는 내용 + 위아래 24: 한 줄 48(라디오 24) · 두 줄 66 · 앞 40 64"
+      "note": "List 줄 그대로 — 좌우 24. 높이는 내용 + 위아래 24: 한 줄 48(라디오 24 — 라디오가 없으면 최소 높이 48) · 두 줄 66 · 앞 40 64"
+    },
+    {
+      "rule": 0,
+      "state": "enabled",
+      "slot": "option",
+      "prop": "minHeight",
+      "note": "한 줄 줄의 바닥 — 라디오(24)가 있으면 내용이 48 을 채우고, 라디오가 없는 줄(selectionMark off — 제목 22 + 위아래 24 = 46)도 48 을 지킨다(2026-10-29)"
     },
     {
       "rule": 0,
@@ -438,6 +464,20 @@
       "slot": "radio",
       "prop": "display",
       "note": "Radio 켬 모양 — 바탕 bg-neutral-inverted + 가운데 점(radio-group.yaml). 줄 바탕은 그대로 — 고른 줄을 칠하지 않는다"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "radio",
+      "prop": "display",
+      "note": "누르면 바로 더하고 닫는 목록 — 채워질 일이 없는 동그라미를 두지 않는다. 줄 높이(최소 48) · 좌우 24 · 제목 오른쪽 10 은 그대로다(2026-10-29 사용자 결정 17-1 Q4 = B)"
+    },
+    {
+      "rule": 8,
+      "state": "enabled",
+      "slot": "option",
+      "prop": "press",
+      "note": "누른 줄을 바로 더하고(onValueChange) 시트 · 팝오버를 닫는다 — 지금 값을 들지 않는다(value 를 주지 않는다). 칸에 넣는 목록이 아니라 \"종목 추가\" 같은 동작이다"
     }
   ]
 }

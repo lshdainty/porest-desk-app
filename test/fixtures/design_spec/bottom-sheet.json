@@ -3,13 +3,14 @@
   "source": "specs/components/bottom-sheet.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "a3df9fd00e94"
+    "sha256": "b21bcc4ffd72"
   },
   "slots": {
     "overlay": "딤 — 시트 뒤 화면 전체",
     "root": "시트 — 위 두 모서리만 둥글다. 넓은 화면에서는 가운데에 선다",
     "handle": "손잡이 — 스냅 높이를 둘 때만",
     "closeButton": "닫기 — 원, 오른쪽 위. 이름 \"닫기\"",
+    "backButton": "뒤로 — 머리 왼쪽 ←. 두 단계 시트의 2단계에만(축 back). 이름 \"뒤로\"",
     "header": "머리 — 제목 · 설명",
     "title": "제목 — 시트를 쓰면 늘 있다",
     "description": "설명 — 덧붙일 말이 있을 때만",
@@ -23,6 +24,10 @@
       "hidden",
       "shown"
     ],
+    "back": [
+      "hidden",
+      "shown"
+    ],
     "scrollFog": [
       "off",
       "on"
@@ -30,6 +35,7 @@
   },
   "defaults": {
     "handle": "hidden",
+    "back": "hidden",
     "scrollFog": "off"
   },
   "states": [
@@ -158,6 +164,40 @@
           },
           "top": 6,
           "touchTarget": "44 × 44"
+        }
+      }
+    },
+    {
+      "when": {
+        "back": "shown"
+      },
+      "enabled": {
+        "backButton": {
+          "size": 40,
+          "radius": 9999,
+          "background": "transparent",
+          "iconSize": 24,
+          "color": {
+            "light": "#1A1F2E",
+            "dark": "#F5F6FA"
+          },
+          "iconLeft": 24,
+          "centerY": "제목 첫 줄 가운데",
+          "touchTarget": "44 × 44",
+          "transitionProperty": "background-color",
+          "transitionDuration": "150ms",
+          "transitionEasing": "cubic-bezier(0.35, 0, 0.35, 1)"
+        },
+        "title": {
+          "paddingLeft": 36
+        }
+      },
+      "pressed": {
+        "backButton": {
+          "background": {
+            "light": "#EDEFF3",
+            "dark": "#404757"
+          }
         }
       }
     },
@@ -335,7 +375,7 @@
       "state": "enabled",
       "slot": "footer",
       "prop": "gap",
-      "note": "버튼 둘이면 반씩 나눈다"
+      "note": "버튼 둘이면 반씩 나눈다 — 확인을 여는 [삭제](ghost critical)는 왼쪽에 글자만큼, 주 버튼이 남은 폭(2026-10-25)"
     },
     {
       "rule": 0,
@@ -375,33 +415,82 @@
     {
       "rule": 2,
       "state": "enabled",
+      "slot": "backButton",
+      "prop": "size",
+      "note": "원 — 바탕은 누를 때만. 누르는 영역은 사방 2 넓혀 44 × 44"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "backButton",
+      "prop": "background",
+      "note": "제목과 같은 면 — 누르기 · 호버에만 바탕"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "backButton",
+      "prop": "iconSize",
+      "note": "lucide arrow-left"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "backButton",
+      "prop": "iconLeft",
+      "note": "아이콘이 화면 여백 24 에 온다 — 원 40 은 그보다 8 바깥(시트 왼쪽에서 16)"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "backButton",
+      "prop": "centerY",
+      "note": "시트 위 24 + 줄 높이 30 의 절반 = 39 — 글자 배율을 따라 함께 내려간다"
+    },
+    {
+      "rule": 2,
+      "state": "enabled",
+      "slot": "title",
+      "prop": "paddingLeft",
+      "note": "원 오른쪽 ↔ 제목 4($spacing-x1) — 원 40 이 여백 24 보다 8 바깥이라 40 − 8 + 4. 제목은 시트 왼쪽에서 60"
+    },
+    {
+      "rule": 2,
+      "state": "pressed",
+      "slot": "backButton",
+      "prop": "background",
+      "note": "호버도 같은 색. 거리 축소는 하지 않는다(구현 그대로)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
       "slot": "fog",
       "prop": "mask",
       "note": "Scroll Fog overlayBody(scroll-fog.yaml) — 늘 켜져 있다. 넘쳤는지 재서 켜고 끄지 않는다"
     },
     {
-      "rule": 2,
+      "rule": 3,
       "state": "enabled",
       "slot": "fog",
       "prop": "size",
       "note": "본문 상자의 위 · 아래 끝(SEED Bottom Sheet 의 권장)"
     },
     {
-      "rule": 2,
+      "rule": 3,
       "state": "enabled",
       "slot": "body",
       "prop": "paddingTop",
       "note": "머리 아래 16 은 그대로 두고 본문 안에 더한다"
     },
     {
-      "rule": 2,
+      "rule": 3,
       "state": "enabled",
       "slot": "body",
       "prop": "paddingBottom",
       "note": "바닥이 있어도 — 끝까지 내려도 마지막 줄이 흐림 아래 남지 않는다. 바닥이 없으면 그 아래 안전 영역"
     },
     {
-      "rule": 2,
+      "rule": 3,
       "state": "enabled",
       "slot": "body",
       "prop": "scrollPadding",

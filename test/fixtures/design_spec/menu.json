@@ -3,7 +3,7 @@
   "source": "specs/components/menu.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "a3df9fd00e94"
+    "sha256": "b21bcc4ffd72"
   },
   "slots": {
     "content": "메뉴 — 트리거 아래(모자라면 위 · 옆) 8",
@@ -288,7 +288,7 @@
       "state": "enabled",
       "slot": "content",
       "prop": "align",
-      "note": "트리거의 오른쪽 끝에 맞춘다(줄 끝 ⋮ · 머리 더보기) — 왼쪽에 놓인 트리거는 start. 모자라면 화면 안으로 민다"
+      "note": "트리거의 오른쪽 끝에 맞춘다(머리 ⋮ · 표 줄 끝 ⋮) — 왼쪽에 놓인 트리거는 start. 모자라면 화면 안으로 민다"
     },
     {
       "rule": 0,
