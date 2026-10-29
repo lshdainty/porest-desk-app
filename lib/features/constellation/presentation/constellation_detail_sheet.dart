@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
@@ -7,26 +9,66 @@ import 'package:groo_damda_app/features/constellation/presentation/sky_colors.da
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 별자리 상세(I-11 23 · Q2-A) — ds Bottom Sheet 조회. 제목은 별자리 이름이고 바깥 누름 · 끌어내림으로 닫힌다(바닥 버튼 없음).
 ///
 /// 하늘 패널 240(하늘 그림과 같은 역할 색 그라디언트 · 별자리 그림 180) → 설명 → 보기만 하는 줄 둘(별 개수 · 수집).
 /// 못 모은 별자리는 실루엣 + 패널 아래 "아직 만나지 못한 별자리예요"(불투명, 흐리지 않는다) · 수집 줄은 "미수집".
+///
+/// [today] 가 있고 그 별자리가 오늘의 목표면(10-29 사용자 결정 2 · 3) 머리 설명 "오늘의 목표 별자리" · 하늘 패널에 켠 별 + 남은 별 고리
+/// · 별빛 Progress 막대("오늘 모은 별빛" · "80%" · "12/15 별빛 · 3별 남음")가 더해지고 "아직 만나지 못한" 안내는 없다.
 Future<void> showConstellationDetail(
   BuildContext context,
-  CollectionEntry entry,
-) {
+  CollectionEntry entry, {
+  ConstellationToday? today,
+}) {
   return PBottomSheet.show<void>(
     context,
-    builder: (_) => ConstellationDetailSheet(entry: entry),
+    builder: (_) => ConstellationDetailSheet(entry: entry, today: today),
+  );
+}
+
+/// 하늘 카드 · 썸네일에서 연다 — 도감을 아직 못 받았으면([entry] 없음) 수집 횟수 줄은 두지 않는다.
+Future<void> showTodayConstellationDetail(
+  BuildContext context,
+  ConstellationToday today, {
+  CollectionEntry? entry,
+}) {
+  return PBottomSheet.show<void>(
+    context,
+    builder: (_) => ConstellationDetailSheet(
+      entry:
+          entry ??
+          CollectionEntry(
+            constellation: today.constellation,
+            collectCount: today.collected ? 1 : 0,
+            lastCollectedDate: null,
+          ),
+      today: today,
+      showCollectRow: entry != null,
+    ),
   );
 }
 
 class ConstellationDetailSheet extends StatelessWidget {
-  const ConstellationDetailSheet({super.key, required this.entry});
+  const ConstellationDetailSheet({
+    super.key,
+    required this.entry,
+    this.today,
+    this.showCollectRow = true,
+  });
 
   final CollectionEntry entry;
+  final ConstellationToday? today;
+  final bool showCollectRow;
+
+  /// 오늘의 목표 별자리를 여는 중인가.
+  bool get isToday =>
+      today != null &&
+      today!.constellation.constellationKey ==
+          entry.constellation.constellationKey;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +78,10 @@ class ConstellationDetailSheet extends StatelessWidget {
     final name = constellationName(info);
     final collected = entry.collected;
     final desc = constellationDesc(info);
+    final goalToday = isToday ? today : null;
+    final lit = goalToday == null
+        ? 0
+        : math.min(goalToday.points, goalToday.goal);
     final valueStyle = PTypography.t5.copyWith(
       color: c.fgNeutral,
       fontWeight: FontWeight.w700,
@@ -44,6 +90,7 @@ class ConstellationDetailSheet extends StatelessWidget {
 
     return PBottomSheetContent(
       title: name,
+      description: goalToday == null ? null : l.constDetailTodayDesc,
       closeLabel: l.actionClose,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,8 +119,10 @@ class ConstellationDetailSheet extends StatelessWidget {
                               info: info,
                               color: skyInk(c, collected ? 0xFF : 0x66),
                               size: 180,
-                              lit: collected ? null : 0,
-                              glow: collected,
+                              lit: goalToday != null
+                                  ? lit
+                                  : (collected ? null : 0),
+                              glow: goalToday != null ? lit > 0 : collected,
                             ),
                           ),
                         ],
@@ -81,7 +130,7 @@ class ConstellationDetailSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (!collected)
+                if (!collected && goalToday == null)
                   Positioned(
                     left: 0,
                     right: 0,
@@ -98,6 +147,11 @@ class ConstellationDetailSheet extends StatelessWidget {
               ],
             ),
           ),
+          if (goalToday != null)
+            Padding(
+              padding: const EdgeInsets.only(top: PSpacing.x4),
+              child: _TodayProgress(today: goalToday, lit: lit),
+            ),
           if (desc.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(
@@ -122,18 +176,19 @@ class ConstellationDetailSheet extends StatelessWidget {
                   softWrap: false,
                 ),
               ),
-              PListItem(
-                title: l.constDetailCollectLabel,
-                titleColor: c.fgNeutralMuted,
-                gutter: 0,
-                suffix: Text(
-                  collected
-                      ? l.constDetailCollectValue(entry.collectCount)
-                      : l.constCollectionNotCollected,
-                  style: valueStyle,
-                  softWrap: false,
+              if (showCollectRow)
+                PListItem(
+                  title: l.constDetailCollectLabel,
+                  titleColor: c.fgNeutralMuted,
+                  gutter: 0,
+                  suffix: Text(
+                    collected
+                        ? l.constDetailCollectValue(entry.collectCount)
+                        : l.constCollectionNotCollected,
+                    style: valueStyle,
+                    softWrap: false,
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -184,6 +239,76 @@ class _DimStars extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// 오늘의 별빛 막대 — 이름 "오늘 모은 별빛"(t4 500) + 오른쪽 "80%"(t3 subtle) · 막대(높이 8) · 아래 "12/15 별빛 · 3별 남음"(t2 subtle).
+/// 비율 · 글 둘 다 둔다(10-29 사용자 결정 2). 막대는 progress.yaml 의 [PProgressBar] 그대로.
+class _TodayProgress extends StatelessWidget {
+  const _TodayProgress({required this.today, required this.lit});
+
+  final ConstellationToday today;
+  final int lit;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = AppLocalizations.of(context);
+    final goal = today.goal;
+    final pct = goal <= 0 ? 0 : ((lit / goal) * 100).clamp(0, 100).round();
+    final remain = math.max(0, goal - lit);
+    final tabular = const [FontFeature.tabularFigures()];
+    final bottom = remain > 0
+        ? l.constDetailTodayRemain(lit, goal, remain)
+        : l.constDetailTodayAll(lit, goal);
+    return Column(
+      key: const ValueKey('constellation-detail-progress'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: PSpacing.x1_5,
+      children: [
+        ExcludeSemantics(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            spacing: PSpacing.x2,
+            children: [
+              Expanded(
+                child: Text(
+                  keepAll(l.constDetailTodayProgress),
+                  style: PTypography.t4.copyWith(
+                    color: c.fgNeutral,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Text(
+                l.constDetailTodayPct(pct),
+                style: PTypography.t3.copyWith(
+                  color: c.fgNeutralSubtle,
+                  fontFeatures: tabular,
+                ),
+              ),
+            ],
+          ),
+        ),
+        PProgressBar(
+          value: lit.toDouble(),
+          max: math.max(goal, 1).toDouble(),
+          meaning: PProgressMeaning.goal,
+          semanticsLabel: l.constDetailProgressName(lit, goal),
+          semanticsValue: l.constDetailTodayPct(pct),
+        ),
+        ExcludeSemantics(
+          child: Text(
+            keepAll(bottom),
+            style: PTypography.t2.copyWith(
+              color: c.fgNeutralSubtle,
+              fontFeatures: tabular,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
