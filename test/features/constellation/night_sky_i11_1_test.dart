@@ -1,4 +1,6 @@
 // I-11 11-1 앱 — 밤하늘 · 관측 리포트 · 별자리 상세. 360 폭 · 글자 200% · 라이트 · 다크.
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' show Tristate;
 
@@ -20,22 +22,37 @@ import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 
 import '../todo/todo_test_support.dart';
 
-const _star =
-    '{"pts":[[10,20],[30,35],[50,30],[70,50],[90,80]],"edges":[[0,1],[1,2],[2,3],[3,4]]}';
+// 실제 star_map — groo-sql `desk/data/27. constellation.sql` 에서 뽑은 공용 JSON(웹 · 앱 하네스 · 그리기 시험이 같이 읽는다).
+// 원본 사본: /home/lshdainty/qa/design-work/impl-audit/instructions/I-11-1-star-map-fixture.json — 바꾸면 같이 바꿀 것.
+final Map<String, Map<String, dynamic>> _fx = {
+  for (final c
+      in (jsonDecode(
+            File('test/fixtures/i11_1_star_map.json').readAsStringSync(),
+          )['constellations']
+          as List))
+    (c as Map<String, dynamic>)['key'] as String: c,
+};
 
-ConstellationInfo _info(String key, String name, {String color = 'blue'}) =>
-    ConstellationInfo(
-      rowId: 1,
-      constellationKey: key,
-      name: name,
-      nameEn: name,
-      description: '밤하늘에서 W 자 모양으로 보이는 별자리예요.',
-      descriptionEn: null,
-      colorKey: color,
-      starCount: 5,
-      starMapRaw: _star,
-      sortOrder: 1,
-    );
+/// 켄타우루스자리 목표 별 수(16).
+final int _goal = _fx['cen']!['star_count'] as int;
+
+ConstellationInfo _info(String key, String name, {String color = 'blue'}) {
+  final c = _fx[key];
+  return ConstellationInfo(
+    rowId: 1,
+    constellationKey: key,
+    name: c == null ? name : c['name'] as String,
+    nameEn: c == null ? name : c['name'] as String,
+    description: '밤하늘에서 W 자 모양으로 보이는 별자리예요.',
+    descriptionEn: null,
+    colorKey: c == null ? color : c['color'] as String,
+    starCount: c == null ? 5 : c['star_count'] as int,
+    starMapRaw: c == null
+        ? '{"pts":[[10,20],[30,35],[50,30],[70,50],[90,80]],"edges":[[0,1],[1,2],[2,3],[3,4]]}'
+        : jsonEncode(c['star_map']),
+    sortOrder: c == null ? 1 : c['sort_order'] as int,
+  );
+}
 
 CollectionEntry _entry(String key, String name, int n, String? last) =>
     CollectionEntry(
@@ -56,7 +73,7 @@ List<SkyDay> _sky() => [
       status: i == 0
           ? 'REST'
           : (i % 3 == 0 ? 'GROWN' : (i % 3 == 1 ? 'WITHERED' : 'REST')),
-      constellationKey: i % 3 == 0 && i != 0 ? 'cas' : null,
+      constellationKey: i % 3 == 0 && i != 0 ? 'cass' : null,
       colorKey: i % 3 == 0 && i != 0 ? 'violet' : null,
       points: i % 3 == 0 ? 5 : 1,
       guardUsed: i % 3 == 1 && i % 2 == 1,
@@ -70,7 +87,7 @@ ConstellationToday _today({
 }) => ConstellationToday(
   constellation: _info('cen', name),
   points: 12,
-  goal: 15,
+  goal: 16,
   collected: collected,
   todoPoints: 10,
   memoPoints: 2,
@@ -81,10 +98,10 @@ ConstellationToday _today({
 
 List<CollectionEntry> _entries() => [
   _entry('cen', '켄타우루스자리', 0, null),
-  _entry('cas', '카시오페이아', 128, _d(1)),
-  _entry('ori', '오리온자리', 3, _d(5)),
+  _entry('cass', '카시오페이아', 128, _d(1)),
+  _entry('orion', '오리온자리', 3, _d(5)),
   _entry('uma', '큰곰자리', 1, _d(9)),
-  _entry('lyr', '거문고자리', 0, null),
+  _entry('lyra', '거문고자리', 0, null),
 ];
 
 List<dynamic> _ov({
@@ -166,7 +183,7 @@ void main() {
   });
 
   test('NEW — lastCollectedDate 가 가장 늦은 하나(횟수 무관)', () {
-    expect(newestCollectedKey(_entries()), 'cas');
+    expect(newestCollectedKey(_entries()), 'cass');
     expect(newestCollectedKey([_entry('a', 'A', 0, null)]), isNull);
   });
 
@@ -215,7 +232,7 @@ void main() {
     expect(tester.takeException(), isNull);
     final hero = tester.getRect(find.byKey(const ValueKey('night-sky-hero')));
     expect(hero.height, greaterThan(168));
-    final texts = ['오늘의 목표 별자리', '오늘 5건 완료 · 메모 별빛 +2 · 3별 남음', '연속 관측 128일'];
+    final texts = ['오늘의 목표 별자리', '오늘 5건 완료 · 메모 별빛 +2 · 4별 남음', '연속 관측 128일'];
     final rects = <Rect>[];
     for (final t in texts) {
       final f = find.byWidgetPredicate(
@@ -230,7 +247,7 @@ void main() {
       }
     }
     expect(
-      find.bySemanticsLabel('오늘의 목표 별자리 켄타우루스자리 12/15 별빛'),
+      find.bySemanticsLabel('오늘의 목표 별자리 켄타우루스자리 12/16 별빛'),
       findsOneWidget,
     );
   });
@@ -249,7 +266,7 @@ void main() {
     final box = tester.renderObject<RenderParagraph>(_richWith('켄타우루스자리'));
     // 모든 줄의 왼쪽이 같다(첫 글자 x = 상자 왼쪽).
     final plain = box.text.toPlainText();
-    final at = plain.indexOf('12/15');
+    final at = plain.indexOf('12/16');
     expect(at, greaterThan(0));
     Offset caret(int i) =>
         box.getOffsetForCaret(TextPosition(offset: i), Rect.zero);
@@ -331,7 +348,7 @@ void main() {
       Builder(
         builder: (c) => TextButton(
           onPressed: () =>
-              showConstellationDetail(c, _entry('lyr', '거문고자리', 0, null)),
+              showConstellationDetail(c, _entry('lyra', '거문고자리', 0, null)),
           child: const Text('open'),
         ),
       ),
@@ -340,7 +357,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_t('거문고자리'), findsWidgets);
     expect(_t('별 개수'), findsOneWidget);
-    expect(_t('5개'), findsOneWidget);
+    expect(_t('6개'), findsOneWidget);
     expect(_t('미수집'), findsOneWidget);
     expect(_t('아직 만나지 못한 별자리예요'), findsOneWidget);
     // 안내 글은 이미지 밖이라 읽힌다 · 그림은 이름 붙은 이미지 하나
@@ -560,8 +577,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(_t('오늘의 목표 별자리'), findsWidgets);
       expect(_t('오늘 모은 별빛'), findsOneWidget);
-      expect(_t('80%'), findsOneWidget);
-      expect(_t('12/15 별빛 · 3별 남음'), findsOneWidget);
+      expect(_t('75%'), findsOneWidget);
+      expect(_t('12/16 별빛 · 4별 남음'), findsOneWidget);
       expect(_t('아직 만나지 못한 별자리예요'), findsNothing);
       handle.dispose();
     });
@@ -580,7 +597,7 @@ void main() {
         find.byKey(const ValueKey('constellation-detail-progress')),
         findsOneWidget,
       );
-      expect(_t('12/15 별빛 · 3별 남음'), findsOneWidget);
+      expect(_t('12/16 별빛 · 4별 남음'), findsOneWidget);
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
@@ -665,8 +682,8 @@ void main() {
         overrides: _ov(
           today: ConstellationToday(
             constellation: _info('cen', '켄타우루스자리'),
-            points: 15,
-            goal: 15,
+            points: 16,
+            goal: 16,
             collected: true,
             todoPoints: 13,
             memoPoints: 2,
@@ -686,7 +703,7 @@ void main() {
       expect(reached.style!.color, cc.fgNeutral);
       // 막대 이름 "{이름} {목표} 중 {현재}" · 값 "달성"
       final bar = tester.getSemantics(
-        find.bySemanticsLabel('오늘 모은 별빛 15 중 15'),
+        find.bySemanticsLabel('오늘 모은 별빛 16 중 16'),
       );
       expect(bar.value, '달성');
       handle.dispose();
@@ -719,7 +736,7 @@ void main() {
         final cc = Theme.of(
           tester.element(find.byType(ConstellationDetailSheet)),
         ).extension<PColors>()!;
-        final value = tester.widget<Text>(_t('5개'));
+        final value = tester.widget<Text>(_t('16개'));
         expect(value.style!.color, cc.fgNeutralSubtle);
         expect(value.style!.fontWeight, isNot(FontWeight.w700));
         final title = tester.widget<Text>(
@@ -740,7 +757,7 @@ void main() {
       final node = tester.getSemantics(
         find.byKey(const ValueKey('night-sky-hero')),
       );
-      expect(node.label, '오늘의 목표 별자리 켄타우루스자리 12/15 별빛');
+      expect(node.label, '오늘의 목표 별자리 켄타우루스자리 12/16 별빛');
       expect(node.hint, contains('연속 관측 128일'));
       expect(
         node.label.contains('\u2060') || node.hint.contains('\u2060'),
