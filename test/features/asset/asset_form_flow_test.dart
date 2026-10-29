@@ -495,6 +495,25 @@ void main() {
     });
   });
 
+  // 글자 200% 에서 "보유 종목" 이름이 요약(12종목 · …원)에 눌려 한 글자씩 깨지지 않는다 — 요약이 이름 아래 줄로 내려간다
+  testWidgets('보유 종목 머리가 글자 200% 에서 이름을 지키고 요약이 아래 줄로 내려간다', (tester) async {
+    await _host(
+      tester,
+      (c) => showAssetEditForm(c, _invest),
+      assets: const [_bank, _invest],
+      scale: 2,
+    );
+    expect(tester.takeException(), isNull);
+    final label = tester.getRect(findPlain(l.assetHoldings));
+    expect(
+      label.height,
+      lessThanOrEqualTo(2 * 22 + 1),
+      reason: '한 줄(t5 22 × 2) 이다',
+    );
+    final summary = tester.getRect(findPlain(l.assetHoldingsSummary(1, '0')));
+    expect(summary.top, greaterThanOrEqualTo(label.bottom));
+  });
+
   for (final scale in [1.0, 2.0]) {
     testWidgets(
       '360 폭 글자 ${(scale * 100).toInt()}% 에서 넘침 없이 그려진다 — 종류 고르기와 신용카드',

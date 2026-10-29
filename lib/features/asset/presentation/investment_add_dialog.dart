@@ -30,6 +30,7 @@ import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/header_row/p_header_row.dart';
 import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
@@ -603,87 +604,108 @@ class _HoldingsEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    return PField(
-      label: l.assetHoldings,
-      headerTrailing: Text(
-        l.assetHoldingsSummary(rows.length, krw(total)),
-        style: PTypography.t4.copyWith(
-          color: c.fgNeutralSubtle,
-          fontFeatures: const [FontFeature.tabularFigures()],
+    // 머리 — 칸 이름 + 오른쪽 요약. Field 머리와 같은 모양(라벨 t5 · 500, 값 글 t4)이되 글자가 커져 요약이 머리 폭의 절반을 넘으면
+    // 요약이 이름 아래 줄 오른쪽 끝으로 내려간다(Header Row — 글자 200% 에서 이름이 한 글자씩 깨지지 않게 한다).
+    final header = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: PSpacing.x0_5),
+      child: PHeaderRow(
+        gap: PSpacing.x2_5,
+        title: Semantics(
+          header: true,
+          container: true,
+          label: l.assetHoldings,
+          child: ExcludeSemantics(
+            child: Text(
+              keepAll(l.assetHoldings),
+              style: PTypography.t5.copyWith(
+                color: c.fgNeutral,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        action: Text(
+          keepAll(l.assetHoldingsSummary(rows.length, krw(total))),
+          textAlign: TextAlign.end,
+          style: PTypography.t4.copyWith(
+            color: c.fgNeutralSubtle,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: PSpacing.x2,
-        children: [
-          // 종목 추가 — 주식은 검색 시트, 금 · 코인은 검색 대상이 아니라 직접 추가로만 담는다(토스 · 마스터 모두 미제공).
-          // 기관이 유형을 정하므로 증권사면 금 · 코인 단추가 없다.
-          if (allowStock || manualAddTypes.isNotEmpty)
-            Wrap(
-              spacing: PSpacing.x2,
-              runSpacing: PSpacing.x2,
-              children: [
-                if (allowStock)
-                  PButton(
-                    label: l.assetAddStock,
-                    variant: PButtonVariant.neutralOutline,
-                    size: PButtonSize.small,
-                    prefixIcon: LucideIcons.plus,
-                    onPressed: onAddStock,
-                  ),
-                for (final type in manualAddTypes)
-                  PButton(
-                    label: type == AssetHoldingType.gold
-                        ? l.assetHoldingAddGold
-                        : l.assetHoldingAddCrypto,
-                    variant: PButtonVariant.neutralOutline,
-                    size: PButtonSize.small,
-                    prefixIcon: LucideIcons.plus,
-                    onPressed: () => onAddTyped(type),
-                  ),
-              ],
-            ),
-          if (rows.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: PSpacing.x0_5),
-              child: Text(
-                keepAll(
-                  allowStock
-                      ? l.assetHoldingsEmptyEdit
-                      : l.assetHoldingsEmptyManual,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: PSpacing.x2,
+      children: [
+        header,
+        // 종목 추가 — 주식은 검색 시트, 금 · 코인은 검색 대상이 아니라 직접 추가로만 담는다(토스 · 마스터 모두 미제공).
+        // 기관이 유형을 정하므로 증권사면 금 · 코인 단추가 없다.
+        if (allowStock || manualAddTypes.isNotEmpty)
+          Wrap(
+            spacing: PSpacing.x2,
+            runSpacing: PSpacing.x2,
+            children: [
+              if (allowStock)
+                PButton(
+                  label: l.assetAddStock,
+                  variant: PButtonVariant.neutralOutline,
+                  size: PButtonSize.small,
+                  prefixIcon: LucideIcons.plus,
+                  onPressed: onAddStock,
                 ),
-                style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+              for (final type in manualAddTypes)
+                PButton(
+                  label: type == AssetHoldingType.gold
+                      ? l.assetHoldingAddGold
+                      : l.assetHoldingAddCrypto,
+                  variant: PButtonVariant.neutralOutline,
+                  size: PButtonSize.small,
+                  prefixIcon: LucideIcons.plus,
+                  onPressed: () => onAddTyped(type),
+                ),
+            ],
+          ),
+        if (rows.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x0_5),
+            child: Text(
+              keepAll(
+                allowStock
+                    ? l.assetHoldingsEmptyEdit
+                    : l.assetHoldingsEmptyManual,
               ),
-            )
-          else
-            // 유형별 섹션 — 해당 유형이 없으면 섹션 자체를 그리지 않는다. 라벨과 목록은 한 묶음이라 유형이 하나뿐이어도 어떤 단위인지 드러난다.
-            for (final type in AssetHoldingType.values)
-              if (rows.any((r) => r.holding.holdingType == type))
-                Column(
-                  // 다른 유형 섹션이 사라져도 이 섹션의 행 State(입력 중 값)가 유지되도록.
-                  key: ValueKey(type),
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    PListHeader(
-                      title: holdingTypeLabel(l, type),
-                      headingLevel: 3,
-                      inset: 0,
-                    ),
-                    for (final r in rows)
-                      if (r.holding.holdingType == type)
-                        _HoldingEditRow(
-                          key: ValueKey(r.key),
-                          holding: r.holding,
-                          unitKrw: r.holding.linked
-                              ? unitMap[r.holding.tossSymbol]
-                              : null,
-                          onChanged: (next) => onChanged(r.key, next),
-                          onRemove: () => onRemove(r.key),
-                        ),
-                  ],
-                ),
-        ],
-      ),
+              style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
+            ),
+          )
+        else
+          // 유형별 섹션 — 해당 유형이 없으면 섹션 자체를 그리지 않는다. 라벨과 목록은 한 묶음이라 유형이 하나뿐이어도 어떤 단위인지 드러난다.
+          for (final type in AssetHoldingType.values)
+            if (rows.any((r) => r.holding.holdingType == type))
+              Column(
+                // 다른 유형 섹션이 사라져도 이 섹션의 행 State(입력 중 값)가 유지되도록.
+                key: ValueKey(type),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PListHeader(
+                    title: holdingTypeLabel(l, type),
+                    headingLevel: 3,
+                    inset: 0,
+                  ),
+                  for (final r in rows)
+                    if (r.holding.holdingType == type)
+                      _HoldingEditRow(
+                        key: ValueKey(r.key),
+                        holding: r.holding,
+                        unitKrw: r.holding.linked
+                            ? unitMap[r.holding.tossSymbol]
+                            : null,
+                        onChanged: (next) => onChanged(r.key, next),
+                        onRemove: () => onRemove(r.key),
+                      ),
+                ],
+              ),
+      ],
     );
   }
 }
