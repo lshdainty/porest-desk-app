@@ -8921,26 +8921,8 @@ abstract class AppLocalizations {
   /// No description provided for @statsMomMonth.
   ///
   /// In ko, this message translates to:
-  /// **'전월 대비'**
-  String get statsMomMonth;
-
-  /// No description provided for @statsMomQuarter.
-  ///
-  /// In ko, this message translates to:
-  /// **'전분기 대비'**
-  String get statsMomQuarter;
-
-  /// No description provided for @statsMomYear.
-  ///
-  /// In ko, this message translates to:
-  /// **'전년 대비'**
-  String get statsMomYear;
-
-  /// No description provided for @statsMomCustom.
-  ///
-  /// In ko, this message translates to:
-  /// **'이전 기간 대비'**
-  String get statsMomCustom;
+  /// **'{prev} 대비'**
+  String statsMomMonth(String prev);
 
   /// No description provided for @statsMomPrevMonth.
   ///
@@ -9119,14 +9101,14 @@ abstract class AppLocalizations {
   /// No description provided for @statsMomCalculating.
   ///
   /// In ko, this message translates to:
-  /// **'전월 대비 계산 중…'**
-  String get statsMomCalculating;
+  /// **'{prev} 대비 계산 중…'**
+  String statsMomCalculating(String prev);
 
   /// No description provided for @statsMomUnavailable.
   ///
   /// In ko, this message translates to:
-  /// **'전월 비교 불가'**
-  String get statsMomUnavailable;
+  /// **'{prev} 비교 불가'**
+  String statsMomUnavailable(String prev);
 
   /// No description provided for @statsTopCategory.
   ///

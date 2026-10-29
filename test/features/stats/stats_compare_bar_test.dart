@@ -15,8 +15,13 @@ Finder _name() => find
     )
     .last;
 
-Future<void> _pump(WidgetTester tester, double scale) async {
-  tester.view.physicalSize = const Size(360 * 2, 800 * 2);
+Future<void> _pump(
+  WidgetTester tester,
+  double scale, {
+  double width = 360,
+  int amount = 123456789,
+}) async {
+  tester.view.physicalSize = Size(width * 2, 800 * 2);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final saved = statsNow;
@@ -43,12 +48,12 @@ Future<void> _pump(WidgetTester tester, double scale) async {
         body: SingleChildScrollView(
           child: StatsCompareSummarySection(
             period: period,
-            now: const RangeSummary(
+            now: RangeSummary(
               startDate: '2026-09-01',
               endDate: '2026-09-30',
-              totalExpense: 123456789,
+              totalExpense: amount,
             ),
-            prev: const RangeSummary(
+            prev: RangeSummary(
               startDate: '2026-08-01',
               endDate: '2026-08-31',
               totalExpense: 80000000,
@@ -89,4 +94,22 @@ void main() {
     expect((a.center.dy - n.center.dy).abs(), lessThan(8));
     expect(a.left - n.right, greaterThanOrEqualTo(8));
   });
+
+  testWidgets(
+    '쌓기 — 320 · 200% · 1,234,567,890원: 이름 위 · 금액 오른쪽 끝 아래 · 막대 그 아래',
+    (tester) async {
+      await _pump(tester, 2, width: 320, amount: 1234567890);
+      expect(tester.takeException(), isNull);
+      final a = tester.getRect(find.text('1,234,567,890원').last);
+      final n = tester.getRect(_name());
+      // 이름 위, 금액 아래(같은 줄이 아니다)
+      expect(a.top, greaterThanOrEqualTo(n.bottom - 0.5));
+      // 금액은 오른쪽 끝(좌우 24 안쪽) · 온전히 보인다
+      expect(a.right, closeTo(320 - 24, 0.5));
+      expect(a.left, greaterThanOrEqualTo(24));
+      // 막대는 금액 아래
+      final bar = tester.getRect(find.byType(FractionallySizedBox).first);
+      expect(bar.top, greaterThanOrEqualTo(a.bottom - 0.5));
+    },
+  );
 }

@@ -391,12 +391,12 @@ void main() {
       expect(findPlain('••••'), findsWidgets);
     });
 
-    testWidgets('하루 평균의 전월 대비는 Delta 뒤 기준 글이다', (tester) async {
+    testWidgets('하루 평균의 지난 달 대비는 Delta 뒤 기준 글이다', (tester) async {
       await _pump(tester);
       final text = tester.widget<Text>(
         find.byKey(const ValueKey('delta-text')),
       );
-      expect(plainOf(text.data!), '전월 대비');
+      expect(plainOf(text.data!), '지난 달 대비');
       expect(find.byKey(const ValueKey('delta-value')), findsOneWidget);
     });
   });

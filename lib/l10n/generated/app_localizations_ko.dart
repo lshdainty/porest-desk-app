@@ -4805,16 +4805,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsPrevPeriod => '이전 기간';
 
   @override
-  String get statsMomMonth => '전월 대비';
-
-  @override
-  String get statsMomQuarter => '전분기 대비';
-
-  @override
-  String get statsMomYear => '전년 대비';
-
-  @override
-  String get statsMomCustom => '이전 기간 대비';
+  String statsMomMonth(String prev) {
+    return '$prev 대비';
+  }
 
   @override
   String get statsMomPrevMonth => '전월';
@@ -4912,10 +4905,14 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get statsMomCalculating => '전월 대비 계산 중…';
+  String statsMomCalculating(String prev) {
+    return '$prev 대비 계산 중…';
+  }
 
   @override
-  String get statsMomUnavailable => '전월 비교 불가';
+  String statsMomUnavailable(String prev) {
+    return '$prev 비교 불가';
+  }
 
   @override
   String get statsTopCategory => '가장 많이 쓴 카테고리';

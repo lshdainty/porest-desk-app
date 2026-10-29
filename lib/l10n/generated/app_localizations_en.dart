@@ -4883,16 +4883,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPrevPeriod => 'Previous period';
 
   @override
-  String get statsMomMonth => 'vs. last month';
-
-  @override
-  String get statsMomQuarter => 'vs. last quarter';
-
-  @override
-  String get statsMomYear => 'vs. last year';
-
-  @override
-  String get statsMomCustom => 'vs previous period';
+  String statsMomMonth(String prev) {
+    return 'vs. $prev';
+  }
 
   @override
   String get statsMomPrevMonth => 'Last month';
@@ -4991,10 +4984,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statsMomCalculating => 'Calculating vs. last month…';
+  String statsMomCalculating(String prev) {
+    return 'Calculating vs. $prev…';
+  }
 
   @override
-  String get statsMomUnavailable => 'Comparison unavailable';
+  String statsMomUnavailable(String prev) {
+    return 'No comparison with $prev';
+  }
 
   @override
   String get statsTopCategory => 'Top spending category';

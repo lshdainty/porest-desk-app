@@ -43,8 +43,6 @@ Future<StatsPeriod?> showStatsRangeSheet(
               semanticLabel: l.statsPeriodPickerTitle,
               visibleRange: PDateVisibleRange.continuous,
               presets: statsRangePresets,
-              min: DateTime(2020),
-              max: DateTime(now.year + 5, 12, 31),
               value: draft,
               today: now,
               onChanged: (v) => setSheet(() => draft = v),

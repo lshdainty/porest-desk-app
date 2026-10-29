@@ -119,7 +119,11 @@ void main() {
       final y = pick(DateTime(2026), DateTime(2026, 12, 31));
       expect(y.now(en, _today), 'This year');
       expect(y.previous(en, _today), 'Last year');
-      expect(en.statsMomYear, 'vs. last year');
+      expect(en.statsMomMonth('last month'), 'vs. last month');
+      expect(
+        lookupAppLocalizations(const Locale('ko')).statsMomMonth('2026년 8월'),
+        '2026년 8월 대비',
+      );
       expect(
         en.statsTooFewTx('this month'),
         'Too few transactions in this month',

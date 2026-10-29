@@ -969,11 +969,13 @@ class StatsHighlightsSection extends StatelessWidget {
                 ? PDeltaDirection.up
                 : (diff < 0 ? PDeltaDirection.down : PDeltaDirection.flat),
             value: statsChangeRate(periodTotal, prevTotal),
-            text: l.statsMomMonth,
+            text: l.statsMomMonth(periodInSentence(period.previous(l))),
           );
         } else {
           avgDetail = detailText(
-            prevLoading ? l.statsMomCalculating : l.statsMomUnavailable,
+            prevLoading
+                ? l.statsMomCalculating(periodInSentence(period.previous(l)))
+                : l.statsMomUnavailable(periodInSentence(period.previous(l))),
           );
         }
       }
