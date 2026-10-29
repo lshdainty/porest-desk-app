@@ -26,6 +26,12 @@ const double kBottomSheetHeaderActionSize = 36;
 const double kBottomSheetHeaderActionGap = 4;
 const double _handleHeight = 4;
 
+/// 머리 왼쪽 뒤로 가기([PBottomSheetContent.onBack]) — 보이는 원 40 · 아이콘 24 · 누르는 영역 44. 아이콘이 화면 여백 24 에 오고
+/// 제목은 원 오른쪽 사이 4 에서 시작한다(웹 `onBack` 과 같은 값).
+const double kBottomSheetBackSize = 40;
+const double kBottomSheetBackIcon = 24;
+const double kBottomSheetBackGap = 4;
+
 /// 시트 안에서 시트를 닫는 길 — 바닥 버튼 · 닫기 버튼이 부른다(`PBottomSheet.of(context)`).
 abstract interface class PBottomSheetController {
   /// 닫기를 청한다 — 입력 폼에 바뀐 값이 있으면 먼저 "작성한 내용이 사라져요" 를 묻고, 계속 작성하면 그대로 둔다.
@@ -193,9 +199,15 @@ class PBottomSheetContent extends StatelessWidget {
     this.flushBody = false,
     this.closePressed = false,
     this.headerAction,
+    this.onBack,
+    this.backLabel,
   }) : assert(
          !showCloseButton || closeLabel != null,
          '닫기 버튼의 이름(closeLabel)이 필요하다',
+       ),
+       assert(
+         onBack == null || backLabel != null,
+         '뒤로 가기 버튼의 이름(backLabel)이 필요하다',
        ),
        assert(footer.length <= 2, '바닥 버튼은 하나 또는 둘이다'),
        assert(
@@ -245,6 +257,13 @@ class PBottomSheetContent extends StatelessWidget {
   /// 바꾸고(겹치지 않는다) 초점 차례는 제목 → 동작 → 닫기다. 닫기 버튼이 없으면 오른쪽 끝(화면 여백 24)에 선다.
   final Widget? headerAction;
 
+  /// 머리 왼쪽 뒤로 가기 — 같은 시트 안에서 한 단계 되돌아갈 때(← 아이콘 단추, 보이는 40 · 누르는 44 · 아이콘 24). 제목은 그
+  /// 오른쪽 사이 4 에서 시작한다. 초점 차례는 뒤로 → 제목 → 동작 → 닫기다. 웹 `onBack` 과 같은 이름 · 같은 값이다.
+  final VoidCallback? onBack;
+
+  /// 뒤로 가기 버튼의 이름("뒤로") — 앱이 지역화해 넘긴다. [onBack] 이 있으면 필요하다.
+  final String? backLabel;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -265,6 +284,11 @@ class PBottomSheetContent extends StatelessWidget {
           Padding(
             // 닫기 버튼 자리 — 24 + 원 28 + 12 = 64 중 화면 여백 24 를 뺀 40
             padding: EdgeInsets.only(
+              left: onBack == null
+                  ? 0
+                  : kBottomSheetBackSize +
+                        kBottomSheetBackGap -
+                        (kBottomSheetBackSize - kBottomSheetBackIcon) / 2,
               right:
                   (showCloseButton ? PSpacing.x10 : 0) +
                   (headerAction == null
@@ -298,6 +322,24 @@ class PBottomSheetContent extends StatelessWidget {
 
     final headerBox = Stack(
       children: [
+        // 읽는 차례: 뒤로 → 제목 → 동작 → 닫기
+        if (onBack != null)
+          Positioned(
+            key: const ValueKey('p-bottom-sheet-back-slot'),
+            // 보이는 원 40 의 왼쪽은 화면 여백 24 보다 8 안쪽(아이콘 24 가 여백 24 에 온다), 세로는 제목 첫 줄 가운데에 맞춘다.
+            // 누르는 영역은 사방 2 넓은 44 — 제목 첫 줄은 글자 배율을 따라 커지므로 가운데도 따라간다
+            top:
+                PSpacing.x6 +
+                MediaQuery.textScalerOf(context).scale(30) / 2 -
+                PTouch.min / 2,
+            left:
+                PSpacing.globalGutter -
+                (kBottomSheetBackSize - kBottomSheetBackIcon) / 2 -
+                (PTouch.min - kBottomSheetBackSize) / 2,
+            width: PTouch.min,
+            height: PTouch.min,
+            child: _BackButton(label: backLabel!, onTap: onBack!),
+          ),
         header,
         if (headerAction != null)
           Positioned(
@@ -489,6 +531,70 @@ class _CloseButtonState extends State<_CloseButton> {
                     size: _closeIcon,
                     color: c.fgNeutral,
                   ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 뒤로 가기 버튼 — 원 40 · 아이콘 24, 누르는 영역은 놓인 상자 44 × 44. 눌린 동안 원 바탕이 눌림 색이 된다(닫기 원과 같은 색).
+class _BackButton extends StatefulWidget {
+  const _BackButton({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  State<_BackButton> createState() => _BackButtonState();
+}
+
+class _BackButtonState extends State<_BackButton> {
+  bool _down = false;
+
+  void _set(bool v) {
+    if (_down != v) setState(() => _down = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      container: true,
+      button: true,
+      label: widget.label,
+      onTap: widget.onTap,
+      excludeSemantics: true,
+      child: GestureDetector(
+        key: const ValueKey('p-bottom-sheet-back'),
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => _set(true),
+        onTapUp: (_) => _set(false),
+        onTapCancel: () => _set(false),
+        onTap: widget.onTap,
+        child: Center(
+          child: TweenAnimationBuilder<Color?>(
+            tween: ColorTween(
+              end: _down ? c.bgNeutralWeakPressed : const Color(0x00000000),
+            ),
+            duration: PDuration.colorTransition,
+            curve: PEasing.easing,
+            builder: (context, color, child) => DecoratedBox(
+              key: const ValueKey('p-bottom-sheet-back-circle'),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: child,
+            ),
+            child: SizedBox(
+              width: kBottomSheetBackSize,
+              height: kBottomSheetBackSize,
+              child: Center(
+                child: Icon(
+                  LucideIcons.arrowLeft,
+                  size: kBottomSheetBackIcon,
+                  color: c.fgNeutral,
                 ),
               ),
             ),
