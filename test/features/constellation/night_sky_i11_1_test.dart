@@ -435,7 +435,9 @@ void main() {
       expect(find.text('관측 결과 :'), findsNothing);
     });
 
-    semTest('날 줄 ↔ 날짜 줄 틈 — 날짜 글 위는 12 + 칸 아래 4 (원 아래 16)', (tester) async {
+    semTest('날 줄 ↔ 날짜 줄 틈 — 칸 바닥 ↔ 날짜 글 위 12 ~ 14 (칸 아래 4 + 위 12)', (
+      tester,
+    ) async {
       await pumpApp(
         tester,
         const ForestReportScreen(),
@@ -592,6 +594,93 @@ void main() {
         findsNothing,
       );
       expect(_t('아직 만나지 못한 별자리예요'), findsOneWidget);
+    });
+
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('하늘 카드 — 이름 뒤 › 20(배율 상관없이) · 글과 썸네일 12 x$scale', (
+        tester,
+      ) async {
+        await pumpApp(
+          tester,
+          const NightSkyScreen(),
+          overrides: _ov().cast(),
+          textScale: scale,
+        );
+        final hero = find.byKey(const ValueKey('night-sky-hero'));
+        final chev = find.descendant(
+          of: hero,
+          matching: find.byIcon(LucideIcons.chevronRight),
+        );
+        expect(chev, findsOneWidget);
+        // 눈에 보이는 크기(배율이 한 번 더 곱해진 뒤)가 20
+        expect(tester.getRect(chev).width, closeTo(20, 0.6));
+        // 이름 글 칸 오른쪽 ↔ 썸네일 왼쪽 12
+        final thumb = tester.getRect(
+          find.byKey(const ValueKey('night-sky-thumb')),
+        );
+        final nameBox = tester.getRect(
+          find.descendant(of: hero, matching: find.byType(Expanded)).first,
+        );
+        expect(thumb.left - nameBox.right, closeTo(12, 0.5));
+        // 카드 안 여백 20 에서 위 · 오른쪽으로 4 나간 썸네일(자리는 84)
+        final card = tester.getRect(hero);
+        expect(card.right - thumb.right, closeTo(20 - 4, 0.5));
+        expect(thumb.top - card.top, closeTo(20 - 4, 0.5));
+      });
+    }
+
+    testWidgets('하늘 카드 — "오늘의 목표 별자리" 는 200% 에서도 낱말을 끊지 않는다', (tester) async {
+      await pumpApp(
+        tester,
+        const NightSkyScreen(),
+        overrides: _ov().cast(),
+        textScale: 2,
+      );
+      final f = find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            (w.data ?? '').replaceAll('\u2060', '') == '오늘의 목표 별자리',
+      );
+      final ro = tester.renderObject<RenderParagraph>(
+        find.descendant(of: f, matching: find.byType(RichText)).first,
+      );
+      final txt = ro.text.toPlainText();
+      final iByol = txt.indexOf('별');
+      final iRi = txt.lastIndexOf('리');
+      double top(int at) => ro
+          .getBoxesForSelection(
+            TextSelection(baseOffset: at, extentOffset: at + 1),
+          )
+          .first
+          .top;
+      expect(top(iRi), top(iByol), reason: '별자리가 한 줄에 있어야 한다');
+    });
+
+    testWidgets('상세 — 목표를 다 모으면 "100%" 대신 "달성"', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpApp(
+        tester,
+        const NightSkyScreen(),
+        overrides: _ov(
+          today: ConstellationToday(
+            constellation: _info('cen', '켄타우루스자리'),
+            points: 15,
+            goal: 15,
+            collected: true,
+            todoPoints: 13,
+            memoPoints: 2,
+            streak: 5,
+            guardCount: 3,
+            totalCollected: 37,
+          ),
+        ).cast(),
+      );
+      await tester.tap(find.byKey(const ValueKey('night-sky-hero')));
+      await tester.pumpAndSettle();
+      expect(_t('달성'), findsOneWidget);
+      expect(_t('100%'), findsNothing);
+      expect(find.bySemanticsLabel(RegExp('오늘 모은 별빛')), findsWidgets);
+      handle.dispose();
     });
   });
 }

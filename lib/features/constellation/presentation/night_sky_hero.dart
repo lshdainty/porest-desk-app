@@ -126,7 +126,7 @@ class NightSkyHero extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    l.constHeroTodayTarget,
+                                    keepAll(l.constHeroTodayTarget),
                                     style: smallStyle,
                                   ),
                                   const SizedBox(height: PSpacing.x0_5),
@@ -139,6 +139,14 @@ class NightSkyHero extends StatelessWidget {
                                                 ? l.constHeroCollectedBang(name)
                                                 : name,
                                           ),
+                                        ),
+                                        // 이름 뒤 › — 마지막 글자와 한 묶음(U+2060), 크기는 글자 배율과 상관없이 20(WidgetSpan 이
+                                        // 자식을 배율만큼 한 번 더 키우므로 나눠 둔다). 카드가 눌린다는 표시(그림 P2).
+                                        const TextSpan(text: '\u2060'),
+                                        WidgetSpan(
+                                          alignment:
+                                              PlaceholderAlignment.middle,
+                                          child: _NameChevron(color: ink),
                                         ),
                                         TextSpan(
                                           text:
@@ -153,20 +161,30 @@ class NightSkyHero extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: PSpacing.x3),
-                            // 별자리 썸네일 88 — 켠 별 밝게 · 남은 별 고리, 오른쪽 위(안 여백에서 −4). 보조 기술에는 숨긴다(카드 이름이 읽는다).
-                            Transform.translate(
-                              offset: const Offset(PSpacing.x1, -PSpacing.x1),
-                              child: ExcludeSemantics(
-                                child: SizedBox(
-                                  key: const ValueKey('night-sky-thumb'),
-                                  width: thumbSize,
-                                  height: thumbSize,
-                                  child: CustomPaint(
-                                    painter: _HeroFigurePainter(
-                                      colors: c,
-                                      map: today.constellation.starMap,
-                                      lit: lit,
-                                      done: done,
+                            // 별자리 썸네일 88 — 켠 별 밝게 · 남은 별 고리, 오른쪽 위(안 여백에서 −4). 자리는 84 만 잡고
+                            // 위 · 오른쪽 4 는 자리 밖으로 나간다(웹 -mr-x1 -mt-x1 과 같게 — 글과 12, 카드 208).
+                            // 보조 기술에는 숨긴다(카드 이름이 읽는다).
+                            ExcludeSemantics(
+                              child: SizedBox(
+                                width: thumbSize - PSpacing.x1,
+                                height: thumbSize - PSpacing.x1,
+                                child: OverflowBox(
+                                  alignment: Alignment.bottomLeft,
+                                  minWidth: thumbSize,
+                                  maxWidth: thumbSize,
+                                  minHeight: thumbSize,
+                                  maxHeight: thumbSize,
+                                  child: SizedBox(
+                                    key: const ValueKey('night-sky-thumb'),
+                                    width: thumbSize,
+                                    height: thumbSize,
+                                    child: CustomPaint(
+                                      painter: _HeroFigurePainter(
+                                        colors: c,
+                                        map: today.constellation.starMap,
+                                        lit: lit,
+                                        done: done,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -331,8 +349,7 @@ class _HeroFigurePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
-    // 별 수 적응형 점 크기 — 밀집 별자리(15별 초과) 겹침 방지
-    // 썸네일은 촘촘한 단계 하나 — 켠 별 r 2.5 · 고리 r 1.8
+    // 썸네일은 점 크기가 고정이다 — 켠 별 r 2.5 · 고리 r 1.8(그림 values.md)
     const rOn = 2.5;
     const rOff = 1.8;
     for (var i = 0; i < map.pts.length; i++) {
@@ -366,4 +383,20 @@ class _HeroFigurePainter extends CustomPainter {
       old.lit != lit ||
       old.done != done ||
       old.colors != colors;
+}
+
+/// 하늘 카드 이름 뒤 › — 20 · 앞 2. 글 흐름 안 [WidgetSpan] 이라 글자 배율이 한 번 더 곱해지므로 나눠 눈에 보이는 크기를 20 으로 둔다.
+class _NameChevron extends StatelessWidget {
+  const _NameChevron({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final k = MediaQuery.textScalerOf(context).scale(1);
+    return Padding(
+      padding: EdgeInsets.only(left: PSpacing.x0_5 / k),
+      child: Icon(LucideIcons.chevronRight, size: 20 / k, color: color),
+    );
+  }
 }

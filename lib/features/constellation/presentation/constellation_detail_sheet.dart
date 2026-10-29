@@ -117,7 +117,8 @@ class ConstellationDetailSheet extends StatelessWidget {
                           Center(
                             child: ConstellationIcon(
                               info: info,
-                              color: skyInk(c, collected ? 0xFF : 0x66),
+                              // 켠 별 · 선 · 고리 알파는 ConstellationPainter 가 정한다(여기 값은 기본 색 하나일 뿐).
+                              color: skyInk(c, 0xFF),
                               size: 180,
                               lit: goalToday != null
                                   ? lit
@@ -256,6 +257,7 @@ class _TodayProgress extends StatelessWidget {
     final c = context.colors;
     final l = AppLocalizations.of(context);
     final goal = today.goal;
+    final reached = goal > 0 && lit >= goal;
     final pct = goal <= 0 ? 0 : ((lit / goal) * 100).clamp(0, 100).round();
     final remain = math.max(0, goal - lit);
     final tabular = const [FontFeature.tabularFigures()];
@@ -282,10 +284,12 @@ class _TodayProgress extends StatelessWidget {
                   ),
                 ),
               ),
+              // 목표에 닿으면 "100%" 가 아니라 "달성"(fg-neutral · 700 — progress.yaml 의 reached).
               Text(
-                l.constDetailTodayPct(pct),
+                reached ? l.dsProgressReached : l.constDetailTodayPct(pct),
                 style: PTypography.t3.copyWith(
-                  color: c.fgNeutralSubtle,
+                  color: reached ? c.fgNeutral : c.fgNeutralSubtle,
+                  fontWeight: reached ? FontWeight.w700 : null,
                   fontFeatures: tabular,
                 ),
               ),
@@ -297,7 +301,9 @@ class _TodayProgress extends StatelessWidget {
           max: math.max(goal, 1).toDouble(),
           meaning: PProgressMeaning.goal,
           semanticsLabel: l.constDetailProgressName(lit, goal),
-          semanticsValue: l.constDetailTodayPct(pct),
+          semanticsValue: reached
+              ? l.dsProgressReached
+              : l.constDetailTodayPct(pct),
         ),
         ExcludeSemantics(
           child: Text(
