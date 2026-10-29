@@ -12443,7 +12443,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsPastePlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'[Web발신]\n숲빛카드(1234) 승인\n5,500원 일시불\n10/22 13:22\n골목찻집'**
+  /// **'[Web발신]\n숲빛카드 5,500원\n골목찻집'**
   String get smsPastePlaceholder;
 
   /// No description provided for @smsPasteAction.

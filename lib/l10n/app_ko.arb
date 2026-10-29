@@ -4159,7 +4159,7 @@
   "smsPasteTitle": "결제 문자로 기록",
   "smsPasteDesc": "카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워드려요. 저장 전에 확인할 수 있어요.",
   "smsPasteFieldLabel": "결제 문자",
-  "smsPastePlaceholder": "[Web발신]\n숲빛카드(1234) 승인\n5,500원 일시불\n10/22 13:22\n골목찻집",
+  "smsPastePlaceholder": "[Web발신]\n숲빛카드 5,500원\n골목찻집",
   "smsPasteAction": "문자 읽기",
   "smsPasteFromClipboard": "클립보드에서 붙여넣기",
   "smsClipboardEmpty": "클립보드에 텍스트가 없어요.",

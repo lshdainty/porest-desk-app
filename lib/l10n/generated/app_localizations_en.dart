@@ -6990,8 +6990,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsPasteFieldLabel => 'Payment text';
 
   @override
-  String get smsPastePlaceholder =>
-      '[Web발신]\n숲빛카드(1234) 승인\n5,500원 일시불\n10/22 13:22\n골목찻집';
+  String get smsPastePlaceholder => '[Web발신]\n숲빛카드 5,500원\n골목찻집';
 
   @override
   String get smsPasteAction => 'Read text';

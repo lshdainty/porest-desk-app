@@ -151,6 +151,9 @@ void main() {
     expect(ta.autoSize, isTrue);
     expect(ta.maxHeight, 204);
     expect(ta.placeholder, contains('숲빛카드'));
+    // 빈 칸은 3줄(94)만 보인다 — 예시는 3줄 안, 가맹점 줄을 남긴다
+    expect(ta.placeholder!.split('\n').length, lessThanOrEqualTo(3));
+    expect(ta.placeholder, contains('골목찻집'));
     for (final real in ['KB국민', '스타벅스']) {
       expect(ta.placeholder, isNot(contains(real)));
     }
