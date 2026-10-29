@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'뒤로'**
   String get actionBack;
 
+  /// No description provided for @actionNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get actionNext;
+
   /// No description provided for @pickDate.
   ///
   /// In ko, this message translates to:

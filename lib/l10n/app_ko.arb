@@ -18,6 +18,7 @@
   "actionLoading": "로딩 중...",
   "actionDone": "완료",
   "actionBack": "뒤로",
+  "actionNext": "다음",
   "pickDate": "날짜 선택",
   "pickTime": "시간 선택",
   "searchResultsEmpty": "검색 결과가 없어요",

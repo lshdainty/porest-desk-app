@@ -15,6 +15,7 @@
   "actionLoading": "Loading...",
   "actionDone": "Done",
   "actionBack": "Back",
+  "actionNext": "Next",
   "pickDate": "Select date",
   "pickTime": "Select time",
   "searchResultsEmpty": "No results",

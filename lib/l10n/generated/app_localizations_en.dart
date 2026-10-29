@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionBack => 'Back';
 
   @override
+  String get actionNext => 'Next';
+
+  @override
   String get pickDate => 'Select date';
 
   @override

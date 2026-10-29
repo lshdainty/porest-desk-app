@@ -54,6 +54,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionBack => '뒤로';
 
   @override
+  String get actionNext => '다음';
+
+  @override
   String get pickDate => '날짜 선택';
 
   @override
