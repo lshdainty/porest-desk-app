@@ -12554,12 +12554,6 @@ abstract class AppLocalizations {
   /// **'문자를 지울까요?'**
   String get smsInboxRemoveTitle;
 
-  /// No description provided for @smsInboxRemove.
-  ///
-  /// In ko, this message translates to:
-  /// **'삭제'**
-  String get smsInboxRemove;
-
   /// No description provided for @smsInboxRemoveConfirm.
   ///
   /// In ko, this message translates to:

@@ -4178,7 +4178,6 @@
   "smsInboxEmpty": "아직 받은 결제 알림이 없어요",
   "smsInboxEmptyDesc": "카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.",
   "smsInboxRemoveTitle": "문자를 지울까요?",
-  "smsInboxRemove": "삭제",
   "smsInboxRemoveConfirm": "{target} 문자를 목록에서 지워요. 기록으로 남기지 않아요.",
   "@smsInboxRemoveConfirm": {
     "placeholders": {

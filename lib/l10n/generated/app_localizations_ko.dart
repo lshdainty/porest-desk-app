@@ -6943,9 +6943,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsInboxRemoveTitle => '문자를 지울까요?';
 
   @override
-  String get smsInboxRemove => '삭제';
-
-  @override
   String smsInboxRemoveConfirm(String target) {
     return '$target 문자를 목록에서 지워요. 기록으로 남기지 않아요.';
   }

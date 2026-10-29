@@ -4020,7 +4020,6 @@
   "smsInboxEmpty": "No payment notifications yet",
   "smsInboxEmptyDesc": "Detected card payments collect here. Tap one to record it as an expense.",
   "smsInboxRemoveTitle": "Delete this message?",
-  "smsInboxRemove": "Remove",
   "smsInboxRemoveConfirm": "{target} will be removed from the list. It won't be recorded.",
   "@smsInboxRemoveConfirm": {
     "placeholders": {

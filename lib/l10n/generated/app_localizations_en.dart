@@ -7054,9 +7054,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsInboxRemoveTitle => 'Delete this message?';
 
   @override
-  String get smsInboxRemove => 'Remove';
-
-  @override
   String smsInboxRemoveConfirm(String target) {
     return '$target will be removed from the list. It won\'t be recorded.';
   }
