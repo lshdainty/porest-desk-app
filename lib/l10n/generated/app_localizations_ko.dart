@@ -2399,7 +2399,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetCopyUndo => '되돌리기';
 
   @override
-  String get budgetCopyUndoFailed => '되돌리지 못했어요';
+  String budgetCopyUndoPartial(int count) {
+    return '되돌리지 못한 예산이 $count개 남았어요';
+  }
 
   @override
   String get budgetCopyLastMonthBtn => '지난달 복사';

@@ -1439,7 +1439,14 @@
   "budgetCopyFailed": "Couldn't copy last month's budget",
   "budgetCopiedDone": "Last month's budget was copied",
   "budgetCopyUndo": "Undo",
-  "budgetCopyUndoFailed": "Couldn't undo",
+  "budgetCopyUndoPartial": "{count, plural, =1{1 budget couldn't be undone} other{{count} budgets couldn't be undone}}",
+  "@budgetCopyUndoPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetCopyLastMonthBtn": "Copy last month",
   "budgetMonthTotal": "Month {month} Total Budget",
   "@budgetMonthTotal": {

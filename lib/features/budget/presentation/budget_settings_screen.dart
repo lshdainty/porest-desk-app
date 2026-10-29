@@ -149,22 +149,33 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     }
   }
 
-  /// 되돌리기 — 방금 만든 이번 달 예산을 id 로 지운다(덮어쓴 것은 없다). 일괄 삭제 API 는 없어 하나씩 부른다.
+  /// 되돌리기 — 방금 만든 이번 달 예산을 id 로 지운다(덮어쓴 것은 없는 경로다). 일괄 삭제 API 는 없어 하나씩 부른다.
+  /// 도중에 실패하면 지우지 못한 id 가 남는다 — 조용히 반만 지우지 않고 critical 스낵바 + "다시 시도"로 알리고,
+  /// 다시 시도는 남은 id 만 지운다.
   Future<void> _undoCopy(List<int> createdIds) async {
     final l = AppLocalizations.of(context);
+    final remaining = [...createdIds];
     try {
       final repo = await ref.read(budgetRepositoryProvider.future);
-      for (final id in createdIds) {
-        await repo.delete(id);
+      while (remaining.isNotEmpty) {
+        await repo.delete(remaining.first);
+        remaining.removeAt(0);
       }
     } catch (_) {
+      ref.invalidate(monthBudgetsProvider(_key));
+      ref.invalidate(budgetComplianceProvider);
       if (mounted) {
         showPSnackBar(
           context,
-          l.budgetCopyUndoFailed,
+          l.budgetCopyUndoPartial(remaining.length),
           severity: PSnackSeverity.error,
+          duration: const Duration(seconds: 6),
+          actionLabel: l.actionRetry,
+          onAction: () => _undoCopy(remaining),
+          replace: true,
         );
       }
+      return;
     }
     ref.invalidate(monthBudgetsProvider(_key));
     ref.invalidate(budgetComplianceProvider);

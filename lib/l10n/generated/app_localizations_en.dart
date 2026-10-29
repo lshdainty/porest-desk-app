@@ -2433,7 +2433,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetCopyUndo => 'Undo';
 
   @override
-  String get budgetCopyUndoFailed => 'Couldn\'t undo';
+  String budgetCopyUndoPartial(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count budgets couldn\'t be undone',
+      one: '1 budget couldn\'t be undone',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get budgetCopyLastMonthBtn => 'Copy last month';

@@ -52,6 +52,10 @@ class _FakeBudgetRepo extends BudgetRepository {
   bool failNext = false;
   int _nextId = 100;
 
+  /// delete 를 이 번째(0부터)에서 한 번 실패시킨다.
+  int? failDeleteCall;
+  int _deleteCalls = 0;
+
   void _maybeFail() {
     if (failNext) {
       failNext = false;
@@ -61,6 +65,10 @@ class _FakeBudgetRepo extends BudgetRepository {
 
   @override
   Future<void> delete(int id) async {
+    if (failDeleteCall == _deleteCalls++) {
+      failDeleteCall = null;
+      throw ApiException(code: 'X', message: 'boom');
+    }
     _maybeFail();
     deleted.add(id);
   }
@@ -687,6 +695,82 @@ void main() {
       expect(repo.created.length, 3);
       expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
       await tester.tap(find.text('되돌리기'));
+      await tester.pumpAndSettle();
+      expect(repo.deleted, [100, 101, 102]);
+    });
+
+    Future<void> pumpCur(
+      WidgetTester tester,
+      _FakeBudgetRepo repo,
+      List<int?> curCategories,
+    ) => _pump(
+      tester,
+      const BudgetSettingsScreen(),
+      budgets: (key) async => key.month == DateTime.now().month
+          ? [
+              for (final (i, c) in curCategories.indexed)
+                Budget(
+                  rowId: 900 + i,
+                  categoryRowId: c,
+                  budgetAmount: 1000,
+                  budgetYear: key.year,
+                  budgetMonth: key.month,
+                ),
+            ]
+          : _budgets(key.year, key.month),
+      overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+    );
+
+    testWidgets('지난달 복사 — 겹침 없음(다른 카테고리만 있음)이면 묻지 않고 복사, 되돌리기는 만든 것만 지운다', (
+      tester,
+    ) async {
+      final repo = _FakeBudgetRepo();
+      await pumpCur(tester, repo, [99]);
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(repo.created.length, 3);
+      expect(repo.updated, isEmpty);
+      await tester.tap(find.text('되돌리기'));
+      await tester.pumpAndSettle();
+      // 원래 예산(900)은 지우지 않는다
+      expect(repo.deleted, [100, 101, 102]);
+    });
+
+    testWidgets('지난달 복사 — 일부 겹치면 확인창 N 은 겹친 개수, 확인 뒤 복사에는 되돌리기가 없다', (
+      tester,
+    ) async {
+      final repo = _FakeBudgetRepo();
+      // 이번 달: 전체 상한 · 카테고리 7 (둘 다 지난달에도 있음) · 카테고리 99 (지난달에 없음)
+      await pumpCur(tester, repo, [null, 7, 99]);
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      expect(
+        findPlain('이번 달 예산 2개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.'),
+        findsOneWidget,
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text('복사'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(repo.updated.length, 2);
+      expect(repo.created.length, 1);
+      expect(find.text('되돌리기'), findsNothing);
+    });
+
+    testWidgets('되돌리기 도중 일부가 실패하면 남은 수를 알리고, 다시 시도는 남은 것만 지운다', (tester) async {
+      final repo = _FakeBudgetRepo()..failDeleteCall = 1;
+      await pumpCur(tester, repo, [99]);
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('되돌리기'));
+      await tester.pumpAndSettle();
+      expect(repo.deleted, [100]);
+      expect(findPlain('되돌리지 못한 예산이 2개 남았어요'), findsOneWidget);
+      await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
       expect(repo.deleted, [100, 101, 102]);
     });

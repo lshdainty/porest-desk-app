@@ -4466,11 +4466,11 @@ abstract class AppLocalizations {
   /// **'되돌리기'**
   String get budgetCopyUndo;
 
-  /// No description provided for @budgetCopyUndoFailed.
+  /// No description provided for @budgetCopyUndoPartial.
   ///
   /// In ko, this message translates to:
-  /// **'되돌리지 못했어요'**
-  String get budgetCopyUndoFailed;
+  /// **'되돌리지 못한 예산이 {count}개 남았어요'**
+  String budgetCopyUndoPartial(int count);
 
   /// No description provided for @budgetCopyLastMonthBtn.
   ///

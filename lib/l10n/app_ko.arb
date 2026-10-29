@@ -1443,7 +1443,14 @@
   "budgetCopyFailed": "지난달 예산을 복사하지 못했어요",
   "budgetCopiedDone": "지난달 예산을 가져왔어요",
   "budgetCopyUndo": "되돌리기",
-  "budgetCopyUndoFailed": "되돌리지 못했어요",
+  "budgetCopyUndoPartial": "되돌리지 못한 예산이 {count}개 남았어요",
+  "@budgetCopyUndoPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetCopyLastMonthBtn": "지난달 복사",
   "budgetMonthTotal": "{month}월 총 예산",
   "@budgetMonthTotal": {
