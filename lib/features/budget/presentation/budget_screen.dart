@@ -10,7 +10,7 @@ import 'package:groo_damda_app/features/budget/application/budget_providers.dart
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
 import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
-import 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart';
+import 'package:groo_damda_app/shared/ds/month_picker/p_month_picker.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
@@ -27,9 +27,6 @@ import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
-
-export 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart'
-    show showMonthPickerSheet;
 
 const double _warnThreshold = 85;
 
@@ -56,7 +53,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       (startDate: _monthStartStr, endDate: _monthEndStr);
 
   Future<void> _pickMonth() async {
-    final picked = await showMonthPickerSheet(context, _month);
+    final picked = await showPMonthPicker(context, initial: _month);
     if (picked != null) setState(() => _month = picked);
   }
 
