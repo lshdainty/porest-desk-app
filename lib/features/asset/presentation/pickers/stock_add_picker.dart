@@ -66,12 +66,20 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
         if (!widget.excludeSymbols.contains(s.symbol)) s,
     ].take(6).toList();
     final fetching = async.isLoading && results.isEmpty;
+    // 실패는 0건이 아니다 — 앞 결과가 없을 때 실패 갈래(다시 시도)를 보인다(searchable-list.md 실패)
+    final failed = async.hasError && !async.isLoading && results.isEmpty;
 
     // 검색어가 없으면 줄이 없다. 0건 안내가 먼저, 직접 추가 줄은 늘 맨 아래(I-17 20)
     Widget? body;
     if (query.isNotEmpty) {
       body = fetching
-          ? const PSearchableListSkeleton(rows: 3)
+          ? const PSearchableListSkeleton()
+          : failed
+          ? PSearchableListError(
+              title: l.assetSearchFailed,
+              retryLabel: l.actionRetry,
+              onRetry: () => ref.invalidate(stockSearchProvider(_sent)),
+            )
           : PSearchableListResults(
               scrollFog: true,
               semanticLabel: l.assetHoldings,
@@ -95,8 +103,9 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
       title: l.assetAddStock,
       closeLabel: l.actionClose,
       flushBody: true,
-      body: SizedBox(
-        height: pickerBodyHeight(context),
+      // 내용만큼 서고 시트가 낼 수 있는 높이에서 멈춘다(bottom-sheet.md — 높이는 내용이 정한다). 결과가 길면 목록이 스크롤한다
+      body: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: pickerBodyHeight(context)),
         child: PSearchableList(
           focusNode: widget.searchFocus,
           query: _typed,
@@ -117,7 +126,7 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
               placeholder: l.assetHoldingSearchHint,
               semanticLabel: l.actionSearch,
             ),
-            if (query.isNotEmpty && results.isEmpty && !fetching)
+            if (query.isNotEmpty && results.isEmpty && !fetching && !failed)
               PSearchableListEmpty(titleBuilder: (q) => l.assetSearchEmpty(q)),
             ?body,
           ],

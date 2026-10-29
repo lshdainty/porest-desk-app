@@ -1,5 +1,7 @@
 // 고르기 시트 셋(I-17 18 ~ 20) — 기관 · 카드 상품 · 종목 추가. 검색칸 초점 · 거르기 · 고르면 닫힘 · 서버 검색 300ms 한 번 ·
 // 단종 스위치 · 0건 · 실패 · 라디오 없는 종목 줄.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -242,6 +244,75 @@ void main() {
   });
 
   group('종목 추가', () {
+    testWidgets('검색이 실패하면 0건 안내가 아니라 실패 갈래와 다시 시도가 뜬다', (tester) async {
+      var fail = true;
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: const {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith((ref, q) async {
+            if (q.isEmpty) return [];
+            if (fail) throw Exception('x');
+            return _stocks;
+          }),
+        ],
+      );
+      await tester.enterText(find.byType(TextField), '가나');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      expect(findPlain(l.assetSearchFailed), findsOneWidget);
+      expect(findPlain(l.assetSearchEmpty('가나')), findsNothing);
+      fail = false;
+      await tester.tap(findPlain(l.actionRetry));
+      await tester.pumpAndSettle();
+      expect(findPlain(l.assetSearchFailed), findsNothing);
+      expect(find.byType(PSearchableListItem), findsWidgets);
+    });
+
+    testWidgets('받는 동안은 스켈레톤 다섯 줄이다', (tester) async {
+      final gate = Completer<List<StockMasterItem>>();
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: const {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith(
+            (ref, q) =>
+                q.isEmpty ? Future.value(<StockMasterItem>[]) : gate.future,
+          ),
+        ],
+      );
+      await tester.enterText(find.byType(TextField), '가나');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump();
+      final skeleton = tester.widget<PSearchableListSkeleton>(
+        find.byType(PSearchableListSkeleton),
+      );
+      expect(skeleton.rows, 5);
+      gate.complete(const []);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('시트는 내용만큼 서고(90% 가 아니다) 결과가 늘면 높이 한도까지 큰다', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: const {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith(
+            (ref, q) async => q.isEmpty ? [] : _stocks,
+          ),
+        ],
+      );
+      final sheetKey = find.byKey(const ValueKey('p-bottom-sheet-root'));
+      final before = tester.getRect(sheetKey).height;
+      expect(before, lessThan(760 * 0.5), reason: '검색칸만 있을 때는 내용만큼이다');
+      await tester.enterText(find.byType(TextField), '가나');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      final after = tester.getRect(sheetKey).height;
+      expect(after, greaterThan(before));
+      expect(after, lessThanOrEqualTo(760 * 0.9 + 0.5));
+    });
+
     testWidgets('검색어가 없으면 줄이 없고, 있으면 종목 줄 + 맨 아래 직접 추가 줄', (tester) async {
       StockPick? picked;
       await _pump(
