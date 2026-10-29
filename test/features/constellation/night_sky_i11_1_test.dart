@@ -682,5 +682,23 @@ void main() {
       expect(find.bySemanticsLabel(RegExp('오늘 모은 별빛')), findsWidgets);
       handle.dispose();
     });
+
+    testWidgets('하늘 카드 누름 — 눌린 동안 2px 거리 축소만(색은 그대로) · 떼면 돌아온다', (
+      tester,
+    ) async {
+      await pumpApp(tester, const NightSkyScreen(), overrides: _ov().cast());
+      final hero = find.byKey(const ValueKey('night-sky-hero'));
+      AnimatedScale scaleOf() => tester.widget<AnimatedScale>(
+        find.ancestor(of: hero, matching: find.byType(AnimatedScale)).first,
+      );
+      expect(scaleOf().scale, 1);
+      final h = tester.getSize(hero).height;
+      final g = await tester.startGesture(tester.getCenter(hero));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(scaleOf().scale, closeTo((h - 2) / h, 0.0005));
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(scaleOf().scale, 1);
+    });
   });
 }

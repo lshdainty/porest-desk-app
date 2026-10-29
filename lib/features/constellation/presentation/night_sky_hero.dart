@@ -6,6 +6,7 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/features/constellation/presentation/sky_colors.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 밤하늘 히어로 — 오늘의 목표 별자리가 별빛만큼 점등.
@@ -88,8 +89,7 @@ class NightSkyHero extends StatelessWidget {
       button: onOpen != null,
       onTap: onOpen,
       label: l.constHeroLabel(name, lit, today.goal),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      child: _HeroPress(
         onTap: onOpen,
         child: Container(
           key: const ValueKey('night-sky-hero'),
@@ -397,6 +397,50 @@ class _NameChevron extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(left: PSpacing.x0_5 / k),
       child: Icon(LucideIcons.chevronRight, size: 20 / k, color: color),
+    );
+  }
+}
+
+/// 하늘 카드 누름 — card.yaml hero 규칙: 그라디언트 면에는 색 짝이 없어 눌린 동안 2px 거리 축소만(모션 줄이기면 안 한다).
+class _HeroPress extends StatefulWidget {
+  const _HeroPress({required this.onTap, required this.child});
+
+  final VoidCallback? onTap;
+  final Widget child;
+
+  @override
+  State<_HeroPress> createState() => _HeroPressState();
+}
+
+class _HeroPressState extends State<_HeroPress> {
+  bool _pressed = false;
+  double _basis = 24;
+
+  void _set(bool v) {
+    if (_pressed == v) return;
+    if (v) {
+      final size = context.size;
+      if (size != null) _basis = cardPressBasis(size);
+    }
+    setState(() => _pressed = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final enabled = widget.onTap != null;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      onTapDown: enabled ? (_) => _set(true) : null,
+      onTapUp: enabled ? (_) => _set(false) : null,
+      onTapCancel: enabled ? () => _set(false) : null,
+      child: AnimatedScale(
+        scale: _pressed && !reduce ? (_basis - 2) / _basis : 1,
+        duration: PDuration.pressedScale,
+        curve: PEasing.pressedScale,
+        child: widget.child,
+      ),
     );
   }
 }

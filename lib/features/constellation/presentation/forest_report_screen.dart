@@ -1095,8 +1095,8 @@ List<double> barPieceHeights(List<int> values, double total) {
   return out;
 }
 
-/// 주 넘기기 규칙 — 월요일 시작 주 [week](0 = 지난주 · 1 = 이번 주)에서 지금 고른 날 [sel] 과 **같은 요일**의 날, 그 날이 오는 날이면
-/// 오늘. 웹 · 앱 같은 규칙이다(10-29 사용자 결정 4).
+/// 주 넘기기 규칙 — 지금 고른 날 [sel] 에서 이전 주([week] 0)는 7일 앞, 다음 주(1)는 7일 뒤 = **같은 요일**. 그 날이 오는 날이면
+/// 오늘. 웹 · 앱 같은 규칙이다(10-29 사용자 결정 4 · 웹 표본 27 줄이 달 · 해 · 윤년 경계를 잠근다).
 @visibleForTesting
 String weekNavSelect({
   required String sel,
@@ -1104,9 +1104,8 @@ String weekNavSelect({
   required DateTime now,
 }) {
   final today = DateTime(now.year, now.month, now.day);
-  final monday = today.subtract(Duration(days: now.weekday - 1));
-  final start = monday.subtract(Duration(days: week == 0 ? 7 : 0));
-  final candidate = start.add(Duration(days: DateTime.parse(sel).weekday - 1));
+  final s = DateTime.parse(sel);
+  final candidate = DateTime(s.year, s.month, s.day + (week == 0 ? -7 : 7));
   final picked = candidate.isAfter(today) ? today : candidate;
   return '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
 }
