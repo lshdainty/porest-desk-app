@@ -10,7 +10,7 @@ import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 ///
 /// 스펙은 groo-design `specs/components/wheel-picker.md` "달만 고르기" — medium 44 · 보이는 칸 5(220) · 연 120 오른쪽 ·
 /// 월 96 왼쪽 반복, 달력 머리의 연 · 월 휠(p_date_picker.dart)과 같은 칼럼이다. 4 × 3 월 격자는 두지 않는다.
-/// 바깥 · 끌어내리기는 버린다(고르는 값이 있는 시트 — `form`), 닫기 버튼 · 뒤로 가기는 값을 넣지 않고 닫는다.
+/// 바깥 누르기 · 끌어내리기 · 닫기 버튼 · 뒤로 가기는 모두 값을 넣지 않고 닫는다(null) — 고른 값은 "완료" 로만 들어간다.
 /// 열 때는 [initial] 달에서 시작하고, 고르면 그 달의 1일을 돌려준다. 연 범위는 기본 오늘 ± 100년.
 Future<DateTime?> showPMonthPicker(
   BuildContext context, {
@@ -22,7 +22,6 @@ Future<DateTime?> showPMonthPicker(
   final range = yearRange ?? (start: today.year - 100, end: today.year + 100);
   return PBottomSheet.show<DateTime>(
     context,
-    form: true,
     builder: (sheetContext) {
       var year = initial.year.clamp(range.start, range.end);
       var month = initial.month;
@@ -32,7 +31,6 @@ Future<DateTime?> showPMonthPicker(
           return PBottomSheetContent(
             title: title ?? l.budgetSelectMonth,
             closeLabel: l.actionClose,
-            flushBody: true,
             body: PMonthWheel(
               year: year,
               month: month,

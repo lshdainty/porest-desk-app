@@ -1,5 +1,5 @@
 // I-27 달 고르기 — 연 | 월 휠 시트. wheel-picker.yaml "달만 고르기": medium 44 · 5칸 220 · 연 120 오른쪽 · 월 96 왼쪽 반복,
-// 바닥 "완료" 로 넣고 바깥 누르기 · 끌어내리기는 버린다. 4 × 3 월 격자는 없다.
+// 바닥 "완료" 로만 값이 들어가고, 바깥 누르기 · 끌어내리기 · 닫기는 값 없이 닫는다. 4 × 3 월 격자는 없다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
@@ -93,11 +93,13 @@ void main() {
     expect(_result, DateTime(2026, 11, 1));
   });
 
-  testWidgets('바깥 누르기는 버리고 닫기 버튼은 값 없이 닫는다', (tester) async {
+  testWidgets('바깥 누르기도 닫기 버튼도 값 없이 닫는다', (tester) async {
     await _open(tester);
     await tester.tapAt(const Offset(180, 20));
     await tester.pumpAndSettle();
-    expect(_closed, isFalse);
+    expect(_closed, isTrue);
+    expect(_result, isNull);
+    await _open(tester);
     await tester.tap(find.bySemanticsLabel('닫기').first);
     await tester.pumpAndSettle();
     expect(_closed, isTrue);
