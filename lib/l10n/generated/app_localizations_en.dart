@@ -6991,7 +6991,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smsPastePlaceholder =>
-      '[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남';
+      '[Web발신]\n숲빛카드(1234) 승인\n5,500원 일시불\n10/22 13:22\n골목찻집';
 
   @override
   String get smsPasteAction => 'Read text';
@@ -7001,6 +7001,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smsClipboardEmpty => 'No text in the clipboard';
+
+  @override
+  String get smsParseFailed =>
+      'We could not read the text. Please try again in a moment.';
 
   @override
   String get smsNotRecognized =>

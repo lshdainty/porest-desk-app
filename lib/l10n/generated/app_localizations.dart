@@ -12443,7 +12443,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsPastePlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남'**
+  /// **'[Web발신]\n숲빛카드(1234) 승인\n5,500원 일시불\n10/22 13:22\n골목찻집'**
   String get smsPastePlaceholder;
 
   /// No description provided for @smsPasteAction.
@@ -12463,6 +12463,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'클립보드에 텍스트가 없어요'**
   String get smsClipboardEmpty;
+
+  /// No description provided for @smsParseFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'문자를 읽지 못했어요. 잠시 뒤 다시 시도해주세요.'**
+  String get smsParseFailed;
 
   /// No description provided for @smsNotRecognized.
   ///
