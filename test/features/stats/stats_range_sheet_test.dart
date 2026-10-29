@@ -48,61 +48,40 @@ void main() {
   final month = StatsPeriod.thisMonth(_today);
 
   group('statsPeriodOfRange', () {
+    StatsPeriod pick(DateTime f, DateTime t) => statsPeriodOfRange(month, f, t);
+
     test('바뀐 게 없으면 지금 값 그대로(구분을 잃지 않는다)', () {
-      final p = statsPeriodOfRange(month, month.from, month.to, _today);
-      expect(identical(p, month), isTrue);
+      expect(identical(pick(month.from, month.to), month), isTrue);
     });
-    test('오늘이 든 달 · 분기 · 해를 덮으면 그 구분', () {
-      final custom = StatsPeriod(
-        seg: StatsSeg.custom,
-        from: DateTime(2026, 9, 1),
-        to: DateTime(2026, 9, 30),
-      );
+    test('달력 달 · 분기 · 해 하나를 정확히 덮으면 그 보기 — 지난 기간도', () {
       expect(
-        statsPeriodOfRange(
-          custom,
-          DateTime(2026, 10),
-          DateTime(2026, 10, 31),
-          _today,
-        ).seg,
+        pick(DateTime(2026, 9), DateTime(2026, 9, 30)).seg,
         StatsSeg.month,
       );
       expect(
-        statsPeriodOfRange(
-          custom,
-          DateTime(2026, 10),
-          DateTime(2026, 12, 31),
-          _today,
-        ).seg,
+        pick(DateTime(2026, 7), DateTime(2026, 9, 30)).seg,
         StatsSeg.quarter,
       );
+    });
+    test('분기 · 해 · 윤달 경계', () {
+      expect(pick(DateTime(2026), DateTime(2026, 12, 31)).seg, StatsSeg.year);
       expect(
-        statsPeriodOfRange(
-          custom,
-          DateTime(2026),
-          DateTime(2026, 12, 31),
-          _today,
-        ).seg,
-        StatsSeg.year,
+        pick(DateTime(2024, 2), DateTime(2024, 2, 29)).seg,
+        StatsSeg.month,
+      );
+      // 2월부터 석 달은 분기가 아니다
+      expect(
+        pick(DateTime(2026, 2), DateTime(2026, 4, 30)).seg,
+        StatsSeg.custom,
       );
     });
-    test('지난 달 · 아무 기간은 직접(이번 달 글을 달지 않는다)', () {
+    test('아무 기간은 직접', () {
       expect(
-        statsPeriodOfRange(
-          month,
-          DateTime(2026, 9),
-          DateTime(2026, 9, 30),
-          _today,
-        ).seg,
+        pick(DateTime(2026, 10, 3), DateTime(2026, 10, 9)).seg,
         StatsSeg.custom,
       );
       expect(
-        statsPeriodOfRange(
-          month,
-          DateTime(2026, 10, 3),
-          DateTime(2026, 10, 9),
-          _today,
-        ).seg,
+        pick(DateTime(2026, 9), DateTime(2026, 10, 31)).seg,
         StatsSeg.custom,
       );
     });
@@ -117,43 +96,38 @@ void main() {
       expect(find.text('직접'), findsNothing);
     });
 
-    testWidgets('빠른 기간 칩 일곱 · 바닥 "초기화" + "완료"', (tester) async {
+    testWidgets('빠른 기간 칩 다섯(내보내기 시트와 같게) · 바닥 "초기화" + "완료"', (tester) async {
       await _open(tester, month, (_) {});
-      for (final n in [
-        '이번 달',
-        '최근 7일',
-        '최근 30일',
-        '최근 3개월',
-        '최근 6개월',
-        '최근 1년',
-        '올해',
-      ]) {
+      for (final n in ['이번 주', '이번 달', '지난 달', '최근 3개월', '올해']) {
         expect(find.text(n), findsOneWidget, reason: n);
       }
       expect(find.widgetWithText(PButton, '초기화'), findsOneWidget);
       expect(_done(), findsOneWidget);
     });
 
-    testWidgets('초기화하면 완료가 막힌다 · 칩 최근 7일 → 오늘을 넣은 7일', (tester) async {
+    testWidgets('초기화하면 완료가 막힌다 · 칩 지난 달 → 월 보기', (tester) async {
       StatsPeriod? got;
       await _open(tester, month, (p) => got = p);
       expect(tester.widget<PButton>(_done()).onPressed, isNotNull);
       await tester.tap(find.widgetWithText(PButton, '초기화'));
       await tester.pumpAndSettle();
       expect(tester.widget<PButton>(_done()).onPressed, isNull);
-      await tester.tap(find.text('최근 7일'));
+      await tester.tap(find.text('지난 달'));
       await tester.pumpAndSettle();
       await tester.tap(_done());
       await tester.pumpAndSettle();
-      expect(got!.seg, StatsSeg.custom);
-      expect(got!.from, DateTime(2026, 10, 23));
-      expect(got!.to, DateTime(2026, 10, 29));
+      // 지난 달 칩 → 9월 월 보기, 이전 기간 비교는 그 전달(8월)
+      expect(got!.seg, StatsSeg.month);
+      expect(got!.from, DateTime(2026, 9));
+      expect(got!.to, DateTime(2026, 9, 30));
+      expect(got!.prev.from, DateTime(2026, 8));
+      expect(got!.prev.to, DateTime(2026, 8, 31));
     });
 
     testWidgets('완료 없이 닫으면 null — 고르던 것은 버린다', (tester) async {
       StatsPeriod? got = month;
       await _open(tester, month, (p) => got = p);
-      await tester.tap(find.text('최근 7일'));
+      await tester.tap(find.text('지난 달'));
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();

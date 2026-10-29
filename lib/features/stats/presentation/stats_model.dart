@@ -39,24 +39,23 @@ DateSpan quarterRangeOf(DateTime base) {
 DateSpan yearRangeOf(DateTime base) =>
     (from: DateTime(base.year, 1, 1), to: DateTime(base.year, 12, 31));
 
-/// 시트에서 고른 기간 → 통계 기간. 달력에는 월 · 분기 · 년 구분이 없으므로(칸 하나 · 달력 하나), 고른 날들이
-/// **오늘이 든** 달 · 분기 · 해를 정확히 덮을 때만 그 구분(이번 달 · 이번 분기 · 올해 — 화면 글 · 이전 기간 비교가 이 구분을 따른다)
-/// 으로 두고, 그 밖은 직접이다. 바뀐 게 없으면 지금 값을 그대로 돌려준다(구분을 잃지 않는다).
+/// 시트에서 고른 기간 → 통계 기간. 달력에는 월 · 분기 · 년 구분이 없으므로(칸 하나 · 달력 하나), 고른 기간이
+/// 어떤 달력 달 · 분기 · 해 하나를 정확히 덮으면 그 보기(월 · 분기 · 년)로 두고 — 옛 탭이 ‹ › 로 지난 기간을 보던 것과 같다
+/// (지난 달 → 그 달 월 보기, 이전 기간 비교는 그 전달) — 그 밖은 직접이다. 바뀐 게 없으면 지금 값을 그대로 돌려준다.
 StatsPeriod statsPeriodOfRange(
   StatsPeriod current,
   DateTime from,
   DateTime to,
-  DateTime today,
 ) {
   bool same(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
   bool covers(DateSpan s) => same(from, s.from) && same(to, s.to);
   if (same(from, current.from) && same(to, current.to)) return current;
-  final seg = covers(monthRangeOf(today))
+  final seg = covers(monthRangeOf(from))
       ? StatsSeg.month
-      : covers(quarterRangeOf(today))
+      : (from.month - 1) % 3 == 0 && covers(quarterRangeOf(from))
       ? StatsSeg.quarter
-      : covers(yearRangeOf(today))
+      : covers(yearRangeOf(from))
       ? StatsSeg.year
       : StatsSeg.custom;
   return StatsPeriod(

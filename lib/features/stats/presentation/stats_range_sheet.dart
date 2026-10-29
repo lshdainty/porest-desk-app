@@ -7,14 +7,12 @@ import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 
 /// 통계 빠른 기간 — date-picker.md "빠른 기간" 표의 이름 · 범위 한 벌에서 고른다(이름이 같으면 어디서나 같은 기간).
-/// 옛 통계 프리셋(7일 · 30일 · 3개월 · 6개월 · 1년)은 같은 이름의 달력 단위로 바뀌고, 옛 "월 · 년" 줄은 이번 달 · 올해 칩이 맡는다.
+/// 내보내기 기간 시트와 같은 다섯이다(같은 앱 기간 시트끼리 같은 모양). 옛 분기 탭은 달력에서 석 달 고르기로 대신한다.
 const statsRangePresets = <PDatePreset>[
+  PDatePreset.thisWeek,
   PDatePreset.thisMonth,
-  PDatePreset.last7Days,
-  PDatePreset.last30Days,
+  PDatePreset.lastMonth,
   PDatePreset.last3Months,
-  PDatePreset.last6Months,
-  PDatePreset.last1Year,
   PDatePreset.thisYear,
 ];
 
@@ -73,5 +71,5 @@ Future<StatsPeriod?> showStatsRangeSheet(
   );
   final end = picked?.end;
   if (picked == null || end == null) return null;
-  return statsPeriodOfRange(current, picked.start ?? end, end, now);
+  return statsPeriodOfRange(current, picked.start ?? end, end);
 }
