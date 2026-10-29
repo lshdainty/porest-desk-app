@@ -58,6 +58,12 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
     return [for (var i = 0; i < 7; i++) start.add(Duration(days: i))];
   }
 
+  /// 주를 넘긴다 — 그 주의 **같은 요일**을 고른다(아래 전부가 그날 것). 그 요일이 오는 날이면 오늘(10-29 사용자 결정 4).
+  void _goWeek(int week) => setState(() {
+    _week = week;
+    _sel = weekNavSelect(sel: _sel, week: week, now: DateTime.now());
+  });
+
   /// 우선순위 가중치 — 중요 3 · 보통 2 · 여유 1 (design FOREST_WEIGHT).
   static int _weight(String? prio) => switch (prio) {
     'HIGH' => 3,
@@ -147,8 +153,8 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
             label: rangeLabel,
             canPrev: _week == 1,
             canNext: _week == 0,
-            onPrev: () => setState(() => _week = 0),
-            onNext: () => setState(() => _week = 1),
+            onPrev: () => _goWeek(0),
+            onNext: () => _goWeek(1),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: PSpacing.x3),
@@ -1087,4 +1093,20 @@ List<double> barPieceHeights(List<int> values, double total) {
     out[big] = math.max(minPiece, out[big] - over);
   }
   return out;
+}
+
+/// 주 넘기기 규칙 — 월요일 시작 주 [week](0 = 지난주 · 1 = 이번 주)에서 지금 고른 날 [sel] 과 **같은 요일**의 날, 그 날이 오는 날이면
+/// 오늘. 웹 · 앱 같은 규칙이다(10-29 사용자 결정 4).
+@visibleForTesting
+String weekNavSelect({
+  required String sel,
+  required int week,
+  required DateTime now,
+}) {
+  final today = DateTime(now.year, now.month, now.day);
+  final monday = today.subtract(Duration(days: now.weekday - 1));
+  final start = monday.subtract(Duration(days: week == 0 ? 7 : 0));
+  final candidate = start.add(Duration(days: DateTime.parse(sel).weekday - 1));
+  final picked = candidate.isAfter(today) ? today : candidate;
+  return '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
 }
