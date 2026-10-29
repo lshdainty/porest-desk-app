@@ -1331,7 +1331,7 @@ class _UpcomingSection extends StatelessWidget {
                     suffix: Text(
                       _dayLabel(l, e.daysUntil),
                       style: TextStyle(
-                        color: e.daysUntil <= 3 ? c.fgCritical : null,
+                        color: e.daysUntil <= 3 ? c.fgWarning : null,
                         fontFeatures: _tabular,
                       ),
                     ),

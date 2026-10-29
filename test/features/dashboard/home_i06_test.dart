@@ -552,7 +552,7 @@ void main() {
   });
 
   group('일정 · 할 일 — 24 · 25', () {
-    testWidgets('긴 제목 말줄임 0 · 두 줄을 넘으면 위 맞춤 · 뒤 값 글자 · 사흘 안 critical', (
+    testWidgets('긴 제목 말줄임 0 · 두 줄을 넘으면 위 맞춤 · 뒤 값 글자 · 사흘 안 warning', (
       tester,
     ) async {
       await _pump(tester);
@@ -572,7 +572,7 @@ void main() {
         expect(t.maxLines, isNull);
       }
       final today = tester.widget<Text>(find.text('오늘'));
-      expect(today.style?.color, PColors.light.fgCritical);
+      expect(today.style?.color, PColors.light.fgWarning);
       final far = tester.widget<Text>(find.text('D-12').first);
       expect(far.style?.color, isNull, reason: '사흘 밖은 값 글자 기본색');
     });
