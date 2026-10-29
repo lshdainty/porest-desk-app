@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
 
 /// 아직 기록하지 않은 수신 문자 한 건.
@@ -37,7 +38,11 @@ class SmsAndroid {
 
   static const MethodChannel _channel = MethodChannel('porest/sms_android');
 
-  static bool get isSupported => Platform.isAndroid;
+  /// 시험 전용 — 리눅스 시험 기계에서도 안드로이드 갈래(수신함 읽기)를 태운다.
+  @visibleForTesting
+  static bool? debugSupported;
+
+  static bool get isSupported => debugSupported ?? Platform.isAndroid;
 
   /// 알림을 띄울 수 있는가 (Android 13+ 의 알림 권한).
   ///

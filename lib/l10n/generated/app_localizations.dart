@@ -12545,7 +12545,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsInboxRemoveTitle.
   ///
   /// In ko, this message translates to:
-  /// **'문자 삭제'**
+  /// **'문자를 지울까요?'**
   String get smsInboxRemoveTitle;
 
   /// No description provided for @smsInboxRemove.
@@ -12557,26 +12557,38 @@ abstract class AppLocalizations {
   /// No description provided for @smsInboxRemoveConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 문자를 목록에서 지울까요? 기록으로 남기지 않고 치웁니다.'**
-  String get smsInboxRemoveConfirm;
+  /// **'{target} 문자를 목록에서 지워요. 기록으로 남기지 않아요.'**
+  String smsInboxRemoveConfirm(String target);
+
+  /// No description provided for @smsInboxRemoveLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 삭제'**
+  String smsInboxRemoveLabel(String name);
+
+  /// No description provided for @smsInboxClearTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'문자를 모두 지울까요?'**
+  String get smsInboxClearTitle;
+
+  /// No description provided for @smsInboxClearConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'수신함의 문자 {count}건을 모두 지워요. 기록으로 남기지 않아요.'**
+  String smsInboxClearConfirm(int count);
 
   /// No description provided for @smsPermissionOffTitle.
   ///
   /// In ko, this message translates to:
-  /// **'결제를 감지해도 알려 드릴 수 없어요'**
+  /// **'결제를 감지해도 알려드릴 수 없어요'**
   String get smsPermissionOffTitle;
 
   /// No description provided for @smsPermissionOffDesc.
   ///
   /// In ko, this message translates to:
-  /// **'알림 권한을 켜면 결제가 잡힐 때 바로 알려 드려요. 꺼두셔도 감지는 계속되고 수신함에 쌓여요.'**
+  /// **'알림 권한을 켜면 결제가 잡힐 때 바로 알려드려요. 꺼둬도 감지는 계속되고 수신함에 쌓여요.'**
   String get smsPermissionOffDesc;
-
-  /// No description provided for @smsPermissionEnable.
-  ///
-  /// In ko, this message translates to:
-  /// **'켜기'**
-  String get smsPermissionEnable;
 
   /// No description provided for @moreItemSmsInbox.
   ///

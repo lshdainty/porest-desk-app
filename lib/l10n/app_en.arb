@@ -4018,12 +4018,35 @@
   "smsInboxClear": "Clear",
   "smsInboxEmpty": "No payment notifications yet",
   "smsInboxEmptyDesc": "Detected card payments collect here. Tap one to record it as an expense.",
-  "smsInboxRemoveTitle": "Delete message",
+  "smsInboxRemoveTitle": "Delete this message?",
   "smsInboxRemove": "Remove",
-  "smsInboxRemoveConfirm": "Remove this message from the list? It will not be recorded.",
+  "smsInboxRemoveConfirm": "{target} will be removed from the list. It won't be recorded.",
+  "@smsInboxRemoveConfirm": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "smsInboxRemoveLabel": "Delete {name}",
+  "@smsInboxRemoveLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "smsInboxClearTitle": "Delete all messages?",
+  "smsInboxClearConfirm": "All {count} messages in the inbox will be removed. They won't be recorded.",
+  "@smsInboxClearConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "smsPermissionOffTitle": "We can't notify you about detected payments",
   "smsPermissionOffDesc": "Turn on the notification permission and we will tell you as soon as a payment is detected. Detection keeps working either way and results collect in the inbox.",
-  "smsPermissionEnable": "Turn on",
   "moreItemSmsInbox": "Payment inbox",
   "moreDescSmsInbox": "Record detected card payments as expenses",
   "smsNotiAccessOffTitle": "Payment detection is off",

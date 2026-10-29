@@ -7047,14 +7047,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'Detected card payments collect here. Tap one to record it as an expense.';
 
   @override
-  String get smsInboxRemoveTitle => 'Delete message';
+  String get smsInboxRemoveTitle => 'Delete this message?';
 
   @override
   String get smsInboxRemove => 'Remove';
 
   @override
-  String get smsInboxRemoveConfirm =>
-      'Remove this message from the list? It will not be recorded.';
+  String smsInboxRemoveConfirm(String target) {
+    return '$target will be removed from the list. It won\'t be recorded.';
+  }
+
+  @override
+  String smsInboxRemoveLabel(String name) {
+    return 'Delete $name';
+  }
+
+  @override
+  String get smsInboxClearTitle => 'Delete all messages?';
+
+  @override
+  String smsInboxClearConfirm(int count) {
+    return 'All $count messages in the inbox will be removed. They won\'t be recorded.';
+  }
 
   @override
   String get smsPermissionOffTitle =>
@@ -7063,9 +7077,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get smsPermissionOffDesc =>
       'Turn on the notification permission and we will tell you as soon as a payment is detected. Detection keeps working either way and results collect in the inbox.';
-
-  @override
-  String get smsPermissionEnable => 'Turn on';
 
   @override
   String get moreItemSmsInbox => 'Payment inbox';

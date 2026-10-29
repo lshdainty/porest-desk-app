@@ -6937,23 +6937,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsInboxEmptyDesc => '카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.';
 
   @override
-  String get smsInboxRemoveTitle => '문자 삭제';
+  String get smsInboxRemoveTitle => '문자를 지울까요?';
 
   @override
   String get smsInboxRemove => '삭제';
 
   @override
-  String get smsInboxRemoveConfirm => '이 문자를 목록에서 지울까요? 기록으로 남기지 않고 치웁니다.';
+  String smsInboxRemoveConfirm(String target) {
+    return '$target 문자를 목록에서 지워요. 기록으로 남기지 않아요.';
+  }
 
   @override
-  String get smsPermissionOffTitle => '결제를 감지해도 알려 드릴 수 없어요';
+  String smsInboxRemoveLabel(String name) {
+    return '$name 삭제';
+  }
+
+  @override
+  String get smsInboxClearTitle => '문자를 모두 지울까요?';
+
+  @override
+  String smsInboxClearConfirm(int count) {
+    return '수신함의 문자 $count건을 모두 지워요. 기록으로 남기지 않아요.';
+  }
+
+  @override
+  String get smsPermissionOffTitle => '결제를 감지해도 알려드릴 수 없어요';
 
   @override
   String get smsPermissionOffDesc =>
-      '알림 권한을 켜면 결제가 잡힐 때 바로 알려 드려요. 꺼두셔도 감지는 계속되고 수신함에 쌓여요.';
-
-  @override
-  String get smsPermissionEnable => '켜기';
+      '알림 권한을 켜면 결제가 잡힐 때 바로 알려드려요. 꺼둬도 감지는 계속되고 수신함에 쌓여요.';
 
   @override
   String get moreItemSmsInbox => '결제 알림 수신함';
