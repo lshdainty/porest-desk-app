@@ -314,6 +314,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final loading = all == null && !failed;
     final constToday = ref.watch(constellationTodayProvider).value;
     final sky = ref.watch(constellationSkyProvider).value ?? const <SkyDay>[];
+    // 하늘 카드 상세의 "수집" 줄 — 밤하늘을 펼쳤을 때만 도감을 받는다.
+    final collection = _skyOpen
+        ? ref.watch(constellationCollectionProvider).value
+        : null;
     final skyByDate = {for (final d in sky) d.date: d};
 
     final today = DateTime.now();
@@ -383,8 +387,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                             x.done && localDateKey(x.completedAt) == todayYmd,
                       )
                       .length,
-                  onOpen: () =>
-                      showTodayConstellationDetail(context, constToday),
+                  onOpen: () => showTodayConstellationDetail(
+                    context,
+                    constToday,
+                    entry: _collectionEntryOf(collection, constToday),
+                  ),
                 ),
                 const SizedBox(height: PSpacing.x2),
                 _SkyLinks(
@@ -669,4 +676,19 @@ class _SkyLinks extends StatelessWidget {
       },
     );
   }
+}
+
+/// 오늘의 목표 별자리의 도감 줄 — 도감을 아직 못 받았으면 null(상세에서 수집 줄을 뺀다).
+CollectionEntry? _collectionEntryOf(
+  ConstellationCollectionData? collection,
+  ConstellationToday today,
+) {
+  if (collection == null) return null;
+  for (final e in collection.entries) {
+    if (e.constellation.constellationKey ==
+        today.constellation.constellationKey) {
+      return e;
+    }
+  }
+  return null;
 }
