@@ -32,10 +32,14 @@ void main() {
       markTestSkipped('이 달에는 이웃 달 칸이 없다');
       return;
     }
-    String at(int h) =>
-        '${outside.year.toString().padLeft(4, '0')}-'
-        '${outside.month.toString().padLeft(2, '0')}-'
-        '${outside.day.toString().padLeft(2, '0')}T${h.toString().padLeft(2, '0')}:00:00';
+    String iso(DateTime d, int h) =>
+        '${d.year.toString().padLeft(4, '0')}-'
+        '${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}T${h.toString().padLeft(2, '0')}:00:00';
+    // 이번 달 경계에서 이웃 달 칸으로 걸치는 일정(이번 달만 받아 오므로 이웃 칸에는 걸친 일정만 그려진다)
+    final leading = outside == gridStart;
+    final startDay = leading ? outside : last;
+    final endDay = leading ? first : outside;
 
     tester.view.physicalSize = const Size(1200, 2400);
     tester.view.devicePixelRatio = 1.0;
@@ -50,8 +54,8 @@ void main() {
                 rowId: 1,
                 title: '이웃달일정',
                 calendarRowId: 1,
-                startDate: at(9),
-                endDate: at(10),
+                startDate: iso(startDay, 9),
+                endDate: iso(endDay, 10),
               ),
             ],
           ),

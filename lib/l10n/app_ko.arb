@@ -977,6 +977,23 @@
     }
   },
   "calDatePicker": "날짜 이동",
+  "calFilterChipName": "캘린더 {count}개 보는 중",
+  "@calFilterChipName": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calMoreEvents": "+{count}개",
+  "@calMoreEvents": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calEventsLoadFailed": "일정을 불러오지 못했어요",
   "calCalendarChipCount": "{count}개",
   "@calCalendarChipCount": {
     "placeholders": {
@@ -985,11 +1002,11 @@
       }
     }
   },
-  "calNoCalendars": "캘린더가 없습니다",
+  "calNoCalendars": "캘린더가 없어요.",
   "calOtherSources": "기타 소스",
   "calHolidays": "공휴일",
   "calManageShareSettings": "캘린더 관리 · 공유 설정",
-  "calNoEventsThisDay": "이날 이벤트가 없습니다",
+  "calNoEventsThisDay": "이 날에 일정이 없어요.",
   "calEventTotalCount": "{count}건",
   "@calEventTotalCount": {
     "placeholders": {

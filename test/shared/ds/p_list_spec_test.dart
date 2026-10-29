@@ -1886,7 +1886,7 @@ void _controlTests() {
       expect(find.byIcon(LucideIcons.creditCard), findsOneWidget);
     });
 
-    testWidgets('체크를 앞에 두면 앞 붙이개를 같이 쓸 수 없다 — 뒤 붙이개는 아예 받지 않는다', (
+    testWidgets('체크를 앞에 두고도 앞 붙이개를 같이 쓴다 — 체크 → 앞 붙이개 → 제목(뒤 값은 체크를 뒤에 둘 때만)', (
       tester,
     ) async {
       expect(
@@ -1896,17 +1896,16 @@ void _controlTests() {
           onChanged: (_) {},
           prefix: const Icon(LucideIcons.bell),
         ),
-        throwsAssertionError,
+        returnsNormally,
       );
       expect(
         () => PListCheckItem(
           title: 'a',
           checked: false,
           onChanged: (_) {},
-          prefix: const Icon(LucideIcons.bell),
-          markPosition: PListMarkPosition.suffix,
+          suffixValue: const Text('1'),
         ),
-        returnsNormally,
+        throwsAssertionError,
       );
     });
 

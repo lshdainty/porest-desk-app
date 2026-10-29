@@ -973,6 +973,23 @@
     }
   },
   "calDatePicker": "Go to date",
+  "calFilterChipName": "Showing {count} calendars",
+  "@calFilterChipName": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calMoreEvents": "+{count}",
+  "@calMoreEvents": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calEventsLoadFailed": "Couldn't load events",
   "calCalendarChipCount": "{count}",
   "@calCalendarChipCount": {
     "placeholders": {
@@ -981,11 +998,11 @@
       }
     }
   },
-  "calNoCalendars": "No calendars",
+  "calNoCalendars": "No calendars.",
   "calOtherSources": "Other sources",
   "calHolidays": "Holidays",
   "calManageShareSettings": "Manage & share calendars",
-  "calNoEventsThisDay": "No events on this day",
+  "calNoEventsThisDay": "No events on this day.",
   "calEventTotalCount": "{count}",
   "@calEventTotalCount": {
     "placeholders": {

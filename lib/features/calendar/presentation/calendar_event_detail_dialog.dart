@@ -13,6 +13,8 @@ import 'package:groo_damda_app/features/calendar/application/calendar_providers.
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_text.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
@@ -112,16 +114,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     }
   }
 
-  /// rrule → 반복 라벨 (편집 폼 _rruleToRecurrence 와 동일 매핑, 없으면 '안 함').
-  String _repeatLabel(AppLocalizations l, String? rrule) {
-    if (rrule == null || rrule.isEmpty) return l.calRepeatNone;
-    if (rrule.contains('FREQ=DAILY')) return l.calRepeatDaily;
-    if (rrule.contains('FREQ=WEEKLY')) return l.calRepeatWeekly;
-    if (rrule.contains('FREQ=MONTHLY')) return l.calRepeatMonthly;
-    if (rrule.contains('FREQ=YEARLY')) return l.calRepeatYearly;
-    return rrule;
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -131,7 +123,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     // 색 우선순위: label > calendar > event (일별 시트 색 바와 동일 규칙)
     final color = solidSwatchColor(
       context,
-      e.labelColor ?? e.calendarColor ?? e.color,
+      eventColorHex(e),
       fallback: t.fgBrand,
     );
     final bg = softBg(context, color);
@@ -407,7 +399,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         _DetailIconRow(
           icon: LucideIcons.repeat,
           caption: l.calDetailRepeat,
-          label: _repeatLabel(l, e.rrule),
+          label: (eventRepeatLabel(l, e.rrule) ?? l.calRepeatNone),
           bg: bg,
           fg: fg,
         ),

@@ -1,0 +1,147 @@
+{
+  "note": "웹 helpers.ts calculateMonthEventPositions 와 앱 calculateMonthPositions 가 같은 입력에 같은 줄 번호를 내는지 보는 공용 표본. 날짜는 로컬 시각 문자열. holiday=true 는 공휴일(종일 하루, 웹 convertHolidayToIEvent 와 같다).",
+  "month": {
+    "year": 2026,
+    "month": 10
+  },
+  "items": [
+    {
+      "id": "1",
+      "title": "이틀 종일 일정",
+      "startDate": "2026-10-08T00:00:00",
+      "endDate": "2026-10-09T23:59:59",
+      "isAllDay": true,
+      "holiday": false
+    },
+    {
+      "id": "h-2026-10-09",
+      "title": "한글날 (공휴일)",
+      "startDate": "2026-10-09T00:00:00",
+      "endDate": "2026-10-09T23:59:59",
+      "isAllDay": true,
+      "holiday": true
+    },
+    {
+      "id": "h-2026-10-03",
+      "title": "개천절 (공휴일)",
+      "startDate": "2026-10-03T00:00:00",
+      "endDate": "2026-10-03T23:59:59",
+      "isAllDay": true,
+      "holiday": true
+    },
+    {
+      "id": "3",
+      "title": "나흘 이어지는 종일 일정",
+      "startDate": "2026-10-17T00:00:00",
+      "endDate": "2026-10-20T23:59:59",
+      "isAllDay": true,
+      "holiday": false
+    },
+    {
+      "id": "4",
+      "title": "전달에서 걸친 긴 일정",
+      "startDate": "2026-09-29T09:00:00",
+      "endDate": "2026-10-02T18:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "5",
+      "title": "다음 달로 걸친 일정",
+      "startDate": "2026-10-30T10:00:00",
+      "endDate": "2026-11-03T12:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "6",
+      "title": "보름 종일 일정",
+      "startDate": "2026-10-05T00:00:00",
+      "endDate": "2026-10-19T23:59:59",
+      "isAllDay": true,
+      "holiday": false
+    },
+    {
+      "id": "7",
+      "title": "하루 종일 일정",
+      "startDate": "2026-10-22T00:00:00",
+      "endDate": "2026-10-22T23:59:59",
+      "isAllDay": true,
+      "holiday": false
+    },
+    {
+      "id": "8",
+      "title": "회의 아침",
+      "startDate": "2026-10-22T09:00:00",
+      "endDate": "2026-10-22T10:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "9",
+      "title": "점심 약속",
+      "startDate": "2026-10-22T12:00:00",
+      "endDate": "2026-10-22T13:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "10",
+      "title": "치과",
+      "startDate": "2026-10-22T15:00:00",
+      "endDate": "2026-10-22T16:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "11",
+      "title": "독서 모임",
+      "startDate": "2026-10-22T19:00:00",
+      "endDate": "2026-10-22T20:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "12",
+      "title": "밤 약속",
+      "startDate": "2026-10-22T21:00:00",
+      "endDate": "2026-10-22T22:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "13",
+      "title": "두 날 일정",
+      "startDate": "2026-10-12T22:00:00",
+      "endDate": "2026-10-13T08:00:00",
+      "isAllDay": false,
+      "holiday": false
+    },
+    {
+      "id": "14",
+      "title": "월요일 회의",
+      "startDate": "2026-10-12T09:00:00",
+      "endDate": "2026-10-12T10:00:00",
+      "isAllDay": false,
+      "holiday": false
+    }
+  ],
+  "keyFormat": "{id}-{startDate}",
+  "expectedPositions": {
+    "6-2026-10-05T00:00:00": 0,
+    "5-2026-10-30T10:00:00": 0,
+    "4-2026-09-29T09:00:00": 0,
+    "3-2026-10-17T00:00:00": 1,
+    "1-2026-10-08T00:00:00": 1,
+    "h-2026-10-03-2026-10-03T00:00:00": 0,
+    "h-2026-10-09-2026-10-09T00:00:00": 2,
+    "13-2026-10-12T22:00:00": 1,
+    "7-2026-10-22T00:00:00": 0,
+    "14-2026-10-12T09:00:00": 2,
+    "8-2026-10-22T09:00:00": 1,
+    "9-2026-10-22T12:00:00": 2,
+    "10-2026-10-22T15:00:00": 3,
+    "11-2026-10-22T19:00:00": 4,
+    "12-2026-10-22T21:00:00": 5
+  }
+}

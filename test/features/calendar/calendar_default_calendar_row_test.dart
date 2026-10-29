@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/user_calendar_repository.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
@@ -27,6 +27,9 @@ import 'package:groo_damda_app/features/calendar/domain/holiday.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import '../../support/plain_text.dart';
 
 const _default = UserCalendar(rowId: 1, calendarName: '기본캘린더', isDefault: true);
 const _normal = UserCalendar(rowId: 2, calendarName: '회사캘린더');
@@ -71,13 +74,14 @@ CalendarEvent _event({
   );
 }
 
-/// 필터 시트의 체크박스 — 20×20 AnimatedContainer 하나가 한 행의 스위치다.
-/// 색 점(8×8)·"오늘" 원과 크기로 갈린다.
-Finder checkboxes() => find.byWidgetPredicate(
-  (w) =>
-      w is AnimatedContainer &&
-      w.constraints == const BoxConstraints.tightFor(width: 20, height: 20),
+/// 기본 캘린더 줄의 제목 — 제목 뒤에 "기본" 배지가 이어 붙어 Text.rich 라, 줄바꿈 보호 글자를 뺀 글로 찾는다.
+Finder _defaultTitle() => find.byWidgetPredicate(
+  (w) => w is RichText && plainOf(w.text.toPlainText()).contains('기본캘린더'),
+  description: '기본 캘린더 제목',
 );
+
+/// 필터 시트의 체크 줄 — List 체크 줄 하나가 한 행의 스위치다(공휴일 줄 포함).
+Finder checkRows() => find.byType(PListCheckItem);
 
 void main() {
   late AppLocalizations l;
@@ -138,39 +142,95 @@ void main() {
   }
 
   group('필터 시트 — 기본 캘린더 행', () {
-    testWidgets('기본 캘린더 행에는 체크박스가 없고 일반 캘린더 행에는 있다', (tester) async {
+    testWidgets('기본 캘린더 줄은 칸만 켠 채 막힌 체크 줄(locked)이고 일반 줄은 그대로다', (
+      tester,
+    ) async {
       await pump(tester, calendars: const [_default, _normal]);
       // 캘린더 2 + 공휴일 1.
       await openFilterSheet(tester, count: 3);
 
-      expect(find.text('기본캘린더'), findsOneWidget);
-      expect(find.text('회사캘린더'), findsOneWidget);
+      expect(_defaultTitle(), findsOneWidget);
+      expect(findPlain('회사캘린더'), findsOneWidget);
 
-      // 세 행 중 스위치는 둘 — 기본 캘린더 행에만 없다.
-      expect(checkboxes(), findsNWidgets(2), reason: '기본 캘린더 행에도 체크박스가 그려졌다');
-
-      // 눌러도 아무 일 없는 행이라 탭(InkWell) 자체를 안 붙인다.
-      expect(
-        find.widgetWithText(InkWell, '기본캘린더'),
-        findsNothing,
-        reason: '기본 캘린더 행이 여전히 눌린다',
+      // 세 줄 모두 체크 줄 — 기본 캘린더 줄만 locked(켠 채 막힌 칸, 줄은 보통 색)
+      expect(checkRows(), findsNWidgets(3));
+      final defaultRow = tester.widget<PListCheckItem>(
+        find.ancestor(
+          of: _defaultTitle(),
+          matching: find.byType(PListCheckItem),
+        ),
       );
-      expect(find.widgetWithText(InkWell, '회사캘린더'), findsOneWidget);
+      expect(defaultRow.locked, isTrue);
+      expect(defaultRow.checked, isTrue);
+      final normalRow = tester.widget<PListCheckItem>(
+        find.ancestor(
+          of: findPlain('회사캘린더'),
+          matching: find.byType(PListCheckItem),
+        ),
+      );
+      expect(normalRow.locked, isFalse);
+      // 칸: 기본 줄 칸은 막혀 있고(enabled false) 일반 줄 칸은 눌린다
+      final marks = tester
+          .widgetList<PCheckmark>(find.byType(PCheckmark))
+          .toList();
+      expect(marks.first.enabled, isFalse);
+      expect(marks.first.checked, isTrue);
+      expect(marks[1].enabled, isTrue);
     });
 
     testWidgets("기본 캘린더 행에는 '기본' 표식이 붙는다", (tester) async {
       await pump(tester, calendars: const [_default, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      // 관리 화면·웹이 쓰는 것과 같은 배지 — 스위치가 왜 없는지를 남긴다.
+      // 관리 화면·웹이 쓰는 것과 같은 배지 — 칸이 왜 막혔는지를 남긴다.
       expect(find.text(l.calDefault), findsOneWidget);
+    });
+
+    testWidgets('체크는 앞 — 기본 줄도 체크 24 → 색 점 → 이름으로 일반 줄과 한 세로선에 선다', (
+      tester,
+    ) async {
+      await pump(tester, calendars: const [_default, _normal]);
+      await openFilterSheet(tester, count: 3);
+
+      final checks = tester
+          .widgetList<PCheckmark>(find.byType(PCheckmark))
+          .length;
+      expect(checks, 3);
+      final checkRect = tester.getRect(find.byType(PCheckmark).first);
+      final normalCheck = tester.getRect(find.byType(PCheckmark).at(1));
+      expect(checkRect.width, 24);
+      expect(checkRect.left, normalCheck.left, reason: '기본 줄 칸이 일반 줄 칸과 같은 자리');
+      // 상자 없는 파란 체크 표식은 걷었다
+      expect(
+        find.byKey(const ValueKey('calendar-filter-default-mark')),
+        findsNothing,
+      );
+      final normalTitle = tester.getTopLeft(findPlain('회사캘린더')).dx;
+      final defaultTitle = tester.getTopLeft(_defaultTitle()).dx;
+      expect(defaultTitle, normalTitle, reason: '기본 줄 이름이 체크 줄과 한 세로선');
+    });
+
+    testWidgets('구역 이름(내 캘린더 · 기타 소스)은 List Header 기본(mediumWeak) — 옅은 500', (
+      tester,
+    ) async {
+      await pump(tester, calendars: const [_default, _normal]);
+      await openFilterSheet(tester, count: 3);
+
+      final titles = tester
+          .widgetList<Text>(find.byKey(const ValueKey('plist-header-title')))
+          .toList();
+      expect(titles.length, 2);
+      for (final t in titles) {
+        expect(t.style?.fontWeight, FontWeight.w500);
+        expect(t.style?.color, PColors.light.fgNeutralSubtle);
+      }
     });
 
     testWidgets('일반 캘린더 행은 그대로 토글된다', (tester) async {
       final repo = await pump(tester, calendars: const [_default, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      await tester.tap(find.text('회사캘린더'));
+      await tester.tap(findPlain('회사캘린더'));
       await tester.pumpAndSettle();
 
       expect(repo.toggled, [2], reason: '일반 캘린더 토글까지 같이 죽었다');
@@ -180,7 +240,7 @@ void main() {
       final repo = await pump(tester, calendars: const [_default, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      await tester.tap(find.text('기본캘린더'), warnIfMissed: false);
+      await tester.tap(_defaultTitle(), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       expect(repo.toggled, isEmpty, reason: '서버가 400 으로 막는 요청이 나갔다');
@@ -236,11 +296,15 @@ void main() {
       await pump(tester, calendars: const [_staleHiddenDefault, _normal]);
       await openFilterSheet(tester, count: 3);
 
-      // 꺼진 행은 이름이 fgTertiary 로 죽는다 — 기본 캘린더는 늘 켜진 색이다.
-      final name = tester.widget<Text>(find.text('기본캘린더'));
-
-      expect(name.style?.color, GrooTokens.light.fgPrimary);
-      expect(name.style?.color, isNot(GrooTokens.light.fgTertiary));
+      // 꺼진 줄은 체크가 비어 보인다 — 기본 캘린더는 늘 켠 채 막힌 칸이다.
+      final row = tester.widget<PListCheckItem>(
+        find.ancestor(
+          of: _defaultTitle(),
+          matching: find.byType(PListCheckItem),
+        ),
+      );
+      expect(row.checked, isTrue);
+      expect(row.locked, isTrue);
     });
   });
 }
