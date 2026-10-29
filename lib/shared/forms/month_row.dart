@@ -17,6 +17,7 @@ class MonthRow extends StatelessWidget {
     required this.padding,
     required this.labelStyle,
     this.minHeight = 0,
+    this.tabularFigures = false,
   });
 
   final DateTime month;
@@ -27,6 +28,9 @@ class MonthRow extends StatelessWidget {
 
   /// 줄 최소 높이 — 캘린더 52. 글자가 커지면 늘어난다.
   final double minHeight;
+
+  /// 달 글 숫자를 고정폭으로 — 웹 `MonthTitle`(`tabular-nums`)을 쓰는 예산이 켠다. 캘린더 머리 글은 웹도 끈다.
+  final bool tabularFigures;
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +83,9 @@ class MonthRow extends StatelessWidget {
                                 style: labelStyle.copyWith(
                                   color: c.fgNeutral,
                                   fontWeight: FontWeight.w700,
+                                  fontFeatures: tabularFigures
+                                      ? const [FontFeature.tabularFigures()]
+                                      : null,
                                 ),
                               ),
                             ),

@@ -224,6 +224,7 @@ class BudgetMonthRow extends StatelessWidget {
       0,
     ),
     labelStyle: PTypography.t5,
+    tabularFigures: true,
   );
 }
 
