@@ -17,6 +17,10 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 /// 정하고(1열 가로형 · 2 ~ 3열 세로형) 상자마다 바꿀 수 있다.
 enum PSelectBoxLayout { horizontal, vertical }
 
+/// 상자 밀도 — default 는 세로형 위아래 20 · 앞 ↔ 본문 10, compact 는 위아래 12 · 앞 ↔ 본문 4(세로형만 — 17-1 Q5 = B).
+/// 한 화면에 상자가 많이 들어가야 하는 종류 고르기 첫 단계가 쓴다.
+enum PSelectBoxDensity { defaultDensity, compact }
+
 /// 펼침을 보일 때 — 고르면(기본) · 고르지 않으면 · 늘.
 enum PSelectBoxFooterVisibility { whenSelected, whenNotSelected, always }
 
@@ -31,6 +35,8 @@ const double _radius = PRounded.r3;
 const double _gap = PSpacing.x1_5; // 콘텐츠 ↔ 컨트롤
 const double _horizontalGap = PSpacing.x3; // 앞 ↔ 본문
 const double _verticalGap = PSpacing.x2_5; // 앞(위) ↔ 본문
+const double _verticalGapCompact = PSpacing.x1; // compact: 앞(위) ↔ 본문 4
+const double _verticalPaddingCompact = PSpacing.x3; // compact: 위아래 12
 const double _prefixSize = 22;
 const double _controlSize = 20;
 const double _bodyGap = PSpacing.x0_5;
@@ -364,6 +370,7 @@ class PRadioSelectBox<T> extends StatefulWidget {
     this.footer,
     this.footerVisibility = PSelectBoxFooterVisibility.whenSelected,
     this.layout,
+    this.density = PSelectBoxDensity.defaultDensity,
     this.control = PRadioSelectBoxControl.radio,
     this.enabled = true,
     this.focusNode,
@@ -387,6 +394,9 @@ class PRadioSelectBox<T> extends StatefulWidget {
 
   /// 묶음의 열 수에서 온다 — 상자마다 바꿀 때만.
   final PSelectBoxLayout? layout;
+
+  /// 밀도 — compact 는 세로형에서만 먹는다.
+  final PSelectBoxDensity density;
   final PRadioSelectBoxControl control;
   final bool enabled;
   final FocusNode? focusNode;
@@ -459,6 +469,7 @@ class _PRadioSelectBoxState<T> extends State<PRadioSelectBox<T>>
       footer: widget.footer,
       footerVisibility: widget.footerVisibility,
       layout: widget.layout,
+      density: widget.density,
       selected: selected,
       enabled: enabled,
       onActivate: enabled ? _select : null,
@@ -500,6 +511,7 @@ class PCheckSelectBox extends StatelessWidget {
     this.footer,
     this.footerVisibility = PSelectBoxFooterVisibility.whenSelected,
     this.layout,
+    this.density = PSelectBoxDensity.defaultDensity,
     this.control = PCheckSelectBoxControl.check,
     this.focusNode,
   });
@@ -517,6 +529,9 @@ class PCheckSelectBox extends StatelessWidget {
   final Widget? footer;
   final PSelectBoxFooterVisibility footerVisibility;
   final PSelectBoxLayout? layout;
+
+  /// 밀도 — compact 는 세로형에서만 먹는다.
+  final PSelectBoxDensity density;
   final PCheckSelectBoxControl control;
   final FocusNode? focusNode;
 
@@ -533,6 +548,7 @@ class PCheckSelectBox extends StatelessWidget {
       footer: footer,
       footerVisibility: footerVisibility,
       layout: layout,
+      density: density,
       selected: checked,
       enabled: enabled,
       onActivate: enabled ? () => onChanged(!checked) : null,
@@ -570,6 +586,7 @@ class _SelectBoxFrame extends StatefulWidget {
     required this.footer,
     required this.footerVisibility,
     required this.layout,
+    required this.density,
     required this.selected,
     required this.enabled,
     required this.onActivate,
@@ -587,6 +604,9 @@ class _SelectBoxFrame extends StatefulWidget {
   final Widget? footer;
   final PSelectBoxFooterVisibility footerVisibility;
   final PSelectBoxLayout? layout;
+
+  /// 밀도 — compact 는 세로형에서만 먹는다.
+  final PSelectBoxDensity density;
   final bool selected;
   final bool enabled;
   final VoidCallback? onActivate;
@@ -650,6 +670,7 @@ class _SelectBoxFrameState extends State<_SelectBoxFrame> {
             ? PSelectBoxLayout.vertical
             : PSelectBoxLayout.horizontal);
     final vertical = layout == PSelectBoxLayout.vertical;
+    final compact = vertical && widget.density == PSelectBoxDensity.compact;
     final enabled = widget.enabled;
     final pressed = enabled && _pressed;
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -705,7 +726,7 @@ class _SelectBoxFrameState extends State<_SelectBoxFrame> {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            spacing: _verticalGap,
+            spacing: compact ? _verticalGapCompact : _verticalGap,
             children: [?prefix, body],
           )
         : Row(
@@ -719,9 +740,9 @@ class _SelectBoxFrameState extends State<_SelectBoxFrame> {
     final Widget trigger = Padding(
       key: const ValueKey('select-box-trigger'),
       padding: vertical
-          ? const EdgeInsets.symmetric(
+          ? EdgeInsets.symmetric(
               horizontal: PSpacing.x4,
-              vertical: PSpacing.x5,
+              vertical: compact ? _verticalPaddingCompact : PSpacing.x5,
             )
           : const EdgeInsets.fromLTRB(
               PSpacing.x5,

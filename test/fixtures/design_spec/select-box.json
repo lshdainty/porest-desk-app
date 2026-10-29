@@ -3,7 +3,7 @@
   "source": "specs/components/select-box.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "a3df9fd00e94"
+    "sha256": "b21bcc4ffd72"
   },
   "slots": {
     "root": "상자 — 테두리 · 바탕 · 모서리. 펼침을 뺀 전부가 누르는 영역",
@@ -26,11 +26,16 @@
     "selected": [
       "unselected",
       "selected"
+    ],
+    "density": [
+      "default",
+      "compact"
     ]
   },
   "defaults": {
     "layout": "horizontal",
-    "selected": "unselected"
+    "selected": "unselected",
+    "density": "default"
   },
   "states": [
     "enabled",
@@ -203,6 +208,20 @@
         "content": {
           "gap": 10,
           "direction": "column"
+        }
+      }
+    },
+    {
+      "when": {
+        "layout": "vertical",
+        "density": "compact"
+      },
+      "enabled": {
+        "trigger": {
+          "paddingY": 12
+        },
+        "content": {
+          "gap": 4
         }
       }
     },
@@ -422,12 +441,26 @@
     {
       "rule": 3,
       "state": "enabled",
+      "slot": "trigger",
+      "prop": "paddingY",
+      "note": "20 → 12 — 좌우 16 · 컨트롤 자리 · 글자 · 앞 22 는 그대로(2026-10-29 17-1 Q5 = B)"
+    },
+    {
+      "rule": 3,
+      "state": "enabled",
+      "slot": "content",
+      "prop": "gap",
+      "note": "앞(위) ↔ 본문 10 → 4"
+    },
+    {
+      "rule": 4,
+      "state": "enabled",
       "slot": "root",
       "prop": "borderColor",
       "note": "고른 상자만 짙은 테두리 — 바탕은 바꾸지 않는다(사용자 결정, SEED). v113"
     },
     {
-      "rule": 3,
+      "rule": 4,
       "state": "disabled",
       "slot": "root",
       "prop": "borderColor",

@@ -71,6 +71,8 @@ class AssetKindStep extends StatelessWidget {
                         label: k.label(l),
                         prefix: Icon(k.icon),
                         control: PRadioSelectBoxControl.none,
+                        // 아홉 상자가 한 화면에 들게 낮춘다(select-box density compact — 17-1 Q5 = B)
+                        density: PSelectBoxDensity.compact,
                       ),
                   ],
                 ),

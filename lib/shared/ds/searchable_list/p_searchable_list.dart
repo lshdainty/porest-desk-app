@@ -30,6 +30,7 @@ const double _highlightInsetX =
 const double _highlightRadius =
     PRounded.r2_5; // highlight.radius — 강조 · 누름 때 10(평소 0). List 누름 바탕과 같다
 const double _prefixGap = PSpacing.x3; // 앞 붙이개 ↔ 글 12
+const double _rowMinHeight = 48; // 줄 최소 높이(라디오 없는 한 줄 46 을 올린다)
 const double _bodyEndGap = PSpacing.x2_5; // 글 ↔ 오른쪽 라디오
 const double _logoSize = 40; // prefix.logo
 const double _cardArtWidth = 56; // prefix.cardArt — 카드 비율
@@ -72,13 +73,18 @@ class PSearchableList extends StatefulWidget {
     this.searchDelay = const Duration(milliseconds: 300),
     this.placement = PSearchableListPlacement.sheet,
     this.focusNode,
+    this.selectionMark = PSearchableListSelectionMark.on,
     required this.children,
   });
+
+  /// 줄 오른쪽에 지금 값을 보이는 라디오를 둘지(스펙 축 selectionMark). 끄면(off) 누른 줄을 바로 더하고 닫는 목록이다 —
+  /// "종목 추가" 같은 동작이라 [value] 를 주지 않고, 채워질 일이 없는 동그라미를 두지 않는다. 줄 높이는 최소 48 을 지킨다.
 
   /// 검색칸의 초점 노드 — 시트가 첫 초점을 이리로 넘겨줄 때(`PBottomSheet.show(initialFocus: …)`) 같은 노드를 둘에 준다.
   /// 주면 검색칸은 열릴 때 스스로 초점을 잡지 않는다(시트가 정한다 — 웹 `focusSearchableList(event)` 와 같다). 노드의 주인은
   /// 쓰는 쪽이다(묶음이 지우지 않는다). 안 주면 묶음이 만들고, 시트 자리에서는 열릴 때 한 번 스스로 잡는다.
   final FocusNode? focusNode;
+  final PSearchableListSelectionMark selectionMark;
 
   /// 지금 고른 값 — 오른쪽 라디오가 켜진 줄. 주면 제어(없음은 '').
   final String? value;
@@ -291,6 +297,7 @@ class _PSearchableListState extends State<PSearchableList> {
       highlighted: _highlighted,
       source: _source,
       placement: widget.placement,
+      selectionMark: widget.selectionMark,
       child: LayoutBuilder(
         builder: (context, constraints) {
           // 높이가 정해진 자리면 결과 자리가 남는 높이 안에서 스크롤한다(검색칸은 위에 붙는다)
@@ -312,6 +319,9 @@ class _PSearchableListState extends State<PSearchableList> {
   }
 }
 
+/// 줄의 선택 표시 — on 은 오른쪽 라디오(칸에 넣는 목록), off 는 라디오 없음(누르면 바로 더하는 목록).
+enum PSearchableListSelectionMark { on, off }
+
 enum _HighlightSource { keyboard, pointer }
 
 /// 결과 자리 — 높이가 정해진 자리에서 남는 높이를 받는 위젯(결과 · 0건 · 실패 · 불러오는 줄).
@@ -325,6 +335,7 @@ class _PSearchableListScope extends InheritedWidget {
     required this.highlighted,
     required this.source,
     required this.placement,
+    required this.selectionMark,
     required super.child,
   });
 
@@ -334,6 +345,7 @@ class _PSearchableListScope extends InheritedWidget {
   final String? highlighted;
   final _HighlightSource source;
   final PSearchableListPlacement placement;
+  final PSearchableListSelectionMark selectionMark;
 
   static _PSearchableListScope of(BuildContext context, String widget) {
     final scope = context
@@ -348,7 +360,8 @@ class _PSearchableListScope extends InheritedWidget {
       query != old.query ||
       highlighted != old.highlighted ||
       source != old.source ||
-      placement != old.placement;
+      placement != old.placement ||
+      selectionMark != old.selectionMark;
 }
 
 /// 카탈로그 전용 — [value] 줄을 강조한 모습으로 멈춰 그린다(견본이 강조를 한 장으로 보여 줄 때만 쓴다. 실제로는 화살표 ·
@@ -646,32 +659,39 @@ class _PSearchableListItemState extends State<PSearchableListItem> {
       ),
     );
 
-    final row = Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpacing.globalGutter,
-        vertical: PSpacing.x3,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (widget.prefix != null)
-            Padding(
-              key: const ValueKey('searchable-list-prefix'),
-              padding: const EdgeInsetsDirectional.only(end: _prefixGap),
-              child: ExcludeSemantics(child: widget.prefix),
-            ),
-          Expanded(child: body),
-          // 지금 값 — 보는 표시. 고름은 줄이 알린다. 줄 전체가 줄어들므로 동그라미는 따로 줄지 않는다
-          ExcludeSemantics(
-            child: PRadiomark(
-              key: const ValueKey('searchable-list-radio'),
-              checked: selected,
-              size: PRadioSize.large,
-              pressed: _pressed,
-              scaleOnPress: false,
-            ),
-          ),
-        ],
+    final showMark = scope.selectionMark == PSearchableListSelectionMark.on;
+    // 라디오(24)가 없으면 한 줄이 46 이라 줄 최소 높이 48 을 지킨다(searchable-list.yaml option.minHeight — 위아래 여백 포함)
+    final row = ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: _rowMinHeight),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpacing.globalGutter,
+          vertical: PSpacing.x3,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (widget.prefix != null)
+              Padding(
+                key: const ValueKey('searchable-list-prefix'),
+                padding: const EdgeInsetsDirectional.only(end: _prefixGap),
+                child: ExcludeSemantics(child: widget.prefix),
+              ),
+            Expanded(child: body),
+            // 지금 값 — 보는 표시. 고름은 줄이 알린다. 줄 전체가 줄어들므로 동그라미는 따로 줄지 않는다.
+            // selectionMark off(누르면 바로 더하는 목록)에는 두지 않는다
+            if (showMark)
+              ExcludeSemantics(
+                child: PRadiomark(
+                  key: const ValueKey('searchable-list-radio'),
+                  checked: selected,
+                  size: PRadioSize.large,
+                  pressed: _pressed,
+                  scaleOnPress: false,
+                ),
+              ),
+          ],
+        ),
       ),
     );
 
