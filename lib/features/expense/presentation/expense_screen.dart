@@ -24,6 +24,7 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_day_
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_filter_chips.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/month_picker/p_month_picker.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
@@ -186,8 +187,15 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         ][m.month - 1]
       : '${m.month}월';
 
-  void _goMonth(int dir) {
-    final next = DateTime(_month.year, _month.month + dir, 1);
+  Future<void> _pickMonth() async {
+    final picked = await showPMonthPicker(context, initial: _month);
+    if (picked != null && mounted) _setMonth(picked);
+  }
+
+  void _goMonth(int dir) =>
+      _setMonth(DateTime(_month.year, _month.month + dir, 1));
+
+  void _setMonth(DateTime next) {
     final today = DateTime.now();
     setState(() {
       _month = next;
@@ -420,10 +428,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       children: [
         const SizedBox(height: PSpacing.x2),
         LedgerMonthNav(
-          label: _monthLabel(_month),
+          label: yearMonth(_month),
           showMonth: !filterActive,
-          onPrev: () => _goMonth(-1),
-          onNext: () => _goMonth(1),
+          onPick: _pickMonth,
           onOpenFilter: _openFilter,
           onAddTx: () => showAddTxSheet(context),
         ),

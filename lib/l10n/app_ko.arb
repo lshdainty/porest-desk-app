@@ -976,7 +976,7 @@
       }
     }
   },
-  "calDatePicker": "날짜 이동",
+  "calDatePicker": "월 선택",
   "calFilterChipName": "캘린더 {count}개 보는 중",
   "@calFilterChipName": {
     "placeholders": {
@@ -1015,7 +1015,6 @@
       }
     }
   },
-  "calGoToToday": "오늘로",
   "calManageShareTitle": "캘린더 관리·공유",
   "calJoinByCode": "초대 코드로 참여",
   "calRoleOwner": "소유자",
@@ -4560,8 +4559,6 @@
   "@dsSliderMax": {
     "description": "Slider 범위 — 큰 손잡이의 기본 이름"
   },
-  "actionPrev": "이전",
-  "actionNext": "다음",
   "dsAttachLifted": "{n}번째 항목을 들었어요.",
   "@dsAttachLifted": {"description": "ds 컴포넌트 문구", "placeholders": {"n": {"type": "int"}}},
   "dsAttachAddedPhotos": "사진 {n}장을 붙였어요.",

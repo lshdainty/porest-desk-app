@@ -972,7 +972,7 @@
       }
     }
   },
-  "calDatePicker": "Go to date",
+  "calDatePicker": "Select month",
   "calFilterChipName": "Showing {count} calendars",
   "@calFilterChipName": {
     "placeholders": {
@@ -1011,7 +1011,6 @@
       }
     }
   },
-  "calGoToToday": "Today",
   "calManageShareTitle": "Manage & share",
   "calJoinByCode": "Join with invite code",
   "calRoleOwner": "Owner",
@@ -4320,8 +4319,6 @@
   "dsQuantityIncrease": "Increase",
   "dsSliderMin": "Minimum",
   "dsSliderMax": "Maximum",
-  "actionPrev": "Previous",
-  "actionNext": "Next",
   "dsAttachLifted": "Picked up item {n}.",
   "dsAttachAddedPhotos": "Attached {n, plural, =1{1 photo} other{{n} photos}}.",
   "dsAttachAddedFiles": "Attached {n, plural, =1{1 file} other{{n} files}}.",

@@ -59,6 +59,45 @@ void main() {
   );
 
   testWidgets(
+    'LedgerMonthNav — 가장 나쁜 값 "2026년 12월" 글자 200% 360 에서 넘치지 않는다 · 글이 여백 24 에서 시작',
+    (tester) async {
+      double? oneLine;
+      for (final scale in [1.0, 2.0]) {
+        await pumpApp(
+          tester,
+          Scaffold(
+            body: LedgerMonthNav(
+              label: '2026년 12월',
+              onPick: () {},
+              onOpenFilter: () {},
+              filterOn: true,
+              onAddTx: () {},
+            ),
+          ),
+          textScale: scale,
+        );
+        expect(tester.takeException(), isNull);
+        final text = tester.getRect(find.text('2026년 12월'));
+        if (scale == 1.0) {
+          expect(text.left, 24);
+          oneLine = text.height;
+        } else {
+          // 200% 에서도 한 줄 — 높이가 한 줄(100% 높이)의 2배 안쪽(글자를 줄여 담아도 두 줄이 되지 않는다)
+          expect(text.height, lessThan(oneLine! * 2.2));
+          // 글자를 크게 줄이지 않는다 — 200% 에서 100% 글자보다 확실히 크다(1.5배 넘게)
+          expect(text.height, greaterThan(oneLine * 1.5));
+        }
+        // [+] 는 늘 오른쪽 끝(화면 여백 24 → 336) — 달 글 바로 뒤에 붙지 않는다
+        expect(tester.getRect(find.byIcon(LucideIcons.plus)).right, 336);
+        expect(
+          tester.getRect(find.byIcon(LucideIcons.slidersHorizontal)).right,
+          lessThan(tester.getRect(find.byIcon(LucideIcons.plus)).left),
+        );
+      }
+    },
+  );
+
+  testWidgets(
     'LedgerMonthNav — 추가 단추를 비우면 없다 · filterOn 이면 알림 점 하나 · 이름 "필터, 조건 걸림"',
     (tester) async {
       await pumpApp(
@@ -66,8 +105,7 @@ void main() {
         Scaffold(
           body: LedgerMonthNav(
             label: '10월',
-            onPrev: () {},
-            onNext: () {},
+            onPick: () {},
             onOpenFilter: () {},
             filterOn: true,
           ),
@@ -84,8 +122,7 @@ void main() {
         Scaffold(
           body: LedgerMonthNav(
             label: '10월',
-            onPrev: () {},
-            onNext: () {},
+            onPick: () {},
             onOpenFilter: () {},
             onAddTx: () {},
           ),

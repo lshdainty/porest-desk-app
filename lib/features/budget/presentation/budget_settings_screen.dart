@@ -11,7 +11,7 @@ import 'package:groo_damda_app/features/budget/application/budget_providers.dart
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/budget/presentation/budget_edit_dialog.dart';
 import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
-import 'package:groo_damda_app/features/budget/presentation/month_picker_sheet.dart';
+import 'package:groo_damda_app/shared/ds/month_picker/p_month_picker.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
@@ -229,12 +229,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       // 달 줄 + 지난달 복사 — 흰 면 맨 위 4 + 한 줄(웹 BudgetManager 모바일 헤더 정합)
       BudgetMonthRow(
         month: _month,
-        onPrev: () =>
-            setState(() => _month = DateTime(_month.year, _month.month - 1, 1)),
-        onNext: () =>
-            setState(() => _month = DateTime(_month.year, _month.month + 1, 1)),
         onPick: () async {
-          final picked = await showMonthPickerSheet(context, _month);
+          final picked = await showPMonthPicker(context, initial: _month);
           if (picked != null) setState(() => _month = picked);
         },
         trailing: PButton(

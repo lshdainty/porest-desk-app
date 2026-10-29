@@ -6,13 +6,11 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/chip/p_chip.dart';
 import 'package:groo_damda_app/shared/forms/month_row.dart';
 
-/// 달 줄 — 흰 면 맨 위(I-09 6). 높이 52 · 왼쪽 6 · 오른쪽 16, ← 달 → 와 오른쪽 캘린더 고르기 칩.
+/// 달 줄 — 흰 면 맨 위(I-09 6). 높이 52 · 왼쪽 달 글이 화면 여백 24 · 오른쪽 16, 달 글 + 꺾쇠(‹ › 없음)와 오른쪽 캘린더 고르기 칩.
 class CalendarMonthRow extends StatelessWidget {
   const CalendarMonthRow({
     super.key,
     required this.month,
-    required this.onPrev,
-    required this.onNext,
     required this.onPick,
     required this.calendarCount,
     required this.dotColors,
@@ -20,8 +18,6 @@ class CalendarMonthRow extends StatelessWidget {
   });
 
   final DateTime month;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
   final VoidCallback onPick;
   final int calendarCount;
   final List<Color> dotColors;
@@ -34,11 +30,13 @@ class CalendarMonthRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return MonthRow(
       month: month,
-      onPrev: onPrev,
-      onNext: onNext,
       onPick: onPick,
       minHeight: height,
-      padding: const EdgeInsets.only(left: PSpacing.x1_5, right: PSpacing.x4),
+      // 달 글 상자 안 여백 10 만큼 덜어 글이 화면 여백 24 에 선다
+      padding: const EdgeInsets.only(
+        left: PSpacing.globalGutter - PSpacing.x2_5,
+        right: PSpacing.x4,
+      ),
       labelStyle: PTypography.t6,
       trailing: CalendarFilterChip(
         count: calendarCount,

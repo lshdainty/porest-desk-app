@@ -3023,7 +3023,7 @@ abstract class AppLocalizations {
   /// No description provided for @calDatePicker.
   ///
   /// In ko, this message translates to:
-  /// **'날짜 이동'**
+  /// **'월 선택'**
   String get calDatePicker;
 
   /// No description provided for @calFilterChipName.
@@ -3085,12 +3085,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{count}건'**
   String calEventTotalCount(int count);
-
-  /// No description provided for @calGoToToday.
-  ///
-  /// In ko, this message translates to:
-  /// **'오늘로'**
-  String get calGoToToday;
 
   /// No description provided for @calManageShareTitle.
   ///
@@ -13393,18 +13387,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'최대'**
   String get dsSliderMax;
-
-  /// No description provided for @actionPrev.
-  ///
-  /// In ko, this message translates to:
-  /// **'이전'**
-  String get actionPrev;
-
-  /// No description provided for @actionNext.
-  ///
-  /// In ko, this message translates to:
-  /// **'다음'**
-  String get actionNext;
 
   /// ds 컴포넌트 문구
   ///

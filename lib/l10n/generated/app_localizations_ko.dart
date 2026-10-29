@@ -1608,7 +1608,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get calDatePicker => '날짜 이동';
+  String get calDatePicker => '월 선택';
 
   @override
   String calFilterChipName(int count) {
@@ -1647,9 +1647,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String calEventTotalCount(int count) {
     return '$count건';
   }
-
-  @override
-  String get calGoToToday => '오늘로';
 
   @override
   String get calManageShareTitle => '캘린더 관리·공유';
@@ -7413,12 +7410,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dsSliderMax => '최대';
-
-  @override
-  String get actionPrev => '이전';
-
-  @override
-  String get actionNext => '다음';
 
   @override
   String dsAttachLifted(int n) {

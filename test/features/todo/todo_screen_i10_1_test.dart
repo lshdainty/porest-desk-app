@@ -15,6 +15,7 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_head
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/todo/domain/todo.dart';
+import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 import 'package:groo_damda_app/shared/icons/filled_star.dart';
 import 'package:groo_damda_app/features/todo/presentation/todo_screen.dart';
 import 'package:groo_damda_app/features/todo/presentation/widgets/todo_row.dart';
@@ -63,6 +64,36 @@ List<Todo> _basic() => [
   todo(3, '세탁소 옷 찾기', due: _other, prio: 'LOW', content: '영수증 챙기기'),
   todo(4, '이사 준비 체크리스트', prio: 'MEDIUM'),
 ];
+
+/// 달 줄의 달 글을 눌러 연 | 월 휠 시트를 열고 [target] 달로 옮겨 "완료" 한다(‹ › 는 없다 — 10-29).
+/// [settle] 이 false 면 마지막에 pumpAndSettle 을 쓰지 않는다(불러오는 중 스켈레톤이 계속 도는 화면).
+Future<void> _pickMonth(
+  WidgetTester tester,
+  DateTime from,
+  DateTime target, {
+  bool settle = true,
+}) async {
+  await tester.tap(find.byIcon(LucideIcons.chevronDown).first);
+  await tester.pumpAndSettle();
+  Finder col(String name, String text) => find.descendant(
+    of: find.byWidgetPredicate(
+      (w) => w is PWheelPickerColumn && w.semanticLabel == name,
+    ),
+    matching: find.text(text),
+  );
+  if (target.year != from.year) {
+    await tester.tap(col('연도', '${target.year}년').first);
+    await tester.pumpAndSettle();
+  }
+  await tester.tap(col('월', '${target.month}월').first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('완료'));
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+}
 
 void main() {
   setUpAll(loadRealFonts);
@@ -311,13 +342,10 @@ void main() {
         overrides: todoOverrides(todos: _basic(), repo: repo),
       );
       final reads = repo.listReads;
-      final handle = tester.ensureSemantics();
-      await tester.tap(find.bySemanticsLabel('다음 달'));
-      await tester.pumpAndSettle();
-      expect(repo.listReads, reads);
       final next = DateTime(_now.year, _now.month + 1, 1);
-      expect(find.text('${next.month}월'), findsOneWidget);
-      handle.dispose();
+      await _pickMonth(tester, _now, next);
+      expect(repo.listReads, reads);
+      expect(find.text('${next.year}년 ${next.month}월'), findsWidgets);
     });
   });
 
@@ -443,7 +471,7 @@ void main() {
       overrides: todoOverrides(todos: _basic(), skyDays: [grown]),
     );
     // 월 달력을 펼쳐 지난 날을 본다
-    await tester.tap(find.byIcon(LucideIcons.chevronDown));
+    await tester.tap(find.byIcon(LucideIcons.chevronDown).last);
     await tester.pumpAndSettle();
     final stars = find.byType(PFilledStar);
     expect(stars, findsOneWidget);
@@ -910,7 +938,7 @@ void main() {
         settle: false,
       );
       expect(find.byType(PTopNavigation), findsOneWidget);
-      expect(find.text('${_now.month}월'), findsOneWidget);
+      expect(find.text('${_now.year}년 ${_now.month}월'), findsOneWidget);
       expect(find.byType(PSkeleton), findsWidgets);
       expect(find.byType(TodoRow), findsNothing);
     });

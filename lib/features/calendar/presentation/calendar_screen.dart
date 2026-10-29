@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
-import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_visibility.dart';
@@ -23,11 +17,9 @@ import 'package:groo_damda_app/features/calendar/presentation/calendar_grid.dart
 import 'package:groo_damda_app/features/calendar/presentation/calendar_month_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
+import 'package:groo_damda_app/shared/ds/month_picker/p_month_picker.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_divider.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -104,8 +96,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         children: [
           CalendarMonthRow(
             month: _focused,
-            onPrev: () => _moveMonth(-1),
-            onNext: () => _moveMonth(1),
             onPick: _showMonthYearPicker,
             calendarCount: visibleCount,
             dotColors: dotColors,
@@ -156,26 +146,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  void _showMonthYearPicker() {
-    showPSheet<void>(
+  Future<void> _showMonthYearPicker() async {
+    // 달 고르기(I-27) — 연 | 월 휠 + 완료. 고른 달의 1일로 옮긴다("오늘로" · 4×3 격자는 스펙에 없어 걷었다).
+    final picked = await showPMonthPicker(
       context,
+      initial: _focused,
       title: AppLocalizations.of(context).calDatePicker,
-      shrinkWrap: true,
-      contentBuilder: (ctx, scrollCtrl) => _MonthYearPickerSheet(
-        initial: _focused,
-        scrollController: scrollCtrl,
-        // showPSheet 는 root navigator 에 뜸 — State context 로 pop 하면 탭 안
-        // 페이지가 pop 되므로(스택 소진 크래시) rootNavigator 지정 필수.
-        onSelect: (date) {
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() => _focused = date);
-        },
-        onToday: () {
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() => _focused = DateTime.now());
-        },
-      ),
     );
+    if (picked != null && mounted) setState(() => _focused = picked);
   }
 
   void _showFilterSheet() {
@@ -285,134 +263,6 @@ class _CalendarGridSkeleton extends StatelessWidget {
                 ],
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── 연/월 picker sheet ───────────────────────────────────────────────────────
-
-class _MonthYearPickerSheet extends StatefulWidget {
-  const _MonthYearPickerSheet({
-    required this.initial,
-    required this.scrollController,
-    required this.onSelect,
-    required this.onToday,
-  });
-  final DateTime initial;
-  final ScrollController scrollController;
-  final ValueChanged<DateTime> onSelect;
-  final VoidCallback onToday;
-
-  @override
-  State<_MonthYearPickerSheet> createState() => _MonthYearPickerSheetState();
-}
-
-class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
-  late int _year;
-
-  @override
-  void initState() {
-    super.initState();
-    _year = widget.initial.year;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final selYear = widget.initial.year;
-    final selMonth = widget.initial.month;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 연도 네비 — 화살표 drawer 양 끝
-          Row(
-            children: [
-              PButton.icon(
-                tooltip: AppLocalizations.of(context).actionPrev,
-                icon: LucideIcons.chevronLeft,
-                onPressed: () => setState(() => _year--),
-              ),
-              const Spacer(),
-              Text(
-                yearOnly(DateTime(_year)),
-                style: PTypo.body.copyWith(fontWeight: PFontWeight.bold),
-              ),
-              const Spacer(),
-              PButton.icon(
-                tooltip: AppLocalizations.of(context).actionNext,
-                icon: LucideIcons.chevronRight,
-                onPressed: () => setState(() => _year++),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-          // 월 그리드 (4×3)
-          GridView.count(
-            crossAxisCount: 4,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.2,
-            mainAxisSpacing: PSpace.x8,
-            crossAxisSpacing: PSpace.x4,
-            children: List.generate(12, (i) {
-              final month = i + 1;
-              final isSelected = _year == selYear && month == selMonth;
-              return GestureDetector(
-                onTap: () => widget.onSelect(DateTime(_year, month)),
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    // 선택 월 박스 = 채움(흰 글씨) 버튼이므로 primary 고정 토큰.
-                    // bgBrand 는 다크에서 primary-light 로 밝아져 웹(bg-primary)과 어긋남.
-                    color: isSelected ? t.bgBrandSolid : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    monthOnly(DateTime(_year, month)),
-                    style: PTypo.bodySm.copyWith(
-                      color: isSelected ? t.fgOnBrand : t.fgPrimary,
-                      fontWeight: isSelected
-                          ? PFontWeight.bold
-                          : PFontWeight.medium,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: PSpace.x16),
-          PDivider(),
-          const SizedBox(height: PSpace.x12),
-          // 푸터: 오늘로 + 닫기 — 화면 폭을 반씩 나눠 갖는다
-          // (spec drawer.md "flex:1 평등 분배"). 가계부 월 선택(budget_screen)과 같은 배치.
-          Row(
-            children: [
-              Expanded(
-                child: PButton(
-                  label: l.calGoToToday,
-                  icon: LucideIcons.navigation,
-                  variant: PButtonVariant.ghost,
-                  fullWidth: true,
-                  onPressed: widget.onToday,
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Expanded(
-                child: PButton(
-                  label: l.actionClose,
-                  variant: PButtonVariant.ghost,
-                  fullWidth: true,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

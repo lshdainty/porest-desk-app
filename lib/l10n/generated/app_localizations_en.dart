@@ -1631,7 +1631,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get calDatePicker => 'Go to date';
+  String get calDatePicker => 'Select month';
 
   @override
   String calFilterChipName(int count) {
@@ -1670,9 +1670,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String calEventTotalCount(int count) {
     return '$count';
   }
-
-  @override
-  String get calGoToToday => 'Today';
 
   @override
   String get calManageShareTitle => 'Manage & share';
@@ -7549,12 +7546,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dsSliderMax => 'Maximum';
-
-  @override
-  String get actionPrev => 'Previous';
-
-  @override
-  String get actionNext => 'Next';
 
   @override
   String dsAttachLifted(int n) {

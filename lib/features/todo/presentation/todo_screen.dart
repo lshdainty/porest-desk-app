@@ -22,6 +22,7 @@ import 'package:groo_damda_app/features/todo/presentation/todo_edit_dialog.dart'
 import 'package:groo_damda_app/features/todo/presentation/widgets/todo_filter_sheet.dart';
 import 'package:groo_damda_app/features/todo/presentation/widgets/todo_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/month_picker/p_month_picker.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/icons/filled_star.dart';
 import 'package:groo_damda_app/shared/ds/floating_action_button/p_floating_action_button.dart';
@@ -127,8 +128,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     }
   }
 
-  void _goMonth(int dir) {
-    final next = DateTime(_month.year, _month.month + dir, 1);
+  Future<void> _pickMonth() async {
+    final picked = await showPMonthPicker(context, initial: _month);
+    if (picked != null && mounted) _setMonth(picked);
+  }
+
+  void _setMonth(DateTime next) {
     final today = DateTime.now();
     setState(() {
       _month = next;
@@ -334,9 +339,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       children: [
         const SizedBox(height: PSpacing.x2),
         LedgerMonthNav(
-          label: monthOnly(_month),
-          onPrev: () => _goMonth(-1),
-          onNext: () => _goMonth(1),
+          label: yearMonth(_month),
+          onPick: _pickMonth,
           onOpenFilter: () => _openFilter(all ?? const []),
           filterOn: _filter.active,
         ),
