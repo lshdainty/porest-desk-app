@@ -11,6 +11,7 @@ import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_detail_sheet.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
 import 'package:groo_damda_app/features/todo/application/todo_providers.dart';
@@ -382,6 +383,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                             x.done && localDateKey(x.completedAt) == todayYmd,
                       )
                       .length,
+                  onOpen: () =>
+                      showTodayConstellationDetail(context, constToday),
                 ),
                 const SizedBox(height: PSpacing.x2),
                 _SkyLinks(
