@@ -23,6 +23,13 @@ bool _isScheduled(String? expenseDate) {
   return DateTime.parse(normalized).isAfter(DateTime.now());
 }
 
+/// 거래 시각 "HH:mm" — 00:00 이면 null(시각이 없는 거래). 웹 `txTimeLabel` 과 같은 규칙.
+String? txTimeLabel(String? raw) {
+  if (raw == null || raw.length < 16) return null;
+  final time = raw.substring(11, 16);
+  return time == '00:00' ? null : time;
+}
+
 /// 거래 줄 — 가계부 · 검색 · 자산 상세 · 거래 상세 · 홈이 **같이 쓰는 하나뿐인 줄**이다(ds List 줄 값, I-06 28).
 ///
 /// 앞 타일 40(모서리 12 · 카테고리 옅은 바탕) · 제목 t5 400(줄을 바꾼다, 말줄임 없음 — 뒤에 배지가 이어 붙는다) ·
@@ -128,6 +135,9 @@ class ExpenseRow extends StatelessWidget {
         PTag(expense.assetName ?? '-', shrink: 2),
         if (showInstallment && (expense.installmentMonths ?? 1) > 1)
           PTag(l.assetInstallmentBadge(expense.installmentMonths!), shrink: 0),
+        // 시각 — 분류 · 자산 · 시각 차례(tag-group.md:84), 줄지 않는다. 00:00 이면 두지 않는다
+        if (txTimeLabel(expense.expenseDate) case final time?)
+          PTag(time, shrink: 0),
       ],
     );
     final prefix = PListTile(background: bg, color: fg, child: Icon(icon));
