@@ -119,17 +119,9 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
     super.initState();
     final e = widget.edit;
     // 기관이 없는 자산은 비워 둔다 — 첫 기관으로 채우면 고치기만 해도 엉뚱한 기관이 저장된다. 새 자산만 첫 항목이 기본이다.
-    final inst = e?.institution;
-    _brand = e != null && (inst == null || inst.isEmpty)
-        ? ''
-        : inst != null
-        ? _investBrands
-              .firstWhere(
-                (b) => b.name == inst || b.aliases.contains(inst),
-                orElse: () => _investBrands.first,
-              )
-              .name
-        : _investBrands.first.name;
+    // 저장된 기관 이름은 목록에 없어도 그대로 둔다(웹과 같다) — 첫 기관으로 바꾸면 고치기만 해도 기관이 바뀐다.
+    // 기관이 없는 자산은 빈 칸이다. 새 자산만 첫 항목이 기본이다.
+    _brand = e == null ? _investBrands.first.name : (e.institution ?? '');
     // 별칭 — 사용자가 지은 이름을 보존한다. 저장 때 기관명으로 덮으면
     // "금 현물" 같은 이름이 "NH투자" 로 사라진다(웹 AssetEditDialog 미러).
     _nameCtrl = TextEditingController(text: e?.assetName ?? '');

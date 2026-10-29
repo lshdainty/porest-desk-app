@@ -128,19 +128,9 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
     super.initState();
     final e = widget.edit;
     _kind = widget.initialKind;
-    // 편집 모드: institution 으로 brand 추론. 기관이 없는 자산(현금 · 대출)은 비워 둔다 —
-    // 첫 은행으로 채우면 고치기만 해도 엉뚱한 은행이 저장된다. 새 자산만 첫 항목이 기본이다.
-    final inst = e?.institution;
-    _brand = e != null && (inst == null || inst.isEmpty)
-        ? ''
-        : inst != null
-        ? bankEntries
-              .firstWhere(
-                (b) => b.name == inst || b.aliases.contains(inst),
-                orElse: () => bankEntries.first,
-              )
-              .name
-        : bankEntries.first.name;
+    // 저장된 기관 이름은 목록에 없어도 그대로 둔다(웹과 같다) — 첫 기관으로 바꾸면 고치기만 해도 기관이 바뀐다.
+    // 기관이 없는 자산은 빈 칸이다. 새 자산만 첫 항목이 기본이다.
+    _brand = e == null ? bankEntries.first.name : (e.institution ?? '');
     _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
       ..addListener(_onNicknameChanged);
     // 부호는 시스템이 정한다(QA #19). 화면은 늘 '얼마' 만 묻는다 —

@@ -368,6 +368,26 @@ void main() {
     expect(edit.captured?['institution'], last);
   });
 
+  testWidgets('목록에 없는 기관 이름의 자산을 고치면 칸에 그 이름이 보이고 이름만 고쳐도 기관이 그대로다', (
+    tester,
+  ) async {
+    const odd = Asset(
+      rowId: 15,
+      assetName: '옛 계좌',
+      assetType: 'BANK_ACCOUNT',
+      balance: 1000,
+      institution: '목록에 없는 은행',
+      isIncludedInTotal: 'Y',
+    );
+    final repo = await _open(tester, edit: odd, assets: const [odd]);
+    expect(findPlain('목록에 없는 은행'), findsOneWidget);
+    expect(findPlain(bankEntries.first.name), findsNothing);
+    await typeInto(tester, l.assetNickname, '옛 계좌 2');
+    await _tapSubmit(tester, l.actionSave);
+    expect(repo.captured?['assetName'], '옛 계좌 2');
+    expect(repo.captured?['institution'], '목록에 없는 은행');
+  });
+
   testWidgets('새 자산의 기관 기본값은 첫 은행이다', (tester) async {
     final repo = await _open(tester);
     await typeInto(tester, l.assetNickname, 'QA 새 계좌');
