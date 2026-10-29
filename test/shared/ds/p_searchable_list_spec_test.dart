@@ -1286,6 +1286,46 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets(
+      'selectionMark off — 라디오가 없고 줄은 최소 48 · 좌우 24 · 누르면 바로 알린다(스펙 radio.display 없음 · option.minHeight 48)',
+      (tester) async {
+        final picked = <String>[];
+        await tester.pumpWidget(
+          _host(
+            Brightness.light,
+            PSearchableList(
+              selectionMark: PSearchableListSelectionMark.off,
+              onValueChanged: picked.add,
+              children: const [
+                PSearchableListInput(placeholder: '검색', semanticLabel: '검색'),
+                PSearchableListResults(
+                  semanticLabel: '결과',
+                  children: [
+                    PSearchableListItem(value: 'a', title: '한 줄'),
+                    PSearchableListItem(value: 'b', title: '두 줄', detail: '설명'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+        expect(find.byType(PRadiomark), findsNothing);
+        final h = [
+          for (var i = 0; i < 2; i++) tester.getSize(_options.at(i)).height,
+        ];
+        expect(h[0], 48); // 제목 22 + 위아래 24 = 46 을 48 로 올린다
+        expect(h[1], 66);
+        // 글 왼쪽 24 · 오른쪽 끝 24 안에 든다
+        final title = tester.getRect(
+          find.byKey(const ValueKey('searchable-list-title')).first,
+        );
+        expect(title.left - tester.getRect(_options.at(0)).left, 24);
+        await tester.tap(_options.at(1));
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(picked, ['b']);
+      },
+    );
+
     testWidgets('묶음 밖에서 쓰면 알려 준다', (tester) async {
       await tester.pumpWidget(
         _host(

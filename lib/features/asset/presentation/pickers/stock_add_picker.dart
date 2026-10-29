@@ -104,6 +104,8 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
       body: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: pickerBodyHeight(context)),
         child: PSearchableList(
+          // 누르면 바로 더하는 목록 — 라디오 없음(17-1b Q4 = B)
+          selectionMark: PSearchableListSelectionMark.off,
           focusNode: widget.searchFocus,
           query: _typed,
           onQueryChanged: (q) => setState(() => _typed = q),
