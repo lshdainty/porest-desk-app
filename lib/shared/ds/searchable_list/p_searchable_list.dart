@@ -526,7 +526,6 @@ class PSearchableListItem extends StatefulWidget {
     this.detail,
     this.detailChild,
     this.prefix,
-    this.showRadio = true,
   }) : assert(
          detail == null || detailChild == null,
          '설명은 글(detail)이나 위젯(detailChild) 하나만 준다',
@@ -542,9 +541,6 @@ class PSearchableListItem extends StatefulWidget {
   /// 설명 자리에 글 대신 두는 위젯(글 + 배지) — 글자 모양은 설명(13 · 옅은 색)을 따른다.
   final Widget? detailChild;
   final Widget? prefix;
-
-  /// 오른쪽 라디오 — 기본 켬. "고르면 그 종목을 더한다" 처럼 지금 값이 없는 목록(종목 추가)은 끈다.
-  final bool showRadio;
 
   @override
   State<PSearchableListItem> createState() => _PSearchableListItemState();
@@ -655,16 +651,15 @@ class _PSearchableListItemState extends State<PSearchableListItem> {
             ),
           Expanded(child: body),
           // 지금 값 — 보는 표시. 고름은 줄이 알린다. 줄 전체가 줄어들므로 동그라미는 따로 줄지 않는다
-          if (widget.showRadio)
-            ExcludeSemantics(
-              child: PRadiomark(
-                key: const ValueKey('searchable-list-radio'),
-                checked: selected,
-                size: PRadioSize.large,
-                pressed: _pressed,
-                scaleOnPress: false,
-              ),
+          ExcludeSemantics(
+            child: PRadiomark(
+              key: const ValueKey('searchable-list-radio'),
+              checked: selected,
+              size: PRadioSize.large,
+              pressed: _pressed,
+              scaleOnPress: false,
             ),
+          ),
         ],
       ),
     );

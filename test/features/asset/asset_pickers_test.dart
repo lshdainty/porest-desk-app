@@ -241,7 +241,7 @@ void main() {
   });
 
   group('종목 추가', () {
-    testWidgets('검색어가 없으면 줄이 없고, 있으면 라디오 없는 종목 줄 + 직접 추가 줄', (tester) async {
+    testWidgets('검색어가 없으면 줄이 없고, 있으면 종목 줄 + 맨 아래 직접 추가 줄', (tester) async {
       StockPick? picked;
       await _pump(
         tester,
@@ -263,10 +263,25 @@ void main() {
       expect(findPlain('가나 전자'), findsOneWidget);
       expect(findPlain('가나 화학'), findsNothing);
       expect(findPlain(l.assetHoldingAddManual('가나')), findsOneWidget);
-      expect(find.byKey(const ValueKey('searchable-list-radio')), findsNothing);
       await tester.tap(findPlain('가나 전자'));
       await tester.pumpAndSettle();
       expect(picked?.found?.symbol, '000001');
+    });
+
+    testWidgets('0건이면 안내가 먼저, 직접 추가 줄은 늘 맨 아래', (tester) async {
+      await _pump(
+        tester,
+        (ctx) => showStockAddPicker(ctx, excludeSymbols: {}).then((_) {}),
+        overrides: [
+          stockSearchProvider.overrideWith((ref, q) async => const []),
+        ],
+      );
+      await tester.enterText(find.byType(TextField).last, '없는종목');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      final empty = tester.getRect(findPlain(l.assetSearchEmpty('없는종목')));
+      final manual = tester.getRect(findPlain(l.assetHoldingAddManual('없는종목')));
+      expect(empty.bottom, lessThanOrEqualTo(manual.top));
     });
 
     testWidgets('직접 추가 줄은 검색어 그대로 돌려준다', (tester) async {

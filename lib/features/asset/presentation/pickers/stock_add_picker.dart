@@ -22,7 +22,7 @@ const _manual = '__manual__';
 
 /// 종목 추가(I-17 20) — "종목 추가" 단추가 여는 검색 시트. 서버 검색은 마지막 입력 뒤 300ms 에 한 번.
 ///
-/// 줄은 "고르면 그 종목을 더한다"(오른쪽 라디오 없음). 이미 담은 연동 종목은 목록에서 빼고, 검색어가 있으면 맨 아래에
+/// 줄은 "고르면 그 종목을 더한다"(오른쪽 라디오는 Searchable List 줄의 모양 그대로). 이미 담은 연동 종목은 목록에서 빼고, 검색어가 있으면 맨 아래에
 /// "직접 추가 — 평가액 입력" 줄이 선다. 고르면 시트가 닫히고 [StockPick] 이 돌아온다(취소하면 null).
 Future<StockPick?> showStockAddPicker(
   BuildContext context, {
@@ -67,6 +67,7 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
     ].take(6).toList();
     final fetching = async.isLoading && results.isEmpty;
 
+    // 검색어가 없으면 줄이 없다. 0건 안내가 먼저, 직접 추가 줄은 늘 맨 아래(I-17 20)
     Widget? body;
     if (query.isNotEmpty) {
       body = fetching
@@ -79,13 +80,11 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
                     value: '${s.marketCode}:${s.symbol}',
                     title: s.nameKr,
                     detail: '${s.symbol} · ${s.marketCode}',
-                    showRadio: false,
                   ),
                 PSearchableListItem(
                   value: _manual,
                   title: l.assetHoldingAddManual(query),
                   prefix: const Icon(LucideIcons.plus, size: 20),
-                  showRadio: false,
                 ),
               ],
             );
@@ -117,9 +116,9 @@ class _StockAddSheetState extends ConsumerState<StockAddSheet> {
               placeholder: l.assetHoldingSearchHint,
               semanticLabel: l.actionSearch,
             ),
-            ?body,
             if (query.isNotEmpty && results.isEmpty && !fetching)
               PSearchableListEmpty(titleBuilder: (q) => l.assetSearchEmpty(q)),
+            ?body,
           ],
         ),
       ),
