@@ -968,6 +968,42 @@ void main() {
     });
   });
 
+  testWidgets(
+    'density compact(세로형) — 위아래 12 · 앞 ↔ 본문 4, 기본은 20 · 10 (스펙 trigger.paddingY · content.gap)',
+    (tester) async {
+      Widget box(PSelectBoxDensity d) => PRadioSelectBoxGroup<String>(
+        value: null,
+        onChanged: (_) {},
+        columns: 2,
+        children: [
+          PRadioSelectBox<String>(
+            value: 'a',
+            label: '투자',
+            prefix: const Icon(LucideIcons.chartLine, size: 22),
+            control: PRadioSelectBoxControl.none,
+            density: d,
+          ),
+        ],
+      );
+      final heights = <double>[];
+      final gaps = <double>[];
+      for (final d in PSelectBoxDensity.values) {
+        await tester.pumpWidget(_host(Brightness.light, box(d)));
+        final padding = tester.widget<Padding>(_trigger).padding as EdgeInsets;
+        expect(padding.left, 16);
+        expect(padding.top, d == PSelectBoxDensity.compact ? 12 : 20);
+        expect(padding.bottom, padding.top);
+        final col = tester.widget<Column>(
+          find.descendant(of: _content, matching: find.byType(Column)).first,
+        );
+        gaps.add(col.spacing);
+        heights.add(tester.getSize(_root).height);
+      }
+      expect(gaps, [10, 4]);
+      expect(heights[0] - heights[1], 8 * 2 + 6); // 위아래 8씩 + 앞 ↔ 본문 6
+    },
+  );
+
   testWidgets('카탈로그 견본이 그려진다', (tester) async {
     tester.view.physicalSize = const Size(390, 1600);
     tester.view.devicePixelRatio = 1;

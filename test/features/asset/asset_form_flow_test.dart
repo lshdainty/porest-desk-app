@@ -481,6 +481,32 @@ void main() {
       expect(boxes[1].right, 360 - 24);
     });
 
+    testWidgets(
+      '1단계 상자는 compact(위아래 12 · 앞↔글 4) — 폰 390 × 844 의 90% 시트 첫 화면에 "투자" 상자가 스크롤 없이 든다',
+      (tester) async {
+        await _host(tester, showAssetAddFlow);
+        tester.view.physicalSize = const Size(390, 844);
+        await tester.pumpAndSettle();
+        final boxes = find.byType(PRadioSelectBox<AssetKind>);
+        expect(
+          tester
+              .widgetList<PRadioSelectBox<AssetKind>>(boxes)
+              .every((b) => b.density == PSelectBoxDensity.compact),
+          isTrue,
+        );
+        // 낮춘 상자 한 칸 = 12 + 22(앞) + 4 + 글 + 12 — 20 · 10 이었을 때보다 14 낮다
+        final h = tester.getSize(boxes.first).height;
+        expect(h, lessThan(22 + 24 + 4 + 28));
+        final invest = tester.getRect(boxes.at(8)); // 투자(마지막 묶음의 끝)
+        final next = tester.getRect(find.text(l.actionNext));
+        expect(invest.bottom, lessThanOrEqualTo(next.top));
+        final sheet = tester.getRect(
+          find.byKey(const ValueKey('p-bottom-sheet-root')),
+        );
+        expect(invest.bottom, lessThanOrEqualTo(sheet.bottom));
+      },
+    );
+
     testWidgets('T14 마지막 칸 ↔ 체크 줄 16 · 체크 줄 폭 = 본문 폭 · 칸 사이 24', (
       tester,
     ) async {
