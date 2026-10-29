@@ -225,7 +225,7 @@ void main() {
 
       // 8월까지 닫혔다 → 9월분은 옛 결제일(14일)인 10월 14일에 결제된다.
       // 폼 시트 위에 ds 확인창이 뜬다(시트는 그대로 하나)
-      expect(findPlain('결제일 변경'), findsOneWidget);
+      expect(findPlain('결제일을 바꿀까요?'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('p-bottom-sheet-root')),
         findsOneWidget,
@@ -320,28 +320,115 @@ void main() {
   testWidgets('별칭 30자 초과·중복은 안내가 뜨고 저장이 막힌다', (tester) async {
     // 30자를 넘어 저장돼 있던 옛 별칭 — 입력은 30자에서 멈추므로 옛 값으로 연다
     final longName = _credit.copyWith(assetName: 'ㄱ' * 31);
-    await _openEdit(tester, longName, assets: [longName, _other]);
+    final repo = await _openEdit(tester, longName, assets: [longName, _other]);
     await typeInto(tester, l.assetNickname, 'ㄱ' * 31);
     expect(findRichPlain(l.nameTooLong(30)), findsOneWidget);
-    expect(
-      tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
-      isNull,
-    );
-
-    await typeInto(tester, l.assetNickname, 'QA 주거래');
-    expect(findRichPlain(l.assetNicknameDuplicate), findsOneWidget);
-    expect(
-      tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
-      isNull,
-    );
-
-    // 자기 이름은 중복이 아니다.
-    await typeInto(tester, l.assetNickname, 'ㄱ' * 31);
-    await typeInto(tester, l.assetNickname, '신한 Deep Dream');
-    expect(findRichPlain(l.assetNicknameDuplicate), findsNothing);
+    // 단추는 늘 켜 둔다 — 눌러도 요청은 안 나간다
     expect(
       tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
       isNotNull,
     );
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.updated, isFalse);
+
+    await typeInto(tester, l.assetNickname, 'QA 주거래');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsOneWidget);
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.updated, isFalse);
+
+    // 자기 이름은 중복이 아니다 — 저장이 나간다.
+    await typeInto(tester, l.assetNickname, 'ㄱ' * 31);
+    await typeInto(tester, l.assetNickname, '신한 Deep Dream');
+    expect(findRichPlain(l.assetNicknameDuplicate), findsNothing);
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.updated, isTrue);
+  });
+
+  group('필수가 비어도 단추는 켜 두고 누르면 칸마다 알린다', () {
+    Future<_CapturingRepo> openAdd(WidgetTester tester) async {
+      final repo = _CapturingRepo();
+      tester.view.physicalSize = const Size(1200, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            assetsProvider.overrideWith((ref) async => const [_credit, _other]),
+            assetRepositoryProvider.overrideWith((ref) async => repo),
+            cardCatalogPageProvider.overrideWith(
+              (ref, key) async => _emptyPage,
+            ),
+          ],
+          child: MaterialApp(
+            theme: GrooTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('ko'),
+            home: Scaffold(
+              body: Builder(
+                builder: (ctx) => TextButton(
+                  onPressed: () => showCardAddDialog(ctx),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      return repo;
+    }
+
+    testWidgets('새 신용카드 — 상품 · 결제일이 비면 누를 때 두 칸 아래 안내, 요청은 안 나간다', (
+      tester,
+    ) async {
+      final repo = await openAdd(tester);
+      // 처음엔 오류가 없다
+      expect(findRichPlain(l.assetFormErrCard), findsNothing);
+      expect(findRichPlain(l.assetFormErrPaymentDay), findsNothing);
+      expect(
+        tester.widget<PButton>(_submitButton(l.calAdd)).onPressed,
+        isNotNull,
+      );
+      await tester.tap(_submitButton(l.calAdd));
+      await tester.pumpAndSettle();
+      expect(findRichPlain(l.assetFormErrCard), findsOneWidget);
+      expect(findRichPlain(l.assetFormErrPaymentDay), findsOneWidget);
+      expect(repo.updated, isFalse);
+    });
+
+    testWidgets('결제일을 고르면 그 안내가 저절로 걷힌다', (tester) async {
+      await openAdd(tester);
+      await tester.tap(_submitButton(l.calAdd));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(PSelect<int>).first);
+      await tester.pumpAndSettle();
+      await tester.tap(findPlain(l.dayN(1)).last);
+      await tester.pumpAndSettle();
+      expect(findRichPlain(l.assetFormErrPaymentDay), findsNothing);
+      expect(findRichPlain(l.assetFormErrCard), findsOneWidget);
+    });
+  });
+
+  testWidgets('결제 출금계좌는 "없음" 으로 비울 수 있고 명시적 null 로 실린다', (tester) async {
+    final withAccount = _credit.copyWith(paymentAssetRowId: 8);
+    final repo = await _openEdit(
+      tester,
+      withAccount,
+      assets: [withAccount, _other],
+    );
+    // 둘째 Select 가 결제 출금계좌다(첫째는 결제일)
+    await tester.tap(find.byType(PSelect<int>).last);
+    await tester.pumpAndSettle();
+    await tester.tap(findPlain(l.assetNoPaymentAccount).last);
+    await tester.pumpAndSettle();
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.paymentAssetRowId.present, isTrue);
+    expect(repo.paymentAssetRowId.value, isNull);
   });
 }

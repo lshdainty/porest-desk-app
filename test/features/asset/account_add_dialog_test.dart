@@ -279,22 +279,35 @@ void main() {
   // 30자를 넘어 저장돼 있던 옛 별칭은 열자마자가 아니라 만졌을 때 알린다.
   testWidgets('넘게 저장된 옛 별칭은 고치면 알리고 저장이 막힌다', (tester) async {
     final longName = _existing.copyWith(assetName: 'ㄴ' * 31);
-    await _open(tester, edit: longName, assets: [longName]);
+    final repo = await _open(tester, edit: longName, assets: [longName]);
     // 열자마자 빨갛게 하지 않는다
     expect(findRichPlain(l.nameTooLong(30)), findsNothing);
     await typeInto(tester, l.assetNickname, 'ㄴ' * 31);
     expect(findRichPlain(l.nameTooLong(30)), findsOneWidget);
+    // 단추는 늘 켜 둔다 — 눌러도 요청은 안 나가고 별칭 칸으로 초점이 간다
     expect(
       tester.widget<PButton>(_submitButton(l.actionSave)).onPressed,
-      isNull,
+      isNotNull,
+    );
+    await _tapSubmit(tester, l.actionSave);
+    expect(repo.captured, isNull);
+    expect(
+      tester.widget<TextField>(inputOf(l.assetNickname)).focusNode!.hasFocus,
+      isTrue,
     );
   });
 
   testWidgets('이미 있는 별칭은 안내가 뜨고 저장이 막힌다', (tester) async {
-    await _open(tester);
+    final repo = await _open(tester);
     await typeInto(tester, l.assetNickname, 'QA 주거래');
     expect(findRichPlain(l.assetNicknameDuplicate), findsOneWidget);
-    expect(tester.widget<PButton>(_submitButton(l.calAdd)).onPressed, isNull);
+    // 단추는 켜져 있고, 눌러도 요청은 안 나간다
+    expect(
+      tester.widget<PButton>(_submitButton(l.calAdd)).onPressed,
+      isNotNull,
+    );
+    await _tapSubmit(tester, l.calAdd);
+    expect(repo.captured, isNull);
   });
 
   testWidgets('별칭을 비우면 중복 검사를 안 탄다 — 자동 이름 경로', (tester) async {

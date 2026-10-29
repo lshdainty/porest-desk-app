@@ -515,7 +515,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetMemoPlaceholder =>
-      'Note last digits, payment day, limit, etc.';
+      'Note the last digits of the account number, payment day, limit, etc.';
 
   @override
   String get assetCreditLimitLabel => 'Credit limit';
@@ -543,7 +543,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetPaymentAccountLabel => 'Payment account';
 
   @override
-  String get assetNoBankAccounts => 'No checking accounts yet';
+  String get assetNoBankAccounts => 'No checking account';
 
   @override
   String get assetPaymentAccountSelect => 'Select payment account';
@@ -593,8 +593,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get assetCarryoverLocked =>
-      'This has already been paid, so it can\'t be changed';
+  String get assetCarryoverLocked => 'Already paid, so it can\'t be changed.';
 
   @override
   String assetDueCarryoverLabel(String date) {
@@ -615,9 +614,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetCarryoverAfterHintNoDate => 'Spent after the last statement.';
-
-  @override
-  String get assetPaymentDayChangeTitle => 'Change payment day';
 
   @override
   String assetPaymentDayChangeConfirm(int month, String date) {
@@ -960,7 +956,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetHoldingsEmptyEdit =>
-      'Search to add holdings. Linked holdings are valued automatically at price × quantity.';
+      'Add holdings via search. Linked items are valued automatically at live price × quantity.';
 
   @override
   String get assetHoldingsEmptyManual =>
@@ -8185,4 +8181,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlockViewAmounts => 'View amounts';
+
+  @override
+  String get assetPaymentDayChangeAsk => 'Change the payment day?';
+
+  @override
+  String get assetFormErrCard => 'Choose a card.';
+
+  @override
+  String get assetFormErrPaymentDay => 'Choose a payment day.';
+
+  @override
+  String get assetNoPaymentAccount => 'No payment account';
+
+  @override
+  String get assetNoLinkedAccount => 'No linked account';
+
+  @override
+  String get unlockPasswordRequired => 'Enter your password.';
 }

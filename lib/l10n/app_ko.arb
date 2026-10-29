@@ -239,7 +239,7 @@
     }
   },
   "assetExchangeRateDesc": "순자산은 잔액 × 환율로 환산해요. 비워 두면 환산 없이 그대로 더해져요.",
-  "assetMemoPlaceholder": "계좌번호 뒷자리, 결제일, 한도 등 메모하세요",
+  "assetMemoPlaceholder": "계좌번호 뒷자리, 결제일, 한도 등을 적어 둘 수 있어요.",
   "assetCreditLimitLabel": "신용한도",
   "assetPaymentDayLabel": "결제일",
   "assetPaymentDaySelect": "결제일 선택",
@@ -248,7 +248,7 @@
   "assetLinkedAccountSelect": "연결 계좌 선택",
   "assetLinkedAccountHint": "이 카드로 결제하면 이 계좌에서 바로 빠져나가요.",
   "assetPaymentAccountLabel": "결제 출금계좌",
-  "assetNoBankAccounts": "등록된 입출금계좌가 없어요",
+  "assetNoBankAccounts": "입출금 계좌가 없어요",
   "assetPaymentAccountSelect": "결제 출금계좌 선택",
   "assetPaymentAccountHint": "결제일에 이 계좌에서 청구액이 빠져요.",
   "assetCardAdded": "카드가 추가되었습니다",
@@ -277,7 +277,7 @@
       }
     }
   },
-  "assetCarryoverLocked": "결제가 끝나 고칠 수 없어요",
+  "assetCarryoverLocked": "결제가 끝나 고칠 수 없어요.",
   "assetDueCarryoverLabel": "{date}에 결제될 금액",
   "@assetDueCarryoverLabel": {
     "placeholders": {
@@ -297,7 +297,6 @@
     }
   },
   "assetCarryoverAfterHintNoDate": "지난 청구 뒤로 쓴 금액이에요.",
-  "assetPaymentDayChangeTitle": "결제일 변경",
   "assetPaymentDayChangeConfirm": "바꾼 결제일은 다음 회차부터 적용돼요. {month}월분은 {date}에 결제돼요.",
   "@assetPaymentDayChangeConfirm": {
     "placeholders": {
@@ -510,8 +509,8 @@
     }
   },
   "assetHoldingManualDetail": "직접 입력",
-  "assetHoldingsEmptyEdit": "검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.",
-  "assetHoldingsEmptyManual": "위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력해요.",
+  "assetHoldingsEmptyEdit": "검색으로 보유 종목을 더할 수 있어요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.",
+  "assetHoldingsEmptyManual": "위 버튼으로 보유분을 더할 수 있어요. 시세 연동이 없어 평가액은 직접 입력해요.",
   "assetHoldingsEmptyDetail": "보유 종목이 없어요. 수정에서 종목을 추가해보세요.",
   "assetHoldingSearchHint": "종목 이름 검색",
   "assetHoldingAddManual": "\"{name}\" 직접 추가 — 평가액 입력",
@@ -4733,5 +4732,11 @@
     }
   },
   "unlockVerifyFailed": "확인하지 못했어요. 잠시 뒤 다시 시도해주세요.",
-  "unlockViewAmounts": "금액 보기"
+  "unlockViewAmounts": "금액 보기",
+  "assetPaymentDayChangeAsk": "결제일을 바꿀까요?",
+  "assetFormErrCard": "카드 상품을 골라주세요.",
+  "assetFormErrPaymentDay": "결제일을 골라주세요.",
+  "assetNoPaymentAccount": "결제 출금계좌 없음",
+  "assetNoLinkedAccount": "연결 계좌 없음",
+  "unlockPasswordRequired": "비밀번호를 입력해주세요."
 }

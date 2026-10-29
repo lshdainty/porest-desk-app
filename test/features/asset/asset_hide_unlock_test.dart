@@ -305,14 +305,19 @@ void main() {
       expect(h.repo.updateCalled, isFalse);
     });
 
-    testWidgets('비밀번호를 안 쓰면 [금액 보기] 가 막혀 있다', (tester) async {
-      await _open(tester, _hidden);
+    testWidgets('비밀번호를 안 쓰고 눌러도 단추는 켜져 있고 칸 아래에 알린다', (tester) async {
+      final h = await _open(tester, _hidden);
       await _toggleHide(tester);
       await _tapSave(tester, l.actionSave);
       expect(
         tester.widget<PButton>(buttonLabeled(l.unlockViewAmounts)).onPressed,
-        isNull,
+        isNotNull,
       );
+      await tester.tap(buttonLabeled(l.unlockViewAmounts));
+      await tester.pumpAndSettle();
+      expect(findRichPlain(l.unlockPasswordRequired), findsOneWidget);
+      expect(h.auth.tried, isEmpty);
+      expect(h.repo.updateCalled, isFalse);
     });
   });
 

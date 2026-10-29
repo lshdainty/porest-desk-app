@@ -235,7 +235,7 @@
     }
   },
   "assetExchangeRateDesc": "Net worth converts balance × rate. Left empty it is added without conversion.",
-  "assetMemoPlaceholder": "Note last digits, payment day, limit, etc.",
+  "assetMemoPlaceholder": "Note the last digits of the account number, payment day, limit, etc.",
   "assetCreditLimitLabel": "Credit limit",
   "assetPaymentDayLabel": "Payment day",
   "assetPaymentDaySelect": "Select payment day",
@@ -244,7 +244,7 @@
   "assetLinkedAccountSelect": "Select linked account",
   "assetLinkedAccountHint": "Spending on this card is deducted from this account right away.",
   "assetPaymentAccountLabel": "Payment account",
-  "assetNoBankAccounts": "No checking accounts yet",
+  "assetNoBankAccounts": "No checking account",
   "assetPaymentAccountSelect": "Select payment account",
   "assetPaymentAccountHint": "The bill is withdrawn from this account on the payment day.",
   "assetCardAdded": "Card added",
@@ -273,7 +273,7 @@
       }
     }
   },
-  "assetCarryoverLocked": "This has already been paid, so it can't be changed",
+  "assetCarryoverLocked": "Already paid, so it can't be changed.",
   "assetDueCarryoverLabel": "Due on {date}",
   "@assetDueCarryoverLabel": {
     "placeholders": {
@@ -293,7 +293,6 @@
     }
   },
   "assetCarryoverAfterHintNoDate": "Spent after the last statement.",
-  "assetPaymentDayChangeTitle": "Change payment day",
   "assetPaymentDayChangeConfirm": "The new payment day applies from the next cycle. Month {month} charges are still paid on {date}.",
   "@assetPaymentDayChangeConfirm": {
     "placeholders": {
@@ -506,7 +505,7 @@
     }
   },
   "assetHoldingManualDetail": "Manual entry",
-  "assetHoldingsEmptyEdit": "Search to add holdings. Linked holdings are valued automatically at price × quantity.",
+  "assetHoldingsEmptyEdit": "Add holdings via search. Linked items are valued automatically at live price × quantity.",
   "assetHoldingsEmptyManual": "Add your holdings with the button above. No live price — enter the value yourself.",
   "assetHoldingsEmptyDetail": "No holdings yet. Add them from Edit.",
   "assetHoldingSearchHint": "Search stock name",
@@ -4470,5 +4469,11 @@
     }
   },
   "unlockVerifyFailed": "Could not verify. Please try again in a moment.",
-  "unlockViewAmounts": "View amounts"
+  "unlockViewAmounts": "View amounts",
+  "assetPaymentDayChangeAsk": "Change the payment day?",
+  "assetFormErrCard": "Choose a card.",
+  "assetFormErrPaymentDay": "Choose a payment day.",
+  "assetNoPaymentAccount": "No payment account",
+  "assetNoLinkedAccount": "No linked account",
+  "unlockPasswordRequired": "Enter your password."
 }

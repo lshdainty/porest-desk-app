@@ -355,11 +355,16 @@ void main() {
       expect(await labelsOf(tester, AssetKind.investment), [
         l.assetBrokerExchange,
         l.assetNickname,
-        l.assetHoldings,
         l.assetCashBalance,
         l.assetCurrency,
         l.assetMemo,
       ]);
+      // 보유 종목 머리(Header Row)는 별칭과 예수금 사이에 선다
+      final name = tester.getRect(fieldWithLabel(l.assetNickname));
+      final head = tester.getRect(findPlain(l.assetHoldings));
+      final cash = tester.getRect(fieldWithLabel(l.assetCashBalance));
+      expect(head.top, greaterThan(name.bottom));
+      expect(head.bottom, lessThan(cash.top));
     });
 
     testWidgets('체크 줄 둘 — 스위치는 하나도 없다', (tester) async {

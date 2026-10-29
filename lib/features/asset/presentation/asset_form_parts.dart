@@ -24,7 +24,7 @@ class AssetFormProbe {
   bool Function() dirty = () => false;
 }
 
-/// 2단계 폼의 틀 — 시트 머리(제목 · 뒤로 · 닫기) · 칸 묶음 · 체크 줄 · 바닥 버튼 하나(I-17 5 · 7).
+/// 2단계 폼의 틀 — 시트 머리(제목 · 뒤로 · 닫기) · 칸 묶음 · 체크 줄 · 바닥 버튼 하나(I-17 5 · 7). 바닥 버튼은 늘 켜 둔다.
 ///
 /// 칸 묶음은 좌우 24 · 칸 사이 24(`spacing-x6`), 체크 줄은 본문 좌우 0 에 제 24 를 갖는다. 칸 묶음 아래 8 + 체크 줄 위 8 이 마지막
 /// 칸 ↔ 체크 줄 16 이다(T14). 넘치면 본문만 스크롤하고 끝 흐림이 선다.
@@ -35,7 +35,6 @@ class AssetFormFrame extends StatelessWidget {
     required this.submitLabel,
     required this.fields,
     required this.checks,
-    required this.canSubmit,
     required this.submitting,
     required this.onSubmit,
     this.onBack,
@@ -45,7 +44,6 @@ class AssetFormFrame extends StatelessWidget {
   final String submitLabel;
   final List<Widget> fields;
   final Widget checks;
-  final bool canSubmit;
   final bool submitting;
   final VoidCallback onSubmit;
 
@@ -89,7 +87,8 @@ class AssetFormFrame extends StatelessWidget {
           label: submitLabel,
           size: PButtonSize.large,
           loading: submitting,
-          onPressed: canSubmit && !submitting ? onSubmit : null,
+          // 늘 켜 둔다 — 필수가 비었으면 누를 때 칸마다 안내한다(DESIGN.desk "저장 버튼은 켜 두고 누르면 오류")
+          onPressed: onSubmit,
         ),
       ],
     );
@@ -104,12 +103,14 @@ class AssetNameField extends StatelessWidget {
     required this.placeholder,
     required this.errorMessage,
     this.optional = false,
+    this.focusNode,
   });
 
   final TextEditingController controller;
   final String placeholder;
   final String? errorMessage;
   final bool optional;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +121,11 @@ class AssetNameField extends StatelessWidget {
       maxGraphemeCount: kAssetNameMax,
       invalid: errorMessage != null,
       errorMessage: errorMessage,
-      child: PInput(controller: controller, placeholder: placeholder),
+      child: PInput(
+        controller: controller,
+        focusNode: focusNode,
+        placeholder: placeholder,
+      ),
     );
   }
 }
@@ -243,7 +248,12 @@ class AssetKindField extends StatelessWidget {
               semanticLabel: l.assetFormKindLabel,
               children: [
                 for (final k in kinds)
-                  PChipRadio<AssetKind>(value: k, label: k.label(l)),
+                  PChipRadio<AssetKind>(
+                    value: k,
+                    label: k.label(l),
+                    // 갈래를 바꾸는 고르기라 테두리가 또렷한 칩이다
+                    variant: PChipVariant.outlineStrong,
+                  ),
               ],
             ),
     );

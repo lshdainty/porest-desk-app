@@ -511,7 +511,6 @@ class _InvestmentAddBodyState extends ConsumerState<InvestmentAddBody> {
           : l.assetFormTitleAdd(l.assetTypeInvestment),
       submitLabel: _isEdit ? l.actionSave : l.calAdd,
       onBack: widget.onBack,
-      canSubmit: !_submitting,
       submitting: _submitting,
       onSubmit: _submit,
       fields: [

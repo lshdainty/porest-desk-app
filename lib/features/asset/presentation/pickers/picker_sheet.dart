@@ -43,6 +43,7 @@ class PickerField extends StatefulWidget {
     this.invalid = false,
     this.errorMessage,
     this.disabled,
+    this.focusNode,
   });
 
   final String label;
@@ -56,6 +57,7 @@ class PickerField extends StatefulWidget {
   final bool invalid;
   final String? errorMessage;
   final bool? disabled;
+  final FocusNode? focusNode;
 
   @override
   State<PickerField> createState() => _PickerFieldState();
@@ -87,6 +89,7 @@ class _PickerFieldState extends State<PickerField> {
         suffixIcon: LucideIcons.chevronDown,
         expanded: _open,
         disabled: widget.disabled,
+        focusNode: widget.focusNode,
         onPressed: _show,
       ),
     );

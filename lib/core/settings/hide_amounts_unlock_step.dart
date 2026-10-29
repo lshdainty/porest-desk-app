@@ -40,14 +40,6 @@ class _HideAmountsUnlockStepState extends ConsumerState<HideAmountsUnlockStep> {
   String? _error;
   bool _pending = false;
 
-  bool get _canSubmit => _ctrl.text.trim().isNotEmpty && !_pending;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl.addListener(() => setState(() {}));
-  }
-
   @override
   void dispose() {
     _ctrl.dispose();
@@ -56,8 +48,14 @@ class _HideAmountsUnlockStepState extends ConsumerState<HideAmountsUnlockStep> {
   }
 
   Future<void> _submit() async {
-    if (!_canSubmit) return;
+    if (_pending) return;
     final l = AppLocalizations.of(context);
+    // 비어 있어도 단추는 켜 둔다 — 누르면 칸 아래에 알린다(field.md)
+    if (_ctrl.text.trim().isEmpty) {
+      setState(() => _error = l.unlockPasswordRequired);
+      _focus.requestFocus();
+      return;
+    }
     setState(() {
       _pending = true;
       _error = null;
@@ -109,7 +107,6 @@ class _HideAmountsUnlockStepState extends ConsumerState<HideAmountsUnlockStep> {
               autofocus: true,
               obscureText: true,
               autofillHints: const [AutofillHints.password],
-              placeholder: l.unlockPasswordHint,
               readOnly: _pending,
               onChanged: (_) {
                 if (_error != null) setState(() => _error = null);
@@ -124,7 +121,7 @@ class _HideAmountsUnlockStepState extends ConsumerState<HideAmountsUnlockStep> {
           label: l.unlockViewAmounts,
           size: PButtonSize.large,
           loading: _pending,
-          onPressed: _canSubmit ? _submit : null,
+          onPressed: _submit,
         ),
       ],
     );

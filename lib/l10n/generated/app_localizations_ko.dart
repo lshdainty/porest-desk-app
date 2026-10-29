@@ -506,7 +506,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '순자산은 잔액 × 환율로 환산해요. 비워 두면 환산 없이 그대로 더해져요.';
 
   @override
-  String get assetMemoPlaceholder => '계좌번호 뒷자리, 결제일, 한도 등 메모하세요';
+  String get assetMemoPlaceholder => '계좌번호 뒷자리, 결제일, 한도 등을 적어 둘 수 있어요.';
 
   @override
   String get assetCreditLimitLabel => '신용한도';
@@ -533,7 +533,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetPaymentAccountLabel => '결제 출금계좌';
 
   @override
-  String get assetNoBankAccounts => '등록된 입출금계좌가 없어요';
+  String get assetNoBankAccounts => '입출금 계좌가 없어요';
 
   @override
   String get assetPaymentAccountSelect => '결제 출금계좌 선택';
@@ -582,7 +582,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요';
+  String get assetCarryoverLocked => '결제가 끝나 고칠 수 없어요.';
 
   @override
   String assetDueCarryoverLabel(String date) {
@@ -603,9 +603,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetCarryoverAfterHintNoDate => '지난 청구 뒤로 쓴 금액이에요.';
-
-  @override
-  String get assetPaymentDayChangeTitle => '결제일 변경';
 
   @override
   String assetPaymentDayChangeConfirm(int month, String date) {
@@ -944,11 +941,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetHoldingsEmptyEdit =>
-      '검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.';
+      '검색으로 보유 종목을 더할 수 있어요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.';
 
   @override
   String get assetHoldingsEmptyManual =>
-      '위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력해요.';
+      '위 버튼으로 보유분을 더할 수 있어요. 시세 연동이 없어 평가액은 직접 입력해요.';
 
   @override
   String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 수정에서 종목을 추가해보세요.';
@@ -8005,4 +8002,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get unlockViewAmounts => '금액 보기';
+
+  @override
+  String get assetPaymentDayChangeAsk => '결제일을 바꿀까요?';
+
+  @override
+  String get assetFormErrCard => '카드 상품을 골라주세요.';
+
+  @override
+  String get assetFormErrPaymentDay => '결제일을 골라주세요.';
+
+  @override
+  String get assetNoPaymentAccount => '결제 출금계좌 없음';
+
+  @override
+  String get assetNoLinkedAccount => '연결 계좌 없음';
+
+  @override
+  String get unlockPasswordRequired => '비밀번호를 입력해주세요.';
 }

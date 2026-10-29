@@ -47,6 +47,7 @@ class AccountAddBody extends ConsumerStatefulWidget {
 }
 
 class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
+  final _nameFocus = FocusNode();
   late final TextEditingController _nicknameCtrl;
   late final TextEditingController _balanceCtrl;
   late final TextEditingController _limitCtrl;
@@ -116,8 +117,8 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   bool get _nicknameValid =>
       _nicknameTrim.length <= kAssetNameMax && !_nicknameDuplicate;
 
-  /// 웹과 같은 흐름 — touched 전엔 눌러서 에러를 노출하고, 그 뒤엔 valid 일 때만 활성.
-  bool get _canSubmit => !_submitting && (!_touched || _nicknameValid);
+  /// 웹과 같은 흐름 — touched 전엔 눌러서 에러를 노출하고, 그 뒤엔 valid 일 때만 저장한다. 단추는 늘 켜 두고 누르면 알린다.
+  bool get _blocked => _touched && !_nicknameValid;
 
   @override
   void initState() {
@@ -174,6 +175,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
   @override
   void dispose() {
     if (widget.probe.dirty == _dirtyProbe) widget.probe.dirty = () => false;
+    _nameFocus.dispose();
     _nicknameCtrl.dispose();
     _balanceCtrl.dispose();
     _limitCtrl.dispose();
@@ -191,7 +193,17 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
     if (picked != null && mounted) setState(() => _brand = picked);
   }
 
-  /// [저장] — 숨김을 푸는 저장은 본인 확인을 거친다(QA 22차 #2). 앱은 생체인증이 먼저고, 안 되면 같은 시트의 "금액 보기 인증"
+  /// [추가] · [저장] — 단추는 늘 켜 둔다. 막힌 값(별칭 오류)이 있으면 그 칸에 초점을 보내 안내를 보게 하고 요청은 안 나간다.
+  void _attempt() {
+    if (_submitting) return;
+    if (_blocked) {
+      _nameFocus.requestFocus();
+      return;
+    }
+    _submit();
+  }
+
+  /// 숨김을 푸는 저장은 본인 확인을 거친다(QA 22차 #2). 앱은 생체인증이 먼저고, 안 되면 같은 시트의 "금액 보기 인증"
   /// 단계로 바뀐다(I-17 21) — 확인하기 전에는 요청이 나가지 않고, ←(취소)면 저장도 안 한다.
   Future<void> _submit() async {
     if (_submitting) return;
@@ -342,9 +354,8 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
           : l.assetFormTitleAdd(_kind.label(l)),
       submitLabel: _isEdit ? l.actionSave : l.calAdd,
       onBack: widget.onBack,
-      canSubmit: _canSubmit,
       submitting: _submitting,
-      onSubmit: _submit,
+      onSubmit: _attempt,
       fields: [
         if (_isEdit)
           AssetKindField(
@@ -361,6 +372,7 @@ class _AccountAddBodyState extends ConsumerState<AccountAddBody> {
           controller: _nicknameCtrl,
           placeholder: l.assetNicknamePlaceholder,
           errorMessage: _nicknameError,
+          focusNode: _nameFocus,
         ),
         AssetMemoField(controller: _memoCtrl),
         AssetAmountField(

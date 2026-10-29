@@ -31,6 +31,9 @@ import 'package:groo_damda_app/shared/ds/select/p_select.dart';
 export 'package:groo_damda_app/features/asset/presentation/asset_form_sheet.dart'
     show showCardAddDialog, showCardEditDialog;
 
+/// "없음" 선택지의 값 — 실제 자산 rowId 는 양수라 겹치지 않는다.
+const int _kNoAccount = -1;
+
 /// 오늘 — 결제 대기 청구분 칸은 오늘이 이번 달 결제일 전인지로 열린다. 테스트가 날짜를
 /// 고정하도록 갈아 끼운다(`freshnessClockProvider` 와 같은 모양).
 final cardFormClockProvider = Provider<DateTime Function()>(
@@ -164,16 +167,23 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
   bool get _nicknameValid =>
       _nicknameTrim.length <= kAssetNameMax && !_nicknameDuplicate;
 
-  /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다.
-  ///
+  /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다 — 새 카드만 상품이 필수다.
+  bool get _productMissing => !_isEdit && _selected == null;
+
   /// 신용카드는 결제일이 필수다 — 없으면 명세서(예정 회차·할부 구성)가 성립하지 않는다.
   /// 결제일 없는 카드는 체크카드뿐이고 체크카드는 할부를 안 받는다(사용자 결정).
   /// 기존에 결제일 없이 등록된 신용카드도 여기서 걸린다 — 수정하며 채우게 된다.
-  bool get _canSubmit =>
-      !_submitting &&
-      (_isEdit || _selected != null) &&
-      (!_isCredit || _paymentDay != null) &&
-      (!_touched || _nicknameValid);
+  bool get _dayMissing => _isCredit && _paymentDay == null;
+
+  /// 별칭 오류(touched 뒤 30자 · 중복)가 남아 있나.
+  bool get _nameBlocked => _touched && !_nicknameValid;
+
+  /// 누르고도 못 보낸 적이 있으면 필수 칸 오류를 세운다 — 고치면 저절로 걷힌다.
+  bool _showErrors = false;
+
+  final _productFocus = FocusNode();
+  final _nameFocus = FocusNode();
+  final _dayFocus = FocusNode();
 
   @override
   void initState() {
@@ -253,6 +263,9 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
   @override
   void dispose() {
     if (widget.probe.dirty == _dirtyProbe) widget.probe.dirty = () => false;
+    _productFocus.dispose();
+    _nameFocus.dispose();
+    _dayFocus.dispose();
     _nicknameCtrl.dispose();
     _balanceCtrl.dispose();
     _dueCtrl.dispose();
@@ -272,8 +285,25 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
 
   /// [저장] — 숨김을 푸는 저장은 본인 확인을 거친다(QA 22차 #2). 앱은 생체인증이 먼저고, 안 되면 같은 시트의 "금액 보기 인증"
   /// 단계로 바뀐다(I-17 21) — 확인하기 전에는 요청이 나가지 않고, ←(취소)면 저장도 안 한다.
+  /// [추가] · [저장] — 단추는 늘 켜 둔다. 필수가 비었으면 칸마다 안내를 세우고 첫 칸에 초점을 보낸다(요청은 안 나간다).
+  void _attempt() {
+    if (_submitting) return;
+    if (_productMissing || _nameBlocked || _dayMissing) {
+      setState(() => _showErrors = true);
+      // 칸 차례대로 첫 칸 — 카드 상품 → 별칭 → 결제일
+      (_productMissing
+              ? _productFocus
+              : _nameBlocked
+              ? _nameFocus
+              : _dayFocus)
+          .requestFocus();
+      return;
+    }
+    _submit();
+  }
+
   Future<void> _submit() async {
-    if (!_canSubmit) return;
+    if (_submitting) return;
     if (assetUnhideNeedsConfirm(
       wasHidden: widget.edit?.isAmountHidden == 'Y',
       nowHidden: _hideAmount,
@@ -290,7 +320,7 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
 
   /// 결제일 확인 · 저장 본문 · 요청 · 무효화 — 이 폼이 처음부터 해 온 그대로다.
   Future<void> _save() async {
-    if (!_canSubmit) return;
+    if (_submitting || _productMissing || _nameBlocked || _dayMissing) return;
     final l = AppLocalizations.of(context);
     final edit = widget.edit;
     // 결제일을 바꾸면 다음 회차부터다(D5) — 아직 결제 전인 회차는 옛 결제일에 결제된다.
@@ -431,7 +461,7 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
     // 폼 시트 위에 뜨는 확인창(ds Alert Dialog) — 취소 · 저장
     return PAlertDialog.show(
       context,
-      title: l.assetPaymentDayChangeTitle,
+      title: l.assetPaymentDayChangeAsk,
       description: l.assetPaymentDayChangeConfirm(pending.month, date),
       cancelLabel: l.actionCancel,
       actionLabel: l.actionSave,
@@ -515,9 +545,8 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
           : l.assetFormTitleAdd(_kind.label(l)),
       submitLabel: _isEdit ? l.actionSave : l.calAdd,
       onBack: widget.onBack,
-      canSubmit: _canSubmit,
       submitting: _submitting,
-      onSubmit: _submit,
+      onSubmit: _attempt,
       fields: [
         if (_isEdit)
           // 신용 ↔ 체크 전환은 결제일 필수 여부를 바꾼다 — 고른 상품은 잃지 않는다(web 동일).
@@ -530,12 +559,16 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
           placeholder: l.assetCardPlaceholder,
           value: _selected?.cardName,
           onOpen: _pickCard,
+          focusNode: _productFocus,
+          invalid: _showErrors && _productMissing,
+          errorMessage: l.assetFormErrCard,
         ),
         AssetNameField(
           controller: _nicknameCtrl,
           placeholder: _selected?.cardName ?? l.assetCardNicknamePlaceholder,
           errorMessage: _nicknameError,
           optional: true,
+          focusNode: _nameFocus,
         ),
         // 신용카드 — 신용한도 → 결제일 → 청구분 → 사용액. 신용한도는 선택이다(저장 막힘에 한도 조건이 없다).
         if (isCredit) ...[
@@ -548,7 +581,10 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
           ),
           PField(
             label: l.assetPaymentDayLabel,
+            invalid: _showErrors && _dayMissing,
+            errorMessage: l.assetFormErrPaymentDay,
             child: PSelect<int>(
+              focusNode: _dayFocus,
               groups: [
                 PSelectGroup(
                   items: [
@@ -609,6 +645,17 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
               : l.assetLinkedAccountHint,
           child: PSelect<int>(
             groups: [
+              // 비울 수 있는 칸 — "{칸 이름} 없음" 을 맨 앞 따로 묶음에(select.md). 연결을 끊으면 명시적 null 로 실린다
+              PSelectGroup(
+                items: [
+                  PSelectItem(
+                    value: _kNoAccount,
+                    label: isCredit
+                        ? l.assetNoPaymentAccount
+                        : l.assetNoLinkedAccount,
+                  ),
+                ],
+              ),
               PSelectGroup(
                 items: [
                   for (final a in bankAccounts)
@@ -628,7 +675,9 @@ class _CardAddBodyState extends ConsumerState<CardAddBody> {
                       ? l.assetPaymentAccountSelect
                       : l.assetLinkedAccountSelect),
             disabled: bankAccounts.isEmpty,
-            onChanged: (v) => setState(() => _paymentAssetRowId = v),
+            onChanged: (v) => setState(
+              () => _paymentAssetRowId = v == _kNoAccount ? null : v,
+            ),
           ),
         ),
       ],

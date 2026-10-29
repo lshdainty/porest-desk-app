@@ -1043,7 +1043,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetMemoPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'계좌번호 뒷자리, 결제일, 한도 등 메모하세요'**
+  /// **'계좌번호 뒷자리, 결제일, 한도 등을 적어 둘 수 있어요.'**
   String get assetMemoPlaceholder;
 
   /// No description provided for @assetCreditLimitLabel.
@@ -1097,7 +1097,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetNoBankAccounts.
   ///
   /// In ko, this message translates to:
-  /// **'등록된 입출금계좌가 없어요'**
+  /// **'입출금 계좌가 없어요'**
   String get assetNoBankAccounts;
 
   /// No description provided for @assetPaymentAccountSelect.
@@ -1187,7 +1187,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCarryoverLocked.
   ///
   /// In ko, this message translates to:
-  /// **'결제가 끝나 고칠 수 없어요'**
+  /// **'결제가 끝나 고칠 수 없어요.'**
   String get assetCarryoverLocked;
 
   /// No description provided for @assetDueCarryoverLabel.
@@ -1219,12 +1219,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'지난 청구 뒤로 쓴 금액이에요.'**
   String get assetCarryoverAfterHintNoDate;
-
-  /// No description provided for @assetPaymentDayChangeTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'결제일 변경'**
-  String get assetPaymentDayChangeTitle;
 
   /// No description provided for @assetPaymentDayChangeConfirm.
   ///
@@ -1847,13 +1841,13 @@ abstract class AppLocalizations {
   /// No description provided for @assetHoldingsEmptyEdit.
   ///
   /// In ko, this message translates to:
-  /// **'검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.'**
+  /// **'검색으로 보유 종목을 더할 수 있어요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.'**
   String get assetHoldingsEmptyEdit;
 
   /// No description provided for @assetHoldingsEmptyManual.
   ///
   /// In ko, this message translates to:
-  /// **'위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력해요.'**
+  /// **'위 버튼으로 보유분을 더할 수 있어요. 시세 연동이 없어 평가액은 직접 입력해요.'**
   String get assetHoldingsEmptyManual;
 
   /// No description provided for @assetHoldingsEmptyDetail.
@@ -14407,6 +14401,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'금액 보기'**
   String get unlockViewAmounts;
+
+  /// No description provided for @assetPaymentDayChangeAsk.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일을 바꿀까요?'**
+  String get assetPaymentDayChangeAsk;
+
+  /// No description provided for @assetFormErrCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 상품을 골라주세요.'**
+  String get assetFormErrCard;
+
+  /// No description provided for @assetFormErrPaymentDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일을 골라주세요.'**
+  String get assetFormErrPaymentDay;
+
+  /// No description provided for @assetNoPaymentAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 출금계좌 없음'**
+  String get assetNoPaymentAccount;
+
+  /// No description provided for @assetNoLinkedAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 계좌 없음'**
+  String get assetNoLinkedAccount;
+
+  /// No description provided for @unlockPasswordRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호를 입력해주세요.'**
+  String get unlockPasswordRequired;
 }
 
 class _AppLocalizationsDelegate
