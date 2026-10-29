@@ -2390,7 +2390,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get budgetCopyFailed => '지난달 예산을 복사하지 못했어요';
+  String budgetCopyPartialFailed(int count) {
+    return '가져오지 못한 예산이 $count개 있어요';
+  }
 
   @override
   String get budgetCopiedDone => '지난달 예산을 가져왔어요';

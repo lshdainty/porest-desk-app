@@ -4448,11 +4448,11 @@ abstract class AppLocalizations {
   /// **'이번 달 예산 {count}개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.'**
   String budgetCopyOverwriteMessage(int count);
 
-  /// No description provided for @budgetCopyFailed.
+  /// No description provided for @budgetCopyPartialFailed.
   ///
   /// In ko, this message translates to:
-  /// **'지난달 예산을 복사하지 못했어요'**
-  String get budgetCopyFailed;
+  /// **'가져오지 못한 예산이 {count}개 있어요'**
+  String budgetCopyPartialFailed(int count);
 
   /// No description provided for @budgetCopiedDone.
   ///

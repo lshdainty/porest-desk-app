@@ -2424,7 +2424,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get budgetCopyFailed => 'Couldn\'t copy last month\'s budget';
+  String budgetCopyPartialFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count budgets couldn\'t be copied',
+      one: '1 budget couldn\'t be copied',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get budgetCopiedDone => 'Last month\'s budget was copied';

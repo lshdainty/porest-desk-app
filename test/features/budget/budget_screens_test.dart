@@ -56,6 +56,10 @@ class _FakeBudgetRepo extends BudgetRepository {
   int? failDeleteCall;
   int _deleteCalls = 0;
 
+  /// create 를 이 번째(0부터)에서 한 번 실패시킨다.
+  int? failCreateCall;
+  int _createCalls = 0;
+
   void _maybeFail() {
     if (failNext) {
       failNext = false;
@@ -80,6 +84,10 @@ class _FakeBudgetRepo extends BudgetRepository {
     required int budgetYear,
     required int budgetMonth,
   }) async {
+    if (failCreateCall == _createCalls++) {
+      failCreateCall = null;
+      throw ApiException(code: 'X', message: 'boom');
+    }
     created.add(categoryRowId ?? 0);
     return _nextId++;
   }
@@ -775,25 +783,51 @@ void main() {
       expect(repo.deleted, [100, 101, 102]);
     });
 
-    testWidgets('지난달 복사 — 덮어쓰기 실패하면 창을 닫고 critical 스낵바 + 다시 시도는 확인창을 다시 연다', (
+    testWidgets(
+      '지난달 복사 — 덮어쓰다 1개 실패하면 창을 닫고 N=1 알림, 다시 시도는 그 1개만 다시 하고 확인창은 없다',
+      (tester) async {
+        final repo = _FakeBudgetRepo()..failNext = true;
+        await pumpMonths(tester, repo, curEmpty: false);
+        await tester.tap(find.text('지난달 복사'));
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(PAlertDialogView),
+            matching: find.text('복사'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(PAlertDialogView), findsNothing);
+        expect(repo.updated.length, 2);
+        expect(findPlain('가져오지 못한 예산이 1개 있어요'), findsOneWidget);
+        await tester.tap(find.text('다시 시도'));
+        await tester.pumpAndSettle();
+        expect(find.byType(PAlertDialogView), findsNothing);
+        expect(repo.updated.length, 3);
+        // 덮어쓴 복사에는 되돌리기가 없다
+        expect(find.text('되돌리기'), findsNothing);
+      },
+    );
+
+    testWidgets('지난달 복사 — 3개 중 2번째 실패 → N=1 → 다시 시도로 1개만 → 되돌리기가 3개 모두 지운다', (
       tester,
     ) async {
-      final repo = _FakeBudgetRepo()..failNext = true;
-      await pumpMonths(tester, repo, curEmpty: false);
+      final repo = _FakeBudgetRepo()..failCreateCall = 1;
+      await pumpCur(tester, repo, [99]);
       await tester.tap(find.text('지난달 복사'));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(
-          of: find.byType(PAlertDialogView),
-          matching: find.text('복사'),
-        ),
-      );
-      await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
-      expect(findPlain('지난달 예산을 복사하지 못했어요'), findsOneWidget);
+      expect(repo.created.length, 2);
+      expect(findPlain('가져오지 못한 예산이 1개 있어요'), findsOneWidget);
+      // 실패 알림이 떠 있는 동안 되돌리기 스낵바는 없다(한 번에 하나)
+      expect(find.text('되돌리기'), findsNothing);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
-      expect(find.byType(PAlertDialogView), findsOneWidget);
+      expect(repo.created.length, 3);
+      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      await tester.tap(find.text('되돌리기'));
+      await tester.pumpAndSettle();
+      expect(repo.deleted, [100, 101, 102]);
     });
 
     testWidgets('예산 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 같은 삭제를 다시 묻는다', (

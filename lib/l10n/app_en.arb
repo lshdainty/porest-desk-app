@@ -1436,7 +1436,14 @@
       }
     }
   },
-  "budgetCopyFailed": "Couldn't copy last month's budget",
+  "budgetCopyPartialFailed": "{count, plural, =1{1 budget couldn't be copied} other{{count} budgets couldn't be copied}}",
+  "@budgetCopyPartialFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetCopiedDone": "Last month's budget was copied",
   "budgetCopyUndo": "Undo",
   "budgetCopyUndoPartial": "{count, plural, =1{1 budget couldn't be undone} other{{count} budgets couldn't be undone}}",

@@ -1440,7 +1440,14 @@
       }
     }
   },
-  "budgetCopyFailed": "지난달 예산을 복사하지 못했어요",
+  "budgetCopyPartialFailed": "가져오지 못한 예산이 {count}개 있어요",
+  "@budgetCopyPartialFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetCopiedDone": "지난달 예산을 가져왔어요",
   "budgetCopyUndo": "되돌리기",
   "budgetCopyUndoPartial": "되돌리지 못한 예산이 {count}개 남았어요",
