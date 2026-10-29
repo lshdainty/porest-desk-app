@@ -12,10 +12,21 @@ import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 /// 하늘은 역할 색 그라디언트(01-033 C — 라이트는 짙은 하늘, 다크는 밝은 하늘), 글 · 아이콘은 `fg-neutral-inverted` 하나(웹 NightSkyHero 와 같다).
 /// 글은 흐르는 차례로 쌓아 겹치지 않고, 장식(달빛 · 잔별 · 별자리 그림)만 투명도를 남긴다.
 class NightSkyHero extends StatelessWidget {
-  const NightSkyHero({super.key, required this.today, required this.doneToday});
+  const NightSkyHero({
+    super.key,
+    required this.today,
+    required this.doneToday,
+    this.onOpen,
+  });
 
   final ConstellationToday today;
   final int doneToday;
+
+  /// 카드 전체 · 썸네일을 누르면 — 오늘의 목표 별자리 상세 시트(P2, 10-29 사용자 결정).
+  final VoidCallback? onOpen;
+
+  /// 오른쪽 위 별자리 썸네일 한 변.
+  static const double thumbSize = 88;
 
   static const _dimStars = <(double, double)>[
     (5, 18),
@@ -74,97 +85,125 @@ class NightSkyHero extends StatelessWidget {
     return Semantics(
       container: true,
       explicitChildNodes: true,
+      button: onOpen != null,
+      onTap: onOpen,
       label: l.constHeroLabel(name, lit, today.goal),
-      child: Container(
-        key: const ValueKey('night-sky-hero'),
-        clipBehavior: Clip.antiAlias,
-        constraints: const BoxConstraints(minHeight: 168),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(PRounded.r4),
-          gradient: skyGradient(c, three: true),
-        ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ExcludeSemantics(
-                child: LayoutBuilder(
-                  builder: (context, box) => _Decor(
-                    size: box.biggest,
-                    today: today,
-                    lit: lit,
-                    done: done,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onOpen,
+        child: Container(
+          key: const ValueKey('night-sky-hero'),
+          clipBehavior: Clip.antiAlias,
+          constraints: const BoxConstraints(minHeight: 168),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(PRounded.r4),
+            gradient: skyGradient(c, three: true),
+          ),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: ExcludeSemantics(
+                  child: LayoutBuilder(
+                    builder: (context, box) => _Decor(size: box.biggest),
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              top: PSpacing.x4,
-              right: PSpacing.x4,
-              child: ExcludeSemantics(
-                child: Icon(LucideIcons.moon, size: PSpacing.x5, color: ink),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(PSpacing.x5),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: 168 - 2 * PSpacing.x5,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(l.constHeroTodayTarget, style: smallStyle),
-                      const SizedBox(height: PSpacing.x0_5),
-                      Padding(
-                        padding: const EdgeInsets.only(right: PSpacing.x6),
-                        child: Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: keepAll(
-                                  done ? l.constHeroCollectedBang(name) : name,
+              Padding(
+                padding: const EdgeInsets.all(PSpacing.x5),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 168 - 2 * PSpacing.x5,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l.constHeroTodayTarget,
+                                    style: smallStyle,
+                                  ),
+                                  const SizedBox(height: PSpacing.x0_5),
+                                  Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: keepAll(
+                                            done
+                                                ? l.constHeroCollectedBang(name)
+                                                : name,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              ' ${l.constHeroStarlightCount(lit, today.goal).replaceAll(' ', '\u00A0')}',
+                                          style: countStyle,
+                                        ),
+                                      ],
+                                    ),
+                                    style: nameStyle,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: PSpacing.x3),
+                            // 별자리 썸네일 88 — 켠 별 밝게 · 남은 별 고리, 오른쪽 위(안 여백에서 −4). 보조 기술에는 숨긴다(카드 이름이 읽는다).
+                            Transform.translate(
+                              offset: const Offset(PSpacing.x1, -PSpacing.x1),
+                              child: ExcludeSemantics(
+                                child: SizedBox(
+                                  key: const ValueKey('night-sky-thumb'),
+                                  width: thumbSize,
+                                  height: thumbSize,
+                                  child: CustomPaint(
+                                    painter: _HeroFigurePainter(
+                                      colors: c,
+                                      map: today.constellation.starMap,
+                                      lit: lit,
+                                      done: done,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              TextSpan(
-                                text:
-                                    ' ${l.constHeroStarlightCount(lit, today.goal).replaceAll(' ', '\u00A0')}',
-                                style: countStyle,
-                              ),
-                            ],
-                          ),
-                          style: nameStyle,
-                        ),
-                      ),
-                      const Spacer(),
-                      const SizedBox(height: PSpacing.x6),
-                      Text(keepAll(caption), style: smallStyle),
-                      const SizedBox(height: PSpacing.x2),
-                      Wrap(
-                        spacing: PSpacing.x3,
-                        runSpacing: PSpacing.x1_5,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          _Meta(
-                            icon: LucideIcons.sparkles,
-                            text: l.constHeroStreak(today.streak),
-                            style: smallStyle.copyWith(
-                              fontWeight: FontWeight.w700,
                             ),
-                          ),
-                          _Meta(
-                            icon: LucideIcons.cloud,
-                            text: l.constHeroGuardInfo(today.guardCount),
-                            style: smallStyle,
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                        const Spacer(),
+                        const SizedBox(height: PSpacing.x4),
+                        Text(keepAll(caption), style: smallStyle),
+                        const SizedBox(height: PSpacing.x2),
+                        Wrap(
+                          spacing: PSpacing.x3,
+                          runSpacing: PSpacing.x1_5,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            _Meta(
+                              icon: LucideIcons.sparkles,
+                              text: l.constHeroStreak(today.streak),
+                              style: smallStyle.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            _Meta(
+                              icon: LucideIcons.cloud,
+                              text: l.constHeroGuardInfo(today.guardCount),
+                              style: smallStyle,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -196,18 +235,10 @@ class _Meta extends StatelessWidget {
   }
 }
 
-/// 장식 층 — 달빛 · 잔별 · 별자리 그림(보조 기술에 숨김, 투명도 남김). 별자리 그림은 글 아래 배경이다.
+/// 장식 층 — 달빛 · 잔별(보조 기술에 숨김, 투명도 남김). 별자리 그림은 배경이 아니라 오른쪽 위 썸네일이다.
 class _Decor extends StatelessWidget {
-  const _Decor({
-    required this.size,
-    required this.today,
-    required this.lit,
-    required this.done,
-  });
+  const _Decor({required this.size});
   final Size size;
-  final ConstellationToday today;
-  final int lit;
-  final bool done;
 
   @override
   Widget build(BuildContext context) {
@@ -243,31 +274,12 @@ class _Decor extends StatelessWidget {
               ),
             ),
           ),
-        Positioned(
-          top: size.height * 0.10,
-          bottom: size.height * 0.24,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: AspectRatio(
-              aspectRatio: 1.45,
-              child: CustomPaint(
-                painter: _HeroFigurePainter(
-                  colors: c,
-                  map: today.constellation.starMap,
-                  lit: lit,
-                  done: done,
-                ),
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
 }
 
-/// 히어로 중앙 figure — 점등 별(글로우)과 점선/실선 연결. 박스에 늘림(preserveAspectRatio none 정합).
+/// 히어로 썸네일 figure — 점등 별(글로우)과 점선/실선 연결, 꺼진 별은 고리. 정비율.
 class _HeroFigurePainter extends CustomPainter {
   _HeroFigurePainter({
     required this.map,
@@ -284,9 +296,11 @@ class _HeroFigurePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final sx = size.width / 100;
-    final sy = size.height / 100;
-    Offset at(List<double> p) => Offset(p[0] * sx, p[1] * sy);
+    // 썸네일은 정비율 — 0~100 좌표를 짧은 변에 맞춰 가운데에 놓는다.
+    final unit = size.shortestSide / 100;
+    final ox = (size.width - 100 * unit) / 2;
+    final oy = (size.height - 100 * unit) / 2;
+    Offset at(List<double> p) => Offset(ox + p[0] * unit, oy + p[1] * unit);
 
     final lineColor = done ? skyInk(colors, 0xD9) : skyInk(colors, 0x80);
     final linePaint = Paint()
@@ -318,9 +332,9 @@ class _HeroFigurePainter extends CustomPainter {
       ..strokeWidth = 1;
 
     // 별 수 적응형 점 크기 — 밀집 별자리(15별 초과) 겹침 방지
-    final dense = map.pts.length > 15;
-    final rOn = dense ? 2.5 : 3.5;
-    final rOff = dense ? 1.8 : 2.5;
+    // 썸네일은 촘촘한 단계 하나 — 켠 별 r 2.5 · 고리 r 1.8
+    const rOn = 2.5;
+    const rOff = 1.8;
     for (var i = 0; i < map.pts.length; i++) {
       final c = at(map.pts[i]);
       if (i < lit) {
