@@ -341,7 +341,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetTotalNetWorth => 'Total net worth';
 
   @override
-  String get assetVsLastMonth => 'vs last month';
+  String get assetVsLastMonth => 'vs. last month';
 
   @override
   String get assetGroupEmpty => 'No items registered.';
@@ -1790,7 +1790,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashVsLastMonth => 'vs last month';
+  String get dashVsLastMonth => 'vs. last month';
 
   @override
   String get dashLiabilities => 'Liabilities';
@@ -4883,13 +4883,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPrevPeriod => 'Previous period';
 
   @override
-  String get statsMomMonth => 'vs last month';
+  String get statsMomMonth => 'vs. last month';
 
   @override
-  String get statsMomQuarter => 'vs last quarter';
+  String get statsMomQuarter => 'vs. last quarter';
 
   @override
-  String get statsMomYear => 'vs last year';
+  String get statsMomYear => 'vs. last year';
 
   @override
   String get statsMomCustom => 'vs previous period';
@@ -4991,7 +4991,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statsMomCalculating => 'Calculating vs last month…';
+  String get statsMomCalculating => 'Calculating vs. last month…';
 
   @override
   String get statsMomUnavailable => 'Comparison unavailable';

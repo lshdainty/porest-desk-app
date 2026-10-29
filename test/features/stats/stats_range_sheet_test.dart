@@ -106,13 +106,24 @@ void main() {
       expect(p.now(l, _today), '2026년 3분기');
       expect(p.previous(l, _today), '2026년 2분기');
     });
-    test('오늘이 든 해 → 이번 해 / 지난 해 · 지난 해 → 2025년 / 2024년', () {
+    test('오늘이 든 해 → 올해 / 작년 · 지난 해 → 2025년 / 2024년', () {
       final y = pick(DateTime(2026), DateTime(2026, 12, 31));
-      expect(y.now(l, _today), '이번 해');
-      expect(y.previous(l, _today), '지난 해');
+      expect(y.now(l, _today), '올해');
+      expect(y.previous(l, _today), '작년');
       final old = pick(DateTime(2025), DateTime(2025, 12, 31));
       expect(old.now(l, _today), '2025년');
       expect(old.previous(l, _today), '2024년');
+    });
+    test('영어 — 올해 칸 이름은 This year / Last year, 문장 안은 소문자', () {
+      final en = lookupAppLocalizations(const Locale('en'));
+      final y = pick(DateTime(2026), DateTime(2026, 12, 31));
+      expect(y.now(en, _today), 'This year');
+      expect(y.previous(en, _today), 'Last year');
+      expect(en.statsMomYear, 'vs. last year');
+      expect(
+        en.statsTooFewTx('this month'),
+        'Too few transactions in this month',
+      );
     });
     test('직접은 그대로', () {
       final p = pick(DateTime(2026, 10, 3), DateTime(2026, 10, 9));

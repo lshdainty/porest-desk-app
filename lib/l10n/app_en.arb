@@ -116,7 +116,7 @@
   "assetSummaryColAccounts": "Accounts",
   "assetSummaryColCards": "Card debt",
   "assetTotalNetWorth": "Total net worth",
-  "assetVsLastMonth": "vs last month",
+  "assetVsLastMonth": "vs. last month",
   "assetGroupEmpty": "No items registered.",
   "assetPaymentDayInfo": "Pays on day {day}",
   "@assetPaymentDayInfo": {
@@ -1055,7 +1055,7 @@
       }
     }
   },
-  "dashVsLastMonth": "vs last month",
+  "dashVsLastMonth": "vs. last month",
   "dashLiabilities": "Liabilities",
   "dashMonthLedger": "{month} ledger",
   "@dashMonthLedger": {
@@ -2770,9 +2770,9 @@
   "statsLastQuarter": "Last quarter",
   "statsLastYear": "Last year",
   "statsPrevPeriod": "Previous period",
-  "statsMomMonth": "vs last month",
-  "statsMomQuarter": "vs last quarter",
-  "statsMomYear": "vs last year",
+  "statsMomMonth": "vs. last month",
+  "statsMomQuarter": "vs. last quarter",
+  "statsMomYear": "vs. last year",
   "statsMomCustom": "vs previous period",
   "statsMomPrevMonth": "Last month",
   "statsMomPrevQuarter": "Last quarter",
@@ -2825,7 +2825,7 @@
       }
     }
   },
-  "statsMomCalculating": "Calculating vs last month…",
+  "statsMomCalculating": "Calculating vs. last month…",
   "statsMomUnavailable": "Comparison unavailable",
   "statsTopCategory": "Top spending category",
   "statsTopMerchant": "Top merchant",

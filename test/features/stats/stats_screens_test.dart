@@ -704,7 +704,7 @@ void main() {
     test('기간 이름 + 조사(과 · 와)', () {
       expect(periodWithJosa('지난 달'), '지난 달과');
       expect(periodWithJosa('지난 분기'), '지난 분기와');
-      expect(periodWithJosa('지난 해'), '지난 해와');
+      expect(periodWithJosa('작년'), '작년과');
       expect(periodWithJosa('이전 기간'), '이전 기간과');
     });
 
@@ -793,7 +793,7 @@ void main() {
         final prevName = switch (seg) {
           StatsSeg.month => '지난 달',
           StatsSeg.quarter => '지난 분기',
-          _ => '지난 해',
+          _ => '작년',
         };
         expect(
           findRichPlain('토요일 지출이 $prevName보다 500,000원 늘었어요.'),

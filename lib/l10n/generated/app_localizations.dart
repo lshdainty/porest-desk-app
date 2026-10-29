@@ -8885,7 +8885,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsThisYear.
   ///
   /// In ko, this message translates to:
-  /// **'이번 해'**
+  /// **'올해'**
   String get statsThisYear;
 
   /// No description provided for @statsCustomPeriod.
@@ -8909,7 +8909,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsLastYear.
   ///
   /// In ko, this message translates to:
-  /// **'지난 해'**
+  /// **'작년'**
   String get statsLastYear;
 
   /// No description provided for @statsPrevPeriod.

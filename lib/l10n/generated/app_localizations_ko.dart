@@ -4787,7 +4787,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsThisQuarter => '이번 분기';
 
   @override
-  String get statsThisYear => '이번 해';
+  String get statsThisYear => '올해';
 
   @override
   String get statsCustomPeriod => '선택 기간';
@@ -4799,7 +4799,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsLastQuarter => '지난 분기';
 
   @override
-  String get statsLastYear => '지난 해';
+  String get statsLastYear => '작년';
 
   @override
   String get statsPrevPeriod => '이전 기간';

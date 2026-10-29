@@ -226,19 +226,25 @@ class StatsCompareSummarySection extends StatelessWidget {
             TextSpan(
               style: base,
               children: [
-                TextSpan(text: '${keepAll(l.statsVsLastPrefix(prevName))} '),
+                TextSpan(
+                  text:
+                      '${keepAll(l.statsVsLastPrefix(periodInSentence(prevName)))} ',
+                ),
                 TextSpan(
                   text:
                       '${keepAllAmount(money(diff.abs()))} ${less ? l.statsVsLastDirLess : l.statsVsLastDirMore}',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                TextSpan(text: ' ${keepAll(l.statsVsLastSuffix(prevName))}'),
+                TextSpan(
+                  text:
+                      ' ${keepAll(l.statsVsLastSuffix(periodInSentence(prevName)))}',
+                ),
               ],
             ),
           )
         else
           Text(
-            keepAll(l.statsNoDataFor(prevName)),
+            keepAll(l.statsNoDataFor(periodInSentence(prevName))),
             style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
           ),
         const SizedBox(height: PSpacing.x4),
