@@ -27,6 +27,7 @@ import 'package:groo_damda_app/features/expense/presentation/widgets/filter_bodi
 import 'package:groo_damda_app/shared/ds/wheel_picker/p_wheel_picker.dart';
 import 'package:groo_damda_app/shared/widgets/p_day_group.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/ledger_header.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/features/money/presentation/money_bundle_screen.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
@@ -391,6 +392,21 @@ void main() {
       await tester.pump();
       expect(headerDy(tester), 0);
     });
+  });
+
+  testWidgets('I-29b 4 펼침 단추 바로 아래가 구분선 · 그 아래 첫 묶음 위 4 에 날짜 머리(웹과 같은 y)', (
+    tester,
+  ) async {
+    await _pump(tester);
+    final btn = find.ancestor(
+      of: find.byIcon(LucideIcons.chevronDown),
+      matching: find.byType(PButton),
+    );
+    final btnBottom = tester.getBottomLeft(btn.first).dy;
+    final divider = tester.getTopLeft(find.byType(LedgerHeaderDivider)).dy;
+    expect(divider, btnBottom, reason: '단추 아래 여백 없음');
+    final head = tester.getTopLeft(find.byType(PDayHeader).first).dy;
+    expect(head, divider + 1 + 4, reason: '구분선 1 + 첫 묶음 위 4');
   });
 
   testWidgets('14 날짜 머리 — 머리말 2 · t4 · 500 · fg-neutral-subtle', (

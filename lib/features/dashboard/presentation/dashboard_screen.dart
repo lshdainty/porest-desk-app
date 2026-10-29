@@ -586,6 +586,17 @@ class _NetWorthBand extends StatelessWidget {
 /// 글줄 높이 — 불러오는 자리가 실제 글과 같은 높이가 되게(ds `PSkeleton.text` 와 같은 셈).
 double _lineHeight(TextStyle style) => style.fontSize! * (style.height ?? 1);
 
+/// 글자 크기(배율)를 따라 늘어난 글줄 높이 — 앞 붙이개를 제목 첫 줄 가운데에 둘 때 쓴다(웹 `PREFIX_LINE` 은 `--text-t5--line-height` 가 배율을 따른다).
+double _scaledLineHeight(BuildContext context, TextStyle style) =>
+    MediaQuery.textScalerOf(context).scale(_lineHeight(style));
+
+/// 앞 붙이개 자리 — 높이가 제목 한 줄(t5 줄 높이, 글자 배율을 따른다)이고 붙이개는 그 안 가운데에 선다. 줄이 좁아 위 맞춤이 되든
+/// 가운데 맞춤이든 제목 첫 줄 가운데에 선다(웹 `PREFIX_LINE` 과 같다).
+Widget _prefixLine(BuildContext context, Widget child) => SizedBox(
+  height: _scaledLineHeight(context, PTypography.t5),
+  child: Align(alignment: AlignmentDirectional.centerStart, child: child),
+);
+
 /// 브랜드 채움 위 불러오는 자리 — 채움 위 Skeleton 짝이 ds 에 없어 흰 18% 막대를 쓴다(ds 짝 없음 — 결과표).
 Widget _heroSkelBar(
   PColors c, {
@@ -1297,25 +1308,23 @@ class _UpcomingSection extends StatelessWidget {
                     title: e.title,
                     align: align,
                     onTap: () => context.go('/calendar'),
-                    prefix: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        PSpacing.x1,
-                        align == PListAlign.top
-                            ? (_lineHeight(PTypography.t5) - PSpacing.x2) / 2
-                            : 0,
-                        PSpacing.x1,
-                        0,
-                      ),
-                      child: Container(
-                        width: PSpacing.x2,
-                        height: PSpacing.x2,
-                        decoration: BoxDecoration(
-                          color: resolveChartColor(
-                            context,
-                            e.color,
-                            fallback: c.fgBrand,
+                    prefix: _prefixLine(
+                      context,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: PSpacing.x1,
+                        ),
+                        child: Container(
+                          width: PSpacing.x2,
+                          height: PSpacing.x2,
+                          decoration: BoxDecoration(
+                            color: resolveChartColor(
+                              context,
+                              e.color,
+                              fallback: c.fgBrand,
+                            ),
+                            shape: BoxShape.circle,
                           ),
-                          shape: BoxShape.circle,
                         ),
                       ),
                     ),
@@ -1395,13 +1404,9 @@ class _TodosSection extends StatelessWidget {
                     align: align,
                     onTap: () => context.go('/todos'),
                     prefix: ExcludeSemantics(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          top: align == PListAlign.top
-                              ? (_lineHeight(PTypography.t5) - PSpacing.x5) / 2
-                              : 0,
-                        ),
-                        child: isDone(t)
+                      child: _prefixLine(
+                        context,
+                        isDone(t)
                             ? Icon(
                                 LucideIcons.circleCheck,
                                 size: 20,

@@ -577,6 +577,24 @@ void main() {
       expect(far.style?.color, isNull, reason: '사흘 밖은 값 글자 기본색');
     });
 
+    testWidgets(
+      '앞 붙이개 자리 높이 = 제목 한 줄(t5 22) × 글자 배율 — 200% 에서도 첫 줄 가운데(I-29b)',
+      (tester) async {
+        for (final scale in [1.0, 2.0]) {
+          await _pump(tester, textScale: scale);
+          final prefixes = find.byKey(const ValueKey('plist-prefix'));
+          expect(prefixes, findsWidgets);
+          for (final e in prefixes.evaluate()) {
+            expect(
+              (e.renderObject! as RenderBox).size.height,
+              22.0 * scale,
+              reason: '배율 $scale — 붙이개 자리가 제목 한 줄 높이',
+            );
+          }
+        }
+      },
+    );
+
     testWidgets('완료 할 일은 취소선', (tester) async {
       await _pump(tester);
       final done = tester
