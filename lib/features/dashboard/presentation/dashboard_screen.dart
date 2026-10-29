@@ -32,6 +32,7 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/bottom_navigation/p_bottom_navigation.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
 import 'package:groo_damda_app/shared/ds/chip/press_area.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
@@ -1392,7 +1393,7 @@ class _TodosSection extends StatelessWidget {
                 for (final t in todos)
                   if (t.dueDate != null) t.dueDate!.substring(5, 10),
               ],
-              prefixWidth: PSpacing.x5,
+              prefixWidth: PSpacing.x6,
             );
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1404,27 +1405,42 @@ class _TodosSection extends StatelessWidget {
                     align: align,
                     onTap: () => context.go('/todos'),
                     prefix: ExcludeSemantics(
+                      // 할 일 화면(I-10)과 같은 square neutral Checkbox 칸 — 표시용(줄 전체가 할 일로 간다).
+                      // 제목 한 줄 안 가운데 맞춤은 _prefixLine 이 맡는다
                       child: _prefixLine(
                         context,
-                        isDone(t)
-                            ? Icon(
-                                LucideIcons.circleCheck,
-                                size: 20,
-                                color: c.fgPositive,
-                              )
-                            : Container(
-                                width: PSpacing.x5,
-                                height: PSpacing.x5,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isOver(t)
-                                        ? c.fgCritical
-                                        : c.strokeNeutralSolid,
-                                    width: PSpacing.x0_5,
-                                  ),
+                        // 칸 24 가 제목 한 줄(t5 22)보다 커서 _prefixLine 이 눌러 버리지 않게 높이를 24 로 고정해 넘쳐 그린다
+                        SizedBox(
+                          width: PSpacing.x6,
+                          child: OverflowBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            minWidth: PSpacing.x6,
+                            maxWidth: PSpacing.x6,
+                            minHeight: PSpacing.x6,
+                            maxHeight: PSpacing.x6,
+                            child: Stack(
+                              children: [
+                                PCheckmark(
+                                  checked: isDone(t),
+                                  size: PCheckboxSize.large,
                                 ),
-                              ),
+                                if (isOver(t))
+                                  Positioned.fill(
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                          PRounded.r1,
+                                        ),
+                                        border: Border.all(
+                                          color: c.strokeCriticalSolid,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     suffix: t.dueDate == null

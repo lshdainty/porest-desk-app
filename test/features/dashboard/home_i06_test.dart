@@ -27,6 +27,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/stats/application/stats_providers.dart';
 import 'package:groo_damda_app/features/stats/domain/stats_models.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/checkbox/p_checkbox.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart.dart';
@@ -601,6 +602,24 @@ void main() {
           .widgetList<PListButtonItem>(find.byType(PListButtonItem))
           .where((r) => r.titleStrike);
       expect(done, hasLength(1));
+    });
+
+    testWidgets('할 일 앞 표시는 square neutral 체크 칸 — 완료만 checked', (tester) async {
+      await _pump(tester);
+      final marks = tester
+          .widgetList<PCheckmark>(find.byType(PCheckmark))
+          .toList();
+      expect(marks, hasLength(3));
+      expect(marks.where((m) => m.checked == true), hasLength(1));
+      for (final m in marks) {
+        expect(m.shape, PCheckboxShape.square);
+        expect(m.tone, PCheckboxTone.neutral);
+      }
+      expect(find.byIcon(LucideIcons.circleCheck), findsNothing);
+      // 제목 한 줄(22)보다 칸(24)이 커도 눌리지 않고 정사각 24 로 그린다
+      for (final e in find.byType(PCheckmark).evaluate()) {
+        expect((e.renderObject! as RenderBox).size, const Size(24, 24));
+      }
     });
   });
 
