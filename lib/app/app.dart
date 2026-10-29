@@ -19,6 +19,7 @@ import 'package:groo_damda_app/core/auth/oauth_link_listener.dart';
 import 'package:groo_damda_app/app/router.dart';
 import 'package:groo_damda_app/app/session_scope.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 
 /// 화면 밖(네트워크 인터셉터 등)에서 토스트를 띄우기 위한 전역 키.
 final GlobalKey<ScaffoldMessengerState> appMessengerKey =
@@ -196,8 +197,20 @@ class _GrooDamdaAppState extends ConsumerState<GrooDamdaApp>
       // 사용자 데이터를 State 로 들지 말고, `ref.listenManual` 도 걸지 않는다 —
       // `ref.watch`·`ref.listen` 은 새 컨테이너로 옮겨 가지만 listenManual 은 버려진
       // 컨테이너에 묶인 채 남는다.
+      //
+      // 스낵바(ds PSnackbar)의 호스트도 여기 한 번 둔다 — 잠금 화면 아래(AppLockGate 안쪽), 길잡이(Navigator) 바깥이라
+      // 시트 · 확인창 위에 뜨고 탭 바(PSnackbarAvoidOverlap) 위 8 에 선다. 호스트 State 는 잠깐 뜨는 띠 하나뿐이다.
       builder: (context, child) => SlidableAutoCloseBehavior(
-        child: AppLockGate(child: child ?? const SizedBox.shrink()),
+        child: AppLockGate(
+          // 투명 Material — 호스트가 Navigator 바깥이라 Material 조상이 없으면 띠 글에 노란 이중 밑줄(기본 글 스타일 없음)이 간다.
+          child: Material(
+            type: MaterialType.transparency,
+            child: PSnackbarHost(
+              closeLabel: AppLocalizations.of(context).actionClose,
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
+        ),
       ),
       routerConfig: router,
     );

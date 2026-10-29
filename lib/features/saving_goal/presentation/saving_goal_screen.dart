@@ -19,11 +19,11 @@ import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 저축 목표 관리 (설정 > 저축 목표) — design GoalManager 미러 (웹 SavingGoalManager 정합).
@@ -57,14 +57,13 @@ class SavingGoalScreen extends ConsumerWidget {
       },
     );
     if (ok && failure != null && context.mounted) {
-      showPSnackBar(
-        context,
-        l.savingGoalDeleteFailed,
-        severity: PSnackSeverity.error,
-        duration: const Duration(seconds: 6),
-        actionLabel: l.actionRetry,
-        onAction: () => _confirmDeleteGoal(context, ref, goal),
-        replace: true,
+      PSnackbar.of(context).show(
+        message: l.savingGoalDeleteFailed,
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () => _confirmDeleteGoal(context, ref, goal),
+        ),
       );
     }
   }

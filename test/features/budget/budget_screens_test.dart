@@ -40,6 +40,7 @@ import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import '../../support/plain_text.dart';
 import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 class _FakeBudgetRepo extends BudgetRepository {
@@ -221,7 +222,7 @@ Future<void> _pump(
           data: MediaQuery.of(
             context,
           ).copyWith(textScaler: TextScaler.linear(textScale)),
-          child: child!,
+          child: PSnackbarHost(closeLabel: '닫기', child: child!),
         ),
         home: screen,
       ),
@@ -705,6 +706,19 @@ void main() {
       await tester.tap(find.text('되돌리기'));
       await tester.pumpAndSettle();
       expect(repo.deleted, [100, 101, 102]);
+    });
+
+    testWidgets('되돌리기 스낵바는 액션이 있어 6초 — 5초에는 남고 7초에는 사라진다', (tester) async {
+      final repo = _FakeBudgetRepo();
+      await pumpMonths(tester, repo, curEmpty: true);
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(findPlain('지난달 예산을 가져왔어요'), findsNothing);
     });
 
     Future<void> pumpCur(

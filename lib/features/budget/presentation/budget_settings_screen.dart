@@ -26,9 +26,9 @@ import 'package:groo_damda_app/shared/ds/progress/p_progress.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:groo_damda_app/shared/ds/text_button/p_text_button.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 예산 설정 화면 — 웹 `BudgetManager.tsx`(설정 > 예산 설정) 미러.
@@ -122,29 +122,27 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     if (!mounted) return;
     final l = AppLocalizations.of(context);
     if (failed.isNotEmpty) {
-      showPSnackBar(
-        context,
-        l.budgetCopyPartialFailed(failed.length),
-        severity: PSnackSeverity.error,
-        duration: const Duration(seconds: 6),
-        actionLabel: l.actionRetry,
-        onAction: () async {
-          final still = await _copyItems(failed, existingByKey, created);
-          await _afterCopy(still, existingByKey, created, undoable: undoable);
-        },
-        replace: true,
+      PSnackbar.of(context).show(
+        message: l.budgetCopyPartialFailed(failed.length),
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () async {
+            final still = await _copyItems(failed, existingByKey, created);
+            await _afterCopy(still, existingByKey, created, undoable: undoable);
+          },
+        ),
       );
       return;
     }
     if (!undoable) return;
-    showPSnackBar(
-      context,
-      l.budgetCopiedDone,
-      severity: PSnackSeverity.success,
-      duration: const Duration(seconds: 6),
-      actionLabel: l.budgetCopyUndo,
-      onAction: () => _undoCopy(created),
-      replace: true,
+    PSnackbar.of(context).show(
+      message: l.budgetCopiedDone,
+      tone: PSnackbarTone.positive,
+      action: PSnackbarAction(
+        label: l.budgetCopyUndo,
+        onPressed: () => _undoCopy(created),
+      ),
     );
   }
 
@@ -202,14 +200,13 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       ref.invalidate(monthBudgetsProvider(_key));
       ref.invalidate(budgetComplianceProvider);
       if (mounted) {
-        showPSnackBar(
-          context,
-          l.budgetCopyUndoPartial(remaining.length),
-          severity: PSnackSeverity.error,
-          duration: const Duration(seconds: 6),
-          actionLabel: l.actionRetry,
-          onAction: () => _undoCopy(remaining),
-          replace: true,
+        PSnackbar.of(context).show(
+          message: l.budgetCopyUndoPartial(remaining.length),
+          tone: PSnackbarTone.critical,
+          action: PSnackbarAction(
+            label: l.actionRetry,
+            onPressed: () => _undoCopy(remaining),
+          ),
         );
       }
       return;
@@ -269,14 +266,13 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       },
     );
     if (ok && failure != null && mounted) {
-      showPSnackBar(
-        context,
-        l.budgetDeleteFailed,
-        severity: PSnackSeverity.error,
-        duration: const Duration(seconds: 6),
-        actionLabel: l.actionRetry,
-        onAction: () => _confirmDeleteCategory(budget, name),
-        replace: true,
+      PSnackbar.of(context).show(
+        message: l.budgetDeleteFailed,
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () => _confirmDeleteCategory(budget, name),
+        ),
       );
     }
   }
