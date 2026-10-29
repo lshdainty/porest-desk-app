@@ -9089,8 +9089,8 @@ abstract class AppLocalizations {
   /// No description provided for @statsTooFewTx.
   ///
   /// In ko, this message translates to:
-  /// **'이번 달 거래가 아직 적어요.'**
-  String get statsTooFewTx;
+  /// **'{period} 거래가 아직 적어요.'**
+  String statsTooFewTx(String period);
 
   /// No description provided for @statsLegendLow.
   ///

@@ -20,11 +20,7 @@ import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 
 // 집계 도우미(일별 추이 · 건수 · 요일 합)는 stats_model.dart 에 있다 — 시험이 이 화면 파일로 불러 쓰므로 다시 내보낸다.
 export 'package:groo_damda_app/features/stats/presentation/stats_model.dart'
-    show dailyTrendOf, statsExpenseCount, statsWeekdaySums;
-
-/// 통계가 보는 "지금" — 시험 · 렌더 하네스가 오늘을 고정한다(홈의 dashboardNow 와 같은 결).
-@visibleForTesting
-DateTime Function() statsNow = DateTime.now;
+    show dailyTrendOf, statsExpenseCount, statsNow, statsWeekdaySums;
 
 /// 통계 화면(I-08 29 ~ 42) — 가계부 묶음 Line 탭 아래 칩 탭(Chip Tabs solid large 40, 위아래 틈 0), 그 아래 구역마다 흰 띠(사이 8).
 /// 칩 탭은 눌러서만 바뀐다(2차 탭은 밀어 넘기지 않는다 — Tabs 7A). 기간 버튼은 첫 띠 머리 오른쪽에 있다(따로 띠를 두지 않는다).

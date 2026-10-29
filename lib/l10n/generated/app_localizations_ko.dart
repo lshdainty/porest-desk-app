@@ -4893,7 +4893,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsPatternDesc => '색이 진할수록 지출이 많은 시간대예요 (단위: 원)';
 
   @override
-  String get statsTooFewTx => '이번 달 거래가 아직 적어요.';
+  String statsTooFewTx(String period) {
+    return '$period 거래가 아직 적어요.';
+  }
 
   @override
   String get statsLegendLow => '적음';

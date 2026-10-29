@@ -4972,7 +4972,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Darker cells mean more spending in that time slot (unit: KRW)';
 
   @override
-  String get statsTooFewTx => 'Too few transactions this month';
+  String statsTooFewTx(String period) {
+    return 'Too few transactions in $period';
+  }
 
   @override
   String get statsLegendLow => 'Low';

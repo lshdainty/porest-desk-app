@@ -87,6 +87,40 @@ void main() {
     });
   });
 
+  group('기간 이름 — 오늘을 품으면 상대 말, 아니면 실제 이름', () {
+    final l = lookupAppLocalizations(const Locale('ko'));
+    StatsPeriod pick(DateTime f, DateTime t) => statsPeriodOfRange(month, f, t);
+
+    test('이번 달 → 이번 달 / 지난 달', () {
+      final p = pick(DateTime(2026, 10), DateTime(2026, 10, 31));
+      expect(p.now(l, _today), '이번 달');
+      expect(p.previous(l, _today), '지난 달');
+    });
+    test('지난 달 → 2026년 9월 / 2026년 8월', () {
+      final p = pick(DateTime(2026, 9), DateTime(2026, 9, 30));
+      expect(p.now(l, _today), '2026년 9월');
+      expect(p.previous(l, _today), '2026년 8월');
+    });
+    test('7/1~9/30 → 2026년 3분기 / 2026년 2분기', () {
+      final p = pick(DateTime(2026, 7), DateTime(2026, 9, 30));
+      expect(p.now(l, _today), '2026년 3분기');
+      expect(p.previous(l, _today), '2026년 2분기');
+    });
+    test('오늘이 든 해 → 이번 해 / 지난 해 · 지난 해 → 2025년 / 2024년', () {
+      final y = pick(DateTime(2026), DateTime(2026, 12, 31));
+      expect(y.now(l, _today), '이번 해');
+      expect(y.previous(l, _today), '지난 해');
+      final old = pick(DateTime(2025), DateTime(2025, 12, 31));
+      expect(old.now(l, _today), '2025년');
+      expect(old.previous(l, _today), '2024년');
+    });
+    test('직접은 그대로', () {
+      final p = pick(DateTime(2026, 10, 3), DateTime(2026, 10, 9));
+      expect(p.now(l, _today), '선택 기간');
+      expect(p.previous(l, _today), '이전 기간');
+    });
+  });
+
   group('showStatsRangeSheet', () {
     testWidgets('칸 하나 — 날짜 입력칸 두 개와 월 · 분기 · 년 · 직접 탭이 없다', (tester) async {
       await _open(tester, month, (_) {});

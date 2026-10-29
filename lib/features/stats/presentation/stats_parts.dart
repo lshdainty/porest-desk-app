@@ -662,7 +662,9 @@ class StatsHeatmapSection extends StatelessWidget {
     if (total == 0) {
       return statsSection(
         header: head,
-        children: [BudgetEmptyLine(l.statsTooFewTx)],
+        children: [
+          BudgetEmptyLine(l.statsTooFewTx(periodInSentence(period.now(l)))),
+        ],
       );
     }
     final days = weekdayLabels(mondayFirst: true);
