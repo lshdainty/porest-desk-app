@@ -26,6 +26,8 @@ class PListHeader extends StatelessWidget {
     this.variant = PListHeaderVariant.mediumWeak,
     this.action,
     this.headingLevel = 2,
+    this.topInset,
+    this.inset = PSpacing.globalGutter,
   });
 
   final String title;
@@ -36,6 +38,13 @@ class PListHeader extends StatelessWidget {
 
   /// 오른쪽 글 버튼([PTextButton]) — 있을 때만(전체 보기).
   final Widget? action;
+
+  /// 위 여백을 이 값으로 바꾼다(기본: 제목만 있으면 8, 오른쪽 버튼이 있으면 0) — 묶음이 이어지는 자리가 정한다(종류 고르기 1단계:
+  /// 첫 묶음 0 · 다음 묶음 16). 웹의 `className="pt-*"` 와 같다.
+  final double? topInset;
+
+  /// 좌우 여백 — 기본은 줄과 같은 24. 이미 좌우 24 가 있는 칸 묶음 안(폼의 보유 종목)에서는 0 을 준다(웹의 `className="px-0"` 와 같다).
+  final double inset;
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +59,12 @@ class PListHeader extends StatelessWidget {
       slack: 4,
       child: Padding(
         key: const ValueKey('plist-header'),
-        padding: EdgeInsets.symmetric(
-          horizontal: PSpacing.globalGutter,
+        padding: EdgeInsets.fromLTRB(
+          inset,
           // 글 버튼(36)이 있으면 그 36 이 줄 높이다 — 위아래 8 + 20 과 같다(스펙 marginY −8)
-          vertical: action == null ? PSpacing.x2 : 0,
+          topInset ?? (action == null ? PSpacing.x2 : 0),
+          inset,
+          action == null ? PSpacing.x2 : 0,
         ),
         // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
         child: PHeaderRow(
