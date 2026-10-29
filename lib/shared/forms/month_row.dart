@@ -42,59 +42,63 @@ class MonthRow extends StatelessWidget {
             overflowAlignment: OverflowBarAlignment.end,
             overflowSpacing: 0,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: PressArea(
-                      enabled: true,
-                      onTap: onPick,
-                      touchMin: 0,
-                      semantics: (child, enabled, onTap) => Semantics(
-                        container: true,
-                        button: true,
-                        label: yearMonth(month),
-                        onTap: onTap,
-                        excludeSemantics: true,
-                        child: child,
-                      ),
-                      builder: (context, pressed, size) => Container(
-                        constraints: const BoxConstraints(
-                          minHeight: PTouch.min,
+              // 아래 줄로 내려가도 달 글은 왼쪽에 둔다(오른쪽 끝은 동작만) — 줄이 넘칠 때 폭을 다 받아 왼쪽 맞춤이 된다
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: PressArea(
+                        enabled: true,
+                        onTap: onPick,
+                        touchMin: 0,
+                        semantics: (child, enabled, onTap) => Semantics(
+                          container: true,
+                          button: true,
+                          label: yearMonth(month),
+                          onTap: onTap,
+                          excludeSemantics: true,
+                          child: child,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: PSpacing.x2_5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: pressed
-                              ? c.bgLayerDefaultPressed
-                              : c.bgLayerDefaultPressed.withValues(alpha: 0),
-                          borderRadius: BorderRadius.circular(PRounded.r2),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: PSpacing.x1,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                yearMonth(month),
-                                style: labelStyle.copyWith(
-                                  color: c.fgNeutral,
-                                  fontWeight: FontWeight.w700,
+                        builder: (context, pressed, size) => Container(
+                          constraints: const BoxConstraints(
+                            minHeight: PTouch.min,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: PSpacing.x2_5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: pressed
+                                ? c.bgLayerDefaultPressed
+                                : c.bgLayerDefaultPressed.withValues(alpha: 0),
+                            borderRadius: BorderRadius.circular(PRounded.r2),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: PSpacing.x1,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  yearMonth(month),
+                                  style: labelStyle.copyWith(
+                                    color: c.fgNeutral,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Icon(
-                              LucideIcons.chevronDown,
-                              size: 16,
-                              color: c.fgNeutralMuted,
-                            ),
-                          ],
+                              Icon(
+                                LucideIcons.chevronDown,
+                                size: 16,
+                                color: c.fgNeutralMuted,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               // 글 버튼은 가운데 맞춤 상자라 폭을 다 채우려 한다 — 제 폭만 쓰게 푼다
               UnconstrainedBox(child: trailing),

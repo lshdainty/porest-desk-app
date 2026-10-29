@@ -42,6 +42,7 @@ void main() {
       greaterThanOrEqualTo(title.bottom - 1),
       reason: '아래 줄로 내려간다',
     );
+    expect(title.left, lessThan(60), reason: '달 글은 왼쪽에 남는다');
     expect(box.right, closeTo(360 - 24, 0.5), reason: '오른쪽 끝');
   });
 }
