@@ -478,11 +478,11 @@ void main() {
             ? Future.value([_tx(1, '점심 가게', 12000)])
             : pending.future,
       );
-      expect(find.text('${now.month}월'), findsWidgets);
+      expect(find.text('${now.year}년 ${now.month}월'), findsWidgets);
       final prevMonth = DateTime(now.year, now.month - 1, 1);
       await _pickMonth(tester, now, prevMonth, settle: false);
       // 달 이름은 바로 바뀌고, 머리 틀(Scroll Auto Hide · 달 이동 줄)은 그대로 있다
-      expect(find.text('${prevMonth.month}월'), findsWidgets);
+      expect(find.text('${prevMonth.year}년 ${prevMonth.month}월'), findsWidgets);
       expect(find.byType(PScrollAutoHide), findsOneWidget);
       expect(find.byType(PSkeleton), findsWidgets);
       // 옛 달 숫자는 지운다

@@ -345,7 +345,7 @@ void main() {
       final next = DateTime(_now.year, _now.month + 1, 1);
       await _pickMonth(tester, _now, next);
       expect(repo.listReads, reads);
-      expect(find.text('${next.month}월'), findsWidgets);
+      expect(find.text('${next.year}년 ${next.month}월'), findsWidgets);
     });
   });
 
@@ -938,7 +938,7 @@ void main() {
         settle: false,
       );
       expect(find.byType(PTopNavigation), findsOneWidget);
-      expect(find.text('${_now.month}월'), findsOneWidget);
+      expect(find.text('${_now.year}년 ${_now.month}월'), findsOneWidget);
       expect(find.byType(PSkeleton), findsWidgets);
       expect(find.byType(TodoRow), findsNothing);
     });

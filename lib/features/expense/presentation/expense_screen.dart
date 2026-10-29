@@ -428,7 +428,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       children: [
         const SizedBox(height: PSpacing.x2),
         LedgerMonthNav(
-          label: _monthLabel(_month),
+          label: yearMonth(_month),
           showMonth: !filterActive,
           onPick: _pickMonth,
           onOpenFilter: _openFilter,

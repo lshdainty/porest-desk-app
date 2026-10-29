@@ -339,7 +339,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       children: [
         const SizedBox(height: PSpacing.x2),
         LedgerMonthNav(
-          label: monthOnly(_month),
+          label: yearMonth(_month),
           onPick: _pickMonth,
           onOpenFilter: () => _openFilter(all ?? const []),
           filterOn: _filter.active,

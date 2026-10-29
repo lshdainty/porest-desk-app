@@ -105,7 +105,6 @@ class LedgerMonthNav extends StatelessWidget {
                           style: PTypography.t6.copyWith(
                             color: c.fgNeutral,
                             fontWeight: FontWeight.w700,
-                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
                       ),

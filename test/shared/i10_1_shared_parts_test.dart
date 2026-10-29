@@ -59,6 +59,34 @@ void main() {
   );
 
   testWidgets(
+    'LedgerMonthNav — 가장 나쁜 값 "2026년 12월" 글자 200% 360 에서 넘치지 않는다 · 글이 여백 24 에서 시작',
+    (tester) async {
+      for (final scale in [1.0, 2.0]) {
+        await pumpApp(
+          tester,
+          Scaffold(
+            body: LedgerMonthNav(
+              label: '2026년 12월',
+              onPick: () {},
+              onOpenFilter: () {},
+              filterOn: true,
+              onAddTx: () {},
+            ),
+          ),
+          textScale: scale,
+        );
+        expect(tester.takeException(), isNull);
+        final text = tester.getRect(find.text('2026년 12월'));
+        if (scale == 1.0) expect(text.left, 24);
+        expect(
+          tester.getRect(find.byIcon(LucideIcons.slidersHorizontal)).right,
+          lessThanOrEqualTo(360),
+        );
+      }
+    },
+  );
+
+  testWidgets(
     'LedgerMonthNav — 추가 단추를 비우면 없다 · filterOn 이면 알림 점 하나 · 이름 "필터, 조건 걸림"',
     (tester) async {
       await pumpApp(
