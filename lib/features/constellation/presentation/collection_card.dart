@@ -21,10 +21,14 @@ class CollectionCard extends StatelessWidget {
     super.key,
     required this.collection,
     required this.todayKey,
+    this.today,
   });
 
   final ConstellationCollectionData collection;
   final String todayKey;
+
+  /// 오늘의 목표 — 있으면 도감에서 그 별자리를 열 때 하늘 카드와 같은 상세(켠 별 · 별빛 막대)가 열린다.
+  final ConstellationToday? today;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +97,7 @@ class CollectionCard extends StatelessWidget {
                 entry: e,
                 isToday: e.constellation.constellationKey == todayKey,
                 isNew: e.constellation.constellationKey == newest,
+                today: today,
               ),
           ],
         ),
@@ -106,11 +111,13 @@ class _CollectionRow extends StatelessWidget {
     required this.entry,
     required this.isToday,
     required this.isNew,
+    this.today,
   });
 
   final CollectionEntry entry;
   final bool isToday;
   final bool isNew;
+  final ConstellationToday? today;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +130,7 @@ class _CollectionRow extends StatelessWidget {
     final ctaName = owned
         ? l.constCollectionViewOwnedNamed(name)
         : l.constCollectionViewLockedNamed(name);
-    void open() => showConstellationDetail(context, entry);
+    void open() => showConstellationDetail(context, entry, today: today);
 
     final tile = owned
         ? Container(

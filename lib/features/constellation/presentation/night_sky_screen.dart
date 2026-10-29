@@ -8,6 +8,7 @@ import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/constellation/application/constellation_providers.dart';
 import 'package:groo_damda_app/features/constellation/domain/constellation.dart';
 import 'package:groo_damda_app/features/constellation/presentation/collection_card.dart';
+import 'package:groo_damda_app/features/constellation/presentation/constellation_detail_sheet.dart';
 import 'package:groo_damda_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:groo_damda_app/features/constellation/presentation/my_sky_card.dart';
 import 'package:groo_damda_app/features/constellation/presentation/night_sky_hero.dart';
@@ -93,7 +94,15 @@ class NightSkyScreen extends ConsumerWidget {
                           PSpacing.x6,
                           0,
                         ),
-                        child: NightSkyHero(today: today, doneToday: doneToday),
+                        child: NightSkyHero(
+                          today: today,
+                          doneToday: doneToday,
+                          onOpen: () => showTodayConstellationDetail(
+                            context,
+                            today,
+                            entry: _entryOf(collection, today),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: PSpacing.x4),
                       _ReportRow(
@@ -134,6 +143,7 @@ class NightSkyScreen extends ConsumerWidget {
                 : CollectionCard(
                     collection: collection,
                     todayKey: today?.constellation.constellationKey ?? '',
+                    today: today,
                   ),
           ),
         ]),
@@ -485,4 +495,19 @@ class _WeekDot extends StatelessWidget {
       child: glyph,
     );
   }
+}
+
+/// 오늘의 목표 별자리의 도감 줄 — 도감을 아직 못 받았으면 null.
+CollectionEntry? _entryOf(
+  ConstellationCollectionData? collection,
+  ConstellationToday today,
+) {
+  if (collection == null) return null;
+  for (final e in collection.entries) {
+    if (e.constellation.constellationKey ==
+        today.constellation.constellationKey) {
+      return e;
+    }
+  }
+  return null;
 }
