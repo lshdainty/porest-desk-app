@@ -77,14 +77,17 @@ class TodoRow extends StatelessWidget {
             onToggle: onToggle,
           ),
         ),
-        suffix: _ColorFade(
-          stateKey: done,
-          child: PBadge(
-            label: todoPrioLabel(l, todo.priority),
-            tone: todo.priority == 'HIGH'
-                ? PBadgeTone.critical
-                : PBadgeTone.neutral,
-            disabled: done,
+        // 값(PListValue)으로 감싸 좁은 줄(큰 글자)에서 설명 아래로 내려가게 한다 — _ColorFade 가 배지를 한 겹 싸고 있어서다
+        suffix: PListValue(
+          child: _ColorFade(
+            stateKey: done,
+            child: PBadge(
+              label: todoPrioLabel(l, todo.priority),
+              tone: todo.priority == 'HIGH'
+                  ? PBadgeTone.critical
+                  : PBadgeTone.neutral,
+              disabled: done,
+            ),
           ),
         ),
       ),

@@ -1121,6 +1121,14 @@
       }
     }
   },
+  "dashOverdueRead": "Overdue {count}",
+  "@dashOverdueRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dashTrendTitle": "Last 6 months",
   "dashEmptyTransactions": "No recent transactions",
   "dashEmptyEvents": "No upcoming events",

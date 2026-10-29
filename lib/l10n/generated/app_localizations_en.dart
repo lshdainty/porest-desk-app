@@ -1852,6 +1852,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String dashOverdueRead(int count) {
+    return 'Overdue $count';
+  }
+
+  @override
   String get dashTrendTitle => 'Last 6 months';
 
   @override

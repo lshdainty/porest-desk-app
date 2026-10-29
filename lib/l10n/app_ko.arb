@@ -1117,8 +1117,16 @@
   "dashRecent": "최근 거래",
   "dashUpcoming": "다가오는 일정",
   "dashRecentTodos": "최근 할 일",
-  "dashOverdue": "연체 {count}건",
+  "dashOverdue": "연체 {count}",
   "@dashOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashOverdueRead": "연체 {count}건",
+  "@dashOverdueRead": {
     "placeholders": {
       "count": {
         "type": "int"

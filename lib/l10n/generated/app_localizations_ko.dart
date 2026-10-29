@@ -1823,6 +1823,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String dashOverdue(int count) {
+    return '연체 $count';
+  }
+
+  @override
+  String dashOverdueRead(int count) {
     return '연체 $count건';
   }
 

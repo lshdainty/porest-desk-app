@@ -105,7 +105,7 @@ class PDayHeader extends StatelessWidget {
         : null;
     final label = formatDay(date);
     final text =
-        '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})${rel == null ? '' : ' · $rel'}';
+        '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})${rel == null ? '' : '\u00A0·\u00A0$rel'}';
     final style = PDayHeaderRow.textStyle(c);
     final dayExpense = expenseSum(items);
     final dayIncome = incomeSum(items);

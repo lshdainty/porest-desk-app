@@ -1361,7 +1361,15 @@ class _TodosSection extends StatelessWidget {
         l.dashRecentTodos,
         onAll: () => context.go('/todos'),
         suffix: overdue > 0
-            ? PBadge(label: l.dashOverdue(overdue), tone: PBadgeTone.critical)
+            // 보이는 글 "연체 30", 읽는 글 "연체 30건"(I-06 home 21 — 웹 OverdueBadge 와 같다)
+            ? Semantics(
+                label: l.dashOverdueRead(overdue),
+                excludeSemantics: true,
+                child: PBadge(
+                  label: l.dashOverdue(overdue),
+                  tone: PBadgeTone.critical,
+                ),
+              )
             : null,
       ),
       children: [
