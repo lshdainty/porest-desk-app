@@ -624,21 +624,19 @@ class LedgerCalendarGrid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [for (var i = 0; i < 7; i++) cell(w[i], i)],
             ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: PSpacing.x1),
-            child: Center(
-              child: Semantics(
-                container: true,
-                expanded: expanded,
-                child: PButton.icon(
-                  icon: expanded
-                      ? LucideIcons.chevronUp
-                      : LucideIcons.chevronDown,
-                  // 이름은 늘 "월 달력" — 펼침 여부는 expanded 가 말한다
-                  semanticLabel: AppLocalizations.of(context).txmCalendarToggle,
-                  variant: PButtonVariant.ghost,
-                  onPressed: onToggleExpand,
-                ),
+          // 펼침 단추 바로 아래에서 머리 틀이 끝난다(웹 `LedgerExpand` 와 같다 — 아래 여백 없음, I-29b 4).
+          Center(
+            child: Semantics(
+              container: true,
+              expanded: expanded,
+              child: PButton.icon(
+                icon: expanded
+                    ? LucideIcons.chevronUp
+                    : LucideIcons.chevronDown,
+                // 이름은 늘 "월 달력" — 펼침 여부는 expanded 가 말한다
+                semanticLabel: AppLocalizations.of(context).txmCalendarToggle,
+                variant: PButtonVariant.ghost,
+                onPressed: onToggleExpand,
               ),
             ),
           ),
