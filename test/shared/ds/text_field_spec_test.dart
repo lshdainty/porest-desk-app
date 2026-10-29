@@ -237,9 +237,10 @@ BorderSide _overlay(WidgetTester tester, Finder control) {
 Finder _richText(Pattern text) => find.byWidgetPredicate(
   (w) =>
       w is RichText &&
+      // 라벨은 낱말 단위 줄바꿈 글자(U+2060)가 끼어 있다 — 뺀 글로 견준다
       (text is RegExp
-          ? text.hasMatch(w.text.toPlainText())
-          : w.text.toPlainText() == text),
+          ? text.hasMatch(w.text.toPlainText().replaceAll('\u2060', ''))
+          : w.text.toPlainText().replaceAll('\u2060', '') == text),
 );
 
 /// 꼬리의 글자 수("4/12").
@@ -1516,6 +1517,68 @@ void main() {
         );
       },
     );
+
+    testWidgets('글자 2배에서 머리 오른쪽 값이 길면 라벨 아래 오른쪽 끝으로 내려가고 라벨은 글자마다 깨지지 않는다', (
+      tester,
+    ) async {
+      MediaQueryData twice(MediaQueryData d) =>
+          d.copyWith(textScaler: const TextScaler.linear(2));
+      await tester.pumpWidget(
+        _host(
+          _light,
+          const SizedBox(
+            width: 328,
+            child: PField(
+              label: '보유 종목',
+              headerTrailing: Text(
+                '합계 123,456,789원',
+                key: ValueKey('trailing'),
+                style: TextStyle(fontSize: 16, height: 22 / 16),
+              ),
+              child: PInput(),
+            ),
+          ),
+          media: twice,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final field = tester.getRect(find.byType(PField));
+      final trailing = tester.getRect(find.byKey(const ValueKey('trailing')));
+      final label = tester.getRect(_richText(RegExp('^보유')));
+      // 라벨은 한 줄(22 × 2) — 한 글자씩 줄이 바뀌면 네 줄이 된다
+      expect(label.height, closeTo(44, 0.5), reason: '낱말 단위 — 글자마다 깨지지 않는다');
+      expect(
+        trailing.top,
+        greaterThanOrEqualTo(label.bottom),
+        reason: '자리가 모자라 값이 다음 줄로 내려간다',
+      );
+      expect(trailing.right, closeTo(field.right - PSpacing.x0_5, 0.5));
+      expect(
+        tester.getRect(find.byType(PInput)).top,
+        greaterThanOrEqualTo(trailing.bottom),
+      );
+      // 자리가 넉넉하면(1배) 종전처럼 한 줄 — 값이 라벨과 같은 줄
+      await tester.pumpWidget(
+        _host(
+          _light,
+          const SizedBox(
+            width: 328,
+            child: PField(
+              label: '보유 종목',
+              headerTrailing: Text(
+                '80%',
+                key: ValueKey('trailing'),
+                style: TextStyle(fontSize: 16, height: 22 / 16),
+              ),
+              child: PInput(),
+            ),
+          ),
+        ),
+      );
+      final one = tester.getRect(find.byKey(const ValueKey('trailing')));
+      final oneLabel = tester.getRect(_richText(RegExp('^보유')));
+      expect(one.center.dy, closeTo(oneLabel.center.dy, 0.5));
+    });
 
     testWidgets('필수 점 · "선택" 은 글자 크기 설정을 따라 커진다(rem) — 라벨 줄 위에서 4rem 아래', (
       tester,

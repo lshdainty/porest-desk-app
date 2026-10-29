@@ -355,13 +355,14 @@ void main() {
       expect(await labelsOf(tester, AssetKind.investment), [
         l.assetBrokerExchange,
         l.assetNickname,
+        l.assetHoldings,
         l.assetCashBalance,
         l.assetCurrency,
         l.assetMemo,
       ]);
-      // 보유 종목 머리(Header Row)는 별칭과 예수금 사이에 선다
+      // 보유 종목 칸(Field)은 별칭과 예수금 사이에 선다
       final name = tester.getRect(fieldWithLabel(l.assetNickname));
-      final head = tester.getRect(findPlain(l.assetHoldings));
+      final head = tester.getRect(fieldWithLabel(l.assetHoldings));
       final cash = tester.getRect(fieldWithLabel(l.assetCashBalance));
       expect(head.top, greaterThan(name.bottom));
       expect(head.bottom, lessThan(cash.top));
@@ -509,7 +510,12 @@ void main() {
       scale: 2,
     );
     expect(tester.takeException(), isNull);
-    final label = tester.getRect(findPlain(l.assetHoldings));
+    final label = tester.getRect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is RichText && plainOf(w.text.toPlainText()) == l.assetHoldings,
+      ),
+    );
     expect(
       label.height,
       lessThanOrEqualTo(2 * 22 + 1),

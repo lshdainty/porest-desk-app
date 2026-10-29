@@ -22,6 +22,7 @@ import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
 import '../../support/design_spec.dart';
+import '../../support/plain_text.dart';
 import '../../support/spec_check.dart';
 
 Widget _host(
@@ -811,7 +812,7 @@ void main() {
       await tester.tap(find.byType(PInputButton));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('아이콘'), findsWidgets); // 시트 제목
+      expect(findRichPlain('아이콘'), findsWidgets); // 시트 제목
       expect(find.byType(PIconPickerPanel), findsOneWidget);
       expect(
         tester.widget<PInputButton>(find.byType(PInputButton)).expanded,

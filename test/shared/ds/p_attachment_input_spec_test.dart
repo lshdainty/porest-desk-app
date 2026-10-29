@@ -19,6 +19,7 @@ import 'package:groo_damda_app/shared/ds/image_frame/p_image_frame.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 
 import '../../support/design_spec.dart';
+import '../../support/plain_text.dart';
 import '../../support/spec_check.dart';
 
 const _mb = 1024 * 1024;
@@ -1696,7 +1697,9 @@ void main() {
         final label = tester.getRect(
           find
               .byWidgetPredicate(
-                (w) => w is RichText && w.text.toPlainText().startsWith('영수증'),
+                (w) =>
+                    w is RichText &&
+                    plainOf(w.text.toPlainText()).startsWith('영수증'),
               )
               .first,
         );

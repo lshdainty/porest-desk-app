@@ -22,6 +22,7 @@ import 'package:groo_damda_app/shared/ds/select/select_demo.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 import '../../support/design_spec.dart';
+import '../../support/plain_text.dart';
 
 final _spec = DesignSpec.load('select');
 const _large = {'size': 'large'};
@@ -1169,7 +1170,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('통화'));
+      await tester.tap(findRichPlain('통화').first);
       await _settle(tester);
       expect(_contentBox, findsNothing);
       expect(
