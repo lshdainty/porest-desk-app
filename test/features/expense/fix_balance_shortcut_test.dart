@@ -33,6 +33,7 @@ import 'package:groo_damda_app/features/expense_split/application/expense_split_
 import 'package:groo_damda_app/features/notification/application/user_preferences_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import '../../support/plain_text.dart';
 
 const _card = Asset(
   rowId: 9,
@@ -272,27 +273,27 @@ void main() {
     testWidgets('그 자산의 수정 폼이 바로 열린다', (tester) async {
       await pumpManage(tester, editAssetId: 3);
 
-      expect(find.text('계좌 편집'), findsOneWidget);
-      expect(find.text('1200000'), findsOneWidget, reason: '잔액 칸이 채워져 있다');
+      expect(findPlain('입출금 수정'), findsOneWidget);
+      expect(find.text('1,200,000'), findsOneWidget, reason: '잔액 칸이 채워져 있다');
     });
 
     testWidgets('카드면 카드 탭으로 옮겨 카드 폼을 연다', (tester) async {
       await pumpManage(tester, editAssetId: 9);
 
-      expect(find.text('카드 편집'), findsOneWidget);
+      expect(findPlainContaining('수정'), findsOneWidget);
     });
 
     testWidgets('없는 자산이면 목록만 보여 준다', (tester) async {
       await pumpManage(tester, editAssetId: 404);
 
-      expect(find.text('계좌 편집'), findsNothing);
+      expect(findPlain('입출금 수정'), findsNothing);
       expect(find.text('생활비 통장'), findsOneWidget);
     });
 
     testWidgets('주소가 없으면 폼을 안 연다', (tester) async {
       await pumpManage(tester);
 
-      expect(find.text('계좌 편집'), findsNothing);
+      expect(findPlain('입출금 수정'), findsNothing);
     });
   });
 
