@@ -1,6 +1,6 @@
 // 투자 신규의 메모 칸이 저장에 실린다 (감사 2026-09-08 A2).
 //
-// 화면에는 신규·편집 둘 다 '메모 (선택)' 칸이 있는데 생성 요청에는 안 실렸다 —
+// 화면에는 신규·편집 둘 다 '메모' 칸이 있는데 생성 요청에는 안 실렸다 —
 // 적어 넣고 저장하면 그대로 사라졌고, 다시 열어도 빈칸이라 사라진 줄도 몰랐다.
 // 편집은 이미 실었으므로(QA #99) 여기서 잠그는 건 생성 쪽이다.
 //
@@ -20,7 +20,10 @@ import 'package:groo_damda_app/features/asset/presentation/investment_add_dialog
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+
+import '../../support/plain_text.dart';
+import 'asset_form_test_helpers.dart';
 
 const _invest = Asset(
   rowId: 12,
@@ -62,7 +65,7 @@ class _CapturingRepo extends AssetRepository {
     List<AssetHolding>? holdings,
     int? dueCarryoverAmount,
   }) async {
-    created = {'memo': memo};
+    created = {'memo': memo, 'institution': institution, 'name': assetName};
     return _fake();
   }
 
@@ -88,24 +91,23 @@ class _CapturingRepo extends AssetRepository {
     int? carryoverAmount,
     int? dueCarryoverAmount,
   }) async {
-    updated = {'memoPresent': memo.present, 'memo': memo.value};
+    updated = {
+      'memoPresent': memo.present,
+      'memo': memo.value,
+      'institution': institution,
+    };
     return _fake();
   }
 }
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _submitButton(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+Finder _submitButton(String label) => buttonLabeled(label);
 
 Future<_CapturingRepo> _host(
   WidgetTester tester,
   void Function(BuildContext ctx) open,
 ) async {
   final repo = _CapturingRepo();
-  // 시트 본문은 ListView 다 — 좁은 화면에서는 아래쪽 메모 칸이 아예 안 만들어진다.
+  // 시트 본문은 스크롤이다 — 좁은 화면에서는 아래쪽 메모 칸이 아예 안 만들어진다.
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -145,8 +147,8 @@ void main() {
 
   testWidgets('투자 신규는 적어 넣은 메모를 실어 보낸다', (tester) async {
     final repo = await _host(tester, showInvestmentAddDialog);
-    await tester.enterText(_field(l.assetMemoPlaceholder), '연금저축 계좌');
-    await tester.pumpAndSettle();
+    await typeInto(tester, l.assetMemo, '연금저축 계좌');
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await tester.tap(_submitButton(l.calAdd));
     await tester.pumpAndSettle();
 
@@ -160,6 +162,7 @@ void main() {
 
   testWidgets('비워 두면 메모 키를 빼 서버 기본값에 맡긴다', (tester) async {
     final repo = await _host(tester, showInvestmentAddDialog);
+    await typeInto(tester, l.assetNickname, 'QA 별칭');
     await tester.tap(_submitButton(l.calAdd));
     await tester.pumpAndSettle();
 
@@ -173,13 +176,47 @@ void main() {
       tester,
       (ctx) => showInvestmentEditDialog(ctx, _invest),
     );
-    await tester.enterText(_field(l.assetMemoPlaceholder), '');
-    await tester.pumpAndSettle();
+    await typeInto(tester, l.assetMemo, '');
     await tester.tap(_submitButton(l.actionSave));
     await tester.pumpAndSettle();
 
     expect(repo.updated, isNotNull, reason: '저장이 안 불렸다');
     expect(repo.updated!['memoPresent'], isTrue);
     expect(repo.updated!['memo'], isNull);
+  });
+
+  testWidgets('투자 별칭은 필수다 — 비우고 누르면 안내가 뜨고 요청은 안 나간다', (tester) async {
+    final repo = await _host(tester, showInvestmentAddDialog);
+    await tester.tap(_submitButton(l.calAdd));
+    await tester.pumpAndSettle();
+    expect(findRichPlain(l.assetNicknameRequired), findsOneWidget);
+    expect(repo.created, isNull, reason: '"{기관} 투자" 자동 이름으로 저장되면 안 된다');
+    await typeInto(tester, l.assetNickname, 'QA 연금');
+    await tester.tap(_submitButton(l.calAdd));
+    await tester.pumpAndSettle();
+    expect(repo.created!['name'], 'QA 연금');
+    expect(
+      (repo.created!['institution'] as String).isNotEmpty,
+      isTrue,
+      reason: '새 자산은 첫 기관이 기본이다',
+    );
+  });
+
+  testWidgets('기관이 없는 투자 자산을 고치면 기관을 비워 두고 안 보낸다', (tester) async {
+    const gold = Asset(
+      rowId: 14,
+      assetName: '금 현물',
+      assetType: 'INVESTMENT',
+      balance: 100,
+      isIncludedInTotal: 'Y',
+    );
+    final repo = await _host(
+      tester,
+      (ctx) => showInvestmentEditDialog(ctx, gold),
+    );
+    await tester.tap(_submitButton(l.actionSave));
+    await tester.pumpAndSettle();
+    expect(repo.updated, isNotNull);
+    expect(repo.updated!['institution'], isNull);
   });
 }

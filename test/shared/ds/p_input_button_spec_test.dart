@@ -16,6 +16,7 @@ import 'package:groo_damda_app/shared/ds/input_button/input_button_demo.dart';
 import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
 
 import '../../support/design_spec.dart';
+import '../../support/plain_text.dart';
 
 final _spec = DesignSpec.load('input-button');
 
@@ -628,7 +629,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('날짜'));
+      await tester.tap(findRichPlain('날짜').first);
       await tester.pump();
       expect(node.hasFocus, isTrue);
       expect(presses, 0);

@@ -15,8 +15,8 @@ void main() {
     l = await AppLocalizations.delegate.load(const Locale('ko'));
   });
 
-  test('음수 잔액 입출금은 마이너스통장으로 보인다', () {
-    expect(assetTypeLabelOf(l, _asset('BANK_ACCOUNT', -50000)), '마이너스통장');
+  test('음수 잔액 입출금은 마이너스 통장으로 보인다', () {
+    expect(assetTypeLabelOf(l, _asset('BANK_ACCOUNT', -50000)), '마이너스 통장');
     expect(isOverdraftAsset(_asset('BANK_ACCOUNT', -1)), isTrue);
   });
 

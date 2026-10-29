@@ -80,16 +80,8 @@ class _AccountCardManageScreenState
     });
   }
 
-  void _onAdd() {
-    switch (_tab) {
-      case _Group.account:
-        showAssetAddDialog(context);
-      case _Group.card:
-        showCardAddDialog(context);
-      case _Group.invest:
-        showInvestmentAddDialog(context);
-    }
-  }
+  /// [추가] — 묶음을 미리 고르지 않고 1단계(종류 고르기)부터 연다(I-17 8). 17-2 가 상단 바 "추가" 하나로 바꾼다.
+  void _onAdd() => showAssetAddFlow(context);
 
   @override
   Widget build(BuildContext context) {

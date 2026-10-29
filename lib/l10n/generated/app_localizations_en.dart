@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionBack => 'Back';
 
   @override
+  String get actionNext => 'Next';
+
+  @override
   String get pickDate => 'Select date';
 
   @override
@@ -316,7 +319,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetSubtypeDeposit => 'Deposit';
 
   @override
-  String get assetSubtypeOverdraft => 'Overdraft';
+  String get assetSubtypeOverdraft => 'Overdraft account';
 
   @override
   String get assetLoadError => 'Couldn\'t load assets';
@@ -359,7 +362,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetHideThisAmountDesc =>
-      'Masks only this asset\'s balance. Totals stay visible';
+      'Masks only this asset\'s balance. Totals stay visible.';
 
   @override
   String get assetManageTitle => 'Manage accounts & cards';
@@ -397,7 +400,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetIncludeInTotalDesc =>
-      'Counts toward net worth and total assets';
+      'Counts toward net worth and total assets.';
 
   @override
   String get assetTrendLoadError => 'Couldn\'t load trend data';
@@ -437,12 +440,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetEmptyCta => 'Go to manage accounts & cards';
 
   @override
-  String get assetAccountAdd => 'Add account';
-
-  @override
-  String get assetAccountEdit => 'Edit account';
-
-  @override
   String get assetAccountAdded => 'Account added';
 
   @override
@@ -466,63 +463,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetDeleteFailed => 'Delete failed';
 
   @override
-  String get assetInstitutionBrand => 'Institution / brand';
+  String get assetInstitutionBrand => 'Institution';
 
   @override
-  String assetTotalEntries(int count) {
-    return 'Total $count';
-  }
-
-  @override
-  String get assetBankSearchHint => 'Search bank or brokerage';
+  String get assetBankSearchHint => 'Search institution name';
 
   @override
   String get assetNickname => 'Nickname';
 
   @override
-  String get assetNicknamePlaceholder => 'e.g. Shinhan main';
+  String get assetNicknamePlaceholder => 'e.g. Living expenses account';
+
+  @override
+  String get assetNicknameRequired => 'Enter a nickname.';
 
   @override
   String get assetNicknameDuplicate =>
       'An asset with this alias already exists.';
 
   @override
-  String get assetAccountType => 'Account type';
-
-  @override
-  String get assetAccountNumber => 'Account number';
-
-  @override
-  String assetBalanceLabel(String unit) {
-    return 'Balance ($unit)';
-  }
+  String get assetBalanceLabel => 'Balance';
 
   @override
   String get assetBalanceEditHint =>
       'Changing the balance treats everything before now as already included. Only later transactions are added.';
 
   @override
-  String assetOverdraftUsedLabel(String unit) {
-    return 'Amount in use ($unit)';
-  }
+  String get assetOverdraftUsedLabel => 'Amount used';
 
   @override
-  String assetLoanRemainingLabel(String unit) {
-    return 'Remaining loan ($unit)';
-  }
+  String get assetLoanRemainingLabel => 'Remaining loan amount';
 
   @override
-  String assetOverdraftLimitLabel(String unit) {
-    return 'Overdraft limit ($unit, optional)';
-  }
+  String get assetOverdraftLimitLabel => 'Credit line';
 
   @override
   String get assetOverdraftHint =>
-      'Enter how much you are currently overdrawn. If money is left in the account, pick Checking instead.';
+      'Enter the amount used as a positive number. It counts as debt.';
 
   @override
-  String get assetLoanHint =>
-      'Enter the amount still owed. The app takes care of the sign.';
+  String get assetLoanHint => 'Enter the amount you still owe.';
 
   @override
   String get assetCurrency => 'Currency';
@@ -540,22 +520,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Net worth converts balance × rate. Left empty it is added without conversion.';
 
   @override
-  String get assetMemoOptional => 'Memo (optional)';
+  String get assetMemoPlaceholder => 'e.g. Last digits 1234';
 
   @override
-  String get assetMemoPlaceholder =>
-      'Note last digits, payment day, limit, etc.';
-
-  @override
-  String assetCreditLimitLabel(String unit) {
-    return 'Credit limit ($unit, optional)';
-  }
-
-  @override
-  String get assetCreditLimitPlaceholder => 'e.g. 5,000,000';
-
-  @override
-  String get assetCreditLimitHint => 'Enter a limit to show the usage gauge.';
+  String get assetCreditLimitLabel => 'Credit limit';
 
   @override
   String get assetPaymentDayLabel => 'Payment day';
@@ -565,9 +533,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetPaymentDay => 'Payment day';
-
-  @override
-  String get assetLinkedAccount => 'Linked account';
 
   @override
   String get assetLinkedAccountLabel => 'Linked account';
@@ -580,38 +545,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Spending on this card is deducted from this account right away.';
 
   @override
-  String get assetPaymentAccountLabel => 'Payment account (optional)';
+  String get assetPaymentAccountLabel => 'Payment account';
 
   @override
-  String get assetNoBankAccounts => 'No checking accounts yet';
+  String get assetNoBankAccounts => 'No checking account';
 
   @override
   String get assetPaymentAccountSelect => 'Select payment account';
 
   @override
-  String get assetPaymentAccount => 'Payment account';
-
-  @override
   String get assetPaymentAccountHint =>
-      'The billed amount is withdrawn from this account on the payment day.';
-
-  @override
-  String get assetNewAccount => 'New account';
-
-  @override
-  String get assetPreview => 'Preview';
-
-  @override
-  String get assetNoSearchResults => 'No search results';
-
-  @override
-  String get assetCardAdd => 'Add card';
+      'The bill is withdrawn from this account on the payment day.';
 
   @override
   String get assetCardAdded => 'Card added';
-
-  @override
-  String get assetCardEdit => 'Edit card';
 
   @override
   String get assetCardUpdated => 'Card updated';
@@ -628,35 +575,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCardDeleted => 'Card deleted';
 
   @override
-  String get assetCardType => 'Card type';
-
-  @override
   String get assetCardProduct => 'Card product';
 
   @override
-  String get assetIncludeDiscontinued => 'Include discontinued';
+  String get assetIncludeDiscontinued => 'Show discontinued cards';
 
   @override
-  String assetTotalItems(int count) {
-    return 'Total $count';
-  }
+  String get assetCardSearchHint => 'Search card name';
 
   @override
-  String get assetTotalLoading => 'Total …';
+  String get assetCardNicknamePlaceholder => 'e.g. Everyday card';
 
   @override
-  String get assetCardSearchHint => 'Search card or issuer';
-
-  @override
-  String get assetNicknameOptional => 'Nickname (optional)';
-
-  @override
-  String get assetCardNicknamePlaceholder => 'e.g. Shinhan Deep Dream';
-
-  @override
-  String assetCurrentUsage(String unit) {
-    return 'Unpaid balance ($unit)';
-  }
+  String get assetCurrentUsage => 'Unpaid balance';
 
   @override
   String get assetCurrentUsageHint => 'Enter the amount not yet paid.';
@@ -667,12 +598,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get assetCarryoverLocked =>
-      'This has already been paid, so it can\'t be changed';
+  String get assetCarryoverLocked => 'Already paid, so it can\'t be changed.';
 
   @override
-  String assetDueCarryoverLabel(String date, String unit) {
-    return 'Due on $date ($unit)';
+  String assetDueCarryoverLabel(String date) {
+    return 'Due on $date';
   }
 
   @override
@@ -680,9 +610,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The amount your card app shows as due. It leaves your payment account that day.';
 
   @override
-  String assetCarryoverAfterLabel(String unit) {
-    return 'Spent since then ($unit)';
-  }
+  String get assetCarryoverAfterLabel => 'Spent since then';
 
   @override
   String assetCarryoverAfterHint(String date) {
@@ -693,18 +621,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCarryoverAfterHintNoDate => 'Spent after the last statement.';
 
   @override
-  String get assetPaymentDayChangeTitle => 'Change payment day';
-
-  @override
   String assetPaymentDayChangeConfirm(int month, String date) {
-    return 'The new payment day applies from the next cycle. Month $month charges are still paid on $date';
+    return 'The new payment day applies from the next cycle. Month $month charges are still paid on $date.';
   }
 
   @override
   String get assetNewCard => 'New card';
-
-  @override
-  String get assetCatalogLoadError => 'Failed to load catalog';
 
   @override
   String get assetAnnualFee => 'Annual fee';
@@ -717,12 +639,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetDiscontinued => 'Discontinued';
-
-  @override
-  String get assetInvestAdd => 'Add investment';
-
-  @override
-  String get assetInvestEdit => 'Edit investment';
 
   @override
   String get assetInvestAdded => 'Investment added';
@@ -745,11 +661,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetBrokerExchange => 'Brokerage / exchange';
 
   @override
-  String get assetInvestSearchHint =>
-      'Search brokerages, crypto & commodity exchanges';
-
-  @override
-  String get assetProductName => 'Alias';
+  String get assetInvestSearchHint => 'Search brokerage name';
 
   @override
   String get assetProductPlaceholder => 'e.g. Pension savings, Gold holdings';
@@ -1013,10 +925,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCashBalance => 'Cash';
 
   @override
-  String get assetCashBalanceHint =>
-      'Cash waiting to be invested. Proceeds from selling holdings land here.';
-
-  @override
   String get assetHoldingBalance => 'Holdings';
 
   @override
@@ -1053,7 +961,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetHoldingsEmptyEdit =>
-      'Search to add holdings. Linked holdings are valued automatically at price × quantity.';
+      'Add holdings via search. Linked items are valued automatically at live price × quantity.';
 
   @override
   String get assetHoldingsEmptyManual =>
@@ -1063,8 +971,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetHoldingsEmptyDetail => 'No holdings yet. Add them from Edit.';
 
   @override
-  String get assetHoldingSearchHint =>
-      'Search name/ticker to add (e.g. Samsung, NVDA)';
+  String get assetHoldingSearchHint => 'Search stock name';
 
   @override
   String assetHoldingAddManual(String name) {
@@ -8195,4 +8102,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttagNameDuplicate => 'A tag with that name already exists.';
+
+  @override
+  String get assetPickInstitutionTitle => 'Choose institution';
+
+  @override
+  String get assetPickBrokerTitle => 'Choose brokerage';
+
+  @override
+  String get assetInstitutionPlaceholder => 'Select institution';
+
+  @override
+  String get assetCardPlaceholder => 'Select card';
+
+  @override
+  String get assetPickCardTitle => 'Choose card';
+
+  @override
+  String get assetCardEmptyHint => 'Try searching by issuer name too.';
+
+  @override
+  String assetSearchEmpty(String query) {
+    return 'No results for \'$query\'';
+  }
+
+  @override
+  String get assetSearchFailed => 'Couldn\'t load search results';
+
+  @override
+  String get assetAddStock => 'Add stock';
+
+  @override
+  String get assetFormFirstTitle => 'What would you like to add?';
+
+  @override
+  String get assetFormPickKindError => 'Choose what to add.';
+
+  @override
+  String assetFormTitleAdd(String kind) {
+    return 'Add $kind';
+  }
+
+  @override
+  String assetFormTitleEdit(String kind) {
+    return 'Edit $kind';
+  }
+
+  @override
+  String get assetFormKindLabel => 'Type';
+
+  @override
+  String get assetFormRulesGroup => 'Display settings';
+
+  @override
+  String get assetMemo => 'Memo';
+
+  @override
+  String assetOverLimitHelp(String amount) {
+    return '$amount over the limit. It still saves — check the limit or the amount.';
+  }
+
+  @override
+  String get assetBalanceAutoHelp =>
+      'Calculated from holdings. Linked items reflect live prices when available.';
+
+  @override
+  String get assetHoldingQuantity => 'Quantity';
+
+  @override
+  String get assetHoldingValueLabel => 'Value';
+
+  @override
+  String get assetHoldingItemName => 'Item name';
+
+  @override
+  String assetHoldingRemoveOf(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String get unlockVerifyFailed =>
+      'Could not verify. Please try again in a moment.';
+
+  @override
+  String get unlockViewAmounts => 'View amounts';
+
+  @override
+  String get assetPaymentDayChangeAsk => 'Change the payment day?';
+
+  @override
+  String get assetFormErrCard => 'Choose a card.';
+
+  @override
+  String get assetFormErrPaymentDay => 'Choose a payment day.';
+
+  @override
+  String get assetNoPaymentAccount => 'No payment account';
+
+  @override
+  String get assetNoLinkedAccount => 'No linked account';
+
+  @override
+  String get unlockPasswordRequired => 'Enter your password.';
 }

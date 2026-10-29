@@ -477,7 +477,8 @@ class _FieldLabel extends StatelessWidget {
       child: ExcludeSemantics(
         child: Text.rich(
           TextSpan(
-            text: text,
+            // 낱말 단위로만 줄을 바꾼다(v114) — 머리 오른쪽에 값이 있어 좁아져도 라벨이 글자마다 깨지지 않는다
+            text: keepAll(text),
             children: [
               if (indicator == PFieldIndicator.required)
                 WidgetSpan(
@@ -784,27 +785,36 @@ class _RenderFieldLayout extends RenderBox
       final actionSlot = action == null
           ? 0.0
           : math.max(0.0, actionSize.height + 2 * _marginY);
+      // 라벨이 절반을 지키고도 오른쪽 값이 한 줄에 드나 — 안 들면 값이 라벨 아래 오른쪽 끝으로 내려간다(Header Row 와 같은 규칙)
+      final stacked =
+          label != null && action != null && _stacks(inner, actionSize.width);
       var labelSize = Size.zero;
       if (label != null) {
         labelConstraints = BoxConstraints(
           maxWidth: math.max(
             0.0,
-            action == null ? inner : inner - actionSize.width - _headerGap,
+            action == null || stacked
+                ? inner
+                : inner - actionSize.width - _headerGap,
           ),
         );
         labelSize = layoutChild(label, labelConstraints);
       }
-      final header = math.max(labelSize.height, actionSlot);
+      final header = stacked
+          ? labelSize.height + actionSlot
+          : math.max(labelSize.height, actionSlot);
       if (label != null) {
         labelOffset = Offset(
           ltr ? _hx : width - _hx - labelSize.width,
-          (header - labelSize.height) / 2,
+          stacked ? 0.0 : (header - labelSize.height) / 2,
         );
       }
       if (action != null) {
         actionOffset = Offset(
           ltr ? width - _hx - actionSize.width : _hx,
-          (header - actionSlot) / 2 + _marginY,
+          stacked
+              ? labelSize.height + _marginY
+              : (header - actionSlot) / 2 + _marginY,
         );
       }
       y = header + _gap;
@@ -835,6 +845,10 @@ class _RenderFieldLayout extends RenderBox
       footer: footerOffset,
     );
   }
+
+  /// 머리를 두 줄로 쌓나 — 라벨이 머리 폭의 절반을 지키고도 오른쪽 값이 한 줄에 들어가지 않으면 쌓는다.
+  bool _stacks(double inner, double actionWidth) =>
+      actionWidth + _headerGap + inner * 0.5 > inner + 0.01;
 
   static void _place(RenderBox? child, Offset? offset) {
     if (child == null || offset == null) return;
@@ -937,16 +951,24 @@ class _RenderFieldLayout extends RenderBox
       final actionSlot = action == null
           ? 0.0
           : math.max(0.0, of(action, actionWidth) + 2 * _marginY);
+      final stacked =
+          label != null && action != null && _stacks(inner, actionWidth);
       final labelHeight = label == null
           ? 0.0
           : of(
               label,
               math.max(
                 0.0,
-                action == null ? inner : inner - actionWidth - _headerGap,
+                action == null || stacked
+                    ? inner
+                    : inner - actionWidth - _headerGap,
               ),
             );
-      height += math.max(labelHeight, actionSlot) + _gap;
+      height +=
+          (stacked
+              ? labelHeight + actionSlot
+              : math.max(labelHeight, actionSlot)) +
+          _gap;
     }
     if (control != null) height += of(control, width);
     if (footer != null) {

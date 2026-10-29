@@ -12,50 +12,7 @@ import 'package:groo_damda_app/shared/ds/catalog/demo_kit.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/input_button/p_input_button.dart';
 import 'package:groo_damda_app/shared/ds/searchable_list/p_searchable_list.dart';
-
-// 거르는 것은 쓰는 쪽이다 — 공용 규칙(searchable-list.yaml results.filter): NFC · 대소문자 무시 · 공백 무시 · 포함, 이름 + 별칭.
-// 초성 검색은 보류(사용자가 나중에 정한다)라 하지 않는다.
-String _normalize(String s) =>
-    _nfc(s).toLowerCase().replaceAll(RegExp(r'\s+'), '');
-
-bool _matches(String name, String query, {List<String> aliases = const []}) {
-  final q = _normalize(query);
-  return _normalize(name).contains(q) ||
-      aliases.any((a) => _normalize(a).contains(q));
-}
-
-/// 한글 NFC — 낱자(초 · 중 · 종성 자모)로 쪼개져 들어온 글을 음절로 모은다(맥 · 일부 키보드의 입력). 한글 밖은 그대로 둔다.
-String _nfc(String s) {
-  if (!s.runes.any((r) => r >= 0x1100 && r <= 0x11FF)) return s;
-  const sBase = 0xAC00, lBase = 0x1100, vBase = 0x1161, tBase = 0x11A7;
-  const lCount = 19, vCount = 21, tCount = 28;
-  final out = <int>[];
-  for (final r in s.runes) {
-    if (out.isNotEmpty) {
-      final last = out.last;
-      // 초성 + 중성 → 음절
-      if (last >= lBase &&
-          last < lBase + lCount &&
-          r >= vBase &&
-          r < vBase + vCount) {
-        out[out.length - 1] =
-            sBase + ((last - lBase) * vCount + (r - vBase)) * tCount;
-        continue;
-      }
-      // 음절(받침 없음) + 종성 → 받침을 얹는다
-      if (last >= sBase &&
-          last < sBase + lCount * vCount * tCount &&
-          (last - sBase) % tCount == 0 &&
-          r > tBase &&
-          r < tBase + tCount) {
-        out[out.length - 1] = last + (r - tBase);
-        continue;
-      }
-    }
-    out.add(r);
-  }
-  return String.fromCharCodes(out);
-}
+import 'package:groo_damda_app/shared/forms/search_match.dart';
 
 // 별칭 — 사람들이 부르는 줄임말 · 영문 표기. 이름에 없어도 찾아진다
 const Map<String, List<String>> _bankAliases = {
@@ -455,7 +412,12 @@ class _BankSheetState extends State<_BankSheet> {
           label: g.label,
           banks: [
             for (final b in g.banks)
-              if (_matches(b, _query, aliases: _bankAliases[b] ?? const [])) b,
+              if (matchesSearch(
+                b,
+                _query,
+                aliases: _bankAliases[b] ?? const [],
+              ))
+                b,
           ],
         ),
     ].where((g) => g.banks.isNotEmpty).toList();
@@ -567,7 +529,7 @@ class _ServerSearchState extends State<_ServerSearch> {
         if (!_failed) {
           _data = [
             for (final c in _cards)
-              if (_matches(
+              if (matchesSearch(
                 c.name,
                 query,
                 aliases: [c.issuer, ...?_cardAliases[c.name]],
@@ -684,7 +646,7 @@ class _WorstCaseState extends State<_WorstCase> {
     final names = [_longName, ..._many];
     final shown = [
       for (final n in names)
-        if (_matches(n, _query)) n,
+        if (matchesSearch(n, _query)) n,
     ];
     return _Surface(
       child: SizedBox(
