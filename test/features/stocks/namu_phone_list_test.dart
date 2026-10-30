@@ -568,7 +568,12 @@ void main() {
         size: const Size(360, 3000),
         search: (_) => gate.future,
       );
-      expect(detailAsked, isEmpty, reason: '시장을 모르는 채 국내로 가정해 시세를 불렀다');
+      expect(
+        detailAsked,
+        isEmpty,
+        reason: '시장을 모르는 채 국내로 가정해 시세를 불렀다(호가 카드 포함 — N4)',
+      );
+      expect(_t('KRW'), findsNothing, reason: '시장을 모르는데 통화를 KRW 로 지어냈다');
       expect(find.byType(ChartWebView), findsNothing);
       expect(_t('—'), findsOneWidget);
       expect(_t('현재가가 없는 종목이에요'), findsNothing);
@@ -593,6 +598,9 @@ void main() {
       expect(_t('다시 시도'), findsOneWidget);
       expect(find.byType(ChartWebView), findsNothing);
       expect(detailAsked, isEmpty);
+      // 10초 폴링이 돌아도 국내 경로로 계속 나가지 않는다(N4)
+      await tester.pump(const Duration(seconds: 25));
+      expect(detailAsked, isEmpty, reason: '검색이 실패했는데 국내 경로를 10초마다 불렀다');
     });
 
     testWidgets('M4 시세 실패는 실패 한 벌 + [다시 시도]', (tester) async {
@@ -606,6 +614,33 @@ void main() {
       expect(_t('잠시 뒤 다시 시도해주세요.'), findsOneWidget);
       expect(_t('다시 시도'), findsOneWidget);
       expect(_t('현재가가 없는 종목이에요'), findsNothing);
+    });
+
+    testWidgets('N8 체결 탭을 고르고 아래로 내렸다 올려도 체결 탭이 호가로 돌아가지 않는다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900001'),
+        size: const Size(360, 700),
+      );
+      await tester.scrollUntilVisible(
+        _t('체결').first,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(_t('체결').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_t('체결 내역이 없어요'), findsOneWidget);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.scrollUntilVisible(
+        _t('체결').first,
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(_t('체결 내역이 없어요'), findsOneWidget, reason: '내렸다 올리니 호가 탭으로 돌아갔다');
     });
 
     testWidgets('M13 아래로 내렸다 올려도 차트가 폐기되지 않는다', (tester) async {

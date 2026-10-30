@@ -93,6 +93,7 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
       ref.invalidate(tossIndicatorClosesProvider);
       ref.invalidate(tossExchangeRateProvider);
       ref.invalidate(tossRankingsProvider);
+      refreshStalePrevCloses(ref); // 날이 바뀌었으면 전일 종가를 다시(N3)
     });
     _calendarTimer = Timer.periodic(const Duration(minutes: 5), (_) {
       if (!mounted || !ref.read(appForegroundProvider)) return;
@@ -162,6 +163,7 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
         ref.invalidate(tossIndicatorPricesProvider);
         ref.invalidate(tossMarketCalendarKrProvider);
         ref.invalidate(tossMarketCalendarUsProvider);
+        refreshStalePrevCloses(ref);
       }
     });
     final holdingsAsync = ref.watch(tossHoldingsProvider);
@@ -1042,10 +1044,15 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
       ref.invalidate(tossOrderbookProvider(widget.symbol));
       ref.invalidate(tossTradesProvider(widget.symbol));
       ref.invalidate(tossHoldingsProvider);
+      refreshStalePrevCloses(ref);
     });
-    // 오늘 시세의 일봉은 60초마다(웹 `useTossCandles` 와 같은 박자).
+    // 오늘 시세의 일봉은 60초마다(웹 `useTossCandles` 와 같은 박자) — 앱이 보일 때 · 이 화면이 맨 위일 때만(N6).
     _todayTimer = Timer.periodic(const Duration(seconds: 60), (_) {
-      if (!mounted) return;
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
       ref.invalidate(tossTodayCandlesProvider);
     });
   }
@@ -1257,7 +1264,8 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
           changePct: changePct,
         ),
       ),
-      if (!isUs) _TossInvestorBand(symbol: symbol),
+      // 투자자별은 국내(KRW)로 확인된 종목만 부른다 — 통화를 모르는 틈에 미국 심볼로 호출이 나가지 않게(N7)
+      if (currency == 'KRW') _TossInvestorBand(symbol: symbol),
       _InfoBand(
         symbol: symbol,
         currency: currency,
@@ -1266,7 +1274,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
         fxRate: fxRate,
         failed: infoAsync.hasError && !infoAsync.hasValue,
       ),
-      _DailyBand(symbol: symbol, isUs: isUs, name: name),
+      _DailyBand(symbol: symbol, currency: currency, name: name),
     ];
 
     return Scaffold(
@@ -1392,7 +1400,7 @@ class _TossTodayBand extends ConsumerWidget {
         : null;
     final candles = candlesAsync.value?.candles ?? const <TossCandle>[];
     // 그 시장의 오늘 봉만 쓴다(M11) — 미국은 현지 거래일로 견주고 기기 날짜로 견주지 않는다.
-    final last = todayBarOf(candles, symbol, DateTime.now().toUtc());
+    final last = todayBarOf(candles, symbol, stocksClock().toUtc());
     final isToday = last != null;
     double? pos(String? v) {
       final d = v == null ? null : double.tryParse(v);
@@ -1479,11 +1487,13 @@ class _QuotesBand extends StatelessWidget {
 class _DailyBand extends ConsumerWidget {
   const _DailyBand({
     required this.symbol,
-    required this.isUs,
+    required this.currency,
     required this.name,
   });
   final String symbol;
-  final bool isUs;
+
+  /// 통화를 모르면 빈 값 — 가격은 숫자만 보인다("원" 을 지어내지 않는다, N7).
+  final String currency;
   final String name;
 
   @override
@@ -1515,7 +1525,8 @@ class _DailyBand extends ConsumerWidget {
       ));
       if (rows.length >= 8) break;
     }
-    String fmt(double v) => fmtByCurrency(v, isUs ? 'USD' : 'KRW');
+    String fmt(double v) =>
+        currency.isEmpty ? krw(v.round()) : fmtByCurrency(v, currency);
     final Widget list;
     if (candlesAsync.hasError && !candlesAsync.hasValue) {
       list = StocksFailure(
@@ -1629,7 +1640,7 @@ class _DailyBand extends ConsumerWidget {
             child: PCallout(
               tone: PCalloutTone.informative,
               icon: LucideIcons.info,
-              description: isUs ? l.stocksFeeUs : l.stocksFeeKr,
+              description: currency == 'USD' ? l.stocksFeeUs : l.stocksFeeKr,
             ),
           ),
           Padding(
@@ -2073,10 +2084,13 @@ class _OrderBookHead extends StatelessWidget {
             style: style,
           ),
         ),
-        SizedBox(
-          width: 92,
+        // 가격 칸(행)이 큰 글자에서 글자 폭만큼 넓어지므로 머리도 최소 92 로 두고 가운데 정렬 — 행과 같은 가운데에 선다
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 92),
           child: Text(
             l.stocksTradePrice,
+            maxLines: 1,
+            softWrap: false,
             textAlign: TextAlign.center,
             style: style,
           ),
@@ -2109,11 +2123,17 @@ class _OrderBookLast extends StatelessWidget {
           horizontal: BorderSide(color: context.colors.strokeNeutralSubtle),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      // 큰 글자 · 좁은 폭에서 현재가와 등락률이 한 줄에 못 들어가면 줄을 나눠 쌓는다 — 가격은 줄이지 않는다(N5)
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 6,
+        runSpacing: 2,
         children: [
           Text(
             lastPrice != null ? fmtByCurrency(lastPrice!, currency) : '—',
+            maxLines: 1,
+            softWrap: false,
             style: PTypography.t4.copyWith(
               // 전일 종가를 못 받으면 등락을 모른다 — 방향 색 · 가짜 0.00% 를 그리지 않는다(M4)
               color: changePct == null
@@ -2123,10 +2143,7 @@ class _OrderBookLast extends StatelessWidget {
               fontFeatures: kStocksTnum,
             ),
           ),
-          if (changePct != null) ...[
-            const SizedBox(width: 6),
-            StocksPctDelta(changePct!),
-          ],
+          if (changePct != null) StocksPctDelta(changePct!),
         ],
       ),
     );
@@ -2363,8 +2380,15 @@ class _StocksQuotesCardState extends ConsumerState<StocksQuotesCard> {
 
 // ---- 체결 테이프 (토스 trades · 실데이터 전용) --------------------------------
 
-/// 체결 표 열 비 — 시각 · 가격 · 체결량. 가격 칸이 가장 넓다(큰 글자에서도 줄어들지 않는다).
-const _kTapeFlex = [4, 5, 3];
+/// 체결 표 열 폭 — 시각 · 가격 · 체결량. 가격 칸은 **글자 폭을 먼저 잡고**(큰 글자 · 7자리 가격에서도 안 잘린다), 남은 폭을
+/// 시각 4 : 체결량 3 으로 나눈다. 평소에는 가격이 전체의 5/12 보다 좁지 않다(N5).
+typedef _TapeCols = ({double time, double price, double qty});
+
+_TapeCols _tapeCols(double total, double priceNeed) {
+  final price = priceNeed > total * 5 / 12 ? priceNeed : total * 5 / 12;
+  final rest = (total - price).clamp(0.0, double.infinity);
+  return (time: rest * 4 / 7, price: price, qty: rest * 3 / 7);
+}
 
 class _TradeTape extends StatelessWidget {
   const _TradeTape({required this.currency, required this.fills});
@@ -2375,84 +2399,107 @@ class _TradeTape extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     String fmt(double p) => fmtByCurrency(p, currency);
+    final priceStyle = TextStyle(
+      fontFeatures: kStocksTnum,
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+    );
 
     return Semantics(
       container: true,
       label: l.stocksTradesTableName,
-      child: Column(
-        children: [
-          const _TradeTapeHead(),
-          const SizedBox(height: PSpacing.x1),
-          for (final f in fills)
-            Semantics(
-              label: l.stocksRowTrade(f.time, fmt(f.p), krw(f.q)),
-              excludeSemantics: true,
-              // 줄 높이는 글자를 따라 늘어난다(32 는 최소) — 큰 글자에서 시각 · 가격이 겹치지 않게
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 32),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: _kTapeFlex[0],
-                      child: Text(
-                        f.time,
-                        style: TextStyle(
-                          fontFeatures: kStocksTnum,
-                          fontSize: 13,
-                          color: context.colors.fgNeutralSubtle,
-                        ),
-                      ),
-                    ),
-                    // 가격은 줄이지 않는다 — 가운데 칸을 넓게 잡고 줄바꿈도 막는다(큰 글자에서 "원" 이 떨어지지 않게)
-                    Expanded(
-                      flex: _kTapeFlex[1],
-                      child: Text(
-                        fmt(f.p),
-                        maxLines: 1,
-                        softWrap: false,
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          fontFeatures: kStocksTnum,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: stocksRoleTrend(context, f.dir.toDouble()),
-                        ),
-                      ),
-                    ),
-                    // 체결량이 먼저 줄어든다
-                    Expanded(
-                      flex: _kTapeFlex[2],
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final scaler = MediaQuery.textScalerOf(context);
+          double need = 0;
+          for (final f in [
+            for (final f in fills) fmt(f.p),
+            l.stocksTradePrice,
+          ]) {
+            final tp = TextPainter(
+              text: TextSpan(text: f, style: priceStyle),
+              textDirection: TextDirection.ltr,
+              textScaler: scaler,
+              maxLines: 1,
+            )..layout();
+            if (tp.width + 8 > need) need = tp.width + 8;
+          }
+          final cols = _tapeCols(box.maxWidth, need);
+          return Column(
+            children: [
+              _TradeTapeHead(cols: cols),
+              const SizedBox(height: PSpacing.x1),
+              for (final f in fills)
+                Semantics(
+                  label: l.stocksRowTrade(f.time, fmt(f.p), krw(f.q)),
+                  excludeSemantics: true,
+                  // 줄 높이는 글자를 따라 늘어난다(32 는 최소) — 큰 글자에서 시각 · 가격이 겹치지 않게
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 32),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: cols.time,
                           child: Text(
-                            krw(f.q),
-                            maxLines: 1,
-                            softWrap: false,
+                            f.time,
                             style: TextStyle(
                               fontFeatures: kStocksTnum,
                               fontSize: 13,
-                              color: context.colors.fgNeutral,
+                              color: context.colors.fgNeutralSubtle,
                             ),
                           ),
                         ),
-                      ),
+                        // 가격은 줄이지 않는다 — 칸이 글자 폭만큼 넓고 줄바꿈도 막는다
+                        SizedBox(
+                          width: cols.price,
+                          child: Text(
+                            fmt(f.p),
+                            maxLines: 1,
+                            softWrap: false,
+                            textAlign: TextAlign.right,
+                            style: priceStyle.copyWith(
+                              color: stocksRoleTrend(context, f.dir.toDouble()),
+                            ),
+                          ),
+                        ),
+                        // 체결량이 먼저 줄어든다
+                        SizedBox(
+                          width: cols.qty,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                krw(f.q),
+                                maxLines: 1,
+                                softWrap: false,
+                                style: TextStyle(
+                                  fontFeatures: kStocksTnum,
+                                  fontSize: 13,
+                                  color: context.colors.fgNeutral,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 /// 체결 테이블 헤더 — 정적 틀이라 로딩 중에도 실제로 그린다. 실렌더/스켈레톤 공유.
+/// [cols] 가 없으면(스켈레톤) 4 : 5 : 3 비로 나눈다.
 class _TradeTapeHead extends StatelessWidget {
-  const _TradeTapeHead();
+  const _TradeTapeHead({this.cols});
+  final _TapeCols? cols;
 
   @override
   Widget build(BuildContext context) {
@@ -2462,27 +2509,21 @@ class _TradeTapeHead extends StatelessWidget {
       fontWeight: FontWeight.w500,
       color: context.colors.fgNeutralSubtle,
     );
+    Widget cell(double? w, int flex, Widget child) => w == null
+        ? Expanded(flex: flex, child: child)
+        : SizedBox(width: w, child: child);
     return Row(
       children: [
-        Expanded(
-          flex: _kTapeFlex[0],
-          child: Text(l.stocksTradeTime, style: head),
+        cell(cols?.time, 4, Text(l.stocksTradeTime, style: head)),
+        cell(
+          cols?.price,
+          5,
+          Text(l.stocksTradePrice, textAlign: TextAlign.right, style: head),
         ),
-        Expanded(
-          flex: _kTapeFlex[1],
-          child: Text(
-            l.stocksTradePrice,
-            textAlign: TextAlign.right,
-            style: head,
-          ),
-        ),
-        Expanded(
-          flex: _kTapeFlex[2],
-          child: Text(
-            l.stocksTradeVolume,
-            textAlign: TextAlign.right,
-            style: head,
-          ),
+        cell(
+          cols?.qty,
+          3,
+          Text(l.stocksTradeVolume, textAlign: TextAlign.right, style: head),
         ),
       ],
     );

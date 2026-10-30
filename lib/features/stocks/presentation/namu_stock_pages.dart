@@ -92,11 +92,36 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
     NamuQuoteDetail? detail,
     NamuDetailKey key,
     double? last,
-    double? changePct,
-  ) {
+    double? changePct, {
+    required bool marketKnown,
+  }) {
     final l = AppLocalizations.of(context);
     final currency = key.us ? 'USD' : 'KRW';
     final loading = detail == null;
+    // 시장(국내 · 미국)을 모르는 동안은 호가 카드가 시세를 부르지 않는다 — 국내 경로로 가정해 부르면 미국 종목이
+    // 실패하고, 검색이 실패하면 10초마다 계속 나간다(N4). 자리만 Skeleton 으로 둔다.
+    if (!marketKnown) {
+      return [
+        const StocksTodayBand(rows: [], loading: true),
+        PScreenSection(
+          padding: const EdgeInsets.only(bottom: PSpacing.x6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StocksBandTitle(l.stocksOrderbookTrades),
+              Semantics(
+                label: l.stocksOrderbookLoading,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < 4; i++) const StocksLineSkeleton(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ];
+    }
     return [
       StocksTodayBand(
         rows: detail == null
@@ -113,19 +138,22 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
               ),
         loading: loading,
       ),
-      PScreenSection(
-        padding: const EdgeInsets.only(bottom: PSpacing.x6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            StocksBandTitle(l.stocksOrderbookTrades),
-            _NamuQuotesBand(
-              detailKey: key,
-              currency: currency,
-              lastPrice: last,
-              changePct: changePct,
-            ),
-          ],
+      // 호가 · 체결(고른 탭 · 체결 타이머)도 스크롤로 화면 밖에 나가도 지킨다(N8, 토스와 같다)
+      StocksKeepAlive(
+        child: PScreenSection(
+          padding: const EdgeInsets.only(bottom: PSpacing.x6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StocksBandTitle(l.stocksOrderbookTrades),
+              _NamuQuotesBand(
+                detailKey: key,
+                currency: currency,
+                lastPrice: last,
+                changePct: changePct,
+              ),
+            ],
+          ),
         ),
       ),
     ];
@@ -309,8 +337,16 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
       StocksKeepAlive(child: head),
       if (holding != null) _NamuHoldingBand(holding: holding, masked: masked),
       // 시세 질의에 기대는 띠는 질의가 실패하면 그리지 않는다(머리에 "시세를 불러오지 못했어요" 한 번).
-      if (!detailFailed) ..._detailBands(context, detail, key, last, changePct),
-      if (!isUs)
+      if (!detailFailed)
+        ..._detailBands(
+          context,
+          detail,
+          key,
+          last,
+          changePct,
+          marketKnown: marketKnown,
+        ),
+      if (!isUs || !marketKnown)
         detailSettled
             ? _NamuInvestorBand(symbol: symbol)
             : StocksInvestorBand(
@@ -319,13 +355,26 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
                 failed: false,
                 onRetry: () {},
               ),
-      _NamuInfoBand(
-        master: master,
-        currency: currency,
-        detail: detail,
-        isUs: isUs,
-        fx: fx,
-      ),
+      // 시장을 모르면 시장 · 통화 줄을 지어내지 않는다(국내 · KRW 로 가정하지 않는다)
+      if (marketKnown)
+        _NamuInfoBand(
+          master: master,
+          currency: currency,
+          detail: detail,
+          isUs: isUs,
+          fx: fx,
+        )
+      else
+        PScreenSection(
+          padding: const EdgeInsets.only(bottom: PSpacing.x2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StocksBandTitle(l.stocksBasicInfo),
+              for (var i = 0; i < 3; i++) const StocksLineSkeleton(),
+            ],
+          ),
+        ),
       detailSettled
           ? _NamuDailyBand(symbol: symbol, currency: currency)
           : _NamuDailyPlaceholder(),

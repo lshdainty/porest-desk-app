@@ -39,6 +39,9 @@ final tossExchangeRateProvider = FutureProvider<TossExchangeRate?>((ref) async {
 
 /// 전일 종가. 토스 /prices 엔 기준가·등락률이 없어 일봉으로 도출한다.
 /// 오늘 날짜 캔들을 제외한 마지막 종가 = 전일 종가 (장 시작 전이면 마지막 캔들이 곧 전일).
+///
+/// **다시 받는다**(N3): 받은 시장 날짜를 [prevCloseDayProvider] 에 적어 두고, 날이 바뀌면 호출부(목록 · 상세 타이머, 앱 복귀)가
+/// [stalePrevCloseSymbols] 로 골라 비운다. **실패(null)는 캐시에 남기지 않는다** — 30초 뒤 스스로 다시 받는다.
 final prevCloseProvider = FutureProvider.family<double?, String>((
   ref,
   symbol,
@@ -47,15 +50,33 @@ final prevCloseProvider = FutureProvider.family<double?, String>((
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
     final page = await repo.getCandles(symbol, '1d', count: 3);
-    return prevCloseFromCandles(
-      page.candles,
-      marketToday(symbol, DateTime.now().toUtc()),
-      symbol: symbol,
-    );
+    final today = marketToday(symbol, DateTime.now().toUtc());
+    final v = prevCloseFromCandles(page.candles, today, symbol: symbol);
+    if (ref.mounted) ref.read(prevCloseDayProvider)[symbol] = today;
+    return v;
   } catch (_) {
+    if (ref.mounted) {
+      final t = Timer(const Duration(seconds: 30), ref.invalidateSelf);
+      ref.onDispose(t.cancel);
+    }
     return null;
   }
 });
+
+/// 전일 종가를 받은 시장 날짜 — 종목별. 성공한 조회만 적는다.
+final prevCloseDayProvider = Provider<Map<String, String>>(
+  (ref) => <String, String>{},
+);
+
+/// 날이 바뀐 종목의 전일 종가를 비운다(타이머 · 앱 복귀에서 부른다).
+void refreshStalePrevCloses(WidgetRef ref) {
+  for (final s in stalePrevCloseSymbols(
+    ref.read(prevCloseDayProvider),
+    DateTime.now().toUtc(),
+  )) {
+    ref.invalidate(prevCloseProvider(s));
+  }
+}
 
 /// 등락률(%) = (현재가 − 전일종가) / 전일종가. 어느 한쪽이 없으면 null.
 double? changePctOf(double? lastPrice, double? prevClose) {

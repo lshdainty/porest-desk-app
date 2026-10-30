@@ -165,6 +165,114 @@ void main() {
 }
 
 void _more() {
+  group('서머타임 규칙(N2) — 3월 둘째 일요일 ~ 11월 첫째 일요일', () {
+    test('2026: 3월 8일 07:00 UTC 부터 · 11월 1일 06:00 UTC 전까지', () {
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 3, 8, 6, 59)),
+        isFalse,
+        reason: '둘째 일요일 직전',
+      );
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 3, 8, 7)),
+        isTrue,
+        reason: '둘째 일요일 시작',
+      );
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 3, 7, 23)),
+        isFalse,
+        reason: '전날(토요일)',
+      );
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 3, 20, 16)),
+        isTrue,
+        reason: '3월 20일은 EDT 다(옛 어림은 EST)',
+      );
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 11, 1, 5, 59)),
+        isTrue,
+        reason: '첫째 일요일 끝나기 전',
+      );
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 11, 1, 6)),
+        isFalse,
+        reason: '첫째 일요일 02:00 EDT',
+      );
+      expect(
+        isUsEasternDst(DateTime.utc(2026, 10, 31, 12)),
+        isTrue,
+        reason: '전날(토요일)',
+      );
+      expect(isUsEasternDst(DateTime.utc(2026, 11, 2, 12)), isFalse);
+    });
+
+    test('2027(다음 3월 14일) · 2028 윤년(3월 12일 · 11월 5일)도 같은 규칙', () {
+      expect(isUsEasternDst(DateTime.utc(2027, 3, 14, 6, 59)), isFalse);
+      expect(isUsEasternDst(DateTime.utc(2027, 3, 14, 7)), isTrue);
+      expect(isUsEasternDst(DateTime.utc(2027, 11, 7, 5, 59)), isTrue);
+      expect(isUsEasternDst(DateTime.utc(2027, 11, 7, 6)), isFalse);
+      // 윤년 2024: 3월 10일 · 11월 3일
+      expect(isUsEasternDst(DateTime.utc(2024, 3, 10, 6, 59)), isFalse);
+      expect(isUsEasternDst(DateTime.utc(2024, 3, 10, 7)), isTrue);
+      expect(isUsEasternDst(DateTime.utc(2024, 11, 3, 6)), isFalse);
+    });
+
+    TossCandle bar(String ts, {String close = '2'}) => TossCandle(
+      timestamp: ts,
+      openPrice: '1',
+      highPrice: '3',
+      lowPrice: '1',
+      closePrice: close,
+      volume: '10',
+    );
+
+    test('3월 20일(2026) 미국 장중 — 현지 자정 봉이 오늘이고 전일 종가는 전날 봉', () {
+      final now = DateTime.utc(2026, 3, 20, 16); // 뉴욕 12:00 EDT
+      final candles = [
+        bar('2026-03-20T00:00:00-04:00', close: '9'),
+        bar('2026-03-19T00:00:00-04:00', close: '5'),
+      ];
+      expect(marketToday('MOA', now), '2026-03-20');
+      expect(todayBarOf(candles, 'MOA', now)?.closePrice, '9');
+      expect(
+        prevCloseFromCandles(candles, marketToday('MOA', now), symbol: 'MOA'),
+        5.0,
+      );
+    });
+
+    test('11월 첫째 일요일 전(2026-10-30) · 직후(2026-11-02)도 봉 날짜가 하루 밀리지 않는다', () {
+      final c1 = [
+        bar('2026-10-30T00:00:00-04:00', close: '9'),
+        bar('2026-10-29T00:00:00-04:00', close: '5'),
+      ];
+      final n1 = DateTime.utc(2026, 10, 30, 16);
+      expect(todayBarOf(c1, 'MOA', n1)?.closePrice, '9');
+      final c2 = [
+        bar('2026-11-02T00:00:00-05:00', close: '9'),
+        bar('2026-10-30T00:00:00-04:00', close: '5'),
+      ];
+      final n2 = DateTime.utc(2026, 11, 2, 17);
+      expect(todayBarOf(c2, 'MOA', n2)?.closePrice, '9');
+      expect(
+        prevCloseFromCandles(c2, marketToday('MOA', n2), symbol: 'MOA'),
+        5.0,
+      );
+    });
+  });
+
+  group('전일 종가 다시 받기(N3)', () {
+    test('받은 날과 지금 시장 날짜가 다른 종목만 고른다 — 미국은 현지 날짜', () {
+      final days = {'005930': '2026-10-28', 'MOA': '2026-10-28'};
+      // 한국 10-29 01:00 → 국내 10-29, 미국 동부 10-28(전날 밤)
+      final now = DateTime.utc(2026, 10, 28, 16);
+      expect(stalePrevCloseSymbols(days, now), ['005930']);
+      expect(stalePrevCloseSymbols(days, DateTime.utc(2026, 10, 29, 10)), [
+        '005930',
+        'MOA',
+      ]);
+      expect(stalePrevCloseSymbols(const {}, now), isEmpty);
+    });
+  });
+
   group('오늘 시세 오늘 봉(M11) — 그 시장의 오늘', () {
     TossCandle bar(String ts, {String o = '1'}) => TossCandle(
       timestamp: ts,

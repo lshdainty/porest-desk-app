@@ -122,6 +122,80 @@ void main() {
       expect(r1.right, lessThanOrEqualTo(360));
     });
 
+    testWidgets(
+      'N5 가장 나쁜 값(1,234,000원 · 320 · 200%) — 체결 가격이 끝까지 보이고 호가 가운데 현재가 줄이 넘치지 않는다',
+      (tester) async {
+        tester.view.physicalSize = const Size(320 * 3, 2400 * 3);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final worst = TossOrderbook(
+          currency: 'KRW',
+          asks: [const TossOrderbookEntry(price: '1234100', volume: '4259')],
+          bids: [const TossOrderbookEntry(price: '1233900', volume: '3986')],
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: GrooTheme.light(),
+              locale: const Locale('ko'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              builder: (c, child) => MediaQuery(
+                data: MediaQuery.of(
+                  c,
+                ).copyWith(textScaler: const TextScaler.linear(2)),
+                child: child!,
+              ),
+              home: Scaffold(
+                body: SingleChildScrollView(
+                  child: StocksQuotesCard(
+                    symbol: 'A',
+                    currency: 'KRW',
+                    lastPrice: 1234000,
+                    changePct: 12.34,
+                    watchBook: (_) => AsyncData<TossOrderbook?>(worst),
+                    watchTrades: (_) => const AsyncData<List<TossTrade>?>([
+                      TossTrade(
+                        price: '1234000',
+                        volume: '123456',
+                        timestamp: '2026-10-29T12:59:00+09:00',
+                      ),
+                      TossTrade(
+                        price: '1234100',
+                        volume: '7',
+                        timestamp: '2026-10-29T13:00:00+09:00',
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull, reason: '호가 가운데 현재가 줄이 넘쳤다');
+        await tester.tap(_t('체결').first);
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        final price = tester.getRect(find.textContaining('1,234,000원').first);
+        expect(
+          price.right,
+          lessThanOrEqualTo(320),
+          reason: '체결 가격 끝이 화면 밖으로 잘렸다',
+        );
+        final fm = tester.renderObject<RenderBox>(
+          find.textContaining('1,234,000원').first,
+        );
+        expect(fm.size.width, greaterThanOrEqualTo(price.width - 0.5));
+        final second = tester.getRect(find.textContaining('1,234,100원').first);
+        expect(
+          second.top,
+          greaterThanOrEqualTo(price.bottom - 1),
+          reason: '위아래 줄이 겹쳤다',
+        );
+      },
+    );
+
     testWidgets('체결 탭도 200% 에서 줄이 겹치지 않는다', (tester) async {
       tester.view.physicalSize = const Size(360 * 3, 2400 * 3);
       tester.view.devicePixelRatio = 3;
