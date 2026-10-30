@@ -4,6 +4,8 @@
 /// 화면이 한다. 웹 `pages/stocks/model/invest.ts` · `features/stock/lib/watch-prices.ts` 와 같은 셈이다.
 library;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
@@ -252,6 +254,27 @@ double? prevCloseFromCandles(
   return null;
 }
 
+/// 오늘 시세의 오늘 봉 — **그 시장의 오늘**([marketToday])인 가장 최근 봉, 없으면 null(M11).
+/// 기기 날짜가 아니라 시장 날짜로 견준다 — 미국 종목은 한국 0~5시(미국 장중)에 일봉 날짜가 현지 날짜라 기기 날짜와 어긋나
+/// 시가 · 고가 · 저가 · 거래량 줄이 사라지던 것을 막는다. 봉 순서는 믿지 않는다(최신순으로 온다).
+TossCandle? todayBarOf(
+  List<TossCandle> candles,
+  String symbol,
+  DateTime nowUtc,
+) {
+  final today = marketToday(symbol, nowUtc);
+  TossCandle? best;
+  var bestKey = '';
+  for (final c in candles) {
+    final key = candleDay(c.timestamp, symbol);
+    if (key == today && c.timestamp.compareTo(bestKey) >= 0) {
+      best = c;
+      bestKey = c.timestamp;
+    }
+  }
+  return best;
+}
+
 /// 봉 하나의 시장 날짜 `YYYY-MM-DD` — 오프셋이 붙은 시각은 순간 → 시장 시간대 날짜, 아니면 앞 10자리.
 String candleDay(String ts, String symbol) {
   if (RegExp(r'T.*(?:Z|[+-]\d{2}:?\d{2})$').hasMatch(ts)) {
@@ -261,17 +284,46 @@ String candleDay(String ts, String symbol) {
   return ts.length >= 10 ? ts.substring(0, 10) : ts;
 }
 
+/// 미국 동부가 서머타임(EDT, UTC−4)인가 — **3월 둘째 일요일 02:00(표준시, 07:00 UTC) ~ 11월 첫째 일요일 02:00(EDT, 06:00 UTC)**.
+/// 4~10월로 어림하면 3월 둘째 일요일 ~ 말일 · 11월 첫째 일요일 전에 현지 자정 봉(`T00:00:00-04:00`)이 전날로 밀린다(N2).
+@visibleForTesting
+bool isUsEasternDst(DateTime utc) {
+  final u = utc.toUtc();
+  DateTime nthSunday(int month, int n) {
+    var d = DateTime.utc(u.year, month, 1);
+    var count = 0;
+    while (true) {
+      if (d.weekday == DateTime.sunday && ++count == n) return d;
+      d = d.add(const Duration(days: 1));
+    }
+  }
+
+  final start = nthSunday(3, 2).add(const Duration(hours: 7));
+  final end = nthSunday(11, 1).add(const Duration(hours: 6));
+  return !u.isBefore(start) && u.isBefore(end);
+}
+
 String _dateIn(String symbol, DateTime utc) {
   final us = RegExp(r'^[A-Za-z]').hasMatch(symbol);
   final shift = us
-      ? Duration(hours: (utc.month >= 4 && utc.month <= 10) ? -4 : -5)
+      ? Duration(hours: isUsEasternDst(utc) ? -4 : -5)
       : const Duration(hours: 9);
   final d = utc.add(shift);
   String two(int n) => n.toString().padLeft(2, '0');
   return '${d.year}-${two(d.month)}-${two(d.day)}';
 }
 
-/// 그 시장의 오늘(`YYYY-MM-DD`) — 국내는 한국 날짜, 미국 심볼(영문으로 시작)은 동부 날짜(서머타임 4월~10월 −4h, 그 밖 −5h 로
-/// 어림 — 날짜가 바뀌는 새벽 한 시간만 어긋날 수 있다). 한국 0~5시(미국 장중)에 오늘 봉을 전일로 읽지 않게 한다(H6).
+/// 그 시장의 오늘(`YYYY-MM-DD`) — 국내는 한국 날짜, 미국 심볼(영문으로 시작)은 동부 날짜(서머타임은 3월 둘째 일요일 ~ 11월 첫째 일요일 규칙으로
+/// 계산한다). 한국 0~5시(미국 장중)에 오늘 봉을 전일로 읽지 않게 한다(H6).
 String marketToday(String symbol, DateTime nowUtc) =>
     _dateIn(symbol, nowUtc.toUtc());
+
+/// 전일 종가를 받아 둔 시장 날짜 중 **지금 시장 날짜와 달라진** 종목들(N3) — 앱을 끄지 않고 다음 날 보면 이 종목들의
+/// 전일 종가는 어제 기준이다. 호출부(타이머 · 앱 복귀)가 이 종목들의 [prevCloseProvider] 를 비운다.
+List<String> stalePrevCloseSymbols(
+  Map<String, String> fetchedDay,
+  DateTime nowUtc,
+) => [
+  for (final e in fetchedDay.entries)
+    if (e.value != marketToday(e.key, nowUtc)) e.key,
+];

@@ -10,7 +10,7 @@ import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
-import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
@@ -87,6 +87,9 @@ Finder _chip(String s) => find.byWidgetPredicate(
 );
 
 final quotesAsked = <String>[];
+final detailAsked = <String>[];
+final executionsAsked = <String>[];
+final investorsAsked = <String>[];
 
 Future<void> _pump(
   WidgetTester tester, {
@@ -97,13 +100,18 @@ Future<void> _pump(
   NamuHoldings? usd,
   bool krwFail = false,
   bool usdFail = false,
+  bool holdingsPending = false,
   double? fx = 1385.2,
   List<StockWatchGroup> groups = const [],
   bool masked = false,
   bool quotesFail = false,
+  bool executionsFail = false,
   Future<List<StockMasterItem>> Function(String q)? search,
 }) async {
   quotesAsked.clear();
+  detailAsked.clear();
+  executionsAsked.clear();
+  investorsAsked.clear();
   tester.view.physicalSize = Size(size.width * 3, size.height * 3);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.reset);
@@ -111,26 +119,69 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         namuHoldingsProvider.overrideWith((ref, c) async {
+          if (holdingsPending) return Completer<NamuHoldings>().future;
           final fail = c == 'KRW' ? krwFail : usdFail;
           if (fail) throw StateError('x');
           return c == 'KRW' ? (krw ?? _krw) : (usd ?? _usd);
         }),
-        securitiesExchangeRateProvider.overrideWith((ref) async => fx),
+        namuExchangeRateProvider.overrideWith((ref) async => fx),
         watchGroupsProvider.overrideWith((ref) async => groups),
         namuQuotesProvider.overrideWith((ref, key) async {
-          quotesAsked.add(key);
+          // 시장 띠의 장 상태 조회(대표 종목: 보유 첫 종목)는 관심 시세 기록에 넣지 않는다.
+          if (!key.contains('A900001')) quotesAsked.add(key);
           if (quotesFail) throw StateError('x');
           return [
             for (final s in key.split(',').where((e) => e.isNotEmpty))
-              BrokerQuote(
+              NamuListQuote(
                 symbol: s,
                 price: 70000,
                 currency: 'KRW',
                 previousClose: 69000,
+                marketState: 'REGULAR',
               ),
           ];
         }),
-        securitiesDailyCandlesProvider.overrideWith(
+        // 13b-1 — 상세 시세 · 체결 · 투자자별 · 주문 가능(달러). 칸이 빠진 응답도 화면이 깨지지 않아야 한다.
+        namuQuoteDetailProvider.overrideWith((ref, key) async {
+          detailAsked.add(key.symbol);
+          if (quotesFail) throw StateError('x');
+          return NamuQuoteDetail(
+            symbol: key.symbol,
+            price: 70000,
+            previousClose: 69000,
+            open: 69500,
+            high: 70500,
+            low: 69000,
+            volume: 1234567,
+            upperLimit: 89700,
+            lowerLimit: 48300,
+            warnings: const ['INVESTMENT_ATTENTION'],
+            sector: '전기전자',
+            marketCap: 4.2e14,
+            listedShares: 5.9e9,
+            listingDate: '20040101',
+          );
+        }),
+        namuExecutionsProvider.overrideWith((ref, key) async {
+          executionsAsked.add(key.symbol);
+          if (executionsFail) throw StateError('x');
+          return const [];
+        }),
+        namuInvestorsProvider.overrideWith((ref, s) async {
+          investorsAsked.add(s);
+          return const [
+            InvestorTradingDay(
+              date: '2026-10-23',
+              individual: -1200,
+              foreigner: 3400,
+              institution: null,
+            ),
+          ];
+        }),
+        namuUsdDepositProvider.overrideWith(
+          (ref) async => const BuyingPower(currency: 'USD', amount: 1234.5),
+        ),
+        namuDailyCandlesProvider.overrideWith(
           (ref, s) async => TossCandlePage(
             candles: [
               for (var d = 20; d <= 28; d++)
@@ -183,7 +234,9 @@ Future<void> _pump(
 }
 
 void main() {
-  testWidgets('띠 차례 — 내 투자 → 시장 → 종목, 띠 사이 8, 시장 띠는 환율 줄만', (tester) async {
+  testWidgets('띠 차례 — 내 투자 → 시장 → 종목, 띠 사이 8, 시장 띠는 장 상태 + 환율 줄', (
+    tester,
+  ) async {
     await _pump(tester);
     final invest = _t('원화 환산 합계');
     final market = _t('시장');
@@ -204,7 +257,8 @@ void main() {
     );
     expect(_t('환율(USD)'), findsOneWidget);
     expect(_t('1,385.20원'), findsOneWidget);
-    // 나무에 없는 것은 그리지 않는다 — 지수 · 장 상태 · 발견
+    // 장 상태는 대표 종목의 시세에 딸려 온다(13b-1 17) — 나무에 없는 지수 · 발견은 그리지 않는다
+    expect(_tc('장중 · '), findsOneWidget);
     expect(_t('코스피'), findsNothing);
     expect(_tc('장마감'), findsNothing);
     expect(_chip('발견'), findsNothing);
@@ -245,12 +299,84 @@ void main() {
     expect(_t('일간 손익'), findsNothing);
   });
 
-  testWidgets('환율이 없으면 시장 띠도 합계도 없고 통화별로만 — 정확한 값만 보인다', (tester) async {
+  testWidgets('환율이 없으면 합계는 없고 통화별로만 — 시장 띠 환율 줄은 "환율 없음"', (tester) async {
     await _pump(tester, fx: null);
-    expect(_t('시장'), findsNothing);
+    expect(_t('시장'), findsOneWidget);
+    expect(_t('환율 없음'), findsOneWidget);
     expect(_t('원화 환산 합계'), findsNothing);
     expect(_t('국내 평가금액'), findsWidgets);
-    expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(1));
+    expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(2));
+  });
+
+  group('시장 띠 장 상태 — 대표 종목을 기다리는 동안(13b-1 후속)', () {
+    final kGroups = [
+      _group(1, '관심', ['K1']),
+    ];
+
+    testWidgets('보유 로딩 중 — 값 자리는 기다리고 시장 띠는 실패 한 벌이 아니다, 장 상태 줄은 아직 없다', (
+      tester,
+    ) async {
+      await _pump(tester, holdingsPending: true, groups: kGroups);
+      expect(_t('시장'), findsOneWidget);
+      expect(_t('시장 정보를 불러오지 못했어요'), findsNothing);
+      expect(_tc('장중 · '), findsNothing);
+      expect(quotesAsked, isEmpty, reason: '대표를 정하기 전에는 장 상태 시세를 부르지 않는다');
+      // 환율 줄은 기다리지 않는다 — 환율 질의는 보유와 따로다
+      expect(_t('1,385.20원'), findsOneWidget);
+    });
+
+    testWidgets('보유 실패 — 관심 첫 종목이 대표가 되어 장 상태 줄이 나온다', (tester) async {
+      await _pump(tester, krwFail: true, usdFail: true, groups: kGroups);
+      expect(_t('시장 정보를 불러오지 못했어요'), findsNothing);
+      expect(quotesAsked, contains('K1'));
+      expect(_tc('장중 · '), findsOneWidget);
+      expect(_tc('프리마켓'), findsNothing, reason: '미국 대표는 없다 — 그 시장은 그리지 않는다');
+    });
+
+    testWidgets('보유 0 — 마찬가지로 관심 첫 종목이 대표, 관심도 없으면 장 상태 없이 환율 줄만', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        krw: _h('KRW', const []),
+        usd: _h('USD', const []),
+        groups: kGroups,
+      );
+      expect(quotesAsked, contains('K1'));
+      expect(_tc('장중 · '), findsOneWidget);
+      await _pump(tester, krw: _h('KRW', const []), usd: _h('USD', const []));
+      expect(quotesAsked, isEmpty);
+      expect(_tc('장중 · '), findsNothing);
+      expect(_t('환율(USD)'), findsOneWidget);
+      expect(_t('시장 정보를 불러오지 못했어요'), findsNothing);
+    });
+
+    testWidgets('보유 로딩 중에 대표 시세가 실패해도 시장 띠 전체가 실패가 되지 않는다 — 환율이 남는다', (
+      tester,
+    ) async {
+      await _pump(tester, holdingsPending: true, groups: kGroups, fx: 1385.2);
+      expect(_t('환율(USD)'), findsOneWidget);
+      expect(find.text('다시 시도'), findsNothing);
+    });
+  });
+
+  testWidgets('주문 가능 — 원화는 국내 잔고에서, 달러는 "예수금 · 달러"(margin)', (tester) async {
+    await _pump(
+      tester,
+      krw: NamuHoldings(
+        accountNo: 'a',
+        currency: 'KRW',
+        totalEvalAmount: '100',
+        totalProfitLoss: '1',
+        profitRate: '1',
+        items: [_item('A1', '가', '100')],
+        deposit: '5000',
+        orderableAmount: '200000000',
+      ),
+    );
+    expect(_t('주문 가능 · 원화'), findsOneWidget);
+    expect(_t('예수금 · 달러'), findsOneWidget);
+    expect(_t('주문 가능 · 달러'), findsNothing);
   });
 
   testWidgets('한 통화뿐이면 그 통화 지표 + Delta, 거르기 Segmented 없음', (tester) async {
@@ -390,7 +516,12 @@ void main() {
         expect(_t(k), findsOneWidget, reason: k);
       }
       expect(_t('수수료·세금'), findsNothing);
-      expect(_t('호가 · 체결'), findsNothing);
+      // 13b-1 — 오늘 시세 · 호가 · 체결 · 투자자별 · 업종 · 투자유의 배지가 더해졌다. 매매 단추는 없다.
+      expect(_t('오늘 시세'), findsOneWidget);
+      expect(_t('호가 · 체결'), findsOneWidget);
+      expect(_t('투자자별 매매동향'), findsOneWidget);
+      expect(_t('업종'), findsOneWidget);
+      expect(_t('투자유의'), findsOneWidget);
       expect(
         find.byWidgetPredicate(
           (w) => w is PButton && (w.label == '매도' || w.label == '매수'),
@@ -405,14 +536,15 @@ void main() {
       expect(_tc('+'), findsNothing);
     });
 
-    testWidgets('보유가 아닌 종목 — 내 보유 띠 없음, 시세 한 번 불러 등락을 보인다', (tester) async {
+    testWidgets('보유가 아닌 종목 — 내 보유 띠 없음, 상세 시세로 등락을 보인다', (tester) async {
       await _pump(
         tester,
         home: const NamuStockDetailPage(symbol: 'ZZ0001'),
         size: const Size(360, 3000),
       );
       expect(_t('내 보유'), findsNothing);
-      expect(quotesAsked, ['ZZ0001']);
+      // 상세 시세는 `/namu/*/quote` 하나 — 목록 시세(`/namu/prices`)는 부르지 않는다.
+      expect(quotesAsked, isEmpty);
       expect(_tc('70,000원'), findsWidgets);
       expect(_tc('1.45%'), findsOneWidget);
     });
@@ -436,7 +568,12 @@ void main() {
         size: const Size(360, 3000),
         search: (_) => gate.future,
       );
-      expect(quotesAsked, isEmpty, reason: '시장을 모르는 채 국내로 가정해 시세를 불렀다');
+      expect(
+        detailAsked,
+        isEmpty,
+        reason: '시장을 모르는 채 국내로 가정해 시세를 불렀다(호가 카드 포함 — N4)',
+      );
+      expect(_t('KRW'), findsNothing, reason: '시장을 모르는데 통화를 KRW 로 지어냈다');
       expect(find.byType(ChartWebView), findsNothing);
       expect(_t('—'), findsOneWidget);
       expect(_t('현재가가 없는 종목이에요'), findsNothing);
@@ -444,7 +581,7 @@ void main() {
       gate.complete(const [usMaster]);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(quotesAsked, ['ZZUS']);
+      expect(detailAsked, ['ZZUS']);
       expect(find.byType(ChartWebView), findsOneWidget);
       final chart = tester.widget<ChartWebView>(find.byType(ChartWebView));
       expect(chart.isUs, isTrue, reason: '미국 종목이 국내 차트로 열렸다');
@@ -460,7 +597,10 @@ void main() {
       expect(_t('기본 정보를 불러오지 못했어요'), findsOneWidget);
       expect(_t('다시 시도'), findsOneWidget);
       expect(find.byType(ChartWebView), findsNothing);
-      expect(quotesAsked, isEmpty);
+      expect(detailAsked, isEmpty);
+      // 10초 폴링이 돌아도 국내 경로로 계속 나가지 않는다(N4)
+      await tester.pump(const Duration(seconds: 25));
+      expect(detailAsked, isEmpty, reason: '검색이 실패했는데 국내 경로를 10초마다 불렀다');
     });
 
     testWidgets('M4 시세 실패는 실패 한 벌 + [다시 시도]', (tester) async {
@@ -474,6 +614,33 @@ void main() {
       expect(_t('잠시 뒤 다시 시도해주세요.'), findsOneWidget);
       expect(_t('다시 시도'), findsOneWidget);
       expect(_t('현재가가 없는 종목이에요'), findsNothing);
+    });
+
+    testWidgets('N8 체결 탭을 고르고 아래로 내렸다 올려도 체결 탭이 호가로 돌아가지 않는다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900001'),
+        size: const Size(360, 700),
+      );
+      await tester.scrollUntilVisible(
+        _t('체결').first,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(_t('체결').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_t('체결 내역이 없어요'), findsOneWidget);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.scrollUntilVisible(
+        _t('체결').first,
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(_t('체결 내역이 없어요'), findsOneWidget, reason: '내렸다 올리니 호가 탭으로 돌아갔다');
     });
 
     testWidgets('M13 아래로 내렸다 올려도 차트가 폐기되지 않는다', (tester) async {
@@ -504,6 +671,132 @@ void main() {
     expect(donut.valueFormatter!(8568000), '••••');
     expect(_t('••••'), findsWidgets);
     expect(_tc('%'), findsNothing, reason: '가렸는데 비중이 보인다');
+  });
+
+  group('상세 — 13-1 검수 고침 중 13b-1 몫(M3 · M5 · M6)', () {
+    testWidgets('M3 나무 체결 실패는 실패 한 벌 + [다시 시도]가 실제로 다시 부른다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+        executionsFail: true,
+      );
+      await tester.tap(_t('체결').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_t('체결 내역을 불러오지 못했어요'), findsOneWidget);
+      final asked = executionsAsked.length;
+      await tester.tap(find.text('다시 시도'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(executionsAsked.length, greaterThan(asked), reason: '버튼이 죽어 있다');
+    });
+
+    testWidgets('M3 호가(상세 시세) 실패도 [다시 시도]가 상세 시세를 다시 부른다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+        quotesFail: true,
+      );
+      expect(
+        _t('호가를 불러오지 못했어요'),
+        findsNothing,
+        reason: '상세 시세 실패는 머리 실패 한 벌이 맡고 호가 띠는 그리지 않는다',
+      );
+      final asked = detailAsked.length;
+      await tester.tap(find.text('다시 시도').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(detailAsked.length, greaterThan(asked));
+    });
+
+    testWidgets('M5 국내 잔고만 실패해도 "주문 가능 · 원화" 줄은 "—" 로 남는다', (tester) async {
+      await _pump(tester, krwFail: true);
+      expect(_t('주문 가능 · 원화'), findsOneWidget);
+      expect(
+        tester.getTopLeft(_t('—').first).dy,
+        greaterThan(tester.getTopLeft(_t('주문 가능 · 원화')).dy - 30),
+      );
+      expect(_t('0원'), findsNothing, reason: '실패가 0 원처럼 읽히면 안 된다');
+    });
+
+    testWidgets('M5 해외 잔고 실패는 원화 줄에 영향이 없다', (tester) async {
+      await _pump(
+        tester,
+        usdFail: true,
+        krw: NamuHoldings(
+          accountNo: 'a',
+          currency: 'KRW',
+          totalEvalAmount: '100',
+          totalProfitLoss: '1',
+          profitRate: '1',
+          items: [_item('A1', '가', '100')],
+          orderableAmount: '5000',
+        ),
+      );
+      expect(_t('5,000원'), findsOneWidget);
+    });
+
+    testWidgets('M6 나무 상장일은 연도가 붙은 날짜로(원문 20040101 도 읽는다)', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+      );
+      expect(_t('2004년 1월 1일'), findsOneWidget);
+      expect(_t('20040101'), findsNothing);
+    });
+  });
+
+  group('상세 — 호출 규칙(13b-1 D)', () {
+    testWidgets('체결은 체결 탭을 골랐을 때만 부른다 · 투자자별은 상세를 열 때 한 번', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+      );
+      expect(executionsAsked, isEmpty, reason: '호가 탭일 때 체결을 부르지 않는다');
+      expect(investorsAsked, ['A900002']);
+      await tester.tap(_t('체결').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(executionsAsked, ['A900002']);
+      expect(_t('체결 내역이 없어요'), findsOneWidget);
+    });
+
+    testWidgets('미국 종목은 투자자별 띠도 호출도 없고 매도가능 줄이 있다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'MOA'),
+        size: const Size(360, 3000),
+        usd: _h('USD', [
+          NamuHoldingItem(
+            symbol: 'MOA',
+            name: '모아 테크놀로지스',
+            quantity: '15',
+            avgPrice: '366.67',
+            currentPrice: '412.37',
+            evalAmount: '6185.55',
+            profitLoss: '685.55',
+            sellableQuantity: '12',
+          ),
+        ]),
+      );
+      expect(_t('투자자별 매매동향'), findsNothing);
+      expect(investorsAsked, isEmpty);
+      expect(_t('매도가능'), findsOneWidget);
+      expect(_t('12주'), findsOneWidget);
+    });
+
+    testWidgets('국내 종목에는 매도가능 줄이 없다(국내 잔고에 칸이 없다)', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+      );
+      expect(_t('매도가능'), findsNothing);
+    });
   });
 
   group('포트폴리오', () {

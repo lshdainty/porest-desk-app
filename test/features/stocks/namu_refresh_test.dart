@@ -23,10 +23,9 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/sync/query_freshness.dart';
 import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
-import 'package:groo_damda_app/features/stocks/application/securities_providers.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
-import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -37,26 +36,26 @@ void main() {
     testWidgets('30초마다 다시 받는다 — 그 사이에는 안 받는다', (tester) async {
       final h = await _pumpView(tester);
       await h.openWatch();
-      expect(h.sec.priceCalls, 1, reason: '보이는 묶음의 시세를 한 번에 한 번 받는다');
+      expect(h.namu.priceCalls, 1, reason: '보이는 묶음의 시세를 한 번에 한 번 받는다');
 
       await h.advanceTo(const Duration(seconds: 29));
       expect(
-        h.sec.priceCalls,
+        h.namu.priceCalls,
         1,
         reason: '30초가 안 됐는데 나무를 또 쳤다 — 조회 한 번이 상류 1콜이다',
       );
 
       await h.advanceTo(const Duration(seconds: 30));
       expect(
-        h.sec.priceCalls,
+        h.namu.priceCalls,
         2,
         reason: '30초가 지났는데 시세가 그대로다 — 예전엔 앱을 다시 켤 때까지 처음 값이었다',
       );
 
       await h.advanceTo(const Duration(seconds: 59));
-      expect(h.sec.priceCalls, 2);
+      expect(h.namu.priceCalls, 2);
       await h.advanceTo(const Duration(seconds: 60));
-      expect(h.sec.priceCalls, 3);
+      expect(h.namu.priceCalls, 3);
     });
 
     testWidgets('보유 탭에서는 관심 시세를 부르지 않는다', (tester) async {
@@ -64,7 +63,7 @@ void main() {
 
       await h.advanceTo(const Duration(minutes: 2));
 
-      expect(h.sec.priceCalls, 0, reason: '아무도 안 보는 시세를 받았다');
+      expect(h.namu.priceCalls, 0, reason: '아무도 안 보는 시세를 받았다');
     });
 
     testWidgets('앱이 가려진 동안은 건너뛰고, 돌아오면 다음 박자에 이어 받는다', (tester) async {
@@ -75,14 +74,14 @@ void main() {
       await h.background();
       await h.advanceTo(const Duration(seconds: 65));
       expect(
-        h.sec.priceCalls,
+        h.namu.priceCalls,
         1,
         reason: '앱이 안 보이는데 30초·60초 박자에 나무를 쳤다 — 웹도 탭이 가려지면 멈춘다',
       );
 
       await h.foreground();
       await h.advanceTo(const Duration(seconds: 95));
-      expect(h.sec.priceCalls, 2, reason: '돌아왔는데 주기가 다시 안 돈다');
+      expect(h.namu.priceCalls, 2, reason: '돌아왔는데 주기가 다시 안 돈다');
     });
 
     testWidgets('화면을 닫으면 더 묻지 않는다', (tester) async {
@@ -94,22 +93,22 @@ void main() {
       await h.close();
       await h.advanceTo(const Duration(minutes: 3));
 
-      expect(h.sec.priceCalls, 1, reason: '화면이 없는데 시세를 계속 받는다');
+      expect(h.namu.priceCalls, 1, reason: '화면이 없는데 시세를 계속 받는다');
     });
 
     testWidgets('실패해도 몰아서 다시 치지 않는다 — 다음 박자까지 기다린다', (tester) async {
       // riverpod 은 실패한 provider 를 기본으로 0.2초부터 두 배씩 최대 10번 다시 만든다.
       // 나무가 429(유량 초과)로 거절했을 때 그러면 한도를 넘긴 그 순간에 열 번을 더 친다.
       final h = await _pumpView(tester);
-      h.sec.failPrice = true;
+      h.namu.failPrice = true;
       await h.openWatch();
-      expect(h.sec.priceCalls, 1);
+      expect(h.namu.priceCalls, 1);
 
       await h.advanceTo(const Duration(seconds: 20));
-      expect(h.sec.priceCalls, 1, reason: '실패한 시세를 몰아서 다시 쳤다');
+      expect(h.namu.priceCalls, 1, reason: '실패한 시세를 몰아서 다시 쳤다');
 
       await h.advanceTo(const Duration(seconds: 30));
-      expect(h.sec.priceCalls, 2, reason: '다음 박자에는 다시 물어야 한다');
+      expect(h.namu.priceCalls, 2, reason: '다음 박자에는 다시 물어야 한다');
     });
   });
 
@@ -137,13 +136,13 @@ void main() {
 
     testWidgets('H3 환율은 10분마다 다시 받는다 — 그 전에는 안 받는다', (tester) async {
       final h = await _pumpView(tester);
-      expect(h.sec.fxCalls, 1);
+      expect(h.namu.fxCalls, 1);
 
       await h.advanceTo(const Duration(minutes: 9, seconds: 59));
-      expect(h.sec.fxCalls, 1, reason: '10분이 안 됐는데 환율을 또 받았다');
+      expect(h.namu.fxCalls, 1, reason: '10분이 안 됐는데 환율을 또 받았다');
 
       await h.advanceTo(const Duration(minutes: 10));
-      expect(h.sec.fxCalls, 2, reason: '10분이 지났는데 환율이 처음 값으로 굳어 있다');
+      expect(h.namu.fxCalls, 2, reason: '10분이 지났는데 환율이 처음 값으로 굳어 있다');
     });
 
     testWidgets('H4 위에 다른 화면이 올라와 있으면 목록은 시세를 안 부르고, 돌아오면 이어서 부른다', (
@@ -151,21 +150,21 @@ void main() {
     ) async {
       final h = await _pumpView(tester);
       await h.openWatch();
-      expect(h.sec.priceCalls, 1);
+      expect(h.namu.priceCalls, 1);
 
       final nav = Navigator.of(tester.element(find.byType(NamuStocksView)));
       nav.push(MaterialPageRoute<void>(builder: (_) => const Scaffold()));
       await h.advanceTo(const Duration(seconds: 70));
       expect(
-        h.sec.priceCalls,
+        h.namu.priceCalls,
         1,
         reason: '상세 · 시트가 위에 있는데 목록이 시세를 불렀다(호출 두 배)',
       );
-      expect(h.sec.fxCalls, 1);
+      expect(h.namu.fxCalls, 1);
 
       nav.pop();
       await h.advanceTo(const Duration(seconds: 100));
-      expect(h.sec.priceCalls, 2, reason: '돌아왔는데 다음 박자에도 안 부른다');
+      expect(h.namu.priceCalls, 2, reason: '돌아왔는데 다음 박자에도 안 부른다');
     });
 
     testWidgets('H4 박자마다 지켜보는 키만 부른다 — 다른 키(상세 시세 등)를 같이 비우지 않는다', (
@@ -174,8 +173,8 @@ void main() {
       final h = await _pumpView(tester);
       await h.openWatch();
       await h.advanceTo(const Duration(seconds: 65));
-      expect(h.sec.priceCalls, 3);
-      expect(h.sec.askedKeys.toSet(), {'A1'});
+      expect(h.namu.priceCalls, 3);
+      expect(h.namu.askedKeys.toSet(), {'A1'});
     });
   });
 
@@ -301,6 +300,54 @@ class _CountingNamu extends NamuRepository {
 
   bool failHoldings = false;
 
+  /// 관심 묶음 시세를 물은 횟수 — 시장 띠의 장 상태 조회(대표 종목 '000001')는 세지 않는다.
+  int priceCalls = 0;
+  int fxCalls = 0;
+  int marketStateCalls = 0;
+
+  /// 관심 시세를 물은 키(콤마 심볼 묶음), 물은 순서대로.
+  final askedKeys = <String>[];
+  bool failPrice = false;
+
+  @override
+  Future<List<NamuListQuote>> getListQuotes(List<String> symbols) async {
+    if (!symbols.contains('A1')) {
+      marketStateCalls++;
+      return [
+        for (final s in symbols)
+          NamuListQuote(
+            symbol: s,
+            price: 70000,
+            currency: 'KRW',
+            marketState: 'REGULAR',
+          ),
+      ];
+    }
+    priceCalls++;
+    askedKeys.add(symbols.join(','));
+    if (failPrice) {
+      throw ApiException(code: 'SEC_429', message: '유량 초과', statusCode: 429);
+    }
+    return [
+      for (final s in symbols)
+        NamuListQuote(
+          symbol: s,
+          price: 69000.0 + priceCalls * 1000,
+          currency: 'KRW',
+          previousClose: 69000,
+        ),
+    ];
+  }
+
+  @override
+  Future<double?> getExchangeRate({String base = 'USD'}) async {
+    fxCalls++;
+    return 1385.2;
+  }
+
+  @override
+  Future<BuyingPower?> getUsdDeposit() async => null;
+
   int calls(String currency) =>
       holdingsCalls.where((c) => c == currency).length;
 
@@ -335,45 +382,6 @@ class _CountingNamu extends NamuRepository {
   }
 }
 
-/// 증권사 무관 시세 대역 — 시세를 물은 횟수를 센다.
-class _CountingSecurities extends SecuritiesRepository {
-  _CountingSecurities() : super(Dio());
-
-  int priceCalls = 0;
-  int fxCalls = 0;
-  bool failPrice = false;
-
-  /// 시세를 물은 키(콤마 심볼 묶음), 물은 순서대로.
-  final askedKeys = <String>[];
-
-  @override
-  Future<List<BrokerQuote>> getPrices(List<String> symbols) async {
-    priceCalls++;
-    askedKeys.add(symbols.join(','));
-    if (failPrice) {
-      throw ApiException(code: 'SEC_429', message: '유량 초과', statusCode: 429);
-    }
-    return [
-      for (final s in symbols)
-        BrokerQuote(
-          symbol: s,
-          price: 69000.0 + priceCalls * 1000,
-          currency: 'KRW',
-          previousClose: 69000,
-        ),
-    ];
-  }
-
-  @override
-  Future<double?> getExchangeRate({
-    String base = 'USD',
-    String quote = 'KRW',
-  }) async {
-    fxCalls++;
-    return 1385.2;
-  }
-}
-
 /// 보유 종목의 "받은 지" 를 재는 시계 — 가짜 시계와 같이 민다.
 class _FakeClock {
   DateTime now = DateTime(2026, 9, 30, 9);
@@ -400,10 +408,9 @@ StockWatchGroup _group() => StockWatchGroup(
 // ─── 하네스 ───────────────────────────────────────────────────
 
 class _Harness {
-  _Harness(this.tester, this.namu, this.sec, this._clock, this._shown);
+  _Harness(this.tester, this.namu, this._clock, this._shown);
   final WidgetTester tester;
   final _CountingNamu namu;
-  final _CountingSecurities sec;
   final _FakeClock _clock;
   final ValueNotifier<bool> _shown;
 
@@ -498,7 +505,6 @@ Future<_Harness> _pumpView(
   );
 
   final namu = _CountingNamu()..failHoldings = failHoldings;
-  final sec = _CountingSecurities();
   final clock = _FakeClock();
   final shown = ValueNotifier(true);
   addTearDown(shown.dispose);
@@ -507,7 +513,6 @@ Future<_Harness> _pumpView(
     ProviderScope(
       overrides: [
         namuRepositoryProvider.overrideWith((ref) async => namu),
-        securitiesRepositoryProvider.overrideWith((ref) async => sec),
         watchGroupsProvider.overrideWith((ref) async => [_group()]),
         freshnessClockProvider.overrideWith(
           (ref) =>
@@ -529,7 +534,7 @@ Future<_Harness> _pumpView(
       ),
     ),
   );
-  final h = _Harness(tester, namu, sec, clock, shown);
+  final h = _Harness(tester, namu, clock, shown);
   await h._flush();
   return h;
 }

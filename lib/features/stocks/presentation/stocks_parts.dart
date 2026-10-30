@@ -347,6 +347,7 @@ String stocksWarningLabel(AppLocalizations l, String type) => switch (type) {
   'INVESTMENT_WARNING' => l.stocksWarningInvestmentWarning,
   'INVESTMENT_RISK' => l.stocksWarningInvestmentRisk,
   'INVESTMENT_CAUTION' => l.stocksWarningInvestmentCaution,
+  'INVESTMENT_ATTENTION' => l.stocksWarningInvestmentAttention,
   'VI' || 'VI_STATIC_AND_DYNAMIC' => l.stocksWarningVi,
   'VI_STATIC' => l.stocksWarningViStatic,
   'VI_DYNAMIC' => l.stocksWarningViDynamic,

@@ -33,6 +33,8 @@ void main() {
           tossTradesProvider.overrideWith((ref, s) async => null),
           tossCandlesProvider.overrideWith((ref, a) async => null),
           tossPriceLimitsProvider.overrideWith((ref, s) async => null),
+          tossTodayCandlesProvider.overrideWith((ref, s) async => null),
+          tossInvestorProvider.overrideWith((ref, s) async => const []),
           stockSearchProvider.overrideWith((ref, q) async => const []),
         ],
         child: MaterialApp(

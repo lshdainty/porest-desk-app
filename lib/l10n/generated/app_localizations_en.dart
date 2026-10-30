@@ -8363,4 +8363,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get namuDonutNeedsFx => 'Cannot compute weights without an FX rate';
+
+  @override
+  String get stocksBuyingPowerKrw => 'Orderable · KRW';
+
+  @override
+  String get stocksBuyingPowerUsd => 'Orderable · USD';
+
+  @override
+  String get namuDepositUsd => 'Deposit · USD';
+
+  @override
+  String get stocksTodayQuote => 'Today\'s quotes';
+
+  @override
+  String get stocksOpenPrice => 'Open';
+
+  @override
+  String get stocksHighPrice => 'High';
+
+  @override
+  String get stocksLowPrice => 'Low';
+
+  @override
+  String get stocksInvestorTitle => 'Net buying by investor';
+
+  @override
+  String get stocksInvestorUnit => '▲ Net buy · ▼ Net sell · shares';
+
+  @override
+  String get stocksInvestorIndividual => 'Individual';
+
+  @override
+  String get stocksInvestorForeigner => 'Foreign';
+
+  @override
+  String get stocksInvestorInstitution => 'Institution';
+
+  @override
+  String get stocksInvestorEmpty => 'No investor trading data';
+
+  @override
+  String get stocksSector => 'Sector';
+
+  @override
+  String get stocksListedShares => 'Listed shares';
+
+  @override
+  String get stocksWarningInvestmentAttention => 'Investment attention';
+
+  @override
+  String get stocksMarketPre => 'Pre-market';
+
+  @override
+  String get stocksMarketAfter => 'After-market';
+
+  @override
+  String get stocksMarketDaytime => 'Daytime trading';
+
+  @override
+  String get stocksMarketSinglePrice => 'Single-price session';
+
+  @override
+  String get stocksMarketHalted => 'Temporarily closed';
+
+  @override
+  String get stocksMarketBeforeOpen => 'Before open';
+
+  @override
+  String get stocksFailQuote => 'Couldn\'t load the price';
+
+  @override
+  String get stocksFailToday => 'Couldn\'t load today\'s quotes';
+
+  @override
+  String get stocksFailInvestor => 'Couldn\'t load investor trading';
+
+  @override
+  String get namuFxUnavailableShort => 'No FX rate';
 }

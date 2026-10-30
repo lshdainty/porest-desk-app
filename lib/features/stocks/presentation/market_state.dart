@@ -1,4 +1,4 @@
-/// 장 상태 계산 — 시장 현지 시각 vs 정규장 운영시간(toss_stocks_view.dart 에서 옮겼다, 내용 불변).
+/// 장 상태 계산 — 정규장 운영 시간(오프셋 붙은 ISO)을 순간으로 견주고, 보이는 시각은 모두 한국 시각이다.
 library;
 
 import 'package:flutter/material.dart';
@@ -43,6 +43,9 @@ DateTime? _instantOf(String? raw, DateTime nowUtc) {
     int.parse(m.group(2)!),
   ).subtract(_kst);
 }
+
+/// 보이는 시각은 모두 한국 시각 — 나무 장 상태 줄("장중 · 오후 1:05")도 같은 시계를 쓴다.
+DateTime stocksKstNow() => stocksNow().toUtc().add(_kst);
 
 /// 장 상태 — 열림 여부와 줄 글. 보이는 시각은 모두 한국 시각 · 오전 · 오후 12시간.
 ({bool open, String detail}) marketStateNow(

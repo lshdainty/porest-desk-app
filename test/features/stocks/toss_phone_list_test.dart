@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
@@ -112,6 +113,12 @@ Future<void> _pump(
           ],
         ),
         prevCloseProvider.overrideWith((ref, s) async => 69000.0),
+        tossBuyingPowerProvider.overrideWith(
+          (ref, cur) async => BuyingPower(
+            currency: cur,
+            amount: cur == 'KRW' ? 200000000 : 1234.56,
+          ),
+        ),
       ],
       child: MaterialApp(
         theme: GrooTheme.light(),
@@ -171,6 +178,19 @@ void main() {
     expect(_t('코스피'), findsOneWidget);
     expect(_t('코스닥'), findsNothing);
     expect(_t('1,385.20원'), findsOneWidget);
+  });
+
+  testWidgets('주문 가능 — 원화 · 달러 두 줄이 일간 손익 다음에, 가리면 점', (tester) async {
+    await _pump(tester);
+    expect(_t('주문 가능 · 원화'), findsOneWidget);
+    expect(_t('주문 가능 · 달러'), findsOneWidget);
+    expect(_t('200,000,000원'), findsOneWidget);
+    expect(_t('\$1,234.56'), findsOneWidget);
+    expect(
+      tester.getTopLeft(_t('일간 손익')).dy <
+          tester.getTopLeft(_t('주문 가능 · 원화')).dy,
+      isTrue,
+    );
   });
 
   testWidgets('큰 금액은 쉼표 뒤에서만 줄바꿈(U+200B), Delta 에 + 부호 없음', (tester) async {

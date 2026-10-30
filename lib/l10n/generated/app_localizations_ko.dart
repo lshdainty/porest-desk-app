@@ -8170,4 +8170,82 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get namuDonutNeedsFx => '환율을 못 받아 구성 비중을 낼 수 없어요';
+
+  @override
+  String get stocksBuyingPowerKrw => '주문 가능 · 원화';
+
+  @override
+  String get stocksBuyingPowerUsd => '주문 가능 · 달러';
+
+  @override
+  String get namuDepositUsd => '예수금 · 달러';
+
+  @override
+  String get stocksTodayQuote => '오늘 시세';
+
+  @override
+  String get stocksOpenPrice => '시가';
+
+  @override
+  String get stocksHighPrice => '고가';
+
+  @override
+  String get stocksLowPrice => '저가';
+
+  @override
+  String get stocksInvestorTitle => '투자자별 매매동향';
+
+  @override
+  String get stocksInvestorUnit => '▲ 순매수 · ▼ 순매도 · 주';
+
+  @override
+  String get stocksInvestorIndividual => '개인';
+
+  @override
+  String get stocksInvestorForeigner => '외국인';
+
+  @override
+  String get stocksInvestorInstitution => '기관';
+
+  @override
+  String get stocksInvestorEmpty => '집계된 매매동향이 없어요';
+
+  @override
+  String get stocksSector => '업종';
+
+  @override
+  String get stocksListedShares => '상장주식수';
+
+  @override
+  String get stocksWarningInvestmentAttention => '투자유의';
+
+  @override
+  String get stocksMarketPre => '프리마켓';
+
+  @override
+  String get stocksMarketAfter => '애프터마켓';
+
+  @override
+  String get stocksMarketDaytime => '주간거래';
+
+  @override
+  String get stocksMarketSinglePrice => '단일가';
+
+  @override
+  String get stocksMarketHalted => '일시 마감';
+
+  @override
+  String get stocksMarketBeforeOpen => '개장 전';
+
+  @override
+  String get stocksFailQuote => '시세를 불러오지 못했어요';
+
+  @override
+  String get stocksFailToday => '오늘 시세를 불러오지 못했어요';
+
+  @override
+  String get stocksFailInvestor => '투자자별 매매동향을 불러오지 못했어요';
+
+  @override
+  String get namuFxUnavailableShort => '환율 없음';
 }

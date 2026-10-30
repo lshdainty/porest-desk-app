@@ -14701,6 +14701,162 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'환율을 못 받아 구성 비중을 낼 수 없어요'**
   String get namuDonutNeedsFx;
+
+  /// No description provided for @stocksBuyingPowerKrw.
+  ///
+  /// In ko, this message translates to:
+  /// **'주문 가능 · 원화'**
+  String get stocksBuyingPowerKrw;
+
+  /// No description provided for @stocksBuyingPowerUsd.
+  ///
+  /// In ko, this message translates to:
+  /// **'주문 가능 · 달러'**
+  String get stocksBuyingPowerUsd;
+
+  /// No description provided for @namuDepositUsd.
+  ///
+  /// In ko, this message translates to:
+  /// **'예수금 · 달러'**
+  String get namuDepositUsd;
+
+  /// No description provided for @stocksTodayQuote.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 시세'**
+  String get stocksTodayQuote;
+
+  /// No description provided for @stocksOpenPrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'시가'**
+  String get stocksOpenPrice;
+
+  /// No description provided for @stocksHighPrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'고가'**
+  String get stocksHighPrice;
+
+  /// No description provided for @stocksLowPrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'저가'**
+  String get stocksLowPrice;
+
+  /// No description provided for @stocksInvestorTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자자별 매매동향'**
+  String get stocksInvestorTitle;
+
+  /// No description provided for @stocksInvestorUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'▲ 순매수 · ▼ 순매도 · 주'**
+  String get stocksInvestorUnit;
+
+  /// No description provided for @stocksInvestorIndividual.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인'**
+  String get stocksInvestorIndividual;
+
+  /// No description provided for @stocksInvestorForeigner.
+  ///
+  /// In ko, this message translates to:
+  /// **'외국인'**
+  String get stocksInvestorForeigner;
+
+  /// No description provided for @stocksInvestorInstitution.
+  ///
+  /// In ko, this message translates to:
+  /// **'기관'**
+  String get stocksInvestorInstitution;
+
+  /// No description provided for @stocksInvestorEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'집계된 매매동향이 없어요'**
+  String get stocksInvestorEmpty;
+
+  /// No description provided for @stocksSector.
+  ///
+  /// In ko, this message translates to:
+  /// **'업종'**
+  String get stocksSector;
+
+  /// No description provided for @stocksListedShares.
+  ///
+  /// In ko, this message translates to:
+  /// **'상장주식수'**
+  String get stocksListedShares;
+
+  /// No description provided for @stocksWarningInvestmentAttention.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자유의'**
+  String get stocksWarningInvestmentAttention;
+
+  /// No description provided for @stocksMarketPre.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리마켓'**
+  String get stocksMarketPre;
+
+  /// No description provided for @stocksMarketAfter.
+  ///
+  /// In ko, this message translates to:
+  /// **'애프터마켓'**
+  String get stocksMarketAfter;
+
+  /// No description provided for @stocksMarketDaytime.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간거래'**
+  String get stocksMarketDaytime;
+
+  /// No description provided for @stocksMarketSinglePrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'단일가'**
+  String get stocksMarketSinglePrice;
+
+  /// No description provided for @stocksMarketHalted.
+  ///
+  /// In ko, this message translates to:
+  /// **'일시 마감'**
+  String get stocksMarketHalted;
+
+  /// No description provided for @stocksMarketBeforeOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'개장 전'**
+  String get stocksMarketBeforeOpen;
+
+  /// No description provided for @stocksFailQuote.
+  ///
+  /// In ko, this message translates to:
+  /// **'시세를 불러오지 못했어요'**
+  String get stocksFailQuote;
+
+  /// No description provided for @stocksFailToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 시세를 불러오지 못했어요'**
+  String get stocksFailToday;
+
+  /// No description provided for @stocksFailInvestor.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자자별 매매동향을 불러오지 못했어요'**
+  String get stocksFailInvestor;
+
+  /// No description provided for @namuFxUnavailableShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'환율 없음'**
+  String get namuFxUnavailableShort;
 }
 
 class _AppLocalizationsDelegate

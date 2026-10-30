@@ -7,6 +7,7 @@ library;
 
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 
 /// 통화 하나의 합계.
 class NamuCurrencyTotal {
@@ -40,6 +41,11 @@ class NamuMergedHolding {
   double get evalAmount => item.evalAmountValue;
   double get profitLoss => item.profitLossValue;
   double get costAmount => evalAmount - profitLoss;
+
+  /// 매도 가능 수량 — 해외(미국)만. 국내는 null(줄을 그리지 않는다).
+  double? get sellable => item.sellableQuantity == null
+      ? null
+      : double.tryParse(item.sellableQuantity!);
 
   /// 수익률(%) — 매입금액이 0 이하면 0.
   double get returnPct => costAmount > 0 ? profitLoss / costAmount * 100 : 0;
@@ -155,4 +161,34 @@ List<CompositionSlice>? namuCompositionOf(NamuMergedView view) {
         weightPct: e.$2 / total * 100,
       ),
   ];
+}
+
+/// 시장 띠의 장 상태를 읽을 대표 종목 — 시장마다 하나(보유 첫 종목, 없으면 관심 첫 종목).
+/// 대표가 없는 시장은 null(그 시장 항목을 그리지 않는다). 같은 종목이 관심 시세에 있으면 서버 캐시에 맞는다.
+///
+/// **한번 정한 대표는 그 종목이 후보에 남아 있는 동안 바꾸지 않는다**([prevKr] · [prevUs]) — 환율이 도착하거나 평가금액이 움직여
+/// 보유 정렬이 바뀌어도 키가 바뀌어 장 상태 줄이 Skeleton 으로 깜빡이고 새 키를 또 부르지 않게 한다(M14).
+({String? kr, String? us}) namuMarketRepresentatives(
+  NamuMergedView view,
+  List<StockWatchGroup> groups, {
+  String? prevKr,
+  String? prevUs,
+}) {
+  final krCands = <String>[
+    for (final r in view.rows)
+      if (r.currency == 'KRW') r.symbol,
+    for (final g in groups)
+      for (final i in g.items)
+        if (i.countryCode == 'KR') i.symbol,
+  ];
+  final usCands = <String>[
+    for (final r in view.rows)
+      if (r.currency == 'USD') r.symbol,
+    for (final g in groups)
+      for (final i in g.items)
+        if (i.countryCode == 'US') i.symbol,
+  ];
+  String? pick(List<String> cands, String? prev) =>
+      (prev != null && cands.contains(prev)) ? prev : cands.firstOrNull;
+  return (kr: pick(krCands, prevKr), us: pick(usCands, prevUs));
 }

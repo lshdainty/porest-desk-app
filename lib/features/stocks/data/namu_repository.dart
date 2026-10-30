@@ -1,13 +1,17 @@
 /// 나무증권(NH PLUG) 조회 repository — 백엔드 프록시 `/api/v1/namu/**`.
 /// Dio baseUrl 이 이미 `/api/v1` 이므로 경로는 `/namu/...`.
 ///
-/// **토스와 나눠 둔 이유** — 두 증권사가 주는 데이터가 겹치지 않는다. 한 repository 에
-/// 합치면 메서드 절반이 "이 증권사는 미지원" 이 된다.
+/// **토스와 나눠 둔 이유** — 증권사마다 응답 모양이 달라(필드 이름 · 단위 · 호출 박자) 서버가 증권사별
+/// 경로(`/toss/**` · `/namu/**`)로 나눠 둔다. 화면은 공통 구역 + 증권사별 구역으로 같은 틀을 쓰고,
+/// 그 탭의 데이터는 **그 탭의 경로**로 부른다(`/namu/prices` · `/namu/candles` · `/namu/exchange-rate` —
+/// 기본 증권사를 따르는 `/securities/*` 는 가계부 자산용이다).
 library;
 
 import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 
 /// 증권사 무관 현재가. 백엔드가 증권사별 필드명 차이를 흡수해 이 모양으로 준다
 /// (나무 국내 `stck_prpr` / 나무 해외 `trdprc`).
@@ -52,11 +56,15 @@ class NamuHoldingItem {
     required this.currentPrice,
     required this.evalAmount,
     required this.profitLoss,
+    this.sellableQuantity,
   });
 
   final String symbol;
   final String name;
   final String quantity;
+
+  /// 매도 가능 수량 — 해외(미국)만. 국내 잔고에는 이 칸이 없어 null(화면이 줄을 그리지 않는다).
+  final String? sellableQuantity;
   final String avgPrice;
   final String currentPrice;
   final String evalAmount;
@@ -74,7 +82,14 @@ class NamuHoldingItem {
     currentPrice: (j['currentPrice'] as String?) ?? '0',
     evalAmount: (j['evalAmount'] as String?) ?? '0',
     profitLoss: (j['profitLoss'] as String?) ?? '0',
+    sellableQuantity: _blankToNull(j['sellableQuantity']),
   );
+}
+
+String? _blankToNull(Object? v) {
+  if (v == null) return null;
+  final t = '$v'.trim();
+  return t.isEmpty ? null : t;
 }
 
 /// 계좌 하나의 보유 현황 — 요약 + 종목별.
@@ -86,7 +101,15 @@ class NamuHoldings {
     required this.totalProfitLoss,
     required this.profitRate,
     required this.items,
+    this.deposit,
+    this.orderableAmount,
   });
+
+  /// 예수금 · 주문 가능 금액(100%) — 국내(KRW) 잔고 요약에서만 온다. 해외는 null.
+  final String? deposit;
+  final String? orderableAmount;
+  double? get orderableValue =>
+      orderableAmount == null ? null : double.tryParse(orderableAmount!);
 
   final String accountNo;
   final String currency;
@@ -109,6 +132,8 @@ class NamuHoldings {
         .whereType<Map<String, dynamic>>()
         .map(NamuHoldingItem.fromJson)
         .toList(),
+    deposit: _blankToNull(j['deposit']),
+    orderableAmount: _blankToNull(j['orderableAmount']),
   );
 
   static const empty = NamuHoldings(
@@ -185,6 +210,128 @@ class NamuRepository {
       final res = await _dio.get<dynamic>(path, queryParameters: query);
       final p = _payload(res);
       return p is Map<String, dynamic> ? BrokerPrice.fromJson(p) : null;
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  // ---- 그 탭 증권사 경로 (13b-0 8) — 기본 증권사를 따르는 /securities/* 가 아니다 ----------
+
+  /// 관심 시세 · 장 상태 — 심볼을 한 번에(서버 상한 50 · 캐시 20초). 장 상태가 종목마다 딸려 온다.
+  Future<List<NamuListQuote>> getListQuotes(List<String> symbols) async {
+    if (symbols.isEmpty) return const [];
+    try {
+      final res = await _dio.get<dynamic>(
+        '/namu/prices',
+        queryParameters: {'symbols': symbols.join(',')},
+      );
+      final p = _payload(res);
+      if (p is! List) return const [];
+      return p
+          .whereType<Map<String, dynamic>>()
+          .map(NamuListQuote.fromJson)
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 캔들 한 페이지 — 나무 제공자를 바로(기본 증권사 아님). 응답 모양은 `/securities/candles` 와 같다.
+  Future<TossCandlePage> getCandles(
+    String symbol,
+    String interval, {
+    int? size,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/namu/candles',
+        queryParameters: {
+          'symbol': symbol,
+          'interval': interval,
+          'size': ?size,
+        },
+      );
+      final p = _payload(res);
+      return TossCandlePage.fromJson(p is Map<String, dynamic> ? p : {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// USD→KRW 환율. 못 구하면 null.
+  Future<double?> getExchangeRate({String base = 'USD'}) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/namu/exchange-rate',
+        queryParameters: {'base': base},
+      );
+      final p = _payload(res);
+      if (p is! Map<String, dynamic>) return null;
+      return (p['rate'] as num?)?.toDouble() ?? double.tryParse('${p['rate']}');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 종목 상세 시세 — 머리 · 오늘 시세 · 호가 · 경고 · 기본 정보가 한 응답이다.
+  Future<NamuQuoteDetail> getQuoteDetail(
+    String symbol, {
+    required bool us,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        us ? '/namu/gb/quote' : '/namu/kr/quote',
+        queryParameters: {'symbol': symbol},
+      );
+      final p = _payload(res);
+      return NamuQuoteDetail.fromJson(p is Map<String, dynamic> ? p : {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 체결 — 토스 `Trade` 와 같은 모양, 최신이 먼저.
+  Future<List<TossTrade>> getExecutions(
+    String symbol, {
+    required bool us,
+    int count = 20,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        us ? '/namu/gb/executions' : '/namu/kr/executions',
+        queryParameters: {'symbol': symbol, 'count': count},
+      );
+      return tradesFromJson(_payload(res));
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 투자자별 매매동향(국내 종목만).
+  Future<List<InvestorTradingDay>> getInvestors(
+    String symbol, {
+    int count = 5,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/namu/kr/investors',
+        queryParameters: {'symbol': symbol, 'count': count},
+      );
+      return investorDaysFromJson(_payload(res));
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 해외 증거금 — 달러 예수금(`fc_dca`). USD 행이 없으면 null.
+  Future<BuyingPower?> getUsdDeposit() async {
+    try {
+      final res = await _dio.get<dynamic>('/namu/margin');
+      final p = _payload(res);
+      if (p is! Map<String, dynamic>) return null;
+      final raw = _blankToNull(p['foreignDeposit']);
+      if (raw == null) return null;
+      return BuyingPower(currency: 'USD', amount: double.tryParse(raw));
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

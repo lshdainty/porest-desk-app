@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
@@ -148,6 +150,13 @@ List<Override> _base({
   }),
   tossWarningsProvider.overrideWith((ref, s) async => <TossStockWarning>[]),
   tossPriceLimitsProvider.overrideWith((ref, s) async => null),
+  // 13b-1 — 주문 가능 · 오늘 시세(일봉 3봉) · 투자자별. 빠뜨리면 저장소 길을 탄다.
+  tossBuyingPowerProvider.overrideWith((ref, cur) async {
+    onCall?.call('buyingPower');
+    return BuyingPower(currency: cur, amount: 1000);
+  }),
+  tossTodayCandlesProvider.overrideWith((ref, s) async => null),
+  tossInvestorProvider.overrideWith((ref, s) async => const []),
   stockSearchProvider.overrideWith((ref, q) async => const []),
   if (masked) hideCardProvider.overrideWith((ref, card) => true),
 ];
@@ -402,7 +411,43 @@ void main() {
       expect(calls['trades'], lessThanOrEqualTo(6));
       expect(calls['prices'], lessThanOrEqualTo(6));
       expect(calls['candles-1d'] ?? 0, 0, reason: '일별 캔들(252봉)은 10초마다 받지 않는다');
+      expect(
+        calls['buyingPower'] ?? 0,
+        0,
+        reason: '상세가 위에 있는데 목록의 주문 가능 타이머가 돌았다(H4)',
+      );
     });
+  });
+
+  testWidgets('H4 주문 가능은 60초마다 · 원화와 달러 한 번씩, 앱이 뒤로 가면 멈춘다', (tester) async {
+    await _tall(tester);
+    final calls = <String, int>{};
+    void hit(String k) => calls[k] = (calls[k] ?? 0) + 1;
+    await tester.pumpWidget(
+      _app(const Scaffold(body: TossStocksView()), _base(onCall: hit)),
+    );
+    await _settle(tester, 1000);
+    final first = calls['buyingPower'] ?? 0;
+    expect(first, 2, reason: '처음에 원화 · 달러 한 번씩');
+    await _settle(tester, 61000);
+    expect(
+      calls['buyingPower'],
+      first + 2,
+      reason: '60초 뒤 한 번씩 더(10초 보유 박자에 같이 돌지 않는다)',
+    );
+    await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'flutter/lifecycle',
+      const StringCodec().encodeMessage(AppLifecycleState.paused.toString()),
+      (_) {},
+    );
+    final before = calls['buyingPower'];
+    await _settle(tester, 130000);
+    expect(calls['buyingPower'], before, reason: '앱이 뒤로 갔는데 주문 가능을 불렀다');
+    await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'flutter/lifecycle',
+      const StringCodec().encodeMessage(AppLifecycleState.resumed.toString()),
+      (_) {},
+    );
   });
 
   // ── M3: 그룹 질의가 안 왔을 때 ☆ ────────────────────────────────────────

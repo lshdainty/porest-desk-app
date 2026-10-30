@@ -10,6 +10,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
@@ -17,6 +18,7 @@ import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 
 String _plain(Text w) => (w.data ?? w.textSpan?.toPlainText() ?? '')
@@ -101,6 +103,17 @@ List<Override> _base({
   ),
   tossWarningsProvider.overrideWith((ref, s) async => <TossStockWarning>[]),
   tossPriceLimitsProvider.overrideWith((ref, s) async => null),
+  tossBuyingPowerProvider.overrideWith(
+    (ref, cur) async => BuyingPower(currency: cur, amount: 1),
+  ),
+  tossTodayCandlesProvider.overrideWith((ref, s) async {
+    onCall?.call('today');
+    return null;
+  }),
+  tossInvestorProvider.overrideWith((ref, s) async {
+    onCall?.call('investor');
+    return const <InvestorTradingDay>[];
+  }),
   stockSearchProvider.overrideWith((ref, q) async => const []),
 ];
 
@@ -305,6 +318,9 @@ void main() {
       expect(_tc('미지원'), findsNothing);
       expect(_t('시세를 불러오지 못했어요'), findsOneWidget);
       expect(_t('다시 시도'), findsWidgets);
+      // 웹 BandFailure 와 같은 Result Section — 아이콘 · 제목 · 설명 · [다시 시도] (구역 안 = medium)
+      expect(_t('잠시 뒤 다시 시도해주세요.'), findsWidgets);
+      expect(find.byType(PResultSection), findsWidgets);
     });
 
     testWidgets('M8 응답은 왔는데 값이 없으면 "미지원"', (tester) async {
@@ -368,6 +384,53 @@ void main() {
       );
       expect(_tc('190원'), findsNothing);
       expect(_t('190'), findsWidgets);
+    });
+
+    testWidgets('N6 앱이 뒤로 가 있으면 오늘 시세 60초 타이머가 돌지 않는다', (tester) async {
+      final calls = <String>[];
+      await pump(tester, _base(onCall: calls.add, foreground: false));
+      final first = calls.where((c) => c == 'today').length;
+      await _run(tester, 130);
+      expect(
+        calls.where((c) => c == 'today').length,
+        first,
+        reason: '앱을 내렸는데 일봉을 불렀다',
+      );
+    });
+
+    testWidgets('N7 통화를 모르는 동안 투자자별을 부르지 않고 일별 시세에 "원" 을 붙이지 않는다', (
+      tester,
+    ) async {
+      final calls = <String>[];
+      await pump(tester, [
+        ..._base(
+          onCall: calls.add,
+          prices: (_) async => [
+            const TossPrice(symbol: 'A1', lastPrice: '190'),
+          ],
+        ),
+        tossCandlesProvider.overrideWith(
+          (ref, a) async => TossCandlePage(
+            candles: [
+              for (var d = 20; d <= 28; d++)
+                TossCandle(
+                  timestamp: '2026-10-${d}T00:00:00-04:00',
+                  openPrice: '1',
+                  highPrice: '1',
+                  lowPrice: '1',
+                  closePrice: '${190 + d}',
+                  volume: '10',
+                ),
+            ],
+          ),
+        ),
+      ]);
+      expect(
+        calls,
+        isNot(contains('investor')),
+        reason: '통화를 모르는 미국 종목으로 투자자별이 나갔다',
+      );
+      expect(_tc('원'), findsNothing, reason: '통화를 모르는데 "원" 이 붙었다');
     });
 
     testWidgets('M10 시세 응답의 통화(USD)를 쓴다', (tester) async {

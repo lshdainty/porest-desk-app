@@ -16,9 +16,10 @@ import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
-import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stocks_broker_parts.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_parts.dart';
 import 'package:groo_damda_app/features/stocks/presentation/watch_actions.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -29,15 +30,16 @@ import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 
 /// 나무증권 폰 화면 — 토스와 같은 띠 틀(내 투자 → 시장 → 종목, I-13 13-3).
 ///
-/// 나무에 없는 것(지수 · 호가 · 발견 · 일간 손익)은 그리지 않는다. 국내 · 해외 두 응답은 한 목록으로 합쳐
+/// 나무에 없는 것(지수 · 발견 · 일간 손익)은 그리지 않는다. 국내 · 해외 두 응답은 한 목록으로 합쳐
 /// 보이고, 통화를 나눠 보려면 목록 위 Segmented 로 거른다. 종목 상세와 포트폴리오 구성은 화면(주소)이다
 /// (`/stocks/namu/:symbol` · `/stocks/namu/portfolio`).
 ///
-/// 증권사별 구역(호가 · 체결 · 오늘 시세 · 투자자별 · 투자 지표 · ETF · 시간외 · 계좌 자세히 · 주문 가능 금액)은
-/// I-13b 13b-1 · 13b-3 이 이 화면 위에 얹는다.
+/// 13b-1 이 더한 것: 시장 띠의 장 상태 줄, 내 투자의 주문 가능 줄(원화 · 예수금 달러). 투자 지표 · ETF · 시간외 ·
+/// 계좌 자세히는 13b-3 몫이다.
 class NamuStocksView extends ConsumerStatefulWidget {
   const NamuStocksView({super.key});
 
@@ -59,12 +61,16 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
   /// 지금 지켜보는 관심 시세 키(콤마 심볼 묶음) — 박자마다 이 키만 다시 부른다.
   Set<String> _quoteKeys = const {};
 
+  /// 시장 띠 장 상태의 대표 종목 — 정한 뒤에는 정렬이 바뀌어도 그대로 둔다(M14).
+  String? _repKr;
+  String? _repUs;
+
   /// 화면에 들어와 300ms 머문 관심 그룹 — 이 그룹들의 심볼만 합쳐 시세를 부른다(I-13 22).
   final Set<int> _visible = {};
   final Map<int, Timer> _lingering = {};
 
   /// 받은 시세 — 그룹이 화면 밖으로 나가 부르기를 멈춰도 받은 값은 남긴다.
-  final Map<String, BrokerQuote> _lastQuotes = {};
+  final Map<String, NamuListQuote> _lastQuotes = {};
 
   @override
   void initState() {
@@ -86,7 +92,7 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
       }
       // 환율은 웹처럼 10분마다 다시 받는다 — 처음 값으로 굳지 않게(H3).
       if (++_ticks % kNamuFxRefreshTicks == 0) {
-        ref.invalidate(securitiesExchangeRateProvider);
+        ref.invalidate(namuExchangeRateProvider);
       }
     });
     ref.listenManual(appForegroundProvider, (wasForeground, isForeground) {
@@ -107,6 +113,14 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
       final fetchedAt = ref.read(namuHoldingsFetchedAtProvider)[currency];
       if (namuHoldingsStale(fetchedAt, ref.read(freshnessClockProvider)())) {
         ref.invalidate(provider);
+      }
+    }
+    // 주문 가능 · 달러(margin)는 보유와 같은 규칙 — 진입 · 창 복귀 때 60초 지났으면 다시.
+    if (ref.exists(namuUsdDepositProvider) &&
+        !ref.read(namuUsdDepositProvider).isLoading) {
+      final at = ref.read(namuMarginFetchedAtProvider)['USD'];
+      if (namuMarginStale(at, ref.read(freshnessClockProvider)())) {
+        ref.invalidate(namuUsdDepositProvider);
       }
     }
   }
@@ -158,7 +172,7 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     final masked = ref.watch(hideCardProvider('stocks.summary'));
     final krwAsync = ref.watch(namuHoldingsProvider('KRW'));
     final usdAsync = ref.watch(namuHoldingsProvider('USD'));
-    final fxRaw = ref.watch(securitiesExchangeRateProvider).value;
+    final fxRaw = ref.watch(namuExchangeRateProvider).value;
     final fx = (fxRaw != null && fxRaw > 0) ? fxRaw : null;
     final view = mergeNamuHoldings(krwAsync.value, usdAsync.value, fx);
     final loading =
@@ -180,7 +194,7 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
         keys.add(chunk.join(','));
         final quotes =
             ref.watch(namuQuotesProvider(chunk.join(','))).value ??
-            const <BrokerQuote>[];
+            const <NamuListQuote>[];
         for (final q in quotes) {
           if (q.price > 0) _lastQuotes[q.symbol] = q;
         }
@@ -188,6 +202,14 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     }
 
     _quoteKeys = keys;
+    final reps = namuMarketRepresentatives(
+      view,
+      groups,
+      prevKr: _repKr,
+      prevUs: _repUs,
+    );
+    _repKr = reps.kr;
+    _repUs = reps.us;
 
     final head = <Widget>[
       NamuInvestBand(
@@ -200,10 +222,14 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
         onRetry: _retryInvest,
       ),
       const SizedBox(height: kScreenBandGap),
-      if (fx != null) ...[
-        const NamuMarketBand(),
-        const SizedBox(height: kScreenBandGap),
-      ],
+      NamuMarketBand(
+        krSymbol: reps.kr,
+        usSymbol: reps.us,
+        // 보유 질의(와 관심 그룹)가 끝나기 전에는 대표를 못 정한다 — 그동안 장 상태 자리는 Skeleton 이다.
+        // 보유 질의가 실패했거나 보유가 0 이면 "끝난 것" 이라 관심 첫 종목 · 대표 없음으로 넘어간다.
+        ready: !loading && !(watchAsync.isLoading && !watchAsync.hasValue),
+      ),
+      const SizedBox(height: kScreenBandGap),
     ];
 
     final tabs = ColoredBox(
@@ -444,7 +470,7 @@ PDelta namuPnlDelta(
   );
 }
 
-class NamuInvestBand extends StatelessWidget {
+class NamuInvestBand extends ConsumerWidget {
   const NamuInvestBand({
     super.key,
     required this.krwAsync,
@@ -464,8 +490,44 @@ class NamuInvestBand extends StatelessWidget {
   final bool masked;
   final VoidCallback onRetry;
 
+  List<Widget> _buyingPowerRows(
+    BuildContext context,
+    WidgetRef ref,
+    bool masked,
+  ) {
+    final l = AppLocalizations.of(context);
+    final usd = ref.watch(namuUsdDepositProvider);
+    final krwOrderable = krwAsync.value?.orderableValue;
+    // 국내 잔고 질의가 실패했으면(값이 없으면) 줄을 없애지 않고 "—" 로 둔다(M5) — 줄이 사라지면 0 원처럼 읽힌다.
+    final krwFailed = krwAsync.hasError && !krwAsync.hasValue;
+    return [
+      if (krwOrderable != null || krwFailed)
+        stocksBuyingPowerRow(
+          context,
+          title: l.stocksBuyingPowerKrw,
+          state: AsyncValue3(failed: krwFailed, amount: krwOrderable),
+          masked: masked,
+          format: (v) => fmtByCurrency(v, 'KRW'),
+        ),
+      if ((usd.value?.amount != null) ||
+          (usd.isLoading && !usd.hasValue) ||
+          (usd.hasError && !usd.hasValue))
+        stocksBuyingPowerRow(
+          context,
+          title: l.namuDepositUsd,
+          state: AsyncValue3(
+            loading: usd.isLoading && !usd.hasValue,
+            failed: usd.hasError && !usd.hasValue,
+            amount: usd.value?.amount,
+          ),
+          masked: masked,
+          format: (v) => fmtByCurrency(v, 'USD'),
+        ),
+    ];
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     if (failed) {
@@ -591,6 +653,8 @@ class NamuInvestBand extends StatelessWidget {
                 row(l.namuDomesticValue, lineValue(view.krw!)),
               if (view.usd != null && (total || main == view.krw))
                 row(l.namuOverseasValue, lineValue(view.usd!)),
+              // 주문 가능 — 원화는 국내 잔고 응답에서(새 호출 없음), 달러는 margin 의 예수금(주문 가능 칸이 없다).
+              ..._buyingPowerRows(context, ref, masked),
               row(
                 l.stocksHoldingsLabel,
                 Text(
@@ -625,29 +689,139 @@ class NamuInvestBand extends StatelessWidget {
 
 // ---- 띠 ② 시장 ---------------------------------------------------------------
 
-/// 나무 시장 띠 — 환율 줄만 있다(장 상태 · 지수는 I-13b 몫). 환율이 있을 때만 그린다.
-class NamuMarketBand extends ConsumerWidget {
-  const NamuMarketBand({super.key});
+/// 나무 시장 띠 — 장 상태 줄 + 환율 줄(지수 · 다음 개장 시각은 토스만 — 다른 증권사를 권하는 글 없음).
+///
+/// 장 상태는 나무가 시세에 딸려 주므로 시장마다 **대표 종목 하나**(보유 첫 종목, 없으면 관심 첫 종목)의 시세를
+/// `/namu/prices` 로 한 번에(최대 2종목) 60초마다, 앱이 보일 때만 받는다. 대표가 없는 시장은 그리지 않고,
+/// 둘 다 없으면 장 상태 줄 없이 환율 줄만 남는다. 환율을 못 받으면 값은 "환율 없음".
+class NamuMarketBand extends ConsumerStatefulWidget {
+  const NamuMarketBand({
+    super.key,
+    required this.krSymbol,
+    required this.usSymbol,
+    this.ready = true,
+  });
+  final String? krSymbol;
+  final String? usSymbol;
+  final bool ready;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NamuMarketBand> createState() => _NamuMarketBandState();
+}
+
+class _NamuMarketBandState extends ConsumerState<NamuMarketBand> {
+  Timer? _timer;
+
+  String get _csv {
+    final set = <String>{
+      if (widget.krSymbol != null) widget.krSymbol!,
+      if (widget.usSymbol != null) widget.usSymbol!,
+    };
+    return (set.toList()..sort()).join(',');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(namuMarketStatePollInterval, (_) {
+      // 앱이 뒤로 가 있거나 상세 · 시트가 위에 올라와 있으면 멈춘다(H4).
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+      ref.invalidate(namuQuotesProvider(_csv));
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final fx = ref.watch(securitiesExchangeRateProvider).value;
-    if (fx == null || fx <= 0) return const SizedBox.shrink();
+    final fxAsync = ref.watch(namuExchangeRateProvider);
+    final fx = fxAsync.value;
+    final csv = _csv;
+    final quotesAsync = (widget.ready && csv.isNotEmpty)
+        ? ref.watch(namuQuotesProvider(csv))
+        : null;
+    final quotes = quotesAsync?.value ?? const <NamuListQuote>[];
+    String? stateOf(String? symbol) => symbol == null
+        ? null
+        : quotes.where((q) => q.symbol == symbol).firstOrNull?.marketState;
+    final kr = namuMarketStateText(l, stateOf(widget.krSymbol));
+    final us = namuMarketStateText(l, stateOf(widget.usSymbol));
+    final markets = [
+      if (kr != null) (name: l.stocksMarketKr, open: kr.open, detail: kr.text),
+      if (us != null) (name: l.stocksMarketUs, open: us.open, detail: us.text),
+    ];
+    // 대표를 기다리는 동안(ready 아님)에도 값 자리는 Skeleton — 시장 띠 전체가 실패 한 벌로 바뀌지 않는다.
+    final stateLoading =
+        !widget.ready ||
+        (quotesAsync != null && quotesAsync.isLoading && !quotesAsync.hasValue);
+    final fxLoading = fxAsync.isLoading && !fxAsync.hasValue;
+    final bothFailed =
+        (quotesAsync?.hasError ?? false) &&
+        !(quotesAsync?.hasValue ?? false) &&
+        fxAsync.hasError &&
+        !fxAsync.hasValue;
+    if (bothFailed) {
+      return PScreenSection(
+        padding: const EdgeInsets.only(bottom: PSpacing.x2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            StocksBandTitle(l.stocksSectionMarket),
+            StocksFailure(
+              title: l.stocksFailMarket,
+              onRetry: () {
+                ref.invalidate(namuQuotesProvider(csv));
+                ref.invalidate(namuExchangeRateProvider);
+              },
+            ),
+          ],
+        ),
+      );
+    }
     return PScreenSection(
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           StocksBandTitle(l.stocksSectionMarket),
+          if (markets.isNotEmpty) ...[
+            StocksMarketStatusLine(markets: markets),
+            const SizedBox(height: PSpacing.x1),
+          ] else if (stateLoading) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: PSpacing.x6),
+              child: PSkeleton(width: 160, height: 18),
+            ),
+            const SizedBox(height: PSpacing.x1),
+          ],
           PList(
             children: [
               PListItem(
                 title: l.stocksExchangeRate,
                 detail: l.stocksFxBasis,
-                suffix: PListValue.amount(
-                  fmtFxRate(fx),
-                  style: stocksMoneyStyle(context),
+                suffix: PListValue(
+                  child: fxLoading
+                      ? const PSkeleton(width: 80, height: 18)
+                      : (fx != null && fx > 0)
+                      ? Text(
+                          keepAllAmount(fmtFxRate(fx)),
+                          style: stocksMoneyStyle(context),
+                        )
+                      : Text(
+                          l.namuFxUnavailableShort,
+                          style: PTypography.t4.copyWith(
+                            color: context.colors.fgNeutralSubtle,
+                          ),
+                        ),
                 ),
               ),
             ],
