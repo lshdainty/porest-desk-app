@@ -111,6 +111,31 @@ void main() {
 
   Finder sheetContent() => find.byType(PBottomSheetContent);
 
+  group('첫 초점', () {
+    bool titleFocused(WidgetTester tester) => tester
+        .widget<TextField>(find.byType(TextField).first)
+        .focusNode!
+        .hasFocus;
+
+    testWidgets('새 일정은 제목 칸에 초점이 간다', (tester) async {
+      await openEventForm(tester, repo: _Repo());
+      expect(titleFocused(tester), isTrue);
+    });
+
+    testWidgets('수정으로 열면 어느 칸에도 초점을 주지 않는다', (tester) async {
+      await openEventForm(
+        tester,
+        repo: _Repo(),
+        edit: CalendarEvent.fromJson(_event()),
+      );
+      expect(titleFocused(tester), isFalse);
+      expect(
+        FocusManager.instance.primaryFocus?.context?.widget,
+        isNot(isA<EditableText>()),
+      );
+    });
+  });
+
   group('줄 칸', () {
     testWidgets('줄 아홉이 이 차례로 있고 새 일정은 종일이 켜져 있다', (tester) async {
       await openEventForm(tester, repo: _Repo());
