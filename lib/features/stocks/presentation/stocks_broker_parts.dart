@@ -175,19 +175,14 @@ class StocksInvestorBand extends StatelessWidget {
       // 큰 글자 한국어 "외국인" 이 한 글자씩 쪼개지던 것). 묶음의 세 줄 중 **하나라도** 이름 + 값이 한 줄에 못 들어가면
       // **세 줄 모두** 이름 아래로 값을 내린다(List "큰 글자에서 값을 본문 아래로" — 한 묶음에 두 모양이 섞이지 않게).
       // 줄 폭 상한을 두지 않는다(웹이 60cqw 상한을 해제한 것과 같다). 값만으로도 넘치면 값이 줄어들고 이름은 안 줄어든다.
-      Widget labelled(
-        String label,
-        double? v, {
-        required bool stacked,
-        required double labelWidth,
-      }) {
+      Widget labelled(String label, double? v, {required bool stacked}) {
         final name = ConstrainedBox(
           constraints: const BoxConstraints(minWidth: 40),
           child: Text(
             label,
             maxLines: 1,
             softWrap: false,
-            textAlign: stacked ? TextAlign.left : TextAlign.right,
+            textAlign: TextAlign.left,
             style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
           ),
         );
@@ -197,30 +192,17 @@ class StocksInvestorBand extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: box.maxWidth),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                // 값은 왼쪽에서 시작한다(웹과 같다) — 이름 칸은 묶음 안 가장 긴 이름 폭으로 맞춰 오른쪽 정렬
                 alignment: Alignment.centerLeft,
                 child: _investorValue(context, v),
               ),
             ),
           ),
         );
-        return stacked
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [name, value],
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: labelWidth,
-                    child: Align(alignment: Alignment.centerRight, child: name),
-                  ),
-                  const SizedBox(width: PSpacing.x2),
-                  Flexible(child: value),
-                ],
-              );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [name, value],
+        );
       }
 
       body = PList(
@@ -246,27 +228,61 @@ class StocksInvestorBand extends StatelessWidget {
                           values,
                           box.maxWidth,
                         );
-                    final labelWidth = [
-                      for (final t in labels)
-                        investorTextWidth(
-                          context,
-                          t,
-                          PTypography.t3,
-                        ).clamp(40.0, double.infinity),
-                    ].reduce((a, b) => a > b ? a : b);
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (var i = 0; i < 3; i++) ...[
-                          if (i > 0) const SizedBox(height: 2),
-                          labelled(
-                            labels[i],
-                            values[i],
-                            stacked: stacked,
-                            labelWidth: labelWidth,
-                          ),
+                    if (stacked) {
+                      // 값이 이름 아래로 내려간 모양 — List 규칙대로 모두 왼쪽(list.md "큰 글자에서 값을 본문 아래로")
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var i = 0; i < 3; i++) ...[
+                            if (i > 0) const SizedBox(height: 2),
+                            labelled(labels[i], values[i], stacked: true),
+                          ],
                         ],
+                      );
+                    }
+                    // 한 줄 모양 — 이름 칸 · 값 칸이 묶음 안 가장 넓은 폭으로 맞춰지고 둘 다 오른쪽 맞춤이다(웹과 같다).
+                    // "—" · "0" 도 값 칸 오른쪽 끝에 붙어 같은 묶음의 숫자 끝과 나란하다.
+                    return Table(
+                      defaultColumnWidth: const IntrinsicColumnWidth(),
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      children: [
+                        for (var i = 0; i < 3; i++)
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  right: PSpacing.x2,
+                                  bottom: i < 2 ? 2 : 0,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 40,
+                                    ),
+                                    child: Text(
+                                      labels[i],
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      textAlign: TextAlign.right,
+                                      style: PTypography.t3.copyWith(
+                                        color: c.fgNeutralSubtle,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: i < 2 ? 2 : 0),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: _investorValue(context, values[i]),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     );
                   },
@@ -493,16 +509,17 @@ bool investorLinesNeedStacking(
   final labelStyle = PTypography.t3;
   final valueStyle = PTypography.t3.copyWith(fontWeight: FontWeight.w500);
   final arrow = scaler.scale(13) + 4;
+  // 한 줄 모양은 이름 칸 · 값 칸이 묶음 안 가장 넓은 폭으로 맞춰지므로 두 칸의 최댓값으로 잰다.
+  var labelMax = 40.0;
+  var valueMax = 0.0;
   for (var i = 0; i < labels.length; i++) {
     final v = values[i];
     final text = v == null ? '—' : krw(v.round().abs());
     final hasArrow = v != null && v.round() != 0;
-    final line =
-        width(labels[i], labelStyle).clamp(40.0, double.infinity) +
-        PSpacing.x2 +
-        width(text, valueStyle) +
-        (hasArrow ? arrow : 0);
-    if (line > maxWidth) return true;
+    final lw = width(labels[i], labelStyle);
+    if (lw > labelMax) labelMax = lw;
+    final vw = width(text, valueStyle) + (hasArrow ? arrow : 0);
+    if (vw > valueMax) valueMax = vw;
   }
-  return false;
+  return labelMax + PSpacing.x2 + valueMax > maxWidth;
 }

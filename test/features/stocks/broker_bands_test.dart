@@ -406,6 +406,46 @@ void main() {
       }
     });
 
+    Future<void> pumpNullZero(WidgetTester tester, double width) => _pump(
+      tester,
+      (_) => StocksInvestorBand(
+        days: const [
+          InvestorTradingDay(
+            date: '2026-10-29',
+            individual: null,
+            foreigner: 0,
+            institution: 12345678,
+          ),
+        ],
+        loading: false,
+        failed: false,
+        onRetry: () {},
+      ),
+      width: width,
+      textScale: 2,
+    );
+
+    testWidgets('"—" · "0" 줄은 값 칸 오른쪽 끝에 붙어 숫자 끝과 나란하다(웹과 같다)', (tester) async {
+      await pumpNullZero(tester, 360);
+      final number = tester.getRect(find.textContaining('12,345,678'));
+      final dash = tester.getRect(_t('—'));
+      final zero = tester.getRect(_t('0'));
+      expect(dash.right, closeTo(number.right, 1.5), reason: '"—" 이 이름 옆에 붙었다');
+      expect(zero.right, closeTo(number.right, 1.5), reason: '"0" 이 이름 옆에 붙었다');
+    });
+
+    testWidgets('값이 이름 아래로 내려간 모양(스택)에서는 "—" · "0" 도 왼쪽(List 규칙)', (
+      tester,
+    ) async {
+      await pumpNullZero(tester, 240);
+      final label = tester.getRect(_t('개인'));
+      final dash = tester.getRect(_t('—'));
+      expect(dash.top, greaterThanOrEqualTo(label.bottom - 1));
+      expect(dash.left, closeTo(label.left, 1.5));
+      final zero = tester.getRect(_t('0'));
+      expect(zero.left, closeTo(tester.getRect(_t('외국인')).left, 1.5));
+    });
+
     testWidgets('칸이 모자라면 세 줄 모두 값이 이름 아래로 — 한 묶음에 두 모양이 섞이지 않는다', (
       tester,
     ) async {
