@@ -110,6 +110,7 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
     final quote = quoteAsync?.asData?.value.firstOrNull;
     final lastRaw = holding != null ? holding.currentPrice : quote?.price;
     final last = (lastRaw != null && lastRaw > 0) ? lastRaw : null;
+    final prevClose = holding != null ? null : quote?.previousClose;
     final changePct = holding != null
         ? null
         : changePctOf(last, quote?.previousClose);
@@ -151,11 +152,17 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
                     fontFeatures: kStocksTnum,
                   ),
                 ),
-                if (changePct != null) ...[
+                if (changePct != null && last != null && prevClose != null) ...[
                   const SizedBox(height: PSpacing.x1),
+                  // "▲ 45,200원 · 0.30%" — 금액(전일 종가 대비)과 등락률(13-1 M5 와 같게)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: StocksPctDelta(changePct),
+                    child: namuPnlDelta(
+                      last - prevClose,
+                      changePct,
+                      currency,
+                      false,
+                    ),
                   ),
                 ],
                 if (last == null && !(quoteAsync?.isLoading ?? false)) ...[
