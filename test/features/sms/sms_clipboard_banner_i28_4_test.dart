@@ -28,6 +28,7 @@ Future<void> _pump(
   Object? Function(MethodCall)? clipboard,
   List<Object?>? pushed,
 }) async {
+  SharedPreferences.resetStatic();
   SharedPreferences.setMockInitialValues({});
   t.view.physicalSize = const Size(360 * 3, 800 * 3);
   t.view.devicePixelRatio = 3;
@@ -145,4 +146,39 @@ void main() {
     expect(find.byType(SmsClipboardBanner), findsOneWidget);
     expect(t.getSize(find.byType(SmsClipboardBanner)).height, 0);
   });
+
+  // 닫기의 누르는 영역 — 보이는 상자(36)가 아니라 실제로 닫기가 받는 점을 잰다. 중심에서 네 방향으로 [reach] 떨어진 점을
+  // 눌러 줄(_open)이 아니라 닫기(_dismiss)가 받는지 본다. 2026-10-30 측정: 네 방향 모두 17(옆 · 아래는 17, 위 · 왼쪽은 18)
+  // 까지만 닫기가 받고 18~19 부터 줄이 받는다 = 보이는 상자 36 그대로다. 44(중심에서 22)는 모자라서 skip — 부품(PListAction ·
+  // PTouchTargetScope)이 줄 안 작은 버튼의 넓힌 영역을 줄 탭보다 앞세우지 못한다. 결정 필요(결과표 질문 1).
+  for (final reach in const [17.0, 21.5]) {
+    for (final probe in const {
+      '오른쪽': Offset(1, 0),
+      '왼쪽': Offset(-1, 0),
+      '아래': Offset(0, 1),
+      '위': Offset(0, -1),
+    }.entries) {
+      final is44 = reach > 20;
+      testWidgets(
+        '닫기 누르는 영역 — 중심에서 ${probe.key} $reach 도 닫기가 받는다${is44 ? ' (44 기준)' : ''}',
+        (t) async {
+          final pushed = <Object?>[];
+          await _pump(
+            t,
+            hint: _hint,
+            pushed: pushed,
+            clipboard: (c) =>
+                c.method == 'Clipboard.getData' ? {'text': _sms} : null,
+          );
+          final center = t.getCenter(find.byIcon(LucideIcons.x));
+          await t.tapAt(center + probe.value * reach);
+          await t.pump();
+          await t.pump(const Duration(milliseconds: 400));
+          expect(find.byType(PListButtonItem), findsNothing);
+          expect(pushed, isEmpty, reason: '줄(_open)이 받으면 붙여넣기 화면으로 가 버린다');
+        },
+        skip: is44,
+      );
+    }
+  }
 }
