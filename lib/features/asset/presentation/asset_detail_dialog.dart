@@ -1,5 +1,6 @@
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/chart_axis.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/settings/hide_amounts_cards.dart';
@@ -1061,6 +1063,21 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     final yInterval = yAxis.interval;
     final xInterval = (n / 6).clamp(1.0, double.infinity);
 
+    // 세로축 폭은 가장 긴 눈금 글자("−5,000만" 처럼 부호가 붙은 것 포함)를 글자 배율대로
+    // 재서 잡는다 — 고정 폭이면 왼쪽 끝이 잘려 `−2,500만` 이 `2,500만` 으로 읽힌다
+    // (chart.md:46 · 결함 D6).
+    final yTickStyle = PTypo.micro.copyWith(fontSize: PFontSize.micro);
+    final yScaler = MediaQuery.textScalerOf(context);
+    var yLabelW = 0.0;
+    for (var v = yMin; v <= yMax + yInterval / 2; v += yInterval) {
+      final text = masked ? '••••' : formatChartAxis(v);
+      yLabelW = math.max(
+        yLabelW,
+        measureText(text, yTickStyle, scaler: yScaler),
+      );
+    }
+    final yReserved = yLabelW.ceilToDouble() + 6 + 2;
+
     final chart = LineChart(
       LineChartData(
         minX: 0,
@@ -1088,7 +1105,7 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 52,
+              reservedSize: yReserved,
               interval: yInterval,
               getTitlesWidget: (v, _) => Padding(
                 padding: const EdgeInsets.only(right: 6),
