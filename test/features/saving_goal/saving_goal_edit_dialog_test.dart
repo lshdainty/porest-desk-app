@@ -13,7 +13,6 @@ import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:groo_damda_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
-import 'package:groo_damda_app/shared/ds/scroll_fog/p_scroll_fog.dart';
 
 const _existing = SavingGoal(
   rowId: 1,
@@ -157,11 +156,6 @@ void main() {
     expect(_t('없음'), findsOneWidget);
     // 미리보기 카드는 없다
     expect(_t('선택'), findsOneWidget);
-  });
-
-  testWidgets('여섯 칸 폼이라 본문 끝을 흐린다(Scroll Fog)', (tester) async {
-    await _open(tester);
-    expect(find.byType(PScrollFog), findsOneWidget);
   });
 
   testWidgets('이름 입력은 12자에서 멈춘다', (tester) async {

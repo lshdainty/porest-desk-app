@@ -324,7 +324,7 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
       description: description,
       closeLabel: l.actionClose,
       flushBody: flush,
-      scrollFog: true,
+      scrollFog: false,
       body: body,
       footer: footer,
     );

@@ -504,7 +504,6 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
       title: _isEdit ? l.categoryEdit : l.categoryAdd,
       closeLabel: l.actionClose,
       flushBody: true,
-      scrollFog: true,
       headerAction: _isEdit ? _headerAction(l) : null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

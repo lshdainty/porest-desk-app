@@ -324,7 +324,6 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
       title: _isEdit ? l.savingGoalEdit : l.savingGoalAdd,
       closeLabel: l.actionClose,
       flushBody: true,
-      scrollFog: true,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
