@@ -9710,23 +9710,11 @@ abstract class AppLocalizations {
   /// **'매도'**
   String get stocksSell;
 
-  /// No description provided for @stocksSellOrderStub.
-  ///
-  /// In ko, this message translates to:
-  /// **'{name} 매도 주문은 아직 지원하지 않아요'**
-  String stocksSellOrderStub(String name);
-
   /// No description provided for @stocksBuy.
   ///
   /// In ko, this message translates to:
   /// **'매수'**
   String get stocksBuy;
-
-  /// No description provided for @stocksBuyOrderStub.
-  ///
-  /// In ko, this message translates to:
-  /// **'{name} 매수 주문은 아직 지원하지 않아요'**
-  String stocksBuyOrderStub(String name);
 
   /// No description provided for @stocksFeeUs.
   ///
@@ -14635,6 +14623,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{month}월 {day}일'**
   String stocksDailyDate(int month, int day);
+
+  /// No description provided for @stocksTradeSoon.
+  ///
+  /// In ko, this message translates to:
+  /// **'주문은 곧 열려요.'**
+  String get stocksTradeSoon;
 }
 
 class _AppLocalizationsDelegate

@@ -5338,17 +5338,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksSell => 'Sell';
 
   @override
-  String stocksSellOrderStub(String name) {
-    return '$name sell orders aren\'t supported yet';
-  }
-
-  @override
   String get stocksBuy => 'Buy';
-
-  @override
-  String stocksBuyOrderStub(String name) {
-    return '$name buy orders aren\'t supported yet';
-  }
 
   @override
   String get stocksFeeUs =>
@@ -8329,4 +8319,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String stocksDailyDate(int month, int day) {
     return '$month/$day';
   }
+
+  @override
+  String get stocksTradeSoon => 'Ordering will open soon.';
 }

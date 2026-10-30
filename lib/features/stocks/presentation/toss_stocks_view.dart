@@ -2149,7 +2149,8 @@ class _DailyBand extends ConsumerWidget {
         children: [
           _BandTitle(l.stocksDailyPrices),
           list,
-          // 매매 — 지금처럼 누르면 알림만 뜬다(문구만 ~어요). 매도 = brandSolid · 매수 = criticalSolid, 사이 8.
+          // 매매 — 주문 기능이 아직 없다. 단추는 남기고 막고 이유 줄을 둔다(D3 B, 사용자 10-30).
+          // 매도 = brandSolid · 매수 = criticalSolid, 사이 8. 누르면 뜨던 옛 띠는 없다.
           Padding(
             padding: const EdgeInsets.fromLTRB(
               PSpacing.x6,
@@ -2157,32 +2158,41 @@ class _DailyBand extends ConsumerWidget {
               PSpacing.x6,
               0,
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: PButton(
-                    label: l.stocksSell,
-                    size: PButtonSize.large,
-                    variant: PButtonVariant.brandSolid,
-                    onPressed: () => showPSnackBar(
-                      context,
-                      l.stocksSellOrderStub(name),
-                      severity: PSnackSeverity.info,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        hint: l.stocksTradeSoon,
+                        child: PButton(
+                          label: l.stocksSell,
+                          size: PButtonSize.large,
+                          variant: PButtonVariant.brandSolid,
+                          onPressed: null,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: PSpacing.x2),
+                    Expanded(
+                      child: Semantics(
+                        hint: l.stocksTradeSoon,
+                        child: PButton(
+                          label: l.stocksBuy,
+                          size: PButtonSize.large,
+                          variant: PButtonVariant.criticalSolid,
+                          onPressed: null,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: PSpacing.x2),
-                Expanded(
-                  child: PButton(
-                    label: l.stocksBuy,
-                    size: PButtonSize.large,
-                    variant: PButtonVariant.criticalSolid,
-                    onPressed: () => showPSnackBar(
-                      context,
-                      l.stocksBuyOrderStub(name),
-                      severity: PSnackSeverity.info,
-                    ),
-                  ),
+                const SizedBox(height: PSpacing.x2),
+                Text(
+                  l.stocksTradeSoon,
+                  textAlign: TextAlign.center,
+                  style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
                 ),
               ],
             ),

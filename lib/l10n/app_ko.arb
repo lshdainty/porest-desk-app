@@ -3028,23 +3028,7 @@
   "stocksHoldingsLabel": "보유 종목",
   "stocksExchangeRate": "환율(USD)",
   "stocksSell": "매도",
-  "stocksSellOrderStub": "{name} 매도 주문은 아직 지원하지 않아요",
-  "@stocksSellOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksBuy": "매수",
-  "stocksBuyOrderStub": "{name} 매수 주문은 아직 지원하지 않아요",
-  "@stocksBuyOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksFeeUs": "미국주식 매매수수료 0.1% · 환전 수수료 별도 적용",
   "stocksFeeKr": "국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%",
   "stocksEvalAmount": "평가금액",
@@ -4806,5 +4790,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "stocksTradeSoon": "주문은 곧 열려요."
 }

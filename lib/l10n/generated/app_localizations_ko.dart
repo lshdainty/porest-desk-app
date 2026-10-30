@@ -5240,17 +5240,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksSell => '매도';
 
   @override
-  String stocksSellOrderStub(String name) {
-    return '$name 매도 주문은 아직 지원하지 않아요';
-  }
-
-  @override
   String get stocksBuy => '매수';
-
-  @override
-  String stocksBuyOrderStub(String name) {
-    return '$name 매수 주문은 아직 지원하지 않아요';
-  }
 
   @override
   String get stocksFeeUs => '미국주식 매매수수료 0.1% · 환전 수수료 별도 적용';
@@ -8134,4 +8124,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String stocksDailyDate(int month, int day) {
     return '$month월 $day일';
   }
+
+  @override
+  String get stocksTradeSoon => '주문은 곧 열려요.';
 }

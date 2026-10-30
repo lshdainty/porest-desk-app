@@ -2956,23 +2956,7 @@
   "stocksHoldingsLabel": "Holdings",
   "stocksExchangeRate": "Exchange rate (USD)",
   "stocksSell": "Sell",
-  "stocksSellOrderStub": "{name} sell orders aren't supported yet",
-  "@stocksSellOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksBuy": "Buy",
-  "stocksBuyOrderStub": "{name} buy orders aren't supported yet",
-  "@stocksBuyOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksFeeUs": "US stock trading fee 0.1% · FX fee applies separately",
   "stocksFeeKr": "Domestic stock trading free (until Jun 2026) · then KRX 0.015% / NXT 0.014%",
   "stocksEvalAmount": "Market value",
@@ -4543,5 +4527,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "stocksTradeSoon": "Ordering will open soon."
 }
