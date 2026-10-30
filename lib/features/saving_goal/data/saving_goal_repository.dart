@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:groo_damda_app/core/network/api_response.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/saving_goal/domain/saving_goal.dart';
@@ -99,9 +100,13 @@ class SavingGoalRepository {
     }
   }
 
-  Future<void> delete(int id) async {
+  /// [silent] 면 전역 오류 토스트를 띄우지 않는다 — 화면이 자기 스낵바로 알린다.
+  Future<void> delete(int id, {bool silent = false}) async {
     try {
-      await _dio.delete<void>('/saving-goal/$id');
+      await _dio.delete<void>(
+        '/saving-goal/$id',
+        options: silent ? Options(extra: {kSilentErrorToast: true}) : null,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

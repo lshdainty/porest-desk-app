@@ -69,7 +69,7 @@ class _FakeBudgetRepo extends BudgetRepository {
   }
 
   @override
-  Future<void> delete(int id) async {
+  Future<void> delete(int id, {bool silent = false}) async {
     if (failDeleteCall == _deleteCalls++) {
       failDeleteCall = null;
       throw ApiException(code: 'X', message: 'boom');
@@ -84,6 +84,7 @@ class _FakeBudgetRepo extends BudgetRepository {
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
+    bool silent = false,
   }) async {
     if (failCreateCall == _createCalls++) {
       failCreateCall = null;
@@ -94,7 +95,11 @@ class _FakeBudgetRepo extends BudgetRepository {
   }
 
   @override
-  Future<void> update({required int id, required int budgetAmount}) async {
+  Future<void> update({
+    required int id,
+    required int budgetAmount,
+    bool silent = false,
+  }) async {
     _maybeFail();
     updated.add(id);
   }
@@ -105,7 +110,7 @@ class _FakeGoalRepo extends SavingGoalRepository {
   final deleted = <int>[];
   bool failNext = false;
   @override
-  Future<void> delete(int id) async {
+  Future<void> delete(int id, {bool silent = false}) async {
     if (failNext) {
       failNext = false;
       throw ApiException(code: 'X', message: 'boom');
@@ -785,18 +790,21 @@ void main() {
       expect(find.text('되돌리기'), findsNothing);
     });
 
-    testWidgets('되돌리기 도중 일부가 실패하면 남은 수를 알리고, 다시 시도는 남은 것만 지운다', (tester) async {
+    testWidgets('되돌리기 도중 하나가 실패해도 나머지는 계속 지우고, 못 지운 수를 알린 뒤 다시 시도는 그것만 지운다', (
+      tester,
+    ) async {
       final repo = _FakeBudgetRepo()..failDeleteCall = 1;
       await pumpCur(tester, repo, [99]);
       await tester.tap(find.text('지난달 복사'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('되돌리기'));
       await tester.pumpAndSettle();
-      expect(repo.deleted, [100]);
-      expect(findPlain('되돌리지 못한 예산이 2개 남았어요.'), findsOneWidget);
+      // 둘째(101)만 실패 — 셋째(102)는 시도한다(첫 실패에서 멈추지 않는다)
+      expect(repo.deleted, [100, 102]);
+      expect(findPlain('되돌리지 못한 예산이 1개 남았어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
-      expect(repo.deleted, [100, 101, 102]);
+      expect(repo.deleted, [100, 102, 101]);
     });
 
     testWidgets(
@@ -846,9 +854,7 @@ void main() {
       expect(repo.deleted, [100, 101, 102]);
     });
 
-    testWidgets('예산 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 같은 삭제를 다시 묻는다', (
-      tester,
-    ) async {
+    testWidgets('예산 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 묻지 않고 바로 지운다', (tester) async {
       final repo = _FakeBudgetRepo()..failNext = true;
       await _pump(
         tester,
@@ -868,9 +874,8 @@ void main() {
       expect(findPlain('예산을 삭제하지 못했어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
-      expect(find.byType(PAlertDialogView), findsOneWidget);
-      await tester.tap(find.text('삭제').last);
-      await tester.pumpAndSettle();
+      // 이미 확정한 삭제 — 같은 질문을 두 번 하지 않고 바로 지운다
+      expect(find.byType(PAlertDialogView), findsNothing);
       expect(repo.deleted, [2]);
     });
 
@@ -917,7 +922,9 @@ void main() {
       expect(repo.deleted, [5]);
     });
 
-    testWidgets('저축 목표 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도', (tester) async {
+    testWidgets('저축 목표 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 묻지 않고 바로 지운다', (
+      tester,
+    ) async {
       final repo = _FakeGoalRepo()..failNext = true;
       final goals = [
         const SavingGoal(
@@ -950,7 +957,9 @@ void main() {
       expect(findPlain('저축 목표를 삭제하지 못했어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
-      expect(find.byType(PAlertDialogView), findsOneWidget);
+      // 이미 확정한 삭제 — 다시 묻지 않고 바로 지운다
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(repo.deleted, [5]);
     });
   });
 }

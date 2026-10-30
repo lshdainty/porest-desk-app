@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/budget/application/budget_providers.dart';
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
@@ -76,22 +77,30 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   /// "가져오지 못한 예산이 N개 있어요" + "다시 시도"가 뜨며, 다시 시도는 실패한 항목만 다시 한다
   /// (이미 고른 복사의 나머지이므로 확인창을 다시 띄우지 않는다). 스낵바는 한 번에 하나 —
   /// 실패 알림이 먼저, 다시 시도가 다 끝난 뒤에 "가져왔어요 + 되돌리기"(덮어쓴 복사에는 되돌리기가 없다).
+  ///
+  /// 시작할 때 달 · 저장소 · 문구 · 스낵바를 [_BudgetCopyJob] 에 고정한다 — 그 뒤 달을 옮기거나 화면을 나가도
+  /// 같은 달에 끝까지 쓰고, 띠(앱 뿌리 호스트)의 "되돌리기" · "다시 시도"도 화면 없이 돈다.
   Future<void> _confirmCopyFromPreviousMonth(
     List<Budget> prevBudgets,
     List<Budget> curBudgets,
   ) async {
     if (prevBudgets.isEmpty) return; // 버튼이 비활성이라 도달 불가 — 방어.
+    // 이번 달 목록을 아직 못 읽었으면(로딩 · 실패) 겹침을 모른다 — 덮어쓰고 되돌리기가 원래 예산을 지울 수 있다.
+    if (!ref.read(monthBudgetsProvider(_key)).hasValue) return;
     final l = AppLocalizations.of(context);
-    final existingByKey = <String, Budget>{
-      for (final b in curBudgets) _budgetKey(b): b,
-    };
+    final job = _BudgetCopyJob(
+      container: ProviderScope.containerOf(context),
+      l: l,
+      snack: PSnackbar.of(context),
+      key: _key,
+      current: curBudgets,
+    );
     final overwrite = prevBudgets
-        .where((p) => existingByKey.containsKey(_budgetKey(p)))
+        .where((p) => job.existingByKey.containsKey(_budgetKey(p)))
         .length;
-    final created = <int>[];
     if (overwrite == 0) {
-      final failed = await _copyItems(prevBudgets, existingByKey, created);
-      await _afterCopy(failed, existingByKey, created, undoable: true);
+      final failed = await job.copyItems(prevBudgets);
+      job.afterCopy(failed, undoable: true);
       return;
     }
     var failed = <Budget>[];
@@ -104,116 +113,10 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       destructive: true,
       // 항목별 실패는 던지지 않고 모아 둔다 — 창은 닫고, 알림은 닫힌 뒤 스낵바가 맡는다.
       onAction: () async {
-        failed = await _copyItems(prevBudgets, existingByKey, created);
+        failed = await job.copyItems(prevBudgets);
       },
     );
-    await _afterCopy(failed, existingByKey, created, undoable: false);
-  }
-
-  String _budgetKey(Budget b) => '${b.categoryRowId ?? 'overall'}';
-
-  /// 복사 뒤 알림 — 실패가 남았으면 그것만(다시 시도), 없으면 [undoable] 일 때 "가져왔어요 + 되돌리기".
-  Future<void> _afterCopy(
-    List<Budget> failed,
-    Map<String, Budget> existingByKey,
-    List<int> created, {
-    required bool undoable,
-  }) async {
-    if (!mounted) return;
-    final l = AppLocalizations.of(context);
-    if (failed.isNotEmpty) {
-      PSnackbar.of(context).show(
-        message: l.budgetCopyPartialFailed(failed.length),
-        tone: PSnackbarTone.critical,
-        action: PSnackbarAction(
-          label: l.actionRetry,
-          onPressed: () async {
-            final still = await _copyItems(failed, existingByKey, created);
-            await _afterCopy(still, existingByKey, created, undoable: undoable);
-          },
-        ),
-      );
-      return;
-    }
-    if (!undoable) return;
-    PSnackbar.of(context).show(
-      message: l.budgetCopiedDone,
-      // 되돌리기가 달린 결과 알림은 기본 톤(아이콘 없음) — 체크는 성공을 눈에 띄게 알릴 때만(snackbar.md:41 · :151-158)
-      tone: PSnackbarTone.neutral,
-      action: PSnackbarAction(
-        label: l.budgetCopyUndo,
-        onPressed: () => _undoCopy(created),
-      ),
-    );
-  }
-
-  /// [items] 를 하나씩 복사한다 — 이번 달에 같은 key 가 있으면 **덮어쓰기**(update), 없으면 생성(create).
-  /// 새로 만든 예산의 id 는 [created] 에 쌓는다. 실패한 항목을 돌려준다(던지지 않는다).
-  Future<List<Budget>> _copyItems(
-    List<Budget> items,
-    Map<String, Budget> existingByKey,
-    List<int> created,
-  ) async {
-    final failed = <Budget>[];
-    try {
-      final repo = await ref.read(budgetRepositoryProvider.future);
-      for (final p in items) {
-        try {
-          final existing = existingByKey[_budgetKey(p)];
-          if (existing != null) {
-            await repo.update(id: existing.rowId, budgetAmount: p.budgetAmount);
-          } else {
-            final id = await repo.create(
-              categoryRowId: p.categoryRowId,
-              budgetAmount: p.budgetAmount,
-              budgetYear: _key.year,
-              budgetMonth: _key.month,
-            );
-            if (id != null) created.add(id);
-          }
-        } catch (_) {
-          failed.add(p);
-        }
-      }
-    } catch (_) {
-      return [...items]; // 저장소를 못 얻었다 — 전부 실패.
-    } finally {
-      // 일부만 됐어도 화면은 서버 값을 다시 읽는다.
-      ref.invalidate(monthBudgetsProvider(_key));
-      ref.invalidate(budgetComplianceProvider);
-    }
-    return failed;
-  }
-
-  /// 되돌리기 — 방금 만든 이번 달 예산을 id 로 지운다(덮어쓴 것은 없는 경로다). 일괄 삭제 API 는 없어 하나씩 부른다.
-  /// 도중에 실패하면 지우지 못한 id 가 남는다 — 조용히 반만 지우지 않고 critical 스낵바 + "다시 시도"로 알리고,
-  /// 다시 시도는 남은 id 만 지운다.
-  Future<void> _undoCopy(List<int> createdIds) async {
-    final l = AppLocalizations.of(context);
-    final remaining = [...createdIds];
-    try {
-      final repo = await ref.read(budgetRepositoryProvider.future);
-      while (remaining.isNotEmpty) {
-        await repo.delete(remaining.first);
-        remaining.removeAt(0);
-      }
-    } catch (_) {
-      ref.invalidate(monthBudgetsProvider(_key));
-      ref.invalidate(budgetComplianceProvider);
-      if (mounted) {
-        PSnackbar.of(context).show(
-          message: l.budgetCopyUndoPartial(remaining.length),
-          tone: PSnackbarTone.critical,
-          action: PSnackbarAction(
-            label: l.actionRetry,
-            onPressed: () => _undoCopy(remaining),
-          ),
-        );
-      }
-      return;
-    }
-    ref.invalidate(monthBudgetsProvider(_key));
-    ref.invalidate(budgetComplianceProvider);
+    job.afterCopy(failed, undoable: false);
   }
 
   void _editOverall(Budget? overallBudget) {
@@ -247,9 +150,13 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   }
 
   /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
-  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 같은 삭제를 다시 묻는다.
+  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 묻지 않고 바로 지운다 —
+  /// 이미 확인창에서 한 번 확정한 삭제이고, 띠는 화면을 나가도 남으므로(앱 뿌리 호스트) 화면이 살아 있든 아니든 같다.
   Future<void> _confirmDeleteCategory(Budget budget, String name) async {
     final l = AppLocalizations.of(context);
+    final container = ProviderScope.containerOf(context);
+    final snack = PSnackbar.of(context);
+    final key = _key;
     Object? failure;
     final ok = await PAlertDialog.show(
       context,
@@ -260,31 +167,58 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       destructive: true,
       onAction: () async {
         try {
-          await _deleteCategory(budget);
+          await _deleteBudget(container, key, budget);
         } catch (e) {
           failure = e;
         }
       },
     );
-    if (ok && failure != null && mounted) {
-      PSnackbar.of(context).show(
+    if (ok && failure != null) {
+      snack.show(
         message: l.budgetDeleteFailed,
         tone: PSnackbarTone.critical,
         action: PSnackbarAction(
           label: l.actionRetry,
-          onPressed: () => _confirmDeleteCategory(budget, name),
+          onPressed: () => _deleteDetached(container, key, l, snack, budget),
+        ),
+      );
+    }
+  }
+
+  /// 삭제 "다시 시도" — 묻지 않고 지우고, 또 실패하면 같은 띠를 다시 띄운다.
+  static Future<void> _deleteDetached(
+    ProviderContainer container,
+    BudgetMonthKey key,
+    AppLocalizations l,
+    PSnackbarApi snack,
+    Budget budget,
+  ) async {
+    try {
+      await _deleteBudget(container, key, budget);
+    } catch (_) {
+      snack.show(
+        message: l.budgetDeleteFailed,
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () => _deleteDetached(container, key, l, snack, budget),
         ),
       );
     }
   }
 
   /// 수정 시트가 쓰던 저장소·무효화 경로를 그대로 쓴다. 실패하면 던진다.
-  Future<void> _deleteCategory(Budget budget) async {
-    final repo = await ref.read(budgetRepositoryProvider.future);
-    await repo.delete(budget.rowId);
-    ref.invalidate(monthBudgetsProvider(_key));
+  /// 실패는 호출한 쪽 스낵바가 알리므로 전역 오류 토스트는 끈다(둘이 같은 아래쪽에서 겹친다).
+  static Future<void> _deleteBudget(
+    ProviderContainer container,
+    BudgetMonthKey key,
+    Budget budget,
+  ) async {
+    final repo = await container.read(budgetRepositoryProvider.future);
+    await repo.delete(budget.rowId, silent: true);
+    container.invalidate(monthBudgetsProvider(key));
     // 준수율은 keepAlive — 지운 예산이 남아 있으면 달성률이 옛 값으로 굳는다.
-    ref.invalidate(budgetComplianceProvider);
+    container.invalidate(budgetComplianceProvider);
   }
 
   void _editCategory(Budget budget, List<Budget> budgets) {
@@ -316,7 +250,13 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     );
     final prevBudgets = prevBudgetsAsync.value ?? const <Budget>[];
     final curBudgets = budgetsAsync.value ?? const <Budget>[];
-    final copyEnabled = prevBudgets.isNotEmpty;
+    // 겹침 판정은 이번 달 목록으로 한다 — 아직 못 읽었거나(로딩) 실패했거나 새로 읽는 중이면 켜지 않는다.
+    // (값 없이 누르면 겹침 0 으로 보고 확인창 없이 덮어쓰고, 되돌리기가 원래 예산을 지운다.)
+    final copyEnabled =
+        prevBudgets.isNotEmpty &&
+        budgetsAsync.hasValue &&
+        !budgetsAsync.hasError &&
+        !budgetsAsync.isLoading;
     final budgets = budgetsAsync.value;
     final summary = summaryAsync.value;
     final masked = ref.watch(hideCardProvider('budget.manage'));
@@ -505,6 +445,141 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         ),
       ),
     );
+  }
+}
+
+String _budgetKey(Budget b) => '${b.categoryRowId ?? 'overall'}';
+
+/// 지난달 복사 한 번의 작업 — 시작할 때의 달 · 이번 달 목록 · 저장소 접근 · 문구 · 스낵바를 고정해 들고 있다.
+///
+/// 화면(State)을 안 쓴다: 달을 옮겨도 [key] 는 그대로고, 화면을 나가도(스낵바 호스트는 앱 뿌리라 띠는 남는다)
+/// "다시 시도" · "되돌리기"가 살아 있는 [container] 로 돈다.
+class _BudgetCopyJob {
+  _BudgetCopyJob({
+    required this.container,
+    required this.l,
+    required this.snack,
+    required this.key,
+    required List<Budget> current,
+  }) : existingByKey = {for (final b in current) _budgetKey(b): b},
+       _preexistingIds = {for (final b in current) b.rowId};
+
+  final ProviderContainer container;
+  final AppLocalizations l;
+  final PSnackbarApi snack;
+  final BudgetMonthKey key;
+
+  /// 복사 직전 이번 달 목록(key → 예산). 같은 key 는 덮어쓴다(update).
+  final Map<String, Budget> existingByKey;
+  final Set<int> _preexistingIds;
+
+  /// 이번 복사가 **새로 만든** 예산의 id — 되돌리기 대상. 서버 create 는 upsert 라 이미 있던 행의 id 를 돌려줄 수
+  /// 있다(스냅샷이 낡았을 때) — 복사 직전 목록에 있던 id 는 넣지 않는다(되돌리기가 원래 예산을 지우지 않게).
+  final List<int> created = [];
+
+  /// [items] 를 하나씩 복사한다 — 이번 달에 같은 key 가 있으면 **덮어쓰기**(update), 없으면 생성(create).
+  /// 실패한 항목을 돌려준다(던지지 않는다). 실패는 [afterCopy] 의 스낵바가 알리므로 전역 오류 토스트는 끈다.
+  Future<List<Budget>> copyItems(List<Budget> items) async {
+    final failed = <Budget>[];
+    try {
+      final repo = await container.read(budgetRepositoryProvider.future);
+      for (final p in items) {
+        try {
+          final existing = existingByKey[_budgetKey(p)];
+          if (existing != null) {
+            await repo.update(
+              id: existing.rowId,
+              budgetAmount: p.budgetAmount,
+              silent: true,
+            );
+          } else {
+            final id = await repo.create(
+              categoryRowId: p.categoryRowId,
+              budgetAmount: p.budgetAmount,
+              budgetYear: key.year,
+              budgetMonth: key.month,
+              silent: true,
+            );
+            if (id != null && !_preexistingIds.contains(id)) created.add(id);
+          }
+        } catch (_) {
+          failed.add(p);
+        }
+      }
+    } catch (_) {
+      return [...items]; // 저장소를 못 얻었다 — 전부 실패.
+    } finally {
+      // 일부만 됐어도 화면은 서버 값을 다시 읽는다.
+      _refresh();
+    }
+    return failed;
+  }
+
+  void _refresh() {
+    container.invalidate(monthBudgetsProvider(key));
+    container.invalidate(budgetComplianceProvider);
+  }
+
+  /// 복사 뒤 알림 — 실패가 남았으면 그것만(다시 시도), 없으면 [undoable] 일 때 "가져왔어요 + 되돌리기".
+  void afterCopy(List<Budget> failed, {required bool undoable}) {
+    if (failed.isNotEmpty) {
+      snack.show(
+        message: l.budgetCopyPartialFailed(failed.length),
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () async {
+            final still = await copyItems(failed);
+            afterCopy(still, undoable: undoable);
+          },
+        ),
+      );
+      return;
+    }
+    if (!undoable) return;
+    snack.show(
+      message: l.budgetCopiedDone,
+      // 되돌리기가 달린 결과 알림은 기본 톤(아이콘 없음) — 체크는 성공을 눈에 띄게 알릴 때만(snackbar.md:41 · :151-158)
+      tone: PSnackbarTone.neutral,
+      action: PSnackbarAction(
+        label: l.budgetCopyUndo,
+        onPressed: () => undo([...created]),
+      ),
+    );
+  }
+
+  /// 되돌리기 — 방금 만든 이번 달 예산을 id 로 지운다(덮어쓴 것 · 원래 있던 것은 대상이 아니다). 일괄 삭제 API 는
+  /// 없어 하나씩 부른다. 하나가 실패해도 나머지는 계속 지운다. 이미 없는 것(404 — 그 사이 밀어 지웠다)은 지운 것으로 친다.
+  /// 지우지 못한 id 가 남으면 critical 스낵바 + "다시 시도"로 알리고, 다시 시도는 남은 id 만 지운다.
+  Future<void> undo(List<int> ids) async {
+    final remaining = <int>[];
+    try {
+      final repo = await container.read(budgetRepositoryProvider.future);
+      for (final id in ids) {
+        try {
+          await repo.delete(id, silent: true);
+        } on ApiException catch (e) {
+          if (e.statusCode != 404) remaining.add(id);
+        } catch (_) {
+          remaining.add(id);
+        }
+      }
+    } catch (_) {
+      remaining
+        ..clear()
+        ..addAll(ids); // 저장소를 못 얻었다 — 전부 못 지웠다.
+    }
+    _refresh();
+    if (remaining.isNotEmpty) {
+      snack.show(
+        message: l.budgetCopyUndoPartial(remaining.length),
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () => undo(remaining),
+        ),
+      );
+    }
   }
 }
 

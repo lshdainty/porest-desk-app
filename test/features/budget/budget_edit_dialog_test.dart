@@ -26,13 +26,18 @@ class _FakeRepo extends BudgetRepository {
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
+    bool silent = false,
   }) async {
     calls.add('create:$categoryRowId:$budgetAmount:$budgetYear-$budgetMonth');
     return null;
   }
 
   @override
-  Future<void> update({required int id, required int budgetAmount}) async {
+  Future<void> update({
+    required int id,
+    required int budgetAmount,
+    bool silent = false,
+  }) async {
     calls.add('update:$id:$budgetAmount');
   }
 }
