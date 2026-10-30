@@ -6,10 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/change_rate.dart';
-import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
@@ -716,7 +713,31 @@ class _MarketBand extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final indices = (ref.watch(tossIndicatorPricesProvider).asData?.value ?? [])
+    final pricesAsync = ref.watch(tossIndicatorPricesProvider);
+    final krAsync = ref.watch(tossMarketCalendarKrProvider);
+    final usAsync = ref.watch(tossMarketCalendarUsProvider);
+    if ((pricesAsync.hasError && !pricesAsync.hasValue) ||
+        (krAsync.hasError && !krAsync.hasValue) ||
+        (usAsync.hasError && !usAsync.hasValue)) {
+      return PScreenSection(
+        padding: const EdgeInsets.only(bottom: PSpacing.x2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _BandTitle(l.stocksSectionMarket),
+            _Failure(
+              title: l.stocksFailMarket,
+              onRetry: () {
+                ref.invalidate(tossIndicatorPricesProvider);
+                ref.invalidate(tossMarketCalendarKrProvider);
+                ref.invalidate(tossMarketCalendarUsProvider);
+              },
+            ),
+          ],
+        ),
+      );
+    }
+    final indices = (pricesAsync.asData?.value ?? [])
         .where((i) => i.priceValue > 0 && indexNameOf(l, i.symbol) != null)
         .toList();
     final fxRaw = ref.watch(tossExchangeRateProvider).asData?.value?.rateValue;
@@ -1440,8 +1461,8 @@ class _StockSearchSheetState extends ConsumerState<_StockSearchSheet> {
 // ---- 색 헬퍼 ---------------------------------------------------------------
 
 /// 상승/하락 색 — 국내 증권 통념: 상승=빨강, 하락=파랑. (호가 · 체결 표가 쓴다)
-Color _trendColor(GrooTokens t, double pct) =>
-    pct >= 0 ? t.statusDangerFg : t.fgBrand;
+Color _roleTrend(BuildContext context, double pct) =>
+    pct >= 0 ? context.colors.fgCritical : context.colors.fgInformative;
 
 // ---- 매수 유의사항 라벨 (토스 warningType → 한글) ----------------------------
 
@@ -1490,31 +1511,54 @@ bool _isUsEasternDst(DateTime utc) {
   return utc.isAfter(start) && utc.isBefore(end);
 }
 
-/// 시장 현지 시각(오전/오후 12시간) (KR=UTC+9, US 동부=DST 반영). 웹 `nowInTz` 미러.
-String _nowInTz(_Tz tz) {
-  final utc = DateTime.now().toUtc();
-  final local = tz == _Tz.kr
+/// 장 상태가 읽는 시각 — 제품은 실제 시각 그대로, 시험 · 하네스만 고정한다(통계의 `statsNow` 와 같은 방식).
+/// 고정했으면 시험이 끝날 때 되돌린다(벽시계와 섞이면 다음 날부터 조용히 깨진다).
+@visibleForTesting
+DateTime Function() stocksNow = DateTime.now;
+
+/// 시장 현지 시각 (KR=UTC+9, US 동부=DST 반영). 웹 `nowInTz` 미러.
+DateTime _localIn(_Tz tz) {
+  final utc = stocksNow().toUtc();
+  return tz == _Tz.kr
       ? utc.add(const Duration(hours: 9))
       : utc.subtract(Duration(hours: _isUsEasternDst(utc) ? 4 : 5));
-  return timeOfDay12(local);
 }
 
+int? _minutes(String? hhmm) {
+  if (hhmm == null || hhmm.length < 5) return null;
+  final h = int.tryParse(hhmm.substring(0, 2));
+  final m = int.tryParse(hhmm.substring(3, 5));
+  return (h == null || m == null) ? null : h * 60 + m;
+}
+
+/// 장 상태 — 열림 여부와 줄 글. **분(minute)으로 견준다**: 예전엔 오전 · 오후 12시간 글("오후 1:00")을
+/// "15:30" 같은 24시간 글과 문자열로 견줘 장중에도 늘 "장마감" 이 나왔다.
 ({bool open, String detail}) _marketState(
   TossMarketSession? session,
   _Tz tz,
   AppLocalizations l,
+) => marketStateAt(session, _localIn(tz), l);
+
+@visibleForTesting
+({bool open, String detail}) marketStateAt(
+  TossMarketSession? session,
+  DateTime local,
+  AppLocalizations l,
 ) {
-  final start = _hhmm(session?.startTime);
-  final end = _hhmm(session?.endTime);
+  final start = _minutes(session?.startTime);
+  final end = _minutes(session?.endTime);
   if (start == null || end == null) {
     return (open: false, detail: l.stocksMarketHoliday);
   }
-  final now = _nowInTz(tz);
-  if (now.compareTo(start) >= 0 && now.compareTo(end) <= 0) {
-    return (open: true, detail: l.stocksMarketTrading(now));
+  final now = local.hour * 60 + local.minute;
+  if (now >= start && now <= end) {
+    return (open: true, detail: l.stocksMarketTrading(timeOfDay12(local)));
   }
-  if (now.compareTo(start) < 0) {
-    return (open: false, detail: l.stocksMarketOpensAt(start));
+  if (now < start) {
+    return (
+      open: false,
+      detail: l.stocksMarketOpensAt(_hhmm(session!.startTime)!),
+    );
   }
   return (open: false, detail: l.stocksMarketClosed);
 }
@@ -2524,7 +2568,6 @@ class _OrderBook extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     // asks=낮은가격순 → 상단 표시(높은가격 위) 위해 5개 잘라 역순, bids=높은가격순 그대로.
     final asks = [
       for (final e in book.asks.take(5))
@@ -2542,7 +2585,7 @@ class _OrderBook extends StatelessWidget {
       if (b.q > maxQ) maxQ = b.q;
     }
     String fmt(double p) =>
-        currency == 'USD' ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
+        currency == 'USD' ? fmtByCurrency(p, 'USD') : krw(p.round());
 
     Widget qtyBar({
       required int q,
@@ -2553,7 +2596,7 @@ class _OrderBook extends StatelessWidget {
       // 바는 항상 중심축(가격) 쪽에 붙어 바깥으로 자란다 — 매수=중심(오른쪽)에서 왼쪽으로,
       // 매도=중심(왼쪽)에서 오른쪽으로. FractionallySizedBox+Stack 은 좌측 고정 버그가 있어 Positioned 로 명시.
       return SizedBox(
-        height: 22,
+        height: 28,
         child: LayoutBuilder(
           builder: (context, c) => Stack(
             children: [
@@ -2565,7 +2608,9 @@ class _OrderBook extends StatelessWidget {
                 width: c.maxWidth * f,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: chipFill(context, tone, t: 0.13),
+                    color: tone == context.colors.fgCritical
+                        ? context.colors.bgCriticalWeak
+                        : context.colors.bgInformativeWeak,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -2581,8 +2626,8 @@ class _OrderBook extends StatelessWidget {
                   ),
                   child: Text(
                     krw(q),
-                    style: PTypo.micro.copyWith(
-                      color: t.fgTertiary,
+                    style: PTypography.t3.copyWith(
+                      color: context.colors.fgNeutralSubtle,
                       fontFeatures: _tnum,
                     ),
                   ),
@@ -2599,7 +2644,7 @@ class _OrderBook extends StatelessWidget {
           ? context.colors.fgInformative
           : context.colors.fgCritical;
       return SizedBox(
-        height: 26,
+        height: 32,
         child: Row(
           children: [
             Expanded(
@@ -2617,10 +2662,9 @@ class _OrderBook extends StatelessWidget {
                 child: Text(
                   fmt(p),
                   style: TextStyle(
-                    fontFamily: PTypo.sans,
                     fontFeatures: _tnum,
-                    fontSize: 12.5,
-                    fontWeight: PFontWeight.bold,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                     color: priceColor,
                   ),
                 ),
@@ -2662,13 +2706,11 @@ class _OrderBookHead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final style = TextStyle(
-      fontFamily: PTypo.sans,
-      fontSize: 10.5,
-      fontWeight: PFontWeight.semi,
-      color: t.fgTertiary,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+      color: context.colors.fgNeutralSubtle,
     );
     return Row(
       children: [
@@ -2700,21 +2742,22 @@ class _OrderBookLast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
-        border: Border.symmetric(horizontal: BorderSide(color: t.borderSubtle)),
+        border: Border.symmetric(
+          horizontal: BorderSide(color: context.colors.strokeNeutralSubtle),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             lastPrice != null ? fmtByCurrency(lastPrice!, currency) : '—',
-            style: PTypo.bodySm.copyWith(
-              color: _trendColor(t, changePct),
-              fontWeight: PFontWeight.bold,
+            style: PTypography.t4.copyWith(
+              color: _roleTrend(context, changePct),
+              fontWeight: FontWeight.w700,
               fontFeatures: _tnum,
             ),
           ),
@@ -2753,10 +2796,10 @@ class _OrderBookSkeleton extends StatelessWidget {
       final bar = FractionallySizedBox(
         alignment: isAsk ? Alignment.centerLeft : Alignment.centerRight,
         widthFactor: factor,
-        child: const PSkeleton(height: 22),
+        child: const PSkeleton(height: 28),
       );
       return SizedBox(
-        height: 26,
+        height: 32,
         child: Row(
           children: [
             Expanded(child: isAsk ? const SizedBox.shrink() : bar),
@@ -2818,14 +2861,16 @@ class _QuotesEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: PSpacing.x8,
         horizontal: 12,
       ),
       child: Center(
-        child: Text(msg, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+        child: Text(
+          msg,
+          style: PTypography.t4.copyWith(color: context.colors.fgNeutralSubtle),
+        ),
       ),
     );
   }
@@ -2934,9 +2979,8 @@ class _TradeTape extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     String fmt(double p) =>
-        currency == 'USD' ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
+        currency == 'USD' ? fmtByCurrency(p, 'USD') : krw(p.round());
 
     return Column(
       children: [
@@ -2944,17 +2988,16 @@ class _TradeTape extends StatelessWidget {
         const SizedBox(height: PSpacing.x1),
         for (final f in fills)
           SizedBox(
-            height: 25,
+            height: 32,
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     f.time,
                     style: TextStyle(
-                      fontFamily: PTypo.sans,
                       fontFeatures: _tnum,
-                      fontSize: 12,
-                      color: t.fgTertiary,
+                      fontSize: 13,
+                      color: context.colors.fgNeutralSubtle,
                     ),
                   ),
                 ),
@@ -2963,11 +3006,10 @@ class _TradeTape extends StatelessWidget {
                     fmt(f.p),
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                      fontFamily: PTypo.sans,
                       fontFeatures: _tnum,
-                      fontSize: 12,
-                      fontWeight: PFontWeight.bold,
-                      color: _trendColor(t, f.dir.toDouble()),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: _roleTrend(context, f.dir.toDouble()),
                     ),
                   ),
                 ),
@@ -2976,10 +3018,9 @@ class _TradeTape extends StatelessWidget {
                     krw(f.q),
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                      fontFamily: PTypo.sans,
                       fontFeatures: _tnum,
-                      fontSize: 12,
-                      color: t.fgSecondary,
+                      fontSize: 13,
+                      color: context.colors.fgNeutral,
                     ),
                   ),
                 ),
@@ -2997,13 +3038,11 @@ class _TradeTapeHead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final head = TextStyle(
-      fontFamily: PTypo.sans,
-      fontSize: 10.5,
-      fontWeight: PFontWeight.semi,
-      color: t.fgTertiary,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+      color: context.colors.fgNeutralSubtle,
     );
     return Row(
       children: [
@@ -3041,7 +3080,7 @@ class _TradeTapeSkeleton extends StatelessWidget {
         const SizedBox(height: PSpacing.x1),
         for (var i = 0; i < 12; i++)
           const SizedBox(
-            height: 25,
+            height: 32,
             child: Row(
               children: [
                 Expanded(

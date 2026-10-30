@@ -89,8 +89,12 @@ Future<void> _pump(
           (ref) async => const TossExchangeRate(rate: '1385.2'),
         ),
         watchGroupsProvider.overrideWith((ref) async => groups),
-        tossMarketCalendarKrProvider.overrideWith((ref) async => null),
-        tossMarketCalendarUsProvider.overrideWith((ref) async => null),
+        tossMarketCalendarKrProvider.overrideWith(
+          (ref) async => TossKrMarketCalendar.fromJson(const {}),
+        ),
+        tossMarketCalendarUsProvider.overrideWith(
+          (ref) async => TossUsMarketCalendar.fromJson(const {}),
+        ),
         tossIndicatorPricesProvider.overrideWith(
           (ref) async => const [
             TossIndicatorPrice(symbol: 'KOSPI', lastPrice: '2650.5'),
@@ -143,6 +147,7 @@ Finder _tc(String s) =>
     find.byWidgetPredicate((w) => w is Text && _plain(w).contains(s));
 
 void main() {
+  marketTests();
   testWidgets('띠 차례 — 내 투자 → 시장 → 종목, 띠 사이 8, 지수는 아는 심볼만', (tester) async {
     await _pump(tester);
     final invest = _t('내 투자 평가금액');
@@ -243,5 +248,65 @@ void main() {
   testWidgets('글자 200% 에서도 가로 넘침 없음', (tester) async {
     await _pump(tester, textScale: 2);
     expect(tester.takeException(), isNull);
+  });
+}
+
+// ── 장 상태 · 시장 띠 실패 (I-13 9 · 12) ──
+void marketTests() {
+  testWidgets('장 상태 — 장 전 · 장 중 · 장 끝을 시각으로 가른다(분으로 견줌)', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const SizedBox(),
+      ),
+    );
+    final l = AppLocalizations.of(tester.element(find.byType(SizedBox)));
+    const session = TossMarketSession(
+      startTime: '09:00:00',
+      endTime: '15:30:00',
+    );
+    final before = marketStateAt(session, DateTime(2026, 10, 29, 8, 59), l);
+    final during = marketStateAt(session, DateTime(2026, 10, 29, 13, 0), l);
+    final atEnd = marketStateAt(session, DateTime(2026, 10, 29, 15, 30), l);
+    final after = marketStateAt(session, DateTime(2026, 10, 29, 15, 31), l);
+    expect((before.open, before.detail), (false, '개장 09:00'));
+    expect(during.open, isTrue);
+    expect(during.detail, contains('오후 1:00'));
+    expect(atEnd.open, isTrue);
+    expect((after.open, after.detail), (false, '장마감'));
+    expect(marketStateAt(null, DateTime(2026, 10, 29, 13), l).detail, '휴장');
+  });
+
+  testWidgets('시장 질의가 실패하면 시장 띠에 실패 한 벌', (tester) async {
+    tester.view.physicalSize = const Size(360 * 3, 2400 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          tossHoldingsProvider.overrideWith((ref) async => null),
+          tossExchangeRateProvider.overrideWith((ref) async => null),
+          watchGroupsProvider.overrideWith((ref) async => <StockWatchGroup>[]),
+          tossMarketCalendarKrProvider.overrideWith(
+            (ref) async => throw StateError('x'),
+          ),
+          tossMarketCalendarUsProvider.overrideWith(
+            (ref) async => TossUsMarketCalendar.fromJson(const {}),
+          ),
+          tossIndicatorPricesProvider.overrideWith((ref) async => const []),
+        ],
+        child: MaterialApp(
+          theme: GrooTheme.light(),
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(body: TossStocksView()),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(_t('시장 정보를 불러오지 못했어요'), findsOneWidget);
   });
 }

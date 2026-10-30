@@ -87,16 +87,12 @@ final tossRankingsProvider = FutureProvider.family<TossRankingResponse, String>(
   },
 );
 
-/// 국내 지수 현재가 (KOSPI·KOSDAQ). 에러 시 빈 목록.
+/// 국내 지수 현재가 (KOSPI·KOSDAQ). 오류는 던진다 — 시장 띠가 "시장 정보를 불러오지 못했어요" 를 보인다.
 final tossIndicatorPricesProvider = FutureProvider<List<TossIndicatorPrice>>((
   ref,
 ) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getIndicatorPrices(const ['KOSPI', 'KOSDAQ']);
-  } catch (_) {
-    return const [];
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getIndicatorPrices(const ['KOSPI', 'KOSDAQ']);
 });
 
 /// 관심목록 (서버 stock-watch). 오류는 던진다 — 화면이 "관심 종목을 불러오지 못했어요" 로 보인다.
@@ -219,28 +215,20 @@ final tossPriceLimitsProvider = FutureProvider.family<TossPriceLimit?, String>((
   }
 });
 
-/// 국내 장 운영 일정. 에러/미설정 시 null.
-final tossMarketCalendarKrProvider = FutureProvider<TossKrMarketCalendar?>((
+/// 국내 장 운영 일정. 오류는 던진다(시장 띠 실패 한 벌).
+final tossMarketCalendarKrProvider = FutureProvider<TossKrMarketCalendar>((
   ref,
 ) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getMarketCalendarKr();
-  } catch (_) {
-    return null;
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getMarketCalendarKr();
 });
 
-/// 미국 장 운영 일정. 에러/미설정 시 null.
-final tossMarketCalendarUsProvider = FutureProvider<TossUsMarketCalendar?>((
+/// 미국 장 운영 일정. 오류는 던진다(시장 띠 실패 한 벌).
+final tossMarketCalendarUsProvider = FutureProvider<TossUsMarketCalendar>((
   ref,
 ) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getMarketCalendarUs();
-  } catch (_) {
-    return null;
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getMarketCalendarUs();
 });
 
 /// 종목 마스터 검색 (서버 stock_master — 국내 + 해외 6개국). 검색어별 캐시.
