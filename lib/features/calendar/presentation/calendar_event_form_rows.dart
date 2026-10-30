@@ -107,30 +107,39 @@ class CalendarRowValue {
   Widget build(BuildContext context) {
     final narrow = isNarrow(context, rowWidth);
     final max = maxWidthFor(context, title, rowWidth, reserve: reserve);
-    // Flutter 는 WidgetSpan 자식의 자리에 글자 배율을 곱한다 — 점(8)과 사이(6)를 배율로 나눠 줘 늘 px 그대로 서게 한다
-    final scale =
-        MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) /
-        PTypography.t5.fontSize!;
-    final value = Text.rich(
-      TextSpan(
-        children: [
-          if (dot != null)
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: Padding(
-                padding: EdgeInsets.only(right: PSpacing.x1_5 / scale),
-                child: PickerDot(color: dot!, size: 8 / scale),
-              ),
-            ),
-          // 낱말 단위로 줄을 바꾼다(Typography v114 — keepAll)
-          TextSpan(text: keepAll(text)),
-        ],
-      ),
-      // 값 상자는 줄 끝에 서고 글은 상자 안에서 왼쪽에 맞춘다 — 여러 줄이 되면 웹과 같이 줄 머리가 가지런하다(오른쪽 맞춤이면 줄마다 들쭉날쭉)
+    // 낱말 단위로 줄을 바꾼다(Typography v114 — keepAll)
+    final label = Text(
+      keepAll(text),
       maxLines: maxLines,
       overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
       semanticsLabel: text,
     );
+    if (dot != null) {
+      // 점은 앞 표시이고 글은 글끼리 맞춘다 — 이름이 두 줄이 되면 둘째 줄이 첫째 줄 글자 시작에 맞는다(웹 DotValue 와 같다:
+      // 점 8 + 사이 6 + 글). 점은 첫 줄 높이에 서고(디자인 판정) px 고정이라 글자 배율을 따르지 않는다.
+      final lineHeight =
+          MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) *
+          (PTypography.t5.height ?? 1);
+      final withDot = Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: (lineHeight - 8) / 2),
+            child: ExcludeSemantics(child: PickerDot(color: dot!, size: 8)),
+          ),
+          const SizedBox(width: PSpacing.x1_5),
+          Flexible(child: label),
+        ],
+      );
+      // 좁은 줄은 값으로 읽히게 PListValue 로 감싼다 — 본문 아래로 내려가고 제목이 줄 안 폭을 다 쓴다
+      if (narrow) return PListValue(child: withDot);
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: max),
+        child: withDot,
+      );
+    }
+    final value = label;
     // 좁은 줄은 ds 의 값(Text)으로 둔다 — 본문 아래로 내려가고 제목이 줄 안 폭을 다 쓴다
     if (narrow) return value;
     return ConstrainedBox(

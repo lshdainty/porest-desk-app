@@ -252,4 +252,46 @@ void main() {
       );
     }
   });
+
+  testWidgets('긴 캘린더 이름이 두 줄이면 둘째 줄이 첫째 줄 글자 시작에 맞고 점은 첫 줄 높이에 선다', (
+    tester,
+  ) async {
+    const name = '가족 공유 캘린더 — 주말 나들이 · 경조사 · 병원 동행';
+    await _pump(
+      tester,
+      _ev(full: false),
+      calendars: const [
+        UserCalendar(rowId: 4, calendarName: name, color: '#b83b7a'),
+      ],
+    );
+    final textFinder = find.byWidgetPredicate(
+      (w) => w is Text && w.data != null && plainOf(w.data!) == name,
+    );
+    final para = tester.renderObject<RenderParagraph>(
+      find.descendant(of: textFinder, matching: find.byType(RichText)),
+    );
+    expect(para.size.height, greaterThan(30), reason: '두 줄로 접혔다');
+    double startX(int offset) => para
+        .getBoxesForSelection(
+          TextSelection(baseOffset: offset, extentOffset: offset + 1),
+        )
+        .first
+        .left;
+    final first = startX(0);
+    // 둘째 줄 첫 글자 — 둘째 줄 높이 한가운데의 위치
+    final second = para.getPositionForOffset(
+      Offset(0, para.size.height * 0.75),
+    );
+    expect(second.offset, greaterThan(0));
+    expect(
+      startX(second.offset),
+      closeTo(first, 0.5),
+      reason: '둘째 줄이 첫째 줄 글자 시작(점 오른쪽)에 맞는다',
+    );
+    // 점은 글 왼쪽 6 + 첫 줄 높이
+    final dot = tester.getRect(find.byType(PickerDot));
+    final text = tester.getRect(textFinder);
+    expect(text.left - dot.right, closeTo(6, 0.5));
+    expect(dot.center.dy, lessThan(text.top + 22));
+  });
 }
