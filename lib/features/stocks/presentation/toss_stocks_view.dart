@@ -1946,6 +1946,8 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
           actions: [
             PTopNavigationIconButton(
               icon: LucideIcons.star,
+              // 켬은 선 2.5(toggle.md:31) — 끔은 선 2. 색은 상단 바 안이라 둘 다 fg-neutral
+              selectedIcon: LucideIcons.star500,
               label: l.stocksWatchToggleLabel,
               selected: watched,
               onPressed: () => toggleWatch(
