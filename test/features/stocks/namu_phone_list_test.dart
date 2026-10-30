@@ -1,10 +1,13 @@
 // 나무 폰 화면(I-13 13-3) — 토스와 같은 띠 틀, 국내 · 해외 한 목록, 상세 · 포트폴리오 페이지, 관심 시세 호출.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
@@ -14,7 +17,9 @@ import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/namu_stock_pages.dart';
 import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/features/stocks/presentation/chart_web_view.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_donut.dart';
 
 NamuHoldingItem _item(
   String symbol,
@@ -94,6 +99,9 @@ Future<void> _pump(
   bool usdFail = false,
   double? fx = 1385.2,
   List<StockWatchGroup> groups = const [],
+  bool masked = false,
+  bool quotesFail = false,
+  Future<List<StockMasterItem>> Function(String q)? search,
 }) async {
   quotesAsked.clear();
   tester.view.physicalSize = Size(size.width * 3, size.height * 3);
@@ -111,6 +119,7 @@ Future<void> _pump(
         watchGroupsProvider.overrideWith((ref) async => groups),
         namuQuotesProvider.overrideWith((ref, key) async {
           quotesAsked.add(key);
+          if (quotesFail) throw StateError('x');
           return [
             for (final s in key.split(',').where((e) => e.isNotEmpty))
               BrokerQuote(
@@ -136,17 +145,21 @@ Future<void> _pump(
             ],
           ),
         ),
-        stockSearchProvider.overrideWith(
-          (ref, q) async => const [
-            StockMasterItem(
-              countryCode: 'KR',
-              marketCode: 'KOSPI',
-              symbol: 'A900001',
-              nameKr: '가람전자 아주 긴 종목 이름 우선주 테스트',
-              securityType: 'STOCK',
-              currency: 'KRW',
-            ),
-          ],
+        if (masked) hideCardProvider.overrideWith((ref, card) => true),
+        // 상세는 실패를 던지는 검색을 쓴다(H5) — 시장을 알 때까지 기다리고, 실패는 안내로 보인다
+        stockSearchResultProvider.overrideWith(
+          (ref, q) async => search != null
+              ? search(q)
+              : const [
+                  StockMasterItem(
+                    countryCode: 'KR',
+                    marketCode: 'KOSPI',
+                    symbol: 'A900001',
+                    nameKr: '가람전자 아주 긴 종목 이름 우선주 테스트',
+                    securityType: 'STOCK',
+                    currency: 'KRW',
+                  ),
+                ],
         ),
       ],
       child: MaterialApp(
@@ -403,6 +416,94 @@ void main() {
       expect(_tc('70,000원'), findsWidgets);
       expect(_tc('1.45%'), findsOneWidget);
     });
+  });
+
+  group('상세 — 13-1 검수 고침(H5 · M4 · M13)', () {
+    const usMaster = StockMasterItem(
+      countryCode: 'US',
+      marketCode: 'NAS',
+      symbol: 'ZZUS',
+      nameKr: '구름 소프트',
+      securityType: 'STOCK',
+      currency: 'USD',
+    );
+
+    testWidgets('H5 시장을 알 때까지 기다린다 — 시세도 차트도 부르지 않는다', (tester) async {
+      final gate = Completer<List<StockMasterItem>>();
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'ZZUS'),
+        size: const Size(360, 3000),
+        search: (_) => gate.future,
+      );
+      expect(quotesAsked, isEmpty, reason: '시장을 모르는 채 국내로 가정해 시세를 불렀다');
+      expect(find.byType(ChartWebView), findsNothing);
+      expect(_t('—'), findsOneWidget);
+      expect(_t('현재가가 없는 종목이에요'), findsNothing);
+
+      gate.complete(const [usMaster]);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(quotesAsked, ['ZZUS']);
+      expect(find.byType(ChartWebView), findsOneWidget);
+      final chart = tester.widget<ChartWebView>(find.byType(ChartWebView));
+      expect(chart.isUs, isTrue, reason: '미국 종목이 국내 차트로 열렸다');
+    });
+
+    testWidgets('H5 검색이 실패하면 실패 안내 + [다시 시도], 국내로 가정하지 않는다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'ZZUS'),
+        size: const Size(360, 3000),
+        search: (_) async => throw StateError('x'),
+      );
+      expect(_t('기본 정보를 불러오지 못했어요'), findsOneWidget);
+      expect(_t('다시 시도'), findsOneWidget);
+      expect(find.byType(ChartWebView), findsNothing);
+      expect(quotesAsked, isEmpty);
+    });
+
+    testWidgets('M4 시세 실패는 실패 한 벌 + [다시 시도]', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'ZZ0001'),
+        size: const Size(360, 3000),
+        quotesFail: true,
+      );
+      expect(_t('시세를 불러오지 못했어요'), findsOneWidget);
+      expect(_t('잠시 뒤 다시 시도해주세요.'), findsOneWidget);
+      expect(_t('다시 시도'), findsOneWidget);
+      expect(_t('현재가가 없는 종목이에요'), findsNothing);
+    });
+
+    testWidgets('M13 아래로 내렸다 올려도 차트가 폐기되지 않는다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900001'),
+        size: const Size(360, 700),
+      );
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        find.byType(ChartWebView, skipOffstage: false),
+        findsOneWidget,
+        reason: '화면 밖으로 나간 머리가 폐기됐다 — 올라올 때 차트가 다시 지어진다',
+      );
+    });
+  });
+
+  testWidgets('H1 가리기를 켜면 포트폴리오 도넛 조각 금액도 범례 비중도 가린다', (tester) async {
+    await _pump(
+      tester,
+      home: const NamuPortfolioPage(),
+      size: const Size(360, 1200),
+      masked: true,
+    );
+    final donut = tester.widget<PDonutChart>(find.byType(PDonutChart));
+    expect(donut.valueFormatter, isNotNull);
+    expect(donut.valueFormatter!(8568000), '••••');
+    expect(_t('••••'), findsWidgets);
+    expect(_tc('%'), findsNothing, reason: '가렸는데 비중이 보인다');
   });
 
   group('포트폴리오', () {

@@ -1216,9 +1216,9 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
     // 머리(차트 WebView)와 호가 · 체결(고른 탭)은 스크롤로 화면 밖에 나가도 지키고 있는다 — 안 그러면 내렸다 올릴 때마다
     // 차트가 새 토큰 · 캔들 호출로 다시 지어지고 호가 탭이 처음으로 돌아간다(M13).
     final bands = <Widget>[
-      _KeepAlive(child: head),
+      StocksKeepAlive(child: head),
       if (holding != null) _HoldingBand(holding: holding, masked: masked),
-      _KeepAlive(
+      StocksKeepAlive(
         child: _QuotesBand(
           symbol: symbol,
           currency: currency,
@@ -2393,26 +2393,5 @@ class _TradeTapeSkeleton extends StatelessWidget {
           ),
       ],
     );
-  }
-}
-
-/// 스크롤로 화면 밖에 나가도 지어 둔 채 둔다(차트 WebView · 고른 탭). 폐기됐다 다시 지어지지 않게(M13).
-class _KeepAlive extends StatefulWidget {
-  const _KeepAlive({required this.child});
-  final Widget child;
-
-  @override
-  State<_KeepAlive> createState() => _KeepAliveState();
-}
-
-class _KeepAliveState extends State<_KeepAlive>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
   }
 }

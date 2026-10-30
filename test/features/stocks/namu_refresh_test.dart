@@ -113,6 +113,72 @@ void main() {
     });
   });
 
+  // ─── 13-1 검수 고침(H2 · H3 · H4) ───────────────────────────
+  group('재조회 — 값 유지 · 박자 · 위에 화면이 있을 때', () {
+    testWidgets('H2 재조회가 실패해도 보던 보유 종목은 그대로 있고 실패 한 벌로 바뀌지 않는다', (
+      tester,
+    ) async {
+      final h = await _pumpView(tester);
+      expect(find.textContaining('보유화학 1차'), findsWidgets);
+
+      h.namu.failHoldings = true;
+      await h.background();
+      await h.advanceTo(const Duration(seconds: 31));
+      await h.foreground();
+
+      expect(h.namu.calls('KRW'), 2, reason: '다시 받으러 갔는지');
+      expect(
+        find.textContaining('보유화학 1차'),
+        findsWidgets,
+        reason: '재조회 실패가 보던 값을 지웠다',
+      );
+      expect(find.text('내 투자를 불러오지 못했어요'), findsNothing);
+    });
+
+    testWidgets('H3 환율은 10분마다 다시 받는다 — 그 전에는 안 받는다', (tester) async {
+      final h = await _pumpView(tester);
+      expect(h.sec.fxCalls, 1);
+
+      await h.advanceTo(const Duration(minutes: 9, seconds: 59));
+      expect(h.sec.fxCalls, 1, reason: '10분이 안 됐는데 환율을 또 받았다');
+
+      await h.advanceTo(const Duration(minutes: 10));
+      expect(h.sec.fxCalls, 2, reason: '10분이 지났는데 환율이 처음 값으로 굳어 있다');
+    });
+
+    testWidgets('H4 위에 다른 화면이 올라와 있으면 목록은 시세를 안 부르고, 돌아오면 이어서 부른다', (
+      tester,
+    ) async {
+      final h = await _pumpView(tester);
+      await h.openWatch();
+      expect(h.sec.priceCalls, 1);
+
+      final nav = Navigator.of(tester.element(find.byType(NamuStocksView)));
+      nav.push(MaterialPageRoute<void>(builder: (_) => const Scaffold()));
+      await h.advanceTo(const Duration(seconds: 70));
+      expect(
+        h.sec.priceCalls,
+        1,
+        reason: '상세 · 시트가 위에 있는데 목록이 시세를 불렀다(호출 두 배)',
+      );
+      expect(h.sec.fxCalls, 1);
+
+      nav.pop();
+      await h.advanceTo(const Duration(seconds: 100));
+      expect(h.sec.priceCalls, 2, reason: '돌아왔는데 다음 박자에도 안 부른다');
+    });
+
+    testWidgets('H4 박자마다 지켜보는 키만 부른다 — 다른 키(상세 시세 등)를 같이 비우지 않는다', (
+      tester,
+    ) async {
+      final h = await _pumpView(tester);
+      await h.openWatch();
+      await h.advanceTo(const Duration(seconds: 65));
+      expect(h.sec.priceCalls, 3);
+      expect(h.sec.askedKeys.toSet(), {'A1'});
+    });
+  });
+
   // ─── 보유 종목 ──────────────────────────────────────────────
   group('보유 종목', () {
     testWidgets('들어올 때 국내 · 해외 한 번씩, 주기로 조르지 않는다', (tester) async {
@@ -274,11 +340,16 @@ class _CountingSecurities extends SecuritiesRepository {
   _CountingSecurities() : super(Dio());
 
   int priceCalls = 0;
+  int fxCalls = 0;
   bool failPrice = false;
+
+  /// 시세를 물은 키(콤마 심볼 묶음), 물은 순서대로.
+  final askedKeys = <String>[];
 
   @override
   Future<List<BrokerQuote>> getPrices(List<String> symbols) async {
     priceCalls++;
+    askedKeys.add(symbols.join(','));
     if (failPrice) {
       throw ApiException(code: 'SEC_429', message: '유량 초과', statusCode: 429);
     }
@@ -297,7 +368,10 @@ class _CountingSecurities extends SecuritiesRepository {
   Future<double?> getExchangeRate({
     String base = 'USD',
     String quote = 'KRW',
-  }) async => 1385.2;
+  }) async {
+    fxCalls++;
+    return 1385.2;
+  }
 }
 
 /// 보유 종목의 "받은 지" 를 재는 시계 — 가짜 시계와 같이 민다.

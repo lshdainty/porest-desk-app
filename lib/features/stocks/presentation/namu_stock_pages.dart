@@ -50,6 +50,7 @@ class NamuStockDetailPage extends ConsumerStatefulWidget {
 class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
   String _range = '1D';
   Timer? _timer;
+  int _ticks = 0;
 
   @override
   void initState() {
@@ -57,8 +58,17 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
     // 보유 종목은 잔고 응답이 현재가를 준다(추가 호출 없음). 관심 종목만 시세 1콜 — 박자는 웹과 같은 30초,
     // 앱이 가려진 동안은 멈춘다.
     _timer = Timer.periodic(namuPricePollInterval, (_) {
-      if (!mounted || !ref.read(appForegroundProvider)) return;
+      // 앱이 뒤로 가 있거나(H4) 다른 화면 · 시트가 위에 올라와 있으면 멈춘다.
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
       ref.invalidate(namuQuotesProvider(widget.symbol));
+      // 일별 시세는 하루 단위라 5분마다만 다시 받는다 — 열어 둔 채 굳지 않게(H3).
+      if (++_ticks % kNamuDailyRefreshTicks == 0) {
+        ref.invalidate(securitiesDailyCandlesProvider(widget.symbol));
+      }
     });
   }
 
@@ -75,23 +85,20 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
     final masked = ref.watch(hideCardProvider('stocks.summary'));
     final symbol = widget.symbol;
 
+    // 시장(통화)을 알 때까지 기다린다(H5, 웹처럼 market=null) — 모르는 채 국내로 가정해 값 · 차트를 그리지 않는다.
+    // 검색은 실패를 던지는 쪽을 쓴다(자산의 종목 추가가 쓰는 swallow 판은 실패를 빈 결과로 삼킨다).
+    final searchAsync = ref.watch(stockSearchResultProvider(symbol));
     final master = findMasterBySymbol(
-      ref.watch(stockSearchProvider(symbol)).asData?.value ??
-          const <StockMasterItem>[],
+      searchAsync.value ?? const <StockMasterItem>[],
       symbol,
     );
     final krwAsync = ref.watch(namuHoldingsProvider('KRW'));
     final usdAsync = ref.watch(namuHoldingsProvider('USD'));
-    final fx = ref.watch(securitiesExchangeRateProvider).asData?.value;
-    final view = mergeNamuHoldings(
-      krwAsync.asData?.value,
-      usdAsync.asData?.value,
-      fx,
-    );
+    final fx = ref.watch(securitiesExchangeRateProvider).value;
+    final view = mergeNamuHoldings(krwAsync.value, usdAsync.value, fx);
     final holding = view.rows.where((r) => r.symbol == symbol).firstOrNull;
     final groups =
-        ref.watch(watchGroupsProvider).asData?.value ??
-        const <StockWatchGroup>[];
+        ref.watch(watchGroupsProvider).value ?? const <StockWatchGroup>[];
     final watched = groups.any((g) => g.items.any((i) => i.symbol == symbol));
 
     final name = master?.nameKr.isNotEmpty == true
@@ -102,12 +109,16 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
         holding?.currency ??
         (master?.currency.isNotEmpty == true ? master!.currency : 'KRW');
     final isUs = currency == 'USD';
+    // 보유 종목이면 행이 통화를 안다. 아니면 마스터 검색이 끝나야 안다(받는 중 · 실패면 모르는 상태).
+    final marketKnown =
+        holding != null || master != null || searchAsync.hasValue;
+    final marketFailed = !marketKnown && searchAsync.hasError;
 
     // 현재가 — 보유 종목이면 잔고 응답에 이미 있다. 관심 종목만 서버 대리 조회로 1콜.
-    final quoteAsync = holding == null
+    final quoteAsync = (holding == null && marketKnown)
         ? ref.watch(namuQuotesProvider(symbol))
         : null;
-    final quote = quoteAsync?.asData?.value.firstOrNull;
+    final quote = quoteAsync?.value?.firstOrNull;
     final lastRaw = holding != null ? holding.currentPrice : quote?.price;
     final last = (lastRaw != null && lastRaw > 0) ? lastRaw : null;
     final prevClose = holding != null ? null : quote?.previousClose;
@@ -165,7 +176,17 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
                     ),
                   ),
                 ],
-                if (last == null && !(quoteAsync?.isLoading ?? false)) ...[
+                if (quoteAsync != null &&
+                    quoteAsync.hasError &&
+                    !quoteAsync.hasValue)
+                  // 시세 실패는 글 한 줄이 아니라 실패 한 벌 + [다시 시도](M4)
+                  StocksFailure(
+                    title: l.stocksFailPrice,
+                    onRetry: () => ref.invalidate(namuQuotesProvider(symbol)),
+                  )
+                else if (marketKnown &&
+                    last == null &&
+                    !(quoteAsync?.isLoading ?? false)) ...[
                   const SizedBox(height: 2),
                   Text(
                     l.namuPriceEmpty,
@@ -173,12 +194,21 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
                   ),
                 ],
                 const SizedBox(height: PSpacing.x4),
-                ChartWebView(
-                  symbol: symbol,
-                  isUs: isUs,
-                  range: _range,
-                  height: 168,
-                ),
+                if (marketFailed)
+                  StocksFailure(
+                    title: l.stocksFailInfo,
+                    onRetry: () =>
+                        ref.invalidate(stockSearchResultProvider(symbol)),
+                  )
+                else if (!marketKnown)
+                  const PSkeleton(height: 168)
+                else
+                  ChartWebView(
+                    symbol: symbol,
+                    isUs: isUs,
+                    range: _range,
+                    height: 168,
+                  ),
                 const SizedBox(height: PSpacing.x3),
               ],
             ),
@@ -200,8 +230,9 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
       ),
     );
 
+    // 머리(차트 WebView)는 스크롤로 화면 밖에 나가도 지키고 있는다 — 내렸다 올릴 때 차트가 다시 지어지지 않게(M13).
     final bands = <Widget>[
-      head,
+      StocksKeepAlive(child: head),
       if (holding != null) _NamuHoldingBand(holding: holding, masked: masked),
       _NamuInfoBand(master: master, currency: currency),
       _NamuDailyBand(symbol: symbol, currency: currency),
@@ -453,9 +484,9 @@ class NamuPortfolioPage extends ConsumerWidget {
     final usdAsync = ref.watch(namuHoldingsProvider('USD'));
     final fxAsync = ref.watch(securitiesExchangeRateProvider);
     final view = mergeNamuHoldings(
-      krwAsync.asData?.value,
-      usdAsync.asData?.value,
-      fxAsync.asData?.value,
+      krwAsync.value,
+      usdAsync.value,
+      fxAsync.value,
     );
     final loading =
         (krwAsync.isLoading && !krwAsync.hasValue) ||

@@ -54,6 +54,10 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
   _Seg _seg = _Seg.holdings;
   String _filter = 'ALL';
   Timer? _priceTimer;
+  int _ticks = 0;
+
+  /// 지금 지켜보는 관심 시세 키(콤마 심볼 묶음) — 박자마다 이 키만 다시 부른다.
+  Set<String> _quoteKeys = const {};
 
   /// 화면에 들어와 300ms 머문 관심 그룹 — 이 그룹들의 심볼만 합쳐 시세를 부른다(I-13 22).
   final Set<int> _visible = {};
@@ -68,8 +72,22 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     // 박자는 웹 나무 화면과 같다(namu_providers.dart 의 표). 관심 시세는 30초마다 — 앱이 가려진 동안은 멈춘다.
     // 보유 종목은 주기로 조르지 않는다. 화면에 들어올 때 · 앱으로 돌아올 때 받은 지 30초가 지났으면 다시 받는다.
     _priceTimer = Timer.periodic(namuPricePollInterval, (_) {
-      if (!mounted || !ref.read(appForegroundProvider)) return;
-      if (_seg == _Seg.watch) ref.invalidate(namuQuotesProvider);
+      // 앱이 뒤로 가 있거나(H4) 상세 · 포트폴리오 · 시트가 위에 올라와 있으면 멈춘다 — 그 화면이 제 몫만 부른다(H3).
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+      // 지켜보는 키만 다시 부른다 — family 전체를 비우면 다른 화면(상세)의 시세까지 같이 나간다(H4).
+      if (_seg == _Seg.watch) {
+        for (final key in _quoteKeys) {
+          ref.invalidate(namuQuotesProvider(key));
+        }
+      }
+      // 환율은 웹처럼 10분마다 다시 받는다 — 처음 값으로 굳지 않게(H3).
+      if (++_ticks % kNamuFxRefreshTicks == 0) {
+        ref.invalidate(securitiesExchangeRateProvider);
+      }
     });
     ref.listenManual(appForegroundProvider, (wasForeground, isForeground) {
       if (isForeground && wasForeground == false) _refreshHoldingsIfStale();
@@ -140,13 +158,9 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     final masked = ref.watch(hideCardProvider('stocks.summary'));
     final krwAsync = ref.watch(namuHoldingsProvider('KRW'));
     final usdAsync = ref.watch(namuHoldingsProvider('USD'));
-    final fxRaw = ref.watch(securitiesExchangeRateProvider).asData?.value;
+    final fxRaw = ref.watch(securitiesExchangeRateProvider).value;
     final fx = (fxRaw != null && fxRaw > 0) ? fxRaw : null;
-    final view = mergeNamuHoldings(
-      krwAsync.asData?.value,
-      usdAsync.asData?.value,
-      fx,
-    );
+    final view = mergeNamuHoldings(krwAsync.value, usdAsync.value, fx);
     final loading =
         (krwAsync.isLoading && !krwAsync.hasValue) ||
         (usdAsync.isLoading && !usdAsync.hasValue);
@@ -158,18 +172,22 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
         !usdAsync.hasValue;
 
     final watchAsync = ref.watch(watchGroupsProvider);
-    final groups = watchAsync.asData?.value ?? const <StockWatchGroup>[];
+    final groups = watchAsync.value ?? const <StockWatchGroup>[];
     // 보이는 그룹의 심볼을 합쳐 50 씩 한 번에 — 그룹마다 따로 부르지 않는다.
+    final keys = <String>{};
     if (_seg == _Seg.watch) {
       for (final chunk in chunkSymbols(visibleSymbols(groups, _visible))) {
+        keys.add(chunk.join(','));
         final quotes =
-            ref.watch(namuQuotesProvider(chunk.join(','))).asData?.value ??
+            ref.watch(namuQuotesProvider(chunk.join(','))).value ??
             const <BrokerQuote>[];
         for (final q in quotes) {
           if (q.price > 0) _lastQuotes[q.symbol] = q;
         }
       }
     }
+
+    _quoteKeys = keys;
 
     final head = <Widget>[
       NamuInvestBand(
@@ -614,7 +632,7 @@ class NamuMarketBand extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final fx = ref.watch(securitiesExchangeRateProvider).asData?.value;
+    final fx = ref.watch(securitiesExchangeRateProvider).value;
     if (fx == null || fx <= 0) return const SizedBox.shrink();
     return PScreenSection(
       padding: const EdgeInsets.only(bottom: PSpacing.x2),

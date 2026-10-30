@@ -397,7 +397,8 @@ Widget stocksKvLine(
   return PListItem(
     title: key,
     titleColor: c.fgNeutralSubtle,
-    // 키-값 줄은 ds List 값 그대로(위아래 12) — 웹 `phone-parts` 와 같다. 키 글 t4 는 PListItem 이 t5 로 고정이라 ds 몫
+    // 키-값 줄은 ds List 값 그대로(위아래 12 는 PListItem 기본) — 따로 줄이지 않는다(사용자 정정 10-30 "ds 그대로").
+    // 키 글 t4 는 PListItem 이 t5 로 고정이라 ds 몫.
     suffix: PListValue(
       child:
           valueWidget ??
@@ -440,6 +441,7 @@ class StocksCompositionBody extends StatelessWidget {
               label: l.stocksPortfolioTitle,
               diameter: 112,
               centerAmount: l.stocksPortfolioCount(comp.length),
+              valueFormatter: masked ? (_) => '••••' : null,
               slices: [
                 for (var i = 0; i < comp.length; i++)
                   PDonutSlice(
@@ -481,5 +483,26 @@ class StocksCompositionBody extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// 스크롤로 화면 밖에 나가도 지어 둔 채 둔다(차트 WebView · 고른 탭). 폐기됐다 다시 지어지지 않게(M13).
+class StocksKeepAlive extends StatefulWidget {
+  const StocksKeepAlive({super.key, required this.child});
+  final Widget child;
+
+  @override
+  State<StocksKeepAlive> createState() => _StocksKeepAliveState();
+}
+
+class _StocksKeepAliveState extends State<StocksKeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

@@ -32,6 +32,12 @@ import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 /// 그대로 상류 1콜이다 — 10초로 조르면 웹의 세 배를 친다.
 const namuPricePollInterval = Duration(seconds: 30);
 
+/// 환율을 다시 받는 박자 — [namuPricePollInterval] 마다 한 칸, 20칸 = 10분(웹 나무 환율 10분).
+const kNamuFxRefreshTicks = 20;
+
+/// 일별 시세(일봉)를 다시 받는 박자 — 10칸 = 5분(웹 staleTime 5분).
+const kNamuDailyRefreshTicks = 10;
+
 /// 나무 보유 종목이 낡았다고 보는 시간.
 const namuHoldingsStaleTime = Duration(seconds: 30);
 
