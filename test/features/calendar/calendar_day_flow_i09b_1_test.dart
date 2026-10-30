@@ -508,6 +508,29 @@ void main() {
       expect(world.builds[nov], beforeNov);
     });
 
+    // 타이밍에 민감할 수 있다 — 확인창(PAlertDialog)은 자기 PopupRoute 라 맨 위 라우트로서 뒤로 가기를 먼저 받아야 한다.
+    // 확인창의 닫힘 모션(pumpAndSettle)이 끝나기 전에 단언하면 흔들린다. 첫 실행에서 어긋나면 모션 끝까지 더 기다릴 것.
+    testWidgets('확인창이 뜬 채 시스템 뒤로 가기는 확인창만 닫고 시트 · 상세 단계는 그대로다', (tester) async {
+      final world = await pump(tester);
+      await tapEvent(tester, '내 일정');
+      await tester.tap(button(l.actionDelete));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing, reason: '확인창만 닫힌다');
+      expect(root(), findsOneWidget, reason: '시트는 그대로');
+      expect(detailTitle(), findsOneWidget, reason: '상세 단계도 목록으로 물러나지 않는다');
+      expect(world.deleted, isEmpty, reason: '취소와 같다 — 지우지 않는다');
+
+      // 그다음 뒤로 가기가 비로소 한 단계(상세 → 목록)다
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(detailTitle(), findsNothing);
+      expect(root(), findsOneWidget);
+    });
+
     testWidgets('수정 폼 바닥 [삭제] 도 같은 확인창 · 지운 뒤 그날 목록', (tester) async {
       final world = await pump(tester);
       await tapEvent(tester, '내 일정');
