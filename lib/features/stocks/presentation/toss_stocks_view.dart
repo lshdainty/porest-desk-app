@@ -2042,6 +2042,27 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                     ),
                   ),
                 ],
+                // 시세 조회가 실패했고 받아 둔 값도 없으면 실패 안내 + [다시 시도](웹 `detail.priceFail`)
+                if (last == null &&
+                    pricesAsync.hasError &&
+                    !pricesAsync.hasValue) ...[
+                  const SizedBox(height: PSpacing.x1),
+                  Text(
+                    l.stocksFailPrice,
+                    style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                  const SizedBox(height: PSpacing.x1),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: PButton(
+                      label: l.actionRetry,
+                      size: PButtonSize.small,
+                      variant: PButtonVariant.neutralWeak,
+                      onPressed: () =>
+                          ref.invalidate(tossPricesProvider(symbol)),
+                    ),
+                  ),
+                ],
                 // 시세 조회가 실패했거나 오는 중이면 '미지원' 이 아니다 — 응답이 왔는데 값이 없을 때만(M8)
                 if (last == null && pricesAsync.hasValue) ...[
                   const SizedBox(height: 2),
@@ -2684,14 +2705,15 @@ class _StockInfoCard extends ConsumerWidget {
         (l.stocksListingDate, fullDateOf(listDate), null),
       if (shares > 0) (l.stocksSharesOutstanding, _fmtShares(shares), null),
       // 정보가 오기 전 · 빈 응답에는 "정상" 을 지어내지 않는다 — 거래정지 종목도 정상으로 보이던 것(M9)
-      if (info != null)
+      // 국내 종목 정보(koreanMarketDetail)가 있을 때만 — 미국이거나 빈 응답이면 줄을 뺀다(웹 M5)
+      if (info?.koreanMarketDetail != null)
         (
           // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.
           l.stocksTradingStatus,
-          info.koreanMarketDetail?.krxTradingSuspended == true
+          info?.koreanMarketDetail?.krxTradingSuspended == true
               ? l.stocksTradingSuspended
               : l.stocksTradingNormal,
-          info.koreanMarketDetail?.krxTradingSuspended == true
+          info?.koreanMarketDetail?.krxTradingSuspended == true
               ? context.colors.fgCritical
               : context.colors.fgPositive,
         ),
@@ -3118,8 +3140,9 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
     // `asData` 는 AsyncData 일 때만 값을 준다 — 10초 폴링이 만드는 재조회
     // 상태에서 들고 있던 호가·체결을 버리므로 `value` 로 읽는다.
     final book = orderbookAsync.value;
+    // 한쪽만 비어도(상한가 · 하한가) 있는 쪽 줄은 그린다 — 둘 다 비어야 "호가 정보가 없어요"(웹 M9)
     final hasBook =
-        book != null && book.asks.isNotEmpty && book.bids.isNotEmpty;
+        book != null && (book.asks.isNotEmpty || book.bids.isNotEmpty);
     final fills = _liveTradeFills(tradesAsync.value);
 
     Widget content;

@@ -4567,5 +4567,8 @@
   "stocksTradesTableName": "Trades table",
   "stocksConnectEmptyTitle": "Connect a brokerage",
   "stocksConnectEmptyDesc": "Connect your Toss Securities or Namu Securities key to see quotes and your holdings.",
-  "stocksConnectEmptyAction": "Connect a brokerage"
+  "stocksConnectEmptyAction": "Connect a brokerage",
+  "stockMarketKrEtc": "Other (KR)",
+  "stockMarketUsEtc": "Other (US)",
+  "stocksFailPrice": "Couldn't load the price"
 }

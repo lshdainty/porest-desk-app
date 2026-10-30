@@ -14665,6 +14665,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'증권사 연결하기'**
   String get stocksConnectEmptyAction;
+
+  /// No description provided for @stockMarketKrEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내 기타'**
+  String get stockMarketKrEtc;
+
+  /// No description provided for @stockMarketUsEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'미국 기타'**
+  String get stockMarketUsEtc;
+
+  /// No description provided for @stocksFailPrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'시세를 불러오지 못했어요'**
+  String get stocksFailPrice;
 }
 
 class _AppLocalizationsDelegate

@@ -46,6 +46,7 @@ final prevCloseProvider = FutureProvider.family<double?, String>((
     return prevCloseFromCandles(
       page.candles,
       marketToday(symbol, DateTime.now().toUtc()),
+      symbol: symbol,
     );
   } catch (_) {
     return null;

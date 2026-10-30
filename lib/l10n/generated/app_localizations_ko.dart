@@ -8151,4 +8151,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stocksConnectEmptyAction => '증권사 연결하기';
+
+  @override
+  String get stockMarketKrEtc => '국내 기타';
+
+  @override
+  String get stockMarketUsEtc => '미국 기타';
+
+  @override
+  String get stocksFailPrice => '시세를 불러오지 못했어요';
 }

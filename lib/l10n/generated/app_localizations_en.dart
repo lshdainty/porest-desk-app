@@ -8345,4 +8345,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stocksConnectEmptyAction => 'Connect a brokerage';
+
+  @override
+  String get stockMarketKrEtc => 'Other (KR)';
+
+  @override
+  String get stockMarketUsEtc => 'Other (US)';
+
+  @override
+  String get stocksFailPrice => 'Couldn\'t load the price';
 }

@@ -12,7 +12,9 @@ import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 
@@ -159,6 +161,12 @@ void main() {
         isNull,
       );
     });
+    test('오프셋이 붙은 봉은 순간 → 시장 날짜(미국 일봉 +09:00 은 한국 낮이어도 현지는 전날)', () {
+      // 2026-10-29T09:00+09:00 = 현지(동부) 10-28 20:00 → 미국 종목에서 "오늘(10-29)" 이전 봉
+      final c = [_c('2026-10-29T09:00:00+09:00', '241')];
+      expect(prevCloseFromCandles(c, '2026-10-29', symbol: 'AAPL'), 241);
+      expect(prevCloseFromCandles(c, '2026-10-29', symbol: '005930'), isNull);
+    });
     test('시장의 오늘 — 한국 새벽 3시 미국 종목은 아직 전날(동부), 국내는 한국 날짜', () {
       // 2026-10-30 03:00 KST = 2026-10-29 18:00 UTC
       final now = DateTime.utc(2026, 10, 29, 18);
@@ -172,6 +180,25 @@ void main() {
       ];
       final today = marketToday('AAPL', DateTime.utc(2026, 10, 29, 18));
       expect(prevCloseFromCandles(desc, today), 241);
+    });
+  });
+
+  group('체결 시각 — 오프셋은 한국 시각으로, 없으면 벽시계 (웹 tradeClock)', () {
+    test('Z · -04:00 · +09:00', () {
+      expect(clock12Minutes('2026-10-29T14:11:12Z'), '오후 11:11');
+      expect(clock12Minutes('2026-10-29T10:11:12-04:00'), '오후 11:11');
+      expect(clock12Minutes('2026-10-29T23:11:12+09:00'), '오후 11:11');
+    });
+    test('오프셋 없는 글은 그대로', () {
+      expect(clock12Minutes('10:11:12'), '오전 10:11');
+    });
+  });
+
+  group('거래소 표 — KR_ETC · US_ETC (웹과 한 벌)', () {
+    test('국내 기타 · 미국 기타', () {
+      final l = AppLocalizationsKo();
+      expect(stockMarketLabel(l, 'KR_ETC'), '국내 기타');
+      expect(stockMarketLabel(l, 'US_ETC'), '미국 기타');
     });
   });
 
@@ -275,6 +302,8 @@ void main() {
     testWidgets('M8 시세 조회가 실패하면 "토스 시세 미지원" 을 띄우지 않는다', (tester) async {
       await pump(tester, _base(prices: (_) async => throw StateError('x')));
       expect(_tc('미지원'), findsNothing);
+      expect(_t('시세를 불러오지 못했어요'), findsOneWidget);
+      expect(_t('다시 시도'), findsWidgets);
     });
 
     testWidgets('M8 응답은 왔는데 값이 없으면 "미지원"', (tester) async {
@@ -287,7 +316,25 @@ void main() {
       expect(_t('정상'), findsNothing);
     });
 
-    testWidgets('M9 정보가 있으면 정상 · 거래정지가 보인다', (tester) async {
+    testWidgets('M9 미국 종목(koreanMarketDetail 없음)은 거래상태 줄을 뺀다', (tester) async {
+      await pump(
+        tester,
+        _base(
+          info: () async => TossStockInfo.fromJson(const {
+            'symbol': 'A1',
+            'name': 'A',
+            'market': 'NASDAQ',
+            'securityType': 'STOCK',
+            'status': 'NORMAL',
+            'currency': 'USD',
+          }),
+        ),
+      );
+      expect(_t('정상'), findsNothing);
+      expect(_t('거래상태'), findsNothing);
+    });
+
+    testWidgets('M9 국내 종목 정보가 있으면 정상 · 거래정지가 보인다', (tester) async {
       await pump(
         tester,
         _base(
@@ -298,6 +345,7 @@ void main() {
             'securityType': 'STOCK',
             'status': 'NORMAL',
             'currency': 'KRW',
+            'koreanMarketDetail': {'krxTradingSuspended': false},
           }),
         ),
       );

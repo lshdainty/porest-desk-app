@@ -205,50 +205,73 @@ List<List<String>> chunkSymbols(List<String> symbols, [int size = 50]) => [
     symbols.sublist(i, i + size > symbols.length ? symbols.length : i + size),
 ];
 
-/// 체결 시각 — 서버 글("10:11:12" · "2026-10-29T13:00:05")의 시 · 분을 오전 · 오후 12시간으로("오후 1:00").
-/// **초는 쓰지 않는다**(DESIGN.md:3676 — 사용자 규칙). 같은 분의 체결은 줄 차례가 순서를 말한다.
-/// 읽을 수 없으면 받은 글 그대로.
+/// 체결 시각 — 서버 글을 오전 · 오후 12시간으로("오후 1:00"). **초는 쓰지 않는다**(DESIGN.md:3676).
+/// 오프셋이 붙어 오면(`+09:00` · `-04:00` · `Z`) 순간으로 읽어 **한국 시각**으로, 없으면("10:11:12") 쓰인 벽시계 그대로.
+/// 읽을 수 없으면 받은 글 그대로. 웹 `tradeClock` 과 같은 규칙.
 String clock12Minutes(String raw) {
+  String fmt(int h, int min) {
+    final h12 = h % 12 == 0 ? 12 : h % 12;
+    final mm = min.toString().padLeft(2, '0');
+    return localeIsEn()
+        ? '$h12:$mm ${h < 12 ? 'AM' : 'PM'}'
+        : '${h < 12 ? '오전' : '오후'} $h12:$mm';
+  }
+
+  if (RegExp(r'(?:Z|[+-]\d{2}:?\d{2})$').hasMatch(raw)) {
+    final inst = DateTime.tryParse(raw);
+    if (inst != null) {
+      final kst = inst.toUtc().add(const Duration(hours: 9));
+      return fmt(kst.hour, kst.minute);
+    }
+  }
   final m = RegExp(r'(\d{1,2}):(\d{2})(?::\d{2})?').firstMatch(raw);
   if (m == null) return raw;
   final h = int.parse(m.group(1)!);
   final min = int.parse(m.group(2)!);
   if (h > 23 || min > 59) return raw;
-  final h12 = h % 12 == 0 ? 12 : h % 12;
-  final mm = m.group(2)!;
-  return localeIsEn()
-      ? '$h12:$mm ${h < 12 ? 'AM' : 'PM'}'
-      : '${h < 12 ? '오전' : '오후'} $h12:$mm';
+  return fmt(h, min);
 }
 
 /// 전일 종가 — 토스 봉은 **최신순(timestamp 내림차순)** 이다(OpenAPI `/candles`: "배열의 첫 요소가 가장 최근 봉"). 순서를 믿지
-/// 않고 timestamp 로 정렬해, 그 시장의 "오늘" 날짜(`marketToday`, `YYYY-MM-DD`)보다 앞선 첫 봉의 종가를 돌려준다.
-/// 봉 날짜는 받은 글의 앞 10자리(시장이 준 영업일)다. 없으면 null.
-double? prevCloseFromCandles(List<TossCandle> candles, String marketToday) {
+/// 않고 봉 날짜로 정렬해, 그 시장의 "오늘"([marketToday])보다 앞선 가장 최근 봉의 종가를 돌려준다. 오프셋이 붙은 시각은 순간으로 읽어
+/// 시장 날짜로 옮기고(웹 `prevCloseOf` 와 같은 규칙), 날짜뿐인 글은 그 날짜가 시장의 영업일이다. 전부 오늘 봉이면 null.
+double? prevCloseFromCandles(
+  List<TossCandle> candles,
+  String marketToday, {
+  String symbol = '',
+}) {
   if (candles.isEmpty) return null;
-  final sorted = [...candles]
-    ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-  for (final c in sorted) {
-    final day = c.timestamp.length >= 10
-        ? c.timestamp.substring(0, 10)
-        : c.timestamp;
-    if (day.compareTo(marketToday) < 0) {
-      final v = double.tryParse(c.closePrice);
+  final keyed = [for (final c in candles) (candleDay(c.timestamp, symbol), c)]
+    ..sort((a, b) => b.$1.compareTo(a.$1));
+  for (final e in keyed) {
+    if (e.$1.compareTo(marketToday) < 0) {
+      final v = double.tryParse(e.$2.closePrice);
       return (v != null && v > 0) ? v : null;
     }
   }
-  // 오늘 봉뿐이면(상장 첫날 등) 전일을 알 수 없다
   return null;
+}
+
+/// 봉 하나의 시장 날짜 `YYYY-MM-DD` — 오프셋이 붙은 시각은 순간 → 시장 시간대 날짜, 아니면 앞 10자리.
+String candleDay(String ts, String symbol) {
+  if (RegExp(r'T.*(?:Z|[+-]\d{2}:?\d{2})$').hasMatch(ts)) {
+    final inst = DateTime.tryParse(ts);
+    if (inst != null) return _dateIn(symbol, inst.toUtc());
+  }
+  return ts.length >= 10 ? ts.substring(0, 10) : ts;
+}
+
+String _dateIn(String symbol, DateTime utc) {
+  final us = RegExp(r'^[A-Za-z]').hasMatch(symbol);
+  final shift = us
+      ? Duration(hours: (utc.month >= 4 && utc.month <= 10) ? -4 : -5)
+      : const Duration(hours: 9);
+  final d = utc.add(shift);
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${d.year}-${two(d.month)}-${two(d.day)}';
 }
 
 /// 그 시장의 오늘(`YYYY-MM-DD`) — 국내는 한국 날짜, 미국 심볼(영문으로 시작)은 동부 날짜(서머타임 4월~10월 −4h, 그 밖 −5h 로
 /// 어림 — 날짜가 바뀌는 새벽 한 시간만 어긋날 수 있다). 한국 0~5시(미국 장중)에 오늘 봉을 전일로 읽지 않게 한다(H6).
-String marketToday(String symbol, DateTime nowUtc) {
-  final us = RegExp(r'^[A-Za-z]').hasMatch(symbol);
-  final shift = us
-      ? Duration(hours: (nowUtc.month >= 4 && nowUtc.month <= 10) ? -4 : -5)
-      : const Duration(hours: 9);
-  final d = nowUtc.toUtc().add(shift);
-  String two(int n) => n.toString().padLeft(2, '0');
-  return '${d.year}-${two(d.month)}-${two(d.day)}';
-}
+String marketToday(String symbol, DateTime nowUtc) =>
+    _dateIn(symbol, nowUtc.toUtc());
