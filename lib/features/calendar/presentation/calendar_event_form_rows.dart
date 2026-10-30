@@ -53,8 +53,8 @@ const double _rowIcon = 22;
 
 /// 줄의 값 자리 — 줄 끝에서 줄바꿈하고(말줄임 없음) 제목은 한 줄로 지킨다. ds List 는 긴 값이 오면 본문을 1em 까지 줄이므로("장 / 소")
 /// 제목 글 폭을 재어 값의 최대 폭을 정한다(웹은 제목에 whitespace-nowrap 을 둔 것과 같다 — I-09 K 7).
-class _RowValue {
-  const _RowValue({
+class CalendarRowValue {
+  const CalendarRowValue({
     required this.title,
     required this.rowWidth,
     required this.text,
@@ -126,7 +126,7 @@ class _RowValue {
           TextSpan(text: keepAll(text)),
         ],
       ),
-      textAlign: narrow ? null : TextAlign.end,
+      // 값 상자는 줄 끝에 서고 글은 상자 안에서 왼쪽에 맞춘다 — 여러 줄이 되면 웹과 같이 줄 머리가 가지런하다(오른쪽 맞춤이면 줄마다 들쭉날쭉)
       maxLines: maxLines,
       overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
       semanticsLabel: text,
@@ -245,7 +245,7 @@ class CalendarEventFormRows extends StatelessWidget {
               : PListSuffix(
                   children: [
                     if (value != null)
-                      _RowValue(
+                      CalendarRowValue(
                         title: title,
                         rowWidth: width,
                         text: value,
@@ -442,7 +442,7 @@ class _DateRow extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: math.max(
             120.0,
-            _RowValue.maxWidthFor(context, title, rowWidth),
+            CalendarRowValue.maxWidthFor(context, title, rowWidth),
           ),
         ),
         child: Wrap(
