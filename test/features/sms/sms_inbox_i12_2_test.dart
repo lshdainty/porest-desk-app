@@ -258,6 +258,24 @@ void main() {
     expect(xs[1].semanticLabel, '오전 7:30 삭제');
   });
 
+  // I-28-4 — [×] 의 누르는 영역 44: 중심에서 네 방향으로 21.5(한 변 43 이상) 눌러도 줄(상세로 이동)이 아니라 [×](확인창)가 받는다.
+  for (final probe in const {
+    '오른쪽': Offset(21.5, 0),
+    '왼쪽': Offset(-21.5, 0),
+    '아래': Offset(0, 21.5),
+    '위': Offset(0, -21.5),
+  }.entries) {
+    testWidgets('[×] 누르는 영역 44 — 중심에서 ${probe.key} 21.5 도 [×] 가 받는다', (
+      tester,
+    ) async {
+      await _pump(tester);
+      final c = tester.getCenter(find.byIcon(LucideIcons.x).first);
+      await tester.tapAt(c + probe.value);
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsOneWidget);
+    });
+  }
+
   testWidgets('× 를 누르면 바로 지우지 않고 확인창 — 취소하면 그대로', (tester) async {
     final fake = await _pump(tester);
     await tester.tap(find.byIcon(LucideIcons.x).first);
