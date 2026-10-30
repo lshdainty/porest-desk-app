@@ -1,5 +1,7 @@
 // I-09b 09b-1 앱 — 그날 시트 안 한 단계(줄 5 · 6 · 7 · 8 · 9): 목록 → 상세 → 수정 폼이 시트 하나 안에서 바뀐다.
 // 단계마다 닫힘 규칙이 다르다(목록 · 상세 = 조회, 수정 폼 = 입력). ← · 뒤로 가기 · Esc 는 한 단계 뒤, 닫기 원 · 바깥은 시트 전체.
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/auth/auth_notifier.dart';
 import 'package:groo_damda_app/core/auth/user.dart';
+import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
@@ -64,6 +68,8 @@ class _Repo extends CalendarRepository {
 
   @override
   Future<void> deleteEvent(int id) async {
+    if (world.failDelete)
+      throw ApiException(code: 'X', message: 'Server error');
     world.deleted.add(id);
   }
 }
@@ -76,6 +82,15 @@ class _World {
   final builds = <MonthYM, int>{};
   int updates = 0;
   bool moveOnSave = false;
+
+  /// 삭제 요청이 실패한다.
+  bool failDelete = false;
+
+  /// 있으면 월 일정 조회가 이 신호를 기다린다 — 삭제 · 저장 뒤 "다시 받는 동안" 을 붙잡아 둔다.
+  Completer<void>? gate;
+
+  /// 회차가 겹치는 반복(둘째 회차가 이 날에서 시작, 첫째 회차는 전날 시작해 이 날 끝남).
+  bool overlap = false;
 
   /// 목록이 길어 스크롤되는 날 — 열두 줄을 더한다.
   bool many = false;
@@ -100,7 +115,28 @@ class _World {
   );
 
   List<CalendarEvent> events(int y, int m) => [
+    // 10/30 ~ 11/2 달을 걸친 일정(반복 아님) — 10월 · 11월 응답에 모두 온다
+    if ((y == 2026 && m == 10) || (y == 2026 && m == 11))
+      _e(
+        5,
+        '걸친 일정',
+        '2026-10-30T10:00:00',
+      ).copyWith(endDate: '2026-11-02T11:00:00'),
     if (y == 2026 && m == 10) ...[
+      if (overlap) ...[
+        _e(
+          6,
+          '겹침 반복',
+          '2026-10-21T09:00:00',
+          rrule: 'FREQ=DAILY',
+        ).copyWith(endDate: '2026-10-22T09:00:00'),
+        _e(
+          6,
+          '겹침 반복',
+          '2026-10-22T09:00:00',
+          rrule: 'FREQ=DAILY',
+        ).copyWith(endDate: '2026-10-22T10:00:00'),
+      ],
       _e(1, '내 일정', '2026-10-22T10:00:00'),
       _e(2, '남의 일정', '2026-10-22T12:00:00', user: 9, calendar: 2),
       _e(3, '반복 일정', '2026-10-22T14:00:00', rrule: 'FREQ=WEEKLY'),
@@ -151,16 +187,20 @@ void main() {
     WidgetTester tester, {
     bool moveOnSave = false,
     bool many = false,
+    bool overlap = false,
+    DateTime? now,
+    String day = '22',
   }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     final saved = calendarNow;
-    calendarNow = () => DateTime(2026, 10, 29, 13);
+    calendarNow = () => now ?? DateTime(2026, 10, 29, 13);
     addTearDown(() => calendarNow = saved);
     final world = _World()
       ..moveOnSave = moveOnSave
-      ..many = many;
+      ..many = many
+      ..overlap = overlap;
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -171,6 +211,7 @@ void main() {
           holidayListProvider.overrideWith((ref, k) async => <Holiday>[]),
           monthEventsProvider.overrideWith((ref, k) async {
             world.builds[k] = (world.builds[k] ?? 0) + 1;
+            await world.gate?.future;
             return world.events(k.year, k.month);
           }),
         ],
@@ -199,10 +240,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(
       find
-          .descendant(
-            of: find.byType(CalendarScreen),
-            matching: find.text('22'),
-          )
+          .descendant(of: find.byType(CalendarScreen), matching: find.text(day))
           .first,
     );
     await tester.pumpAndSettle();
@@ -551,4 +589,151 @@ void main() {
       expect(rowTitle('내 일정'), findsNothing);
     });
   });
+
+  group('A1 · A3 · A2 · A5 — 코드 검수 고침', () {
+    // A1: 달을 걸친 일정(10/30 ~ 11/2)을 11월에서 열어 지우거나 고친다 — 시작 달(10월)만 비우면 11월 키가 옛 값을 돌려준다.
+    final nov = DateTime(2026, 11, 1, 13);
+    const octKey = (year: 2026, month: 10);
+    const novKey = (year: 2026, month: 11);
+
+    testWidgets('A1 달을 걸친 일정을 뒤쪽 달에서 지우면 걸친 모든 달을 다시 받고 목록에서 빠진다', (
+      tester,
+    ) async {
+      final world = await pump(tester, now: nov, day: '1');
+      await tapEvent(tester, '걸친 일정');
+      final beforeOct = world.builds[octKey]!;
+      final beforeNov = world.builds[novKey]!;
+      await tester.tap(button(l.actionDelete));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text(l.actionDelete),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(world.deleted, {5});
+      expect(world.builds[novKey], greaterThan(beforeNov), reason: '보고 있던 11월');
+      expect(world.builds[octKey], greaterThan(beforeOct), reason: '시작 달 10월');
+      expect(rowTitle('걸친 일정'), findsNothing, reason: '지운 줄이 남지 않는다');
+    });
+
+    testWidgets('A1 달을 걸친 일정을 뒤쪽 달에서 고쳐 저장하면 상세에 새 제목이 보인다', (tester) async {
+      final world = await pump(tester, now: nov, day: '1');
+      await tapEvent(tester, '걸친 일정');
+      await tester.tap(button(l.actionEdit));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, '고친 제목');
+      await tester.pumpAndSettle();
+      await tester.tap(button(l.actionSave));
+      await tester.pumpAndSettle();
+      expect(world.updates, 1);
+      expect(plainOf(tester.widget<Text>(detailTitle()).data!), '고친 제목');
+    });
+
+    testWidgets('A3 회차가 겹치는 반복에서 둘째 회차 줄을 누르면 둘째 회차 상세가 열린다', (tester) async {
+      await pump(tester, overlap: true);
+      await tester.tap(rowTitle('겹침 반복').last);
+      await tester.pumpAndSettle();
+      expect(detailTitle(), findsOneWidget);
+      expect(
+        findPlain('10월 21일 (수)'),
+        findsNothing,
+        reason: '첫째 회차(전날 시작)가 열리지 않는다',
+      );
+      expect(findPlain('10월 22일 (목)'), findsWidgets);
+    });
+
+    testWidgets('A2 상세 삭제가 실패하면 상세 맨 위 Callout 으로 알리고 [삭제] 로 다시 시도할 수 있다', (
+      tester,
+    ) async {
+      final world = await pump(tester);
+      world.failDelete = true;
+      await tapEvent(tester, '내 일정');
+      await tester.tap(button(l.actionDelete));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text(l.actionDelete),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing, reason: '확인창은 닫혔다');
+      expect(detailTitle(), findsOneWidget, reason: '상세에 머문다');
+      expect(findPlainContaining(l.calFormDeleteFailed), findsOneWidget);
+      expect(
+        tester.widget<PButton>(button(l.actionDelete)).onPressed,
+        isNotNull,
+        reason: '스피너가 멈추고 다시 누를 수 있다',
+      );
+
+      world.failDelete = false;
+      await tester.tap(button(l.actionDelete));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text(l.actionDelete),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(world.deleted, {1});
+      expect(findPlainContaining(l.calFormDeleteFailed), findsNothing);
+      expect(detailTitle(), findsNothing);
+    });
+
+    // 타이밍에 민감할 수 있다 — 다시 받기를 gate 로 붙잡아 두고 pump 로만 시간을 보낸다(pumpAndSettle 은 gate 가 열릴 때까지 안 끝난다).
+    testWidgets('A5 폼 [삭제] 뒤 다시 받는 동안 [삭제] · [저장] 이 막힌다', (tester) async {
+      final world = await pump(tester);
+      await tapEvent(tester, '내 일정');
+      await tester.tap(button(l.actionEdit));
+      await tester.pumpAndSettle();
+      await tester.tap(button(l.actionDelete));
+      await tester.pumpAndSettle();
+      world.gate = Completer<void>();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text(l.actionDelete),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(world.deleted, {1});
+      expect(tester.widget<PButton>(button(l.actionDelete)).onPressed, isNull);
+      expect(tester.widget<PButton>(button(l.actionSave)).onPressed, isNull);
+      world.gate!.complete();
+      await tester.pumpAndSettle();
+      expect(rowTitle('내 일정'), findsNothing);
+    });
+  });
+
+  test(
+    'A6 일정 쓰기(추가 · 수정 · 삭제)는 전역 오류 스낵바를 끈다 — 시트 · 폼이 Callout 으로 알린다',
+    () async {
+      final extras = <Object?>[];
+      final dio = Dio()
+        ..interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (o, h) {
+              extras.add(o.extra[kSilentErrorToast]);
+              h.reject(DioException(requestOptions: o));
+            },
+          ),
+        );
+      final repo = CalendarRepository(dio);
+      for (final call in <Future<Object?> Function()>[
+        () => repo.deleteEvent(1),
+        () => repo.createEvent(title: 't', startDate: 'a', endDate: 'b'),
+        () => repo.updateEvent(id: 1, title: 't', startDate: 'a', endDate: 'b'),
+      ]) {
+        try {
+          await call();
+        } on ApiException {
+          // 기대한 실패
+        }
+      }
+      expect(extras, [true, true, true]);
+    },
+  );
 }

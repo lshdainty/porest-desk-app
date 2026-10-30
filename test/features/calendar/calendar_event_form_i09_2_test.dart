@@ -388,7 +388,7 @@ void main() {
       expect(button(l.actionDone), findsOneWidget);
     });
 
-    testWidgets('"완료" 는 친 글을 넣고, ← 는 버린다', (tester) async {
+    testWidgets('"완료" 는 친 글을 넣고, ← 는 바뀐 글이 있으면 묻고 나가면 버린다', (tester) async {
       await openEventForm(tester, repo: _Repo());
       await writeStep(
         tester,
@@ -402,8 +402,33 @@ void main() {
       await tester.enterText(find.byType(TextField).last, '버려질 글');
       await tester.tap(find.byKey(const ValueKey('p-bottom-sheet-back-slot')));
       await tester.pumpAndSettle();
+      // 들어올 때와 글이 달라 먼저 묻는다(웹 M-7 과 같다) — 계속 작성은 그 단계에 머문다
+      expect(find.byType(PAlertDialogView), findsOneWidget);
+      await tester.tap(find.text(l.sheetLeaveStay));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('p-bottom-sheet-back-slot')),
+        findsOneWidget,
+        reason: '계속 작성 — 안 단계 그대로',
+      );
+      await tester.tap(find.byKey(const ValueKey('p-bottom-sheet-back-slot')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.sheetLeaveLeave));
+      await tester.pumpAndSettle();
       expect(valueText('치과 3층'), findsOneWidget);
       expect(valueText('버려질 글'), findsNothing);
+    });
+
+    testWidgets('글을 안 바꿨으면 ← 가 묻지 않고 바로 줄 칸으로 간다', (tester) async {
+      await openEventForm(tester, repo: _Repo());
+      await tapRow(tester, l.calLocation);
+      await tester.tap(find.byKey(const ValueKey('p-bottom-sheet-back-slot')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(
+        find.byKey(const ValueKey('p-bottom-sheet-back-slot')),
+        findsNothing,
+      );
     });
 
     testWidgets('뒤로 가기 · Esc 는 단계만 닫고, 그다음에야 시트가 닫힌다', (tester) async {
@@ -411,6 +436,10 @@ void main() {
       await tapRow(tester, l.calFieldDescription);
       await tester.enterText(find.byType(TextField).last, '버려질 글');
       await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      // 바뀐 글이 있어 먼저 묻는다 — 나가면 그 단계만 닫힌다
+      expect(find.byType(PAlertDialogView), findsOneWidget);
+      await tester.tap(find.text(l.sheetLeaveLeave));
       await tester.pumpAndSettle();
       expect(sheetContent(), findsOneWidget);
       expect(
