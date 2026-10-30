@@ -18,7 +18,10 @@ import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
+import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
+import 'package:groo_damda_app/features/subscription/data/subscription_repository.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_donut.dart';
@@ -172,50 +175,62 @@ void main() {
   // ── 모델 · 순수 함수 ─────────────────────────────────────────────────────
   group('체결 시각 12시간 (M15)', () {
     test('오전 · 오후 · 정오 · 자정 경계', () {
-      expect(clock12WithSeconds('10:11:12'), '오전 10:11:12');
-      expect(clock12WithSeconds('13:00:05'), '오후 1:00:05');
-      expect(clock12WithSeconds('12:00:00'), '오후 12:00:00');
-      expect(clock12WithSeconds('00:00:09'), '오전 12:00:09');
-      expect(clock12WithSeconds('23:59:59'), '오후 11:59:59');
+      expect(clock12Minutes('10:11:12'), '오전 10:11');
+      expect(clock12Minutes('13:00:05'), '오후 1:00');
+      expect(clock12Minutes('12:59:59'), '오후 12:59');
+      expect(clock12Minutes('12:00:00'), '오후 12:00');
+      expect(clock12Minutes('00:00:09'), '오전 12:00');
+      expect(clock12Minutes('23:59:59'), '오후 11:59');
     });
     test('ISO 글에서도 시각만 읽고, 못 읽으면 받은 글 그대로', () {
-      expect(clock12WithSeconds('2026-10-29T13:00:05'), '오후 1:00:05');
-      expect(clock12WithSeconds('없음'), '없음');
-      expect(clock12WithSeconds('25:00:00'), '25:00:00');
+      expect(clock12Minutes('2026-10-29T13:00:05'), '오후 1:00');
+      expect(clock12Minutes('없음'), '없음');
+      expect(clock12Minutes('25:00:00'), '25:00:00');
     });
   });
 
-  group('장 상태 — 미국은 한국 시각으로 (M6)', () {
+  group('장 상태 — 세션은 한국 시각 오프셋 ISO(토스 OpenAPI), 보이는 시각도 한국 시각 (M6)', () {
     late AppLocalizationsKo l;
     setUp(() => l = AppLocalizationsKo());
-    const us = TossMarketSession(startTime: '09:30:00', endTime: '16:00:00');
+    // 미국 정규장 — 자정을 넘는다(UsRegularMarketSession example)
+    const us = TossMarketSession(
+      startTime: '2026-10-29T22:30:00+09:00',
+      endTime: '2026-10-30T05:00:00+09:00',
+    );
+    const kr = TossMarketSession(
+      startTime: '2026-10-29T09:00:00+09:00',
+      endTime: '2026-10-29T15:30:00+09:00',
+    );
+    // 한국 시각 → UTC 순간
+    DateTime kst(int d, int h, int m) =>
+        DateTime.utc(2026, 10, d, h, m).subtract(const Duration(hours: 9));
 
-    testWidgets('서머타임 개장은 오후 10:30, 아니면 오후 11:30', (tester) async {
-      final dst = marketStateAt(
-        us,
-        DateTime(2026, 10, 29, 8, 0),
-        l,
-        displayShift: const Duration(hours: 13),
-      );
-      final std = marketStateAt(
-        us,
-        DateTime(2026, 12, 29, 8, 0),
-        l,
-        displayShift: const Duration(hours: 14),
-      );
-      expect(dst.detail, '개장 오후 10:30');
-      expect(std.detail, '개장 오후 11:30');
+    test('개장 전은 한국 시각 그대로 "개장 오후 10:30" — 이중 변환 없음', () {
+      expect(marketStateAt(us, kst(29, 13, 0), l).detail, '개장 오후 10:30');
     });
-
-    testWidgets('장중 시각도 한국 시각(뉴욕 10:00 = 한국 오후 11:00)', (tester) async {
-      final r = marketStateAt(
-        us,
-        DateTime(2026, 10, 29, 10, 0),
-        l,
-        displayShift: const Duration(hours: 13),
-      );
+    test('자정을 넘기는 장중 — 한국 새벽 3시도 열려 있다', () {
+      final r = marketStateAt(us, kst(30, 3, 0), l);
       expect(r.open, isTrue);
-      expect(r.detail, contains('오후 11:00'));
+      expect(r.detail, contains('오전 3:00'));
+    });
+    test('경계 — 시작 정각 열림, 끝 정각까지 열림, 끝 1분 뒤 장마감', () {
+      expect(marketStateAt(us, kst(29, 22, 30), l).open, isTrue);
+      expect(marketStateAt(us, kst(30, 5, 0), l).open, isTrue);
+      expect(marketStateAt(us, kst(30, 5, 1), l).detail, '장마감');
+    });
+    test('국내 장 전 · 중 · 끝', () {
+      expect(marketStateAt(kr, kst(29, 8, 59), l).detail, '개장 오전 9:00');
+      expect(marketStateAt(kr, kst(29, 13, 0), l).detail, contains('오후 1:00'));
+      expect(marketStateAt(kr, kst(29, 15, 31), l).detail, '장마감');
+    });
+    test('옛 "HH:MM:SS" 글은 그날 한국 시각으로 읽는다(오프셋 없는 자정 넘김 포함)', () {
+      const old = TossMarketSession(startTime: '22:30:00', endTime: '05:00:00');
+      expect(marketStateAt(old, kst(29, 13, 0), l).detail, '개장 오후 10:30');
+      expect(marketStateAt(old, kst(29, 23, 0), l).open, isTrue);
+      expect(marketStateAt(old, kst(30, 3, 0), l).open, isTrue);
+    });
+    test('세션이 없으면 휴장', () {
+      expect(marketStateAt(null, kst(29, 13, 0), l).detail, '휴장');
     });
   });
 
@@ -332,11 +347,8 @@ void main() {
       await tester.tap(_t('체결'));
       await _settle(tester);
       expect(_t('71,150원'), findsOneWidget);
-      expect(_t('오후 1:00:05'), findsOneWidget);
-      expect(
-        find.bySemanticsLabel('오후 1:00:05, 71,150원, 수량 7'),
-        findsOneWidget,
-      );
+      expect(_t('오후 1:00'), findsOneWidget);
+      expect(find.bySemanticsLabel('오후 1:00, 71,150원, 수량 7'), findsOneWidget);
       handle.dispose();
     });
 
@@ -520,6 +532,35 @@ void main() {
       await _settle(tester);
       expect(_t('시장 정보를 불러오지 못했어요'), findsOneWidget);
     });
+  });
+
+  // ── M17: 연결 0 안내 (Q4 안 A) ───────────────────────────────────────────
+  testWidgets('연결 0 이면 Result Section empty — 제목 · 설명 · [증권사 연결하기]', (
+    tester,
+  ) async {
+    await _tall(tester, h: 1200);
+    await tester.pumpWidget(
+      _app(const StocksScreen(), [
+        ..._base(),
+        myFeaturesProvider.overrideWith(
+          (ref) async => const MyFeatures(
+            features: ['SECURITIES'],
+            connectedBrokers: [],
+            primaryBroker: null,
+          ),
+        ),
+      ]),
+    );
+    await _settle(tester);
+    expect(_t('증권사를 연결해 주세요'), findsOneWidget);
+    expect(_t('토스증권 · 나무증권 키를 연결하면 시세와 보유 종목을 볼 수 있어요.'), findsOneWidget);
+    expect(_t('증권사 연결하기'), findsOneWidget);
+    expect(find.byIcon(LucideIcons.plug), findsOneWidget);
+    expect(
+      find.byType(TossStocksView),
+      findsNothing,
+      reason: '연결 0 에 목록을 그리지 않는다',
+    );
   });
 
   // ── H2: 순위 실패 ────────────────────────────────────────────────────────

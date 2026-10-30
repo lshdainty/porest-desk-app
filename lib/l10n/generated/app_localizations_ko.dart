@@ -5209,22 +5209,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksMarketUs => '미국';
 
   @override
-  String get stocksConnectPrompt => '증권 계정을 연결해주세요';
-
-  @override
-  String get stocksConnectDescRealtime =>
-      '토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.';
-
-  @override
-  String get stocksConnectInSettings => '설정에서 연결하기';
-
-  @override
-  String get stocksConnectDesc => '토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.';
-
-  @override
-  String get stocksConnectAccount => '계정 연결하기';
-
-  @override
   String get stocksMyEval => '내 투자 평가금액';
 
   @override
@@ -8157,4 +8141,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stocksTradesTableName => '체결 표';
+
+  @override
+  String get stocksConnectEmptyTitle => '증권사를 연결해 주세요';
+
+  @override
+  String get stocksConnectEmptyDesc =>
+      '토스증권 · 나무증권 키를 연결하면 시세와 보유 종목을 볼 수 있어요.';
+
+  @override
+  String get stocksConnectEmptyAction => '증권사 연결하기';
 }

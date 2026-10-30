@@ -4,18 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
 
 /// 증권 화면 셸 — 헤더와 증권사 선택을 소유하고 본문만 갈아 끼운다.
 ///
@@ -131,55 +129,37 @@ class _UnsupportedBroker extends StatelessWidget {
   }
 }
 
-/// 개인키 미연결: 전 화면 연결 유도.
+/// 연결 0 — Result Section empty "처음"(I-13 Q4 안 A 결정). 끊김(연결은 있는데 조회가 막힘) Page Banner 는 13b:
+/// 서버가 토큰 만료 · 키 해지를 다른 오류와 가르지 않는다(`TossApiClient` 가 401 을 한 번 재시도한 뒤 모든 업스트림 오류를
+/// `SECURITIES_API_ERROR` 하나로 바꾸고 본문 코드는 로그에만 둔다) — 구분 코드가 생긴 뒤에 넣는다.
 class _ConnectGate extends StatelessWidget {
   const _ConnectGate();
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.moreItemStocks),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      backgroundColor: context.colors.bgLayerBasement,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.moreItemStocks,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(PSpace.x24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(LucideIcons.lock, size: 32, color: t.fgTertiary),
-              const SizedBox(height: PSpace.x12),
-              Text(
-                l.stocksConnectPrompt,
-                style: PTypo.body.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-              const SizedBox(height: PSpace.x4),
-              Text(
-                l.stocksConnectDescRealtime,
-                textAlign: TextAlign.center,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-              ),
-              const SizedBox(height: PSpace.x16),
-              PButton(
-                label: l.stocksConnectInSettings,
-                variant: PButtonVariant.outline,
-                size: PButtonSize.sm,
-                // 연결은 이제 증권사 연동 화면에서 한다.
-                onPressed: () => context.push('/settings/securities'),
-              ),
-            ],
+      body: PScreenBandBody(
+        child: PResultSection(
+          kind: PResultKind.empty,
+          icon: LucideIcons.plug,
+          title: l.stocksConnectEmptyTitle,
+          description: l.stocksConnectEmptyDesc,
+          primaryAction: PResultAction(
+            label: l.stocksConnectEmptyAction,
+            // 연결은 증권사 연동 화면에서 한다.
+            onPressed: () => context.push('/settings/securities'),
           ),
         ),
       ),

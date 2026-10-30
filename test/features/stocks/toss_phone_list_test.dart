@@ -267,16 +267,39 @@ void marketTests() {
       startTime: '09:00:00',
       endTime: '15:30:00',
     );
-    final before = marketStateAt(session, DateTime(2026, 10, 29, 8, 59), l);
-    final during = marketStateAt(session, DateTime(2026, 10, 29, 13, 0), l);
-    final atEnd = marketStateAt(session, DateTime(2026, 10, 29, 15, 30), l);
-    final after = marketStateAt(session, DateTime(2026, 10, 29, 15, 31), l);
+    final before = marketStateAt(
+      session,
+      DateTime.utc(2026, 10, 29, 8, 59).subtract(const Duration(hours: 9)),
+      l,
+    );
+    final during = marketStateAt(
+      session,
+      DateTime.utc(2026, 10, 29, 13, 0).subtract(const Duration(hours: 9)),
+      l,
+    );
+    final atEnd = marketStateAt(
+      session,
+      DateTime.utc(2026, 10, 29, 15, 30).subtract(const Duration(hours: 9)),
+      l,
+    );
+    final after = marketStateAt(
+      session,
+      DateTime.utc(2026, 10, 29, 15, 31).subtract(const Duration(hours: 9)),
+      l,
+    );
     expect((before.open, before.detail), (false, '개장 오전 9:00'));
     expect(during.open, isTrue);
     expect(during.detail, contains('오후 1:00'));
     expect(atEnd.open, isTrue);
     expect((after.open, after.detail), (false, '장마감'));
-    expect(marketStateAt(null, DateTime(2026, 10, 29, 13), l).detail, '휴장');
+    expect(
+      marketStateAt(
+        null,
+        DateTime.utc(2026, 10, 29, 13, 0).subtract(const Duration(hours: 9)),
+        l,
+      ).detail,
+      '휴장',
+    );
   });
 
   testWidgets('시장 질의(지수 · 국내 · 미국)가 모두 실패하면 시장 띠에 실패 한 벌', (tester) async {

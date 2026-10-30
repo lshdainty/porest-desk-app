@@ -2946,11 +2946,6 @@
   "stocksMarketClosed": "Closed",
   "stocksMarketKr": "Domestic",
   "stocksMarketUs": "US",
-  "stocksConnectPrompt": "Please connect a securities account",
-  "stocksConnectDescRealtime": "Connect your Toss Securities key to see quotes, holdings, and P&L in real time.",
-  "stocksConnectInSettings": "Connect in settings",
-  "stocksConnectDesc": "Connect your Toss Securities key to see holdings and P&L.",
-  "stocksConnectAccount": "Connect account",
   "stocksMyEval": "My portfolio value",
   "stocksPurchaseAmount": "Cost basis",
   "stocksHoldingsLabel": "Holdings",
@@ -4569,5 +4564,8 @@
     }
   },
   "stocksOrderbookTableName": "Order book table",
-  "stocksTradesTableName": "Trades table"
+  "stocksTradesTableName": "Trades table",
+  "stocksConnectEmptyTitle": "Connect a brokerage",
+  "stocksConnectEmptyDesc": "Connect your Toss Securities or Namu Securities key to see quotes and your holdings.",
+  "stocksConnectEmptyAction": "Connect a brokerage"
 }

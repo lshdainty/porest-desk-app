@@ -1592,94 +1592,73 @@ String _warningLabel(AppLocalizations l, String type) => switch (type) {
   _ => type,
 };
 
-// ---- 장 상태 계산 (시장 현지 시각 vs 정규장 운영시간) -------------------------
+// ---- 장 상태 계산 (지금 순간 vs 정규장 세션 순간) ----------------------------------
+//
+// 토스 OpenAPI market-calendar(KR · US 둘 다): 세션 시각은 **한국 시각 오프셋이 붙은 ISO date-time** 이다 —
+// 예) 미국 정규장 "2026-03-25T22:30:00+09:00" ~ "2026-03-26T05:00:00+09:00"(자정을 넘는다), 국내 "…T09:00:00+09:00"
+// (`~/qa/design-work/refs/stocks-api/_raw/toss/latest_openapi.json` UsRegularMarketSession · RegularMarketSession 의 example ·
+// 백엔드는 그대로 넘긴다 `TossMarketInfoDto.UsSession(String startTime, String endTime)`). 그래서 시각을 순간으로 읽어 지금과
+// 견주면 시장 시간대 · 서머타임 · 자정 넘김을 따질 일이 없고, 보이는 시각은 그대로 한국 시각이다.
+// 옛 "HH:MM:SS" 글(시험 · 옛 하네스)은 그날 한국 시각으로 읽는다.
 
 enum _Tz { kr, us }
-
-DateTime _nthSundayUtc(int year, int month, int n) {
-  var d = DateTime.utc(year, month, 1);
-  var count = 0;
-  while (true) {
-    if (d.weekday == DateTime.sunday) {
-      count++;
-      if (count == n) return d;
-    }
-    d = d.add(const Duration(days: 1));
-  }
-}
-
-/// 미국 동부 서머타임 여부 (3월 둘째 일요일 02:00 ~ 11월 첫째 일요일 02:00).
-bool _isUsEasternDst(DateTime utc) {
-  final start = _nthSundayUtc(utc.year, 3, 2).add(const Duration(hours: 7));
-  final end = _nthSundayUtc(utc.year, 11, 1).add(const Duration(hours: 6));
-  return utc.isAfter(start) && utc.isBefore(end);
-}
 
 /// 장 상태가 읽는 시각 — 제품은 실제 시각 그대로, 시험 · 하네스만 고정한다(통계의 `statsNow` 와 같은 방식).
 /// 고정했으면 시험이 끝날 때 되돌린다(벽시계와 섞이면 다음 날부터 조용히 깨진다).
 @visibleForTesting
 DateTime Function() stocksNow = DateTime.now;
 
-/// 시장 현지 시각 (KR=UTC+9, US 동부=DST 반영). 웹 `nowInTz` 미러.
-DateTime _localIn(_Tz tz) {
-  final utc = stocksNow().toUtc();
-  return tz == _Tz.kr
-      ? utc.add(const Duration(hours: 9))
-      : utc.subtract(Duration(hours: _isUsEasternDst(utc) ? 4 : 5));
+const _kst = Duration(hours: 9);
+
+/// 세션 시각 글 → 순간(UTC). 오프셋 붙은 ISO 는 그대로, "HH:MM[:SS]" 는 [nowUtc] 의 한국 날짜 그 시각으로 읽는다.
+DateTime? _instantOf(String? raw, DateTime nowUtc) {
+  if (raw == null || raw.isEmpty) return null;
+  final iso = DateTime.tryParse(raw);
+  if (iso != null && raw.length > 8) return iso.toUtc();
+  final m = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch(raw);
+  if (m == null) return null;
+  final kstNow = nowUtc.add(_kst);
+  return DateTime.utc(
+    kstNow.year,
+    kstNow.month,
+    kstNow.day,
+    int.parse(m.group(1)!),
+    int.parse(m.group(2)!),
+  ).subtract(_kst);
 }
 
-int? _minutes(String? hhmm) {
-  if (hhmm == null || hhmm.length < 5) return null;
-  final h = int.tryParse(hhmm.substring(0, 2));
-  final m = int.tryParse(hhmm.substring(3, 5));
-  return (h == null || m == null) ? null : h * 60 + m;
-}
-
-/// 장 상태 — 열림 여부와 줄 글. **분(minute)으로 견준다**: 예전엔 오전 · 오후 12시간 글("오후 1:00")을
-/// "15:30" 같은 24시간 글과 문자열로 견줘 장중에도 늘 "장마감" 이 나왔다.
+/// 장 상태 — 열림 여부와 줄 글. 보이는 시각은 모두 한국 시각 · 오전 · 오후 12시간.
 ({bool open, String detail}) _marketState(
   TossMarketSession? session,
   _Tz tz,
   AppLocalizations l,
-) => marketStateAt(
-  session,
-  _localIn(tz),
-  l,
-  // 미국은 사용자 시간(한국 시각)으로 보인다 — 뉴욕 현지 "오전 9:30" 대신 "오후 10:30"(M6). 서머타임은 날짜 규칙으로 센다
-  // (달력 응답에 오프셋이 없다 — 하드코딩한 22:30 이 아니라 지금 날짜의 동부 서머타임 여부).
-  displayShift: tz == _Tz.us
-      ? Duration(hours: _isUsEasternDst(stocksNow().toUtc()) ? 13 : 14)
-      : Duration.zero,
-);
+) => marketStateAt(session, stocksNow().toUtc(), l);
 
 @visibleForTesting
 ({bool open, String detail}) marketStateAt(
   TossMarketSession? session,
-  DateTime local,
-  AppLocalizations l, {
-  Duration displayShift = Duration.zero,
-}) {
-  final start = _minutes(session?.startTime);
-  final end = _minutes(session?.endTime);
+  DateTime nowUtc,
+  AppLocalizations l,
+) {
+  var start = _instantOf(session?.startTime, nowUtc);
+  var end = _instantOf(session?.endTime, nowUtc);
   if (start == null || end == null) {
     return (open: false, detail: l.stocksMarketHoliday);
   }
-  final now = local.hour * 60 + local.minute;
-  if (now >= start && now <= end) {
-    return (
-      open: true,
-      detail: l.stocksMarketTrading(timeOfDay12(local.add(displayShift))),
-    );
+  // 오프셋 없는 "22:30 ~ 05:00" 처럼 끝이 시작보다 이르면 다음 날 끝이다(자정 넘김)
+  if (end.isBefore(start)) end = end.add(const Duration(days: 1));
+  // 자정을 넘는 세션이 어제 시작해 지금 진행 중이면 시작을 하루 앞으로 당긴다
+  if (nowUtc.isBefore(start) &&
+      !nowUtc.isAfter(end.subtract(const Duration(days: 1)))) {
+    start = start.subtract(const Duration(days: 1));
+    end = end.subtract(const Duration(days: 1));
   }
-  if (now < start) {
-    return (
-      open: false,
-      detail: l.stocksMarketOpensAt(
-        timeOfDay12(
-          DateTime(2000, 1, 1, start ~/ 60, start % 60).add(displayShift),
-        ),
-      ),
-    );
+  String clock(DateTime utc) => timeOfDay12(utc.add(_kst));
+  if (!nowUtc.isBefore(start) && !nowUtc.isAfter(end)) {
+    return (open: true, detail: l.stocksMarketTrading(clock(nowUtc)));
+  }
+  if (nowUtc.isBefore(start)) {
+    return (open: false, detail: l.stocksMarketOpensAt(clock(start)));
   }
   return (open: false, detail: l.stocksMarketClosed);
 }
@@ -3006,7 +2985,7 @@ List<_Fill> _liveTradeFills(List<TossTrade>? trades) {
     final tr = trades[i];
     final p = tr.priceValue;
     final prev = i + 1 < trades.length ? trades[i + 1].priceValue : p;
-    final time = clock12WithSeconds(tr.timestamp);
+    final time = clock12Minutes(tr.timestamp);
     out.add((
       time: time,
       p: p,

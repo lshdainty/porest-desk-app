@@ -9650,36 +9650,6 @@ abstract class AppLocalizations {
   /// **'미국'**
   String get stocksMarketUs;
 
-  /// No description provided for @stocksConnectPrompt.
-  ///
-  /// In ko, this message translates to:
-  /// **'증권 계정을 연결해주세요'**
-  String get stocksConnectPrompt;
-
-  /// No description provided for @stocksConnectDescRealtime.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.'**
-  String get stocksConnectDescRealtime;
-
-  /// No description provided for @stocksConnectInSettings.
-  ///
-  /// In ko, this message translates to:
-  /// **'설정에서 연결하기'**
-  String get stocksConnectInSettings;
-
-  /// No description provided for @stocksConnectDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.'**
-  String get stocksConnectDesc;
-
-  /// No description provided for @stocksConnectAccount.
-  ///
-  /// In ko, this message translates to:
-  /// **'계정 연결하기'**
-  String get stocksConnectAccount;
-
   /// No description provided for @stocksMyEval.
   ///
   /// In ko, this message translates to:
@@ -14677,6 +14647,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'체결 표'**
   String get stocksTradesTableName;
+
+  /// No description provided for @stocksConnectEmptyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사를 연결해 주세요'**
+  String get stocksConnectEmptyTitle;
+
+  /// No description provided for @stocksConnectEmptyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 · 나무증권 키를 연결하면 시세와 보유 종목을 볼 수 있어요.'**
+  String get stocksConnectEmptyDesc;
+
+  /// No description provided for @stocksConnectEmptyAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사 연결하기'**
+  String get stocksConnectEmptyAction;
 }
 
 class _AppLocalizationsDelegate

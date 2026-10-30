@@ -5306,23 +5306,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksMarketUs => 'US';
 
   @override
-  String get stocksConnectPrompt => 'Please connect a securities account';
-
-  @override
-  String get stocksConnectDescRealtime =>
-      'Connect your Toss Securities key to see quotes, holdings, and P&L in real time.';
-
-  @override
-  String get stocksConnectInSettings => 'Connect in settings';
-
-  @override
-  String get stocksConnectDesc =>
-      'Connect your Toss Securities key to see holdings and P&L.';
-
-  @override
-  String get stocksConnectAccount => 'Connect account';
-
-  @override
   String get stocksMyEval => 'My portfolio value';
 
   @override
@@ -8352,4 +8335,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stocksTradesTableName => 'Trades table';
+
+  @override
+  String get stocksConnectEmptyTitle => 'Connect a brokerage';
+
+  @override
+  String get stocksConnectEmptyDesc =>
+      'Connect your Toss Securities or Namu Securities key to see quotes and your holdings.';
+
+  @override
+  String get stocksConnectEmptyAction => 'Connect a brokerage';
 }
