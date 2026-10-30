@@ -122,7 +122,7 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
               detailKey: key,
               currency: currency,
               lastPrice: last,
-              changePct: changePct ?? 0,
+              changePct: changePct,
             ),
           ],
         ),
@@ -510,7 +510,7 @@ class _NamuQuotesBand extends ConsumerStatefulWidget {
   final NamuDetailKey detailKey;
   final String currency;
   final double? lastPrice;
-  final double changePct;
+  final double? changePct;
 
   @override
   ConsumerState<_NamuQuotesBand> createState() => _NamuQuotesBandState();
