@@ -8335,10 +8335,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get namuDomesticValue => 'Domestic value (KRW)';
+  String get namuDomesticValue => 'Domestic value';
 
   @override
-  String get namuOverseasValue => 'Overseas value (USD)';
+  String get namuOverseasValue => 'Overseas value';
 
   @override
   String namuCountSplit(int kr, int us) {

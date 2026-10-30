@@ -4565,8 +4565,8 @@
       }
     }
   },
-  "namuDomesticValue": "Domestic value (KRW)",
-  "namuOverseasValue": "Overseas value (USD)",
+  "namuDomesticValue": "Domestic value",
+  "namuOverseasValue": "Overseas value",
   "namuCountSplit": "KR {kr} · US {us}",
   "@namuCountSplit": {
     "placeholders": {

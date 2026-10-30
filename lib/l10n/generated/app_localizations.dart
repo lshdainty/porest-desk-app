@@ -14651,13 +14651,13 @@ abstract class AppLocalizations {
   /// No description provided for @namuDomesticValue.
   ///
   /// In ko, this message translates to:
-  /// **'국내 평가금액 (KRW)'**
+  /// **'국내 평가금액'**
   String get namuDomesticValue;
 
   /// No description provided for @namuOverseasValue.
   ///
   /// In ko, this message translates to:
-  /// **'해외 평가금액 (USD)'**
+  /// **'해외 평가금액'**
   String get namuOverseasValue;
 
   /// No description provided for @namuCountSplit.

@@ -224,8 +224,8 @@ void main() {
     expect(stat.semanticsLabel, startsWith('≈ 1,85'));
     expect(_t('환율 1,385 적용'), findsOneWidget);
     expect(_tc('+'), findsNothing, reason: 'Delta 에 + 부호 없음');
-    expect(_t('국내 평가금액 (KRW)'), findsOneWidget);
-    expect(_t('해외 평가금액 (USD)'), findsOneWidget);
+    expect(_t('국내 평가금액'), findsOneWidget);
+    expect(_t('해외 평가금액'), findsOneWidget);
     expect(_t('국내 2 · 해외 1'), findsOneWidget);
     expect(_t('포트폴리오 구성'), findsOneWidget);
     // 나무 잔고에는 일간 손익이 없다
@@ -236,14 +236,14 @@ void main() {
     await _pump(tester, fx: null);
     expect(_t('시장'), findsNothing);
     expect(_t('원화 환산 합계'), findsNothing);
-    expect(_t('국내 평가금액 (KRW)'), findsWidgets);
+    expect(_t('국내 평가금액'), findsWidgets);
     expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(1));
   });
 
   testWidgets('한 통화뿐이면 그 통화 지표 + Delta, 거르기 Segmented 없음', (tester) async {
     await _pump(tester, usd: _h('USD', const []));
-    expect(_t('국내 평가금액 (KRW)'), findsOneWidget);
-    expect(_t('해외 평가금액 (USD)'), findsNothing);
+    expect(_t('국내 평가금액'), findsOneWidget);
+    expect(_t('해외 평가금액'), findsNothing);
     expect(_t('매입금액보다'), findsOneWidget);
     expect(_t('전체'), findsNothing);
     expect(_t('3개'), findsNothing);
@@ -286,7 +286,7 @@ void main() {
   testWidgets('한쪽만 실패하면 남은 통화가 보인다', (tester) async {
     await _pump(tester, usdFail: true);
     expect(_t('내 투자를 불러오지 못했어요'), findsNothing);
-    expect(_t('국내 평가금액 (KRW)'), findsOneWidget);
+    expect(_t('국내 평가금액'), findsOneWidget);
     expect(_t('숲길증권'), findsOneWidget);
   });
 

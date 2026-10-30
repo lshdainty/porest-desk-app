@@ -8143,10 +8143,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get namuDomesticValue => '국내 평가금액 (KRW)';
+  String get namuDomesticValue => '국내 평가금액';
 
   @override
-  String get namuOverseasValue => '해외 평가금액 (USD)';
+  String get namuOverseasValue => '해외 평가금액';
 
   @override
   String namuCountSplit(int kr, int us) {

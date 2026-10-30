@@ -4828,8 +4828,8 @@
       }
     }
   },
-  "namuDomesticValue": "국내 평가금액 (KRW)",
-  "namuOverseasValue": "해외 평가금액 (USD)",
+  "namuDomesticValue": "국내 평가금액",
+  "namuOverseasValue": "해외 평가금액",
   "namuCountSplit": "국내 {kr} · 해외 {us}",
   "@namuCountSplit": {
     "placeholders": {
