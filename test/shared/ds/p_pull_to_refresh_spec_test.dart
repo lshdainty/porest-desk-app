@@ -9,6 +9,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groo_damda_app/app/app.dart' show appMessengerKey;
 import 'package:groo_damda_app/app/session_scope.dart';
@@ -28,6 +29,11 @@ Widget _host(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
+    // 앱 뿌리와 같이 길잡이 바깥에 Snackbar 호스트를 둔다
+    builder: (context, child) => Material(
+      type: MaterialType.transparency,
+      child: PSnackbarHost(closeLabel: '닫기', child: child!),
+    ),
     home: Scaffold(body: child),
   );
   return MediaQuery(
@@ -247,10 +253,74 @@ void main() {
         (w) =>
             w is Text &&
             (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200b', '') ==
-                '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
+                '새로 고치지 못했어요.',
       ),
       findsOneWidget,
     );
+    expect(find.byType(SnackBar), findsNothing);
+    await tester.pump(const Duration(seconds: 6));
+  });
+
+  testWidgets('실패 알림에는 "다시 시도" 액션이 있고, 누르면 같은 새로 고침을 한 번 더 부른다', (
+    tester,
+  ) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      _list(
+        onRefresh: () async {
+          calls++;
+          if (calls == 1) throw StateError('boom');
+        },
+      ),
+    );
+    final g = await _pull(tester, 140);
+    await g.up();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(calls, 1);
+    bool plain(Widget w, String t) =>
+        w is Text &&
+        (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200b', '') == t;
+    final retry = find.byWidgetPredicate((w) => plain(w, '다시 시도'));
+    expect(retry, findsOneWidget);
+    await tester.tap(retry);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(calls, 2, reason: '액션이 같은 onRefresh 를 한 번 더 부른다');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(_state(tester).state, PPullToRefreshPhase.idle);
+    expect(_state(tester).offset, 0);
+    await tester.pump(const Duration(seconds: 6));
+  });
+
+  testWidgets('다시 시도도 실패하면 알림이 다시 뜬다', (tester) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      _list(
+        onRefresh: () async {
+          calls++;
+          throw StateError('boom');
+        },
+      ),
+    );
+    final g = await _pull(tester, 140);
+    await g.up();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    bool retryText(Widget w) =>
+        w is Text &&
+        (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200b', '') ==
+            '다시 시도';
+    await tester.tap(find.byWidgetPredicate(retryText));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(calls, 2);
+    expect(find.byWidgetPredicate(retryText), findsOneWidget);
     await tester.pump(const Duration(seconds: 6));
   });
 
@@ -363,7 +433,7 @@ void main() {
   }
 
   testWidgets(
-    '앱 뿌리와 같은 구성(SessionScope + MaterialApp.router + 전역 messenger 키)에서 실패하면 오류 알림이 실제로 뜬다',
+    '앱 뿌리와 같은 구성(SessionScope + MaterialApp.router + 전역 messenger 키 + Snackbar 호스트)에서 실패하면 오류 알림이 실제로 뜬다',
     (tester) async {
       final router = GoRouter(
         routes: [
@@ -388,6 +458,10 @@ void main() {
           child: MaterialApp.router(
             scaffoldMessengerKey: appMessengerKey,
             routerConfig: router,
+            builder: (context, child) => Material(
+              type: MaterialType.transparency,
+              child: PSnackbarHost(closeLabel: '닫기', child: child!),
+            ),
             theme: GrooTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -402,7 +476,19 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
       expect(tester.takeException(), isNull);
-      expect(find.text('새로 고치지 못했어요. 잠시 후 다시 당겨주세요.'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              (w.data ?? '')
+                      .replaceAll('\u2060', '')
+                      .replaceAll('\u200b', '') ==
+                  '새로 고치지 못했어요.',
+        ),
+        findsOneWidget,
+      );
+      // 옛 Material 띠는 뜨지 않는다 — ds Snackbar 하나뿐
+      expect(find.byType(SnackBar), findsNothing);
       await tester.pump(const Duration(seconds: 6));
     },
   );

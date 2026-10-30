@@ -1,12 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart' show ScaffoldMessenger;
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/ds_l10n.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 
 /// 문턱 — 당긴 거리가 88 을 넘으면 놓았을 때 새로 고친다(손가락으로 약 117). pull-to-refresh.yaml `root.threshold`.
 const double kPullToRefreshThreshold = 88;
@@ -27,7 +26,7 @@ enum PPullToRefreshPhase { idle, pulling, ready, refreshing }
 /// - 놓으면 문턱을 넘겼을 때 원이 돌고 내용이 88 로 300ms(d6 · enter)에 돌아가 [onRefresh] 가 끝날 때까지(성공 · 실패
 ///   모두) 머문다. 끝나면 300ms 에 제자리로. 문턱 전에 놓으면 그대로 제자리, 새로 고치지 않는다. 모션 줄이기면 바로.
 /// - 새로 고치는 동안 끌기는 받지 않는다. 보던 내용은 그대로 둔다(스켈레톤으로 바꾸지 않는다). 실패하면 내용을 둔 채
-///   Snackbar 로 알린다.
+///   Snackbar(critical + "다시 시도" — 누르면 같은 새로 고침을 다시)로 알린다.
 /// - 쉬는 동안 · 당기는 동안 지시자는 보조 기술에 숨기고, 새로 고치는 동안만 "새로 고치는 중" 진행 표시로 읽힌다.
 ///
 /// [child] 는 맨 위에 스크롤하는 것(ListView · CustomScrollView …)이다. 가장 바깥 세로 스크롤의 끌기만 센다 —
@@ -136,6 +135,9 @@ class PPullToRefreshState extends State<PPullToRefresh>
   void _animateTo(double target, {VoidCallback? then}) {
     final from = _offset.value;
     if (_reduceMotion || from == target) {
+      // 돌고 있던 이동(예: 88 로 가는 중)이 뒤늦게 이 값을 덮지 않게 먼저 세운다
+      _settle.stop();
+      _settleAnim?.removeListener(_onSettleTick);
       _offset.value = target;
       then?.call();
       return;
@@ -159,22 +161,17 @@ class PPullToRefreshState extends State<PPullToRefresh>
       return;
     }
     _finger = 0;
+    await _refresh();
+  }
+
+  /// 새로 고친다 — 내용이 88 에 머물고 [PPullToRefresh.onRefresh] 가 끝나면(성공 · 실패 모두) 제자리로. 실패하면 Snackbar.
+  Future<void> _refresh() async {
     _setState(PPullToRefreshPhase.refreshing);
     _animateTo(kPullToRefreshThreshold);
     try {
       await widget.onRefresh();
     } catch (_) {
-      if (mounted) {
-        // 앱의 오류 알림이 지나는 길(showPSnackBar — 앱 뿌리의 ScaffoldMessenger)로 띄운다
-        final text = dsL(context)?.dsPullToRefreshFailed;
-        if (ScaffoldMessenger.maybeOf(context) != null) {
-          showPSnackBar(
-            context,
-            text ?? '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
-            severity: PSnackSeverity.error,
-          );
-        }
-      }
+      if (mounted) _notifyFailed();
     }
     if (!mounted) return;
     _animateTo(
@@ -182,6 +179,23 @@ class PPullToRefreshState extends State<PPullToRefresh>
       then: () {
         if (mounted) _setState(PPullToRefreshPhase.idle);
       },
+    );
+  }
+
+  /// 다시 하면 되는 가벼운 실패 — ds Snackbar critical + "다시 시도"(snackbar.md:71). 고정 문구만(서버 글 금지, :128).
+  /// 액션은 같은 새로 고침을 다시 부른다. 호스트가 없는 자리(일부 테스트)는 조용히 둔다.
+  void _notifyFailed() {
+    final l = dsL(context);
+    PSnackbar.maybeOf(context)?.show(
+      message: l?.dsPullToRefreshFailed ?? '새로 고치지 못했어요.',
+      tone: PSnackbarTone.critical,
+      action: PSnackbarAction(
+        label: l?.dsCommonRetry ?? '다시 시도',
+        onPressed: () {
+          // 그 사이 다른 새로 고침이 돌고 있거나 끌고 있으면 겹쳐 돌리지 않는다
+          if (mounted && _state == PPullToRefreshPhase.idle) _refresh();
+        },
+      ),
     );
   }
 

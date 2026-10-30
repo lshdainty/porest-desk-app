@@ -7887,8 +7887,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dsPullToRefreshLabel => 'Refreshing';
 
   @override
-  String get dsPullToRefreshFailed =>
-      'Couldn\'t refresh. Please pull to try again later.';
+  String get dsPullToRefreshFailed => 'Couldn\'t refresh.';
 
   @override
   String get dsCommonRetry => 'Try again';
