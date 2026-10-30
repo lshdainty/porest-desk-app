@@ -433,7 +433,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetAccountDeleteConfirm(String name) {
-    return '\"$name\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
+    return '\"$name\"을(를) 목록에서 삭제해요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
   }
 
   @override
@@ -544,7 +544,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetCardDeleteConfirm(String name) {
-    return '\"$name\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
+    return '\"$name\"을(를) 목록에서 삭제해요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
   }
 
   @override
@@ -630,7 +630,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetInvestDeleteConfirm(String name) {
-    return '\"$name\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
+    return '\"$name\"을(를) 목록에서 삭제해요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
   }
 
   @override
@@ -1504,7 +1504,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calEventDeleteConfirm(String title) {
-    return '\"$title\" 일정을 지울까요? 지운 일정은 되돌릴 수 없어요.';
+    return '\"$title\" 일정을 삭제할까요? 삭제한 일정은 되돌릴 수 없어요.';
   }
 
   @override
@@ -2694,7 +2694,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get categoryDeleteMessage =>
-      '이미 기록된 거래는 지워지지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 지워져요.';
+      '이미 기록된 거래는 삭제되지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 삭제돼요.';
 
   @override
   String categoryDeleteRecurring(int count) {
@@ -6909,11 +6909,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsInboxEmptyDesc => '카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.';
 
   @override
-  String get smsInboxRemoveTitle => '문자를 지울까요?';
+  String get smsInboxRemoveTitle => '문자를 삭제할까요?';
 
   @override
   String smsInboxRemoveConfirm(String target) {
-    return '$target 문자를 목록에서 지워요. 기록으로 남기지 않아요.';
+    return '$target 문자를 목록에서 삭제해요. 기록으로 남기지 않아요.';
   }
 
   @override
@@ -6922,11 +6922,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get smsInboxClearTitle => '문자를 모두 지울까요?';
+  String get smsInboxClearTitle => '문자를 모두 삭제할까요?';
 
   @override
   String smsInboxClearConfirm(int count) {
-    return '수신함의 문자 $count건을 모두 지워요. 기록으로 남기지 않아요.';
+    return '수신함의 문자 $count건을 모두 삭제해요. 기록으로 남기지 않아요.';
   }
 
   @override
@@ -8014,12 +8014,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String stocksWatchGroupDeleteConfirmCount(String name, int count) {
-    return '\"$name\" 그룹과 담긴 종목 $count개가 함께 지워져요. 지운 그룹은 되돌릴 수 없어요.';
+    return '\"$name\" 그룹과 담긴 종목 $count개가 함께 삭제돼요. 삭제한 그룹은 되돌릴 수 없어요.';
   }
 
   @override
   String stocksWatchGroupDeleteConfirmEmpty(String name) {
-    return '\"$name\" 그룹을 지워요. 지운 그룹은 되돌릴 수 없어요.';
+    return '\"$name\" 그룹을 삭제해요. 삭제한 그룹은 되돌릴 수 없어요.';
   }
 
   @override

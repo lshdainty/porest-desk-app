@@ -366,7 +366,7 @@ void main() {
     expect(_t('"교통" 카테고리를 삭제할까요?'), findsOneWidget);
     expect(
       _t(
-        '이미 기록된 거래는 지워지지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 지워져요. '
+        '이미 기록된 거래는 삭제되지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 삭제돼요. '
         '이 카테고리를 쓰는 반복 거래 2개는 계속 이 카테고리로 기록돼요.',
       ),
       findsOneWidget,
@@ -382,7 +382,7 @@ void main() {
     await tester.tap(_t('삭제'));
     await tester.pumpAndSettle();
     expect(
-      _t('이미 기록된 거래는 지워지지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 지워져요.'),
+      _t('이미 기록된 거래는 삭제되지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 삭제돼요.'),
       findsOneWidget,
     );
     await tester.tap(_t('취소'));

@@ -281,9 +281,9 @@ void main() {
     await tester.tap(find.byIcon(LucideIcons.x).first);
     await tester.pumpAndSettle();
     expect(find.byType(PAlertDialogView), findsOneWidget);
-    expect(findPlain('문자를 지울까요?'), findsOneWidget);
+    expect(findPlain('문자를 삭제할까요?'), findsOneWidget);
     expect(
-      findPlain("'골목 찌개집 12,000원' 문자를 목록에서 지워요. 기록으로 남기지 않아요."),
+      findPlain("'골목 찌개집 12,000원' 문자를 목록에서 삭제해요. 기록으로 남기지 않아요."),
       findsOneWidget,
     );
     expect(fake.calls, isNot(contains('removeFromInbox')));
@@ -320,7 +320,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(LucideIcons.trash2).first);
     await tester.pumpAndSettle();
-    expect(findPlain('문자를 지울까요?'), findsOneWidget);
+    expect(findPlain('문자를 삭제할까요?'), findsOneWidget);
     expect(fake.entries, hasLength(4));
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
@@ -333,8 +333,8 @@ void main() {
     final fake = await _pump(tester);
     await tester.tap(find.text('비우기'));
     await tester.pumpAndSettle();
-    expect(findPlain('문자를 모두 지울까요?'), findsOneWidget);
-    expect(findPlain('수신함의 문자 4건을 모두 지워요. 기록으로 남기지 않아요.'), findsOneWidget);
+    expect(findPlain('문자를 모두 삭제할까요?'), findsOneWidget);
+    expect(findPlain('수신함의 문자 4건을 모두 삭제해요. 기록으로 남기지 않아요.'), findsOneWidget);
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
     expect(fake.calls, isNot(contains('clearInbox')));

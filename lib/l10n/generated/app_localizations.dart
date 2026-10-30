@@ -923,7 +923,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetAccountDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.'**
+  /// **'\"{name}\"을(를) 목록에서 삭제해요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.'**
   String assetAccountDeleteConfirm(String name);
 
   /// No description provided for @assetActionFailed.
@@ -1133,7 +1133,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetCardDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.'**
+  /// **'\"{name}\"을(를) 목록에서 삭제해요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.'**
   String assetCardDeleteConfirm(String name);
 
   /// No description provided for @assetCardDeleted.
@@ -1283,7 +1283,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetInvestDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.'**
+  /// **'\"{name}\"을(를) 목록에서 삭제해요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.'**
   String assetInvestDeleteConfirm(String name);
 
   /// No description provided for @assetBrokerExchange.
@@ -2879,7 +2879,7 @@ abstract class AppLocalizations {
   /// No description provided for @calEventDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{title}\" 일정을 지울까요? 지운 일정은 되돌릴 수 없어요.'**
+  /// **'\"{title}\" 일정을 삭제할까요? 삭제한 일정은 되돌릴 수 없어요.'**
   String calEventDeleteConfirm(String title);
 
   /// No description provided for @calEventAdded.
@@ -5003,7 +5003,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryDeleteMessage.
   ///
   /// In ko, this message translates to:
-  /// **'이미 기록된 거래는 지워지지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 지워져요.'**
+  /// **'이미 기록된 거래는 삭제되지 않고 그대로 남아요. 이 카테고리에 걸린 예산은 함께 삭제돼요.'**
   String get categoryDeleteMessage;
 
   /// No description provided for @categoryDeleteRecurring.
@@ -12509,13 +12509,13 @@ abstract class AppLocalizations {
   /// No description provided for @smsInboxRemoveTitle.
   ///
   /// In ko, this message translates to:
-  /// **'문자를 지울까요?'**
+  /// **'문자를 삭제할까요?'**
   String get smsInboxRemoveTitle;
 
   /// No description provided for @smsInboxRemoveConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'{target} 문자를 목록에서 지워요. 기록으로 남기지 않아요.'**
+  /// **'{target} 문자를 목록에서 삭제해요. 기록으로 남기지 않아요.'**
   String smsInboxRemoveConfirm(String target);
 
   /// No description provided for @smsInboxRemoveLabel.
@@ -12527,13 +12527,13 @@ abstract class AppLocalizations {
   /// No description provided for @smsInboxClearTitle.
   ///
   /// In ko, this message translates to:
-  /// **'문자를 모두 지울까요?'**
+  /// **'문자를 모두 삭제할까요?'**
   String get smsInboxClearTitle;
 
   /// No description provided for @smsInboxClearConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'수신함의 문자 {count}건을 모두 지워요. 기록으로 남기지 않아요.'**
+  /// **'수신함의 문자 {count}건을 모두 삭제해요. 기록으로 남기지 않아요.'**
   String smsInboxClearConfirm(int count);
 
   /// No description provided for @smsPermissionOffTitle.
@@ -14429,13 +14429,13 @@ abstract class AppLocalizations {
   /// No description provided for @stocksWatchGroupDeleteConfirmCount.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 그룹과 담긴 종목 {count}개가 함께 지워져요. 지운 그룹은 되돌릴 수 없어요.'**
+  /// **'\"{name}\" 그룹과 담긴 종목 {count}개가 함께 삭제돼요. 삭제한 그룹은 되돌릴 수 없어요.'**
   String stocksWatchGroupDeleteConfirmCount(String name, int count);
 
   /// No description provided for @stocksWatchGroupDeleteConfirmEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 그룹을 지워요. 지운 그룹은 되돌릴 수 없어요.'**
+  /// **'\"{name}\" 그룹을 삭제해요. 삭제한 그룹은 되돌릴 수 없어요.'**
   String stocksWatchGroupDeleteConfirmEmpty(String name);
 
   /// No description provided for @stocksWatchPickGroup.
