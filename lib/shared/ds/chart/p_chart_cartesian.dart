@@ -283,19 +283,14 @@ abstract class _CartesianState<W extends PCartesianChart> extends State<W> {
     final aboveFix = above == 0 && below == 0 ? 4 : above;
 
     final tickStyle = chartTickStyle(c);
-    double widest(double step) {
-      var w = 0.0;
-      for (var t = -below; t <= aboveFix; t++) {
-        w = math.max(
-          w,
-          measureText(_axisText(t * step), tickStyle, scaler: scaler),
-        );
-      }
-      return w;
-    }
+    double axisWidth(double step) => chartAxisWidth(
+      [for (var t = -below; t <= aboveFix; t++) _axisText(t * step)],
+      tickStyle,
+      scaler: scaler,
+    );
 
-    final leftW = _valueAxis ? widest(l.step) + kChartTickMargin : 0.0;
-    final rightW = r == null ? 0.0 : widest(r.step) + kChartTickMargin;
+    final leftW = _valueAxis ? axisWidth(l.step) : 0.0;
+    final rightW = r == null ? 0.0 : axisWidth(r.step);
     var labelW = 0.0;
     for (final cat in widget.categories) {
       labelW = math.max(labelW, measureText(cat, tickStyle, scaler: scaler));

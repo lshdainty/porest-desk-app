@@ -104,4 +104,16 @@ void main() {
       expect(find.text('−2,500만'), findsOneWidget);
     });
   }
+
+  test('chartAxisWidth — 가장 긴 글자(부호 포함) + 여백', () {
+    const style = TextStyle(fontSize: 12);
+    final wide = measureText('−5,000만', style);
+    final w = chartAxisWidth(['0', '−5,000만', '−1억'], style);
+    expect(w, wide + kChartTickMargin);
+    expect(chartAxisWidth(const [], style), kChartTickMargin);
+    expect(
+      chartAxisWidth(['−5,000만'], style, scaler: const TextScaler.linear(2)),
+      greaterThan(w),
+    );
+  });
 }

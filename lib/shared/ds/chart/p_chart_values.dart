@@ -193,6 +193,23 @@ TextStyle chartTickStyle(PColors c, {PChartColor? color}) =>
       fontFeatures: _tabular,
     );
 
+/// 세로축 폭 — 눈금 글자들 가운데 가장 긴 것을 재서 [margin] 을 더한다.
+///
+/// 앱의 모든 차트 세로축이 이 계산 하나를 쓴다(고정 폭이면 `−2,500만` 의 부호가
+/// 잘려 양수로 읽힌다 — chart.md:46 · 결함 D6). 웹 `useAxisWidth` 와 같은 규칙.
+double chartAxisWidth(
+  Iterable<String> labels,
+  TextStyle style, {
+  TextScaler scaler = TextScaler.noScaling,
+  double margin = kChartTickMargin,
+}) {
+  var w = 0.0;
+  for (final t in labels) {
+    w = math.max(w, measureText(t, style, scaler: scaler));
+  }
+  return w + margin;
+}
+
 /// 눈금 하나의 폭을 잰다 — 세로축의 폭은 가장 긴 글자("−3,000만")가 잘리지 않게 잡는다.
 /// 글자는 화면의 글자 배율로 그려지므로 [scaler] 로 같은 배율을 넣어 잰다(안 넣으면 1배 — 200% 에서 눈금이 잘린다).
 double measureText(

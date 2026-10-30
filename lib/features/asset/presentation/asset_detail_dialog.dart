@@ -1,6 +1,5 @@
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -1068,15 +1067,14 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     // (chart.md:46 · 결함 D6).
     final yTickStyle = PTypo.micro.copyWith(fontSize: PFontSize.micro);
     final yScaler = MediaQuery.textScalerOf(context);
-    var yLabelW = 0.0;
-    for (var v = yMin; v <= yMax + yInterval / 2; v += yInterval) {
-      final text = masked ? '••••' : formatChartAxis(v);
-      yLabelW = math.max(
-        yLabelW,
-        measureText(text, yTickStyle, scaler: yScaler),
-      );
-    }
-    final yReserved = yLabelW.ceilToDouble() + 6 + 2;
+    final yReserved = chartAxisWidth(
+      [
+        for (var v = yMin; v <= yMax + yInterval / 2; v += yInterval)
+          masked ? '••••' : formatChartAxis(v),
+      ],
+      yTickStyle,
+      scaler: yScaler,
+    ).ceilToDouble();
 
     final chart = LineChart(
       LineChartData(
