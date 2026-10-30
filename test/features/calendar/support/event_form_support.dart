@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_clock.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
@@ -31,9 +32,9 @@ Future<void> openEventForm(
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
-  final savedNow = calendarFormNow;
-  calendarFormNow = () => DateTime(2026, 10, 29, 13);
-  addTearDown(() => calendarFormNow = savedNow);
+  final savedNow = calendarNow;
+  calendarNow = () => DateTime(2026, 10, 29, 13);
+  addTearDown(() => calendarNow = savedNow);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -43,8 +44,9 @@ Future<void> openEventForm(
         ),
         userCalendarListProvider.overrideWith((ref) async => calendars),
         monthEventsProvider.overrideWith((ref, key) async {
-          if (monthBuilds != null)
+          if (monthBuilds != null) {
             monthBuilds[key] = (monthBuilds[key] ?? 0) + 1;
+          }
           return <CalendarEvent>[];
         }),
       ],

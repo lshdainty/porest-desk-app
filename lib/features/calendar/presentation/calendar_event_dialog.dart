@@ -6,6 +6,7 @@ import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_clock.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event_form_rules.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_picker_options.dart';
@@ -21,9 +22,6 @@ import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 import 'package:groo_damda_app/shared/ds/textarea/p_textarea.dart';
 import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
 import 'package:groo_damda_app/shared/forms/form_delete_footer.dart';
-
-/// 폼이 읽는 오늘 — 테스트 · 하네스가 고정한다(`dashboardNow` 와 같은 이음매).
-DateTime Function() calendarFormNow = DateTime.now;
 
 /// 일정 추가 · 수정 폼(I-09 21 ~ 30) — ds Bottom Sheet 입력 폼. 제목 입력칸 + List 줄 칸 아홉(캘린더 · 라벨 · 종일 · 시작 · 종료 · 반복 ·
 /// 알림 · 장소 · 설명). 고르는 칸은 그 위에 고르기 시트가 뜨고, 장소 · 설명은 같은 시트 안에서 한 단계 들어간다. 바깥 · 끌기로 닫히지
@@ -151,7 +149,7 @@ class _CalendarEventFormSheetState
       // 기존 알림을 먼저 채운다 — 서버는 목록을 통째로 교체하므로 건너뛰면 웹에서 건 알림이 저장 한 번에 사라진다.
       _reminders = ([...e.reminderMinutes]..sort());
     } else {
-      final d = widget.defaultDate ?? calendarFormNow();
+      final d = widget.defaultDate ?? calendarNow();
       _start = DateTime(d.year, d.month, d.day, 9);
       _end = DateTime(d.year, d.month, d.day, 10);
       _allDay = true; // 신규 일정 기본 종일 켬(웹 isAllDay default true 정합).
@@ -346,7 +344,7 @@ class _CalendarEventFormSheetState
       context,
       title: isStart ? l.calFormStartDay : l.calFormEndDay,
       value: cur,
-      today: calendarFormNow(),
+      today: calendarNow(),
     );
     if (picked == null || !mounted) return;
     final next = DateTime(
@@ -600,7 +598,7 @@ class _CalendarEventFormSheetState
         onAllDay: (v) => setState(() => _allDay = v),
         start: _start,
         end: _end,
-        today: calendarFormNow(),
+        today: calendarNow(),
         rangeError: _showErrors && _rangeInvalid,
         onPickStartDay: () => _pickDay(true),
         onPickStartTime: () => _pickTime(true),
