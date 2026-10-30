@@ -25,6 +25,8 @@ Future<void> openEventForm(
   DateTime? defaultDate,
   double scale = 1,
   Size size = const Size(390, 2000),
+  Map<MonthYM, int>? monthBuilds,
+  List<MonthYM> watchMonths = const [],
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
@@ -40,7 +42,11 @@ Future<void> openEventForm(
           (ref) async => labels ?? (throw Exception('boom')),
         ),
         userCalendarListProvider.overrideWith((ref) async => calendars),
-        monthEventsProvider.overrideWith((ref, key) async => <CalendarEvent>[]),
+        monthEventsProvider.overrideWith((ref, key) async {
+          if (monthBuilds != null)
+            monthBuilds[key] = (monthBuilds[key] ?? 0) + 1;
+          return <CalendarEvent>[];
+        }),
       ],
       child: MaterialApp(
         theme: GrooTheme.light(),
@@ -52,15 +58,27 @@ Future<void> openEventForm(
           child: child!,
         ),
         home: Scaffold(
-          body: Builder(
-            builder: (ctx) => TextButton(
-              onPressed: () => showCalendarEventDialog(
-                ctx,
-                edit: edit,
-                defaultDate: defaultDate ?? DateTime(2026, 10, 29),
+          body: Column(
+            children: [
+              Builder(
+                builder: (ctx) => TextButton(
+                  onPressed: () => showCalendarEventDialog(
+                    ctx,
+                    edit: edit,
+                    defaultDate: defaultDate ?? DateTime(2026, 10, 29),
+                  ),
+                  child: const Text('open'),
+                ),
               ),
-              child: const Text('open'),
-            ),
+              // 이미 받아 둔 달 — 저장 · 삭제가 어느 달을 다시 받게 하는지 센다
+              for (final m in watchMonths)
+                Consumer(
+                  builder: (context, ref, _) {
+                    ref.watch(monthEventsProvider(m));
+                    return const SizedBox.shrink();
+                  },
+                ),
+            ],
           ),
         ),
       ),
@@ -91,10 +109,10 @@ Future<void> enterTitle(WidgetTester tester, String text) async {
 
 /// 시트의 [PButton] 을 라벨로 집는다(맨 위 시트의 것).
 Finder button(String label) =>
-    find.byWidgetPredicate((w) => w is PButton && w.label == label).last;
+    find.byWidgetPredicate((w) => w is PButton && w.label == label);
 
 Future<void> tapButton(WidgetTester tester, String label) async {
-  await tester.tap(button(label));
+  await tester.tap(button(label).last);
   await tester.pumpAndSettle();
 }
 

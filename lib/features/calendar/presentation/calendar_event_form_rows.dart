@@ -15,6 +15,7 @@ import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/forms/picker_row.dart';
 
 /// 고르기 시트에 줄로 오르는 캘린더 · 라벨 — 이름과 앞 색 점.
@@ -48,13 +49,82 @@ enum CalendarFormStep { location, description }
 
 const double _rowIcon = 22;
 
+/// 줄의 값 자리 — 줄 끝에서 줄바꿈하고(말줄임 없음) 제목은 한 줄로 지킨다. ds List 는 긴 값이 오면 본문을 1em 까지 줄이므로("장 / 소")
+/// 제목 글 폭을 재어 값의 최대 폭을 정한다(웹은 제목에 whitespace-nowrap 을 둔 것과 같다 — I-09 K 7).
+class _RowValue extends StatelessWidget {
+  const _RowValue({
+    required this.title,
+    required this.rowWidth,
+    required this.text,
+    this.leading,
+    this.maxLines,
+    this.reserve = 0,
+  });
+
+  final String title;
+  final double rowWidth;
+  final String text;
+  final Widget? leading;
+  final int? maxLines;
+
+  /// 값 뒤에 따로 서는 것의 폭(꺾쇠 + 사이).
+  final double reserve;
+
+  /// 줄 앞 아이콘 22 + 사이 12, 제목 ↔ 값 사이 10, 줄 좌우 24.
+  static const double _fixed = PSpacing.globalGutter * 2 + 22 + 12 + 10;
+
+  /// 제목을 한 줄로 두고 남는 값 자리의 폭.
+  static double maxWidthFor(
+    BuildContext context,
+    String title,
+    double rowWidth, {
+    double reserve = 0,
+  }) {
+    final painter = TextPainter(
+      text: TextSpan(text: keepAll(title), style: PTypography.t5),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final titleWidth = painter.width;
+    painter.dispose();
+    return math.max(48.0, rowWidth - _fixed - titleWidth - reserve);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final max = maxWidthFor(context, title, rowWidth, reserve: reserve);
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: max),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            if (leading != null)
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: PSpacing.x1_5),
+                  child: leading,
+                ),
+              ),
+            TextSpan(text: text),
+          ],
+        ),
+        textAlign: TextAlign.end,
+        maxLines: maxLines,
+        overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
+        semanticsLabel: text,
+      ),
+    );
+  }
+}
+
 /// 일정 폼 시트의 본문 — 제목 입력칸 + List 줄 칸 아홉(I-09 22 ~ 28). 상태는 부모가 든다.
 class CalendarEventFormRows extends StatelessWidget {
   const CalendarEventFormRows({
     super.key,
     required this.titleController,
     required this.titleFocus,
-    required this.autofocusTitle,
     required this.titleError,
     required this.onTitleChanged,
     required this.saveError,
@@ -87,7 +157,6 @@ class CalendarEventFormRows extends StatelessWidget {
 
   final TextEditingController titleController;
   final FocusNode titleFocus;
-  final bool autofocusTitle;
   final String? titleError;
   final ValueChanged<String> onTitleChanged;
   final String? saveError;
@@ -133,155 +202,181 @@ class CalendarEventFormRows extends StatelessWidget {
     final label = find(labels, selectedLabel);
     final none = l.calFormNone;
 
-    Widget calendarRow() {
-      if (calendars.isNotEmpty) {
-        return PickerRow(
-          title: l.calFieldCalendar,
-          prefix: const Icon(LucideIcons.calendar, size: _rowIcon),
-          value: cal?.name,
-          leading: cal == null ? null : PickerDot(color: cal.dot),
-          onTap: onPickCalendar,
+    return LayoutBuilder(
+      builder: (context, box) {
+        final width = box.maxWidth;
+
+        /// 값이 있는 줄 — 값은 줄 끝에서 줄바꿈하고 제목은 한 줄이다.
+        Widget row({
+          required String title,
+          required IconData icon,
+          required String? value,
+          required VoidCallback? onTap,
+          Widget? leading,
+          bool chevron = false,
+          int? maxLines,
+        }) => PListButtonItem(
+          title: title,
+          prefix: Icon(icon, size: _rowIcon),
+          onTap: onTap,
+          suffix: value == null && !chevron
+              ? null
+              : PListSuffix(
+                  children: [
+                    if (value != null)
+                      _RowValue(
+                        title: title,
+                        rowWidth: width,
+                        text: value,
+                        leading: leading,
+                        maxLines: maxLines,
+                        reserve: chevron ? 22 : 0,
+                      ),
+                    if (chevron)
+                      const ExcludeSemantics(
+                        child: Icon(LucideIcons.chevronRight),
+                      ),
+                  ],
+                ),
         );
-      }
-      // 고를 캘린더가 0 개 — 불러오는 중이면 값 없이, 실패면 "불러오지 못했어요" + 누르면 다시 받는다
-      return PickerRow(
-        title: l.calFieldCalendar,
-        prefix: const Icon(LucideIcons.calendar, size: _rowIcon),
-        value: calendarsLoading ? null : l.calFormCalendarLoadFailed,
-        onTap: calendarsLoading ? null : onRetryCalendars,
-      );
-    }
 
-    String chevronValue(String v) => v.isEmpty ? none : v;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (saveError != null) CalendarSaveErrorCallout(message: saveError!),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            PSpacing.globalGutter,
-            PSpacing.x3,
-            PSpacing.globalGutter,
-            PSpacing.x2,
-          ),
-          child: PField(
-            required: true,
-            invalid: titleError != null,
-            errorMessage: titleError,
-            child: PInput(
-              controller: titleController,
-              focusNode: titleFocus,
-              autofocus: autofocusTitle,
-              semanticLabel: l.calFieldTitle,
-              placeholder: l.calTitlePlaceholder,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(kCalendarTitleMax),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (saveError != null)
+              CalendarSaveErrorCallout(message: saveError!),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpacing.globalGutter,
+                PSpacing.x3,
+                PSpacing.globalGutter,
+                PSpacing.x2,
+              ),
+              child: PField(
+                required: true,
+                invalid: titleError != null,
+                errorMessage: titleError,
+                child: PInput(
+                  controller: titleController,
+                  focusNode: titleFocus,
+                  semanticLabel: l.calFieldTitle,
+                  placeholder: l.calTitlePlaceholder,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(kCalendarTitleMax),
+                  ],
+                  onChanged: onTitleChanged,
+                ),
+              ),
+            ),
+            PList(
+              semanticLabel: l.calFormRows,
+              children: [
+                // 고를 캘린더가 0 개 — 불러오는 중이면 값 없이, 실패면 "불러오지 못했어요" + 누르면 다시 받는다
+                calendars.isNotEmpty
+                    ? row(
+                        title: l.calFieldCalendar,
+                        icon: LucideIcons.calendar,
+                        value: cal?.name,
+                        leading: cal == null ? null : PickerDot(color: cal.dot),
+                        onTap: onPickCalendar,
+                      )
+                    : row(
+                        title: l.calFieldCalendar,
+                        icon: LucideIcons.calendar,
+                        value: calendarsLoading
+                            ? null
+                            : l.calFormCalendarLoadFailed,
+                        onTap: calendarsLoading ? null : onRetryCalendars,
+                      ),
+                row(
+                  title: l.calFieldLabel,
+                  icon: LucideIcons.tag,
+                  value: label?.name ?? l.calNoLabel,
+                  leading: label == null ? null : PickerDot(color: label.dot),
+                  onTap: onPickLabel,
+                ),
+                PListSwitchItem(
+                  title: l.calAllDay,
+                  prefix: const Icon(LucideIcons.sun, size: _rowIcon),
+                  checked: allDay,
+                  onChanged: onAllDay,
+                ),
+                _DateRow(
+                  title: l.calStartDate,
+                  dayName: l.calFormStartDay,
+                  timeName: l.calFormStartTime,
+                  value: start,
+                  today: today,
+                  allDay: allDay,
+                  rowWidth: width,
+                  onDay: onPickStartDay,
+                  onTime: onPickStartTime,
+                ),
+                _DateRow(
+                  title: l.calEndDate,
+                  dayName: l.calFormEndDay,
+                  timeName: l.calFormEndTime,
+                  value: end,
+                  today: today,
+                  allDay: allDay,
+                  rowWidth: width,
+                  onDay: onPickEndDay,
+                  onTime: onPickEndTime,
+                ),
               ],
-              onChanged: onTitleChanged,
             ),
-          ),
-        ),
-        PList(
-          semanticLabel: l.calFormRows,
-          children: [
-            calendarRow(),
-            PickerRow(
-              title: l.calFieldLabel,
-              prefix: const Icon(LucideIcons.tag, size: _rowIcon),
-              value: label?.name ?? l.calNoLabel,
-              leading: label == null ? null : PickerDot(color: label.dot),
-              onTap: onPickLabel,
-            ),
-            PListSwitchItem(
-              title: l.calAllDay,
-              prefix: const Icon(LucideIcons.sun, size: _rowIcon),
-              checked: allDay,
-              onChanged: onAllDay,
-            ),
-            _DateRow(
-              title: l.calStartDate,
-              dayName: l.calFormStartDay,
-              timeName: l.calFormStartTime,
-              value: start,
-              today: today,
-              allDay: allDay,
-              onDay: onPickStartDay,
-              onTime: onPickStartTime,
-            ),
-            _DateRow(
-              title: l.calEndDate,
-              dayName: l.calFormEndDay,
-              timeName: l.calFormEndTime,
-              value: end,
-              today: today,
-              allDay: allDay,
-              onDay: onPickEndDay,
-              onTime: onPickEndTime,
-            ),
-          ],
-        ),
-        if (rangeError)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpacing.globalGutter,
-              0,
-              PSpacing.globalGutter,
-              PSpacing.x2,
-            ),
-            child: Semantics(
-              liveRegion: true,
-              child: Text(
-                l.calFormEndBeforeStart,
-                style: PTypography.t3.copyWith(color: c.fgCritical),
-              ),
-            ),
-          ),
-        PList(
-          semanticLabel: l.calFormRowsMore,
-          children: [
-            PickerRow(
-              title: l.calRepeat,
-              prefix: const Icon(LucideIcons.repeat, size: _rowIcon),
-              value: recurrenceLabel(l, recurrence),
-              onTap: onPickRecurrence,
-            ),
-            PickerRow(
-              title: l.calFieldReminder,
-              prefix: const Icon(LucideIcons.bell, size: _rowIcon),
-              value: reminderValueText(l, reminders),
-              onTap: onPickReminders,
-            ),
-            PListButtonItem(
-              title: l.calLocation,
-              prefix: const Icon(LucideIcons.mapPin, size: _rowIcon),
-              suffix: PListSuffix(
-                children: [
-                  Text(chevronValue(location)),
-                  const ExcludeSemantics(child: Icon(LucideIcons.chevronRight)),
-                ],
-              ),
-              onTap: () => onStep(CalendarFormStep.location),
-            ),
-            PListButtonItem(
-              title: l.calFieldDescription,
-              prefix: const Icon(LucideIcons.text, size: _rowIcon),
-              suffix: PListSuffix(
-                children: [
-                  // 설명은 값 미리보기라 두 줄까지(list.md:158)
-                  Text(
-                    chevronValue(description),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+            if (rangeError)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  PSpacing.globalGutter,
+                  0,
+                  PSpacing.globalGutter,
+                  PSpacing.x2,
+                ),
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l.calFormEndBeforeStart,
+                    style: PTypography.t3.copyWith(color: c.fgCritical),
                   ),
-                  const ExcludeSemantics(child: Icon(LucideIcons.chevronRight)),
-                ],
+                ),
               ),
-              onTap: () => onStep(CalendarFormStep.description),
+            PList(
+              semanticLabel: l.calFormRowsMore,
+              children: [
+                row(
+                  title: l.calRepeat,
+                  icon: LucideIcons.repeat,
+                  value: recurrenceLabel(l, recurrence),
+                  onTap: onPickRecurrence,
+                ),
+                row(
+                  title: l.calFieldReminder,
+                  icon: LucideIcons.bell,
+                  value: reminderValueText(l, reminders),
+                  onTap: onPickReminders,
+                ),
+                row(
+                  title: l.calLocation,
+                  icon: LucideIcons.mapPin,
+                  value: location.isEmpty ? none : location,
+                  chevron: true,
+                  onTap: () => onStep(CalendarFormStep.location),
+                ),
+                row(
+                  title: l.calFieldDescription,
+                  icon: LucideIcons.text,
+                  // 설명은 값 미리보기라 두 줄까지(list.md:158)
+                  value: description.isEmpty ? none : description,
+                  maxLines: 2,
+                  chevron: true,
+                  onTap: () => onStep(CalendarFormStep.description),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -296,6 +391,7 @@ class _DateRow extends StatelessWidget {
     required this.value,
     required this.today,
     required this.allDay,
+    required this.rowWidth,
     required this.onDay,
     required this.onTime,
   });
@@ -306,6 +402,7 @@ class _DateRow extends StatelessWidget {
   final DateTime value;
   final DateTime today;
   final bool allDay;
+  final double rowWidth;
   final VoidCallback onDay;
   final VoidCallback onTime;
 
@@ -316,13 +413,17 @@ class _DateRow extends StatelessWidget {
       PTimeValue.fromDateTime(value),
       labels: PTimePickerLabels.of(context),
     );
-    final width = MediaQuery.sizeOf(context).width;
     return PListItem(
       title: title,
       prefix: const Icon(LucideIcons.clock, size: _rowIcon),
       suffix: ConstrainedBox(
         // 제목을 짓누르지 않게 값 자리의 폭을 정한다 — 모자라면 시각 조각이 다음 줄로
-        constraints: BoxConstraints(maxWidth: math.max(160.0, width * 0.62)),
+        constraints: BoxConstraints(
+          maxWidth: math.max(
+            120.0,
+            _RowValue.maxWidthFor(context, title, rowWidth),
+          ),
+        ),
         child: Wrap(
           alignment: WrapAlignment.end,
           crossAxisAlignment: WrapCrossAlignment.center,

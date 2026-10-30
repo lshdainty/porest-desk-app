@@ -38,6 +38,8 @@ void showCalendarEventDialog(
   PBottomSheet.show<void>(
     context,
     form: true,
+    // 새 일정은 제목 칸이 첫 초점이다 — 시트가 내용에 넘겨 준다(수정은 시트에 둔다)
+    initialFocus: edit == null ? probe.titleFocus : null,
     isDirty: () => probe.dirty(),
     interceptClose: () => probe.interceptClose(),
     leaveCopy: PLeaveConfirmCopy(
@@ -51,7 +53,7 @@ void showCalendarEventDialog(
       defaultDate: defaultDate,
       probe: probe,
     ),
-  );
+  ).whenComplete(probe.titleFocus.dispose);
 }
 
 /// 시트가 닫기 청에 답하는 길 — 입력칸의 주인은 시트 State 라 닫을 때 그쪽에 묻는다.
@@ -60,6 +62,9 @@ class CalendarFormProbe {
 
   /// 한 단계가 열려 있으면 그 단계만 닫고 참(시트는 닫지 않는다).
   bool Function() interceptClose = () => false;
+
+  /// 제목 칸의 초점 — 새 일정에서 시트가 첫 초점으로 넘겨 준다.
+  final FocusNode titleFocus = FocusNode();
 }
 
 enum _Step { list, location, description }
@@ -84,7 +89,10 @@ class CalendarEventFormSheet extends ConsumerStatefulWidget {
 class _CalendarEventFormSheetState
     extends ConsumerState<CalendarEventFormSheet> {
   late final TextEditingController _titleCtrl;
-  final _titleFocus = FocusNode();
+  FocusNode? _ownTitleFocus;
+  FocusNode get _titleFocus =>
+      widget.probe?.titleFocus ?? (_ownTitleFocus ??= FocusNode());
+  final _stepFocus = FocusNode();
   final _stepCtrl = TextEditingController();
 
   late String _description;
@@ -181,7 +189,8 @@ class _CalendarEventFormSheetState
       probe.interceptClose = () => false;
     }
     _titleCtrl.dispose();
-    _titleFocus.dispose();
+    _ownTitleFocus?.dispose();
+    _stepFocus.dispose();
     _stepCtrl.dispose();
     super.dispose();
   }
@@ -211,6 +220,10 @@ class _CalendarEventFormSheetState
     FocusScope.of(context).unfocus();
     _stepCtrl.text = step == _Step.location ? _location : _description;
     setState(() => _step = step);
+    // 들어가면 그 칸에 초점(키보드) — 새 보기가 그려진 뒤에 옮긴다
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _step == step) _stepFocus.requestFocus();
+    });
   }
 
   /// "완료" — 친 글을 넣고 줄 칸으로 돌아간다.
@@ -564,7 +577,6 @@ class _CalendarEventFormSheetState
       body: CalendarEventFormRows(
         titleController: _titleCtrl,
         titleFocus: _titleFocus,
-        autofocusTitle: !_isEdit,
         titleError: _titleError,
         onTitleChanged: (_) {
           if (_titleError != null) setState(() => _titleError = null);
@@ -627,7 +639,7 @@ class _CalendarEventFormSheetState
         padding: gutter,
         child: PInput(
           controller: _stepCtrl,
-          autofocus: true,
+          focusNode: _stepFocus,
           semanticLabel: l.calLocation,
           placeholder: l.calLocationPlaceholder,
           textInputAction: TextInputAction.done,
@@ -644,7 +656,7 @@ class _CalendarEventFormSheetState
         maxGraphemeCount: kCalendarContentMax,
         child: PTextarea(
           controller: _stepCtrl,
-          autofocus: true,
+          focusNode: _stepFocus,
           semanticLabel: l.calFieldDescription,
           placeholder: l.calDescriptionPlaceholder,
           maxHeight: 200,
