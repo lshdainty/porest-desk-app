@@ -467,6 +467,39 @@ void main() {
     });
   });
 
+  group('큰 글자에서 값 자리(list.md 좁은 줄)', () {
+    Future<(Rect, Rect)> rects(WidgetTester tester, double scale) async {
+      await openEventForm(
+        tester,
+        repo: _Repo(),
+        scale: scale,
+        size: const Size(360, 2400),
+      );
+      await writeStep(
+        tester,
+        row: l.calLocation,
+        text: '본사 3층 큰 회의실',
+        done: l.actionDone,
+      );
+      return (
+        tester.getRect(rowTitle(l.calLocation).last),
+        tester.getRect(find.textContaining('본사 3층').last),
+      );
+    }
+
+    testWidgets('100% 는 값이 제목 오른쪽 같은 줄에 선다', (tester) async {
+      final (title, value) = await rects(tester, 1);
+      expect(value.left, greaterThan(title.right));
+      expect(value.top, lessThan(title.bottom));
+    });
+
+    testWidgets('200%(줄 안 폭 < 16em)는 값이 제목 아래로 내려간다', (tester) async {
+      final (title, value) = await rects(tester, 2);
+      expect(value.top, greaterThanOrEqualTo(title.bottom - 1));
+      expect(value.left, closeTo(title.left, 1), reason: '본문 칸 안 왼쪽 맞춤');
+    });
+  });
+
   group('수정 · 삭제 · 달 비우기', () {
     testWidgets('수정 바닥은 [삭제][저장] 이고 삭제는 확인 뒤에 지운다', (tester) async {
       final repo = _Repo();

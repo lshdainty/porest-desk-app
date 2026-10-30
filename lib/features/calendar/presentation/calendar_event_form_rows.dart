@@ -13,6 +13,8 @@ import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/list/list_row.dart'
+    show kPListStackBelowEm;
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
@@ -51,7 +53,7 @@ const double _rowIcon = 22;
 
 /// 줄의 값 자리 — 줄 끝에서 줄바꿈하고(말줄임 없음) 제목은 한 줄로 지킨다. ds List 는 긴 값이 오면 본문을 1em 까지 줄이므로("장 / 소")
 /// 제목 글 폭을 재어 값의 최대 폭을 정한다(웹은 제목에 whitespace-nowrap 을 둔 것과 같다 — I-09 K 7).
-class _RowValue extends StatelessWidget {
+class _RowValue {
   const _RowValue({
     required this.title,
     required this.rowWidth,
@@ -60,6 +62,13 @@ class _RowValue extends StatelessWidget {
     this.maxLines,
     this.reserve = 0,
   });
+
+  /// ds List 의 좁은 줄 판정(list.md "큰 글자에서 값을 본문 아래로") — 줄 안 폭이 제목 글자 16개(16em)보다 좁은가.
+  /// 좁으면 값은 ds 가 본문 아래로 내린다(이때는 폭을 제한하지 않는다).
+  static bool isNarrow(BuildContext context, double rowWidth) =>
+      rowWidth - PSpacing.globalGutter * 2 <
+      kPListStackBelowEm *
+          MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!);
 
   final String title;
   final double rowWidth;
@@ -91,30 +100,35 @@ class _RowValue extends StatelessWidget {
     return math.max(48.0, rowWidth - _fixed - titleWidth - reserve);
   }
 
-  @override
+  /// 줄 뒤 붙이개에 넣을 값 — 좁은 줄이면 ds 가 값으로 읽는 [Text] 그대로(본문 아래로 내려간다), 넓으면 폭을 제한한 상자.
+  /// 위젯 클래스째 넣으면 ds 가 "컨트롤" 로 읽어 내려가지 않으므로 여기서 [Text] 를 바로 만들어 준다.
   Widget build(BuildContext context) {
+    final narrow = isNarrow(context, rowWidth);
     final max = maxWidthFor(context, title, rowWidth, reserve: reserve);
+    final value = Text.rich(
+      TextSpan(
+        children: [
+          if (leading != null)
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Padding(
+                padding: const EdgeInsets.only(right: PSpacing.x1_5),
+                child: leading,
+              ),
+            ),
+          TextSpan(text: text),
+        ],
+      ),
+      textAlign: narrow ? null : TextAlign.end,
+      maxLines: maxLines,
+      overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
+      semanticsLabel: text,
+    );
+    // 좁은 줄은 ds 의 값(Text)으로 둔다 — 본문 아래로 내려가고 제목이 줄 안 폭을 다 쓴다
+    if (narrow) return value;
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: max),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            if (leading != null)
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: PSpacing.x1_5),
-                  child: leading,
-                ),
-              ),
-            TextSpan(text: text),
-          ],
-        ),
-        textAlign: TextAlign.end,
-        maxLines: maxLines,
-        overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
-        semanticsLabel: text,
-      ),
+      child: value,
     );
   }
 }
@@ -231,7 +245,7 @@ class CalendarEventFormRows extends StatelessWidget {
                         leading: leading,
                         maxLines: maxLines,
                         reserve: chevron ? 22 : 0,
-                      ),
+                      ).build(context),
                     if (chevron)
                       const ExcludeSemantics(
                         child: Icon(LucideIcons.chevronRight),
