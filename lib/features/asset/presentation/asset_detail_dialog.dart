@@ -684,12 +684,13 @@ class _TradeHistory extends ConsumerWidget {
   ) async {
     final l = AppLocalizations.of(context);
     // "삭제" 라벨은 자산 삭제와 헷갈린다 — 웹과 같은 "거래 취소" 로 통일한다.
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.tradeDeleteTitle,
-      message: l.tradeDeleteConfirm,
-      confirmLabel: l.tradeDeleteTitle,
+      description: l.tradeDeleteConfirm,
+      actionLabel: l.tradeDeleteTitle,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !context.mounted) return;
     try {
@@ -2015,11 +2016,12 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
   /// 할부 중도 전액 상환 — 남은 원금이 다가오는 결제 예정액에 한 번에 잡힌다.
   Future<void> _confirmPayoff(InstallmentDue due) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.assetInstallmentPayoff,
-      message: l.assetInstallmentPayoffConfirm(krw(due.amount)),
-      confirmLabel: l.assetInstallmentPayoff,
+      description: l.assetInstallmentPayoffConfirm(krw(due.amount)),
+      actionLabel: l.assetInstallmentPayoff,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
 
@@ -2037,10 +2039,12 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
   /// 상환 취소 — 정상 분할로 되돌린다. 잘못 누른 상환을 무르는 경로.
   Future<void> _undoPayoff(InstallmentDue due) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.assetInstallmentPayoffUndo,
-      message: l.assetInstallmentPayoffUndoConfirm,
+      description: l.assetInstallmentPayoffUndoConfirm,
+      actionLabel: l.actionConfirm,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
 
@@ -2056,15 +2060,16 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
 
   Future<void> _confirmAndCancelPayment(BillingItem billing) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.assetCancelPayment,
-      message: l.assetCancelPaymentConfirm(
+      description: l.assetCancelPaymentConfirm(
         krw(billing.billingAmount),
         billing.paymentDate,
       ),
-      confirmLabel: l.assetCancelPayment,
+      actionLabel: l.assetCancelPayment,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
 

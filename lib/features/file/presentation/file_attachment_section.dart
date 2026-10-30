@@ -10,11 +10,11 @@ import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/features/file/application/file_providers.dart';
 import 'package:groo_damda_app/features/file/domain/file_attachment.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 첨부 파일 섹션 — 거래/할일/메모/이벤트 상세에 embed.
 ///
@@ -95,12 +95,13 @@ class _FileAttachmentSectionState extends ConsumerState<FileAttachmentSection> {
 
   Future<void> _delete(FileAttachment f) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.fileDeleteTitle,
-      message: l.fileDeleteConfirm(f.originalName),
-      confirmLabel: l.actionDelete,
+      description: l.fileDeleteConfirm(f.originalName),
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     setState(() => _busy = true);

@@ -599,7 +599,7 @@ void main() {
     });
   });
 
-  // I-28 3-6 — 예산 · 저축 목표의 옛 확인창(showPConfirmDialog) → ds Alert Dialog.
+  // I-28 3-6 — 예산 · 저축 목표의 옛 확인창(옛 showPConfirmDialog) → ds Alert Dialog.
   group('확인창 — ds Alert Dialog (I-28 3-6)', () {
     PButton actionOf(WidgetTester tester) => tester.widget<PButton>(
       find

@@ -29,7 +29,7 @@ import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/shared/widgets/p_switch.dart';
 import 'package:groo_damda_app/features/settings/presentation/password_change_dialog.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 계정 상세 화면 — web AccountSection 1:1 미러.
 ///
@@ -430,11 +430,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final l = AppLocalizations.of(context);
     // Material 기본 AlertDialog 는 앱 테마·타이포를 안 따른다 — 공통 다이얼로그를 쓴다.
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.navLogout,
-      message: l.accountLogoutConfirm,
-      confirmLabel: l.navLogout,
+      description: l.accountLogoutConfirm,
+      actionLabel: l.navLogout,
+      cancelLabel: l.actionCancel,
     );
     if (ok) {
       ref.read(authProvider.notifier).logout();

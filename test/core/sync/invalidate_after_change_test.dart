@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -266,8 +267,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(
       find.descendant(
-        of: find.byType(AlertDialog),
-        matching: _pButton(l.actionDelete),
+        of: find.byType(PAlertDialogView),
+        matching: find.text(l.actionDelete),
       ),
     );
     await tester.pumpAndSettle();

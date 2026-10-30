@@ -18,6 +18,7 @@ import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 일정 상세 시트 — 일별 시트 행 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
 /// design calendar.jsx `EventDetailDialog` 미러: 좌측 컬러바 hero(캘린더 pill·D-day) +
@@ -87,12 +88,13 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
     final e = widget.event;
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.calEventDelete,
-      message: l.calEventDeleteConfirm(e.title),
-      confirmLabel: l.actionDelete,
+      description: l.calEventDeleteConfirm(e.title),
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     widget.controller.setSubmitting(true);

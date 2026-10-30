@@ -15,8 +15,8 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_chip.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 금액 가리기 화면 — 계정 > 보안 > 금액 가리기.
 ///
@@ -106,12 +106,13 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
   Future<void> _confirmDiscardAndPop() async {
     final l = AppLocalizations.of(context);
     final router = GoRouter.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.hideAmountsDiscardTitle,
-      message: l.hideAmountsDiscardBody,
-      confirmLabel: l.hideAmountsDiscardConfirm,
+      description: l.hideAmountsDiscardBody,
+      actionLabel: l.hideAmountsDiscardConfirm,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (ok && mounted) router.pop();
   }

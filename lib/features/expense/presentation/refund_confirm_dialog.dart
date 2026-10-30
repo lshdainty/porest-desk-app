@@ -15,7 +15,7 @@ import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 /// 환불 처리 확인 — 웹 `TxDetailDialog` 의 확인 대화상자 미러(설계서 7절).
 ///
 /// 확인만 받는 게 아니라 **환불일**을 받는다. 카드사 환급은 며칠 걸려서 "언제
-/// 돌려받았나" 는 사용자만 안다. 그래서 [showPConfirmDialog] 가 아니라 칸이 들어가는
+/// 돌려받았나" 는 사용자만 안다. 그래서 [PAlertDialog] 가 아니라 칸이 들어가는
 /// [PFormAlertDialog] 다.
 ///
 /// 환불일은 **거래일부터 오늘까지**만 고른다(D16) — 서버도 그 밖이면 400 이다.

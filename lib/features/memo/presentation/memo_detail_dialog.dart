@@ -14,6 +14,7 @@ import 'package:groo_damda_app/features/memo/presentation/memo_actions.dart';
 import 'package:groo_damda_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 메모 상세 시트 — 카드 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
 /// tx_detail_dialog(웹 MemoDetailDialog) 패턴 미러: 톤 hero + 본문 전문 + 뷰 footer.
@@ -81,12 +82,13 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: memoActions.deleteConfirmTitle(context, widget.memo),
-      message: memoActions.deleteConfirmMessage(context, widget.memo),
-      confirmLabel: l.actionDelete,
+      description: memoActions.deleteConfirmMessage(context, widget.memo),
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     widget.controller.setSubmitting(true);

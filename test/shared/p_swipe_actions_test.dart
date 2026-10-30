@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 
 /// 스와이프는 제스처라 눈으로만 확인하기 어렵다. 특히 <b>안 일어나야 하는 일</b>이
@@ -180,8 +180,8 @@ void main() {
     // 확인 버튼 라벨은 액션 이름이라 트레이의 '삭제' 와 같다 — 다이얼로그 안의 것을 고른다.
     await tester.tap(
       find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.widgetWithText(PButton, '삭제'),
+        of: find.byType(PAlertDialogView),
+        matching: find.text('삭제'),
       ),
     );
     await tester.pumpAndSettle();

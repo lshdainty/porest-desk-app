@@ -11,6 +11,7 @@ import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_progress.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
@@ -192,12 +193,13 @@ class _Body extends ConsumerWidget {
               dangerous: true,
               tooltip: l.actionDelete,
               onPressed: () async {
-                final ok = await showPConfirmDialog(
+                final ok = await PAlertDialog.show(
                   context,
                   title: l.dutchDeleteTitle,
-                  message: l.dutchDeleteConfirm(dp.title),
-                  confirmLabel: l.actionDelete,
+                  description: l.dutchDeleteConfirm(dp.title),
+                  actionLabel: l.actionDelete,
                   destructive: true,
+                  cancelLabel: l.actionCancel,
                 );
                 if (!ok || !context.mounted) return;
                 onDelete();

@@ -4,7 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 액션 하나의 색·의미 — specs/components/swipe-actions.md Kinds.
 enum PSwipeKind { neutral, primary, destructive }
@@ -213,13 +213,13 @@ class PSwipeActions extends StatelessWidget {
       return;
     }
 
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       host,
       // 제목은 호출부가 넘긴다 — 상세 경로와 같은 문구여야 한다(spec alert-dialog).
       // 확인 라벨만 액션 라벨 그대로 — 방금 누른 버튼의 연장이라 경로와 무관하다.
       title: action.confirmTitle ?? action.label,
-      message: message,
-      confirmLabel: action.label,
+      description: message,
+      actionLabel: action.label,
       destructive: action.kind == PSwipeKind.destructive,
       cancelLabel: l.actionCancel,
     );

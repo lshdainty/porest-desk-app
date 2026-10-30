@@ -20,6 +20,7 @@ import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset_transfer.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 이체 상세 — 보기 + 수정 + 삭제 (web `TransferDetailDialog` 미러).
 ///
@@ -93,12 +94,13 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.actionDelete,
-      message: l.transferDeleteConfirm,
-      confirmLabel: l.actionDelete,
+      description: l.transferDeleteConfirm,
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
 

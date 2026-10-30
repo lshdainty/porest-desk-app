@@ -22,6 +22,7 @@ import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
 import 'package:groo_damda_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:groo_damda_app/features/expense_split/data/expense_split_repository.dart';
 import 'package:groo_damda_app/features/expense_split/domain/expense_split.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 거래 분할 다이얼로그.
 ///
@@ -361,12 +362,13 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   Future<void> _deleteAll() async {
     if (_submitting) return;
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.expSplitRemove,
-      message: l.expSplitRemoveConfirm,
-      confirmLabel: l.expClear,
+      description: l.expSplitRemoveConfirm,
+      actionLabel: l.expClear,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     _setSubmitting(true);
