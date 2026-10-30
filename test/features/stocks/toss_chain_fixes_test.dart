@@ -17,6 +17,7 @@ import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 
 String _plain(Text w) => (w.data ?? w.textSpan?.toPlainText() ?? '')
@@ -305,6 +306,9 @@ void main() {
       expect(_tc('미지원'), findsNothing);
       expect(_t('시세를 불러오지 못했어요'), findsOneWidget);
       expect(_t('다시 시도'), findsWidgets);
+      // 웹 BandFailure 와 같은 Result Section — 아이콘 · 제목 · 설명 · [다시 시도] (구역 안 = medium)
+      expect(_t('잠시 뒤 다시 시도해주세요.'), findsWidgets);
+      expect(find.byType(PResultSection), findsWidgets);
     });
 
     testWidgets('M8 응답은 왔는데 값이 없으면 "미지원"', (tester) async {

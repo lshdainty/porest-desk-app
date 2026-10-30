@@ -1186,21 +1186,10 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                 if (last == null &&
                     pricesAsync.hasError &&
                     !pricesAsync.hasValue) ...[
-                  const SizedBox(height: PSpacing.x1),
-                  Text(
-                    l.stocksFailPrice,
-                    style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
-                  ),
-                  const SizedBox(height: PSpacing.x1),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: PButton(
-                      label: l.actionRetry,
-                      size: PButtonSize.small,
-                      variant: PButtonVariant.neutralWeak,
-                      onPressed: () =>
-                          ref.invalidate(tossPricesProvider(symbol)),
-                    ),
+                  // 웹 BandFailure 와 같은 Result Section(구역 안 = medium): 아이콘 · 제목 · 설명 · [다시 시도]
+                  StocksFailure(
+                    title: l.stocksFailPrice,
+                    onRetry: () => ref.invalidate(tossPricesProvider(symbol)),
                   ),
                 ],
                 // 시세 조회가 실패했거나 오는 중이면 '미지원' 이 아니다 — 응답이 왔는데 값이 없을 때만(M8)
@@ -1935,27 +1924,29 @@ class _OrderBook extends StatelessWidget {
       final f = (maxQ <= 0 ? 0.0 : q / maxQ).clamp(0.0, 1.0);
       // 바는 항상 중심축(가격) 쪽에 붙어 바깥으로 자란다 — 매수=중심(오른쪽)에서 왼쪽으로,
       // 매도=중심(왼쪽)에서 오른쪽으로. FractionallySizedBox+Stack 은 좌측 고정 버그가 있어 Positioned 로 명시.
-      return SizedBox(
-        height: 28,
-        child: LayoutBuilder(
-          builder: (context, c) => Stack(
-            children: [
-              Positioned(
-                top: 0,
-                bottom: 0,
-                left: alignRight ? null : 0,
-                right: alignRight ? 0 : null,
-                width: c.maxWidth * f,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: tone == context.colors.fgCritical
-                        ? context.colors.bgCriticalWeak
-                        : context.colors.bgInformativeWeak,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+      // 높이는 글자를 따라 늘어난다(큰 글자에서 줄이 겹치지 않게) — 28 은 최소 높이. 잔량 글이 칸보다 넓으면
+      // 잔량 쪽이 줄어든다(FittedBox) — 가격 칸은 줄이지 않는다.
+      return LayoutBuilder(
+        builder: (context, c) => Stack(
+          children: [
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: alignRight ? null : 0,
+              right: alignRight ? 0 : null,
+              width: c.maxWidth * f,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: tone == context.colors.fgCritical
+                      ? context.colors.bgCriticalWeak
+                      : context.colors.bgInformativeWeak,
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              Align(
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 28),
+              child: Align(
                 alignment: alignRight
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
@@ -1964,17 +1955,22 @@ class _OrderBook extends StatelessWidget {
                     right: alignRight ? 6 : 0,
                     left: alignRight ? 0 : 6,
                   ),
-                  child: Text(
-                    krw(q),
-                    style: PTypography.t3.copyWith(
-                      color: context.colors.fgNeutralSubtle,
-                      fontFeatures: kStocksTnum,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      krw(q),
+                      maxLines: 1,
+                      softWrap: false,
+                      style: PTypography.t3.copyWith(
+                        color: context.colors.fgNeutralSubtle,
+                        fontFeatures: kStocksTnum,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -1990,9 +1986,10 @@ class _OrderBook extends StatelessWidget {
             ? l.stocksRowAsk(fmt(p), krw(q))
             : l.stocksRowBid(fmt(p), krw(q)),
         excludeSemantics: true,
-        child: SizedBox(
-          height: 32,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 32),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: isAsk
@@ -2003,11 +2000,14 @@ class _OrderBook extends StatelessWidget {
                         alignRight: true,
                       ),
               ),
-              SizedBox(
-                width: 92,
+              // 가격 칸은 줄지 않는다 — 최소 92, 큰 글자에서는 글자 폭만큼 넓어지고 잔량 칸이 먼저 줄어든다.
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 92),
                 child: Center(
                   child: Text(
                     fmt(p),
+                    maxLines: 1,
+                    softWrap: false,
                     style: TextStyle(
                       fontFeatures: kStocksTnum,
                       fontSize: 14,
@@ -2363,6 +2363,9 @@ class _StocksQuotesCardState extends ConsumerState<StocksQuotesCard> {
 
 // ---- 체결 테이프 (토스 trades · 실데이터 전용) --------------------------------
 
+/// 체결 표 열 비 — 시각 · 가격 · 체결량. 가격 칸이 가장 넓다(큰 글자에서도 줄어들지 않는다).
+const _kTapeFlex = [4, 5, 3];
+
 class _TradeTape extends StatelessWidget {
   const _TradeTape({required this.currency, required this.fills});
   final String currency;
@@ -2384,11 +2387,14 @@ class _TradeTape extends StatelessWidget {
             Semantics(
               label: l.stocksRowTrade(f.time, fmt(f.p), krw(f.q)),
               excludeSemantics: true,
-              child: SizedBox(
-                height: 32,
+              // 줄 높이는 글자를 따라 늘어난다(32 는 최소) — 큰 글자에서 시각 · 가격이 겹치지 않게
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 32),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
+                      flex: _kTapeFlex[0],
                       child: Text(
                         f.time,
                         style: TextStyle(
@@ -2398,9 +2404,13 @@ class _TradeTape extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // 가격은 줄이지 않는다 — 가운데 칸을 넓게 잡고 줄바꿈도 막는다(큰 글자에서 "원" 이 떨어지지 않게)
                     Expanded(
+                      flex: _kTapeFlex[1],
                       child: Text(
                         fmt(f.p),
+                        maxLines: 1,
+                        softWrap: false,
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           fontFeatures: kStocksTnum,
@@ -2410,14 +2420,23 @@ class _TradeTape extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // 체결량이 먼저 줄어든다
                     Expanded(
-                      child: Text(
-                        krw(f.q),
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          fontFeatures: kStocksTnum,
-                          fontSize: 13,
-                          color: context.colors.fgNeutral,
+                      flex: _kTapeFlex[2],
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            krw(f.q),
+                            maxLines: 1,
+                            softWrap: false,
+                            style: TextStyle(
+                              fontFeatures: kStocksTnum,
+                              fontSize: 13,
+                              color: context.colors.fgNeutral,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -2445,8 +2464,12 @@ class _TradeTapeHead extends StatelessWidget {
     );
     return Row(
       children: [
-        Expanded(child: Text(l.stocksTradeTime, style: head)),
         Expanded(
+          flex: _kTapeFlex[0],
+          child: Text(l.stocksTradeTime, style: head),
+        ),
+        Expanded(
+          flex: _kTapeFlex[1],
           child: Text(
             l.stocksTradePrice,
             textAlign: TextAlign.right,
@@ -2454,6 +2477,7 @@ class _TradeTapeHead extends StatelessWidget {
           ),
         ),
         Expanded(
+          flex: _kTapeFlex[2],
           child: Text(
             l.stocksTradeVolume,
             textAlign: TextAlign.right,

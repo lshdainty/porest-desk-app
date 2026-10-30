@@ -1,10 +1,14 @@
 // 증권사 공통 맞춤 띠(I-13b 13b-1) — 오늘 시세 · 투자자별 · 나무 장 상태 글 · 주문 가능 줄 · 경고 이름표.
 // 결함을 잡는 단언: 값 없는 줄은 그리지 않는다 · 0 은 "0" 옅게 · null 은 "—" · 모르는 장 상태는 항목 없음.
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart'
+    show StocksQuotesCard;
 import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_broker_parts.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_parts.dart';
@@ -47,6 +51,107 @@ Finder _t(String s) =>
     find.byWidgetPredicate((w) => w is Text && _plain(w) == s);
 
 void main() {
+  group('호가 · 체결 줄은 큰 글자에서 글자를 따라 늘어난다(앱 검수)', () {
+    final book = TossOrderbook(
+      currency: 'KRW',
+      asks: [
+        for (var i = 1; i <= 5; i++)
+          TossOrderbookEntry(
+            price: '${75000 + i * 100}',
+            volume: '${4000 + i}',
+          ),
+      ],
+      bids: [
+        for (var i = 1; i <= 5; i++)
+          TossOrderbookEntry(
+            price: '${75000 - i * 100}',
+            volume: '${3900 + i}',
+          ),
+      ],
+    );
+    Widget card() => Consumer(
+      builder: (c, ref, _) => StocksQuotesCard(
+        symbol: 'A',
+        currency: 'KRW',
+        lastPrice: 75000,
+        changePct: -3.85,
+        watchBook: (_) => AsyncData<TossOrderbook?>(book),
+        watchTrades: (_) => AsyncData<List<TossTrade>?>([
+          for (var i = 0; i < 4; i++)
+            TossTrade(
+              price: '${75000 + i * 100}',
+              volume: '${100 + i}',
+              timestamp: '2026-10-29T13:0$i:00+09:00',
+            ),
+        ]),
+      ),
+    );
+
+    testWidgets('가격이 끝까지 보이고(글자 200% · 360) 줄이 서로 겹치지 않는다', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: GrooTheme.light(),
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!,
+            ),
+            home: Scaffold(body: SingleChildScrollView(child: card())),
+          ),
+        ),
+      );
+      tester.view.physicalSize = const Size(360 * 3, 2400 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      final prices = [
+        for (final p in ['75,100원', '75,500원', '74,900원', '74,500원']) _t(p),
+      ];
+      for (final f in prices) {
+        expect(f, findsOneWidget, reason: '가격 글이 잘려 사라졌다');
+      }
+      final r1 = tester.getRect(_t('75,500원'));
+      final r2 = tester.getRect(_t('75,400원'));
+      expect(r2.top, greaterThanOrEqualTo(r1.bottom - 1), reason: '위아래 줄이 겹쳤다');
+      expect(r1.right, lessThanOrEqualTo(360));
+    });
+
+    testWidgets('체결 탭도 200% 에서 줄이 겹치지 않는다', (tester) async {
+      tester.view.physicalSize = const Size(360 * 3, 2400 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: GrooTheme.light(),
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!,
+            ),
+            home: Scaffold(body: SingleChildScrollView(child: card())),
+          ),
+        ),
+      );
+      await tester.tap(_t('체결').first);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      final a = tester.getRect(_t('75,000원'));
+      final b = tester.getRect(_t('75,100원'));
+      expect(b.top, greaterThanOrEqualTo(a.bottom - 1));
+    });
+  });
+
   group('오늘 시세 띠', () {
     testWidgets('값 있는 줄만 그리고 상한가 · 하한가는 색이 다르다', (tester) async {
       late List<TodayRow> rows;
