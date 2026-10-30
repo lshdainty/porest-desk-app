@@ -2729,19 +2729,19 @@ abstract class AppLocalizations {
   /// No description provided for @calTitlePlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'예: 가족 식사'**
+  /// **'예: 치과 정기 검진'**
   String get calTitlePlaceholder;
 
   /// No description provided for @calDescriptionPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'추가 설명 (선택)'**
+  /// **'예: 준비물과 안내 사항'**
   String get calDescriptionPlaceholder;
 
   /// No description provided for @calLocationPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'장소를 입력하세요'**
+  /// **'예: 본사 3층 회의실'**
   String get calLocationPlaceholder;
 
   /// No description provided for @calSelectCalendar.
@@ -2753,7 +2753,7 @@ abstract class AppLocalizations {
   /// No description provided for @calNoLabel.
   ///
   /// In ko, this message translates to:
-  /// **'라벨이 없습니다'**
+  /// **'라벨 없음'**
   String get calNoLabel;
 
   /// No description provided for @calLabelNamePlaceholder.
@@ -2783,8 +2783,92 @@ abstract class AppLocalizations {
   /// No description provided for @calRecurrenceNone.
   ///
   /// In ko, this message translates to:
-  /// **'반복 없음'**
+  /// **'반복 안 함'**
   String get calRecurrenceNone;
+
+  /// No description provided for @calFormNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get calFormNone;
+
+  /// No description provided for @calFormNoReminder.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 없음'**
+  String get calFormNoReminder;
+
+  /// No description provided for @calFormCalendarLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오지 못했어요'**
+  String get calFormCalendarLoadFailed;
+
+  /// No description provided for @calFormLabelHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨은 설정의 캘린더 라벨에서 만들어요'**
+  String get calFormLabelHint;
+
+  /// No description provided for @calFormStartDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작 날짜'**
+  String get calFormStartDay;
+
+  /// No description provided for @calFormStartTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작 시각'**
+  String get calFormStartTime;
+
+  /// No description provided for @calFormEndDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료 날짜'**
+  String get calFormEndDay;
+
+  /// No description provided for @calFormEndTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료 시각'**
+  String get calFormEndTime;
+
+  /// No description provided for @calFormEndBeforeStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료가 시작보다 빠를 수 없어요'**
+  String get calFormEndBeforeStart;
+
+  /// No description provided for @calFormTitleRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목을 입력해주세요'**
+  String get calFormTitleRequired;
+
+  /// No description provided for @calFormRows.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 정보'**
+  String get calFormRows;
+
+  /// No description provided for @calFormRowsMore.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 · 알림 · 장소 · 설명'**
+  String get calFormRowsMore;
+
+  /// No description provided for @calFormSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정을 저장하지 못했어요. 잠시 뒤에 다시 시도해주세요.'**
+  String get calFormSaveFailed;
+
+  /// No description provided for @calFormDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정을 삭제하지 못했어요. 잠시 뒤에 다시 시도해주세요.'**
+  String get calFormDeleteFailed;
 
   /// No description provided for @calReminderMinutesBefore.
   ///

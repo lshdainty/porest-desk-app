@@ -1450,13 +1450,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calFieldEndDate => 'End date';
 
   @override
-  String get calTitlePlaceholder => 'e.g. Family dinner';
+  String get calTitlePlaceholder => 'e.g. Dental checkup';
 
   @override
-  String get calDescriptionPlaceholder => 'Additional notes (optional)';
+  String get calDescriptionPlaceholder => 'e.g. What to bring';
 
   @override
-  String get calLocationPlaceholder => 'Enter a location';
+  String get calLocationPlaceholder => 'e.g. 3rd floor meeting room';
 
   @override
   String get calSelectCalendar => 'Select calendar';
@@ -1477,7 +1477,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calInviteCodePlaceholder => 'e.g. ABC123';
 
   @override
-  String get calRecurrenceNone => 'No repeat';
+  String get calRecurrenceNone => 'Does not repeat';
+
+  @override
+  String get calFormNone => 'None';
+
+  @override
+  String get calFormNoReminder => 'No reminder';
+
+  @override
+  String get calFormCalendarLoadFailed => 'Could not load';
+
+  @override
+  String get calFormLabelHint =>
+      'Create labels in Settings under Calendar labels';
+
+  @override
+  String get calFormStartDay => 'Start date';
+
+  @override
+  String get calFormStartTime => 'Start time';
+
+  @override
+  String get calFormEndDay => 'End date';
+
+  @override
+  String get calFormEndTime => 'End time';
+
+  @override
+  String get calFormEndBeforeStart => 'End cannot be before the start';
+
+  @override
+  String get calFormTitleRequired => 'Enter a title';
+
+  @override
+  String get calFormRows => 'Event details';
+
+  @override
+  String get calFormRowsMore => 'Repeat, reminder, location and description';
+
+  @override
+  String get calFormSaveFailed =>
+      'Couldn\'t save the event. Please try again in a moment.';
+
+  @override
+  String get calFormDeleteFailed =>
+      'Couldn\'t delete the event. Please try again in a moment.';
 
   @override
   String calReminderMinutesBefore(int n) {
