@@ -33,10 +33,9 @@ class SavingGoalScreen extends ConsumerWidget {
   const SavingGoalScreen({super.key});
 
   /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
-  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 같은 삭제를 다시 묻는다.
-  ///
-  /// 띠는 앱 뿌리 호스트에 있어 화면을 나가도 남는다 — 그때는 [context] · [ref] 가 죽었으므로 띠의 "다시 시도"가
-  /// 미리 잡아 둔 [ProviderContainer] 로 묻지 않고 바로 지운다(이미 한 번 확정한 삭제다).
+  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 묻지 않고 바로 지운다 —
+  /// 이미 확인창에서 한 번 확정한 삭제이고, 띠는 앱 뿌리 호스트에 있어 화면을 나가도 남는다(그때 [context] · [ref] 는
+  /// 죽었으므로 미리 잡아 둔 [ProviderContainer] 로 돈다).
   Future<void> _confirmDeleteGoal(
     BuildContext context,
     WidgetRef ref,
@@ -67,15 +66,13 @@ class SavingGoalScreen extends ConsumerWidget {
         tone: PSnackbarTone.critical,
         action: PSnackbarAction(
           label: l.actionRetry,
-          onPressed: () => context.mounted
-              ? _confirmDeleteGoal(context, ref, goal)
-              : _deleteDetached(container, l, snack, goal),
+          onPressed: () => _deleteDetached(container, l, snack, goal),
         ),
       );
     }
   }
 
-  /// 화면이 사라진 뒤의 "다시 시도" — 묻지 않고 지우고, 또 실패하면 같은 띠를 다시 띄운다.
+  /// 삭제 "다시 시도" — 묻지 않고 지우고, 또 실패하면 같은 띠를 다시 띄운다.
   Future<void> _deleteDetached(
     ProviderContainer container,
     AppLocalizations l,

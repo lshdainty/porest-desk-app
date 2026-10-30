@@ -150,9 +150,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   }
 
   /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
-  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 같은 삭제를 다시 묻는다.
-  /// 띠는 화면을 나가도 남으므로(앱 뿌리 호스트) 화면이 없을 때의 다시 시도는 묻지 않고 바로 지운다 —
-  /// 이미 한 번 확정한 삭제다.
+  /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 묻지 않고 바로 지운다 —
+  /// 이미 확인창에서 한 번 확정한 삭제이고, 띠는 화면을 나가도 남으므로(앱 뿌리 호스트) 화면이 살아 있든 아니든 같다.
   Future<void> _confirmDeleteCategory(Budget budget, String name) async {
     final l = AppLocalizations.of(context);
     final container = ProviderScope.containerOf(context);
@@ -180,15 +179,13 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         tone: PSnackbarTone.critical,
         action: PSnackbarAction(
           label: l.actionRetry,
-          onPressed: () => mounted
-              ? _confirmDeleteCategory(budget, name)
-              : _deleteDetached(container, key, l, snack, budget),
+          onPressed: () => _deleteDetached(container, key, l, snack, budget),
         ),
       );
     }
   }
 
-  /// 화면이 사라진 뒤의 "다시 시도" — 묻지 않고 지우고, 또 실패하면 같은 띠를 다시 띄운다.
+  /// 삭제 "다시 시도" — 묻지 않고 지우고, 또 실패하면 같은 띠를 다시 띄운다.
   static Future<void> _deleteDetached(
     ProviderContainer container,
     BudgetMonthKey key,

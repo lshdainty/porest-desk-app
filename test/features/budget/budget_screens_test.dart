@@ -854,9 +854,7 @@ void main() {
       expect(repo.deleted, [100, 101, 102]);
     });
 
-    testWidgets('예산 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 같은 삭제를 다시 묻는다', (
-      tester,
-    ) async {
+    testWidgets('예산 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 묻지 않고 바로 지운다', (tester) async {
       final repo = _FakeBudgetRepo()..failNext = true;
       await _pump(
         tester,
@@ -876,9 +874,8 @@ void main() {
       expect(findPlain('예산을 삭제하지 못했어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
-      expect(find.byType(PAlertDialogView), findsOneWidget);
-      await tester.tap(find.text('삭제').last);
-      await tester.pumpAndSettle();
+      // 이미 확정한 삭제 — 같은 질문을 두 번 하지 않고 바로 지운다
+      expect(find.byType(PAlertDialogView), findsNothing);
       expect(repo.deleted, [2]);
     });
 
@@ -925,7 +922,9 @@ void main() {
       expect(repo.deleted, [5]);
     });
 
-    testWidgets('저축 목표 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도', (tester) async {
+    testWidgets('저축 목표 삭제 — 실패하면 창을 닫고 스낵바 + 다시 시도는 묻지 않고 바로 지운다', (
+      tester,
+    ) async {
       final repo = _FakeGoalRepo()..failNext = true;
       final goals = [
         const SavingGoal(
@@ -958,7 +957,9 @@ void main() {
       expect(findPlain('저축 목표를 삭제하지 못했어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
-      expect(find.byType(PAlertDialogView), findsOneWidget);
+      // 이미 확정한 삭제 — 다시 묻지 않고 바로 지운다
+      expect(find.byType(PAlertDialogView), findsNothing);
+      expect(repo.deleted, [5]);
     });
   });
 }

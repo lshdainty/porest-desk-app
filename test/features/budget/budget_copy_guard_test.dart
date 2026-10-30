@@ -519,6 +519,37 @@ void main() {
       expect(repo.deleted, [2]);
     });
 
+    testWidgets('화면이 살아 있어도 삭제 "다시 시도"는 묻지 않고, 또 실패하면 같은 띠가 다시 뜬다', (
+      tester,
+    ) async {
+      final repo = _Repo()..deleteFailsWith[2] = 500;
+      await _pump(
+        tester,
+        const BudgetSettingsScreen(),
+        overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+        budgets: (key) => Future.value(_prev(key.year, key.month)),
+      );
+      tester
+          .widgetList<PSwipeActions>(find.byType(PSwipeActions))
+          .first
+          .actions
+          .last
+          .onSelect();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('삭제').last);
+      await tester.pumpAndSettle();
+      expect(findPlain('예산을 삭제하지 못했어요.'), findsOneWidget);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PAlertDialogView), findsNothing, reason: '다시 묻지 않는다');
+      expect(findPlain('예산을 삭제하지 못했어요.'), findsOneWidget, reason: '또 실패');
+      repo.deleteFailsWith.clear();
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(repo.deleted, [2]);
+      expect(find.text('다시 시도'), findsNothing);
+    });
+
     testWidgets('저축 목표 삭제 실패 → 화면 나감 → "다시 시도"가 지운다', (tester) async {
       final repo = _GoalRepo()..failNext = true;
       final goals = [
