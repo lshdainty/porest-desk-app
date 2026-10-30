@@ -10,7 +10,6 @@ import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
-import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
@@ -21,29 +20,22 @@ import 'package:groo_damda_app/features/stocks/presentation/chart_web_view.dart'
 import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_parts.dart';
+import 'package:groo_damda_app/features/stocks/presentation/watch_actions.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
-import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_donut.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
-import 'package:groo_damda_app/shared/ds/field/p_field.dart';
-import 'package:groo_damda_app/shared/ds/input/p_input.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
-import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
-import 'package:groo_damda_app/shared/ds/menu_sheet/p_menu_sheet.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/shared/ds/searchable_list/p_searchable_list.dart';
 import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
-import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 실연동).
 ///
@@ -293,14 +285,17 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
                 );
               }
               final g = groups[i];
-              return _WatchGroupBlock(
+              return WatchGroupBlock(
                 key: ValueKey('watch-group-${g.rowId}'),
                 group: g,
                 first: i == 0,
-                prices: _lastPrices,
                 onShown: () => _blockShown(g.rowId),
                 onHidden: () => _blockHidden(g.rowId),
-                onTap: _openDetail,
+                lineBuilder: (item) => _WatchLine(
+                  item: item,
+                  last: _lastPrices[item.symbol],
+                  onTap: () => _openDetail(item.symbol),
+                ),
               );
             },
           ),
@@ -831,127 +826,6 @@ class _HoldingsList extends StatelessWidget {
   }
 }
 
-// ---- 관심 그룹 -----------------------------------------------------------------
-
-/// 그룹 하나 — 목록 제목("{이름} · {n}" + ⋮) + 줄. 지어지면 보인다고 알리고(시세 부르기) 사라지면 알린다.
-class _WatchGroupBlock extends ConsumerStatefulWidget {
-  const _WatchGroupBlock({
-    super.key,
-    required this.group,
-    required this.first,
-    required this.prices,
-    required this.onShown,
-    required this.onHidden,
-    required this.onTap,
-  });
-
-  final StockWatchGroup group;
-  final bool first;
-  final Map<String, double> prices;
-  final VoidCallback onShown;
-  final VoidCallback onHidden;
-  final void Function(String symbol) onTap;
-
-  @override
-  ConsumerState<_WatchGroupBlock> createState() => _WatchGroupBlockState();
-}
-
-class _WatchGroupBlockState extends ConsumerState<_WatchGroupBlock> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.onShown();
-    });
-  }
-
-  @override
-  void dispose() {
-    widget.onHidden();
-    super.dispose();
-  }
-
-  Future<void> _more() async {
-    final l = AppLocalizations.of(context);
-    final g = widget.group;
-    final rename = PMenuSheetItem(
-      label: l.stocksWatchGroupRenameItem,
-      icon: LucideIcons.pencil,
-    );
-    final del = PMenuSheetItem(
-      label: l.stocksWatchGroupDelete,
-      icon: LucideIcons.trash2,
-      tone: PMenuSheetTone.critical,
-    );
-    final picked = await PMenuSheet.show(
-      context,
-      semanticLabel: l.stocksWatchGroupMore(g.groupName),
-      groups: [
-        PMenuSheetGroup([rename, del]),
-      ],
-    );
-    if (!mounted || picked == null) return;
-    if (identical(picked, rename)) {
-      await showWatchGroupForm(context, ref, group: g);
-    } else if (identical(picked, del)) {
-      await confirmDeleteWatchGroup(context, ref, g);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final c = context.colors;
-    final g = widget.group;
-    return ColoredBox(
-      color: c.bgLayerDefault,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          PListHeader(
-            title: l.stocksWatchGroupTitle(g.groupName, g.items.length),
-            variant: PListHeaderVariant.boldSolid,
-            headingLevel: 3,
-            topInset: widget.first ? PSpacing.x2 : PSpacing.x4,
-            action: PButton.icon(
-              icon: LucideIcons.ellipsisVertical,
-              semanticLabel: l.stocksWatchGroupMore(g.groupName),
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.medium,
-              onPressed: _more,
-            ),
-          ),
-          if (g.items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpacing.x6,
-                PSpacing.x1,
-                PSpacing.x6,
-                PSpacing.x3,
-              ),
-              child: Text(
-                l.stocksWatchGroupEmpty,
-                style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
-              ),
-            )
-          else
-            PList(
-              semanticLabel: g.groupName,
-              children: [
-                for (final item in g.items)
-                  _WatchLine(
-                    item: item,
-                    last: widget.prices[item.symbol],
-                    onTap: () => widget.onTap(item.symbol),
-                  ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 /// 관심 줄 — 전일 종가는 이 줄이 지어졌을 때(= 보이는 묶음)만 부른다.
 class _WatchLine extends ConsumerWidget {
   const _WatchLine({
@@ -976,359 +850,6 @@ class _WatchLine extends ConsumerWidget {
       amount: last == null ? null : fmtByCurrency(last!, item.currency),
       pct: changePctOf(last, prevClose),
       onTap: onTap,
-    );
-  }
-}
-
-/// 그룹 추가 · 이름 바꾸기 폼 — Bottom Sheet. 바깥 누름 · 끌기로 닫히지 않고, 바뀐 값이 있으면 닫기 전에 묻는다.
-Future<void> showWatchGroupForm(
-  BuildContext context,
-  WidgetRef ref, {
-  StockWatchGroup? group,
-}) {
-  final l = AppLocalizations.of(context);
-  final probe = _FormProbe();
-  return PBottomSheet.show<void>(
-    context,
-    form: true,
-    isDirty: () => probe.dirty(),
-    leaveCopy: PLeaveConfirmCopy(
-      title: l.sheetLeaveTitle,
-      description: l.sheetLeaveDescription,
-      stayLabel: l.sheetLeaveStay,
-      leaveLabel: l.sheetLeaveLeave,
-    ),
-    builder: (_) => _GroupForm(group: group, probe: probe),
-  );
-}
-
-class _FormProbe {
-  bool Function() dirty = () => false;
-}
-
-class _GroupForm extends ConsumerStatefulWidget {
-  const _GroupForm({required this.group, required this.probe});
-  final StockWatchGroup? group;
-  final _FormProbe probe;
-
-  @override
-  ConsumerState<_GroupForm> createState() => _GroupFormState();
-}
-
-class _GroupFormState extends ConsumerState<_GroupForm> {
-  late final TextEditingController _ctrl = TextEditingController(
-    text: widget.group?.groupName ?? '',
-  );
-  bool _busy = false;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.probe.dirty = () =>
-        _ctrl.text.trim() != (widget.group?.groupName ?? '').trim();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final name = _ctrl.text.trim();
-    if (name.isEmpty || _busy) return;
-    setState(() => _busy = true);
-    try {
-      final repo = await ref.read(stocksRepositoryProvider.future);
-      final g = widget.group;
-      if (g == null) {
-        await repo.createWatchGroup(name);
-      } else {
-        await repo.renameWatchGroup(g.rowId, name);
-      }
-      ref.invalidate(watchGroupsProvider);
-      if (mounted) {
-        widget.probe.dirty = () => false;
-        PBottomSheet.of(context).close();
-      }
-    } on ApiException {
-      // 서버 에러는 ErrorToastInterceptor 가 띄운다.
-      if (mounted) setState(() => _busy = false);
-    } catch (_) {
-      if (mounted) {
-        setState(() => _busy = false);
-        showPSnackBar(
-          context,
-          AppLocalizations.of(context).stocksWatchGroupSaveFail,
-          severity: PSnackSeverity.error,
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final canSave = _ctrl.text.trim().isNotEmpty && !_busy;
-    return PBottomSheetContent(
-      title: widget.group == null
-          ? l.stocksWatchGroupAdd
-          : l.stocksWatchGroupRename,
-      closeLabel: l.actionClose,
-      flushBody: true,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
-        child: PField(
-          label: l.stocksWatchGroupNamePlaceholder,
-          child: PInput(
-            controller: _ctrl,
-            autofocus: true,
-            semanticLabel: l.stocksWatchGroupNamePlaceholder,
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (_) => _save(),
-          ),
-        ),
-      ),
-      footer: [
-        PButton(
-          label: l.actionSave,
-          size: PButtonSize.large,
-          loading: _busy,
-          onPressed: canSave ? _save : null,
-        ),
-      ],
-    );
-  }
-}
-
-/// 그룹 삭제 확인 — Alert Dialog. 삭제 요청 · 실패 길은 지금 그대로.
-Future<void> confirmDeleteWatchGroup(
-  BuildContext context,
-  WidgetRef ref,
-  StockWatchGroup g,
-) async {
-  final l = AppLocalizations.of(context);
-  await PAlertDialog.show(
-    context,
-    title: l.stocksWatchGroupDelete,
-    description: g.items.isEmpty
-        ? l.stocksWatchGroupDeleteConfirmEmpty(g.groupName)
-        : l.stocksWatchGroupDeleteConfirmCount(g.groupName, g.items.length),
-    cancelLabel: l.actionCancel,
-    actionLabel: l.stocksWatchGroupDelete,
-    destructive: true,
-    onAction: () async {
-      final repo = await ref.read(stocksRepositoryProvider.future);
-      await repo.deleteWatchGroup(g.rowId);
-      ref.invalidate(watchGroupsProvider);
-    },
-    onActionError: (e) {
-      if (e is ApiException || !context.mounted) return;
-      showPSnackBar(
-        context,
-        l.stocksWatchGroupSaveFail,
-        severity: PSnackSeverity.error,
-      );
-    },
-  );
-}
-
-/// 관심 별 토글(Q3-B) — 어느 그룹에든 있으면 전부 해제, 없으면 그룹이 하나면 바로 · 둘 이상이면 시트로 고른 그룹에
-/// 담는다(그룹이 없으면 기본 그룹부터 만든다).
-Future<void> toggleWatch(
-  BuildContext context,
-  WidgetRef ref,
-  String symbol, {
-  String? marketCode,
-}) async {
-  final l = AppLocalizations.of(context);
-  // 그룹 질의가 아직 오는 중이거나 실패면 기본 그룹을 새로 만들지 않는다(같은 이름 그룹이 하나 더 생긴다 — M3).
-  final groupsAsync = ref.read(watchGroupsProvider);
-  if (!groupsAsync.hasValue) return;
-  final groups = groupsAsync.value ?? const <StockWatchGroup>[];
-  try {
-    final repo = await ref.read(stocksRepositoryProvider.future);
-    final entries = [
-      for (final g in groups) ...g.items.where((i) => i.symbol == symbol),
-    ];
-    if (entries.isNotEmpty) {
-      for (final e in entries) {
-        await repo.removeWatchItem(e.rowId);
-      }
-    } else if (groups.isEmpty) {
-      final g = await repo.createWatchGroup(l.stocksWatchDefaultGroupName);
-      await repo.addWatchItem(g.rowId, symbol, marketCode: marketCode);
-    } else if (groups.length == 1) {
-      await repo.addWatchItem(
-        groups.first.rowId,
-        symbol,
-        marketCode: marketCode,
-      );
-    } else {
-      final byItem = <PMenuSheetItem, StockWatchGroup>{
-        for (final g in groups)
-          PMenuSheetItem(
-            label: l.stocksWatchGroupTitle(g.groupName, g.items.length),
-          ): g,
-      };
-      if (!context.mounted) return;
-      final picked = await PMenuSheet.show(
-        context,
-        title: l.stocksWatchPickGroup,
-        layout: PMenuSheetLayout.textOnly,
-        groups: [PMenuSheetGroup(byItem.keys.toList())],
-      );
-      final target = picked == null ? null : byItem[picked];
-      if (target == null) return;
-      await repo.addWatchItem(target.rowId, symbol, marketCode: marketCode);
-    }
-    ref.invalidate(watchGroupsProvider);
-  } on ApiException {
-    // 서버 에러는 ErrorToastInterceptor 가 띄운다.
-  } catch (_) {
-    if (context.mounted) {
-      showPSnackBar(
-        context,
-        l.stocksWatchAddFail,
-        severity: PSnackSeverity.error,
-      );
-    }
-  }
-}
-
-// ---- 종목 찾기 (Searchable List · Bottom Sheet) --------------------------------
-
-/// 종목 찾기 시트 — 서버 검색은 마지막 입력 뒤 300ms 에 한 번. 줄은 상세로 가는 줄(라디오 없음).
-Future<void> showStockSearchSheet(
-  BuildContext context, {
-  required void Function(String symbol) onPick,
-}) {
-  final focus = FocusNode(debugLabel: 'stock search');
-  return PBottomSheet.show<String>(
-    context,
-    initialFocus: focus,
-    builder: (_) => _StockSearchSheet(searchFocus: focus),
-  ).then((symbol) {
-    focus.dispose();
-    if (symbol != null) onPick(symbol);
-  });
-}
-
-class _StockSearchSheet extends ConsumerStatefulWidget {
-  const _StockSearchSheet({required this.searchFocus});
-  final FocusNode searchFocus;
-
-  @override
-  ConsumerState<_StockSearchSheet> createState() => _StockSearchSheetState();
-}
-
-class _StockSearchSheetState extends ConsumerState<_StockSearchSheet> {
-  String _typed = '';
-  String _sent = '';
-
-  /// 마지막으로 받은 결과 — 새 검색어를 기다리는 동안 이것을 보인다(첫 글자 뒤 "결과 없음" 깜빡임 방지, M2).
-  List<StockMasterItem> _prev = const [];
-  Timer? _slowTimer;
-  bool _slow = false;
-
-  @override
-  void dispose() {
-    _slowTimer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final query = _typed.trim();
-    // 친 글자와 서버로 보낸 글자가 다르면 300ms 를 기다리는 중이다 — 질의가 아직 안 나갔으니 "없음" 이 아니다.
-    final pending = query != _sent.trim();
-    final async = ref.watch(stockSearchResultProvider(_sent));
-    final fresh = (!pending && async.hasValue) ? async.value! : null;
-    if (fresh != null) _prev = fresh;
-    final results = fresh ?? _prev;
-    final failed = !pending && async.hasError && !async.hasValue;
-    final busy = pending || (async.isLoading && !async.hasValue);
-    // 옛 결과를 두고, 1초 넘게 걸리면 그때 Skeleton
-    if (busy && query.isNotEmpty) {
-      _slowTimer ??= Timer(const Duration(seconds: 1), () {
-        if (mounted) setState(() => _slow = true);
-      });
-    } else {
-      _slowTimer?.cancel();
-      _slowTimer = null;
-      _slow = false;
-    }
-    final fetching = busy && _slow;
-    Widget? body;
-    if (query.isNotEmpty && !failed) {
-      body = fetching
-          ? const PSearchableListSkeleton()
-          : PSearchableListResults(
-              scrollFog: true,
-              semanticLabel: l.stocksSearch,
-              children: [
-                for (final s in results)
-                  PSearchableListItem(
-                    value: s.symbol,
-                    title: s.nameKr.isNotEmpty ? s.nameKr : s.symbol,
-                    detail:
-                        '${s.symbol} · ${stockMarketLabel(l, s.marketCode)}'
-                        ' · ${stockSecurityTypeLabel(l, s.securityType)}',
-                  ),
-              ],
-            );
-    }
-    return PBottomSheetContent(
-      title: l.stocksSearch,
-      closeLabel: l.actionClose,
-      flushBody: true,
-      body: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.7,
-        ),
-        child: PSearchableList(
-          selectionMark: PSearchableListSelectionMark.off,
-          focusNode: widget.searchFocus,
-          query: _typed,
-          onQueryChanged: (q) => setState(() => _typed = q),
-          onSearch: (q) => setState(() => _sent = q),
-          onValueChanged: (v) => PBottomSheet.of(context).close(v),
-          children: [
-            PSearchableListInput(
-              placeholder: l.stocksSearchPlaceholder,
-              semanticLabel: l.actionSearch,
-            ),
-            if (query.isEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  PSpacing.x6,
-                  PSpacing.x4,
-                  PSpacing.x6,
-                  PSpacing.x6,
-                ),
-                child: Text(
-                  l.stocksSearchHint,
-                  style: PTypography.t4.copyWith(
-                    color: context.colors.fgNeutralSubtle,
-                  ),
-                ),
-              )
-            else if (failed)
-              PSearchableListError(
-                title: l.stocksFailSearch,
-                retryLabel: l.actionRetry,
-                retrying: async.isLoading,
-                onRetry: () => ref.invalidate(stockSearchResultProvider(_sent)),
-              )
-            else if (results.isEmpty && !busy)
-              PSearchableListEmpty(
-                titleBuilder: (q) => l.stocksSearchNoResults(q),
-              ),
-            ?body,
-          ],
-        ),
-      ),
     );
   }
 }
