@@ -41,6 +41,17 @@ final _appStates = _spec.states
 PColors _colors(Brightness mode) =>
     mode == Brightness.dark ? PColors.dark : PColors.light;
 
+/// 본문 최소 폭 — 제목의 가장 긴 낱말 폭(t5, 배율 1, 상한 없음) + 뒤 여백 10.
+double _minBody(String title) =>
+    listTitleMinWidth(
+      title: title,
+      style: PTypography.t5,
+      scaler: TextScaler.noScaling,
+      direction: TextDirection.ltr,
+      cap: 10000,
+    ) +
+    kPListBodyTrailGap;
+
 Widget _host(
   Brightness mode,
   Widget child, {
@@ -258,6 +269,7 @@ const _behavior = {
   'body.flexGrow',
   'body.minWidth',
   'title.overflowWrap',
+  'title.wordBreak',
   'detail.overflowWrap',
   'suffix.shrink',
   'suffixText.shrink',
@@ -2960,62 +2972,64 @@ void _worstTests() {
       'highlight': 'none',
     }, 'enabled');
 
-    testWidgets('스펙 값 — 본문은 1em 아래로 안 줄고, 위젯 값은 안 줄며 글 값만 줄고 끝에서 끊는다', (
+    testWidgets('스펙 값 — 본문은 제목의 가장 긴 낱말 폭 아래로 안 줄고, 글 값만 줄고 끝에서 끊는다', (
       tester,
     ) async {
       expect(want['body.flexGrow'], 1);
-      expect(want['body.minWidth'], '1em');
-      expect(want['title.overflowWrap'], 'anywhere');
+      // body.minWidth = min-content — 제목 keep-all 이라 가장 긴 낱말(코드의 listTitleMinWidth, 상한은 줄 안 폭 − 앞 자리의 절반)
+      expect(want['body.minWidth'], 'min-content');
+      expect(want['title.overflowWrap'], 'break-word');
+      expect(want['title.wordBreak'], 'keep-all');
       expect(want['detail.overflowWrap'], 'anywhere');
       expect(want['suffix.shrink'], 0);
       expect(want['suffixText.shrink'], 1);
       expect(want['suffixText.overflowWrap'], 'anywhere');
-      // 1em = 본문 글자 크기(t5 16) + 뒤 여백 10
-      expect(kPListBodyMinWidth, 16 + 10);
+      expect(kPListBodyTrailGap, 10);
     });
 
     for (final width in const [320.0, 360.0]) {
-      testWidgets('글로 넘긴 긴 값은 본문이 1em 이 된 뒤에야 줄고 줄 끝에서 끊는다 — 폭 $width, 넘침 0', (
-        tester,
-      ) async {
-        for (final value in const [
-          'desk@example.kr',
-          'porest-desk-front-design-system-list-component-with-a-very-long-name@example.kr',
-          '2026년 10월 2일 오후 2:30 · 포레스트 체크카드 · 개인 사업자',
-        ]) {
-          await tester.pumpWidget(
-            _host(
-              Brightness.light,
-              PList(
-                semanticLabel: '긴 값',
-                children: [
-                  PListItem(
-                    prefix: const Icon(LucideIcons.mail),
-                    title: '이메일 주소',
-                    suffix: Text(value),
-                  ),
-                ],
+      testWidgets(
+        '글로 넘긴 긴 값은 본문이 제목의 가장 긴 낱말 폭이 된 뒤에야 줄고 줄 끝에서 끊는다 — 폭 $width, 넘침 0',
+        (tester) async {
+          for (final value in const [
+            'desk@example.kr',
+            'porest-desk-front-design-system-list-component-with-a-very-long-name@example.kr',
+            '2026년 10월 2일 오후 2:30 · 포레스트 체크카드 · 개인 사업자',
+          ]) {
+            await tester.pumpWidget(
+              _host(
+                Brightness.light,
+                PList(
+                  semanticLabel: '긴 값',
+                  children: [
+                    PListItem(
+                      prefix: const Icon(LucideIcons.mail),
+                      title: '이메일 주소',
+                      suffix: Text(value),
+                    ),
+                  ],
+                ),
+                width: width,
               ),
-              width: width,
-            ),
-          );
-          expect(tester.takeException(), isNull, reason: '$value @ $width');
-          final body = tester.getRect(_bodies);
-          final suffix = tester.getRect(_suffixes);
-          final row = tester.getRect(_rows);
-          expect(body.width, greaterThanOrEqualTo(kPListBodyMinWidth - 0.5));
-          expect(
-            body.right,
-            lessThanOrEqualTo(suffix.left + 0.5),
-            reason: '값이 본문 위로 넘치지 않는다',
-          );
-          expect(
-            suffix.right,
-            lessThanOrEqualTo(row.right + 0.5),
-            reason: '값이 줄 밖으로 나가지 않는다',
-          );
-        }
-      });
+            );
+            expect(tester.takeException(), isNull, reason: '$value @ $width');
+            final body = tester.getRect(_bodies);
+            final suffix = tester.getRect(_suffixes);
+            final row = tester.getRect(_rows);
+            expect(body.width, greaterThanOrEqualTo(_minBody('이메일 주소') - 0.5));
+            expect(
+              body.right,
+              lessThanOrEqualTo(suffix.left + 0.5),
+              reason: '값이 본문 위로 넘치지 않는다',
+            );
+            expect(
+              suffix.right,
+              lessThanOrEqualTo(row.right + 0.5),
+              reason: '값이 줄 밖으로 나가지 않는다',
+            );
+          }
+        },
+      );
     }
 
     // 금액 노드(PListValue.amount)도 글 값처럼 본문 최소 폭만 남기고 쉼표 뒤에서 줄을 바꾼다(03-D 결정 2 B) — 내리지 않는 줄(줄 안 폭 16em 이상)
@@ -3041,7 +3055,7 @@ void _worstTests() {
         final body = tester.getRect(_bodies);
         final suffix = tester.getRect(_suffixes);
         final row = tester.getRect(_rows);
-        expect(body.width, greaterThanOrEqualTo(kPListBodyMinWidth - 0.5));
+        expect(body.width, greaterThanOrEqualTo(_minBody('가게') - 0.5));
         expect(suffix.left, greaterThanOrEqualTo(body.right - 0.5));
         expect(suffix.right, lessThanOrEqualTo(row.right + 0.5));
         // 쉼표 뒤에서 접힌 것 — 한 줄(t5 22)보다 높거나 한 줄이다. 어느 쪽이든 글자 가운데에서 끊기지 않는다.
@@ -3125,25 +3139,22 @@ void _worstTests() {
       // 값이 모자랄 만큼 긴 글을 쓴다
       const value = 'desk-long-address-name-and-more@example.kr';
       final wide = await suffixSize(800, value);
-      expect(wide.width + kPListBodyMinWidth - 40, greaterThan(256));
+      final minBody = _minBody('이메일');
+      expect(wide.width + minBody - 40, greaterThan(256));
       // 본문(이메일)이 눌려도 본문 최소 폭이 남는 폭 — 값은 그대로다
-      final mid = await suffixSize(
-        wide.width + 48 + kPListBodyMinWidth + 4,
-        value,
-      );
+      final mid = await suffixSize(wide.width + 48 + minBody + 4, value);
       expect(mid.width, wide.width);
       // 더 좁아지면 값이 줄고 본문은 최소 폭에 머문다
-      final narrow = await suffixSize(
-        wide.width + 48 + kPListBodyMinWidth - 40,
-        value,
-      );
+      final narrow = await suffixSize(wide.width + 48 + minBody - 40, value);
       expect(narrow.width, lessThan(wide.width));
       expect(narrow.height, greaterThan(wide.height), reason: '줄이 바뀐다');
       final body = tester.getRect(_bodies);
-      expect(body.width, closeTo(kPListBodyMinWidth, 0.5));
+      expect(body.width, closeTo(minBody, 0.5));
     });
 
-    testWidgets('위젯으로 넘긴 값(금액 노드 · 화살표)은 줄지 않고 본문이 양보한다', (tester) async {
+    testWidgets('값 + 화살표는 본문이 먼저 양보하고(가장 긴 낱말 폭까지), 그다음에야 값이 줄을 바꾼다', (
+      tester,
+    ) async {
       Future<(Size, Size)> sizes(double width) async {
         await tester.pumpWidget(
           _host(
@@ -3171,8 +3182,14 @@ void _worstTests() {
       final (wideSuffix, wideBody) = await sizes(800);
       for (final width in const [360.0, 320.0]) {
         final (suffix, body) = await sizes(width);
-        expect(suffix, wideSuffix, reason: '위젯 값은 줄지 않는다');
+        // 값 + 화살표도 글 값과 같은 폭 제한을 받는다 — 본문이 제목의 가장 긴 낱말 폭까지 양보한 뒤에야 값이 줄을 바꾼다
+        expect(suffix.width, lessThanOrEqualTo(wideSuffix.width));
         expect(body.width, lessThan(wideBody.width), reason: '본문이 양보한다');
+        expect(
+          body.width,
+          greaterThanOrEqualTo(_minBody('입출금 통장') - 0.5),
+          reason: '본문은 가장 긴 낱말 폭 아래로 안 준다',
+        );
         expect(tester.takeException(), isNull);
       }
     });
