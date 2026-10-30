@@ -1434,19 +1434,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calFieldEndDate => '종료일';
 
   @override
-  String get calTitlePlaceholder => '예: 가족 식사';
+  String get calTitlePlaceholder => '예: 치과 정기 검진';
 
   @override
-  String get calDescriptionPlaceholder => '추가 설명 (선택)';
+  String get calDescriptionPlaceholder => '예: 준비물과 안내 사항';
 
   @override
-  String get calLocationPlaceholder => '장소를 입력하세요';
+  String get calLocationPlaceholder => '예: 본사 3층 회의실';
 
   @override
   String get calSelectCalendar => '캘린더 선택';
 
   @override
-  String get calNoLabel => '라벨이 없습니다';
+  String get calNoLabel => '라벨 없음';
 
   @override
   String get calLabelNamePlaceholder => '예: 중요, 마감일, 회의';
@@ -1461,7 +1461,49 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calInviteCodePlaceholder => '예: ABC123';
 
   @override
-  String get calRecurrenceNone => '반복 없음';
+  String get calRecurrenceNone => '반복 안 함';
+
+  @override
+  String get calFormNone => '없음';
+
+  @override
+  String get calFormNoReminder => '알림 없음';
+
+  @override
+  String get calFormCalendarLoadFailed => '불러오지 못했어요';
+
+  @override
+  String get calFormLabelHint => '라벨은 설정의 캘린더 라벨에서 만들어요';
+
+  @override
+  String get calFormStartDay => '시작 날짜';
+
+  @override
+  String get calFormStartTime => '시작 시각';
+
+  @override
+  String get calFormEndDay => '종료 날짜';
+
+  @override
+  String get calFormEndTime => '종료 시각';
+
+  @override
+  String get calFormEndBeforeStart => '종료가 시작보다 빠를 수 없어요';
+
+  @override
+  String get calFormTitleRequired => '제목을 입력해주세요';
+
+  @override
+  String get calFormRows => '일정 정보';
+
+  @override
+  String get calFormRowsMore => '반복 · 알림 · 장소 · 설명';
+
+  @override
+  String get calFormSaveFailed => '일정을 저장하지 못했어요. 잠시 뒤에 다시 시도해주세요.';
+
+  @override
+  String get calFormDeleteFailed => '일정을 삭제하지 못했어요. 잠시 뒤에 다시 시도해주세요.';
 
   @override
   String calReminderMinutesBefore(int n) {

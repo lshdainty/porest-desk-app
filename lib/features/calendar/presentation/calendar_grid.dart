@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:groo_damda_app/features/calendar/domain/calendar_clock.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/core/format/date.dart';
@@ -277,7 +278,7 @@ class CalendarDayCell extends StatelessWidget {
     final c = context.colors;
     final l = AppLocalizations.of(context);
     final day = cell.day;
-    final now = DateTime.now();
+    final now = calendarNow();
     final isToday =
         now.year == day.year && now.month == day.month && now.day == day.day;
     final isOutside = cell.isOutside;

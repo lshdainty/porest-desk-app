@@ -11,18 +11,14 @@
 //   ③ 화면에서 저장을 눌렀을 때 실제로 그 바디가 나간다 (다이얼로그 → 리포지토리 전체)
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:groo_damda_app/app/theme/theme_data.dart';
-import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
-import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
-import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+
+import 'support/event_form_support.dart';
 
 /// 서버 `CalendarEventType` 이 받는 값 전부. 이 목록 밖이면 저장이 400 이다.
 const _serverEventTypes = {'PERSONAL', 'WORK', 'BIRTHDAY', 'HOLIDAY'};
@@ -70,13 +66,6 @@ const _defaultCalendar = UserCalendar(
   return (dio, captured);
 }
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _button(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
-
 /// 일정 시트를 띄운다. 리포지토리는 진짜를 쓰고 Dio 만 가짜다 — 화면이 넘긴 값이
 /// 바디까지 어떻게 가는지가 이 테스트의 대상이다.
 Future<(AppLocalizations, List<Map<String, dynamic>>)> _openDialog(
@@ -85,40 +74,12 @@ Future<(AppLocalizations, List<Map<String, dynamic>>)> _openDialog(
 }) async {
   final l = await AppLocalizations.delegate.load(const Locale('ko'));
   final (dio, captured) = _capturingDio();
-  tester.view.physicalSize = const Size(1200, 4000);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        calendarRepositoryProvider.overrideWith(
-          (ref) async => CalendarRepository(dio),
-        ),
-        eventLabelsProvider.overrideWith((ref) async => <EventLabel>[]),
-        userCalendarListProvider.overrideWith(
-          (ref) async => const [_defaultCalendar],
-        ),
-        monthEventsProvider.overrideWith((ref, key) async => <CalendarEvent>[]),
-      ],
-      child: MaterialApp(
-        theme: GrooTheme.light(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ko'),
-        home: Scaffold(
-          body: Builder(
-            builder: (ctx) => TextButton(
-              onPressed: () =>
-                  showCalendarEventDialog(ctx, edit: edit, defaultDate: null),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    ),
+  await openEventForm(
+    tester,
+    repo: CalendarRepository(dio),
+    calendars: const [_defaultCalendar],
+    edit: edit,
   );
-  await tester.tap(find.text('open'));
-  await tester.pumpAndSettle();
   return (l, captured);
 }
 
@@ -126,10 +87,8 @@ void main() {
   group('저장 요청 바디 — 화면에서 눌렀을 때', () {
     testWidgets('새 일정은 서버가 아는 종류로 나간다', (tester) async {
       final (l, captured) = await _openDialog(tester);
-      await tester.enterText(_field(l.calTitlePlaceholder), '점심 약속');
-      await tester.pumpAndSettle();
-      await tester.tap(_button(l.actionSave));
-      await tester.pumpAndSettle();
+      await enterTitle(tester, '점심 약속');
+      await tapButton(tester, l.actionSave);
 
       final body = captured.single;
       expect(body['title'], '점심 약속');
@@ -142,8 +101,7 @@ void main() {
         tester,
         edit: CalendarEvent.fromJson(_eventJson),
       );
-      await tester.tap(_button(l.actionEdit));
-      await tester.pumpAndSettle();
+      await tapButton(tester, l.actionSave);
 
       final body = captured.single;
       expect(body['eventType'], isIn(_serverEventTypes));
