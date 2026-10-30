@@ -28,7 +28,8 @@ class PListHeader extends StatelessWidget {
     this.headingLevel = 2,
     this.topInset,
     this.inset = PSpacing.globalGutter,
-  });
+    this.trailing,
+  }) : assert(action == null || trailing == null, '오른쪽은 글 버튼과 값 글 중 하나');
 
   final String title;
 
@@ -45,6 +46,9 @@ class PListHeader extends StatelessWidget {
 
   /// 좌우 여백 — 기본은 줄과 같은 24. 이미 좌우 24 가 있는 칸 묶음 안(폼의 보유 종목)에서는 0 을 준다(웹의 `className="px-0"` 와 같다).
   final double inset;
+
+  /// 오른쪽 값 글(묶음 합계) — 버튼이 아니라 값이라 줄과 같은 위아래 8 을 지킨다. 머리 폭의 절반을 넘으면 제목 아래 오른쪽 끝으로 간다.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +73,7 @@ class PListHeader extends StatelessWidget {
         // 오른쪽 동작이 머리 폭의 절반을 넘으면 제목 아래 줄 오른쪽 끝으로 간다(03-G 4A)
         child: PHeaderRow(
           gap: PSpacing.x2_5,
-          actionBleed: kTextButtonPaddingX,
+          actionBleed: trailing != null ? 0 : kTextButtonPaddingX,
           expandTitle: false,
           title: Semantics(
             header: true,
@@ -85,7 +89,7 @@ class PListHeader extends StatelessWidget {
             ),
           ),
           action: action == null
-              ? null
+              ? trailing
               : Transform.translate(
                   offset: const Offset(kTextButtonPaddingX, 0),
                   child: action,
