@@ -13,11 +13,10 @@ library;
 
 import 'dart:convert';
 
-/// 임베드 페이지가 증권사 쿼리(`broker=toss|namu`)를 읽는 웹 13b-1 이 머지 · 배포되기 전에는 false 다.
-/// 쿼리를 모르는 옛 웹은 무시하므로 켜도 깨지지 않지만, 웹이 먼저 나간 뒤에야 의미가 있다 — 배포 차례 서버 → 웹 → 앱.
-/// 웹 13b-1 결과표(I-13b-1-web-result.md)가 나오고 머지된 뒤 true 로 바꾼다. 그 전까지 차트 값은 서버가 고른
-/// 기본 증권사(`/securities/candles`)다.
-const bool kEmbedBrokerQueryEnabled = false;
+/// 임베드 페이지가 증권사 쿼리(`broker=toss|namu`)를 읽는다 — 웹 13b-1 이 머지 · dev 반영된 뒤 true 로 켰다.
+/// 쿼리를 모르는 옛 웹은 무시하므로 켜도 깨지지 않는다. broker 가 없으면 서버가 고른 기본 증권사
+/// (`/securities/candles`)를 쓴다.
+const bool kEmbedBrokerQueryEnabled = true;
 
 /// 임베드 페이지 URL.
 ///

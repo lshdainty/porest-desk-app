@@ -150,8 +150,8 @@ void main() {
     expect(none.us, isNull);
   });
 
-  test('임베드 증권사 쿼리는 웹이 알기 전에는 주소에 실리지 않는다', () {
-    expect(kEmbedBrokerQueryEnabled, isFalse);
+  test('임베드 증권사 쿼리는 웹이 알게 된 뒤라 주소에 실린다', () {
+    expect(kEmbedBrokerQueryEnabled, isTrue);
     final url = buildEmbedUrl(
       webBaseUrl: 'https://example.invalid',
       symbol: 'A',
@@ -159,6 +159,17 @@ void main() {
       theme: 'light',
       isUs: false,
       broker: 'namu',
+    );
+    expect(Uri.parse(url).queryParameters['broker'], 'namu');
+  });
+
+  test('증권사를 모르면(broker null) 쿼리를 싣지 않는다', () {
+    final url = buildEmbedUrl(
+      webBaseUrl: 'https://example.invalid',
+      symbol: 'A',
+      range: '1D',
+      theme: 'light',
+      isUs: false,
     );
     expect(Uri.parse(url).queryParameters.containsKey('broker'), isFalse);
   });
