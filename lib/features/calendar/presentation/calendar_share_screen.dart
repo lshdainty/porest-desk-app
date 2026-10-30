@@ -27,6 +27,7 @@ import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 설정 진입 — 캘린더 관리·공유 (user_calendar 기반).
 ///
@@ -711,12 +712,13 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
 
   Future<void> _removeMember(CalendarMember member) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.calRemoveMember,
-      message: l.calRemoveMemberConfirm(member.userName),
-      confirmLabel: l.calRemove,
+      description: l.calRemoveMemberConfirm(member.userName),
+      actionLabel: l.calRemove,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok) return;
     try {
@@ -731,12 +733,13 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.calDeleteCalendar,
-      message: l.calDeleteCalendarConfirm(cal.calendarName),
-      confirmLabel: l.actionDelete,
+      description: l.calDeleteCalendarConfirm(cal.calendarName),
+      actionLabel: l.calDeleteCalendarAction,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok) return;
     try {

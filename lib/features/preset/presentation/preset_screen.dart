@@ -17,7 +17,6 @@ import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 import 'package:groo_damda_app/shared/widgets/p_badge.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
@@ -30,6 +29,7 @@ import 'package:groo_damda_app/features/preset/presentation/preset_detail_sheet.
 import 'package:groo_damda_app/features/preset/presentation/preset_edit_dialog.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 enum _SortKey { used, recent, name }
 
@@ -59,12 +59,13 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
 
   Future<void> _confirmDelete(ExpenseTemplate p) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.presetDeleteTitle,
-      message: l.presetDeleteConfirm(p.templateName),
-      confirmLabel: l.actionDelete,
+      description: l.presetDeleteConfirm(p.templateName),
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     try {

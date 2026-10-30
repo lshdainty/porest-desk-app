@@ -47,6 +47,7 @@ import 'package:groo_damda_app/features/expense_split/presentation/split_tx_dial
 import 'package:groo_damda_app/features/sms/data/sms_android.dart';
 import 'package:groo_damda_app/features/sms/data/sms_repository.dart';
 import 'package:groo_damda_app/features/sms/domain/sms_draft.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 String _formatTime(TimeOfDay t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -622,16 +623,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final l = AppLocalizations.of(context);
     final assets = ref.read(assetsProvider).value ?? const <Asset>[];
     Asset? assetOf(int? id) => id == null ? null : assets.byRowId(id);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.expRewrite,
-      message: rewriteConfirmMessage(
+      description: rewriteConfirmMessage(
         l,
         newAsset: assetOf(_input.assetRowId),
         dateKey: _input.isoDate,
         installmentMonths: installment,
       ),
-      confirmLabel: l.actionSave,
+      actionLabel: l.actionSave,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     // 시트가 닫혀도 토스트·[잔액 고치기] 는 남는다 — 오래 사는 자리를 먼저 짚는다.
@@ -747,11 +749,12 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       ),
     );
     if (note == null) return true;
-    return showPConfirmDialog(
+    return PAlertDialog.show(
       context,
       title: widget.edit != null ? l.expEdit : l.expSaveConfirmTitle,
-      message: note,
-      confirmLabel: l.actionSave,
+      description: note,
+      actionLabel: l.actionSave,
+      cancelLabel: l.actionCancel,
     );
   }
 

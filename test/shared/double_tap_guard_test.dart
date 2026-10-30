@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/widgets/p_modal.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 Widget _app(Widget home) => MaterialApp(
   theme: GrooTheme.light(),
@@ -64,18 +65,19 @@ void main() {
     expect(calls, 1);
   });
 
-  testWidgets('확인 다이얼로그 — 같은 프레임 안 두 번 탭해도 onConfirm 은 한 번', (tester) async {
+  testWidgets('확인 다이얼로그 — 같은 프레임 안 두 번 탭해도 onAction 은 한 번', (tester) async {
     var calls = 0;
     await tester.pumpWidget(
       _app(
         Builder(
           builder: (ctx) => TextButton(
-            onPressed: () => showPConfirmDialog(
+            onPressed: () => PAlertDialog.show(
               ctx,
               title: 't',
-              message: 'm',
-              confirmLabel: '확인',
-              onConfirm: () async {
+              description: 'm',
+              cancelLabel: '취소',
+              actionLabel: '확인',
+              onAction: () async {
                 calls++;
                 await Future<void>.delayed(const Duration(milliseconds: 300));
               },

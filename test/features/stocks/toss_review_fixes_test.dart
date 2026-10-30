@@ -853,7 +853,7 @@ void main() {
       expect(save2.onPressed, isNotNull);
     });
 
-    testWidgets('삭제 확인 글 — 종목 n개가 함께 지워져요 / 0개면 그룹만', (tester) async {
+    testWidgets('삭제 확인 글 — 종목 n개가 함께 삭제돼요 / 0개면 그룹만', (tester) async {
       await _tall(tester, h: 1600);
       await tester.pumpWidget(
         _app(
@@ -880,12 +880,15 @@ void main() {
       );
       await tester.tap(find.text('삼'));
       await _settle(tester, 800);
-      expect(_tc('"반도체" 그룹과 담긴 종목 3개가 함께 지워져요.'), findsOneWidget);
+      expect(
+        _tc('"반도체" 그룹과 담긴 종목 3개가 함께 삭제돼요. 삭제한 그룹은 되돌릴 수 없어요.'),
+        findsOneWidget,
+      );
       await tester.tap(_t('취소'));
       await _settle(tester, 800);
       await tester.tap(find.text('영'));
       await _settle(tester, 800);
-      expect(_tc('"빈" 그룹을 지워요.'), findsOneWidget);
+      expect(_tc('"빈" 그룹을 삭제해요. 삭제한 그룹은 되돌릴 수 없어요.'), findsOneWidget);
     });
   });
 }

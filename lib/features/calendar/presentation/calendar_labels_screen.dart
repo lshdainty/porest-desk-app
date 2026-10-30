@@ -24,6 +24,7 @@ import 'package:groo_damda_app/features/calendar/application/calendar_providers.
 import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 설정 진입 — 캘린더 라벨 관리 (전 캘린더 공용).
 ///
@@ -564,12 +565,13 @@ Future<void> _confirmDelete(
   EventLabel label,
 ) async {
   final l = AppLocalizations.of(context);
-  final ok = await showPConfirmDialog(
+  final ok = await PAlertDialog.show(
     context,
     title: l.calDeleteLabelTitle,
-    message: l.calDeleteLabelConfirm(label.labelName),
-    confirmLabel: l.actionDelete,
+    description: l.calDeleteLabelConfirm(label.labelName),
+    actionLabel: l.actionDelete,
     destructive: true,
+    cancelLabel: l.actionCancel,
   );
   if (!ok || !context.mounted) return;
   try {

@@ -17,6 +17,7 @@ import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/shared/widgets/p_segmented.dart';
 import 'package:groo_damda_app/shared/widgets/p_snack_bar.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 구독 관리 바텀시트 — groo-design `SubscriptionDialog` 미러.
 ///
@@ -539,11 +540,11 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
 
   Future<void> _cancel(String nextBill) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.subCancelConfirmTitle,
-      message: l.subCancelConfirmMsg(nextBill),
-      confirmLabel: l.subCancel,
+      description: l.subCancelConfirmMsg(nextBill),
+      actionLabel: l.subCancel,
       cancelLabel: l.subKeep,
       destructive: true,
     );

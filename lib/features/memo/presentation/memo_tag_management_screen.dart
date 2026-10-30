@@ -23,6 +23,7 @@ import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 메모 태그 관리 — 할 일 태그 화면(`todo_tag_management_screen.dart`)을
 /// **그대로 미러링한다**(사용자 지시 2026-09-08 — 새로 설계하지 않는다).
@@ -135,12 +136,13 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _delete(MemoTag tag, int usage) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.memoDeleteTagTitle,
-      message: l.memoDeleteTagConfirm(tag.tagName, usage),
-      confirmLabel: l.actionDelete,
+      description: l.memoDeleteTagConfirm(tag.tagName, usage),
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted || _busy) return;
     setState(() => _busy = true);

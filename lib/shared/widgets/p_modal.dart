@@ -1,12 +1,9 @@
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/radius.dart';
 import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -576,7 +573,7 @@ class PFormAlertDialog extends StatelessWidget {
       content: content,
       // AlertDialog 기본 actions 는 OverflowBar 라 버튼이 내용 폭으로 우측에 몰린다.
       // 2개 이상이면 Row + Expanded 로 직접 깔아 화면 폭을 반씩 나눈다
-      // (spec dialog.md 모바일 규칙 — _PConfirmDialog 과 같은 처리).
+      // (spec dialog.md 모바일 규칙 — 옛 확인 다이얼로그와 같은 처리).
       // 1개면 OverflowBar 그대로 둔다 — 나눌 상대가 없다.
       actions: actions.length < 2
           ? actions
@@ -590,162 +587,6 @@ class PFormAlertDialog extends StatelessWidget {
                 ],
               ),
             ],
-    );
-  }
-}
-
-/// 표준 확인 다이얼로그 — 위험 액션이면 [destructive]=true.
-/// 확인 다이얼로그. [onConfirm] 미제공 시 확인 탭 즉시 닫고 true 반환(기존 동작).
-///
-/// [onConfirm] 제공 시(웹 ConfirmDialog `loading` 정합): 확인 탭 → 다이얼로그를
-/// 연 채 **확인(저장) 버튼에만** 스피너를 표시하며 [onConfirm] 을 실행하고, 성공하면
-/// 닫고 true. 예외가 발생하면 다이얼로그를 유지(스피너만 해제) — 에러 메시지는
-/// [onConfirm] 내부에서 처리. 취소 버튼·바깥 탭은 실행 중에도 원래대로 동작한다.
-///
-/// [acknowledge]=true 면 **확인 하나만** 그린다(spec alert-dialog.md Variants).
-/// 전제 조건이 안 맞아 액션이 아예 차단된 통지 — 고를 것이 없는데 취소를 나란히
-/// 두면 두 버튼이 같은 일(닫기)을 한다. 제목은 결과 명사구(`삭제 불가`)로 쓴다.
-/// 반환값은 의미가 없다(항상 true) — 호출부는 그냥 await 하고 흘려보낸다.
-Future<bool> showPConfirmDialog(
-  BuildContext context, {
-  required String title,
-  required String message,
-  String? confirmLabel,
-  String? cancelLabel,
-  bool destructive = false,
-  bool acknowledge = false,
-  Future<void> Function()? onConfirm,
-}) async {
-  final ok = await showDialog<bool>(
-    context: context,
-    // 바깥(딤)을 눌러도 닫히지 않는다 — 뒤로 가기 · 취소는 그대로(alert-dialog.md, 03F-013a). 딤은 overlay-dim 토큰.
-    barrierDismissible: false,
-    barrierColor: context.colors.overlayDim,
-    builder: (ctx) => _PConfirmDialog(
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel ?? AppLocalizations.of(context).actionConfirm,
-      cancelLabel: cancelLabel ?? AppLocalizations.of(context).actionCancel,
-      destructive: destructive,
-      acknowledge: acknowledge,
-      onConfirm: onConfirm,
-    ),
-  );
-  return ok == true;
-}
-
-class _PConfirmDialog extends StatefulWidget {
-  const _PConfirmDialog({
-    required this.title,
-    required this.message,
-    required this.confirmLabel,
-    required this.cancelLabel,
-    required this.destructive,
-    required this.acknowledge,
-    this.onConfirm,
-  });
-  final String title;
-  final String message;
-  final String confirmLabel;
-  final String cancelLabel;
-  final bool destructive;
-  final bool acknowledge;
-  final Future<void> Function()? onConfirm;
-
-  @override
-  State<_PConfirmDialog> createState() => _PConfirmDialogState();
-}
-
-class _PConfirmDialogState extends State<_PConfirmDialog> {
-  bool _busy = false;
-
-  Future<void> _confirm() async {
-    // 같은 프레임 안의 두 번째 탭 — 버튼이 loading 으로 죽기 전에 들어온다.
-    if (_busy) return;
-    final action = widget.onConfirm;
-    if (action == null) {
-      Navigator.pop(context, true);
-      return;
-    }
-    setState(() => _busy = true);
-    try {
-      await action();
-      if (mounted) Navigator.pop(context, true);
-    } catch (_) {
-      // 실패 — 다이얼로그 유지, 스피너만 해제 (에러 표시는 onConfirm 내부에서).
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final cancel = widget.acknowledge
-        ? null
-        : PButton(
-            label: widget.cancelLabel,
-            // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
-            // 없는 회색 채움(spec alert-dialog.md · button.md 2026-08).
-            variant: PButtonVariant.secondary,
-            size: PButtonSize.lg,
-            fullWidth: true,
-            // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인 버튼 스피너로만 표시.
-            onPressed: () => Navigator.pop(context, false),
-          );
-    final confirm = PButton(
-      label: widget.confirmLabel,
-      variant: widget.destructive
-          ? PButtonVariant.danger
-          : PButtonVariant.primary,
-      size: PButtonSize.lg,
-      fullWidth: true,
-      loading: _busy,
-      onPressed: _busy ? null : _confirm,
-    );
-    // 화면보다 커지면 버튼까지 확인창 전체가 스크롤된다(SEED max-height 100% · overflow-y auto, 03-F 1A) —
-    // 그래서 버튼을 actions 가 아니라 본문 아래에 둔다. 짝 버튼은 라벨이 반 폭을 넘으면 세로로 쌓는다(03A-013).
-    return AlertDialog(
-      backgroundColor: t.bgSurface,
-      scrollable: true,
-      title: Text(widget.title),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(widget.message),
-          const SizedBox(height: PSpace.x24),
-          Builder(
-            builder: (context) {
-              if (cancel == null) return confirm;
-              // AlertDialog 는 IntrinsicWidth 라 LayoutBuilder 를 못 쓴다 — 확인창 안쪽 폭을 화면에서 어림한다
-              // (바깥 여백 40 · 최대 폭 560 · 안쪽 여백 24).
-              final inner =
-                  math.min(MediaQuery.sizeOf(context).width - 80, 560) - 48;
-              final half = (inner - PSpace.x8) / 2;
-              final fits =
-                  confirm.naturalWidth(context) <= half &&
-                  cancel.naturalWidth(context) <= half;
-              return fits
-                  ? Row(
-                      children: [
-                        Expanded(child: cancel),
-                        const SizedBox(width: PSpace.x8),
-                        Expanded(child: confirm),
-                      ],
-                    )
-                  : Column(
-                      key: const ValueKey('confirm-stacked'),
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        confirm,
-                        const SizedBox(height: PSpace.x8),
-                        cancel,
-                      ],
-                    );
-            },
-          ),
-        ],
-      ),
     );
   }
 }

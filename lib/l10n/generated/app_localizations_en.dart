@@ -440,7 +440,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String assetAccountDeleteConfirm(String name) {
-    return '\"$name\" will be removed from the list. Linked transactions are kept.';
+    return '\"$name\" will be removed from the list. Linked transactions are kept. A deleted asset cannot be restored.';
   }
 
   @override
@@ -555,7 +555,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String assetCardDeleteConfirm(String name) {
-    return '\"$name\" will be removed from the list. Linked transactions are kept.';
+    return '\"$name\" will be removed from the list. Linked transactions are kept. A deleted asset cannot be restored.';
   }
 
   @override
@@ -641,7 +641,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String assetInvestDeleteConfirm(String name) {
-    return '\"$name\" will be removed from the list. Linked transactions are kept.';
+    return '\"$name\" will be removed from the list. Linked transactions are kept. A deleted asset cannot be restored.';
   }
 
   @override
@@ -1524,7 +1524,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calEventDeleteConfirm(String title) {
-    return 'Delete the \"$title\" event? This action cannot be undone.';
+    return 'Delete the \"$title\" event? A deleted event cannot be restored.';
   }
 
   @override
@@ -1566,7 +1566,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calDeleteLabelConfirm(String name) {
-    return 'Delete the \"$name\" label? Events with this label will become unlabeled.';
+    return 'Delete the \"$name\" label? Events with this label will become unlabeled. A deleted label cannot be restored.';
   }
 
   @override
@@ -1710,8 +1710,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calDeleteCalendarConfirm(String name) {
-    return 'Delete the \"$name\" calendar? Events move to the default calendar and all members lose access.';
+    return 'Delete the \"$name\" calendar? Events move to the default calendar and all members lose access. A deleted calendar cannot be restored.';
   }
+
+  @override
+  String get calDeleteCalendarAction => 'Delete permanently';
 
   @override
   String get calCopy => 'Copy';
@@ -2073,7 +2076,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferDeleteConfirm =>
-      'Delete this transfer? Both assets\' balances will be restored.';
+      'Delete this transfer? Both assets\' balances will be restored. A deleted transfer cannot be restored.';
+
+  @override
+  String get transferDeleteTitle => 'Delete transfer';
 
   @override
   String get transferAutoTradeSettlement =>
@@ -2951,7 +2957,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dutchDeleteConfirm(String title) {
-    return 'Delete the \"$title\" Dutch Pay? This action cannot be undone.';
+    return 'Delete the \"$title\" Dutch Pay? A deleted Dutch Pay cannot be restored.';
   }
 
   @override
@@ -3095,7 +3101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expDeleteConfirm(String name) {
-    return 'Delete the \"$name\" transaction? The linked asset balance will be adjusted too.';
+    return 'Delete the \"$name\" transaction? The linked asset balance will be adjusted too. A deleted transaction cannot be restored.';
   }
 
   @override
@@ -3339,7 +3345,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expSplitRemoveConfirm =>
-      'Remove all split items for this transaction?';
+      'This clears all split items for this transaction. Cleared items cannot be restored.';
 
   @override
   String get expClearFailed => 'Failed to clear';
@@ -3541,7 +3547,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String fileDeleteConfirm(String name) {
-    return 'Delete \"$name\"?';
+    return 'Delete \"$name\"? A deleted file cannot be restored.';
   }
 
   @override
@@ -4477,7 +4483,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String presetDeleteConfirm(String name) {
-    return 'Delete the \"$name\" preset? Already-saved transactions are unaffected.';
+    return 'Delete the \"$name\" preset? Already-saved transactions are unaffected. A deleted preset cannot be restored.';
   }
 
   @override
@@ -4580,7 +4586,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recurringDeleteConfirm(String name) {
-    return 'Delete the \"$name\" recurring setting? Already-recorded transactions remain.';
+    return 'Delete the \"$name\" recurring setting? Already-recorded transactions remain. A deleted recurring setting cannot be restored.';
   }
 
   @override
@@ -5625,7 +5631,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String todoDeleteTagConfirm(String name, int count) {
-    return 'Deleting \"$name\" will leave $count todos using it untagged.';
+    return 'Deleting \"$name\" will leave $count todos using it untagged. A deleted tag cannot be restored.';
   }
 
   @override
@@ -5834,7 +5840,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String memoDeleteConfirm(String name) {
-    return 'Delete the \"$name\" memo? This action cannot be undone.';
+    return 'Delete the \"$name\" memo? A deleted memo cannot be restored.';
   }
 
   @override
@@ -5871,7 +5877,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String memoDeleteTagConfirm(String name, int count) {
-    return 'Deleting \"$name\" will leave $count memos using it untagged.';
+    return 'Deleting \"$name\" will leave $count memos using it untagged. A deleted tag cannot be restored.';
   }
 
   @override
@@ -8196,12 +8202,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stocksWatchGroupDeleteConfirmCount(String name, int count) {
-    return '\"$name\" and its $count stocks will be deleted together.';
+    return '\"$name\" and its $count stocks will be deleted together. A deleted group cannot be restored.';
   }
 
   @override
   String stocksWatchGroupDeleteConfirmEmpty(String name) {
-    return '\"$name\" will be deleted.';
+    return '\"$name\" will be deleted. A deleted group cannot be restored.';
   }
 
   @override

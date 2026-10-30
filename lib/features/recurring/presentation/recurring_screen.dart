@@ -21,7 +21,6 @@ import 'package:groo_damda_app/shared/widgets/p_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
 import 'package:groo_damda_app/shared/widgets/p_card.dart';
 import 'package:groo_damda_app/shared/widgets/p_divider.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
 import 'package:groo_damda_app/features/expense/application/expense_providers.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
 import 'package:groo_damda_app/features/expense/domain/expense_category.dart';
@@ -34,6 +33,7 @@ import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
 import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 enum _Filter { all, expense, income, transfer, paused }
 
@@ -74,12 +74,13 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
   Future<void> _delete(RecurringTransaction it) async {
     final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.recurringDeleteTitle,
-      message: l.recurringDeleteConfirm(recurringDisplayTitle(l, it)),
-      confirmLabel: l.actionDelete,
+      description: l.recurringDeleteConfirm(recurringDisplayTitle(l, it)),
+      actionLabel: l.actionDelete,
       destructive: true,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
     setState(() => _busyDeleteId = it.rowId);

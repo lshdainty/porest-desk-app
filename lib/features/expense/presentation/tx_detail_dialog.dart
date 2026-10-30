@@ -33,6 +33,7 @@ import 'package:groo_damda_app/features/expense_split/domain/expense_split.dart'
 import 'package:groo_damda_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:groo_damda_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
 ///
@@ -167,12 +168,13 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   /// 목록에서 지울 땐 닫을 시트가 없다. 확인창 본문은 스와이프와 같다 — 결제가 끝난
   /// 회차의 카드 거래면 한 문구가 붙는다(D1). 서버에 묻지 않는다.
   Future<void> _delete(Asset? asset) async {
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: expenseActions.deleteConfirmTitle(context, _e),
-      message: expenseActions.deleteConfirmMessageWith(context, _e, asset),
-      confirmLabel: AppLocalizations.of(context).actionDelete,
+      description: expenseActions.deleteConfirmMessageWith(context, _e, asset),
+      actionLabel: AppLocalizations.of(context).actionDelete,
       destructive: true,
+      cancelLabel: AppLocalizations.of(context).actionCancel,
     );
     if (!ok || !mounted) return;
 
@@ -232,12 +234,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             l.expRefundCancelConfirmPlain,
             closedCycleSpanOfExpense(_e, asset),
           );
-    final ok = await showPConfirmDialog(
+    final ok = await PAlertDialog.show(
       context,
       title: l.expRefundCancel,
-      message: message,
-      confirmLabel: l.expRefundCancel,
-      destructive: true,
+      description: message,
+      actionLabel: l.expRefundCancel,
+      cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;
 
