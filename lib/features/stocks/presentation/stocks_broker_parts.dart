@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
@@ -385,4 +386,13 @@ class StocksMarketStatusLine extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 달러 시가총액 — 환율이 없어 원으로 못 바꿀 때만 쓴다(원으로 지어내지 않는다).
+/// 1만 달러 미만은 외화 규칙 그대로(`$` + 소수 둘째 자리), 그 위는 큰 값 줄임(ko "9,900억 달러" · en "$990B").
+/// 한국어 단위(억 · 조)에 `$` 를 붙이면 "$9,900억" 으로 두 표기가 섞여 읽히므로 ko 는 "달러" 를 뒤에 둔다.
+String fmtCapUsd(double v) {
+  if (v < 10000) return fmtByCurrency(v, 'USD');
+  final body = formatChartAxis(v);
+  return localeIsEn() ? '\$$body' : '$body 달러';
 }

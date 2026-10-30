@@ -214,8 +214,9 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
       NamuMarketBand(
         krSymbol: reps.kr,
         usSymbol: reps.us,
-        // 보유 질의가 끝나기 전에는 대표를 못 정한다 — 끝난 뒤에 장 상태를 부른다.
-        ready: !loading,
+        // 보유 질의(와 관심 그룹)가 끝나기 전에는 대표를 못 정한다 — 그동안 장 상태 자리는 Skeleton 이다.
+        // 보유 질의가 실패했거나 보유가 0 이면 "끝난 것" 이라 관심 첫 종목 · 대표 없음으로 넘어간다.
+        ready: !loading && !(watchAsync.isLoading && !watchAsync.hasValue),
       ),
       const SizedBox(height: kScreenBandGap),
     ];
@@ -740,8 +741,10 @@ class _NamuMarketBandState extends ConsumerState<NamuMarketBand> {
       if (kr != null) (name: l.stocksMarketKr, open: kr.open, detail: kr.text),
       if (us != null) (name: l.stocksMarketUs, open: us.open, detail: us.text),
     ];
+    // 대표를 기다리는 동안(ready 아님)에도 값 자리는 Skeleton — 시장 띠 전체가 실패 한 벌로 바뀌지 않는다.
     final stateLoading =
-        quotesAsync != null && quotesAsync.isLoading && !quotesAsync.hasValue;
+        !widget.ready ||
+        (quotesAsync != null && quotesAsync.isLoading && !quotesAsync.hasValue);
     final fxLoading = fxAsync.isLoading && !fxAsync.hasValue;
     final bothFailed =
         (quotesAsync?.hasError ?? false) &&

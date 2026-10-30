@@ -276,6 +276,22 @@ void main() {
     });
   });
 
+  group('달러 시가총액(환율 없을 때)', () {
+    testWidgets('1만 달러 미만은 외화 규칙(소수 둘째 자리), 그 위는 줄임 + "달러"', (tester) async {
+      await _pump(tester, (_) => const SizedBox());
+      expect(fmtCapUsd(1234.5), '\$1,234.50');
+      expect(fmtCapUsd(9999.999), '\$10,000.00');
+      expect(fmtCapUsd(9.9e11), '9,900억 달러');
+      expect(fmtCapUsd(2.5e12), '2.5조 달러');
+      expect(fmtCapUsd(12345678), '1,234.6만 달러');
+      expect(
+        fmtCapUsd(9.9e11).contains('\$'),
+        isFalse,
+        reason: '"\$9,900억" 처럼 두 표기를 섞지 않는다',
+      );
+    });
+  });
+
   testWidgets('경고 이름표 — 투자유의(새) · 단기과열 · VI', (tester) async {
     late AppLocalizations l;
     await _pump(tester, (c) {

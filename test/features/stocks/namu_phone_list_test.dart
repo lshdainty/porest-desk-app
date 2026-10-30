@@ -100,6 +100,7 @@ Future<void> _pump(
   NamuHoldings? usd,
   bool krwFail = false,
   bool usdFail = false,
+  bool holdingsPending = false,
   double? fx = 1385.2,
   List<StockWatchGroup> groups = const [],
   bool masked = false,
@@ -117,6 +118,7 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         namuHoldingsProvider.overrideWith((ref, c) async {
+          if (holdingsPending) return Completer<NamuHoldings>().future;
           final fail = c == 'KRW' ? krwFail : usdFail;
           if (fail) throw StateError('x');
           return c == 'KRW' ? (krw ?? _krw) : (usd ?? _usd);
@@ -301,6 +303,58 @@ void main() {
     expect(_t('원화 환산 합계'), findsNothing);
     expect(_t('국내 평가금액'), findsWidgets);
     expect(find.byKey(const ValueKey('screen-section')), findsNWidgets(2));
+  });
+
+  group('시장 띠 장 상태 — 대표 종목을 기다리는 동안(13b-1 후속)', () {
+    final kGroups = [
+      _group(1, '관심', ['K1']),
+    ];
+
+    testWidgets('보유 로딩 중 — 값 자리는 기다리고 시장 띠는 실패 한 벌이 아니다, 장 상태 줄은 아직 없다', (
+      tester,
+    ) async {
+      await _pump(tester, holdingsPending: true, groups: kGroups);
+      expect(_t('시장'), findsOneWidget);
+      expect(_t('시장 정보를 불러오지 못했어요'), findsNothing);
+      expect(_tc('장중 · '), findsNothing);
+      expect(quotesAsked, isEmpty, reason: '대표를 정하기 전에는 장 상태 시세를 부르지 않는다');
+      // 환율 줄은 기다리지 않는다 — 환율 질의는 보유와 따로다
+      expect(_t('1,385.20원'), findsOneWidget);
+    });
+
+    testWidgets('보유 실패 — 관심 첫 종목이 대표가 되어 장 상태 줄이 나온다', (tester) async {
+      await _pump(tester, krwFail: true, usdFail: true, groups: kGroups);
+      expect(_t('시장 정보를 불러오지 못했어요'), findsNothing);
+      expect(quotesAsked, contains('K1'));
+      expect(_tc('장중 · '), findsOneWidget);
+      expect(_tc('프리마켓'), findsNothing, reason: '미국 대표는 없다 — 그 시장은 그리지 않는다');
+    });
+
+    testWidgets('보유 0 — 마찬가지로 관심 첫 종목이 대표, 관심도 없으면 장 상태 없이 환율 줄만', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        krw: _h('KRW', const []),
+        usd: _h('USD', const []),
+        groups: kGroups,
+      );
+      expect(quotesAsked, contains('K1'));
+      expect(_tc('장중 · '), findsOneWidget);
+      await _pump(tester, krw: _h('KRW', const []), usd: _h('USD', const []));
+      expect(quotesAsked, isEmpty);
+      expect(_tc('장중 · '), findsNothing);
+      expect(_t('환율(USD)'), findsOneWidget);
+      expect(_t('시장 정보를 불러오지 못했어요'), findsNothing);
+    });
+
+    testWidgets('보유 로딩 중에 대표 시세가 실패해도 시장 띠 전체가 실패가 되지 않는다 — 환율이 남는다', (
+      tester,
+    ) async {
+      await _pump(tester, holdingsPending: true, groups: kGroups, fx: 1385.2);
+      expect(_t('환율(USD)'), findsOneWidget);
+      expect(find.text('다시 시도'), findsNothing);
+    });
   });
 
   testWidgets('주문 가능 — 원화는 국내 잔고에서, 달러는 "예수금 · 달러"(margin)', (tester) async {

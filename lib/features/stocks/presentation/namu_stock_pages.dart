@@ -455,7 +455,7 @@ class _NamuInfoBand extends StatelessWidget {
           ? fmtCapKrw(d!.marketCap!)
           : (fx != null && fx! > 0
                 ? fmtCapKrw(d!.marketCap! * fx!)
-                : '\$${formatChartAxis(d!.marketCap!)}');
+                : fmtCapUsd(d!.marketCap!));
     }
     return PScreenSection(
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
