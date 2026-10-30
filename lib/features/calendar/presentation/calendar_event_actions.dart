@@ -7,7 +7,7 @@ import 'package:groo_damda_app/features/dashboard/application/dashboard_provider
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 
-/// 일정 삭제 확인창(I-09b 8) — ds Alert Dialog. **반복 일정은 모든 회차가 함께 지워진다고 말한다**: 서버는 일정 행 하나를 지우고
+/// 일정 삭제 확인창(I-09b 8) — ds Alert Dialog. **반복 일정은 모든 회차가 함께 삭제된다고 말한다**: 서버는 일정 행 하나를 삭제하고
 /// 회차는 그 행에서 펼쳐지므로 회차만 지우는 길이 없다. 상세 [삭제] · 수정 폼 [삭제] 가 같은 창을 쓴다.
 Future<bool> confirmDeleteCalendarEvent(
   BuildContext context,

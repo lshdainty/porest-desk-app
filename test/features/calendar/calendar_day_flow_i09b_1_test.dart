@@ -484,7 +484,7 @@ void main() {
       await tester.tap(button(l.actionDelete));
       await tester.pumpAndSettle();
       expect(
-        findPlainContaining("'내 일정' 일정을 지울까요? 지운 일정은 되돌릴 수 없어요."),
+        findPlainContaining('"내 일정" 일정을 삭제할까요? 삭제한 일정은 되돌릴 수 없어요.'),
         findsOneWidget,
       );
       await tester.tap(
@@ -510,7 +510,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         findPlainContaining(
-          "'반복 일정' 은 반복 일정이라 모든 회차가 함께 지워져요. 지운 일정은 되돌릴 수 없어요.",
+          '"반복 일정" 은 반복 일정이라 모든 회차가 함께 삭제돼요. 삭제한 일정은 되돌릴 수 없어요.',
         ),
         findsOneWidget,
       );
@@ -576,7 +576,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(button(l.actionDelete));
       await tester.pumpAndSettle();
-      expect(findPlainContaining("'내 일정' 일정을 지울까요?"), findsOneWidget);
+      expect(findPlainContaining('"내 일정" 일정을 삭제할까요?'), findsOneWidget);
       await tester.tap(
         find.descendant(
           of: find.byType(PAlertDialogView),
