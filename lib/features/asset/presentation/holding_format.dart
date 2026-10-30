@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 
+import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
@@ -53,7 +54,7 @@ String formatHoldingQty(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),
     (_) => ',',
   );
-  return '${neg ? '-' : ''}$grouped${frac.isEmpty ? '' : '.$frac'}';
+  return '${neg ? kMinus : ''}$grouped${frac.isEmpty ? '' : '.$frac'}';
 }
 
 /// 수량 입력 정규화 — 숫자와 소수점 1개만 남긴다.

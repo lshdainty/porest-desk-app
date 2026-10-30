@@ -29,10 +29,22 @@ void main() {
       );
     });
 
+    test('천 퍼센트 이상은 정수부에 쉼표 — 1,234.50% · 부호 U+2212 · signed', () {
+      expect(formatChangeRate(1234.5), '1,234.50%');
+      expect(formatChangeRate(-1234.5), '−1,234.50%');
+      expect(formatChangeRate(1234.5, signed: true), '+1,234.50%');
+      expect(formatChangeRate(-1234.5, signed: true), '−1,234.50%');
+      expect(formatChangeRate(-1234.5).contains('-'), isFalse);
+      expect(formatChangeRate(1234567.891), '1,234,567.89%');
+      expect(formatChangeRate(999.99), '999.99%', reason: '세 자리는 쉼표 없음');
+      expect(formatChangeRate(1000), '1,000.00%');
+    });
+
     test('Abs — 크기만(방향은 화살표가 말한다)', () {
       expect(formatChangeRateAbs(-2.9), '2.90%');
       expect(formatChangeRateAbs(0.4), '0.40%');
       expect(formatChangeRateAbs(5), '5.00%');
+      expect(formatChangeRateAbs(-1234.5), '1,234.50%');
     });
   });
 

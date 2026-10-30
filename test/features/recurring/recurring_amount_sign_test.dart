@@ -71,6 +71,10 @@ void main() {
     // 옛 코드는 `sign: '-'` 를 무조건 붙여 `-0` 을 냈다.
     expect(find.text('-0'), findsNothing);
     expect(find.text('−0'), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
     expect(find.text('0'), findsWidgets);
   });
 
@@ -81,6 +85,11 @@ void main() {
     // (QA #22 는 한 카드에서 `−`/`-` 가 섞여 tabular 정렬이 어긋난 걸 잡았다).
     expect(find.text('−51,750'), findsNWidgets(2));
     expect(find.text('-51,750'), findsNothing);
+    expect(find.textContaining('−', findRichText: true), findsWidgets);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
   });
 
   testWidgets('반복 수입이 없으면 매월 고정 수입이 `+0` 이 아니라 `0` 이다', (tester) async {

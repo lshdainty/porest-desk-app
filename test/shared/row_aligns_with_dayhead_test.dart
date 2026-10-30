@@ -224,7 +224,7 @@ void main() {
         ],
       ),
     );
-    expect(findPlain('−3,000원'), findsNWidgets(2)); // 헤더 합계 + 행
+    expect(findPlain('−3,000원'), findsNWidgets(2)); // U+2212 가 있다 — 헤더 합계 + 행
     expect(find.textContaining('-3,000'), findsNothing); // ASCII 하이픈
   });
 
