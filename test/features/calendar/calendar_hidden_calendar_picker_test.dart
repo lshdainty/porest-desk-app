@@ -106,7 +106,7 @@ class _CapturingRepo extends CalendarRepository {
 /// 폼 캘린더 줄의 값 글 — 줄 값은 고른 캘린더 이름이다.
 Finder _calendarValue(String name) => find.descendant(
   of: find.byType(PList),
-  matching: find.textContaining(name),
+  matching: valueTextContaining(name),
 );
 
 /// 캘린더 고르기 시트를 열어 보이는 줄 이름을 읽는다(숨긴 캘린더가 있나 보려고).

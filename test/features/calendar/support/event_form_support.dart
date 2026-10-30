@@ -130,3 +130,18 @@ Future<void> writeStep(
   await tester.pumpAndSettle();
   await tapButton(tester, done);
 }
+
+String _plain(Text w) => (w.data ?? w.textSpan?.toPlainText() ?? '')
+    .replaceAll('⁠', '')
+    .replaceAll('￼', '');
+
+/// 줄 값 글 — 값은 낱말 단위 줄바꿈(keepAll)이 끼어 있어 그것을 걷고 비교한다.
+Finder valueText(String text) => find.byWidgetPredicate(
+  (w) => w is Text && _plain(w) == text,
+  description: 'Text "$text"',
+);
+
+Finder valueTextContaining(String text) => find.byWidgetPredicate(
+  (w) => w is Text && _plain(w).contains(text),
+  description: 'Text containing "$text"',
+);

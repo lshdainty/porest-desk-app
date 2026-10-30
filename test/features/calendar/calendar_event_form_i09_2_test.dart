@@ -1,6 +1,7 @@
 // I-09 09-2 앱 — 일정 폼 시트의 흐름: 칸 오류 · 닫기 물음 · 한 단계 · 고르기 · 저장 실패 · 삭제 · 달 비우기 · 200% (줄 21 ~ 30).
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,6 +17,7 @@ import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/forms/picker_row.dart';
 
 import 'support/event_form_support.dart';
 
@@ -197,17 +199,17 @@ void main() {
       var builds = 0;
       final repo = _Repo();
       await openEventForm(tester, repo: repo, calendars: const []);
-      expect(find.text(l.calFormCalendarLoadFailed), findsOneWidget);
+      expect(valueText(l.calFormCalendarLoadFailed), findsOneWidget);
       builds++;
-      await tester.tap(find.text(l.calFormCalendarLoadFailed));
+      await tester.tap(valueText(l.calFormCalendarLoadFailed));
       await tester.pumpAndSettle();
       expect(builds, 1);
-      expect(find.text(l.calFormCalendarLoadFailed), findsOneWidget);
+      expect(valueText(l.calFormCalendarLoadFailed), findsOneWidget);
     });
 
     testWidgets('라벨이 0 개여도 라벨 줄이 있고 고르기 시트에 만드는 곳 안내가 뜬다', (tester) async {
       await openEventForm(tester, repo: _Repo());
-      expect(find.text(l.calNoLabel), findsOneWidget);
+      expect(valueText(l.calNoLabel), findsOneWidget);
       await tapRow(tester, l.calFieldLabel);
       expect(find.text(l.calFormLabelHint), findsOneWidget);
     });
@@ -225,17 +227,17 @@ void main() {
       expect(sheetContent(), findsNWidgets(2));
       await tapRow(tester, '가족');
       expect(sheetContent(), findsOneWidget);
-      expect(find.textContaining('가족'), findsOneWidget);
+      expect(valueTextContaining('가족'), findsOneWidget);
     });
 
     testWidgets('알림 시트는 "완료" 전에는 줄 값이 그대로이고 닫으면 버려진다', (tester) async {
       await openEventForm(tester, repo: _Repo());
       await tapRow(tester, l.calFieldReminder);
       await tapRow(tester, l.calReminderDayBefore);
-      expect(find.text(l.calFormNoReminder), findsOneWidget);
+      expect(valueText(l.calFormNoReminder), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('p-bottom-sheet-close')).last);
       await tester.pumpAndSettle();
-      expect(find.text(l.calFormNoReminder), findsOneWidget);
+      expect(valueText(l.calFormNoReminder), findsOneWidget);
       expect(sheetContent(), findsOneWidget);
     });
   });
@@ -394,14 +396,14 @@ void main() {
         text: '치과 3층',
         done: l.actionDone,
       );
-      expect(find.text('치과 3층'), findsOneWidget);
+      expect(valueText('치과 3층'), findsOneWidget);
 
       await tapRow(tester, l.calLocation);
       await tester.enterText(find.byType(TextField).last, '버려질 글');
       await tester.tap(find.byKey(const ValueKey('p-bottom-sheet-back-slot')));
       await tester.pumpAndSettle();
-      expect(find.text('치과 3층'), findsOneWidget);
-      expect(find.text('버려질 글'), findsNothing);
+      expect(valueText('치과 3층'), findsOneWidget);
+      expect(valueText('버려질 글'), findsNothing);
     });
 
     testWidgets('뒤로 가기 · Esc 는 단계만 닫고, 그다음에야 시트가 닫힌다', (tester) async {
@@ -415,7 +417,7 @@ void main() {
         find.byKey(const ValueKey('p-bottom-sheet-back-slot')),
         findsNothing,
       );
-      expect(find.text('버려질 글'), findsNothing);
+      expect(valueText('버려질 글'), findsNothing);
 
       await tapRow(tester, l.calLocation);
       debugPrint(
@@ -483,9 +485,42 @@ void main() {
       );
       return (
         tester.getRect(rowTitle(l.calLocation).last),
-        tester.getRect(find.textContaining('본사 3층').last),
+        tester.getRect(valueTextContaining('본사 3층').last),
       );
     }
+
+    testWidgets('값 앞 색 점은 글자 배율과 무관하게 8 × 8 이다', (tester) async {
+      for (final scale in [1.0, 2.0]) {
+        await openEventForm(tester, repo: _Repo(), scale: scale);
+        // 글 안 WidgetSpan 은 그릴 때 배율이 곱해진다 — 그려진 크기는 화면 좌표로 잰다
+        final box = tester.renderObject<RenderBox>(
+          find.byType(PickerDot).first,
+        );
+        final shown =
+            box.localToGlobal(box.size.bottomRight(Offset.zero)) -
+            box.localToGlobal(Offset.zero);
+        expect(shown.dx, closeTo(8, 0.1), reason: 'scale $scale');
+        expect(shown.dy, closeTo(8, 0.1), reason: 'scale $scale');
+        await tester.pumpWidget(const SizedBox());
+      }
+    });
+
+    testWidgets('값 글은 낱말 단위로 줄을 바꾼다(keepAll — 낱말 사이에만 끊는다)', (tester) async {
+      await openEventForm(tester, repo: _Repo(), scale: 2);
+      await writeStep(
+        tester,
+        row: l.calFieldDescription,
+        text: '검진 전 8시간 금식 신분증 챙기기',
+        done: l.actionDone,
+      );
+      final t = tester.widget<Text>(
+        find.byWidgetPredicate(
+          (w) => w is Text && (w.semanticsLabel ?? '') == '검진 전 8시간 금식 신분증 챙기기',
+        ),
+      );
+      expect(t.textSpan!.toPlainText(), contains('\u2060'));
+      expect(t.textSpan!.toPlainText(), keepAll('검진 전 8시간 금식 신분증 챙기기'));
+    });
 
     testWidgets('100% 는 값이 제목 오른쪽 같은 줄에 선다', (tester) async {
       final (title, value) = await rects(tester, 1);

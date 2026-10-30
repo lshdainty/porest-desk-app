@@ -58,7 +58,7 @@ class _RowValue {
     required this.title,
     required this.rowWidth,
     required this.text,
-    this.leading,
+    this.dot,
     this.maxLines,
     this.reserve = 0,
   });
@@ -73,7 +73,9 @@ class _RowValue {
   final String title;
   final double rowWidth;
   final String text;
-  final Widget? leading;
+
+  /// 값 앞 색 점(8, px 고정 — 원은 글자 배율을 따르지 않는다).
+  final Color? dot;
   final int? maxLines;
 
   /// 값 뒤에 따로 서는 것의 폭(꺾쇠 + 사이).
@@ -105,18 +107,23 @@ class _RowValue {
   Widget build(BuildContext context) {
     final narrow = isNarrow(context, rowWidth);
     final max = maxWidthFor(context, title, rowWidth, reserve: reserve);
+    // Flutter 는 WidgetSpan 자식의 자리에 글자 배율을 곱한다 — 점(8)과 사이(6)를 배율로 나눠 줘 늘 px 그대로 서게 한다
+    final scale =
+        MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) /
+        PTypography.t5.fontSize!;
     final value = Text.rich(
       TextSpan(
         children: [
-          if (leading != null)
+          if (dot != null)
             WidgetSpan(
               alignment: PlaceholderAlignment.middle,
               child: Padding(
-                padding: const EdgeInsets.only(right: PSpacing.x1_5),
-                child: leading,
+                padding: EdgeInsets.only(right: PSpacing.x1_5 / scale),
+                child: PickerDot(color: dot!, size: 8 / scale),
               ),
             ),
-          TextSpan(text: text),
+          // 낱말 단위로 줄을 바꾼다(Typography v114 — keepAll)
+          TextSpan(text: keepAll(text)),
         ],
       ),
       textAlign: narrow ? null : TextAlign.end,
@@ -226,7 +233,7 @@ class CalendarEventFormRows extends StatelessWidget {
           required IconData icon,
           required String? value,
           required VoidCallback? onTap,
-          Widget? leading,
+          Color? dot,
           bool chevron = false,
           int? maxLines,
         }) => PListButtonItem(
@@ -242,7 +249,7 @@ class CalendarEventFormRows extends StatelessWidget {
                         title: title,
                         rowWidth: width,
                         text: value,
-                        leading: leading,
+                        dot: dot,
                         maxLines: maxLines,
                         reserve: chevron ? 22 : 0,
                       ).build(context),
@@ -291,7 +298,7 @@ class CalendarEventFormRows extends StatelessWidget {
                         title: l.calFieldCalendar,
                         icon: LucideIcons.calendar,
                         value: cal?.name,
-                        leading: cal == null ? null : PickerDot(color: cal.dot),
+                        dot: cal?.dot,
                         onTap: onPickCalendar,
                       )
                     : row(
@@ -306,7 +313,7 @@ class CalendarEventFormRows extends StatelessWidget {
                   title: l.calFieldLabel,
                   icon: LucideIcons.tag,
                   value: label?.name ?? l.calNoLabel,
-                  leading: label == null ? null : PickerDot(color: label.dot),
+                  dot: label?.dot,
                   onTap: onPickLabel,
                 ),
                 PListSwitchItem(

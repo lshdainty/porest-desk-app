@@ -172,7 +172,7 @@ void main() {
         l.calReminderMinutesBefore(5),
       ]);
       expect(
-        find.text(
+        valueText(
           '${l.calReminderMinutesBefore(5)}, ${l.calReminderDayBefore}',
         ),
         findsOneWidget,
