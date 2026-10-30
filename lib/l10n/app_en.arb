@@ -173,7 +173,7 @@
   "assetAccountUpdated": "Account updated",
   "assetAccountDeleted": "Account deleted",
   "assetAccountDelete": "Delete account",
-  "assetAccountDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
+  "assetAccountDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept. A deleted asset cannot be restored.",
   "@assetAccountDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -222,7 +222,7 @@
   "assetCardAdded": "Card added",
   "assetCardUpdated": "Card updated",
   "assetCardDelete": "Delete card",
-  "assetCardDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
+  "assetCardDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept. A deleted asset cannot be restored.",
   "@assetCardDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -285,7 +285,7 @@
   "assetInvestUpdated": "Investment updated",
   "assetInvestDeleted": "Investment deleted",
   "assetInvestDelete": "Delete investment",
-  "assetInvestDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
+  "assetInvestDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept. A deleted asset cannot be restored.",
   "@assetInvestDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -833,7 +833,7 @@
   },
   "calReminderHourBefore": "1 hour before",
   "calReminderDayBefore": "1 day before",
-  "calEventDeleteConfirm": "Delete the \"{title}\" event? This action cannot be undone.",
+  "calEventDeleteConfirm": "Delete the \"{title}\" event? A deleted event cannot be restored.",
   "@calEventDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -859,7 +859,7 @@
   "calEditLabel": "Edit label",
   "calPreview": "Preview",
   "calDeleteLabelTitle": "Delete label",
-  "calDeleteLabelConfirm": "Delete the \"{name}\" label? Events with this label will become unlabeled.",
+  "calDeleteLabelConfirm": "Delete the \"{name}\" label? Events with this label will become unlabeled. A deleted label cannot be restored.",
   "@calDeleteLabelConfirm": {
     "placeholders": {
       "name": {
@@ -976,7 +976,8 @@
     }
   },
   "calRemove": "Remove",
-  "calDeleteCalendarConfirm": "Delete the \"{name}\" calendar? Events move to the default calendar and all members lose access.",
+  "calDeleteCalendarConfirm": "Delete the \"{name}\" calendar? Events move to the default calendar and all members lose access. A deleted calendar cannot be restored.",
+  "calDeleteCalendarAction": "Delete permanently",
   "@calDeleteCalendarConfirm": {
     "placeholders": {
       "name": {
@@ -1190,7 +1191,8 @@
   "transferPrincipal": "Principal",
   "transferWithdrawn": "Total withdrawn",
   "transferDeleted": "Transfer deleted",
-  "transferDeleteConfirm": "Delete this transfer? Both assets' balances will be restored.",
+  "transferDeleteConfirm": "Delete this transfer? Both assets' balances will be restored. A deleted transfer cannot be restored.",
+  "transferDeleteTitle": "Delete transfer",
   "transferAutoTradeSettlement": "Created automatically to cover a shortfall when buying. It disappears when the purchase is cancelled.",
   "transferAutoCardPayment": "Created by a card auto-payment. It is tied to the billing cycle and cannot be edited separately.",
   "transferAutoCardRefund": "Created to return a card overpayment to the payment account. Adjust the card balance directly and it reconciles automatically the next day.",
@@ -1745,7 +1747,7 @@
   "dutchParticipant": "Participant",
   "dutchSettleAction": "Mark as settled",
   "dutchDeleteTitle": "Delete Dutch Pay",
-  "dutchDeleteConfirm": "Delete the \"{title}\" Dutch Pay? This action cannot be undone.",
+  "dutchDeleteConfirm": "Delete the \"{title}\" Dutch Pay? A deleted Dutch Pay cannot be restored.",
   "@dutchDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -1843,7 +1845,7 @@
   "expActionFailed": "Failed",
   "expUpdated": "Transaction updated",
   "expAdded": "Transaction added",
-  "expDeleteConfirm": "Delete the \"{name}\" transaction? The linked asset balance will be adjusted too.",
+  "expDeleteConfirm": "Delete the \"{name}\" transaction? The linked asset balance will be adjusted too. A deleted transaction cannot be restored.",
   "@expDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -1988,7 +1990,7 @@
   "expSplitLoadError": "Failed to load split",
   "expAddAmount": "Extra amount",
   "expSplitSaved": "Split saved",
-  "expSplitRemoveConfirm": "Remove all split items for this transaction?",
+  "expSplitRemoveConfirm": "This clears all split items for this transaction. Cleared items cannot be restored.",
   "expClearFailed": "Failed to clear",
   "expSplitMatches": "Split sum matches the total",
   "expSplitSum": "Split sum",
@@ -2088,7 +2090,7 @@
   },
   "fileUploadFailed": "Upload failed",
   "fileDeleteTitle": "Delete file",
-  "fileDeleteConfirm": "Delete \"{name}\"?",
+  "fileDeleteConfirm": "Delete \"{name}\"? A deleted file cannot be restored.",
   "@fileDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -2503,7 +2505,7 @@
   "presetDeleteTitle": "Delete preset",
   "presetDetailTitle": "Preset detail",
   "presetTypeLabel": "Type",
-  "presetDeleteConfirm": "Delete the \"{name}\" preset? Already-saved transactions are unaffected.",
+  "presetDeleteConfirm": "Delete the \"{name}\" preset? Already-saved transactions are unaffected. A deleted preset cannot be restored.",
   "@presetDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -2549,7 +2551,7 @@
   "presetCreated": "Preset added",
   "recurringToggleFailed": "Change failed",
   "recurringDeleteTitle": "Delete recurring transaction",
-  "recurringDeleteConfirm": "Delete the \"{name}\" recurring setting? Already-recorded transactions remain.",
+  "recurringDeleteConfirm": "Delete the \"{name}\" recurring setting? Already-recorded transactions remain. A deleted recurring setting cannot be restored.",
   "@recurringDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -3063,7 +3065,7 @@
   "todoRegisteredTags": "Tags",
   "todoNoTags": "No tags",
   "todoDeleteTagTitle": "Delete tag",
-  "todoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} todos using it untagged.",
+  "todoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} todos using it untagged. A deleted tag cannot be restored.",
   "@todoDeleteTagConfirm": {
     "placeholders": {
       "name": {
@@ -3210,7 +3212,7 @@
   "memoSearchEmptyDesc": "Try a different search term.",
   "memoUntitled": "Untitled",
   "memoDeleteTitle": "Delete memo",
-  "memoDeleteConfirm": "Delete the \"{name}\" memo? This action cannot be undone.",
+  "memoDeleteConfirm": "Delete the \"{name}\" memo? A deleted memo cannot be restored.",
   "@memoDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -3235,7 +3237,7 @@
   "memoNewTag": "Add tag",
   "memoTagNamePlaceholder": "e.g. Ideas",
   "memoDeleteTagTitle": "Delete tag",
-  "memoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} memos using it untagged.",
+  "memoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} memos using it untagged. A deleted tag cannot be restored.",
   "@memoDeleteTagConfirm": {
     "placeholders": {
       "name": {
@@ -4445,7 +4447,7 @@
     }
   },
   "stocksWatchGroupEmpty": "No stocks added yet",
-  "stocksWatchGroupDeleteConfirmCount": "\"{name}\" and its {count} stocks will be deleted together.",
+  "stocksWatchGroupDeleteConfirmCount": "\"{name}\" and its {count} stocks will be deleted together. A deleted group cannot be restored.",
   "@stocksWatchGroupDeleteConfirmCount": {
     "placeholders": {
       "name": {
@@ -4456,7 +4458,7 @@
       }
     }
   },
-  "stocksWatchGroupDeleteConfirmEmpty": "\"{name}\" will be deleted.",
+  "stocksWatchGroupDeleteConfirmEmpty": "\"{name}\" will be deleted. A deleted group cannot be restored.",
   "@stocksWatchGroupDeleteConfirmEmpty": {
     "placeholders": {
       "name": {

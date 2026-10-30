@@ -737,7 +737,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       context,
       title: l.calDeleteCalendar,
       description: l.calDeleteCalendarConfirm(cal.calendarName),
-      actionLabel: l.actionDelete,
+      actionLabel: l.calDeleteCalendarAction,
       destructive: true,
       cancelLabel: l.actionCancel,
     );

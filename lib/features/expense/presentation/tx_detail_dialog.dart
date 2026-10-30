@@ -239,7 +239,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       title: l.expRefundCancel,
       description: message,
       actionLabel: l.expRefundCancel,
-      destructive: true,
       cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;

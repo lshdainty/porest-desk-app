@@ -2043,7 +2043,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
       context,
       title: l.assetInstallmentPayoffUndo,
       description: l.assetInstallmentPayoffUndoConfirm,
-      actionLabel: l.actionConfirm,
+      actionLabel: l.assetInstallmentPayoffUndo,
       cancelLabel: l.actionCancel,
     );
     if (!ok || !mounted) return;

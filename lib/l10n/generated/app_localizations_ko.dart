@@ -433,7 +433,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetAccountDeleteConfirm(String name) {
-    return '\"$name\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.';
+    return '\"$name\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
   }
 
   @override
@@ -544,7 +544,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetCardDeleteConfirm(String name) {
-    return '\"$name\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.';
+    return '\"$name\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
   }
 
   @override
@@ -630,7 +630,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetInvestDeleteConfirm(String name) {
-    return '\"$name\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.';
+    return '\"$name\"을(를) 목록에서 지워요. 연결된 거래 내역은 그대로 남아요. 삭제한 자산은 되돌릴 수 없어요.';
   }
 
   @override
@@ -1107,7 +1107,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String assetCancelPaymentConfirm(String amount, String date) {
-    return '$date에 낸 $amount원을 되돌려요. 통장 잔액과 카드 청구가 결제 전으로 돌아갑니다.';
+    return '$date에 낸 $amount원을 되돌려요. 통장 잔액과 카드 청구가 결제 전으로 돌아가요.';
   }
 
   @override
@@ -1504,7 +1504,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calEventDeleteConfirm(String title) {
-    return '\"$title\" 일정을 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
+    return '\"$title\" 일정을 지울까요? 지운 일정은 되돌릴 수 없어요.';
   }
 
   @override
@@ -1544,7 +1544,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calDeleteLabelConfirm(String name) {
-    return '\"$name\" 라벨을 삭제할까요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.';
+    return '\"$name\" 라벨을 삭제할까요? 이 라벨이 지정된 일정은 라벨 없음 상태가 돼요. 삭제한 라벨은 되돌릴 수 없어요.';
   }
 
   @override
@@ -1686,8 +1686,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calDeleteCalendarConfirm(String name) {
-    return '\"$name\" 캘린더를 삭제할까요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.';
+    return '\"$name\" 캘린더를 삭제할까요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라져요. 삭제한 캘린더는 되돌릴 수 없어요.';
   }
+
+  @override
+  String get calDeleteCalendarAction => '영구 삭제';
 
   @override
   String get calCopy => '복사';
@@ -2045,7 +2048,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get transferDeleted => '이체를 삭제했어요';
 
   @override
-  String get transferDeleteConfirm => '이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다';
+  String get transferDeleteConfirm =>
+      '이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아가요. 삭제한 이체는 되돌릴 수 없어요.';
+
+  @override
+  String get transferDeleteTitle => '이체 삭제';
 
   @override
   String get transferAutoTradeSettlement =>
@@ -2894,7 +2901,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String dutchDeleteConfirm(String title) {
-    return '\"$title\" 더치페이를 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
+    return '\"$title\" 더치페이를 삭제할까요? 삭제한 더치페이는 되돌릴 수 없어요.';
   }
 
   @override
@@ -3037,7 +3044,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String expDeleteConfirm(String name) {
-    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요.';
+    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 바뀌어요. 삭제한 거래는 되돌릴 수 없어요.';
   }
 
   @override
@@ -3276,7 +3283,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expSplitSaved => '분할이 저장되었습니다';
 
   @override
-  String get expSplitRemoveConfirm => '이 거래의 분할 내역을 모두 삭제하시겠습니까?';
+  String get expSplitRemoveConfirm => '이 거래의 분할 내역을 모두 지워요. 지운 내역은 되돌릴 수 없어요.';
 
   @override
   String get expClearFailed => '해제 실패';
@@ -3475,7 +3482,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String fileDeleteConfirm(String name) {
-    return '\"$name\" 파일을 삭제할까요?';
+    return '\"$name\" 파일을 삭제할까요? 삭제한 파일은 되돌릴 수 없어요.';
   }
 
   @override
@@ -4391,7 +4398,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String presetDeleteConfirm(String name) {
-    return '\"$name\" 프리셋을 삭제할까요? 이미 저장된 거래 내역에는 영향이 없습니다.';
+    return '\"$name\" 프리셋을 삭제할까요? 이미 저장된 거래 내역에는 영향이 없어요. 삭제한 프리셋은 되돌릴 수 없어요.';
   }
 
   @override
@@ -4492,7 +4499,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String recurringDeleteConfirm(String name) {
-    return '\"$name\" 반복 설정을 삭제할까요? 이미 기록된 거래는 그대로 남아요.';
+    return '\"$name\" 반복 설정을 삭제할까요? 이미 기록된 거래는 그대로 남아요. 삭제한 반복 설정은 되돌릴 수 없어요.';
   }
 
   @override
@@ -5524,7 +5531,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String todoDeleteTagConfirm(String name, int count) {
-    return '\"$name\" 태그를 삭제하면 이 태그를 쓰는 할 일 $count건은 태그 없음으로 남아요.';
+    return '\"$name\" 태그를 삭제하면 이 태그를 쓰는 할 일 $count건은 태그 없음으로 남아요. 삭제한 태그는 되돌릴 수 없어요.';
   }
 
   @override
@@ -5730,7 +5737,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String memoDeleteConfirm(String name) {
-    return '\"$name\" 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
+    return '\"$name\" 메모를 삭제할까요? 삭제한 메모는 되돌릴 수 없어요.';
   }
 
   @override
@@ -5767,7 +5774,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String memoDeleteTagConfirm(String name, int count) {
-    return '\"$name\" 태그를 삭제하면 이 태그를 쓰는 메모 $count건은 태그 없음으로 남아요.';
+    return '\"$name\" 태그를 삭제하면 이 태그를 쓰는 메모 $count건은 태그 없음으로 남아요. 삭제한 태그는 되돌릴 수 없어요.';
   }
 
   @override
@@ -8007,12 +8014,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String stocksWatchGroupDeleteConfirmCount(String name, int count) {
-    return '\"$name\" 그룹과 담긴 종목 $count개가 함께 지워져요.';
+    return '\"$name\" 그룹과 담긴 종목 $count개가 함께 지워져요. 지운 그룹은 되돌릴 수 없어요.';
   }
 
   @override
   String stocksWatchGroupDeleteConfirmEmpty(String name) {
-    return '\"$name\" 그룹을 지워요.';
+    return '\"$name\" 그룹을 지워요. 지운 그룹은 되돌릴 수 없어요.';
   }
 
   @override

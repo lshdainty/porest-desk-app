@@ -96,7 +96,7 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
     final l = AppLocalizations.of(context);
     final ok = await PAlertDialog.show(
       context,
-      title: l.actionDelete,
+      title: l.transferDeleteTitle,
       description: l.transferDeleteConfirm,
       actionLabel: l.actionDelete,
       destructive: true,
