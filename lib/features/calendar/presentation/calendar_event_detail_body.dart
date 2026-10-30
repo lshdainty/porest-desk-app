@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -56,8 +54,6 @@ class CalendarEventDetailBody extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, box) {
-        final width = box.maxWidth;
-
         Widget row({
           required String title,
           required IconData icon,
@@ -67,14 +63,7 @@ class CalendarEventDetailBody extends StatelessWidget {
           title: title,
           prefix: Icon(icon, size: _rowIcon),
           suffix: PListSuffix(
-            children: [
-              CalendarRowValue(
-                title: title,
-                rowWidth: width,
-                text: value,
-                dot: dot,
-              ).build(context),
-            ],
+            children: [CalendarRowValue(text: value, dot: dot).build(context)],
           ),
         );
 
@@ -89,13 +78,8 @@ class CalendarEventDetailBody extends StatelessWidget {
         }) => PListItem(
           title: title,
           prefix: Icon(icon, size: _rowIcon),
-          suffix: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: math.max(
-                120.0,
-                CalendarRowValue.maxWidthFor(context, title, width),
-              ),
-            ),
+          // 조각 묶음도 값이다 — 좁은 줄에서 제목 아래로 내려가고 폭 제한은 ds 가 한다
+          suffix: PListValue(
             child: Wrap(
               alignment: WrapAlignment.end,
               crossAxisAlignment: WrapCrossAlignment.center,

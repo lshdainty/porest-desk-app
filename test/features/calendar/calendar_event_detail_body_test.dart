@@ -314,10 +314,17 @@ void main() {
       lessThan(1.5),
       reason: '마지막 줄이 상자 오른쪽 끝에 붙는다(오른쪽 맞춤)',
     );
-    // 점은 글 왼쪽 6 + 첫 줄 높이
+    // 점은 글 첫 글자 바로 앞(사이 6) — 글 흐름 안이라 첫 줄 높이에 서고 오른쪽 맞춤에서 첫 줄과 같이 움직인다
     final dot = tester.getRect(find.byType(PickerDot));
+    final firstChar = para
+        .getBoxesForSelection(
+          const TextSelection(baseOffset: 1, extentOffset: 2),
+        )
+        .first;
+    final firstCharLeft = para.localToGlobal(Offset(firstChar.left, 0)).dx;
+    expect(firstCharLeft - dot.right, closeTo(6, 1));
     final text = tester.getRect(textFinder);
-    expect(text.left - dot.right, closeTo(6, 0.5));
     expect(dot.center.dy, lessThan(text.top + 22));
+    expect(dot.center.dy, greaterThan(text.top));
   });
 }

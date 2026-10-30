@@ -1,7 +1,8 @@
 // I-09 09-2 앱 — 일정 폼 시트의 흐름: 칸 오류 · 닫기 물음 · 한 단계 · 고르기 · 저장 실패 · 삭제 · 달 비우기 · 200% (줄 21 ~ 30).
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderBox;
+import 'package:flutter/gestures.dart' show HitTestResult;
+import 'package:flutter/rendering.dart' show RenderBox, RenderPointerListener;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -168,6 +169,7 @@ void main() {
       await tapRow(tester, l.calAllDay);
       expect(find.text('오전 9:00'), findsOneWidget);
       expect(find.text('오전 10:00'), findsOneWidget);
+      // 줄 높이는 글 줄 하나(22)지만 누르는 자리는 위아래 11 씩 줄 밖으로 넓어 44 다(웹 Piece -my-[11px] min-h-[44px])
       for (final t in ['10월 29일 (목)', '오전 9:00']) {
         final box = tester.getRect(
           find
@@ -177,8 +179,34 @@ void main() {
               )
               .first,
         );
-        expect(box.height, greaterThanOrEqualTo(44), reason: t);
+        expect(box.height, closeTo(22, 0.6), reason: '$t 줄 높이');
+        final x = box.center.dx;
+        for (final dy in [-21.0, 21.0]) {
+          final r = HitTestResult();
+          tester.binding.hitTestInView(
+            r,
+            Offset(x, box.center.dy + dy),
+            tester.view.viewId,
+          );
+          expect(
+            r.path.any((e) => e.target is RenderPointerListener),
+            isTrue,
+            reason: '$t 위아래 21 에서도 눌린다(누르는 자리 44)',
+          );
+        }
       }
+      // 시작 · 종료 줄은 다른 줄과 같은 46 이다(위아래 여백 12 + 글 줄 22)
+      final rowH = tester
+          .getSize(
+            find
+                .ancestor(
+                  of: rowTitle(l.calStartDate),
+                  matching: find.byKey(const ValueKey('plist-item')),
+                )
+                .first,
+          )
+          .height;
+      expect(rowH, closeTo(46, 0.6));
     });
 
     testWidgets('조각의 이름은 "시작 날짜, 10월 29일 (목)" 꼴이다', (tester) async {

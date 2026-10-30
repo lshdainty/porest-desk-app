@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/rendering.dart' show RenderProxyBox, BoxHitTestResult;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -13,8 +14,7 @@ import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/date_picker/p_date_picker.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
 import 'package:groo_damda_app/shared/ds/input/p_input.dart';
-import 'package:groo_damda_app/shared/ds/list/list_row.dart'
-    show kPListStackBelowEm;
+import 'package:groo_damda_app/shared/ds/list/list_row.dart' show PListValue;
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
@@ -51,104 +51,46 @@ enum CalendarFormStep { location, description }
 
 const double _rowIcon = 22;
 
-/// 줄의 값 자리 — 줄 끝에서 줄바꿈하고(말줄임 없음) 제목은 한 줄로 지킨다. ds List 는 긴 값이 오면 본문을 1em 까지 줄이므로("장 / 소")
-/// 제목 글 폭을 재어 값의 최대 폭을 정한다(웹은 제목에 whitespace-nowrap 을 둔 것과 같다 — I-09 K 7).
+/// 줄의 값 자리 — 값은 줄 수와 상관없이 줄 끝 오른쪽 맞춤이다(모든 줄의 글자 끝이 한 세로선, 꺾쇠 줄은 꺾쇠 앞이 끝선). 좁은 줄에서
+/// 제목 아래로 내려오면 왼쪽(list.md) — 글 값은 ds List 가 end → start 로 돌려준다. 폭 제한(제목의 가장 긴 낱말 폭을 남김)도 ds List 가 한다
+/// (글 값 · [PListValue] 가 값이다) — 예전에 여기서 제목 글 폭을 재어 값의 최대 폭을 정하던 우회는 걷었다.
+///
+/// 점은 글 첫 글자 바로 앞에 붙는다(글 흐름 안 [WidgetSpan], 사이 6) — 오른쪽 맞춤에서 첫 줄과 같이 움직이고, 둘째 줄부터는 글만
+/// 오른쪽 끝에 맞는다. 점은 px 고정이라 글자 배율을 따르지 않는다.
 class CalendarRowValue {
-  const CalendarRowValue({
-    required this.title,
-    required this.rowWidth,
-    required this.text,
-    this.dot,
-    this.maxLines,
-    this.reserve = 0,
-  });
+  const CalendarRowValue({required this.text, this.dot, this.maxLines});
 
-  /// ds List 의 좁은 줄 판정(list.md "큰 글자에서 값을 본문 아래로") — 줄 안 폭이 제목 글자 16개(16em)보다 좁은가.
-  /// 좁으면 값은 ds 가 본문 아래로 내린다(이때는 폭을 제한하지 않는다).
-  static bool isNarrow(BuildContext context, double rowWidth) =>
-      rowWidth - PSpacing.globalGutter * 2 <
-      kPListStackBelowEm *
-          MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!);
-
-  final String title;
-  final double rowWidth;
   final String text;
 
   /// 값 앞 색 점(8, px 고정 — 원은 글자 배율을 따르지 않는다).
   final Color? dot;
   final int? maxLines;
 
-  /// 값 뒤에 따로 서는 것의 폭(꺾쇠 + 사이).
-  final double reserve;
-
-  /// 줄 앞 아이콘 22 + 사이 12, 제목 ↔ 값 사이 10, 줄 좌우 24.
-  static const double _fixed = PSpacing.globalGutter * 2 + 22 + 12 + 10;
-
-  /// 제목을 한 줄로 두고 남는 값 자리의 폭.
-  static double maxWidthFor(
-    BuildContext context,
-    String title,
-    double rowWidth, {
-    double reserve = 0,
-  }) {
-    final painter = TextPainter(
-      text: TextSpan(text: keepAll(title), style: PTypography.t5),
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-      maxLines: 1,
-    )..layout();
-    final titleWidth = painter.width;
-    painter.dispose();
-    return math.max(48.0, rowWidth - _fixed - titleWidth - reserve);
-  }
-
-  /// 줄 뒤 붙이개에 넣을 값 — 좁은 줄이면 ds 가 값으로 읽는 [Text] 그대로(본문 아래로 내려간다), 넓으면 폭을 제한한 상자.
-  /// 위젯 클래스째 넣으면 ds 가 "컨트롤" 로 읽어 내려가지 않으므로 여기서 [Text] 를 바로 만들어 준다.
+  /// 줄 값 — ds 가 값으로 읽는 [Text] 하나다.
   Widget build(BuildContext context) {
-    final narrow = isNarrow(context, rowWidth);
-    final max = maxWidthFor(context, title, rowWidth, reserve: reserve);
-    // 값은 줄 수와 상관없이 줄 끝 오른쪽 맞춤이다(모든 줄의 글자 끝이 한 세로선 — 꺾쇠 줄은 꺾쇠 앞이 끝선). 좁은 줄에서 값이 제목 아래로
-    // 내려오면 왼쪽(list.md) — 글 값은 ds List 가 end → start 로 돌려주고, 점 줄은 우리가 만든 상자라 여기서 직접 start 로 준다.
-    // 낱말 단위로 줄을 바꾼다(Typography v114 — keepAll)
-    Text label0(TextAlign align) => Text(
-      keepAll(text),
-      textAlign: align,
+    // Flutter 는 WidgetSpan 자식의 자리에 글자 배율을 곱한다 — 점(8)과 사이(6)를 배율로 나눠 줘 늘 px 그대로 서게 한다
+    final scale =
+        MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) /
+        PTypography.t5.fontSize!;
+    return Text.rich(
+      TextSpan(
+        children: [
+          if (dot != null)
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Padding(
+                padding: EdgeInsets.only(right: PSpacing.x1_5 / scale),
+                child: PickerDot(color: dot!, size: 8 / scale),
+              ),
+            ),
+          // 낱말 단위로 줄을 바꾼다(Typography v114 — keepAll)
+          TextSpan(text: keepAll(text)),
+        ],
+      ),
+      textAlign: TextAlign.end,
       maxLines: maxLines,
       overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
       semanticsLabel: text,
-    );
-    final label = label0(TextAlign.end);
-    if (dot != null) {
-      // 점은 앞 표시이고 글은 글끼리 맞춘다 — 이름이 두 줄이 되면 둘째 줄도 첫째 줄과 같은 오른쪽 끝에 맞는다(웹 DotValue 와 같다:
-      // 점 8 + 사이 6 + 글). 점은 첫 줄 높이에 서고(디자인 판정) px 고정이라 글자 배율을 따르지 않는다.
-      final lineHeight =
-          MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) *
-          (PTypography.t5.height ?? 1);
-      Widget withDot(Text t) => Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: (lineHeight - 8) / 2),
-            child: ExcludeSemantics(child: PickerDot(color: dot!, size: 8)),
-          ),
-          const SizedBox(width: PSpacing.x1_5),
-          Flexible(child: t),
-        ],
-      );
-      // 좁은 줄은 값으로 읽히게 PListValue 로 감싼다 — 본문 아래로 내려가 왼쪽 맞춤이고 제목이 줄 안 폭을 다 쓴다
-      if (narrow) return PListValue(child: withDot(label0(TextAlign.start)));
-      return ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: max),
-        child: withDot(label),
-      );
-    }
-    final value = label;
-    // 좁은 줄은 ds 의 값(Text)으로 둔다 — 본문 아래로 내려가고 제목이 줄 안 폭을 다 쓴다
-    if (narrow) return value;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: max),
-      child: value,
     );
   }
 }
@@ -259,12 +201,9 @@ class CalendarEventFormRows extends StatelessWidget {
                   children: [
                     if (value != null)
                       CalendarRowValue(
-                        title: title,
-                        rowWidth: width,
                         text: value,
                         dot: dot,
                         maxLines: maxLines,
-                        reserve: chevron ? 22 : 0,
                       ).build(context),
                     if (chevron)
                       const ExcludeSemantics(
@@ -450,18 +389,14 @@ class _DateRow extends StatelessWidget {
     return PListItem(
       title: title,
       prefix: const Icon(LucideIcons.clock, size: _rowIcon),
-      suffix: ConstrainedBox(
-        // 제목을 짓누르지 않게 값 자리의 폭을 정한다 — 모자라면 시각 조각이 다음 줄로
-        constraints: BoxConstraints(
-          maxWidth: math.max(
-            120.0,
-            CalendarRowValue.maxWidthFor(context, title, rowWidth),
-          ),
-        ),
+      // 조각 묶음도 값이다(웹: 글 값이면 후손 버튼이 있어도 값으로 본다) — 좁은 줄에서 제목 아래로 내려가고 폭 제한은 ds 가 한다
+      suffix: PListValue(
         child: Wrap(
           alignment: WrapAlignment.end,
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: PSpacing.x2,
+          // 줄 사이 22 — 조각의 누르는 자리 44 가 위아래로 11 씩 줄 밖에 있어 두 줄의 누르는 자리가 맞닿는다(웹 gap-y 22)
+          runSpacing: 22,
           children: [
             _Piece(label: '$dayName, $dayText', text: dayText, onTap: onDay),
             if (!allDay)
@@ -477,6 +412,8 @@ class _DateRow extends StatelessWidget {
   }
 }
 
+/// 시작 · 종료 줄의 조각 — 누르는 자리는 44 이지만 줄 높이는 글 줄 하나(22)다(웹 Piece `-my-[11px] min-h-[44px]`). 위아래 11 은
+/// 줄 밖으로 나가 있고 [_BleedHit] 이 그 자리의 누름도 받는다(줄의 위아래 여백 12 안이라 다른 줄과 겹치지 않는다).
 class _Piece extends StatelessWidget {
   const _Piece({required this.label, required this.text, required this.onTap});
 
@@ -486,26 +423,68 @@ class _Piece extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lineHeight =
+        MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) *
+        (PTypography.t5.height ?? 1);
+    final bleed = math.max(0.0, (PTouch.min - lineHeight) / 2);
     return PListAction(
       child: Semantics(
         button: true,
         label: label,
         excludeSemantics: true,
         onTap: onTap,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: PTouch.min),
-            child: Align(
-              widthFactor: 1,
-              alignment: Alignment.center,
-              child: Text(text),
+        child: _BleedHit(
+          bleed: bleed,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: SizedBox(
+              height: lineHeight,
+              child: Align(
+                widthFactor: 1,
+                alignment: Alignment.center,
+                child: Text(text),
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+/// 자식의 위아래로 [bleed] 만큼 누르는 자리를 넓힌다 — 크기(줄 높이)는 그대로다(Material 의 tap target 패딩과 같은 길).
+class _BleedHit extends SingleChildRenderObjectWidget {
+  const _BleedHit({required this.bleed, required super.child});
+
+  final double bleed;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderBleedHit(bleed);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderBleedHit renderObject) =>
+      renderObject.bleed = bleed;
+}
+
+class _RenderBleedHit extends RenderProxyBox {
+  _RenderBleedHit(this.bleed);
+
+  double bleed;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    final c = child;
+    if (c == null) return false;
+    final inflated = Rect.fromLTRB(0, -bleed, size.width, size.height + bleed);
+    if (!inflated.contains(position)) return false;
+    // 줄 밖(위아래 bleed)을 누르면 자식 안쪽 가장자리를 누른 것으로 넘긴다
+    final clamped = Offset(
+      position.dx,
+      position.dy.clamp(0.0, size.height - 0.01),
+    );
+    return c.hitTest(result, position: clamped);
   }
 }
 
