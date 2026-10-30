@@ -10,11 +10,13 @@ import 'package:groo_damda_app/features/calendar/domain/calendar_clock.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event_form_rules.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_picker_options.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_actions.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_form_rows.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_pickers.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart'
+    show PLeaveConfirmCopy;
 import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/field/p_field.dart';
@@ -73,11 +75,24 @@ class CalendarEventFormSheet extends ConsumerStatefulWidget {
     this.edit,
     this.defaultDate,
     this.probe,
+    this.onBack,
+    this.onSaved,
+    this.onDeleted,
   });
 
   final CalendarEvent? edit;
   final DateTime? defaultDate;
   final CalendarFormProbe? probe;
+
+  /// 일정 상세 시트 안의 한 단계로 그릴 때(I-09b 9) — 머리에 ← 를 달고(상세로), 저장 · 삭제가 끝나도 시트를 닫지 않고 부모에게 넘긴다.
+  /// 바뀐 값을 묻는 일은 부모(시트의 닫는 길)가 한다.
+  final VoidCallback? onBack;
+
+  /// 저장이 끝났다 — 부모가 새 값을 받아 상세로 돌아갈 때까지 [저장] 은 기다림 모양으로 남는다.
+  final Future<void> Function()? onSaved;
+
+  /// 폼 바닥 [삭제] 가 끝났다 — 부모가 그날 목록으로 돌아간다.
+  final VoidCallback? onDeleted;
 
   @override
   ConsumerState<CalendarEventFormSheet> createState() =>
@@ -485,6 +500,11 @@ class _CalendarEventFormSheetState
         origStart: widget.edit?.start,
       );
       if (!mounted) return;
+      final saved = widget.onSaved;
+      if (saved != null) {
+        await saved();
+        return;
+      }
       PBottomSheet.of(context).close();
     } on ApiException {
       // 시트는 닫히지 않고 쓴 값이 남는다 — 폼 맨 위 Callout(snackbar.md "저장 · 제출이 실패함")
@@ -499,14 +519,7 @@ class _CalendarEventFormSheetState
     if (_submitting) return;
     final l = AppLocalizations.of(context);
     final e = widget.edit!;
-    final ok = await PAlertDialog.show(
-      context,
-      title: l.calEventDelete,
-      description: l.calEventDeleteConfirm(e.title),
-      cancelLabel: l.actionCancel,
-      actionLabel: l.actionDelete,
-      destructive: true,
-    );
+    final ok = await confirmDeleteCalendarEvent(context, e);
     if (!ok || !mounted) return;
     setState(() {
       _submitting = true;
@@ -517,6 +530,11 @@ class _CalendarEventFormSheetState
       await repo.deleteEvent(e.rowId);
       _invalidateAfterWrite(recurring: e.rrule != null, origStart: e.start);
       if (!mounted) return;
+      final deleted = widget.onDeleted;
+      if (deleted != null) {
+        deleted();
+        return;
+      }
       PBottomSheet.of(context).close();
     } on ApiException {
       if (!mounted) return;
@@ -570,6 +588,12 @@ class _CalendarEventFormSheetState
     return PBottomSheetContent(
       title: heading,
       closeLabel: l.actionClose,
+      // 상세 시트 안의 수정 단계 — 닫기 원은 시트 전체, ← 는 상세로(한 단계 뒤)
+      onClose: widget.onBack == null
+          ? null
+          : () => PBottomSheet.of(context).requestClose(wholeSheet: true),
+      onBack: widget.onBack,
+      backLabel: widget.onBack == null ? null : l.actionBack,
       flushBody: true,
       scrollFog: true,
       body: CalendarEventFormRows(

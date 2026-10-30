@@ -1528,6 +1528,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String calEventDeleteConfirmRecurring(String title) {
+    return '\"$title\" is a repeating event, so every occurrence will be deleted. This action cannot be undone.';
+  }
+
+  @override
   String get calEventAdded => 'Event added';
 
   @override
@@ -6539,12 +6544,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String calDetailDurationM(int m) {
     return '${m}m';
   }
-
-  @override
-  String get calDetailMemo => 'Memo';
-
-  @override
-  String get calDetailRepeat => 'Repeat';
 
   @override
   String get categoryReorderEdit => 'Reorder';

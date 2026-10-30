@@ -2882,6 +2882,12 @@ abstract class AppLocalizations {
   /// **'\"{title}\" 일정을 삭제할까요? 삭제한 일정은 되돌릴 수 없어요.'**
   String calEventDeleteConfirm(String title);
 
+  /// No description provided for @calEventDeleteConfirmRecurring.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{title}\" 은 반복 일정이라 모든 회차가 함께 삭제돼요. 삭제한 일정은 되돌릴 수 없어요.'**
+  String calEventDeleteConfirmRecurring(String title);
+
   /// No description provided for @calEventAdded.
   ///
   /// In ko, this message translates to:
@@ -11725,18 +11731,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{m}분'**
   String calDetailDurationM(int m);
-
-  /// No description provided for @calDetailMemo.
-  ///
-  /// In ko, this message translates to:
-  /// **'메모'**
-  String get calDetailMemo;
-
-  /// No description provided for @calDetailRepeat.
-  ///
-  /// In ko, this message translates to:
-  /// **'반복'**
-  String get calDetailRepeat;
 
   /// No description provided for @categoryReorderEdit.
   ///
