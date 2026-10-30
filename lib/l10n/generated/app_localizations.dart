@@ -12458,12 +12458,6 @@ abstract class AppLocalizations {
   /// **'붙여넣어 지출로 기록할 수 있어요.'**
   String get smsClipboardBannerDesc;
 
-  /// No description provided for @smsClipboardBannerAction.
-  ///
-  /// In ko, this message translates to:
-  /// **'기록하기'**
-  String get smsClipboardBannerAction;
-
   /// No description provided for @smsInboxTitle.
   ///
   /// In ko, this message translates to:

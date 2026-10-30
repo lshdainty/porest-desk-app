@@ -6904,9 +6904,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsClipboardBannerDesc => '붙여넣어 지출로 기록할 수 있어요.';
 
   @override
-  String get smsClipboardBannerAction => '기록하기';
-
-  @override
   String get smsInboxTitle => '결제 알림 수신함';
 
   @override

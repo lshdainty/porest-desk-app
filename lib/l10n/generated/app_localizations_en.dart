@@ -7027,9 +7027,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsClipboardBannerDesc => 'Paste it to record as an expense.';
 
   @override
-  String get smsClipboardBannerAction => 'Record';
-
-  @override
   String get smsInboxTitle => 'Payment inbox';
 
   @override
