@@ -125,7 +125,7 @@ List<Override> _base({
     onCall?.call('prices');
     return [
       for (final s in key.split(',').where((e) => e.isNotEmpty))
-        TossPrice(symbol: s, lastPrice: '$lastPrice'),
+        TossPrice(symbol: s, lastPrice: '$lastPrice', currency: 'KRW'),
     ];
   }),
   prevCloseProvider.overrideWith((ref, s) async => prevClose),

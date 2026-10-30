@@ -236,7 +236,8 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
     super.didUpdateWidget(old);
     if (widget.range != old.range) _bridge.pushRange(widget.range);
     // symbol 이 바뀌면 임베드 URL 자체가 달라지므로 재초기화(토큰도 갱신)
-    if (widget.symbol != old.symbol) {
+    // isUs 도 주소(가격 축 정밀도)에 들어간다 — 마스터 응답이 뒤늦게 와서 바뀌면 다시 연다(M1)
+    if (widget.symbol != old.symbol || widget.isUs != old.isUs) {
       unawaited(_reinitialize());
     }
   }

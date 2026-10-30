@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/change_rate.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/format_locale.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
@@ -66,6 +67,8 @@ String _detailPath(String symbol) =>
 class _TossStocksViewState extends ConsumerState<TossStocksView> {
   _Seg _seg = _Seg.holdings;
   Timer? _priceTimer;
+  Timer? _marketTimer;
+  Timer? _calendarTimer;
 
   /// 화면에 들어와 300ms 머문 관심 그룹 — 이 그룹들의 심볼만 합쳐 시세를 부른다(I-13 22).
   final Set<int> _visible = {};
@@ -80,18 +83,39 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
     // 라이브 갱신 — 10초마다 지켜보는 키만 다시 부른다(family invalidate). prevClose 는 하루 단위라 제외.
     _priceTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       // 상세 · 포트폴리오가 위에 올라와 있으면 목록은 멈춘다(그 화면이 제 몫만 부른다 — 호출 두 배 방지, H3).
-      if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+      // 앱이 뒤로 가 있으면(홈 · 화면 꺼짐) 받아도 아무도 안 본다 — 멈춘다(H4)
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
       ref.invalidate(tossPricesProvider);
-      ref.invalidate(tossOrderbookProvider);
-      ref.invalidate(tossTradesProvider);
-      ref.invalidate(tossCandlesProvider);
       ref.invalidate(tossHoldingsProvider);
+    });
+    // 시장 띠는 웹과 같은 박자로 다시 받는다(H3): 지수 · 환율 · 순위 60초, 달력 5분. 처음 값으로 굳지 않게.
+    _marketTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+      ref.invalidate(tossIndicatorPricesProvider);
+      ref.invalidate(tossIndicatorClosesProvider);
+      ref.invalidate(tossExchangeRateProvider);
+      ref.invalidate(tossRankingsProvider);
+    });
+    _calendarTimer = Timer.periodic(const Duration(minutes: 5), (_) {
+      if (!mounted || !ref.read(appForegroundProvider)) return;
+      ref.invalidate(tossMarketCalendarKrProvider);
+      ref.invalidate(tossMarketCalendarUsProvider);
     });
   }
 
   @override
   void dispose() {
     _priceTimer?.cancel();
+    _marketTimer?.cancel();
+    _calendarTimer?.cancel();
     for (final t in _lingering.values) {
       t.cancel();
     }
@@ -129,19 +153,29 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final masked = ref.watch(hideCardProvider('stocks.summary'));
+    // 앱이 앞으로 돌아오면 멈춰 있던 동안 낡은 값을 바로 다시 받는다(H3 · H4)
+    ref.listen<bool>(appForegroundProvider, (prev, next) {
+      if (next && prev == false) {
+        ref.invalidate(tossHoldingsProvider);
+        ref.invalidate(tossPricesProvider);
+        ref.invalidate(tossIndicatorPricesProvider);
+        ref.invalidate(tossMarketCalendarKrProvider);
+        ref.invalidate(tossMarketCalendarUsProvider);
+      }
+    });
     final holdingsAsync = ref.watch(tossHoldingsProvider);
-    final fxRaw = ref.watch(tossExchangeRateProvider).asData?.value?.rateValue;
+    final fxRaw = ref.watch(tossExchangeRateProvider).value?.rateValue;
     final fx = (fxRaw != null && fxRaw > 0) ? fxRaw : null;
-    final holdings = holdingsAsync.asData?.value;
+    final holdings = holdingsAsync.value;
     final holdingItems = sortHoldings(holdings?.items ?? const [], fx);
     final watchAsync = ref.watch(watchGroupsProvider);
-    final groups = watchAsync.asData?.value ?? const <StockWatchGroup>[];
+    final groups = watchAsync.value ?? const <StockWatchGroup>[];
 
     // 보이는 그룹의 심볼을 합쳐 50 씩 한 번에 — 그룹마다 따로 부르지 않는다.
     final symbols = visibleSymbols(groups, _visible);
     for (final chunk in chunkSymbols(symbols)) {
       final prices =
-          ref.watch(tossPricesProvider(chunk.join(','))).asData?.value ??
+          ref.watch(tossPricesProvider(chunk.join(','))).value ??
           const <TossPrice>[];
       for (final p in prices) {
         final v = double.tryParse(p.lastPrice);
@@ -639,7 +673,7 @@ class _InvestBand extends ConsumerWidget {
         ),
       );
     }
-    final h = holdingsAsync.asData?.value;
+    final h = holdingsAsync.value;
     final s = h == null
         ? const InvestSummary(
             evalAmount: 0,
@@ -676,7 +710,6 @@ class _InvestBand extends ConsumerWidget {
               PListItem(
                 title: l.stocksPurchaseAmount,
                 titleColor: c.fgNeutralSubtle,
-                verticalPadding: PSpacing.x2,
                 suffix: PListValue.amount(
                   money(s.purchaseAmount),
                   style: _moneyStyle(context),
@@ -685,7 +718,6 @@ class _InvestBand extends ConsumerWidget {
               PListItem(
                 title: l.stocksDayPnl,
                 titleColor: c.fgNeutralSubtle,
-                verticalPadding: PSpacing.x2,
                 suffix: PListValue(
                   child: _pnlDelta(s.dailyPnl, s.dailyPnlPct, masked),
                 ),
@@ -693,7 +725,6 @@ class _InvestBand extends ConsumerWidget {
               PListItem(
                 title: l.stocksHoldingsLabel,
                 titleColor: c.fgNeutralSubtle,
-                verticalPadding: PSpacing.x2,
                 suffix: PListValue(
                   child: Text(
                     l.stocksUnitCount(s.count),
@@ -757,10 +788,10 @@ class _MarketBand extends ConsumerWidget {
         ),
       );
     }
-    final indices = (pricesAsync.asData?.value ?? [])
+    final indices = (pricesAsync.value ?? [])
         .where((i) => i.priceValue > 0 && indexNameOf(l, i.symbol) != null)
         .toList();
-    final fxRaw = ref.watch(tossExchangeRateProvider).asData?.value?.rateValue;
+    final fxRaw = ref.watch(tossExchangeRateProvider).value?.rateValue;
     return PScreenSection(
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
       child: Column(
@@ -792,11 +823,43 @@ class _MarketBand extends ConsumerWidget {
 }
 
 /// 장 상태 줄 — "● 국내 장마감   ● 미국 개장 22:30". 줄바꿈 허용(항목 사이 16 · 줄 사이 4).
-class _MarketStatusLine extends ConsumerWidget {
+class _MarketStatusLine extends ConsumerStatefulWidget {
   const _MarketStatusLine();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_MarketStatusLine> createState() => _MarketStatusLineState();
+}
+
+class _MarketStatusLineState extends ConsumerState<_MarketStatusLine> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    // 장 상태는 시각이 흐르면 바뀐다 — 30초마다 지금 시각으로 다시 판정한다. 달력의 "오늘" 이 한국 날짜와 다르면(앱을 켜 둔 채
+    // 다음 날) 달력을 새로 받는다. 안 그러면 어제 세션이라 하루 종일 장마감으로 보인다(H3).
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!mounted || !ref.read(appForegroundProvider)) return;
+      final kr = ref.read(tossMarketCalendarKrProvider).value;
+      final kst = stocksNow().toUtc().add(const Duration(hours: 9));
+      String two(int n) => n.toString().padLeft(2, '0');
+      final today = '${kst.year}-${two(kst.month)}-${two(kst.day)}';
+      if (kr != null && kr.today.date.isNotEmpty && kr.today.date != today) {
+        ref.invalidate(tossMarketCalendarKrProvider);
+        ref.invalidate(tossMarketCalendarUsProvider);
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
     // 달력이 오는 중이면 그 칸은 Skeleton, 실패면 칸을 비운다 — 모를 때 "휴장" 이라는 틀린 사실을 그리지 않는다(H4).
@@ -917,7 +980,7 @@ class _IndexLine extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final closes =
-        ref.watch(tossIndicatorClosesProvider(index.symbol)).asData?.value ??
+        ref.watch(tossIndicatorClosesProvider(index.symbol)).value ??
         const <double>[];
     double? pct;
     if (closes.length >= 2 && closes.first > 0) {
@@ -1202,7 +1265,7 @@ class _WatchLine extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final prevClose = last == null
         ? null
-        : ref.watch(prevCloseProvider(item.symbol)).asData?.value;
+        : ref.watch(prevCloseProvider(item.symbol)).value;
     return _StockLine(
       name: item.nameKr.isNotEmpty ? item.nameKr : item.symbol,
       detail: '${item.symbol} · ${stockMarketLabel(l, item.marketCode)}',
@@ -1677,11 +1740,7 @@ class _RankLine extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final name = ref
-        .watch(tossStockInfoProvider(item.symbol))
-        .asData
-        ?.value
-        ?.name;
+    final name = ref.watch(tossStockInfoProvider(item.symbol)).value?.name;
     final last = item.price.lastPriceValue;
     return _StockLine(
       name: (name != null && name.isNotEmpty) ? name : item.symbol,
@@ -1840,7 +1899,11 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
     // 이 종목의 시세 · 호가 · 체결과 보유만 10초마다 다시 부른다. 목록 타이머는 이 화면이 위에 있으면 멈추고,
     // 일별 캔들(252봉 — 저장소가 커서로 나눠 부른다)은 하루 단위라 폴링하지 않는다(웹 staleTime 5분과 같은 뜻).
     _timer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
       ref.invalidate(tossPricesProvider(widget.symbol));
       ref.invalidate(tossOrderbookProvider(widget.symbol));
       ref.invalidate(tossTradesProvider(widget.symbol));
@@ -1862,25 +1925,22 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
     final symbol = widget.symbol;
 
     final master = _findMaster(
-      ref.watch(stockSearchProvider(symbol)).asData?.value ??
-          const <StockMasterItem>[],
+      ref.watch(stockSearchProvider(symbol)).value ?? const <StockMasterItem>[],
       symbol,
     );
     final infoAsync = ref.watch(tossStockInfoProvider(symbol));
-    final info = infoAsync.asData?.value;
+    final info = infoAsync.value;
     final holding = ref
         .watch(tossHoldingsProvider)
-        .asData
-        ?.value
+        .value
         ?.items
         .where((h) => h.symbol == symbol)
         .firstOrNull;
     final groups =
-        ref.watch(watchGroupsProvider).asData?.value ??
-        const <StockWatchGroup>[];
+        ref.watch(watchGroupsProvider).value ?? const <StockWatchGroup>[];
     final watched = groups.any((g) => g.items.any((i) => i.symbol == symbol));
     final warnings =
-        ref.watch(tossWarningsProvider(symbol)).asData?.value ??
+        ref.watch(tossWarningsProvider(symbol)).value ??
         const <TossStockWarning>[];
 
     final name = master?.nameKr.isNotEmpty == true
@@ -1888,22 +1948,30 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
         : (info?.name.isNotEmpty == true
               ? info!.name
               : (holding?.name.isNotEmpty == true ? holding!.name : symbol));
+    // 통화를 모르면 KRW 로 지어내지 않는다 — 응답이 오기 전 미국 종목이 "190원" 으로 보이던 것(M10). 시세 응답의 통화도 쓴다
+    final priceCurrency = ref
+        .watch(tossPricesProvider(symbol))
+        .value
+        ?.firstOrNull
+        ?.currency;
     final currency = info?.currency.isNotEmpty == true
         ? info!.currency
         : (master?.currency.isNotEmpty == true
               ? master!.currency
               : (holding?.currency.isNotEmpty == true
                     ? holding!.currency
-                    : 'KRW'));
+                    : (priceCurrency?.isNotEmpty == true
+                          ? priceCurrency!
+                          : '')));
     final isUs = currency == 'USD';
 
     final pricesAsync = ref.watch(tossPricesProvider(symbol));
-    final lastRaw = pricesAsync.asData?.value.firstOrNull?.lastPrice;
+    final lastRaw = pricesAsync.value?.firstOrNull?.lastPrice;
     final lastParsed = lastRaw == null ? null : double.tryParse(lastRaw);
     final last = (lastParsed != null && lastParsed > 0) ? lastParsed : null;
-    final prevClose = ref.watch(prevCloseProvider(symbol)).asData?.value;
+    final prevClose = ref.watch(prevCloseProvider(symbol)).value;
     final changePct = changePctOf(last, prevClose);
-    final fxRaw = ref.watch(tossExchangeRateProvider).asData?.value?.rateValue;
+    final fxRaw = ref.watch(tossExchangeRateProvider).value?.rateValue;
     final fxRate = (fxRaw != null && fxRaw > 0) ? fxRaw : null;
 
     final marketText = master != null
@@ -1974,7 +2042,8 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                     ),
                   ),
                 ],
-                if (last == null && !pricesAsync.isLoading) ...[
+                // 시세 조회가 실패했거나 오는 중이면 '미지원' 이 아니다 — 응답이 왔는데 값이 없을 때만(M8)
+                if (last == null && pricesAsync.hasValue) ...[
                   const SizedBox(height: 2),
                   Text(
                     l.stocksPriceUnavailable,
@@ -2023,14 +2092,18 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
       ),
     );
 
+    // 머리(차트 WebView)와 호가 · 체결(고른 탭)은 스크롤로 화면 밖에 나가도 지키고 있는다 — 안 그러면 내렸다 올릴 때마다
+    // 차트가 새 토큰 · 캔들 호출로 다시 지어지고 호가 탭이 처음으로 돌아간다(M13).
     final bands = <Widget>[
-      head,
+      _KeepAlive(child: head),
       if (holding != null) _HoldingBand(holding: holding, masked: masked),
-      _QuotesBand(
-        symbol: symbol,
-        currency: currency,
-        lastPrice: last,
-        changePct: changePct,
+      _KeepAlive(
+        child: _QuotesBand(
+          symbol: symbol,
+          currency: currency,
+          lastPrice: last,
+          changePct: changePct,
+        ),
       ),
       _InfoBand(
         symbol: symbol,
@@ -2088,8 +2161,7 @@ Widget _kvLine(
   return PListItem(
     title: key,
     titleColor: c.fgNeutralSubtle,
-    // 키-값 줄은 한 벌 — 위아래 8(웹 invest-band · detail 같은 값, M12). 키 글 t4 는 PListItem 이 t5 로 고정이라 ds 몫
-    verticalPadding: PSpacing.x2,
+    // 키-값 줄은 ds List 값 그대로(위아래 12) — 웹 `phone-parts` 와 같다. 키 글 t4 는 PListItem 이 t5 로 고정이라 ds 몫
     suffix: PListValue(
       child:
           valueWidget ??
@@ -2388,9 +2460,9 @@ class TossPortfolioPage extends ConsumerWidget {
     final holdingsAsync = ref.watch(tossHoldingsProvider);
     // 금액 가리기 — 도넛을 눌러 뜨는 조각 금액도, 범례 비중도 가린다(H5, 웹과 같게)
     final masked = ref.watch(hideCardProvider('stocks.summary'));
-    final fxRaw = ref.watch(tossExchangeRateProvider).asData?.value?.rateValue;
+    final fxRaw = ref.watch(tossExchangeRateProvider).value?.rateValue;
     final fx = (fxRaw != null && fxRaw > 0) ? fxRaw : null;
-    final items = holdingsAsync.asData?.value?.items ?? const [];
+    final items = holdingsAsync.value?.items ?? const [];
     final comp = compositionOf(items, fx);
 
     Widget content;
@@ -2560,7 +2632,7 @@ class _StockInfoCard extends ConsumerWidget {
     final info = this.info; // 로컬 바인딩 → 널 승격(field promotion 불가) 위함.
     final isUs = currency == 'USD';
     final isKr = currency == 'KRW';
-    final limits = ref.watch(tossPriceLimitsProvider(symbol)).asData?.value;
+    final limits = ref.watch(tossPriceLimitsProvider(symbol)).value;
     final shares = info?.sharesValue ?? 0;
     // 시가총액 = 현재가 × 발행주식수 (USD 는 환율 환산). 시세 없으면 미표시. 웹 미러.
     final last = lastPrice;
@@ -2611,16 +2683,18 @@ class _StockInfoCard extends ConsumerWidget {
       if (listDate != null && listDate.isNotEmpty)
         (l.stocksListingDate, fullDateOf(listDate), null),
       if (shares > 0) (l.stocksSharesOutstanding, _fmtShares(shares), null),
-      (
-        // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.
-        l.stocksTradingStatus,
-        info?.koreanMarketDetail?.krxTradingSuspended == true
-            ? l.stocksTradingSuspended
-            : l.stocksTradingNormal,
-        info?.koreanMarketDetail?.krxTradingSuspended == true
-            ? context.colors.fgCritical
-            : context.colors.fgPositive,
-      ),
+      // 정보가 오기 전 · 빈 응답에는 "정상" 을 지어내지 않는다 — 거래정지 종목도 정상으로 보이던 것(M9)
+      if (info != null)
+        (
+          // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.
+          l.stocksTradingStatus,
+          info.koreanMarketDetail?.krxTradingSuspended == true
+              ? l.stocksTradingSuspended
+              : l.stocksTradingNormal,
+          info.koreanMarketDetail?.krxTradingSuspended == true
+              ? context.colors.fgCritical
+              : context.colors.fgPositive,
+        ),
     ];
 
     return PList(
@@ -2704,7 +2778,7 @@ class _OrderBook extends StatelessWidget {
     for (final b in bids) {
       if (b.q > maxQ) maxQ = b.q;
     }
-    String fmt(double p) => fmtByCurrency(p, currency == 'USD' ? 'USD' : 'KRW');
+    String fmt(double p) => fmtByCurrency(p, currency);
 
     Widget qtyBar({
       required int q,
@@ -3131,7 +3205,7 @@ class _TradeTape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    String fmt(double p) => fmtByCurrency(p, currency == 'USD' ? 'USD' : 'KRW');
+    String fmt(double p) => fmtByCurrency(p, currency);
 
     return Semantics(
       container: true,
@@ -3265,5 +3339,26 @@ class _TradeTapeSkeleton extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+/// 스크롤로 화면 밖에 나가도 지어 둔 채 둔다(차트 WebView · 고른 탭). 폐기됐다 다시 지어지지 않게(M13).
+class _KeepAlive extends StatefulWidget {
+  const _KeepAlive({required this.child});
+  final Widget child;
+
+  @override
+  State<_KeepAlive> createState() => _KeepAliveState();
+}
+
+class _KeepAliveState extends State<_KeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

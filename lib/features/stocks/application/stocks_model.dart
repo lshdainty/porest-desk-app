@@ -127,6 +127,14 @@ List<CompositionSlice>? compositionOf(
 
 /// 통화별 가격 표기 — KRW=원화, USD=$ 소수 2자리, 그 외(CNY·JPY 등)=값+통화코드.
 String fmtByCurrency(double price, String currency) {
+  // 통화를 아직 모르면(응답 전) 숫자만 — "190원" 처럼 틀린 단위를 붙이지 않는다(M10)
+  if (currency.isEmpty) {
+    final cents = (price * 100).round();
+    final frac = (cents % 100).abs();
+    return frac == 0
+        ? krw(cents ~/ 100)
+        : '${krw(cents ~/ 100)}.${frac.toString().padLeft(2, '0')}';
+  }
   if (currency == 'USD') {
     final fixed = price.abs().toStringAsFixed(2);
     final dot = fixed.indexOf('.');
@@ -211,4 +219,36 @@ String clock12Minutes(String raw) {
   return localeIsEn()
       ? '$h12:$mm ${h < 12 ? 'AM' : 'PM'}'
       : '${h < 12 ? '오전' : '오후'} $h12:$mm';
+}
+
+/// 전일 종가 — 토스 봉은 **최신순(timestamp 내림차순)** 이다(OpenAPI `/candles`: "배열의 첫 요소가 가장 최근 봉"). 순서를 믿지
+/// 않고 timestamp 로 정렬해, 그 시장의 "오늘" 날짜(`marketToday`, `YYYY-MM-DD`)보다 앞선 첫 봉의 종가를 돌려준다.
+/// 봉 날짜는 받은 글의 앞 10자리(시장이 준 영업일)다. 없으면 null.
+double? prevCloseFromCandles(List<TossCandle> candles, String marketToday) {
+  if (candles.isEmpty) return null;
+  final sorted = [...candles]
+    ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  for (final c in sorted) {
+    final day = c.timestamp.length >= 10
+        ? c.timestamp.substring(0, 10)
+        : c.timestamp;
+    if (day.compareTo(marketToday) < 0) {
+      final v = double.tryParse(c.closePrice);
+      return (v != null && v > 0) ? v : null;
+    }
+  }
+  // 오늘 봉뿐이면(상장 첫날 등) 전일을 알 수 없다
+  return null;
+}
+
+/// 그 시장의 오늘(`YYYY-MM-DD`) — 국내는 한국 날짜, 미국 심볼(영문으로 시작)은 동부 날짜(서머타임 4월~10월 −4h, 그 밖 −5h 로
+/// 어림 — 날짜가 바뀌는 새벽 한 시간만 어긋날 수 있다). 한국 0~5시(미국 장중)에 오늘 봉을 전일로 읽지 않게 한다(H6).
+String marketToday(String symbol, DateTime nowUtc) {
+  final us = RegExp(r'^[A-Za-z]').hasMatch(symbol);
+  final shift = us
+      ? Duration(hours: (nowUtc.month >= 4 && nowUtc.month <= 10) ? -4 : -5)
+      : const Duration(hours: 9);
+  final d = nowUtc.toUtc().add(shift);
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${d.year}-${two(d.month)}-${two(d.day)}';
 }

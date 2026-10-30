@@ -5,6 +5,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
@@ -21,22 +22,15 @@ final tossPricesProvider = FutureProvider.family<List<TossPrice>, String>((
   joinedSymbols,
 ) async {
   if (joinedSymbols.isEmpty) return const [];
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getPrices(joinedSymbols.split(','));
-  } catch (_) {
-    return const [];
-  }
+  // 오류는 던진다 — 한 번 실패한 빈 목록이 "토스 시세 미지원 종목" 으로 읽히지 않는다(M8). 화면은 `.value` 로 이전 값을 둔다
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getPrices(joinedSymbols.split(','));
 });
 
-/// USD→KRW 환율. 에러/미설정 시 null.
+/// USD→KRW 환율. 오류는 던진다 — 삼킨 null 이 캐시돼 복구 못 하던 것을 막는다(H3). 화면 타이머가 60초마다 다시 받는다.
 final tossExchangeRateProvider = FutureProvider<TossExchangeRate?>((ref) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getExchangeRate();
-  } catch (_) {
-    return null;
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getExchangeRate();
 });
 
 /// 전일 종가. 토스 /prices 엔 기준가·등락률이 없어 일봉으로 도출한다.
@@ -49,16 +43,10 @@ final prevCloseProvider = FutureProvider.family<double?, String>((
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
     final page = await repo.getCandles(symbol, '1d', count: 3);
-    if (page.candles.isEmpty) return null;
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    for (final c in page.candles.reversed) {
-      if (!c.timestamp.startsWith(today)) {
-        final v = double.tryParse(c.closePrice);
-        return (v != null && v > 0) ? v : null;
-      }
-    }
-    final v = double.tryParse(page.candles.first.closePrice);
-    return (v != null && v > 0) ? v : null;
+    return prevCloseFromCandles(
+      page.candles,
+      marketToday(symbol, DateTime.now().toUtc()),
+    );
   } catch (_) {
     return null;
   }

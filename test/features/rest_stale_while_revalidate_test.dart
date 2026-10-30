@@ -472,6 +472,12 @@ void main() {
         await tester.pumpWidget(
           _app(const TossStockDetailPage(symbol: symbol), [
             ...base(),
+            // 통화를 모르면 숫자만 보인다(M10) — 시세 응답이 통화를 준다
+            tossPricesProvider.overrideWith(
+              (ref, k) async => const [
+                TossPrice(symbol: symbol, lastPrice: '71000', currency: 'KRW'),
+              ],
+            ),
             ...overrides,
           ]),
         );
