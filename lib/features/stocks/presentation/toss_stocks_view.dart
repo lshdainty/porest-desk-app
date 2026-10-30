@@ -1401,18 +1401,10 @@ class _TossTodayBand extends ConsumerWidget {
     final limits = isKr
         ? ref.watch(tossPriceLimitsProvider(symbol)).asData?.value
         : null;
-    final now = DateTime.now();
-    final today =
-        '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
     final candles = candlesAsync.value?.candles ?? const <TossCandle>[];
-    final last = candles.isEmpty
-        ? null
-        : ([
-            ...candles,
-          ]..sort((a, b) => a.timestamp.compareTo(b.timestamp))).last;
-    final isToday = last != null && last.timestamp.startsWith(today);
+    // 그 시장의 오늘 봉만 쓴다(M11) — 미국은 현지 거래일로 견주고 기기 날짜로 견주지 않는다.
+    final last = todayBarOf(candles, symbol, DateTime.now().toUtc());
+    final isToday = last != null;
     double? pos(String? v) {
       final d = v == null ? null : double.tryParse(v);
       return (d == null || d <= 0) ? null : d;

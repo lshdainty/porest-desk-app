@@ -1,5 +1,6 @@
 /// 토스증권 Open API 연동 Riverpod providers.
-/// 모든 provider 는 에러(키 미설정 503·미기동)를 삼키고 null/빈 값으로 폴백한다.
+/// 화면이 실패 한 벌로 보여 주는 provider 는 오류를 던지고(시세 · 호가 · 체결 · 보유 · 오늘 시세 · 투자자별 · 주문 가능 등),
+/// 보조 값(전일 종가 · 마스터 검색 등)만 에러를 삼키고 null/빈 값으로 폴백한다.
 library;
 
 import 'dart:async';

@@ -226,27 +226,27 @@ class StocksInvestorBand extends StatelessWidget {
               PSpacing.x6,
               PSpacing.x1,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
+            // 제목과 단위 글은 한 줄에 못 들어가면 줄을 나눠 쌓는다(웹 cc2814ea `flex-wrap`) — 글자 200% · 영어에서
+            // 단위 글이 줄바꿈 없는 한 줄이라 넘치던 것(M12). 한 줄이면 단위 글이 오른쪽 끝에 붙는다.
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: PSpacing.x2,
+              runSpacing: 2,
               children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    headingLevel: 2,
-                    child: Text(
-                      l.stocksInvestorTitle,
-                      style: PTypography.t5.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: c.fgNeutral,
-                      ),
+                Semantics(
+                  header: true,
+                  headingLevel: 2,
+                  child: Text(
+                    l.stocksInvestorTitle,
+                    style: PTypography.t5.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: c.fgNeutral,
                     ),
                   ),
                 ),
-                const SizedBox(width: PSpacing.x2),
                 Text(
                   l.stocksInvestorUnit,
-                  maxLines: 1,
                   style: PTypography.t4.copyWith(color: c.fgNeutralSubtle),
                 ),
               ],

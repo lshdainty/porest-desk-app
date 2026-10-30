@@ -1,4 +1,4 @@
-/// 장 상태 계산 — 시장 현지 시각 vs 정규장 운영시간(toss_stocks_view.dart 에서 옮겼다, 내용 불변).
+/// 장 상태 계산 — 정규장 운영 시간(오프셋 붙은 ISO)을 순간으로 견주고, 보이는 시각은 모두 한국 시각이다.
 library;
 
 import 'package:flutter/material.dart';

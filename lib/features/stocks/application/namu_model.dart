@@ -165,17 +165,30 @@ List<CompositionSlice>? namuCompositionOf(NamuMergedView view) {
 
 /// 시장 띠의 장 상태를 읽을 대표 종목 — 시장마다 하나(보유 첫 종목, 없으면 관심 첫 종목).
 /// 대표가 없는 시장은 null(그 시장 항목을 그리지 않는다). 같은 종목이 관심 시세에 있으면 서버 캐시에 맞는다.
+///
+/// **한번 정한 대표는 그 종목이 후보에 남아 있는 동안 바꾸지 않는다**([prevKr] · [prevUs]) — 환율이 도착하거나 평가금액이 움직여
+/// 보유 정렬이 바뀌어도 키가 바뀌어 장 상태 줄이 Skeleton 으로 깜빡이고 새 키를 또 부르지 않게 한다(M14).
 ({String? kr, String? us}) namuMarketRepresentatives(
   NamuMergedView view,
-  List<StockWatchGroup> groups,
-) {
-  String? kr = view.rows.where((r) => r.currency == 'KRW').firstOrNull?.symbol;
-  String? us = view.rows.where((r) => r.currency == 'USD').firstOrNull?.symbol;
-  for (final g in groups) {
-    for (final i in g.items) {
-      if (kr == null && i.countryCode == 'KR') kr = i.symbol;
-      if (us == null && i.countryCode == 'US') us = i.symbol;
-    }
-  }
-  return (kr: kr, us: us);
+  List<StockWatchGroup> groups, {
+  String? prevKr,
+  String? prevUs,
+}) {
+  final krCands = <String>[
+    for (final r in view.rows)
+      if (r.currency == 'KRW') r.symbol,
+    for (final g in groups)
+      for (final i in g.items)
+        if (i.countryCode == 'KR') i.symbol,
+  ];
+  final usCands = <String>[
+    for (final r in view.rows)
+      if (r.currency == 'USD') r.symbol,
+    for (final g in groups)
+      for (final i in g.items)
+        if (i.countryCode == 'US') i.symbol,
+  ];
+  String? pick(List<String> cands, String? prev) =>
+      (prev != null && cands.contains(prev)) ? prev : cands.firstOrNull;
+  return (kr: pick(krCands, prevKr), us: pick(usCands, prevUs));
 }

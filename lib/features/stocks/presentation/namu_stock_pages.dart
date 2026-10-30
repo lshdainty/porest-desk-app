@@ -14,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
@@ -483,7 +484,11 @@ class _NamuInfoBand extends StatelessWidget {
                 stocksKvLine(context, l.stocksSector, d!.sector!),
               if (cap != null) stocksKvLine(context, l.stocksMarketCap, cap),
               if (d?.listingDate != null)
-                stocksKvLine(context, l.stocksListingDate, d!.listingDate!),
+                stocksKvLine(
+                  context,
+                  l.stocksListingDate,
+                  fullDateOf(d!.listingDate!),
+                ),
               if (d?.listedShares != null)
                 stocksKvLine(
                   context,
@@ -524,7 +529,12 @@ class _NamuQuotesBandState extends ConsumerState<_NamuQuotesBand> {
     _tradesTimer = null;
     if (tab == 'tape') {
       _tradesTimer = Timer.periodic(namuTradesPollInterval, (_) {
-        if (!mounted || !ref.read(appForegroundProvider)) return;
+        // 앱이 뒤로 가 있거나 다른 화면 · 시트가 위에 올라와 있으면 멈춘다(H4).
+        if (!mounted ||
+            !ref.read(appForegroundProvider) ||
+            ModalRoute.of(context)?.isCurrent != true) {
+          return;
+        }
         ref.invalidate(namuExecutionsProvider(widget.detailKey));
       });
     }
@@ -545,6 +555,8 @@ class _NamuQuotesBandState extends ConsumerState<_NamuQuotesBand> {
       lastPrice: widget.lastPrice,
       changePct: widget.changePct,
       onTabChanged: _onTab,
+      onRetryBook: (ref) => ref.invalidate(namuQuoteDetailProvider(key)),
+      onRetryTrades: (ref) => ref.invalidate(namuExecutionsProvider(key)),
       watchBook: (ref) =>
           ref.watch(namuQuoteDetailProvider(key)).whenData((d) => d.orderbook),
       watchTrades: (ref) => ref.watch(namuExecutionsProvider(key)),

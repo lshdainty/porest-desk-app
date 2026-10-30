@@ -61,6 +61,10 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
   /// 지금 지켜보는 관심 시세 키(콤마 심볼 묶음) — 박자마다 이 키만 다시 부른다.
   Set<String> _quoteKeys = const {};
 
+  /// 시장 띠 장 상태의 대표 종목 — 정한 뒤에는 정렬이 바뀌어도 그대로 둔다(M14).
+  String? _repKr;
+  String? _repUs;
+
   /// 화면에 들어와 300ms 머문 관심 그룹 — 이 그룹들의 심볼만 합쳐 시세를 부른다(I-13 22).
   final Set<int> _visible = {};
   final Map<int, Timer> _lingering = {};
@@ -198,7 +202,14 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     }
 
     _quoteKeys = keys;
-    final reps = namuMarketRepresentatives(view, groups);
+    final reps = namuMarketRepresentatives(
+      view,
+      groups,
+      prevKr: _repKr,
+      prevUs: _repUs,
+    );
+    _repKr = reps.kr;
+    _repUs = reps.us;
 
     final head = <Widget>[
       NamuInvestBand(
@@ -487,12 +498,14 @@ class NamuInvestBand extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final usd = ref.watch(namuUsdDepositProvider);
     final krwOrderable = krwAsync.value?.orderableValue;
+    // 국내 잔고 질의가 실패했으면(값이 없으면) 줄을 없애지 않고 "—" 로 둔다(M5) — 줄이 사라지면 0 원처럼 읽힌다.
+    final krwFailed = krwAsync.hasError && !krwAsync.hasValue;
     return [
-      if (krwOrderable != null)
+      if (krwOrderable != null || krwFailed)
         stocksBuyingPowerRow(
           context,
           title: l.stocksBuyingPowerKrw,
-          state: AsyncValue3(amount: krwOrderable),
+          state: AsyncValue3(failed: krwFailed, amount: krwOrderable),
           masked: masked,
           format: (v) => fmtByCurrency(v, 'KRW'),
         ),
@@ -711,7 +724,12 @@ class _NamuMarketBandState extends ConsumerState<NamuMarketBand> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(namuMarketStatePollInterval, (_) {
-      if (!mounted || !ref.read(appForegroundProvider)) return;
+      // 앱이 뒤로 가 있거나 상세 · 시트가 위에 올라와 있으면 멈춘다(H4).
+      if (!mounted ||
+          !ref.read(appForegroundProvider) ||
+          ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
       ref.invalidate(namuQuotesProvider(_csv));
     });
   }

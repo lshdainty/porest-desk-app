@@ -144,6 +144,32 @@ void main() {
       expect(find.textContaining('987,654'), findsOneWidget);
     });
 
+    testWidgets('M12 머리 제목과 단위 글은 좁은 폭 · 글자 200% 에서 줄을 나눠 쌓고 넘치지 않는다', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        (_) => StocksInvestorBand(
+          days: days(),
+          loading: false,
+          failed: false,
+          onRetry: () {},
+        ),
+        width: 320,
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      final title = tester.getRect(_t('투자자별 매매동향'));
+      final unit = tester.getRect(_t('▲ 순매수 · ▼ 순매도 · 주'));
+      // 한 줄에 못 들어가면 단위 글이 제목 아래로 내려온다 — 둘이 같은 줄에서 겹치지 않는다
+      expect(
+        title.bottom <= unit.top + 1 || unit.left >= title.right - 1,
+        isTrue,
+        reason: '제목과 단위 글이 겹쳤다',
+      );
+      expect(unit.right <= 320, isTrue);
+    });
+
     testWidgets('빈 목록은 안내 줄 · 실패는 실패 한 벌 · 값이 있으면 실패해도 값을 남긴다', (tester) async {
       await _pump(
         tester,

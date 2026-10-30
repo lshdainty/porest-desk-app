@@ -252,6 +252,27 @@ double? prevCloseFromCandles(
   return null;
 }
 
+/// 오늘 시세의 오늘 봉 — **그 시장의 오늘**([marketToday])인 가장 최근 봉, 없으면 null(M11).
+/// 기기 날짜가 아니라 시장 날짜로 견준다 — 미국 종목은 한국 0~5시(미국 장중)에 일봉 날짜가 현지 날짜라 기기 날짜와 어긋나
+/// 시가 · 고가 · 저가 · 거래량 줄이 사라지던 것을 막는다. 봉 순서는 믿지 않는다(최신순으로 온다).
+TossCandle? todayBarOf(
+  List<TossCandle> candles,
+  String symbol,
+  DateTime nowUtc,
+) {
+  final today = marketToday(symbol, nowUtc);
+  TossCandle? best;
+  var bestKey = '';
+  for (final c in candles) {
+    final key = candleDay(c.timestamp, symbol);
+    if (key == today && c.timestamp.compareTo(bestKey) >= 0) {
+      best = c;
+      bestKey = c.timestamp;
+    }
+  }
+  return best;
+}
+
 /// 봉 하나의 시장 날짜 `YYYY-MM-DD` — 오프셋이 붙은 시각은 순간 → 시장 시간대 날짜, 아니면 앞 10자리.
 String candleDay(String ts, String symbol) {
   if (RegExp(r'T.*(?:Z|[+-]\d{2}:?\d{2})$').hasMatch(ts)) {

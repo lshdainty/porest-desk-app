@@ -1,10 +1,16 @@
 // 증권사 공통 맞춤(I-13b 13b-1) — 응답 모양(칸이 빠져도 깨지지 않는다) · 그 탭 증권사 경로 · 시장 대표 종목 · 임베드 쿼리 자리.
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/features/stocks/application/namu_model.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/chart_bridge.dart';
 
@@ -35,6 +41,7 @@ class _Recorder implements HttpClientAdapter {
 }
 
 void main() {
+  _more();
   test('나무 상세 시세 — 칸이 거의 없어도 깨지지 않고, 0 · 빈 값은 null', () {
     final d = NamuQuoteDetail.fromJson({
       'symbol': '005930',
@@ -154,5 +161,125 @@ void main() {
       broker: 'namu',
     );
     expect(Uri.parse(url).queryParameters.containsKey('broker'), isFalse);
+  });
+}
+
+void _more() {
+  group('오늘 시세 오늘 봉(M11) — 그 시장의 오늘', () {
+    TossCandle bar(String ts, {String o = '1'}) => TossCandle(
+      timestamp: ts,
+      openPrice: o,
+      highPrice: '2',
+      lowPrice: '1',
+      closePrice: '2',
+      volume: '10',
+    );
+
+    test('미국: 한국 낮(미국 새벽)에도 현지 거래일 봉을 찾는다', () {
+      // 한국 2026-10-29 12:00 = 미국 동부 10-28 23:00 — 기기 날짜(10-29)로 견주면 못 찾는다.
+      final now = DateTime.utc(2026, 10, 29, 3);
+      final found = todayBarOf(
+        [
+          bar('2026-10-27T00:00:00-04:00'),
+          bar('2026-10-28T00:00:00-04:00', o: '9'),
+        ],
+        'MOA',
+        now,
+      );
+      expect(found?.openPrice, '9');
+    });
+
+    test('국내: 한국 날짜 봉만, 어제 봉이면 null · 봉 순서(최신순)를 믿지 않는다', () {
+      final now = DateTime.utc(2026, 10, 29, 1);
+      expect(
+        todayBarOf([bar('2026-10-28T00:00:00+09:00')], '005930', now),
+        isNull,
+      );
+      final found = todayBarOf(
+        [
+          bar('2026-10-29T00:00:00+09:00', o: '7'),
+          bar('2026-10-28T00:00:00+09:00'),
+        ],
+        '005930',
+        now,
+      );
+      expect(found?.openPrice, '7');
+      expect(todayBarOf(const [], '005930', now), isNull);
+    });
+  });
+
+  group('시장 대표 종목은 정렬이 바뀌어도 그대로(M14)', () {
+    NamuMergedView view(List<String> symbols) => mergeNamuHoldings(
+      NamuHoldings(
+        accountNo: 'a',
+        currency: 'KRW',
+        totalEvalAmount: '0',
+        totalProfitLoss: '0',
+        profitRate: '0',
+        items: [
+          for (final (i, s) in symbols.indexed)
+            NamuHoldingItem(
+              symbol: s,
+              name: s,
+              quantity: '1',
+              avgPrice: '1',
+              currentPrice: '1',
+              evalAmount: '${100 - i}',
+              profitLoss: '0',
+            ),
+        ],
+      ),
+      null,
+      null,
+    );
+
+    test('이전 대표가 후보에 남아 있으면 첫 줄이 바뀌어도 유지, 사라지면 새 첫 줄', () {
+      final first = namuMarketRepresentatives(view(['A', 'B']), const []);
+      expect(first.kr, 'A');
+      final reordered = namuMarketRepresentatives(
+        view(['B', 'A']),
+        const [],
+        prevKr: first.kr,
+      );
+      expect(reordered.kr, 'A', reason: '정렬이 바뀌어 키가 바뀌면 장 상태 줄이 깜빡인다');
+      final gone = namuMarketRepresentatives(
+        view(['B', 'C']),
+        const [],
+        prevKr: 'A',
+      );
+      expect(gone.kr, 'B');
+    });
+  });
+
+  test('나무 미국 체결 시각은 오프셋을 읽어 한국 시각으로(M7)', () {
+    final t = tradesFromJson([
+      {
+        'price': '412.3',
+        'volume': '5',
+        'timestamp': '2026-10-29T10:11:12-04:00',
+      },
+    ]);
+    expect(clock12Minutes(t.single.timestamp), '오후 11:11');
+    expect(clock12Minutes('2026-10-29T13:00:00+09:00'), '오후 1:00');
+  });
+
+  test('나무 상장일 원문 20040101 도 연도 붙은 날짜로(M6)', () {
+    expect(fullDateOf('20040101'), '2004년 1월 1일');
+    expect(fullDateOf('1975-06-11'), '1975년 6월 11일');
+  });
+
+  test('새 영어 글은 웹 CSV 와 같다(M15)', () {
+    final en =
+        jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync())
+            as Map<String, dynamic>;
+    expect(en['stocksBuyingPowerKrw'], 'Orderable · KRW');
+    expect(en['stocksBuyingPowerUsd'], 'Orderable · USD');
+    expect(en['namuDepositUsd'], 'Deposit · USD');
+    expect(en['stocksTodayQuote'], "Today's quotes");
+    expect(en['stocksInvestorTitle'], 'Net buying by investor');
+    expect(en['stocksWarningInvestmentAttention'], 'Investment attention');
+    expect(en['stocksMarketAfter'], 'After-market');
+    expect(en['stocksMarketHalted'], 'Temporarily closed');
+    expect(en['namuFxUnavailableShort'], 'No FX rate');
   });
 }

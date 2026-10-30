@@ -105,6 +105,7 @@ Future<void> _pump(
   List<StockWatchGroup> groups = const [],
   bool masked = false,
   bool quotesFail = false,
+  bool executionsFail = false,
   Future<List<StockMasterItem>> Function(String q)? search,
 }) async {
   quotesAsked.clear();
@@ -158,10 +159,12 @@ Future<void> _pump(
             sector: '전기전자',
             marketCap: 4.2e14,
             listedShares: 5.9e9,
+            listingDate: '20040101',
           );
         }),
         namuExecutionsProvider.overrideWith((ref, key) async {
           executionsAsked.add(key.symbol);
+          if (executionsFail) throw StateError('x');
           return const [];
         }),
         namuInvestorsProvider.overrideWith((ref, s) async {
@@ -633,6 +636,82 @@ void main() {
     expect(donut.valueFormatter!(8568000), '••••');
     expect(_t('••••'), findsWidgets);
     expect(_tc('%'), findsNothing, reason: '가렸는데 비중이 보인다');
+  });
+
+  group('상세 — 13-1 검수 고침 중 13b-1 몫(M3 · M5 · M6)', () {
+    testWidgets('M3 나무 체결 실패는 실패 한 벌 + [다시 시도]가 실제로 다시 부른다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+        executionsFail: true,
+      );
+      await tester.tap(_t('체결').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_t('체결 내역을 불러오지 못했어요'), findsOneWidget);
+      final asked = executionsAsked.length;
+      await tester.tap(find.text('다시 시도'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(executionsAsked.length, greaterThan(asked), reason: '버튼이 죽어 있다');
+    });
+
+    testWidgets('M3 호가(상세 시세) 실패도 [다시 시도]가 상세 시세를 다시 부른다', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+        quotesFail: true,
+      );
+      expect(
+        _t('호가를 불러오지 못했어요'),
+        findsNothing,
+        reason: '상세 시세 실패는 머리 실패 한 벌이 맡고 호가 띠는 그리지 않는다',
+      );
+      final asked = detailAsked.length;
+      await tester.tap(find.text('다시 시도').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(detailAsked.length, greaterThan(asked));
+    });
+
+    testWidgets('M5 국내 잔고만 실패해도 "주문 가능 · 원화" 줄은 "—" 로 남는다', (tester) async {
+      await _pump(tester, krwFail: true);
+      expect(_t('주문 가능 · 원화'), findsOneWidget);
+      expect(
+        tester.getTopLeft(_t('—').first).dy,
+        greaterThan(tester.getTopLeft(_t('주문 가능 · 원화')).dy - 30),
+      );
+      expect(_t('0원'), findsNothing, reason: '실패가 0 원처럼 읽히면 안 된다');
+    });
+
+    testWidgets('M5 해외 잔고 실패는 원화 줄에 영향이 없다', (tester) async {
+      await _pump(
+        tester,
+        usdFail: true,
+        krw: NamuHoldings(
+          accountNo: 'a',
+          currency: 'KRW',
+          totalEvalAmount: '100',
+          totalProfitLoss: '1',
+          profitRate: '1',
+          items: [_item('A1', '가', '100')],
+          orderableAmount: '5000',
+        ),
+      );
+      expect(_t('5,000원'), findsOneWidget);
+    });
+
+    testWidgets('M6 나무 상장일은 연도가 붙은 날짜로(원문 20040101 도 읽는다)', (tester) async {
+      await _pump(
+        tester,
+        home: const NamuStockDetailPage(symbol: 'A900002'),
+        size: const Size(360, 3000),
+      );
+      expect(_t('2004년 1월 1일'), findsOneWidget);
+      expect(_t('20040101'), findsNothing);
+    });
   });
 
   group('상세 — 호출 규칙(13b-1 D)', () {
