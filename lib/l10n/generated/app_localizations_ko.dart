@@ -363,31 +363,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetManageTitle => '계좌·카드 관리';
 
   @override
-  String assetTabAccountsSavings(int count) {
-    return '계좌·예금 $count';
-  }
+  String get assetManageAdd => '추가';
 
   @override
-  String assetTabCards(int count) {
-    return '카드 $count';
-  }
+  String get assetManageEmptyHint => '[추가]를 눌러 첫 계좌나 카드를 등록해 보세요.';
 
   @override
-  String assetTabInvest(int count) {
-    return '투자 $count';
-  }
+  String get assetManageLoadFailed => '계좌·카드를 불러오지 못했어요';
 
   @override
-  String get assetTotalPrefix => '총';
-
-  @override
-  String assetAddCategory(String name) {
-    return '$name 추가';
-  }
-
-  @override
-  String assetCategoryEmpty(String name) {
-    return '등록된 $name가 없어요';
+  String assetHoldingsCount(int count) {
+    return '보유 $count종목';
   }
 
   @override

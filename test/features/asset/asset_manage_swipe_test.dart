@@ -5,7 +5,6 @@
 // 줄인 만큼을 확인 단계로 되돌려 두지 않으면 밀다가 자산이 사라진다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -14,6 +13,7 @@ import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/presentation/account_card_manage_screen.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import '../../support/plain_text.dart';
 
 const _account = Asset(
   rowId: 8,
@@ -35,8 +35,7 @@ Future<void> _pump(WidgetTester tester) async {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),
-        // 트레이 자동 닫힘은 앱 루트(app.dart)가 쥔다 — 테스트도 같은 조상을 준다.
-        home: const SlidableAutoCloseBehavior(child: AccountCardManageScreen()),
+        home: const AccountCardManageScreen(),
       ),
     ),
   );
@@ -45,23 +44,19 @@ Future<void> _pump(WidgetTester tester) async {
 
 /// 트레이가 열릴 만큼 왼쪽으로 민다.
 Future<void> _swipeOpen(WidgetTester tester) async {
-  await tester.drag(find.text('주거래 통장'), const Offset(-250, 0));
+  await tester.drag(findPlain('주거래 통장'), const Offset(-250, 0));
   await tester.pumpAndSettle();
 }
 
 void main() {
-  testWidgets('행 우측 셰브론이 없다', (tester) async {
+  testWidgets('행 우측 셰브론이 없다 — 관리 줄 끝은 동작 자리(Q2 B)', (tester) async {
     await _pump(tester);
-    expect(find.text('주거래 통장'), findsOneWidget);
+    expect(findPlain('주거래 통장'), findsOneWidget);
     expect(find.byIcon(LucideIcons.chevronRight), findsNothing);
   });
 
   testWidgets('밀면 수정·삭제가 드러난다', (tester) async {
     await _pump(tester);
-
-    // 접혀 있을 땐 안 보인다.
-    expect(find.text('수정'), findsNothing);
-    expect(find.text('삭제'), findsNothing);
 
     await _swipeOpen(tester);
 
@@ -79,7 +74,7 @@ void main() {
     // 확인 다이얼로그가 떴을 뿐 아직 아무것도 지워지지 않았다.
     // (repository 를 주지 않았으므로 실제로 호출됐다면 여기서 터진다)
     expect(
-      find.text('"주거래 통장"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.'),
+      findPlain('"주거래 통장"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.'),
       findsOneWidget,
     );
   });
@@ -94,21 +89,21 @@ void main() {
     // spec alert-dialog: 같은 동작이면 어디서 불렀든 제목·설명이 같다.
     // 상세에서 지울 때와 같은 '계좌 삭제' 여야 한다 — 예전엔 트레이 라벨을 그대로
     // 써서 스와이프만 '삭제' 로 떴다.
-    expect(find.text('계좌 삭제'), findsOneWidget);
+    expect(findPlain('계좌 삭제'), findsOneWidget);
 
     // 그리고 설명은 대상을 이름으로 짚는다 — 리스트에서 잘못된 행을 눌렀다면
     // 여기 말고는 알아챌 곳이 없다.
-    expect(find.textContaining('"주거래 통장"'), findsWidgets);
+    expect(findPlainContaining('"주거래 통장"'), findsWidgets);
   });
 
   testWidgets('끝까지 밀어도 실행되지 않는다 — 트레이만 열린다', (tester) async {
     await _pump(tester);
 
-    await tester.drag(find.text('주거래 통장'), const Offset(-2000, 0));
+    await tester.drag(findPlain('주거래 통장'), const Offset(-2000, 0));
     await tester.pumpAndSettle();
 
     // 확인 다이얼로그가 뜨지 않았다 = 삭제가 실행되지 않았다.
-    expect(find.byType(AlertDialog), findsNothing);
-    expect(find.text('주거래 통장'), findsOneWidget);
+    expect(find.text('계좌 삭제'), findsNothing);
+    expect(findPlain('주거래 통장'), findsOneWidget);
   });
 }

@@ -368,31 +368,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetManageTitle => 'Manage accounts & cards';
 
   @override
-  String assetTabAccountsSavings(int count) {
-    return 'Accounts $count';
-  }
+  String get assetManageAdd => 'Add';
 
   @override
-  String assetTabCards(int count) {
-    return 'Cards $count';
-  }
+  String get assetManageEmptyHint =>
+      'Tap [Add] to register your first account or card.';
 
   @override
-  String assetTabInvest(int count) {
-    return 'Investments $count';
-  }
+  String get assetManageLoadFailed => 'Couldn\'t load accounts and cards';
 
   @override
-  String get assetTotalPrefix => 'Total';
-
-  @override
-  String assetAddCategory(String name) {
-    return 'Add $name';
-  }
-
-  @override
-  String assetCategoryEmpty(String name) {
-    return 'No $name registered yet';
+  String assetHoldingsCount(int count) {
+    return '$count holdings';
   }
 
   @override

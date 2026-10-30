@@ -9,7 +9,6 @@
 // 그래서 **실제 화면**(계좌·카드 관리)을 띄워 본다.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:groo_damda_app/app/theme/theme_data.dart';
@@ -20,6 +19,7 @@ import 'package:groo_damda_app/features/asset/presentation/account_card_manage_s
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_en.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations_ko.dart';
+import '../../support/plain_text.dart';
 
 const _shown = Asset(
   rowId: 8,
@@ -57,7 +57,7 @@ Future<void> _pump(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ko'),
-        home: const SlidableAutoCloseBehavior(child: AccountCardManageScreen()),
+        home: const AccountCardManageScreen(),
       ),
     ),
   );
@@ -70,9 +70,9 @@ void main() {
     testWidgets('숨긴 자산만 가려지고 옆 행은 그대로 보인다', (tester) async {
       await _pump(tester, assets: [_shown, _hiddenAsset]);
 
-      expect(find.text('1,200,000원'), findsOneWidget);
-      expect(find.text('470,000원'), findsNothing);
-      expect(find.text('••••'), findsOneWidget);
+      expect(findPlain('1,200,000원'), findsOneWidget);
+      expect(findPlain('470,000원'), findsNothing);
+      expect(findPlain('••••'), findsOneWidget);
     });
 
     // 카드로 가려진 것과 이 자산이라서 가려진 것을 사용자가 구분할 수 있어야 한다 —
@@ -88,8 +88,9 @@ void main() {
     testWidgets('화면 카드를 가리면 둘 다 가려지지만 배지는 숨긴 행만', (tester) async {
       await _pump(tester, assets: [_shown, _hiddenAsset], cardHidden: true);
 
-      expect(find.text('1,200,000원'), findsNothing);
-      expect(find.text('••••'), findsNWidgets(2));
+      expect(findPlain('1,200,000원'), findsNothing);
+      // 줄 둘 + 묶음 합계 둘(계좌·예금, 카드)
+      expect(findPlain('••••'), findsNWidgets(4));
       expect(
         find.text(AppLocalizationsKo().assetAmountHiddenBadge),
         findsOneWidget,

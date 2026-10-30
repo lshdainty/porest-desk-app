@@ -13,6 +13,7 @@ import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/core/format/chart_axis.dart';
 import 'package:groo_damda_app/core/format/chart_palette.dart';
 import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
@@ -98,11 +99,14 @@ class _DetailFooterState extends ConsumerState<_DetailFooter> {
   Future<void> _delete() async {
     if (_deleting) return;
     final asset = widget.asset;
-    final ok = await showPConfirmDialog(
+    // ds Alert Dialog — 밀기 삭제와 같은 부품 · 같은 글(I-17 32). 지우면 되돌릴 수 없으니 destructive.
+    final l = AppLocalizations.of(context);
+    final ok = await PAlertDialog.show(
       context,
       title: assetActions.deleteConfirmTitle(context, asset),
-      message: assetActions.deleteConfirmMessage(context, asset),
-      confirmLabel: AppLocalizations.of(context).actionDelete,
+      description: assetActions.deleteConfirmMessage(context, asset),
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;

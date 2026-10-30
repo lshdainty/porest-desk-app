@@ -131,44 +131,14 @@
   "assetHideThisAmount": "Hide amount",
   "assetHideThisAmountDesc": "Masks only this asset's balance. Totals stay visible.",
   "assetManageTitle": "Manage accounts & cards",
-  "assetTabAccountsSavings": "Accounts {count}",
-  "@assetTabAccountsSavings": {
+  "assetManageAdd": "Add",
+  "assetManageEmptyHint": "Tap [Add] to register your first account or card.",
+  "assetManageLoadFailed": "Couldn't load accounts and cards",
+  "assetHoldingsCount": "{count} holdings",
+  "@assetHoldingsCount": {
     "placeholders": {
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "assetTabCards": "Cards {count}",
-  "@assetTabCards": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTabInvest": "Investments {count}",
-  "@assetTabInvest": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTotalPrefix": "Total",
-  "assetAddCategory": "Add {name}",
-  "@assetAddCategory": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "assetCategoryEmpty": "No {name} registered yet",
-  "@assetCategoryEmpty": {
-    "placeholders": {
-      "name": {
-        "type": "String"
       }
     }
   },

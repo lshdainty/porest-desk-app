@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
@@ -101,7 +100,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final invMap =
         ref.watch(investmentValuationMapProvider).value ??
         const <int, InvestmentValuation>{};
-    final valMap = {for (final e in invMap.entries) e.key: e.value.value};
+    final valMap = liveValuationMap(invMap);
 
     // 카드(띠)마다 따로 불러오고 따로 실패한다(I-05 62) — 화면 전체를 한 번에 스켈레톤 ↔ 실패로 돌리지 않는다.
     // 값이 아직 없을 때만 "처음 불러오는 중" 이다(다시 받는 동안은 앞 값을 그대로 둔다).
@@ -110,32 +109,10 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final summaryLoading = summaryAsync.isLoading && !summaryAsync.hasValue;
     final summaryFailed = summaryAsync.hasError && !summaryAsync.hasValue;
 
-    // 연결 자산 balance 를 라이브 평가액(시세×수량)으로 치환 + 순자산 보정용 delta(라이브−DB).
-    // 라이브 평가는 '보유분'만이라 예수금을 더해야 계좌 총액이 된다.
-    // 안 더하면 증권계좌에 넣어 둔 매수 대기 자금이 목록에서 통째로 빠진다.
+    // 연결 자산 balance 를 라이브 평가액(시세×수량)으로 치환(관리 화면과 같은 함수) + 순자산 보정용 delta(라이브−DB).
     final assets = assetsAsync.value ?? const <Asset>[];
-    int liveTotal(Asset a) => (a.cashBalance ?? 0) + valMap[a.rowId]!;
-    final liveAssets = valMap.isEmpty
-        ? assets
-        : assets
-              .map(
-                (a) => valMap.containsKey(a.rowId)
-                    ? a.copyWith(
-                        balance: liveTotal(a),
-                        holdingBalance: valMap[a.rowId],
-                      )
-                    : a,
-              )
-              .toList();
-    final summaryDelta = valMap.isEmpty
-        ? 0
-        : assets.fold<int>(
-            0,
-            (s, a) =>
-                (a.isIncludedInTotal == 'Y' && valMap.containsKey(a.rowId))
-                ? s + (liveTotal(a) - (a.balance ?? 0))
-                : s,
-          );
+    final liveAssets = applyLiveValuation(assets, valMap);
+    final summaryDelta = liveValuationDelta(assets, valMap);
 
     List<Asset> of(Set<String> types) =>
         liveAssets.where((a) => types.contains(a.assetType)).toList();
@@ -144,14 +121,8 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final investments = of(_investmentTypes);
     final loans = of(_loanTypes);
 
-    // 외화는 환산해서 더한다 — raw 로 더하면 USD 1,000 이 1,000원이 돼 서버 요약과 어긋난다.
-    int sumIncluded(List<Asset> arr) => arr
-        .where((a) => a.isIncludedInTotal == 'Y')
-        .fold<int>(
-          0,
-          (s, a) =>
-              s + balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate),
-        );
+    // 외화는 환산해서 더한다 — 셈은 관리 화면과 같은 함수다.
+    final sumIncluded = assetSumIncluded;
     final accountsTotal = sumIncluded(accounts);
     final cardsTotal = sumIncluded(cards).abs();
     final investmentsTotal = sumIncluded(investments);

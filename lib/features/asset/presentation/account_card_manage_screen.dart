@@ -1,42 +1,55 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
-import 'package:groo_damda_app/shared/widgets/p_swipe_actions.dart';
-import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_actions.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_detail_dialog.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dart';
-import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_parts.dart';
+import 'package:groo_damda_app/features/budget/presentation/budget_parts.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list_header.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart';
+import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
-/// 계좌·카드 관리 — web AccountManager 미러. 설정 단일 진입점에서 자산 추가/편집.
-/// 탭(계좌·예금/카드/투자) + 총액 + 리스트(항목 → 편집) + 그룹별 추가.
-enum _Group { account, card, invest }
+/// 계좌·카드 관리(I-17 25 ~ 33, 1-B) — 탭 없이 흰 면 하나에 종류별 묶음 한 목록.
+///
+/// 상단 바(← 제목 + 글 버튼 "추가") 아래 묶음(목록 제목 + 합계 · 줄)이 이어진다. 묶음은 자산 화면과 같은 차례 · 같은 이름이다 —
+/// 계좌·예금 → 투자 → 카드 → 대출. 줄을 누르면 상세(17-3 전에는 옛 상세), 밀면 [수정, 삭제].
+/// 묶음 사이에 회색 틈은 없다(T1 ~ T3) — 같은 이야기(자산)가 이어지는 한 면이다.
+enum _Group { account, invest, card, loan }
 
-const Map<_Group, List<String>> _groupTypes = {
-  _Group.account: ['BANK_ACCOUNT', 'SAVINGS', 'CASH', 'LOAN'],
-  _Group.card: ['CREDIT_CARD', 'CHECK_CARD'],
-  _Group.invest: ['INVESTMENT'],
+const Map<_Group, Set<String>> _groupTypes = {
+  _Group.account: {'BANK_ACCOUNT', 'SAVINGS', 'CASH'},
+  _Group.invest: {'INVESTMENT'},
+  _Group.card: {'CREDIT_CARD', 'CHECK_CARD'},
+  _Group.loan: {'LOAN'},
 };
 
-String _groupLabel(AppLocalizations l, _Group g) => switch (g) {
-  _Group.account => l.assetCatAccount,
-  _Group.card => l.assetGroupCard,
+/// 계좌·예금 · 카드는 늘 보이고, 투자 · 대출은 있을 때만(자산 화면과 같은 조건).
+const _alwaysShown = {_Group.account, _Group.card};
+
+/// 묶음이 말하는 빚 — 합계를 빼기 부호로 보인다(자산 화면의 카드 · 대출 합계와 같다).
+const _debtGroups = {_Group.card, _Group.loan};
+
+String _groupTitle(AppLocalizations l, _Group g) => switch (g) {
+  _Group.account => l.assetGroupAccount,
   _Group.invest => l.assetGroupInvestment,
+  _Group.card => l.assetGroupCard,
+  _Group.loan => l.assetGroupDebt,
 };
 
 class AccountCardManageScreen extends ConsumerStatefulWidget {
@@ -52,16 +65,45 @@ class AccountCardManageScreen extends ConsumerStatefulWidget {
 
 class _AccountCardManageScreenState
     extends ConsumerState<AccountCardManageScreen> {
-  _Group _tab = _Group.account;
-
   /// [AccountCardManageScreen.editAssetId] 를 한 번만 연다 — 폼을 닫고 목록이 다시
   /// 그려질 때마다 또 열리면 빠져나갈 수 없다.
   bool _editHandled = false;
 
-  /// 목록이 처음 도착하면 그 자산의 탭으로 옮기고 수정 폼을 연다.
+  /// 연동 투자 평가액 갱신 — 자산 화면과 같은 10초 주기, **화면 하나에 타이머 하나**다(줄마다 두지 않는다).
+  /// 자산 화면의 타이머는 그 탭이 앞이 아니면 멈추므로(이 화면이 위에 있으면 멈춘다) 여기서 따로 돌린다.
+  /// 같은 provider · 같은 갱신 함수를 쓰니 두 화면의 값이 같다. 앱이 뒤로 가면 멈춘다.
+  Timer? _valuationTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(appForegroundProvider, (_, _) => _syncValuationTimer());
+    Future.microtask(_syncValuationTimer);
+  }
+
+  void _syncValuationTimer() {
+    if (!mounted) return;
+    if (!ref.read(appForegroundProvider)) {
+      _valuationTimer?.cancel();
+      _valuationTimer = null;
+      return;
+    }
+    if (_valuationTimer != null) return;
+    _valuationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) refreshLiveValuation(ref.invalidate);
+    });
+  }
+
+  @override
+  void dispose() {
+    _valuationTimer?.cancel();
+    super.dispose();
+  }
+
+  /// 목록이 처음 도착하면 그 자산의 수정 폼(2단계)을 연다.
   ///
   /// 인증은 폼의 몫이다 — 금액을 가린 자산은 숨김을 푸는 저장에서 본인 확인을
-  /// 거친다(자산 상세 [수정]으로 들어온 것과 같은 폼이다).
+  /// 거친다(자산 상세 [수정]으로 들어온 것과 같은 폼이다). 탭이 없으니 옮길 곳도 없다.
   void _openRequestedEdit(List<Asset> assets) {
     if (_editHandled) return;
     final id = widget.editAssetId;
@@ -69,205 +111,79 @@ class _AccountCardManageScreenState
     _editHandled = true;
     final asset = assets.byRowId(id);
     if (asset == null) return;
-    final group = _Group.values.firstWhere(
-      (g) => _groupTypes[g]!.contains(asset.assetType),
-      orElse: () => _tab,
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (group != _tab) setState(() => _tab = group);
       showAssetEditForm(context, asset);
     });
   }
 
-  /// [추가] — 묶음을 미리 고르지 않고 1단계(종류 고르기)부터 연다(I-17 8). 17-2 가 상단 바 "추가" 하나로 바꾼다.
+  /// [추가] — 묶음을 미리 고르지 않고 1단계(종류 고르기)부터 연다(I-17 8).
   void _onAdd() => showAssetAddFlow(context);
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final masked = ref.watch(hideCardProvider('asset.manage'));
     final assetsAsync = ref.watch(assetsProvider);
+    // 값이 아직 없을 때만 "처음 불러오는 중 · 실패" 다 — 다시 받는 동안은 앞 값을 그대로 둔다.
+    final loading = assetsAsync.isLoading && !assetsAsync.hasValue;
+    final failed = assetsAsync.hasError && !assetsAsync.hasValue;
 
     return Scaffold(
-      backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.assetManageTitle),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      body: PScreenBandBody(
-        child: assetsAsync.when(
-          loading: () => _AccountCardManageSkeleton(tokens: t),
-          error: (e, _) => Center(
-            child: Text(
-              '${l.assetLoadError}\n$e',
-              textAlign: TextAlign.center,
-              style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-            ),
+      // 흰 면 하나(25) — 회색 바닥도 띠도 없다
+      backgroundColor: context.colors.bgLayerDefault,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.assetManageTitle,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
           ),
-          data: (assets) {
-            _openRequestedEdit(assets);
-            int countOf(_Group g) => assets
-                .where((a) => _groupTypes[g]!.contains(a.assetType))
-                .length;
-            final filtered = assets
-                .where((a) => _groupTypes[_tab]!.contains(a.assetType))
-                .toList();
-            // '총액 제외'(isIncludedInTotal == 'N') 자산은 탭 합계에서 제외 (web 정합).
-            final total = filtered
-                .where((a) => a.isIncludedInTotal != 'N')
-                .fold<int>(0, (s, a) => s + (a.balance ?? 0));
-            final isCard = _tab == _Group.card;
-
-            return Column(
-              children: [
-                // 탭 — AppBar 바로 아래 흰띠, full width underline (stats_screen 미러)
-                Container(
-                  color: t.bgSurface,
-                  child: PTabs<_Group>(
-                    value: _tab,
-                    onChanged: (v) => setState(() => _tab = v),
-                    variant: PTabsVariant.underline,
-                    expand: true,
-                    items: [
-                      PTabItem(
-                        value: _Group.account,
-                        label: l.assetTabAccountsSavings(
-                          countOf(_Group.account),
-                        ),
-                      ),
-                      PTabItem(
-                        value: _Group.card,
-                        label: l.assetTabCards(countOf(_Group.card)),
-                      ),
-                      PTabItem(
-                        value: _Group.invest,
-                        label: l.assetTabInvest(countOf(_Group.invest)),
-                      ),
-                    ],
-                  ),
+          // 추가는 상단 바 글 버튼 하나(26) — 묶음마다 [○○ 추가] 를 두지 않는다
+          actions: [
+            PTopNavigationTextButton(
+              label: l.assetManageAdd,
+              onPressed: _onAdd,
+            ),
+          ],
+        ),
+      ),
+      body: PSwipeActionsProvider(
+        child: Builder(
+          builder: (context) {
+            if (loading) return const _ManageSkeleton();
+            if (failed) {
+              return _CenteredResult(
+                kind: PResultKind.failure,
+                title: l.assetManageLoadFailed,
+                description: l.dashFailDesc,
+                action: PResultAction(
+                  label: l.actionRetry,
+                  onPressed: () => ref.invalidate(assetsProvider),
                 ),
-                // 콘텐츠 (총액 + 리스트, page-edge padding)
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x24,
-                      vertical: PSpace.x20,
-                    ),
-                    children: [
-                      // 총액 (좌) + 추가 (우, ghost+accent)
-                      Row(
-                        children: [
-                          Text(
-                            masked
-                                ? '${l.assetTotalPrefix} ••••••'
-                                : '${l.assetTotalPrefix} ${krwSigned(total, false, unit: true)}',
-                            style: PTypo.caption.copyWith(color: t.fgTertiary),
-                          ),
-                          const Spacer(),
-                          PButton(
-                            label: l.assetAddCategory(_groupLabel(l, _tab)),
-                            icon: LucideIcons.plus,
-                            variant: PButtonVariant.accent,
-                            size: PButtonSize.sm,
-                            onPressed: _onAdd,
-                          ),
-                        ],
-                      ),
-                      // 리스트 — 총액 label 과 gap 0(사용자 결정, label·list 는 한 묶음).
-                      // margin-top -8(web 정합) — Flutter 음수 margin 없어 Transform.translate
-                      // (paint-only, label↔list 시각 간격 -8 당김).
-                      Transform.translate(
-                        offset: const Offset(0, -8),
-                        child: filtered.isEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: PSpace.x32,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    l.assetCategoryEmpty(_groupLabel(l, _tab)),
-                                    style: PTypo.bodySm.copyWith(
-                                      color: t.fgTertiary,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            // 카드 다이어트 — 카드 없이 플랫 행 리스트.
-                            : Column(
-                                children: [
-                                  for (final a in filtered)
-                                    // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 상세로 —
-                                    // 스와이프는 지름길이지 유일한 경로가 아니다
-                                    // (spec swipe-actions.md · WCAG 2.1.1).
-                                    // 삭제는 assetActions 가 한다(상세 시트와 같은 것).
-                                    PSwipeActions(
-                                      key: ValueKey('asset-${a.rowId}'),
-                                      // 탭마다 갈라 둔다 — 탭을 바꿔도 이전 탭에서 열어
-                                      // 둔 행이 남아 있으면 엉뚱한 자산이 열린 것처럼 보인다.
-                                      groupTag: 'asset-${_tab.name}-list',
-                                      actions: [
-                                        if (assetActions.canEdit(a))
-                                          PSwipeAction(
-                                            // 슬롯이 72px 이라 '수정'(actionEdit) 대신
-                                            // 두 글자 '수정' 을 쓴다.
-                                            label: l.actionEdit,
-                                            icon: LucideIcons.pencil,
-                                            kind: PSwipeKind.primary,
-                                            onSelect: () => assetActions.edit(
-                                              context,
-                                              ref,
-                                              a,
-                                            ),
-                                          ),
-                                        if (assetActions.canDelete(a))
-                                          PSwipeAction(
-                                            label: l.actionDelete,
-                                            icon: LucideIcons.trash2,
-                                            kind: PSwipeKind.destructive,
-                                            confirmTitle: assetActions
-                                                .deleteConfirmTitle(context, a),
-                                            confirmMessage: assetActions
-                                                .deleteConfirmMessage(
-                                                  context,
-                                                  a,
-                                                ),
-                                            onSelect: () => assetActions.delete(
-                                              context,
-                                              ref,
-                                              a,
-                                            ),
-                                          ),
-                                      ],
-                                      child: _ManageRow(
-                                        asset: a,
-                                        masked: masked,
-                                        negative: isCard,
-                                        tokens: t,
-                                        onTap: () => showAssetDetailRich(
-                                          context,
-                                          a,
-                                          onEdit: () =>
-                                              showAssetEditForm(context, a),
-                                          // 관리 화면이라 상세에서 지울 수 있다.
-                                          allowDelete: true,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              );
+            }
+            final raw = assetsAsync.value ?? const <Asset>[];
+            _openRequestedEdit(raw);
+            // 자산 화면과 같은 라이브 평가액(`value` — 다시 받는 동안 앞 값을 든다)으로 치환한다
+            final invMap =
+                ref.watch(investmentValuationMapProvider).value ??
+                const <int, InvestmentValuation>{};
+            final assets = applyLiveValuation(raw, liveValuationMap(invMap));
+            if (assets.isEmpty) {
+              // 자산 0개 — 상단 바 "추가" 가 있으니 버튼은 두지 않는다(31)
+              return _CenteredResult(
+                kind: PResultKind.empty,
+                icon: LucideIcons.landmark,
+                title: l.assetEmptyState,
+                description: l.assetManageEmptyHint,
+              );
+            }
+            return _ManageList(
+              assets: assets,
+              masked: masked,
+              originals: {for (final a in raw) a.rowId: a},
             );
           },
         ),
@@ -276,218 +192,202 @@ class _AccountCardManageScreenState
   }
 }
 
-/// 계좌·카드 관리 skeleton — 탭 + 총액행 + PCard 리스트 5행.
-class _AccountCardManageSkeleton extends StatelessWidget {
-  const _AccountCardManageSkeleton({required this.tokens});
-  final GrooTokens tokens;
+/// 폰 흰 면 위 결과 — 화면 전체를 차지하는 large.
+class _CenteredResult extends StatelessWidget {
+  const _CenteredResult({
+    required this.kind,
+    required this.title,
+    required this.description,
+    this.icon,
+    this.action,
+  });
+
+  final PResultKind kind;
+  final String title;
+  final String description;
+  final IconData? icon;
+  final PResultAction? action;
 
   @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    return Column(
+  Widget build(BuildContext context) => ListView(
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: PSpacing.x6),
+        child: PResultSection(
+          kind: kind,
+          size: PResultSize.large,
+          icon: icon,
+          title: title,
+          description: description,
+          primaryAction: action,
+        ),
+      ),
+    ],
+  );
+}
+
+class _ManageList extends ConsumerWidget {
+  const _ManageList({
+    required this.assets,
+    required this.masked,
+    required this.originals,
+  });
+
+  final List<Asset> assets;
+  final Map<int, Asset> originals;
+
+  /// 이 화면의 금액 가리기 카드 — 켜지면 합계 · 줄 금액이 모두 점이다(자산 하나의 가림과 합집합).
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final shown = [
+      for (final g in _Group.values)
+        if (_alwaysShown.contains(g) ||
+            assets.any((a) => _groupTypes[g]!.contains(a.assetType)))
+          g,
+    ];
+    return ListView(
+      // 끝 여백 24 는 흰 면 안(T3)
+      padding: EdgeInsets.only(
+        bottom: PSpacing.x6 + MediaQuery.paddingOf(context).bottom,
+      ),
       children: [
-        // 탭 영역 (underline, full-width — AppBar 바로 아래 bgSurface 띠)
-        Container(
-          color: t.bgSurface,
-          child: Row(
-            children: [
-              for (int i = 0; i < 3; i++)
-                Expanded(
-                  child: Container(
-                    height: 44,
-                    alignment: Alignment.center,
-                    child: PSkeleton.line(width: 60),
-                  ),
-                ),
+        for (var i = 0; i < shown.length; i++)
+          _GroupSection(
+            // 글 위치 = 목록 제목의 바깥 위 여백 + list-header.yaml 안쪽 위 8(paddingY).
+            // 첫 묶음 8 + 8 = 16(바 아래 → 글) · 그다음 16 + 8 = 24(앞 줄 아래 → 글). 웹과 같다.
+            topInset: i == 0 ? PSpacing.x4 : PSpacing.x6,
+            title: _groupTitle(l, shown[i]),
+            items: [
+              for (final a in assets)
+                if (_groupTypes[shown[i]]!.contains(a.assetType)) a,
             ],
+            debt: _debtGroups.contains(shown[i]),
+            masked: masked,
+            originals: originals,
           ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x24,
-              vertical: PSpace.x20,
-            ),
-            children: [
-              // 총액 + 추가 버튼 행
-              Row(
-                children: [
-                  const PSkeleton.line(width: 80),
-                  const Spacer(),
-                  const PSkeleton(width: 72, height: 32),
-                ],
-              ),
-              // 스켈레톤 플랫 — 총액 label 과 gap 0 + Transform -8(실제 리스트 정합).
-              Transform.translate(
-                offset: const Offset(0, -8),
-                child: Column(
-                  children: [
-                    for (int i = 0; i < 5; i++) const _ManageRowSkel(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
 }
 
-class _ManageRowSkel extends StatelessWidget {
-  const _ManageRowSkel();
+/// 묶음 하나 — 목록 제목(boldSolid + 오른쪽 합계) 아래 줄들. 합계는 자산 화면과 한 함수다.
+class _GroupSection extends ConsumerWidget {
+  const _GroupSection({
+    required this.topInset,
+    required this.title,
+    required this.items,
+    required this.debt,
+    required this.masked,
+    required this.originals,
+  });
+
+  final Map<int, Asset> originals;
+  final double? topInset;
+  final String title;
+  final List<Asset> items;
+  final bool debt;
+  final bool masked;
 
   @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 0, // 실제 행과 같은 값
-        vertical: PSpace.x16,
-      ),
-      child: Row(
-        children: [
-          PSkeleton(width: 36, height: 36),
-          SizedBox(width: PSpace.x12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PSkeleton.line(width: 80),
-                SizedBox(height: 4),
-                PSkeleton.line(width: 56, height: 12),
-              ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final sum = assetSumIncluded(items);
+    final total = debt ? sum.abs() : sum;
+    final totalText = masked
+        ? kBudgetMask
+        : (debt && total != 0
+              ? '$kMinus${assetWon(total, false)}'
+              : assetWon(total, false));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PListHeader(
+          title: title,
+          variant: PListHeaderVariant.boldSolid,
+          topInset: topInset,
+          trailing: Text(
+            keepAllAmount(totalText),
+            semanticsLabel: totalText,
+            textAlign: TextAlign.end,
+            style: PTypography.t4.copyWith(
+              color: c.fgNeutral,
+              fontWeight: FontWeight.w700,
+              fontFeatures: tabularFigures,
             ),
           ),
-          SizedBox(width: PSpace.x8),
-          PSkeleton.line(width: 72),
-        ],
-      ),
+        ),
+        if (items.isEmpty)
+          BudgetEmptyLine(l.assetGroupEmpty)
+        else
+          PList(
+            semanticLabel: title,
+            children: [
+              for (final a in items)
+                // 줄은 라이브 값으로 그리고, 동작(밀기 · 상세 · 수정)에는 원본을 넘긴다
+                // 밀면 수정·삭제 — 손가락 지름길이다. 줄을 누르면 상세로 가고 거기에도 수정 · 삭제가 있다(WCAG 2.1.1).
+                PSwipeActions(
+                  key: ValueKey('asset-${a.rowId}'),
+                  rowLabel: a.assetName,
+                  actions: assetActions.dsSwipeActions(
+                    context,
+                    ref,
+                    originals[a.rowId] ?? a,
+                  ),
+                  child: AssetRow(
+                    key: ValueKey('asset-row-${a.rowId}'),
+                    asset: a,
+                    cardMasked: masked,
+                    manage: true,
+                    onTap: () => showAssetDetailRich(
+                      context,
+                      originals[a.rowId] ?? a,
+                      onEdit: () =>
+                          showAssetEditForm(context, originals[a.rowId] ?? a),
+                      // 관리 화면이라 상세에서 지울 수 있다.
+                      allowDelete: true,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+      ],
     );
   }
 }
 
-class _ManageRow extends StatelessWidget {
-  const _ManageRow({
-    required this.asset,
-    required bool masked,
-    required this.negative,
-    required this.tokens,
-    required this.onTap,
-  }) : _cardMasked = masked;
-
-  final Asset asset;
-
-  /// 이 화면의 카드가 켜졌는가.
-  final bool _cardMasked;
-
-  /// 화면 카드 **또는** 이 자산 자체 — 합집합이다.
-  bool get masked => _cardMasked || asset.isAmountHidden == 'Y';
-  final bool negative;
-  final GrooTokens tokens;
-  final VoidCallback onTap;
+/// 불러오는 중 — 묶음 제목 둘 + 줄 스켈레톤(타일 40 · 두 줄). 상단 바는 그대로 있다(31).
+class _ManageSkeleton extends StatelessWidget {
+  const _ManageSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
-    final l = AppLocalizations.of(context);
-    final balance = asset.balance ?? 0;
-    // 카드 사용액은 음수 표기 컨벤션, 계좌는 실제 부호(대출 등 음수 잔액).
-    // 음수만 fg-expense 강조, 0 은 부호·강조 없이 '0원' (−0원 방지) — web 정합.
-    // 저장된 부호를 그대로 믿는다 — 예전엔 카드 그룹에서 부호를 강제로 뒤집었는데,
-    // 그러면 데이터가 양수로 어긋나도 행은 멀쩡해 보이고 합계만 틀린 값이 나온다.
-    // 지금은 저장할 때 종류가 부호를 정한다(`asset/domain/asset_sign.dart`) —
-    // 자산군 `+` · 부채군(신용카드·대출·마이너스통장) `−`. 표시에서 손볼 게 없다.
-    final isNeg = balance < 0;
-    final sub = [
-      asset.institution,
-      asset.memo,
-    ].where((s) => s != null && s.isNotEmpty).join(' · ');
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          // web MANAGE_ROW(계좌·카테고리 공용) 정합 — py 12 / 아이콘 36 / 금액 bodySm
-          // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
-          padding: const EdgeInsets.symmetric(
-            horizontal: 0,
-            vertical: PSpace.x12,
-          ),
-          child: Row(
-            children: [
-              AssetLogo(asset: asset, size: 36),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      asset.assetName,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: t.fgPrimary,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                    if (sub.isNotEmpty)
-                      Text(
-                        sub,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: t.fgTertiary,
-                          fontSize: PFontSize.caption,
-                          fontWeight: PFontWeight.medium,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    masked
-                        ? '••••'
-                        : isNeg
-                        ? krwSigned(balance.abs(), false, sign: '−', unit: true)
-                        : krwSigned(balance.abs(), false, unit: true),
-                    style: TextStyle(
-                      color: t.fgPrimary,
-                      fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.32,
-                    ),
-                  ),
-                  // web 정합 — 총액 미포함 자산은 금액 아래 작은 '총액 제외' 표기
-                  if (asset.isIncludedInTotal == 'N') ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      l.assetExcludedFromTotal,
-                      style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.micro,
-                      ),
-                    ),
-                  ],
-                  // 카드로 가려진 것과 이 자산이라서 가려진 것을 구분해 준다.
-                  if (asset.isAmountHidden == 'Y') ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      l.assetAmountHiddenBadge,
-                      style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.micro,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
+    Widget head(double? top) => Padding(
+      padding: EdgeInsets.fromLTRB(
+        PSpacing.globalGutter,
+        top ?? PSpacing.x2,
+        PSpacing.globalGutter,
+        PSpacing.x2,
       ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          PSkeleton.text(PTypography.t4, width: PSpacing.x10 * 2),
+          PSkeleton.text(PTypography.t4, width: PSpacing.x10 * 2),
+        ],
+      ),
+    );
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        head(PSpacing.x4),
+        const AssetRowsSkeleton(),
+        head(PSpacing.x6),
+        const AssetRowsSkeleton(rows: 2),
+      ],
     );
   }
 }

@@ -135,44 +135,14 @@
   "assetHideThisAmount": "금액 가리기",
   "assetHideThisAmountDesc": "이 자산의 금액만 가려요. 합계는 그대로 보여요.",
   "assetManageTitle": "계좌·카드 관리",
-  "assetTabAccountsSavings": "계좌·예금 {count}",
-  "@assetTabAccountsSavings": {
+  "assetManageAdd": "추가",
+  "assetManageEmptyHint": "[추가]를 눌러 첫 계좌나 카드를 등록해 보세요.",
+  "assetManageLoadFailed": "계좌·카드를 불러오지 못했어요",
+  "assetHoldingsCount": "보유 {count}종목",
+  "@assetHoldingsCount": {
     "placeholders": {
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "assetTabCards": "카드 {count}",
-  "@assetTabCards": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTabInvest": "투자 {count}",
-  "@assetTabInvest": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTotalPrefix": "총",
-  "assetAddCategory": "{name} 추가",
-  "@assetAddCategory": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "assetCategoryEmpty": "등록된 {name}가 없어요",
-  "@assetCategoryEmpty": {
-    "placeholders": {
-      "name": {
-        "type": "String"
       }
     }
   },

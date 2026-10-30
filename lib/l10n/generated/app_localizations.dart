@@ -794,41 +794,29 @@ abstract class AppLocalizations {
   /// **'계좌·카드 관리'**
   String get assetManageTitle;
 
-  /// No description provided for @assetTabAccountsSavings.
+  /// No description provided for @assetManageAdd.
   ///
   /// In ko, this message translates to:
-  /// **'계좌·예금 {count}'**
-  String assetTabAccountsSavings(int count);
+  /// **'추가'**
+  String get assetManageAdd;
 
-  /// No description provided for @assetTabCards.
+  /// No description provided for @assetManageEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'카드 {count}'**
-  String assetTabCards(int count);
+  /// **'[추가]를 눌러 첫 계좌나 카드를 등록해 보세요.'**
+  String get assetManageEmptyHint;
 
-  /// No description provided for @assetTabInvest.
+  /// No description provided for @assetManageLoadFailed.
   ///
   /// In ko, this message translates to:
-  /// **'투자 {count}'**
-  String assetTabInvest(int count);
+  /// **'계좌·카드를 불러오지 못했어요'**
+  String get assetManageLoadFailed;
 
-  /// No description provided for @assetTotalPrefix.
+  /// No description provided for @assetHoldingsCount.
   ///
   /// In ko, this message translates to:
-  /// **'총'**
-  String get assetTotalPrefix;
-
-  /// No description provided for @assetAddCategory.
-  ///
-  /// In ko, this message translates to:
-  /// **'{name} 추가'**
-  String assetAddCategory(String name);
-
-  /// No description provided for @assetCategoryEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 {name}가 없어요'**
-  String assetCategoryEmpty(String name);
+  /// **'보유 {count}종목'**
+  String assetHoldingsCount(int count);
 
   /// No description provided for @assetIncludeInTotal.
   ///
