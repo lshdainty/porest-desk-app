@@ -35,8 +35,9 @@ const double kBottomSheetBackGap = 4;
 /// 시트 안에서 시트를 닫는 길 — 바닥 버튼 · 닫기 버튼이 부른다(`PBottomSheet.of(context)`).
 abstract interface class PBottomSheetController {
   /// 닫기를 청한다 — 입력 폼에 바뀐 값이 있으면 먼저 "작성한 내용이 사라져요" 를 묻고, 계속 작성하면 그대로 둔다.
-  /// 닫기 버튼 · 뒤로 가기 · `Esc` · 바깥 누르기 · 끌기가 모두 이 길이다.
-  Future<void> requestClose();
+  /// 닫기 버튼 · 뒤로 가기 · `Esc` · 바깥 누르기 · 끌기가 모두 이 길이다. 시트 안에 한 단계가 열려 있으면(interceptClose) 청은
+  /// 그 단계를 닫는 데 쓰인다 — [wholeSheet] 면 그 단계를 건너뛰고 시트 전체를 닫는다(닫기 원 · 바깥 누르기 · 끌기).
+  Future<void> requestClose({bool wholeSheet = false});
 
   /// 묻지 않고 닫는다 — 저장을 마친 뒤처럼 바뀐 값이 이미 처리된 때. [result] 가 `PBottomSheet.show` 의 결과다.
   void close([Object? result]);
