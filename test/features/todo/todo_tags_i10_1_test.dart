@@ -214,7 +214,7 @@ void main() {
 
   group('수정 시트 [삭제]', () {
     testWidgets(
-      '수정 — 바닥 왼쪽 ghost critical small(36) [삭제] + 나머지 폭 [저장] large(48) · 빨간 글',
+      '수정 — 바닥 왼쪽 ghost critical large(48) [삭제] + 나머지 폭 [저장] large(48) · 빨간 글',
       (tester) async {
         await pumpApp(
           tester,
@@ -229,9 +229,9 @@ void main() {
         final delButton = tester.widget<PButton>(del);
         expect(delButton.variant, PButtonVariant.ghost);
         expect(delButton.ghostColor, PButtonGhostColor.critical);
-        expect(delButton.size, PButtonSize.small);
+        expect(delButton.size, PButtonSize.large);
         expect(delButton.flush, isNull, reason: 'flush 는 빨간 글을 회색으로 덮는다');
-        expect(tester.getSize(del).height, 36);
+        expect(tester.getSize(del).height, 48);
         expect(tester.getSize(save).height, 48);
         // 삭제는 왼쪽 여백선(24)에서 · 저장은 오른쪽 여백선(336)까지
         expect(tester.getRect(del).left, 24);

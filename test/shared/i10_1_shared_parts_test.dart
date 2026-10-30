@@ -246,7 +246,7 @@ void main() {
       );
       expect(tester.getRect(del).left, 24);
       expect(tester.getRect(save).right, 360 - 24);
-      expect(tester.getSize(del).height, 36);
+      expect(tester.getSize(del).height, 48);
       expect(tester.getSize(save).height, 48);
       final d = tester.widget<PButton>(del);
       expect(d.ghostColor, PButtonGhostColor.critical);

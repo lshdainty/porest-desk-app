@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 
-/// 수정 폼의 바닥 줄 — 왼쪽 [삭제](ghost critical small 36, 빨간 글) + 나머지 폭 [저장](large 48). 새로 만드는 폼에는 [삭제] 가 없다
+/// 수정 폼의 바닥 줄 — 왼쪽 [삭제](ghost critical large 48, 빨간 글 · 글자만큼의 폭 — bottom-sheet.md 바닥 · button.md 시트 바닥) + 나머지 폭 [저장](large 48). 새로 만드는 폼에는 [삭제] 가 없다
 /// (이 줄 대신 평소 바닥 버튼 하나를 쓴다).
 ///
 /// 삭제는 확인 창이 따로 묻는다 — 이 줄의 [onDelete] 는 시트를 닫고 확인으로 넘기는 일만 한다. `flush` 를 주지 않는다(ghost 의
@@ -33,7 +33,7 @@ class PFormDeleteFooter extends StatelessWidget {
           label: deleteLabel,
           variant: PButtonVariant.ghost,
           ghostColor: PButtonGhostColor.critical,
-          size: PButtonSize.small,
+          size: PButtonSize.large,
           onPressed: onDelete,
         ),
         Expanded(child: save),
