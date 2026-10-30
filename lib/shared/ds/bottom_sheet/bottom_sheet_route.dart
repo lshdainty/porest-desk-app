@@ -26,6 +26,7 @@ class PBottomSheetRoute<T> extends PopupRoute<T> {
     required this.isDirty,
     required this.leaveCopy,
     required this.snapPoints,
+    this.interceptClose,
     this.alwaysHandle = false,
     this.topRadius = PRounded.r6,
     this.initialFocus,
@@ -44,6 +45,11 @@ class PBottomSheetRoute<T> extends PopupRoute<T> {
 
   /// 스냅 높이 — 화면 높이 비율(0 ~ 1, 낮은 것부터). 있으면 손잡이를 단다(입력 폼은 쓰지 않는다).
   final List<double>? snapPoints;
+
+  /// 닫기 청(닫기 버튼 · 뒤로 가기 · `Esc`)을 먼저 받는다 — 참을 돌려주면 그 청은 쓰였고 시트는 닫히지 않는다(바뀐 값을 묻지도
+  /// 않는다). 시트 안에서 한 단계 들어가 있을 때 뒤로 가기 · `Esc` 가 시트 전체가 아니라 그 단계만 닫는 길이다(웹
+  /// `onOpenChange(false)` 를 안에서 가로채는 것과 같다).
+  final bool Function()? interceptClose;
 
   /// 손잡이를 늘 단다 — 스냅 높이가 없어도(Menu Sheet). 누르면 닫는다.
   final bool alwaysHandle;
@@ -292,6 +298,7 @@ class _SheetHostState extends State<_SheetHost>
   @override
   Future<void> requestClose() async {
     if (_asking) return;
+    if (_route.interceptClose?.call() ?? false) return;
     final dirty = _route.isDirty?.call() ?? false;
     final copy = _route.leaveCopy;
     if (!dirty || copy == null) {
@@ -503,7 +510,7 @@ class _SheetHostState extends State<_SheetHost>
     // 뒤로 가기는 늘 닫는다 — 바뀐 값을 살피는 시트(isDirty)는 직접 받아 묻고, 아니면 그대로 닫힌다.
     // 모달 라우트 안에서만 건다(셸의 branch PopScope 와 겹치지 않는다)
     return PopScope(
-      canPop: _route.isDirty == null,
+      canPop: _route.isDirty == null && _route.interceptClose == null,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) requestClose();
       },

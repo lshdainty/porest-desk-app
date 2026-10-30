@@ -46,6 +46,8 @@ export 'package:groo_damda_app/shared/ds/bottom_sheet/bottom_sheet_route.dart'
 /// 0.4px/ms 보다 빠르거나 높이의 25% 이상 내려왔으면 닫고 아니면 200ms exit 로 제자리 — 열린 뒤 0.5초와 본문이 스크롤된
 /// 동안은 끌리지 않는다.
 ///
+/// 안의 한 단계 — 시트 안에서 한 단계 들어가 있는 동안([interceptClose])은 닫기 청이 시트를 닫지 않고 그 단계를 닫는 쪽으로 쓰인다.
+///
 /// 높이 — 내용만큼, 화면 높이의 90% 를 넘지 않는다(그보다 긴 내용은 페이지로). 키보드가 올라오면 그 위에 서고, 안전
 /// 영역은 키보드가 없을 때만 더한다. 손잡이는 [snapPoints] 가 있을 때만 — 누르면 다음(더 높은) 스냅 높이로, 가장 높은
 /// 높이에서 누르면 닫는다.
@@ -60,6 +62,7 @@ abstract final class PBottomSheet {
     bool form = false,
     bool Function()? isDirty,
     PLeaveConfirmCopy? leaveCopy,
+    bool Function()? interceptClose,
     List<double>? snapPoints,
     FocusNode? initialFocus,
     bool useRootNavigator = true,
@@ -85,6 +88,7 @@ abstract final class PBottomSheet {
         form: form,
         isDirty: isDirty,
         leaveCopy: leaveCopy,
+        interceptClose: interceptClose,
         snapPoints: form ? null : snapPoints,
         initialFocus: initialFocus,
       ),
