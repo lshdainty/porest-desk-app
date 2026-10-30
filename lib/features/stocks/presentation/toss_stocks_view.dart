@@ -1774,66 +1774,87 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
     ].join(' · ');
 
     final head = PScreenSection(
-      padding: const EdgeInsets.all(PSpacing.x6),
+      padding: const EdgeInsets.symmetric(vertical: PSpacing.x6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            name,
-            style: PTypography.t7.copyWith(
-              fontWeight: FontWeight.w700,
-              color: c.fgNeutral,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(sub, style: PTypography.t3.copyWith(color: c.fgNeutralSubtle)),
-          const SizedBox(height: PSpacing.x4),
-          Text(
-            keepAllAmount(last != null ? fmtByCurrency(last, currency) : '—'),
-            style: PTypography.t12.copyWith(
-              fontWeight: FontWeight.w700,
-              color: c.fgNeutral,
-              fontFeatures: _tnum,
-            ),
-          ),
-          if (changePct != null) ...[
-            const SizedBox(height: PSpacing.x1),
-            Align(alignment: Alignment.centerLeft, child: _PctDelta(changePct)),
-          ],
-          if (isUs && last != null && fxRate != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              '≈ ${krwSigned((last * fxRate).round(), false, unit: true)}',
-              style: PTypography.t3.copyWith(
-                color: c.fgNeutralSubtle,
-                fontFeatures: _tnum,
-              ),
-            ),
-          ],
-          if (last == null && !pricesAsync.isLoading) ...[
-            const SizedBox(height: 2),
-            Text(
-              l.stocksPriceUnavailable,
-              style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
-            ),
-          ],
-          if (warnings.isNotEmpty) ...[
-            const SizedBox(height: PSpacing.x2),
-            Wrap(
-              spacing: PSpacing.x1,
-              runSpacing: PSpacing.x1,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final w in warnings)
-                  PBadge(
-                    label: _warningLabel(l, w.warningType),
-                    tone: PBadgeTone.warning,
+                Text(
+                  keepAll(name),
+                  style: PTypography.t7.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: c.fgNeutral,
                   ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  sub,
+                  style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                ),
+                const SizedBox(height: PSpacing.x4),
+                Text(
+                  keepAllAmount(
+                    last != null ? fmtByCurrency(last, currency) : '—',
+                  ),
+                  style: PTypography.t12.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: c.fgNeutral,
+                    fontFeatures: _tnum,
+                  ),
+                ),
+                if (changePct != null) ...[
+                  const SizedBox(height: PSpacing.x1),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: _PctDelta(changePct),
+                  ),
+                ],
+                if (isUs && last != null && fxRate != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    '≈ ${krwSigned((last * fxRate).round(), false, unit: true)}',
+                    style: PTypography.t3.copyWith(
+                      color: c.fgNeutralSubtle,
+                      fontFeatures: _tnum,
+                    ),
+                  ),
+                ],
+                if (last == null && !pricesAsync.isLoading) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    l.stocksPriceUnavailable,
+                    style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                ],
+                if (warnings.isNotEmpty) ...[
+                  const SizedBox(height: PSpacing.x2),
+                  Wrap(
+                    spacing: PSpacing.x1,
+                    runSpacing: PSpacing.x1,
+                    children: [
+                      for (final w in warnings)
+                        PBadge(
+                          label: _warningLabel(l, w.warningType),
+                          tone: PBadgeTone.warning,
+                        ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: PSpacing.x4),
+                ChartWebView(
+                  symbol: symbol,
+                  isUs: isUs,
+                  range: _range,
+                  height: 168,
+                ),
+                const SizedBox(height: PSpacing.x3),
               ],
             ),
-          ],
-          const SizedBox(height: PSpacing.x4),
-          ChartWebView(symbol: symbol, isUs: isUs, range: _range, height: 168),
-          const SizedBox(height: PSpacing.x3),
+          ),
           // 기간 5칸 — Segmented 는 2 ~ 4칸이라 질문(I-13-1-app-result Q1) 전에는 Chip Tabs 로 둔다.
           PChipTabs<String>(
             value: _range,
