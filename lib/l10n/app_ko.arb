@@ -1310,7 +1310,7 @@
     }
   },
   "budgetDeleteConfirm": "삭제한 예산은 되돌릴 수 없어요.",
-  "budgetDeleteFailed": "예산을 삭제하지 못했어요",
+  "budgetDeleteFailed": "예산을 삭제하지 못했어요.",
   "budgetMonthlyLimit": "월 예산 한도",
   "budgetLoadError": "예산을 불러오지 못했습니다",
   "budgetSelectMonth": "월 선택",
@@ -1440,7 +1440,7 @@
       }
     }
   },
-  "budgetCopyPartialFailed": "가져오지 못한 예산이 {count}개 있어요",
+  "budgetCopyPartialFailed": "가져오지 못한 예산이 {count}개 있어요.",
   "@budgetCopyPartialFailed": {
     "placeholders": {
       "count": {
@@ -1448,9 +1448,9 @@
       }
     }
   },
-  "budgetCopiedDone": "지난달 예산을 가져왔어요",
+  "budgetCopiedDone": "지난달 예산을 가져왔어요.",
   "budgetCopyUndo": "되돌리기",
-  "budgetCopyUndoPartial": "되돌리지 못한 예산이 {count}개 남았어요",
+  "budgetCopyUndoPartial": "되돌리지 못한 예산이 {count}개 남았어요.",
   "@budgetCopyUndoPartial": {
     "placeholders": {
       "count": {
@@ -2753,7 +2753,7 @@
     }
   },
   "savingGoalDeleteConfirm": "삭제한 저축 목표는 되돌릴 수 없어요.",
-  "savingGoalDeleteFailed": "저축 목표를 삭제하지 못했어요",
+  "savingGoalDeleteFailed": "저축 목표를 삭제하지 못했어요.",
   "savingGoalNameLabel": "목표 이름",
   "savingGoalNameHint": "예: 유럽 여행",
   "savingGoalNameDuplicate": "같은 이름의 목표가 이미 있어요.",

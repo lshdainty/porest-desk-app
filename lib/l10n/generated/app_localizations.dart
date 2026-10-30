@@ -4175,7 +4175,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetDeleteFailed.
   ///
   /// In ko, this message translates to:
-  /// **'예산을 삭제하지 못했어요'**
+  /// **'예산을 삭제하지 못했어요.'**
   String get budgetDeleteFailed;
 
   /// No description provided for @budgetMonthlyLimit.
@@ -4451,13 +4451,13 @@ abstract class AppLocalizations {
   /// No description provided for @budgetCopyPartialFailed.
   ///
   /// In ko, this message translates to:
-  /// **'가져오지 못한 예산이 {count}개 있어요'**
+  /// **'가져오지 못한 예산이 {count}개 있어요.'**
   String budgetCopyPartialFailed(int count);
 
   /// No description provided for @budgetCopiedDone.
   ///
   /// In ko, this message translates to:
-  /// **'지난달 예산을 가져왔어요'**
+  /// **'지난달 예산을 가져왔어요.'**
   String get budgetCopiedDone;
 
   /// No description provided for @budgetCopyUndo.
@@ -4469,7 +4469,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetCopyUndoPartial.
   ///
   /// In ko, this message translates to:
-  /// **'되돌리지 못한 예산이 {count}개 남았어요'**
+  /// **'되돌리지 못한 예산이 {count}개 남았어요.'**
   String budgetCopyUndoPartial(int count);
 
   /// No description provided for @budgetCopyLastMonthBtn.
@@ -8753,7 +8753,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalDeleteFailed.
   ///
   /// In ko, this message translates to:
-  /// **'저축 목표를 삭제하지 못했어요'**
+  /// **'저축 목표를 삭제하지 못했어요.'**
   String get savingGoalDeleteFailed;
 
   /// No description provided for @savingGoalNameLabel.

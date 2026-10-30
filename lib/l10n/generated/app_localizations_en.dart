@@ -2257,7 +2257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetDeleteConfirm => 'A deleted budget can\'t be restored.';
 
   @override
-  String get budgetDeleteFailed => 'Couldn\'t delete the budget';
+  String get budgetDeleteFailed => 'Couldn\'t delete the budget.';
 
   @override
   String get budgetMonthlyLimit => 'Monthly budget limit';
@@ -2428,14 +2428,14 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count budgets couldn\'t be copied',
-      one: '1 budget couldn\'t be copied',
+      other: '$count budgets couldn\'t be copied.',
+      one: '1 budget couldn\'t be copied.',
     );
     return '$_temp0';
   }
 
   @override
-  String get budgetCopiedDone => 'Last month\'s budget was copied';
+  String get budgetCopiedDone => 'Last month\'s budget was copied.';
 
   @override
   String get budgetCopyUndo => 'Undo';
@@ -2445,8 +2445,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count budgets couldn\'t be undone',
-      one: '1 budget couldn\'t be undone',
+      other: '$count budgets couldn\'t be undone.',
+      one: '1 budget couldn\'t be undone.',
     );
     return '$_temp0';
   }
@@ -4810,7 +4810,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'A deleted saving goal can\'t be restored.';
 
   @override
-  String get savingGoalDeleteFailed => 'Couldn\'t delete the saving goal';
+  String get savingGoalDeleteFailed => 'Couldn\'t delete the saving goal.';
 
   @override
   String get savingGoalNameLabel => 'Goal name';

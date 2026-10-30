@@ -1306,7 +1306,7 @@
     }
   },
   "budgetDeleteConfirm": "A deleted budget can't be restored.",
-  "budgetDeleteFailed": "Couldn't delete the budget",
+  "budgetDeleteFailed": "Couldn't delete the budget.",
   "budgetMonthlyLimit": "Monthly budget limit",
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
@@ -1436,7 +1436,7 @@
       }
     }
   },
-  "budgetCopyPartialFailed": "{count, plural, =1{1 budget couldn't be copied} other{{count} budgets couldn't be copied}}",
+  "budgetCopyPartialFailed": "{count, plural, =1{1 budget couldn't be copied.} other{{count} budgets couldn't be copied.}}",
   "@budgetCopyPartialFailed": {
     "placeholders": {
       "count": {
@@ -1444,9 +1444,9 @@
       }
     }
   },
-  "budgetCopiedDone": "Last month's budget was copied",
+  "budgetCopiedDone": "Last month's budget was copied.",
   "budgetCopyUndo": "Undo",
-  "budgetCopyUndoPartial": "{count, plural, =1{1 budget couldn't be undone} other{{count} budgets couldn't be undone}}",
+  "budgetCopyUndoPartial": "{count, plural, =1{1 budget couldn't be undone.} other{{count} budgets couldn't be undone.}}",
   "@budgetCopyUndoPartial": {
     "placeholders": {
       "count": {
@@ -2736,7 +2736,7 @@
     }
   },
   "savingGoalDeleteConfirm": "A deleted saving goal can't be restored.",
-  "savingGoalDeleteFailed": "Couldn't delete the saving goal",
+  "savingGoalDeleteFailed": "Couldn't delete the saving goal.",
   "savingGoalNameLabel": "Goal name",
   "savingGoalNameHint": "e.g. Trip to Europe",
   "savingGoalNameDuplicate": "A goal with this name already exists.",

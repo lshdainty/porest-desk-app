@@ -138,7 +138,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     if (!undoable) return;
     PSnackbar.of(context).show(
       message: l.budgetCopiedDone,
-      tone: PSnackbarTone.positive,
+      // 되돌리기가 달린 결과 알림은 기본 톤(아이콘 없음) — 체크는 성공을 눈에 띄게 알릴 때만(snackbar.md:41 · :151-158)
+      tone: PSnackbarTone.neutral,
       action: PSnackbarAction(
         label: l.budgetCopyUndo,
         onPressed: () => _undoCopy(created),

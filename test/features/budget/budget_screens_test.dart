@@ -702,7 +702,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
       expect(repo.created.length, 3);
-      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsOneWidget);
       await tester.tap(find.text('되돌리기'));
       await tester.pumpAndSettle();
       expect(repo.deleted, [100, 101, 102]);
@@ -713,12 +713,14 @@ void main() {
       await pumpMonths(tester, repo, curEmpty: true);
       await tester.tap(find.text('지난달 복사'));
       await tester.pump(const Duration(milliseconds: 500));
-      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsOneWidget);
+      // 기본 톤 — 아이콘 없음
+      expect(find.byKey(const ValueKey('snackbar-icon')), findsNothing);
       await tester.pump(const Duration(seconds: 5));
-      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsOneWidget);
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
-      expect(findPlain('지난달 예산을 가져왔어요'), findsNothing);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsNothing);
     });
 
     Future<void> pumpCur(
@@ -791,7 +793,7 @@ void main() {
       await tester.tap(find.text('되돌리기'));
       await tester.pumpAndSettle();
       expect(repo.deleted, [100]);
-      expect(findPlain('되돌리지 못한 예산이 2개 남았어요'), findsOneWidget);
+      expect(findPlain('되돌리지 못한 예산이 2개 남았어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
       expect(repo.deleted, [100, 101, 102]);
@@ -813,7 +815,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byType(PAlertDialogView), findsNothing);
         expect(repo.updated.length, 2);
-        expect(findPlain('가져오지 못한 예산이 1개 있어요'), findsOneWidget);
+        expect(findPlain('가져오지 못한 예산이 1개 있어요.'), findsOneWidget);
         await tester.tap(find.text('다시 시도'));
         await tester.pumpAndSettle();
         expect(find.byType(PAlertDialogView), findsNothing);
@@ -832,13 +834,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
       expect(repo.created.length, 2);
-      expect(findPlain('가져오지 못한 예산이 1개 있어요'), findsOneWidget);
+      expect(findPlain('가져오지 못한 예산이 1개 있어요.'), findsOneWidget);
       // 실패 알림이 떠 있는 동안 되돌리기 스낵바는 없다(한 번에 하나)
       expect(find.text('되돌리기'), findsNothing);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
       expect(repo.created.length, 3);
-      expect(findPlain('지난달 예산을 가져왔어요'), findsOneWidget);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsOneWidget);
       await tester.tap(find.text('되돌리기'));
       await tester.pumpAndSettle();
       expect(repo.deleted, [100, 101, 102]);
@@ -863,7 +865,7 @@ void main() {
       await tester.tap(find.text('삭제').last);
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
-      expect(findPlain('예산을 삭제하지 못했어요'), findsOneWidget);
+      expect(findPlain('예산을 삭제하지 못했어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsOneWidget);
@@ -945,7 +947,7 @@ void main() {
       await tester.tap(find.text('삭제').last);
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsNothing);
-      expect(findPlain('저축 목표를 삭제하지 못했어요'), findsOneWidget);
+      expect(findPlain('저축 목표를 삭제하지 못했어요.'), findsOneWidget);
       await tester.tap(find.text('다시 시도'));
       await tester.pumpAndSettle();
       expect(find.byType(PAlertDialogView), findsOneWidget);
