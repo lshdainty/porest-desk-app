@@ -253,7 +253,7 @@ void main() {
     }
   });
 
-  testWidgets('긴 캘린더 이름이 두 줄이면 둘째 줄이 첫째 줄 글자 시작에 맞고 점은 첫 줄 높이에 선다', (
+  testWidgets('긴 캘린더 이름이 두 줄이면 두 줄 모두 같은 오른쪽 끝에 맞고 점은 첫 줄 높이에 선다', (
     tester,
   ) async {
     const name = '가족 공유 캘린더 — 주말 나들이 · 경조사 · 병원 동행';
@@ -271,22 +271,48 @@ void main() {
       find.descendant(of: textFinder, matching: find.byType(RichText)),
     );
     expect(para.size.height, greaterThan(30), reason: '두 줄로 접혔다');
-    double startX(int offset) => para
+    double endX(int offset) => para
         .getBoxesForSelection(
-          TextSelection(baseOffset: offset, extentOffset: offset + 1),
+          TextSelection(baseOffset: offset - 1, extentOffset: offset),
+        )
+        .last
+        .right;
+    // 첫 줄의 끝 — 글자 상자의 위가 첫 글자보다 내려가는 첫 자리
+    final top0 = para
+        .getBoxesForSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 1),
         )
         .first
-        .left;
-    final first = startX(0);
-    // 둘째 줄 첫 글자 — 둘째 줄 높이 한가운데의 위치
-    final second = para.getPositionForOffset(
-      Offset(0, para.size.height * 0.75),
-    );
-    expect(second.offset, greaterThan(0));
+        .top;
+    var firstLineEnd = 1;
+    while (firstLineEnd < para.text.toPlainText().length &&
+        (para
+                    .getBoxesForSelection(
+                      TextSelection(
+                        baseOffset: firstLineEnd,
+                        extentOffset: firstLineEnd + 1,
+                      ),
+                    )
+                    .firstOrNull
+                    ?.top ??
+                top0) <
+            top0 + 5) {
+      firstLineEnd++;
+    }
+    expect(firstLineEnd, lessThan(para.text.toPlainText().length));
+    // 줄 끝 공백은 보이지 않는 글자라 그 앞 글자의 오른쪽 끝으로 잰다
+    final firstEnd = endX(firstLineEnd - 1);
+    final secondEnd = endX(para.text.toPlainText().length);
+    // 글자 끝 기준 — 줄마다 같은 세로선(±1)이다(오른쪽 맞춤). 두 줄 길이가 다르니 왼쪽은 들쭉날쭉해도 된다
     expect(
-      startX(second.offset),
-      closeTo(first, 0.5),
-      reason: '둘째 줄이 첫째 줄 글자 시작(점 오른쪽)에 맞는다',
+      para.size.width - firstEnd,
+      lessThan(8),
+      reason: '첫 줄도 같은 오른쪽 끝(줄 끝 공백 하나 폭 안)',
+    );
+    expect(
+      para.size.width - secondEnd,
+      lessThan(1.5),
+      reason: '마지막 줄이 상자 오른쪽 끝에 붙는다(오른쪽 맞춤)',
     );
     // 점은 글 왼쪽 6 + 첫 줄 높이
     final dot = tester.getRect(find.byType(PickerDot));

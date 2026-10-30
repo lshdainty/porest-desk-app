@@ -107,20 +107,24 @@ class CalendarRowValue {
   Widget build(BuildContext context) {
     final narrow = isNarrow(context, rowWidth);
     final max = maxWidthFor(context, title, rowWidth, reserve: reserve);
+    // 값은 줄 수와 상관없이 줄 끝 오른쪽 맞춤이다(모든 줄의 글자 끝이 한 세로선 — 꺾쇠 줄은 꺾쇠 앞이 끝선). 좁은 줄에서 값이 제목 아래로
+    // 내려오면 왼쪽(list.md) — 글 값은 ds List 가 end → start 로 돌려주고, 점 줄은 우리가 만든 상자라 여기서 직접 start 로 준다.
     // 낱말 단위로 줄을 바꾼다(Typography v114 — keepAll)
-    final label = Text(
+    Text label0(TextAlign align) => Text(
       keepAll(text),
+      textAlign: align,
       maxLines: maxLines,
       overflow: maxLines == null ? TextOverflow.clip : TextOverflow.ellipsis,
       semanticsLabel: text,
     );
+    final label = label0(TextAlign.end);
     if (dot != null) {
-      // 점은 앞 표시이고 글은 글끼리 맞춘다 — 이름이 두 줄이 되면 둘째 줄이 첫째 줄 글자 시작에 맞는다(웹 DotValue 와 같다:
+      // 점은 앞 표시이고 글은 글끼리 맞춘다 — 이름이 두 줄이 되면 둘째 줄도 첫째 줄과 같은 오른쪽 끝에 맞는다(웹 DotValue 와 같다:
       // 점 8 + 사이 6 + 글). 점은 첫 줄 높이에 서고(디자인 판정) px 고정이라 글자 배율을 따르지 않는다.
       final lineHeight =
           MediaQuery.textScalerOf(context).scale(PTypography.t5.fontSize!) *
           (PTypography.t5.height ?? 1);
-      final withDot = Row(
+      Widget withDot(Text t) => Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -129,14 +133,14 @@ class CalendarRowValue {
             child: ExcludeSemantics(child: PickerDot(color: dot!, size: 8)),
           ),
           const SizedBox(width: PSpacing.x1_5),
-          Flexible(child: label),
+          Flexible(child: t),
         ],
       );
-      // 좁은 줄은 값으로 읽히게 PListValue 로 감싼다 — 본문 아래로 내려가고 제목이 줄 안 폭을 다 쓴다
-      if (narrow) return PListValue(child: withDot);
+      // 좁은 줄은 값으로 읽히게 PListValue 로 감싼다 — 본문 아래로 내려가 왼쪽 맞춤이고 제목이 줄 안 폭을 다 쓴다
+      if (narrow) return PListValue(child: withDot(label0(TextAlign.start)));
       return ConstrainedBox(
         constraints: BoxConstraints(maxWidth: max),
-        child: withDot,
+        child: withDot(label),
       );
     }
     final value = label;
