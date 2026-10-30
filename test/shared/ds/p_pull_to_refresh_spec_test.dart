@@ -253,11 +253,74 @@ void main() {
         (w) =>
             w is Text &&
             (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200b', '') ==
-                '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
+                '새로 고치지 못했어요.',
       ),
       findsOneWidget,
     );
     expect(find.byType(SnackBar), findsNothing);
+    await tester.pump(const Duration(seconds: 6));
+  });
+
+  testWidgets('실패 알림에는 "다시 시도" 액션이 있고, 누르면 같은 새로 고침을 한 번 더 부른다', (
+    tester,
+  ) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      _list(
+        onRefresh: () async {
+          calls++;
+          if (calls == 1) throw StateError('boom');
+        },
+      ),
+    );
+    final g = await _pull(tester, 140);
+    await g.up();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(calls, 1);
+    bool plain(Widget w, String t) =>
+        w is Text &&
+        (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200b', '') == t;
+    final retry = find.byWidgetPredicate((w) => plain(w, '다시 시도'));
+    expect(retry, findsOneWidget);
+    await tester.tap(retry);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(calls, 2, reason: '액션이 같은 onRefresh 를 한 번 더 부른다');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(_state(tester).state, PPullToRefreshPhase.idle);
+    expect(_state(tester).offset, 0);
+    await tester.pump(const Duration(seconds: 6));
+  });
+
+  testWidgets('다시 시도도 실패하면 알림이 다시 뜬다', (tester) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      _list(
+        onRefresh: () async {
+          calls++;
+          throw StateError('boom');
+        },
+      ),
+    );
+    final g = await _pull(tester, 140);
+    await g.up();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    bool retryText(Widget w) =>
+        w is Text &&
+        (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200b', '') ==
+            '다시 시도';
+    await tester.tap(find.byWidgetPredicate(retryText));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(calls, 2);
+    expect(find.byWidgetPredicate(retryText), findsOneWidget);
     await tester.pump(const Duration(seconds: 6));
   });
 
@@ -420,7 +483,7 @@ void main() {
               (w.data ?? '')
                       .replaceAll('\u2060', '')
                       .replaceAll('\u200b', '') ==
-                  '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
+                  '새로 고치지 못했어요.',
         ),
         findsOneWidget,
       );
