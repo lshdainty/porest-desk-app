@@ -366,6 +366,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetManageAdd => '추가';
 
   @override
+  String get assetManageEmptyHint => '[추가]를 눌러 첫 계좌나 카드를 등록해 보세요.';
+
+  @override
   String get assetManageLoadFailed => '계좌·카드를 불러오지 못했어요';
 
   @override

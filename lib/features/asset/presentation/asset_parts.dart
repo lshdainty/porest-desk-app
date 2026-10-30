@@ -48,20 +48,32 @@ List<Asset> applyLiveValuation(List<Asset> assets, Map<int, int> valMap) {
     for (final a in assets)
       valMap.containsKey(a.rowId)
           ? a.copyWith(
-              balance: (a.cashBalance ?? 0) + valMap[a.rowId]!,
-              holdingBalance: valMap[a.rowId],
+              balance: _liveBalance(a, valMap[a.rowId]!),
+              holdingBalance: _liveHolding(a, valMap[a.rowId]!),
             )
           : a,
   ];
 }
 
-/// 순자산 보정용 delta(라이브 − DB) — 총액 포함 자산만.
+// 라이브 평가액은 이미 원화다 — balance 는 자산 통화 단위라 되돌려 넣어야 화면의 환산(balanceInKrw)이 두 번 곱하지 않는다(외화 투자 자산).
+int _liveHolding(Asset a, int krw) =>
+    balanceFromKrw(krw, a.currency, a.exchangeRate);
+int _liveBalance(Asset a, int krw) =>
+    (a.cashBalance ?? 0) + _liveHolding(a, krw);
+
+/// 순자산 보정용 delta(라이브 − DB, 원화 차이) — 총액 포함 자산만.
 int liveValuationDelta(List<Asset> assets, Map<int, int> valMap) {
   if (valMap.isEmpty) return 0;
   return assets.fold<int>(
     0,
     (s, a) => (a.isIncludedInTotal == 'Y' && valMap.containsKey(a.rowId))
-        ? s + ((a.cashBalance ?? 0) + valMap[a.rowId]! - (a.balance ?? 0))
+        ? s +
+              (balanceInKrw(
+                    _liveBalance(a, valMap[a.rowId]!),
+                    a.currency,
+                    a.exchangeRate,
+                  ) -
+                  balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate))
         : s,
   );
 }

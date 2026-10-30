@@ -371,6 +371,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetManageAdd => 'Add';
 
   @override
+  String get assetManageEmptyHint =>
+      'Tap [Add] to register your first account or card.';
+
+  @override
   String get assetManageLoadFailed => 'Couldn\'t load accounts and cards';
 
   @override

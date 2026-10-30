@@ -92,3 +92,17 @@ int balanceInKrw(int balance, String? currency, double? exchangeRate) {
   }
   return (balance * exchangeRate).round();
 }
+
+/// [balanceInKrw] 의 거꾸로 — 원화 금액을 자산 통화의 잔액 단위로 되돌린다.
+///
+/// 라이브 평가액(시세 × 수량)은 이미 원화다. 자산 balance 는 **자산 통화 단위**이고 화면이 한 번 더 [balanceInKrw] 로
+/// 환산하므로, 평가액을 그대로 balance 에 넣으면 외화(USD) 투자 자산이 환율만큼 두 번 곱해진다
+/// (USD 환율 1,300 에 평가 10,000,000원 → 13,000,000,000원). 원화 자산 · 환율 없음은 그대로다.
+int balanceFromKrw(int krw, String? currency, double? exchangeRate) {
+  if (!isForeignCurrency(currency) ||
+      exchangeRate == null ||
+      exchangeRate <= 0) {
+    return krw;
+  }
+  return (krw / exchangeRate).round();
+}

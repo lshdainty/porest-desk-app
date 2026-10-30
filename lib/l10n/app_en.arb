@@ -132,6 +132,7 @@
   "assetHideThisAmountDesc": "Masks only this asset's balance. Totals stay visible.",
   "assetManageTitle": "Manage accounts & cards",
   "assetManageAdd": "Add",
+  "assetManageEmptyHint": "Tap [Add] to register your first account or card.",
   "assetManageLoadFailed": "Couldn't load accounts and cards",
   "assetHoldingsCount": "{count} holdings",
   "@assetHoldingsCount": {

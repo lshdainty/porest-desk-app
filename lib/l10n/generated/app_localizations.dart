@@ -800,6 +800,12 @@ abstract class AppLocalizations {
   /// **'추가'**
   String get assetManageAdd;
 
+  /// No description provided for @assetManageEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'[추가]를 눌러 첫 계좌나 카드를 등록해 보세요.'**
+  String get assetManageEmptyHint;
+
   /// No description provided for @assetManageLoadFailed.
   ///
   /// In ko, this message translates to:

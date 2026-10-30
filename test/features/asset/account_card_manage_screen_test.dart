@@ -211,8 +211,8 @@ void main() {
       final bankRow = tester.getRect(find.byKey(const ValueKey('asset-row-1')));
       expect(
         _top(tester, '카드') - bankRow.bottom,
-        16,
-        reason: 'T2 묶음 사이 회색 틈 0 · 제목 위 16',
+        24,
+        reason: 'T2 묶음 사이 회색 틈 0 · 제목 글 위 24',
       );
     },
   );
@@ -244,6 +244,12 @@ void main() {
   testWidgets('자산 0개 → 빈 Result Section(버튼 없음)', (tester) async {
     await _pump(tester, assets: const []);
     expect(findPlain('아직 등록된 자산이 없어요'), findsOneWidget);
+    expect(
+      findPlain('[추가]를 눌러 첫 계좌나 카드를 등록해 보세요.'),
+      findsOneWidget,
+      reason: '이 화면 전용 안내 — 자산 화면의 "설정 →" 글이 아니다',
+    );
+    expect(findPlainContaining('설정 →'), findsNothing);
     expect(findPlain('다시 시도'), findsNothing);
   });
 
@@ -276,5 +282,36 @@ void main() {
       identical(applyLiveValuation([_bank], const {}).first, _bank),
       isTrue,
     );
+  });
+
+  // 외화 투자 자산 — 라이브 평가액(원화)은 자산 통화 단위로 되돌려 넣어야 화면 환산이 두 번 곱하지 않는다.
+  test('외화 투자 자산 라이브 치환 — 이중 환산 없음(USD 환율 1,300 · 평가 10,000,000원)', () {
+    const usdInv = Asset(
+      rowId: 8,
+      assetName: '해외 증권',
+      assetType: 'INVESTMENT',
+      balance: 5000,
+      currency: 'USD',
+      exchangeRate: 1300,
+      isIncludedInTotal: 'Y',
+    );
+    final live = applyLiveValuation([usdInv], {8: 10000000});
+    // 7,692 달러 → 화면 환산 후 평가액 근처(13,000,000,000원이 아니다)
+    expect(live.single.balance, 7692);
+    expect(assetSumIncluded(live), closeTo(10000000, 650));
+    // 보정 delta 는 원화 차이: (7,692 − 5,000) × 1,300
+    expect(liveValuationDelta([usdInv], {8: 10000000}), 3499600);
+  });
+
+  testWidgets('투자 줄에 등락(▲ ▼)이 없다 — 금액만(웹 · 그림과 같다)', (tester) async {
+    const inv = Asset(
+      rowId: 7,
+      assetName: '연동 증권',
+      assetType: 'INVESTMENT',
+      balance: 1000000,
+      isIncludedInTotal: 'Y',
+    );
+    await _pump(tester, assets: const [inv]);
+    expect(find.byKey(const ValueKey('asset-delta-7')), findsNothing);
   });
 }

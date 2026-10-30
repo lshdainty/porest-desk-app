@@ -177,13 +177,13 @@ class _AccountCardManageScreenState
                 kind: PResultKind.empty,
                 icon: LucideIcons.landmark,
                 title: l.assetEmptyState,
-                description: l.assetEmptyHint,
+                description: l.assetManageEmptyHint,
               );
             }
             return _ManageList(
               assets: assets,
               masked: masked,
-              valuations: invMap,
+              originals: {for (final a in raw) a.rowId: a},
             );
           },
         ),
@@ -230,11 +230,11 @@ class _ManageList extends ConsumerWidget {
   const _ManageList({
     required this.assets,
     required this.masked,
-    required this.valuations,
+    required this.originals,
   });
 
   final List<Asset> assets;
-  final Map<int, InvestmentValuation> valuations;
+  final Map<int, Asset> originals;
 
   /// 이 화면의 금액 가리기 카드 — 켜지면 합계 · 줄 금액이 모두 점이다(자산 하나의 가림과 합집합).
   final bool masked;
@@ -266,7 +266,7 @@ class _ManageList extends ConsumerWidget {
             ],
             debt: _debtGroups.contains(shown[i]),
             masked: masked,
-            valuations: valuations,
+            originals: originals,
           ),
       ],
     );
@@ -281,10 +281,10 @@ class _GroupSection extends ConsumerWidget {
     required this.items,
     required this.debt,
     required this.masked,
-    required this.valuations,
+    required this.originals,
   });
 
-  final Map<int, InvestmentValuation> valuations;
+  final Map<int, Asset> originals;
   final double? topInset;
   final String title;
   final List<Asset> items;
@@ -327,21 +327,26 @@ class _GroupSection extends ConsumerWidget {
             semanticLabel: title,
             children: [
               for (final a in items)
+                // 줄은 라이브 값으로 그리고, 동작(밀기 · 상세 · 수정)에는 원본을 넘긴다
                 // 밀면 수정·삭제 — 손가락 지름길이다. 줄을 누르면 상세로 가고 거기에도 수정 · 삭제가 있다(WCAG 2.1.1).
                 PSwipeActions(
                   key: ValueKey('asset-${a.rowId}'),
                   rowLabel: a.assetName,
-                  actions: assetActions.dsSwipeActions(context, ref, a),
+                  actions: assetActions.dsSwipeActions(
+                    context,
+                    ref,
+                    originals[a.rowId] ?? a,
+                  ),
                   child: AssetRow(
                     key: ValueKey('asset-row-${a.rowId}'),
                     asset: a,
                     cardMasked: masked,
                     manage: true,
-                    valuation: valuations[a.rowId],
                     onTap: () => showAssetDetailRich(
                       context,
-                      a,
-                      onEdit: () => showAssetEditForm(context, a),
+                      originals[a.rowId] ?? a,
+                      onEdit: () =>
+                          showAssetEditForm(context, originals[a.rowId] ?? a),
                       // 관리 화면이라 상세에서 지울 수 있다.
                       allowDelete: true,
                     ),
