@@ -171,10 +171,15 @@ class _BodyState extends ConsumerState<_Body> {
   /// 이자는 **금액을 고정했을 때만** 받는다(사용자 결정 2026-09-15). 금액이 매달
   /// 다르면 이자도 매달 다르니, 박아 둔 이자는 불러올 때마다 틀린 값이 된다.
   /// 수수료는 그대로 둔다 — 계좌 짝의 성질이라 매번 같을 수 있다.
-  bool get _showInterest =>
-      _lockAmount &&
-      _isTransfer &&
-      isLoanTarget(ref.read(assetsProvider).value, _toAssetRowId);
+  ///
+  /// 자산을 아직 못 받았으면 "받는 계좌가 대출인가" 를 모른다 — 읽어 온 이자가 있는 한 있는 것으로 본다. 모르는 채로 false 면 저장 본문이
+  /// 이자를 null 로 실어 서버에 저장된 이자가 지워진다(자산이 오기 전에 저장을 누르면).
+  bool get _showInterest {
+    if (!_lockAmount || !_isTransfer) return false;
+    final assets = ref.read(assetsProvider).value;
+    if (assets == null) return _interestCtrl.text.isNotEmpty;
+    return isLoanTarget(assets, _toAssetRowId);
+  }
 
   int? _numOrNull(TextEditingController c) {
     final v = int.tryParse(c.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
