@@ -201,6 +201,17 @@ void main() {
     expect(_t('나무증권 Open API · 시세 지연 표시'), findsOneWidget);
   });
 
+  testWidgets('틈 — 내 투자 ↔ 시장 8, 시장 ↔ 종목 띠 8 (T3 · T4, 나무도 같다 T8)', (
+    tester,
+  ) async {
+    await _pump(tester);
+    final bands = find.byKey(const ValueKey('screen-section'));
+    final marketBottom = tester.getRect(bands.at(1)).bottom;
+    // 종목 띠는 제목 위 여백 24 가 띠 안이다 — 제목 글 위쪽에서 24 를 뺀 자리가 띠의 위
+    final stocksTop = tester.getTopLeft(_t('종목')).dy - 24;
+    expect(stocksTop - marketBottom, 8);
+  });
+
   testWidgets('섞이면 원화 환산 합계 + 환율 적용 글, 국내 · 해외 줄과 "국내 2 · 해외 1"', (
     tester,
   ) async {
@@ -316,6 +327,27 @@ void main() {
     );
     expect(_t('그룹 추가'), findsOneWidget);
   });
+
+  testWidgets(
+    '관심에서 보유로 돌아와도 예외가 나지 않는다 — 묶음이 사라질 때 잠긴 트리에서 setState 를 부르지 않는다',
+    (tester) async {
+      await _pump(
+        tester,
+        groups: [
+          _group(1, '반도체', ['A1', 'A2']),
+        ],
+      );
+      await tester.tap(_chip('관심'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_t('반도체 · 2'), findsOneWidget);
+      await tester.tap(_chip('보유'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+      expect(_t('반도체 · 2'), findsNothing);
+    },
+  );
 
   testWidgets('보유 탭에서는 관심 시세를 부르지 않는다', (tester) async {
     await _pump(

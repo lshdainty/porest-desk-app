@@ -229,6 +229,22 @@ void main() {
     expect(_t('그룹 추가'), findsOneWidget);
   });
 
+  testWidgets('관심에서 보유로 돌아와도 예외가 나지 않는다(묶음이 사라질 때)', (tester) async {
+    await _pump(
+      tester,
+      groups: [
+        _group(1, '반도체', ['A1', 'A2']),
+      ],
+    );
+    await tester.tap(_chip('관심'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(_chip('보유'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('관심 그룹 0 — 안내만, "그룹 추가" 줄 없음', (tester) async {
     await _pump(tester);
     await tester.tap(_chip('관심'));

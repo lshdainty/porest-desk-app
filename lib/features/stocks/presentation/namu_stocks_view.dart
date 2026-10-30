@@ -112,9 +112,13 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
 
   void _blockHidden(int id) {
     _lingering.remove(id)?.cancel();
-    if (_visible.contains(id) && mounted) {
-      setState(() => _visible.remove(id));
-    }
+    if (!_visible.contains(id)) return;
+    // 묶음이 사라지는 자리(트리를 걷는 중)에서 불린다 — 바로 setState 하면 "잠긴 트리" 예외라 한 프레임 뒤로 미룬다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _visible.contains(id)) {
+        setState(() => _visible.remove(id));
+      }
+    });
   }
 
   void _openSearch() => showStockSearchSheet(
