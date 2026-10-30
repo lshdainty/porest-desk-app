@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:groo_damda_app/core/network/api_response.dart';
 import 'package:groo_damda_app/features/budget/domain/budget.dart';
 import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
@@ -8,6 +9,9 @@ import 'package:groo_damda_app/features/budget/domain/budget_compliance.dart';
 class BudgetRepository {
   BudgetRepository(this._dio);
   final Dio _dio;
+
+  static Options? _opts(bool silent) =>
+      silent ? Options(extra: {kSilentErrorToast: true}) : null;
 
   Future<List<Budget>> list({int? year, int? month}) async {
     try {
@@ -31,12 +35,16 @@ class BudgetRepository {
     }
   }
 
+  /// [silent] 면 전역 오류 토스트를 띄우지 않는다 — 호출한 화면이 자기 스낵바("…하지 못했어요 + 다시 시도")로
+  /// 알릴 때 쓴다(옛 토스트와 새 띠가 같은 아래쪽에서 겹치지 않게).
+  ///
   /// 만든 예산의 rowId 를 돌려준다(응답에 없으면 null) — 지난달 복사의 "되돌리기"가 방금 만든 것만 지운다.
   Future<int?> create({
     int? categoryRowId,
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
+    bool silent = false,
   }) async {
     try {
       final res = await _dio.post<dynamic>(
@@ -48,6 +56,7 @@ class BudgetRepository {
           'budgetYear': budgetYear,
           'budgetMonth': budgetMonth,
         },
+        options: _opts(silent),
       );
       final body = res.data;
       final data = body is Map<String, dynamic> ? body['data'] : null;
@@ -58,20 +67,25 @@ class BudgetRepository {
     }
   }
 
-  Future<void> update({required int id, required int budgetAmount}) async {
+  Future<void> update({
+    required int id,
+    required int budgetAmount,
+    bool silent = false,
+  }) async {
     try {
       await _dio.put<dynamic>(
         '/expense/budget/$id',
         data: {'budgetAmount': budgetAmount},
+        options: _opts(silent),
       );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
   }
 
-  Future<void> delete(int id) async {
+  Future<void> delete(int id, {bool silent = false}) async {
     try {
-      await _dio.delete<void>('/expense/budget/$id');
+      await _dio.delete<void>('/expense/budget/$id', options: _opts(silent));
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

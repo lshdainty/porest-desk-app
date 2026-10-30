@@ -34,12 +34,17 @@ class SavingGoalScreen extends ConsumerWidget {
 
   /// 스와이프 삭제 — ds 확인창(Alert Dialog)으로 묻고(삭제는 criticalSolid), 확정하면 지운다.
   /// 실패하면 확인창을 닫고 스낵바(critical + 다시 시도)로 알린다 — 다시 시도는 같은 삭제를 다시 묻는다.
+  ///
+  /// 띠는 앱 뿌리 호스트에 있어 화면을 나가도 남는다 — 그때는 [context] · [ref] 가 죽었으므로 띠의 "다시 시도"가
+  /// 미리 잡아 둔 [ProviderContainer] 로 묻지 않고 바로 지운다(이미 한 번 확정한 삭제다).
   Future<void> _confirmDeleteGoal(
     BuildContext context,
     WidgetRef ref,
     SavingGoal goal,
   ) async {
     final l = AppLocalizations.of(context);
+    final container = ProviderScope.containerOf(context);
+    final snack = PSnackbar.of(context);
     Object? failure;
     final ok = await PAlertDialog.show(
       context,
@@ -50,29 +55,53 @@ class SavingGoalScreen extends ConsumerWidget {
       destructive: true,
       onAction: () async {
         try {
-          await _deleteGoal(ref, goal);
+          await _deleteGoal(container, goal);
         } catch (e) {
           failure = e;
         }
       },
     );
-    if (ok && failure != null && context.mounted) {
-      PSnackbar.of(context).show(
+    if (ok && failure != null) {
+      snack.show(
         message: l.savingGoalDeleteFailed,
         tone: PSnackbarTone.critical,
         action: PSnackbarAction(
           label: l.actionRetry,
-          onPressed: () => _confirmDeleteGoal(context, ref, goal),
+          onPressed: () => context.mounted
+              ? _confirmDeleteGoal(context, ref, goal)
+              : _deleteDetached(container, l, snack, goal),
+        ),
+      );
+    }
+  }
+
+  /// 화면이 사라진 뒤의 "다시 시도" — 묻지 않고 지우고, 또 실패하면 같은 띠를 다시 띄운다.
+  Future<void> _deleteDetached(
+    ProviderContainer container,
+    AppLocalizations l,
+    PSnackbarApi snack,
+    SavingGoal goal,
+  ) async {
+    try {
+      await _deleteGoal(container, goal);
+    } catch (_) {
+      snack.show(
+        message: l.savingGoalDeleteFailed,
+        tone: PSnackbarTone.critical,
+        action: PSnackbarAction(
+          label: l.actionRetry,
+          onPressed: () => _deleteDetached(container, l, snack, goal),
         ),
       );
     }
   }
 
   /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다. 실패하면 던진다.
-  Future<void> _deleteGoal(WidgetRef ref, SavingGoal goal) async {
-    final repo = await ref.read(savingGoalRepositoryProvider.future);
-    await repo.delete(goal.rowId);
-    ref.invalidate(savingGoalListProvider);
+  /// 실패는 호출한 쪽 스낵바가 알리므로 전역 오류 토스트는 끈다(둘이 같은 아래쪽에서 겹친다).
+  Future<void> _deleteGoal(ProviderContainer container, SavingGoal goal) async {
+    final repo = await container.read(savingGoalRepositoryProvider.future);
+    await repo.delete(goal.rowId, silent: true);
+    container.invalidate(savingGoalListProvider);
   }
 
   @override
