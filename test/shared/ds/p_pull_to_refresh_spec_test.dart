@@ -9,6 +9,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
 import 'package:groo_damda_app/shared/ds/pull_to_refresh/p_pull_to_refresh.dart';
+import 'package:groo_damda_app/shared/ds/snackbar/p_snackbar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:groo_damda_app/app/app.dart' show appMessengerKey;
 import 'package:groo_damda_app/app/session_scope.dart';
@@ -28,6 +29,11 @@ Widget _host(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: const Locale('ko'),
+    // 앱 뿌리와 같이 길잡이 바깥에 Snackbar 호스트를 둔다
+    builder: (context, child) => Material(
+      type: MaterialType.transparency,
+      child: PSnackbarHost(closeLabel: '닫기', child: child!),
+    ),
     home: Scaffold(body: child),
   );
   return MediaQuery(
@@ -251,6 +257,7 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(find.byType(SnackBar), findsNothing);
     await tester.pump(const Duration(seconds: 6));
   });
 
@@ -363,7 +370,7 @@ void main() {
   }
 
   testWidgets(
-    '앱 뿌리와 같은 구성(SessionScope + MaterialApp.router + 전역 messenger 키)에서 실패하면 오류 알림이 실제로 뜬다',
+    '앱 뿌리와 같은 구성(SessionScope + MaterialApp.router + 전역 messenger 키 + Snackbar 호스트)에서 실패하면 오류 알림이 실제로 뜬다',
     (tester) async {
       final router = GoRouter(
         routes: [
@@ -388,6 +395,10 @@ void main() {
           child: MaterialApp.router(
             scaffoldMessengerKey: appMessengerKey,
             routerConfig: router,
+            builder: (context, child) => Material(
+              type: MaterialType.transparency,
+              child: PSnackbarHost(closeLabel: '닫기', child: child!),
+            ),
             theme: GrooTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -402,7 +413,19 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
       expect(tester.takeException(), isNull);
-      expect(find.text('새로 고치지 못했어요. 잠시 후 다시 당겨주세요.'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              (w.data ?? '')
+                      .replaceAll('\u2060', '')
+                      .replaceAll('\u200b', '') ==
+                  '새로 고치지 못했어요. 잠시 후 다시 당겨주세요.',
+        ),
+        findsOneWidget,
+      );
+      // 옛 Material 띠는 뜨지 않는다 — ds Snackbar 하나뿐
+      expect(find.byType(SnackBar), findsNothing);
       await tester.pump(const Duration(seconds: 6));
     },
   );
