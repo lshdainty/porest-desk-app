@@ -196,3 +196,20 @@ List<List<String>> chunkSymbols(List<String> symbols, [int size = 50]) => [
   for (var i = 0; i < symbols.length; i += size)
     symbols.sublist(i, i + size > symbols.length ? symbols.length : i + size),
 ];
+
+/// 체결 시각 — 서버 글("10:11:12" · "2026-10-29T13:00:05")의 시 · 분 · 초를 오전 · 오후 12시간으로("오후 1:00:05").
+/// 읽을 수 없으면 받은 글 그대로. 체결 줄은 같은 분에 여러 건이라 초를 남긴다(DESIGN.md:3676 의 "초는 쓰지 않는다" 는
+/// 체결 줄만 예외 — 스펙 몫으로 결과표에 질문).
+String clock12WithSeconds(String raw) {
+  final m = RegExp(r'(\d{1,2}):(\d{2}):(\d{2})').firstMatch(raw);
+  if (m == null) return raw;
+  final h = int.parse(m.group(1)!);
+  final min = int.parse(m.group(2)!);
+  final sec = m.group(3)!;
+  if (h > 23 || min > 59) return raw;
+  final h12 = h % 12 == 0 ? 12 : h % 12;
+  final mm = m.group(2)!;
+  return localeIsEn()
+      ? '$h12:$mm:$sec ${h < 12 ? 'AM' : 'PM'}'
+      : '${h < 12 ? '오전' : '오후'} $h12:$mm:$sec';
+}

@@ -279,7 +279,7 @@ void marketTests() {
     expect(marketStateAt(null, DateTime(2026, 10, 29, 13), l).detail, '휴장');
   });
 
-  testWidgets('시장 질의가 실패하면 시장 띠에 실패 한 벌', (tester) async {
+  testWidgets('시장 질의(지수 · 국내 · 미국)가 모두 실패하면 시장 띠에 실패 한 벌', (tester) async {
     tester.view.physicalSize = const Size(360 * 3, 2400 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -293,9 +293,11 @@ void marketTests() {
             (ref) async => throw StateError('x'),
           ),
           tossMarketCalendarUsProvider.overrideWith(
-            (ref) async => TossUsMarketCalendar.fromJson(const {}),
+            (ref) async => throw StateError('x'),
           ),
-          tossIndicatorPricesProvider.overrideWith((ref) async => const []),
+          tossIndicatorPricesProvider.overrideWith(
+            (ref) async => throw StateError('x'),
+          ),
         ],
         child: MaterialApp(
           theme: GrooTheme.light(),

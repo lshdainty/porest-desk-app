@@ -8322,4 +8322,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stocksTradeSoon => 'Ordering will open soon.';
+
+  @override
+  String get stocksFailOrderbook => 'Couldn\'t load the order book';
+
+  @override
+  String get stocksFailTrades => 'Couldn\'t load trades';
+
+  @override
+  String get stocksFailInfo => 'Couldn\'t load basic info';
+
+  @override
+  String stocksRowAsk(String price, String qty) {
+    return 'Ask $price, volume $qty';
+  }
+
+  @override
+  String stocksRowBid(String price, String qty) {
+    return 'Bid $price, volume $qty';
+  }
+
+  @override
+  String stocksRowTrade(String time, String price, String qty) {
+    return '$time, $price, quantity $qty';
+  }
+
+  @override
+  String get stocksOrderbookTableName => 'Order book table';
+
+  @override
+  String get stocksTradesTableName => 'Trades table';
 }

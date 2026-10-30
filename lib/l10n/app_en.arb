@@ -4528,5 +4528,46 @@
       }
     }
   },
-  "stocksTradeSoon": "Ordering will open soon."
+  "stocksTradeSoon": "Ordering will open soon.",
+  "stocksFailOrderbook": "Couldn't load the order book",
+  "stocksFailTrades": "Couldn't load trades",
+  "stocksFailInfo": "Couldn't load basic info",
+  "stocksRowAsk": "Ask {price}, volume {qty}",
+  "@stocksRowAsk": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowBid": "Bid {price}, volume {qty}",
+  "@stocksRowBid": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowTrade": "{time}, {price}, quantity {qty}",
+  "@stocksRowTrade": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksOrderbookTableName": "Order book table",
+  "stocksTradesTableName": "Trades table"
 }

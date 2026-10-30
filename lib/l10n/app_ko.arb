@@ -4791,5 +4791,46 @@
       }
     }
   },
-  "stocksTradeSoon": "주문은 곧 열려요."
+  "stocksTradeSoon": "주문은 곧 열려요.",
+  "stocksFailOrderbook": "호가를 불러오지 못했어요",
+  "stocksFailTrades": "체결 내역을 불러오지 못했어요",
+  "stocksFailInfo": "기본 정보를 불러오지 못했어요",
+  "stocksRowAsk": "매도 {price}, 잔량 {qty}",
+  "@stocksRowAsk": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowBid": "매수 {price}, 잔량 {qty}",
+  "@stocksRowBid": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowTrade": "{time}, {price}, 수량 {qty}",
+  "@stocksRowTrade": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksOrderbookTableName": "호가 표",
+  "stocksTradesTableName": "체결 표"
 }

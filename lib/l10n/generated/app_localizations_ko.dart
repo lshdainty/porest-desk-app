@@ -8127,4 +8127,34 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stocksTradeSoon => '주문은 곧 열려요.';
+
+  @override
+  String get stocksFailOrderbook => '호가를 불러오지 못했어요';
+
+  @override
+  String get stocksFailTrades => '체결 내역을 불러오지 못했어요';
+
+  @override
+  String get stocksFailInfo => '기본 정보를 불러오지 못했어요';
+
+  @override
+  String stocksRowAsk(String price, String qty) {
+    return '매도 $price, 잔량 $qty';
+  }
+
+  @override
+  String stocksRowBid(String price, String qty) {
+    return '매수 $price, 잔량 $qty';
+  }
+
+  @override
+  String stocksRowTrade(String time, String price, String qty) {
+    return '$time, $price, 수량 $qty';
+  }
+
+  @override
+  String get stocksOrderbookTableName => '호가 표';
+
+  @override
+  String get stocksTradesTableName => '체결 표';
 }

@@ -14629,6 +14629,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'주문은 곧 열려요.'**
   String get stocksTradeSoon;
+
+  /// No description provided for @stocksFailOrderbook.
+  ///
+  /// In ko, this message translates to:
+  /// **'호가를 불러오지 못했어요'**
+  String get stocksFailOrderbook;
+
+  /// No description provided for @stocksFailTrades.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결 내역을 불러오지 못했어요'**
+  String get stocksFailTrades;
+
+  /// No description provided for @stocksFailInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 정보를 불러오지 못했어요'**
+  String get stocksFailInfo;
+
+  /// No description provided for @stocksRowAsk.
+  ///
+  /// In ko, this message translates to:
+  /// **'매도 {price}, 잔량 {qty}'**
+  String stocksRowAsk(String price, String qty);
+
+  /// No description provided for @stocksRowBid.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수 {price}, 잔량 {qty}'**
+  String stocksRowBid(String price, String qty);
+
+  /// No description provided for @stocksRowTrade.
+  ///
+  /// In ko, this message translates to:
+  /// **'{time}, {price}, 수량 {qty}'**
+  String stocksRowTrade(String time, String price, String qty);
+
+  /// No description provided for @stocksOrderbookTableName.
+  ///
+  /// In ko, this message translates to:
+  /// **'호가 표'**
+  String get stocksOrderbookTableName;
+
+  /// No description provided for @stocksTradesTableName.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결 표'**
+  String get stocksTradesTableName;
 }
 
 class _AppLocalizationsDelegate

@@ -505,7 +505,7 @@ void main() {
           tossTradesProvider.overrideWith((ref, s) async => trades),
           tossCandlesProvider.overrideWith((ref, a) async => candles),
         ]);
-        expect(find.text('71,200'), findsOneWidget);
+        expect(find.text('71,200원'), findsOneWidget);
         expect(find.byType(dsskel.PSkeleton), findsNothing);
 
         await _refetch(
@@ -514,7 +514,7 @@ void main() {
           tossOrderbookProvider,
         );
 
-        expect(find.text('71,200'), findsOneWidget);
+        expect(find.text('71,200원'), findsOneWidget);
         expect(find.byType(dsskel.PSkeleton), findsNothing);
       });
 
@@ -527,7 +527,7 @@ void main() {
         ]);
         await tester.tap(findPlain('체결'));
         await tester.pump(Duration.zero);
-        expect(find.text('10:11:12'), findsOneWidget);
+        expect(find.text('오전 10:11:12'), findsOneWidget);
         expect(find.byType(dsskel.PSkeleton), findsNothing);
 
         await _refetch(
@@ -536,7 +536,7 @@ void main() {
           tossTradesProvider,
         );
 
-        expect(find.text('10:11:12'), findsOneWidget);
+        expect(find.text('오전 10:11:12'), findsOneWidget);
         expect(find.byType(dsskel.PSkeleton), findsNothing);
       });
 
