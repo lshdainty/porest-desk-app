@@ -6,6 +6,7 @@ library;
 import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
@@ -86,6 +87,43 @@ class StocksRepository {
       return list
           .map((e) => TossTrade.fromJson(e as Map<String, dynamic>))
           .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 투자자별 매매동향(국내 종목만 — 해외는 서버가 빈 목록). 최신이 먼저, 순매수 주.
+  Future<List<InvestorTradingDay>> getInvestorTrading(
+    String symbol, {
+    int count = 5,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/stocks/${Uri.encodeComponent(symbol)}/investor-trading',
+        queryParameters: {'count': count},
+      );
+      return investorDaysFromJson(_payload(res));
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 주문 가능 금액(`cashBuyingPower`) — [currency] KRW | USD. 보유 조회와 같은 계좌를 쓴다.
+  Future<BuyingPower> getBuyingPower(
+    int accountSeq, {
+    required String currency,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/buying-power',
+        queryParameters: {'accountSeq': accountSeq, 'currency': currency},
+      );
+      final p = _payload(res);
+      final raw = p is Map ? p['cashBuyingPower'] : null;
+      return BuyingPower(
+        currency: currency,
+        amount: raw == null ? null : double.tryParse('$raw'),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

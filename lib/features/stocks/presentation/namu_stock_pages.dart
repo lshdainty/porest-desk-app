@@ -1,8 +1,9 @@
 /// 나무 종목 상세 · 포트폴리오 구성 — 화면(주소)이다(I-13 13-3 · 3-B).
 /// `/stocks/namu/:symbol` · `/stocks/namu/portfolio` 만으로 열린다(목록 상태를 넘겨받지 않는다).
 ///
-/// 호가 · 체결 · 오늘 시세 · 투자자별 · 투자 지표 · ETF · 시간외 · 매도가능 줄은 I-13b 13b-1 · 13b-3 몫이라
-/// 이 화면에 비워 둔 띠가 없다 — 그 구역이 생길 때 띠가 더해진다. 나무 상세에는 매도 · 매수가 없다(읽기 전용).
+/// 13b-1: 상세 시세는 `/namu/{kr|gb}/quote` 하나(머리 · 오늘 시세 · 호가 · 경고 · 기본 정보), 체결은 `/namu/*/executions`,
+/// 투자자별은 `/namu/kr/investors`(국내만). 투자 지표 · ETF · 시간외 · 5년 차트는 13b-3 몫이다.
+/// 나무 상세에는 매도 · 매수가 없다(읽기 전용).
 library;
 
 import 'dart:async';
@@ -20,15 +21,20 @@ import 'package:groo_damda_app/features/stocks/application/namu_model.dart';
 import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/chart_web_view.dart';
 import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stocks_broker_parts.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_parts.dart';
+import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart'
+    show StocksQuotesCard, fmtCapKrw, fmtShares;
 import 'package:groo_damda_app/features/stocks/presentation/watch_actions.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
@@ -37,7 +43,8 @@ import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
 import 'package:groo_damda_app/shared/ds/text/keep_all.dart';
 import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
-/// 종목 상세 화면 — 폰은 띠 넷(머리 · 차트 / 내 보유 / 기본 정보 / 일별 시세), 보유 종목이 아니면 내 보유 띠가 없다.
+/// 종목 상세 화면 — 폰 띠 차례(U3): 머리 · 차트 / 내 보유 / 오늘 시세 / 호가 · 체결 / 투자자별(국내) / 기본 정보 / 일별 시세.
+/// 보유 종목이 아니면 내 보유 띠가 없고, 미국 종목은 투자자별 띠가 없다.
 class NamuStockDetailPage extends ConsumerStatefulWidget {
   const NamuStockDetailPage({super.key, required this.symbol});
   final String symbol;
@@ -55,19 +62,19 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
   @override
   void initState() {
     super.initState();
-    // 보유 종목은 잔고 응답이 현재가를 준다(추가 호출 없음). 관심 종목만 시세 1콜 — 박자는 웹과 같은 30초,
-    // 앱이 가려진 동안은 멈춘다.
-    _timer = Timer.periodic(namuPricePollInterval, (_) {
+    // 상세 시세(머리 · 오늘 시세 · 호가 · 기본 정보)는 10초마다 — 상세가 보일 때만. 서버가 사용자 × 종목 20초
+    // 캐시를 쥐어 상류는 20초에 한 번이다.
+    _timer = Timer.periodic(namuDetailPollInterval, (_) {
       // 앱이 뒤로 가 있거나(H4) 다른 화면 · 시트가 위에 올라와 있으면 멈춘다.
       if (!mounted ||
           !ref.read(appForegroundProvider) ||
           ModalRoute.of(context)?.isCurrent != true) {
         return;
       }
-      ref.invalidate(namuQuotesProvider(widget.symbol));
-      // 일별 시세는 하루 단위라 5분마다만 다시 받는다 — 열어 둔 채 굳지 않게(H3).
-      if (++_ticks % kNamuDailyRefreshTicks == 0) {
-        ref.invalidate(securitiesDailyCandlesProvider(widget.symbol));
+      ref.invalidate(namuQuoteDetailProvider);
+      // 일별 시세는 하루 단위라 5분마다만 다시 받는다 — 열어 둔 채 굳지 않게(H3). 10초 박자 × 30.
+      if (++_ticks % (kNamuDailyRefreshTicks * 3) == 0) {
+        ref.invalidate(namuDailyCandlesProvider(widget.symbol));
       }
     });
   }
@@ -76,6 +83,51 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  /// 오늘 시세 · 호가 · 체결 띠 — 상세 시세 응답에 기댄다.
+  List<Widget> _detailBands(
+    BuildContext context,
+    NamuQuoteDetail? detail,
+    NamuDetailKey key,
+    double? last,
+    double? changePct,
+  ) {
+    final l = AppLocalizations.of(context);
+    final currency = key.us ? 'USD' : 'KRW';
+    final loading = detail == null;
+    return [
+      StocksTodayBand(
+        rows: detail == null
+            ? const []
+            : todayRowsOf(
+                context,
+                currency: currency,
+                open: detail.open,
+                high: detail.high,
+                low: detail.low,
+                volume: detail.volume,
+                upper: detail.upperLimit,
+                lower: detail.lowerLimit,
+              ),
+        loading: loading,
+      ),
+      PScreenSection(
+        padding: const EdgeInsets.only(bottom: PSpacing.x6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            StocksBandTitle(l.stocksOrderbookTrades),
+            _NamuQuotesBand(
+              detailKey: key,
+              currency: currency,
+              lastPrice: last,
+              changePct: changePct ?? 0,
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   @override
@@ -94,7 +146,7 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
     );
     final krwAsync = ref.watch(namuHoldingsProvider('KRW'));
     final usdAsync = ref.watch(namuHoldingsProvider('USD'));
-    final fx = ref.watch(securitiesExchangeRateProvider).value;
+    final fx = ref.watch(namuExchangeRateProvider).value;
     final view = mergeNamuHoldings(krwAsync.value, usdAsync.value, fx);
     final holding = view.rows.where((r) => r.symbol == symbol).firstOrNull;
     final groups =
@@ -114,17 +166,23 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
         holding != null || master != null || searchAsync.hasValue;
     final marketFailed = !marketKnown && searchAsync.hasError;
 
-    // 현재가 — 보유 종목이면 잔고 응답에 이미 있다. 관심 종목만 서버 대리 조회로 1콜.
-    final quoteAsync = (holding == null && marketKnown)
-        ? ref.watch(namuQuotesProvider(symbol))
+    // 상세 시세 — 보유 종목도 부른다(오늘 시세 · 호가 · 기본 정보가 같은 응답). 시장(국내 · 미국)을 알 때까지는
+    // 부르지 않는다(H5) — 모르는 채 국내 경로로 가정하지 않는다. 머리 가격은 이 응답이 먼저, 아직 못 받았거나
+    // 실패했으면 보유 종목의 잔고 값을 임시로 쓴다.
+    final key = (symbol: symbol, us: isUs);
+    final detailAsync = marketKnown
+        ? ref.watch(namuQuoteDetailProvider(key))
         : null;
-    final quote = quoteAsync?.value?.firstOrNull;
-    final lastRaw = holding != null ? holding.currentPrice : quote?.price;
+    final detail = detailAsync?.value;
+    final lastRaw = detail?.price ?? holding?.currentPrice;
     final last = (lastRaw != null && lastRaw > 0) ? lastRaw : null;
-    final prevClose = holding != null ? null : quote?.previousClose;
-    final changePct = holding != null
-        ? null
-        : changePctOf(last, quote?.previousClose);
+    final prevClose = detail?.previousClose;
+    final changePct = changePctOf(last, prevClose);
+    final detailFailed =
+        detailAsync != null && detailAsync.hasError && !detailAsync.hasValue;
+    // 상세 시세 질의가 끝난 뒤(성공 · 실패 모두) 투자자별 · 일별 시세를 연다 — 나무 초당 5회 제한을 몰아치지 않는다.
+    final detailSettled =
+        detailAsync != null && (!detailAsync.isLoading || detailAsync.hasValue);
 
     final sub = master != null
         ? '$symbol · ${stockMarketLabel(l, master.marketCode)}'
@@ -176,21 +234,35 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
                     ),
                   ),
                 ],
-                if (quoteAsync != null &&
-                    quoteAsync.hasError &&
-                    !quoteAsync.hasValue)
+                if (detailAsync != null &&
+                    detailAsync.hasError &&
+                    !detailAsync.hasValue)
                   // 시세 실패는 글 한 줄이 아니라 실패 한 벌 + [다시 시도](M4)
                   StocksFailure(
                     title: l.stocksFailPrice,
-                    onRetry: () => ref.invalidate(namuQuotesProvider(symbol)),
+                    onRetry: () => ref.invalidate(namuQuoteDetailProvider(key)),
                   )
                 else if (marketKnown &&
                     last == null &&
-                    !(quoteAsync?.isLoading ?? false)) ...[
+                    !(detailAsync?.isLoading ?? false)) ...[
                   const SizedBox(height: 2),
                   Text(
                     l.namuPriceEmpty,
                     style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                ],
+                if ((detail?.warnings ?? const <String>[]).isNotEmpty) ...[
+                  const SizedBox(height: PSpacing.x2),
+                  Wrap(
+                    spacing: PSpacing.x1,
+                    runSpacing: PSpacing.x1,
+                    children: [
+                      for (final w in detail!.warnings)
+                        PBadge(
+                          label: stocksWarningLabel(l, w),
+                          tone: PBadgeTone.warning,
+                        ),
+                    ],
                   ),
                 ],
                 const SizedBox(height: PSpacing.x4),
@@ -208,6 +280,7 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
                     isUs: isUs,
                     range: _range,
                     height: 168,
+                    broker: 'namu',
                   ),
                 const SizedBox(height: PSpacing.x3),
               ],
@@ -234,8 +307,27 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
     final bands = <Widget>[
       StocksKeepAlive(child: head),
       if (holding != null) _NamuHoldingBand(holding: holding, masked: masked),
-      _NamuInfoBand(master: master, currency: currency),
-      _NamuDailyBand(symbol: symbol, currency: currency),
+      // 시세 질의에 기대는 띠는 질의가 실패하면 그리지 않는다(머리에 "시세를 불러오지 못했어요" 한 번).
+      if (!detailFailed) ..._detailBands(context, detail, key, last, changePct),
+      if (!isUs)
+        detailSettled
+            ? _NamuInvestorBand(symbol: symbol)
+            : StocksInvestorBand(
+                days: null,
+                loading: true,
+                failed: false,
+                onRetry: () {},
+              ),
+      _NamuInfoBand(
+        master: master,
+        currency: currency,
+        detail: detail,
+        isUs: isUs,
+        fx: fx,
+      ),
+      detailSettled
+          ? _NamuDailyBand(symbol: symbol, currency: currency)
+          : _NamuDailyPlaceholder(),
     ];
 
     return Scaffold(
@@ -271,7 +363,7 @@ class _NamuStockDetailPageState extends ConsumerState<NamuStockDetailPage> {
   }
 }
 
-/// 띠 ② 내 보유 — 잔고 응답이 주는 여섯 줄(수수료 · 세금 · 매도가능은 나무가 안 준다). 한 줄에 하나.
+/// 띠 ② 내 보유 — 잔고 응답이 주는 여섯 줄 + 미국 종목의 매도가능(국내 잔고에는 수수료 · 세금 · 매도가능이 없다). 한 줄에 하나.
 class _NamuHoldingBand extends StatelessWidget {
   const _NamuHoldingBand({required this.holding, required this.masked});
   final NamuMergedHolding holding;
@@ -320,6 +412,13 @@ class _NamuHoldingBand extends StatelessWidget {
                 l.stocksPurchaseAmount,
                 money(h.costAmount),
               ),
+              // 매도가능 — 미국 종목만(국내 잔고에는 이 칸이 없어 줄을 그리지 않는다).
+              if (h.sellable != null)
+                stocksKvLine(
+                  context,
+                  l.stocksSellable,
+                  l.stocksSharesUnit(stocksQty(h.sellable!)),
+                ),
             ],
           ),
         ],
@@ -328,16 +427,36 @@ class _NamuHoldingBand extends StatelessWidget {
   }
 }
 
-/// 띠 ③ 기본 정보 — 나무는 마스터가 아는 것까지다(시총 · 상장주식수 · 상하한가는 I-13b 가 더한다).
+/// 띠 — 기본 정보. 시장 · 유형 · 통화는 마스터, 업종 · 시가총액 · 상장일 · 상장(발행)주식수는 상세 시세 응답.
+/// 시가총액 꼴은 토스와 같다(원으로 줄여 쓴다). 나무 현재가 응답에는 거래정지 칸이 없어 "거래상태" 줄은 없다.
 class _NamuInfoBand extends StatelessWidget {
-  const _NamuInfoBand({required this.master, required this.currency});
+  const _NamuInfoBand({
+    required this.master,
+    required this.currency,
+    required this.detail,
+    required this.isUs,
+    required this.fx,
+  });
   final StockMasterItem? master;
   final String currency;
+  final NamuQuoteDetail? detail;
+  final bool isUs;
+  final double? fx;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final m = master;
+    final d = detail;
+    // 미국 시가총액은 달러로 온다 — 환율이 있으면 토스처럼 원으로, 없으면 달러 그대로.
+    String? cap;
+    if (d?.marketCap != null) {
+      cap = !isUs
+          ? fmtCapKrw(d!.marketCap!)
+          : (fx != null && fx! > 0
+                ? fmtCapKrw(d!.marketCap! * fx!)
+                : '\$${formatChartAxis(d!.marketCap!)}');
+    }
     return PScreenSection(
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
       child: Column(
@@ -345,6 +464,7 @@ class _NamuInfoBand extends StatelessWidget {
         children: [
           StocksBandTitle(l.stocksBasicInfo),
           PList(
+            semanticLabel: l.stocksBasicInfo,
             children: [
               stocksKvLine(
                 context,
@@ -353,12 +473,23 @@ class _NamuInfoBand extends StatelessWidget {
                     ? stockMarketLabel(l, m.marketCode)
                     : (currency == 'USD' ? l.stocksMarketUs : l.stocksMarketKr),
               ),
-              stocksKvLine(context, l.stocksCurrency, currency),
               stocksKvLine(
                 context,
                 l.stocksInstrumentType,
                 m?.securityType == 'ETF' ? 'ETF' : l.stocksInstrumentStock,
               ),
+              stocksKvLine(context, l.stocksCurrency, currency),
+              if (d?.sector != null)
+                stocksKvLine(context, l.stocksSector, d!.sector!),
+              if (cap != null) stocksKvLine(context, l.stocksMarketCap, cap),
+              if (d?.listingDate != null)
+                stocksKvLine(context, l.stocksListingDate, d!.listingDate!),
+              if (d?.listedShares != null)
+                stocksKvLine(
+                  context,
+                  isUs ? l.stocksSharesOutstanding : l.stocksListedShares,
+                  fmtShares(d!.listedShares!),
+                ),
             ],
           ),
         ],
@@ -367,7 +498,103 @@ class _NamuInfoBand extends StatelessWidget {
   }
 }
 
-/// 띠 ④ 일별 시세 — 일봉에서 파생한다(증권사는 서버가 고른다). 끝에 시세는 참고용 안내 한 줄(첫 증권사 안내는 없다).
+/// 띠 — 호가 · 체결. 호가는 상세 시세 응답의 `orderbook`(20초에 한 번 바뀐다), 체결은 `/namu/*/executions`
+/// (5초 · **체결 탭이 골라져 있고 화면이 보일 때만**).
+class _NamuQuotesBand extends ConsumerStatefulWidget {
+  const _NamuQuotesBand({
+    required this.detailKey,
+    required this.currency,
+    required this.lastPrice,
+    required this.changePct,
+  });
+  final NamuDetailKey detailKey;
+  final String currency;
+  final double? lastPrice;
+  final double changePct;
+
+  @override
+  ConsumerState<_NamuQuotesBand> createState() => _NamuQuotesBandState();
+}
+
+class _NamuQuotesBandState extends ConsumerState<_NamuQuotesBand> {
+  Timer? _tradesTimer;
+
+  void _onTab(String tab) {
+    _tradesTimer?.cancel();
+    _tradesTimer = null;
+    if (tab == 'tape') {
+      _tradesTimer = Timer.periodic(namuTradesPollInterval, (_) {
+        if (!mounted || !ref.read(appForegroundProvider)) return;
+        ref.invalidate(namuExecutionsProvider(widget.detailKey));
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tradesTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final key = widget.detailKey;
+    return StocksQuotesCard(
+      symbol: key.symbol,
+      currency: widget.currency,
+      lastPrice: widget.lastPrice,
+      changePct: widget.changePct,
+      onTabChanged: _onTab,
+      watchBook: (ref) =>
+          ref.watch(namuQuoteDetailProvider(key)).whenData((d) => d.orderbook),
+      watchTrades: (ref) => ref.watch(namuExecutionsProvider(key)),
+    );
+  }
+}
+
+/// 띠 — 투자자별 매매동향(국내 종목만).
+class _NamuInvestorBand extends ConsumerWidget {
+  const _NamuInvestorBand({required this.symbol});
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(namuInvestorsProvider(symbol));
+    return StocksInvestorBand(
+      days: async.value,
+      loading: async.isLoading,
+      failed: async.hasError,
+      onRetry: () => ref.invalidate(namuInvestorsProvider(symbol)),
+    );
+  }
+}
+
+/// 상세 시세 질의가 끝나기 전의 일별 시세 자리 — 일별 시세 질의는 아직 열지 않는다.
+class _NamuDailyPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return PScreenSection(
+      padding: const EdgeInsets.only(bottom: PSpacing.x6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StocksBandTitle(l.stocksDailyPrices),
+          Semantics(
+            label: l.stocksDailyPricesLoading,
+            child: Column(
+              children: [
+                for (var i = 0; i < 5; i++) const StocksLineSkeleton(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 띠 — 일별 시세. 일봉(`/namu/candles`)에서 파생한다. 끝에 시세는 참고용 안내 한 줄(첫 증권사 안내는 없다).
 class _NamuDailyBand extends ConsumerWidget {
   const _NamuDailyBand({required this.symbol, required this.currency});
   final String symbol;
@@ -377,7 +604,7 @@ class _NamuDailyBand extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    final async = ref.watch(securitiesDailyCandlesProvider(symbol));
+    final async = ref.watch(namuDailyCandlesProvider(symbol));
     final page = async.value;
     final asc = page == null
         ? const <TossCandle>[]
@@ -404,7 +631,7 @@ class _NamuDailyBand extends ConsumerWidget {
     if (async.hasError && !async.hasValue) {
       list = StocksFailure(
         title: l.stocksFailDaily,
-        onRetry: () => ref.invalidate(securitiesDailyCandlesProvider(symbol)),
+        onRetry: () => ref.invalidate(namuDailyCandlesProvider(symbol)),
       );
     } else if (async.isLoading && !async.hasValue) {
       list = Semantics(
@@ -482,7 +709,7 @@ class NamuPortfolioPage extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final krwAsync = ref.watch(namuHoldingsProvider('KRW'));
     final usdAsync = ref.watch(namuHoldingsProvider('USD'));
-    final fxAsync = ref.watch(securitiesExchangeRateProvider);
+    final fxAsync = ref.watch(namuExchangeRateProvider);
     final view = mergeNamuHoldings(
       krwAsync.value,
       usdAsync.value,

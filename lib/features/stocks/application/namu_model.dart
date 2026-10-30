@@ -7,6 +7,7 @@ library;
 
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 
 /// 통화 하나의 합계.
 class NamuCurrencyTotal {
@@ -40,6 +41,11 @@ class NamuMergedHolding {
   double get evalAmount => item.evalAmountValue;
   double get profitLoss => item.profitLossValue;
   double get costAmount => evalAmount - profitLoss;
+
+  /// 매도 가능 수량 — 해외(미국)만. 국내는 null(줄을 그리지 않는다).
+  double? get sellable => item.sellableQuantity == null
+      ? null
+      : double.tryParse(item.sellableQuantity!);
 
   /// 수익률(%) — 매입금액이 0 이하면 0.
   double get returnPct => costAmount > 0 ? profitLoss / costAmount * 100 : 0;
@@ -155,4 +161,21 @@ List<CompositionSlice>? namuCompositionOf(NamuMergedView view) {
         weightPct: e.$2 / total * 100,
       ),
   ];
+}
+
+/// 시장 띠의 장 상태를 읽을 대표 종목 — 시장마다 하나(보유 첫 종목, 없으면 관심 첫 종목).
+/// 대표가 없는 시장은 null(그 시장 항목을 그리지 않는다). 같은 종목이 관심 시세에 있으면 서버 캐시에 맞는다.
+({String? kr, String? us}) namuMarketRepresentatives(
+  NamuMergedView view,
+  List<StockWatchGroup> groups,
+) {
+  String? kr = view.rows.where((r) => r.currency == 'KRW').firstOrNull?.symbol;
+  String? us = view.rows.where((r) => r.currency == 'USD').firstOrNull?.symbol;
+  for (final g in groups) {
+    for (final i in g.items) {
+      if (kr == null && i.countryCode == 'KR') kr = i.symbol;
+      if (us == null && i.countryCode == 'US') us = i.symbol;
+    }
+  }
+  return (kr: kr, us: us);
 }

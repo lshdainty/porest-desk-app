@@ -2,10 +2,13 @@
 /// 모든 provider 는 에러(키 미설정 503·미기동)를 삼키고 null/빈 값으로 폴백한다.
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/core/network/dio_provider.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
+import 'package:groo_damda_app/features/stocks/data/broker_detail_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
@@ -250,4 +253,35 @@ final stockSymbolNameProvider = FutureProvider.family<String?, String>((
   } catch (_) {
     return null;
   }
+});
+
+/// 오늘 시세(토스) — 일봉 오늘 봉(시가 · 고가 · 저가 · 거래량). 전일 종가용 [prevCloseProvider] 와 따로 둔다
+/// (그쪽은 하루 단위 값이라 갱신하지 않는다). 못 받으면 null.
+final tossTodayCandlesProvider = FutureProvider.family<TossCandlePage?, String>(
+  (ref, symbol) async {
+    if (symbol.isEmpty) return null;
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return repo.getCandles(symbol, '1d', count: 3);
+  },
+);
+
+/// 투자자별 매매동향(토스, 국내 종목만 — 해외는 서버가 빈 목록). 상세를 열 때 한 번 · 5분.
+final tossInvestorProvider = FutureProvider.autoDispose
+    .family<List<InvestorTradingDay>, String>((ref, symbol) async {
+      final link = ref.keepAlive();
+      final timer = Timer(const Duration(minutes: 5), link.close);
+      ref.onDispose(timer.cancel);
+      final repo = await ref.watch(stocksRepositoryProvider.future);
+      return repo.getInvestorTrading(symbol);
+    });
+
+/// 주문 가능 금액(토스) — 키 = KRW | USD. 60초마다(화면이 보일 때) 다시 받는다. 실패는 던진다(값 "—").
+final tossBuyingPowerProvider = FutureProvider.family<BuyingPower, String>((
+  ref,
+  currency,
+) async {
+  final accounts = await ref.watch(tossAccountsProvider.future);
+  if (accounts.isEmpty) return BuyingPower(currency: currency);
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getBuyingPower(accounts.first.accountSeq, currency: currency);
 });
