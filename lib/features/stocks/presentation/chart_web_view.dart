@@ -43,7 +43,7 @@ class ChartWebView extends ConsumerStatefulWidget {
   });
 
   /// 이 탭의 증권사('toss' | 'namu') — 임베드 차트가 그 증권사 캔들을 부르게 할 자리.
-  /// 웹 임베드가 알기 전에는 주소에 실리지 않는다(`kEmbedBrokerQueryEnabled`).
+  /// 주소에 실리는지는 `kEmbedBrokerQueryEnabled` 가 정한다.
   final String? broker;
   final String symbol;
   final bool isUs;
