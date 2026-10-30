@@ -12,6 +12,7 @@ library;
 import 'package:dio/dio.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 
 /// 증권사 무관 현재가. 금액은 JSON 숫자로 온다(서버가 BigDecimal 로 계산해 내린다).
 class BrokerQuote {
@@ -69,6 +70,29 @@ class SecuritiesRepository {
   }
 
   /// 원화 환산 환율. 못 구하면 null — 나무는 해당 통화 보유 종목이 있어야 환율이 나온다.
+  /// 캔들 한 페이지 — 증권사는 서버가 고른다(사용자 기본 소스). 응답 모양은 토스 캔들과 같다.
+  /// 나무 상세의 일별 시세가 쓴다. [size] 는 서버 상한(200)을 넘기지 않는다.
+  Future<TossCandlePage> getCandles(
+    String symbol,
+    String interval, {
+    int? size,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/securities/candles',
+        queryParameters: {
+          'symbol': symbol,
+          'interval': interval,
+          'size': ?size,
+        },
+      );
+      final p = _payload(res);
+      return TossCandlePage.fromJson(p is Map<String, dynamic> ? p : {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   Future<double?> getExchangeRate({
     String base = 'USD',
     String quote = 'KRW',

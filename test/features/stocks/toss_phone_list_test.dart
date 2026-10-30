@@ -7,6 +7,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
@@ -226,6 +227,22 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(_t('그룹 추가'), findsOneWidget);
+  });
+
+  testWidgets('관심에서 보유로 돌아와도 예외가 나지 않는다(묶음이 사라질 때)', (tester) async {
+    await _pump(
+      tester,
+      groups: [
+        _group(1, '반도체', ['A1', 'A2']),
+      ],
+    );
+    await tester.tap(_chip('관심'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(_chip('보유'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('관심 그룹 0 — 안내만, "그룹 추가" 줄 없음', (tester) async {

@@ -4050,25 +4050,10 @@
   "brokerToss": "Toss Securities",
   "brokerNamu": "NAMUH Securities",
   "stocksBrokerUnsupported": "This app doesn't know that provider yet. Update the app to see it.",
-  "namuSearchPrompt": "Type at least two characters of a name or code",
-  "namuScopeNotice": "For now you can search instruments and see current prices. Provider-specific data is coming next.",
-  "namuPriceError": "Couldn't load the current price",
   "namuPriceEmpty": "No current price for this instrument",
-  "stocksSearchError": "Search failed",
-  "stocksSearchEmpty": "No results",
   "namuTabDomestic": "Domestic",
   "namuTabOverseas": "Overseas",
-  "namuHoldingsTitle": "Holdings value",
   "namuHoldingsEmpty": "No holdings yet",
-  "namuHoldingsError": "Couldn't load holdings. There may be no account or no query permission.",
-  "namuHoldingQty": "{qty} shares",
-  "@namuHoldingQty": {
-    "placeholders": {
-      "qty": {
-        "type": "String"
-      }
-    }
-  },
   "expFilterMatch": "Condition matching",
   "expFilterMatchAll": "Match all",
   "expFilterMatchAny": "Match any",
@@ -4570,5 +4555,33 @@
   "stocksConnectEmptyAction": "Connect a brokerage",
   "stockMarketKrEtc": "Other (KR)",
   "stockMarketUsEtc": "Other (US)",
-  "stocksFailPrice": "Couldn't load the price"
+  "stocksFailPrice": "Couldn't load the price",
+  "namuKrwTotal": "Total in KRW",
+  "namuFxApplied": "At FX {rate}",
+  "@namuFxApplied": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "namuDomesticValue": "Domestic value",
+  "namuOverseasValue": "Overseas value",
+  "namuCountSplit": "KR {kr} · US {us}",
+  "@namuCountSplit": {
+    "placeholders": {
+      "kr": {
+        "type": "int"
+      },
+      "us": {
+        "type": "int"
+      }
+    }
+  },
+  "namuFilterAll": "All",
+  "namuFilterAria": "Holdings market",
+  "namuFilterEmpty": "No holdings in this market",
+  "namuFailDesc": "There may be no account or no query permission.",
+  "namuDataNotice": "Namu Securities Open API · quotes may be delayed",
+  "namuDonutNeedsFx": "Cannot compute weights without an FX rate"
 }

@@ -7162,24 +7162,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This app doesn\'t know that provider yet. Update the app to see it.';
 
   @override
-  String get namuSearchPrompt =>
-      'Type at least two characters of a name or code';
-
-  @override
-  String get namuScopeNotice =>
-      'For now you can search instruments and see current prices. Provider-specific data is coming next.';
-
-  @override
-  String get namuPriceError => 'Couldn\'t load the current price';
-
-  @override
   String get namuPriceEmpty => 'No current price for this instrument';
-
-  @override
-  String get stocksSearchError => 'Search failed';
-
-  @override
-  String get stocksSearchEmpty => 'No results';
 
   @override
   String get namuTabDomestic => 'Domestic';
@@ -7188,19 +7171,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get namuTabOverseas => 'Overseas';
 
   @override
-  String get namuHoldingsTitle => 'Holdings value';
-
-  @override
   String get namuHoldingsEmpty => 'No holdings yet';
-
-  @override
-  String get namuHoldingsError =>
-      'Couldn\'t load holdings. There may be no account or no query permission.';
-
-  @override
-  String namuHoldingQty(String qty) {
-    return '$qty shares';
-  }
 
   @override
   String get expFilterMatch => 'Condition matching';
@@ -8354,4 +8325,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stocksFailPrice => 'Couldn\'t load the price';
+
+  @override
+  String get namuKrwTotal => 'Total in KRW';
+
+  @override
+  String namuFxApplied(String rate) {
+    return 'At FX $rate';
+  }
+
+  @override
+  String get namuDomesticValue => 'Domestic value';
+
+  @override
+  String get namuOverseasValue => 'Overseas value';
+
+  @override
+  String namuCountSplit(int kr, int us) {
+    return 'KR $kr · US $us';
+  }
+
+  @override
+  String get namuFilterAll => 'All';
+
+  @override
+  String get namuFilterAria => 'Holdings market';
+
+  @override
+  String get namuFilterEmpty => 'No holdings in this market';
+
+  @override
+  String get namuFailDesc => 'There may be no account or no query permission.';
+
+  @override
+  String get namuDataNotice =>
+      'Namu Securities Open API · quotes may be delayed';
+
+  @override
+  String get namuDonutNeedsFx => 'Cannot compute weights without an FX rate';
 }

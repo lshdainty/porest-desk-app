@@ -12704,41 +12704,11 @@ abstract class AppLocalizations {
   /// **'앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.'**
   String get stocksBrokerUnsupported;
 
-  /// No description provided for @namuSearchPrompt.
-  ///
-  /// In ko, this message translates to:
-  /// **'종목명이나 코드를 두 글자 이상 입력해보세요'**
-  String get namuSearchPrompt;
-
-  /// No description provided for @namuScopeNotice.
-  ///
-  /// In ko, this message translates to:
-  /// **'지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.'**
-  String get namuScopeNotice;
-
-  /// No description provided for @namuPriceError.
-  ///
-  /// In ko, this message translates to:
-  /// **'현재가를 불러오지 못했어요'**
-  String get namuPriceError;
-
   /// No description provided for @namuPriceEmpty.
   ///
   /// In ko, this message translates to:
   /// **'현재가가 없는 종목이에요'**
   String get namuPriceEmpty;
-
-  /// No description provided for @stocksSearchError.
-  ///
-  /// In ko, this message translates to:
-  /// **'검색에 실패했어요'**
-  String get stocksSearchError;
-
-  /// No description provided for @stocksSearchEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'검색 결과가 없어요'**
-  String get stocksSearchEmpty;
 
   /// No description provided for @namuTabDomestic.
   ///
@@ -12752,29 +12722,11 @@ abstract class AppLocalizations {
   /// **'해외'**
   String get namuTabOverseas;
 
-  /// No description provided for @namuHoldingsTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'보유 평가금액'**
-  String get namuHoldingsTitle;
-
   /// No description provided for @namuHoldingsEmpty.
   ///
   /// In ko, this message translates to:
   /// **'보유 중인 종목이 없어요'**
   String get namuHoldingsEmpty;
-
-  /// No description provided for @namuHoldingsError.
-  ///
-  /// In ko, this message translates to:
-  /// **'보유 정보를 불러오지 못했어요. 계좌가 없거나 조회 권한이 없을 수 있어요.'**
-  String get namuHoldingsError;
-
-  /// No description provided for @namuHoldingQty.
-  ///
-  /// In ko, this message translates to:
-  /// **'{qty}주 보유'**
-  String namuHoldingQty(String qty);
 
   /// No description provided for @expFilterMatch.
   ///
@@ -14683,6 +14635,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'시세를 불러오지 못했어요'**
   String get stocksFailPrice;
+
+  /// No description provided for @namuKrwTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'원화 환산 합계'**
+  String get namuKrwTotal;
+
+  /// No description provided for @namuFxApplied.
+  ///
+  /// In ko, this message translates to:
+  /// **'환율 {rate} 적용'**
+  String namuFxApplied(String rate);
+
+  /// No description provided for @namuDomesticValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내 평가금액'**
+  String get namuDomesticValue;
+
+  /// No description provided for @namuOverseasValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'해외 평가금액'**
+  String get namuOverseasValue;
+
+  /// No description provided for @namuCountSplit.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내 {kr} · 해외 {us}'**
+  String namuCountSplit(int kr, int us);
+
+  /// No description provided for @namuFilterAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get namuFilterAll;
+
+  /// No description provided for @namuFilterAria.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 시장'**
+  String get namuFilterAria;
+
+  /// No description provided for @namuFilterEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 시장에 보유 종목이 없어요'**
+  String get namuFilterEmpty;
+
+  /// No description provided for @namuFailDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌가 없거나 조회 권한이 없을 수 있어요.'**
+  String get namuFailDesc;
+
+  /// No description provided for @namuDataNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'나무증권 Open API · 시세 지연 표시'**
+  String get namuDataNotice;
+
+  /// No description provided for @namuDonutNeedsFx.
+  ///
+  /// In ko, this message translates to:
+  /// **'환율을 못 받아 구성 비중을 낼 수 없어요'**
+  String get namuDonutNeedsFx;
 }
 
 class _AppLocalizationsDelegate
