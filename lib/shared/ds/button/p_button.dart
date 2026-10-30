@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart'
+    show PTouchTarget;
 import 'package:groo_damda_app/shared/ds/focus_ring/p_focus_ring.dart';
 import 'package:groo_damda_app/shared/ds/overflow_center/p_overflow_center.dart';
 import 'package:groo_damda_app/shared/ds/progress_circle/p_progress_circle.dart';
@@ -512,7 +513,7 @@ class _PButtonState extends State<PButton> {
 
     final l10n = AppLocalizations.of(context);
     // 누르는 영역 상자가 가장 바깥이다 — 안쪽 상자는 제 크기 밖에서 누른 것을 받지 않는다
-    return _TouchTarget(
+    return PTouchTarget(
       minSize: PTouch.min,
       child: Semantics(
         container: true,
@@ -565,50 +566,5 @@ class _PButtonState extends State<PButton> {
         ),
       ),
     );
-  }
-}
-
-/// 누르는 영역을 보이는 크기와 따로 [minSize] 까지 넓힌다 — 놓인 자리(레이아웃)는 그대로다.
-///
-/// 넓힌 자리에서 누르면 상자 가운데를 누른 것으로 친다(Material 의 탭 영역 패딩과 같은 방법).
-/// 부모 상자 밖은 받을 수 없다 — Flutter 는 부모 안에서만 자식에게 묻는다.
-class _TouchTarget extends SingleChildRenderObjectWidget {
-  const _TouchTarget({required this.minSize, required super.child});
-
-  final double minSize;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderTouchTarget(minSize);
-
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    _RenderTouchTarget renderObject,
-  ) {
-    renderObject.minSize = minSize;
-  }
-}
-
-class _RenderTouchTarget extends RenderProxyBox {
-  _RenderTouchTarget(this.minSize);
-
-  double minSize;
-
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    final dx = math.max(0.0, (minSize - size.width) / 2);
-    final dy = math.max(0.0, (minSize - size.height) / 2);
-    final area = Rect.fromLTRB(-dx, -dy, size.width + dx, size.height + dy);
-    if (!area.contains(position)) return false;
-    // 넓힌 자리에서 누르면 상자 가운데를 누른 것으로 친다(Material 의 탭 영역 패딩과 같다)
-    final inside = size.contains(position)
-        ? position
-        : size.center(Offset.zero);
-    if (hitTestChildren(result, position: inside)) {
-      result.add(BoxHitTestEntry(this, position));
-      return true;
-    }
-    return false;
   }
 }

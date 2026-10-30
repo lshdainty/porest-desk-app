@@ -4009,7 +4009,6 @@
   "moreDescSmsPaste": "Paste a card payment text to add an expense",
   "smsClipboardBannerTitle": "You have a copied payment text",
   "smsClipboardBannerDesc": "Paste it to record as an expense.",
-  "smsClipboardBannerAction": "Record",
   "smsInboxTitle": "Payment inbox",
   "smsInboxClear": "Clear",
   "smsInboxEmpty": "No payment notifications yet",
