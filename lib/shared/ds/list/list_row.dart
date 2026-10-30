@@ -31,8 +31,65 @@ const double kPListIconSize = 22;
 /// 꺾쇠 단추 자리 — 보이는 상자 44 + 단추 뒤 4(부모 줄의 앞 붙이개가 52 에서 시작한다).
 const double kPListExpandSlot = PTouch.min + PSpacing.x1;
 
-/// 본문 최소 폭 — 1em(본문 글자 크기) + 뒤 여백 10(list.yaml body.minWidth `1em`, 뒤 여백은 따로).
-final double kPListBodyMinWidth = PTypography.t5.fontSize! + PSpacing.x2_5;
+/// 본문과 뒤 붙이개 사이 여백 — 본문 최소 폭에 더해진다(list.yaml body 뒤 여백 10).
+const double kPListBodyTrailGap = PSpacing.x2_5;
+
+/// 앞 붙이개가 있는 줄의 앞 자리 상수 — 가장 넓은 흔한 앞 붙이개(아바타 42) + 사이 12. 웹 `--list-lead` 와 같은 값이다.
+/// 줄마다 앞 붙이개 폭을 재지 않는다(측정 콜백을 늘리지 않는다).
+const double kPListLeadWithPrefix = 54;
+
+/// 제목 낱말 상한을 정하는 앞 자리 — 앞 붙이개 있음 [kPListLeadWithPrefix] / 없음 0, 꺾쇠 자리(부모 줄)가 있으면 그 폭을 더한다.
+@visibleForTesting
+double listLead({required bool hasPrefix, required bool hasExpandSlot}) =>
+    (hasPrefix ? kPListLeadWithPrefix : 0) +
+    (hasExpandSlot ? kPListExpandSlot : 0);
+
+/// 본문(제목)이 줄어드는 하한 — 제목의 가장 긴 낱말 폭(list.md Q-001 B, 2026-10-30 사용자 결정). 값이 남은 폭에서 줄을
+/// 바꾸고 제목은 이 폭 아래로 줄지 않는다. 띄어쓰기 없는 긴 제목은 낱말 폭이 너무 커서 값이 쓸 자리가 없으므로
+/// [cap](상한 = (줄 안 폭 − [listLead]) ÷ 2)에서 글자 사이로 끊는다.
+/// [style] 은 제목 글자(글자 배율은 [scaler] 로 곱한다). 낱말은 공백으로 가른다 — 폭은 올림해 소수점 때문에 낱말이 한 글자
+/// 짜리로 꺾이지 않게 한다.
+// 낱말 폭 기억 — 같은 글 · 같은 글자 모양이면 다시 재지 않는다(긴 목록이 다시 그려질 때 줄마다 글 배치를 새로 하지 않게).
+final Map<String, double> _wordWidthCache = <String, double>{};
+
+double _longestWordWidth(
+  String title,
+  TextStyle style,
+  TextScaler scaler,
+  TextDirection direction,
+) {
+  final key =
+      '${style.fontFamily}|${style.fontSize}|${style.fontWeight?.value}|'
+      '${style.letterSpacing}|${scaler.scale(100)}|${direction.index}|$title';
+  final hit = _wordWidthCache[key];
+  if (hit != null) return hit;
+  var longest = 0.0;
+  for (final word in title.split(RegExp(r'\s+'))) {
+    if (word.isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(text: word, style: style),
+      textDirection: direction,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    longest = math.max(longest, painter.width);
+    painter.dispose();
+  }
+  if (_wordWidthCache.length >= 1024) _wordWidthCache.clear();
+  return _wordWidthCache[key] = longest;
+}
+
+@visibleForTesting
+double listTitleMinWidth({
+  required String title,
+  required TextStyle style,
+  required TextScaler scaler,
+  required TextDirection direction,
+  required double cap,
+}) {
+  final longest = _longestWordWidth(title, style, scaler, direction);
+  return math.min(longest.ceilToDouble(), math.max(0.0, cap));
+}
 
 /// 좁은 줄의 문턱 — 줄 안 폭이 제목 글자 16개(16em)보다 좁으면 값(글 값 · 금액)이 본문 아래로 내려간다
 /// (list.yaml content.stackBelow, 03-D 결정 1 B). em 은 제목 글자(t5)의 **글자 배율을 곱한** 크기다.
@@ -406,7 +463,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
   );
 
   /// 본문 + 뒤 붙이개(groo-design Q-001 "값이 길 때") — 뒤 붙이개는 값의 종류로 갈린다.
-  ///   글([Text]로 넘긴 값) — 본문이 최소 폭(1em + 뒤 여백 10)이 된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다.
+  ///   글([Text]로 넘긴 값 · [PListSuffix] 안의 글) — 본문이 최소 폭(제목의 가장 긴 낱말 폭 + 뒤 여백 10, [listTitleMinWidth])이
+  ///   된 뒤에야 줄고, 줄 끝에서 끊어 본문 위로 넘치지 않는다. 값 + 화살표를 [PListSuffix] 로 넘겨도 값은 같은 폭 제한을 받는다.
   ///   금액 노드([PListValue]) — 글 값처럼 본문 최소 폭만 남기고 쉼표 뒤에서 줄을 바꾼다(글자는 줄이지 않는다).
   ///   그 밖 위젯(화살표 · 컨트롤 · 작은 버튼) — 줄지 않고 본문이 양보한다.
   ///
@@ -416,6 +474,8 @@ class _PListRowFrameState extends State<PListRowFrame> {
     Widget Function({bool container}) buildBodyNode,
     Color detailColor,
     Color arrowColor, {
+    required TextStyle titleStyle,
+    required double titleCap,
     bool mergeValue = false,
   }) {
     final suffix = widget.suffix;
@@ -424,14 +484,15 @@ class _PListRowFrameState extends State<PListRowFrame> {
     final merge = mergeValue && parts.values.isNotEmpty;
     final bodyNode = buildBodyNode(container: !merge);
     // 글 값 · 금액 값(PListValue)은 본문 최소 폭만 남기고 줄을 바꾼다 — 금액은 쉼표 뒤에서만(03-D 결정 2 B, keepAllAmount 의 U+200B).
-    final isText = suffix is Text || suffix is PListValue;
+    // (값 + 화살표를 PListSuffix 로 넘긴 줄도 값이 있으면 같은 제한을 받는다 — 화살표는 제한 밖이다)
+    final isText = parts.values.isNotEmpty;
     final valueSide = merge
         ? (parts.values.length == 1
               ? parts.values.first
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: PSpacing.x1,
-                  children: parts.values,
+                  children: [for (final v in parts.values) _flexValue(v)],
                 ))
         : suffix;
     final styled = _styledSuffix(valueSide, detailColor, arrowColor);
@@ -457,11 +518,21 @@ class _PListRowFrameState extends State<PListRowFrame> {
         : CrossAxisAlignment.center;
     return LayoutBuilder(
       builder: (context, constraints) {
+        // 본문 최소 폭 — 제목의 가장 긴 낱말 폭(본문 자리 폭의 절반까지) + 뒤 여백
+        final titleMin =
+            listTitleMinWidth(
+              title: widget.title,
+              style: DefaultTextStyle.of(context).style.merge(titleStyle),
+              scaler: MediaQuery.textScalerOf(context),
+              direction: Directionality.of(context),
+              cap: titleCap,
+            ) +
+            kPListBodyTrailGap;
         // 글 값이 쓸 수 있는 가장 넓은 폭 — 본문 최소 폭을 남긴다(조작 요소 자리는 뺀다)
         Widget valueWidget(double available) => isText
             ? ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: math.max(0.0, available - kPListBodyMinWidth),
+                  maxWidth: math.max(0.0, available - titleMin),
                 ),
                 child: styled,
               )
@@ -698,6 +769,11 @@ class _PListRowFrameState extends State<PListRowFrame> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final narrow = constraints.maxWidth < stackBelow;
+          // 제목 낱말 상한의 앞 자리 — 줄에서 아는 값으로 상수 분기
+          final lead = listLead(
+            hasPrefix: widget.prefix != null,
+            hasExpandSlot: nest == PListNest.parent,
+          );
           return Row(
             key: const ValueKey('plist-row'),
             crossAxisAlignment: narrow || widget.align == PListAlign.top
@@ -727,6 +803,10 @@ class _PListRowFrameState extends State<PListRowFrame> {
                             buildBody(container: container),
                         detailColor,
                         arrowColor,
+                        titleCap: (constraints.maxWidth - lead) / 2,
+                        titleStyle: PTypography.t5.copyWith(
+                          fontWeight: widget.titleWeight ?? FontWeight.w400,
+                        ),
                         // 줄 하나 = 한 노드 — 보기만 하는 줄도 제목 + 설명 + 값(컨트롤 줄은 줄 전체가 한 노드)
                         mergeValue: !sem.wholeRow,
                       ),
@@ -914,9 +994,14 @@ class PListSuffix extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     spacing: PSpacing.x1,
-    children: children,
+    // 글 값은 줄 안 폭이 모자라면 줄을 바꾼다(줄이 값에 폭 제한을 건다) — 화살표 같은 조작 요소는 줄지 않는다
+    children: [for (final w in children) _flexValue(w)],
   );
 }
+
+/// 값(글 · 금액 노드)은 Row 안에서 남은 폭에 맞춰 줄을 바꾼다 — 폭이 넉넉하면 제 크기 그대로다.
+Widget _flexValue(Widget w) =>
+    w is Text || w is PListValue ? Flexible(child: w) : w;
 
 /// 제목 색이 바뀌면 `motion-duration-color-transition` × `motion-ease-easing` 으로 옮긴다(끝낸 할 일 줄이 취소선 + 비활성 색으로
 /// 바뀌는 순간 — DESIGN.desk 3965). 모션 줄이기면 바로 바뀐다. 처음 그릴 때는 모션이 없다.

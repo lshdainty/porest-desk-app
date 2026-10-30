@@ -3,7 +3,7 @@
   "source": "specs/components/list.yaml",
   "design": {
     "file": "DESIGN.desk.md",
-    "sha256": "b21bcc4ffd72"
+    "sha256": "4ee2e4d75f38"
   },
   "slots": {
     "root": "목록(List) — 줄을 세로로 잇는다. 배경 · 줄 사이 간격 없음",
@@ -115,7 +115,7 @@
           "gap": 2,
           "paddingRight": 10,
           "flexGrow": 1,
-          "minWidth": "1em"
+          "minWidth": "min-content"
         },
         "title": {
           "typography": {
@@ -129,7 +129,8 @@
             "light": "#1A1F2E",
             "dark": "#F5F6FA"
           },
-          "overflowWrap": "anywhere"
+          "overflowWrap": "break-word",
+          "wordBreak": "keep-all"
         },
         "detail": {
           "typography": {
@@ -565,7 +566,7 @@
       "state": "enabled",
       "slot": "body",
       "prop": "minWidth",
-      "note": "본문은 한 글자(1em)까지 준다 — em 은 제목 글자(t5 16) 크기다. 버튼이 물려받은 글자(14)로 재면 24 가 된다 — 레시피는 calc(var(--text-t5) + 10px), 뒤 여백 10 은 따로 더해 보통 글자에서 26(2026-10-17 고침 03D-005). 값이 본문 위로 넘쳐 겹치지 않게(2026-10-15 사용자 결정 — 구현 세션 질문 Q-001, 안 A)"
+      "note": "본문은 제목의 가장 긴 낱말 폭까지 준다 — 제목이 keep-all 이라 min-content 가 그 낱말이다. 뒤 여백 10 은 따로다. 옛 1em(\"장 / 소\" 로 쪼개짐)을 2026-10-30 사용자 결정 B 로 바꿨다. 상한 — 공백 없는 긴 제목은 (줄 안 폭 − 앞 붙이개)의 절반에서 글자 사이로 끊는다(웹 cqw 상한 · 앱 LayoutBuilder). 값이 본문 위로 넘쳐 겹치지 않게(2026-10-15 사용자 결정 — 구현 세션 질문 Q-001, 안 A)"
     },
     {
       "rule": 0,
@@ -579,7 +580,7 @@
       "state": "enabled",
       "slot": "title",
       "prop": "overflowWrap",
-      "note": "평소에는 단어 단위(v114 — keep-all + break-word)로 바꾸고, 본문이 낱말 하나보다 좁아질 때만 글자 사이에서 끊어 칸 밖으로 넘치지 않는다(Q-001 A)"
+      "note": "낱말 단위(v114 — keep-all + break-word). 본문이 가장 긴 낱말보다 좁아지지 않으니 글자 사이에서 끊지 않는다(2026-10-30 결정 B — 옛 anywhere)"
     },
     {
       "rule": 0,
@@ -593,14 +594,14 @@
       "state": "enabled",
       "slot": "suffix",
       "prop": "shrink",
-      "note": "줄지 않는다(SEED suffix flexShrink 0) — 값이 길면 본문이 1em 까지 양보한다. 금액 · 화살표 · 컨트롤 · 작은 버튼은 한 덩어리로 선다. 값을 줄여 적는 것(억 단위 등)은 그 화면이 정한다"
+      "note": "줄지 않는다(SEED suffix flexShrink 0) — 값이 길면 본문이 제목의 가장 긴 낱말 폭까지 양보한다. 금액 · 화살표 · 컨트롤 · 작은 버튼은 한 덩어리로 선다. 값을 줄여 적는 것(억 단위 등)은 그 화면이 정한다"
     },
     {
       "rule": 0,
       "state": "enabled",
       "slot": "suffixText",
       "prop": "shrink",
-      "note": "글 값(이메일 · 계좌번호 · 긴 이름 — suffix 에 글을 그대로 넘긴 것)만 — 본문이 1em 이 된 뒤에야 준다(최소 폭 0)"
+      "note": "글 값(이메일 · 계좌번호 · 긴 이름 — suffix 에 글을 그대로 넘긴 것)만 — 본문이 제목 낱말 폭이 된 뒤에야 준다(최소 폭 0)"
     },
     {
       "rule": 0,
@@ -677,7 +678,7 @@
       "state": "enabled",
       "slot": "suffix",
       "prop": "placement",
-      "note": "값(글 값 · 금액)을 설명 아래에 둔다 — 본문 칸 안 왼쪽 맞춤, 폭은 본문 폭. 화살표 · 컨트롤 · 작은 버튼은 줄 끝 그대로(regular 와 같다 — 2026-10-17 사용자 결정, 누르는 자리를 옮기지 않는다)"
+      "note": "값(글 값 · 금액 · 뒤 붙이개의 배지 — 배지는 누르지 않는 보이기만 하는 글이라 값 쪽이다, 2026-10-29 I-29)을 설명 아래에 둔다 — 본문 칸 안 왼쪽 맞춤, 폭은 본문 폭. 화살표 · 컨트롤 · 작은 버튼은 줄 끝 그대로(regular 와 같다 — 2026-10-17 사용자 결정, 누르는 자리를 옮기지 않는다)"
     },
     {
       "rule": 3,
