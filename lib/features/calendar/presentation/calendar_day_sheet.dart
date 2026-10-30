@@ -16,6 +16,8 @@ import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_actions.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_detail_body.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_form_rows.dart'
+    show CalendarSaveErrorCallout;
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_text.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_grid.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_tone.dart';
@@ -91,8 +93,12 @@ class _CalendarDayFlow extends ConsumerStatefulWidget {
 class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
   _DayStep _step = _DayStep.list;
 
-  /// 연 일정 — 목록에서 (`rowId`)로 다시 찾는다. 서버가 새 값을 주면 상세가 새 값으로 바뀐다.
+  /// 연 일정 — 목록에서 (`rowId`, 연 회차의 시작 날)로 다시 찾는다(반복이 아니면 `rowId` 만). 서버가 새 값을 주면 상세가 새 값으로 바뀐다.
   int? _openRowId;
+  String? _openDay;
+
+  /// 상세에서 [삭제] 가 실패했다 — 상세 본문 맨 위 Callout 으로 알린다(전역 스낵바는 시트 뒤에 가려진다).
+  bool _deleteFailed = false;
 
   /// 목록 단계를 떠날 때 보던 스크롤 · 연 줄 — 돌아오면 그대로(I-09b 5).
   double _listOffset = 0;
@@ -132,6 +138,8 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
     _listOffset = body.hasClients ? body.offset : 0;
     setState(() {
       _openRowId = e.rowId;
+      _openDay = calendarDateKey(e.start);
+      _deleteFailed = false;
       _step = _DayStep.detail;
     });
   }
@@ -142,6 +150,8 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
     setState(() {
       _step = _DayStep.list;
       _openRowId = null;
+      _openDay = null;
+      _deleteFailed = false;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _step != _DayStep.list) return;
@@ -190,7 +200,8 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
     if (leave && mounted) _goDetail();
   }
 
-  /// 저장 · 삭제 뒤 — 서버가 새로 준 이 달 일정을 받은 다음에 단계를 옮긴다(받기 전에 옮기면 옛 값이 잠깐 비친다).
+  /// 저장 · 삭제 뒤 — 쓰는 쪽이 일정이 걸친 모든 달(반복이면 받아 둔 모든 달)을 비웠으므로 이 달을 새로 받은 다음에 단계를 옮긴다
+  /// (받기 전에 옮기면 옛 값이 잠깐 비친다).
   Future<void> _refreshMonth() async {
     try {
       await ref.read(monthEventsProvider(widget.monthKey).future);
@@ -199,9 +210,11 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
     }
   }
 
-  Future<void> _afterSaved() async {
+  Future<void> _afterSaved(DateTime savedStart) async {
     await _refreshMonth();
     if (!mounted) return;
+    // 반복 일정은 저장한 시작일로 다시 찾는다 — 회차를 다른 날로 옮겼으면 이 날 목록에 없어 목록 단계로 수렴한다
+    _openDay = calendarDateKey(savedStart);
     // 상세는 목록에서 다시 찾는다 — 날짜를 옮겨 이 날에 없으면 build 가 목록 단계로 돌린다
     _goDetail();
   }
@@ -215,7 +228,10 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
     if (_busy) return;
     final ok = await confirmDeleteCalendarEvent(context, e);
     if (!ok || !mounted) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _deleteFailed = false;
+    });
     try {
       final repo = await ref.read(calendarRepositoryProvider.future);
       await repo.deleteEvent(e.rowId);
@@ -224,7 +240,8 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
       if (!mounted) return;
       _goList();
     } on ApiException {
-      // 시트는 그대로 둔다 — 실패 알림은 전역 길이 말한다(옛 상세와 같다)
+      // 확인창은 이미 닫혔다 — 시트 안 보이는 자리(상세 맨 위 Callout)에 알리고 [삭제] 로 다시 시도한다
+      if (mounted) setState(() => _deleteFailed = true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -246,7 +263,13 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
     );
     final opened = _openRowId == null
         ? null
-        : events.where((e) => e.rowId == _openRowId).firstOrNull;
+        : events
+              .where(
+                (e) =>
+                    e.rowId == _openRowId &&
+                    (e.rrule == null || calendarDateKey(e.start) == _openDay),
+              )
+              .firstOrNull;
     if (_step != _DayStep.list && opened == null) {
       // 지워졌거나 날짜를 옮겨 이 날에 없다 — 그날 목록 단계로
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -341,10 +364,17 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
       backLabel: l.actionBack,
       flushBody: true,
       scrollFog: true,
-      body: CalendarEventDetailBody(
-        event: e,
-        calendars: calendarsAsync.value ?? const <UserCalendar>[],
-        today: calendarNow(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_deleteFailed)
+            CalendarSaveErrorCallout(message: l.calFormDeleteFailed),
+          CalendarEventDetailBody(
+            event: e,
+            calendars: calendarsAsync.value ?? const <UserCalendar>[],
+            today: calendarNow(),
+          ),
+        ],
       ),
       // 버튼이 없으면 바닥 자체를 두지 않는다(읽기 전용 · 권한을 모르는 남의 일정)
       footer: canEdit
