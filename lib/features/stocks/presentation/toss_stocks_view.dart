@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/core/format/change_rate.dart';
@@ -2613,7 +2612,7 @@ class _OrderBook extends StatelessWidget {
     return Column(
       children: [
         const _OrderBookHead(),
-        const SizedBox(height: PSpace.x4),
+        const SizedBox(height: PSpacing.x1),
         for (final a in asks) row(p: a.p, q: a.q, isAsk: true),
         _OrderBookLast(
           currency: currency,
@@ -2743,7 +2742,7 @@ class _OrderBookSkeleton extends StatelessWidget {
     return Column(
       children: [
         const _OrderBookHead(),
-        const SizedBox(height: PSpace.x4),
+        const SizedBox(height: PSpacing.x1),
         for (final f in _askBars) row(f, isAsk: true),
         _OrderBookLast(
           currency: currency,
@@ -2790,7 +2789,10 @@ class _QuotesEmpty extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x32, horizontal: 12),
+      padding: const EdgeInsets.symmetric(
+        vertical: PSpacing.x8,
+        horizontal: 12,
+      ),
       child: Center(
         child: Text(msg, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
       ),
@@ -2908,7 +2910,7 @@ class _TradeTape extends StatelessWidget {
     return Column(
       children: [
         const _TradeTapeHead(),
-        const SizedBox(height: PSpace.x4),
+        const SizedBox(height: PSpacing.x1),
         for (final f in fills)
           SizedBox(
             height: 25,
@@ -3005,7 +3007,7 @@ class _TradeTapeSkeleton extends StatelessWidget {
     return Column(
       children: [
         const _TradeTapeHead(),
-        const SizedBox(height: PSpace.x4),
+        const SizedBox(height: PSpacing.x1),
         for (var i = 0; i < 12; i++)
           const SizedBox(
             height: 25,
