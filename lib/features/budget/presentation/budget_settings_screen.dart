@@ -521,7 +521,13 @@ class _BudgetCopyJob {
   }
 
   /// 복사 뒤 알림 — 실패가 남았으면 그것만(다시 시도), 없으면 [undoable] 일 때 "가져왔어요 + 되돌리기".
-  void afterCopy(List<Budget> failed, {required bool undoable}) {
+  /// 덮어쓴 복사(!undoable)는 첫 시도가 다 됐으면 닫힌 확인창이 곧 결과라 말이 없지만, "다시 시도"([retried])로 끝났으면
+  /// 실패 띠가 떠 있었으므로 되돌리기 없는 "가져왔어요"로 끝을 알린다(웹 BudgetManager 와 같은 글).
+  void afterCopy(
+    List<Budget> failed, {
+    required bool undoable,
+    bool retried = false,
+  }) {
     if (failed.isNotEmpty) {
       snack.show(
         message: l.budgetCopyPartialFailed(failed.length),
@@ -530,13 +536,18 @@ class _BudgetCopyJob {
           label: l.actionRetry,
           onPressed: () async {
             final still = await copyItems(failed);
-            afterCopy(still, undoable: undoable);
+            afterCopy(still, undoable: undoable, retried: true);
           },
         ),
       );
       return;
     }
-    if (!undoable) return;
+    if (!undoable) {
+      if (retried) {
+        snack.show(message: l.budgetCopiedDone, tone: PSnackbarTone.neutral);
+      }
+      return;
+    }
     snack.show(
       message: l.budgetCopiedDone,
       // 되돌리기가 달린 결과 알림은 기본 톤(아이콘 없음) — 체크는 성공을 눈에 띄게 알릴 때만(snackbar.md:41 · :151-158)
