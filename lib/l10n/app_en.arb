@@ -2867,7 +2867,7 @@
   "stocksChartInitFailed": "Chart initialization failed",
   "stocksChartLoadFailed": "Couldn't load chart",
   "stocksSearch": "Search stocks",
-  "stocksSearchPlaceholder": "Search by name or ticker (e.g. Samsung Electronics, NVDA)",
+  "stocksSearchPlaceholder": "Search stocks",
   "stocksSearchNoResults": "No results for '{query}'",
   "@stocksSearchNoResults": {
     "placeholders": {
@@ -2876,24 +2876,10 @@
       }
     }
   },
-  "stocksTabHoldings": "Holdings {count}",
-  "@stocksTabHoldings": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "stocksTabWatch": "Watchlist {count}",
-  "@stocksTabWatch": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "stocksTabHoldings": "Holdings",
+  "stocksTabWatch": "Watchlist",
   "stocksTabDiscover": "Discover",
-  "stocksNoHoldings": "You have no holdings.",
+  "stocksNoHoldings": "No holdings yet",
   "stocksSharesHeld": "Holding {qty} shares",
   "@stocksSharesHeld": {
     "placeholders": {
@@ -2938,7 +2924,7 @@
   "stocksWarningStockWarrants": "Stock warrants",
   "stocksWarningAdministrative": "Administrative issue",
   "stocksWarningAdjustmentOfShares": "Share adjustment",
-  "stocksNoWatchlist": "No watchlist. Search and tap the star.",
+  "stocksNoWatchlist": "No watchlist stocks yet",
   "stocksDetailTitle": "Stock details",
   "stocksMarketHoliday": "Holiday",
   "stocksMarketTrading": "Open · {time}",
@@ -2960,37 +2946,14 @@
   "stocksMarketClosed": "Closed",
   "stocksMarketKr": "Domestic",
   "stocksMarketUs": "US",
-  "stocksConnectPrompt": "Please connect a securities account",
-  "stocksConnectDescRealtime": "Connect your Toss Securities key to see quotes, holdings, and P&L in real time.",
-  "stocksConnectInSettings": "Connect in settings",
-  "stocksConnectDesc": "Connect your Toss Securities key to see holdings and P&L.",
-  "stocksConnectAccount": "Connect account",
   "stocksMyEval": "My portfolio value",
-  "stocksConnectShowAssets": "Connect a securities account to see your assets",
   "stocksPurchaseAmount": "Cost basis",
   "stocksHoldingsLabel": "Holdings",
   "stocksExchangeRate": "Exchange rate (USD)",
   "stocksSell": "Sell",
-  "stocksSellOrderStub": "{name} sell order — works when Open API is connected",
-  "@stocksSellOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksBuy": "Buy",
-  "stocksBuyOrderStub": "{name} buy order — works when Open API is connected",
-  "@stocksBuyOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksFeeUs": "US stock trading fee 0.1% · FX fee applies separately",
   "stocksFeeKr": "Domestic stock trading free (until Jun 2026) · then KRX 0.015% / NXT 0.014%",
-  "stocksOrderDisclaimer": "Real-time quotes and prices apply once Toss Securities Open API is connected.\nQuotes are for reference only; actual orders require agreeing to the terms.",
   "stocksEvalAmount": "Market value",
   "stocksEvalPnl": "Unrealized P&L",
   "stocksQuantityHeld": "Quantity held",
@@ -3033,22 +2996,14 @@
   "stocksChangeRate": "Change",
   "stocksSearchHint": "Search by name or symbol (KR + US·CN·JP·HK·VN)",
   "stocksPriceUnavailable": "Price unavailable via Toss (KR·US only)",
-  "stocksRankingLoading": "Loading rankings…",
-  "stocksRankingEmpty": "No rankings available",
+  "stocksRankingLoading": "Loading rankings",
+  "stocksRankingEmpty": "No rankings yet",
   "stocksWatchDefaultGroupName": "Watchlist",
   "stocksWatchGroupAdd": "Add group",
   "stocksWatchGroupRename": "Rename group",
   "stocksWatchGroupDelete": "Delete group",
   "stocksWatchGroupNamePlaceholder": "Group name",
-  "stocksWatchGroupDeleteConfirm": "The \"{name}\" group and its stocks will be removed. Continue?",
-  "@stocksWatchGroupDeleteConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "stocksWatchGroupSaveFail": "Failed to save watchlist group",
+  "stocksWatchGroupSaveFail": "Couldn't save the watch group.",
   "stocksWatchAddFail": "Failed to add to watchlist",
   "stocksMarketToggleKr": "KR",
   "stocksMarketToggleUs": "US",
@@ -4478,5 +4433,142 @@
   "assetFormErrPaymentDay": "Choose a payment day.",
   "assetNoPaymentAccount": "No payment account",
   "assetNoLinkedAccount": "No linked account",
-  "unlockPasswordRequired": "Enter your password."
+  "unlockPasswordRequired": "Enter your password.",
+  "stocksNoWatchlistDesc": "Find a stock and tap the star.",
+  "stocksSectionMarket": "Market",
+  "stocksSectionStocks": "Stocks",
+  "stocksOrderbookTrades": "Order book · Trades",
+  "stocksVsPurchase": "vs. purchase",
+  "stocksWatchGroupTitle": "{name} · {count}",
+  "@stocksWatchGroupTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksWatchGroupRenameItem": "Rename",
+  "stocksWatchGroupMore": "More for {name}",
+  "@stocksWatchGroupMore": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksWatchGroupEmpty": "No stocks added yet",
+  "stocksWatchGroupDeleteConfirmCount": "\"{name}\" and its {count} stocks will be deleted together.",
+  "@stocksWatchGroupDeleteConfirmCount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksWatchGroupDeleteConfirmEmpty": "\"{name}\" will be deleted.",
+  "@stocksWatchGroupDeleteConfirmEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksWatchPickGroup": "Add to which group",
+  "stocksWatchToggleLabel": "Add to watchlist",
+  "stocksPortfolioTitle": "Portfolio breakdown",
+  "stocksPortfolioSub": "Weight by stock · totals by currency",
+  "stocksPortfolioCount": "{count} stocks",
+  "@stocksPortfolioCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksPortfolioNeedsFx": "Load the exchange rate to see the breakdown",
+  "stocksFailInvest": "Couldn't load your investments",
+  "stocksFailMarket": "Couldn't load market info",
+  "stocksFailHoldings": "Couldn't load your holdings",
+  "stocksFailWatch": "Couldn't load your watchlist",
+  "stocksFailRanking": "Couldn't load rankings",
+  "stocksFailDaily": "Couldn't load daily prices",
+  "stocksFailSearch": "Couldn't load search results",
+  "stocksFailDesc": "Please try again in a moment.",
+  "stocksSourceNotice": "Toss Securities Open API · quotes may be delayed",
+  "stocksDisclaimerLine1": "Real-time quotes and prices apply once Toss Securities Open API is connected.",
+  "stocksDisclaimerLine2": "Quotes are for reference only. Actual orders require agreeing to the terms.",
+  "stocksDailyVolume": "Volume {volume}",
+  "@stocksDailyVolume": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksFxBasis": "Base rate",
+  "stocksDailyDate": "{month}/{day}",
+  "@stocksDailyDate": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksTradeSoon": "Ordering will open soon.",
+  "stocksFailOrderbook": "Couldn't load the order book",
+  "stocksFailTrades": "Couldn't load trades",
+  "stocksFailInfo": "Couldn't load basic info",
+  "stocksRowAsk": "Ask {price}, volume {qty}",
+  "@stocksRowAsk": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowBid": "Bid {price}, volume {qty}",
+  "@stocksRowBid": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowTrade": "{time}, {price}, quantity {qty}",
+  "@stocksRowTrade": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksOrderbookTableName": "Order book table",
+  "stocksTradesTableName": "Trades table",
+  "stocksConnectEmptyTitle": "Connect a brokerage",
+  "stocksConnectEmptyDesc": "Connect your Toss Securities or Namu Securities key to see quotes and your holdings.",
+  "stocksConnectEmptyAction": "Connect a brokerage",
+  "stockMarketKrEtc": "Other (KR)",
+  "stockMarketUsEtc": "Other (US)",
+  "stocksFailPrice": "Couldn't load the price"
 }

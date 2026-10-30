@@ -5086,28 +5086,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksSearch => '종목 검색';
 
   @override
-  String get stocksSearchPlaceholder => '종목명 · 티커로 검색 (예: 삼성전자, NVDA)';
+  String get stocksSearchPlaceholder => '종목 검색';
 
   @override
   String stocksSearchNoResults(String query) {
-    return '\'$query\' 검색 결과가 없어요';
+    return '\'$query\'에 대한 검색 결과가 없어요';
   }
 
   @override
-  String stocksTabHoldings(int count) {
-    return '보유 $count';
-  }
+  String get stocksTabHoldings => '보유';
 
   @override
-  String stocksTabWatch(int count) {
-    return '관심 $count';
-  }
+  String get stocksTabWatch => '관심';
 
   @override
   String get stocksTabDiscover => '발견';
 
   @override
-  String get stocksNoHoldings => '보유 중인 종목이 없어요.';
+  String get stocksNoHoldings => '보유 중인 종목이 없어요';
 
   @override
   String stocksSharesHeld(String qty) {
@@ -5115,7 +5111,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get stocksRange1d => '1D';
+  String get stocksRange1d => '1일';
 
   @override
   String get stocksRange1w => '1주';
@@ -5185,7 +5181,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksWarningAdjustmentOfShares => '주식병합·분할';
 
   @override
-  String get stocksNoWatchlist => '관심 종목이 없어요. 검색해서 별표를 눌러보세요.';
+  String get stocksNoWatchlist => '관심 종목이 없어요';
 
   @override
   String get stocksDetailTitle => '종목 상세';
@@ -5213,26 +5209,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksMarketUs => '미국';
 
   @override
-  String get stocksConnectPrompt => '증권 계정을 연결해주세요';
-
-  @override
-  String get stocksConnectDescRealtime =>
-      '토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.';
-
-  @override
-  String get stocksConnectInSettings => '설정에서 연결하기';
-
-  @override
-  String get stocksConnectDesc => '토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.';
-
-  @override
-  String get stocksConnectAccount => '계정 연결하기';
-
-  @override
   String get stocksMyEval => '내 투자 평가금액';
-
-  @override
-  String get stocksConnectShowAssets => '증권 계정을 연결하면 보유자산이 보여요';
 
   @override
   String get stocksPurchaseAmount => '매입금액';
@@ -5247,17 +5224,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksSell => '매도';
 
   @override
-  String stocksSellOrderStub(String name) {
-    return '$name 매도 주문 — Open API 연동 시 동작';
-  }
-
-  @override
   String get stocksBuy => '매수';
-
-  @override
-  String stocksBuyOrderStub(String name) {
-    return '$name 매수 주문 — Open API 연동 시 동작';
-  }
 
   @override
   String get stocksFeeUs => '미국주식 매매수수료 0.1% · 환전 수수료 별도 적용';
@@ -5265,10 +5232,6 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get stocksFeeKr =>
       '국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%';
-
-  @override
-  String get stocksOrderDisclaimer =>
-      '토스증권 Open API 연동 시 실시간 호가·체결가가 반영됩니다.\n시세는 투자 참고용이며 실제 주문은 약관 동의 후 가능합니다.';
 
   @override
   String get stocksEvalAmount => '평가금액';
@@ -5397,10 +5360,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksPriceUnavailable => '토스 시세 미지원 종목이에요 (국내·미국만 제공)';
 
   @override
-  String get stocksRankingLoading => '랭킹을 불러오는 중…';
+  String get stocksRankingLoading => '순위를 불러오는 중이에요';
 
   @override
-  String get stocksRankingEmpty => '집계된 랭킹이 없어요';
+  String get stocksRankingEmpty => '집계된 순위가 없어요';
 
   @override
   String get stocksWatchDefaultGroupName => '관심';
@@ -5409,7 +5372,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksWatchGroupAdd => '그룹 추가';
 
   @override
-  String get stocksWatchGroupRename => '그룹 이름 변경';
+  String get stocksWatchGroupRename => '그룹 이름 바꾸기';
 
   @override
   String get stocksWatchGroupDelete => '그룹 삭제';
@@ -5418,12 +5381,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksWatchGroupNamePlaceholder => '그룹 이름';
 
   @override
-  String stocksWatchGroupDeleteConfirm(String name) {
-    return '\"$name\" 그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?';
-  }
-
-  @override
-  String get stocksWatchGroupSaveFail => '관심목록 그룹 저장에 실패했어요';
+  String get stocksWatchGroupSaveFail => '관심 그룹을 저장하지 못했어요.';
 
   @override
   String get stocksWatchAddFail => '관심 등록에 실패했어요';
@@ -8042,4 +8000,164 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get unlockPasswordRequired => '비밀번호를 입력해주세요.';
+
+  @override
+  String get stocksNoWatchlistDesc => '종목을 찾아 ☆ 를 눌러 보세요.';
+
+  @override
+  String get stocksSectionMarket => '시장';
+
+  @override
+  String get stocksSectionStocks => '종목';
+
+  @override
+  String get stocksOrderbookTrades => '호가 · 체결';
+
+  @override
+  String get stocksVsPurchase => '매입금액보다';
+
+  @override
+  String stocksWatchGroupTitle(String name, int count) {
+    return '$name · $count';
+  }
+
+  @override
+  String get stocksWatchGroupRenameItem => '이름 바꾸기';
+
+  @override
+  String stocksWatchGroupMore(String name) {
+    return '$name 더보기';
+  }
+
+  @override
+  String get stocksWatchGroupEmpty => '아직 담은 종목이 없어요';
+
+  @override
+  String stocksWatchGroupDeleteConfirmCount(String name, int count) {
+    return '\"$name\" 그룹과 담긴 종목 $count개가 함께 지워져요.';
+  }
+
+  @override
+  String stocksWatchGroupDeleteConfirmEmpty(String name) {
+    return '\"$name\" 그룹을 지워요.';
+  }
+
+  @override
+  String get stocksWatchPickGroup => '담을 관심 그룹';
+
+  @override
+  String get stocksWatchToggleLabel => '관심 등록';
+
+  @override
+  String get stocksPortfolioTitle => '포트폴리오 구성';
+
+  @override
+  String get stocksPortfolioSub => '종목별 비중 · 통화별 합계';
+
+  @override
+  String stocksPortfolioCount(int count) {
+    return '$count종목';
+  }
+
+  @override
+  String get stocksPortfolioNeedsFx => '환율을 불러오면 구성 비중을 볼 수 있어요';
+
+  @override
+  String get stocksFailInvest => '내 투자를 불러오지 못했어요';
+
+  @override
+  String get stocksFailMarket => '시장 정보를 불러오지 못했어요';
+
+  @override
+  String get stocksFailHoldings => '보유 종목을 불러오지 못했어요';
+
+  @override
+  String get stocksFailWatch => '관심 종목을 불러오지 못했어요';
+
+  @override
+  String get stocksFailRanking => '순위를 불러오지 못했어요';
+
+  @override
+  String get stocksFailDaily => '일별 시세를 불러오지 못했어요';
+
+  @override
+  String get stocksFailSearch => '검색 결과를 불러오지 못했어요';
+
+  @override
+  String get stocksFailDesc => '잠시 뒤 다시 시도해주세요.';
+
+  @override
+  String get stocksSourceNotice => '토스증권 Open API · 시세 지연 표시';
+
+  @override
+  String get stocksDisclaimerLine1 => '토스증권 Open API 연동 시 실시간 호가·체결가가 반영돼요.';
+
+  @override
+  String get stocksDisclaimerLine2 =>
+      '시세는 투자 참고용이에요. 실제 주문은 약관에 동의한 뒤 할 수 있어요.';
+
+  @override
+  String stocksDailyVolume(String volume) {
+    return '거래량 $volume';
+  }
+
+  @override
+  String get stocksFxBasis => '매매기준율';
+
+  @override
+  String stocksDailyDate(int month, int day) {
+    return '$month월 $day일';
+  }
+
+  @override
+  String get stocksTradeSoon => '주문은 곧 열려요.';
+
+  @override
+  String get stocksFailOrderbook => '호가를 불러오지 못했어요';
+
+  @override
+  String get stocksFailTrades => '체결 내역을 불러오지 못했어요';
+
+  @override
+  String get stocksFailInfo => '기본 정보를 불러오지 못했어요';
+
+  @override
+  String stocksRowAsk(String price, String qty) {
+    return '매도 $price, 잔량 $qty';
+  }
+
+  @override
+  String stocksRowBid(String price, String qty) {
+    return '매수 $price, 잔량 $qty';
+  }
+
+  @override
+  String stocksRowTrade(String time, String price, String qty) {
+    return '$time, $price, 수량 $qty';
+  }
+
+  @override
+  String get stocksOrderbookTableName => '호가 표';
+
+  @override
+  String get stocksTradesTableName => '체결 표';
+
+  @override
+  String get stocksConnectEmptyTitle => '증권사를 연결해 주세요';
+
+  @override
+  String get stocksConnectEmptyDesc =>
+      '토스증권 · 나무증권 키를 연결하면 시세와 보유 종목을 볼 수 있어요.';
+
+  @override
+  String get stocksConnectEmptyAction => '증권사 연결하기';
+
+  @override
+  String get stockMarketKrEtc => '국내 기타';
+
+  @override
+  String get stockMarketUsEtc => '미국 기타';
+
+  @override
+  String get stocksFailPrice => '시세를 불러오지 못했어요';
 }

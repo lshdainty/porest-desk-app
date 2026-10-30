@@ -5183,8 +5183,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksSearch => 'Search stocks';
 
   @override
-  String get stocksSearchPlaceholder =>
-      'Search by name or ticker (e.g. Samsung Electronics, NVDA)';
+  String get stocksSearchPlaceholder => 'Search stocks';
 
   @override
   String stocksSearchNoResults(String query) {
@@ -5192,20 +5191,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String stocksTabHoldings(int count) {
-    return 'Holdings $count';
-  }
+  String get stocksTabHoldings => 'Holdings';
 
   @override
-  String stocksTabWatch(int count) {
-    return 'Watchlist $count';
-  }
+  String get stocksTabWatch => 'Watchlist';
 
   @override
   String get stocksTabDiscover => 'Discover';
 
   @override
-  String get stocksNoHoldings => 'You have no holdings.';
+  String get stocksNoHoldings => 'No holdings yet';
 
   @override
   String stocksSharesHeld(String qty) {
@@ -5283,7 +5278,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksWarningAdjustmentOfShares => 'Share adjustment';
 
   @override
-  String get stocksNoWatchlist => 'No watchlist. Search and tap the star.';
+  String get stocksNoWatchlist => 'No watchlist stocks yet';
 
   @override
   String get stocksDetailTitle => 'Stock details';
@@ -5311,28 +5306,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksMarketUs => 'US';
 
   @override
-  String get stocksConnectPrompt => 'Please connect a securities account';
-
-  @override
-  String get stocksConnectDescRealtime =>
-      'Connect your Toss Securities key to see quotes, holdings, and P&L in real time.';
-
-  @override
-  String get stocksConnectInSettings => 'Connect in settings';
-
-  @override
-  String get stocksConnectDesc =>
-      'Connect your Toss Securities key to see holdings and P&L.';
-
-  @override
-  String get stocksConnectAccount => 'Connect account';
-
-  @override
   String get stocksMyEval => 'My portfolio value';
-
-  @override
-  String get stocksConnectShowAssets =>
-      'Connect a securities account to see your assets';
 
   @override
   String get stocksPurchaseAmount => 'Cost basis';
@@ -5347,17 +5321,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksSell => 'Sell';
 
   @override
-  String stocksSellOrderStub(String name) {
-    return '$name sell order — works when Open API is connected';
-  }
-
-  @override
   String get stocksBuy => 'Buy';
-
-  @override
-  String stocksBuyOrderStub(String name) {
-    return '$name buy order — works when Open API is connected';
-  }
 
   @override
   String get stocksFeeUs =>
@@ -5366,10 +5330,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get stocksFeeKr =>
       'Domestic stock trading free (until Jun 2026) · then KRX 0.015% / NXT 0.014%';
-
-  @override
-  String get stocksOrderDisclaimer =>
-      'Real-time quotes and prices apply once Toss Securities Open API is connected.\nQuotes are for reference only; actual orders require agreeing to the terms.';
 
   @override
   String get stocksEvalAmount => 'Market value';
@@ -5500,10 +5460,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Price unavailable via Toss (KR·US only)';
 
   @override
-  String get stocksRankingLoading => 'Loading rankings…';
+  String get stocksRankingLoading => 'Loading rankings';
 
   @override
-  String get stocksRankingEmpty => 'No rankings available';
+  String get stocksRankingEmpty => 'No rankings yet';
 
   @override
   String get stocksWatchDefaultGroupName => 'Watchlist';
@@ -5521,12 +5481,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksWatchGroupNamePlaceholder => 'Group name';
 
   @override
-  String stocksWatchGroupDeleteConfirm(String name) {
-    return 'The \"$name\" group and its stocks will be removed. Continue?';
-  }
-
-  @override
-  String get stocksWatchGroupSaveFail => 'Failed to save watchlist group';
+  String get stocksWatchGroupSaveFail => 'Couldn\'t save the watch group.';
 
   @override
   String get stocksWatchAddFail => 'Failed to add to watchlist';
@@ -8236,4 +8191,167 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlockPasswordRequired => 'Enter your password.';
+
+  @override
+  String get stocksNoWatchlistDesc => 'Find a stock and tap the star.';
+
+  @override
+  String get stocksSectionMarket => 'Market';
+
+  @override
+  String get stocksSectionStocks => 'Stocks';
+
+  @override
+  String get stocksOrderbookTrades => 'Order book · Trades';
+
+  @override
+  String get stocksVsPurchase => 'vs. purchase';
+
+  @override
+  String stocksWatchGroupTitle(String name, int count) {
+    return '$name · $count';
+  }
+
+  @override
+  String get stocksWatchGroupRenameItem => 'Rename';
+
+  @override
+  String stocksWatchGroupMore(String name) {
+    return 'More for $name';
+  }
+
+  @override
+  String get stocksWatchGroupEmpty => 'No stocks added yet';
+
+  @override
+  String stocksWatchGroupDeleteConfirmCount(String name, int count) {
+    return '\"$name\" and its $count stocks will be deleted together.';
+  }
+
+  @override
+  String stocksWatchGroupDeleteConfirmEmpty(String name) {
+    return '\"$name\" will be deleted.';
+  }
+
+  @override
+  String get stocksWatchPickGroup => 'Add to which group';
+
+  @override
+  String get stocksWatchToggleLabel => 'Add to watchlist';
+
+  @override
+  String get stocksPortfolioTitle => 'Portfolio breakdown';
+
+  @override
+  String get stocksPortfolioSub => 'Weight by stock · totals by currency';
+
+  @override
+  String stocksPortfolioCount(int count) {
+    return '$count stocks';
+  }
+
+  @override
+  String get stocksPortfolioNeedsFx =>
+      'Load the exchange rate to see the breakdown';
+
+  @override
+  String get stocksFailInvest => 'Couldn\'t load your investments';
+
+  @override
+  String get stocksFailMarket => 'Couldn\'t load market info';
+
+  @override
+  String get stocksFailHoldings => 'Couldn\'t load your holdings';
+
+  @override
+  String get stocksFailWatch => 'Couldn\'t load your watchlist';
+
+  @override
+  String get stocksFailRanking => 'Couldn\'t load rankings';
+
+  @override
+  String get stocksFailDaily => 'Couldn\'t load daily prices';
+
+  @override
+  String get stocksFailSearch => 'Couldn\'t load search results';
+
+  @override
+  String get stocksFailDesc => 'Please try again in a moment.';
+
+  @override
+  String get stocksSourceNotice =>
+      'Toss Securities Open API · quotes may be delayed';
+
+  @override
+  String get stocksDisclaimerLine1 =>
+      'Real-time quotes and prices apply once Toss Securities Open API is connected.';
+
+  @override
+  String get stocksDisclaimerLine2 =>
+      'Quotes are for reference only. Actual orders require agreeing to the terms.';
+
+  @override
+  String stocksDailyVolume(String volume) {
+    return 'Volume $volume';
+  }
+
+  @override
+  String get stocksFxBasis => 'Base rate';
+
+  @override
+  String stocksDailyDate(int month, int day) {
+    return '$month/$day';
+  }
+
+  @override
+  String get stocksTradeSoon => 'Ordering will open soon.';
+
+  @override
+  String get stocksFailOrderbook => 'Couldn\'t load the order book';
+
+  @override
+  String get stocksFailTrades => 'Couldn\'t load trades';
+
+  @override
+  String get stocksFailInfo => 'Couldn\'t load basic info';
+
+  @override
+  String stocksRowAsk(String price, String qty) {
+    return 'Ask $price, volume $qty';
+  }
+
+  @override
+  String stocksRowBid(String price, String qty) {
+    return 'Bid $price, volume $qty';
+  }
+
+  @override
+  String stocksRowTrade(String time, String price, String qty) {
+    return '$time, $price, quantity $qty';
+  }
+
+  @override
+  String get stocksOrderbookTableName => 'Order book table';
+
+  @override
+  String get stocksTradesTableName => 'Trades table';
+
+  @override
+  String get stocksConnectEmptyTitle => 'Connect a brokerage';
+
+  @override
+  String get stocksConnectEmptyDesc =>
+      'Connect your Toss Securities or Namu Securities key to see quotes and your holdings.';
+
+  @override
+  String get stocksConnectEmptyAction => 'Connect a brokerage';
+
+  @override
+  String get stockMarketKrEtc => 'Other (KR)';
+
+  @override
+  String get stockMarketUsEtc => 'Other (US)';
+
+  @override
+  String get stocksFailPrice => 'Couldn\'t load the price';
 }

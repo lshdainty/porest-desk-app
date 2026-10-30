@@ -47,6 +47,7 @@ import 'package:groo_damda_app/features/settings/presentation/settings_screen.da
 import 'package:groo_damda_app/features/settings/presentation/update_screen.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_screen.dart';
+import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/presentation/securities_gate.dart';
 import 'package:groo_damda_app/features/subscription/presentation/securities_link_screen.dart';
 import 'package:groo_damda_app/shared/ds/catalog/ds_catalog_screen.dart';
@@ -232,6 +233,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/stocks',
         builder: (_, _) => const SecuritiesGate(child: StocksScreen()),
+        routes: [
+          // 포트폴리오 구성 · 종목 상세는 화면(주소)이다 — 정적 경로가 먼저. 지금은 토스만(나무는 13-3).
+          GoRoute(
+            path: 'toss/portfolio',
+            builder: (_, _) => const SecuritiesGate(child: TossPortfolioPage()),
+          ),
+          GoRoute(
+            path: 'toss/:symbol',
+            builder: (_, state) => SecuritiesGate(
+              child: TossStockDetailPage(
+                symbol: state.pathParameters['symbol']!,
+              ),
+            ),
+          ),
+        ],
       ),
 
       // 옛 경로 — 가계부 묶음에서 그 탭을 고른 채로 간다(딥링크 · 북마크가 깨지지 않게).

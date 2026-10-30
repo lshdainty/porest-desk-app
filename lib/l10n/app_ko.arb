@@ -2939,8 +2939,8 @@
   "stocksChartInitFailed": "차트 초기화 실패",
   "stocksChartLoadFailed": "차트를 불러올 수 없어요",
   "stocksSearch": "종목 검색",
-  "stocksSearchPlaceholder": "종목명 · 티커로 검색 (예: 삼성전자, NVDA)",
-  "stocksSearchNoResults": "'{query}' 검색 결과가 없어요",
+  "stocksSearchPlaceholder": "종목 검색",
+  "stocksSearchNoResults": "'{query}'에 대한 검색 결과가 없어요",
   "@stocksSearchNoResults": {
     "placeholders": {
       "query": {
@@ -2948,24 +2948,10 @@
       }
     }
   },
-  "stocksTabHoldings": "보유 {count}",
-  "@stocksTabHoldings": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "stocksTabWatch": "관심 {count}",
-  "@stocksTabWatch": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "stocksTabHoldings": "보유",
+  "stocksTabWatch": "관심",
   "stocksTabDiscover": "발견",
-  "stocksNoHoldings": "보유 중인 종목이 없어요.",
+  "stocksNoHoldings": "보유 중인 종목이 없어요",
   "stocksSharesHeld": "{qty}주 보유",
   "@stocksSharesHeld": {
     "placeholders": {
@@ -2974,7 +2960,7 @@
       }
     }
   },
-  "stocksRange1d": "1D",
+  "stocksRange1d": "1일",
   "stocksRange1w": "1주",
   "stocksRange1m": "1개월",
   "stocksRange3m": "3개월",
@@ -3010,7 +2996,7 @@
   "stocksWarningStockWarrants": "신주인수권",
   "stocksWarningAdministrative": "관리종목",
   "stocksWarningAdjustmentOfShares": "주식병합·분할",
-  "stocksNoWatchlist": "관심 종목이 없어요. 검색해서 별표를 눌러보세요.",
+  "stocksNoWatchlist": "관심 종목이 없어요",
   "stocksDetailTitle": "종목 상세",
   "stocksMarketHoliday": "휴장",
   "stocksMarketTrading": "장중 · {time}",
@@ -3032,37 +3018,14 @@
   "stocksMarketClosed": "장마감",
   "stocksMarketKr": "국내",
   "stocksMarketUs": "미국",
-  "stocksConnectPrompt": "증권 계정을 연결해주세요",
-  "stocksConnectDescRealtime": "토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.",
-  "stocksConnectInSettings": "설정에서 연결하기",
-  "stocksConnectDesc": "토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.",
-  "stocksConnectAccount": "계정 연결하기",
   "stocksMyEval": "내 투자 평가금액",
-  "stocksConnectShowAssets": "증권 계정을 연결하면 보유자산이 보여요",
   "stocksPurchaseAmount": "매입금액",
   "stocksHoldingsLabel": "보유 종목",
   "stocksExchangeRate": "환율(USD)",
   "stocksSell": "매도",
-  "stocksSellOrderStub": "{name} 매도 주문 — Open API 연동 시 동작",
-  "@stocksSellOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksBuy": "매수",
-  "stocksBuyOrderStub": "{name} 매수 주문 — Open API 연동 시 동작",
-  "@stocksBuyOrderStub": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "stocksFeeUs": "미국주식 매매수수료 0.1% · 환전 수수료 별도 적용",
   "stocksFeeKr": "국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%",
-  "stocksOrderDisclaimer": "토스증권 Open API 연동 시 실시간 호가·체결가가 반영됩니다.\n시세는 투자 참고용이며 실제 주문은 약관 동의 후 가능합니다.",
   "stocksEvalAmount": "평가금액",
   "stocksEvalPnl": "평가손익",
   "stocksQuantityHeld": "보유수량",
@@ -3105,22 +3068,14 @@
   "stocksChangeRate": "등락률",
   "stocksSearchHint": "종목명·심볼로 검색하세요 (국내 + 미국·중국·일본·홍콩·베트남)",
   "stocksPriceUnavailable": "토스 시세 미지원 종목이에요 (국내·미국만 제공)",
-  "stocksRankingLoading": "랭킹을 불러오는 중…",
-  "stocksRankingEmpty": "집계된 랭킹이 없어요",
+  "stocksRankingLoading": "순위를 불러오는 중이에요",
+  "stocksRankingEmpty": "집계된 순위가 없어요",
   "stocksWatchDefaultGroupName": "관심",
   "stocksWatchGroupAdd": "그룹 추가",
-  "stocksWatchGroupRename": "그룹 이름 변경",
+  "stocksWatchGroupRename": "그룹 이름 바꾸기",
   "stocksWatchGroupDelete": "그룹 삭제",
   "stocksWatchGroupNamePlaceholder": "그룹 이름",
-  "stocksWatchGroupDeleteConfirm": "\"{name}\" 그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?",
-  "@stocksWatchGroupDeleteConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "stocksWatchGroupSaveFail": "관심목록 그룹 저장에 실패했어요",
+  "stocksWatchGroupSaveFail": "관심 그룹을 저장하지 못했어요.",
   "stocksWatchAddFail": "관심 등록에 실패했어요",
   "stocksMarketToggleKr": "국내",
   "stocksMarketToggleUs": "미국",
@@ -4741,5 +4696,142 @@
   "assetFormErrPaymentDay": "결제일을 골라주세요.",
   "assetNoPaymentAccount": "결제 출금계좌 없음",
   "assetNoLinkedAccount": "연결 계좌 없음",
-  "unlockPasswordRequired": "비밀번호를 입력해주세요."
+  "unlockPasswordRequired": "비밀번호를 입력해주세요.",
+  "stocksNoWatchlistDesc": "종목을 찾아 ☆ 를 눌러 보세요.",
+  "stocksSectionMarket": "시장",
+  "stocksSectionStocks": "종목",
+  "stocksOrderbookTrades": "호가 · 체결",
+  "stocksVsPurchase": "매입금액보다",
+  "stocksWatchGroupTitle": "{name} · {count}",
+  "@stocksWatchGroupTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksWatchGroupRenameItem": "이름 바꾸기",
+  "stocksWatchGroupMore": "{name} 더보기",
+  "@stocksWatchGroupMore": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksWatchGroupEmpty": "아직 담은 종목이 없어요",
+  "stocksWatchGroupDeleteConfirmCount": "\"{name}\" 그룹과 담긴 종목 {count}개가 함께 지워져요.",
+  "@stocksWatchGroupDeleteConfirmCount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksWatchGroupDeleteConfirmEmpty": "\"{name}\" 그룹을 지워요.",
+  "@stocksWatchGroupDeleteConfirmEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksWatchPickGroup": "담을 관심 그룹",
+  "stocksWatchToggleLabel": "관심 등록",
+  "stocksPortfolioTitle": "포트폴리오 구성",
+  "stocksPortfolioSub": "종목별 비중 · 통화별 합계",
+  "stocksPortfolioCount": "{count}종목",
+  "@stocksPortfolioCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksPortfolioNeedsFx": "환율을 불러오면 구성 비중을 볼 수 있어요",
+  "stocksFailInvest": "내 투자를 불러오지 못했어요",
+  "stocksFailMarket": "시장 정보를 불러오지 못했어요",
+  "stocksFailHoldings": "보유 종목을 불러오지 못했어요",
+  "stocksFailWatch": "관심 종목을 불러오지 못했어요",
+  "stocksFailRanking": "순위를 불러오지 못했어요",
+  "stocksFailDaily": "일별 시세를 불러오지 못했어요",
+  "stocksFailSearch": "검색 결과를 불러오지 못했어요",
+  "stocksFailDesc": "잠시 뒤 다시 시도해주세요.",
+  "stocksSourceNotice": "토스증권 Open API · 시세 지연 표시",
+  "stocksDisclaimerLine1": "토스증권 Open API 연동 시 실시간 호가·체결가가 반영돼요.",
+  "stocksDisclaimerLine2": "시세는 투자 참고용이에요. 실제 주문은 약관에 동의한 뒤 할 수 있어요.",
+  "stocksDailyVolume": "거래량 {volume}",
+  "@stocksDailyVolume": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksFxBasis": "매매기준율",
+  "stocksDailyDate": "{month}월 {day}일",
+  "@stocksDailyDate": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "stocksTradeSoon": "주문은 곧 열려요.",
+  "stocksFailOrderbook": "호가를 불러오지 못했어요",
+  "stocksFailTrades": "체결 내역을 불러오지 못했어요",
+  "stocksFailInfo": "기본 정보를 불러오지 못했어요",
+  "stocksRowAsk": "매도 {price}, 잔량 {qty}",
+  "@stocksRowAsk": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowBid": "매수 {price}, 잔량 {qty}",
+  "@stocksRowBid": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksRowTrade": "{time}, {price}, 수량 {qty}",
+  "@stocksRowTrade": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "stocksOrderbookTableName": "호가 표",
+  "stocksTradesTableName": "체결 표",
+  "stocksConnectEmptyTitle": "증권사를 연결해 주세요",
+  "stocksConnectEmptyDesc": "토스증권 · 나무증권 키를 연결하면 시세와 보유 종목을 볼 수 있어요.",
+  "stocksConnectEmptyAction": "증권사 연결하기",
+  "stockMarketKrEtc": "국내 기타",
+  "stockMarketUsEtc": "미국 기타",
+  "stocksFailPrice": "시세를 불러오지 못했어요"
 }

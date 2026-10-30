@@ -5,6 +5,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/core/network/dio_provider.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
@@ -21,22 +22,15 @@ final tossPricesProvider = FutureProvider.family<List<TossPrice>, String>((
   joinedSymbols,
 ) async {
   if (joinedSymbols.isEmpty) return const [];
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getPrices(joinedSymbols.split(','));
-  } catch (_) {
-    return const [];
-  }
+  // 오류는 던진다 — 한 번 실패한 빈 목록이 "토스 시세 미지원 종목" 으로 읽히지 않는다(M8). 화면은 `.value` 로 이전 값을 둔다
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getPrices(joinedSymbols.split(','));
 });
 
-/// USD→KRW 환율. 에러/미설정 시 null.
+/// USD→KRW 환율. 오류는 던진다 — 삼킨 null 이 캐시돼 복구 못 하던 것을 막는다(H3). 화면 타이머가 60초마다 다시 받는다.
 final tossExchangeRateProvider = FutureProvider<TossExchangeRate?>((ref) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getExchangeRate();
-  } catch (_) {
-    return null;
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getExchangeRate();
 });
 
 /// 전일 종가. 토스 /prices 엔 기준가·등락률이 없어 일봉으로 도출한다.
@@ -49,16 +43,11 @@ final prevCloseProvider = FutureProvider.family<double?, String>((
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
     final page = await repo.getCandles(symbol, '1d', count: 3);
-    if (page.candles.isEmpty) return null;
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    for (final c in page.candles.reversed) {
-      if (!c.timestamp.startsWith(today)) {
-        final v = double.tryParse(c.closePrice);
-        return (v != null && v > 0) ? v : null;
-      }
-    }
-    final v = double.tryParse(page.candles.first.closePrice);
-    return (v != null && v > 0) ? v : null;
+    return prevCloseFromCandles(
+      page.candles,
+      marketToday(symbol, DateTime.now().toUtc()),
+      symbol: symbol,
+    );
   } catch (_) {
     return null;
   }
@@ -70,95 +59,81 @@ double? changePctOf(double? lastPrice, double? prevClose) {
   return (lastPrice - prevClose) / prevClose * 100;
 }
 
-/// 주식 랭킹 (발견 탭). 키 = "type|marketCountry|duration". 에러 시 빈 랭킹.
+/// 주식 랭킹 (발견 탭). 키 = "type|marketCountry|duration". 오류는 던진다("순위를 불러오지 못했어요").
 final tossRankingsProvider = FutureProvider.family<TossRankingResponse, String>(
   (ref, key) async {
     final parts = key.split('|');
-    try {
-      final repo = await ref.watch(stocksRepositoryProvider.future);
-      return await repo.getRankings(
-        type: parts[0],
-        marketCountry: parts[1],
-        duration: parts[2],
-      );
-    } catch (_) {
-      return const TossRankingResponse(rankings: []);
-    }
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return repo.getRankings(
+      type: parts[0],
+      marketCountry: parts[1],
+      duration: parts[2],
+    );
   },
 );
 
-/// 국내 지수 현재가 (KOSPI·KOSDAQ). 에러 시 빈 목록.
+/// 국내 지수 현재가 (KOSPI·KOSDAQ). 오류는 던진다 — 시장 띠가 "시장 정보를 불러오지 못했어요" 를 보인다.
 final tossIndicatorPricesProvider = FutureProvider<List<TossIndicatorPrice>>((
   ref,
 ) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getIndicatorPrices(const ['KOSPI', 'KOSDAQ']);
-  } catch (_) {
-    return const [];
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getIndicatorPrices(const ['KOSPI', 'KOSDAQ']);
 });
 
-/// 관심목록 (서버 stock-watch). 에러 시 빈 목록 — 화면은 빈 상태 표시.
+/// 관심목록 (서버 stock-watch). 오류는 던진다 — 화면이 "관심 종목을 불러오지 못했어요" 로 보인다.
 final watchGroupsProvider = FutureProvider<List<StockWatchGroup>>((ref) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getWatchGroups();
-  } catch (_) {
-    return const [];
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getWatchGroups();
 });
 
-/// 종목 호가 (라이브). 에러/미설정 시 null → 호가창 빈 상태 (mock 폴백 없음).
+/// 종목 호가 (라이브). 오류는 던진다.
 final tossOrderbookProvider = FutureProvider.family<TossOrderbook?, String>((
   ref,
   symbol,
 ) async {
   if (symbol.isEmpty) return null;
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getOrderbook(symbol);
-  } catch (_) {
-    return null;
-  }
+  // 던진다 — 호가 표가 "호가를 불러오지 못했어요" 를 보인다(비어 있음과 다르다)
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return await repo.getOrderbook(symbol);
 });
 
-/// 종목 체결 내역 (라이브). 에러/미설정 시 null → 체결 테이프 빈 상태 (mock 폴백 없음).
+/// 종목 체결 내역 (라이브). 오류는 던진다.
 final tossTradesProvider = FutureProvider.family<List<TossTrade>?, String>((
   ref,
   symbol,
 ) async {
   if (symbol.isEmpty) return null;
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getTrades(symbol);
-  } catch (_) {
-    return null;
-  }
+  // 던진다 — "체결 내역을 불러오지 못했어요"
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return await repo.getTrades(symbol);
 });
 
-/// 증권 계좌 목록 (개인 키). 키 미등록/미설정/에러 시 null → 화면은 '연결 유도' 빈 상태.
-final tossAccountsProvider = FutureProvider<List<TossAccount>?>((ref) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getAccounts();
-  } catch (_) {
-    return null;
-  }
+/// 증권 계좌 목록 (개인 키). 오류는 던진다 — 화면이 "불러오지 못했어요" 로 보이고, 연결 안내와 가른다
+/// (연결 여부는 셸이 먼저 거른다). 계좌가 없으면 빈 목록.
+final tossAccountsProvider = FutureProvider<List<TossAccount>>((ref) async {
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getAccounts();
 });
 
-/// 보유 자산 현황 (첫 계좌 기준). 계좌 없음/키 미등록/에러 시 null → 빈 상태.
-/// 시세 mock 폴백과 달리 보유는 mock 미사용(키 없으면 연결 유도).
+/// 보유 자산 현황 (첫 계좌 기준). 계좌 없음 → null(빈 상태), 오류 → 던진다(실패 한 벌).
 final tossHoldingsProvider = FutureProvider<TossHoldings?>((ref) async {
   final accounts = await ref.watch(tossAccountsProvider.future);
-  if (accounts == null || accounts.isEmpty) return null;
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getHoldings(accounts.first.accountSeq);
-  } catch (_) {
-    return null;
-  }
+  if (accounts.isEmpty) return null;
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getHoldings(accounts.first.accountSeq);
 });
+
+/// 지수 추이선 종가 — 실패해도 화면은 멀쩡하다(추이선만 빠진다).
+final tossIndicatorClosesProvider = FutureProvider.family<List<double>, String>(
+  (ref, symbol) async {
+    try {
+      final repo = await ref.watch(stocksRepositoryProvider.future);
+      return await repo.getIndicatorCloses(symbol);
+    } catch (_) {
+      return const [];
+    }
+  },
+);
 
 /// 캔들(차트·일별시세·등락률 실산출). interval '1m'(1D) / '1d'(장기).
 /// 에러/미설정 시 null → 차트 빈 상태(의사난수 폴백 없음).
@@ -168,14 +143,11 @@ final tossCandlesProvider = FutureProvider.family<TossCandlePage?, CandleArg>((
   arg,
 ) async {
   if (arg.symbol.isEmpty) return null;
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    // 토스 count 상한 200 초과는 repository 가 before 커서로 페이지네이션.
-    final count = arg.interval == '1m' ? 390 : 252;
-    return await repo.getCandles(arg.symbol, arg.interval, count: count);
-  } catch (_) {
-    return null;
-  }
+  // 던진다 — 일별 시세 "불러오지 못했어요"
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  // 토스 count 상한 200 초과는 repository 가 before 커서로 페이지네이션.
+  final count = arg.interval == '1m' ? 390 : 252;
+  return await repo.getCandles(arg.symbol, arg.interval, count: count);
 });
 
 /// 종목 기본정보(시장/유형/통화/상장일/발행주식수/거래상태). 에러/미설정 시 null.
@@ -184,13 +156,10 @@ final tossStockInfoProvider = FutureProvider.family<TossStockInfo?, String>((
   symbol,
 ) async {
   if (symbol.isEmpty) return null;
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    final list = await repo.getStocks([symbol]);
-    return list.isEmpty ? null : list.first;
-  } catch (_) {
-    return null;
-  }
+  // 던진다 — 정보 실패를 "정상" 으로 그리지 않는다
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  final list = await repo.getStocks([symbol]);
+  return list.isEmpty ? null : list.first;
 });
 
 /// 매수 유의사항. 에러/미설정/없음 시 빈 목록.
@@ -219,28 +188,20 @@ final tossPriceLimitsProvider = FutureProvider.family<TossPriceLimit?, String>((
   }
 });
 
-/// 국내 장 운영 일정. 에러/미설정 시 null.
-final tossMarketCalendarKrProvider = FutureProvider<TossKrMarketCalendar?>((
+/// 국내 장 운영 일정. 오류는 던진다(시장 띠 실패 한 벌).
+final tossMarketCalendarKrProvider = FutureProvider<TossKrMarketCalendar>((
   ref,
 ) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getMarketCalendarKr();
-  } catch (_) {
-    return null;
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getMarketCalendarKr();
 });
 
-/// 미국 장 운영 일정. 에러/미설정 시 null.
-final tossMarketCalendarUsProvider = FutureProvider<TossUsMarketCalendar?>((
+/// 미국 장 운영 일정. 오류는 던진다(시장 띠 실패 한 벌).
+final tossMarketCalendarUsProvider = FutureProvider<TossUsMarketCalendar>((
   ref,
 ) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getMarketCalendarUs();
-  } catch (_) {
-    return null;
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getMarketCalendarUs();
 });
 
 /// 종목 마스터 검색 (서버 stock_master — 국내 + 해외 6개국). 검색어별 캐시.
@@ -255,6 +216,16 @@ final stockSearchProvider =
       } catch (_) {
         return const [];
       }
+    });
+
+/// 종목 찾기 시트의 검색 — 오류를 던진다(시트가 "검색 결과를 불러오지 못했어요" 를 보인다).
+/// 자산의 종목 추가는 오류를 삼키는 [stockSearchProvider] 를 그대로 쓴다.
+final stockSearchResultProvider =
+    FutureProvider.family<List<StockMasterItem>, String>((ref, query) async {
+      final q = query.trim();
+      if (q.isEmpty) return const [];
+      final repo = await ref.watch(stocksRepositoryProvider.future);
+      return repo.searchStocks(q);
     });
 
 /// 심볼 → 한글 종목명 (연결된 종목 표시용). 심볼 정확 일치만 취하고 없으면 null.

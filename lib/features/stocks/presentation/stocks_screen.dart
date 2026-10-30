@@ -4,17 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
 import 'package:groo_damda_app/app/theme/tokens.dart';
 import 'package:groo_damda_app/app/theme/typography.dart';
 import 'package:groo_damda_app/features/stocks/presentation/namu_stocks_view.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 
 /// 증권 화면 셸 — 헤더와 증권사 선택을 소유하고 본문만 갈아 끼운다.
 ///
@@ -35,7 +34,6 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
 
     // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 증권사 API 는 시세 포함 모든
@@ -57,39 +55,35 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.moreItemStocks),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-13 5)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.moreItemStocks,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
       body: Column(
         children: [
-          // 연결이 하나뿐이면 고를 게 없다 — 탭을 감춘다.
-          // 띠 화면(I-01 결정 1B) — 증권사 고르기도 띠 하나다.
+          // 연결이 하나뿐이면 고를 게 없다 — 줄을 감춘다. 증권사 고르기는 1차 Line 탭(Fill · medium 44)이고,
+          // 화면 전체를 조절하므로 첫 띠와 한 덩어리다(틈 0 — T1 · T2).
           if (connected.length > 1)
-            PScreenSection(
-              padding: const EdgeInsets.symmetric(
-                horizontal: PSpacing.x6,
-                vertical: PSpacing.x3,
-              ),
+            ColoredBox(
+              color: context.colors.bgLayerDefault,
               child: PTabs<String>(
                 value: active,
                 onChanged: (v) => setState(() => _broker = v),
-                variant: PTabsVariant.container,
-                size: PTabsSize.sm,
-                expand: true,
+                size: PTabsSize.medium,
+                semanticLabel: l.moreItemStocks,
                 items: [
                   for (final b in connected)
-                    PTabItem(value: b, label: _brokerLabel(l, b)),
+                    PTab(value: b, label: _brokerLabel(l, b)),
                 ],
               ),
             ),
-          // 탭 띠와 본문 첫 띠 사이 8 — 탭이 보일 때만(띠 사이 8, 머리 아래 맨 위는 0)
-          if (connected.length > 1) const SizedBox(height: kScreenBandGap),
           Expanded(child: _body(active)),
         ],
       ),
@@ -135,55 +129,37 @@ class _UnsupportedBroker extends StatelessWidget {
   }
 }
 
-/// 개인키 미연결: 전 화면 연결 유도.
+/// 연결 0 — Result Section empty "처음"(I-13 Q4 안 A 결정). 끊김(연결은 있는데 조회가 막힘) Page Banner 는 13b:
+/// 서버가 토큰 만료 · 키 해지를 다른 오류와 가르지 않는다(`TossApiClient` 가 401 을 한 번 재시도한 뒤 모든 업스트림 오류를
+/// `SECURITIES_API_ERROR` 하나로 바꾸고 본문 코드는 로그에만 둔다) — 구분 코드가 생긴 뒤에 넣는다.
 class _ConnectGate extends StatelessWidget {
   const _ConnectGate();
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgSurface,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.moreItemStocks),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      backgroundColor: context.colors.bgLayerBasement,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.moreItemStocks,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(PSpace.x24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(LucideIcons.lock, size: 32, color: t.fgTertiary),
-              const SizedBox(height: PSpace.x12),
-              Text(
-                l.stocksConnectPrompt,
-                style: PTypo.body.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-              const SizedBox(height: PSpace.x4),
-              Text(
-                l.stocksConnectDescRealtime,
-                textAlign: TextAlign.center,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-              ),
-              const SizedBox(height: PSpace.x16),
-              PButton(
-                label: l.stocksConnectInSettings,
-                variant: PButtonVariant.outline,
-                size: PButtonSize.sm,
-                // 연결은 이제 증권사 연동 화면에서 한다.
-                onPressed: () => context.push('/settings/securities'),
-              ),
-            ],
+      body: PScreenBandBody(
+        child: PResultSection(
+          kind: PResultKind.empty,
+          icon: LucideIcons.plug,
+          title: l.stocksConnectEmptyTitle,
+          description: l.stocksConnectEmptyDesc,
+          primaryAction: PResultAction(
+            label: l.stocksConnectEmptyAction,
+            // 연결은 증권사 연동 화면에서 한다.
+            onPressed: () => context.push('/settings/securities'),
           ),
         ),
       ),

@@ -367,7 +367,13 @@ void main() {
       _tallView(tester, height: 3200);
       await tester.pumpWidget(_app(const TossStocksView(), overrides));
       await tester.pump(Duration.zero);
-      await tester.tap(find.text('발견'));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) =>
+              w.runtimeType.toString() == 'ChipVisual' &&
+              (w as dynamic).label == '발견',
+        ),
+      );
       await tester.pump(Duration.zero);
       await tester.pump(Duration.zero);
     }
@@ -401,7 +407,7 @@ void main() {
           ),
         ]);
 
-        expect(find.byType(PSkeleton), findsWidgets);
+        expect(find.byType(dsskel.PSkeleton), findsWidgets);
       });
 
       testWidgets('재조회 중에도 이전 랭킹이 그대로 보인다', (tester) async {
@@ -411,7 +417,7 @@ void main() {
           tossRankingsProvider.overrideWith((ref, key) => serve(key)),
         ]);
         // `_StockRow` 는 이름(마스터 미조회 → 심볼 폴백)과 부제로 심볼을 두 번 쓴다.
-        expect(find.text(symbol), findsNWidgets(2));
+        expect(findPlain(symbol), findsNWidgets(2));
 
         await _refetch(
           tester,
@@ -419,8 +425,8 @@ void main() {
           tossRankingsProvider,
         );
 
-        expect(find.text(symbol), findsNWidgets(2));
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(findPlain(symbol), findsNWidgets(2));
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
       });
     });
 
@@ -457,35 +463,26 @@ void main() {
         ],
       );
 
-      /// 랭킹에서 종목 하나를 눌러 상세 시트를 연다.
+      /// 상세 화면(주소로 여는 페이지)을 바로 띄운다.
       Future<void> openDetail(
         WidgetTester tester,
         List<Override> overrides,
       ) async {
-        await pumpDiscover(tester, [
-          ...base(),
-          tossRankingsProvider.overrideWith(
-            (ref, key) async => const TossRankingResponse(
-              rankings: [
-                TossRankingItem(
-                  rank: 1,
-                  symbol: symbol,
-                  currency: 'KRW',
-                  price: TossRankingPrice(
-                    lastPrice: '71000',
-                    basePrice: '70000',
-                  ),
-                  tradingVolume: '100',
-                  tradingAmount: '1000',
-                ),
+        _tallView(tester, height: 3200);
+        await tester.pumpWidget(
+          _app(const TossStockDetailPage(symbol: symbol), [
+            ...base(),
+            // 통화를 모르면 숫자만 보인다(M10) — 시세 응답이 통화를 준다
+            tossPricesProvider.overrideWith(
+              (ref, k) async => const [
+                TossPrice(symbol: symbol, lastPrice: '71000', currency: 'KRW'),
               ],
             ),
-          ),
-          ...overrides,
-        ]);
-        await tester.tap(find.text(symbol).first);
+            ...overrides,
+          ]),
+        );
         // 스켈레톤은 무한 애니메이션이라 `pumpAndSettle` 이 안 끝난다 —
-        // 시트 열림 애니메이션 + 응답 반영에 필요한 만큼만 프레임을 민다.
+        // 응답 반영에 필요한 만큼만 프레임을 민다.
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 600));
         await tester.pump(Duration.zero);
@@ -504,7 +501,7 @@ void main() {
           ),
         ]);
 
-        expect(find.byType(PSkeleton), findsWidgets);
+        expect(find.byType(dsskel.PSkeleton), findsWidgets);
       });
 
       testWidgets('10초 폴링 재조회 — 호가가 그대로 남는다', (tester) async {
@@ -514,17 +511,17 @@ void main() {
           tossTradesProvider.overrideWith((ref, s) async => trades),
           tossCandlesProvider.overrideWith((ref, a) async => candles),
         ]);
-        expect(find.text('71,200'), findsOneWidget);
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(find.text('71,200원'), findsOneWidget);
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
 
         await _refetch(
           tester,
-          _containerOf(tester, find.byType(TossStocksView)),
+          _containerOf(tester, find.byType(TossStockDetailPage)),
           tossOrderbookProvider,
         );
 
-        expect(find.text('71,200'), findsOneWidget);
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(find.text('71,200원'), findsOneWidget);
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
       });
 
       testWidgets('10초 폴링 재조회 — 체결 테이프가 그대로 남는다', (tester) async {
@@ -534,19 +531,19 @@ void main() {
           tossTradesProvider.overrideWith((ref, s) => serve(s)),
           tossCandlesProvider.overrideWith((ref, a) async => candles),
         ]);
-        await tester.tap(find.text('체결'));
+        await tester.tap(findPlain('체결'));
         await tester.pump(Duration.zero);
-        expect(find.text('10:11:12'), findsOneWidget);
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(find.text('오전 10:11'), findsOneWidget);
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
 
         await _refetch(
           tester,
-          _containerOf(tester, find.byType(TossStocksView)),
+          _containerOf(tester, find.byType(TossStockDetailPage)),
           tossTradesProvider,
         );
 
-        expect(find.text('10:11:12'), findsOneWidget);
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(find.text('오전 10:11'), findsOneWidget);
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
       });
 
       testWidgets('10초 폴링 재조회 — 일별 시세 표가 그대로 남는다', (tester) async {
@@ -556,17 +553,17 @@ void main() {
           tossTradesProvider.overrideWith((ref, s) async => trades),
           tossCandlesProvider.overrideWith((ref, a) => serve(a)),
         ]);
-        expect(find.text('09.02'), findsOneWidget);
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(findPlain('9월 2일'), findsOneWidget);
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
 
         await _refetch(
           tester,
-          _containerOf(tester, find.byType(TossStocksView)),
+          _containerOf(tester, find.byType(TossStockDetailPage)),
           tossCandlesProvider,
         );
 
-        expect(find.text('09.02'), findsOneWidget);
-        expect(find.byType(PSkeleton), findsNothing);
+        expect(findPlain('9월 2일'), findsOneWidget);
+        expect(find.byType(dsskel.PSkeleton), findsNothing);
       });
     });
   });

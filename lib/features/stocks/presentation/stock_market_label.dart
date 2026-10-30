@@ -1,4 +1,4 @@
-/// 종목 마스터 시장 코드 → 로케일 라벨 (웹 stocks:market.* 미러).
+/// 종목 마스터 · 토스 종목 정보의 시장 코드 → 사용자 말("NAS" 가 아니라 "나스닥"). 모르는 코드만 원문.
 library;
 
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
@@ -9,9 +9,11 @@ String stockMarketLabel(AppLocalizations l, String marketCode) =>
       'KOSDAQ' => l.stockMarketKosdaq,
       'KONEX' => l.stockMarketKonex,
       'KRX_IDX' => l.stockMarketKrxIdx,
-      'NAS' => l.stockMarketNas,
-      'NYS' => l.stockMarketNys,
-      'AMS' => l.stockMarketAms,
+      'KR_ETC' => l.stockMarketKrEtc,
+      'US_ETC' => l.stockMarketUsEtc,
+      'NAS' || 'NASDAQ' => l.stockMarketNas,
+      'NYS' || 'NYSE' => l.stockMarketNys,
+      'AMS' || 'AMEX' => l.stockMarketAms,
       'SHS' => l.stockMarketShs,
       'SHI' => l.stockMarketShi,
       'SZS' => l.stockMarketSzs,
