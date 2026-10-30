@@ -57,6 +57,11 @@ class _Repo extends BudgetRepository {
   /// create 를 이 번째(0부터)에서 한 번 실패시킨다.
   int? failCreateCall;
 
+  /// update 를 이 번째(0부터)에서 실패시킨다. [failUpdateAgain] 이면 바로 다음 한 번도 실패한다.
+  int? failUpdateCall;
+  bool failUpdateAgain = false;
+  int _updateCalls = 0;
+
   /// create 를 이 번째(0부터)에서 이 Completer 가 끝날 때까지 붙잡는다.
   int? holdCreateCall;
   Completer<void>? hold;
@@ -93,6 +98,12 @@ class _Repo extends BudgetRepository {
     bool silent = false,
   }) async {
     silents.add(silent);
+    final call = _updateCalls++;
+    if (failUpdateCall == call) {
+      failUpdateCall = failUpdateAgain ? call + 1 : null;
+      failUpdateAgain = false;
+      throw ApiException(code: 'X', message: 'boom');
+    }
     updated.add(id);
   }
 
@@ -491,6 +502,112 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(repo.created.length, 3);
       expect(findPlain('지난달 예산을 가져왔어요.'), findsOneWidget);
+    });
+
+    testWidgets('덮어쓴 복사가 일부 실패 → 다시 시도 성공 → 되돌리기 없는 "가져왔어요" 안내', (
+      tester,
+    ) async {
+      final repo = _Repo()..failUpdateCall = 0;
+      final cur = [
+        Budget(
+          rowId: 900,
+          categoryRowId: 7,
+          budgetAmount: 5,
+          budgetYear: _now.year,
+          budgetMonth: _now.month,
+        ),
+      ];
+      await _pump(
+        tester,
+        const BudgetSettingsScreen(),
+        overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+        budgets: _months(cur: cur),
+      );
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text('복사'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // 겹친 1개(주거 7)의 update 가 실패, 나머지 둘은 create
+      expect(findPlain('가져오지 못한 예산이 1개 있어요.'), findsOneWidget);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsNothing);
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(repo.updated, [900]);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsOneWidget);
+      // 덮어쓴 복사 — 되돌리기는 없다
+      expect(find.text('되돌리기'), findsNothing);
+      expect(find.byKey(const ValueKey('snackbar-icon')), findsNothing);
+    });
+
+    testWidgets('덮어쓴 복사가 첫 시도에 다 되면 안내 띠를 띄우지 않는다(닫힌 확인창이 결과)', (tester) async {
+      final repo = _Repo();
+      final cur = [
+        Budget(
+          rowId: 900,
+          categoryRowId: 7,
+          budgetAmount: 5,
+          budgetYear: _now.year,
+          budgetMonth: _now.month,
+        ),
+      ];
+      await _pump(
+        tester,
+        const BudgetSettingsScreen(),
+        overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+        budgets: _months(cur: cur),
+      );
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text('복사'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsNothing);
+      expect(find.text('다시 시도'), findsNothing);
+    });
+
+    testWidgets('덮어쓴 복사 → 일부 실패 → 다시 시도도 실패하면 실패 띠가 다시 뜨고 성공 안내는 없다', (
+      tester,
+    ) async {
+      final repo = _Repo()
+        ..failUpdateCall = 0
+        ..failUpdateAgain = true;
+      final cur = [
+        Budget(
+          rowId: 900,
+          categoryRowId: 7,
+          budgetAmount: 5,
+          budgetYear: _now.year,
+          budgetMonth: _now.month,
+        ),
+      ];
+      await _pump(
+        tester,
+        const BudgetSettingsScreen(),
+        overrides: [budgetRepositoryProvider.overrideWith((ref) async => repo)],
+        budgets: _months(cur: cur),
+      );
+      await tester.tap(find.text('지난달 복사'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PAlertDialogView),
+          matching: find.text('복사'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('다시 시도'));
+      await tester.pumpAndSettle();
+      expect(findPlain('가져오지 못한 예산이 1개 있어요.'), findsOneWidget);
+      expect(findPlain('지난달 예산을 가져왔어요.'), findsNothing);
     });
 
     testWidgets('예산 삭제 실패 → 화면 나감 → "다시 시도"는 묻지 않고 바로 지운다', (tester) async {
