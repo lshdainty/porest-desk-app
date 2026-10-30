@@ -794,6 +794,24 @@ abstract class AppLocalizations {
   /// **'계좌·카드 관리'**
   String get assetManageTitle;
 
+  /// No description provided for @assetManageAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get assetManageAdd;
+
+  /// No description provided for @assetManageLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드를 불러오지 못했어요'**
+  String get assetManageLoadFailed;
+
+  /// No description provided for @assetHoldingsCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 {count}종목'**
+  String assetHoldingsCount(int count);
+
   /// No description provided for @assetTabAccountsSavings.
   ///
   /// In ko, this message translates to:

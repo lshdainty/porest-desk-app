@@ -135,6 +135,16 @@
   "assetHideThisAmount": "금액 가리기",
   "assetHideThisAmountDesc": "이 자산의 금액만 가려요. 합계는 그대로 보여요.",
   "assetManageTitle": "계좌·카드 관리",
+  "assetManageAdd": "추가",
+  "assetManageLoadFailed": "계좌·카드를 불러오지 못했어요",
+  "assetHoldingsCount": "보유 {count}종목",
+  "@assetHoldingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetTabAccountsSavings": "계좌·예금 {count}",
   "@assetTabAccountsSavings": {
     "placeholders": {

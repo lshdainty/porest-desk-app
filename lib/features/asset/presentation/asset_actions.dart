@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/sync/keep_alive_refresh.dart';
@@ -8,6 +9,9 @@ import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/actions/item_actions.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/swipe_actions/p_swipe_actions.dart'
+    as ds;
 
 /// 자산 하나에 할 수 있는 일 — 상세 시트와 목록 행이 같은 것을 부른다.
 ///
@@ -67,6 +71,41 @@ class AssetActions implements ItemActions<Asset> {
     } on ApiException {
       return false;
     }
+  }
+
+  /// 밀면 나오는 [수정, 삭제](I-17 28) — 줄을 누르면 상세로 간다(밀기는 지름길이다). 삭제는 상세에서 지울 때와 같은 확인 글을 먼저 묻는다.
+  List<ds.PSwipeAction> dsSwipeActions(
+    BuildContext context,
+    WidgetRef ref,
+    Asset a,
+  ) {
+    final l = AppLocalizations.of(context);
+    return [
+      if (canEdit(a))
+        ds.PSwipeAction(
+          label: l.actionEdit,
+          icon: LucideIcons.pencil,
+          kind: ds.PSwipeActionKind.primary,
+          onSelect: () => edit(context, ref, a),
+        ),
+      if (canDelete(a))
+        ds.PSwipeAction(
+          label: l.actionDelete,
+          icon: LucideIcons.trash2,
+          kind: ds.PSwipeActionKind.destructive,
+          onSelect: () async {
+            final ok = await PAlertDialog.show(
+              context,
+              title: deleteConfirmTitle(context, a),
+              description: deleteConfirmMessage(context, a),
+              cancelLabel: l.actionCancel,
+              actionLabel: l.actionDelete,
+              destructive: true,
+            );
+            if (ok && context.mounted) await delete(context, ref, a);
+          },
+        ),
+    ];
   }
 
   @override

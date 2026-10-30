@@ -131,6 +131,16 @@
   "assetHideThisAmount": "Hide amount",
   "assetHideThisAmountDesc": "Masks only this asset's balance. Totals stay visible.",
   "assetManageTitle": "Manage accounts & cards",
+  "assetManageAdd": "Add",
+  "assetManageLoadFailed": "Couldn't load accounts and cards",
+  "assetHoldingsCount": "{count} holdings",
+  "@assetHoldingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetTabAccountsSavings": "Accounts {count}",
   "@assetTabAccountsSavings": {
     "placeholders": {

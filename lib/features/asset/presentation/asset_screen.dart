@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/core/format/currency.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
@@ -144,14 +143,8 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final investments = of(_investmentTypes);
     final loans = of(_loanTypes);
 
-    // 외화는 환산해서 더한다 — raw 로 더하면 USD 1,000 이 1,000원이 돼 서버 요약과 어긋난다.
-    int sumIncluded(List<Asset> arr) => arr
-        .where((a) => a.isIncludedInTotal == 'Y')
-        .fold<int>(
-          0,
-          (s, a) =>
-              s + balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate),
-        );
+    // 외화는 환산해서 더한다 — 셈은 관리 화면과 같은 함수다.
+    final sumIncluded = assetSumIncluded;
     final accountsTotal = sumIncluded(accounts);
     final cardsTotal = sumIncluded(cards).abs();
     final investmentsTotal = sumIncluded(investments);

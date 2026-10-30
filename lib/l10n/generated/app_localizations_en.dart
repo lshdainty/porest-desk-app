@@ -368,6 +368,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetManageTitle => 'Manage accounts & cards';
 
   @override
+  String get assetManageAdd => 'Add';
+
+  @override
+  String get assetManageLoadFailed => 'Couldn\'t load accounts and cards';
+
+  @override
+  String assetHoldingsCount(int count) {
+    return '$count holdings';
+  }
+
+  @override
   String assetTabAccountsSavings(int count) {
     return 'Accounts $count';
   }

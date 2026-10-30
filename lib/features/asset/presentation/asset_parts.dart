@@ -12,6 +12,7 @@ import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
+import 'package:groo_damda_app/features/asset/domain/asset_type_meta.dart';
 import 'package:groo_damda_app/features/asset/presentation/asset_edit_dialog.dart';
 import 'package:groo_damda_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:groo_damda_app/features/asset/presentation/widgets/net_worth_chart.dart';
@@ -33,6 +34,15 @@ import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 // 자산 화면의 구역 부품(I-05 55 ~ 62) — 웹 `pages/asset/ui/asset-parts.tsx` 와 같은 구조 · 같은 값이다(짝 1).
 // 폰은 띠 화면이다: 구역마다 화면 폭 흰 띠, 띠 안은 구역이 제 좌우 24 를 갖고(목록 줄은 줄이 제 24), 띠 사이 8 만 틈이다(74).
 // 금액은 원까지 · 가리면 "••••". 카드(띠)마다 따로 불러오고 따로 실패한다(화면 전체 게이트 없음 — 62).
+
+/// 묶음 합계 셈(자산 화면 · 계좌·카드 관리가 같은 함수) — 총액 포함 자산만, 외화는 원화로 환산해 더한다.
+/// raw 로 더하면 USD 1,000 이 1,000원이 돼 서버 요약과 어긋난다(I-17 Q4).
+int assetSumIncluded(List<Asset> arr) => arr
+    .where((a) => a.isIncludedInTotal == 'Y')
+    .fold<int>(
+      0,
+      (s, a) => s + balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate),
+    );
 
 /// 원까지 금액 글 — 음수는 U+2212, 가리면 점.
 String assetWon(int n, bool masked) =>
@@ -312,9 +322,18 @@ class AssetRow extends StatelessWidget {
     required this.asset,
     required this.cardMasked,
     this.valuation,
+    this.manage = false,
+    this.onTap,
   });
 
   final Asset asset;
+
+  /// 계좌 · 카드 관리의 줄(I-17 27) — 같은 부품에서 오른쪽 화살표를 걷고(Q2 결정 B: 줄 끝은 동작 자리), 설명을 "{기관} · {종류 이름}" 으로
+  /// 쓴다(메모는 상세 머리 설명에 남는다 · 투자는 "보유 {n}종목").
+  final bool manage;
+
+  /// 줄을 눌렀을 때 — 비우면 자산 상세를 연다(자산 화면).
+  final VoidCallback? onTap;
 
   /// 이 묶음의 화면 카드가 가려졌는가 — 자산 하나의 가림과 합집합이다.
   final bool cardMasked;
@@ -346,7 +365,11 @@ class AssetRow extends StatelessWidget {
     final tags = <PTag>[
       if (asset.institution != null && asset.institution!.isNotEmpty)
         PTag(asset.institution!, shrink: 2),
-      if (asset.assetType == 'INVESTMENT' && asset.holdings.isNotEmpty)
+      if (manage) PTag(assetTypeLabelOf(l, asset), shrink: 1),
+      if (manage) ...[
+        if (asset.assetType == 'INVESTMENT' && asset.holdings.isNotEmpty)
+          PTag(l.assetHoldingsCount(asset.holdings.length), shrink: 0),
+      ] else if (asset.assetType == 'INVESTMENT' && asset.holdings.isNotEmpty)
         PTag(holdingsRep(l, asset.holdings))
       else if (!isCard && asset.memo != null && asset.memo!.isNotEmpty)
         PTag(asset.memo!),
@@ -415,7 +438,8 @@ class AssetRow extends StatelessWidget {
             ],
           ),
         ),
-        const ExcludeSemantics(child: Icon(LucideIcons.chevronRight)),
+        if (!manage)
+          const ExcludeSemantics(child: Icon(LucideIcons.chevronRight)),
       ],
     );
 
@@ -431,7 +455,7 @@ class AssetRow extends StatelessWidget {
               items: tags,
             ),
       suffix: suffix,
-      onTap: () => showAssetDetailDialog(context, asset),
+      onTap: onTap ?? () => showAssetDetailDialog(context, asset),
     );
     if (!hasBar) return row;
 

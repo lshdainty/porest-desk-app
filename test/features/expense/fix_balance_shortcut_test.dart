@@ -261,9 +261,7 @@ void main() {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('ko'),
-            home: SlidableAutoCloseBehavior(
-              child: AccountCardManageScreen(editAssetId: editAssetId),
-            ),
+            home: AccountCardManageScreen(editAssetId: editAssetId),
           ),
         ),
       );
@@ -277,17 +275,17 @@ void main() {
       expect(find.text('1,200,000'), findsOneWidget, reason: '잔액 칸이 채워져 있다');
     });
 
-    testWidgets('카드면 카드 탭으로 옮겨 카드 폼을 연다', (tester) async {
+    testWidgets('카드면 카드 폼을 연다(탭이 없다)', (tester) async {
       await pumpManage(tester, editAssetId: 9);
 
-      expect(findPlainContaining('수정'), findsOneWidget);
+      expect(findPlainContaining('카드 수정'), findsOneWidget);
     });
 
     testWidgets('없는 자산이면 목록만 보여 준다', (tester) async {
       await pumpManage(tester, editAssetId: 404);
 
       expect(findPlain('입출금 수정'), findsNothing);
-      expect(find.text('생활비 통장'), findsOneWidget);
+      expect(findPlain('생활비 통장'), findsOneWidget);
     });
 
     testWidgets('주소가 없으면 폼을 안 연다', (tester) async {
