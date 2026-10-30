@@ -323,20 +323,28 @@ Future<void> toggleWatch(
         marketCode: marketCode,
       );
     } else {
-      final byItem = <PMenuSheetItem, StockWatchGroup>{
-        for (final g in groups)
-          PMenuSheetItem(
-            label: l.stocksWatchGroupTitle(g.groupName, g.items.length),
-          ): g,
-      };
       if (!context.mounted) return;
-      final picked = await PMenuSheet.show(
+      // 그룹 목록은 사용자 값이라 메뉴(실행)가 아니라 고르기 시트 — 웹 detail-parts.tsx 와 같다.
+      final target = await PBottomSheet.show<StockWatchGroup>(
         context,
-        title: l.stocksWatchPickGroup,
-        layout: PMenuSheetLayout.textOnly,
-        groups: [PMenuSheetGroup(byItem.keys.toList())],
+        builder: (sheetContext) => PBottomSheetContent(
+          title: l.stocksWatchPickGroup,
+          closeLabel: l.actionClose,
+          flushBody: true,
+          scrollFog: true,
+          body: PList(
+            semanticLabel: l.stocksWatchPickGroup,
+            children: [
+              for (final g in groups)
+                PListButtonItem(
+                  title: g.groupName,
+                  detail: l.stocksUnitCount(g.items.length),
+                  onTap: () => PBottomSheet.of(sheetContext).close(g),
+                ),
+            ],
+          ),
+        ),
       );
-      final target = picked == null ? null : byItem[picked];
       if (target == null) return;
       await repo.addWatchItem(target.rowId, symbol, marketCode: marketCode);
     }
