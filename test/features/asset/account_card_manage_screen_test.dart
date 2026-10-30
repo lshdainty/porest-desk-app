@@ -12,6 +12,7 @@ import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
 import 'package:groo_damda_app/features/asset/presentation/account_card_manage_screen.dart';
+import 'package:groo_damda_app/features/asset/presentation/asset_parts.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 
@@ -221,5 +222,27 @@ void main() {
       scale: 2,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  // 투자 줄 금액은 자산 화면과 같은 라이브 평가액 치환 함수를 쓴다(예수금 + 평가액) — 두 화면의 값이 같다.
+  test('라이브 평가액 치환 — 예수금을 더하고 총액 포함만 delta 에 든다', () {
+    const inv = Asset(
+      rowId: 7,
+      assetName: '연동 증권',
+      assetType: 'INVESTMENT',
+      balance: 1000000,
+      cashBalance: 50000,
+      isIncludedInTotal: 'Y',
+    );
+    final val = {7: 1200000};
+    final live = applyLiveValuation([inv, _bank], val);
+    expect(live.first.balance, 1250000);
+    expect(live.first.holdingBalance, 1200000);
+    expect(live.last.balance, _bank.balance);
+    expect(liveValuationDelta([inv, _bank], val), 250000);
+    expect(
+      identical(applyLiveValuation([_bank], const {}).first, _bank),
+      isTrue,
+    );
   });
 }

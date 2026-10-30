@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/format/krw.dart';
+import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/features/asset/application/asset_providers.dart';
 import 'package:groo_damda_app/features/asset/domain/asset.dart';
@@ -65,6 +68,37 @@ class _AccountCardManageScreenState
   /// [AccountCardManageScreen.editAssetId] 를 한 번만 연다 — 폼을 닫고 목록이 다시
   /// 그려질 때마다 또 열리면 빠져나갈 수 없다.
   bool _editHandled = false;
+
+  /// 연동 투자 평가액 갱신 — 자산 화면과 같은 10초 주기, **화면 하나에 타이머 하나**다(줄마다 두지 않는다).
+  /// 자산 화면의 타이머는 그 탭이 앞이 아니면 멈추므로(이 화면이 위에 있으면 멈춘다) 여기서 따로 돌린다.
+  /// 같은 provider · 같은 갱신 함수를 쓰니 두 화면의 값이 같다. 앱이 뒤로 가면 멈춘다.
+  Timer? _valuationTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual(appForegroundProvider, (_, _) => _syncValuationTimer());
+    Future.microtask(_syncValuationTimer);
+  }
+
+  void _syncValuationTimer() {
+    if (!mounted) return;
+    if (!ref.read(appForegroundProvider)) {
+      _valuationTimer?.cancel();
+      _valuationTimer = null;
+      return;
+    }
+    if (_valuationTimer != null) return;
+    _valuationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) refreshLiveValuation(ref.invalidate);
+    });
+  }
+
+  @override
+  void dispose() {
+    _valuationTimer?.cancel();
+    super.dispose();
+  }
 
   /// 목록이 처음 도착하면 그 자산의 수정 폼(2단계)을 연다.
   ///
@@ -130,8 +164,13 @@ class _AccountCardManageScreenState
                 ),
               );
             }
-            final assets = assetsAsync.value ?? const <Asset>[];
-            _openRequestedEdit(assets);
+            final raw = assetsAsync.value ?? const <Asset>[];
+            _openRequestedEdit(raw);
+            // 자산 화면과 같은 라이브 평가액(`value` — 다시 받는 동안 앞 값을 든다)으로 치환한다
+            final invMap =
+                ref.watch(investmentValuationMapProvider).value ??
+                const <int, InvestmentValuation>{};
+            final assets = applyLiveValuation(raw, liveValuationMap(invMap));
             if (assets.isEmpty) {
               // 자산 0개 — 상단 바 "추가" 가 있으니 버튼은 두지 않는다(31)
               return _CenteredResult(
@@ -141,7 +180,11 @@ class _AccountCardManageScreenState
                 description: l.assetEmptyHint,
               );
             }
-            return _ManageList(assets: assets, masked: masked);
+            return _ManageList(
+              assets: assets,
+              masked: masked,
+              valuations: invMap,
+            );
           },
         ),
       ),
@@ -184,9 +227,14 @@ class _CenteredResult extends StatelessWidget {
 }
 
 class _ManageList extends ConsumerWidget {
-  const _ManageList({required this.assets, required this.masked});
+  const _ManageList({
+    required this.assets,
+    required this.masked,
+    required this.valuations,
+  });
 
   final List<Asset> assets;
+  final Map<int, InvestmentValuation> valuations;
 
   /// 이 화면의 금액 가리기 카드 — 켜지면 합계 · 줄 금액이 모두 점이다(자산 하나의 가림과 합집합).
   final bool masked;
@@ -217,6 +265,7 @@ class _ManageList extends ConsumerWidget {
             ],
             debt: _debtGroups.contains(shown[i]),
             masked: masked,
+            valuations: valuations,
           ),
       ],
     );
@@ -231,8 +280,10 @@ class _GroupSection extends ConsumerWidget {
     required this.items,
     required this.debt,
     required this.masked,
+    required this.valuations,
   });
 
+  final Map<int, InvestmentValuation> valuations;
   final double? topInset;
   final String title;
   final List<Asset> items;
@@ -285,6 +336,7 @@ class _GroupSection extends ConsumerWidget {
                     asset: a,
                     cardMasked: masked,
                     manage: true,
+                    valuation: valuations[a.rowId],
                     onTap: () => showAssetDetailRich(
                       context,
                       a,

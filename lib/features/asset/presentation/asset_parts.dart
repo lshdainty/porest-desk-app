@@ -35,6 +35,37 @@ import 'package:groo_damda_app/shared/icons/lucide_icon_map.dart';
 // 폰은 띠 화면이다: 구역마다 화면 폭 흰 띠, 띠 안은 구역이 제 좌우 24 를 갖고(목록 줄은 줄이 제 24), 띠 사이 8 만 틈이다(74).
 // 금액은 원까지 · 가리면 "••••". 카드(띠)마다 따로 불러오고 따로 실패한다(화면 전체 게이트 없음 — 62).
 
+/// 평가 맵 → 자산 rowId 별 라이브 평가액(보유분).
+Map<int, int> liveValuationMap(Map<int, InvestmentValuation> inv) => {
+  for (final e in inv.entries) e.key: e.value.value,
+};
+
+/// 연결 자산 balance 를 라이브 평가액(시세×수량)으로 치환한다 — 자산 화면 · 계좌·카드 관리가 같은 함수다.
+/// 라이브 평가는 '보유분'만이라 예수금을 더해야 계좌 총액이 된다(안 더하면 증권계좌의 매수 대기 자금이 목록에서 빠진다).
+List<Asset> applyLiveValuation(List<Asset> assets, Map<int, int> valMap) {
+  if (valMap.isEmpty) return assets;
+  return [
+    for (final a in assets)
+      valMap.containsKey(a.rowId)
+          ? a.copyWith(
+              balance: (a.cashBalance ?? 0) + valMap[a.rowId]!,
+              holdingBalance: valMap[a.rowId],
+            )
+          : a,
+  ];
+}
+
+/// 순자산 보정용 delta(라이브 − DB) — 총액 포함 자산만.
+int liveValuationDelta(List<Asset> assets, Map<int, int> valMap) {
+  if (valMap.isEmpty) return 0;
+  return assets.fold<int>(
+    0,
+    (s, a) => (a.isIncludedInTotal == 'Y' && valMap.containsKey(a.rowId))
+        ? s + ((a.cashBalance ?? 0) + valMap[a.rowId]! - (a.balance ?? 0))
+        : s,
+  );
+}
+
 /// 묶음 합계 셈(자산 화면 · 계좌·카드 관리가 같은 함수) — 총액 포함 자산만, 외화는 원화로 환산해 더한다.
 /// raw 로 더하면 USD 1,000 이 1,000원이 돼 서버 요약과 어긋난다(I-17 Q4).
 int assetSumIncluded(List<Asset> arr) => arr
