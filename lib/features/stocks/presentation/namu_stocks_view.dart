@@ -1,34 +1,43 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/radius.dart';
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
+import 'package:groo_damda_app/core/format/change_rate.dart';
+import 'package:groo_damda_app/core/format/krw.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
+import 'package:groo_damda_app/core/settings/settings_notifier.dart';
 import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/stocks/application/namu_model.dart';
 import 'package:groo_damda_app/features/stocks/application/namu_providers.dart';
+import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
-import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stocks_parts.dart';
+import 'package:groo_damda_app/features/stocks/presentation/watch_actions.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
-import 'package:groo_damda_app/shared/widgets/p_empty_state.dart';
-import 'package:groo_damda_app/shared/widgets/p_search_field.dart';
-import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
-import 'package:groo_damda_app/shared/widgets/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/segmented_control/p_segmented_control.dart';
+import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 
-/// 나무증권 본문.
+/// 나무증권 폰 화면 — 토스와 같은 띠 틀(내 투자 → 시장 → 종목, I-13 13-3).
 ///
-/// 토스 화면과 **합치지 않는다.** 나무엔 랭킹·시장지표·호가가 없고 대신 체결추이·투자자별·
-/// 채권·금현물이 있다. 한 화면에 합치면 절반이 "이 증권사는 미지원" 이 된다.
+/// 나무에 없는 것(지수 · 호가 · 발견 · 일간 손익)은 그리지 않는다. 국내 · 해외 두 응답은 한 목록으로 합쳐
+/// 보이고, 통화를 나눠 보려면 목록 위 Segmented 로 거른다. 종목 상세와 포트폴리오 구성은 화면(주소)이다
+/// (`/stocks/namu/:symbol` · `/stocks/namu/portfolio`).
 ///
-/// 지금은 종목 검색 + 현재가까지다. 나무 고유 조회(체결추이·투자자별 등)는 이 파일에
-/// 쌓으면 되고, 그때 토스 화면은 손대지 않는다.
+/// 증권사별 구역(호가 · 체결 · 오늘 시세 · 투자자별 · 투자 지표 · ETF · 시간외 · 계좌 자세히 · 주문 가능 금액)은
+/// I-13b 13b-1 · 13b-3 이 이 화면 위에 얹는다.
 class NamuStocksView extends ConsumerStatefulWidget {
   const NamuStocksView({super.key});
 
@@ -36,269 +45,553 @@ class NamuStocksView extends ConsumerStatefulWidget {
   ConsumerState<NamuStocksView> createState() => _NamuStocksViewState();
 }
 
+enum _Seg { holdings, watch }
+
+String namuDetailPath(String symbol) =>
+    '/stocks/namu/${Uri.encodeComponent(symbol)}';
+
 class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
-  final _searchCtrl = TextEditingController();
-  String _keyword = '';
-  StockMasterItem? _selected;
-  // 국내·해외는 나무 쪽 엔드포인트가 달라 한 번에 못 받는다 — 사용자가 고른다.
-  String _currency = 'KRW';
-  Timer? _priceTimer; // 고른 종목의 현재가 폴링 — 고르기 전에는 없다
+  _Seg _seg = _Seg.holdings;
+  String _filter = 'ALL';
+  Timer? _priceTimer;
+
+  /// 화면에 들어와 300ms 머문 관심 그룹 — 이 그룹들의 심볼만 합쳐 시세를 부른다(I-13 22).
+  final Set<int> _visible = {};
+  final Map<int, Timer> _lingering = {};
+
+  /// 받은 시세 — 그룹이 화면 밖으로 나가 부르기를 멈춰도 받은 값은 남긴다.
+  final Map<String, BrokerQuote> _lastQuotes = {};
 
   @override
   void initState() {
     super.initState();
-    // 받아 둔 값은 앱을 끌 때까지 그대로다(autoDispose 가 아니다). 여기서 밀지 않으면
-    // 아무도 안 민다 — 예전엔 처음 받은 시세·보유 종목이 앱을 다시 켤 때까지 굳어 있었다.
-    // 박자는 웹 나무 화면과 같다(namu_providers.dart 의 표).
-    //
-    // 현재가 — 종목을 고른 뒤 30초마다, 그 종목 하나만([_pick]).
-    // 보유 종목 — 주기로 조르지 않는다. 화면에 들어올 때·앱으로 돌아올 때·통화를 바꿀
-    // 때 받은 지 30초가 지났으면 다시 받는다.
+    // 박자는 웹 나무 화면과 같다(namu_providers.dart 의 표). 관심 시세는 30초마다 — 앱이 가려진 동안은 멈춘다.
+    // 보유 종목은 주기로 조르지 않는다. 화면에 들어올 때 · 앱으로 돌아올 때 받은 지 30초가 지났으면 다시 받는다.
+    _priceTimer = Timer.periodic(namuPricePollInterval, (_) {
+      if (!mounted || !ref.read(appForegroundProvider)) return;
+      if (_seg == _Seg.watch) ref.invalidate(namuQuotesProvider);
+    });
     ref.listenManual(appForegroundProvider, (wasForeground, isForeground) {
       if (isForeground && wasForeground == false) _refreshHoldingsIfStale();
     });
-    // 첫 판정은 microtask 로 미룬다 — initState 안에서는 provider 를 비우지 못한다
-    // (빌드 중이다).
+    // 첫 판정은 microtask 로 미룬다 — initState 안에서는 provider 를 비우지 못한다(빌드 중이다).
     Future.microtask(_refreshHoldingsIfStale);
   }
 
-  /// 종목을 고른다 — 그 자리에서 시세를 받고, 거기서부터 30초 박자를 센다.
-  void _pick(StockMasterItem item) {
-    // 예전에 본 종목이면 그때 값이 남아 있다. 안 비우면 다음 폴링까지 묵은 시세가
-    // "현재가" 로 보인다.
-    _refreshPrice(item);
-    setState(() => _selected = item);
-    // 박자는 **고른 순간부터** 센다(웹도 조회가 붙은 때부터 센다). 화면을 연 때부터
-    // 세면 고른 지 몇 초 만에 한 번 더 나간다.
-    _priceTimer?.cancel();
-    _priceTimer = Timer.periodic(
-      namuPricePollInterval,
-      (_) => _refreshSelectedPrice(),
-    );
-  }
-
-  /// 고른 종목의 현재가를 다시 받는다 — 폴링 한 박자.
-  void _refreshSelectedPrice() {
-    final selected = _selected;
-    if (!mounted || selected == null) return;
-    // 앱이 가려진 동안은 건너뛴다(웹도 탭이 가려지면 주기 조회를 멈춘다). 타이머는
-    // 그대로 두므로 돌아오면 다음 박자에 이어서 받는다.
-    if (!ref.read(appForegroundProvider)) return;
-    _refreshPrice(selected);
-  }
-
-  /// [item] 의 현재가를 다시 받는다. 받는 중이면 그 결과를 기다린다 — 응답이 느릴 때
-  /// 박자마다, 또는 같은 종목을 연달아 누를 때마다 겹쳐 나가면 나무 유량만 쓴다.
-  void _refreshPrice(StockMasterItem item) {
-    final price = namuPriceProvider(item);
-    // 처음 고른 종목은 현재가 카드가 그려지면서 받는다.
-    if (!ref.exists(price) || ref.read(price).isLoading) return;
-    ref.invalidate(price);
-  }
-
-  /// 지금 보는 통화의 보유 종목이 낡았으면 다시 받는다.
+  /// 두 통화 보유 종목이 낡았으면 다시 받는다.
   void _refreshHoldingsIfStale() {
     if (!mounted) return;
-    final provider = namuHoldingsProvider(_currency);
-    // 아직 안 읽은 통화는 패널이 그려지면서 처음 받는다.
-    if (!ref.exists(provider)) return;
-    // 받는 중이면 그 결과를 기다린다 — 여기서 또 비우면 같은 조회가 겹쳐 나간다.
-    if (ref.read(provider).isLoading) return;
-    // 시각은 **성공한 조회**만 남긴다. 실패한 조회는 그래서 늘 낡은 것으로 읽힌다 —
-    // 처음부터 실패했으면 시각이 없고, 다시 받다 실패했으면 이미 30초가 지난 값이다.
-    final fetchedAt = ref.read(namuHoldingsFetchedAtProvider)[_currency];
-    if (namuHoldingsStale(fetchedAt, ref.read(freshnessClockProvider)())) {
-      ref.invalidate(provider);
+    for (final currency in const ['KRW', 'USD']) {
+      final provider = namuHoldingsProvider(currency);
+      // 아직 안 읽은 통화는 화면이 그려지면서 처음 받는다. 받는 중이면 그 결과를 기다린다.
+      if (!ref.exists(provider) || ref.read(provider).isLoading) continue;
+      // 시각은 성공한 조회만 남긴다 — 실패한 조회는 늘 낡은 것으로 읽힌다.
+      final fetchedAt = ref.read(namuHoldingsFetchedAtProvider)[currency];
+      if (namuHoldingsStale(fetchedAt, ref.read(freshnessClockProvider)())) {
+        ref.invalidate(provider);
+      }
     }
   }
 
   @override
   void dispose() {
     _priceTimer?.cancel();
-    _searchCtrl.dispose();
+    for (final t in _lingering.values) {
+      t.cancel();
+    }
     super.dispose();
   }
 
+  void _blockShown(int id) {
+    if (_visible.contains(id) || _lingering.containsKey(id)) return;
+    _lingering[id] = Timer(const Duration(milliseconds: 300), () {
+      _lingering.remove(id);
+      if (mounted) setState(() => _visible.add(id));
+    });
+  }
+
+  void _blockHidden(int id) {
+    _lingering.remove(id)?.cancel();
+    if (_visible.contains(id) && mounted) {
+      setState(() => _visible.remove(id));
+    }
+  }
+
+  void _openSearch() => showStockSearchSheet(
+    context,
+    onPick: (symbol) => context.push(namuDetailPath(symbol)),
+  );
+
+  void _openDetail(String symbol) => context.push(namuDetailPath(symbol));
+
+  void _retryInvest() {
+    ref.invalidate(namuHoldingsProvider('KRW'));
+    ref.invalidate(namuHoldingsProvider('USD'));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final masked = ref.watch(hideCardProvider('stocks.summary'));
+    final krwAsync = ref.watch(namuHoldingsProvider('KRW'));
+    final usdAsync = ref.watch(namuHoldingsProvider('USD'));
+    final fxRaw = ref.watch(securitiesExchangeRateProvider).asData?.value;
+    final fx = (fxRaw != null && fxRaw > 0) ? fxRaw : null;
+    final view = mergeNamuHoldings(
+      krwAsync.asData?.value,
+      usdAsync.asData?.value,
+      fx,
+    );
+    final loading =
+        (krwAsync.isLoading && !krwAsync.hasValue) ||
+        (usdAsync.isLoading && !usdAsync.hasValue);
+    // 둘 다 실패해야 오류다 — 한쪽만 실패하면 남은 통화만 보인다.
+    final bothFailed =
+        krwAsync.hasError &&
+        !krwAsync.hasValue &&
+        usdAsync.hasError &&
+        !usdAsync.hasValue;
 
-    // 띠 화면(I-01 결정 1B) — 국내/해외 · 보유 · 검색 · 고른 종목 · 결과가 띠 하나씩.
-    return ListView(
-      children: PScreenBands.children([
-        PScreenSection(
-          child: PTabs<String>(
-            value: _currency,
-            onChanged: (v) {
-              setState(() => _currency = v);
-              _refreshHoldingsIfStale();
-            },
-            variant: PTabsVariant.container,
-            size: PTabsSize.sm,
-            expand: true,
-            items: [
-              PTabItem(value: 'KRW', label: l.namuTabDomestic),
-              PTabItem(value: 'USD', label: l.namuTabOverseas),
-            ],
+    final watchAsync = ref.watch(watchGroupsProvider);
+    final groups = watchAsync.asData?.value ?? const <StockWatchGroup>[];
+    // 보이는 그룹의 심볼을 합쳐 50 씩 한 번에 — 그룹마다 따로 부르지 않는다.
+    if (_seg == _Seg.watch) {
+      for (final chunk in chunkSymbols(visibleSymbols(groups, _visible))) {
+        final quotes =
+            ref.watch(namuQuotesProvider(chunk.join(','))).asData?.value ??
+            const <BrokerQuote>[];
+        for (final q in quotes) {
+          if (q.price > 0) _lastQuotes[q.symbol] = q;
+        }
+      }
+    }
+
+    final head = <Widget>[
+      NamuInvestBand(
+        krwAsync: krwAsync,
+        usdAsync: usdAsync,
+        view: view,
+        loading: loading,
+        failed: bothFailed,
+        masked: masked,
+        onRetry: _retryInvest,
+      ),
+      const SizedBox(height: kScreenBandGap),
+      if (fx != null) ...[
+        const NamuMarketBand(),
+        const SizedBox(height: kScreenBandGap),
+      ],
+    ];
+
+    final tabs = ColoredBox(
+      color: c.bgLayerDefault,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StocksBandTitle(l.stocksSectionStocks),
+          StocksSearchEntry(onTap: _openSearch),
+          Padding(
+            padding: const EdgeInsets.only(top: PSpacing.x2),
+            child: PChipTabs<_Seg>(
+              value: _seg,
+              onChanged: (v) => setState(() => _seg = v),
+              semanticLabel: l.stocksSectionStocks,
+              items: [
+                PTab(value: _Seg.holdings, label: l.stocksTabHoldings),
+                PTab(value: _Seg.watch, label: l.stocksTabWatch),
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+
+    final tail = ColoredBox(
+      color: c.bgLayerDefault,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          PSpacing.x6,
+          PSpacing.x2,
+          PSpacing.x6,
+          PSpacing.x6,
         ),
-        PScreenSection(child: _HoldingsPanel(currency: _currency)),
-        PScreenSection(
-          child: PSearchField(
-            controller: _searchCtrl,
-            hint: l.stocksSearch,
-            onChanged: (v) => setState(() => _keyword = v.trim()),
+        child: Text(
+          l.namuDataNotice,
+          style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+        ),
+      ),
+    );
+
+    // 관심 갈래는 게으른 sliver — 지어진 묶음만 시세를 지켜본다. 나머지는 한 덩어리.
+    final slivers = <Widget>[
+      SliverList(delegate: SliverChildListDelegate(head)),
+      SliverToBoxAdapter(child: tabs),
+    ];
+    if (_seg == _Seg.watch) {
+      if (watchAsync.hasError && !watchAsync.hasValue) {
+        slivers.add(
+          SliverToBoxAdapter(
+            child: StocksFailure(
+              title: l.stocksFailWatch,
+              onRetry: () => ref.invalidate(watchGroupsProvider),
+            ),
           ),
-        ),
-        if (_selected != null)
-          PScreenSection(child: _PriceCard(item: _selected!)),
-        PScreenSection(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_keyword.length >= 2)
-                _SearchResults(keyword: _keyword, onPick: _pick)
-              else
-                PEmptyState(
-                  icon: LucideIcons.search,
-                  message: l.namuSearchPrompt,
-                  subMessage: l.namuScopeNotice,
-                ),
-              const SizedBox(height: PSpace.x16),
-              Text(
-                l.namuScopeNotice,
-                style: PTypo.micro.copyWith(color: t.fgTertiary, height: 1.5),
+        );
+      } else if (watchAsync.isLoading && !watchAsync.hasValue) {
+        slivers.add(const SliverToBoxAdapter(child: StocksGroupSkeleton()));
+      } else if (groups.isEmpty) {
+        slivers.add(
+          SliverToBoxAdapter(
+            child: ColoredBox(
+              color: c.bgLayerDefault,
+              child: PResultSection(
+                kind: PResultKind.empty,
+                size: PResultSize.medium,
+                icon: LucideIcons.star,
+                title: l.stocksNoWatchlist,
+                description: l.stocksNoWatchlistDesc,
+                headingLevel: 3,
               ),
-            ],
+            ),
+          ),
+        );
+      } else {
+        slivers.add(
+          SliverList.builder(
+            itemCount: groups.length + 1,
+            itemBuilder: (context, i) {
+              if (i == groups.length) {
+                return ColoredBox(
+                  color: c.bgLayerDefault,
+                  child: PList(
+                    children: [
+                      PListButtonItem(
+                        title: l.stocksWatchGroupAdd,
+                        titleColor: c.fgBrand,
+                        prefix: Icon(
+                          LucideIcons.plus,
+                          size: 20,
+                          color: c.fgBrand,
+                        ),
+                        onTap: () => showWatchGroupForm(context, ref),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              final g = groups[i];
+              return WatchGroupBlock(
+                key: ValueKey('watch-group-${g.rowId}'),
+                group: g,
+                first: i == 0,
+                onShown: () => _blockShown(g.rowId),
+                onHidden: () => _blockHidden(g.rowId),
+                lineBuilder: (item) => _watchLine(l, item),
+              );
+            },
+          ),
+        );
+      }
+    } else {
+      slivers.add(
+        SliverToBoxAdapter(
+          child: ColoredBox(
+            color: c.bgLayerDefault,
+            child: _holdingsBand(l, view, loading, bothFailed, masked),
           ),
         ),
-      ]),
+      );
+    }
+    slivers.add(SliverToBoxAdapter(child: tail));
+    return CustomScrollView(slivers: slivers);
+  }
+
+  Widget _watchLine(AppLocalizations l, WatchItem item) {
+    final q = _lastQuotes[item.symbol];
+    return StocksLine(
+      name: item.nameKr.isNotEmpty ? item.nameKr : item.symbol,
+      detail: '${item.symbol} · ${stockMarketLabel(l, item.marketCode)}',
+      amount: q == null ? null : fmtByCurrency(q.price, q.currency),
+      pct: q == null ? null : changePctOf(q.price, q.previousClose),
+      onTap: () => _openDetail(item.symbol),
+    );
+  }
+
+  Widget _holdingsBand(
+    AppLocalizations l,
+    NamuMergedView view,
+    bool loading,
+    bool failed,
+    bool masked,
+  ) {
+    if (loading) {
+      return Semantics(
+        label: l.stocksRankingLoading,
+        child: Column(
+          children: [for (var i = 0; i < 5; i++) const StocksLineSkeleton()],
+        ),
+      );
+    }
+    if (failed) {
+      return StocksFailure(
+        title: l.stocksFailHoldings,
+        onRetry: _retryInvest,
+        description: l.namuFailDesc,
+      );
+    }
+    // 섞이지 않았으면 거를 게 없다 — 남은 거르기 값은 전체로 읽는다.
+    final filter = view.mixed ? _filter : 'ALL';
+    final shown = filter == 'ALL'
+        ? view.rows
+        : [
+            for (final r in view.rows)
+              if (r.currency == filter) r,
+          ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (view.mixed)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpacing.x6,
+              PSpacing.x1,
+              PSpacing.x6,
+              PSpacing.x2,
+            ),
+            child: PSegmentedControl<String>(
+              value: filter,
+              onChanged: (v) => setState(() => _filter = v),
+              semanticLabel: l.namuFilterAria,
+              items: [
+                PSegmentedItem(value: 'ALL', label: l.namuFilterAll),
+                PSegmentedItem(value: 'KRW', label: l.namuTabDomestic),
+                PSegmentedItem(value: 'USD', label: l.namuTabOverseas),
+              ],
+            ),
+          ),
+        if (shown.isEmpty)
+          PResultSection(
+            kind: PResultKind.empty,
+            size: PResultSize.medium,
+            icon: LucideIcons.wallet,
+            title: view.rows.isEmpty ? l.stocksNoHoldings : l.namuFilterEmpty,
+            headingLevel: 3,
+          )
+        else
+          PList(
+            semanticLabel: l.stocksTabHoldings,
+            children: [
+              for (final r in shown)
+                StocksLine(
+                  key: ValueKey(r.key),
+                  name: r.name,
+                  detail:
+                      '${r.symbol} · ${l.stocksSharesUnit(stocksQty(r.quantity))}',
+                  amount: masked
+                      ? '••••'
+                      : fmtByCurrency(r.evalAmount, r.currency),
+                  pct: r.returnPct,
+                  onTap: () => _openDetail(r.symbol),
+                ),
+            ],
+          ),
+      ],
     );
   }
 }
 
-/// 보유 종목 — 요약 + 목록.
-class _HoldingsPanel extends ConsumerWidget {
-  const _HoldingsPanel({required this.currency});
+// ---- 띠 ① 내 투자 -------------------------------------------------------------
 
-  final String currency;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final holdingsAsync = ref.watch(namuHoldingsProvider(currency));
-
-    return holdingsAsync.when(
-      // 다시 받다 실패하면 보던 값을 그대로 둔다. 예전엔 다시 받는 일이 없어 값이
-      // 오류로 뒤집힐 일도 없었다 — 앱으로 돌아온 순간의 실패 한 번으로 보유 종목이
-      // "계좌가 없을 수 있어요" 로 바뀌면 안 된다. 다음 진입·복귀 때 다시 받는다.
-      skipError: true,
-      loading: () => const PSkeleton(height: 140),
-      // 계좌가 없거나 조회가 막히면 화면을 비우지 않고 이유를 보여준다.
-      // 띠 안이라 카드 껍데기 없이 내용만 — 띠는 부르는 쪽이 씌운다(I-01 결정 1B).
-      error: (_, _) => Row(
-        children: [
-          Icon(LucideIcons.unplug, size: 16, color: t.fgTertiary),
-          const SizedBox(width: PSpace.x8),
-          Expanded(
-            child: Text(
-              l.namuHoldingsError,
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            ),
-          ),
-        ],
-      ),
-      data: (h) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.namuHoldingsTitle,
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-          ),
-          const SizedBox(height: PSpace.x4),
-          Text(
-            '${_fmt(h.totalEvalValue)} ${h.currency}',
-            style: PTypo.h3.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${h.totalProfitLossValue >= 0 ? '+' : ''}${_fmt(h.totalProfitLossValue)} '
-            '(${formatChangeRate(h.profitRateValue)})',
-            style: PTypo.bodySm.copyWith(
-              color: h.totalProfitLossValue >= 0
-                  ? t.statusSuccessFg
-                  : t.statusDangerFg,
-              fontWeight: PFontWeight.semi,
-            ),
-          ),
-          if (h.items.isEmpty) ...[
-            const SizedBox(height: PSpace.x12),
-            Text(
-              l.namuHoldingsEmpty,
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            ),
-          ] else
-            for (final item in h.items)
-              _HoldingRow(item: item, currency: h.currency),
-        ],
-      ),
-    );
-  }
+/// 통화 금액 + 손익 Delta("▲ 1,200원 · 3.10%") — 가리면 금액 대신 점.
+PDelta namuPnlDelta(
+  double pnl,
+  double pct,
+  String currency,
+  bool masked, {
+  String? text,
+}) {
+  final d = directionOf(pnl);
+  final amount = masked ? '••••' : fmtByCurrency(pnl.abs(), currency);
+  return PDelta(
+    direction: stocksDir(d),
+    value: d == StockDirection.flat
+        ? null
+        : '$amount · ${formatChangeRateAbs(pct)}',
+    text: text,
+  );
 }
 
-class _HoldingRow extends StatelessWidget {
-  const _HoldingRow({required this.item, required this.currency});
+class NamuInvestBand extends StatelessWidget {
+  const NamuInvestBand({
+    super.key,
+    required this.krwAsync,
+    required this.usdAsync,
+    required this.view,
+    required this.loading,
+    required this.failed,
+    required this.masked,
+    required this.onRetry,
+  });
 
-  final NamuHoldingItem item;
-  final String currency;
+  final AsyncValue<NamuHoldings> krwAsync;
+  final AsyncValue<NamuHoldings> usdAsync;
+  final NamuMergedView view;
+  final bool loading;
+  final bool failed;
+  final bool masked;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final up = item.profitLossValue >= 0;
-
-    return Padding(
-      padding: const EdgeInsets.only(top: PSpace.x12),
-      child: Row(
-        children: [
-          Expanded(
+    final c = context.colors;
+    if (failed) {
+      return PScreenSection(
+        padding: EdgeInsets.zero,
+        child: StocksFailure(
+          title: l.stocksFailInvest,
+          onRetry: onRetry,
+          description: l.namuFailDesc,
+        ),
+      );
+    }
+    if (loading) {
+      return PScreenSection(
+        padding: const EdgeInsets.symmetric(vertical: PSpacing.x6),
+        child: Semantics(
+          label: l.stocksMyEval,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name.isEmpty ? item.symbol : item.name,
-                  style: PTypo.bodySm.copyWith(color: t.fgPrimary),
+                  l.namuDomesticValue,
+                  style: PTypography.t3.copyWith(
+                    color: c.fgNeutralSubtle,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  l.namuHoldingQty(item.quantity),
-                  style: PTypo.micro.copyWith(color: t.fgTertiary),
-                ),
+                const SizedBox(height: PSpacing.x1),
+                PSkeleton(width: 200, height: 32),
+                const SizedBox(height: PSpacing.x1),
+                PSkeleton(width: 160, height: 18),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+      );
+    }
+
+    String won(double v) =>
+        masked ? '••••' : krwSigned(v.round(), false, unit: true);
+    String cur(NamuCurrencyTotal t) =>
+        masked ? '••••' : fmtByCurrency(t.evalAmount, t.currency);
+    PDelta pnl(NamuCurrencyTotal t, {String? text}) => namuPnlDelta(
+      t.profitLoss,
+      t.profitRatePct,
+      t.currency,
+      masked,
+      text: text,
+    );
+
+    // 지표 — 섞였고 환율이 있으면 원화 환산 합계, 아니면 있는 통화 하나(국내 먼저).
+    final total = view.mixed && view.totalKrw != null;
+    final main = total ? null : (view.krw ?? view.usd);
+    final String label;
+    final String amount;
+    PDelta? delta;
+    String? note;
+    if (total) {
+      label = l.namuKrwTotal;
+      amount = masked ? '••••' : '≈ ${won(view.totalKrw!)}';
+      note = l.namuFxApplied(krw((view.appliedFxRate ?? 0).round()));
+    } else if (main != null) {
+      label = main.currency == 'KRW'
+          ? l.namuDomesticValue
+          : l.namuOverseasValue;
+      amount = cur(main);
+      delta = pnl(main, text: l.stocksVsPurchase);
+    } else {
+      label = l.namuDomesticValue;
+      amount = won(0);
+    }
+
+    Widget row(String title, Widget value) => PListItem(
+      title: title,
+      titleColor: c.fgNeutralSubtle,
+      suffix: PListValue(child: value),
+    );
+    Widget lineValue(NamuCurrencyTotal t) => Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(cur(t), style: stocksMoneyStyle(context)),
+        const SizedBox(height: 2),
+        pnl(t),
+      ],
+    );
+
+    return PScreenSection(
+      padding: const EdgeInsets.only(top: PSpacing.x6, bottom: PSpacing.x2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PCardStat(label: label, value: amount, delta: delta),
+                if (note != null) ...[
+                  const SizedBox(height: PSpacing.x1),
+                  Text(
+                    note,
+                    style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                ],
+                if (view.count == 0) ...[
+                  const SizedBox(height: PSpacing.x1),
+                  Text(
+                    l.stocksNoHoldings,
+                    style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: PSpacing.x3),
+          PList(
             children: [
-              Text(
-                '${_fmt(item.evalAmountValue)} $currency',
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.semi,
+              // 합계가 지표일 때는 두 통화를 줄로 풀어 보이고, 하나가 지표일 때는 다른 통화만 줄로.
+              if (view.krw != null && (total || main == view.usd))
+                row(l.namuDomesticValue, lineValue(view.krw!)),
+              if (view.usd != null && (total || main == view.krw))
+                row(l.namuOverseasValue, lineValue(view.usd!)),
+              row(
+                l.stocksHoldingsLabel,
+                Text(
+                  view.mixed
+                      ? l.namuCountSplit(view.krw!.count, view.usd!.count)
+                      : l.stocksUnitCount(view.count),
+                  style: stocksMoneyStyle(context),
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                '${up ? '+' : ''}${_fmt(item.profitLossValue)}',
-                style: PTypo.micro.copyWith(
-                  color: up ? t.statusSuccessFg : t.statusDangerFg,
+              PListButtonItem(
+                title: l.stocksPortfolioTitle,
+                detail: l.stocksPortfolioSub,
+                prefix: PListTile(
+                  background: c.bgNeutralWeak,
+                  color: c.fgNeutral,
+                  child: const Icon(LucideIcons.chartPie),
                 ),
+                suffix: Icon(
+                  LucideIcons.chevronRight,
+                  size: 20,
+                  color: c.fgNeutralSubtle,
+                ),
+                onTap: () => context.push('/stocks/namu/portfolio'),
               ),
             ],
           ),
@@ -308,128 +601,37 @@ class _HoldingRow extends StatelessWidget {
   }
 }
 
-/// 소수점이 의미 없는 원화와 있는 외화를 같은 함수로 다룬다.
-String _fmt(double v) =>
-    v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(2);
+// ---- 띠 ② 시장 ---------------------------------------------------------------
 
-class _SearchResults extends ConsumerWidget {
-  const _SearchResults({required this.keyword, required this.onPick});
-
-  final String keyword;
-  final ValueChanged<StockMasterItem> onPick;
+/// 나무 시장 띠 — 환율 줄만 있다(장 상태 · 지수는 I-13b 몫). 환율이 있을 때만 그린다.
+class NamuMarketBand extends ConsumerWidget {
+  const NamuMarketBand({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final results = ref.watch(stockSearchProvider(keyword));
-
-    return results.when(
-      loading: () => const PSkeleton(height: 120),
-      error: (_, _) =>
-          PEmptyState(icon: LucideIcons.unplug, message: l.stocksSearchError),
-      data: (items) => items.isEmpty
-          ? PEmptyState(icon: LucideIcons.search, message: l.stocksSearchEmpty)
-          : Column(
-              children: [
-                for (final item in items)
-                  InkWell(
-                    onTap: () => onPick(item),
-                    borderRadius: PRadius.brMd,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x4,
-                        vertical: PSpace.x12,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.nameKr,
-                                  style: PTypo.bodySm.copyWith(
-                                    color: t.fgPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${item.marketCode} · ${item.symbol}',
-                                  style: PTypo.micro.copyWith(
-                                    color: t.fgTertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(
-                            LucideIcons.chevronRight,
-                            size: 16,
-                            color: t.fgTertiary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-    );
-  }
-}
-
-/// 선택 종목의 나무 현재가.
-class _PriceCard extends ConsumerWidget {
-  const _PriceCard({required this.item});
-
-  final StockMasterItem item;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    final priceAsync = ref.watch(namuPriceProvider(item));
-
-    // 띠 안이라 카드 껍데기 없이 내용만 — 띠는 부르는 쪽이 씌운다(I-01 결정 1B).
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          item.nameKr,
-          style: PTypo.body.copyWith(
-            color: t.fgPrimary,
-            fontWeight: PFontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          '${item.marketCode} · ${item.symbol}',
-          style: PTypo.micro.copyWith(color: t.fgTertiary),
-        ),
-        const SizedBox(height: PSpace.x12),
-        priceAsync.when(
-          // 폴링 한 번이 실패해도 방금까지 보던 시세를 그대로 둔다(웹과 같다).
-          // 처음부터 못 받은 경우에만 오류 문구가 나온다.
-          skipError: true,
-          loading: () => const PSkeleton(height: 28, width: 140),
-          error: (_, _) => Text(
-            l.namuPriceError,
-            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-          ),
-          data: (price) => price == null
-              ? Text(
-                  l.namuPriceEmpty,
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                )
-              : Text(
-                  '${price.price} ${price.currency}',
-                  style: PTypo.h3.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
+    final fx = ref.watch(securitiesExchangeRateProvider).asData?.value;
+    if (fx == null || fx <= 0) return const SizedBox.shrink();
+    return PScreenSection(
+      padding: const EdgeInsets.only(bottom: PSpacing.x2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StocksBandTitle(l.stocksSectionMarket),
+          PList(
+            children: [
+              PListItem(
+                title: l.stocksExchangeRate,
+                detail: l.stocksFxBasis,
+                suffix: PListValue.amount(
+                  fmtFxRate(fx),
+                  style: stocksMoneyStyle(context),
                 ),
-        ),
-      ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

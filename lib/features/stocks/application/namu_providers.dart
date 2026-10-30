@@ -18,9 +18,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:groo_damda_app/core/network/dio_provider.dart';
 import 'package:groo_damda_app/core/sync/query_freshness.dart';
+import 'package:groo_damda_app/features/stocks/application/securities_providers.dart';
 import 'package:groo_damda_app/features/stocks/application/securities_retry.dart';
 import 'package:groo_damda_app/features/stocks/data/namu_repository.dart';
+import 'package:groo_damda_app/features/stocks/data/securities_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
+import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 
 /// 나무 현재가를 다시 받는 주기.
 ///
@@ -80,3 +83,30 @@ final namuPriceProvider = FutureProvider.family<BrokerPrice?, StockMasterItem>((
       ? repo.getKrPrice(item.symbol)
       : repo.getGbPrice(item.symbol);
 }, retry: securitiesNoRetry);
+
+/// 나무 화면의 시세 — 관심 묶음 · 상세가 쓴다. 키 = 콤마로 이은 심볼(겹침을 빼고 정렬, 50 씩).
+///
+/// 증권사는 서버가 사용자 기본 소스로 고른다(`/securities/prices`). 다건 API 가 없는 나무는 종목마다 1콜이라
+/// 서버가 상한 50 · 캐시 20초 · 예산 4초를 쥔다. 전일 종가가 응답에 딸려 와 등락률을 센다.
+/// 실패는 던진다 — 호출부가 받던 값을 남긴다. 자동 재시도 없음(429 를 몰아서 치지 않는다).
+final namuQuotesProvider = FutureProvider.family<List<BrokerQuote>, String>((
+  ref,
+  csv,
+) async {
+  if (csv.isEmpty) return const [];
+  final repo = await ref.watch(securitiesRepositoryProvider.future);
+  return repo.getPrices(csv.split(','));
+}, retry: securitiesNoRetry);
+
+/// USD→KRW 환율 — 시장 띠의 환율 줄 · 원화 환산 합계 · 비중. 못 받으면 null(그 자리를 그리지 않는다).
+final securitiesExchangeRateProvider = FutureProvider<double?>((ref) async {
+  final repo = await ref.watch(securitiesRepositoryProvider.future);
+  return repo.getExchangeRate();
+}, retry: securitiesNoRetry);
+
+/// 일별 시세용 일봉 — 증권사는 서버가 고른다. 최근 열 봉.
+final securitiesDailyCandlesProvider =
+    FutureProvider.family<TossCandlePage, String>((ref, symbol) async {
+      final repo = await ref.watch(securitiesRepositoryProvider.future);
+      return repo.getCandles(symbol, '1d', size: 10);
+    }, retry: securitiesNoRetry);

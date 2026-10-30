@@ -26,8 +26,6 @@ import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
 import 'package:groo_damda_app/shared/ds/button/p_button.dart';
 import 'package:groo_damda_app/shared/ds/callout/p_callout.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
-import 'package:groo_damda_app/shared/ds/chart/p_chart_donut.dart';
-import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
@@ -1610,62 +1608,7 @@ class TossPortfolioPage extends ConsumerWidget {
         headingLevel: 2,
       );
     } else {
-      const palette = PChartColor.values;
-      final colors = [
-        for (var i = 0; i < comp.length; i++) palette[i % palette.length],
-      ];
-      content = Padding(
-        padding: const EdgeInsets.all(PSpacing.x6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: PDonutChart(
-                label: l.stocksPortfolioTitle,
-                diameter: 112,
-                centerAmount: l.stocksPortfolioCount(comp.length),
-                valueFormatter: masked ? (_) => '••••' : null,
-                slices: [
-                  for (var i = 0; i < comp.length; i++)
-                    PDonutSlice(
-                      key: comp[i].symbol,
-                      label: comp[i].name,
-                      amount: comp[i].krwValue,
-                      color: colors[i],
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: PSpacing.x3),
-            PList(
-              semanticLabel: l.stocksPortfolioTitle,
-              children: [
-                for (var i = 0; i < comp.length; i++)
-                  PListItem(
-                    title: comp[i].name,
-                    gutter: 0,
-                    prefix: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: colors[i].of(c),
-                        borderRadius: BorderRadius.circular(PRounded.r0_5),
-                      ),
-                    ),
-                    suffix: PListValue(
-                      child: Text(
-                        masked
-                            ? '••••'
-                            : '${comp[i].weightPct.toStringAsFixed(2)}%',
-                        style: stocksMoneyStyle(context),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      );
+      content = StocksCompositionBody(comp: comp, masked: masked);
     }
 
     return Scaffold(

@@ -4208,25 +4208,10 @@
   "brokerToss": "토스증권",
   "brokerNamu": "나무증권",
   "stocksBrokerUnsupported": "앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.",
-  "namuSearchPrompt": "종목명이나 코드를 두 글자 이상 입력해보세요",
-  "namuScopeNotice": "지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.",
-  "namuPriceError": "현재가를 불러오지 못했어요",
   "namuPriceEmpty": "현재가가 없는 종목이에요",
-  "stocksSearchError": "검색에 실패했어요",
-  "stocksSearchEmpty": "검색 결과가 없어요",
   "namuTabDomestic": "국내",
   "namuTabOverseas": "해외",
-  "namuHoldingsTitle": "보유 평가금액",
   "namuHoldingsEmpty": "보유 중인 종목이 없어요",
-  "namuHoldingsError": "보유 정보를 불러오지 못했어요. 계좌가 없거나 조회 권한이 없을 수 있어요.",
-  "namuHoldingQty": "{qty}주 보유",
-  "@namuHoldingQty": {
-    "placeholders": {
-      "qty": {
-        "type": "String"
-      }
-    }
-  },
   "expFilterMatch": "조건 맞추기",
   "expFilterMatchAll": "모두 일치",
   "expFilterMatchAny": "하나라도 일치",
@@ -4833,5 +4818,33 @@
   "stocksConnectEmptyAction": "증권사 연결하기",
   "stockMarketKrEtc": "국내 기타",
   "stockMarketUsEtc": "미국 기타",
-  "stocksFailPrice": "시세를 불러오지 못했어요"
+  "stocksFailPrice": "시세를 불러오지 못했어요",
+  "namuKrwTotal": "원화 환산 합계",
+  "namuFxApplied": "환율 {rate} 적용",
+  "@namuFxApplied": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "namuDomesticValue": "국내 평가금액 (KRW)",
+  "namuOverseasValue": "해외 평가금액 (USD)",
+  "namuCountSplit": "국내 {kr} · 해외 {us}",
+  "@namuCountSplit": {
+    "placeholders": {
+      "kr": {
+        "type": "int"
+      },
+      "us": {
+        "type": "int"
+      }
+    }
+  },
+  "namuFilterAll": "전체",
+  "namuFilterAria": "보유 시장",
+  "namuFilterEmpty": "이 시장에 보유 종목이 없어요",
+  "namuFailDesc": "계좌가 없거나 조회 권한이 없을 수 있어요.",
+  "namuDataNotice": "나무증권 Open API · 시세 지연 표시",
+  "namuDonutNeedsFx": "환율을 못 받아 구성 비중을 낼 수 없어요"
 }

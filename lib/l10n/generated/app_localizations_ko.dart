@@ -7032,23 +7032,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksBrokerUnsupported => '앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.';
 
   @override
-  String get namuSearchPrompt => '종목명이나 코드를 두 글자 이상 입력해보세요';
-
-  @override
-  String get namuScopeNotice =>
-      '지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.';
-
-  @override
-  String get namuPriceError => '현재가를 불러오지 못했어요';
-
-  @override
   String get namuPriceEmpty => '현재가가 없는 종목이에요';
-
-  @override
-  String get stocksSearchError => '검색에 실패했어요';
-
-  @override
-  String get stocksSearchEmpty => '검색 결과가 없어요';
 
   @override
   String get namuTabDomestic => '국내';
@@ -7057,18 +7041,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get namuTabOverseas => '해외';
 
   @override
-  String get namuHoldingsTitle => '보유 평가금액';
-
-  @override
   String get namuHoldingsEmpty => '보유 중인 종목이 없어요';
-
-  @override
-  String get namuHoldingsError => '보유 정보를 불러오지 못했어요. 계좌가 없거나 조회 권한이 없을 수 있어요.';
-
-  @override
-  String namuHoldingQty(String qty) {
-    return '$qty주 보유';
-  }
 
   @override
   String get expFilterMatch => '조건 맞추기';
@@ -8160,4 +8133,41 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stocksFailPrice => '시세를 불러오지 못했어요';
+
+  @override
+  String get namuKrwTotal => '원화 환산 합계';
+
+  @override
+  String namuFxApplied(String rate) {
+    return '환율 $rate 적용';
+  }
+
+  @override
+  String get namuDomesticValue => '국내 평가금액 (KRW)';
+
+  @override
+  String get namuOverseasValue => '해외 평가금액 (USD)';
+
+  @override
+  String namuCountSplit(int kr, int us) {
+    return '국내 $kr · 해외 $us';
+  }
+
+  @override
+  String get namuFilterAll => '전체';
+
+  @override
+  String get namuFilterAria => '보유 시장';
+
+  @override
+  String get namuFilterEmpty => '이 시장에 보유 종목이 없어요';
+
+  @override
+  String get namuFailDesc => '계좌가 없거나 조회 권한이 없을 수 있어요.';
+
+  @override
+  String get namuDataNotice => '나무증권 Open API · 시세 지연 표시';
+
+  @override
+  String get namuDonutNeedsFx => '환율을 못 받아 구성 비중을 낼 수 없어요';
 }

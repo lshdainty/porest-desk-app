@@ -81,6 +81,13 @@ const _lockedNotice = '잠금을 해제하려면 본인 확인이 필요해요.'
 const _sessionCookie = 'desk_access_token';
 final _api = Uri.parse('https://desk.invalid/api/v1/');
 
+/// 보유 종목 이름 글 — ds 가 keep-all 을 위해 글 사이에 끼운 줄바꿈 자리(U+2060)를 뺀 글로 찾는다.
+Finder _holding(String name) => find.byWidgetPredicate(
+  (w) =>
+      w is Text &&
+      (w.data ?? '').replaceAll('\u2060', '').replaceAll('\u200B', '') == name,
+);
+
 void main() {
   // ─── 사람이 바뀐다 ───────────────────────────────────────────
   testWidgets('A 가 나가고 B 가 들어오면 — B 는 자기 기능권한·보유 종목을 본다', (tester) async {
@@ -88,7 +95,7 @@ void main() {
 
     // Alice 가 증권 화면을 본다 — 기능권한과 보유 종목이 컨테이너에 받아진다.
     await h.openStocks();
-    expect(find.text(_aliceHolding), findsOneWidget);
+    expect(_holding(_aliceHolding), findsOneWidget);
     expect(h.features?.connectedBrokers, ['NAMU']);
     expect(h.holdingNames, [_aliceHolding]);
     final aliceContainer = h.container;
@@ -111,11 +118,11 @@ void main() {
 
     await h.openStocks();
     expect(
-      find.text(_aliceHolding),
+      _holding(_aliceHolding),
       findsNothing,
       reason: 'Bob 의 증권 화면에 Alice 의 보유 종목이 떴다',
     );
-    expect(find.text(_bobHolding), findsOneWidget);
+    expect(_holding(_bobHolding), findsOneWidget);
     expect(h.holdingNames, [_bobHolding]);
     expect(h.server.holdingsAskedBy, [
       'alice',
@@ -198,29 +205,29 @@ void main() {
       reason: '토스만 연결한 Carol 에게 Alice 의 나무 화면이 떴다',
     );
     expect(find.byType(TossStocksView), findsOneWidget);
-    expect(find.text(_aliceHolding), findsNothing);
+    expect(_holding(_aliceHolding), findsNothing);
   });
 
   testWidgets('로그아웃 없이 곧바로 다른 사람으로 바뀌어도 새로 시작한다', (tester) async {
     // 로그인한 채로 다른 계정의 로그인 콜백이 들어오는 길(딥링크)이다.
     final h = await _pumpApp(tester, signedInAs: _alice);
     await h.openStocks();
-    expect(find.text(_aliceHolding), findsOneWidget);
+    expect(_holding(_aliceHolding), findsOneWidget);
 
     // Alice 의 증권 화면이 **떠 있는 채로** 사람이 바뀐다. 그 뒤 그려지는 프레임마다 본다 —
     // 잠깐이라도 비치면 안 된다.
     await h.signIn(
       _bob,
       everyFrame: () => expect(
-        find.text(_aliceHolding),
+        _holding(_aliceHolding),
         findsNothing,
         reason: '보고 있던 Alice 의 증권 화면이 Bob 에게 비쳤다',
       ),
     );
 
     await h.openStocks();
-    expect(find.text(_bobHolding), findsOneWidget);
-    expect(find.text(_aliceHolding), findsNothing);
+    expect(_holding(_bobHolding), findsOneWidget);
+    expect(_holding(_aliceHolding), findsNothing);
   });
 
   testWidgets('B 의 응답이 늦어도 — 그 사이 B 의 홈에 A 의 순자산이 비치지 않는다', (tester) async {
@@ -283,14 +290,14 @@ void main() {
     await h.signOut();
     await h.signIn(_bob);
     await h.openStocks();
-    expect(find.text(_bobHolding), findsOneWidget);
+    expect(_holding(_bobHolding), findsOneWidget);
 
     await h.signOut();
     await h.signIn(_alice);
     await h.openStocks();
 
-    expect(find.text(_bobHolding), findsNothing);
-    expect(find.text(_aliceHolding), findsOneWidget);
+    expect(_holding(_bobHolding), findsNothing);
+    expect(_holding(_aliceHolding), findsOneWidget);
     expect(h.server.holdingsAskedBy, ['alice', 'bob', 'alice']);
   });
 
@@ -304,7 +311,7 @@ void main() {
     // 저장소에 먼저 내려가 있어야** Bob 으로 들어온다 — 그게 대역으로는 안 보인다.
     final h = await _pumpApp(tester, signedInAs: _alice, realAuth: true);
     await h.openStocks();
-    expect(find.text(_aliceHolding), findsOneWidget);
+    expect(_holding(_aliceHolding), findsOneWidget);
     expect(h.server.sessionChecks, 1, reason: '앱을 켤 때 한 번 확인한다');
     final aliceContainer = h.container;
 
@@ -338,8 +345,8 @@ void main() {
     );
 
     await h.openStocks();
-    expect(find.text(_bobHolding), findsOneWidget);
-    expect(find.text(_aliceHolding), findsNothing);
+    expect(_holding(_bobHolding), findsOneWidget);
+    expect(_holding(_aliceHolding), findsNothing);
     expect(h.server.sessionChecks, 3);
   });
 
@@ -409,7 +416,7 @@ void main() {
       reason: '같은 사람인데 컨테이너를 갈았다 — 쓰는 도중에 앱이 처음부터 다시 열린다',
     );
     expect(
-      find.text(_aliceHolding),
+      _holding(_aliceHolding),
       findsOneWidget,
       reason: '보던 화면이 그대로 있어야 한다',
     );
@@ -550,8 +557,9 @@ class _Server implements HttpClientAdapter {
       });
     }
     if (path.endsWith('/namu/holdings')) {
-      holdingsAskedBy.add(who.userId);
       final krw = options.uri.queryParameters['currency'] == 'KRW';
+      // 나무 화면은 국내 · 해외 두 통화를 함께 묻는다 — 사람마다 몇 번 물었는지는 국내 한 통화로 센다.
+      if (krw) holdingsAskedBy.add(who.userId);
       return _json(200, {
         'accountNo': '${who.userId}-account',
         'currency': options.uri.queryParameters['currency'],

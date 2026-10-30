@@ -46,6 +46,7 @@ import 'package:groo_damda_app/features/settings/presentation/hide_amounts_scree
 import 'package:groo_damda_app/features/settings/presentation/settings_screen.dart';
 import 'package:groo_damda_app/features/settings/presentation/update_screen.dart';
 import 'package:groo_damda_app/features/stats/presentation/stats_screen.dart';
+import 'package:groo_damda_app/features/stocks/presentation/namu_stock_pages.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/presentation/securities_gate.dart';
@@ -234,7 +235,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/stocks',
         builder: (_, _) => const SecuritiesGate(child: StocksScreen()),
         routes: [
-          // 포트폴리오 구성 · 종목 상세는 화면(주소)이다 — 정적 경로가 먼저. 지금은 토스만(나무는 13-3).
+          // 포트폴리오 구성 · 종목 상세는 화면(주소)이다 — 정적 경로가 먼저. 증권사마다 하나씩(토스 · 나무).
           GoRoute(
             path: 'toss/portfolio',
             builder: (_, _) => const SecuritiesGate(child: TossPortfolioPage()),
@@ -243,6 +244,18 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'toss/:symbol',
             builder: (_, state) => SecuritiesGate(
               child: TossStockDetailPage(
+                symbol: state.pathParameters['symbol']!,
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'namu/portfolio',
+            builder: (_, _) => const SecuritiesGate(child: NamuPortfolioPage()),
+          ),
+          GoRoute(
+            path: 'namu/:symbol',
+            builder: (_, state) => SecuritiesGate(
+              child: NamuStockDetailPage(
                 symbol: state.pathParameters['symbol']!,
               ),
             ),

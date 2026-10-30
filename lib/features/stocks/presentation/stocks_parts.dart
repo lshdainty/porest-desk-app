@@ -11,6 +11,8 @@ import 'package:groo_damda_app/features/stocks/application/stocks_model.dart';
 import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/card/p_card_parts.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_donut.dart';
+import 'package:groo_damda_app/shared/ds/chart/p_chart_values.dart';
 import 'package:groo_damda_app/shared/ds/list/p_list.dart';
 import 'package:groo_damda_app/shared/ds/result_section/p_result_section.dart';
 import 'package:groo_damda_app/shared/ds/skeleton/p_skeleton.dart';
@@ -176,9 +178,17 @@ class StocksLine extends StatelessWidget {
 
 /// 구역 실패 한 벌 — 제목 + "잠시 뒤 다시 시도해주세요." + [다시 시도]. 오류 원문은 그리지 않는다.
 class StocksFailure extends StatelessWidget {
-  const StocksFailure({super.key, required this.title, required this.onRetry});
+  const StocksFailure({
+    super.key,
+    required this.title,
+    required this.onRetry,
+    this.description,
+  });
   final String title;
   final VoidCallback onRetry;
+
+  /// 설명 — 비우면 "잠시 뒤 다시 시도해주세요.".
+  final String? description;
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +199,7 @@ class StocksFailure extends StatelessWidget {
         kind: PResultKind.failure,
         size: PResultSize.medium,
         title: title,
-        description: l.stocksFailDesc,
+        description: description ?? l.stocksFailDesc,
         primaryAction: PResultAction(label: l.actionRetry, onPressed: onRetry),
         headingLevel: 3,
       ),
@@ -398,4 +408,78 @@ Widget stocksKvLine(
           ),
     ),
   );
+}
+
+/// 포트폴리오 구성 본문 — 도넛 112 + 범례(색 칸 10 · 종목 이름 · 비중). 토스 · 나무 페이지가 함께 쓴다.
+class StocksCompositionBody extends StatelessWidget {
+  const StocksCompositionBody({
+    super.key,
+    required this.comp,
+    this.masked = false,
+  });
+  final List<CompositionSlice> comp;
+
+  /// 금액 가리기 — 도넛 조각 금액도 범례 비중도 가린다.
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = AppLocalizations.of(context);
+    const palette = PChartColor.values;
+    final colors = [
+      for (var i = 0; i < comp.length; i++) palette[i % palette.length],
+    ];
+    return Padding(
+      padding: const EdgeInsets.all(PSpacing.x6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: PDonutChart(
+              label: l.stocksPortfolioTitle,
+              diameter: 112,
+              centerAmount: l.stocksPortfolioCount(comp.length),
+              slices: [
+                for (var i = 0; i < comp.length; i++)
+                  PDonutSlice(
+                    key: comp[i].symbol,
+                    label: comp[i].name,
+                    amount: comp[i].krwValue,
+                    color: colors[i],
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: PSpacing.x3),
+          PList(
+            semanticLabel: l.stocksPortfolioTitle,
+            children: [
+              for (var i = 0; i < comp.length; i++)
+                PListItem(
+                  title: comp[i].name,
+                  gutter: 0,
+                  prefix: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: colors[i].of(c),
+                      borderRadius: BorderRadius.circular(PRounded.r0_5),
+                    ),
+                  ),
+                  suffix: PListValue(
+                    child: Text(
+                      masked
+                          ? '••••'
+                          : '${comp[i].weightPct.toStringAsFixed(2)}%',
+                      style: stocksMoneyStyle(context),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
