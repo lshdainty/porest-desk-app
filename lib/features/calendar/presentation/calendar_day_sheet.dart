@@ -367,8 +367,11 @@ class _CalendarDayFlowState extends ConsumerState<_CalendarDayFlow> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (_deleteFailed)
+          if (_deleteFailed) ...[
             CalendarSaveErrorCallout(message: l.calFormDeleteFailed),
+            // 알림과 제목 사이 여백(폼은 아래에 입력칸 여백이 있다)
+            const SizedBox(height: PSpacing.x4),
+          ],
           CalendarEventDetailBody(
             event: e,
             calendars: calendarsAsync.value ?? const <UserCalendar>[],
