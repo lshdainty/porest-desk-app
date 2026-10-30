@@ -4787,7 +4787,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsThisQuarter => '이번 분기';
 
   @override
-  String get statsThisYear => '이번 해';
+  String get statsThisYear => '올해';
 
   @override
   String get statsCustomPeriod => '선택 기간';
@@ -4799,22 +4799,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsLastQuarter => '지난 분기';
 
   @override
-  String get statsLastYear => '지난 해';
+  String get statsLastYear => '작년';
 
   @override
   String get statsPrevPeriod => '이전 기간';
 
   @override
-  String get statsMomMonth => '전월 대비';
-
-  @override
-  String get statsMomQuarter => '전분기 대비';
-
-  @override
-  String get statsMomYear => '전년 대비';
-
-  @override
-  String get statsMomCustom => '이전 기간 대비';
+  String statsMomMonth(String prev) {
+    return '$prev 대비';
+  }
 
   @override
   String get statsMomPrevMonth => '전월';
@@ -4833,33 +4826,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get statsPeriodPickerTitle => '기간 선택';
-
-  @override
-  String get statsRange7d => '최근 7일';
-
-  @override
-  String get statsRange30d => '최근 30일';
-
-  @override
-  String get statsRange3m => '최근 3개월';
-
-  @override
-  String get statsRange6m => '최근 6개월';
-
-  @override
-  String get statsRange1y => '최근 1년';
-
-  @override
-  String get statsSegMonth => '월';
-
-  @override
-  String get statsSegQuarter => '분기';
-
-  @override
-  String get statsSegYear => '년';
-
-  @override
-  String get statsSegCustom => '직접';
 
   @override
   String get statsNoData => '데이터가 없어요.';
@@ -4920,7 +4886,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsPatternDesc => '색이 진할수록 지출이 많은 시간대예요 (단위: 원)';
 
   @override
-  String get statsTooFewTx => '이번 달 거래가 아직 적어요.';
+  String statsTooFewTx(String period) {
+    return '$period 거래가 아직 적어요.';
+  }
 
   @override
   String get statsLegendLow => '적음';
@@ -4937,10 +4905,14 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get statsMomCalculating => '전월 대비 계산 중…';
+  String statsMomCalculating(String prev) {
+    return '$prev 대비 계산 중…';
+  }
 
   @override
-  String get statsMomUnavailable => '전월 비교 불가';
+  String statsMomUnavailable(String prev) {
+    return '$prev 비교 불가';
+  }
 
   @override
   String get statsTopCategory => '가장 많이 쓴 카테고리';

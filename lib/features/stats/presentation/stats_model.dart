@@ -39,6 +39,35 @@ DateSpan quarterRangeOf(DateTime base) {
 DateSpan yearRangeOf(DateTime base) =>
     (from: DateTime(base.year, 1, 1), to: DateTime(base.year, 12, 31));
 
+/// 통계가 보는 "지금" — 기간 이름("이번 달" ↔ 실제 이름)이 이 값으로 갈린다. 시험 · 렌더 하네스가 오늘을 고정한다(홈의 dashboardNow 와 같은 결).
+DateTime Function() statsNow = DateTime.now;
+
+/// 시트에서 고른 기간 → 통계 기간. 달력에는 월 · 분기 · 년 구분이 없으므로(칸 하나 · 달력 하나), 고른 기간이
+/// 어떤 달력 달 · 분기 · 해 하나를 정확히 덮으면 그 보기(월 · 분기 · 년)로 두고 — 옛 탭이 ‹ › 로 지난 기간을 보던 것과 같다
+/// (지난 달 → 그 달 월 보기, 이전 기간 비교는 그 전달) — 그 밖은 직접이다. 바뀐 게 없으면 지금 값을 그대로 돌려준다.
+StatsPeriod statsPeriodOfRange(
+  StatsPeriod current,
+  DateTime from,
+  DateTime to,
+) {
+  bool same(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+  bool covers(DateSpan s) => same(from, s.from) && same(to, s.to);
+  if (same(from, current.from) && same(to, current.to)) return current;
+  final seg = covers(monthRangeOf(from))
+      ? StatsSeg.month
+      : (from.month - 1) % 3 == 0 && covers(quarterRangeOf(from))
+      ? StatsSeg.quarter
+      : covers(yearRangeOf(from))
+      ? StatsSeg.year
+      : StatsSeg.custom;
+  return StatsPeriod(
+    seg: seg,
+    from: DateTime(from.year, from.month, from.day),
+    to: DateTime(to.year, to.month, to.day),
+  );
+}
+
 /// 고른 기간 — 종류와 시작 · 끝.
 @immutable
 class StatsPeriod {
@@ -133,19 +162,37 @@ class StatsPeriod {
     }
   }
 
-  String now(AppLocalizations l) => switch (seg) {
-    StatsSeg.month => l.expThisMonth,
-    StatsSeg.quarter => l.statsThisQuarter,
-    StatsSeg.year => l.statsThisYear,
-    StatsSeg.custom => l.statsCustomPeriod,
-  };
+  /// 이 기간이 오늘을 품은 달 · 분기 · 해인가(직접은 아니다).
+  bool containsToday([DateTime? today]) {
+    if (seg == StatsSeg.custom) return false;
+    final t = today ?? statsNow();
+    final d = DateTime(t.year, t.month, t.day);
+    return !d.isBefore(from) && !d.isAfter(to);
+  }
 
-  String previous(AppLocalizations l) => switch (seg) {
-    StatsSeg.month => l.statsLastMonth,
-    StatsSeg.quarter => l.statsLastQuarter,
-    StatsSeg.year => l.statsLastYear,
-    StatsSeg.custom => l.statsPrevPeriod,
-  };
+  /// 기간 이름 — 오늘을 품은 달 · 분기 · 해는 상대 말("이번 달"), 지난 기간은 실제 이름("2026년 9월"), 직접은 "선택 기간".
+  String now(AppLocalizations l, [DateTime? today]) {
+    if (seg == StatsSeg.custom) return l.statsCustomPeriod;
+    if (!containsToday(today)) return label();
+    return switch (seg) {
+      StatsSeg.month => l.expThisMonth,
+      StatsSeg.quarter => l.statsThisQuarter,
+      _ => l.statsThisYear,
+    };
+  }
+
+  /// 이전 기간 이름 — [now] 와 같은 규칙(오늘을 품으면 "지난 달", 아니면 이전 기간의 실제 이름).
+  String previous(AppLocalizations l, [DateTime? today]) {
+    if (seg == StatsSeg.custom) return l.statsPrevPeriod;
+    if (!containsToday(today)) {
+      return StatsPeriod(seg: seg, from: prev.from, to: prev.to).label();
+    }
+    return switch (seg) {
+      StatsSeg.month => l.statsLastMonth,
+      StatsSeg.quarter => l.statsLastQuarter,
+      _ => l.statsLastYear,
+    };
+  }
 
   String avgLabel(AppLocalizations l) =>
       useDailyAvg ? l.statsDailyAvg : l.statsMonthlyAvg;

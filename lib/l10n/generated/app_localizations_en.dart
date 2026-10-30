@@ -341,7 +341,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetTotalNetWorth => 'Total net worth';
 
   @override
-  String get assetVsLastMonth => 'vs last month';
+  String get assetVsLastMonth => 'vs. last month';
 
   @override
   String get assetGroupEmpty => 'No items registered.';
@@ -1790,7 +1790,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashVsLastMonth => 'vs last month';
+  String get dashVsLastMonth => 'vs. last month';
 
   @override
   String get dashLiabilities => 'Liabilities';
@@ -4883,16 +4883,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPrevPeriod => 'Previous period';
 
   @override
-  String get statsMomMonth => 'vs last month';
-
-  @override
-  String get statsMomQuarter => 'vs last quarter';
-
-  @override
-  String get statsMomYear => 'vs last year';
-
-  @override
-  String get statsMomCustom => 'vs previous period';
+  String statsMomMonth(String prev) {
+    return 'vs. $prev';
+  }
 
   @override
   String get statsMomPrevMonth => 'Last month';
@@ -4911,33 +4904,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsPeriodPickerTitle => 'Select period';
-
-  @override
-  String get statsRange7d => 'Last 7 days';
-
-  @override
-  String get statsRange30d => 'Last 30 days';
-
-  @override
-  String get statsRange3m => 'Last 3 months';
-
-  @override
-  String get statsRange6m => 'Last 6 months';
-
-  @override
-  String get statsRange1y => 'Last 1 year';
-
-  @override
-  String get statsSegMonth => 'Month';
-
-  @override
-  String get statsSegQuarter => 'Quarter';
-
-  @override
-  String get statsSegYear => 'Year';
-
-  @override
-  String get statsSegCustom => 'Custom';
 
   @override
   String get statsNoData => 'No data';
@@ -4999,7 +4965,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Darker cells mean more spending in that time slot (unit: KRW)';
 
   @override
-  String get statsTooFewTx => 'Too few transactions this month';
+  String statsTooFewTx(String period) {
+    return 'Too few transactions in $period';
+  }
 
   @override
   String get statsLegendLow => 'Low';
@@ -5016,10 +4984,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statsMomCalculating => 'Calculating vs last month…';
+  String statsMomCalculating(String prev) {
+    return 'Calculating vs. $prev…';
+  }
 
   @override
-  String get statsMomUnavailable => 'Comparison unavailable';
+  String statsMomUnavailable(String prev) {
+    return 'No comparison with $prev';
+  }
 
   @override
   String get statsTopCategory => 'Top spending category';

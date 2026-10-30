@@ -20,7 +20,7 @@ import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
 
 // 집계 도우미(일별 추이 · 건수 · 요일 합)는 stats_model.dart 에 있다 — 시험이 이 화면 파일로 불러 쓰므로 다시 내보낸다.
 export 'package:groo_damda_app/features/stats/presentation/stats_model.dart'
-    show dailyTrendOf, statsExpenseCount, statsWeekdaySums;
+    show dailyTrendOf, statsExpenseCount, statsNow, statsWeekdaySums;
 
 /// 통계 화면(I-08 29 ~ 42) — 가계부 묶음 Line 탭 아래 칩 탭(Chip Tabs solid large 40, 위아래 틈 0), 그 아래 구역마다 흰 띠(사이 8).
 /// 칩 탭은 눌러서만 바뀐다(2차 탭은 밀어 넘기지 않는다 — Tabs 7A). 기간 버튼은 첫 띠 머리 오른쪽에 있다(따로 띠를 두지 않는다).
@@ -35,10 +35,14 @@ class StatsScreen extends ConsumerStatefulWidget {
 
 class _StatsScreenState extends ConsumerState<StatsScreen> {
   StatsTab _tab = StatsTab.category;
-  StatsPeriod _period = StatsPeriod.thisMonth();
+  StatsPeriod _period = StatsPeriod.thisMonth(statsNow());
 
   Future<void> _pickRange() async {
-    final picked = await showStatsRangeSheet(context, _period);
+    final picked = await showStatsRangeSheet(
+      context,
+      _period,
+      today: statsNow(),
+    );
     if (picked != null && mounted) setState(() => _period = picked);
   }
 

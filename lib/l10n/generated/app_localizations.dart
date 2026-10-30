@@ -8885,7 +8885,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsThisYear.
   ///
   /// In ko, this message translates to:
-  /// **'이번 해'**
+  /// **'올해'**
   String get statsThisYear;
 
   /// No description provided for @statsCustomPeriod.
@@ -8909,7 +8909,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsLastYear.
   ///
   /// In ko, this message translates to:
-  /// **'지난 해'**
+  /// **'작년'**
   String get statsLastYear;
 
   /// No description provided for @statsPrevPeriod.
@@ -8921,26 +8921,8 @@ abstract class AppLocalizations {
   /// No description provided for @statsMomMonth.
   ///
   /// In ko, this message translates to:
-  /// **'전월 대비'**
-  String get statsMomMonth;
-
-  /// No description provided for @statsMomQuarter.
-  ///
-  /// In ko, this message translates to:
-  /// **'전분기 대비'**
-  String get statsMomQuarter;
-
-  /// No description provided for @statsMomYear.
-  ///
-  /// In ko, this message translates to:
-  /// **'전년 대비'**
-  String get statsMomYear;
-
-  /// No description provided for @statsMomCustom.
-  ///
-  /// In ko, this message translates to:
-  /// **'이전 기간 대비'**
-  String get statsMomCustom;
+  /// **'{prev} 대비'**
+  String statsMomMonth(String prev);
 
   /// No description provided for @statsMomPrevMonth.
   ///
@@ -8977,60 +8959,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기간 선택'**
   String get statsPeriodPickerTitle;
-
-  /// No description provided for @statsRange7d.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 7일'**
-  String get statsRange7d;
-
-  /// No description provided for @statsRange30d.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 30일'**
-  String get statsRange30d;
-
-  /// No description provided for @statsRange3m.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 3개월'**
-  String get statsRange3m;
-
-  /// No description provided for @statsRange6m.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 6개월'**
-  String get statsRange6m;
-
-  /// No description provided for @statsRange1y.
-  ///
-  /// In ko, this message translates to:
-  /// **'최근 1년'**
-  String get statsRange1y;
-
-  /// No description provided for @statsSegMonth.
-  ///
-  /// In ko, this message translates to:
-  /// **'월'**
-  String get statsSegMonth;
-
-  /// No description provided for @statsSegQuarter.
-  ///
-  /// In ko, this message translates to:
-  /// **'분기'**
-  String get statsSegQuarter;
-
-  /// No description provided for @statsSegYear.
-  ///
-  /// In ko, this message translates to:
-  /// **'년'**
-  String get statsSegYear;
-
-  /// No description provided for @statsSegCustom.
-  ///
-  /// In ko, this message translates to:
-  /// **'직접'**
-  String get statsSegCustom;
 
   /// No description provided for @statsNoData.
   ///
@@ -9143,8 +9071,8 @@ abstract class AppLocalizations {
   /// No description provided for @statsTooFewTx.
   ///
   /// In ko, this message translates to:
-  /// **'이번 달 거래가 아직 적어요.'**
-  String get statsTooFewTx;
+  /// **'{period} 거래가 아직 적어요.'**
+  String statsTooFewTx(String period);
 
   /// No description provided for @statsLegendLow.
   ///
@@ -9173,14 +9101,14 @@ abstract class AppLocalizations {
   /// No description provided for @statsMomCalculating.
   ///
   /// In ko, this message translates to:
-  /// **'전월 대비 계산 중…'**
-  String get statsMomCalculating;
+  /// **'{prev} 대비 계산 중…'**
+  String statsMomCalculating(String prev);
 
   /// No description provided for @statsMomUnavailable.
   ///
   /// In ko, this message translates to:
-  /// **'전월 비교 불가'**
-  String get statsMomUnavailable;
+  /// **'{prev} 비교 불가'**
+  String statsMomUnavailable(String prev);
 
   /// No description provided for @statsTopCategory.
   ///
