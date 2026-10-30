@@ -389,14 +389,18 @@ class AssetRow extends StatelessWidget {
         asset.assetType == 'CHECK_CARD' && asset.paymentAssetRowId != null
         ? (asset.monthlyUsedAmount ?? 0)
         : null;
-    final limit = asset.assetType == 'CREDIT_CARD' ? asset.creditLimit : null;
+    // 관리 줄에는 한도 막대 · "사용 / 한도" 를 그리지 않는다(고른 그림 arow 에 없음 — 상세가 보여 준다)
+    final limit = !manage && asset.assetType == 'CREDIT_CARD'
+        ? asset.creditLimit
+        : null;
     final hasBar = limit != null && limit > 0;
     final foreign = isForeignCurrency(asset.currency);
 
     final tags = <PTag>[
+      // 줄어드는 것은 기관 이름뿐이다 — 관리 줄은 종류 · 결제일을 줄이지 않는다(tag-group.md truncate)
       if (asset.institution != null && asset.institution!.isNotEmpty)
-        PTag(asset.institution!, shrink: 2),
-      if (manage) PTag(assetTypeLabelOf(l, asset), shrink: 1),
+        PTag(asset.institution!, shrink: manage ? 1 : 2),
+      if (manage) PTag(assetTypeLabelOf(l, asset), shrink: 0),
       if (manage) ...[
         if (asset.assetType == 'INVESTMENT' && asset.holdings.isNotEmpty)
           PTag(l.assetHoldingsCount(asset.holdings.length), shrink: 0),

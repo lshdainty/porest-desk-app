@@ -114,7 +114,36 @@ double _top(WidgetTester t, String title) => t
     )
     .top;
 
+const _longCard = Asset(
+  rowId: 8,
+  assetName: '생활카드',
+  assetType: 'CREDIT_CARD',
+  balance: -1250000,
+  creditLimit: 3000000,
+  paymentDay: 14,
+  institution: '삼성카드 프리미엄 파트너스 제휴',
+  isIncludedInTotal: 'Y',
+);
+
 void main() {
+  testWidgets('카드 줄에 한도 막대 · "사용 / 한도" 가 없다 · 줄어드는 것은 기관뿐(종류 · 결제일은 그대로)', (
+    tester,
+  ) async {
+    await _pump(tester, assets: const [_longCard]);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(
+      find.byWidgetPredicate((w) => w.runtimeType.toString() == 'PProgress'),
+      findsNothing,
+    );
+    expect(findPlainContaining('3,000,000원'), findsNothing, reason: '한도 글이 없다');
+    expect(findPlain('신용카드'), findsOneWidget, reason: '종류 이름이 잘리지 않는다');
+    expect(
+      findPlainContaining('14일 결제'),
+      findsOneWidget,
+      reason: '결제일이 잘리지 않는다',
+    );
+  });
+
   testWidgets('탭이 없다 · 묶음 차례는 계좌·예금 → 투자 → 카드 → 대출(I-17 25 · 27)', (
     tester,
   ) async {
@@ -167,23 +196,26 @@ void main() {
     );
   });
 
-  testWidgets('첫 묶음 제목 위 8 · 묶음 사이 위 16 — 틈 T1 · T2', (tester) async {
-    await _pump(tester, assets: const [_bank, _card]);
-    final nav = tester.getRect(find.byKey(const ValueKey('top-navigation')));
-    final heads = find.byKey(const ValueKey('plist-header'));
-    expect(
-      tester.getRect(heads.first).top - nav.bottom,
-      0,
-      reason: 'T1 바와 머리 사이 틈 0',
-    );
-    expect(_top(tester, '계좌 · 예금') - nav.bottom, 8);
-    final bankRow = tester.getRect(find.byKey(const ValueKey('asset-row-1')));
-    expect(
-      _top(tester, '카드') - bankRow.bottom,
-      16,
-      reason: 'T2 묶음 사이 회색 틈 0 · 제목 위 16',
-    );
-  });
+  testWidgets(
+    '묶음 제목 글 위치 — 첫 묶음 바 아래 16(8 + 안쪽 8) · 다음 묶음 앞 줄 아래 24(16 + 안쪽 8), 틈 T1 · T2',
+    (tester) async {
+      await _pump(tester, assets: const [_bank, _card]);
+      final nav = tester.getRect(find.byKey(const ValueKey('top-navigation')));
+      final heads = find.byKey(const ValueKey('plist-header'));
+      expect(
+        tester.getRect(heads.first).top - nav.bottom,
+        0,
+        reason: 'T1 바와 머리 사이 틈 0',
+      );
+      expect(_top(tester, '계좌 · 예금') - nav.bottom, 16);
+      final bankRow = tester.getRect(find.byKey(const ValueKey('asset-row-1')));
+      expect(
+        _top(tester, '카드') - bankRow.bottom,
+        16,
+        reason: 'T2 묶음 사이 회색 틈 0 · 제목 위 16',
+      );
+    },
+  );
 
   testWidgets('흰 면 하나 — 바닥은 bg-layer-default', (tester) async {
     await _pump(tester, assets: const [_bank]);

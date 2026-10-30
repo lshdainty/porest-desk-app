@@ -256,8 +256,9 @@ class _ManageList extends ConsumerWidget {
       children: [
         for (var i = 0; i < shown.length; i++)
           _GroupSection(
-            // 첫 묶음 위 8(T1) · 그다음 위 16(T2)
-            topInset: i == 0 ? null : PSpacing.x4,
+            // 글 위치 = 목록 제목의 바깥 위 여백 + list-header.yaml 안쪽 위 8(paddingY).
+            // 첫 묶음 8 + 8 = 16(바 아래 → 글) · 그다음 16 + 8 = 24(앞 줄 아래 → 글). 웹과 같다.
+            topInset: i == 0 ? PSpacing.x4 : PSpacing.x6,
             title: _groupTitle(l, shown[i]),
             items: [
               for (final a in assets)
@@ -377,9 +378,9 @@ class _ManageSkeleton extends StatelessWidget {
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        head(null),
-        const AssetRowsSkeleton(),
         head(PSpacing.x4),
+        const AssetRowsSkeleton(),
+        head(PSpacing.x6),
         const AssetRowsSkeleton(rows: 2),
       ],
     );
