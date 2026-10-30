@@ -240,4 +240,48 @@ void main() {
     expect(find.bySemanticsLabel(_place), findsNothing);
     handle.dispose();
   });
+
+  testWidgets('글자 200% — 본문 아래로 내려온 값은 금액도 묶음도 왼쪽 맞춤(본문 칸 왼쪽과 같은 x)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        PList(
+          semanticLabel: '값',
+          children: [
+            PListItem(
+              title: '일간 손익',
+              suffix: PListValue(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('-1,234,567원', textAlign: TextAlign.end),
+                    Wrap(
+                      alignment: WrapAlignment.end,
+                      children: const [Text('총액 제외')],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        scale: 2,
+      ),
+    );
+    final title = tester.getRect(_key('plist-title'));
+    final amount = tester.getRect(find.text('-1,234,567원'));
+    final badge = tester.getRect(find.text('총액 제외'));
+    expect(amount.left, closeTo(title.left, 0.5));
+    expect(badge.left, closeTo(title.left, 0.5));
+    expect(amount.top, greaterThanOrEqualTo(title.bottom - 0.5));
+  });
+
+  test('alignListValueStart — 끝 맞춤만 왼쪽으로, 나머지는 그대로', () {
+    const plain = Text('a');
+    expect(identical(alignListValueStart(plain), plain), isTrue);
+    final end = alignListValueStart(const Text('a', textAlign: TextAlign.end));
+    expect((end as Text).textAlign, TextAlign.start);
+  });
 }

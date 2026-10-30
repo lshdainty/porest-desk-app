@@ -141,6 +141,83 @@ class PListValue extends StatelessWidget {
 /// 부모 줄의 최소 콘텐츠 높이 — 꺾쇠 단추(44)가 위아래 2 를 줄의 여백에 겹쳐 타일 40 줄의 높이(64)를 그대로 둔다.
 const double kPListExpandSlotHeight = PTouch.min - 2 * PSpacing.x0_5;
 
+/// 본문 아래로 내려온 값을 왼쪽 맞춤으로 바꾼다 — list.md "큰 글자에서 값을 본문 아래로": 값은 설명 아래 4, 본문 칸 안 왼쪽
+/// 맞춤이다. 줄 끝에 서 있을 때 오른쪽 맞춤이던 글 · 금액([Text] textAlign end/right) · 세로 묶음([Column] crossAxisAlignment
+/// end) · 배지 묶음([Wrap] alignment end)을 왼쪽으로 돌려, 금액도 Delta 도 같은 쪽에 선다. [PListValue] 는 안을 따라 들어간다.
+@visibleForTesting
+Widget alignListValueStart(Widget w) {
+  bool isEnd(TextAlign? a) => a == TextAlign.end || a == TextAlign.right;
+  if (w is PListValue) {
+    return PListValue(key: w.key, child: alignListValueStart(w.child));
+  }
+  if (w is Text && isEnd(w.textAlign)) {
+    final span = w.textSpan;
+    return span != null
+        ? Text.rich(
+            span,
+            key: w.key,
+            style: w.style,
+            strutStyle: w.strutStyle,
+            textAlign: TextAlign.start,
+            textDirection: w.textDirection,
+            locale: w.locale,
+            softWrap: w.softWrap,
+            overflow: w.overflow,
+            textScaler: w.textScaler,
+            maxLines: w.maxLines,
+            semanticsLabel: w.semanticsLabel,
+            textWidthBasis: w.textWidthBasis,
+            textHeightBehavior: w.textHeightBehavior,
+            selectionColor: w.selectionColor,
+          )
+        : Text(
+            w.data ?? '',
+            key: w.key,
+            style: w.style,
+            strutStyle: w.strutStyle,
+            textAlign: TextAlign.start,
+            textDirection: w.textDirection,
+            locale: w.locale,
+            softWrap: w.softWrap,
+            overflow: w.overflow,
+            textScaler: w.textScaler,
+            maxLines: w.maxLines,
+            semanticsLabel: w.semanticsLabel,
+            textWidthBasis: w.textWidthBasis,
+            textHeightBehavior: w.textHeightBehavior,
+            selectionColor: w.selectionColor,
+          );
+  }
+  if (w is Column && w.crossAxisAlignment == CrossAxisAlignment.end) {
+    return Column(
+      key: w.key,
+      mainAxisAlignment: w.mainAxisAlignment,
+      mainAxisSize: w.mainAxisSize,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      textDirection: w.textDirection,
+      verticalDirection: w.verticalDirection,
+      textBaseline: w.textBaseline,
+      spacing: w.spacing,
+      children: [for (final c in w.children) alignListValueStart(c)],
+    );
+  }
+  if (w is Wrap && w.alignment == WrapAlignment.end) {
+    return Wrap(
+      key: w.key,
+      direction: w.direction,
+      alignment: WrapAlignment.start,
+      spacing: w.spacing,
+      runAlignment: w.runAlignment,
+      runSpacing: w.runSpacing,
+      crossAxisAlignment: w.crossAxisAlignment,
+      textDirection: w.textDirection,
+      verticalDirection: w.verticalDirection,
+      children: w.children,
+    );
+  }
+  return w;
+}
+
 /// 목록(PList · 묶음)이 줄에 넘기는 값 — 누름 · 호버 바탕의 모서리(카드 안에서는 동심 모서리)와 단계.
 class PListScope extends InheritedWidget {
   const PListScope({
@@ -593,11 +670,13 @@ class _PListRowFrameState extends State<PListRowFrame> {
           child: IconTheme(
             data: IconThemeData(size: PSpacing.x4_5, color: arrowColor),
             child: parts.values.length == 1
-                ? parts.values.first
+                ? alignListValueStart(parts.values.first)
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
-                    children: parts.values,
+                    children: [
+                      for (final v in parts.values) alignListValueStart(v),
+                    ],
                   ),
           ),
         ),
