@@ -48,7 +48,7 @@ class _Repo extends PresetRepository {
   Future<ExpenseTemplate> update({
     required int id,
     required String templateName,
-    int? categoryRowId,
+    Patch<int> categoryRowId = const Patch.keep(),
     Patch<int> assetRowId = const Patch.keep(),
     Patch<int> toAssetRowId = const Patch.keep(),
     Patch<int> fee = const Patch.keep(),
@@ -62,7 +62,7 @@ class _Repo extends PresetRepository {
     bool isFixed = false,
   }) async {
     interest = interestAmount;
-    categorySent = categoryRowId;
+    categorySent = categoryRowId.value;
     called = true;
     return _loanPreset;
   }

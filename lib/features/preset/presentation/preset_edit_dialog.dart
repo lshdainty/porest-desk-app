@@ -245,7 +245,9 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.update(
           id: widget.edit!.rowId,
           templateName: name,
-          categoryRowId: _isTransfer ? null : _effectiveCategoryRowId,
+          categoryRowId: Patch.set(
+            _isTransfer ? null : _effectiveCategoryRowId,
+          ),
           assetRowId: Patch.set(_assetRowId),
           // 이체 칸도 이 시트의 칸이다 — 지출·수입으로 바꿔 저장하면 null 로 지워진다.
           toAssetRowId: Patch.set(_isTransfer ? _toAssetRowId : null),
