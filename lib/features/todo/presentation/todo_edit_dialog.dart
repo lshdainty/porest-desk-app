@@ -235,7 +235,6 @@ class _TodoFormSheetState extends ConsumerState<TodoFormSheet> {
       title: _isEdit ? l.todoEditTitle : l.todoAdd,
       closeLabel: l.actionClose,
       flushBody: true,
-      scrollFog: true,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: PSpacing.x4,
