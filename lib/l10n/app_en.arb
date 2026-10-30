@@ -1297,16 +1297,16 @@
   "budgetUpdated": "Budget updated",
   "budgetAdded": "Budget added",
   "budgetActionFailed": "Failed",
-  "budgetDeleteTitle": "Delete budget",
-  "budgetDeleteConfirm": "Delete the budget for the \"{name}\" category?",
-  "@budgetDeleteConfirm": {
+  "budgetDeleteTitle": "Delete the \"{name}\" budget?",
+  "@budgetDeleteTitle": {
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
-  "budgetDeleteFailed": "Delete failed",
+  "budgetDeleteConfirm": "A deleted budget can't be restored.",
+  "budgetDeleteFailed": "Couldn't delete the budget.",
   "budgetMonthlyLimit": "Monthly budget limit",
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
@@ -1427,24 +1427,27 @@
   "budgetVsLimit": "vs limit",
   "budgetLimit": "Limit",
   "budgetSetup": "Budget settings",
-  "budgetCopyLastMonth": "Copy last month's budget",
-  "budgetCopyConfirmMessage": "{from} budget limits ({count}) will be copied to {to}. Budgets that already exist this month will be overwritten.",
-  "@budgetCopyConfirmMessage": {
+  "budgetCopyLastMonth": "Copy last month's budget?",
+  "budgetCopyOverwriteMessage": "{count} budgets this month will be replaced with last month's. This can't be undone once it's changed.",
+  "@budgetCopyOverwriteMessage": {
     "placeholders": {
-      "from": {
-        "type": "String"
-      },
       "count": {
         "type": "int"
-      },
-      "to": {
-        "type": "String"
       }
     }
   },
-  "budgetCopyFailed": "Copy failed",
-  "budgetCopiedCount": "Copied {count} budgets",
-  "@budgetCopiedCount": {
+  "budgetCopyPartialFailed": "{count, plural, =1{1 budget couldn't be copied.} other{{count} budgets couldn't be copied.}}",
+  "@budgetCopyPartialFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetCopiedDone": "Last month's budget was copied.",
+  "budgetCopyUndo": "Undo",
+  "budgetCopyUndoPartial": "{count, plural, =1{1 budget couldn't be undone.} other{{count} budgets couldn't be undone.}}",
+  "@budgetCopyUndoPartial": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -2724,16 +2727,16 @@
   "savingGoalAdd": "Add saving goal",
   "savingGoalEdit": "Edit saving goal",
   "savingGoalSubmitAdd": "Add",
-  "savingGoalDeleteTitle": "Delete saving goal",
-  "savingGoalDeleteConfirm": "Delete the \"{title}\" goal? This can't be undone.",
-  "@savingGoalDeleteConfirm": {
+  "savingGoalDeleteTitle": "Delete the \"{title}\" goal?",
+  "@savingGoalDeleteTitle": {
     "placeholders": {
       "title": {
         "type": "String"
       }
     }
   },
-  "savingGoalDeleteFailed": "Delete failed",
+  "savingGoalDeleteConfirm": "A deleted saving goal can't be restored.",
+  "savingGoalDeleteFailed": "Couldn't delete the saving goal.",
   "savingGoalNameLabel": "Goal name",
   "savingGoalNameHint": "e.g. Trip to Europe",
   "savingGoalNameDuplicate": "A goal with this name already exists.",

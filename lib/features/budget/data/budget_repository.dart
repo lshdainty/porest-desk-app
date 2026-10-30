@@ -31,14 +31,15 @@ class BudgetRepository {
     }
   }
 
-  Future<void> create({
+  /// 만든 예산의 rowId 를 돌려준다(응답에 없으면 null) — 지난달 복사의 "되돌리기"가 방금 만든 것만 지운다.
+  Future<int?> create({
     int? categoryRowId,
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
   }) async {
     try {
-      await _dio.post<dynamic>(
+      final res = await _dio.post<dynamic>(
         '/expense/budget',
         data: {
           // null 이면 '월 전체 상한' 으로 백엔드 처리 (web 동일).
@@ -48,6 +49,10 @@ class BudgetRepository {
           'budgetMonth': budgetMonth,
         },
       );
+      final body = res.data;
+      final data = body is Map<String, dynamic> ? body['data'] : null;
+      final id = data is Map<String, dynamic> ? data['rowId'] : null;
+      return id is num ? id.toInt() : null;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

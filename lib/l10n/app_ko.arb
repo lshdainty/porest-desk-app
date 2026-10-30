@@ -1301,16 +1301,16 @@
   "budgetUpdated": "예산이 수정되었습니다",
   "budgetAdded": "예산이 추가되었습니다",
   "budgetActionFailed": "실패",
-  "budgetDeleteTitle": "예산 삭제",
-  "budgetDeleteConfirm": "\"{name}\" 카테고리 예산을 삭제할까요?",
-  "@budgetDeleteConfirm": {
+  "budgetDeleteTitle": "\"{name}\" 예산을 삭제할까요?",
+  "@budgetDeleteTitle": {
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
-  "budgetDeleteFailed": "삭제 실패",
+  "budgetDeleteConfirm": "삭제한 예산은 되돌릴 수 없어요.",
+  "budgetDeleteFailed": "예산을 삭제하지 못했어요.",
   "budgetMonthlyLimit": "월 예산 한도",
   "budgetLoadError": "예산을 불러오지 못했습니다",
   "budgetSelectMonth": "월 선택",
@@ -1431,24 +1431,27 @@
   "budgetVsLimit": "한도 대비",
   "budgetLimit": "한도",
   "budgetSetup": "예산 설정",
-  "budgetCopyLastMonth": "지난달 예산 복사",
-  "budgetCopyConfirmMessage": "{from} 예산 한도({count}개)를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.",
-  "@budgetCopyConfirmMessage": {
+  "budgetCopyLastMonth": "지난달 예산을 복사할까요?",
+  "budgetCopyOverwriteMessage": "이번 달 예산 {count}개가 지난달 예산으로 바뀌어요. 바꾼 뒤에는 되돌릴 수 없어요.",
+  "@budgetCopyOverwriteMessage": {
     "placeholders": {
-      "from": {
-        "type": "String"
-      },
       "count": {
         "type": "int"
-      },
-      "to": {
-        "type": "String"
       }
     }
   },
-  "budgetCopyFailed": "복사 실패",
-  "budgetCopiedCount": "{count}개 예산을 복사했습니다",
-  "@budgetCopiedCount": {
+  "budgetCopyPartialFailed": "가져오지 못한 예산이 {count}개 있어요.",
+  "@budgetCopyPartialFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "budgetCopiedDone": "지난달 예산을 가져왔어요.",
+  "budgetCopyUndo": "되돌리기",
+  "budgetCopyUndoPartial": "되돌리지 못한 예산이 {count}개 남았어요.",
+  "@budgetCopyUndoPartial": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -2741,16 +2744,16 @@
   "savingGoalAdd": "저축 목표 추가",
   "savingGoalEdit": "저축 목표 수정",
   "savingGoalSubmitAdd": "추가",
-  "savingGoalDeleteTitle": "저축 목표 삭제",
-  "savingGoalDeleteConfirm": "\"{title}\" 목표를 삭제할까요? 이 작업은 되돌릴 수 없어요.",
-  "@savingGoalDeleteConfirm": {
+  "savingGoalDeleteTitle": "\"{title}\" 목표를 삭제할까요?",
+  "@savingGoalDeleteTitle": {
     "placeholders": {
       "title": {
         "type": "String"
       }
     }
   },
-  "savingGoalDeleteFailed": "삭제 실패",
+  "savingGoalDeleteConfirm": "삭제한 저축 목표는 되돌릴 수 없어요.",
+  "savingGoalDeleteFailed": "저축 목표를 삭제하지 못했어요.",
   "savingGoalNameLabel": "목표 이름",
   "savingGoalNameHint": "예: 유럽 여행",
   "savingGoalNameDuplicate": "같은 이름의 목표가 이미 있어요.",

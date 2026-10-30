@@ -21,13 +21,14 @@ class _FakeRepo extends BudgetRepository {
   final calls = <String>[];
 
   @override
-  Future<void> create({
+  Future<int?> create({
     int? categoryRowId,
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
   }) async {
     calls.add('create:$categoryRowId:$budgetAmount:$budgetYear-$budgetMonth');
+    return null;
   }
 
   @override
