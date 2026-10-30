@@ -841,6 +841,14 @@
       }
     }
   },
+  "calEventDeleteConfirmRecurring": "\"{title}\" is a repeating event, so every occurrence will be deleted. This action cannot be undone.",
+  "@calEventDeleteConfirmRecurring": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "calEventAdded": "Event added",
   "calEventUpdated": "Event updated",
   "calLabelsTitle": "Calendar labels",
@@ -3586,8 +3594,6 @@
   "calDetailDurationH": "{h}h",
   "calDetailDurationHM": "{h}h {m}m",
   "calDetailDurationM": "{m}m",
-  "calDetailMemo": "Memo",
-  "calDetailRepeat": "Repeat",
   "categoryReorderEdit": "Reorder",
   "categoryReorderHint": "Drag the handle to reorder. Parents move among parents; subcategories move within their parent.",
   "txmSpendSummary": "Spending summary",

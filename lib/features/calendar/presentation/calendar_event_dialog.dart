@@ -10,6 +10,7 @@ import 'package:groo_damda_app/features/calendar/domain/calendar_clock.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event_form_rules.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_picker_options.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_actions.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_form_rows.dart';
 import 'package:groo_damda_app/features/calendar/presentation/calendar_event_pickers.dart';
 import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
@@ -73,11 +74,24 @@ class CalendarEventFormSheet extends ConsumerStatefulWidget {
     this.edit,
     this.defaultDate,
     this.probe,
+    this.onBack,
+    this.onSaved,
+    this.onDeleted,
   });
 
   final CalendarEvent? edit;
   final DateTime? defaultDate;
   final CalendarFormProbe? probe;
+
+  /// 일정 상세 시트 안의 한 단계로 그릴 때(I-09b 9) — 머리에 ← 를 달고(상세로), 저장 · 삭제가 끝나도 시트를 닫지 않고 부모에게 넘긴다.
+  /// 바뀐 값을 묻는 일은 부모(시트의 닫는 길)가 한다.
+  final VoidCallback? onBack;
+
+  /// 저장이 끝났다 — 부모가 새 값을 받아 상세로 돌아갈 때까지 [저장] 은 기다림 모양으로 남는다.
+  final Future<void> Function(DateTime start)? onSaved;
+
+  /// 폼 바닥 [삭제] 가 끝났다 — 부모가 그날 목록으로 돌아간다.
+  final Future<void> Function()? onDeleted;
 
   @override
   ConsumerState<CalendarEventFormSheet> createState() =>
@@ -244,9 +258,34 @@ class _CalendarEventFormSheetState
     setState(() => _step = _Step.list);
   }
 
+  bool _askingStep = false;
+
+  /// ← · 뒤로 가기 · Esc — 들어올 때와 글이 다르면 먼저 "작성한 내용이 사라져요"(웹 M-7 과 같다). 안 바꿨으면 바로 줄 칸으로.
+  Future<void> _requestCancelStep() async {
+    if (_step == _Step.list || _askingStep) return;
+    final original = _step == _Step.location ? _location : _description;
+    if (_stepCtrl.text == original) {
+      _cancelStep();
+      return;
+    }
+    _askingStep = true;
+    final l = AppLocalizations.of(context);
+    final leave = await PAlertDialog.confirmLeave(
+      context,
+      PLeaveConfirmCopy(
+        title: l.sheetLeaveTitle,
+        description: l.sheetLeaveDescription,
+        stayLabel: l.sheetLeaveStay,
+        leaveLabel: l.sheetLeaveLeave,
+      ),
+    );
+    _askingStep = false;
+    if (leave && mounted) _cancelStep();
+  }
+
   bool _interceptClose() {
     if (_step == _Step.list || !mounted) return false;
-    _cancelStep();
+    _requestCancelStep();
     return true;
   }
 
@@ -399,21 +438,14 @@ class _CalendarEventFormSheetState
 
   bool get _rangeInvalid => calendarRangeInvalid(_start, _end, allDay: _allDay);
 
-  /// 반복 일정을 저장 · 삭제한 뒤에는 이미 받아 둔 다른 달에 옛 회차가 남지 않게 달 전체를 비운다(I-09 30).
-  void _invalidateAfterWrite({required bool recurring, DateTime? origStart}) {
-    if (recurring) {
-      ref.invalidate(monthEventsProvider);
-    } else {
-      ref.invalidate(
-        monthEventsProvider((year: _start.year, month: _start.month)),
-      );
-      if (origStart != null &&
-          (origStart.year != _start.year || origStart.month != _start.month)) {
-        ref.invalidate(
-          monthEventsProvider((year: origStart.year, month: origStart.month)),
-        );
-      }
-    }
+  /// 반복 일정을 저장 · 삭제한 뒤에는 이미 받아 둔 다른 달에 옛 회차가 남지 않게 달 전체를 비운다(I-09 30). 반복이 아니면 일정이 걸친
+  /// 모든 달 — 새 날짜 · 옛 날짜 모두(달을 걸친 일정을 뒤쪽 달에서 고쳐도 그 달이 비워진다).
+  void _invalidateAfterWrite({required bool recurring, CalendarEvent? orig}) {
+    invalidateCalendarMonths(
+      ref,
+      recurring: recurring,
+      ranges: [(_start, _end), if (orig != null) (orig.start, orig.end)],
+    );
     // 홈 위젯(오늘 일정·다가오는 일정)의 원본 — 셸 상주라 스스로 안 받는다.
     ref.invalidate(dashboardSummaryProvider);
   }
@@ -482,9 +514,14 @@ class _CalendarEventFormSheetState
       }
       _invalidateAfterWrite(
         recurring: _rruleForSave != null || widget.edit?.rrule != null,
-        origStart: widget.edit?.start,
+        orig: widget.edit,
       );
       if (!mounted) return;
+      final saved = widget.onSaved;
+      if (saved != null) {
+        await saved(_start);
+        return;
+      }
       PBottomSheet.of(context).close();
     } on ApiException {
       // 시트는 닫히지 않고 쓴 값이 남는다 — 폼 맨 위 Callout(snackbar.md "저장 · 제출이 실패함")
@@ -499,14 +536,7 @@ class _CalendarEventFormSheetState
     if (_submitting) return;
     final l = AppLocalizations.of(context);
     final e = widget.edit!;
-    final ok = await PAlertDialog.show(
-      context,
-      title: l.calEventDelete,
-      description: l.calEventDeleteConfirm(e.title),
-      cancelLabel: l.actionCancel,
-      actionLabel: l.actionDelete,
-      destructive: true,
-    );
+    final ok = await confirmDeleteCalendarEvent(context, e);
     if (!ok || !mounted) return;
     setState(() {
       _submitting = true;
@@ -515,8 +545,14 @@ class _CalendarEventFormSheetState
     try {
       final repo = await ref.read(calendarRepositoryProvider.future);
       await repo.deleteEvent(e.rowId);
-      _invalidateAfterWrite(recurring: e.rrule != null, origStart: e.start);
+      _invalidateAfterWrite(recurring: e.rrule != null, orig: e);
       if (!mounted) return;
+      final deleted = widget.onDeleted;
+      if (deleted != null) {
+        // 부모가 새 값을 받아 단계를 옮길 때까지 [삭제] · [저장] 은 기다림 모양으로 남는다
+        await deleted();
+        return;
+      }
       PBottomSheet.of(context).close();
     } on ApiException {
       if (!mounted) return;
@@ -537,7 +573,7 @@ class _CalendarEventFormSheetState
         title: _step == _Step.location ? l.calLocation : l.calFieldDescription,
         closeLabel: l.actionClose,
         showCloseButton: false,
-        onBack: _cancelStep,
+        onBack: _requestCancelStep,
         backLabel: l.actionBack,
         headerAction: CalendarStepDone(
           label: l.actionDone,
@@ -570,6 +606,12 @@ class _CalendarEventFormSheetState
     return PBottomSheetContent(
       title: heading,
       closeLabel: l.actionClose,
+      // 상세 시트 안의 수정 단계 — 닫기 원은 시트 전체, ← 는 상세로(한 단계 뒤)
+      onClose: widget.onBack == null
+          ? null
+          : () => PBottomSheet.of(context).requestClose(wholeSheet: true),
+      onBack: widget.onBack,
+      backLabel: widget.onBack == null ? null : l.actionBack,
       flushBody: true,
       scrollFog: true,
       body: CalendarEventFormRows(
