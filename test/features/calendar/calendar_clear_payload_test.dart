@@ -13,27 +13,16 @@
 // `if (calendarRowId != null)` 로만 읽어 옮기기만 한다. 시트 선택기에도 '선택 안 함' 이
 // 없다. 종류(`eventType`)·색(`color`)도 화면이 늘 값을 들고 있어 비는 상태가 없다.
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
-import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
-import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
-import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:flutter/widgets.dart' show Locale;
 
-const _defaultCalendar = UserCalendar(
-  rowId: 1,
-  calendarName: '개인',
-  isDefault: true,
-);
+import 'support/event_form_support.dart';
 
 const _label = EventLabel(rowId: 4, labelName: '업무', color: '#2c70bf');
 
@@ -94,58 +83,17 @@ class _CapturingRepo extends CalendarRepository {
   }
 }
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _submit(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
-
-/// 라벨 select — 시트에는 `PSelect<int>` 가 둘(캘린더 → 라벨) 있고 라벨이 뒤다.
-Finder get _labelSelect => find.byType(PSelect<int>).at(1);
-
 Future<_CapturingRepo> _open(
   WidgetTester tester, {
   bool labelsFail = false,
 }) async {
   final repo = _CapturingRepo();
-  // 시트 본문은 ListView 다 — 좁은 화면에서는 아래쪽 칸이 아예 안 만들어진다.
-  tester.view.physicalSize = const Size(1200, 4000);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        calendarRepositoryProvider.overrideWith((ref) async => repo),
-        eventLabelsProvider.overrideWith(
-          (ref) async => labelsFail ? throw Exception('boom') : const [_label],
-        ),
-        userCalendarListProvider.overrideWith(
-          (ref) async => const [_defaultCalendar],
-        ),
-        monthEventsProvider.overrideWith((ref, key) async => <CalendarEvent>[]),
-      ],
-      child: MaterialApp(
-        theme: GrooTheme.light(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ko'),
-        home: Scaffold(
-          body: Builder(
-            builder: (ctx) => TextButton(
-              onPressed: () => showCalendarEventDialog(
-                ctx,
-                edit: CalendarEvent.fromJson(_filledEventJson),
-              ),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    ),
+  await openEventForm(
+    tester,
+    repo: repo,
+    labels: labelsFail ? null : const [_label],
+    edit: CalendarEvent.fromJson(_filledEventJson),
   );
-  await tester.tap(find.text('open'));
-  await tester.pumpAndSettle();
   return repo;
 }
 
@@ -157,10 +105,13 @@ void main() {
 
   testWidgets('설명을 지우면 description 이 명시적 null 로 실린다', (tester) async {
     final repo = await _open(tester);
-    await tester.enterText(_field(l.calDescriptionPlaceholder), '');
-    await tester.pumpAndSettle();
-    await tester.tap(_submit(l.actionEdit));
-    await tester.pumpAndSettle();
+    await writeStep(
+      tester,
+      row: l.calFieldDescription,
+      text: '',
+      done: l.actionDone,
+    );
+    await tapButton(tester, l.actionSave);
 
     expect(repo.called, isTrue, reason: '수정이 안 불렸다 — 테스트가 아무것도 안 본다');
     expect(
@@ -173,10 +124,8 @@ void main() {
 
   testWidgets('장소를 지우면 location 이 명시적 null 로 실린다', (tester) async {
     final repo = await _open(tester);
-    await tester.enterText(_field(l.calLocationPlaceholder), '');
-    await tester.pumpAndSettle();
-    await tester.tap(_submit(l.actionEdit));
-    await tester.pumpAndSettle();
+    await writeStep(tester, row: l.calLocation, text: '', done: l.actionDone);
+    await tapButton(tester, l.actionSave);
 
     expect(
       repo.location.present,
@@ -188,12 +137,9 @@ void main() {
 
   testWidgets("'라벨 없음' 을 고르면 labelRowId 가 명시적 null 로 실린다", (tester) async {
     final repo = await _open(tester);
-    await tester.tap(_labelSelect);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(l.calNoLabel).last);
-    await tester.pumpAndSettle();
-    await tester.tap(_submit(l.actionEdit));
-    await tester.pumpAndSettle();
+    await tapRow(tester, l.calFieldLabel);
+    await tapRow(tester, l.calNoLabel);
+    await tapButton(tester, l.actionSave);
 
     expect(
       repo.labelRowId.present,
@@ -205,8 +151,7 @@ void main() {
 
   testWidgets('안 건드린 칸은 지금 값이 그대로 실린다', (tester) async {
     final repo = await _open(tester);
-    await tester.tap(_submit(l.actionEdit));
-    await tester.pumpAndSettle();
+    await tapButton(tester, l.actionSave);
 
     expect(repo.description.value, '주간 정례');
     expect(repo.location.value, '3층 회의실');
@@ -215,14 +160,13 @@ void main() {
     expect(repo.rrule.present, isTrue);
   });
 
-  // 라벨 목록 조회가 실패하면 select 자리에 에러 문구가 뜬다 — 고를 자리가 없는데
-  // 화면이 "라벨을 비웠다" 로 읽으면 저장 한 번에 붙어 있던 라벨이 떨어진다.
+  // 라벨 목록 조회가 실패해도 지금 라벨 줄은 남는다 — 고를 목록이 없을 뿐, 화면이 "라벨을
+  // 비웠다" 로 읽으면 저장 한 번에 붙어 있던 라벨이 떨어진다.
   testWidgets('라벨 조회가 실패해도 지금 라벨이 그대로 실린다', (tester) async {
     final repo = await _open(tester, labelsFail: true);
     expect(tester.takeException(), isNull);
 
-    await tester.tap(_submit(l.actionEdit));
-    await tester.pumpAndSettle();
+    await tapButton(tester, l.actionSave);
 
     expect(repo.labelRowId.value, 4, reason: '고를 자리가 없는 저장이 라벨을 떼면 안 된다');
   });
@@ -231,10 +175,13 @@ void main() {
   // (캘린더) 저장 자체가 깨진다(종류).
   testWidgets('소속 캘린더·종류·색은 늘 값이 실린다', (tester) async {
     final repo = await _open(tester);
-    await tester.enterText(_field(l.calDescriptionPlaceholder), '');
-    await tester.pumpAndSettle();
-    await tester.tap(_submit(l.actionEdit));
-    await tester.pumpAndSettle();
+    await writeStep(
+      tester,
+      row: l.calFieldDescription,
+      text: '',
+      done: l.actionDone,
+    );
+    await tapButton(tester, l.actionSave);
 
     expect(
       repo.calendarRowId,

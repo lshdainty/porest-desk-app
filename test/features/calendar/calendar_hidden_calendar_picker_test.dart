@@ -14,22 +14,19 @@
 // 안 남기면 그 일정을 여는 것만으로 소속 캘린더가 다른 값으로 바뀌어 저장된다.
 // 사용자가 안 건드린 값이 저장 때 바뀌는 것이 제일 나쁘다.
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
-import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_picker_options.dart';
-import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
 import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
-import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
+import 'package:flutter/widgets.dart' show Locale, ValueKey;
+import 'package:flutter/material.dart' show Text;
+import 'package:groo_damda_app/shared/ds/list/p_list.dart';
+
+import 'support/event_form_support.dart';
 
 const _personal = UserCalendar(rowId: 1, calendarName: '개인', isDefault: true);
 const _work = UserCalendar(rowId: 2, calendarName: '회사', isVisible: false);
@@ -106,17 +103,26 @@ class _CapturingRepo extends CalendarRepository {
   }
 }
 
-/// 라벨 셀렉트도 `PSelect<int>` 다 — placeholder 로 캘린더 쪽만 집는다.
-Finder _calendarSelect(AppLocalizations l) => find.byWidgetPredicate(
-  (w) => w is PSelect<int> && w.placeholder == l.calSelectCalendar,
+/// 폼 캘린더 줄의 값 글 — 줄 값은 고른 캘린더 이름이다.
+Finder _calendarValue(String name) => find.descendant(
+  of: find.byType(PList),
+  matching: find.textContaining(name),
 );
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _submit(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
+/// 캘린더 고르기 시트를 열어 보이는 줄 이름을 읽는다(숨긴 캘린더가 있나 보려고).
+Future<List<String>> _calendarChoices(
+  WidgetTester tester,
+  AppLocalizations l,
+) async {
+  await tapRow(tester, l.calFieldCalendar);
+  final names = [
+    for (final w in tester.widgetList<Text>(
+      find.byKey(const ValueKey('plist-title')),
+    ))
+      w.semanticsLabel ?? '',
+  ];
+  return names;
+}
 
 Future<_CapturingRepo> _open(
   WidgetTester tester, {
@@ -124,37 +130,7 @@ Future<_CapturingRepo> _open(
   CalendarEvent? edit,
 }) async {
   final repo = _CapturingRepo();
-  // 시트 본문은 ListView 다 — 좁은 화면에서는 아래쪽 위젯이 아예 안 만들어진다.
-  tester.view.physicalSize = const Size(1200, 4000);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        calendarRepositoryProvider.overrideWith((ref) async => repo),
-        eventLabelsProvider.overrideWith((ref) async => <EventLabel>[]),
-        userCalendarListProvider.overrideWith((ref) async => calendars),
-        monthEventsProvider.overrideWith((ref, key) async => <CalendarEvent>[]),
-      ],
-      child: MaterialApp(
-        theme: GrooTheme.light(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ko'),
-        home: Scaffold(
-          body: Builder(
-            builder: (ctx) => TextButton(
-              onPressed: () =>
-                  showCalendarEventDialog(ctx, edit: edit, defaultDate: null),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-  await tester.tap(find.text('open'));
-  await tester.pumpAndSettle();
+  await openEventForm(tester, repo: repo, calendars: calendars, edit: edit);
   return repo;
 }
 
@@ -253,9 +229,10 @@ void main() {
     testWidgets('숨긴 캘린더가 목록에 없다', (tester) async {
       await _open(tester, calendars: const [_personal, _work, _family]);
 
-      final select = tester.widget<PSelect<int>>(_calendarSelect(l));
-      expect(select.items.map((i) => i.label), ['개인', '가족']);
-      expect(select.value, 1);
+      expect(_calendarValue('개인'), findsOneWidget, reason: '기본 선택이 줄 값이다');
+      final names = await _calendarChoices(tester, l);
+      expect(names, containsAll(['개인', '가족']));
+      expect(names, isNot(contains('회사')));
     });
 
     testWidgets('기본 캘린더는 숨김 값이 와도 목록에 남고 저장에도 그게 실린다', (tester) async {
@@ -264,14 +241,15 @@ void main() {
         calendars: const [_hiddenDefault, _work, _family],
       );
 
-      final select = tester.widget<PSelect<int>>(_calendarSelect(l));
-      expect(select.items.map((i) => i.label), ['개인', '가족']);
-      expect(select.value, 1);
+      expect(_calendarValue('개인'), findsOneWidget);
+      final names = await _calendarChoices(tester, l);
+      expect(names, containsAll(['개인', '가족']));
+      expect(names, isNot(contains('회사')));
+      await tester.tapAt(const Offset(195, 20)); // 딤 — 고르기 시트는 바깥으로 닫힌다
+      await tester.pumpAndSettle();
 
-      await tester.enterText(_field(l.calTitlePlaceholder), '스탠드업');
-      await tester.pumpAndSettle();
-      await tester.tap(_submit(l.actionSave));
-      await tester.pumpAndSettle();
+      await enterTitle(tester, '스탠드업');
+      await tapButton(tester, l.actionSave);
 
       expect(repo.created, isTrue, reason: '생성이 안 불렸다 — 테스트가 아무것도 안 본다');
       expect(
@@ -279,6 +257,20 @@ void main() {
         1,
         reason: '기본 캘린더를 빼면 사용자가 안 고른 캘린더로 저장이 나간다',
       );
+    });
+
+    testWidgets('다른 캘린더를 고르면 그 캘린더가 저장에 실린다', (tester) async {
+      final repo = await _open(
+        tester,
+        calendars: const [_personal, _work, _family],
+      );
+      await tapRow(tester, l.calFieldCalendar);
+      await tapRow(tester, '가족');
+      expect(_calendarValue('가족'), findsOneWidget);
+      await enterTitle(tester, '스탠드업');
+      await tapButton(tester, l.actionSave);
+
+      expect(repo.createdCalendarRowId, 3);
     });
   });
 
@@ -290,13 +282,17 @@ void main() {
         edit: _eventIn(2),
       );
 
-      final select = tester.widget<PSelect<int>>(_calendarSelect(l));
-      expect(select.items.map((i) => i.label), [
-        '개인',
-        '회사',
-        '가족',
-      ], reason: '빼면 여는 순간 다른 캘린더로 바뀐다');
-      expect(select.value, 2, reason: '목록에 없는 값이 선택되면 이름 없는 칸이 그려진다');
+      expect(
+        _calendarValue('회사'),
+        findsOneWidget,
+        reason: '목록에 없는 값이 선택되면 이름 없는 줄이 그려진다',
+      );
+      final names = await _calendarChoices(tester, l);
+      expect(
+        names,
+        containsAll(['개인', '회사', '가족']),
+        reason: '빼면 여는 순간 다른 캘린더로 바뀐다',
+      );
     });
 
     testWidgets('안 건드리고 저장하면 화면에 보이던 그 캘린더가 그대로 나간다', (tester) async {
@@ -306,12 +302,10 @@ void main() {
         edit: _eventIn(2),
       );
 
-      // 예외를 빼면 여기가 갈린다 — 셀렉트는 '개인' 을 그리는데 저장은 '회사' 로
-      // 나간다. 보이는 값과 나가는 값이 다르면 어느 쪽이 맞든 사용자는 속는다.
-      final shown = tester.widget<PSelect<int>>(_calendarSelect(l)).value;
+      // 예외를 빼면 여기가 갈린다 — 줄은 '개인' 을 그리는데 저장은 '회사' 로 나간다.
+      expect(_calendarValue('회사'), findsOneWidget);
 
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
+      await tapButton(tester, l.actionSave);
 
       expect(repo.updated, isTrue, reason: '수정이 안 불렸다');
       expect(
@@ -319,7 +313,6 @@ void main() {
         2,
         reason: '사용자가 안 건드린 값이 저장 한 번에 바뀌는 것이 제일 나쁘다',
       );
-      expect(shown, repo.updatedCalendarRowId, reason: '보이는 값과 저장되는 값이 다르다');
     });
 
     testWidgets('보이는 캘린더의 일정을 편집할 때는 숨긴 캘린더가 안 보인다', (tester) async {
@@ -329,9 +322,10 @@ void main() {
         edit: _eventIn(1),
       );
 
-      final select = tester.widget<PSelect<int>>(_calendarSelect(l));
-      expect(select.items.map((i) => i.label), ['개인', '가족']);
-      expect(select.value, 1);
+      expect(_calendarValue('개인'), findsOneWidget);
+      final names = await _calendarChoices(tester, l);
+      expect(names, containsAll(['개인', '가족']));
+      expect(names, isNot(contains('회사')));
     });
   });
 }

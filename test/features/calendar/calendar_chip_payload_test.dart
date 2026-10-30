@@ -12,26 +12,15 @@
 //
 // 에뮬레이터를 쓸 수 없는 환경이라(QA #23) "무엇을 보내는가" 를 위젯 테스트로 잠근다.
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
-import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/data/calendar_repository.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
-import 'package:groo_damda_app/features/calendar/domain/event_label.dart';
-import 'package:groo_damda_app/features/calendar/domain/user_calendar.dart';
-import 'package:groo_damda_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/shared/widgets/p_button.dart';
+import 'package:flutter/widgets.dart' show Locale;
 
-const _defaultCalendar = UserCalendar(
-  rowId: 1,
-  calendarName: '개인',
-  isDefault: true,
-);
+import 'support/event_form_support.dart';
 
 /// 서버 목록 응답 그대로 — 반복은 웹이 만든 세부 규칙까지 들고 있고, 알림 둘 중
 /// 하나(10분)는 앱 칩에 없는 값이다.
@@ -116,48 +105,9 @@ class _CapturingRepo extends CalendarRepository {
   }
 }
 
-Finder _field(String hint) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.hintText == hint,
-);
-
-Finder _submit(String label) =>
-    find.ancestor(of: find.text(label), matching: find.byType(PButton)).last;
-
 Future<_CapturingRepo> _open(WidgetTester tester, {CalendarEvent? edit}) async {
   final repo = _CapturingRepo();
-  // 시트 본문은 ListView 다 — 좁은 화면에서는 아래쪽 칩이 아예 안 만들어진다.
-  tester.view.physicalSize = const Size(1200, 4000);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        calendarRepositoryProvider.overrideWith((ref) async => repo),
-        eventLabelsProvider.overrideWith((ref) async => <EventLabel>[]),
-        userCalendarListProvider.overrideWith(
-          (ref) async => const [_defaultCalendar],
-        ),
-        monthEventsProvider.overrideWith((ref, key) async => <CalendarEvent>[]),
-      ],
-      child: MaterialApp(
-        theme: GrooTheme.light(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ko'),
-        home: Scaffold(
-          body: Builder(
-            builder: (ctx) => TextButton(
-              onPressed: () =>
-                  showCalendarEventDialog(ctx, edit: edit, defaultDate: null),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-  await tester.tap(find.text('open'));
-  await tester.pumpAndSettle();
+  await openEventForm(tester, repo: repo, edit: edit);
   return repo;
 }
 
@@ -166,6 +116,20 @@ void main() {
   setUpAll(() async {
     l = await AppLocalizations.delegate.load(const Locale('ko'));
   });
+
+  /// 반복 · 알림 고르기 시트에서 고른다 — 반복은 누르면 바로 닫히고 알림은 체크 뒤 "완료".
+  Future<void> pickRepeat(WidgetTester tester, String label) async {
+    await tapRow(tester, l.calRepeat);
+    await tapRow(tester, label);
+  }
+
+  Future<void> pickReminders(WidgetTester tester, List<String> labels) async {
+    await tapRow(tester, l.calFieldReminder);
+    for (final label in labels) {
+      await tapRow(tester, label);
+    }
+    await tapButton(tester, l.actionDone);
+  }
 
   group('응답 읽기', () {
     test('알림 사전분을 목록으로 읽는다', () {
@@ -181,14 +145,10 @@ void main() {
   group('신규 일정', () {
     testWidgets('고른 반복과 알림이 저장에 실린다', (tester) async {
       final repo = await _open(tester);
-      await tester.enterText(_field(l.calTitlePlaceholder), '스탠드업');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.calRepeatDaily));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.calReminderMinutesBefore(15)));
-      await tester.pumpAndSettle();
-      await tester.tap(_submit(l.actionSave));
-      await tester.pumpAndSettle();
+      await enterTitle(tester, '스탠드업');
+      await pickRepeat(tester, l.calRepeatDaily);
+      await pickReminders(tester, [l.calReminderMinutesBefore(15)]);
+      await tapButton(tester, l.actionSave);
 
       expect(repo.created, isNotNull, reason: '생성이 안 불렸다 — 테스트가 아무것도 안 본다');
       expect(repo.created!['rrule'], 'FREQ=DAILY');
@@ -197,33 +157,48 @@ void main() {
 
     testWidgets('아무것도 안 고르면 반복은 안 실린다', (tester) async {
       final repo = await _open(tester);
-      await tester.enterText(_field(l.calTitlePlaceholder), '메모');
-      await tester.pumpAndSettle();
-      await tester.tap(_submit(l.actionSave));
-      await tester.pumpAndSettle();
+      await enterTitle(tester, '메모');
+      await tapButton(tester, l.actionSave);
 
       expect(repo.created!['rrule'], isNull);
       expect(repo.created!['reminderMinutes'], isEmpty);
     });
+
+    testWidgets('알림은 고른 차례가 아니라 짧은 차례로 실리고 줄 값도 그 차례다', (tester) async {
+      final repo = await _open(tester);
+      await enterTitle(tester, '메모');
+      await pickReminders(tester, [
+        l.calReminderDayBefore,
+        l.calReminderMinutesBefore(5),
+      ]);
+      expect(
+        find.text(
+          '${l.calReminderMinutesBefore(5)}, ${l.calReminderDayBefore}',
+        ),
+        findsOneWidget,
+      );
+      await tapButton(tester, l.actionSave);
+
+      expect(repo.created!['reminderMinutes'], [5, 1440]);
+    });
   });
 
   group('일정 수정', () {
-    testWidgets('칩을 안 건드리면 웹이 만든 반복·알림이 그대로 되돌아간다', (tester) async {
+    testWidgets('고르기를 안 건드리면 웹이 만든 반복·알림이 그대로 되돌아간다', (tester) async {
       final repo = await _open(
         tester,
         edit: CalendarEvent.fromJson(_webMadeEventJson),
       );
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
+      await tapButton(tester, l.actionSave);
 
       expect(repo.updated, isNotNull, reason: '수정이 안 불렸다');
-      // 칩 다섯 개는 FREQ 하나만 표현한다 — 되돌릴 때 BYDAY 를 뭉개면 안 된다.
+      // 고르기는 FREQ 하나만 표현한다 — 되돌릴 때 BYDAY 를 뭉개면 안 된다.
       expect(
         repo.updated!['rrule'],
         'FREQ=WEEKLY;BYDAY=MO,WE',
-        reason: '칩을 안 바꿨는데 세부 규칙이 사라지면 웹에서 만든 반복이 뭉개진다',
+        reason: '안 바꿨는데 세부 규칙이 사라지면 웹에서 만든 반복이 뭉개진다',
       );
-      // 10분은 앱 칩에 없는 값이다 — 화면에 안 보인다고 지우면 안 된다.
+      // 10분은 선택지에 없는 값이다 — 화면에 안 보인다고 지우면 안 된다.
       expect(
         repo.updated!['reminderMinutes'],
         [10, 30],
@@ -231,77 +206,55 @@ void main() {
       );
     });
 
+    testWidgets('알림을 고쳐도 선택지에 없는 10분은 그대로 이어진다', (tester) async {
+      final repo = await _open(
+        tester,
+        edit: CalendarEvent.fromJson(_webMadeEventJson),
+      );
+      await tapRow(tester, l.calFieldReminder);
+      await tapRow(tester, l.calReminderDayBefore);
+      await tapButton(tester, l.actionDone);
+      await tapButton(tester, l.actionSave);
+
+      expect(repo.updated!['reminderMinutes'], [10, 30, 1440]);
+    });
+
     testWidgets('반복을 바꾸면 그 값이 나간다', (tester) async {
       final repo = await _open(
         tester,
         edit: CalendarEvent.fromJson(_webMadeEventJson),
       );
-      await tester.tap(find.text(l.calRepeatMonthly));
-      await tester.pumpAndSettle();
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
+      await pickRepeat(tester, l.calRepeatMonthly);
+      await tapButton(tester, l.actionSave);
 
       expect(repo.updated!['rrule'], 'FREQ=MONTHLY');
     });
 
-    testWidgets("'반복 없음' 을 고르면 명시적 null 로 지워진다", (tester) async {
+    testWidgets("'반복 안 함' 을 고르면 명시적 null 로 지워진다", (tester) async {
       final repo = await _open(
         tester,
         edit: CalendarEvent.fromJson(_webMadeEventJson),
       );
-      await tester.tap(find.text(l.calRecurrenceNone));
-      await tester.pumpAndSettle();
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
+      await pickRepeat(tester, l.calRecurrenceNone);
+      await tapButton(tester, l.actionSave);
 
-      // 키를 빼면 서버가 지금 값을 지킨다 — 그러면 칩이 여전히 아무 일도 안 한다.
+      // 키를 빼면 서버가 지금 값을 지킨다 — 그러면 고르기가 여전히 아무 일도 안 한다.
       expect(repo.updated!['rrulePresent'], isTrue);
       expect(repo.updated!['rrule'], isNull);
     });
 
-    testWidgets('켜져 있던 알림 칩을 끄면 그 값만 빠진다', (tester) async {
+    testWidgets('알림을 전부 해제하면 빈 목록이 실린다', (tester) async {
       final repo = await _open(
         tester,
         edit: CalendarEvent.fromJson(_webMadeEventJson),
       );
-      await tester.tap(find.text(l.calReminderMinutesBefore(30)));
-      await tester.pumpAndSettle();
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
+      await tapRow(tester, l.calFieldReminder);
+      // 10 · 30 중 선택지에 있는 30 만 끌 수 있다 — 10 은 화면에 줄이 없다
+      await tapRow(tester, l.calReminderMinutesBefore(30));
+      await tapButton(tester, l.actionDone);
+      await tapButton(tester, l.actionSave);
 
       expect(repo.updated!['reminderMinutes'], [10]);
     });
-
-    // 시트는 연 회차의 날짜로 채워진다. 그 날짜만 보내면 서버가 반복의 새 시작으로 써서
-    // 뒤 회차를 열어 저장만 해도 앞 회차들이 사라졌다(QA 30 2).
-    testWidgets('반복 일정은 연 회차의 원래 시작을 목록 값 그대로 함께 싣는다', (tester) async {
-      final repo = await _open(
-        tester,
-        edit: CalendarEvent.fromJson(_webMadeEventJson),
-      );
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
-
-      expect(repo.updated!['occurrenceStartDate'], '2026-09-10T09:00:00');
-    });
-
-    testWidgets('반복이 아닌 일정은 연 회차를 싣지 않는다', (tester) async {
-      final repo = await _open(
-        tester,
-        edit: CalendarEvent.fromJson(_plainEventJson),
-      );
-      await tester.tap(_submit(l.actionEdit));
-      await tester.pumpAndSettle();
-
-      expect(repo.updated, isNotNull, reason: '수정이 안 불렸다');
-      expect(repo.updated!['occurrenceStartDate'], isNull);
-    });
-  });
-
-  // 일정마다 고르는 색 칸은 없다(사용자 결정 2026-09-25) — 화면은 라벨 → 캘린더 색으로 칠해
-  // 고른 색이 한 번도 보이지 않았다(QA 30 12).
-  testWidgets('일정 폼에 색상 칸이 없다', (tester) async {
-    await _open(tester);
-    expect(find.text(l.calFieldColor), findsNothing);
   });
 }

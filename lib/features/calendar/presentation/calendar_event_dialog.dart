@@ -1,126 +1,123 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:groo_damda_app/app/theme/spacing.dart';
-import 'package:groo_damda_app/app/theme/tokens.dart';
-import 'package:groo_damda_app/app/theme/typography.dart';
-import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
-import 'package:groo_damda_app/core/format/chart_palette.dart';
+import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
 import 'package:groo_damda_app/core/network/api_exception.dart';
 import 'package:groo_damda_app/core/network/patch.dart';
-import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
-import 'package:groo_damda_app/shared/widgets/p_date_input.dart';
-import 'package:groo_damda_app/shared/widgets/p_modal.dart';
-import 'package:groo_damda_app/shared/widgets/p_progress.dart';
-import 'package:groo_damda_app/shared/widgets/p_select.dart';
-import 'package:groo_damda_app/shared/widgets/p_section_label.dart';
-import 'package:groo_damda_app/shared/widgets/p_switch.dart';
-import 'package:groo_damda_app/shared/widgets/p_text_input.dart';
-import 'package:groo_damda_app/shared/widgets/p_toggle.dart';
 import 'package:groo_damda_app/features/calendar/application/calendar_providers.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_event.dart';
+import 'package:groo_damda_app/features/calendar/domain/calendar_event_form_rules.dart';
 import 'package:groo_damda_app/features/calendar/domain/calendar_picker_options.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_form_rows.dart';
+import 'package:groo_damda_app/features/calendar/presentation/calendar_event_pickers.dart';
+import 'package:groo_damda_app/features/dashboard/application/dashboard_providers.dart';
+import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
+import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
+import 'package:groo_damda_app/shared/ds/bottom_sheet/p_bottom_sheet.dart';
+import 'package:groo_damda_app/shared/ds/button/p_button.dart';
+import 'package:groo_damda_app/shared/ds/field/p_field.dart';
+import 'package:groo_damda_app/shared/ds/input/p_input.dart';
+import 'package:groo_damda_app/shared/ds/textarea/p_textarea.dart';
+import 'package:groo_damda_app/shared/ds/time_picker/p_time_picker.dart';
+import 'package:groo_damda_app/shared/forms/form_delete_footer.dart';
 
+/// 폼이 읽는 오늘 — 테스트 · 하네스가 고정한다(`dashboardNow` 와 같은 이음매).
+DateTime Function() calendarFormNow = DateTime.now;
+
+/// 일정 추가 · 수정 폼(I-09 21 ~ 30) — ds Bottom Sheet 입력 폼. 제목 입력칸 + List 줄 칸 아홉(캘린더 · 라벨 · 종일 · 시작 · 종료 · 반복 ·
+/// 알림 · 장소 · 설명). 고르는 칸은 그 위에 고르기 시트가 뜨고, 장소 · 설명은 같은 시트 안에서 한 단계 들어간다. 바깥 · 끌기로 닫히지
+/// 않고, 바뀐 값이 있으면 닫기 전에 "작성한 내용이 사라져요" 를 묻는다. 바닥은 추가 [저장], 수정 [삭제][저장].
 void showCalendarEventDialog(
   BuildContext context, {
   CalendarEvent? edit,
   DateTime? defaultDate,
 }) {
   final l = AppLocalizations.of(context);
-  final controller = PSheetController();
-  showPSheet<void>(
+  final probe = CalendarFormProbe();
+  PBottomSheet.show<void>(
     context,
-    title: edit == null ? l.calEventAdd : l.calEventEdit,
-    contentBuilder: (ctx, scrollCtrl) => _Body(
+    form: true,
+    isDirty: () => probe.dirty(),
+    interceptClose: () => probe.interceptClose(),
+    leaveCopy: PLeaveConfirmCopy(
+      title: l.sheetLeaveTitle,
+      description: l.sheetLeaveDescription,
+      stayLabel: l.sheetLeaveStay,
+      leaveLabel: l.sheetLeaveLeave,
+    ),
+    builder: (_) => CalendarEventFormSheet(
       edit: edit,
       defaultDate: defaultDate,
-      scrollController: scrollCtrl,
-      controller: controller,
+      probe: probe,
     ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: edit != null ? l.actionEdit : l.actionSave,
-    ),
-  ).whenComplete(controller.dispose);
+  );
 }
 
-/// 신규 일정 기본 색 = blue(primary) — 웹 DEFAULT_EVENT_COLOR(#2c70bf) 정합.
-const _kDefaultEventColor = '#2c70bf';
+/// 시트가 닫기 청에 답하는 길 — 입력칸의 주인은 시트 State 라 닫을 때 그쪽에 묻는다.
+class CalendarFormProbe {
+  bool Function() dirty = () => false;
 
-enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
-
-String _recurrenceLabel(AppLocalizations l, _RecurrenceOption r) => switch (r) {
-  _RecurrenceOption.none => l.calRecurrenceNone,
-  _RecurrenceOption.daily => l.calRepeatDaily,
-  _RecurrenceOption.weekly => l.calRepeatWeekly,
-  _RecurrenceOption.monthly => l.calRepeatMonthly,
-  _RecurrenceOption.yearly => l.calRepeatYearly,
-};
-
-_RecurrenceOption _rruleToRecurrence(String? rrule) {
-  if (rrule == null || rrule.isEmpty) return _RecurrenceOption.none;
-  if (rrule.contains('FREQ=DAILY')) return _RecurrenceOption.daily;
-  if (rrule.contains('FREQ=WEEKLY')) return _RecurrenceOption.weekly;
-  if (rrule.contains('FREQ=MONTHLY')) return _RecurrenceOption.monthly;
-  if (rrule.contains('FREQ=YEARLY')) return _RecurrenceOption.yearly;
-  return _RecurrenceOption.none;
+  /// 한 단계가 열려 있으면 그 단계만 닫고 참(시트는 닫지 않는다).
+  bool Function() interceptClose = () => false;
 }
 
-/// 칩이 고른 반복을 저장 본문에 실을 RRULE 로 바꾼다 — 웹 `recurrenceToRrule` 과 같은 값.
-/// `none` 은 null 이고, 수정에서는 그 null 이 "반복을 지워라" 로 나간다.
-String? _recurrenceToRrule(_RecurrenceOption r) => switch (r) {
-  _RecurrenceOption.none => null,
-  _RecurrenceOption.daily => 'FREQ=DAILY',
-  _RecurrenceOption.weekly => 'FREQ=WEEKLY',
-  _RecurrenceOption.monthly => 'FREQ=MONTHLY',
-  _RecurrenceOption.yearly => 'FREQ=YEARLY',
-};
+enum _Step { list, location, description }
 
-const _reminderOptions = <int>[5, 15, 30, 60, 1440];
-
-String _reminderLabel(AppLocalizations l, int min) {
-  if (min == 60) return l.calReminderHourBefore;
-  if (min == 1440) return l.calReminderDayBefore;
-  return l.calReminderMinutesBefore(min);
-}
-
-class _Body extends ConsumerStatefulWidget {
-  const _Body({
+class CalendarEventFormSheet extends ConsumerStatefulWidget {
+  const CalendarEventFormSheet({
+    super.key,
     this.edit,
     this.defaultDate,
-    required this.scrollController,
-    required this.controller,
+    this.probe,
   });
+
   final CalendarEvent? edit;
   final DateTime? defaultDate;
-  final ScrollController scrollController;
-  final PSheetController controller;
+  final CalendarFormProbe? probe;
+
   @override
-  ConsumerState<_Body> createState() => _BodyState();
+  ConsumerState<CalendarEventFormSheet> createState() =>
+      _CalendarEventFormSheetState();
 }
 
-class _BodyState extends ConsumerState<_Body> {
+class _CalendarEventFormSheetState
+    extends ConsumerState<CalendarEventFormSheet> {
   late final TextEditingController _titleCtrl;
-  late final TextEditingController _descCtrl;
-  late final TextEditingController _locationCtrl;
+  final _titleFocus = FocusNode();
+  final _stepCtrl = TextEditingController();
+
+  late String _description;
+  late String _location;
   late DateTime _start;
   late DateTime _end;
   late bool _allDay;
   int? _labelRowId;
-  int? _userCalendarRowId;
-  String _color = _kDefaultEventColor; // violet 기본
-  _RecurrenceOption _recurrence = _RecurrenceOption.none;
+  int? _calendarRowId;
+  String _color = kDefaultEventColor;
+  CalendarRecurrence _recurrence = CalendarRecurrence.none;
+  List<int> _reminders = <int>[];
 
-  /// 열었을 때 서버에 있던 반복 규칙과, 그것이 매핑된 칩.
-  ///
-  /// 칩 다섯 개는 `FREQ=` 하나만 표현한다 — 웹이 만든 `FREQ=WEEKLY;BYDAY=MO,WE` 나
-  /// 서버가 늘린 규칙을 칩으로 되그릴 수 없다. 그래서 **사용자가 칩을 안 바꿨으면
-  /// 원본을 그대로 되돌려 준다.** 안 그러면 여는 것만으로 세부 규칙이 뭉개진다.
+  /// 열었을 때 서버에 있던 반복 규칙과 그것이 매핑된 값 — 고르기를 안 바꿨으면 원본(BYDAY 등)을 그대로 되돌려 준다.
   String? _initialRrule;
-  _RecurrenceOption _initialRecurrence = _RecurrenceOption.none;
-  final Set<int> _reminders = <int>{};
+  CalendarRecurrence _initialRecurrence = CalendarRecurrence.none;
+
+  // 바뀐 값 판정용 처음 값
+  late final String _initialTitle;
+  late final String _initialDescription;
+  late final String _initialLocation;
+  late final DateTime _initialStart;
+  late final DateTime _initialEnd;
+  late final bool _initialAllDay;
+  late final int? _initialLabel;
+  int? _initialCalendar;
+  late final List<int> _initialReminders;
+
+  _Step _step = _Step.list;
   bool _submitting = false;
+  bool _showErrors = false;
+  String? _titleError;
+  String? _saveError;
 
   bool get _isEdit => widget.edit != null;
 
@@ -128,500 +125,531 @@ class _BodyState extends ConsumerState<_Body> {
   void initState() {
     super.initState();
     final e = widget.edit;
-    _titleCtrl = TextEditingController(text: e?.title ?? '');
-    _descCtrl = TextEditingController(text: e?.description ?? '');
-    _locationCtrl = TextEditingController(text: e?.location ?? '');
+    _initialTitle = e?.title ?? '';
+    _titleCtrl = TextEditingController(text: _initialTitle);
+    _description = e?.description ?? '';
+    _location = e?.location ?? '';
     if (e != null) {
       _start = e.start;
       _end = e.end;
       _allDay = e.isAllDayBool;
       _labelRowId = e.labelRowId;
       // 소속 캘린더 식별자는 calendarRowId (userRowId=이벤트 소유자라 캘린더 매칭 불가).
-      _userCalendarRowId = e.calendarRowId;
-      _color = e.color ?? _kDefaultEventColor;
+      _calendarRowId = e.calendarRowId;
+      _color = e.color ?? kDefaultEventColor;
       _initialRrule = e.rrule;
-      _initialRecurrence = _rruleToRecurrence(e.rrule);
+      _initialRecurrence = rruleToRecurrence(e.rrule);
       _recurrence = _initialRecurrence;
-      // 기존 알림을 칩에 먼저 채운다. 이걸 건너뛰고 저장만 실으면 서버가 목록을
-      // 통째로 교체하므로, 웹에서 건 알림이 앱 저장 한 번에 전부 사라진다.
-      _reminders.addAll(e.reminderMinutes);
+      // 기존 알림을 먼저 채운다 — 서버는 목록을 통째로 교체하므로 건너뛰면 웹에서 건 알림이 저장 한 번에 사라진다.
+      _reminders = ([...e.reminderMinutes]..sort());
     } else {
-      final d = widget.defaultDate ?? DateTime.now();
-      _start = DateTime(d.year, d.month, d.day, 9, 0);
-      _end = DateTime(d.year, d.month, d.day, 10, 0);
-      _allDay = true; // 신규 일정 기본 종일 ON (웹 isAllDay default true 정합).
-      // 생성 모드: 캘린더 로드 후 기본 캘린더 선택(저장 반영). 웹 EventForm useEffect 패턴.
-      // **고를 수 있는 것 중에서** 잡는다 — 기본 캘린더가 숨겨져 있는데 그대로 고르면
-      // 목록에 없는 값이 선택된 채로 남고, 저장하면 그 일정이 곧바로 사라진다.
+      final d = widget.defaultDate ?? calendarFormNow();
+      _start = DateTime(d.year, d.month, d.day, 9);
+      _end = DateTime(d.year, d.month, d.day, 10);
+      _allDay = true; // 신규 일정 기본 종일 켬(웹 isAllDay default true 정합).
+      // **고를 수 있는 것 중에서** 기본 캘린더를 잡는다 — 숨긴 캘린더가 선택된 채 저장하면 일정이 곧바로 사라진다.
       ref.read(userCalendarListProvider.future).then((cals) {
-        if (!mounted || _userCalendarRowId != null) return;
+        if (!mounted || _calendarRowId != null) return;
         final def = defaultCalendarRowId(selectableCalendars(cals));
         if (def == null) return;
-        setState(() => _userCalendarRowId = def);
+        setState(() {
+          _calendarRowId = def;
+          _initialCalendar = def;
+        });
       });
     }
-    widget.controller.onSubmit = _submit;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _syncController());
+    _initialDescription = _description;
+    _initialLocation = _location;
+    _initialStart = _start;
+    _initialEnd = _end;
+    _initialAllDay = _allDay;
+    _initialLabel = _labelRowId;
+    _initialCalendar = _calendarRowId;
+    _initialReminders = [..._reminders];
+    final probe = widget.probe;
+    if (probe != null) {
+      probe.dirty = _dirty;
+      probe.interceptClose = _interceptClose;
+    }
   }
 
   @override
   void dispose() {
+    final probe = widget.probe;
+    if (probe != null) {
+      probe.dirty = () => false;
+      probe.interceptClose = () => false;
+    }
     _titleCtrl.dispose();
-    _descCtrl.dispose();
-    _locationCtrl.dispose();
+    _titleFocus.dispose();
+    _stepCtrl.dispose();
     super.dispose();
   }
 
-  bool get _canSubmit => !_submitting && _titleCtrl.text.trim().isNotEmpty;
+  bool _dirty() =>
+      _titleCtrl.text != _initialTitle ||
+      _description != _initialDescription ||
+      _location != _initialLocation ||
+      _start != _initialStart ||
+      _end != _initialEnd ||
+      _allDay != _initialAllDay ||
+      _labelRowId != _initialLabel ||
+      _calendarRowId != _initialCalendar ||
+      _recurrence != _initialRecurrence ||
+      !_sameList(_reminders, _initialReminders);
 
-  void _syncController() {
-    widget.controller.setCanSubmit(_canSubmit);
-    widget.controller.setSubmitting(_submitting);
+  bool _sameList(List<int> a, List<int> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
-  String _iso(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:00';
+  // ── 한 단계(장소 · 설명) ────────────────────────────────────
+  void _enterStep(_Step step) {
+    FocusScope.of(context).unfocus();
+    _stepCtrl.text = step == _Step.location ? _location : _description;
+    setState(() => _step = step);
+  }
 
-  /// 저장 본문에 실을 반복 규칙. 칩을 안 바꿨으면 원본을 그대로 되돌린다.
+  /// "완료" — 친 글을 넣고 줄 칸으로 돌아간다.
+  void _confirmStep() {
+    if (_step == _Step.list) return;
+    final text = _stepCtrl.text;
+    setState(() {
+      if (_step == _Step.location) {
+        _location = text;
+      } else {
+        _description = text;
+      }
+      _step = _Step.list;
+    });
+  }
+
+  /// ← · 뒤로 가기 · Esc — 친 글을 버리고 줄 칸으로(이전 값 그대로).
+  void _cancelStep() {
+    if (_step == _Step.list) return;
+    setState(() => _step = _Step.list);
+  }
+
+  bool _interceptClose() {
+    if (_step == _Step.list || !mounted) return false;
+    _cancelStep();
+    return true;
+  }
+
+  // ── 고르기 ──────────────────────────────────────────────
+  List<CalendarChoiceSource> _calendarSources() => [
+    for (final c in selectableCalendars(
+      ref.read(userCalendarListProvider).value ?? const [],
+      keepRowId: widget.edit?.calendarRowId,
+    ))
+      CalendarChoiceSource.of(context, c.rowId, c.calendarName, c.color),
+  ];
+
+  List<CalendarChoiceSource> _labelSources() => [
+    for (final x in ref.read(eventLabelsProvider).value ?? const [])
+      CalendarChoiceSource.of(context, x.rowId, x.labelName, x.color),
+  ];
+
+  Future<void> _pickCalendar() async {
+    final l = AppLocalizations.of(context);
+    final options = _calendarSources();
+    FocusScope.of(context).unfocus();
+    final v = await showCalendarChoiceSheet(
+      context,
+      title: l.calFieldCalendar,
+      selected: _calendarRowId,
+      items: [
+        for (final o in options)
+          CalendarChoice(value: o.rowId, label: o.name, dot: o.dot),
+      ],
+    );
+    if (v == null || !mounted) return;
+    final o = options.firstWhere((o) => o.rowId == v);
+    setState(() {
+      _calendarRowId = v;
+      _color = o.colorHex ?? _color;
+    });
+  }
+
+  Future<void> _pickLabel() async {
+    final l = AppLocalizations.of(context);
+    final labels = _labelSources();
+    FocusScope.of(context).unfocus();
+    final v = await showCalendarChoiceSheet(
+      context,
+      title: l.calFieldLabel,
+      selected: _labelRowId ?? 0,
+      items: [
+        CalendarChoice(value: 0, label: l.calNoLabel),
+        for (final o in labels)
+          CalendarChoice(value: o.rowId, label: o.name, dot: o.dot),
+      ],
+      footnote: labels.isEmpty ? l.calFormLabelHint : null,
+    );
+    if (v == null || !mounted) return;
+    setState(() => _labelRowId = v == 0 ? null : v);
+  }
+
+  Future<void> _pickRecurrence() async {
+    final l = AppLocalizations.of(context);
+    FocusScope.of(context).unfocus();
+    final v = await showCalendarChoiceSheet(
+      context,
+      title: l.calRepeat,
+      selected: _recurrence.index,
+      items: [
+        for (final r in CalendarRecurrence.values)
+          CalendarChoice(value: r.index, label: recurrenceLabel(l, r)),
+      ],
+    );
+    if (v == null || !mounted) return;
+    setState(() => _recurrence = CalendarRecurrence.values[v]);
+  }
+
+  Future<void> _pickReminders() async {
+    final l = AppLocalizations.of(context);
+    FocusScope.of(context).unfocus();
+    final v = await showCalendarMultiChoiceSheet(
+      context,
+      title: l.calFieldReminder,
+      selected: _reminders,
+      items: [
+        for (final m in kCalendarReminderOptions)
+          CalendarChoice(value: m, label: reminderLabel(l, m)),
+      ],
+    );
+    if (v == null || !mounted) return;
+    setState(() => _reminders = [...v]..sort());
+  }
+
+  Future<void> _pickDay(bool isStart) async {
+    final l = AppLocalizations.of(context);
+    FocusScope.of(context).unfocus();
+    final cur = isStart ? _start : _end;
+    final picked = await showCalendarDaySheet(
+      context,
+      title: isStart ? l.calFormStartDay : l.calFormEndDay,
+      value: cur,
+      today: calendarFormNow(),
+    );
+    if (picked == null || !mounted) return;
+    final next = DateTime(
+      picked.year,
+      picked.month,
+      picked.day,
+      cur.hour,
+      cur.minute,
+    );
+    setState(() {
+      if (isStart) {
+        _start = next;
+        _end = ensureEndAfterStart(_start, _end, allDay: _allDay);
+      } else {
+        _end = next;
+      }
+    });
+  }
+
+  Future<void> _pickTime(bool isStart) async {
+    final l = AppLocalizations.of(context);
+    FocusScope.of(context).unfocus();
+    final cur = isStart ? _start : _end;
+    final picked = await showCalendarTimeSheet(
+      context,
+      title: isStart ? l.calFormStartTime : l.calFormEndTime,
+      value: roundTimeToStep(PTimeValue.fromDateTime(cur), 5),
+    );
+    if (picked == null || !mounted) return;
+    final next = DateTime(
+      cur.year,
+      cur.month,
+      cur.day,
+      picked.hour,
+      picked.minute,
+    );
+    setState(() {
+      if (isStart) {
+        _start = next;
+        _end = ensureEndAfterStart(_start, _end, allDay: false);
+      } else {
+        _end = next;
+      }
+    });
+  }
+
+  // ── 저장 · 삭제 ──────────────────────────────────────────
+  /// 저장 본문에 실을 반복 규칙 — 고르기를 안 바꿨으면 원본을 그대로 되돌린다.
   String? get _rruleForSave => _recurrence == _initialRecurrence
       ? _initialRrule
-      : _recurrenceToRrule(_recurrence);
+      : recurrenceToRrule(_recurrence);
 
-  /// 저장 본문에 실을 알림 사전분 — 서버가 이 목록으로 전체를 교체한다.
-  /// 오름차순으로 고정해 같은 선택이면 같은 본문이 나가게 한다.
-  List<int> get _reminderMinutesForSave => _reminders.toList()..sort();
+  bool get _rangeInvalid => calendarRangeInvalid(_start, _end, allDay: _allDay);
 
-  Future<void> _submit() async {
-    setState(() => _submitting = true);
-    _syncController();
+  /// 반복 일정을 저장 · 삭제한 뒤에는 이미 받아 둔 다른 달에 옛 회차가 남지 않게 달 전체를 비운다(I-09 30).
+  void _invalidateAfterWrite({required bool recurring, DateTime? origStart}) {
+    if (recurring) {
+      ref.invalidate(monthEventsProvider);
+    } else {
+      ref.invalidate(
+        monthEventsProvider((year: _start.year, month: _start.month)),
+      );
+      if (origStart != null &&
+          (origStart.year != _start.year || origStart.month != _start.month)) {
+        ref.invalidate(
+          monthEventsProvider((year: origStart.year, month: origStart.month)),
+        );
+      }
+    }
+    // 홈 위젯(오늘 일정·다가오는 일정)의 원본 — 셸 상주라 스스로 안 받는다.
+    ref.invalidate(dashboardSummaryProvider);
+  }
+
+  /// [저장] 은 켜 두고 누를 때 비거나 틀린 칸마다 오류를 보이며 첫 오류 칸으로 초점을 옮긴다.
+  Future<void> _save() async {
+    if (_submitting) return;
+    final l = AppLocalizations.of(context);
+    final title = _titleCtrl.text.trim();
+    if (title.isEmpty) {
+      setState(() {
+        _showErrors = true;
+        _titleError = l.calFormTitleRequired;
+      });
+      _titleFocus.requestFocus();
+      return;
+    }
+    if (_rangeInvalid) {
+      setState(() => _showErrors = true);
+      return;
+    }
+    setState(() {
+      _submitting = true;
+      _saveError = null;
+    });
     try {
       final repo = await ref.read(calendarRepositoryProvider.future);
-      final monthKey = (year: _start.year, month: _start.month);
+      final description = _description.trim();
+      final location = _location.trim();
       if (_isEdit) {
         await repo.updateEvent(
           id: widget.edit!.rowId,
-          title: _titleCtrl.text.trim(),
-          // 설명·장소·라벨은 이 화면이 가진 칸이다 — 비운 상태를 명시적 null 로 실어야
-          // 지워진다. 키를 빼면 서버가 지금 값을 지키므로(desk-back #325), 지우고
-          // 저장해도 다시 열면 옛 값이 그대로 있다.
-          description: Patch.set(
-            _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-          ),
-          // 서버는 수정 요청에 실린 종류로 무조건 덮어쓴다. 이 화면에는 종류를 고르는
-          // 자리가 없으므로 원래 값을 그대로 되돌려 준다 — 안 그러면 다른 데서 정한
-          // 종류가 여기서 저장 한 번에 기본값으로 바뀐다.
+          title: title,
+          // 설명·장소·라벨은 이 화면이 가진 칸이다 — 비운 상태를 명시적 null 로 실어야 지워진다(키를 빼면 서버가 지금 값을 지킨다).
+          description: Patch.set(description.isEmpty ? null : description),
+          // 서버는 수정 요청에 실린 종류로 무조건 덮어쓴다 — 종류를 고르는 자리가 없으니 원래 값을 되돌려 준다.
           eventType: widget.edit!.eventType,
           color: _color,
-          calendarRowId: _userCalendarRowId,
-          startDate: _iso(_start),
-          endDate: _iso(_end),
+          calendarRowId: _calendarRowId,
+          startDate: calendarIso(_start),
+          endDate: calendarIso(_end),
           isAllDay: _allDay,
           labelRowId: Patch.set(_labelRowId),
-          location: Patch.set(
-            _locationCtrl.text.trim().isEmpty
-                ? null
-                : _locationCtrl.text.trim(),
-          ),
-          // 반복·알림은 이 화면이 소유한 칸이다 — 늘 실어야 칩이 실제로 동작한다.
-          // 반복은 명시적 null 까지 실어야 '반복 없음' 이 반영된다(키를 빼면 유지).
+          location: Patch.set(location.isEmpty ? null : location),
           rrule: Patch.set(_rruleForSave),
-          reminderMinutes: _reminderMinutesForSave,
-          // 반복 일정은 연 회차를 함께 알린다 — 안 알리면 서버가 이 회차 날짜를 반복의
-          // 새 시작으로 써서 앞 회차들이 사라졌다(QA 30 2).
+          reminderMinutes: _reminders,
+          // 반복 일정은 연 회차를 함께 알린다 — 안 알리면 서버가 이 회차 날짜를 반복의 새 시작으로 써서 앞 회차들이 사라졌다.
           occurrenceStartDate: widget.edit!.rrule != null
               ? widget.edit!.startDate
               : null,
         );
       } else {
         await repo.createEvent(
-          title: _titleCtrl.text.trim(),
-          description: _descCtrl.text.trim().isEmpty
-              ? null
-              : _descCtrl.text.trim(),
+          title: title,
+          description: description.isEmpty ? null : description,
           color: _color,
-          calendarRowId: _userCalendarRowId,
-          startDate: _iso(_start),
-          endDate: _iso(_end),
+          calendarRowId: _calendarRowId,
+          startDate: calendarIso(_start),
+          endDate: calendarIso(_end),
           isAllDay: _allDay,
           labelRowId: _labelRowId,
-          location: _locationCtrl.text.trim().isEmpty
-              ? null
-              : _locationCtrl.text.trim(),
+          location: location.isEmpty ? null : location,
           rrule: _rruleForSave,
-          reminderMinutes: _reminderMinutesForSave,
+          reminderMinutes: _reminders,
         );
       }
-      ref.invalidate(monthEventsProvider(monthKey));
-      // 홈 위젯(오늘 일정·다가오는 일정)의 원본 — 셸 상주라 스스로 안 받는다.
-      ref.invalidate(dashboardSummaryProvider);
-      if (_isEdit) {
-        final orig = widget.edit!.start;
-        if (orig.year != _start.year || orig.month != _start.month) {
-          ref.invalidate(
-            monthEventsProvider((year: orig.year, month: orig.month)),
-          );
-        }
-      }
+      _invalidateAfterWrite(
+        recurring: _rruleForSave != null || widget.edit?.rrule != null,
+        origStart: widget.edit?.start,
+      );
       if (!mounted) return;
-      Navigator.of(context).pop();
+      PBottomSheet.of(context).close();
     } on ApiException {
+      // 시트는 닫히지 않고 쓴 값이 남는다 — 폼 맨 위 Callout(snackbar.md "저장 · 제출이 실패함")
       if (!mounted) return;
+      setState(() => _saveError = l.calFormSaveFailed);
     } finally {
-      if (mounted) {
-        setState(() => _submitting = false);
-        _syncController();
-      }
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
-  void _onPickDate(bool isStart, DateTime? d) {
-    if (d == null) return;
+  Future<void> _delete() async {
+    if (_submitting) return;
+    final l = AppLocalizations.of(context);
+    final e = widget.edit!;
+    final ok = await PAlertDialog.show(
+      context,
+      title: l.calEventDelete,
+      description: l.calEventDeleteConfirm(e.title),
+      cancelLabel: l.actionCancel,
+      actionLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
     setState(() {
-      final cur = isStart ? _start : _end;
-      final next = DateTime(d.year, d.month, d.day, cur.hour, cur.minute);
-      if (isStart) {
-        _start = next;
-        if (_end.isBefore(_start)) _end = _start.add(const Duration(hours: 1));
-      } else {
-        _end = next;
-      }
+      _submitting = true;
+      _saveError = null;
     });
+    try {
+      final repo = await ref.read(calendarRepositoryProvider.future);
+      await repo.deleteEvent(e.rowId);
+      _invalidateAfterWrite(recurring: e.rrule != null, origStart: e.start);
+      if (!mounted) return;
+      PBottomSheet.of(context).close();
+    } on ApiException {
+      if (!mounted) return;
+      setState(() => _saveError = l.calFormDeleteFailed);
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
-  void _onPickTime(bool isStart, TimeOfDay? picked) {
-    if (picked == null) return;
-    setState(() {
-      final cur = isStart ? _start : _end;
-      final next = DateTime(
-        cur.year,
-        cur.month,
-        cur.day,
-        picked.hour,
-        picked.minute,
-      );
-      if (isStart) {
-        _start = next;
-        if (_end.isBefore(_start)) _end = _start.add(const Duration(hours: 1));
-      } else {
-        _end = next;
-      }
-    });
-  }
-
+  // ── 그리기 ──────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final labelsAsync = ref.watch(eventLabelsProvider);
-    final calendarsAsync = ref.watch(userCalendarListProvider);
+    final inStep = _step != _Step.list;
+    final heading = _isEdit ? l.calEventEdit : l.calEventAdd;
+    if (inStep) {
+      return PBottomSheetContent(
+        title: _step == _Step.location ? l.calLocation : l.calFieldDescription,
+        closeLabel: l.actionClose,
+        showCloseButton: false,
+        onBack: _cancelStep,
+        backLabel: l.actionBack,
+        headerAction: CalendarStepDone(
+          label: l.actionDone,
+          onPressed: _confirmStep,
+        ),
+        flushBody: true,
+        scrollFog: true,
+        body: _buildStep(l),
+      );
+    }
 
-    // 숨긴 캘린더는 고를 수 없다 — 다만 편집 중인 일정이 이미 든 캘린더는 남긴다.
-    // 기준은 연 순간의 소속(`widget.edit`)이다. 사용자가 다른 캘린더를 골랐다고
-    // 원래 자리가 목록에서 사라지면 되돌아갈 데가 없어진다.
-    final calendarOptions = selectableCalendars(
+    final labels = ref.watch(eventLabelsProvider).value ?? const [];
+    final calendarsAsync = ref.watch(userCalendarListProvider);
+    // 숨긴 캘린더는 고를 수 없다 — 다만 편집 중인 일정이 이미 든 캘린더는 남긴다(기준은 연 순간의 소속).
+    final options = selectableCalendars(
       calendarsAsync.value ?? const [],
       keepRowId: widget.edit?.calendarRowId,
     );
-    // 고를 수 있는 목록 밖의 값이 선택돼 있으면 셀렉트가 이름 없는 칸을 그린다 —
-    // 그때는 기본 선택으로 되돌린다(목록과 기본 선택은 늘 같은 규칙을 지난다).
-    final selectedCalendarRowId =
-        calendarOptions.any((c) => c.rowId == _userCalendarRowId)
-        ? _userCalendarRowId
-        : defaultCalendarRowId(calendarOptions);
+    // 고를 수 있는 목록 밖의 값이 선택돼 있으면 기본 선택으로 되돌린다.
+    final selected = options.any((c) => c.rowId == _calendarRowId)
+        ? _calendarRowId
+        : defaultCalendarRowId(options);
 
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.xl,
-        PSpace.x8,
-        PSpace.xl,
-        PSpace.x16,
-      ),
-      children: [
-        PSectionLabel(l.calFieldTitle, variant: PSectionLabelVariant.header),
-        const SizedBox(height: PSpace.x8),
-        PTextInput(
-          controller: _titleCtrl,
-          placeholder: l.calTitlePlaceholder,
-          onChanged: (_) {
-            setState(() {});
-            _syncController();
-          },
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        PSectionLabel(
-          l.calFieldDescription,
-          variant: PSectionLabelVariant.header,
-        ),
-        const SizedBox(height: PSpace.x8),
-        PTextInput(
-          controller: _descCtrl,
-          maxLines: 3,
-          placeholder: l.calDescriptionPlaceholder,
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        // 캘린더
-        PSectionLabel(l.calFieldCalendar, variant: PSectionLabelVariant.header),
-        const SizedBox(height: PSpace.x8),
-        calendarsAsync.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.symmetric(vertical: PSpace.x8),
-            child: Center(
-              child: SizedBox(
-                height: PSpace.x16,
-                width: PSpace.x16,
-                child: PCircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
-          ),
-          error: (_, _) => Text(
-            l.calCalendarLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDangerFg),
-          ),
-          data: (_) => PSelect<int>(
-            value: selectedCalendarRowId,
-            placeholder: l.calSelectCalendar,
-            onChanged: (v) {
-              if (v != null) setState(() => _userCalendarRowId = v);
-            },
-            items: [
-              for (final c in calendarOptions)
-                PSelectItem<int>(
-                  value: c.rowId,
-                  label: c.calendarName,
-                  leading: _labelDot(
-                    solidSwatchColor(context, c.color, fallback: t.fgBrand),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        // 라벨
-        PSectionLabel(
-          l.calFieldLabel,
-          variant: PSectionLabelVariant.header,
-          icon: LucideIcons.tag,
-        ),
-        const SizedBox(height: PSpace.x8),
-        // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
-        labelsAsync.when(
-          loading: () => const SizedBox(
-            height: PSpace.x32,
-            child: Center(child: PCircularProgressIndicator()),
-          ),
-          error: (_, _) => Text(
-            l.calLabelLoadError,
-            style: PTypo.caption.copyWith(color: t.statusDangerFg),
-          ),
-          data: (labels) => PSelect<int>(
-            value: _labelRowId ?? 0,
-            onChanged: (v) => setState(() => _labelRowId = v == 0 ? null : v),
-            items: [
-              PSelectItem(
-                value: 0,
-                label: l.calNoLabel,
-                leading: _labelDot(t.fgTertiary.withValues(alpha: 0.3)),
-              ),
-              for (final l in labels)
-                PSelectItem(
-                  value: l.rowId,
-                  label: l.labelName,
-                  leading: _labelDot(
-                    solidSwatchColor(context, l.color, fallback: t.fgBrand),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        // 일정마다 고르는 색 칸은 두지 않는다(사용자 결정 2026-09-25) — 화면은 라벨 → 캘린더
-        // 색으로 칠해서 고른 색이 한 번도 보이지 않았다(QA 30 12). 저장값은 종전 그대로다.
-
-        // 종일 — web 정합: [토글][라벨] 좌측 정렬
-        Row(
-          children: [
-            PSwitch(
-              value: _allDay,
-              onChanged: (v) => setState(() => _allDay = v),
-              semanticLabel: l.calAllDay,
-            ),
-            const SizedBox(width: PSpace.x8),
-            Text(l.calAllDay, style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
-          ],
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 시작/종료 — 종일 ON: 시작·종료 가로 2칸(웹 grid-cols-2 정합),
-        // 종일 OFF: 세로 stack + 각 행 [날짜][시간].
-        if (_allDay) ...[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    PSectionLabel(
-                      l.calFieldStartDate,
-                      variant: PSectionLabelVariant.header,
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    PDateInput(
-                      value: _start,
-                      onChanged: (d) => _onPickDate(true, d),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    PSectionLabel(
-                      l.calFieldEndDate,
-                      variant: PSectionLabelVariant.header,
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    PDateInput(
-                      value: _end,
-                      onChanged: (d) => _onPickDate(false, d),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
-        ] else ...[
-          PSectionLabel(
-            l.calFieldStartDate,
-            variant: PSectionLabelVariant.header,
-          ),
-          const SizedBox(height: PSpace.x8),
-          Row(
-            children: [
-              Expanded(
-                child: PDateInput(
-                  value: _start,
-                  onChanged: (d) => _onPickDate(true, d),
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              SizedBox(
-                width: PSpace.x80 + PSpace.x20,
-                child: PTimeInput(
-                  value: TimeOfDay.fromDateTime(_start),
-                  onChanged: (tm) => _onPickTime(true, tm),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-          PSectionLabel(
-            l.calFieldEndDate,
-            variant: PSectionLabelVariant.header,
-          ),
-          const SizedBox(height: PSpace.x8),
-          Row(
-            children: [
-              Expanded(
-                child: PDateInput(
-                  value: _end,
-                  onChanged: (d) => _onPickDate(false, d),
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              SizedBox(
-                width: PSpace.x80 + PSpace.x20,
-                child: PTimeInput(
-                  value: TimeOfDay.fromDateTime(_end),
-                  onChanged: (tm) => _onPickTime(false, tm),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
+    final save = PButton(
+      label: l.actionSave,
+      size: PButtonSize.large,
+      loading: _submitting,
+      onPressed: _submitting ? null : _save,
+    );
+    return PBottomSheetContent(
+      title: heading,
+      closeLabel: l.actionClose,
+      flushBody: true,
+      scrollFog: true,
+      body: CalendarEventFormRows(
+        titleController: _titleCtrl,
+        titleFocus: _titleFocus,
+        autofocusTitle: !_isEdit,
+        titleError: _titleError,
+        onTitleChanged: (_) {
+          if (_titleError != null) setState(() => _titleError = null);
+        },
+        saveError: _saveError,
+        calendars: [
+          for (final c in options)
+            CalendarChoiceSource.of(context, c.rowId, c.calendarName, c.color),
         ],
-
-        // 장소
-        PSectionLabel(
-          l.calLocation,
-          variant: PSectionLabelVariant.header,
-          icon: LucideIcons.mapPin,
+        calendarsLoading: calendarsAsync.isLoading,
+        selectedCalendar: selected,
+        onPickCalendar: _pickCalendar,
+        onRetryCalendars: () => ref.invalidate(userCalendarListProvider),
+        labels: [
+          for (final x in labels)
+            CalendarChoiceSource.of(context, x.rowId, x.labelName, x.color),
+        ],
+        selectedLabel: _labelRowId,
+        onPickLabel: _pickLabel,
+        allDay: _allDay,
+        onAllDay: (v) => setState(() => _allDay = v),
+        start: _start,
+        end: _end,
+        today: calendarFormNow(),
+        rangeError: _showErrors && _rangeInvalid,
+        onPickStartDay: () => _pickDay(true),
+        onPickStartTime: () => _pickTime(true),
+        onPickEndDay: () => _pickDay(false),
+        onPickEndTime: () => _pickTime(false),
+        recurrence: _recurrence,
+        onPickRecurrence: _pickRecurrence,
+        reminders: _reminders,
+        onPickReminders: _pickReminders,
+        location: _location,
+        description: _description,
+        onStep: (s) => _enterStep(
+          s == CalendarFormStep.location ? _Step.location : _Step.description,
         ),
-        const SizedBox(height: PSpace.x8),
-        PTextInput(
-          controller: _locationCtrl,
+      ),
+      footer: _isEdit ? const [] : [save],
+      footerRow: _isEdit
+          ? PFormDeleteFooter(
+              deleteLabel: l.actionDelete,
+              onDelete: _submitting ? null : _delete,
+              save: save,
+            )
+          : null,
+    );
+  }
+
+  Widget _buildStep(AppLocalizations l) {
+    const gutter = EdgeInsets.fromLTRB(
+      PSpacing.globalGutter,
+      PSpacing.x3,
+      PSpacing.globalGutter,
+      PSpacing.x2,
+    );
+    if (_step == _Step.location) {
+      return Padding(
+        padding: gutter,
+        child: PInput(
+          controller: _stepCtrl,
+          autofocus: true,
+          semanticLabel: l.calLocation,
           placeholder: l.calLocationPlaceholder,
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        // 반복
-        PSectionLabel(
-          l.calRepeat,
-          variant: PSectionLabelVariant.header,
-          icon: LucideIcons.repeat,
-        ),
-        const SizedBox(height: PSpace.x8),
-        Wrap(
-          spacing: PSpace.x4,
-          runSpacing: PSpace.x4,
-          children: [
-            for (final r in _RecurrenceOption.values)
-              PToggle(
-                label: _recurrenceLabel(l, r),
-                pressed: _recurrence == r,
-                size: PToggleSize.sm,
-                onChanged: (_) => setState(() => _recurrence = r),
-              ),
+          textInputAction: TextInputAction.done,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(kCalendarLocationMax),
           ],
+          onSubmitted: (_) => _confirmStep(),
         ),
-        const SizedBox(height: PSpace.x16),
-
-        // 알림
-        PSectionLabel(
-          l.calFieldReminder,
-          variant: PSectionLabelVariant.header,
-          icon: LucideIcons.bell,
+      );
+    }
+    return Padding(
+      padding: gutter,
+      child: PField(
+        maxGraphemeCount: kCalendarContentMax,
+        child: PTextarea(
+          controller: _stepCtrl,
+          autofocus: true,
+          semanticLabel: l.calFieldDescription,
+          placeholder: l.calDescriptionPlaceholder,
+          maxHeight: 200,
         ),
-        const SizedBox(height: PSpace.x8),
-        Wrap(
-          spacing: PSpace.x4,
-          runSpacing: PSpace.x4,
-          children: [
-            for (final m in _reminderOptions)
-              PToggle(
-                label: _reminderLabel(l, m),
-                pressed: _reminders.contains(m),
-                size: PToggleSize.sm,
-                onChanged: (_) => setState(() {
-                  if (!_reminders.add(m)) _reminders.remove(m);
-                }),
-              ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }
-
-/// 라벨 select 항목 좌측 색 점 — web `h-3 w-3 rounded-full` 정합.
-Widget _labelDot(Color color) => Container(
-  width: 12,
-  height: 12,
-  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-);
