@@ -99,14 +99,10 @@ final tossIndicatorPricesProvider = FutureProvider<List<TossIndicatorPrice>>((
   }
 });
 
-/// 관심목록 (서버 stock-watch). 에러 시 빈 목록 — 화면은 빈 상태 표시.
+/// 관심목록 (서버 stock-watch). 오류는 던진다 — 화면이 "관심 종목을 불러오지 못했어요" 로 보인다.
 final watchGroupsProvider = FutureProvider<List<StockWatchGroup>>((ref) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getWatchGroups();
-  } catch (_) {
-    return const [];
-  }
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getWatchGroups();
 });
 
 /// 종목 호가 (라이브). 에러/미설정 시 null → 호가창 빈 상태 (mock 폴백 없음).
@@ -137,28 +133,32 @@ final tossTradesProvider = FutureProvider.family<List<TossTrade>?, String>((
   }
 });
 
-/// 증권 계좌 목록 (개인 키). 키 미등록/미설정/에러 시 null → 화면은 '연결 유도' 빈 상태.
-final tossAccountsProvider = FutureProvider<List<TossAccount>?>((ref) async {
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getAccounts();
-  } catch (_) {
-    return null;
-  }
+/// 증권 계좌 목록 (개인 키). 오류는 던진다 — 화면이 "불러오지 못했어요" 로 보이고, 연결 안내와 가른다
+/// (연결 여부는 셸이 먼저 거른다). 계좌가 없으면 빈 목록.
+final tossAccountsProvider = FutureProvider<List<TossAccount>>((ref) async {
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getAccounts();
 });
 
-/// 보유 자산 현황 (첫 계좌 기준). 계좌 없음/키 미등록/에러 시 null → 빈 상태.
-/// 시세 mock 폴백과 달리 보유는 mock 미사용(키 없으면 연결 유도).
+/// 보유 자산 현황 (첫 계좌 기준). 계좌 없음 → null(빈 상태), 오류 → 던진다(실패 한 벌).
 final tossHoldingsProvider = FutureProvider<TossHoldings?>((ref) async {
   final accounts = await ref.watch(tossAccountsProvider.future);
-  if (accounts == null || accounts.isEmpty) return null;
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    return await repo.getHoldings(accounts.first.accountSeq);
-  } catch (_) {
-    return null;
-  }
+  if (accounts.isEmpty) return null;
+  final repo = await ref.watch(stocksRepositoryProvider.future);
+  return repo.getHoldings(accounts.first.accountSeq);
 });
+
+/// 지수 추이선 종가 — 실패해도 화면은 멀쩡하다(추이선만 빠진다).
+final tossIndicatorClosesProvider = FutureProvider.family<List<double>, String>(
+  (ref, symbol) async {
+    try {
+      final repo = await ref.watch(stocksRepositoryProvider.future);
+      return await repo.getIndicatorCloses(symbol);
+    } catch (_) {
+      return const [];
+    }
+  },
+);
 
 /// 캔들(차트·일별시세·등락률 실산출). interval '1m'(1D) / '1d'(장기).
 /// 에러/미설정 시 null → 차트 빈 상태(의사난수 폴백 없음).
@@ -255,6 +255,16 @@ final stockSearchProvider =
       } catch (_) {
         return const [];
       }
+    });
+
+/// 종목 찾기 시트의 검색 — 오류를 던진다(시트가 "검색 결과를 불러오지 못했어요" 를 보인다).
+/// 자산의 종목 추가는 오류를 삼키는 [stockSearchProvider] 를 그대로 쓴다.
+final stockSearchResultProvider =
+    FutureProvider.family<List<StockMasterItem>, String>((ref, query) async {
+      final q = query.trim();
+      if (q.isEmpty) return const [];
+      final repo = await ref.watch(stocksRepositoryProvider.future);
+      return repo.searchStocks(q);
     });
 
 /// 심볼 → 한글 종목명 (연결된 종목 표시용). 심볼 정확 일치만 취하고 없으면 null.

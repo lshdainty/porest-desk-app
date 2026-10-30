@@ -12,9 +12,10 @@ import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dar
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/screen_band/p_screen_band.dart';
+import 'package:groo_damda_app/shared/ds/tabs/p_tabs.dart';
+import 'package:groo_damda_app/shared/ds/top_navigation/p_top_navigation.dart';
 import 'package:groo_damda_app/shared/widgets/p_back_button.dart';
 import 'package:groo_damda_app/shared/widgets/p_button.dart';
-import 'package:groo_damda_app/shared/widgets/p_tabs.dart';
 
 /// 증권 화면 셸 — 헤더와 증권사 선택을 소유하고 본문만 갈아 끼운다.
 ///
@@ -35,7 +36,6 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = AppLocalizations.of(context);
 
     // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 증권사 API 는 시세 포함 모든
@@ -57,39 +57,35 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.bgLayerBasement,
-      appBar: AppBar(
-        leadingWidth: PBackButton.leadingWidth,
-        titleSpacing: 0,
-        leading: PBackButton(onPressed: () => context.pop()),
-        title: Text(l.moreItemStocks),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
+      // 머리 = ds 상단 바(← + 제목) — 높이 56, 스크롤해도 선이 없다(I-13 5)
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(PTopNavigation.heightOf(context)),
+        child: PTopNavigation(
+          title: l.moreItemStocks,
+          leading: PTopNavigationIconButton.back(
+            label: l.actionBack,
+            onPressed: () => context.pop(),
+          ),
+        ),
       ),
       body: Column(
         children: [
-          // 연결이 하나뿐이면 고를 게 없다 — 탭을 감춘다.
-          // 띠 화면(I-01 결정 1B) — 증권사 고르기도 띠 하나다.
+          // 연결이 하나뿐이면 고를 게 없다 — 줄을 감춘다. 증권사 고르기는 1차 Line 탭(Fill · medium 44)이고,
+          // 화면 전체를 조절하므로 첫 띠와 한 덩어리다(틈 0 — T1 · T2).
           if (connected.length > 1)
-            PScreenSection(
-              padding: const EdgeInsets.symmetric(
-                horizontal: PSpacing.x6,
-                vertical: PSpacing.x3,
-              ),
+            ColoredBox(
+              color: context.colors.bgLayerDefault,
               child: PTabs<String>(
                 value: active,
                 onChanged: (v) => setState(() => _broker = v),
-                variant: PTabsVariant.container,
-                size: PTabsSize.sm,
-                expand: true,
+                size: PTabsSize.medium,
+                semanticLabel: l.moreItemStocks,
                 items: [
                   for (final b in connected)
-                    PTabItem(value: b, label: _brokerLabel(l, b)),
+                    PTab(value: b, label: _brokerLabel(l, b)),
                 ],
               ),
             ),
-          // 탭 띠와 본문 첫 띠 사이 8 — 탭이 보일 때만(띠 사이 8, 머리 아래 맨 위는 0)
-          if (connected.length > 1) const SizedBox(height: kScreenBandGap),
           Expanded(child: _body(active)),
         ],
       ),

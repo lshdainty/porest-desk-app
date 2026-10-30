@@ -320,6 +320,36 @@ class StocksRepository {
     }
   }
 
+  /// 시장 지표 캔들 종가(과거 → 현재) — 지수 줄의 추이선. 점이 둘 미만이면 빈 목록.
+  Future<List<double>> getIndicatorCloses(
+    String symbol, {
+    int size = 60,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/market-indicators/$symbol/candles',
+        queryParameters: {'interval': '1m', 'size': size},
+      );
+      final payload = _payload(res);
+      final list = (payload is Map ? payload['content'] : payload) as List?;
+      final rows = [
+        for (final e in list ?? const [])
+          if (e is Map<String, dynamic>)
+            (
+              e['timestamp'] as String? ?? '',
+              double.tryParse((e['closePrice'] as String?) ?? ''),
+            ),
+      ]..sort((a, b) => a.$1.compareTo(b.$1));
+      final closes = [
+        for (final r in rows)
+          if (r.$2 != null) r.$2!,
+      ];
+      return closes.length >= 2 ? closes : const [];
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // 관심목록 (서버 stock-watch, 게이트 없음) --------------------------------
 
   Future<List<StockWatchGroup>> getWatchGroups() async {
