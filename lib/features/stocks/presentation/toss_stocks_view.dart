@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:groo_damda_app/app/theme/groo_tokens.g.dart';
-import 'package:groo_damda_app/core/format/change_rate.dart';
 import 'package:groo_damda_app/core/lifecycle/screen_visibility.dart';
 import 'package:groo_damda_app/core/format/date.dart';
 import 'package:groo_damda_app/core/format/format_locale.dart';
@@ -19,7 +18,9 @@ import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
 import 'package:groo_damda_app/features/stocks/presentation/chart_web_view.dart';
+import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stocks_parts.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 import 'package:groo_damda_app/shared/ds/alert_dialog/p_alert_dialog.dart';
 import 'package:groo_damda_app/shared/ds/badge/p_badge.dart';
@@ -57,9 +58,6 @@ class TossStocksView extends ConsumerStatefulWidget {
 }
 
 enum _Seg { holdings, watch, discover }
-
-/// 숫자 정렬용 tabular figures.
-const List<FontFeature> _tnum = [FontFeature.tabularFigures()];
 
 String _detailPath(String symbol) =>
     '/stocks/toss/${Uri.encodeComponent(symbol)}';
@@ -202,8 +200,8 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BandTitle(l.stocksSectionStocks),
-          _SearchEntry(onTap: _openSearch),
+          StocksBandTitle(l.stocksSectionStocks),
+          StocksSearchEntry(onTap: _openSearch),
           Padding(
             padding: const EdgeInsets.only(top: PSpacing.x2),
             child: PChipTabs<_Seg>(
@@ -246,14 +244,14 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
       if (watchAsync.hasError && !watchAsync.hasValue) {
         slivers.add(
           SliverToBoxAdapter(
-            child: _Failure(
+            child: StocksFailure(
               title: l.stocksFailWatch,
               onRetry: () => ref.invalidate(watchGroupsProvider),
             ),
           ),
         );
       } else if (watchAsync.isLoading && !watchAsync.hasValue) {
-        slivers.add(const SliverToBoxAdapter(child: _GroupSkeleton()));
+        slivers.add(const SliverToBoxAdapter(child: StocksGroupSkeleton()));
       } else if (groups.isEmpty) {
         slivers.add(
           SliverToBoxAdapter(
@@ -334,295 +332,6 @@ class _TossStocksViewState extends ConsumerState<TossStocksView> {
   }
 }
 
-// ---- 공용 조각 --------------------------------------------------------------
-
-/// 띠 구역 제목 — 위 24 · 좌우 24 · 아래 4 (R4 t5 · 700).
-class _BandTitle extends StatelessWidget {
-  const _BandTitle(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        PSpacing.x6,
-        PSpacing.x6,
-        PSpacing.x6,
-        PSpacing.x1,
-      ),
-      child: Semantics(
-        header: true,
-        headingLevel: 2,
-        child: Text(
-          text,
-          style: PTypography.t5.copyWith(
-            fontWeight: FontWeight.w700,
-            color: context.colors.fgNeutral,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-PDeltaDirection _dir(StockDirection d) => switch (d) {
-  StockDirection.up => PDeltaDirection.up,
-  StockDirection.down => PDeltaDirection.down,
-  StockDirection.flat => PDeltaDirection.flat,
-};
-
-/// 등락률 Delta — ▲/▼ + "12.23%". 0 이면 "0.00%" 화살표 없이 옅은 색.
-class _PctDelta extends StatelessWidget {
-  const _PctDelta(this.pct);
-  final double pct;
-
-  @override
-  Widget build(BuildContext context) {
-    final d = directionOfPct(pct);
-    if (d == StockDirection.flat) {
-      return Text(
-        '0.00%',
-        style: PTypography.t3.copyWith(
-          color: context.colors.fgNeutralSubtle,
-          fontWeight: FontWeight.w500,
-          fontFeatures: _tnum,
-        ),
-      );
-    }
-    return PDelta(direction: _dir(d), value: formatChangeRateAbs(pct));
-  }
-}
-
-/// 손익 금액 + 수익률 Delta ("▲ 338,749,027원 · 10.26%") — 가리면 금액 대신 점.
-///
-/// [currency] 는 금액의 통화다 — 미국 종목 손익은 "$123.45"(원이 아니다). [pct] 가 null 이면 금액만("▲ $123.45").
-/// 0 이면 방향 없는 "변화 없음"(card.md Delta flat).
-PDelta _pnlDelta(
-  num pnl,
-  double? pct,
-  bool masked, {
-  String currency = 'KRW',
-  String? text,
-}) {
-  final d = directionOf(pnl.toDouble());
-  final amount = masked
-      ? '••••'
-      : fmtByCurrency(pnl.abs().toDouble(), currency);
-  return PDelta(
-    direction: _dir(d),
-    value: d == StockDirection.flat
-        ? null
-        : (pct == null ? amount : '$amount · ${formatChangeRateAbs(pct)}'),
-    text: text,
-  );
-}
-
-TextStyle _moneyStyle(BuildContext context) => PTypography.t5.copyWith(
-  fontWeight: FontWeight.w700,
-  color: context.colors.fgNeutral,
-  fontFeatures: _tnum,
-);
-
-/// 종목 줄 — ds List 누르는 줄. 앞 타일 없음(1T-다), 뒤 = 금액 + Delta.
-class _StockLine extends StatelessWidget {
-  const _StockLine({
-    required this.name,
-    required this.detail,
-    required this.onTap,
-    this.amount,
-    this.pct,
-    this.rank,
-    this.topRank = false,
-  });
-
-  final String name;
-  final String detail;
-  final VoidCallback onTap;
-  final String? amount;
-  final double? pct;
-  final int? rank;
-  final bool topRank;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final w = MediaQuery.sizeOf(context).width;
-    return PListButtonItem(
-      title: name,
-      detail: detail,
-      onTap: onTap,
-      prefix: rank == null
-          ? null
-          : SizedBox(
-              width: 20,
-              child: Text(
-                '$rank',
-                style: PTypography.t4.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: topRank ? c.fgBrand : c.fgNeutralSubtle,
-                  fontFeatures: _tnum,
-                ),
-              ),
-            ),
-      suffix: PListValue(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: w * 0.6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                keepAllAmount(amount ?? '—'),
-                textAlign: TextAlign.right,
-                style: _moneyStyle(context),
-              ),
-              if (pct != null) ...[const SizedBox(height: 2), _PctDelta(pct!)],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 구역 실패 한 벌 — 제목 + "잠시 뒤 다시 시도해주세요." + [다시 시도]. 오류 원문은 그리지 않는다.
-class _Failure extends StatelessWidget {
-  const _Failure({required this.title, required this.onRetry});
-  final String title;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return ColoredBox(
-      color: context.colors.bgLayerDefault,
-      child: PResultSection(
-        kind: PResultKind.failure,
-        size: PResultSize.medium,
-        title: title,
-        description: l.stocksFailDesc,
-        primaryAction: PResultAction(label: l.actionRetry, onPressed: onRetry),
-        headingLevel: 3,
-      ),
-    );
-  }
-}
-
-/// 목록 줄 Skeleton — 제목 · 설명 · 오른쪽 두 줄.
-class _LineSkeleton extends StatelessWidget {
-  const _LineSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpacing.x6,
-        vertical: PSpacing.x3,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PSkeleton(width: 120, height: 16),
-                const SizedBox(height: 4),
-                PSkeleton(width: 80, height: 13),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              PSkeleton(width: 84, height: 16),
-              const SizedBox(height: 4),
-              PSkeleton(width: 52, height: 13),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GroupSkeleton extends StatelessWidget {
-  const _GroupSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: AppLocalizations.of(context).stocksRankingLoading,
-      child: ColoredBox(
-        color: context.colors.bgLayerDefault,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                PSpacing.x6,
-                PSpacing.x2,
-                PSpacing.x6,
-                PSpacing.x2,
-              ),
-              child: PSkeleton(width: 96, height: 19),
-            ),
-            for (var i = 0; i < 3; i++) const _LineSkeleton(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 찾는 칸(입구) — Searchable List 칸 모양의 단추. 누르면 찾기 시트(밑줄형 large 40 · 돋보기 24 · 글 t6).
-class _SearchEntry extends StatelessWidget {
-  const _SearchEntry({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final c = context.colors;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        PSpacing.x6,
-        PSpacing.x2,
-        PSpacing.x6,
-        0,
-      ),
-      child: Semantics(
-        button: true,
-        label: l.stocksSearch,
-        excludeSemantics: true,
-        onTap: onTap,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: c.strokeNeutralWeak)),
-            ),
-            child: Row(
-              children: [
-                Icon(LucideIcons.search, size: 24, color: c.fgNeutralSubtle),
-                const SizedBox(width: PSpacing.x2),
-                Expanded(
-                  child: Text(
-                    l.stocksSearchPlaceholder,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: PTypography.t6.copyWith(color: c.fgPlaceholder),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ---- 띠 ① 내 투자 -------------------------------------------------------------
 
 class _InvestBand extends ConsumerWidget {
@@ -643,7 +352,7 @@ class _InvestBand extends ConsumerWidget {
     if (holdingsAsync.hasError && !holdingsAsync.hasValue) {
       return PScreenSection(
         padding: EdgeInsets.zero,
-        child: _Failure(title: l.stocksFailInvest, onRetry: onRetry),
+        child: StocksFailure(title: l.stocksFailInvest, onRetry: onRetry),
       );
     }
     if (holdingsAsync.isLoading && !holdingsAsync.hasValue) {
@@ -696,7 +405,7 @@ class _InvestBand extends ConsumerWidget {
             child: PCardStat(
               label: l.stocksMyEval,
               value: money(s.evalAmount),
-              delta: _pnlDelta(
+              delta: stocksPnlDelta(
                 s.pnl,
                 s.pnlPct,
                 masked,
@@ -712,14 +421,14 @@ class _InvestBand extends ConsumerWidget {
                 titleColor: c.fgNeutralSubtle,
                 suffix: PListValue.amount(
                   money(s.purchaseAmount),
-                  style: _moneyStyle(context),
+                  style: stocksMoneyStyle(context),
                 ),
               ),
               PListItem(
                 title: l.stocksDayPnl,
                 titleColor: c.fgNeutralSubtle,
                 suffix: PListValue(
-                  child: _pnlDelta(s.dailyPnl, s.dailyPnlPct, masked),
+                  child: stocksPnlDelta(s.dailyPnl, s.dailyPnlPct, masked),
                 ),
               ),
               PListItem(
@@ -728,7 +437,7 @@ class _InvestBand extends ConsumerWidget {
                 suffix: PListValue(
                   child: Text(
                     l.stocksUnitCount(s.count),
-                    style: _moneyStyle(context),
+                    style: stocksMoneyStyle(context),
                   ),
                 ),
               ),
@@ -775,8 +484,8 @@ class _MarketBand extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _BandTitle(l.stocksSectionMarket),
-            _Failure(
+            StocksBandTitle(l.stocksSectionMarket),
+            StocksFailure(
               title: l.stocksFailMarket,
               onRetry: () {
                 ref.invalidate(tossIndicatorPricesProvider);
@@ -797,7 +506,7 @@ class _MarketBand extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BandTitle(l.stocksSectionMarket),
+          StocksBandTitle(l.stocksSectionMarket),
           const _MarketStatusLine(),
           const SizedBox(height: PSpacing.x1),
           PList(
@@ -811,7 +520,7 @@ class _MarketBand extends ConsumerWidget {
                   detail: l.stocksFxBasis,
                   suffix: PListValue.amount(
                     fmtFxRate(fxRaw),
-                    style: _moneyStyle(context),
+                    style: stocksMoneyStyle(context),
                   ),
                 ),
             ],
@@ -841,7 +550,7 @@ class _MarketStatusLineState extends ConsumerState<_MarketStatusLine> {
     _tick = Timer.periodic(const Duration(seconds: 30), (_) {
       if (!mounted || !ref.read(appForegroundProvider)) return;
       final kr = ref.read(tossMarketCalendarKrProvider).value;
-      final kst = stocksNow().toUtc().add(const Duration(hours: 9));
+      final kst = stocksClock().toUtc().add(const Duration(hours: 9));
       String two(int n) => n.toString().padLeft(2, '0');
       final today = '${kst.year}-${two(kst.month)}-${two(kst.day)}';
       if (kr != null && kr.today.date.isNotEmpty && kr.today.date != today) {
@@ -868,9 +577,9 @@ class _MarketStatusLineState extends ConsumerState<_MarketStatusLine> {
     final markets = <({String name, bool open, String detail})?>[
       krAsync.hasValue
           ? () {
-              final r = _marketState(
+              final r = marketStateNow(
                 krAsync.value!.today.regularMarket,
-                _Tz.kr,
+                StockTz.kr,
                 l,
               );
               return (name: l.stocksMarketKr, open: r.open, detail: r.detail);
@@ -878,9 +587,9 @@ class _MarketStatusLineState extends ConsumerState<_MarketStatusLine> {
           : null,
       usAsync.hasValue
           ? () {
-              final r = _marketState(
+              final r = marketStateNow(
                 usAsync.value!.today.regularMarket,
-                _Tz.us,
+                StockTz.us,
                 l,
               );
               return (name: l.stocksMarketUs, open: r.open, detail: r.detail);
@@ -939,7 +648,7 @@ class _MarketStatusLineState extends ConsumerState<_MarketStatusLine> {
             ),
             style: PTypography.t4.copyWith(
               color: c.fgNeutralSubtle,
-              fontFeatures: _tnum,
+              fontFeatures: kStocksTnum,
             ),
           ),
         ),
@@ -1014,9 +723,12 @@ class _IndexLine extends ConsumerWidget {
               children: [
                 Text(
                   fmtIndexPoint(index.priceValue),
-                  style: _moneyStyle(context),
+                  style: stocksMoneyStyle(context),
                 ),
-                if (pct != null) ...[const SizedBox(height: 2), _PctDelta(pct)],
+                if (pct != null) ...[
+                  const SizedBox(height: 2),
+                  StocksPctDelta(pct),
+                ],
               ],
             ),
           ],
@@ -1081,13 +793,13 @@ class _HoldingsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     if (async.hasError && !async.hasValue) {
-      return _Failure(title: l.stocksFailHoldings, onRetry: onRetry);
+      return StocksFailure(title: l.stocksFailHoldings, onRetry: onRetry);
     }
     if (async.isLoading && !async.hasValue) {
       return Semantics(
         label: l.stocksRankingLoading,
         child: Column(
-          children: [for (var i = 0; i < 5; i++) const _LineSkeleton()],
+          children: [for (var i = 0; i < 5; i++) const StocksLineSkeleton()],
         ),
       );
     }
@@ -1104,10 +816,10 @@ class _HoldingsList extends StatelessWidget {
       semanticLabel: l.stocksTabHoldings,
       children: [
         for (final h in items)
-          _StockLine(
+          StocksLine(
             name: h.name.isNotEmpty ? h.name : h.symbol,
             detail:
-                '${h.symbol} · ${l.stocksSharesUnit(_qty(h.quantityValue))}',
+                '${h.symbol} · ${l.stocksSharesUnit(stocksQty(h.quantityValue))}',
             amount: masked
                 ? '••••'
                 : fmtByCurrency(h.marketValueAmountValue, h.currency),
@@ -1117,14 +829,6 @@ class _HoldingsList extends StatelessWidget {
       ],
     );
   }
-}
-
-String _qty(double q) {
-  if (q != q.roundToDouble()) {
-    final whole = q.truncate();
-    return '${krw(whole)}.${q.toStringAsFixed(4).split('.').last}';
-  }
-  return krw(q.round());
 }
 
 // ---- 관심 그룹 -----------------------------------------------------------------
@@ -1266,7 +970,7 @@ class _WatchLine extends ConsumerWidget {
     final prevClose = last == null
         ? null
         : ref.watch(prevCloseProvider(item.symbol)).value;
-    return _StockLine(
+    return StocksLine(
       name: item.nameKr.isNotEmpty ? item.nameKr : item.symbol,
       detail: '${item.symbol} · ${stockMarketLabel(l, item.marketCode)}',
       amount: last == null ? null : fmtByCurrency(last!, item.currency),
@@ -1629,103 +1333,6 @@ class _StockSearchSheetState extends ConsumerState<_StockSearchSheet> {
   }
 }
 
-// ---- 색 헬퍼 ---------------------------------------------------------------
-
-/// 상승/하락 색 — 국내 증권 통념: 상승=빨강, 하락=파랑. (호가 · 체결 표가 쓴다)
-Color _roleTrend(BuildContext context, double pct) =>
-    pct >= 0 ? context.colors.fgCritical : context.colors.fgInformative;
-
-// ---- 매수 유의사항 라벨 (토스 warningType → 한글) ----------------------------
-
-/// 토스 warningType → 로케일 라벨 (웹 `warning.*` 키 미러). 모르는 타입은 원문 노출.
-String _warningLabel(AppLocalizations l, String type) => switch (type) {
-  'LIQUIDATION_TRADING' => l.stocksWarningLiquidationTrading,
-  'OVERHEATED' => l.stocksWarningOverheated,
-  'SHORT_TERM_OVERHEAT' => l.stocksWarningShortTermOverheat,
-  'EXCESSIVE_RISE' => l.stocksWarningExcessiveRise,
-  'INVESTMENT_WARNING' => l.stocksWarningInvestmentWarning,
-  'INVESTMENT_RISK' => l.stocksWarningInvestmentRisk,
-  'INVESTMENT_CAUTION' => l.stocksWarningInvestmentCaution,
-  'VI' || 'VI_STATIC_AND_DYNAMIC' => l.stocksWarningVi,
-  'VI_STATIC' => l.stocksWarningViStatic,
-  'VI_DYNAMIC' => l.stocksWarningViDynamic,
-  'STOCK_WARRANTS' => l.stocksWarningStockWarrants,
-  'ADMINISTRATIVE' => l.stocksWarningAdministrative,
-  'ADJUSTMENT_OF_SHARES' => l.stocksWarningAdjustmentOfShares,
-  _ => type,
-};
-
-// ---- 장 상태 계산 (지금 순간 vs 정규장 세션 순간) ----------------------------------
-//
-// 토스 OpenAPI market-calendar(KR · US 둘 다): 세션 시각은 **한국 시각 오프셋이 붙은 ISO date-time** 이다 —
-// 예) 미국 정규장 "2026-03-25T22:30:00+09:00" ~ "2026-03-26T05:00:00+09:00"(자정을 넘는다), 국내 "…T09:00:00+09:00"
-// (`~/qa/design-work/refs/stocks-api/_raw/toss/latest_openapi.json` UsRegularMarketSession · RegularMarketSession 의 example ·
-// 백엔드는 그대로 넘긴다 `TossMarketInfoDto.UsSession(String startTime, String endTime)`). 그래서 시각을 순간으로 읽어 지금과
-// 견주면 시장 시간대 · 서머타임 · 자정 넘김을 따질 일이 없고, 보이는 시각은 그대로 한국 시각이다.
-// 옛 "HH:MM:SS" 글(시험 · 옛 하네스)은 그날 한국 시각으로 읽는다.
-
-enum _Tz { kr, us }
-
-/// 장 상태가 읽는 시각 — 제품은 실제 시각 그대로, 시험 · 하네스만 고정한다(통계의 `statsNow` 와 같은 방식).
-/// 고정했으면 시험이 끝날 때 되돌린다(벽시계와 섞이면 다음 날부터 조용히 깨진다).
-@visibleForTesting
-DateTime Function() stocksNow = DateTime.now;
-
-const _kst = Duration(hours: 9);
-
-/// 세션 시각 글 → 순간(UTC). 오프셋 붙은 ISO 는 그대로, "HH:MM[:SS]" 는 [nowUtc] 의 한국 날짜 그 시각으로 읽는다.
-DateTime? _instantOf(String? raw, DateTime nowUtc) {
-  if (raw == null || raw.isEmpty) return null;
-  final iso = DateTime.tryParse(raw);
-  if (iso != null && raw.length > 8) return iso.toUtc();
-  final m = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch(raw);
-  if (m == null) return null;
-  final kstNow = nowUtc.add(_kst);
-  return DateTime.utc(
-    kstNow.year,
-    kstNow.month,
-    kstNow.day,
-    int.parse(m.group(1)!),
-    int.parse(m.group(2)!),
-  ).subtract(_kst);
-}
-
-/// 장 상태 — 열림 여부와 줄 글. 보이는 시각은 모두 한국 시각 · 오전 · 오후 12시간.
-({bool open, String detail}) _marketState(
-  TossMarketSession? session,
-  _Tz tz,
-  AppLocalizations l,
-) => marketStateAt(session, stocksNow().toUtc(), l);
-
-@visibleForTesting
-({bool open, String detail}) marketStateAt(
-  TossMarketSession? session,
-  DateTime nowUtc,
-  AppLocalizations l,
-) {
-  var start = _instantOf(session?.startTime, nowUtc);
-  var end = _instantOf(session?.endTime, nowUtc);
-  if (start == null || end == null) {
-    return (open: false, detail: l.stocksMarketHoliday);
-  }
-  // 오프셋 없는 "22:30 ~ 05:00" 처럼 끝이 시작보다 이르면 다음 날 끝이다(자정 넘김)
-  if (end.isBefore(start)) end = end.add(const Duration(days: 1));
-  // 자정을 넘는 세션이 어제 시작해 지금 진행 중이면 시작을 하루 앞으로 당긴다
-  if (nowUtc.isBefore(start) &&
-      !nowUtc.isAfter(end.subtract(const Duration(days: 1)))) {
-    start = start.subtract(const Duration(days: 1));
-    end = end.subtract(const Duration(days: 1));
-  }
-  String clock(DateTime utc) => timeOfDay12(utc.add(_kst));
-  if (!nowUtc.isBefore(start) && !nowUtc.isAfter(end)) {
-    return (open: true, detail: l.stocksMarketTrading(clock(nowUtc)));
-  }
-  if (nowUtc.isBefore(start)) {
-    return (open: false, detail: l.stocksMarketOpensAt(clock(start)));
-  }
-  return (open: false, detail: l.stocksMarketClosed);
-}
-
 // ---- 발견(디스커버리) 랭킹 — 토스 rankings 실데이터 -----------------------------
 
 class _RankLine extends ConsumerWidget {
@@ -1742,7 +1349,7 @@ class _RankLine extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final name = ref.watch(tossStockInfoProvider(item.symbol)).value?.name;
     final last = item.price.lastPriceValue;
-    return _StockLine(
+    return StocksLine(
       name: (name != null && name.isNotEmpty) ? name : item.symbol,
       detail: item.symbol,
       amount: last > 0 ? fmtByCurrency(last, item.currency) : null,
@@ -1779,7 +1386,7 @@ class _DiscoverPanelState extends ConsumerState<_DiscoverPanel> {
     final rankings = rankingsAsync.value?.rankings ?? const <TossRankingItem>[];
     final Widget body;
     if (rankingsAsync.hasError && !rankingsAsync.hasValue) {
-      body = _Failure(
+      body = StocksFailure(
         title: l.stocksFailRanking,
         onRetry: () => ref.invalidate(tossRankingsProvider(key)),
       );
@@ -1787,7 +1394,7 @@ class _DiscoverPanelState extends ConsumerState<_DiscoverPanel> {
       body = Semantics(
         label: l.stocksRankingLoading,
         child: Column(
-          children: [for (var i = 0; i < 10; i++) const _LineSkeleton()],
+          children: [for (var i = 0; i < 10; i++) const StocksLineSkeleton()],
         ),
       );
     } else if (rankings.isEmpty) {
@@ -1850,32 +1457,6 @@ class _DiscoverPanelState extends ConsumerState<_DiscoverPanel> {
   }
 }
 
-// ---- 차트 기간 (식별자는 임베드 주소 값이라 그대로, 표시 글만 바꾼다) -------------
-
-const _kRanges = ['1D', '1주', '1개월', '3개월', '1년'];
-
-String _rangeLabel(AppLocalizations l, String range) => switch (range) {
-  '1주' => l.stocksRange1w,
-  '1개월' => l.stocksRange1m,
-  '3개월' => l.stocksRange3m,
-  '1년' => l.stocksRange1y,
-  _ => l.stocksRange1d,
-};
-
-/// 심볼 정확 일치 마스터 항목 (KR/US 우선 — 시장 간 심볼 중복 대비).
-StockMasterItem? _findMaster(List<StockMasterItem> items, String symbol) {
-  final up = symbol.toUpperCase();
-  final exact = [
-    for (final s in items)
-      if (s.symbol.toUpperCase() == up) s,
-  ];
-  if (exact.isEmpty) return null;
-  for (final s in exact) {
-    if (s.countryCode == 'KR' || s.countryCode == 'US') return s;
-  }
-  return exact.first;
-}
-
 // ---- 종목 상세 = 화면(3-B) -------------------------------------------------------
 
 /// 종목 상세 화면 — 폰은 띠 다섯(머리 · 차트 / 내 보유 / 호가 · 체결 / 기본 정보 / 일별 시세 + 매매).
@@ -1924,7 +1505,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
     final masked = ref.watch(hideCardProvider('stocks.summary'));
     final symbol = widget.symbol;
 
-    final master = _findMaster(
+    final master = findMasterBySymbol(
       ref.watch(stockSearchProvider(symbol)).value ?? const <StockMasterItem>[],
       symbol,
     );
@@ -2016,7 +1597,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                   style: PTypography.t12.copyWith(
                     fontWeight: FontWeight.w700,
                     color: c.fgNeutral,
-                    fontFeatures: _tnum,
+                    fontFeatures: kStocksTnum,
                   ),
                 ),
                 if (changePct != null && last != null && prevClose != null) ...[
@@ -2024,7 +1605,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                   // "▲ 45,200원 · 0.30%" — 금액(전일 종가 대비)과 등락률(M5)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: _pnlDelta(
+                    child: stocksPnlDelta(
                       last - prevClose,
                       changePct,
                       false,
@@ -2038,7 +1619,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                     '≈ ${krwSigned((last * fxRate).round(), false, unit: true)}',
                     style: PTypography.t3.copyWith(
                       color: c.fgNeutralSubtle,
-                      fontFeatures: _tnum,
+                      fontFeatures: kStocksTnum,
                     ),
                   ),
                 ],
@@ -2079,7 +1660,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                     children: [
                       for (final w in warnings)
                         PBadge(
-                          label: _warningLabel(l, w.warningType),
+                          label: stocksWarningLabel(l, w.warningType),
                           tone: PBadgeTone.warning,
                         ),
                     ],
@@ -2104,8 +1685,8 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
               onChanged: (v) => setState(() => _range = v),
               semanticLabel: l.stocksDetailTitle,
               items: [
-                for (final r in _kRanges)
-                  PSegmentedItem(value: r, label: _rangeLabel(l, r)),
+                for (final r in kStockRanges)
+                  PSegmentedItem(value: r, label: stockRangeLabel(l, r)),
               ],
             ),
           ),
@@ -2170,31 +1751,6 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
   }
 }
 
-/// 키-값 줄 — 키는 옅게, 값은 오른쪽 굵게. 보기만 하는 줄.
-Widget _kvLine(
-  BuildContext context,
-  String key,
-  String value, {
-  Color? valueColor,
-  Widget? valueWidget,
-}) {
-  final c = context.colors;
-  return PListItem(
-    title: key,
-    titleColor: c.fgNeutralSubtle,
-    // 키-값 줄은 ds List 값 그대로(위아래 12) — 웹 `phone-parts` 와 같다. 키 글 t4 는 PListItem 이 t5 로 고정이라 ds 몫
-    suffix: PListValue(
-      child:
-          valueWidget ??
-          Text(
-            keepAllAmount(value),
-            textAlign: TextAlign.right,
-            style: _moneyStyle(context).copyWith(color: valueColor),
-          ),
-    ),
-  );
-}
-
 /// 띠 ② 내 보유 — 한 줄에 하나. 손익 · 수익률 · 일간 손익은 Delta, 금액은 굵은 고정폭.
 class _HoldingBand extends StatelessWidget {
   const _HoldingBand({required this.holding, required this.masked});
@@ -2209,47 +1765,57 @@ class _HoldingBand extends StatelessWidget {
     final pnl = h.profitLossAmountValue;
     final day = h.dailyProfitLossAmountValue;
     final avg = h.averagePurchasePriceValue;
-    final qtyLabel = l.stocksSharesUnit(_qty(h.quantityValue));
+    final qtyLabel = l.stocksSharesUnit(stocksQty(h.quantityValue));
     String money(num v) => masked ? '••••' : fmtByCurrency(v.toDouble(), cur);
-    PDelta delta(num v) => _pnlDelta(v, null, masked, currency: cur);
+    PDelta delta(num v) => stocksPnlDelta(v, null, masked, currency: cur);
     return PScreenSection(
       padding: const EdgeInsets.only(bottom: PSpacing.x2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BandTitle(l.stocksMyHoldings),
+          StocksBandTitle(l.stocksMyHoldings),
           PList(
             children: [
-              _kvLine(
+              stocksKvLine(
                 context,
                 l.stocksEvalAmount,
                 money(h.marketValueAmountValue),
               ),
-              _kvLine(context, l.stocksEvalPnl, '', valueWidget: delta(pnl)),
-              _kvLine(
+              stocksKvLine(
+                context,
+                l.stocksEvalPnl,
+                '',
+                valueWidget: delta(pnl),
+              ),
+              stocksKvLine(
                 context,
                 l.stocksReturnRate,
                 '',
-                valueWidget: _PctDelta(h.profitLossRateValue),
+                valueWidget: StocksPctDelta(h.profitLossRateValue),
               ),
-              _kvLine(context, l.stocksQuantityHeld, qtyLabel),
-              _kvLine(
+              stocksKvLine(context, l.stocksQuantityHeld, qtyLabel),
+              stocksKvLine(
                 context,
                 l.stocksAvgPrice,
                 masked ? '••••' : fmtByCurrency(avg, cur),
               ),
-              _kvLine(
+              stocksKvLine(
                 context,
                 l.stocksPurchaseAmount,
                 money(h.purchaseAmountValue),
               ),
-              _kvLine(context, l.stocksDayPnl, '', valueWidget: delta(day)),
-              _kvLine(
+              stocksKvLine(
+                context,
+                l.stocksDayPnl,
+                '',
+                valueWidget: delta(day),
+              ),
+              stocksKvLine(
                 context,
                 l.stocksFeesTax,
                 fmtByCurrency(h.feesValue, cur),
               ),
-              _kvLine(context, l.stocksSellable, qtyLabel),
+              stocksKvLine(context, l.stocksSellable, qtyLabel),
             ],
           ),
         ],
@@ -2279,7 +1845,7 @@ class _QuotesBand extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BandTitle(l.stocksOrderbookTrades),
+          StocksBandTitle(l.stocksOrderbookTrades),
           _QuotesCard(
             symbol: symbol,
             currency: currency,
@@ -2335,7 +1901,7 @@ class _DailyBand extends ConsumerWidget {
     String fmt(double v) => fmtByCurrency(v, isUs ? 'USD' : 'KRW');
     final Widget list;
     if (candlesAsync.hasError && !candlesAsync.hasValue) {
-      list = _Failure(
+      list = StocksFailure(
         title: l.stocksFailDaily,
         onRetry: () => ref.invalidate(
           tossCandlesProvider((symbol: symbol, interval: '1d')),
@@ -2345,7 +1911,7 @@ class _DailyBand extends ConsumerWidget {
       list = Semantics(
         label: l.stocksDailyPricesLoading,
         child: Column(
-          children: [for (var i = 0; i < 5; i++) const _LineSkeleton()],
+          children: [for (var i = 0; i < 5; i++) const StocksLineSkeleton()],
         ),
       );
     } else if (rows.isEmpty) {
@@ -2370,10 +1936,10 @@ class _DailyBand extends ConsumerWidget {
                   children: [
                     Text(
                       keepAllAmount(fmt(r.close)),
-                      style: _moneyStyle(context),
+                      style: stocksMoneyStyle(context),
                     ),
                     const SizedBox(height: 2),
-                    _PctDelta(r.chg),
+                    StocksPctDelta(r.chg),
                   ],
                 ),
               ),
@@ -2386,7 +1952,7 @@ class _DailyBand extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BandTitle(l.stocksDailyPrices),
+          StocksBandTitle(l.stocksDailyPrices),
           list,
           // 매매 — 주문 기능이 아직 없다. 단추는 남기고 막고 이유 줄을 둔다(D3 B, 사용자 10-30).
           // 매도 = brandSolid · 매수 = criticalSolid, 사이 8. 누르면 뜨던 옛 띠는 없다.
@@ -2488,7 +2054,7 @@ class TossPortfolioPage extends ConsumerWidget {
 
     Widget content;
     if (holdingsAsync.hasError && !holdingsAsync.hasValue) {
-      content = _Failure(
+      content = StocksFailure(
         title: l.stocksFailInvest,
         onRetry: () {
           ref.invalidate(tossAccountsProvider);
@@ -2570,7 +2136,7 @@ class TossPortfolioPage extends ConsumerWidget {
                         masked
                             ? '••••'
                             : '${comp[i].weightPct.toStringAsFixed(2)}%',
-                        style: _moneyStyle(context),
+                        style: stocksMoneyStyle(context),
                       ),
                     ),
                   ),
@@ -2645,7 +2211,7 @@ class _StockInfoCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     if (failed) {
-      return _Failure(
+      return StocksFailure(
         title: l.stocksFailInfo,
         onRetry: () => ref.invalidate(tossStockInfoProvider(symbol)),
       );
@@ -2722,7 +2288,8 @@ class _StockInfoCard extends ConsumerWidget {
     return PList(
       semanticLabel: l.stocksBasicInfo,
       children: [
-        for (final r in rows) _kvLine(context, r.$1, r.$2, valueColor: r.$3),
+        for (final r in rows)
+          stocksKvLine(context, r.$1, r.$2, valueColor: r.$3),
       ],
     );
   }
@@ -2753,7 +2320,7 @@ class _InfoBand extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BandTitle(l.stocksBasicInfo),
+          StocksBandTitle(l.stocksBasicInfo),
           _StockInfoCard(
             symbol: symbol,
             currency: currency,
@@ -2843,7 +2410,7 @@ class _OrderBook extends StatelessWidget {
                     krw(q),
                     style: PTypography.t3.copyWith(
                       color: context.colors.fgNeutralSubtle,
-                      fontFeatures: _tnum,
+                      fontFeatures: kStocksTnum,
                     ),
                   ),
                 ),
@@ -2884,7 +2451,7 @@ class _OrderBook extends StatelessWidget {
                   child: Text(
                     fmt(p),
                     style: TextStyle(
-                      fontFeatures: _tnum,
+                      fontFeatures: kStocksTnum,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: priceColor,
@@ -2993,14 +2560,14 @@ class _OrderBookLast extends StatelessWidget {
               // 전일 종가를 못 받으면 등락을 모른다 — 방향 색 · 가짜 0.00% 를 그리지 않는다(M4)
               color: changePct == null
                   ? context.colors.fgNeutral
-                  : _roleTrend(context, changePct!),
+                  : stocksRoleTrend(context, changePct!),
               fontWeight: FontWeight.w700,
-              fontFeatures: _tnum,
+              fontFeatures: kStocksTnum,
             ),
           ),
           if (changePct != null) ...[
             const SizedBox(width: 6),
-            _PctDelta(changePct!),
+            StocksPctDelta(changePct!),
           ],
         ],
       ),
@@ -3167,7 +2734,7 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
           changePct: widget.changePct,
         );
       } else if (orderbookAsync.hasError && !orderbookAsync.hasValue) {
-        content = _Failure(
+        content = StocksFailure(
           title: l.stocksFailOrderbook,
           onRetry: () => ref.invalidate(tossOrderbookProvider(widget.symbol)),
         );
@@ -3182,7 +2749,7 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
           child: const _TradeTapeSkeleton(),
         );
       } else if (tradesAsync.hasError && !tradesAsync.hasValue) {
-        content = _Failure(
+        content = StocksFailure(
           title: l.stocksFailTrades,
           onRetry: () => ref.invalidate(tossTradesProvider(widget.symbol)),
         );
@@ -3249,7 +2816,7 @@ class _TradeTape extends StatelessWidget {
                       child: Text(
                         f.time,
                         style: TextStyle(
-                          fontFeatures: _tnum,
+                          fontFeatures: kStocksTnum,
                           fontSize: 13,
                           color: context.colors.fgNeutralSubtle,
                         ),
@@ -3260,10 +2827,10 @@ class _TradeTape extends StatelessWidget {
                         fmt(f.p),
                         textAlign: TextAlign.right,
                         style: TextStyle(
-                          fontFeatures: _tnum,
+                          fontFeatures: kStocksTnum,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: _roleTrend(context, f.dir.toDouble()),
+                          color: stocksRoleTrend(context, f.dir.toDouble()),
                         ),
                       ),
                     ),
@@ -3272,7 +2839,7 @@ class _TradeTape extends StatelessWidget {
                         krw(f.q),
                         textAlign: TextAlign.right,
                         style: TextStyle(
-                          fontFeatures: _tnum,
+                          fontFeatures: kStocksTnum,
                           fontSize: 13,
                           color: context.colors.fgNeutral,
                         ),

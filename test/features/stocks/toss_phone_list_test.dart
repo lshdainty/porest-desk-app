@@ -7,6 +7,7 @@ import 'package:groo_damda_app/app/theme/theme_data.dart';
 import 'package:groo_damda_app/features/stocks/application/stocks_providers.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/features/stocks/presentation/market_state.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/l10n/generated/app_localizations.dart';
 
