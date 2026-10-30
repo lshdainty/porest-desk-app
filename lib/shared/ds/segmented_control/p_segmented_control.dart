@@ -118,10 +118,26 @@ class PSegmentedControl<T> extends StatelessWidget {
     required this.onChanged,
     required this.items,
     required this.semanticLabel,
-  }) : assert(
+  }) : itemInset = PSpacing.x3,
+       assert(
          items.length >= 2 && items.length <= 4,
          '칸은 2 ~ 4개다 — 5개 이상은 Chip 의 하나 고르기 줄 · Select',
        );
+
+  /// 차트 기간 5칸(1일 · 1주 · 1개월 · 3개월 · 1년) **전용** — 일반 호출은 2 ~ 4칸이다. 폰 콘텐츠 폭 312 에 5칸이 들도록
+  /// 칸 좌우를 12 가 아니라 4(웹 `px-x1`)로 줄인다. 글은 t5 static 이라 글자 배율 200% 에서도 "3개월" 이 꺾이지 않는다.
+  /// 다른 화면에서 5칸을 쓰려면 이 생성자를 쓰지 말고 Chip Tabs · Select 를 쓴다.
+  const PSegmentedControl.chartPeriod({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    required this.items,
+    required this.semanticLabel,
+  }) : itemInset = PSpacing.x1,
+       assert(items.length == 5, '차트 기간 전용 — 5칸');
+
+  /// 칸 글의 좌우 여백 — 기본 12, 차트 기간 5칸은 4.
+  final double itemInset;
 
   /// 고른 값 — 늘 하나를 골라 둔다. [items] 에 없는 값이면 알약을 숨긴다.
   final T value;
@@ -178,6 +194,7 @@ class PSegmentedControl<T> extends StatelessWidget {
                               item: item,
                               selected: item.value == value,
                               groupEnabled: onChanged != null,
+                              inset: itemInset,
                             ),
                           ),
                       ],
@@ -231,8 +248,10 @@ class _SegmentedItem<T> extends StatefulWidget {
     required this.item,
     required this.selected,
     required this.groupEnabled,
+    required this.inset,
   });
 
+  final double inset;
   final PSegmentedItem<T> item;
   final bool selected;
   final bool groupEnabled;
@@ -404,8 +423,8 @@ class _SegmentedItemState<T> extends State<_SegmentedItem<T>>
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: _itemMinHeight),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: PSpacing.x3,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: widget.inset,
                       vertical: PSpacing.x1_5,
                     ),
                     child: Center(

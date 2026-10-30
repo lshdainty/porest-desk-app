@@ -271,7 +271,7 @@ void marketTests() {
     final during = marketStateAt(session, DateTime(2026, 10, 29, 13, 0), l);
     final atEnd = marketStateAt(session, DateTime(2026, 10, 29, 15, 30), l);
     final after = marketStateAt(session, DateTime(2026, 10, 29, 15, 31), l);
-    expect((before.open, before.detail), (false, '개장 09:00'));
+    expect((before.open, before.detail), (false, '개장 오전 9:00'));
     expect(during.open, isTrue);
     expect(during.detail, contains('오후 1:00'));
     expect(atEnd.open, isTrue);

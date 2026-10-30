@@ -981,8 +981,13 @@ class _HoldingsList extends StatelessWidget {
   }
 }
 
-String _qty(double q) =>
-    q == q.roundToDouble() ? '${q.round()}' : q.toStringAsFixed(4);
+String _qty(double q) {
+  if (q != q.roundToDouble()) {
+    final whole = q.truncate();
+    return '${krw(whole)}.${q.toStringAsFixed(4).split('.').last}';
+  }
+  return krw(q.round());
+}
 
 // ---- 관심 그룹 -----------------------------------------------------------------
 
@@ -1488,10 +1493,6 @@ String _warningLabel(AppLocalizations l, String type) => switch (type) {
 
 enum _Tz { kr, us }
 
-/// 'HH:MM:SS' → 'HH:MM'
-String? _hhmm(String? s) =>
-    (s != null && s.length >= 5) ? s.substring(0, 5) : null;
-
 DateTime _nthSundayUtc(int year, int month, int n) {
   var d = DateTime.utc(year, month, 1);
   var count = 0;
@@ -1557,7 +1558,9 @@ int? _minutes(String? hhmm) {
   if (now < start) {
     return (
       open: false,
-      detail: l.stocksMarketOpensAt(_hhmm(session!.startTime)!),
+      detail: l.stocksMarketOpensAt(
+        timeOfDay12(DateTime(2000, 1, 1, start ~/ 60, start % 60)),
+      ),
     );
   }
   return (open: false, detail: l.stocksMarketClosed);
@@ -1899,15 +1902,18 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
               ],
             ),
           ),
-          // 기간 5칸 — Segmented 는 2 ~ 4칸이라 질문(I-13-1-app-result Q1) 전에는 Chip Tabs 로 둔다.
-          PChipTabs<String>(
-            value: _range,
-            onChanged: (v) => setState(() => _range = v),
-            semanticLabel: l.stocksDetailTitle,
-            items: [
-              for (final r in _kRanges)
-                PTab(value: r, label: _rangeLabel(l, r)),
-            ],
+          // 차트 기간 5칸 — 전용 Segmented(칸 좌우 4). 글은 static 16 이라 글자 200% 에서도 안 꺾인다.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpacing.x6),
+            child: PSegmentedControl<String>.chartPeriod(
+              value: _range,
+              onChanged: (v) => setState(() => _range = v),
+              semanticLabel: l.stocksDetailTitle,
+              items: [
+                for (final r in _kRanges)
+                  PSegmentedItem(value: r, label: _rangeLabel(l, r)),
+              ],
+            ),
           ),
         ],
       ),
@@ -2235,10 +2241,10 @@ class _DailyBand extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: PSpacing.x2),
-                Text(
-                  l.stocksTradeSoon,
-                  textAlign: TextAlign.center,
-                  style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+                // 이유 줄 — 웹과 같은 Callout(아이콘 있는 회색 상자). 읽는 도구에는 단추 힌트로도 전한다.
+                PCallout(
+                  description: l.stocksTradeSoon,
+                  icon: LucideIcons.info,
                 ),
               ],
             ),
@@ -2341,7 +2347,7 @@ class TossPortfolioPage extends ConsumerWidget {
               child: PDonutChart(
                 label: l.stocksPortfolioTitle,
                 diameter: 112,
-                centerLabel: l.stocksPortfolioCount(comp.length),
+                centerAmount: l.stocksPortfolioCount(comp.length),
                 slices: [
                   for (var i = 0; i < comp.length; i++)
                     PDonutSlice(
@@ -2586,8 +2592,7 @@ class _OrderBook extends StatelessWidget {
     for (final b in bids) {
       if (b.q > maxQ) maxQ = b.q;
     }
-    String fmt(double p) =>
-        currency == 'USD' ? fmtByCurrency(p, 'USD') : krw(p.round());
+    String fmt(double p) => fmtByCurrency(p, currency == 'USD' ? 'USD' : 'KRW');
 
     Widget qtyBar({
       required int q,
@@ -2723,7 +2728,14 @@ class _OrderBookHead extends StatelessWidget {
             style: style,
           ),
         ),
-        const SizedBox(width: 92),
+        SizedBox(
+          width: 92,
+          child: Text(
+            l.stocksTradePrice,
+            textAlign: TextAlign.center,
+            style: style,
+          ),
+        ),
         Expanded(child: Text(l.stocksAskVolume, style: style)),
       ],
     );
