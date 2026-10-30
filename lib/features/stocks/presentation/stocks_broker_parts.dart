@@ -172,36 +172,57 @@ class StocksInvestorBand extends StatelessWidget {
       );
     } else {
       // 줄 이름 칸은 고정 폭이 아니다 — 낱말 폭(최소 40)까지 넓어지고 낱말 안에서 꺾이지 않는다(영어 "Individual" ·
-      // 큰 글자 한국어 "외국인" 이 한 글자씩 쪼개지던 것). 값이 같은 줄에 못 들어가면 List 의 큰 글자 규칙(list.md
-      // "큰 글자에서 값을 본문 아래로")처럼 값이 이름 아래로 내려가고, 값만으로도 넘치면 값이 줄어든다(이름은 안 줄어든다).
-      Widget labelled(String label, double? v) => LayoutBuilder(
-        builder: (context, box) => Wrap(
-          alignment: WrapAlignment.end,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: PSpacing.x2,
-          children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 40),
-              child: Text(
-                label,
-                maxLines: 1,
-                softWrap: false,
-                textAlign: TextAlign.right,
-                style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
-              ),
-            ),
-            ConstrainedBox(
+      // 큰 글자 한국어 "외국인" 이 한 글자씩 쪼개지던 것). 묶음의 세 줄 중 **하나라도** 이름 + 값이 한 줄에 못 들어가면
+      // **세 줄 모두** 이름 아래로 값을 내린다(List "큰 글자에서 값을 본문 아래로" — 한 묶음에 두 모양이 섞이지 않게).
+      // 줄 폭 상한을 두지 않는다(웹이 60cqw 상한을 해제한 것과 같다). 값만으로도 넘치면 값이 줄어들고 이름은 안 줄어든다.
+      Widget labelled(
+        String label,
+        double? v, {
+        required bool stacked,
+        required double labelWidth,
+      }) {
+        final name = ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 40),
+          child: Text(
+            label,
+            maxLines: 1,
+            softWrap: false,
+            textAlign: stacked ? TextAlign.left : TextAlign.right,
+            style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+          ),
+        );
+        final value = Builder(
+          builder: (context) => LayoutBuilder(
+            builder: (context, box) => ConstrainedBox(
               constraints: BoxConstraints(maxWidth: box.maxWidth),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
+                // 값은 왼쪽에서 시작한다(웹과 같다) — 이름 칸은 묶음 안 가장 긴 이름 폭으로 맞춰 오른쪽 정렬
+                alignment: Alignment.centerLeft,
                 child: _investorValue(context, v),
               ),
             ),
-          ],
-        ),
-      );
-      final w = MediaQuery.sizeOf(context).width;
+          ),
+        );
+        return stacked
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [name, value],
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: labelWidth,
+                    child: Align(alignment: Alignment.centerRight, child: name),
+                  ),
+                  const SizedBox(width: PSpacing.x2),
+                  Flexible(child: value),
+                ],
+              );
+      }
+
       body = PList(
         semanticLabel: l.stocksInvestorTitle,
         children: [
@@ -209,19 +230,46 @@ class StocksInvestorBand extends StatelessWidget {
             PListItem(
               title: _dayLabel(l, d.date),
               suffix: PListValue(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: w * 0.6),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      labelled(l.stocksInvestorIndividual, d.individual),
-                      const SizedBox(height: 2),
-                      labelled(l.stocksInvestorForeigner, d.foreigner),
-                      const SizedBox(height: 2),
-                      labelled(l.stocksInvestorInstitution, d.institution),
-                    ],
-                  ),
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final labels = [
+                      l.stocksInvestorIndividual,
+                      l.stocksInvestorForeigner,
+                      l.stocksInvestorInstitution,
+                    ];
+                    final values = [d.individual, d.foreigner, d.institution];
+                    final stacked =
+                        box.maxWidth.isFinite &&
+                        investorLinesNeedStacking(
+                          context,
+                          labels,
+                          values,
+                          box.maxWidth,
+                        );
+                    final labelWidth = [
+                      for (final t in labels)
+                        investorTextWidth(
+                          context,
+                          t,
+                          PTypography.t3,
+                        ).clamp(40.0, double.infinity),
+                    ].reduce((a, b) => a > b ? a : b);
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var i = 0; i < 3; i++) ...[
+                          if (i > 0) const SizedBox(height: 2),
+                          labelled(
+                            labels[i],
+                            values[i],
+                            stacked: stacked,
+                            labelWidth: labelWidth,
+                          ),
+                        ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -409,4 +457,52 @@ String fmtCapUsd(double v) {
   if (v < 10000) return fmtByCurrency(v, 'USD');
   final body = formatChartAxis(v);
   return localeIsEn() ? '\$$body' : '$body 달러';
+}
+
+/// 글자 배율을 반영한 한 줄 글 폭.
+double investorTextWidth(BuildContext context, String text, TextStyle style) {
+  final tp = TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  return tp.width;
+}
+
+/// 투자자별 세 줄 중 하나라도 이름 + 간격 + 값이 [maxWidth] 한 줄에 안 들어가는가(글자 배율을 반영해 잰다).
+/// 값은 화살표 자리(글자 크기 + 4)를 더해 넉넉히 잡는다. 하나라도 넘치면 세 줄을 모두 쌓는다.
+@visibleForTesting
+bool investorLinesNeedStacking(
+  BuildContext context,
+  List<String> labels,
+  List<double?> values,
+  double maxWidth,
+) {
+  final scaler = MediaQuery.textScalerOf(context);
+  double width(String text, TextStyle style) {
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    return tp.width;
+  }
+
+  final labelStyle = PTypography.t3;
+  final valueStyle = PTypography.t3.copyWith(fontWeight: FontWeight.w500);
+  final arrow = scaler.scale(13) + 4;
+  for (var i = 0; i < labels.length; i++) {
+    final v = values[i];
+    final text = v == null ? '—' : krw(v.round().abs());
+    final hasArrow = v != null && v.round() != 0;
+    final line =
+        width(labels[i], labelStyle).clamp(40.0, double.infinity) +
+        PSpacing.x2 +
+        width(text, valueStyle) +
+        (hasArrow ? arrow : 0);
+    if (line > maxWidth) return true;
+  }
+  return false;
 }

@@ -355,6 +355,71 @@ void main() {
       },
     );
 
+    // 같은 묶음의 세 줄은 모두 한 줄이거나 모두 이름 아래 — 두 모양이 섞이지 않는다(웹 60cqw 상한 해제와 같다)
+    Future<List<(Rect, Rect)>> pairsAt(
+      WidgetTester tester,
+      double width,
+      List<String> labels,
+      List<String> values,
+    ) async {
+      await _pump(
+        tester,
+        (_) => StocksInvestorBand(
+          days: const [
+            InvestorTradingDay(
+              date: '2026-10-29',
+              individual: 12345678,
+              foreigner: -87654321,
+              institution: 98765432,
+            ),
+          ],
+          loading: false,
+          failed: false,
+          onRetry: () {},
+        ),
+        width: width,
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      return [
+        for (var i = 0; i < 3; i++)
+          (
+            tester.getRect(_t(labels[i])),
+            tester.getRect(find.textContaining(values[i])),
+          ),
+      ];
+    }
+
+    testWidgets('200% 360 에서 8자리 값도 세 줄 모두 "이름 값" 한 줄이다', (tester) async {
+      final r = await pairsAt(
+        tester,
+        360,
+        ['개인', '외국인', '기관'],
+        ['12,345,678', '87,654,321', '98,765,432'],
+      );
+      for (final (label, value) in r) {
+        expect(
+          (value.center.dy - label.center.dy).abs(),
+          lessThan(10),
+          reason: '이름과 값이 한 줄이 아니다 — 60% 폭 상한이 남아 있다',
+        );
+      }
+    });
+
+    testWidgets('칸이 모자라면 세 줄 모두 값이 이름 아래로 — 한 묶음에 두 모양이 섞이지 않는다', (
+      tester,
+    ) async {
+      final r = await pairsAt(
+        tester,
+        240,
+        ['개인', '외국인', '기관'],
+        ['12,345,678', '87,654,321', '98,765,432'],
+      );
+      for (final (label, value) in r) {
+        expect(value.top, greaterThanOrEqualTo(label.bottom - 1));
+      }
+    });
+
     testWidgets('빈 목록은 안내 줄 · 실패는 실패 한 벌 · 값이 있으면 실패해도 값을 남긴다', (tester) async {
       await _pump(
         tester,
