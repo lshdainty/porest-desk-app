@@ -69,6 +69,17 @@ String timeOfDay12(DateTime d) {
   return '${d.hour < 12 ? '오전' : '오후'} $h12:$mm';
 }
 
+/// 연도가 붙은 전체 날짜 — ko "2010년 1월 4일" / en "Jan 4, 2010"(International v106). 상장일처럼 연도가 뜻인 값에 쓴다.
+String fullDate(DateTime d) => localeIsEn()
+    ? DateFormat.yMMMd('en').format(d)
+    : '${d.year}년 ${d.month}월 ${d.day}일';
+
+/// 서버 글("2010-01-04" · ISO)을 [fullDate] 로. 읽을 수 없으면 받은 글 그대로.
+String fullDateOf(String raw) {
+  final d = DateTime.tryParse(raw);
+  return d == null ? raw : fullDate(d);
+}
+
 /// 'YYYY-MM-DD' 파싱 헬퍼.
 DateTime parseIsoDate(String s) => DateTime.parse(s);
 

@@ -1908,7 +1908,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
 
     final marketText = master != null
         ? stockMarketLabel(l, master.marketCode)
-        : (info?.market ?? '');
+        : stockMarketLabel(l, info?.market ?? '');
     final typeText = info?.isEtf == true
         ? 'ETF'
         : stockSecurityTypeLabel(l, master?.securityType ?? 'STOCK');
@@ -2581,7 +2581,7 @@ class _StockInfoCard extends ConsumerWidget {
       (
         l.stocksMarket,
         info?.market.isNotEmpty == true
-            ? info!.market
+            ? stockMarketLabel(l, info!.market)
             : (isUs ? l.stocksMarketUs : l.stocksMarketKr),
         null,
       ),
@@ -2609,7 +2609,7 @@ class _StockInfoCard extends ConsumerWidget {
           context.colors.fgInformative,
         ),
       if (listDate != null && listDate.isNotEmpty)
-        (l.stocksListingDate, listDate, null),
+        (l.stocksListingDate, fullDateOf(listDate), null),
       if (shares > 0) (l.stocksSharesOutstanding, _fmtShares(shares), null),
       (
         // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.

@@ -18,6 +18,8 @@ import 'package:groo_damda_app/features/stocks/data/stock_master_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/stocks_repository.dart';
 import 'package:groo_damda_app/features/stocks/data/toss_dto.dart';
 import 'package:groo_damda_app/features/stocks/data/watch_dto.dart';
+import 'package:groo_damda_app/core/format/date.dart';
+import 'package:groo_damda_app/features/stocks/presentation/stock_market_label.dart';
 import 'package:groo_damda_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:groo_damda_app/features/stocks/presentation/toss_stocks_view.dart';
 import 'package:groo_damda_app/features/subscription/application/subscription_providers.dart';
@@ -532,6 +534,72 @@ void main() {
       await _settle(tester);
       expect(_t('시장 정보를 불러오지 못했어요'), findsOneWidget);
     });
+  });
+
+  // ── 거래소 이름 · 날짜 표기 ───────────────────────────────────────────────
+  group('거래소 이름은 사용자 말로 (코드 그대로 노출 금지)', () {
+    late AppLocalizationsKo l;
+    setUp(() => l = AppLocalizationsKo());
+    test('한 표 — 국내 · 미국 · 그 밖', () {
+      const table = {
+        'KOSPI': '코스피',
+        'KOSDAQ': '코스닥',
+        'KONEX': '코넥스',
+        'NAS': '나스닥',
+        'NASDAQ': '나스닥',
+        'NYS': '뉴욕',
+        'NYSE': '뉴욕',
+        'AMS': '아멕스',
+        'AMEX': '아멕스',
+        'TSE': '도쿄',
+        'HKS': '홍콩',
+      };
+      table.forEach((code, name) => expect(stockMarketLabel(l, code), name));
+    });
+    test('모르는 코드만 원문', () {
+      expect(stockMarketLabel(l, 'ZZZ'), 'ZZZ');
+      expect(stockMarketLabel(l, ''), '');
+    });
+  });
+
+  group('날짜 표기 — 연도가 뜻인 값은 "2010년 1월 4일"', () {
+    test('YYYY-MM-DD · ISO', () {
+      expect(fullDateOf('2010-01-04'), '2010년 1월 4일');
+      expect(fullDateOf('2026-12-31T00:00:00'), '2026년 12월 31일');
+    });
+    test('읽을 수 없으면 받은 글 그대로', () {
+      expect(fullDateOf('없음'), '없음');
+      expect(fullDateOf(''), '');
+    });
+  });
+
+  testWidgets('미국 종목 상세 — 머리 · 기본 정보에 NAS 가 아니라 나스닥, 상장일은 한국어 날짜', (
+    tester,
+  ) async {
+    await _tall(tester);
+    await tester.pumpWidget(
+      _app(
+        const TossStockDetailPage(symbol: 'AAPL'),
+        _base(
+          info: () async => TossStockInfo.fromJson(const {
+            'symbol': 'AAPL',
+            'name': '애플',
+            'market': 'NAS',
+            'securityType': 'STOCK',
+            'status': 'NORMAL',
+            'currency': 'USD',
+            'listDate': '2010-01-04',
+            'sharesOutstanding': '1000000',
+          }),
+        ),
+      ),
+    );
+    await _settle(tester);
+    expect(_tc('AAPL · 나스닥 · 주식'), findsOneWidget);
+    expect(_tc('NAS'), findsNothing);
+    expect(_t('나스닥'), findsOneWidget, reason: '기본 정보 시장 칸');
+    expect(_t('2010년 1월 4일'), findsOneWidget);
+    expect(_tc('2010-01-04'), findsNothing);
   });
 
   // ── M17: 연결 0 안내 (Q4 안 A) ───────────────────────────────────────────
