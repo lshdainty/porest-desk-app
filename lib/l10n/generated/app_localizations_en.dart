@@ -379,34 +379,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String assetTabAccountsSavings(int count) {
-    return 'Accounts $count';
-  }
-
-  @override
-  String assetTabCards(int count) {
-    return 'Cards $count';
-  }
-
-  @override
-  String assetTabInvest(int count) {
-    return 'Investments $count';
-  }
-
-  @override
-  String get assetTotalPrefix => 'Total';
-
-  @override
-  String assetAddCategory(String name) {
-    return 'Add $name';
-  }
-
-  @override
-  String assetCategoryEmpty(String name) {
-    return 'No $name registered yet';
-  }
-
-  @override
   String get assetIncludeInTotal => 'Include in total assets';
 
   @override

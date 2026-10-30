@@ -812,42 +812,6 @@ abstract class AppLocalizations {
   /// **'보유 {count}종목'**
   String assetHoldingsCount(int count);
 
-  /// No description provided for @assetTabAccountsSavings.
-  ///
-  /// In ko, this message translates to:
-  /// **'계좌·예금 {count}'**
-  String assetTabAccountsSavings(int count);
-
-  /// No description provided for @assetTabCards.
-  ///
-  /// In ko, this message translates to:
-  /// **'카드 {count}'**
-  String assetTabCards(int count);
-
-  /// No description provided for @assetTabInvest.
-  ///
-  /// In ko, this message translates to:
-  /// **'투자 {count}'**
-  String assetTabInvest(int count);
-
-  /// No description provided for @assetTotalPrefix.
-  ///
-  /// In ko, this message translates to:
-  /// **'총'**
-  String get assetTotalPrefix;
-
-  /// No description provided for @assetAddCategory.
-  ///
-  /// In ko, this message translates to:
-  /// **'{name} 추가'**
-  String assetAddCategory(String name);
-
-  /// No description provided for @assetCategoryEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 {name}가 없어요'**
-  String assetCategoryEmpty(String name);
-
   /// No description provided for @assetIncludeInTotal.
   ///
   /// In ko, this message translates to:

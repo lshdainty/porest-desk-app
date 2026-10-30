@@ -374,34 +374,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String assetTabAccountsSavings(int count) {
-    return '계좌·예금 $count';
-  }
-
-  @override
-  String assetTabCards(int count) {
-    return '카드 $count';
-  }
-
-  @override
-  String assetTabInvest(int count) {
-    return '투자 $count';
-  }
-
-  @override
-  String get assetTotalPrefix => '총';
-
-  @override
-  String assetAddCategory(String name) {
-    return '$name 추가';
-  }
-
-  @override
-  String assetCategoryEmpty(String name) {
-    return '등록된 $name가 없어요';
-  }
-
-  @override
   String get assetIncludeInTotal => '전체 자산 합계에 포함';
 
   @override

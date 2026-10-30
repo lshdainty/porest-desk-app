@@ -145,47 +145,6 @@
       }
     }
   },
-  "assetTabAccountsSavings": "계좌·예금 {count}",
-  "@assetTabAccountsSavings": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTabCards": "카드 {count}",
-  "@assetTabCards": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTabInvest": "투자 {count}",
-  "@assetTabInvest": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTotalPrefix": "총",
-  "assetAddCategory": "{name} 추가",
-  "@assetAddCategory": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "assetCategoryEmpty": "등록된 {name}가 없어요",
-  "@assetCategoryEmpty": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "assetIncludeInTotal": "전체 자산 합계에 포함",
   "assetIncludeInTotalDesc": "순자산 · 총자산 계산에 반영돼요.",
   "assetTrendLoadError": "추이 데이터를 불러오지 못했어요",

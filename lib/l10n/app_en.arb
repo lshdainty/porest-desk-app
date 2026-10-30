@@ -141,47 +141,6 @@
       }
     }
   },
-  "assetTabAccountsSavings": "Accounts {count}",
-  "@assetTabAccountsSavings": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTabCards": "Cards {count}",
-  "@assetTabCards": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTabInvest": "Investments {count}",
-  "@assetTabInvest": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "assetTotalPrefix": "Total",
-  "assetAddCategory": "Add {name}",
-  "@assetAddCategory": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "assetCategoryEmpty": "No {name} registered yet",
-  "@assetCategoryEmpty": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "assetIncludeInTotal": "Include in total assets",
   "assetIncludeInTotalDesc": "Counts toward net worth and total assets.",
   "assetTrendLoadError": "Couldn't load trend data",
