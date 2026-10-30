@@ -171,21 +171,35 @@ class StocksInvestorBand extends StatelessWidget {
         ),
       );
     } else {
-      Widget labelled(String label, double? v) => Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SizedBox(
-            width: 40,
-            child: Text(
-              label,
-              textAlign: TextAlign.right,
-              style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+      // 줄 이름 칸은 고정 폭이 아니다 — 낱말 폭(최소 40)까지 넓어지고 낱말 안에서 꺾이지 않는다(영어 "Individual" ·
+      // 큰 글자 한국어 "외국인" 이 한 글자씩 쪼개지던 것). 값이 같은 줄에 못 들어가면 List 의 큰 글자 규칙(list.md
+      // "큰 글자에서 값을 본문 아래로")처럼 값이 이름 아래로 내려가고, 값만으로도 넘치면 값이 줄어든다(이름은 안 줄어든다).
+      Widget labelled(String label, double? v) => LayoutBuilder(
+        builder: (context, box) => Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: PSpacing.x2,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 40),
+              child: Text(
+                label,
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.right,
+                style: PTypography.t3.copyWith(color: c.fgNeutralSubtle),
+              ),
             ),
-          ),
-          const SizedBox(width: PSpacing.x2),
-          Flexible(child: _investorValue(context, v)),
-        ],
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: box.maxWidth),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: _investorValue(context, v),
+              ),
+            ),
+          ],
+        ),
       );
       final w = MediaQuery.sizeOf(context).width;
       body = PList(

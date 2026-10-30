@@ -275,6 +275,86 @@ void main() {
       expect(unit.right <= 320, isTrue);
     });
 
+    testWidgets('D3 · D2 줄 이름이 낱말 단위로 끝까지 보인다 — 200% 에서 한 글자씩 쪼개지지 않는다', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        (_) => StocksInvestorBand(
+          days: [
+            const InvestorTradingDay(
+              date: '2026-10-29',
+              individual: 12345678,
+              foreigner: -12345678,
+              institution: 1234567800,
+            ),
+          ],
+          loading: false,
+          failed: false,
+          onRetry: () {},
+        ),
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      for (final label in ['개인', '외국인', '기관']) {
+        final r = tester.getRect(_t(label));
+        // 한 글자씩 쪼개지면 높이가 글자 수만큼 커진다 — 한 줄 높이(글자 26 × 줄 높이)보다 작아야 한다
+        expect(r.height, lessThan(48), reason: '$label 이 여러 줄로 꺾였다');
+        expect(r.width, greaterThanOrEqualTo(40));
+      }
+    });
+
+    testWidgets(
+      'D2 영어 줄 이름("Individual" · "Foreign" · "Institution")이 낱말 중간에서 꺾이지 않는다',
+      (tester) async {
+        tester.view.physicalSize = const Size(360 * 3, 2400 * 3);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: GrooTheme.light(),
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: const TextScaler.linear(1.3)),
+              child: child!,
+            ),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: StocksInvestorBand(
+                  days: const [
+                    InvestorTradingDay(
+                      date: '2026-10-29',
+                      individual: 12345678,
+                      foreigner: 4321000,
+                      institution: -987654,
+                    ),
+                  ],
+                  loading: false,
+                  failed: false,
+                  onRetry: () {},
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        for (final label in ['Individual', 'Foreign', 'Institution']) {
+          final f = find.text(label);
+          expect(f, findsOneWidget, reason: '$label 이 한 낱말로 남아 있어야 한다');
+          expect(
+            tester.getRect(f).height,
+            lessThan(30),
+            reason: '$label 이 낱말 중간에서 꺾였다',
+          );
+        }
+      },
+    );
+
     testWidgets('빈 목록은 안내 줄 · 실패는 실패 한 벌 · 값이 있으면 실패해도 값을 남긴다', (tester) async {
       await _pump(
         tester,
