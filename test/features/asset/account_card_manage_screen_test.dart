@@ -284,23 +284,23 @@ void main() {
     );
   });
 
-  // 외화 투자 자산 — 라이브 평가액(원화)은 자산 통화 단위로 되돌려 넣어야 화면 환산이 두 번 곱하지 않는다.
-  test('외화 투자 자산 라이브 치환 — 이중 환산 없음(USD 환율 1,300 · 평가 10,000,000원)', () {
+  // 외화 투자 자산의 환산은 main 과 같다(평가액을 balance 에 그대로 — 외화 고침은 서버 → 웹 · 앱 후속 PR 한 번에).
+  // 관리 화면과 자산 화면이 같은 식을 쓰는지만 잠근다.
+  test('외화 투자 자산 라이브 치환 — 자산 화면과 같은 식(평가액을 balance 에 그대로)', () {
     const usdInv = Asset(
       rowId: 8,
       assetName: '해외 증권',
       assetType: 'INVESTMENT',
       balance: 5000,
+      cashBalance: 100,
       currency: 'USD',
       exchangeRate: 1300,
       isIncludedInTotal: 'Y',
     );
     final live = applyLiveValuation([usdInv], {8: 10000000});
-    // 7,692 달러 → 화면 환산 후 평가액 근처(13,000,000,000원이 아니다)
-    expect(live.single.balance, 7692);
-    expect(assetSumIncluded(live), closeTo(10000000, 650));
-    // 보정 delta 는 원화 차이: (7,692 − 5,000) × 1,300
-    expect(liveValuationDelta([usdInv], {8: 10000000}), 3499600);
+    expect(live.single.balance, 10000100);
+    expect(live.single.holdingBalance, 10000000);
+    expect(liveValuationDelta([usdInv], {8: 10000000}), 10000100 - 5000);
   });
 
   testWidgets('투자 줄에 등락(▲ ▼)이 없다 — 금액만(웹 · 그림과 같다)', (tester) async {
