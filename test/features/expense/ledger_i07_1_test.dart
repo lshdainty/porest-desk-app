@@ -695,6 +695,7 @@ void main() {
     await tester.tap(find.bySemanticsLabel('월 달력'));
     await tester.pumpAndSettle();
     expect(find.textContaining('-1', findRichText: true), findsNothing);
+    expect(find.textContaining('−', findRichText: true), findsWidgets);
     expect(_text('−12,000', contains: true), findsWidgets);
   });
 

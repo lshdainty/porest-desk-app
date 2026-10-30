@@ -267,6 +267,11 @@ void main() {
     expect(fieldWithLabel(l.assetOverdraftUsedLabel), findsOneWidget);
     expect(textOf(tester, l.assetOverdraftUsedLabel), '50,000');
     expect(findPlain('-50,000'), findsNothing);
+    expect(findPlain('−50,000'), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
   });
 
   testWidgets('대출 수정도 남은 빚을 양수로 보여 준다', (tester) async {

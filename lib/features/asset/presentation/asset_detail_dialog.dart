@@ -2704,7 +2704,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       Text(
                         widget.masked
                             ? '••••••'
-                            : '-${krwSigned(st.alreadyPaidAmount!, false, unit: true)}',
+                            : '$kMinus${krwSigned(st.alreadyPaidAmount!, false, unit: true)}',
                         style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                       ),
                     ],

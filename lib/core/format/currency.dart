@@ -75,7 +75,9 @@ String formatOriginalAmount(double amount, String code, String locale) {
     locale: locale,
     decimalDigits: digits,
   );
-  return '${currencySymbol(code)}${f.format(amount)}';
+  // 음수는 기호 앞에 U+2212 — intl 은 숫자 앞에 ASCII '-' 를 붙여 `$-5.50` 이 된다.
+  final body = '${currencySymbol(code)}${f.format(amount.abs())}';
+  return amount < 0 ? '$kMinus$body' : body;
 }
 
 /// 자산 잔액의 원화 환산 — 화면에서 자산을 다시 더하는 곳은 이 함수를 거친다.

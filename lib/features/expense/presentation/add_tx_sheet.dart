@@ -893,7 +893,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   l.expSplitDiff(
                     krw(amount),
                     krw(_splitSum),
-                    '${diff > 0 ? '+' : '-'}${krw(diff.abs())}',
+                    '${diff > 0 ? '+' : kMinus}${krw(diff.abs())}',
                   ),
                   style: PTypo.caption.copyWith(
                     color: t.fgSecondary,

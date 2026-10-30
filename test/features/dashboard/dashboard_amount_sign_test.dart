@@ -88,6 +88,10 @@ void main() {
     // 옛 코드는 `sign: '-'` 를 무조건 붙여 `-0` 을 냈다.
     expect(findPlain('-0원'), findsNothing);
     expect(findPlain('−0원'), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
     // 총자산·총부채·지출 모두 부호 없는 '0'.
     expect(findPlain('0원'), findsWidgets);
   });
@@ -97,6 +101,12 @@ void main() {
 
     expect(findPlain('−356,800원'), findsOneWidget);
     expect(findPlain('-356,800원'), findsNothing);
+    // 없는 것만 보지 않는다 — 부호는 U+2212 로 있고, 숫자 앞 ASCII 하이픈은 어디에도 없다.
+    expect(find.textContaining('−', findRichText: true), findsWidgets);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
   });
 
   testWidgets('선결제로 총 부채가 음수면 부호를 겹치지 않고 `+` 로 뒤집는다', (tester) async {
@@ -106,6 +116,10 @@ void main() {
     expect(findPlain('+356,800원'), findsOneWidget);
     // 옛 코드는 부호 글자와 값의 부호가 겹쳐 `--356,800` 을 냈다.
     expect(findPlain('--356,800원'), findsNothing);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
     expect(findPlain('−-356,800원'), findsNothing);
   });
 
@@ -114,6 +128,11 @@ void main() {
 
     expect(findPlain('−123,456원'), findsOneWidget);
     expect(findPlain('-123,456원'), findsNothing);
+    expect(find.textContaining('−', findRichText: true), findsWidgets);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
     // 수입은 웹과 같이 늘 `+`.
     expect(findPlain('+2,000,000원'), findsOneWidget);
   });
@@ -137,6 +156,11 @@ void main() {
     // (QA #22 는 한 카드에서 `−`/`-` 가 섞여 정렬이 어긋난 걸 잡았다).
     expect(findPlain('−7,560원'), findsNWidgets(2));
     expect(findPlain('-7,560원'), findsNothing);
+    expect(find.textContaining('−', findRichText: true), findsWidgets);
+    expect(
+      find.textContaining(RegExp(r'-\d'), findRichText: true),
+      findsNothing,
+    );
   });
 
   // 환불한 거래·카드 이월은 행으로는 보이되(환불은 취소선) 오늘 쓴 돈 합계에는 안 든다

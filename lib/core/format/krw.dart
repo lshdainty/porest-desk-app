@@ -8,9 +8,12 @@ import 'package:groo_damda_app/core/format/format_locale.dart';
 String krw(int n, {bool sign = false, bool abs = false}) {
   final v = abs ? n.abs() : n;
   // 천단위 콤마 그룹핑은 ko/en 동일('10,000') → ko 출력 회귀 0. locale 만 현재값으로.
+  // 음수 부호는 intl 의 ASCII '-' 가 아니라 U+2212 다(chart.md "빼기는 U+2212").
+  // 절댓값을 포맷한 뒤 앞에 붙인다. 호출부가 abs/sign 으로 직접 붙이는 자리와 같은 모양이다.
   final formatted = NumberFormat.decimalPattern(
     localeIsEn() ? 'en' : 'ko_KR',
-  ).format(v);
+  ).format(v.abs());
+  if (v < 0) return '$kMinus$formatted';
   if (sign && n > 0) return '+$formatted';
   return formatted;
 }
@@ -43,7 +46,10 @@ String krwSigned(
 }) {
   if (masked) return mask;
   // 통화 단위: ko '원' 접미 / en '₩' 접두 (부호는 항상 최선두). unit=false 면 숫자만.
-  if (unit && localeIsEn()) return '$sign₩${krw(n)}';
+  // 음수면 U+2212 도 ₩ 앞에 온다 — `−₩1,000` (웹 money() en 과 같다).
+  if (unit && localeIsEn()) {
+    return n < 0 ? '$sign$kMinus₩${krw(n.abs())}' : '$sign₩${krw(n)}';
+  }
   return '$sign${krw(n)}${unit ? '원' : ''}';
 }
 
@@ -105,8 +111,12 @@ String plusOf(int n) => minusOf(-n);
 ///
 /// 음수 부호는 [kMinus](U+2212). en 로케일은 Intl compact 그대로 둔다.
 String formatChartAxis(double v) {
-  // en: 로케일 compact 축약 (120M · 52K · -5.2M). intl 내장 en 데이터.
-  if (localeIsEn()) return NumberFormat.compact(locale: 'en').format(v);
+  // en: 로케일 compact 축약 (120M · 52K · −5.2M). intl 내장 en 데이터.
+  // 음수 부호는 ko 와 같이 U+2212 — intl 은 ASCII '-' 를 낸다.
+  if (localeIsEn()) {
+    final body = NumberFormat.compact(locale: 'en').format(v.abs());
+    return v < 0 ? '$kMinus$body' : body;
+  }
 
   const units = ['', '만', '억', '조'];
   var scaled = v.abs();

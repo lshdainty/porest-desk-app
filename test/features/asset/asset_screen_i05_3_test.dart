@@ -269,6 +269,11 @@ void main() {
       expect(t.style?.fontWeight, FontWeight.w700);
       expect(find.text('—'), findsNothing);
       expect(find.textContaining('-1'), findsNothing, reason: '하이픈 부호 없음');
+      expect(
+        find.textContaining('−1', findRichText: true),
+        findsWidgets,
+        reason: 'U+2212 부호가 있다',
+      );
     });
 
     testWidgets('불러오는 중은 Skeleton — "—" 가 아니다', (tester) async {
