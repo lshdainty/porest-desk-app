@@ -405,6 +405,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
           title: l.categoryParent,
           closeLabel: l.actionClose,
           flushBody: true,
+          scrollFog: true,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

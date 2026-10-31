@@ -141,6 +141,7 @@ class _MoveTxFormState extends ConsumerState<_MoveTxForm> {
           title: l.categoryMoveTxTarget,
           closeLabel: l.actionClose,
           flushBody: true,
+          scrollFog: true,
           body: options.isEmpty
               ? Padding(
                   padding: const EdgeInsets.symmetric(

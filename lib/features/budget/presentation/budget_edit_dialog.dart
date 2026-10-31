@@ -416,6 +416,7 @@ class _CategoryPickSheet extends ConsumerWidget {
       title: l.expCategory,
       closeLabel: l.actionClose,
       flushBody: true,
+      scrollFog: true,
       body: body,
     );
   }
