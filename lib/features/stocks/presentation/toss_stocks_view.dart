@@ -1226,7 +1226,7 @@ class _TossStockDetailPageState extends ConsumerState<TossStockDetailPage> {
                   symbol: symbol,
                   isUs: isUs,
                   range: _range,
-                  height: 168,
+                  height: kStockChartWebViewHeight,
                   broker: 'toss',
                 ),
                 const SizedBox(height: PSpacing.x3),
